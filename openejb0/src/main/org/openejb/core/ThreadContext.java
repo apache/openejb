@@ -100,7 +100,8 @@ public class ThreadContext implements Cloneable {
 
         if ( className !=null ) {
             try {
-                implClass = Class.forName(className);
+                ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+                implClass = Class.forName(className, true, cl);
             } catch ( Exception e ) {
                 System.out.println("Can not load ThreadContext class. org.openejb.core.threadcontext_class = "+className);
                 e.printStackTrace();

@@ -82,7 +82,8 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
     public void setJdbcDriver(String driver) throws javax.resource.spi.ResourceAdapterInternalException{
         jdbcDriver = driver;
         try{
-        Class.forName(jdbcDriver);
+            ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+            Class.forName( jdbcDriver, true, cl);
         }catch(ClassNotFoundException cnf){
             //BUG: If this situtuation occurs, only the words:
             // java.lang.reflect.InvocationTargetException: javax.resource.spi.ResourceAdapterInternalException

@@ -149,7 +149,8 @@ public class Lookup extends Command {
                 eClass = IvmContext.class;
             } else {
                 try{
-                    eClass = Class.forName(entry.getClassName());
+                    ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+                    eClass = Class.forName(entry.getClassName(), true, cl);
                 } catch (Throwable t){
                     eClass = java.lang.Object.class;
                 }

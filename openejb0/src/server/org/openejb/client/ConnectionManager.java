@@ -89,7 +89,8 @@ public class ConnectionManager {
         ConnectionFactory factory = null;
         
         try {
-            factoryClass = Class.forName(factoryName);
+            ClassLoader cl = getContextClassLoader();
+            factoryClass = Class.forName(factoryName, true, cl);
         } catch ( Exception e ) {
             throw new IOException("No ConnectionFactory Can be installed. Unable to load the class "+factoryName);
         }
@@ -110,6 +111,16 @@ public class ConnectionManager {
         
         ConnectionManager.factory = factory;
         ConnectionManager.factoryName = factoryName;
+    }
+    
+    public static ClassLoader getContextClassLoader() {
+        return (ClassLoader) java.security.AccessController.doPrivileged(
+            new java.security.PrivilegedAction() {
+                public Object run() {
+                    return Thread.currentThread().getContextClassLoader();
+                }
+            }
+        );
     }
 
 }

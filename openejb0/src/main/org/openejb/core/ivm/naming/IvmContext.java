@@ -202,7 +202,8 @@ public class IvmContext implements Context, java.io.Serializable{
                 if(className.equals("org.openejb.core.ivm.naming.java.javaURLContextFactory"))
                     continue;
                 try {
-                    Class factoryClass = Class.forName(className);
+                    ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+                    Class factoryClass = Class.forName(className, true, cl);
                     ObjectFactory factoryInstance = (ObjectFactory)factoryClass.newInstance();
                     factories.add(factoryInstance);
                 }catch (ClassNotFoundException cnfe){
