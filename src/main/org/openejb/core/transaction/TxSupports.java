@@ -43,6 +43,10 @@ public class TxSupports extends TransactionPolicy {
         policyType = Supports;
     }
     
+    public String policyToString() {
+        return "TX_Supports: ";
+    }
+    
     public void beforeInvoke(EnterpriseBean instance, TransactionContext context) throws org.openejb.SystemException, org.openejb.ApplicationException{
         
         try {
@@ -116,14 +120,15 @@ public class TxSupports extends TransactionPolicy {
      */
     public void handleSystemException( Throwable sysException, EnterpriseBean instance, TransactionContext context) throws org.openejb.ApplicationException, org.openejb.SystemException{
         
-        boolean runningInClientTransaction = ( context.clientTx != null );
+        
+        boolean runningInTransaction = ( context.currentTx != null );
 
-        if (runningInClientTransaction) {
+        if (runningInTransaction) {
             /* [1] Log the system exception or error *********/
             logSystemException( sysException );
             
             /* [2] Mark the transaction for rollback. ********/
-            markTxRollbackOnly( context.clientTx );
+            markTxRollbackOnly( context.currentTx );
             
             /* [3] Discard instance. *************************/
             discardBeanInstance(instance, context.callContext);

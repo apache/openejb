@@ -43,6 +43,11 @@ public class TxNotSupported extends TransactionPolicy {
     public TxNotSupported(){
         policyType = NotSupported;
     }
+    
+    public String policyToString() {
+        return "TX_NotSupported: ";
+    }
+
     public void beforeInvoke(EnterpriseBean instance, TransactionContext context) throws org.openejb.SystemException, org.openejb.ApplicationException{
         
         try {

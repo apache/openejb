@@ -38,6 +38,10 @@ public class TxNever extends TransactionPolicy {
     public TxNever(){
         policyType = Never;
     }
+    
+    public String policyToString() {
+        return "TX_Never: ";
+    }
 
     public void beforeInvoke(EnterpriseBean instance, TransactionContext context) throws org.openejb.SystemException, org.openejb.ApplicationException{
         
@@ -49,6 +53,7 @@ public class TxNever extends TransactionPolicy {
             }
         
         } catch ( javax.transaction.SystemException se ) {
+            logger.error("Exception during getTransaction()", se);
             throw new org.openejb.SystemException(se);
         }
     }
