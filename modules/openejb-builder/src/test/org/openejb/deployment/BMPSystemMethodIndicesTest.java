@@ -48,12 +48,18 @@
 package org.openejb.deployment;
 
 import java.util.Map;
+import java.util.Set;
+import javax.ejb.EnterpriseBean;
 import javax.ejb.EntityContext;
+import javax.ejb.TimerService;
 
 import junit.framework.TestCase;
+import org.openejb.EJBInstanceContext;
+import org.openejb.EJBOperation;
 import org.openejb.deployment.entity.MockBMPEJB;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
+import org.openejb.proxy.EJBProxyFactory;
 
 /**
  *
@@ -69,11 +75,12 @@ public class BMPSystemMethodIndicesTest extends TestCase {
         Map vopMap = builder.buildVopMap(MockBMPEJB.class);
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         SystemMethodIndices systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setEntityContext", new String(EntityContext.class.getName()), "unsetEntityContext");
-        assertFalse(systemMethodIndices.getEjbActivateInvocation(null).getMethodIndex() == -1);
-        assertFalse(systemMethodIndices.getEjbLoadInvocation(null).getMethodIndex() == -1);
-        assertFalse(systemMethodIndices.getEjbPassivateInvocation(null).getMethodIndex() == -1);
-        assertFalse(systemMethodIndices.getEjbStoreInvocation(null).getMethodIndex() == -1);
-        assertFalse(systemMethodIndices.getSetContextInvocation(null, null).getMethodIndex() == -1);
-        assertFalse(systemMethodIndices.getUnsetContextInvocation(null).getMethodIndex() == -1);
+        EJBInstanceContext ctx = MockEJBInstanceContext.INSTANCE;
+        assertFalse(systemMethodIndices.getEjbActivateInvocation(ctx).getMethodIndex() == -1);
+        assertFalse(systemMethodIndices.getEjbLoadInvocation(ctx).getMethodIndex() == -1);
+        assertFalse(systemMethodIndices.getEjbPassivateInvocation(ctx).getMethodIndex() == -1);
+        assertFalse(systemMethodIndices.getEjbStoreInvocation(ctx).getMethodIndex() == -1);
+        assertFalse(systemMethodIndices.getSetContextInvocation(ctx, null).getMethodIndex() == -1);
+        assertFalse(systemMethodIndices.getUnsetContextInvocation(ctx).getMethodIndex() == -1);
     }
 }

@@ -71,14 +71,18 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
     private final Object containerId;
     private final EntityContextImpl entityContext;
     private Object id;
+    private final EJBInvocation ejbActivateInvocation;
+    private final EJBInvocation ejbPassivateInvocation;
     private final EJBInvocation loadInvocation;
     private final EJBInvocation storeInvocation;
     private boolean stateValid;
 
     public EntityInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EnterpriseBean instance, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, TransactionContextManager transactionContextManager, BasicTimerService timerService) {
-        super(systemMethodIndices, lifecycleInterceptorChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, timerService);
+        super(lifecycleInterceptorChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, timerService);
         this.containerId = containerId;
         entityContext = new EntityContextImpl(this, transactionContextManager);
+        ejbActivateInvocation = systemMethodIndices.getEjbActivateInvocation(this);
+        ejbPassivateInvocation = systemMethodIndices.getEjbPassivateInvocation(this);
         loadInvocation = systemMethodIndices.getEjbLoadInvocation(this);
         storeInvocation = systemMethodIndices.getEjbStoreInvocation(this);
         setContextInvocation = systemMethodIndices.getSetContextInvocation(this, entityContext);
@@ -116,6 +120,14 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
 
     public void setStateValid(boolean stateValid) {
         this.stateValid = stateValid;
+    }
+
+    public void ejbActivate() throws Throwable {
+        systemChain.invoke(ejbActivateInvocation);
+    }
+
+    public void ejbPassivate() throws Throwable {
+        systemChain.invoke(ejbPassivateInvocation);
     }
 
     public void associate() throws Throwable {

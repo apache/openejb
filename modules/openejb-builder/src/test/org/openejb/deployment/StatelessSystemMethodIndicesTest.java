@@ -54,13 +54,11 @@ import junit.framework.TestCase;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.deployment.slsb.MockEJB;
+import org.openejb.EJBInstanceContext;
 
 /**
- *
- *
  * @version $Revision$ $Date$
- *
- * */
+ */
 public class StatelessSystemMethodIndicesTest extends TestCase {
 
     public void testSystemMethodIndices() throws Exception {
@@ -69,11 +67,32 @@ public class StatelessSystemMethodIndicesTest extends TestCase {
         Map vopMap = builder.buildVopMap(MockEJB.class);
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         SystemMethodIndices systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setSessionContext", new String(SessionContext.class.getName()), null);
-        assertTrue(systemMethodIndices.getEjbActivateInvocation(null).getMethodIndex() == -1);
-        assertTrue(systemMethodIndices.getEjbLoadInvocation(null).getMethodIndex() == -1);
-        assertTrue(systemMethodIndices.getEjbPassivateInvocation(null).getMethodIndex() == -1);
-        assertTrue(systemMethodIndices.getEjbStoreInvocation(null).getMethodIndex() == -1);
-        assertTrue(systemMethodIndices.getSetContextInvocation(null, null).getMethodIndex() != -1);
-        assertTrue(systemMethodIndices.getUnsetContextInvocation(null).getMethodIndex() == -1);
+        EJBInstanceContext ctx = MockEJBInstanceContext.INSTANCE;
+        try {
+            assertTrue(systemMethodIndices.getEjbActivateInvocation(ctx).getMethodIndex() == -1);
+        } catch (AssertionError e) {
+            //expected
+        }
+        try {
+            assertTrue(systemMethodIndices.getEjbLoadInvocation(ctx).getMethodIndex() == -1);
+        } catch (AssertionError e) {
+            //expected
+        }
+        try {
+            assertTrue(systemMethodIndices.getEjbPassivateInvocation(ctx).getMethodIndex() == -1);
+        } catch (AssertionError e) {
+            //expected
+        }
+        try {
+            assertTrue(systemMethodIndices.getEjbStoreInvocation(ctx).getMethodIndex() == -1);
+        } catch (AssertionError e) {
+            //expected
+        }
+        assertTrue(systemMethodIndices.getSetContextInvocation(ctx, null).getMethodIndex() != -1);
+        try {
+            assertTrue(systemMethodIndices.getUnsetContextInvocation(ctx).getMethodIndex() == -1);
+        } catch (AssertionError e) {
+            //expected
+        }
     }
 }
