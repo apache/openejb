@@ -56,6 +56,7 @@ import java.security.PrivilegedAction;
 public class ClasspathUtils{
     
     private static Loader tomcatLoader = new ClasspathUtils().new TomcatLoader();
+    private static Loader webappLoader = new ClasspathUtils().new WebAppLoader();
     private static Loader sysLoader = new ClasspathUtils().new SystemLoader();
     private static Loader ctxLoader = new ClasspathUtils().new ContextLoader();
     
@@ -145,6 +146,8 @@ public class ClasspathUtils{
 
         if (name.equalsIgnoreCase("tomcat")) {
             return tomcatLoader;
+        }else if (name.equalsIgnoreCase("tomcat-webapp")) {
+            return webappLoader;
         } else if (name.equalsIgnoreCase("bootstrap")) {
             return sysLoader;
         } else if (name.equalsIgnoreCase("system")) {
@@ -405,7 +408,8 @@ public class ClasspathUtils{
             } catch (Exception e){}
 
         }
-        private ClassLoader getCommonLoader(){
+        
+        protected ClassLoader getCommonLoader(){
             if (tomcatLoader == null) {
                 tomcatLoader = this.getCommonLoader(ClasspathUtils.getContextClassLoader()).getParent();
             }
@@ -456,6 +460,16 @@ public class ClasspathUtils{
         }
     }
 
+    class WebAppLoader extends TomcatLoader {
+        ClassLoader webappLoader;
+        
+        protected ClassLoader getCommonLoader(){
+            if (webappLoader == null) {
+                webappLoader = ClasspathUtils.getContextClassLoader();
+            }
+            return webappLoader;
+        }
+    }
 }
 
 
