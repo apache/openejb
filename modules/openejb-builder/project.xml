@@ -16,10 +16,10 @@
     <!-- Module Identification -->
     <!-- ===================== -->
 
-    <name>OpenEJB :: Core</name>
-    <id>openejb-core</id>
-    <shortDescription>OpenEJB Core EJB Container</shortDescription>
-    <description>OpenEJB Core EJB Container</description>
+    <name>OpenEJB :: Builder</name>
+    <id>openejb-builder</id>
+    <shortDescription>OpenEJB Builder</shortDescription>
+    <description>OpenEJB Builder</description>
     <url>http://www.openejb.org</url>
     <siteDirectory>/www/openejb.org/core</siteDirectory>
     <distributionDirectory>/www/openejb.org//builds/core</distributionDirectory>
@@ -32,118 +32,108 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-xmlbeans-plugin</artifactId>
+            <version>&geronimo-version;</version>
+            <type>plugin</type>
+        </dependency>
+
+        <!-- needed for xmlbeans runtime-->
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean-apache</artifactId>
+            <version>&xmlbeans-version;</version>
+        </dependency>
+
+       <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-core</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>
             <version>&geronimo-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
             <version>&geronimo-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-client</artifactId>
             <version>&geronimo-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>&geronimo-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
             <version>&geronimo-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>&geronimo-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
             <version>&geronimo-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
             
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>&geronimo-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-remoting</artifactId>
             <version>&geronimo-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-security</artifactId>
-            <version>&geronimo-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
+             <groupId>geronimo</groupId>
+             <artifactId>geronimo-security</artifactId>
+             <version>&geronimo-version;</version>
+         </dependency>
 
         <dependency>
+             <groupId>geronimo</groupId>
+             <artifactId>geronimo-security-builder</artifactId>
+             <version>&geronimo-version;</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
+         </dependency>
+
+         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-timer</artifactId>
             <version>&geronimo-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-transaction</artifactId>
             <version>&geronimo-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>&geronimo-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
        <dependency>
@@ -151,7 +141,6 @@
             <artifactId>geronimo-naming-builder</artifactId>
             <version>&geronimo-version;</version>
             <properties>
-                <runtime>true</runtime>
                 <xmlbeans>true</xmlbeans>
             </properties>
         </dependency>
@@ -166,90 +155,60 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
             <version>&geronimo-spec-j2ee-deployment-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
             <version>&geronimo-spec-jta-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
             <version>&geronimo-spec-ejb-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
             <version>&geronimo-spec-servlet-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
             <version>&geronimo-spec-j2ee-connector-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
             <version>&geronimo-spec-j2ee-jacc-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jms</artifactId>
             <version>&geronimo-spec-jms-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
             <version>&geronimo-version;</version>
-            <properties>
-                <xmlbeans>true</xmlbeans>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
             <version>&tranql-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>axion</groupId>
             <artifactId>axion</artifactId>
             <version>&axion-version;</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>

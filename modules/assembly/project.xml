@@ -47,15 +47,24 @@
         <!--         OpenEJB jars are always copied to repository)      -->
         <!-- ========================================================== -->
         <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
+             <groupId>openejb</groupId>
+             <artifactId>openejb-builder</artifactId>
+             <version>${pom.currentVersion}</version>
+             <properties>
+                 <repository>true</repository>
+             </properties>
+         </dependency>
 
         <dependency>
+             <groupId>openejb</groupId>
+             <artifactId>openejb-core</artifactId>
+             <version>${pom.currentVersion}</version>
+             <properties>
+                 <repository>true</repository>
+             </properties>
+         </dependency>
+
+         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>&geronimo-version;</version>
@@ -194,6 +203,15 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
+            <version>&geronimo-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+    
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>

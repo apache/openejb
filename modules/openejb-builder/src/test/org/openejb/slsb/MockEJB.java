@@ -45,56 +45,69 @@
  *
  * ====================================================================
  */
-package org.openejb.deployment;
+package org.openejb.slsb;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
-import org.tranql.pkgenerator.PrimaryKeyGenerator;
-import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
+import javax.ejb.CreateException;
+import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
+import javax.ejb.TimerService;
 
 /**
  *
+ *
+ *
  * @version $Revision$ $Date$
  */
-public class PrimaryKeyGeneratorWrapper implements GBeanLifecycle  {
-    private final PrimaryKeyGenerator keyGenerator;
-    private final PrimaryKeyGeneratorDelegate keyGeneratorDelegate;
-    
-    public PrimaryKeyGeneratorWrapper(PrimaryKeyGenerator keyGenerator, PrimaryKeyGeneratorDelegate keyGeneratorDelegate) {
-        this.keyGenerator = keyGenerator;
-        this.keyGeneratorDelegate = keyGeneratorDelegate;
-    }
-    
-    public void doStart() throws WaitingException, Exception {
-        keyGeneratorDelegate.setPrimaryKeyGenerator(keyGenerator);
+public class MockEJB implements SessionBean, TimedObject {
+
+    private int timeoutCount = 0;
+
+    private SessionContext sessionContext;
+
+    public int intMethod(int i) {
+        return i + 1;
     }
 
-    public void doStop() throws WaitingException, Exception {
-        keyGeneratorDelegate.setPrimaryKeyGenerator(null);
+    public Integer integerMethod(Integer i) {
+        return i;
     }
 
-    public void doFail() {
-        keyGeneratorDelegate.setPrimaryKeyGenerator(null);
+    public void appException() throws AppException {
+        throw new AppException("App Message");
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(PrimaryKeyGeneratorWrapper.class);
-        infoFactory.addReference("PrimaryKeyGenerator", PrimaryKeyGenerator.class);
-        infoFactory.addAttribute("primaryKeyGeneratorDelegate", PrimaryKeyGeneratorDelegate.class, true);
-
-        infoFactory.setConstructor(new String[]{
-            "PrimaryKeyGenerator",
-            "primaryKeyGeneratorDelegate"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
+    public void sysException() {
+        throw new IllegalArgumentException("Sys Message");
     }
 
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
+    public void startTimer() {
+        TimerService timerService = sessionContext.getTimerService();
+        timerService.createTimer(100L, null);
     }
-    
+
+    public int getTimeoutCount() {
+        return timeoutCount;
+    }
+
+    public void setSessionContext(SessionContext sessionContext) {
+        this.sessionContext = sessionContext;
+    }
+
+    public void ejbCreate() throws CreateException {
+    }
+
+    public void ejbActivate() {
+    }
+
+    public void ejbPassivate() {
+    }
+
+    public void ejbRemove() {
+    }
+
+    public void ejbTimeout(Timer timer) {
+        timeoutCount++;
+    }
 }

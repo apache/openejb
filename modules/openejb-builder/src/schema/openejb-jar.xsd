@@ -50,15 +50,17 @@
     xmlns:openejb="http://www.openejb.org/xml/ns/openejb-jar"
     targetNamespace="http://www.openejb.org/xml/ns/openejb-jar"
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+    xmlns:security="http://geronimo.apache.org/xml/ns/security"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="geronimo-naming.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="geronimo-security.xsd"/>
 
     <xs:include schemaLocation="geronimo-common.xsd"/>
-    <xs:include schemaLocation="geronimo-security.xsd"/>
+<!--    <xs:include schemaLocation="geronimo-security.xsd"/>-->
 
     <xs:group name="openejb-jndiEnvironmentRefsGroup">
         <xs:annotation>
@@ -104,7 +106,7 @@
             <xs:element name="relationships" type="openejb:relationshipsType" minOccurs="0"/>
 
             <xs:element name="gbean" type="openejb:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="security" type="openejb:securityType" minOccurs="0"/>
+            <xs:element ref="security:security" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute name="configId" type="xs:string" use="required"/>
         <xs:attribute name="parentId" type="xs:string" use="optional"/>
