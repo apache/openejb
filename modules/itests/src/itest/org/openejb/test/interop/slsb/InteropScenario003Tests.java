@@ -16,10 +16,10 @@
  */
 package org.openejb.test.interop.slsb;
 
+import java.rmi.AccessException;
+import java.security.PrivilegedExceptionAction;
 import javax.rmi.PortableRemoteObject;
-
-import com.sun.corba.se.internal.util.JDKBridge;
-import org.openorb.orb.rmi.DefaultORB;
+import javax.security.auth.Subject;
 
 
 /**
@@ -31,183 +31,34 @@ public class InteropScenario003Tests extends InteropTestClient {
         super("InteropScenario003.");
     }
 
-    public void testUnassigned() throws Exception {
+    public void testInterop() throws Exception {
         Object obj = initialContext.lookup("interop/003/InteropHome");
 
-//        Object o = DefaultORB.getORB();
-//        org.openorb.orb.core.ORB orb = (org.openorb.orb.core.ORB) DefaultORB.getORB();
-//        org.apache.avalon.framework.logger.Logger log = (orb).getLogger().getChildLogger("ud");
-
-
-//        String className = System.getProperty("javax.rmi.CORBA.UtilClass", "com.sun.corba.se.internal.POA.ShutdownUtilDelegate");
-//        try {
-//            JDKBridge.loadClass(className, null, null).newInstance();
-//        } catch (ClassNotFoundException ex) {
-//            fail("ClassNotFoundException: " + ex.toString());
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//            fail("Exception: " + ex.toString());
-//        }
         interopHome = (InteropHome) PortableRemoteObject.narrow(obj, InteropHome.class);
         interop = interopHome.create();
 
-        assertEquals("FOO", interop.callRemote("FOO"));
+        try {
+            interop.callNoAccess("FOO");
+            fail("Should have thrown an AccessException");
+        } catch (AccessException e) {
+        }
+
+        try {
+            interop.callHighAccess("FOO");
+            fail("Should have thrown an AccessException");
+        } catch (AccessException e) {
+        }
+
+        assertEquals("FOO", interop.callLowAccess("FOO"));
+
+        try {
+            interop.callMedAccess("FOO");
+            fail("Should have thrown an AccessException");
+        } catch (AccessException e) {
+        }
+
+        assertEquals("FOO", interop.callAllAccess("FOO"));
 
         interop.remove();
     }
-
-//    public void testDavidPublic() throws Exception {
-//        Subject.doAs(this.public_david_subject, new PrivilegedExceptionAction() {
-//            public Object run() throws Exception {
-//
-//                Object obj = initialContext.lookup("interop/003/InteropHome");
-//                interopHome = (InteropHome) PortableRemoteObject.narrow(obj, InteropHome.class);
-//                interop = interopHome.create();
-//
-//                assertEquals("FOO", interop.callRemote("FOO"));
-//
-//                interop.remove();
-//
-//                interop.remove();
-//
-//                return null;
-//            }
-//        });
-//    }
-//
-//    public void testAlanPublic() throws Exception {
-//        Subject.doAs(this.public_alan_subject, new PrivilegedExceptionAction() {
-//            public Object run() throws Exception {
-//
-//                Object obj = initialContext.lookup("interop/003/InteropHome");
-//                interopHome = (InteropHome) PortableRemoteObject.narrow(obj, InteropHome.class);
-//                interop = interopHome.create();
-//
-//                assertEquals("FOO", interop.callRemote("FOO"));
-//
-//                interop.remove();
-//
-//                return null;
-//            }
-//        });
-//    }
-//
-//    public void testDainPublic() throws Exception {
-//        Subject.doAs(this.public_dain_subject, new PrivilegedExceptionAction() {
-//            public Object run() throws Exception {
-//
-//                Object obj = initialContext.lookup("interop/003/InteropHome");
-//                interopHome = (InteropHome) PortableRemoteObject.narrow(obj, InteropHome.class);
-//                interop = interopHome.create();
-//
-//                assertEquals("FOO", interop.callRemote("FOO"));
-//
-//                interop.remove();
-//
-//                return null;
-//            }
-//        });
-//    }
-//
-//    public void testNoelPublic() throws Exception {
-//        Subject.doAs(this.public_noel_subject, new PrivilegedExceptionAction() {
-//            public Object run() throws Exception {
-//
-//                Object obj = initialContext.lookup("interop/003/InteropHome");
-//                interopHome = (InteropHome) PortableRemoteObject.narrow(obj, InteropHome.class);
-//                interop = interopHome.create();
-//
-//                assertEquals("FOO", interop.callRemote("FOO"));
-//
-//                interop.remove();
-//
-//                return null;
-//            }
-//        });
-//    }
-//
-//    public void testGeirPublic() throws Exception {
-//        Subject.doAs(this.public_geir_subject, new PrivilegedExceptionAction() {
-//            public Object run() throws Exception {
-//
-//                Object obj = initialContext.lookup("interop/003/InteropHome");
-//                interopHome = (InteropHome) PortableRemoteObject.narrow(obj, InteropHome.class);
-//                interop = interopHome.create();
-//
-//                assertEquals("FOO", interop.callRemote("FOO"));
-//
-//                interop.remove();
-//
-//                return null;
-//            }
-//        });
-//    }
-//
-//    public void testGeorgePublic() throws Exception {
-//        Subject.doAs(this.public_george_subject, new PrivilegedExceptionAction() {
-//            public Object run() throws Exception {
-//
-//                Object obj = initialContext.lookup("interop/003/InteropHome");
-//                interopHome = (InteropHome) PortableRemoteObject.narrow(obj, InteropHome.class);
-//                interop = interopHome.create();
-//
-//                assertEquals("FOO", interop.callRemote("FOO"));
-//
-//                interop.remove();
-//
-//                return null;
-//            }
-//        });
-//    }
-//
-//    public void testGraciePublic() throws Exception {
-//        Subject.doAs(this.public_gracie_subject, new PrivilegedExceptionAction() {
-//            public Object run() throws Exception {
-//
-//                Object obj = initialContext.lookup("interop/003/InteropHome");
-//                interopHome = (InteropHome) PortableRemoteObject.narrow(obj, InteropHome.class);
-//                interop = interopHome.create();
-//
-//                assertEquals("FOO", interop.callRemote("FOO"));
-//
-//                interop.remove();
-//
-//                return null;
-//            }
-//        });
-//    }
-//
-//    public void testDavidBlack() throws Exception {
-//        Subject.doAs(this.black_david_subject, new PrivilegedExceptionAction() {
-//            public Object run() throws Exception {
-//
-//                Object obj = initialContext.lookup("interop/003/InteropHome");
-//                interopHome = (InteropHome) PortableRemoteObject.narrow(obj, InteropHome.class);
-//                interop = interopHome.create();
-//
-//                assertEquals("FOO", interop.callRemote("FOO"));
-//
-//                interop.remove();
-//
-//                return null;
-//            }
-//        });
-//    }
-//
-//    public void testDainBlack() throws Exception {
-//        Subject.doAs(this.black_dain_subject, new PrivilegedExceptionAction() {
-//            public Object run() throws Exception {
-//
-//                Object obj = initialContext.lookup("interop/003/InteropHome");
-//                interopHome = (InteropHome) PortableRemoteObject.narrow(obj, InteropHome.class);
-//                interop = interopHome.create();
-//
-//                assertEquals("FOO", interop.callRemote("FOO"));
-//
-//                interop.remove();
-//
-//                return null;
-//            }
-//        });
-//    }
 }

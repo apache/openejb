@@ -47,10 +47,10 @@
  */
 package org.openejb.corba.security.config.tss;
 
-import java.security.Principal;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.security.auth.Subject;
+import javax.security.auth.x500.X500Principal;
 import javax.security.cert.X509Certificate;
 
 import org.apache.commons.logging.Log;
@@ -66,8 +66,6 @@ import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
 import org.omg.CSIIOP.TransportAddress;
 import org.omg.IOP.Codec;
 import org.omg.IOP.TaggedComponent;
-
-import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
@@ -170,10 +168,8 @@ public class TSSSSLTransportConfig extends TSSTransportMechConfig {
         try {
             X509Certificate link = session.getPeerCertificateChain()[0];
             Subject subject = new Subject();
-            Principal p = link.getSubjectDN();
 
-            subject.getPrincipals().add(p);
-            subject.getPrincipals().add(new RealmPrincipal(link.getIssuerDN().toString(), p));
+            subject.getPrincipals().add(new X500Principal(link.getSubjectDN().toString()));
 
             return subject;
         } catch (SSLPeerUnverifiedException e) {

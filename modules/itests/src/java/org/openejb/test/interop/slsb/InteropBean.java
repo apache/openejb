@@ -64,7 +64,71 @@ public class InteropBean implements SessionBean {
 
     private SessionContext sessionContext;
 
-    public String callRemote(String argument1) throws RemoteException {
+    public String callNoAccess(String argument1) throws RemoteException {
+        try {
+            InitialContext ic = new InitialContext();
+            Object ref = ic.lookup("java:comp/env/ejb/interop/InteropBean");
+
+            BasicStatelessHome home = (BasicStatelessHome) PortableRemoteObject.narrow(ref, BasicStatelessHome.class);
+            BasicStateless bean = home.create();
+
+            return bean.noAccessMethod(argument1);
+        } catch (NamingException e) {
+            throw new RemoteException("Unable to lookup java:comp/env/ejb/interop/InteropBean", e);
+        } catch (CreateException e) {
+            throw new RemoteException("Unable to create BasicStateless EJB", e);
+        }
+    }
+
+    public String callLowAccess(String argument1) throws RemoteException {
+        try {
+            InitialContext ic = new InitialContext();
+            Object ref = ic.lookup("java:comp/env/ejb/interop/InteropBean");
+
+            BasicStatelessHome home = (BasicStatelessHome) PortableRemoteObject.narrow(ref, BasicStatelessHome.class);
+            BasicStateless bean = home.create();
+
+            return bean.lowSecurityMethod(argument1);
+        } catch (NamingException e) {
+            throw new RemoteException("Unable to lookup java:comp/env/ejb/interop/InteropBean", e);
+        } catch (CreateException e) {
+            throw new RemoteException("Unable to create BasicStateless EJB", e);
+        }
+    }
+
+    public String callMedAccess(String argument1) throws RemoteException {
+        try {
+            InitialContext ic = new InitialContext();
+            Object ref = ic.lookup("java:comp/env/ejb/interop/InteropBean");
+
+            BasicStatelessHome home = (BasicStatelessHome) PortableRemoteObject.narrow(ref, BasicStatelessHome.class);
+            BasicStateless bean = home.create();
+
+            return bean.mediumSecurityMethod(argument1);
+        } catch (NamingException e) {
+            throw new RemoteException("Unable to lookup java:comp/env/ejb/interop/InteropBean", e);
+        } catch (CreateException e) {
+            throw new RemoteException("Unable to create BasicStateless EJB", e);
+        }
+    }
+
+    public String callHighAccess(String argument1) throws RemoteException {
+        try {
+            InitialContext ic = new InitialContext();
+            Object ref = ic.lookup("java:comp/env/ejb/interop/InteropBean");
+
+            BasicStatelessHome home = (BasicStatelessHome) PortableRemoteObject.narrow(ref, BasicStatelessHome.class);
+            BasicStateless bean = home.create();
+
+            return bean.highSecurityMethod(argument1);
+        } catch (NamingException e) {
+            throw new RemoteException("Unable to lookup java:comp/env/ejb/interop/InteropBean", e);
+        } catch (CreateException e) {
+            throw new RemoteException("Unable to create BasicStateless EJB", e);
+        }
+    }
+
+    public String callAllAccess(String argument1) throws RemoteException {
         try {
             InitialContext ic = new InitialContext();
             Object ref = ic.lookup("java:comp/env/ejb/interop/InteropBean");
