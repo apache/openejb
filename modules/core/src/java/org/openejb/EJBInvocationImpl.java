@@ -64,7 +64,7 @@ public class EJBInvocationImpl extends SimpleInvocation implements EJBInvocation
     // Fields are immutable, but not final due to readExternal
     private EJBInterfaceType type;
     private int index;
-    private Object arguments[];
+    private Object[] arguments;
     private Object id;
 
     // Valid in server-side interceptor stack once an instance has been identified

@@ -1,31 +1,29 @@
 package org.openejb.proxy;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.io.ObjectStreamException;
 import java.lang.reflect.Method;
-import java.rmi.RemoteException;
 import java.rmi.NoSuchObjectException;
+import java.rmi.RemoteException;
 import javax.ejb.EJBException;
-import javax.ejb.Handle;
 import javax.ejb.EJBObject;
+import javax.ejb.Handle;
 import javax.ejb.NoSuchObjectLocalException;
-
-import org.apache.geronimo.core.service.InvocationResult;
+import javax.ejb.EJBHome;
+import javax.ejb.EJBMetaData;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.openejb.ContainerNotFoundException;
+import org.openejb.EJBComponentType;
 import org.openejb.EJBContainer;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
-import org.openejb.EJBComponentType;
-import org.openejb.ContainerNotFoundException;
 
-public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, Serializable {
-    /**
-     * Either the container or a serialization handler (and then the container)
-     */
-    private final EJBInterceptor next;
-
+public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
     /**
      * Proxy factory for this proxy
      */
@@ -56,6 +54,11 @@ public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, 
      */
     private transient ProxyInfo proxyInfo;
 
+    /**
+     * Should we copy args into the target classloader
+     */
+    private transient boolean shouldCopy;
+
     public EJBMethodInterceptor(EJBProxyFactory proxyFactory, EJBInterfaceType type, EJBContainer container, int[] operationMap) {
         this(proxyFactory, type, container, operationMap, null);
     }
@@ -74,11 +77,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, 
             this.proxyInfo = new ProxyInfo(container.getProxyInfo(), primaryKey);
         }
 
-        if (!interfaceType.isLocal() && !skipCopy()) {
-            next = new SerializationHanlder(this);
-        } else {
-            next = this;
-        }
+        shouldCopy = !interfaceType.isLocal();
     }
 
     public EJBProxyFactory getProxyFactory() {
@@ -96,21 +95,57 @@ public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, 
         return primaryKey;
     }
 
-    /** Returns true of the EJB 1.1 comliant copying of
-     * remote interfaces should be skipped.
-     * @return
-     */
-    private boolean skipCopy() {
-//        String value = org.openejb.OpenEJB.getInitProps().getProperty("openejb.localcopy");
-//        if (value == null) {
-//            value = System.getProperty("openejb.localcopy");
-//        }
-//
-//        return value != null && !value.equalsIgnoreCase("FALSE");
-        return false;
+    public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+        EJBInvocation invocation = createEJBInvocation(method, methodProxy, args);
+        if (invocation == null) {
+            return null;
+        }
+
+        // copy the arguments into the target classloader
+        if (shouldCopy) {
+            args = invocation.getArguments();
+            copyArgs(args);
+        }
+
+        // invoke the EJB container
+        InvocationResult result;
+        try {
+            result = container.invoke(invocation);
+        } catch (Throwable t) {
+            // system exceptions must be throw as either EJBException or a RemoteException
+            if (interfaceType.isLocal()) {
+                if (!(t instanceof EJBException)) {
+                    t = new EJBException().initCause(t);
+                }
+            } else {
+                if (!(t instanceof RemoteException)) {
+                    t = new RemoteException(t.getMessage(), t);
+                }
+            }
+            throw t;
+        }
+
+        // get the object to return
+        boolean normal = result.isNormal();
+        Object returnObj;
+        if (normal) {
+            returnObj = result.getResult();
+        } else {
+            returnObj = result.getException();
+        }
+
+        if (shouldCopy && returnObj != null) {
+            returnObj = copyObject(returnObj);
+        }
+
+        if (normal) {
+            return returnObj;
+        } else {
+            throw (Exception) returnObj;
+        }
     }
 
-    public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+    private EJBInvocation createEJBInvocation(Method method, MethodProxy methodProxy, Object[] args) throws Throwable {
         // fault in the operation map if we don't have it yet
         if (operationMap == null) {
             try {
@@ -149,28 +184,31 @@ public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, 
             }
         }
 
-        EJBInvocation invocation = new EJBInvocationImpl(interfaceType, id, methodIndex, args);
+        return new EJBInvocationImpl(interfaceType, id, methodIndex, args);
+    }
 
-        InvocationResult result;
-        try {
-            result = next.invoke(invocation);
-        } catch (Throwable t) {
-            // system exceptions must be throw as either EJBException or a RemoteException
-            if (interfaceType.isLocal()) {
-                if (!(t instanceof EJBException)) {
-                    t = new EJBException().initCause(t);
-                }
-            } else {
-                if (!(t instanceof RemoteException)) {
-                    t = new RemoteException(t.getMessage(), t);
-                }
+    private void copyArgs(Object[] args) throws IOException, ClassNotFoundException {
+        if (args != null && args.length > 0) {
+            try {
+                SerializationHanlder.setStrategy(ReplacementStrategy.COPY);
+                SerializationHanlder.copyArgs(args);
+            } finally {
+                SerializationHanlder.setStrategy(null);
             }
-            throw t;
         }
-        if (result.isNormal()) {
-            return result.getResult();
-        } else {
-            throw result.getException();
+    }
+
+    private Object copyObject(Object returnObj) throws IOException, ClassNotFoundException {
+        if (returnObj == null) {
+            return null;
+        }
+
+        // copy the result into the current classloader
+        try {
+            SerializationHanlder.setStrategy(ReplacementStrategy.COPY);
+            return SerializationHanlder.copyObj(returnObj);
+        } finally {
+            SerializationHanlder.setStrategy(null);
         }
     }
 
@@ -184,7 +222,27 @@ public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, 
         this.proxyInfo = new ProxyInfo(container.getProxyInfo(), primaryKey);
     }
 
-    public InvocationResult invoke(EJBInvocation ejbInvocation) throws Throwable {
-        return container.invoke(ejbInvocation);
-    }
+//    private static final class ClassLoaderCopy implements ReplacementStrategy {
+//        public Object writeReplace(Object object, ProxyInfo proxyInfo) throws ObjectStreamException {
+//            new EJBProxyFactory(proxyInfo);
+//            if (object instanceof EJBObject){
+//                return org.openejb.OpenEJB.getApplicationServer().getEJBObject(proxyInfo);
+//            } else if (object instanceof EJBHome){
+//                return org.openejb.OpenEJB.getApplicationServer().getEJBHome(proxyInfo);
+//            } else if (object instanceof EJBMetaData){
+//                return org.openejb.OpenEJB.getApplicationServer().getEJBMetaData(proxyInfo);
+//            } else if (object instanceof HandleImpl){
+//                HandleImpl handle = (HandleImpl)object;
+//
+//                if (handle.type == HandleImpl.HANDLE){
+//                    return org.openejb.OpenEJB.getApplicationServer().getHandle(proxyInfo);
+//                } else {
+//                    return org.openejb.OpenEJB.getApplicationServer().getHomeHandle(proxyInfo);
+//                }
+//            } else /*should never happen */ {
+//                return object;
+//            }
+//        }
+//    };
+//
 }
