@@ -3,42 +3,53 @@
 <!-- $Revision$ $Date$ -->
 
 <project default="default"
-  xmlns:j="jelly:core"
-  xmlns:ant="jelly:ant"
-  xmlns:maven="jelly:maven"
-  xmlns:xdoclet="common:xdoclet">
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:xdoclet="common:xdoclet">
 
-  <preGoal name="xdoc:jelly-transform">
-    <attainGoal name="html2xdoc"/>
-  </preGoal>
+    <preGoal name="xdoc:jelly-transform">
+        <attainGoal name="html2xdoc"/>
+    </preGoal>
 
-  <postGoal name="jar:jar">
-    <ant:copy todir="${basedir}/target/classes/META-INF">
-      <fileset dir="${basedir}/src/etc" />
-    </ant:copy>
+    <postGoal name="jar:jar">
+        <ant:jar destfile="${basedir}/target/openejb-itests-beans.jar">
+            <ant:fileset dir="${basedir}/target/classes"
+                includes="org/openejb/test/beans/**,
+                                org/openejb/test/entity/bmp/**,
+                                org/openejb/test/entity/cmp/**,
+                                org/openejb/test/object/**,
+                                org/openejb/test/stateful/**,
+                                org/openejb/test/stateless/**,
+                                org/openejb/test/ApplicationException.class,
+                                org/openejb/test/TestFailureException.class,
+                                META-INF/*.xml"
+                excludes="org/openejb/test/entity/bmp/*Test*.class,
+                                org/openejb/test/entity/cmp/*Test*.class,
+                                org/openejb/test/stateful/*Test*.class,
+                                org/openejb/test/stateless/*Test*.class"/>
 
-    <ant:jar destfile="${basedir}/target/openejb-itests-beans.jar"
-            basedir="${basedir}/target/classes"
-            includes="org/openejb/test/beans/**,
-                            org/openejb/test/entity/bmp/**,
-                            org/openejb/test/entity/cmp/**,
-                            org/openejb/test/object/**,
-                            org/openejb/test/stateful/**,
-                            org/openejb/test/stateless/**,
-                            org/openejb/test/ApplicationException.class,
-                            org/openejb/test/TestFailureException.class,
-                            META-INF/*.xml"
-            excludes="org/openejb/test/entity/bmp/*Test*.class,
-                            org/openejb/test/entity/cmp/*Test*.class,
-                            org/openejb/test/stateful/*Test*.class,
-                            org/openejb/test/stateless/*Test*.class"/>
-  </postGoal>
+            <zipfileset dir="${basedir}/src/etc" prefix="META-INF"/>
+        </ant:jar>
 
-<!--
-  <postGoal name="jar:jar">
-    <ant:jar destfile="${basedir}/target/geronimo-schemas.jar"
-             basedir="${basedir}/src/schema"
-             includes="*.xsd"/>
-  </postGoal>
--->
+        <ant:jar destfile="${basedir}/target/openejb-itests-beans2.jar">
+            <ant:fileset dir="${basedir}/target/classes"
+                includes="org/openejb/test/beans/**,
+                                org/openejb/test/entity/bmp/**,
+                                org/openejb/test/entity/cmp/**,
+                                org/openejb/test/object/**,
+                                org/openejb/test/stateful/**,
+                                org/openejb/test/stateless/**,
+                                org/openejb/test/ApplicationException.class,
+                                org/openejb/test/TestFailureException.class,
+                                META-INF/*.xml"
+                excludes="org/openejb/test/entity/bmp/*Test*.class,
+                                org/openejb/test/entity/cmp/*Test*.class,
+                                org/openejb/test/stateful/*Test*.class,
+                                org/openejb/test/stateless/*Test*.class"/>
+
+            <zipfileset dir="${basedir}/src/etc2" prefix="META-INF"/>
+        </ant:jar>
+
+    </postGoal>
 </project>

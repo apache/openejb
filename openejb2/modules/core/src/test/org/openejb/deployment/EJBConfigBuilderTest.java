@@ -101,9 +101,11 @@ public class EJBConfigBuilderTest extends TestCase {
         SessionBeanType sessionBean = sessionBeans[0];
         OpenejbSessionBeanType openejbSessionBean = null;
 
+        TransactionPolicyHelper transactionPolicyHelper = new TransactionPolicyHelper(ejbJar.getAssemblyDescriptor().getContainerTransactionArray());
+
         try {
             Thread.currentThread().setContextClassLoader(cl);
-            configBuilder.createSessionBean("containerId", sessionBean, openejbSessionBean, TransactionPolicyHelper.StatelessBMTPolicySource, cl);
+            configBuilder.createSessionBean("containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, cl);
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }
@@ -122,6 +124,7 @@ public class EJBConfigBuilderTest extends TestCase {
         File carFile = File.createTempFile("OpenEJBTest", ".car");
         Kernel kernel  = null;
         try {
+            Thread.currentThread().setContextClassLoader(cl);
             configBuilder.buildConfiguration(carFile, ejbJarFile, plan);
 
             File tempdir = new File(System.getProperty("java.io.tmpdir"));
@@ -194,6 +197,7 @@ public class EJBConfigBuilderTest extends TestCase {
                 kernel.shutdown();
             }
             carFile.delete();
+            Thread.currentThread().setContextClassLoader(oldCl);
         }
     }
 

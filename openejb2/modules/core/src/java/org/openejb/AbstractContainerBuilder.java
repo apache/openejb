@@ -93,11 +93,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private TrackedConnectionAssociator trackedConnectionAssociator;
 
     public ClassLoader getClassLoader() {
-        if(classLoader != null) {
-            return classLoader;
-        } else {
-            return Thread.currentThread().getContextClassLoader();
-        }
+        return classLoader;
     }
 
     public void setClassLoader(ClassLoader classLoader) {
@@ -270,7 +266,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         return new SoftLimitedInstancePool(instanceFactory, 1);
     }
 
-    protected abstract LinkedHashMap buildVopMap(Class beanClass);
+    protected abstract LinkedHashMap buildVopMap(Class beanClass) throws Exception;
 
     private static Class loadOptionalClass(String className, ClassLoader classLoader) throws ClassNotFoundException {
         if (className == null) {

@@ -293,6 +293,7 @@ public class ContainerBuilder implements RpcContainer {
 
     private static GenericEJBContainer createStatelessEJBContainerWapper(CoreDeploymentInfo deploymentInfo) throws Exception {
         StatelessContainerBuilder builder = new StatelessContainerBuilder();
+        builder.setClassLoader(Thread.currentThread().getContextClassLoader());
         builder.setContainerId(deploymentInfo.getDeploymentID());
         builder.setEJBName(deploymentInfo.getDeploymentID().toString());
         builder.setBeanClassName(deploymentInfo.getBeanClass().getName());
@@ -312,6 +313,7 @@ public class ContainerBuilder implements RpcContainer {
 
     private static GenericEJBContainer createStatefulEJBContainerWapper(CoreDeploymentInfo deploymentInfo) throws Exception {
         StatefulContainerBuilder builder = new StatefulContainerBuilder();
+        builder.setClassLoader(Thread.currentThread().getContextClassLoader());
         builder.setContainerId(deploymentInfo.getDeploymentID());
         builder.setEJBName(deploymentInfo.getDeploymentID().toString());
         builder.setBeanClassName(deploymentInfo.getBeanClass().getName());
@@ -331,6 +333,7 @@ public class ContainerBuilder implements RpcContainer {
 
     private static GenericEJBContainer createBMPEntityEJBContainerWapper(CoreDeploymentInfo deploymentInfo) throws Exception {
         BMPContainerBuilder builder = new BMPContainerBuilder();
+        builder.setClassLoader(Thread.currentThread().getContextClassLoader());
         builder.setContainerId(deploymentInfo.getDeploymentID());
         builder.setEJBName(deploymentInfo.getDeploymentID().toString());
         builder.setBeanClassName(deploymentInfo.getBeanClass().getName());

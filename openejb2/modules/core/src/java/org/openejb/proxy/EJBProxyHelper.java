@@ -51,11 +51,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import javax.ejb.EJBHome;
-import javax.ejb.EJBLocalHome;
-import javax.ejb.EJBLocalObject;
-import javax.ejb.EJBObject;
-import javax.ejb.Handle;
 
 import net.sf.cglib.reflect.FastClass;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -65,22 +60,8 @@ import org.openejb.dispatch.MethodHelper;
  * @version $Revision$ $Date$
  */
 public class EJBProxyHelper {
-    public static Object getPrimaryKey(Handle h) {
-        HandleImpl handle = (HandleImpl)h;
-        EJBObject ejbObject = handle.getEJBObject();
-        EJBMethodInterceptor ejbHandler = ((BaseEJB)ejbObject).ejbHandler;
-        return ejbHandler.getPrimaryKey();
-    }
-
     public static int[] getOperationMap(Class proxyType, InterfaceMethodSignature[] signatures) {
-        boolean isHomeInterface;
-        if(EJBHome.class.isAssignableFrom(proxyType) || EJBLocalHome.class.isAssignableFrom(proxyType)) {
-            isHomeInterface = true;
-        } else if (EJBObject.class.isAssignableFrom(proxyType) || EJBLocalObject.class.isAssignableFrom(proxyType)) {
-            isHomeInterface = false;
-        } else {
-            throw new IllegalArgumentException("ProxyType must be an instance of EJBHome, EJBLocalHome, EJBObject, or EJBLocalObject");
-        }
+        boolean isHomeInterface = isHomeInterface(proxyType);
 
         // get the map from method keys to the intercepted shadow index
         Map proxyToShadowIndex = buildProxyToShadowIndex(proxyType, isHomeInterface);
@@ -99,6 +80,31 @@ public class EJBProxyHelper {
             }
         }
         return shadowIndexToProxy;
+    }
+
+    private static boolean isHomeInterface(Class proxyType) {
+        //
+        // NOTE: We must load the ejb classes from the proxy's classloader because during deployment the
+        // proxy's classloader is not a child of the classloader of this class
+        //
+        try {
+            ClassLoader cl = proxyType.getClassLoader();
+            Class ejbHomeClass = cl.loadClass("javax.ejb.EJBHome");
+            Class ejbLocalHomeClass = cl.loadClass("javax.ejb.EJBLocalHome");
+            if(ejbHomeClass.isAssignableFrom(proxyType) || ejbLocalHomeClass.isAssignableFrom(proxyType)) {
+                return true;
+            }
+
+            Class ejbObjectClass = cl.loadClass("javax.ejb.EJBObject");
+            Class ejbLocalObjectClass = cl.loadClass("javax.ejb.EJBLocalObject");
+            if (ejbObjectClass.isAssignableFrom(proxyType) || ejbLocalObjectClass.isAssignableFrom(proxyType)) {
+                return false;
+            }
+        } catch (ClassNotFoundException e) {
+            // ignore... exception thrown below
+        }
+
+        throw new IllegalArgumentException("ProxyType must be an instance of EJBHome, EJBLocalHome, EJBObject, or EJBLocalObject");
     }
 
     /**
