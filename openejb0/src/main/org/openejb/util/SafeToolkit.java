@@ -205,8 +205,12 @@ public class SafeToolkit{
      * @exception OpenEJBException
      */
     public static Class loadClass(String className, String codebase) throws OpenEJBException {
+        return loadClass(className, codebase, true);
+    }
+
+    public static Class loadClass(String className, String codebase, boolean cache) throws OpenEJBException {
         
-        ClassLoader cl = getCodebaseClassLoader(codebase);
+        ClassLoader cl = (cache)?getCodebaseClassLoader(codebase):getClassLoader(codebase);
         Class clazz = null;
         try{
             clazz = cl.loadClass(className);
@@ -237,8 +241,9 @@ public class SafeToolkit{
 		    try {
 			java.net.URL[] urlCodebase = new java.net.URL[1];
 			urlCodebase[0] = new java.net.URL("file",null,codebase);
-              // make sure everything works if we were not loaded by the system class loader
+                        // make sure everything works if we were not loaded by the system class loader
 			cl = new java.net.URLClassLoader(urlCodebase, SafeToolkit.class.getClassLoader() );
+                        //cl = SafeToolkit.class.getClassLoader();
 			codebases.put(codebase, cl);
 		    } catch (java.net.MalformedURLException mue) {
 			throw new OpenEJBException( messages.format ( "cl0001", codebase, mue.getMessage() ) );
@@ -247,6 +252,30 @@ public class SafeToolkit{
 		    }
 		}
 	    }
+        }
+        return cl;
+    }
+
+    /**
+     * Ensures that a class loader for each code base used in the
+     * system is created at most one time.  The default bootsrap
+     * classloader is used if codebase is null.
+     * 
+     * @param codebase
+     * @return 
+     * @exception OpenEJBException
+     */
+    protected static ClassLoader getClassLoader(String codebase) throws OpenEJBException{
+        ClassLoader cl = null;
+        try {
+            java.net.URL[] urlCodebase = new java.net.URL[1];
+            urlCodebase[0] = new java.net.URL("file",null,codebase);
+            // make sure everything works if we were not loaded by the system class loader
+            cl = new java.net.URLClassLoader(urlCodebase, SafeToolkit.class.getClassLoader() );
+        } catch (java.net.MalformedURLException mue) {
+            throw new OpenEJBException( messages.format ( "cl0001", codebase, mue.getMessage() ) );
+        } catch (SecurityException se) {
+            throw new OpenEJBException( messages.format ( "cl0002", codebase, se.getMessage() ) );
         }
         return cl;
     }
