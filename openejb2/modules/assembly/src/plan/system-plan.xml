@@ -6,16 +6,16 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-
+  
        http://www.apache.org/licenses/LICENSE-2.0
-
+  
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-
+  
 
 <!--
 Configuration for the innermost ring of a Geronimo server.
@@ -34,13 +34,19 @@ specific services - those should be provided by children.
     <!-- ServerInfo service -->
     <gbean name="geronimo.system:role=ServerInfo" class="org.apache.geronimo.system.serverinfo.ServerInfo"/>
 
-    <!-- ServerInfo service -->
+    <!-- URLFactory service -->
     <gbean name="geronimo.system:role=URLFactory" class="org.apache.geronimo.system.url.GeronimoURLFactory"/>
 
     <!-- Configuration Store service -->
     <gbean name="geronimo.system:role=ConfigurationStore,type=Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
         <attribute name="root" type="java.net.URI">config-store</attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    </gbean>
+
+    <!-- Persistent List of running Configurations service -->
+    <gbean name="geronimo.boot:role=PersistentConfigurationList" class="org.apache.geronimo.system.configuration.FileConfigurationList">
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+        <attribute name="configFile" type="java.lang.String">var/config/config.list</attribute>
     </gbean>
 
     <!-- Repository -->
@@ -73,5 +79,10 @@ specific services - those should be provided by children.
         <attribute name="maxBackupIndex" type="int">1</attribute>
         <attribute name="maxFileSize" type="java.lang.String">10MB</attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    </gbean>
+
+    <!-- RMI Registry -->
+    <gbean name="geronimo.server:role=RMIRegistry" class="org.apache.geronimo.system.RMIRegistryService">
+        <attribute name="port" type="int">1099</attribute>
     </gbean>
 </configuration>
