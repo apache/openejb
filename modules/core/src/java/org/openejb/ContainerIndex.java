@@ -189,9 +189,12 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
         return (index == null) ? -1 : index.intValue();
     }
 
-    public synchronized EJBContainer getContainer(String containerID) {
-        //TODO return an informative exception if there is no such containerId.  Currently returns ArrayIndexOutOfBoundsException(-1)
-        return getContainer(getContainerIndex(containerID));
+    public synchronized EJBContainer getContainer(String containerID) throws ContainerNotFoundException {
+        int containerIndex = getContainerIndex(containerID);
+        if (containerIndex < 0) {
+            throw new ContainerNotFoundException(containerID);
+        }
+        return getContainer(containerIndex);
     }
 
     public synchronized EJBContainer getContainer(Integer index) {

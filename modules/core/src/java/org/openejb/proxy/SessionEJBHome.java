@@ -45,10 +45,13 @@
 package org.openejb.proxy;
 
 import java.rmi.RemoteException;
+import java.rmi.NoSuchObjectException;
 
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.ejb.RemoveException;
+
+import org.openejb.ContainerNotFoundException;
 
 
 /**
@@ -65,7 +68,13 @@ public abstract class SessionEJBHome extends EJBHomeImpl{
             if (handle == null) {
                 throw new RemoveException("Handle is null");
             }
-            Class remoteInterface = ejbHandler.getProxyInfo().getRemoteInterface();
+            ProxyInfo proxyInfo = null;
+            try {
+                proxyInfo = ejbHandler.getProxyInfo();
+            } catch (ContainerNotFoundException e) {
+                throw new NoSuchObjectException(e.getMessage());
+            }
+            Class remoteInterface = proxyInfo.getRemoteInterface();
             if (!remoteInterface.isInstance(handle.getEJBObject())) {
                 throw new RemoteException("Handle does not hold a " + remoteInterface.getName());
             }

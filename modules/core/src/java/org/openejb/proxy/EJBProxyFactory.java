@@ -57,6 +57,7 @@ import javax.ejb.EJBObject;
 import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
 import org.openejb.EJBInterfaceType;
+import org.openejb.ContainerNotFoundException;
 import org.openejb.dispatch.InterfaceMethodSignature;
 
 public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFactory {
@@ -135,7 +136,7 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         return container.getEJBName();
     }
 
-    EJBContainer getContainer() {
+    EJBContainer getContainer() throws ContainerNotFoundException {
         if (container == null) {
             locateContainer();
         }
@@ -164,7 +165,7 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         localHomeMap = createOperationsMap(localHomeFactory, signatures);
     }
 
-    int[] getOperationMap(EJBInterfaceType type) {
+    int[] getOperationMap(EJBInterfaceType type) throws ContainerNotFoundException {
         if (container == null) {
             locateContainer();
         }
@@ -295,7 +296,7 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         }
     }
 
-    private void locateContainer() {
+    private void locateContainer() throws ContainerNotFoundException {
         ContainerIndex containerIndex = ContainerIndex.getInstance();
         EJBContainer c = containerIndex.getContainer(containerId);
         if (c == null) {
