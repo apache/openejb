@@ -62,6 +62,7 @@ import org.apache.geronimo.security.SecurityService;
 
 import org.openejb.corba.security.config.ConfigAdapter;
 import org.openejb.corba.security.config.tss.TSSConfig;
+import org.openejb.corba.util.Util;
 
 
 /**
@@ -86,7 +87,7 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
         this.configAdapter = null;
     }
 
-    public CORBABean(String configAdapter, ClassLoader classLoader, Executor threadPool, OpenORBNameBean namingService, SecurityService securityService) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public CORBABean(String configAdapter, ClassLoader classLoader, Executor threadPool, SecurityService securityService, SunNameService nameService) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         this.classLoader = classLoader;
         this.threadPool = threadPool;
         if (configAdapter != null) {
@@ -94,8 +95,8 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
         } else {
             this.configAdapter = null;
         }
-        //naming service included to force start order.
         //security service included to force start order.
+        //name service included to force start order.
     }
 
     public TSSConfig getTssConfig() {
@@ -146,6 +147,8 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
                 orb = ORB.init((String[]) args.toArray(new String[args.size()]), props);
             }
 
+            Util.setORB(orb);
+
             org.omg.CORBA.Object obj = orb.resolve_initial_references("RootPOA");
 
             rootPOA = POAHelper.narrow(obj);
@@ -163,7 +166,6 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
     }
 
     public void doStop() throws Exception {
-        orb.shutdown(true);
         orb.destroy();
         log.info("Stopped CORBABean");
     }
@@ -187,10 +189,10 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("NamingService", OpenORBNameBean.class, NameFactory.CORBA_SERVICE);
         infoFactory.addReference("SecurityService", SecurityService.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("NameService", SunNameService.class, NameFactory.CORBA_SERVICE);
 
-        infoFactory.setConstructor(new String[]{"configAdapter", "classLoader", "ThreadPool", "NamingService", "SecurityService"});
+        infoFactory.setConstructor(new String[]{"configAdapter", "classLoader", "ThreadPool", "SecurityService", "NameService"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

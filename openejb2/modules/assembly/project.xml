@@ -142,6 +142,18 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-interop</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <lib>true</lib>
+                <server>true</server>
+                <deploy>true</deploy>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${geronimo_version}</version>
             <properties>
@@ -597,6 +609,8 @@
             <artifactId>tmporb-orb</artifactId>
             <version>${tmporb_version}</version>
             <properties>
+                <lib>true</lib>
+                <deploy>true</deploy>
                 <repository>true</repository>
             </properties>
         </dependency>

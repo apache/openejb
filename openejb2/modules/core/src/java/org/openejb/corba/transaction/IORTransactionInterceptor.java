@@ -49,15 +49,15 @@ import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INV_POLICY;
 import org.omg.CORBA.LocalObject;
+import org.omg.CORBA.ORB;
 import org.omg.IOP.TAG_INTERNET_IOP;
 import org.omg.IOP.TAG_OTS_POLICY;
 import org.omg.IOP.TaggedComponent;
 import org.omg.PortableInterceptor.IORInfo;
 import org.omg.PortableInterceptor.IORInterceptor;
+
 import org.openejb.corba.idl.CosTSInteroperation.TAG_INV_POLICY;
 import org.openejb.corba.idl.CosTransactions.ADAPTS;
-import org.openejb.corba.idl.CosTransactions.InvocationPolicyValueHelper;
-import org.openejb.corba.idl.CosTransactions.OTSPolicyValueHelper;
 import org.openejb.corba.idl.CosTransactions.SHARED;
 import org.openejb.corba.util.Util;
 
@@ -72,14 +72,14 @@ final class IORTransactionInterceptor extends LocalObject implements IORIntercep
     public void establish_components(IORInfo info) {
 
         try {
-            Any invAny = Util.getORB().create_any();
-            InvocationPolicyValueHelper.insert(invAny, SHARED.value);
+            Any invAny = ORB.init().create_any();
+            invAny.insert_short(SHARED.value);
             byte[] invBytes = Util.getCodec().encode_value(invAny);
             TaggedComponent invocationPolicyComponent = new TaggedComponent(TAG_INV_POLICY.value, invBytes);
             info.add_ior_component_to_profile(invocationPolicyComponent, TAG_INTERNET_IOP.value);
 
-            Any otsAny = Util.getORB().create_any();
-            OTSPolicyValueHelper.insert(otsAny, ADAPTS.value);
+            Any otsAny = ORB.init().create_any();
+            otsAny.insert_short(ADAPTS.value);
             byte[] otsBytes = Util.getCodec().encode_value(otsAny);
             TaggedComponent otsPolicyComponent = new TaggedComponent(TAG_OTS_POLICY.value, otsBytes);
             info.add_ior_component_to_profile(otsPolicyComponent, TAG_INTERNET_IOP.value);

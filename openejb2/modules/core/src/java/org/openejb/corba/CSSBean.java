@@ -54,13 +54,13 @@ import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
-import org.omg.CORBA.PolicyManager;
-import org.omg.CORBA.PolicyManagerHelper;
 import org.omg.CORBA.SetOverrideType;
 import org.omg.CORBA.UserException;
+import org.omg.CORBA.portable.ObjectImpl;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.PortableInterceptor.ClientRequestInfo;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -96,6 +96,7 @@ public class CSSBean implements GBeanLifecycle {
     private ArrayList cssArgs;
     private Properties nssProps;
     private Properties cssProps;
+    private ClientContext context;
 
     public CSSBean() {
         this.classLoader = null;
@@ -186,7 +187,13 @@ public class CSSBean implements GBeanLifecycle {
             org.omg.CORBA.Object bean = ic.resolve(nameComponent);
             String beanIOR = nssORB.object_to_string(bean);
 
-            return cssORB.string_to_object(beanIOR);
+            bean =  cssORB.string_to_object(beanIOR);
+
+            if (bean instanceof ClientContextHolder) {
+                ((ClientContextHolder)bean).setClientContext(context);
+            }
+
+            return bean;
         } catch (UserException ue) {
             log.error(description + " - Looking up home", ue);
             throw new RuntimeException(ue);
@@ -232,23 +239,16 @@ public class CSSBean implements GBeanLifecycle {
 
             cssORB = ORB.init((String[]) cssArgs.toArray(new String[cssArgs.size()]), properties);
 
-            org.omg.CORBA.Object ref = cssORB.resolve_initial_references("ORBPolicyManager");
-            PolicyManager pm = PolicyManagerHelper.narrow(ref);
-
-            Any cssany = cssORB.create_any();
-            cssany.insert_Value(cssConfig);
-
-            Any txany = cssORB.create_any();
-            txany.insert_Value(buildClientTransactionPolicyConfig());
-
-            pm.set_policy_overrides(new Policy[]{cssORB.create_policy(ClientPolicyFactory.POLICY_TYPE, cssany),
-                                                 cssORB.create_policy(ClientTransactionPolicyFactory.POLICY_TYPE, txany)}, SetOverrideType.ADD_OVERRIDE);
-
             threadPool.execute(new Runnable() {
                 public void run() {
                     cssORB.run();
                 }
             });
+
+            context = new ClientContext();
+            context.setSecurityConfig(cssConfig);
+            context.setTransactionConfig(buildClientTransactionPolicyConfig());
+
         } finally {
             Thread.currentThread().setContextClassLoader(savedLoader);
         }
@@ -261,10 +261,7 @@ public class CSSBean implements GBeanLifecycle {
     }
 
     public void doStop() throws Exception {
-
-        nssORB.shutdown(true);
         nssORB.destroy();
-        cssORB.shutdown(true);
         cssORB.destroy();
         log.info("Stopped CORBA Client Security Server - " + description);
     }

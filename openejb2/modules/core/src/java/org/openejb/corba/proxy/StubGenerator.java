@@ -63,6 +63,9 @@ import org.openorb.compiler.object.IdlFixed;
 import org.openorb.compiler.object.IdlIdent;
 import org.openorb.compiler.object.IdlInterface;
 import org.openorb.compiler.object.IdlObject;
+import org.openorb.compiler.object.IdlOp;
+import org.openorb.compiler.object.IdlParam;
+import org.openorb.compiler.object.IdlRaises;
 import org.openorb.compiler.object.IdlSimple;
 import org.openorb.compiler.object.IdlUnion;
 import org.openorb.compiler.object.IdlUnionMember;
@@ -72,6 +75,7 @@ import org.openorb.compiler.parser.IdlType;
 import org.openorb.compiler.parser.Token;
 import org.openorb.compiler.rmi.RmiCompilerProperties;
 import org.openorb.compiler.rmi.generator.Javatoidl;
+import org.openorb.util.ReflectionUtils;
 
 
 /**
@@ -80,8 +84,14 @@ import org.openorb.compiler.rmi.generator.Javatoidl;
  */
 public class StubGenerator extends Javatoidl {
 
+    final RmiCompilerProperties rcp;
+    final CompilerHost ch;
+
     public StubGenerator(RmiCompilerProperties rcp, CompilerHost ch) {
         super(rcp, ch);
+
+        this.rcp = rcp;
+        this.ch = ch;
     }
 
     public void translateStub(IdlObject obj, String packageName) {
@@ -108,8 +118,10 @@ public class StubGenerator extends Javatoidl {
         inhList = getInheritanceList(obj, inhList);
 
         output.println("public class _" + obj.name() + "_Stub extends javax.rmi.CORBA.Stub");
-        output.println("    implements " + fullname(obj));
+        output.println("    implements " + fullname(obj) + ", org.openejb.corba.ClientContextHolder");
         output.println("{");
+        output.println("");
+        output.println("    private org.openejb.corba.ClientContext _context;");
         output.println("");
         // Create the typeid array
         output.println("    static final String[] _ids_list =");
@@ -150,8 +162,375 @@ public class StubGenerator extends Javatoidl {
                     break;
             }
         }
+
+        output.println("");
+        output.println("    public org.openejb.corba.ClientContext getClientContext() {");
+        output.println("        return _context;");
+        output.println("    }");
+        output.println("");
+        output.println("    public void setClientContext(org.openejb.corba.ClientContext context) {");
+        output.println("        _context = context;");
+        output.println("    }");
+        output.println("");
+
         output.println("}");
         output.close();
+    }
+
+    /**
+     * Translate an operation for a RMI stub
+     */
+    public void translate_operation_rmi_stub(IdlObject obj, IdlObject base, PrintWriter output) {
+
+        if (rcp.getM_verbose()) {
+            ch.display("RMIGenerator::translate_operation_rmi_stub-> obj='" + obj.name() + "'");
+        }
+
+        IdlRaises r;
+        boolean someParams = false;
+        boolean noReturn = false;
+        int i = 0, p;
+        output.println("    /**");
+        output.println("     * Operation " + obj.name());
+        output.println("     */");
+        output.print("    public ");
+        obj.reset();
+        translate_type(obj.current(), output);
+        output.print(" " + (String) obj.opaque() + "(");
+        obj.next();
+        if (!obj.end()) {
+            if (obj.current().kind() == IdlType.e_param) {
+                someParams = true;
+                while (!obj.end()) {
+                    obj.current().reset();
+                    translate_parameter(obj.current().current(), output,
+                                        ((IdlParam) obj.current()).param_attr());
+                    output.print(" " + obj.current().name());
+                    obj.next();
+                    if (!obj.end()) {
+                        if (obj.current().kind() == IdlType.e_param) {
+                            output.print(", ");
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        output.print(")");
+        output.println("");
+        output.print("        throws ");
+        if (!obj.end()) {
+            if (obj.current().kind() == IdlType.e_raises) {
+                r = (IdlRaises) obj.current();
+                r.reset();
+                while (!r.end()) {
+                    String ex = fullnameOpaque(r.current());
+                    output.print(ex);
+                    r.next();
+                    output.print(", ");
+                }
+            }
+        }
+        output.println("java.rmi.RemoteException");
+        output.println("    {");
+        output.println("        while( true )");
+        output.println("        {");
+        if (m_cp.getM_map_poa()) {
+            if (rcp.getMapLocal()) {
+                output.println("            if ( !javax.rmi.CORBA.Util.isLocal( this ) )");
+                output.println("            {");
+            }
+        }
+        output.println("                org.openejb.corba.ClientContext saved = org.openejb.corba.ClientContextManager.getClientContext();");
+        output.println("                org.omg.CORBA_2_3.portable.InputStream _input = null;");
+        output.println("                try");
+        output.println("                {");
+        output.println("                    org.openejb.corba.ClientContextManager.setClientContext(_context);");
+        if (((IdlOp) obj).oneway()) {
+            output.println("                    org.omg.CORBA_2_3.portable.OutputStream "
+                           + "_output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request( \""
+                           + obj.name() + "\", false );");
+        } else {
+            output.println("                    org.omg.CORBA_2_3.portable.OutputStream "
+                           + "_output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request( \""
+                           + obj.name() + "\", true );");
+        }
+        obj.reset();
+        obj.next();
+        if (!obj.end()) {
+            if (obj.current().kind() == IdlType.e_param) {
+                while (!obj.end()) {
+                    obj.current().reset();
+                    switch (((IdlParam) obj.current()).param_attr()) {
+                        case 0:
+                            output.print("                    ");
+                            obj.current().reset();
+                            translate_marshalling_data(obj.current().current(), output,
+                                                       "_output", obj.current().name());
+                            break;
+                    }
+                    obj.next();
+                    if (!obj.end()) {
+                        if (obj.current().kind() != IdlType.e_param) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        output.println("                    _input = "
+                       + "( org.omg.CORBA_2_3.portable.InputStream ) this._invoke( _output );");
+        obj.reset();
+        if (obj.current().kind() == IdlType.e_simple) {
+            if (((IdlSimple) obj.current()).internal() != Token.t_void) {
+                output.print("                    ");
+                translate_type(obj.current(), output);
+                output.print(" _arg_ret = ");
+                translate_unmarshalling_data(obj.current(), output, "_input");
+            }
+        } else {
+            output.print("                    ");
+            translate_type(obj.current(), output);
+            output.print(" _arg_ret = ");
+            translate_unmarshalling_data(obj.current(), output, "_input");
+        }
+        obj.next();
+        if (!obj.end()) {
+            if (obj.current().kind() == IdlType.e_param) {
+                while (!obj.end()) {
+                    obj.next();
+                    if (!obj.end()) {
+                        if (obj.current().kind() != IdlType.e_param) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        p = obj.pos();
+        obj.reset();
+        if (obj.current().kind() == IdlType.e_simple) {
+            if (((IdlSimple) obj.current()).internal() != Token.t_void) {
+                output.println("                    return _arg_ret;");
+            } else {
+                output.println("                    return;");
+                noReturn = true;
+            }
+        } else {
+            output.println("                    if (((Object)_arg_ret)  instanceof org.openejb.corba.ClientContextHolder)");
+            output.println("                    {");
+            output.println("                        ((org.openejb.corba.ClientContextHolder)((Object)_arg_ret)).setClientContext(_context);");
+            output.println("                    }");
+
+            output.println("                    return _arg_ret;");
+        }
+        output.println("                }");
+        output.println("                catch ( "
+                       + "org.omg.CORBA.portable.RemarshalException _exception )");
+        output.println("                {");
+        output.println("                    continue;");
+        output.println("                }");
+
+        output.println("                catch ( "
+                       + "org.omg.CORBA.portable.ApplicationException _exception )");
+        output.println("                {");
+        output.println("                    _input = "
+                       + "( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();");
+        output.println("                    java.lang.String "
+                       + "_exception_id = _exception.getId();");
+        obj.pos(p);
+        if (!obj.end()) {
+            if (obj.current().kind() == IdlType.e_raises) {
+                r = (IdlRaises) obj.current();
+                r.reset();
+                while (!r.end()) {
+                    output.println("                    if ( _exception_id.equals( \""
+                                   + r.current().getId() + "\" ) )");
+                    output.println("                    {");
+                    Class clz = null;
+                    try {
+                        clz = Thread.currentThread().getContextClassLoader().loadClass((String) r.current().opaque());
+                    } catch (ClassNotFoundException ex) {
+                        // ??
+                    }
+                    String ex = fullnameOpaque(r.current());
+
+                    if (ReflectionUtils.isAssignableFrom("org.omg.CORBA.UserException", clz)) {
+                        // for corba types the id is read by the xyzHelper.read() method
+                        output.println("                        throw " + ex
+                                       + "Helper.read( _input );");
+                    } else {
+                        // we need to read the id in this case only
+                        output.println("                        _input.read_string();");
+                        output.println("                        throw ( " + ex
+                                       + " ) _input.read_value( " + ex + ".class );");
+                    }
+                    output.println("                    }");
+                    output.println("");
+                    r.next();
+                }
+            }
+        }
+        output.println("                    throw new "
+                       + "java.rmi.UnexpectedException( _exception_id );");
+        output.println("                }");
+        output.println("                catch ( org.omg.CORBA.SystemException _exception )");
+        output.println("                {");
+        output.println("                    throw "
+                       + "javax.rmi.CORBA.Util.mapSystemException( _exception );");
+        output.println("                }");
+        output.println("                finally");
+        output.println("                {");
+        output.println("                    org.openejb.corba.ClientContextManager.setClientContext(saved);");
+        output.println("                    this._releaseReply( _input );");
+        output.println("                }");
+        if (m_cp.getM_map_poa()) {
+            if (rcp.getMapLocal()) {
+                output.println("            }");
+                output.println("            else");
+                output.println("            {");
+                output.println("                org.openejb.corba.ClientContext saved = org.openejb.corba.ClientContextManager.getClientContext();");
+                output.println("                org.omg.CORBA.portable.ServantObject "
+                               + "_so = _servant_preinvoke( \"" + obj.name() + "\", _opsClass );");
+                output.println("                if ( _so == null )");
+                if (noReturn) {
+                    output.print("                   " + (String) obj.opaque() + "(");
+                } else {
+                    output.print("                   return " + (String) obj.opaque() + "( ");
+                }
+                obj.reset();
+                obj.next();
+                if (!obj.end()) {
+                    if (obj.current().kind() == IdlType.e_param) {
+                        someParams = true;
+
+                        while (!obj.end()) {
+                            obj.current().reset();
+                            output.print(" " + obj.current().name());
+                            obj.next();
+                            if (!obj.end()) {
+                                if (obj.current().kind() == IdlType.e_param) {
+                                    output.print(", ");
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                output.println(" );");
+                output.println("                try");
+                output.println("                {");
+                output.println("                    org.openejb.corba.ClientContextManager.setClientContext(_context);");
+                String methodName = (String) obj.opaque();
+                obj.reset();
+                obj.next();
+                if (!obj.end()) {
+                    while (!obj.end()) {
+                        if (obj.current().kind() == IdlType.e_param) {
+                            obj.current().reset();
+                            output.print("                    ");
+                            translate_parameter(obj.current().current(), output,
+                                                ((IdlParam) obj.current()).param_attr());
+                            output.print(" " + obj.current().name() + "Copy = ");
+                            if (obj.current().current().kind() == IdlType.e_simple) {
+                                output.println(obj.current().name() + ";");
+                            } else {
+                                output.print("( ");
+                                translate_parameter(obj.current().current(), output,
+                                                    ((IdlParam) obj.current()).param_attr());
+                                output.println(" ) javax.rmi.CORBA.Util.copyObject( "
+                                               + obj.current().name() + ", _orb() );");
+                            }
+                        }
+                        obj.next();
+                    }
+                }
+                obj.reset();
+                IdlObject returnType = obj.current();
+                if (noReturn) {
+                    output.print("                    ( ( " + fullname(base)
+                                 + " ) _so.servant )." + methodName + "( ");
+                } else {
+                    output.print("                    ");
+                    translate_type(returnType, output);
+                    output.print(" _arg_ret = ( ( " + fullname(base)
+                                 + " ) _so.servant )." + methodName + "( ");
+                }
+                obj.next();
+                if (!obj.end()) {
+                    if (obj.current().kind() == IdlType.e_param) {
+                        someParams = true;
+                        while (!obj.end()) {
+                            obj.current().reset();
+                            output.print(" " + obj.current().name() + "Copy");
+                            obj.next();
+                            if (!obj.end()) {
+                                if (obj.current().kind() == IdlType.e_param) {
+                                    output.print(", ");
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                output.println(");");
+                if (noReturn) {
+                    output.println("                    return;");
+                } else {
+                    if (returnType.kind() == IdlType.e_simple) {
+                        output.println("                    return _arg_ret;");
+                    } else {
+                        output.print("                    _arg_ret = ( ");
+                        translate_type(returnType, output);
+                        output.print(" ) javax.rmi.PortableRemoteObject.narrow( "
+                                     + "javax.rmi.CORBA.Util.copyObject( _arg_ret, _orb() ), ");
+                        translate_type(returnType, output);
+                        output.println(".class);");
+                        output.println("                    if (((Object)_arg_ret) instanceof org.openejb.corba.ClientContextHolder)");
+                        output.println("                    {");
+                        output.println("                        ((org.openejb.corba.ClientContextHolder)((Object)_arg_ret)).setClientContext(_context);");
+                        output.println("                    }");
+                        output.println("                    return _arg_ret;");
+                    }
+                }
+                output.println("                }");
+                output.println("                catch ( Throwable ex )");
+                output.println("                {");
+                output.println("                    Throwable ex2 = ( Throwable )"
+                               + " javax.rmi.CORBA.Util.copyObject( ex, _orb() );");
+                obj.pos(p);
+                if (!obj.end()) {
+                    if (obj.current().kind() == IdlType.e_raises) {
+                        r = (IdlRaises) obj.current();
+                        r.reset();
+                        while (!r.end()) {
+                            String ex = fullnameOpaque(r.current());
+                            output.println("                    if ( ex2 instanceof " + ex
+                                           + " )");
+                            output.println("                        throw ( " + ex + " ) ex2;");
+                            output.println("");
+                            r.next();
+                        }
+
+                    }
+                }
+                output.println("                    throw "
+                               + "javax.rmi.CORBA.Util.wrapException( ex2 );");
+                output.println("                }");
+                output.println("                finally");
+                output.println("                {");
+                output.println("                    org.openejb.corba.ClientContextManager.setClientContext(saved);");
+                output.println("                    _servant_postinvoke( _so );");
+                output.println("                }");
+                output.println("            }");
+            }
+        }
+        output.println("        }");
+        output.println("    }");
+        output.println("");
     }
 
     public void translate_object(IdlObject obj) {

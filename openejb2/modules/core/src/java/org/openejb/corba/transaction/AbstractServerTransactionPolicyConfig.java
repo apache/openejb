@@ -19,21 +19,29 @@ package org.openejb.corba.transaction;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.SystemException;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.IOP.Codec;
 import org.omg.IOP.CodecPackage.FormatMismatch;
 import org.omg.IOP.ServiceContext;
 import org.omg.IOP.TransactionService;
 import org.omg.PortableInterceptor.ServerRequestInfo;
+
 import org.openejb.corba.idl.CosTransactions.PropagationContext;
 import org.openejb.corba.idl.CosTransactions.PropagationContextHelper;
 import org.openejb.corba.util.Util;
+
 
 /**
  * @version $Rev:  $ $Date$
  */
 public abstract class AbstractServerTransactionPolicyConfig implements ServerTransactionPolicyConfig {
     public void importTransaction(ServerRequestInfo serverRequestInfo) throws SystemException {
-        ServiceContext serviceContext = serverRequestInfo.get_request_service_context(TransactionService.value);
+        ServiceContext serviceContext = null;
+        try {
+            serviceContext = serverRequestInfo.get_request_service_context(TransactionService.value);
+        } catch (BAD_PARAM e) {
+            // do nothing
+        }
         PropagationContext propagationContext;
         if (serviceContext == null) {
             propagationContext = null;

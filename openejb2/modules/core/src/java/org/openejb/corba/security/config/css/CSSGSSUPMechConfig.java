@@ -1,4 +1,4 @@
-/* ====================================================================
+/**
  * Redistribution and use of this software and associated documentation
  * ("Software"), with or without modification, are permitted provided
  * that the following conditions are met:
@@ -7,9 +7,10 @@
  *    statements and notices.  Redistributions must also contain a
  *    copy of this document.
  *
- * 2. Redistributions in binary form must reproduce this list of
- *    conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the
+ *    above copyright notice, this list of conditions and the
+ *    following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
  *
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
@@ -22,7 +23,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://openejb.org/).
+ *    (http://openejb.sf.net/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -37,44 +38,57 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * ====================================================================
+ * Copyright 2005 (C) The OpenEJB Group. All Rights Reserved.
  *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the OpenEJB Project.  For more information
- * please see <http://openejb.org/>.
- *
- * ====================================================================
+ * $Id$
  */
-package org.openejb.corba.security.config.tss;
+package org.openejb.corba.security.config.css;
 
-import java.io.Serializable;
-
-import org.omg.CORBA.ORB;
-import org.omg.IOP.Codec;
-
-import org.apache.geronimo.interop.CSIIOP.AS_ContextSec;
+import org.openejb.corba.security.config.tss.TSSASMechConfig;
+import org.openejb.corba.security.config.tss.TSSGSSUPMechConfig;
+import org.openejb.corba.util.Util;
 
 
 /**
- * @version $Rev: $ $Date$
+ * @version $Revision$ $Date$
  */
-public abstract class TSSASMechConfig implements Serializable {
+public class CSSGSSUPMechConfig implements CSSASMechConfig {
 
-    public abstract short getSupports();
+    private final String username;
+    private final String password;
+    private final String domain;
+    private transient byte[] encoding;
 
-    public abstract short getRequires();
+    public CSSGSSUPMechConfig(String username, String password, String domain) {
+        this.username = username;
+        this.password = password;
+        this.domain = domain;
+    }
 
-    public abstract AS_ContextSec encodeIOR(ORB orb, Codec codec) throws Exception;
+    public short getSupports() {
+        return 0;
+    }
 
-    public static TSSASMechConfig decodeIOR(AS_ContextSec context) {
-        TSSASMechConfig result = null;
+    public short getRequires() {
+        return 0;
+    }
 
-        if (context.target_supports == 0) {
-            result = new TSSNULLASMechConfig();
-        } else {
-            result = new TSSGSSUPMechConfig(context);
+    public boolean canHandle(TSSASMechConfig asMech) {
+        if (asMech instanceof TSSGSSUPMechConfig) return true;
+        if (asMech.getRequires() == 0) return true;
+
+        return false;
+    }
+
+    public byte[] encode() {
+        if (encoding == null) {
+            encoding = Util.encodeGSSUPToken(Util.getORB(), Util.getCodec(), username, password.toCharArray(), domain);
+
+            if (encoding == null) encoding = new byte[0];
         }
 
-        return result;
+        byte[] junk = new byte[10];
+        System.arraycopy(encoding, 0, junk, 0, junk.length);
+        return encoding;
     }
 }

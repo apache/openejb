@@ -53,13 +53,15 @@ import java.util.List;
 import javax.net.ssl.SSLSession;
 import javax.security.auth.Subject;
 
-import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.ORB;
-import org.omg.CSIIOP.TAG_NULL_TAG;
-import org.omg.CSIIOP.TAG_SECIOP_SEC_TRANS;
-import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
 import org.omg.IOP.Codec;
-import org.omg.IOP.TaggedComponent;
+
+import org.apache.geronimo.interop.CSIIOP.TAG_NULL_TAG;
+import org.apache.geronimo.interop.CSIIOP.TAG_SECIOP_SEC_TRANS;
+import org.apache.geronimo.interop.CSIIOP.TAG_TLS_SEC_TRANS;
+import org.apache.geronimo.interop.IOP.TaggedComponent;
+
+import org.openejb.corba.security.SASException;
 
 
 /**
@@ -111,6 +113,6 @@ public abstract class TSSTransportMechConfig implements Serializable {
         return result;
     }
 
-    public abstract Subject check(SSLSession session) throws NO_PERMISSION;
+    public abstract Subject check(SSLSession session) throws SASException;
 
 }

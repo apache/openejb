@@ -120,7 +120,6 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
 
-
             TEMPDIR = DeploymentUtil.createTempDir();
             File SRCDIR = new File(TEMPDIR, "SKEL");
             File CLASSESDIR = new File(TEMPDIR, "SKEL");
@@ -177,7 +176,6 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
             jar.setUpdate(true);
             jar.execute();
         } catch (Exception e) {
-            e.printStackTrace();
             /**
              * Convert the msg to string so that we don't try to serialize
              * anything that is unserializable in a cause exception

@@ -48,17 +48,17 @@
 package org.openejb.corba.security.config.tss;
 
 import java.io.Serializable;
-import java.security.Principal;
 import javax.net.ssl.SSLSession;
 import javax.security.auth.Subject;
 
-import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.ORB;
-import org.omg.CSI.EstablishContext;
 import org.omg.IOP.Codec;
 import org.omg.IOP.TaggedComponent;
 
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.interop.CSI.EstablishContext;
+
+import org.openejb.corba.security.SASException;
 
 
 /**
@@ -103,7 +103,7 @@ public class TSSConfig implements Serializable {
         return mechListConfig.encodeIOR(orb, codec);
     }
 
-    public Subject check(SSLSession session, EstablishContext msg) throws NO_PERMISSION {
+    public Subject check(SSLSession session, EstablishContext msg) throws SASException {
 
         Subject result = transport_mech.check(session);
 

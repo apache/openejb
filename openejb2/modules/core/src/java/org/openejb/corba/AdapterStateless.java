@@ -76,7 +76,7 @@ public final class AdapterStateless extends Adapter {
     private final org.omg.CORBA.Object objectReference;
 
     public AdapterStateless(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader, Policy securityPolicy) throws CORBAException {
-        super(container, orb, parentPOA, tieLoader);
+        super(container, orb, parentPOA, tieLoader, securityPolicy);
         Any any = orb.create_any();
         any.insert_Value(container.getRemoteTxPolicyConfig());
 
@@ -84,7 +84,7 @@ public final class AdapterStateless extends Adapter {
             Policy[] policies = new Policy[]{
                 securityPolicy,
                 orb.create_policy(ServerTransactionPolicyFactory.POLICY_TYPE, any),
-                homePOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
+//                homePOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
                 homePOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_ACTIVE_OBJECT_MAP_ONLY),
                 homePOA.create_servant_retention_policy(ServantRetentionPolicyValue.RETAIN),
                 homePOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),

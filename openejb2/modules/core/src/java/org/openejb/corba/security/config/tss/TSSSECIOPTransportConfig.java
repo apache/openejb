@@ -54,17 +54,18 @@ import javax.net.ssl.SSLSession;
 import javax.security.auth.Subject;
 
 import org.omg.CORBA.Any;
-import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.ORB;
-import org.omg.CSIIOP.SECIOP_SEC_TRANS;
-import org.omg.CSIIOP.SECIOP_SEC_TRANSHelper;
-import org.omg.CSIIOP.TAG_SECIOP_SEC_TRANS;
-import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
-import org.omg.CSIIOP.TransportAddress;
 import org.omg.IOP.Codec;
-import org.omg.IOP.TaggedComponent;
 import org.openorb.orb.csiv2.ASN1Utils;
 
+import org.apache.geronimo.interop.CSIIOP.SECIOP_SEC_TRANS;
+import org.apache.geronimo.interop.CSIIOP.SECIOP_SEC_TRANSHelper;
+import org.apache.geronimo.interop.CSIIOP.TAG_SECIOP_SEC_TRANS;
+import org.apache.geronimo.interop.CSIIOP.TLS_SEC_TRANSHelper;
+import org.apache.geronimo.interop.CSIIOP.TransportAddress;
+import org.apache.geronimo.interop.IOP.TaggedComponent;
+
+import org.openejb.corba.security.SASException;
 import org.openejb.corba.util.Util;
 
 
@@ -162,7 +163,7 @@ public class TSSSECIOPTransportConfig extends TSSTransportMechConfig {
         return result;
     }
 
-    public Subject check(SSLSession session) throws NO_PERMISSION {
+    public Subject check(SSLSession session) throws SASException {
         return new Subject();
     }
 

@@ -50,8 +50,9 @@ package org.openejb.corba.security.config.tss;
 import java.io.Serializable;
 
 import org.omg.CORBA.ORB;
-import org.omg.CSIIOP.CompoundSecMech;
 import org.omg.IOP.Codec;
+
+import org.apache.geronimo.interop.CSIIOP.CompoundSecMech;
 
 
 /**

@@ -51,11 +51,12 @@ import java.io.Serializable;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.UserException;
-import org.omg.CSI.EstablishContext;
-import org.omg.CSI.SASContextBody;
-import org.omg.CSI.SASContextBodyHelper;
 import org.omg.IOP.SecurityAttributeService;
 import org.omg.IOP.ServiceContext;
+
+import org.apache.geronimo.interop.CSI.EstablishContext;
+import org.apache.geronimo.interop.CSI.SASContextBody;
+import org.apache.geronimo.interop.CSI.SASContextBodyHelper;
 
 import org.openejb.corba.security.config.tss.TSSCompoundSecMechConfig;
 import org.openejb.corba.util.Util;
@@ -117,7 +118,7 @@ public class CSSCompoundSecMechConfig implements Serializable {
         EstablishContext msg = new EstablishContext();
 
         msg.client_context_id = 0;
-        msg.client_authentication_token = new byte[0];
+        msg.client_authentication_token = as_mech.encode();
         msg.authorization_token = sas_mech.encodeAuthorizationElement();
         msg.identity_token = sas_mech.encodseIdentityToken();
 

@@ -1,4 +1,4 @@
-/* ====================================================================
+/**
  * Redistribution and use of this software and associated documentation
  * ("Software"), with or without modification, are permitted provided
  * that the following conditions are met:
@@ -7,9 +7,10 @@
  *    statements and notices.  Redistributions must also contain a
  *    copy of this document.
  *
- * 2. Redistributions in binary form must reproduce this list of
- *    conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the
+ *    above copyright notice, this list of conditions and the
+ *    following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
  *
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
@@ -22,7 +23,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://openejb.org/).
+ *    (http://openejb.sf.net/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -37,44 +38,46 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * ====================================================================
+ * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
  *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the OpenEJB Project.  For more information
- * please see <http://openejb.org/>.
- *
- * ====================================================================
+ * $Id$
  */
-package org.openejb.corba.security.config.tss;
+package org.openejb.corba.sunorb;
 
-import java.io.Serializable;
-
-import org.omg.CORBA.ORB;
-import org.omg.IOP.Codec;
-
-import org.apache.geronimo.interop.CSIIOP.AS_ContextSec;
+import com.sun.corba.se.interceptor.IORInfoExt;
+import com.sun.corba.se.interceptor.UnknownType;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.omg.CORBA.LocalObject;
+import org.omg.PortableInterceptor.IORInfo;
+import org.omg.PortableInterceptor.IORInterceptor;
 
 
 /**
- * @version $Rev: $ $Date$
+ * @version $Revision$ $Date$
  */
-public abstract class TSSASMechConfig implements Serializable {
+final class IORSSLInterceptor extends LocalObject implements IORInterceptor {
 
-    public abstract short getSupports();
+    private final Log log = LogFactory.getLog(IORSSLInterceptor.class);
 
-    public abstract short getRequires();
+    public void establish_components(IORInfo info) {
 
-    public abstract AS_ContextSec encodeIOR(ORB orb, Codec codec) throws Exception;
+        try {
+            IORInfoExt ext = (IORInfoExt) info;
 
-    public static TSSASMechConfig decodeIOR(AS_ContextSec context) {
-        TSSASMechConfig result = null;
+            int port = ext.getServerPort(OpenEJBSocketFactory.IIOP_SSL);
 
-        if (context.target_supports == 0) {
-            result = new TSSNULLASMechConfig();
-        } else {
-            result = new TSSGSSUPMechConfig(context);
+//            info.add_ior_component(policy.getConfig().generateIOR(Util.getORB(), Util.getCodec()), TAG_INTERNET_IOP.value);
+        } catch (UnknownType unknownType) {
+            log.error("Unknown type", unknownType);
         }
-
-        return result;
     }
+
+    public void destroy() {
+    }
+
+    public String name() {
+        return "org.openejb.corba.ssl.IORSSLInterceptor";
+    }
+
 }

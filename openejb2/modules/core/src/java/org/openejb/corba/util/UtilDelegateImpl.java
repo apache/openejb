@@ -210,7 +210,7 @@ public final class UtilDelegateImpl implements UtilDelegate {
             try {
                 result = classLoader.loadClass(className);
             } catch (ClassNotFoundException e) {
-                if (log.isDebugEnabled()) log.debug("Unable to load " + className + " from the static class loader", e);
+                if (log.isDebugEnabled()) log.debug("Unable to load " + className + " from the static class loader");
                 throw e;
             }
 

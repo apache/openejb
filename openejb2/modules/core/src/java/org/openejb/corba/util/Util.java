@@ -62,14 +62,15 @@ import org.bouncycastle.asn1.x509.X509Name;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;
-import org.omg.GSSUP.GSSUPMechOID;
-import org.omg.GSSUP.InitialContextToken;
-import org.omg.GSSUP.InitialContextTokenHelper;
 import org.omg.IOP.Codec;
 import org.omg.IOP.CodecFactory;
 import org.omg.IOP.ENCODING_CDR_ENCAPS;
 import org.omg.IOP.Encoding;
 import org.openorb.util.HexPrintStream;
+
+import org.apache.geronimo.interop.GSSUP.GSSUPMechOID;
+import org.apache.geronimo.interop.GSSUP.InitialContextToken;
+import org.apache.geronimo.interop.GSSUP.InitialContextTokenHelper;
 
 
 /**
@@ -95,7 +96,7 @@ public final class Util {
         return orb;
     }
 
-    static void setORB(ORB orb) throws UserException {
+    public static void setORB(ORB orb) throws UserException {
         Util.orb = orb;
         CodecFactory factory = (CodecFactory) Util.orb.resolve_initial_references("CodecFactory");
         codec = factory.create_codec(new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 2));
@@ -303,9 +304,12 @@ public final class Util {
             // create and encode a GSSUP initial context token
             InitialContextToken init_token = new InitialContextToken();
             init_token.username = user.getBytes();
+            
             String password = new String(pwd);
             init_token.password = password.getBytes();
+
             init_token.target_name = encodeGSSExportName(GSSUPMechOID.value.substring(4), target);
+
             Any a = orb.create_any();
             InitialContextTokenHelper.insert(a, init_token);
             byte[] init_ctx_token = codec.encode_value(a);

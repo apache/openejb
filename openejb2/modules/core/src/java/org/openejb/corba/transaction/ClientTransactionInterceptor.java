@@ -49,7 +49,6 @@ import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.INTERNAL;
-import org.omg.CORBA.INV_POLICY;
 import org.omg.CORBA.LocalObject;
 import org.omg.IOP.CodecPackage.FormatMismatch;
 import org.omg.IOP.CodecPackage.TypeMismatch;
@@ -58,10 +57,12 @@ import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
 
+import org.openejb.corba.ClientContextManager;
 import org.openejb.corba.idl.CosTSInteroperation.TAG_OTS_POLICY;
 import org.openejb.corba.idl.CosTransactions.ADAPTS;
 import org.openejb.corba.idl.CosTransactions.OTSPolicyValueHelper;
 import org.openejb.corba.util.Util;
+import org.openejb.corba.util.TypeCode;
 
 
 /**
@@ -94,11 +95,7 @@ class ClientTransactionInterceptor extends LocalObject implements ClientRequestI
 
             taggedComponent = ri.get_effective_component(TAG_OTS_POLICY.value);
         } catch (BAD_PARAM e) {
-            if ((e.minor & 25) == 25) {
-                //tagged component missing
-                return;
-            }
-            throw e;
+            return;
         }
 
         if (log.isDebugEnabled()) log.debug("Target has a transaction policy");
@@ -106,23 +103,22 @@ class ClientTransactionInterceptor extends LocalObject implements ClientRequestI
         byte[] data = taggedComponent.component_data;
         Any any = null;
         try {
-            any = Util.getCodec().decode_value(data, OTSPolicyValueHelper.type());
+            any = Util.getCodec().decode_value(data, TypeCode.SHORT);
         } catch (FormatMismatch formatMismatch) {
-            log.error("Mismatched format");
+            log.error("Mismatched format", formatMismatch);
             throw (INTERNAL) new INTERNAL("Mismatched format").initCause(formatMismatch);
         } catch (TypeMismatch typeMismatch) {
-            log.error("Type mismatch");
+            log.error("Type mismatch", typeMismatch);
             throw (INTERNAL) new INTERNAL("Type mismatch").initCause(typeMismatch);
         }
+
         short value = OTSPolicyValueHelper.extract(any);
         if (value == ADAPTS.value) {
-            ClientTransactionPolicy policy = null;
-            try {
-                policy = (ClientTransactionPolicy) ri.get_request_policy(ClientTransactionPolicyFactory.POLICY_TYPE);
-            } catch (INV_POLICY e) {
-                throw new INTERNAL("No transaction policy configured");
-            }
-            ClientTransactionPolicyConfig clientTransactionPolicyConfig = policy.getClientTransactionPolicyConfig();
+            ClientTransactionPolicyConfig clientTransactionPolicyConfig = ClientContextManager.getClientContext().getTransactionConfig();
+            if (clientTransactionPolicyConfig == null) return;
+
+            if (log.isDebugEnabled()) log.debug("Client has a transaction policy");
+
             clientTransactionPolicyConfig.exportTransaction(ri);
         }
     }
