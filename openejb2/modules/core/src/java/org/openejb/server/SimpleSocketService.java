@@ -83,9 +83,12 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
         }
 
         String name = "ejb";
+        int threads = 20;
+        int priority = Thread.NORM_PRIORITY;
         String[] logOnSuccess = new String[]{"HOST","NAME","THREADID","USERID"};
         String[] logOnFailure = new String[]{"HOST","NAME"};
-        service = new ServicePool(service);
+
+        service = new ServicePool(name, service, threads, priority);
         service = new ServiceAccessController(service, onlyFrom);
         service = new ServiceLogger(name, service, logOnSuccess, logOnFailure);
         server = service;
