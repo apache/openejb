@@ -1,0 +1,251 @@
+<project name="OpenEJB" default="jar" basedir="./">
+  <!-- 
+        Contributions by:
+            Alan D. Cabrera <adc@toolazydogs.com>
+    -->
+
+  <!-- Give user a chance to override without editing this file
+       (and without typing -D each time they invoke a target) -->
+
+  <!-- Allow any user specific values to override the defaults -->
+  <property file="${user.home}/build.properties" />
+
+  <!-- Set default values for the build -->
+  <property file="./build.properties" />
+
+  <property name="build.src" value="${build.dir}/src"/>
+  <property name="build.dest" value="${build.dir}/classes"/>
+  <property name="src.java.dir" value="${src.dir}"/>
+  <property name="final.name" value="${project}-${version}"/>
+  <property name="final.dir" value="${base.path}/dist/${final.name}/"/>
+  
+  <property name="build.examples.src" value="${build.src}/examples"/>
+  <property name="build.examples.dest" value="${build.dest}/examples"/>
+  <property name="src.examples.dir" value="${src.dir}/examples"/>
+  
+  <!-- Build classpath -->
+  <path id="project.classpath">
+    <pathelement location="${ejb11.jar}"/>
+    <pathelement location="${jndi.jar}"/>
+  </path>
+  
+  <!-- ================================================================== -->
+  <!-- Prints useful build environment values                             -->
+  <!-- ================================================================== -->
+  
+  <target name="env" depends="check_available">
+    <tstamp/>
+
+    <echo message="version                = ${version}"/>
+    <echo message="DSTAMP                 = ${DSTAMP}"/>
+    <echo message="TSTAMP                 = ${TSTAMP}"/>
+
+    <echo message="java.home              = ${java.home}"/>
+    <echo message="user.home              = ${user.home}"/>   
+
+    <echo message="build.dir              = ${build.dir}"/>
+    <echo message="build.src              = ${build.src}"/>
+    <echo message="build.dest             = ${build.dest}"/>
+    <echo message="final.dir              = ${final.dir}"/>
+
+    <echo message="ejb11.jar              = ${ejb11.jar}"/>
+    <echo message="jndi.jar               = ${jndi.jar}"/>
+  
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Help on usage                                                      -->
+  <!-- ================================================================== -->
+  
+  <target name="usage">
+    <echo message="use -projecthelp to see the available targets"/>
+  </target>
+  
+  <target name="targets">
+    <echo message="use -projecthelp to see the available targets"/>
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Check to see what optional dependencies are available              -->
+  <!-- ================================================================== -->
+  
+  <target name="check_available">
+    
+    <available 
+      file="${ejb11.jar}"
+      property="ejb11.present"
+      classpathref="project.classpath"
+    />
+    
+    <available 
+      classname="javax.naming.Name"
+      property="jndi.present"
+      classpathref="project.classpath"
+    />
+    
+    <available
+      property="jdk12"
+      classname="java.util.Map"
+      classpathref="project.classpath"
+    />
+    
+    <available
+      property="jdk13"
+      classname="java.lang.reflect.Proxy"
+      classpathref="project.classpath"
+    />
+    
+  </target>  
+    
+  <target name="check.ejb11" unless="ejb11.present">
+    <antcall target="property-warning">
+      <param name="name" value="ejb11.jar"/>
+      <param name="value" value="${ejb11.jar}"/>
+    </antcall>
+  </target>
+
+  <target name="check.jndi" unless="jndi.present">
+    <antcall target="property-warning">
+      <param name="name" value="jndi.jar"/>
+      <param name="value" value="${jndi.jar}"/>
+    </antcall>
+  </target>
+    
+  <!-- ================================================================== -->
+  <!-- Print a requirement waring if a requirement check fails            -->
+  <!-- ================================================================== -->
+  
+  <target name="property-warning">
+    <echo>
+      +----------------------------------------------------------------+
+      + F A I L E D  R E Q U I R E M E N T                             |
+      +----------------------------------------------------------------+
+      | You must define the following property in order                |
+      | to build OpenEJB:                                              |
+      |                                                                |
+      | ${name} = ${value}
+      |                                                                |
+      | You can set this property in the provided build.properties     |
+      | file, or you may set this property in your                     |
+      | ${user.home}/build.properties file.                            
+      +----------------------------------------------------------------+
+    </echo>
+    <fail message="Failed Requirement"/>
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Prepares the build directory                                       -->
+  <!-- ================================================================== -->
+  
+  <target name="prepare"
+          depends="env,
+                   check.ejb11,
+                   check.jndi"
+          description="--> prepares the build environment">
+          
+    <mkdir dir="${build.examples.src}"/>
+    <mkdir dir="${build.examples.dest}"/>
+    <mkdir dir="${build.examples.dest}/META-INF"/>
+    
+    <copy todir="${build.examples.src}">
+    
+      <fileset dir="${src.examples.dir}/src" >
+        <exclude name="**/CVS/**"/>
+        <exclude name="**/javax/**"/>
+        <exclude name="**/*.class"/>
+      </fileset>
+    
+    </copy>
+        
+  </target>
+  
+  <target name="copy.manifest">
+  
+    <copy todir="${build.examples.dest}">
+    
+      <fileset dir="${src.java.dir}/etc" >
+        <include name="**/LICENSE"/>
+        <include name="**/README"/>
+      </fileset>
+
+    </copy>
+
+    <copy todir="${build.examples.dest}">
+
+      <fileset dir="${final.dir}/src/etc" >
+        <include name="**/CHANGELOG"/>
+      </fileset>
+
+    </copy>
+
+    <copy todir="${build.examples.dest}/META-INF">
+    
+      <fileset dir="${src.examples.dir}/src/META-INF" >
+        <include name="ejb-jar.xml"/>
+        <include name="openejb-jar.xml"/>
+      </fileset>
+      
+      <fileset dir="${src.java.dir}/etc" >
+        <include name="**/MANIFEST.MF"/>
+      </fileset>
+
+    </copy>
+    
+    <replace file="${build.examples.dest}/META-INF/MANIFEST.MF" token="$$VERSION$$" value="${version}"/>
+          
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Compiles the source directory                                      -->
+  <!-- ================================================================== -->
+  
+  <target name="compile"
+          depends="prepare"
+          description="--> compiles the java source files">
+                    
+    <javac srcdir="${build.examples.src}"
+           destdir="${build.examples.dest}"
+           debug="${debug}"
+           deprecation="${deprecation}">
+           
+      <classpath>
+        <path refid="project.classpath"/>
+        <pathelement location="${build.dest}/openejb"/>
+      </classpath>
+           
+    </javac>
+          
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Compiles the source directory and creates a .jar file              -->
+  <!-- ================================================================== -->
+  
+  <target name="jar"
+          depends="compile, copy.manifest"
+          description="--> generates all java archives (default)">
+    
+    <jar jarfile="${base.path}/beans/${project}_examples_beans-${version}.jar"
+         basedir="${build.examples.dest}"
+         includes="**/*.class,META-INF/*.xml"
+         excludes="**/clients/**"
+         manifest="${build.examples.dest}/META-INF/MANIFEST.MF"/>
+
+    <jar jarfile="${base.path}/dist/${project}_examples_clients-${version}.jar"
+         basedir="${build.examples.dest}"
+         includes="**/*.class"
+         excludes="**/*Bean*"
+         manifest="${build.examples.dest}/META-INF/MANIFEST.MF"/>
+
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Cleans up the build directory                                      -->
+  <!-- ================================================================== -->
+  
+  <target name="clean"
+          description="--> cleans up the build directory">
+    <delete dir="${build.dir}"/>
+  </target>
+        
+</project>
