@@ -41,7 +41,8 @@
  * Copyright 1999 (C) Exoffice Technologies Inc. All Rights Reserved.
  *
  * $Id$
- */package org.openejb.resource.jdbc;
+ */
+package org.openejb.resource.jdbc;
 
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ConnectionManager;
@@ -58,11 +59,12 @@ import org.apache.commons.logging.LogFactory;
 * the JdbcConnecitonFactory is only a store for this reference, its not expected to be functional after
 * it has been serialized into a JNDI name space.  See section 10.5.3 of the Connector API spec.
 */
+
 public class JdbcConnectionFactory
-implements
-javax.sql.DataSource,
-javax.resource.Referenceable,
-java.io.Serializable {
+        implements
+        javax.sql.DataSource,
+        javax.resource.Referenceable,
+        java.io.Serializable {
 
     private static Log log = LogFactory.getLog(JdbcConnection.class);
 
@@ -78,19 +80,20 @@ java.io.Serializable {
     public void setReference(javax.naming.Reference ref) {
         jndiReference = ref;
     }
+
     // getReference is called by JNDI provider during Context.bind
     public javax.naming.Reference getReference() {
         return jndiReference;
     }
 
     public JdbcConnectionFactory(JdbcManagedConnectionFactory mngdCxFactory, ConnectionManager cxManager)
-    throws ResourceException{
+            throws ResourceException {
         this.mngdCxFactory = mngdCxFactory;
         this.cxManager = cxManager;
         logWriter = mngdCxFactory.getLogWriter();
     }
 
-    public java.sql.Connection getConnection() throws SQLException{
+    public java.sql.Connection getConnection() throws SQLException {
         System.out.println("Getting connection from JdbcConnectionFactory");
         try {
             return getConnection(mngdCxFactory.getDefaultUserName(), mngdCxFactory.getDefaultPassword());
@@ -100,60 +103,64 @@ java.io.Serializable {
             throw e;
         }
     }
-    public java.sql.Connection getConnection(java.lang.String username, java.lang.String password)throws SQLException{
+
+    public java.sql.Connection getConnection(java.lang.String username, java.lang.String password) throws SQLException {
         JdbcConnectionRequestInfo conInfo = new JdbcConnectionRequestInfo(username, password, mngdCxFactory.getJdbcDriver(), mngdCxFactory.getJdbcUrl());
         return getConnection(conInfo);
     }
-    protected java.sql.Connection getConnection(JdbcConnectionRequestInfo conInfo) throws SQLException{
-        try{
+
+    protected java.sql.Connection getConnection(JdbcConnectionRequestInfo conInfo) throws SQLException {
+        try {
             // FIXME: Use ManagedConnection.assocoate() method here if the client has already obtained a physical connection.
             // the previous connection is either shared or invalidated. IT should probably be shared.
-            return (java.sql.Connection)cxManager.allocateConnection(mngdCxFactory, conInfo);
-        }catch(javax.resource.spi.ApplicationServerInternalException asi){
+            return (java.sql.Connection) cxManager.allocateConnection(mngdCxFactory, conInfo);
+        } catch (javax.resource.spi.ApplicationServerInternalException asi) {
             // Application problem with the ConnectionManager. May be a SQLException
-            if(asi.getLinkedException() instanceof SQLException)
-                throw (SQLException)asi.getLinkedException();
+            if (asi.getLinkedException() instanceof SQLException)
+                throw (SQLException) asi.getLinkedException();
             else
-                throw new SQLException("Error code: "+asi.getErrorCode()+"\nApplication error in ContainerManager"+((asi.getLinkedException()!=null)?asi.getLinkedException().getMessage():""));
-        }catch(javax.resource.spi.SecurityException se){
+                throw (SQLException) new SQLException("Error code: " + asi.getErrorCode() + "\nApplication error in ContainerManager" + ((asi.getLinkedException() != null) ? asi.getLinkedException().getMessage() : "")).initCause(asi);
+        } catch (javax.resource.spi.SecurityException se) {
             // The username/password in the conInfo is invalid. Should be a nested SQLException.
-            if(se.getLinkedException() instanceof SQLException)
-                throw (SQLException)se.getLinkedException();
+            if (se.getLinkedException() instanceof SQLException)
+                throw (SQLException) se.getLinkedException();
             else
-                throw new SQLException("Error code: "+se.getErrorCode()+"\nAuthentication error. Invalid credentials"+((se.getLinkedException()!=null)?se.getLinkedException().getMessage():""));
-        }catch(javax.resource.spi.ResourceAdapterInternalException rai){
+                throw (SQLException) new SQLException("Error code: " + se.getErrorCode() + "\nAuthentication error. Invalid credentials" + ((se.getLinkedException() != null) ? se.getLinkedException().getMessage() : "")).initCause(se);
+        } catch (javax.resource.spi.ResourceAdapterInternalException rai) {
             // some kind of connection problem. Should be a nested SQLException.
-            if(rai.getLinkedException() instanceof SQLException)
-                throw (SQLException)rai.getLinkedException();
+            if (rai.getLinkedException() instanceof SQLException)
+                throw (SQLException) rai.getLinkedException();
             else
-                throw new SQLException("Error code: "+rai.getErrorCode()+"\nJDBC Connection problem"+((rai.getLinkedException()!=null)?rai.getLinkedException().getMessage():""));
-        }catch(javax.resource.spi.ResourceAllocationException rae){
+                throw (SQLException) new SQLException("Error code: " + rai.getErrorCode() + "\nJDBC Connection problem" + ((rai.getLinkedException() != null) ? rai.getLinkedException().getMessage() : "")).initCause(rai);
+        } catch (javax.resource.spi.ResourceAllocationException rae) {
             // a connection could not be obtained from the driver or ConnectionManager.  May be a SQLException
-            if(rae.getLinkedException() instanceof SQLException)
-                throw (SQLException)rae.getLinkedException();
+            if (rae.getLinkedException() instanceof SQLException)
+                throw (SQLException) rae.getLinkedException();
             else
-                throw new SQLException("Error code: "+rae.getErrorCode()+"\nJDBC Connection could not be obtained"+((rae.getLinkedException()!=null)?rae.getLinkedException().getMessage():""));
-        }catch(javax.resource.ResourceException re){
+                throw (SQLException) new SQLException("Error code: " + rae.getErrorCode() + "\nJDBC Connection could not be obtained" + ((rae.getLinkedException() != null) ? rae.getLinkedException().getMessage() : "")).initCause(rae);
+        } catch (javax.resource.ResourceException re) {
             // Unknown cause of exception.  May be a SQLException
-            if(re.getLinkedException() instanceof SQLException)
-                throw (SQLException)re.getLinkedException();
+            if (re.getLinkedException() instanceof SQLException)
+                throw (SQLException) re.getLinkedException();
             else
-                throw new SQLException("Error code: "+re.getErrorCode()+"\nJDBC Connection Factory problem"+((re.getLinkedException()!=null)?re.getLinkedException().getMessage():""));
+                throw (SQLException) new SQLException("Error code: " + re.getErrorCode() + "\nJDBC Connection Factory problem" + ((re.getLinkedException() != null) ? re.getLinkedException().getMessage() : "")).initCause(re);
         }
     }
-    public int getLoginTimeout(){
+
+    public int getLoginTimeout() {
         return logTimeout;
     }
 
-    public java.io.PrintWriter getLogWriter(){
+    public java.io.PrintWriter getLogWriter() {
         return logWriter;
     }
-    public void setLoginTimeout(int seconds){
+
+    public void setLoginTimeout(int seconds) {
         //FIXME: how should log timeout work?
         logTimeout = seconds;
     }
 
-    public void setLogWriter(java.io.PrintWriter out){
+    public void setLogWriter(java.io.PrintWriter out) {
         logWriter = out;
     }
 }

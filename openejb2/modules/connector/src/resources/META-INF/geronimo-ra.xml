@@ -3,16 +3,29 @@
     version="1.0"
     configId="org/openjca/hsql"
     parentId="org/apache/geronimo/Server">
+
+    <dependency>
+        <uri>axion/jars/axion-1.0-M3-dev.jar</uri>
+    </dependency>
+
+    <dependency>
+        <uri>commons-primitives/jars/commons-primitives-1.0.jar</uri>
+    </dependency>
+
+    <dependency>
+        <uri>regexp/jars/regexp-1.3.jar</uri>
+    </dependency>
+
     <resourceadapter>
         <outbound-resourceadapter>
             <connection-definition>
                 <connectionfactory-interface>javax.sql.DataSource</connectionfactory-interface>
                 <connectiondefinition-instance>
-                    <name>petstoredb</name>
-                    <config-property-setting name="DefaultUserName">geronimo</config-property-setting>
-                    <config-property-setting name="DefaultPassword">geronimo</config-property-setting>
-                    <config-property-setting name="JdbcDriver">org.hsqldb.jdbcDriver</config-property-setting>
-                    <config-property-setting name="JdbcUrl">jdbc:hsqldb:.</config-property-setting>
+                    <name>DefaultDatasource</name>
+                    <config-property-setting name="DefaultUserName"></config-property-setting>
+                    <config-property-setting name="DefaultPassword"></config-property-setting>
+                    <config-property-setting name="JdbcDriver">org.axiondb.jdbc.AxionDriver</config-property-setting>
+                    <config-property-setting name="JdbcUrl">jdbc:axiondb:DefaultDatabase</config-property-setting>
                     <connectionmanager>
                         <!--realm-bridge>TargetRealm</realm-bridge-->
                         <blockingTimeout>5000</blockingTimeout>

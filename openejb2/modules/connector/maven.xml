@@ -6,8 +6,7 @@
     xmlns:j="jelly:core"
     xmlns:ant="jelly:ant"
     xmlns:maven="jelly:maven"
-    xmlns:define="jelly:define"
-    xmlns:xdoclet="common:xdoclet">
+    xmlns:define="jelly:define">
 
     <goal name="default">
         <attainGoal name="jar:install"/>
@@ -26,14 +25,10 @@
         <attainGoal name="html2xdoc"/>
     </preGoal>
 
-    <postGoal name="java:compile">
-        <jar destfile="${maven.build.dest}/ra.jar" basedir="${maven.build.dest}" includes="**/*.class"/>
-        <delete includeEmptyDirs="true">
-            <fileset dir="${maven.build.dest}" includes="**/*.class"/>
-        </delete>
-        <!--this hack makes the classes available to the openejb integration tests which
-        can't deal with properly packed rars-->
-        <copy file="${maven.build.dest}/ra.jar" todir="target"/>
+    <postGoal name="jar:jar">
+        <ant:jar destfile="${basedir}/target/jdbc.rar">
+            <ant:fileset dir="${basedir}/target" includes="openejb-jca-DEV.jar"/>
+            <ant:fileset dir="${basedir}/src/resources"/>
+        </ant:jar>
     </postGoal>
-
 </project>
