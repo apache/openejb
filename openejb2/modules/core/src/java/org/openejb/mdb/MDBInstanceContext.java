@@ -72,7 +72,7 @@ public final class MDBInstanceContext extends AbstractInstanceContext {
     private final EJBInvocation ejbRemoveInvocation;
 
     public MDBInstanceContext(Object containerId, MessageDrivenBean instance, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) {
-        super(systemMethodIndices, systemChain, unshareableResources, applicationManagedSecurityResources, instance, null, timerService);
+        super(systemChain, unshareableResources, applicationManagedSecurityResources, instance, null, timerService);
         this.containerId = containerId;
         this.mdbContext = new MDBContext(this, transactionContextManager, userTransaction);
         ejbCreateInvocation = systemMethodIndices.getEJBCreateInvocation(this);

@@ -73,7 +73,7 @@ public final class StatelessInstanceContext extends AbstractInstanceContext {
     private final EJBInvocation ejbRemoveInvocation;
 
     public StatelessInstanceContext(Object containerId, SessionBean instance, EJBProxyFactory proxyFactory, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) {
-        super(systemMethodIndices, systemChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, timerService);
+        super(systemChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, timerService);
         this.containerId = containerId;
         this.sessionContext = new StatelessSessionContext(this, transactionContextManager, userTransaction);
         ejbCreateInvocation = systemMethodIndices.getEJBCreateInvocation(this);

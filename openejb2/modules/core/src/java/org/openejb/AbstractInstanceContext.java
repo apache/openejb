@@ -45,8 +45,6 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
     //this not being final sucks, but the CMP instance is not available until after the superclass constructor executes.
     protected EnterpriseBean instance;
     private final EJBProxyFactory proxyFactory;
-    private final EJBInvocation ejbActivateInvocation;
-    private final EJBInvocation ejbPassivateInvocation;
     //initialized in subclass, can't be final :-((
     protected EJBInvocation setContextInvocation;
     protected EJBInvocation unsetContextInvocation;
@@ -54,14 +52,12 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
     private final TimerService timerService;
 
 
-    public AbstractInstanceContext(SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, EnterpriseBean instance, EJBProxyFactory proxyFactory, BasicTimerService timerService) {
+    public AbstractInstanceContext(Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, EnterpriseBean instance, EJBProxyFactory proxyFactory, BasicTimerService timerService) {
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.instance = instance;
         this.proxyFactory = proxyFactory;
         this.systemChain = systemChain;
-        ejbActivateInvocation = systemMethodIndices.getEjbActivateInvocation(this);
-        ejbPassivateInvocation = systemMethodIndices.getEjbPassivateInvocation(this);
         this.timerService = new TimerServiceImpl(timerService, this);
     }
 
@@ -106,14 +102,6 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
 
     public EJBProxyFactory getProxyFactory() {
         return proxyFactory;
-    }
-
-    public void ejbActivate() throws Throwable {
-        systemChain.invoke(ejbActivateInvocation);
-    }
-
-    public void ejbPassivate() throws Throwable {
-        systemChain.invoke(ejbPassivateInvocation);
     }
 
     public void setContext() throws Throwable {

@@ -73,7 +73,7 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
 
     public StatefulInstanceContext(Object containerId, EJBProxyFactory proxyFactory, SessionBean instance, Object id, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources) {
         //currently stateful beans have no timer service.
-        super(systemMethodIndices, systemChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, null);
+        super(systemChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, null);
         this.containerId = containerId;
         this.id = id;
         statefulContext = new StatefulSessionContext(this, transactionContextManager, userTransaction);
