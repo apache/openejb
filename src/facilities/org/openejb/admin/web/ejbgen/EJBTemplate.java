@@ -52,6 +52,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -103,17 +104,25 @@ public abstract class EJBTemplate
 	{
 		File metaback = new File(backup.getPath() + psep + "META-INF");
 		File cbdir = new File(backup.getPath());
-		String[] dirs = pack.split("\\.");
+		//String[] dirs = pack.split("\\.");
+		StringTokenizer dirs = new StringTokenizer(pack,"\\.");
 		
 		backup.mkdir();
 		metaback.mkdir();
 	
-		for(int i = 0; i < dirs.length; i++)
-		{			
-			File ndir = new File(cbdir.getPath() + psep + dirs[i]);
+		//for(int i = 0; i < dirs.length; i++)
+		//{			
+		//	File ndir = new File(cbdir.getPath() + psep + dirs[i]);
+		//	ndir.mkdir();
+		//	cbdir = new File(ndir.getPath());
+		//}	
+		
+		while (dirs.hasMoreTokens())
+		{
+			File ndir = new File(cbdir.getPath() + psep + dirs.nextToken());
 			ndir.mkdir();
 			cbdir = new File(ndir.getPath());
-		}		
+		}
 		
 		packup = new File(cbdir.getPath());
 	}
@@ -126,16 +135,25 @@ public abstract class EJBTemplate
 		cdir = new File(sloc);
 		ddir = new File(sloc);
 		backup = new File(ddir.getPath() + psep + "backup");
-		String[] dirs = pack.split("\\.");
+		//String[] dirs = pack.split("\\.");
+		StringTokenizer dirs = new StringTokenizer(pack,"\\.");
 		
 		ddir.mkdir();
 	
-		for(int i = 0; i < dirs.length; i++)
-		{			
-			File ndir = new File(cdir.getPath() + psep + dirs[i]);
+		//for(int i = 0; i < dirs.length; i++)
+		//{			
+		//	File ndir = new File(cdir.getPath() + psep + dirs[i]);
+		//	ndir.mkdir();
+		//	cdir = new File(ndir.getPath());
+		//}
+		
+		while (dirs.hasMoreTokens())
+		{
+			File ndir = new File(cdir.getPath() + psep + dirs.nextToken());
 			ndir.mkdir();
 			cdir = new File(ndir.getPath());
 		}
+		
 		//cdir = new File(odir);
 	}
 	
@@ -148,7 +166,6 @@ public abstract class EJBTemplate
 	public void createClass(String ejbname, String ejbobj)
 	{
 		File ejbObj = new File(cdir.getPath() + psep + ejbname + ejbobj);
-		String[] dirs = pack.split("\\.");
 	
 		if(ejbObj.exists())
 		{						
@@ -264,7 +281,8 @@ public abstract class EJBTemplate
 			ZipOutputStream out = new ZipOutputStream(new FileOutputStream(myZipFile));
 			File[] mfiles = mdir.listFiles();
 			File[] bfiles = bdir.listFiles();
-			String[] dirs = pack.split("\\.");
+			//String[] dirs = pack.split("\\.");
+			StringTokenizer dirs = new StringTokenizer(pack,"\\.");
 			String dpath = "";
 		
 			//META-INF
@@ -292,9 +310,16 @@ public abstract class EJBTemplate
 		
 			//System.out.println("META-INF zipped!");
 		
-			for(int i = 0; i < dirs.length; i ++)
+			//for(int i = 0; i < dirs.length; i ++)
+			//{
+			//	dpath = dpath + dirs[i] + "/";
+			//	out.putNextEntry(new ZipEntry(dpath));
+				//System.out.println(dpath);
+			//}
+			
+			while(dirs.hasMoreTokens())
 			{
-				dpath = dpath + dirs[i] + "/";
+				dpath = dpath + dirs.nextToken() + "/";
 				out.putNextEntry(new ZipEntry(dpath));
 				//System.out.println(dpath);
 			}
@@ -337,14 +362,21 @@ public abstract class EJBTemplate
 	 */
 	public String getBeanDir()
 	{
-		String[] dirs = pack.split("\\.");
+		//String[] dirs = request.getFormParameter("ejbpack").split("\\.");
+		StringTokenizer dirs = new StringTokenizer(pack,"\\.");
 		String beandir = sloc;
-	
-		for(int i = 0; i < dirs.length; i++)
+		
+		//for(int i = 0; i < dirs.length; i++)
+		//{
+		//	beandir = beandir + psep + dirs[i];	
+		//}
+		
+		while (dirs.hasMoreTokens())
 		{
-			beandir = beandir + psep + dirs[i];	
+			beandir = beandir + psep + dirs.nextToken();
 		}
-	
+
+		
 		//System.out.println(beandir);
 		return beandir;
 	}
