@@ -98,7 +98,24 @@ public class HttpRequestImpl implements HttpRequest {
 	private String[][] formParamsArray;
 
 
+    private String methodString;
+    private String pathString;
     
+    
+    /**
+     * @return Returns the methodString.
+     */
+    public String getMethodString() {
+        return methodString;
+    }
+
+    /**
+     * @return Returns the pathString.
+     */
+    public String getPathString() {
+        return pathString;
+    }
+
     /** Gets a header based the header name passed in.
 	 * @param name The name of the header to get
 	 * @return The value of the header
@@ -190,13 +207,20 @@ public class HttpRequestImpl implements HttpRequest {
 		readBody(in);
 	}
 
+    private String requestLine;
+    
+    protected String getRequestLine(){
+        return requestLine;
+    }
 	/** reads and parses the request line
 	 * @param in the input to be read
 	 * @throws IOException if an exception is thrown
 	 */
 	private void readRequestLine(DataInput in) throws IOException {
+        
 		try {
 			line = in.readLine();
+            requestLine = line;
 //            System.out.println(line);
 		} catch (Exception e) {
 			throw new IOException(

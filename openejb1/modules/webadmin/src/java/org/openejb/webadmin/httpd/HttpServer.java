@@ -47,6 +47,7 @@ package org.openejb.webadmin.httpd;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.util.Properties;
@@ -70,7 +71,7 @@ import org.openejb.webadmin.HttpObject;
  */
 public class HttpServer implements ServerService{
 
-    private Logger logger = Logger.getInstance( "OpenEJB", "org.openejb.server.util.resources" );
+    private static final Logger logger = Logger.getInstance( "OpenEJB.server", "org.openejb.server.util.resources" );
     private InitialContext jndiContext;
     
     public void service(Socket socket) throws ServiceException, IOException {
@@ -85,7 +86,7 @@ public class HttpServer implements ServerService{
 
 
         try {
-            processRequest(in, out);
+            processRequest(socket, in, out);
         } catch ( Throwable e ) {
             logger.error( "Unexpected error", e );
         } finally {
@@ -147,15 +148,17 @@ public class HttpServer implements ServerService{
      * @param in the input stream from the browser
      * @param out the output stream to the browser
      */
-    private void processRequest(InputStream in, OutputStream out) {
+    private void processRequest(Socket socket, InputStream in, OutputStream out) {
 
         HttpRequestImpl req = new HttpRequestImpl();
         HttpResponseImpl res = new HttpResponseImpl();
+        InetAddress client = socket.getInetAddress();
         
 
         try {
             req.readMessage(in);
             res.setRequest(req);
+//            logger.info(client.getHostName()+": "+req.getRequestLine());
         } catch (Throwable t) {
             //TODO: log or something
             //t.printStackTrace();
@@ -164,6 +167,7 @@ public class HttpServer implements ServerService{
                     "Could not read the request.\n" + t.getClass().getName() + ":\n" + t.getMessage(),
                     t);
             try {
+                logger.error(client.getHostName()+": "+res.getCode()+" "+req.getRequestLine()+ " ["+ res.getResponseString()+"]");
                 res.writeMessage(out);
             } catch (Throwable t2) {
                 //TODO: log or something
@@ -198,6 +202,7 @@ public class HttpServer implements ServerService{
                         + ":\n"
                         + t.getMessage());
             try {
+                logger.error(client.getHostName()+": "+res.getCode()+" "+req.getRequestLine()+ " ["+ res.getResponseString()+"]");
                 res.writeMessage(out);
             } catch (Throwable t2) {
                 //TODO: log or something
@@ -225,6 +230,7 @@ public class HttpServer implements ServerService{
                     t);
             //System.out.println("[] res="+res);
             try {
+                logger.error(client.getHostName()+": "+res.getCode()+" "+req.getRequestLine()+ " ["+ res.getResponseString()+"]");
                 res.writeMessage(out);
             } catch (Throwable t2) {
                 //TODO: log or something
@@ -248,6 +254,7 @@ public class HttpServer implements ServerService{
                         + t.getMessage(),
                     t);
             try {
+                logger.error(client.getHostName()+": "+res.getCode()+" "+req.getRequestLine()+ " ["+ res.getResponseString()+"]");
                 res.writeMessage(out);
             } catch (Throwable t2) {
                 //TODO: log or something
@@ -258,6 +265,7 @@ public class HttpServer implements ServerService{
         }
 
         try {
+            logger.info(client.getHostName()+": "+res.getCode()+" "+req.getRequestLine()+ " ["+ res.getResponseString()+"]");
             res.writeMessage(out);
         } catch (Throwable t) {
             //TODO: log or something

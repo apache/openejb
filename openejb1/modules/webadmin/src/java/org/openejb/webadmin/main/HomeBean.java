@@ -93,15 +93,9 @@ public class HomeBean extends WebAdminBean {
         body.println(
             "We encourage our users to participate in giving suggestions and submitting code and documentation");
         body.println(
-            "for the improvement of OpenEJB.  Because it’s open source, it’s not just our project, it’s everyone’s");
+            "for the improvement of OpenEJB.  Because it's open source, it's not just our project, it's everyone's");
         body.println(
             "project!  <b>Your feedback and contributions make OpenEJB a better project for everyone!</b>  ");
-        body.println("If you have a contribution or feature request, post it to the");
-        body.println(
-            "<a href=\"http://sourceforge.net/tracker/?atid=439276&group_id=44351\" target=\"_blank\">patch tracker</a>");
-        body.println(
-            "or <a href=\"http://sourceforge.net/tracker/?atid=439277&group_id=44351\" target=\"_blank\">feature request tracker</a>");
-        body.println("and we will review it and add it to the project.<br><br>");
         body.println("Future revisions of the OpenEJB Web Administration will contain:");
         body.println("<ul type=\"disc\">");
         body.println("<li>Better bean deployment</li>");
@@ -116,7 +110,7 @@ public class HomeBean extends WebAdminBean {
         body.println(
             "If you have any problems with this website, please don’t hesitate to email the OpenEJB users list: ");
         body.println(
-            "<a href=\"mailto:openejb-user@lists.sourceforge.net\">openejb-user@lists.sourceforge.net</a> and we’ll");
+            "<a href=\"mailto:user@openejb.org\">user@openejb.org</a> and we’ll");
         body.println("respond to you as soon as possible.");
     }
 
