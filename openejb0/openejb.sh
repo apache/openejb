@@ -38,6 +38,8 @@ case $1 in
    "start" ) echo "start";
             echo " 1. Starting JNDI Server...";
             ./bin/launch_jndi.sh -print &> jndi.log &
+	    pid=$?
+	    trap ' kill $pid; exit 1' 1 2 15
             sleep 2
             echo " 2. Starting CORBA Server...";
             ./bin/launch_server.sh 
