@@ -68,6 +68,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import org.openejb.EJBContainer;
 import org.openejb.corba.util.TieLoader;
@@ -196,9 +197,9 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("POAName", String.class, true);
-        infoFactory.addReference("Server", CORBABean.class);
-        infoFactory.addReference("Containers", EJBContainer.class);
-        infoFactory.addReference("TieLoader", TieLoader.class);
+        infoFactory.addReference("Server", CORBABean.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("Containers", EJBContainer.class);//many types
+        infoFactory.addReference("TieLoader", TieLoader.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.setConstructor(new String[]{"classLoader", "POAName", "Server", "TieLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
@@ -210,7 +211,13 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
 
     public void memberAdded(ReferenceCollectionEvent event) {
         EJBContainer container = (EJBContainer) event.getMember();
-
+        ClassLoader cl1 = container.getProxyInfo().getHomeInterface().getClassLoader();
+        ClassLoader cl2 = container.getClassLoader();
+        if (cl1 != cl2) {
+            log.info("differeing classloaders! for container: " + container.getContainerID() + " home interface: " + cl1 + " container: " + cl2);
+        } else {
+            log.info("same classloaders! container: " + container.getContainerID());
+        }
         containerMap.put(container.getContainerID(), container);
 
         if (localPOA != null) {

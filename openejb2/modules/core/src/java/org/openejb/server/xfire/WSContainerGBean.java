@@ -57,6 +57,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.codehaus.xfire.MessageContext;
 import org.openejb.EJBContainer;
 
@@ -69,14 +70,14 @@ public class WSContainerGBean {
 
         infoFactory.addOperation("invoke", new Class[]{MessageContext.class});
 
-        infoFactory.addReference("EJBContainer", EJBContainer.class);
+        infoFactory.addReference("EJBContainer", EJBContainer.class, NameFactory.STATELESS_SESSION_BEAN);
         infoFactory.addAttribute("definition", Definition.class, true);
         infoFactory.addAttribute("location", URI.class, true);
         infoFactory.addAttribute("wsdlURL", URL.class, true);
         infoFactory.addAttribute("namespace", String.class, true);
         infoFactory.addAttribute("encoding", String.class, true);
         infoFactory.addAttribute("style", String.class, true);
-        infoFactory.addReference("WebServiceContainer", WebServiceContainer.class);
+        infoFactory.addReference("WebServiceContainer", WebServiceContainer.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.setConstructor(new String[]{
             "EJBContainer",

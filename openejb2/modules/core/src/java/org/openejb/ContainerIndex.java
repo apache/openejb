@@ -224,7 +224,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
         infoFactory.addOperation("getContainer", new Class[]{Integer.TYPE});
         infoFactory.addOperation("getContainerByJndiName", new Class[]{String.class});
 
-        infoFactory.addReference("EJBContainers", EJBContainer.class);
+        infoFactory.addReference("EJBContainers", EJBContainer.class);//many types, specify type in patterns
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -383,7 +383,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         // EJBModule GBean
         GerResourceLocatorType connectionFactoryLocator = openejbEjbJar.getCmpConnectionFactory();
         CacheFlushStrategyFactory flushStrategyFactory;
-        if ( openejbEjbJar.isSetEnforceForeignKeyConstraints() ) {
+        if (openejbEjbJar.isSetEnforceForeignKeyConstraints()) {
             flushStrategyFactory = new EnforceRelationshipsFlushStrategyFactory();
         } else {
             flushStrategyFactory = new SimpleFlushStrategyFactory();
@@ -407,7 +407,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         } catch (Exception e) {
             throw new DeploymentException("Can not initialize ejb-ql-compiler-factory=" + openejbEjbJar.getEjbQlCompilerFactory(), e);
         }
-        
+
         DBSyntaxFactory syntaxFactory = new DerbyDBSyntaxtFactory();
         try {
             if (openejbEjbJar.isSetDbSyntaxFactory()) {
@@ -423,9 +423,9 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         } catch (Exception e) {
             throw new DeploymentException("Can not initialize ejb-ql-compiler-factory=" + openejbEjbJar.getEjbQlCompilerFactory(), e);
         }
-        
+
         SQLSchema sqlSchema = new BaseSQLSchema(module.getName(), delegate, syntaxFactory, compilerFactory);
-        
+
         GlobalSchema globalSchema = new GlobalSchema(module.getName(), flushStrategyFactory);
 
         GBeanData ejbModuleGBeanData = new GBeanData(ejbModuleObjectName, EJBModuleImpl.GBEAN_INFO);
@@ -505,11 +505,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private static Set collectRoleNames(EjbJarType ejbJar) {
         Set roleNames = new HashSet();
 
-        if( ejbJar.isSetAssemblyDescriptor() ) {
-	        SecurityRoleType[] securityRoles = ejbJar.getAssemblyDescriptor().getSecurityRoleArray();
-	        for (int i=0; i<securityRoles.length; i++) {
-	            roleNames.add(securityRoles[i].getRoleName().getStringValue());
-	        }
+        if (ejbJar.isSetAssemblyDescriptor()) {
+            SecurityRoleType[] securityRoles = ejbJar.getAssemblyDescriptor().getSecurityRoleArray();
+            for (int i = 0; i < securityRoles.length; i++) {
+                roleNames.add(securityRoles[i].getRoleName().getStringValue());
+            }
         }
 
         return roleNames;
@@ -579,12 +579,12 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addAttribute("listener", ObjectName.class, true);
-        infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class);
-        infoBuilder.addReference("Repository", Repository.class);
-         infoBuilder.addInterface(ModuleBuilder.class);
+        infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(EJBReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[] {"defaultParentId", "listener", "SkeletonGenerator", "Repository"});
+        infoBuilder.setConstructor(new String[]{"defaultParentId", "listener", "SkeletonGenerator", "Repository"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

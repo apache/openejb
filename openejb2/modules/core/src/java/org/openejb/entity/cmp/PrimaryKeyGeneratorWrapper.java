@@ -50,6 +50,7 @@ package org.openejb.entity.cmp;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
 
@@ -82,7 +83,7 @@ public class PrimaryKeyGeneratorWrapper implements GBeanLifecycle  {
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(PrimaryKeyGeneratorWrapper.class);
-        infoFactory.addReference("PrimaryKeyGenerator", PrimaryKeyGenerator.class);
+        infoFactory.addReference("PrimaryKeyGenerator", PrimaryKeyGenerator.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("primaryKeyGeneratorDelegate", PrimaryKeyGeneratorDelegate.class, true);
 
         infoFactory.setConstructor(new String[]{

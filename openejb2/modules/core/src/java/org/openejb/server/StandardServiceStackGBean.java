@@ -55,6 +55,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 public class StandardServiceStackGBean {
 
@@ -72,7 +73,7 @@ public class StandardServiceStackGBean {
         infoFactory.addAttribute("priority", int.class, true);
         infoFactory.addAttribute("logOnSuccess", String[].class, true);
         infoFactory.addAttribute("logOnFailure", String[].class, true);
-        infoFactory.addReference("Server", ServerService.class);
+        infoFactory.addReference("Server", ServerService.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.setConstructor(new String[]{
             "name",

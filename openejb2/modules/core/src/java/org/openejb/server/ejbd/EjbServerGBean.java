@@ -51,6 +51,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.openejb.ContainerIndex;
 import org.openejb.server.SocketService;
 
@@ -62,7 +63,7 @@ public class EjbServerGBean {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(EjbServer.class);
 
         infoFactory.addInterface(SocketService.class);
-        infoFactory.addReference("ContainerIndex", ContainerIndex.class);
+        infoFactory.addReference("ContainerIndex", ContainerIndex.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.setConstructor(new String[]{"ContainerIndex"});
 

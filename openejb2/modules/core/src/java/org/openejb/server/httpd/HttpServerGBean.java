@@ -55,6 +55,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 public class HttpServerGBean {
 
@@ -63,7 +64,7 @@ public class HttpServerGBean {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(HttpServer.class);
 
-        infoFactory.addReference("Listener", HttpListener.class);
+        infoFactory.addReference("Listener", HttpListener.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addOperation("service", new Class[]{Socket.class});
         infoFactory.setConstructor(new String[]{"Listener"});
 

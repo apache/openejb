@@ -51,6 +51,7 @@ import org.openorb.orb.rmi.DefaultORB;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import org.openejb.corba.CORBABean;
 
@@ -98,7 +99,7 @@ public class OpenORBUtil implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBUtil.class);
 
-        infoFactory.addReference("Server", CORBABean.class);
+        infoFactory.addReference("Server", CORBABean.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.setConstructor(new String[]{"Server"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();

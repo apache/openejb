@@ -225,7 +225,7 @@ public class WSContainerTest extends TestCase {
 
             infoFactory.setConstructor(new String[]{"WSContainer"});
 
-            infoFactory.addReference("WSContainer", WSContainer.class);
+            infoFactory.addReference("WSContainer", WSContainer.class, null);
 
             GBEAN_INFO = infoFactory.getBeanInfo();
         }
