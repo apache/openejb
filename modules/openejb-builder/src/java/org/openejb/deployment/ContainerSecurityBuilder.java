@@ -63,7 +63,6 @@ import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.SecurityService;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Realm;
@@ -116,8 +115,7 @@ class ContainerSecurityBuilder {
                                                 AssemblyDescriptorType assemblyDescriptor,
                                                 String EJBName,
                                                 SecurityIdentityType securityIdentity,
-                                                SecurityRoleRefType[] roleReferences,
-                                                SecurityService securityService)
+                                                SecurityRoleRefType[] roleReferences)
             throws DeploymentException {
 
         if (security == null) return;
@@ -227,7 +225,7 @@ class ContainerSecurityBuilder {
         /**
          * Set the security interceptor's run-as subject, if one has been defined.
          */
-        addRoleMappings(securityConfiguration, builder, security, securityIdentity, securityService);
+        addRoleMappings(securityConfiguration, builder, security, securityIdentity);
 
         /**
          * EJB v2.1 section 21.3.2
@@ -322,20 +320,7 @@ class ContainerSecurityBuilder {
     protected void addRoleMappings(SecurityConfiguration securityConfiguration,
                                    SecureBuilder builder,
                                    Security security,
-                                   SecurityIdentityType securityIdentity,
-                                   SecurityService securityService)
-            throws DeploymentException {
-
-
-        security.autoGenerate(securityService);
-        addExplicitMappings(securityConfiguration, builder, security, securityIdentity);
-
-    }
-
-    protected void addExplicitMappings(SecurityConfiguration securityConfiguration,
-                                       SecureBuilder builder,
-                                       Security security,
-                                       SecurityIdentityType securityIdentity)
+                                   SecurityIdentityType securityIdentity)
             throws DeploymentException {
 
         boolean needsRunAs = (securityIdentity != null && securityIdentity.getRunAs() != null);
