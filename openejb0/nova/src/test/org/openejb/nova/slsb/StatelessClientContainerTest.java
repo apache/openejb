@@ -190,7 +190,7 @@ public class StatelessClientContainerTest extends TestCase {
     }
 
     public void XtestProxySpeed() throws Exception {
-        MethodSignature[] signatures = {new MethodSignature(MockEJB.class.getName(), "intMethod", new Class[]{Integer.TYPE})};
+        MethodSignature[] signatures = {new MethodSignature("intMethod", new Class[]{Integer.TYPE})};
         StatelessLocalClientContainer localContainer = new StatelessLocalClientContainer(signatures, MockLocalHome.class, MockLocal.class);
         localContainer.addInterceptor(new Interceptor() {
             public Interceptor getNext() {

@@ -112,7 +112,7 @@ public class CMPOperationFactory extends AbstractOperationFactory {
 
             // create a VirtualOperation for the method (if the method is understood)
             String name = beanMethod.getName();
-            MethodSignature signature = new MethodSignature(beanClassName, beanMethod);
+            MethodSignature signature = new MethodSignature(beanMethod);
             int index = fastClass.getIndex(name, beanMethod.getParameterTypes());
             VirtualOperation vop;
 

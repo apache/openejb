@@ -73,7 +73,6 @@ public class OperationFactoryTest extends TestCase {
         assertEquals(5, signatures.length);
         for (int i = 0; i < signatures.length; i++) {
             MethodSignature signature = signatures[i];
-            signature.getMethod(cl);
         }
         assertEquals(new HashSet(Arrays.asList(EJB1.sigs)), new HashSet(Arrays.asList(signatures)));
     }
@@ -94,11 +93,11 @@ public class OperationFactoryTest extends TestCase {
 
     private static class EJB1 implements SessionBean {
         public static final MethodSignature[] sigs = {
-            new MethodSignature(EJB1.class.getName(), "method1", new String[]{}),
-            new MethodSignature(EJB1.class.getName(), "method2", new String[]{"int", "java.lang.Integer"}),
-            new MethodSignature(EJB1.class.getName(), "method3", new String[]{"java.lang.Integer"}),
-            new MethodSignature(EJB1.class.getName(), "method4", new String[]{"[I"}),
-            new MethodSignature(EJB1.class.getName(), "method5", new String[]{"[[Ljava.lang.Integer;"}),
+            new MethodSignature("method1", new String[]{}),
+            new MethodSignature("method2", new String[]{"int", "java.lang.Integer"}),
+            new MethodSignature("method3", new String[]{"java.lang.Integer"}),
+            new MethodSignature("method4", new String[]{"[I"}),
+            new MethodSignature("method5", new String[]{"[[Ljava.lang.Integer;"}),
         };
 
         public void method1() {

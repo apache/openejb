@@ -165,18 +165,18 @@ public class BasicCMPEntityContainerTest extends TestCase {
         ArrayList queries = new ArrayList();
         MethodSignature signature;
 
-        signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbFindByPrimaryKey", new String[]{"java.lang.Object"});
+        signature = new MethodSignature("ejbFindByPrimaryKey", new String[]{"java.lang.Object"});
         persistenceFactory.defineQuery(signature, "SELECT ID FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)}, new Binding[]{new IntBinding(1, 0)});
         queries.add(new CMPQuery(signature, false, null));
-        signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbLoad", new String[]{});
+        signature = new MethodSignature("ejbLoad", new String[]{});
         persistenceFactory.defineQuery(signature, "SELECT ID,VALUE FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)}, new Binding[]{new IntBinding(1, 0), new StringBinding(2, 1)});
         queries.add(new CMPQuery(signature, false, null));
 
-        signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbCreate", new String[]{"java.lang.Integer", "java.lang.String"});
+        signature = new MethodSignature("ejbCreate", new String[]{"java.lang.Integer", "java.lang.String"});
         persistenceFactory.defineUpdate(signature, "INSERT INTO MOCK(ID, VALUE) VALUES(?,?)", new Binding[]{new IntBinding(1, 0), new StringBinding(2,1)});
-        signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbRemove", new String[0]);
+        signature = new MethodSignature("ejbRemove", new String[0]);
         persistenceFactory.defineUpdate(signature, "DELETE FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)});
-        signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbStore", new String[0]);
+        signature = new MethodSignature("ejbStore", new String[0]);
         persistenceFactory.defineUpdate(signature, "UPDATE MOCK SET VALUE = ? WHERE ID=?", new Binding[]{new StringBinding(1,1), new IntBinding(2, 0)});
 
         String[] cmpFieldNames = { "id", "value" };

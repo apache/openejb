@@ -87,7 +87,7 @@ public class StatelessOperationFactory extends AbstractOperationFactory {
             if (name.startsWith("ejb")) {
                 continue;
             }
-            MethodSignature sig = new MethodSignature(beanClass.getName(), method);
+            MethodSignature sig = new MethodSignature(method);
             sigList.add(sig);
             vopList.add(new BusinessMethod(fastClass, fastClass.getIndex(method.getName(), method.getParameterTypes())));
         }

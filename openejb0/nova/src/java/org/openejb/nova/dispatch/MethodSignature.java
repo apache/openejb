@@ -51,20 +51,16 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import org.apache.geronimo.common.Classes;
-
 /**
  *
  *
  * @version $Revision$ $Date$
  */
 public final class MethodSignature implements Serializable {
-    private final String className;
     private final String methodName;
     private final String[] parameterTypes;
 
-    public MethodSignature(String className, Method method) {
-        this.className = className;
+    public MethodSignature(Method method) {
         methodName = method.getName();
         Class[] params = method.getParameterTypes();
         parameterTypes = new String[params.length];
@@ -73,23 +69,17 @@ public final class MethodSignature implements Serializable {
         }
     }
 
-    public MethodSignature(String className, String methodName, String[] parameterTypes) {
-        this.className = className;
+    public MethodSignature(String methodName, String[] parameterTypes) {
         this.methodName = methodName;
         this.parameterTypes = parameterTypes;
     }
 
-    public MethodSignature(String className, String methodName, Class[] params) {
-        this.className = className;
+    public MethodSignature(String methodName, Class[] params) {
         this.methodName = methodName;
         parameterTypes = new String[params.length];
         for (int i = 0; i < params.length; i++) {
             parameterTypes[i] = params[i].getName();
         }
-    }
-
-    public String getClassName() {
-        return className;
     }
 
     public String getMethodName() {
@@ -100,19 +90,8 @@ public final class MethodSignature implements Serializable {
         return parameterTypes;
     }
 
-    public Method getMethod(ClassLoader cl) throws ClassNotFoundException, NoSuchMethodException {
-        Class baseClass = Classes.loadClass(className, cl);
-        Class[] args = new Class[parameterTypes.length];
-        for (int j = 0; j < parameterTypes.length; j++) {
-            String type = parameterTypes[j];
-            args[j] = Classes.loadClass(type, cl);
-        }
-        return baseClass.getMethod(methodName, args);
-    }
-
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append(className).append('.');
         buffer.append(methodName).append('(');
         if (parameterTypes != null) {
             for (int i = 0; i < parameterTypes.length; i++) {
@@ -139,6 +118,6 @@ public final class MethodSignature implements Serializable {
             return false;
         }
         MethodSignature other = (MethodSignature) obj;
-        return className.equals(other.className) && methodName.equals(other.methodName) && Arrays.equals(parameterTypes, other.parameterTypes);
+        return methodName.equals(other.methodName) && Arrays.equals(parameterTypes, other.parameterTypes);
     }
 }

@@ -95,7 +95,7 @@ public class StatefulOperationFactory extends AbstractOperationFactory {
             } else {
                 continue;
             }
-            sigList.add(new MethodSignature(beanClass.getName(), beanMethod));
+            sigList.add(new MethodSignature(beanMethod));
             vopList.add(vop);
         }
         MethodSignature[] signatures = (MethodSignature[]) sigList.toArray(new MethodSignature[0]);

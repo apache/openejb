@@ -149,7 +149,7 @@ public final class MethodHelper {
         return getMap(translateObject(signatures), proxyImpl);
     }
 
-    private static int[] getMap(MethodKey[] translated, FastClass proxyImpl) {
+    private static int[] getMap(MethodSignature[] translated, FastClass proxyImpl) {
         // get the map from method keys to the intercepted shadow index
         Map proxyToShadowIndex = buildProxyToShadowIndex(proxyImpl);
 
@@ -170,34 +170,34 @@ public final class MethodHelper {
         return shadowIndexToProxy;
     }
 
-    private static MethodKey[] translateHome(MethodSignature[] signatures) {
-        MethodKey[] translated = new MethodKey[signatures.length];
+    private static MethodSignature[] translateHome(MethodSignature[] signatures) {
+        MethodSignature[] translated = new MethodSignature[signatures.length];
         for (int i = 0; i < signatures.length; i++) {
             MethodSignature signature = signatures[i];
             String name = signature.getMethodName();
             if (name.startsWith("ejbCreate")) {
-                translated[i] = new MethodKey("c" + name.substring(4), signature.getParameterTypes());
+                translated[i] = new MethodSignature("c" + name.substring(4), signature.getParameterTypes());
             } else if (name.startsWith("ejbFind")) {
-                translated[i] = new MethodKey("f" + name.substring(4), signature.getParameterTypes());
+                translated[i] = new MethodSignature("f" + name.substring(4), signature.getParameterTypes());
             } else if (name.startsWith("ejbHome")) {
                 String translatedName = Character.toLowerCase(name.charAt(7)) + name.substring(8);
-                translated[i] = new MethodKey(translatedName, signature.getParameterTypes());
+                translated[i] = new MethodSignature(translatedName, signature.getParameterTypes());
             } else if (name.startsWith("ejbRemove")) {
-                translated[i] = new MethodKey("remove", signature.getParameterTypes());
+                translated[i] = new MethodSignature("remove", signature.getParameterTypes());
             }
         }
         return translated;
     }
 
-    private static MethodKey[] translateObject(MethodSignature[] signatures) {
-        MethodKey[] translated = new MethodKey[signatures.length];
+    private static MethodSignature[] translateObject(MethodSignature[] signatures) {
+        MethodSignature[] translated = new MethodSignature[signatures.length];
         for (int i = 0; i < signatures.length; i++) {
             MethodSignature signature = signatures[i];
             String name = signature.getMethodName();
             if (name.startsWith("ejbRemove")) {
-                translated[i] = new MethodKey("remove", signature.getParameterTypes());
+                translated[i] = new MethodSignature("remove", signature.getParameterTypes());
             } else {
-                translated[i] = new MethodKey(signature.getMethodName(), signature.getParameterTypes());
+                translated[i] = new MethodSignature(signature.getMethodName(), signature.getParameterTypes());
             }
         }
         return translated;
@@ -226,7 +226,7 @@ public final class MethodHelper {
                 Class[] parameterTypes = methods[i].getParameterTypes();
                 try {
                     int shadowIndex = enhancedClass.getIndex(shadowName, parameterTypes);
-                    MethodKey realSignature = new MethodKey(realName, parameterTypes);
+                    MethodSignature realSignature = new MethodSignature(realName, parameterTypes);
                     shadowMap.put(realSignature, new Integer(shadowIndex));
                 } catch (Exception e) {
                     // ok not a shadow method
@@ -234,58 +234,5 @@ public final class MethodHelper {
             }
         }
         return shadowMap;
-    }
-
-    private static final class MethodKey {
-        private final static String[] NO_TYPES = new String[0];
-        private final String name;
-        private final String[] argumentTypes;
-
-        public MethodKey(String name, String[] argumentTypes) {
-            assert name != null;
-            this.name = name;
-            if (argumentTypes != null) {
-                this.argumentTypes = argumentTypes;
-            } else {
-                this.argumentTypes = NO_TYPES;
-            }
-        }
-
-        public MethodKey(String name, Class[] classes) {
-            assert name != null;
-            this.name = name;
-            if (classes != null) {
-                this.argumentTypes = new String[classes.length];
-                for (int i = 0; i < classes.length; i++) {
-                    this.argumentTypes[i] = classes[i].getName();
-                }
-            } else {
-                this.argumentTypes = NO_TYPES;
-            }
-        }
-        public boolean equals(Object object) {
-            if (!(object instanceof MethodKey)) {
-                return false;
-            }
-            MethodKey methodKey = (MethodKey) object;
-            return methodKey.name.equals(name) && Arrays.equals(methodKey.argumentTypes, argumentTypes);
-        }
-
-        public int hashCode() {
-            int result = 17;
-            result = 37 * result + name.hashCode();
-            for (int i = 0; i < argumentTypes.length; i++) {
-                result = 37 * result + argumentTypes[i].hashCode();
-            }
-            return result;
-        }
-
-        public String toString() {
-            StringBuffer buffer = new StringBuffer(name);
-            for (int i = 0; i < argumentTypes.length; i++) {
-                buffer.append(argumentTypes[i]);
-            }
-            return buffer.toString();
-        }
     }
 }
