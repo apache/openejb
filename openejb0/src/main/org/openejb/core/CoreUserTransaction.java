@@ -77,7 +77,9 @@ public class CoreUserTransaction
      * is serialized during Stateful bean passivation, the reconstituted instance will simply
      * use the static _txManager, so serializablity per EJB 1.1 section 6.4.1 is assured.
      */
-    private static TransactionManager  _txManager;
+    private transient TransactionManager  _txManager;
+
+    private transient final org.apache.log4j.Category txLogger;
 
 
     /**
@@ -86,8 +88,11 @@ public class CoreUserTransaction
     public CoreUserTransaction(TransactionManager txMngr)
     {
         _txManager = txMngr;
+        txLogger=org.apache.log4j.Category.getInstance("Transactions");
     }
+
     public CoreUserTransaction( ){
+        this(org.openejb.OpenEJB.getTransactionManager());
     }
     
     private TransactionManager transactionManager(){
@@ -100,12 +105,10 @@ public class CoreUserTransaction
     public void begin()
         throws NotSupportedException, SystemException
     {
-        // The logic for user transaction is to never support nested
-        // transactions, regardless of what the transaction server
-        // can do.
-        if ( transactionManager().getTransaction() != null )
-            throw new NotSupportedException( "Nested transactions not supported in beans" );
         transactionManager().begin();
+        if(txLogger.isInfoEnabled()) {
+            txLogger.info("Started user transaction "+transactionManager().getTransaction());
+        }        
     }
 
 
@@ -113,6 +116,9 @@ public class CoreUserTransaction
         throws RollbackException, HeuristicMixedException, HeuristicRollbackException,
                SecurityException, IllegalStateException, SystemException
     {
+        if(txLogger.isInfoEnabled()) {
+            txLogger.info("Committing user transaction "+transactionManager().getTransaction());
+        }
         transactionManager().commit();
     }
 
@@ -120,6 +126,9 @@ public class CoreUserTransaction
     public void rollback()
         throws IllegalStateException, SecurityException, SystemException
     {
+        if(txLogger.isInfoEnabled()) {
+            txLogger.info("Rolling back user transaction "+transactionManager().getTransaction());
+        }
         transactionManager().rollback();
     }
 
@@ -127,12 +136,19 @@ public class CoreUserTransaction
     public int getStatus()
         throws SystemException
     {
-        return transactionManager().getStatus();
+        int status = transactionManager().getStatus();
+        if(txLogger.isInfoEnabled()) {
+            txLogger.info("User transaction "+transactionManager().getTransaction()+" has status "+org.openejb.core.TransactionManagerWrapper.getStatus(status));
+        }
+        return status;
     }
 
 
     public void setRollbackOnly()throws javax.transaction.SystemException
     {
+        if(txLogger.isInfoEnabled()) {
+            txLogger.info("Marking user transaction for rollback: "+transactionManager().getTransaction());
+        }
         transactionManager().setRollbackOnly();
     }
 
