@@ -53,7 +53,7 @@ import org.openejb.util.Logger;
 
 public class OpenEJBErrorHandler{
 
-    private static Logger _logger = Logger.getInstance( "OpenEJB" );
+    private static Logger _logger = new Logger( "OpenEJB" );
 
     /**
      * This method is only intended for situations where an unknown error

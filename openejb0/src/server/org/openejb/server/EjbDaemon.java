@@ -91,7 +91,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
     private SafeToolkit toolkit = SafeToolkit.getToolkit("OpenEJB EJB Server");
 
-    Logger logger = Logger.getInstance( "OpenEJB" );
+    Logger logger = new Logger( "OpenEJB" );
 
     Vector           clientSockets  = new Vector();
     ServerSocket     serverSocket   = null;

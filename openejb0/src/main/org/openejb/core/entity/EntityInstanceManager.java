@@ -153,7 +153,7 @@ public class EntityInstanceManager {
     }
     
     
-    public Logger logger = Logger.getInstance("OpenEJB");
+    public Logger logger = new Logger( "OpenEJB" );
 
     protected SafeToolkit toolkit = SafeToolkit.getToolkit("EntityInstanceManager");
     /******************************************************************

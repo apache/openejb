@@ -55,35 +55,38 @@ import java.lang.Throwable;
  * internationalization of messages, it sets a default log4j configuration,
  * if one is not already set in the system properties.
  * <p>
+ * If the log4j system complains that there is no configuration set, then it's
+ * probably one of two things.  First, the config file does not exist.  Second,
+ * and more likely, the OpenEJB URL handler has not been registered.  (Note
+ * that the log4j.configuration default setting uses the protocol resource.)
+ * <p>
  * @author <a href="mailto:adc@toolazydogs.com">Alan Cabrera</a>
  * @version $Revision$ $Date$
  */
 public class Logger {
 
     protected Category _logger;
-    protected static boolean _systemPropertyChecked = false;
+
+    static {
+	// Set log4j's configuration (Note the URL's form)
+	// It assumes that the OpenEJB URL handler has already been registered
+	if( System.getProperty( "log4j.configuration" ) == null ) {
+	    System.setProperty( "log4j.configuration", "resource:/default.logging.conf" );
+	}
+    }
 
     /**
-     * Return an instance of Logger.  Since the constructor of Logger is
-     * protected, this is the only way to get an instance.
+     * Protected constructor.  Users must invoke getInstance() to
+     * an instance of Logger.
      * 
      * @param name   the name of the log4j category to use
      * 
-     * @return an instance of OpenEJB's Logger wrapper
+     * @see getInstance()
      */
-    public static Logger getInstance( String name ) {
-	// Set log4j's configuration (Note the URL's form)
-	if ( !_systemPropertyChecked ) {
-	    if( System.getProperty( "log4j.configuration" ) == null ) {
-		System.setProperty( "log4j.configuration", "resource:/default.logging.conf" );
-	    }
-
-	    _systemPropertyChecked = true;
-	}
-
-	return new Logger( Category.getInstance( name ) );
+    public Logger( String name ) {
+	_logger = Category.getInstance( name );
     }
-
+    
     /**
      * Wrapper function for log4j's isDebugEnabled() method.
      * 
@@ -1427,18 +1430,5 @@ public class Logger {
      */
     public void debug( String code, Throwable t, Object[] args ) {
 	_logger.debug( Messages.format( code, args ), t );
-    }
-
-
-    /**
-     * Protected constructor.  Users must invoke getInstance() to
-     * an instance of Logger.
-     * 
-     * @param logger A log4j instance of Category.
-     * 
-     * @see getInstance()
-     */
-    protected Logger(Category logger) {
-	_logger = logger;
     }
 }

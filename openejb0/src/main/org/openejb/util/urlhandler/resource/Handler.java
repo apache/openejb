@@ -49,6 +49,8 @@
 
 package org.openejb.util.urlhandler.resource;
 
+import org.openejb.util.Logger;
+
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -60,6 +62,7 @@ import java.net.URLConnection;
 
 public class Handler extends java.net.URLStreamHandler
 {
+    static Logger _logger = new Logger( "OpenEJB" );
 
     protected URLConnection openConnection( URL url )
         throws java.io.IOException
@@ -76,7 +79,7 @@ public class Handler extends java.net.URLStreamHandler
             try {
                 clz = Class.forName( cln );
             } catch ( ClassNotFoundException ex ) {
-                org.openejb.util.Logger.getInstance("OpenEJB").info( getClass().getName()+".openConnection: Class " + cln + " cannot be found." );
+                _logger.info( getClass().getName()+".openConnection: Class " + cln + " cannot be found." );
 
                 throw new java.net.MalformedURLException( "Class " + cln + " cannot be found (" + ex + ")" );
             }
