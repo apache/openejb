@@ -164,12 +164,6 @@
 
         <dependency>
             <groupId>tmporb</groupId>
-            <artifactId>tmporb-orb-omg</artifactId>
-            <version>${tmporb_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
             <artifactId>tmporb-orb-tools</artifactId>
             <version>${tmporb_version}</version>
         </dependency>
