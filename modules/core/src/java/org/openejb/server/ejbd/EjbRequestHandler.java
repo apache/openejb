@@ -116,7 +116,9 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
         try {
             container = getContainer(req);
             req.setProxyFactory(container.getProxyFactory());
-            in.setClassLoader(container.getClassLoader());
+            ClassLoader cl = container.getClassLoader();
+            Thread.currentThread().setContextClassLoader(cl);
+            in.setClassLoader(cl);
         } catch (RemoteException e) {
             replyWithFatalError
                     (out, e, "No such deployment");
