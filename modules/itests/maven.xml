@@ -163,7 +163,13 @@
             <!-- call our teardown code -->
             <attainGoal name="itest:teardown"/>
 
-            <j:if test="${exception != null or itest.failure == 'false'}">
+            <j:if test="${exception != null}">
+                <j:if test="${context.getVariable('itest.failure.ignore') != 'true'}">
+                    <fail message="There was an exception from the tests."/>
+                </j:if>
+            </j:if>
+
+            <j:if test="${itest.failure}">
                 <j:if test="${context.getVariable('itest.failure.ignore') != 'true'}">
                     <fail message="There were test failures."/>
                 </j:if>
