@@ -272,13 +272,13 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         mdbBuilder.initContext(cl, enterpriseBeans);
     }
 
-    public Reference createEJBLocalReference(String objectName, boolean session, String local, String localHome) {
+    public Reference createEJBLocalReference(String objectName, boolean session, String localHome, String local) {
         ProxyRefAddr address = ProxyRefAddr.createLocal(objectName, session, local, localHome);
         Reference reference = new Reference(null, address, ProxyObjectFactory.class.getName(), null);
         return reference;
     }
 
-    public Reference createEJBRemoteReference(String objectName, boolean session, String remote, String home) {
+    public Reference createEJBRemoteReference(String objectName, boolean session, String home, String remote) {
         ProxyRefAddr address = ProxyRefAddr.createRemote(objectName, session, remote, home);
         Reference reference = new Reference(null, address, ProxyObjectFactory.class.getName(), null);
         return reference;

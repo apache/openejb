@@ -108,7 +108,6 @@ public class JNDIResponse implements Response {
      */
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         responseCode = in.readByte();
-        System.out.println("C: responseCode "+responseCode );
 
         switch (responseCode) {
             case JNDI_OK:
@@ -184,7 +183,6 @@ public class JNDIResponse implements Response {
      * @exception IOException Includes any I/O exceptions that may occur
      */
     public void writeExternal(ObjectOutput out) throws IOException {
-        System.out.println("S: responseCode "+responseCode );
         out.writeByte((byte)responseCode);
 
         switch (responseCode) {
