@@ -59,6 +59,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.pool.ThreadPool;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 
 
@@ -149,7 +150,7 @@ public class OpenORBNameBean implements GBeanLifecycle {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBNameBean.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addReference("ThreadPool", Executor.class);
+        infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("args", ArrayList.class, true);
         infoFactory.addAttribute("props", Properties.class, true);
 

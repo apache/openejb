@@ -58,6 +58,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.openejb.ContainerIndex;
 import org.openejb.OpenEJB;
 
@@ -133,7 +134,7 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("name", String.class, false);
 
-        infoFactory.addReference("ContainerIndex", ContainerIndex.class);
+        infoFactory.addReference("ContainerIndex", ContainerIndex.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addInterface(SocketService.class);
 

@@ -5,6 +5,7 @@ import javax.naming.Reference;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.openejb.client.naming.RemoteEJBObjectFactory;
 import org.openejb.client.naming.RemoteEJBRefAddr;
 import org.openejb.corba.CORBAHandleDelegate;
@@ -30,7 +31,7 @@ public class RemoteEJBReferenceBuilder implements EJBReferenceBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(RemoteEJBReferenceBuilder.class); //TODO decide what type this should be
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(RemoteEJBReferenceBuilder.class, NameFactory.MODULE_BUILDER); //TODO decide what type this should be
         infoFactory.addInterface(EJBReferenceBuilder.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();

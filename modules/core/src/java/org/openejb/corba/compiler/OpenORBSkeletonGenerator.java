@@ -69,6 +69,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.system.main.ToolsJarHack;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import org.openejb.util.JarUtils;
 
@@ -214,7 +215,7 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
         infoFactory.addInterface(SkeletonGenerator.class);
         infoFactory.addAttribute("verbose", Boolean.TYPE, true);
         infoFactory.addAttribute("props", Properties.class, true);
-        infoFactory.addReference("Compiler", Compiler.class);
+        infoFactory.addReference("Compiler", Compiler.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.setConstructor(new String[]{"classLoader"});
 

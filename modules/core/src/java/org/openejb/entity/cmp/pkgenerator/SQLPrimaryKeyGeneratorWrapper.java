@@ -59,6 +59,7 @@ import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.tranql.cache.CacheRow;
 import org.tranql.cache.DuplicateIdentityException;
 import org.tranql.cache.InTxCache;
@@ -133,7 +134,7 @@ public class SQLPrimaryKeyGeneratorWrapper implements PrimaryKeyGenerator, GBean
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SQLPrimaryKeyGeneratorWrapper.class);
         infoFactory.addInterface(PrimaryKeyGenerator.class);
         
-        infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class);
+        infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addAttribute("initSQL", String.class, true);
         infoFactory.addAttribute("sql", String.class, true);
         infoFactory.addAttribute("returnType", Class.class, true);

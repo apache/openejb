@@ -52,6 +52,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 public class ServiceDaemon implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(ServiceDaemon.class);
@@ -206,7 +207,7 @@ public class ServiceDaemon implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ServiceDaemon.class);
 
-        infoFactory.addReference("SocketService", SocketService.class);
+        infoFactory.addReference("SocketService", SocketService.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("inetAddress", InetAddress.class, true);
         infoFactory.addAttribute("port", int.class, true);
 

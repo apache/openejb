@@ -288,10 +288,10 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         infoFactory.addAttribute("userTransaction", UserTransactionImpl.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.addReference("ActivationSpecWrapper", ActivationSpecWrapper.class);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
-        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
-        infoFactory.addReference("Timer", ThreadPooledTimer.class);
+        infoFactory.addReference("ActivationSpecWrapper", ActivationSpecWrapper.class, NameFactory.JCA_ACTIVATION_SPEC);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_RESOURCE);
+        infoFactory.addReference("Timer", ThreadPooledTimer.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);

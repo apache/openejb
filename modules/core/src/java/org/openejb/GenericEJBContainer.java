@@ -88,6 +88,7 @@ import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import org.openejb.cache.InstancePool;
 import org.openejb.client.EJBObjectHandler;
@@ -476,9 +477,9 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addAttribute("JndiNames", String[].class, true);
         infoFactory.addAttribute("LocalJndiNames", String[].class, true);
 
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
-        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
-        infoFactory.addReference("Timer", ThreadPooledTimer.class);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_RESOURCE);
+        infoFactory.addReference("Timer", ThreadPooledTimer.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
