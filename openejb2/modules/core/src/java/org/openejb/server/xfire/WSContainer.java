@@ -142,6 +142,7 @@ public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle
                 context.setService(service);
 
                 handler = (org.codehaus.xfire.handler.SoapHandler) service.getServiceHandler();
+                Thread.currentThread().setContextClassLoader(ejbContainer.getClassLoader());
                 handler.invoke(context);
             } catch (Exception e) {
                 e.printStackTrace();
