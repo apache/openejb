@@ -327,16 +327,17 @@ public abstract class AssemblerUtilities extends AssemblerTool {
             if(refs[i].getEjbLink() != null) {
                 Object ref = null;
                 String jndiName = JNDI_BEAN_PREFIX+refs[i].getEjbLink();
+                org.openejb.core.ivm.naming.Reference ref2 = new org.openejb.core.ivm.naming.IntraVmJndiReference( jndiName );
                 switch(type) {
                     case DeploymentInfo.BMP_ENTITY:
-                    case DeploymentInfo.CMP_ENTITY:
-                        ref = new org.openejb.core.entity.EncReference(jndiName);
+                case DeploymentInfo.CMP_ENTITY:
+                        ref = new org.openejb.core.entity.EncReference( ref2 );
                         break;
                     case DeploymentInfo.STATEFUL:
-                        ref = new org.openejb.core.stateful.EncReference(jndiName);
+                        ref = new org.openejb.core.stateful.EncReference( ref2 );
                         break;
                     case DeploymentInfo.STATELESS:
-                        ref = new org.openejb.core.stateless.EncReference(jndiName);
+                        ref = new org.openejb.core.stateless.EncReference( ref2 );
                         break;
                     default:
                         throw new OpenEJBException("Illegal bean type for EJB ref assembly.");
@@ -361,17 +362,18 @@ public abstract class AssemblerUtilities extends AssemblerTool {
         for(int i=0; i<refs.length; i++) {
             ResourceRefMetaData resource = (ResourceRefMetaData)refs[i];
             String jndiName = JNDI_CONNECTOR_PREFIX+(resource.isAuthContainer() ? "containermanaged/" : "beanManaged/")+resource.getConnectorName();
+            org.openejb.core.ivm.naming.Reference ref2 = new org.openejb.core.ivm.naming.IntraVmJndiReference( jndiName );
             Object ref = null;
             switch(type) {
                 case DeploymentInfo.BMP_ENTITY:
                 case DeploymentInfo.CMP_ENTITY:
-                    ref = new org.openejb.core.entity.EncReference(jndiName);
+                    ref = new org.openejb.core.entity.EncReference( ref2 );
                     break;
                 case DeploymentInfo.STATEFUL:
-                    ref = new org.openejb.core.stateful.EncReference(jndiName);
+                    ref = new org.openejb.core.stateful.EncReference( ref2 );
                     break;
                 case DeploymentInfo.STATELESS:
-                    ref = new org.openejb.core.stateless.EncReference(jndiName);
+                    ref = new org.openejb.core.stateless.EncReference( ref2 );
                     break;
                 default:
                     throw new OpenEJBException("Illegal bean type for Resource ref assembly.");
