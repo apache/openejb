@@ -431,7 +431,6 @@ by the server.
             org.omg.CORBA.ORBClass=org.openorb.orb.core.ORB
             org.omg.CORBA.ORBSingletonClass=org.openorb.orb.core.ORBSingleton
 
-            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.util.UtilInitializer
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.openorb.OpenORBInitializer
