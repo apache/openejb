@@ -100,6 +100,13 @@ public class MockEJBContainerGBean {
         kernel.startGBean(gbean.getName());
         return gbean.getName();
     }
+    
+    public static ObjectName addGBean(Kernel kernel, URL ejbJarURL, String ejbName, String ejbClass, String home, String remote, String localHome, String local, String serviceEndpoint, ClassLoader cl) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+        GBeanData gbean = createGBean(ejbJarURL, ejbName, ejbClass, home, remote, localHome, local, serviceEndpoint);
+        kernel.loadGBean(gbean, cl);
+        kernel.startGBean(gbean.getName());
+        return gbean.getName();
+    }
 
     public static GBeanData createGBean(URL ejbJarURL, String ejbName, String ejbClass, String home, String remote, String localHome, String local, String serviceEndpoint) {
         ObjectName gbeanName = JMXUtil.getObjectName("openejb:j2eeType=StatelessSessionBean,name=" + ejbName);
