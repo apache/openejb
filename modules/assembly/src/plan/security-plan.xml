@@ -55,6 +55,7 @@ Configuration for the CORBA server.
             usersURI=var/security/public_users.properties
             groupsURI=var/security/public_groups.properties
         </attribute>
+        <attribute name="loginDomainName" type="java.lang.String">public-properties-realm</attribute>
     </gbean>
 
     <gbean name="geronimo.security:type=SecurityRealm,realm=public-properties-realm"
@@ -64,7 +65,7 @@ Configuration for the CORBA server.
             LoginModule.1.REQUIRED=geronimo.security:type=LoginModule,name=public-login
         </attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
-        <attribute name="autoMapPrincipalClasses" type="java.lang.String">org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal</attribute>
+<!--        <attribute name="autoMapPrincipalClasses" type="java.lang.String">org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal</attribute> -->
     </gbean>
 
     <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=public"
@@ -82,6 +83,7 @@ Configuration for the CORBA server.
             usersURI=var/security/black_users.properties
             groupsURI=var/security/black_groups.properties
         </attribute>
+        <attribute name="loginDomainName" type="java.lang.String">black-properties-realm</attribute>
     </gbean>
 
     <gbean name="geronimo.security:type=SecurityRealm,realm=black-properties-realm"
@@ -91,7 +93,7 @@ Configuration for the CORBA server.
             LoginModule.1.REQUIRED=geronimo.security:type=LoginModule,name=black-login
         </attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
-        <attribute name="autoMapPrincipalClasses" type="java.lang.String">org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal</attribute>
+<!--        <attribute name="autoMapPrincipalClasses" type="java.lang.String">org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal</attribute>-->
     </gbean>
 
     <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=black"

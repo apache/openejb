@@ -25,36 +25,36 @@
 
     <sec:security default-role="UNASSIGNED" doas-current-caller="true">
         <sec:default-principal realm-name="public-properties-realm">
-            <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="guest"/>
+            <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
         </sec:default-principal>
 
         <sec:role-mappings>
             <sec:role role-name="UNASSIGNED">
                 <sec:realm realm-name="public-properties-realm">
-                    <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="guest" designated-run-as="true"/>
+                    <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest" designated-run-as="true"/>
                 </sec:realm>
             </sec:role>
 
             <sec:role role-name="LOW">
                 <sec:realm realm-name="public-properties-realm">
-                    <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal" name="acct" designated-run-as="true"/>
+                    <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="acct" designated-run-as="true"/>
                 </sec:realm>
             </sec:role>
 
             <sec:role role-name="MEDIUM">
                 <sec:realm realm-name="public-properties-realm">
-                    <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal" name="it"/>
-                    <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="george" designated-run-as="true"/>
+                    <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="it"/>
+                    <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="george" designated-run-as="true"/>
                 </sec:realm>
             </sec:role>
 
             <sec:role role-name="HIGH">
                 <sec:realm realm-name="public-properties-realm">
-                    <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal" name="mgmt" designated-run-as="true"/>
+                    <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="mgmt" designated-run-as="true"/>
                 </sec:realm>
                 <sec:realm realm-name="black-properties-realm">
-                    <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="dain"/>
-                    <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="david"/>
+                    <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="dain"/>
+                    <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="david"/>
                 </sec:realm>
             </sec:role>
         </sec:role-mappings>
