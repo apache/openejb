@@ -49,7 +49,7 @@ package org.openejb;
 
 import org.apache.geronimo.core.service.Invocation;
 
-import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 
 /**
  * Specialization of Invocation to define attributes specific to the

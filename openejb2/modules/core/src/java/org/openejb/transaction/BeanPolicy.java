@@ -47,15 +47,12 @@
  */
 package org.openejb.transaction;
 
-import javax.transaction.TransactionManager;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.transaction.TransactionContext;
-import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
-
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBInvocation;
 
 /**
@@ -67,27 +64,25 @@ public class BeanPolicy {
     private static final Log log = LogFactory.getLog(BeanPolicy.class);
 
     public static final TransactionPolicy Stateless = new TransactionPolicy() {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
-            TransactionContext clientContext = TransactionContext.getContext();
+        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+            TransactionContext clientContext = transactionContextManager.getContext();
             if (clientContext != null) {
                 clientContext.suspend();
             }
             try {
-                TransactionContext beanContext = new UnspecifiedTransactionContext();
-                TransactionContext.setContext(beanContext);
-                beanContext.begin();
+                TransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
-                    if (beanContext != TransactionContext.getContext()) {
+                    if (beanContext != transactionContextManager.getContext()) {
                         throw new UncommittedTransactionException();
                     }
                     beanContext.commit();
                     return result;
                 } catch (Throwable t) {
                     try {
-                        if (beanContext != TransactionContext.getContext()) {
-                            TransactionContext.getContext().rollback();
+                        if (beanContext != transactionContextManager.getContext()) {
+                            transactionContextManager.getContext().rollback();
                         }
                     } catch (Exception e) {
                         log.warn("Unable to roll back", e);
@@ -101,7 +96,7 @@ public class BeanPolicy {
                 }
             } finally {
                 ejbInvocation.setTransactionContext(clientContext);
-                TransactionContext.setContext(clientContext);
+                transactionContextManager.setContext(clientContext);
                 if (clientContext != null) {
                     clientContext.resume();
                 }
@@ -113,27 +108,25 @@ public class BeanPolicy {
     };
 
     public static final TransactionPolicy Stateful = new TransactionPolicy() {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
-            TransactionContext clientContext = TransactionContext.getContext();
+        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+            TransactionContext clientContext = transactionContextManager.getContext();
             if (clientContext != null) {
                 clientContext.suspend();
             }
             try {
-                TransactionContext beanContext = new UnspecifiedTransactionContext();
-                TransactionContext.setContext(beanContext);
-                beanContext.begin();
+                TransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
-                    if (beanContext != TransactionContext.getContext()) {
+                    if (beanContext != transactionContextManager.getContext()) {
                         throw new UncommittedTransactionException("Support for transactions held between invocations is not supported");
                     }
                     beanContext.commit();
                     return result;
                 } catch (Throwable t) {
                     try {
-                        if (beanContext != TransactionContext.getContext()) {
-                            TransactionContext.getContext().rollback();
+                        if (beanContext != transactionContextManager.getContext()) {
+                            transactionContextManager.getContext().rollback();
                         }
                     } catch (Exception e) {
                         log.warn("Unable to roll back", e);
@@ -147,7 +140,7 @@ public class BeanPolicy {
                 }
             } finally {
                 ejbInvocation.setTransactionContext(clientContext);
-                TransactionContext.setContext(clientContext);
+                transactionContextManager.setContext(clientContext);
                 if (clientContext != null) {
                     clientContext.resume();
                 }

@@ -19,12 +19,14 @@ package org.openejb;
 import java.util.Set;
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.deployment.TransactionPolicySource;
 
 /**
@@ -85,9 +87,9 @@ public interface ContainerBuilder extends ResourceEnvironmentBuilder {
 
     void setTransactionPolicySource(TransactionPolicySource transactionPolicySource);
 
-    TransactionManager getTransactionManager();
+    TransactionContextManager getTransactionContextManager();
 
-    void setTransactionManager(TransactionManager transactionManager);
+    void setTransactionContextManager(TransactionContextManager transactionContextManager);
 
     TrackedConnectionAssociator getTrackedConnectionAssociator();
 
@@ -104,5 +106,13 @@ public interface ContainerBuilder extends ResourceEnvironmentBuilder {
     EJBContainer createContainer() throws Exception;
 
     GBeanMBean createConfiguration() throws Exception;
+
+    ObjectName getTransactedTimerName();
+
+    void setTransactedTimerName(ObjectName transactedTimerName);
+
+    ObjectName getNonTransactedTimerName();
+
+    void setNonTransactedTimerName(ObjectName nonTransactedTimerName);
 
 }

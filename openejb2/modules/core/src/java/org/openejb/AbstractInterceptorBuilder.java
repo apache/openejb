@@ -48,11 +48,10 @@
 package org.openejb;
 
 import javax.security.auth.Subject;
-import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstanceFactory;
 import org.openejb.cache.InstancePool;
@@ -75,7 +74,7 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
     protected PermissionManager permissionManager;
     protected boolean setIdentityEnabled = false;
     protected boolean securityEnabled = false;
-    protected transient TransactionManager transactionManager;
+    protected transient TransactionContextManager transactionContextManager;
     protected transient TrackedConnectionAssociator trackedConnectionAssociator;
     protected transient InstancePool instancePool;
     protected InstanceCache instanceCache;
@@ -124,8 +123,8 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
         this.securityEnabled = securityEnabled;
     }
 
-    public void setTransactionManager(TransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
+    public void setTransactionContextManager(TransactionContextManager transactionContextManager) {
+        this.transactionContextManager = transactionContextManager;
     }
 
     public void setTrackedConnectionAssociator(TrackedConnectionAssociator trackedConnectionAssociator) {

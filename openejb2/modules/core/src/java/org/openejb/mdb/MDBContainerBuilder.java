@@ -50,15 +50,22 @@ package org.openejb.mdb;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.openejb.ResourceEnvironmentBuilder;
+import org.openejb.timer.TimerServiceImpl;
 import org.openejb.mdb.dispatch.SetMessageDrivenContextOperation;
+import org.openejb.dispatch.EJBTimeoutOperation;
 import org.openejb.cache.InstancePool;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -86,6 +93,9 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder {
     private UserTransactionImpl userTransaction;
     private TransactionPolicySource transactionPolicySource;
     private ClassLoader classLoader;
+    private ObjectName transactedTimerName;
+    private ObjectName nonTransactedTimerName;
+
 
     public String getContainerId() {
         return containerId;
@@ -183,6 +193,22 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder {
         this.classLoader = classLoader;
     }
 
+    public ObjectName getTransactedTimerName() {
+        return transactedTimerName;
+    }
+
+    public void setTransactedTimerName(ObjectName transactedTimerName) {
+        this.transactedTimerName = transactedTimerName;
+    }
+
+    public ObjectName getNonTransactedTimerName() {
+        return nonTransactedTimerName;
+    }
+
+    public void setNonTransactedTimerName(ObjectName nonTransactedTimerName) {
+        this.nonTransactedTimerName = nonTransactedTimerName;
+    }
+
     public GBeanMBean createConfiguration() throws Exception {
         // get the bean class
         Class beanClass = classLoader.loadClass(beanClassName);
@@ -214,11 +240,26 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder {
             deliveryTransacted[i] = transactionPolicy == ContainerPolicy.Required;
         }
 
+        ObjectName timerName = null;
+        if (TimedObject.class.isAssignableFrom(beanClass)) {
+            InterfaceMethodSignature signature = new InterfaceMethodSignature("ejbTimeout", new Class[]{Timer.class}, false);
+            TransactionPolicy transactionPolicy = transactionPolicySource.getTransactionPolicy("timeout", signature);
+            Boolean isTransacted = (Boolean) isTransactedMap.get(transactionPolicy);
+            if (isTransacted != null) {
+                if (isTransacted.booleanValue()) {
+                    timerName = transactedTimerName;
+                } else {
+                    timerName = nonTransactedTimerName;
+                }
+            }
+        }
+
+
         // create and initialize the GBean
         GBeanMBean gbean = new GBeanMBean(MDBContainer.GBEAN_INFO, classLoader);
         gbean.setAttribute("containerId", containerId);
         gbean.setAttribute("ejbName", ejbName);
-        gbean.setReferencePattern("activationSpecWrapper", activationSpecName);
+        gbean.setReferencePattern("ActivationSpecWrapper", activationSpecName);
         gbean.setAttribute("endpointInterfaceName", endpointInterfaceName);
         gbean.setAttribute("signatures", signatures);
         gbean.setAttribute("deliveryTransacted", deliveryTransacted);
@@ -226,8 +267,11 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder {
         gbean.setAttribute("interceptorBuilder", interceptorBuilder);
         gbean.setAttribute("instancePool", pool);
         gbean.setAttribute("userTransaction", userTransaction);
+        gbean.setReferencePattern("Timer", timerName);
         return gbean;
     }
+
+    private static Map isTransactedMap = new HashMap();
 
     protected LinkedHashMap buildVopMap(Class beanClass) throws Exception {
         LinkedHashMap vopMap = new LinkedHashMap();
@@ -239,7 +283,12 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder {
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Bean does not implement setMessageDrivenContext(javax.ejb.MessageDrivenContext)");
         }
-
+        if (TimedObject.class.isAssignableFrom(beanClass)) {
+            MethodSignature signature = new MethodSignature("ejbTimeout", new Class[]{Timer.class});
+            vopMap.put(
+                    MethodHelper.translateToInterface(signature)
+                    , EJBTimeoutOperation.INSTANCE);
+        }
         // add the create method
         vopMap.put(new InterfaceMethodSignature("create", true), new CreateMethod());
 

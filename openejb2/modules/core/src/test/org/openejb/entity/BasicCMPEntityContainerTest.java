@@ -72,6 +72,7 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
+import org.openejb.DeploymentHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -91,8 +92,6 @@ import org.tranql.sql.sql92.SQL92Schema;
  */
 public class BasicCMPEntityContainerTest extends TestCase {
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
-    private static final ObjectName TM_NAME = JMXUtil.getObjectName("geronimo.test:role=TransactionManager");
-    private static final ObjectName TCA_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
     private static final ObjectName CI_NAME = JMXUtil.getObjectName("geronimo.test:role=ContainerIndex");
     private Kernel kernel;
     private GBeanMBean container;
@@ -100,7 +99,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
     private DataSource ds;
 
     public void testLocalInvoke() throws Exception {
-        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
+        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
         assertEquals(2, home.intMethod(1));
 
         Integer pk = new Integer(33);
@@ -119,7 +118,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
     }
 
     public void testRemoteInvoke() throws Exception {
-        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "EJBHome");
+        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "ejbHome");
         assertEquals(2, home.intMethod(1));
 
         Integer pk = new Integer(33);
@@ -138,7 +137,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
     }
 
     public void testFields() throws Exception {
-        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
+        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
         MockLocal local = home.findByPrimaryKey(new Integer(1));
         assertEquals("Hello", local.getValue());
         local.setValue("World");
@@ -166,7 +165,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         rs.close();
 
         // add new
-        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
+        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
         MockLocal local = home.create(new Integer(2), "Hello");
         rs = s.executeQuery("SELECT VALUE FROM MOCK WHERE ID=2");
         assertTrue(rs.next());
@@ -239,7 +238,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         rs.close();
 
         // add new
-        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "EJBHome");
+        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "ejbHome");
         MockRemote remote = home.create(new Integer(2), "Hello");
         rs = s.executeQuery("SELECT VALUE FROM MOCK WHERE ID=2");
         assertTrue(rs.next());
@@ -381,6 +380,10 @@ public class BasicCMPEntityContainerTest extends TestCase {
 //        cmpConfig.relations = new CMRelation[]{};
 //        cmpConfig.schema = "Mock";
 
+        kernel = DeploymentHelper.setUpKernelWithTransactionManager("ContainerManagedPersistenceTest");
+        DeploymentHelper.setUpTimer(kernel);
+
+
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
         builder.setContainerId(CONTAINER_NAME.getCanonicalName());
@@ -404,7 +407,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         builder.setEJBSchema(ejbSchema);
         builder.setSQLSchema(sqlSchema);
         builder.setComponentContext(new ReadOnlyContext());
-        builder.setConnectionFactoryName("DefaultDatasource");
+        builder.setConnectionFactoryName("defaultDatasource");
 
         EJBProxyFactory proxyFactory = new EJBProxyFactory(CONTAINER_NAME.getCanonicalName(), false, MockRemote.class, MockHome.class, MockLocal.class, MockLocalHome.class);
         EJB ejb = new EJB("MockEJB", "MOCK", proxyFactory);
@@ -423,18 +426,6 @@ public class BasicCMPEntityContainerTest extends TestCase {
 
         container = builder.createConfiguration();
 
-        kernel = new Kernel("ContainerManagedPersistenceTest");
-        kernel.boot();
-
-        GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
-        Set rmpatterns = new HashSet();
-        rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
-        tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
-        start(TM_NAME, tmGBean);
-
-        GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
-        start(TCA_NAME, trackedConnectionAssociator);
-
         GBeanMBean containerIndex = new GBeanMBean(ContainerIndex.GBEAN_INFO);
         containerIndex.setReferencePatterns("EJBContainers", Collections.singleton(CONTAINER_NAME));
         start(CI_NAME, containerIndex);
@@ -445,14 +436,13 @@ public class BasicCMPEntityContainerTest extends TestCase {
         kernel.startGBean(connectionProxyFactoryObjectName);
 
         //start the ejb container
-        container.setReferencePatterns("TransactionManager", Collections.singleton(TM_NAME));
-        container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(TCA_NAME));
+        container.setReferencePatterns("TransactionContextManager", Collections.singleton(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME));
+        container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME));
+
         start(CONTAINER_NAME, container);
     }
 
     protected void tearDown() throws Exception {
-        stop(TM_NAME);
-        stop(TCA_NAME);
         stop(CONTAINER_NAME);
         kernel.shutdown();
         java.sql.Connection c = ds.getConnection();

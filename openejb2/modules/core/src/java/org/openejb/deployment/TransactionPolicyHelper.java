@@ -106,6 +106,15 @@ public class TransactionPolicyHelper {
         return new TransactionPolicySourceImpl(ejbName, (SortedSet) ejbNameToTransactionAttributesMap.get(ejbName));
     }
 
+    private void putMethodTransaction(String ejbName, MethodTransaction methodTransaction) {
+        SortedSet methodTransactions = (SortedSet) ejbNameToTransactionAttributesMap.get(ejbName);
+        if (methodTransactions == null) {
+            methodTransactions = new TreeSet();
+            ejbNameToTransactionAttributesMap.put(ejbName, methodTransactions);
+        }
+        methodTransactions.add(methodTransaction);
+    }
+
     private static class TransactionPolicySourceImpl implements TransactionPolicySource {
         private final SortedSet transactionPolicies;
 
@@ -127,15 +136,6 @@ public class TransactionPolicyHelper {
             //default
             return ContainerPolicy.Required;
         }
-    }
-
-    private void putMethodTransaction(String ejbName, MethodTransaction methodTransaction) {
-        SortedSet methodTransactions = (SortedSet) ejbNameToTransactionAttributesMap.get(ejbName);
-        if (methodTransactions == null) {
-            methodTransactions = new TreeSet();
-            ejbNameToTransactionAttributesMap.put(ejbName, methodTransactions);
-        }
-        methodTransactions.add(methodTransaction);
     }
 
     private static class MethodTransaction implements Comparable {

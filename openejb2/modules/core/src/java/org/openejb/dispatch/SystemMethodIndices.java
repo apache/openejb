@@ -50,6 +50,9 @@ package org.openejb.dispatch;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
+import org.openejb.EJBInterfaceType;
+import org.openejb.timer.EJBTimeoutInvocationFactory;
+import org.openejb.timer.TimerImpl;
 
 /**
  *
@@ -57,7 +60,7 @@ import org.openejb.EJBInvocationImpl;
  * @version $Revision$ $Date$
  *
  * */
-public final class SystemMethodIndices {
+public final class SystemMethodIndices implements EJBTimeoutInvocationFactory {
 
     private final int ejbActivate;
     private final int ejbLoad;
@@ -65,6 +68,7 @@ public final class SystemMethodIndices {
     private final int ejbStore;
     private final int setContext;
     private final int unsetContext;
+    private final int ejbTimeout;
 
     public static SystemMethodIndices createSystemMethodIndices(InterfaceMethodSignature[] signatures, String setContextName, String setContextType, String unsetContextName) {
         int ejbActivate = -1;
@@ -73,6 +77,7 @@ public final class SystemMethodIndices {
         int ejbStore = -1;
         int setContext = -1;
         int unsetContext = -1;
+        int ejbTimeout = -1;
         for (int i = 0; i < signatures.length; i++) {
             InterfaceMethodSignature signature = signatures[i];
             if (signature.getMethodName().equals("ejbActivate")) {
@@ -83,22 +88,25 @@ public final class SystemMethodIndices {
                  ejbPassivate = i;
             } else if (signature.getMethodName().equals("ejbStore")) {
                  ejbStore = i;
+            } else if (signature.getMethodName().equals("ejbTimeout")) {
+                 ejbTimeout = i;
             } else if (signature.getMethodName().equals(setContextName) && signature.getParameterTypes().length == 1 && signature.getParameterTypes()[0].equals(setContextType)) {
                  setContext = i;
             } else if (signature.getMethodName().equals(unsetContextName) && signature.getParameterTypes().length == 0) {
                  unsetContext = i;
             }
         }
-        return new SystemMethodIndices(ejbActivate, ejbLoad, ejbPassivate, ejbStore, setContext, unsetContext);
+        return new SystemMethodIndices(ejbActivate, ejbLoad, ejbPassivate, ejbStore, setContext, unsetContext, ejbTimeout);
     }
 
-    public SystemMethodIndices(int ejbActivate, int ejbLoad, int ejbPassivate, int ejbStore, int setContext, int unsetContext) {
+    public SystemMethodIndices(int ejbActivate, int ejbLoad, int ejbPassivate, int ejbStore, int setContext, int unsetContext, int ejbTimeout) {
         this.ejbActivate = ejbActivate;
         this.ejbLoad = ejbLoad;
         this.ejbPassivate = ejbPassivate;
         this.ejbStore = ejbStore;
         this.setContext = setContext;
         this.unsetContext = unsetContext;
+        this.ejbTimeout = ejbTimeout;
     }
 
     public EJBInvocation getEjbActivateInvocation(EJBInstanceContext instanceContext) {
@@ -123,6 +131,10 @@ public final class SystemMethodIndices {
 
     public EJBInvocation getUnsetContextInvocation(EJBInstanceContext instanceContext) {
         return new EJBInvocationImpl(unsetContext, null, instanceContext);
+    }
+
+    public EJBInvocation getEJBTimeoutInvocation(TimerImpl timer) {
+        return new EJBInvocationImpl(EJBInterfaceType.TIMEOUT, ejbTimeout, new Object[] {timer});
     }
 
 }

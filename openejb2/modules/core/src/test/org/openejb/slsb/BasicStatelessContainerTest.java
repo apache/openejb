@@ -49,16 +49,15 @@ package org.openejb.slsb;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
+
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.transaction.GeronimoTransactionManager;
+import org.openejb.DeploymentHelper;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.ContainerPolicy;
@@ -69,27 +68,34 @@ import org.openejb.transaction.TransactionPolicy;
  */
 public class BasicStatelessContainerTest extends TestCase {
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
-    private static final ObjectName TM_NAME = JMXUtil.getObjectName("geronimo.test:role=TransactionManager");
-    private static final ObjectName TCA_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
     private Kernel kernel;
     private GBeanMBean container;
 
     public void testRemoteInvocation() throws Throwable {
-        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "EJBHome");
+        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "ejbHome");
         MockRemote remote = home.create();
         assertEquals(2, remote.intMethod(1));
     }
 
     public void testLocalInvocation() throws Throwable {
-        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
+        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
         MockLocal remote = home.create();
         assertEquals(2, remote.intMethod(1));
         assertEquals(2, remote.intMethod(1));
         remote.remove();
     }
 
+    public void testTimeout() throws Exception {
+        MockLocalHome localHome = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
+        MockLocal local = localHome.create();
+        local.startTimer();
+        Thread.currentThread().sleep(200L);
+        int timeoutCount = local.getTimeoutCount();
+        assertEquals(1, timeoutCount);
+    }
+
     public void testRemoteSpeed() throws Throwable {
-        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "EJBHome");
+        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "ejbHome");
         MockRemote remote = home.create();
         remote.intMethod(1);
         for (int i = 0; i < 1000; i++) {
@@ -98,7 +104,7 @@ public class BasicStatelessContainerTest extends TestCase {
     }
 
     public void testLocalSpeed() throws Throwable {
-        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
+        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
 
         MockLocal local = home.create();
         Integer integer = new Integer(1);
@@ -140,6 +146,9 @@ public class BasicStatelessContainerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
+        kernel = DeploymentHelper.setUpKernelWithTransactionManager("statelessSessionTest");
+        DeploymentHelper.setUpTimer(kernel);
+
         StatelessContainerBuilder builder = new StatelessContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
         builder.setContainerId(CONTAINER_NAME.getCanonicalName());
@@ -160,27 +169,15 @@ public class BasicStatelessContainerTest extends TestCase {
         builder.setComponentContext(new ReadOnlyContext());
         container = builder.createConfiguration();
 
-        kernel = new Kernel("statelessSessionTest");
-        kernel.boot();
-
-        GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
-        Set rmpatterns = new HashSet();
-        rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
-        tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
-        start(TM_NAME, tmGBean);
-        GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
-        start(TCA_NAME, trackedConnectionAssociator);
-
         //start the ejb container
-        container.setReferencePatterns("TransactionManager", Collections.singleton(TM_NAME));
-        container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(TCA_NAME));
+        container.setReferencePatterns("TransactionContextManager", Collections.singleton(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME));
+        container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME));
+        container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
         start(CONTAINER_NAME, container);
     }
 
     protected void tearDown() throws Exception {
         stop(CONTAINER_NAME);
-        stop(TM_NAME);
-        stop(TCA_NAME);
         kernel.shutdown();
     }
 

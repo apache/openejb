@@ -54,6 +54,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.management.ObjectName;
+
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.openejb.AbstractContainerBuilder;
@@ -254,11 +256,12 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
+        ObjectName timerName = getTimerName(beanClass);
 
         if (buildContainer) {
             return createContainer(signatures, contextFactory, interceptorBuilder, pool);
         } else {
-            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool);
+            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool, timerName);
         }
     }
 

@@ -138,7 +138,6 @@ public class MockEndpointWorker implements Work {
             endpoint = messageEndpointFactory.createEndpoint(null);
 
             for (int i = 0; !stopping; i++) {
-
                 // Delay message delivery a little.
                 Thread.sleep(1000);
 

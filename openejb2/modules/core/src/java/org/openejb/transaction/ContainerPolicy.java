@@ -48,7 +48,6 @@
 package org.openejb.transaction;
 
 import javax.ejb.TransactionRequiredLocalException;
-import javax.transaction.TransactionManager;
 import javax.transaction.TransactionRequiredException;
 
 import org.apache.commons.logging.Log;
@@ -56,11 +55,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
-import org.apache.geronimo.transaction.TransactionContext;
-import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
-import org.apache.geronimo.transaction.InheritableTransactionContext;
-import org.apache.geronimo.transaction.ContainerTransactionContext;
-
+import org.apache.geronimo.transaction.context.InheritableTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBInvocation;
 
 /**
@@ -79,17 +76,15 @@ public class ContainerPolicy {
     public static final TransactionPolicy Never = new TxNever();
     public static final TransactionPolicy BeforeDelivery = new TxBeforeDelivery();
     public static final TransactionPolicy AfterDelivery = new TxAfterDelivery();
-    
+
     private static final class TxNotSupported implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
-            TransactionContext clientContext = TransactionContext.getContext();
+        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+            TransactionContext clientContext = transactionContextManager.getContext();
             if (clientContext != null) {
                 clientContext.suspend();
             }
             try {
-                TransactionContext beanContext = new UnspecifiedTransactionContext();
-                TransactionContext.setContext(beanContext);
-                beanContext.begin();
+                TransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
@@ -105,7 +100,7 @@ public class ContainerPolicy {
                 }
             } finally {
                 ejbInvocation.setTransactionContext(clientContext);
-                TransactionContext.setContext(clientContext);
+                transactionContextManager.setContext(clientContext);
                 if (clientContext != null) {
                     clientContext.resume();
                 }
@@ -120,8 +115,8 @@ public class ContainerPolicy {
         }
     }
     private static final class TxRequired implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
-            TransactionContext clientContext = TransactionContext.getContext();
+        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+            TransactionContext clientContext = transactionContextManager.getContext();
             if (clientContext instanceof InheritableTransactionContext) {
                 try {
                     ejbInvocation.setTransactionContext(clientContext);
@@ -135,9 +130,7 @@ public class ContainerPolicy {
                 clientContext.suspend();
             }
             try {
-                TransactionContext beanContext = new ContainerTransactionContext(txnManager);
-                TransactionContext.setContext(beanContext);
-                beanContext.begin();
+                TransactionContext beanContext = transactionContextManager.newContainerTransactionContext();
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
@@ -153,7 +146,7 @@ public class ContainerPolicy {
                 }
             } finally {
                 ejbInvocation.setTransactionContext(clientContext);
-                TransactionContext.setContext(clientContext);
+                transactionContextManager.setContext(clientContext);
                 if (clientContext != null) {
                     clientContext.resume();
                 }
@@ -168,8 +161,8 @@ public class ContainerPolicy {
         }
     }
     private static final class TxSupports implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
-            TransactionContext clientContext = TransactionContext.getContext();
+        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+            TransactionContext clientContext = transactionContextManager.getContext();
             if (clientContext != null) {
                 try {
                     ejbInvocation.setTransactionContext(clientContext);
@@ -180,9 +173,7 @@ public class ContainerPolicy {
             }
 
             try {
-                TransactionContext beanContext = new UnspecifiedTransactionContext();
-                TransactionContext.setContext(beanContext);
-                beanContext.begin();
+                TransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
@@ -198,7 +189,7 @@ public class ContainerPolicy {
                 }
             } finally {
                 ejbInvocation.setTransactionContext(null);
-                TransactionContext.setContext(null);
+                transactionContextManager.setContext(null);
             }
         }
         public String toString() {
@@ -210,16 +201,14 @@ public class ContainerPolicy {
         }
     }
     private static final class TxRequiresNew implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
-            TransactionContext clientContext = TransactionContext.getContext();
+        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+            TransactionContext clientContext = transactionContextManager.getContext();
 
             if (clientContext != null) {
                 clientContext.suspend();
             }
             try {
-                TransactionContext beanContext = new ContainerTransactionContext(txnManager);
-                TransactionContext.setContext(beanContext);
-                beanContext.begin();
+                TransactionContext beanContext = transactionContextManager.newContainerTransactionContext();
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
@@ -235,7 +224,7 @@ public class ContainerPolicy {
                 }
             } finally {
                 ejbInvocation.setTransactionContext(clientContext);
-                TransactionContext.setContext(clientContext);
+                transactionContextManager.setContext(clientContext);
                 if (clientContext != null) {
                     clientContext.resume();
                 }
@@ -250,8 +239,8 @@ public class ContainerPolicy {
         }
     }
     private static final class TxMandatory implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
-            TransactionContext clientContext = TransactionContext.getContext();
+        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+            TransactionContext clientContext = transactionContextManager.getContext();
             if (clientContext instanceof InheritableTransactionContext) {
                 try {
                     ejbInvocation.setTransactionContext(clientContext);
@@ -276,8 +265,8 @@ public class ContainerPolicy {
         }
     }
     private static final class TxNever implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
-            TransactionContext clientContext = TransactionContext.getContext();
+        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+            TransactionContext clientContext = transactionContextManager.getContext();
 
             if (clientContext instanceof InheritableTransactionContext) {
                 throw new TransactionNotSupportedException();
@@ -293,9 +282,7 @@ public class ContainerPolicy {
             }
 
             try {
-                TransactionContext beanContext = new UnspecifiedTransactionContext();
-                TransactionContext.setContext(beanContext);
-                beanContext.begin();
+                TransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
@@ -311,7 +298,7 @@ public class ContainerPolicy {
                 }
             } finally {
                 ejbInvocation.setTransactionContext(null);
-                TransactionContext.setContext(null);
+                transactionContextManager.setContext(null);
             }
         }
         public String toString() {
@@ -324,8 +311,8 @@ public class ContainerPolicy {
     }
     //TODO INCOMPLETE: XAResource is not enlisted in new tx. Method tx attr. is not checked. clientContext is not saved.
     private static final class TxBeforeDelivery implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
-            TransactionContext clientContext = TransactionContext.getContext();
+        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+            TransactionContext clientContext = transactionContextManager.getContext();
             if (clientContext instanceof InheritableTransactionContext) {
                 try {
                     ejbInvocation.setTransactionContext(clientContext);
@@ -339,9 +326,7 @@ public class ContainerPolicy {
                 clientContext.suspend();
             }
             try {
-                TransactionContext beanContext = new ContainerTransactionContext(txnManager);
-                TransactionContext.setContext(beanContext);
-                beanContext.begin();
+                TransactionContext beanContext = transactionContextManager.newContainerTransactionContext();
                 ejbInvocation.setTransactionContext(beanContext);
                 return new SimpleInvocationResult(true, null);
             } catch (Exception e) {
@@ -358,8 +343,8 @@ public class ContainerPolicy {
     }
     //TODO really broken. possible (imported) tx context is not restored.  XAResource is not delisted.
     private static final class TxAfterDelivery implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
-            TransactionContext beanContext = TransactionContext.getContext();
+        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+            TransactionContext beanContext = transactionContextManager.getContext();
             try {
                 try {
                     beanContext.commit();
@@ -374,7 +359,7 @@ public class ContainerPolicy {
                 }
             } finally {
                 ejbInvocation.setTransactionContext(null);
-                TransactionContext.setContext(null);
+                transactionContextManager.setContext(null);
             }
         }
         public String toString() {

@@ -49,32 +49,39 @@ package org.openejb;
 
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
-import javax.transaction.TransactionManager;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
-
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.timer.ThreadPooledTimer;
+import org.apache.geronimo.kernel.Kernel;
 import org.openejb.cache.InstancePool;
 import org.openejb.client.EJBObjectHandler;
 import org.openejb.client.EJBObjectProxy;
 import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
+import org.openejb.timer.TimerServiceImpl;
 
 /**
  * @version $Revision$ $Date$
  */
-public class GenericEJBContainer implements EJBContainer {
+public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
     private final ClassLoader classLoader;
     private final Object containerId;
     private final String ejbName;
@@ -86,6 +93,8 @@ public class GenericEJBContainer implements EJBContainer {
 
     private final String[] jndiNames;
     private final String[] localJndiNames;
+    private final TimerServiceImpl timerService;
+
 
     public GenericEJBContainer(
             Object containerId,
@@ -98,8 +107,11 @@ public class GenericEJBContainer implements EJBContainer {
             UserTransactionImpl userTransaction,
             String[] jndiNames,
             String[] localJndiNames,
-            TransactionManager transactionManager,
-            TrackedConnectionAssociator trackedConnectionAssociator) throws Exception {
+            TransactionContextManager transactionContextManager,
+            TrackedConnectionAssociator trackedConnectionAssociator,
+            ThreadPooledTimer timer,
+            String objectName,
+            Kernel kernel) throws Exception {
 
         assert (containerId != null);
         assert (ejbName != null && ejbName.length() > 0);
@@ -108,7 +120,7 @@ public class GenericEJBContainer implements EJBContainer {
         assert (jndiNames != null);
         assert (localJndiNames != null);
         assert (pool != null);
-        assert (transactionManager != null);
+        assert (transactionContextManager != null);
 
         this.classLoader = Thread.currentThread().getContextClassLoader();
         assert (classLoader != null);
@@ -125,20 +137,26 @@ public class GenericEJBContainer implements EJBContainer {
         // give the contextFactory a reference to the proxyFactory
         // after this there is no reason to hold on to a reference to the contextFactory
         contextFactory.setProxyFactory(proxyFactory);
-        contextFactory.setSignatures(getSignatures());
+        SystemMethodIndices systemMethodIndices = contextFactory.setSignatures(getSignatures());
 
         // build the interceptor chain
-        interceptorBuilder.setTransactionManager(transactionManager);
+        interceptorBuilder.setTransactionContextManager(transactionContextManager);
         interceptorBuilder.setTrackedConnectionAssociator(trackedConnectionAssociator);
         interceptorBuilder.setInstancePool(pool);
         TwoChains chains = interceptorBuilder.buildInterceptorChains();
         interceptor = chains.getUserChain();
 
         contextFactory.setSystemChain(chains.getSystemChain());
+        if (timer != null) {
+            timerService = new TimerServiceImpl(systemMethodIndices, interceptor, timer, objectName, kernel.getKernelName(), ObjectName.getInstance(objectName), transactionContextManager);
+            contextFactory.setTimerService(timerService);
+        } else {
+            timerService = null;
+        }
 
         // initialize the user transaction
         if (userTransaction != null) {
-            userTransaction.setUp(transactionManager, trackedConnectionAssociator);
+            userTransaction.setUp(transactionContextManager, trackedConnectionAssociator);
         }
 
         // TODO maybe there is a more suitable place to do this.  Maybe not.
@@ -248,12 +266,28 @@ public class GenericEJBContainer implements EJBContainer {
         return copy;
     }
 
-    public EJBContainer getUnmanagedReference(){
+    public EJBContainer getUnmanagedReference() {
         return this;
     }
 
+    public void doStart() throws WaitingException, Exception {
+        if (timerService != null) {
+            timerService.doStart();
+        }
+    }
+
+    public void doStop() {
+        if (timerService != null) {
+            timerService.doStop();
+        }
+    }
+
+    public void doFail() {
+        doStop();
+    }
+
     private static String[] copyNames(String[] names) {
-        if(names == null) {
+        if (names == null) {
             return null;
         }
         int length = names.length;
@@ -277,38 +311,46 @@ public class GenericEJBContainer implements EJBContainer {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(GenericEJBContainer.class);
 
-        infoFactory.addAttribute("ContainerID", Object.class, true);
-        infoFactory.addAttribute("EJBName", String.class, true);
-        infoFactory.addAttribute("ProxyInfo", ProxyInfo.class, true);
-        infoFactory.addAttribute("Signatures", InterfaceMethodSignature[].class, true);
-        infoFactory.addAttribute("ContextFactory", InstanceContextFactory.class, true);
-        infoFactory.addAttribute("InterceptorBuilder", InterceptorBuilder.class, true);
-        infoFactory.addAttribute("Pool", InstancePool.class, true);
-        infoFactory.addAttribute("UserTransaction", UserTransactionImpl.class, true);
-        infoFactory.addAttribute("JndiNames", String[].class, true);
-        infoFactory.addAttribute("LocalJndiNames", String[].class, true);
+        infoFactory.addAttribute("containerID", Object.class, true);
+        infoFactory.addAttribute("ejbName", String.class, true);
+        infoFactory.addAttribute("proxyInfo", ProxyInfo.class, true);
+        infoFactory.addAttribute("signatures", InterfaceMethodSignature[].class, true);
+        infoFactory.addAttribute("contextFactory", InstanceContextFactory.class, true);
+        infoFactory.addAttribute("interceptorBuilder", InterceptorBuilder.class, true);
+        infoFactory.addAttribute("pool", InstancePool.class, true);
+        infoFactory.addAttribute("userTransaction", UserTransactionImpl.class, true);
+        infoFactory.addAttribute("jndiNames", String[].class, true);
+        infoFactory.addAttribute("localJndiNames", String[].class, true);
 
-        infoFactory.addReference("TransactionManager", TransactionManager.class);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
         infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
+        infoFactory.addReference("Timer", ThreadPooledTimer.class);
 
-        infoFactory.addAttribute("ProxyFactory", EJBProxyFactory.class, false);
-        infoFactory.addAttribute("EJBHome", EJBHome.class, false);
-        infoFactory.addAttribute("EJBLocalHome", EJBLocalHome.class, false);
-        infoFactory.addAttribute("UnmanagedReference", EJBContainer.class, false);
+        infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+
+
+        infoFactory.addAttribute("proxyFactory", EJBProxyFactory.class, false);
+        infoFactory.addAttribute("ejbHome", EJBHome.class, false);
+        infoFactory.addAttribute("ejbLocalHome", EJBLocalHome.class, false);
+        infoFactory.addAttribute("unmanagedReference", EJBContainer.class, false);
 
         infoFactory.setConstructor(new String[]{
-            "ContainerID",
-            "EJBName",
-            "ProxyInfo",
-            "Signatures",
-            "ContextFactory",
-            "InterceptorBuilder",
-            "Pool",
-            "UserTransaction",
-            "JndiNames",
-            "LocalJndiNames",
-            "TransactionManager",
-            "TrackedConnectionAssociator"});
+            "containerID",
+            "ejbName",
+            "proxyInfo",
+            "signatures",
+            "contextFactory",
+            "interceptorBuilder",
+            "pool",
+            "userTransaction",
+            "jndiNames",
+            "localJndiNames",
+            "TransactionContextManager",
+            "TrackedConnectionAssociator",
+            "Timer",
+            "objectName",
+            "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -317,4 +359,5 @@ public class GenericEJBContainer implements EJBContainer {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

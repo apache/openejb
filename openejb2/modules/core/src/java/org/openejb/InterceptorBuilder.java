@@ -17,21 +17,18 @@
 package org.openejb;
 
 import java.io.Serializable;
-import java.util.Set;
 
 import javax.security.auth.Subject;
-import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.core.service.Interceptor;
-
-import org.openejb.dispatch.VirtualOperation;
-import org.openejb.transaction.TransactionPolicyManager;
-import org.openejb.security.PermissionManager;
-import org.openejb.cache.InstancePool;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstanceFactory;
+import org.openejb.cache.InstancePool;
+import org.openejb.dispatch.VirtualOperation;
+import org.openejb.security.PermissionManager;
+import org.openejb.transaction.TransactionPolicyManager;
 
 /**
  *
@@ -57,7 +54,7 @@ public interface InterceptorBuilder extends Serializable {
 
     void setSecurityEnabled(boolean securityEnabled);
 
-    void setTransactionManager(TransactionManager transactionManager);
+    void setTransactionContextManager(TransactionContextManager transactionContextManager);
 
     void setTrackedConnectionAssociator(TrackedConnectionAssociator trackedConnectionAssociator);
 

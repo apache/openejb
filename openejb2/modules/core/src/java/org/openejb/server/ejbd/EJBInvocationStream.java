@@ -49,7 +49,7 @@ import java.io.ObjectInput;
 import java.lang.reflect.Method;
 
 import org.apache.geronimo.core.service.InvocationKey;
-import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.EJBContainer;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInterfaceType;
@@ -61,13 +61,13 @@ import org.openejb.proxy.EJBProxyFactory;
 public class EJBInvocationStream extends EJBRequest implements EJBInvocation {
 
     private ObjectInput in;
-    
+
     private final EJBInvocation invocationState = new EJBInvocationImpl();
     private EJBInterfaceType interfaceType;
-    
+
     private EJBProxyFactory ejbProxyFactory;
     private int methodIndex = -1;
-    
+
     public EJBInvocationStream() {
         super();
     }
@@ -75,13 +75,13 @@ public class EJBInvocationStream extends EJBRequest implements EJBInvocation {
     public EJBInvocationStream(int requestMethod) {
         super(requestMethod);
     }
-    
+
     /**
      * The EJBProxyFactory must be set before calling getMethodIndex.
      *
-     * This method won't be needed in the long-run.  Eventually, 
+     * This method won't be needed in the long-run.  Eventually,
      * the method index will be part of the protocol.
-     * 
+     *
      * @param EJBProxyFactory ejbProxyFactory
      */
     public void setProxyFactory(EJBProxyFactory ejbProxyFactory) {
@@ -143,15 +143,15 @@ public class EJBInvocationStream extends EJBRequest implements EJBInvocation {
     public void readExternal(ObjectInput in)
     throws IOException, ClassNotFoundException {
         clearState();
-        
+
         this.in = in;
-    
+
         readRequestMethod(in);
-    
+
         readContainerId(in);
-        
+
         readClientIdentity(in);
-        
+
         switch (super.getRequestMethod()){
             case EJB_HOME_CREATE:
             case EJB_HOME_FIND:
@@ -161,7 +161,7 @@ public class EJBInvocationStream extends EJBRequest implements EJBInvocation {
             case EJB_HOME_REMOVE_BY_PKEY:
                 interfaceType = EJBInterfaceType.HOME; break;
             default:
-                interfaceType = EJBInterfaceType.REMOTE; 
+                interfaceType = EJBInterfaceType.REMOTE;
         }
 //        finishReadExternal();
    }
@@ -182,18 +182,18 @@ public class EJBInvocationStream extends EJBRequest implements EJBInvocation {
             }
         }
     }
-    
+
     private void finishReadExternal()
     throws IOException, ClassNotFoundException {
         readPrimaryKey(in);
-        
+
         readMethod(in);
-        
+
         readMethodParameters(in);
-        
+
         loadMethodInstance();
     }
-    
+
     public Object get(InvocationKey arg0) {
         return invocationState.get(arg0);
     }

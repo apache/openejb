@@ -52,11 +52,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.resource.ResourceException;
+import javax.management.ObjectName;
 import javax.resource.spi.UnavailableException;
 import javax.resource.spi.endpoint.MessageEndpoint;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
-import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 
 import org.apache.geronimo.connector.ActivationSpecWrapper;
@@ -66,12 +65,19 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
-import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.cache.InstancePool;
 import org.openejb.TwoChains;
+import org.openejb.cache.InstancePool;
+import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.dispatch.SystemMethodIndices;
+import org.openejb.timer.EJBTimeoutInvocationFactory;
+import org.openejb.timer.TimerServiceImpl;
+import org.openejb.timer.StatelessEJBInvocationFactoryImpl;
 
 /**
  * @version $Revision$ $Date$
@@ -86,8 +92,9 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
     private final Interceptor interceptor;
     private final InterfaceMethodSignature[] signatures;
     private final boolean[] deliveryTransacted;
-    private final TransactionManager transactionManager;
+    private final TransactionContextManager transactionContextManager;
     private final Map methodIndexMap;
+    private final TimerServiceImpl timerService;
 
     public MDBContainer(String containerId,
             String ejbName,
@@ -97,9 +104,12 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
             MDBInstanceContextFactory contextFactory, MDBInterceptorBuilder interceptorBuilder,
             InstancePool instancePool, UserTransactionImpl userTransaction,
             ActivationSpecWrapper activationSpecWrapper,
-            TransactionManager transactionManager,
+            TransactionContextManager transactionContextManager,
             TrackedConnectionAssociator trackedConnectionAssociator,
-            ClassLoader classLoader) throws Exception {
+            ClassLoader classLoader,
+            ThreadPooledTimer timer,
+            String objectName,
+            Kernel kernel) throws Exception {
 
         assert (containerId != null && containerId.length() > 0);
         assert (classLoader != null);
@@ -108,7 +118,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         assert (deliveryTransacted != null);
         assert (signatures.length == deliveryTransacted.length);
         assert (interceptorBuilder != null);
-        assert (transactionManager != null);
+        assert (transactionContextManager != null);
         assert (activationSpecWrapper != null);
 
         this.classLoader = classLoader;
@@ -117,7 +127,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         this.ejbName = ejbName;
         this.signatures = signatures;
         this.deliveryTransacted = deliveryTransacted;
-        this.transactionManager = transactionManager;
+        this.transactionContextManager = transactionContextManager;
         this.activationSpecWrapper = activationSpecWrapper;
         Class endpointInterface = classLoader.loadClass(endpointInterfaceName);
         endpointFactory = new EndpointFactory(this, endpointInterface, classLoader);
@@ -128,13 +138,19 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         TwoChains chains = interceptorBuilder.buildInterceptorChains();
         interceptor = chains.getUserChain();
 
-        contextFactory.setSignatures(getSignatures());
+        SystemMethodIndices systemMethodIndices = contextFactory.setSignatures(getSignatures());
 
         contextFactory.setSystemChain(chains.getSystemChain());
 
+        if (timer != null) {
+            timerService = new TimerServiceImpl(systemMethodIndices, interceptor, timer, objectName, kernel.getKernelName(), ObjectName.getInstance(objectName), transactionContextManager);
+            contextFactory.setTimerService(timerService);
+        } else {
+            timerService = null;
+        }
         // initialize the user transaction
         if (userTransaction != null) {
-            userTransaction.setUp(transactionManager, trackedConnectionAssociator);
+            userTransaction.setUp(transactionContextManager, trackedConnectionAssociator);
         }
 
         // build the legacy map
@@ -166,12 +182,18 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         return deliveryTransacted[methodIndex];
     }
 
-    public void doStart() throws ResourceException {
+    public void doStart() throws Exception {
+        if (timerService != null) {
+            timerService.doStart();
+        }
         activationSpecWrapper.activate(this);
     }
 
     public void doStop() {
         activationSpecWrapper.deactivate(this);
+        if (timerService != null) {
+            timerService.doStop();
+        }
     }
 
     public void doFail() {
@@ -205,8 +227,8 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         return copy;
     }
 
-    public TransactionManager getTransactionManager() {
-        return transactionManager;
+    public TransactionContextManager getTransactionContextManager() {
+        return transactionContextManager;
     }
 
     public Map getMethodIndexMap() {
@@ -230,9 +252,13 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         infoFactory.addAttribute("userTransaction", UserTransactionImpl.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.addReference("activationSpecWrapper", ActivationSpecWrapper.class);
-        infoFactory.addReference("transactionManager", TransactionManager.class);
-        infoFactory.addReference("trackedConnectionAssociator", TrackedConnectionAssociator.class);
+        infoFactory.addReference("ActivationSpecWrapper", ActivationSpecWrapper.class);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
+        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
+        infoFactory.addReference("Timer", ThreadPooledTimer.class);
+
+        infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
 
         infoFactory.setConstructor(new String[]{
             "containerId",
@@ -244,10 +270,13 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
             "interceptorBuilder",
             "instancePool",
             "userTransaction",
-            "activationSpecWrapper",
-            "transactionManager",
-            "trackedConnectionAssociator",
+            "ActivationSpecWrapper",
+            "TransactionContextManager",
+            "TrackedConnectionAssociator",
             "classLoader",
+            "Timer",
+            "objectName",
+            "kernel"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

@@ -96,7 +96,8 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
         if (buildContainer) {
             return createContainer(signatures, contextFactory, interceptorBuilder, pool);
         } else {
-            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool);
+            //stateful has no timers
+            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool, null);
         }
     }
 

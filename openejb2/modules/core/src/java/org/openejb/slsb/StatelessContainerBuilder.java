@@ -50,14 +50,22 @@ package org.openejb.slsb;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
+import javax.management.ObjectName;
+
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
 import org.openejb.InterceptorBuilder;
+import org.openejb.transaction.TransactionPolicy;
+import org.openejb.transaction.ContainerPolicy;
+import org.openejb.timer.TimerServiceImpl;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
+import org.openejb.dispatch.EJBTimeoutOperation;
 import org.openejb.slsb.dispatch.EJBActivateOperation;
 import org.openejb.slsb.dispatch.EJBPassivateOperation;
 import org.openejb.slsb.dispatch.SetSessionContextOperation;
@@ -90,10 +98,13 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
 
+        ObjectName timerName = getTimerName(beanClass);
+
         if (buildContainer) {
+            //TODO add timer to sig.
             return createContainer(signatures, contextFactory, interceptorBuilder, pool);
         } else {
-            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool);
+            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool, timerName);
         }
     }
 
@@ -119,6 +130,12 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
                 continue;
             }
             String name = beanMethod.getName();
+            if (TimedObject.class.isAssignableFrom(beanClass)) {
+                MethodSignature signature = new MethodSignature("ejbTimeout", new Class[]{Timer.class});
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , EJBTimeoutOperation.INSTANCE);
+            }
             MethodSignature signature = new MethodSignature(beanMethod);
             if (name.equals("ejbActivate")) {
                 vopMap.put(

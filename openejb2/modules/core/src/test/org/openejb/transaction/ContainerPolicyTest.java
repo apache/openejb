@@ -51,9 +51,10 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
-import org.apache.geronimo.transaction.TransactionContext;
-import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
-import org.apache.geronimo.transaction.ContainerTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
+import org.apache.geronimo.transaction.context.ContainerTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import junit.framework.TestCase;
 
 import org.openejb.EJBInvocation;
@@ -70,10 +71,11 @@ public class ContainerPolicyTest extends TestCase {
     private MockInterceptor interceptor;
     private EJBInvocation invocation;
     private MockTransactionManager txnManager;
+    private TransactionContextManager transactionContextManager;
 
     public void testNotSupportedNoContext() throws Throwable {
         TransactionContext.setContext(null);
-        ContainerPolicy.NotSupported.invoke(interceptor, invocation, txnManager);
+        ContainerPolicy.NotSupported.invoke(interceptor, invocation, transactionContextManager);
         assertTrue(interceptor.context instanceof UnspecifiedTransactionContext);
     }
 
@@ -81,7 +83,7 @@ public class ContainerPolicyTest extends TestCase {
         MockUnspecifiedTransactionContext outer = new MockUnspecifiedTransactionContext(interceptor);
         TransactionContext.setContext(outer);
 
-        ContainerPolicy.NotSupported.invoke(interceptor, invocation, txnManager);
+        ContainerPolicy.NotSupported.invoke(interceptor, invocation, transactionContextManager);
         assertTrue(TransactionContext.getContext() == outer);
         assertTrue(interceptor.context instanceof UnspecifiedTransactionContext);
         assertTrue(interceptor.context != outer);
@@ -91,7 +93,7 @@ public class ContainerPolicyTest extends TestCase {
 
     public void testRequiredNoContext() throws Throwable {
         TransactionContext.setContext(null);
-        ContainerPolicy.Required.invoke(interceptor, invocation, txnManager);
+        ContainerPolicy.Required.invoke(interceptor, invocation, transactionContextManager);
         assertTrue(interceptor.context instanceof ContainerTransactionContext);
         assertTrue(txnManager.committed);
         assertFalse(txnManager.rolledBack);
@@ -99,7 +101,7 @@ public class ContainerPolicyTest extends TestCase {
         txnManager.committed = false;
         interceptor.throwException = true;
         try {
-            ContainerPolicy.Required.invoke(interceptor, invocation, txnManager);
+            ContainerPolicy.Required.invoke(interceptor, invocation, transactionContextManager);
         } catch (MockSystemException e) {
         }
         assertTrue(interceptor.context instanceof ContainerTransactionContext);
@@ -110,6 +112,7 @@ public class ContainerPolicyTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         txnManager = new MockTransactionManager();
+        transactionContextManager = new TransactionContextManager(txnManager);
         interceptor = new MockInterceptor();
         invocation = new EJBInvocationImpl(EJBInterfaceType.LOCAL, 0, null);
     }

@@ -126,7 +126,8 @@ public class StatelessInstanceInterceptorTest extends TestCase {
                     SystemMethodIndices.createSystemMethodIndices(new InterfaceMethodSignature[] {}, null, null, null),
                     null,
                     new HashSet(),
-                    new HashSet());
+                    new HashSet(),
+                    null);
         }
 
         public Object acquire() throws InterruptedException, Exception {

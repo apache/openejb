@@ -53,20 +53,20 @@ import org.openejb.OpenEJBException;
 public interface Assembler {
 
     public void init(Properties props)throws OpenEJBException;
-    
+
     public void build()throws OpenEJBException;
-    
+
     public ContainerSystem getContainerSystem();
-    
+
     /**
      * Gets the <code>TransactionManager</code> that this container manager exposes to the <code>Container</code>s it manages.
      *
      * @return the TransactionManager to be used by this container manager's containers when servicing beans
      * @see "javax.transaction.TransactionManager"
-     * @see org.openejb.spi.TransactionService#getTransactionManager() TransactionService.getTransactionManager()
+     * @see org.openejb.spi.TransactionService#getTransactionManager() TransactionService.getTransactionContextManager()
      */
     public TransactionManager getTransactionManager( );
-    
+
     /**
      * Gets the <code>SecurityService</code> that this container manager exposes to the <code>Container</code>s it manages.
      *
@@ -74,5 +74,5 @@ public interface Assembler {
      * @see org.openejb.spi.SecurityService
      */
     public SecurityService getSecurityService( );
-    
+
 }

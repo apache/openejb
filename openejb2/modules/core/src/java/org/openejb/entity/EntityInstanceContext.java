@@ -53,12 +53,13 @@ import javax.ejb.EnterpriseBean;
 import javax.ejb.EntityContext;
 
 import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.timer.TimerServiceImpl;
 
 /**
  *
@@ -73,8 +74,8 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
     private final EJBInvocation storeInvocation;
     private boolean stateValid;
 
-    public EntityInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EnterpriseBean instance, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources) {
-        super(systemMethodIndices, lifecycleInterceptorChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory);
+    public EntityInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EnterpriseBean instance, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, TimerServiceImpl timerService) {
+        super(systemMethodIndices, lifecycleInterceptorChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, timerService);
         this.containerId = containerId;
         entityContext = new EntityContextImpl(this);
         loadInvocation = systemMethodIndices.getEjbLoadInvocation(this);

@@ -48,6 +48,7 @@
 package org.openejb.transaction;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import org.openejb.EJBInterfaceType;
 import org.openejb.deployment.TransactionPolicySource;
@@ -65,6 +66,8 @@ public final class TransactionPolicyManager implements Serializable {
         transactionPolicy[EJBInterfaceType.LOCALHOME.getOrdinal()] = mapPolicies("LocalHome", signatures, transactionPolicySource);
         transactionPolicy[EJBInterfaceType.LOCAL.getOrdinal()] = mapPolicies("Local", signatures, transactionPolicySource);
         transactionPolicy[EJBInterfaceType.WEB_SERVICE.getOrdinal()] = mapPolicies("ServiceEndpoint", signatures, transactionPolicySource);
+        transactionPolicy[EJBInterfaceType.TIMEOUT.getOrdinal()] = new TransactionPolicy[signatures.length];
+        Arrays.fill(transactionPolicy[EJBInterfaceType.TIMEOUT.getOrdinal()], ContainerPolicy.Supports); //we control the transaction from the top of the stack.
     }
 
     public TransactionPolicy getTransactionPolicy(EJBInterfaceType invocationType, int operationIndex) {

@@ -58,6 +58,7 @@ import org.apache.geronimo.transaction.InstanceContext;
 import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
 import org.openejb.InstanceContextFactory;
+import org.openejb.timer.TimerServiceImpl;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
@@ -74,8 +75,9 @@ public class StatelessInstanceContextFactory implements InstanceContextFactory, 
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
     private EJBProxyFactory proxyFactory;
-    private SystemMethodIndices systemMethodIndices;
+    private transient SystemMethodIndices systemMethodIndices;
     private Interceptor systemChain;
+    private transient TimerServiceImpl timerService;
 
     public StatelessInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.containerId = containerId;
@@ -93,8 +95,13 @@ public class StatelessInstanceContextFactory implements InstanceContextFactory, 
         this.systemChain = systemChain;
     }
 
-    public void setSignatures(InterfaceMethodSignature[] signatures) {
+    public SystemMethodIndices setSignatures(InterfaceMethodSignature[] signatures) {
         systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setSessionContext", SessionContext.class.getName(), "unsetSessionContext");
+        return systemMethodIndices;
+    }
+
+    public void setTimerService(TimerServiceImpl timerService) {
+        this.timerService = timerService;
     }
 
     public InstanceContext newInstance() throws Exception {
@@ -107,6 +114,6 @@ public class StatelessInstanceContextFactory implements InstanceContextFactory, 
                 proxyFactory,
                 userTransaction,
                 systemMethodIndices, systemChain, unshareableResources,
-                applicationManagedSecurityResources);
+                applicationManagedSecurityResources, timerService);
     }
 }

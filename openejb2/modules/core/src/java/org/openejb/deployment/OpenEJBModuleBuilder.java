@@ -63,21 +63,20 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Collection;
-import java.util.ArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+import javax.management.AttributeNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.management.AttributeNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.common.xml.XmlBeansUtil;
+import org.apache.geronimo.connector.ActivationSpecInfo;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -108,7 +107,8 @@ import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
-import org.apache.geronimo.connector.ActivationSpecInfo;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.ContainerBuilder;
@@ -145,6 +145,10 @@ import org.tranql.sql.sql92.SQL92Schema;
  * @version $Revision$ $Date$
  */
 public class OpenEJBModuleBuilder implements ModuleBuilder {
+    private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
+        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
+        XmlBeans.typeLoaderForClassLoader(OpenejbOpenejbJarDocument.class.getClassLoader())
+    });
 
     private final Kernel kernel;
 
@@ -164,13 +168,13 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             if (plan == null) {
                 return createDefaultPlan(moduleBase);
             }
-            return plan.getOpenejbJar();
+            return plan;
         } catch (MalformedURLException e) {
             return null;
         }
     }
 
-    private OpenejbOpenejbJarType createDefaultPlan(URL moduleBase) throws XmlException {
+    private OpenejbOpenejbJarDocument createDefaultPlan(URL moduleBase) throws XmlException {
         URL ejbJarXml = null;
         try {
             ejbJarXml = new URL(moduleBase, "META-INF/ejb-jar.xml");
@@ -184,7 +188,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         EjbJarType ejbJar = ejbJarDoc.getEjbJar();
 
-        OpenejbOpenejbJarType openejbEjbJar = OpenejbOpenejbJarType.Factory.newInstance();
+        OpenejbOpenejbJarDocument openejbJarDocument = OpenejbOpenejbJarDocument.Factory.newInstance();
+        OpenejbOpenejbJarType openejbEjbJar = openejbJarDocument.addNewOpenejbJar();
         openejbEjbJar.setParentId("org/apache/geronimo/Server");
         String id = ejbJar.getId();
         if (id == null) {
@@ -199,21 +204,25 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
         openejbEjbJar.setConfigId(id);
 
-        return openejbEjbJar;
+        return openejbJarDocument;
     }
 
     public boolean canHandlePlan(XmlObject plan) {
-        return plan instanceof OpenejbOpenejbJarType;
+        return plan instanceof OpenejbOpenejbJarDocument;
     }
 
     public Module createModule(String name, XmlObject plan) throws DeploymentException {
+        if (!canHandlePlan(plan)) {
+            throw new DeploymentException("wrong kind of plan");
+        }
         EJBModule module = new EJBModule(name, URI.create("/"));
-        module.setVendorDD(plan);
+        OpenejbOpenejbJarType vendorDD = ((OpenejbOpenejbJarDocument)plan).getOpenejbJar();
+        module.setVendorDD(vendorDD);
         return module;
     }
 
     public URI getParentId(XmlObject plan) throws DeploymentException {
-        OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) plan;
+        OpenejbOpenejbJarType openejbEjbJar = ((OpenejbOpenejbJarDocument)plan).getOpenejbJar();
         URI parentID;
         if (openejbEjbJar.isSetParentId()) {
             try {
@@ -228,7 +237,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     }
 
     public URI getConfigId(XmlObject plan) throws DeploymentException {
-        OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) plan;
+        OpenejbOpenejbJarType openejbEjbJar = ((OpenejbOpenejbJarDocument)plan).getOpenejbJar();
         URI configID;
         try {
             configID = new URI(openejbEjbJar.getConfigId());
@@ -510,6 +519,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
     }
 
+    public SchemaTypeLoader getSchemaTypeLoader() {
+        return SCHEMA_TYPE_LOADER;
+    }
+
     private void buildCMPSchema(EARContext earContext, String ejbModuleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema) throws DeploymentException {
         EntityBeanType[] entityBeans = ejbJar.getEnterpriseBeans().getEntityArray();
 
@@ -579,6 +592,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue());
         if (isStateless) {
             builder = new StatelessContainerBuilder();
+            builder.setTransactedTimerName(earContext.getTransactedTimerName());
+            builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
         } else {
             builder = new StatefulContainerBuilder();
         }
@@ -624,8 +639,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         try {
             GBeanMBean gbean = builder.createConfiguration();
-            gbean.setReferencePatterns("TransactionManager", Collections.singleton(earContext.getTransactionManagerObjectName()));
-            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(earContext.getConnectionTrackerObjectName()));
+            gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
+            gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
             return gbean;
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName" + ejbName, e);
@@ -647,6 +662,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         builder.setPrimaryKeyClassName(getJ2eeStringValue(entityBean.getPrimKeyClass()));
         TransactionPolicySource transactionPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);
         builder.setTransactionPolicySource(transactionPolicySource);
+        builder.setTransactedTimerName(earContext.getTransactedTimerName());
+        builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
 
         try {
             ReadOnlyContext compContext = buildComponentContext(earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
@@ -666,8 +683,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         try {
             GBeanMBean gbean = builder.createConfiguration();
-            gbean.setReferencePatterns("TransactionManager", Collections.singleton(earContext.getTransactionManagerObjectName()));
-            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(earContext.getConnectionTrackerObjectName()));
+            gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
+            gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
             return gbean;
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName=" + ejbName, e);
@@ -689,6 +706,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         builder.setPrimaryKeyClassName(getJ2eeStringValue(entityBean.getPrimKeyClass()));
         TransactionPolicySource transactionPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);
         builder.setTransactionPolicySource(transactionPolicySource);
+        builder.setTransactedTimerName(earContext.getTransactedTimerName());
+        builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
 
         try {
             ReadOnlyContext compContext = buildComponentContext(earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
@@ -725,8 +744,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         try {
             GBeanMBean gbean = builder.createConfiguration();
-            gbean.setReferencePatterns("TransactionManager", Collections.singleton(earContext.getTransactionManagerObjectName()));
-            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(earContext.getConnectionTrackerObjectName()));
+            gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
+            gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
             return gbean;
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName=" + ejbName, e);
@@ -754,6 +773,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         builder.setEJBName(ejbName);
         builder.setBeanClassName(messageDrivenBean.getEjbClass().getStringValue());
         builder.setEndpointInterfaceName(getJ2eeStringValue(messageDrivenBean.getMessagingType()));
+        builder.setTransactedTimerName(earContext.getTransactedTimerName());
+        builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
 
         UserTransactionImpl userTransaction;
         //TODO this is probably wrong???
@@ -778,9 +799,9 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         try {
             GBeanMBean gbean = builder.createConfiguration();
-            gbean.setReferencePattern("transactionManager", earContext.getTransactionManagerObjectName());
-            gbean.setReferencePattern("trackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
-            gbean.setReferencePattern("activationSpecWrapper", activationSpecWrapperName);
+            gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
+            gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
+            gbean.setReferencePattern("ActivationSpecWrapper", activationSpecWrapperName);
             return gbean;
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName" + ejbName, e);

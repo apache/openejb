@@ -50,10 +50,16 @@ package org.openejb.entity.bmp;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
+import javax.management.ObjectName;
+
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
+import org.openejb.transaction.TransactionPolicy;
+import org.openejb.transaction.ContainerPolicy;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodHelper;
@@ -99,11 +105,12 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
 
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
+        ObjectName timerName = getTimerName(beanClass);
 
         if (buildContainer) {
             return createContainer(signatures, contextFactory, interceptorBuilder, pool);
         } else {
-            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool);
+            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool, timerName);
         }
     }
 

@@ -55,5 +55,11 @@ import javax.ejb.EJBLocalObject;
  * @version $Revision$ $Date$
  */
 public interface SimpleStatelessSessionLocal extends EJBLocalObject {
+
     String echo(String message);
+
+    void startTimer();
+
+    int getTimeoutCount();
+
 }

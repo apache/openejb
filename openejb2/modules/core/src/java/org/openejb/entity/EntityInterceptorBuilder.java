@@ -69,8 +69,8 @@ import org.openejb.transaction.TransactionContextInterceptor;
 public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
 
     public TwoChains buildInterceptorChains() {
-        if (transactionManager == null) {
-            throw new IllegalStateException("Transaction manager must be set before building the interceptor chain");
+        if (transactionContextManager == null) {
+            throw new IllegalStateException("Transaction context manager must be set before building the interceptor chain");
         }
         if (instancePool == null) {
             throw new IllegalStateException("Pool must be set before building the interceptor chain");
@@ -96,7 +96,7 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
             firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
         }
         firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, instancePool);
-        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, transactionPolicyManager);
+        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
         return new TwoChains(firstInterceptor, systemChain);
     }
