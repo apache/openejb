@@ -97,12 +97,30 @@ public class ServicePool implements ServerService {
         next.stop();
     }
 
-    public void service(Socket socket) throws ServiceException, IOException{
-        // Do our stuff
-        // Check authorization
+    public void service(final Socket socket) throws ServiceException, IOException{
+        // This isn't a pool now, but will be someday
+        Thread d = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    next.service(socket);
+                } catch (SecurityException e) {
+                    //logger.error( "Security error: "+ e.getMessage() );
+                } catch (Throwable e) {
+                    //logger.error( "Unexpected error", e );
 
-        // Then call the next guy
-        next.service(socket);
+                } finally {
+                    try {
+                        if (socket != null)
+                            socket.close();
+                    } catch (Throwable t) {
+                        //logger.error("Encountered problem while closing
+                        // connection with client: "+t.getMessage());
+                    }
+                }
+            }
+        });
+        d.setDaemon(true);
+        d.start();
     }
 
 

@@ -86,6 +86,7 @@ public class SimpleSocketService implements SocketService, GBean {
 
         service = new ServiceLogger(service);
         service = new ServiceAccessController(service, onlyFrom);
+        service = new ServicePool(service);
         server = service;
 
         // TODO Horrid hack, the concept needs to survive somewhere
