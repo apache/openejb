@@ -68,6 +68,10 @@
            debug="${debug}"
            deprecation="${deprecation}">
            
+      <classpath>
+        <path refid="project.classpath"/>
+      </classpath>
+           
     </javac>
           
   </target>
