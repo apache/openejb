@@ -165,6 +165,14 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         localHomeMap = createOperationsMap(localHomeFactory, signatures);
     }
 
+    public ClassLoader getClassLoader() {
+        if (remoteFactory != null) {
+            return remoteFactory.getType().getClassLoader();
+        } else {
+            return localFactory.getType().getClassLoader();
+        }
+    }
+
     int[] getOperationMap(EJBInterfaceType type) throws ContainerNotFoundException {
         if (container == null) {
             locateContainer();
