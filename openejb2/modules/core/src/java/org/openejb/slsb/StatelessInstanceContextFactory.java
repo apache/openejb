@@ -58,7 +58,7 @@ import org.apache.geronimo.transaction.InstanceContext;
 import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
 import org.openejb.InstanceContextFactory;
-import org.openejb.timer.TimerServiceImpl;
+import org.openejb.timer.BasicTimerService;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
@@ -77,7 +77,7 @@ public class StatelessInstanceContextFactory implements InstanceContextFactory, 
     private EJBProxyFactory proxyFactory;
     private transient SystemMethodIndices systemMethodIndices;
     private Interceptor systemChain;
-    private transient TimerServiceImpl timerService;
+    private transient BasicTimerService timerService;
 
     public StatelessInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.containerId = containerId;
@@ -100,7 +100,7 @@ public class StatelessInstanceContextFactory implements InstanceContextFactory, 
         return systemMethodIndices;
     }
 
-    public void setTimerService(TimerServiceImpl timerService) {
+    public void setTimerService(BasicTimerService timerService) {
         this.timerService = timerService;
     }
 

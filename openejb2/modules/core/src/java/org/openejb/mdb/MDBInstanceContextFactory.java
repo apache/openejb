@@ -57,7 +57,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.core.service.Interceptor;
 import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
-import org.openejb.timer.TimerServiceImpl;
+import org.openejb.timer.BasicTimerService;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.dispatch.InterfaceMethodSignature;
 
@@ -72,7 +72,7 @@ public class MDBInstanceContextFactory implements Serializable {
     private final Set applicationManagedSecurityResources;
     private SystemMethodIndices systemMethodIndices;
     private Interceptor systemChain;
-    private transient TimerServiceImpl timerService;
+    private transient BasicTimerService timerService;
 
     public MDBInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.containerId = containerId;
@@ -91,7 +91,7 @@ public class MDBInstanceContextFactory implements Serializable {
         return systemMethodIndices;
     }
 
-    public void setTimerService(TimerServiceImpl timerService) {
+    public void setTimerService(BasicTimerService timerService) {
         this.timerService = timerService;
     }
 

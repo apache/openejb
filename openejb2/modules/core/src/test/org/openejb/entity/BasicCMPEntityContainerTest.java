@@ -55,7 +55,7 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
+
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
 import javax.management.ObjectName;
@@ -63,13 +63,11 @@ import javax.sql.DataSource;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
-import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
 import org.openejb.DeploymentHelper;
@@ -134,6 +132,15 @@ public class BasicCMPEntityContainerTest extends TestCase {
         assertEquals(1 + number + pk.intValue(), remote.intMethod(number));
         assertEquals(pk, remote.getPrimaryKey());
         assertEquals(value, remote.getValue());
+    }
+
+    public void testTimeout() throws Exception {
+        MockLocalHome localHome = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
+        MockLocal local = localHome.create(new Integer(1), null);
+        local.startTimer();
+        Thread.currentThread().sleep(400L);
+        int timeoutCount = local.getTimeoutCount();
+        assertEquals(1, timeoutCount);
     }
 
     public void testFields() throws Exception {
@@ -438,6 +445,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         //start the ejb container
         container.setReferencePatterns("TransactionContextManager", Collections.singleton(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME));
         container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME));
+        container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
 
         start(CONTAINER_NAME, container);
     }

@@ -71,12 +71,12 @@ import org.apache.geronimo.timer.WorkInfo;
 public class TimerImpl implements Timer {
 
     private final WorkInfo workInfo;
-    private final TimerServiceImpl timerService;
+    private final BasicTimerService timerService;
     private final String kernelName;
     private final ObjectName timerSourceName;
     private boolean cancelled = false;
 
-    public TimerImpl(WorkInfo workInfo, TimerServiceImpl timerService, String kernelName, ObjectName timerSourceName) {
+    public TimerImpl(WorkInfo workInfo, BasicTimerService timerService, String kernelName, ObjectName timerSourceName) {
         this.workInfo = workInfo;
         this.timerService = timerService;
         this.kernelName = kernelName;
@@ -116,6 +116,10 @@ public class TimerImpl implements Timer {
     public TimerHandle getHandle() throws EJBException, IllegalStateException, NoSuchObjectLocalException {
         checkState();
         return new TimerHandleImpl(workInfo.getId(), kernelName, timerSourceName);
+    }
+
+    Object getUserId() {
+        return workInfo.getUserId();
     }
 
     private void checkState() throws NoSuchObjectLocalException {

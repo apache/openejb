@@ -55,6 +55,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.management.ObjectName;
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
@@ -67,6 +69,7 @@ import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
+import org.openejb.dispatch.EJBTimeoutOperation;
 import org.openejb.entity.BusinessMethod;
 import org.openejb.entity.dispatch.EJBLoadOperation;
 import org.openejb.entity.dispatch.EJBStoreOperation;
@@ -397,6 +400,14 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
             // create a VirtualOperation for the method (if the method is understood)
             String name = beanMethod.getName();
+
+            if (TimedObject.class.isAssignableFrom(beanClass)) {
+                MethodSignature signature = new MethodSignature("ejbTimeout", new Class[]{Timer.class});
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , EJBTimeoutOperation.INSTANCE);
+            }
+
             MethodSignature signature = new MethodSignature(beanMethod);
 
             if (name.startsWith("ejbCreate")) {

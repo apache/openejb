@@ -65,6 +65,7 @@ import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
+import org.openejb.dispatch.EJBTimeoutOperation;
 import org.openejb.entity.BusinessMethod;
 import org.openejb.entity.EntityInstanceFactory;
 import org.openejb.entity.EntityInterceptorBuilder;
@@ -105,6 +106,7 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
 
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
+
         ObjectName timerName = getTimerName(beanClass);
 
         if (buildContainer) {
@@ -140,8 +142,14 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
 
             // create a VirtualOperation for the method (if the method is understood)
             String name = beanMethod.getName();
-            MethodSignature signature = new MethodSignature(beanMethod);
+            if (TimedObject.class.isAssignableFrom(beanClass)) {
+                MethodSignature signature = new MethodSignature("ejbTimeout", new Class[]{Timer.class});
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , EJBTimeoutOperation.INSTANCE);
+            }
 
+            MethodSignature signature = new MethodSignature(beanMethod);
             if (name.startsWith("ejbCreate")) {
                 // ejbCreate vop needs a reference to the ejbPostCreate method
                 MethodSignature postCreateSignature = new MethodSignature(

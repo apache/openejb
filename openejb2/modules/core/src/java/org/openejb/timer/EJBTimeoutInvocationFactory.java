@@ -10,6 +10,6 @@ import org.openejb.EJBInvocation;
  * */
 public interface EJBTimeoutInvocationFactory {
 
-    EJBInvocation getEJBTimeoutInvocation(TimerImpl timer);
+    EJBInvocation getEJBTimeoutInvocation(Object id, TimerImpl timer);
 
 }

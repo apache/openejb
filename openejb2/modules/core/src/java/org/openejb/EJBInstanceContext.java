@@ -52,7 +52,7 @@ import javax.ejb.EnterpriseBean;
 import org.apache.geronimo.transaction.InstanceContext;
 
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.timer.TimerServiceImpl;
+import org.openejb.timer.BasicTimerService;
 
 /**
  *
@@ -68,5 +68,5 @@ public interface EJBInstanceContext extends InstanceContext {
 
     EJBProxyFactory getProxyFactory();
 
-    TimerServiceImpl getTimerService();
+    javax.ejb.TimerService getTimerService();
 }

@@ -59,7 +59,7 @@ import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.entity.EntityInstanceContext;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.timer.TimerServiceImpl;
+import org.openejb.timer.BasicTimerService;
 import org.tranql.cache.CacheRow;
 import org.tranql.cache.CacheRowState;
 import org.tranql.cache.FaultHandler;
@@ -79,7 +79,7 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
     private CacheRow cacheRow;
     private TransactionContext transactionContext;
 
-    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, InstanceOperation[] itable, FaultHandler loadFault, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, TimerServiceImpl timerService) throws Exception {
+    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, InstanceOperation[] itable, FaultHandler loadFault, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) throws Exception {
         super(containerId, proxyFactory, null, lifecycleInterceptorChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, timerService);
         this.itable = itable;
         this.loadFault = loadFault;

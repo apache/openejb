@@ -59,7 +59,7 @@ import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.timer.TimerServiceImpl;
+import org.openejb.timer.BasicTimerService;
 
 /**
  *
@@ -74,7 +74,7 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
     private final EJBInvocation storeInvocation;
     private boolean stateValid;
 
-    public EntityInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EnterpriseBean instance, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, TimerServiceImpl timerService) {
+    public EntityInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EnterpriseBean instance, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) {
         super(systemMethodIndices, lifecycleInterceptorChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, timerService);
         this.containerId = containerId;
         entityContext = new EntityContextImpl(this);

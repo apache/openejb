@@ -69,7 +69,7 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.NoOp;
 import net.sf.cglib.reflect.FastClass;
 import org.openejb.InstanceContextFactory;
-import org.openejb.timer.TimerServiceImpl;
+import org.openejb.timer.BasicTimerService;
 import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -96,7 +96,7 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
     private transient EJBProxyFactory proxyFactory;
     private transient Interceptor systemChain;
     private transient SystemMethodIndices systemMethodIndices;
-    private transient TimerServiceImpl timerService;
+    private transient BasicTimerService timerService;
 
     public CMPInstanceContextFactory(Object containerId, IdentityTransform primaryKeyTransform, FaultHandler loadFault, Class beanClass, Map imap, Set unshareableResources, Set applicationManagedSecurityResources) throws ClassNotFoundException {
         this.containerId = containerId;
@@ -139,7 +139,7 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
         return systemMethodIndices;
     }
 
-    public void setTimerService(TimerServiceImpl timerService) {
+    public void setTimerService(BasicTimerService timerService) {
         this.timerService = timerService;
     }
 

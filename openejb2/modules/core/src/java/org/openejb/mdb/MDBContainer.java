@@ -67,6 +67,7 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.timer.ThreadPooledTimer;
+import org.apache.geronimo.timer.PersistenceException;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
@@ -75,9 +76,7 @@ import org.openejb.TwoChains;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
-import org.openejb.timer.EJBTimeoutInvocationFactory;
-import org.openejb.timer.TimerServiceImpl;
-import org.openejb.timer.StatelessEJBInvocationFactoryImpl;
+import org.openejb.timer.BasicTimerService;
 
 /**
  * @version $Revision$ $Date$
@@ -94,7 +93,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
     private final boolean[] deliveryTransacted;
     private final TransactionContextManager transactionContextManager;
     private final Map methodIndexMap;
-    private final TimerServiceImpl timerService;
+    private final BasicTimerService timerService;
 
     public MDBContainer(String containerId,
             String ejbName,
@@ -143,7 +142,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         contextFactory.setSystemChain(chains.getSystemChain());
 
         if (timer != null) {
-            timerService = new TimerServiceImpl(systemMethodIndices, interceptor, timer, objectName, kernel.getKernelName(), ObjectName.getInstance(objectName), transactionContextManager);
+            timerService = new BasicTimerService(systemMethodIndices, interceptor, timer, objectName, kernel.getKernelName(), ObjectName.getInstance(objectName), transactionContextManager);
             contextFactory.setTimerService(timerService);
         } else {
             timerService = null;
@@ -189,7 +188,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         activationSpecWrapper.activate(this);
     }
 
-    public void doStop() {
+    public void doStop() throws PersistenceException {
         activationSpecWrapper.deactivate(this);
         if (timerService != null) {
             timerService.doStop();
@@ -197,7 +196,12 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
     }
 
     public void doFail() {
-        doStop();
+        try {
+            doStop();
+        } catch (PersistenceException e) {
+            //todo fix this
+            throw new RuntimeException(e);
+        }
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {

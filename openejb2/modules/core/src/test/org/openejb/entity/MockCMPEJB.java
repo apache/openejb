@@ -53,14 +53,19 @@ import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
 import javax.ejb.FinderException;
 import javax.ejb.RemoveException;
+import javax.ejb.Timer;
+import javax.ejb.TimerService;
+import javax.ejb.TimedObject;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public abstract class MockCMPEJB implements EntityBean {
+public abstract class MockCMPEJB implements EntityBean, TimedObject {
     private int field;
+
+    private static int timeoutCount = 0;
 
     public Object ejbCreate(Integer id, String value) throws CreateException {
         setId(id);
@@ -109,6 +114,16 @@ public abstract class MockCMPEJB implements EntityBean {
     public abstract String getValue();
     public abstract void setValue(String string);
 
+    public void startTimer() {
+        timeoutCount = 0;
+        TimerService timerService = context.getTimerService();
+        timerService.createTimer(100L, null);
+    }
+
+    public int getTimeoutCount() {
+        return timeoutCount;
+    }
+
     private EntityContext context;
 
     public void setEntityContext(EntityContext ctx) {
@@ -134,5 +149,9 @@ public abstract class MockCMPEJB implements EntityBean {
     }
 
     public void ejbRemove() throws RemoveException {
+    }
+
+    public void ejbTimeout(Timer timer) {
+        timeoutCount++;
     }
 }
