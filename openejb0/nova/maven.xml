@@ -13,6 +13,10 @@
         <attainGoal name="jar:install"/>
     </goal>
 
+    <goal name="build">
+        <attainGoal name="default"/>
+    </goal>
+
     <goal name="rebuild">
         <attainGoal name="clean"/>
         <attainGoal name="build"/>
@@ -77,7 +81,7 @@
                         <include name="**/*.java"/>
                     </fileset>
 
-                    <mbeaninterface templateFile="${project.root}/etc/xdoclet/template/jmx/mbean.xdt"/>
+                    <mbeaninterface templateFile="${basedir}/etc/xdoclet/template/jmx/mbean.xdt"/>
                 </jmxdoclet>
 
                 <touch file="${uptodateFile}"/>
