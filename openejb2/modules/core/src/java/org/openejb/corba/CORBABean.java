@@ -85,10 +85,11 @@ public class CORBABean implements GBeanLifecycle {
         this.configAdapter = null;
     }
 
-    public CORBABean(ClassLoader classLoader, Executor threadPool, String configAdapter) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public CORBABean(String configAdapter, ClassLoader classLoader, Executor threadPool, OpenORBNameBean namingService) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         this.classLoader = classLoader;
         this.threadPool = threadPool;
         this.configAdapter = (ConfigAdapter) classLoader.loadClass(configAdapter).newInstance();
+        //naming service included to force start order.
     }
 
     public TSSConfig getTssConfig() {
@@ -165,16 +166,19 @@ public class CORBABean implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(CORBABean.class, NameFactory.CORBA_SERVICE);
 
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("configAdapter", String.class, true);
         infoFactory.addAttribute("tssConfig", TSSConfig.class, true);
-        infoFactory.addAttribute("ORB", ORB.class, false);
-        infoFactory.addAttribute("rootPOA", POA.class, false);
         infoFactory.addAttribute("args", ArrayList.class, true);
         infoFactory.addAttribute("props", Properties.class, true);
 
-        infoFactory.setConstructor(new String[]{"classLoader", "ThreadPool", "configAdapter"});
+        infoFactory.addAttribute("ORB", ORB.class, false);
+        infoFactory.addAttribute("rootPOA", POA.class, false);
+
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("NamingService", OpenORBNameBean.class, NameFactory.CORBA_SERVICE);
+
+        infoFactory.setConstructor(new String[]{"configAdapter", "classLoader", "ThreadPool", "NamingService"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
