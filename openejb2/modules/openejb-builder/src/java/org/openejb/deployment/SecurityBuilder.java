@@ -75,6 +75,7 @@ import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
 import org.apache.geronimo.xbeans.j2ee.ExcludeListType;
+import org.apache.geronimo.xbeans.j2ee.JavaTypeType;
 import org.apache.geronimo.xbeans.j2ee.MethodPermissionType;
 import org.apache.geronimo.xbeans.j2ee.MethodType;
 import org.apache.geronimo.xbeans.j2ee.RoleNameType;
@@ -156,7 +157,7 @@ class SecurityBuilder {
 
                     String methodName = OpenEJBModuleBuilder.getJ2eeStringValue(method.getMethodName());
                     String methodIntf = OpenEJBModuleBuilder.getJ2eeStringValue(method.getMethodIntf());
-                    String[] methodPara = (method.getMethodParams() != null ? ConfigurationUtil.toStringArray(method.getMethodParams().getMethodParamArray()) : null);
+                    String[] methodPara = (method.getMethodParams() != null ? toStringArray(method.getMethodParams().getMethodParamArray()) : null);
 
                     // map EJB semantics to JACC semantics for method names
                     if ("*".equals(methodName)) methodName = null;
@@ -195,7 +196,7 @@ class SecurityBuilder {
 
                 String methodName = OpenEJBModuleBuilder.getJ2eeStringValue(method.getMethodName());
                 String methodIntf = OpenEJBModuleBuilder.getJ2eeStringValue(method.getMethodIntf());
-                String[] methodPara = (method.getMethodParams() != null ? ConfigurationUtil.toStringArray(method.getMethodParams().getMethodParamArray()) : null);
+                String[] methodPara = (method.getMethodParams() != null ? toStringArray(method.getMethodParams().getMethodParamArray()) : null);
 
                 EJBMethodPermission permission = new EJBMethodPermission(EJBName, methodName, methodIntf, methodPara);
 
@@ -519,6 +520,14 @@ class SecurityBuilder {
             }
         }
 
+        return result;
+    }
+
+    private static String[] toStringArray(JavaTypeType[] methodParamArray) {
+        String[] result = new String[methodParamArray.length];
+        for (int i = 0; i < methodParamArray.length; i++) {
+            result[i] = methodParamArray[i].getStringValue();
+        }
         return result;
     }
 }
