@@ -74,7 +74,7 @@ public class Lookup extends Command {
     static String PWD = "";
 
     // execute jndi lookups
-    public void exec(String[] args, DataInputStream in, DataOutputStream out) throws IOException{
+    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
         try{
             String name = "";
 
@@ -88,12 +88,12 @@ public class Lookup extends Command {
             try{
                obj = ctx.lookup(name);
             } catch (NameNotFoundException e){
-                out.writeBytes("lookup: ");
-                out.writeBytes(name);
-                out.writeBytes(": No such object or subcontext\n" );
+                out.print("lookup: ");
+                out.print(name);
+                out.println(": No such object or subcontext" );
                 return;
             } catch (Throwable e){
-                out.writeBytes("lookup: error: ");
+                out.print("lookup: error: ");
                 e.printStackTrace(new PrintStream(out));
                 return;
             }
@@ -104,14 +104,13 @@ public class Lookup extends Command {
             }
     
             // TODO:1: Output the differnt data types differently
-            out.writeBytes(""+obj);
-            out.writeBytes("\n");
+            out.println(""+obj);
         } catch (Exception e){
             e.printStackTrace(new PrintStream(out));
         }
     }
 
-    public void list(String[] args, DataInputStream in, DataOutputStream out) throws IOException{
+    public void list(String[] args, DataInputStream in, PrintStream out) throws IOException{
         try{
         String name = "";
 
@@ -126,12 +125,12 @@ public class Lookup extends Command {
 
            enum = ctx.list(name);
         } catch (NameNotFoundException e){
-            out.writeBytes("lookup: ");
-            out.writeBytes(name);
-            out.writeBytes(": No such object or subcontext\n" );
+            out.print("lookup: ");
+            out.print(name);
+            out.println(": No such object or subcontext" );
             return;
         } catch (Throwable e){
-            out.writeBytes("lookup: error: ");
+            out.print("lookup: error: ");
             e.printStackTrace(new PrintStream(out));
             return;
         }
@@ -157,22 +156,22 @@ public class Lookup extends Command {
             }
 
             if ( Context.class.isAssignableFrom( eClass ) ) {
-                //out.writeBytes("-c- ");
-                out.writeBytes(TextConsole.TTY_Bright);
-                out.writeBytes(TextConsole.TTY_FG_Blue);
-                out.writeBytes(entry.getName());
-                out.writeBytes(TextConsole.TTY_Reset);
+                //out.print("-c- ");
+                out.print(TextConsole.TTY_Bright);
+                out.print(TextConsole.TTY_FG_Blue);
+                out.print(entry.getName());
+                out.print(TextConsole.TTY_Reset);
             } else if (EJBHome.class.isAssignableFrom( eClass)) {
-                //out.writeBytes("-b- ");
-                out.writeBytes(TextConsole.TTY_Bright);
-                out.writeBytes(TextConsole.TTY_FG_Green);
-                out.writeBytes(entry.getName());
-                out.writeBytes(TextConsole.TTY_Reset);
+                //out.print("-b- ");
+                out.print(TextConsole.TTY_Bright);
+                out.print(TextConsole.TTY_FG_Green);
+                out.print(entry.getName());
+                out.print(TextConsole.TTY_Reset);
             } else {
-                //out.writeBytes("-o- ");
-                out.writeBytes(entry.getName());
+                //out.print("-o- ");
+                out.print(entry.getName());
             }
-            out.writeBytes("\n");
+            out.println();
         }
         } catch (Exception e){
             e.printStackTrace(new PrintStream(out));

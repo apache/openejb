@@ -88,8 +88,8 @@ public class Command {
 
     // - Public methods - //
     
-    public void exec(String[] args, DataInputStream in, DataOutputStream out) throws IOException{
-        out.writeBytes("not implemented\n");
+    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
+        out.println("not implemented");
     }
     
 

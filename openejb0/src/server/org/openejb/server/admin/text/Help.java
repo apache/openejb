@@ -57,13 +57,13 @@ public class Help extends Command {
         Command.register("help", Help.class);
     }
     
-    public void exec(String[] args, DataInputStream in, DataOutputStream out) throws IOException{
+    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
         HashMap hash = Command.commands;
         Set set = hash.keySet();
         Iterator cmds = set.iterator();
         while (cmds.hasNext()) {
-            out.writeBytes(" "+cmds.next());
-            out.writeBytes("\n");
+            out.print(" "+cmds.next());
+            out.println("");
         }
         
     }

@@ -57,7 +57,7 @@ public class Prompt extends Command {
         Command.register("prompt", Prompt.class);
     }
     
-    public void exec(String[] args, DataInputStream in, DataOutputStream out) throws IOException{
+    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
         try{
             if (args.length == 0) return;
 

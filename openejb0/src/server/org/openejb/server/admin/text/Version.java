@@ -58,7 +58,7 @@ public class Version extends Command {
         Command.register("version", Version.class);
     }
     
-    public void exec(String[] args, DataInputStream in, DataOutputStream out) throws IOException{
+    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
         /*
          * Output startup message
          */
@@ -68,15 +68,13 @@ public class Version extends Command {
             versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
         } catch (java.io.IOException e) {
         }
-        out.writeBytes( "OpenEJB Remote Server " );
-        out.writeBytes( versionInfo.getProperty( "version" ) );
-        out.writeBytes("    build: ");
-        out.writeBytes(versionInfo.getProperty( "date" ));
-        out.writeBytes("-");
-        out.writeBytes(versionInfo.getProperty( "time" ));
-        out.writeBytes("\n");
-        out.writeBytes(versionInfo.getProperty( "url" ));
-        out.writeBytes("\n");
+        out.print( "OpenEJB Remote Server " );
+        out.print( versionInfo.getProperty( "version" ) );
+        out.print("    build: ");
+        out.print(versionInfo.getProperty( "date" ));
+        out.print("-");
+        out.println(versionInfo.getProperty( "time" ));
+        out.println(versionInfo.getProperty( "url" ));
     }
 
 

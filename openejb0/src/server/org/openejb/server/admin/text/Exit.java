@@ -59,7 +59,7 @@ public class Exit extends Command {
         Command.register("exit", Exit.class);
     }
     
-    public void exec(String[] args, DataInputStream in, DataOutputStream out) throws IOException{
+    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
         throw new UnsupportedOperationException();
     }
 

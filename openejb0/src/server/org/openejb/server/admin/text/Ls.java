@@ -61,27 +61,27 @@ public class Ls extends Command {
         //Command.register("list", cmd);
     }
     
-    public void exec(String[] args, DataInputStream in, DataOutputStream out) throws IOException{
+    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
         //list containers
         Container[] c = OpenEJB.containers();
-        out.writeBytes("Containers:\n");
+        out.println("Containers:");
         // -l
-        //out.writeBytes(c.length +" total\n\n");
+        //out.println(c.length +" total");
         for (int i=0; i < c.length; i++){
-            out.writeBytes(" "+c[i].getContainerID());
-            out.writeBytes("\n");
+            out.print(" "+c[i].getContainerID());
+            out.println("");
         }
-        out.writeBytes("\n");
+        out.println("");
 
 
         //list deployments
-        out.writeBytes("Deployments:\n");
+        out.println("Deployments:");
         // -l
-        //out.writeBytes(d.length +" total\n\n");
+        //out.println(d.length +" total");
         DeploymentInfo[] d = OpenEJB.deployments();
         for (int i=0; i < d.length; i++){
-            out.writeBytes(" "+d[i].getDeploymentID());
-            out.writeBytes("\n");
+            out.print(" "+d[i].getDeploymentID());
+            out.println("");
         }
     }
 

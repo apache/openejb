@@ -59,7 +59,7 @@ public class Stop extends Command {
         Command.register("stop", Stop.class);
     }
     
-    public void exec(String[] args, DataInputStream in, DataOutputStream out) throws IOException{
+    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
         EjbDaemon.getEjbDaemon().stop();
         try{
             Thread.sleep(2000);
