@@ -582,10 +582,6 @@
                 <remote>org.openejb.test.stateful.BasicStatefulObject</remote>
                 <ejb-link>BasicStatefulBean</ejb-link>
             </ejb-ref>
-            <security-role-ref>
-                <role-name>TheMan</role-name>
-                <role-link>Executive</role-link>
-            </security-role-ref>
             <resource-ref>
                 <description>
                     This is a reference to a JDBC database.
@@ -594,6 +590,10 @@
                 <res-type>javax.sql.DataSource</res-type>
                 <res-auth>Container</res-auth>
             </resource-ref>
+            <security-role-ref>
+                <role-name>TheMan</role-name>
+                <role-link>Executive</role-link>
+            </security-role-ref>
         </session>
 
         <!--
@@ -624,10 +624,6 @@
                 <remote>org.openejb.test.stateful.BasicStatefulObject</remote>
                 <ejb-link>BasicStatefulBean</ejb-link>
             </ejb-ref>
-            <security-role-ref>
-                <role-name>TheMan</role-name>
-                <role-link>Executive</role-link>
-            </security-role-ref>
             <resource-ref>
                 <description>
                     This is a reference to a JDBC database.
@@ -636,6 +632,10 @@
                 <res-type>javax.sql.DataSource</res-type>
                 <res-auth>Container</res-auth>
             </resource-ref>
+            <security-role-ref>
+                <role-name>TheMan</role-name>
+                <role-link>Executive</role-link>
+            </security-role-ref>
         </session>
 
         <!--
@@ -654,15 +654,15 @@
             <ejb-class>org.openejb.test.stateful.BeanTxStatefulBean</ejb-class>
             <session-type>Stateful</session-type>
             <transaction-type>Bean</transaction-type>
-            <security-role-ref>
-                <role-name>TheMan</role-name>
-                <role-link>Executive</role-link>
-            </security-role-ref>
             <resource-ref>
                 <res-ref-name>datasource</res-ref-name>
                 <res-type>javax.sql.DataSource</res-type>
                 <res-auth>Container</res-auth>
             </resource-ref>
+            <security-role-ref>
+                <role-name>TheMan</role-name>
+                <role-link>Executive</role-link>
+            </security-role-ref>
         </session>
 
         <!--
@@ -742,15 +742,15 @@
                 <remote>org.openejb.test.stateless.BasicStatelessObject</remote>
                 <ejb-link>BasicStatelessBean</ejb-link>
             </ejb-ref>
-            <security-role-ref>
-                <role-name>TheMan</role-name>
-                <role-link>Executive</role-link>
-            </security-role-ref>
             <resource-ref>
                 <res-ref-name>datasource</res-ref-name>
                 <res-type>javax.sql.DataSource</res-type>
                 <res-auth>Container</res-auth>
             </resource-ref>
+            <security-role-ref>
+                <role-name>TheMan</role-name>
+                <role-link>Executive</role-link>
+            </security-role-ref>
         </session>
 
         <!--
@@ -818,14 +818,6 @@
                 <remote>org.openejb.test.stateful.BasicStatefulObject</remote>
                 <ejb-link>BasicStatefulBean</ejb-link>
             </ejb-ref>
-            <security-role-ref>
-                <role-name>BigWig</role-name>
-                <role-link>Teller</role-link>
-            </security-role-ref>
-            <security-role-ref>
-                <role-name>HighRoller</role-name>
-                <role-link>Manager</role-link>
-            </security-role-ref>
             <resource-ref>
                 <description>
                     This is a reference to a JDBC database.
@@ -834,6 +826,14 @@
                 <res-type>javax.sql.DataSource</res-type>
                 <res-auth>Container</res-auth>
             </resource-ref>
+            <security-role-ref>
+                <role-name>BigWig</role-name>
+                <role-link>Teller</role-link>
+            </security-role-ref>
+            <security-role-ref>
+                <role-name>HighRoller</role-name>
+                <role-link>Manager</role-link>
+            </security-role-ref>
         </session>
 
         <!--
@@ -864,14 +864,6 @@
                 <remote>org.openejb.test.stateful.BasicStatefulObject</remote>
                 <ejb-link>BasicStatefulBean</ejb-link>
             </ejb-ref>
-            <security-role-ref>
-                <role-name>BigWig</role-name>
-                <role-link>Teller</role-link>
-            </security-role-ref>
-            <security-role-ref>
-                <role-name>HighRoller</role-name>
-                <role-link>Manager</role-link>
-            </security-role-ref>
             <resource-ref>
                 <description>
                     This is a reference to a JDBC database.
@@ -880,6 +872,14 @@
                 <res-type>javax.sql.DataSource</res-type>
                 <res-auth>Container</res-auth>
             </resource-ref>
+            <security-role-ref>
+                <role-name>BigWig</role-name>
+                <role-link>Teller</role-link>
+            </security-role-ref>
+            <security-role-ref>
+                <role-name>HighRoller</role-name>
+                <role-link>Manager</role-link>
+            </security-role-ref>
         </session>
 
         <!--
@@ -898,6 +898,11 @@
             <ejb-class>org.openejb.test.beans.DatabaseBean</ejb-class>
             <session-type>Stateless</session-type>
             <transaction-type>Bean</transaction-type>
+            <resource-ref>
+                <res-ref-name>database</res-ref-name>
+                <res-type>javax.sql.DataSource</res-type>
+                <res-auth>Container</res-auth>
+            </resource-ref>
             <security-role-ref>
                 <role-name>BigWig</role-name>
                 <role-link>Teller</role-link>
@@ -906,11 +911,6 @@
                 <role-name>HighRoller</role-name>
                 <role-link>Manager</role-link>
             </security-role-ref>
-            <resource-ref>
-                <res-ref-name>database</res-ref-name>
-                <res-type>javax.sql.DataSource</res-type>
-                <res-auth>Container</res-auth>
-            </resource-ref>
         </session>
 
         <!--
@@ -929,6 +929,11 @@
             <ejb-class>org.openejb.test.stateless.BeanTxStatelessBean</ejb-class>
             <session-type>Stateless</session-type>
             <transaction-type>Bean</transaction-type>
+            <resource-ref>
+                <res-ref-name>database</res-ref-name>
+                <res-type>javax.sql.DataSource</res-type>
+                <res-auth>Container</res-auth>
+            </resource-ref>
             <security-role-ref>
                 <role-name>BigWig</role-name>
                 <role-link>Teller</role-link>
@@ -937,11 +942,6 @@
                 <role-name>HighRoller</role-name>
                 <role-link>Manager</role-link>
             </security-role-ref>
-            <resource-ref>
-                <res-ref-name>database</res-ref-name>
-                <res-type>javax.sql.DataSource</res-type>
-                <res-auth>Container</res-auth>
-            </resource-ref>
         </session>
 
         <!--
@@ -1035,15 +1035,15 @@
                 <remote>org.openejb.test.stateless.BasicStatelessObject</remote>
                 <ejb-link>BasicStatelessBean</ejb-link>
             </ejb-ref>
-            <security-role-ref>
-                <role-name>TheMan</role-name>
-                <role-link>Executive</role-link>
-            </security-role-ref>
             <resource-ref>
                 <res-ref-name>datasource</res-ref-name>
                 <res-type>javax.sql.DataSource</res-type>
                 <res-auth>Container</res-auth>
             </resource-ref>
+            <security-role-ref>
+                <role-name>TheMan</role-name>
+                <role-link>Executive</role-link>
+            </security-role-ref>
         </session>
 
         <!--
