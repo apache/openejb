@@ -1,0 +1,243 @@
+<?xml version="1.0"?>
+<document url="http://openejb.sf.net/embedded.xml" toc="none">
+  <properties>
+    <title>OpenEJB Remote Server</title>
+    <title>Command-line HOW-TO</title>
+  </properties>
+  <body>
+
+<section title="NAME" ref-id="name">
+<p>
+openejb start - OpenEJB Remote Server
+</p>
+</section>
+<section title="SYNOPSIS" ref-id="synopsis">
+<p>
+openejb start [options]
+</p>
+</section>
+
+<section title="NOTE" ref-id="note">
+<p>
+The OpenEJB Remote Server must be executed from the OPENEJB_HOME directory.  This is the 
+directory where OpenEJB was installed or unpacked.  For the remainder of this document
+we will assume you unpacked OpenEJB into the directory C:\openejb.
+</p>
+
+<p>
+In Windows, the remote server can be executed as follows:
+</p>
+<p>
+<command>C:\openejb> openejb start -help</command>
+</p>
+<p>
+In UNIX, Linux, or Mac OS X, the deploy tool can be executed as follows:
+</p>
+<p>
+<command>[user@host openejb]# ./openejb.sh start -help</command>
+</p>
+<p>
+Depending on your OpenEJB version, you may need to change execution bits to
+make the scripts executable.  You can do this with the following command.
+</p>
+<p>
+<command>[user@host openejb]# chmod 755 openejb.sh bin/*.sh</command>
+</p>
+<p>
+From here on out, it will be assumed that you know how to execute the right openejb script
+for your operating system and commands will appear in shorthand as show below.
+</p>
+<p>
+<command>openejb start -help</command>
+</p>
+
+</section>
+
+<section title="DESCRIPTION" ref-id="description">
+<p>
+Starts OpenEJB as an EJB Server that can be accessed by remote 
+clients via the OpenEJB Remote Server.
+</p>
+
+<p>
+ALWAYS check your openejb.log file for warnings immediately after 
+starting the Remote Server.  
+</p>
+
+<p>
+OpenEJB issues warnings when it works around a potential problem, 
+encounters something it didn't expect, or when OpenEJB wants to 
+let you know something may not work as you expected it.
+</p>
+
+<p>
+The OpenEJB Remote Server is the default implementation of OpenEJB's
+<a href="design_appserver.html">ApplicationServer</a> interface.  It allows 
+remote clients to access beans in OpenEJB over a network.
+</p>
+
+<p>
+The JNDI names clients use to lookup beans from the Remote Server depends on
+the <a href="deploymentids.html">Deployment ID</a> you gave the beans when you 
+deployed them with the <a href="deploy.html">Deploy Tool</a>.
+</p>
+
+<p>
+OpenEJB itself is configured with the OpenEJB configuration file, which
+is extremely simple and self-documenting.  This file is located at 
+c:\openejb\conf\openejb.conf.
+</p>
+
+</section>
+
+<section title="OPTIONS" ref-id="options">
+<p>
+<options>
+<option flag="-h" param="host">Binds the Remote Server to the specified host address.     
+Default host address is 127.0.0.1.
+</option>
+<option flag="-p" param="port">
+Binds the Remote Server to the specified port. 
+Default port is 4201.
+</option>
+<option flag="-t" param="int">
+Sets the number of concurrent threads the Remote 
+server should use to service requests from clients.
+Default number of threads is 20.
+</option>
+
+<option flag="-d" param="dir">Sets the OPENEJB_HOME to the specified directory.</option>
+
+<option flag="-l" param="file">Sets the log4j configuration to the specified file.</option>
+
+<option flag="-conf" param="file">Sets the OpenEJB configuration to the specified file.</option>
+
+<option flag="-version">Print the version.</option>
+ 
+<option flag="-help">Print this help message.</option>
+
+<option flag="-examples">Show examples of how to use the options.</option>
+</options>
+</p>
+</section>
+
+<section title="EXAMPLES" ref-id="examples">
+
+<section title="Simplest scenario" ref-id="simplest.scenario">
+
+  <p>
+ <command>openejb start</command>
+  </p>
+
+  <p>
+ That's it.  The server will start up and bind to IP 127.0.0.1 and port 4201.
+  </p>
+
+  <p>
+ The following properties would then be used to get an InitialContext
+ from the Remote Server.
+  </p>
+
+  <p>
+   <code>
+   java.naming.factory.initial      = org.openejb.client.JNDIContext
+   java.naming.provider.url         = 127.0.0.1:4201
+   java.naming.security.principal   = myuser
+   java.naming.security.credentials = mypass
+   </code>
+  </p>
+
+</section>
+
+<section title="Using -h" ref-id="using.-h">
+  <p>
+ <command>openejb start -h 10.45.67.8</command>
+  </p>
+
+  <p>
+ This is the most common way to use the OpenEJB Remote Server.  The server will start 
+ up and bind to IP 10.45.67.8 and port 4201.
+  </p>
+
+  <p>
+ The following properties would then be used to get an InitialContext
+ from the Remote Server.
+  </p>
+
+  <p>
+   <code>
+   java.naming.factory.initial      = org.openejb.client.JNDIContext
+   java.naming.provider.url         = 10.45.67.8:4201
+   java.naming.security.principal   = myuser
+   java.naming.security.credentials = mypass
+   </code>
+  </p>
+
+  <p>
+ DNS names can also be used.
+  </p>
+
+  <p>
+ <command>openejb start -h myhost.foo.com</command>
+  </p>
+
+  <p>
+ The following properties would then be used to get an InitialContext
+ from the Remote Server.
+  </p>
+
+  <p>
+   <code>
+   java.naming.factory.initial      = org.openejb.client.JNDIContext
+   java.naming.provider.url         = myhost.foo.com:4201
+   java.naming.security.principal   = myuser
+   java.naming.security.credentials = mypass
+   </code>
+  </p>
+</section>
+
+<section title="Using -p" ref-id="using.-p">
+
+  <p>
+ <command>openejb start -p 8765</command>
+  </p>
+
+  <p>
+ The server will start up and bind to IP 127.0.0.1 and port 8765.
+  </p>
+
+  <p>
+ The following properties would then be used to get an InitialContext
+ from the Remote Server.
+  </p>
+
+  <p>
+   <code>
+   java.naming.factory.initial      = org.openejb.client.JNDIContext
+   java.naming.provider.url         = 127.0.0.1:8765
+   java.naming.security.principal   = myuser
+   java.naming.security.credentials = mypass
+   </code>
+  </p>
+
+</section>
+
+<section title="Using -conf file" ref-id="using.-conf file">
+  <p>
+ <command>openejb start -conf C:\openejb\conf\mytest.conf</command>
+  </p>
+
+  <p>
+ Sets the openejb.configuration system variable to the file 
+ C:\openejb\conf\mytest.conf.  When the server starts up and
+ the initializes OpenEJB, this configuration will be
+ used to assemble the container system and load beans. 
+  </p>
+
+</section>
+</section>
+
+
+</body>
+</document>
+
