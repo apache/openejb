@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!-- $Id$ -->
 <document url="http://openejb.sf.net/corba-adapter.xml">
   <properties>
     <title>Accessing EJBs from CORBA Clients</title>

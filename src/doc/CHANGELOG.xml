@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!-- $Id$ -->
 <ChangeLog>
     <Version id="0.1" releaseDate="February 10, 2000" cvsTag="none" released="true" />
     <Version id="0.7" releaseDate="June 4, 2001" cvsTag="v0_7" released="true">

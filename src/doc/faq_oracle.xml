@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!-- $Id$ -->
 <faqs>
     <super id="faq">FAQ</super>
     <super id="faq_oracle">Oracle FAQ</super>
