@@ -300,7 +300,6 @@ public class DeployBean extends WebAdminBean {
 		//the the form values
 		String jarFile = request.getFormParameter("jarFile");
 		String force = request.getFormParameter("force");
-		String configFile = request.getFormParameter("configFile");
 		File testForValidFile = null;
 
 		if (jarFile == null) {
@@ -313,16 +312,6 @@ public class DeployBean extends WebAdminBean {
 		//force overwrite
 		if (force != null) {
 			options[2] = true;
-		}
-		//set the openejb config file
-		if (!configFile.trim().equals("")) {
-			//first check to make sure it's a file, a check to
-			//make sure it's a valid xml file will come later
-			testForValidFile = new File(configFile);
-			if (!testForValidFile.isFile())
-				throw new IOException("OpenEJB configuration: " + configFile + " is not a file.");
-
-			System.setProperty("openejb.configuration", configFile);
 		}
 
 		testForValidFile = null;
@@ -367,8 +356,8 @@ public class DeployBean extends WebAdminBean {
 		/***************************
 		 * Deployment options
 		 ***************************/
-		body.println("<tr>\n<td colspan=\"2\"><strong>Step 2:</strong> Choose options for deployment.");
-		body.println("</td>\n</tr>\n<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
+//		body.println("<tr>\n<td colspan=\"2\"><strong>Step 2:</strong> Choose options for deployment.");
+//		body.println("</td>\n</tr>\n<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
 
 		/* force over write of the bean - this will have to wait for now until the bug gets fixed
 		body.println("<tr>");
@@ -384,16 +373,16 @@ public class DeployBean extends WebAdminBean {
 		*/
 
 		// sets the OpenEJB configuration file 
-		body.println("<tr>");
-		body.println(
-			"<td colspan=\"2\">Sets the OpenEJB configuration to the specified file. (leave blank for non-use) "
-				+ "Note: you will need to make sure the configuration files are in this location on the server.</td>");
-		body.println("</tr>\n<tr>\n<td><nobr>Config File</nobr></td>\n<td>");
-		body.println(HtmlUtilities.createTextFormField("configFile", "", 35, 0));
-		body.println("</td>\n</tr>\n<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
-
+//		body.println("<tr>");
+//		body.println(
+//			"<td colspan=\"2\">Sets the OpenEJB configuration to the specified file. (leave blank for non-use) "
+//				+ "Note: you will need to make sure the configuration files are in this location on the server.</td>");
+//		body.println("</tr>\n<tr>\n<td><nobr>Config File</nobr></td>\n<td>");
+//		body.println(HtmlUtilities.createTextFormField("configFile", "", 35, 0));
+//		body.println("</td>\n</tr>\n<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
+//
 		//deploy the bean
-		body.println("<tr>\n<td colspan=\"2\"><strong>Step 3:</strong> Deploy the bean.</td>\n</tr>");
+		body.println("<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
 		body.println("<tr><td colspan=\"2\">");
 		body.println(HtmlUtilities.createSubmitFormButton("deploy", "Deploy"));
 		body.println("</td>\n</tr>");
