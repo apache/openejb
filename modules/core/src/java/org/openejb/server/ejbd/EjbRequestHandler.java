@@ -47,6 +47,7 @@ package org.openejb.server.ejbd;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.NotSerializableException;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import javax.security.auth.Subject;
@@ -245,8 +246,12 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
             log.debug("EJB RESPONSE: " + res);
             try {
                 res.writeExternal(out);
-            } catch (java.io.IOException ie) {
-                log.fatal("Couldn't write EjbResponse to output stream", ie);
+            } catch (java.io.IOException e) {
+                if (e instanceof NotSerializableException && res.getResult() != null) {
+                    log.fatal("Invocation result object is not serializable: " + res.getResult().getClass().getName(), e);
+                } else {
+                    log.fatal("Couldn't write EjbResponse to output stream", e);
+                }
             }
             call.reset();
         }
