@@ -620,7 +620,7 @@ public class CastorCMP11_EntityContainer
                 */
                 callContext.setCurrentOperation(Operations.OP_SET_CONTEXT);
                 Object[] params =  new javax.ejb.EntityContext []{(javax.ejb.EntityContext)deploymentInfo.getEJBContext()};
-                logger.debug(bean + ".setEntityContext("+params[0]+")");
+                //logger.debug(bean + ".setEntityContext("+params[0]+")");
                 this.SET_ENTITY_CONTEXT_METHOD.invoke( bean, params );
             } finally {
                 callContext.setCurrentOperation(currentOperation);
@@ -662,7 +662,7 @@ public class CastorCMP11_EntityContainer
             Database db = getDatabase(callContext);
 
             bean = fetchAndLoadBean(callContext, db);
-            logger.debug("Invoking business method on "+bean);
+            //logger.debug("Invoking business method on "+bean);
 	    if ( OpenEJB.getTransactionManager().getTransaction() != null )
 	    {
             try {
@@ -799,7 +799,6 @@ public class CastorCMP11_EntityContainer
                   Get the JDO database for this deployment
                 */
                 Database db = getDatabase(callContext);
-                logger.debug("JDO database is "+db.getClass()+" for bean instance "+bean);
                 
                 /*  
                   Create a Castor Transaction if there isn't one in progress
