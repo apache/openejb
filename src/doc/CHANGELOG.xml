@@ -97,6 +97,7 @@
         <Entry bug="603770">Fixes to BMP ejbLoad/ejbStore</Entry>
         <Entry bug="595958">jar -cvf breaks openejb deploy</Entry>
         <Entry bug="590854">MyEjbApplication.java doesn't work</Entry>
+        <Entry bug="605360">Need to convert .sh files to Unix format</Entry>
         <Entry task="604217">Complete logging and i18n API</Entry>
         <Entry task="603785">Removed classloading in scripts</Entry>
         <Entry task="603789">No more openejb jars in lib dir</Entry>
@@ -112,6 +113,7 @@
         <Entry task="603775">Faster bulk session passivation</Entry>
         <Entry task="603777">StatefulContainer: better exptn handling</Entry>
         <Entry task="603778">Fixed session loss during passivation</Entry>
+        <Entry task="599761">A basic (connector) service example doc</Entry>
 	</Version>
 	<Version id="0.9" releaseDate="TBD" cvsTag="TBD" released="false">
 		<Entry task="578360">Complete web administration</Entry>
