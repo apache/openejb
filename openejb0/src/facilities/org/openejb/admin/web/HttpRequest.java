@@ -92,6 +92,40 @@ public interface HttpRequest extends java.io.Serializable{
 	public static final String HEADER_HOST = "Host";
 	/** the User-Agent header */
 	public static final String HEADER_USER_AGENT = "User-Agent";
+    /** the Set-Cookie header */
+    public static final String HEADER_SET_COOKIE = "Set-Cookie";
+    /** the Cookie header */
+    public static final String HEADER_COOKIE = "Cookie";
+    
+    /**
+     * Returns the current <code>HttpSession</code> associated with this
+     * request or, if there is no current session and <code>create</code> is
+     * true, returns a new session.
+     *
+     * <p>If <code>create</code> is <code>false</code> and the request has no
+     * valid <code>HttpSession</code>, this method returns <code>null</code>.
+     *
+     * @param create <code>true</code> to create a new session for this request
+     * if necessary; <code>false</code> to return <code>null</code> if there's
+     * no current session
+     *
+     * @return the <code>HttpSession</code> associated with this request or
+     * <code>null</code> if <code>create</code> is <code>false</code> and the
+     * request has no valid session
+     *
+     * @see #getSession()
+     */
+    public HttpSession getSession(boolean create);
+
+    /**
+     * Returns the current session associated with this request, or if the
+     * request does not have a session, creates one.
+     *
+     * @return the <code>HttpSession</code> associated with this request
+     *
+     * @see #getSession(boolean)
+     */
+    public HttpSession getSession();
     
     /** Gets a header based the header name passed in.
      * @param name The name of the header to get

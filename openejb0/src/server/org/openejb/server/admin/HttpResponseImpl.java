@@ -48,16 +48,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import org.openejb.admin.web.HttpRequest;
 import org.openejb.admin.web.HttpResponse;
+import org.openejb.admin.web.HttpSession;
 import org.openejb.util.JarUtils;
 
 /** This class takes care of HTTP Responses.  It sends data back to the browser.
@@ -94,6 +98,13 @@ public class HttpResponseImpl implements HttpResponse {
     /** the server to send data from */    
     public static String server;
 
+    private HttpRequestImpl request;
+    private URLConnection content;
+    
+    protected void setRequest(HttpRequestImpl request){
+        this.request = request;
+    }
+    
     /** sets a header to be sent back to the browser
      * @param name the name of the header
      * @param value the value of the header
@@ -226,10 +237,11 @@ public class HttpResponseImpl implements HttpResponse {
     protected void writeMessage(OutputStream output) throws IOException{
         DataOutput out = new DataOutputStream(output);
         DataOutput log = new DataOutputStream(System.out);
+        //System.out.println("\nRESPONSE");
         closeMessage();
-        //writeResponseLine(log);
-        //writeHeaders(log);
-        //writeBody(log);
+        writeResponseLine(log);
+        writeHeaders(log);
+//        writeBody(log);
         writeResponseLine(out);
         writeHeaders(out);
         writeBody(out);
@@ -262,12 +274,38 @@ public class HttpResponseImpl implements HttpResponse {
      * @throws IOException if an exception is thrown
      */    
     private void closeMessage() throws IOException{
-        writer.flush();
-        writer.close();
-        body = baos.toByteArray();
-        setHeader("Content-Length", body.length+"");
+        setContentLengthHeader();
+        setCookieHeader();
     }
 
+
+    private void setContentLengthHeader() {
+        if (content == null){
+            writer.flush();
+            writer.close();
+            body = baos.toByteArray();
+            setHeader("Content-Length", body.length+"");
+        } else {
+            setHeader("Content-Length", content.getContentLength()+"");
+        }
+    }
+
+    private void setCookieHeader() {
+        if (request == null || request.getSession() == null) return;
+        
+        HttpSession session = request.getSession(false);
+
+        if (session == null) return;
+
+        StringBuffer cookie = new StringBuffer();
+        cookie.append(HttpRequestImpl.EJBSESSIONID);
+        cookie.append('=');
+        cookie.append(session.getId());
+        cookie.append("; Path=/");
+
+        headers.put(HttpRequest.HEADER_SET_COOKIE, cookie.toString());
+    }
+    
     /** Writes a response line similar to this:
      *
      * HTTP/1.1 200 OK
@@ -307,7 +345,13 @@ public class HttpResponseImpl implements HttpResponse {
      */    
     private void writeBody(DataOutput out) throws IOException{
         out.writeBytes(CRLF);
-        out.write(body);
+        if (content == null){
+            out.write(body);
+        } else {
+            InputStream in = content.getInputStream();
+            byte buf[] = new byte[1024];
+            for(int i = 0; (i = in.read(buf)) != -1; out.write(buf, 0, i));
+        }
     }
 
     /** gets the name of the server being used
@@ -456,4 +500,11 @@ public class HttpResponseImpl implements HttpResponse {
         writer = new PrintWriter( baos );
 
     }
+    /**
+     * @param content The content to set.
+     */
+    public void setContent(URLConnection content) {
+        this.content = content;
+    }
+
 }

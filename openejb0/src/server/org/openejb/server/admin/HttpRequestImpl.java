@@ -54,13 +54,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.StringTokenizer;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.openejb.admin.web.HttpRequest;
+import org.openejb.admin.web.HttpSession;
+import org.openejb.core.stateful.StatefulEjbObjectHandler;
 import org.openejb.util.FileUtils;
 import org.openejb.util.StringUtilities;
 
@@ -91,7 +100,9 @@ public class HttpRequestImpl implements HttpRequest {
 	private byte[] body;
 	private String[][] formParamsArray;
 
-	/** Gets a header based the header name passed in.
+
+    
+    /** Gets a header based the header name passed in.
 	 * @param name The name of the header to get
 	 * @return The value of the header
 	 */
@@ -189,6 +200,7 @@ public class HttpRequestImpl implements HttpRequest {
 	private void readRequestLine(DataInput in) throws IOException {
 		try {
 			line = in.readLine();
+            System.out.println(line);
 		} catch (Exception e) {
 			throw new IOException(
 				"Could not read the HTTP Request Line :"
@@ -291,6 +303,7 @@ public class HttpRequestImpl implements HttpRequest {
 	 * @throws IOException if an exeption is thrown
 	 */
 	private void readHeaders(DataInput in) throws IOException {
+//        System.out.println("\nREQUEST");
 		headers = new HashMap();
 		while (true) {
 			// Header Field
@@ -298,7 +311,7 @@ public class HttpRequestImpl implements HttpRequest {
 
 			try {
 				hf = in.readLine();
-				//System.out.println(hf);
+				System.out.println(hf);
 			} catch (Exception e) {
 				throw new IOException(
 					"Could not read the HTTP Request Header Field :"
@@ -565,4 +578,82 @@ public class HttpRequestImpl implements HttpRequest {
 
 		return headerMap;
 	}
+
+    private HashMap cookies;
+    
+    protected HashMap getCookies(){
+        if (cookies != null) return cookies;
+        
+        cookies = new HashMap();
+
+        String cookieHeader = getHeader(HEADER_COOKIE);
+        if (cookieHeader == null ) return cookies;
+
+        StringTokenizer tokens = new StringTokenizer(cookieHeader, ";");
+        while (tokens.hasMoreTokens()){
+            StringTokenizer token = new StringTokenizer(tokens.nextToken(),"=");
+            String name = token.nextToken(); 
+            String value = token.nextToken();
+            cookies.put(name, value);
+        }
+        return cookies;
+    }
+
+    protected static final String EJBSESSIONID = "EJBSESSIONID"; 
+
+    protected String getCookie(String name){
+        return (String) getCookies().get(name);
+    }
+
+    public HttpSession getSession() {
+        return getSession(true);
+    }
+    
+    private WebSession session;
+    
+    public HttpSession getSession(boolean create) {
+        if (session != null) return session;
+        
+        String id = getCookie(EJBSESSIONID);
+        
+        if (id != null) {
+            session = (WebSession)sessions.get(id); 
+        }
+        
+        if (session == null && create){
+            session = createSession();
+            sessions.put(session.getId(), session);
+        }
+        return session;
+    }
+    
+    private static final Hashtable sessions = new Hashtable();
+
+    private WebSession createSession(){
+        // Lookup/create sessions
+        WebSessionHome home = null; 
+
+        try {
+            home = (WebSessionHome)new InitialContext().lookup("java:openejb/ejb/httpd/session");
+        } catch (NamingException e) {
+            // TODO Auto-generated catch block
+            throw new IllegalStateException("The WebSessionBean has not been deployed. "+
+                    " This is required for the HTTPd service to provide HttpSession support. "+
+                    e.getClass().getName()+": "+e.getMessage());
+        } 
+
+        
+        WebSession session = null;
+        try {
+            session = home.create();
+        } catch (RemoteException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        // mark them as nocopy
+        Object obj = org.openejb.util.proxy.ProxyManager.getInvocationHandler(session);
+        StatefulEjbObjectHandler handler = (StatefulEjbObjectHandler) obj;
+        handler.setIntraVmCopyMode(false);
+        return session;
+    }
 }

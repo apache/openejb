@@ -205,12 +205,14 @@ public class HttpDaemon implements Runnable{
      */
     public void processRequest(InputStream in, OutputStream out) {
 
+        
         HttpRequestImpl req = new HttpRequestImpl();
         HttpResponseImpl res = new HttpResponseImpl();
-        //System.out.println("[] reading request");
+        
 
         try {
             req.readMessage(in);
+            res.setRequest(req);
         } catch (Throwable t) {
             t.printStackTrace();
             res =
@@ -323,16 +325,16 @@ public class HttpDaemon implements Runnable{
         //check for no name, add something here later
         if (beanName.equals("/")) {
             try {
-                obj = jndiContext.lookup("webadmin/Home");
+                obj = jndiContext.lookup("Webadmin/Home");
             } catch (javax.naming.NamingException ne) {
                 throw new IOException(ne.getMessage());
             }
         } else {
             try {
-                obj = jndiContext.lookup("webadmin/" + beanName);
+                obj = jndiContext.lookup(beanName);
             } catch (javax.naming.NameNotFoundException e) {
                 try {
-                    obj = jndiContext.lookup("webadmin/DefaultBean");
+                    obj = jndiContext.lookup("httpd/DefaultBean");
                 } catch (javax.naming.NamingException ne) {
                     throw new IOException(ne.getMessage());
                 }
