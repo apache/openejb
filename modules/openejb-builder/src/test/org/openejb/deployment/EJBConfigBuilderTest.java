@@ -348,7 +348,7 @@ public class EJBConfigBuilderTest extends TestCase {
             if (!j2eeApplicationName.equals("null")) {
                 assertRunning(kernel, applicationObjectName);
             } else {
-                Set applications = kernel.getMBeanServer().queryNames(applicationObjectName, null);
+                Set applications = kernel.listGBeans(applicationObjectName);
                 assertTrue("No application object should be registered for a standalone module", applications.isEmpty());
             }
 
