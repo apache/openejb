@@ -132,6 +132,11 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
         ref.addReferenceCollectionListener(this);
 
         this.containers = containers;
+        for (Iterator iterator = ref.iterator(); iterator.hasNext();) {
+            Object o = iterator.next();
+            ReferenceCollectionEvent event = new ReferenceCollectionEvent(null, o);
+            memberAdded(event);
+        }
     }
 
     public TieLoader getTieLoader() {
@@ -250,7 +255,6 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
 
     public void memberAdded(ReferenceCollectionEvent event) {
         EJBContainer container = (EJBContainer) event.getMember();
-
         containerMap.put(container.getContainerID(), container);
 
         if (localPOA != null) {

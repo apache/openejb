@@ -44,46 +44,15 @@
  */
 package org.openejb.server.axis;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.jar.JarFile;
-import javax.servlet.http.HttpServletResponse;
-import javax.wsdl.Definition;
-import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
-import javax.management.ObjectName;
 
-import org.apache.axis.*;
-import org.apache.axis.constants.Style;
-import org.apache.axis.constants.Use;
 import org.apache.axis.description.JavaServiceDesc;
-import org.apache.axis.description.OperationDesc;
-import org.apache.axis.description.ParameterDesc;
-import org.apache.axis.encoding.DeserializerFactory;
-import org.apache.axis.encoding.SerializerFactory;
-import org.apache.axis.encoding.TypeMappingRegistryImpl;
-import org.apache.axis.encoding.ser.BaseDeserializerFactory;
-import org.apache.axis.encoding.ser.BaseSerializerFactory;
-import org.apache.axis.encoding.ser.SimpleDeserializerFactory;
-import org.apache.axis.encoding.ser.SimpleSerializerFactory;
 import org.apache.axis.handlers.soap.SOAPService;
-import org.apache.axis.message.SOAPEnvelope;
 import org.apache.axis.providers.java.RPCProvider;
-import org.apache.axis.soap.SOAPConstants;
-import org.apache.axis.transport.http.HTTPConstants;
-import org.apache.axis.utils.Messages;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.axis.builder.AxisServiceBuilder;
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.webservices.SoapHandler;
-import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.EJBContainer;
-import org.w3c.dom.Element;
 
 public class WSContainer {
 

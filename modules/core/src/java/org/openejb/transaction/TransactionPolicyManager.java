@@ -57,28 +57,14 @@ import org.openejb.dispatch.InterfaceMethodSignature;
  * @version $Revision$ $Date$
  */
 public final class TransactionPolicyManager implements Serializable {
-    private final TransactionPolicy[][] transactionPolicy = new TransactionPolicy[EJBInterfaceType.MAX_ORDINAL][];
+    private final TransactionPolicy[][] transactionPolicy;
 
-    public TransactionPolicyManager(TransactionPolicySource transactionPolicySource, InterfaceMethodSignature[] signatures) {
-        transactionPolicy[EJBInterfaceType.HOME.getOrdinal()] = mapPolicies("Home", signatures, transactionPolicySource);
-        transactionPolicy[EJBInterfaceType.REMOTE.getOrdinal()] = mapPolicies("Remote", signatures, transactionPolicySource);
-        transactionPolicy[EJBInterfaceType.LOCALHOME.getOrdinal()] = mapPolicies("LocalHome", signatures, transactionPolicySource);
-        transactionPolicy[EJBInterfaceType.LOCAL.getOrdinal()] = mapPolicies("Local", signatures, transactionPolicySource);
-        transactionPolicy[EJBInterfaceType.WEB_SERVICE.getOrdinal()] = mapPolicies("ServiceEndpoint", signatures, transactionPolicySource);
-        transactionPolicy[EJBInterfaceType.TIMEOUT.getOrdinal()] = new TransactionPolicy[signatures.length];
-        Arrays.fill(transactionPolicy[EJBInterfaceType.TIMEOUT.getOrdinal()], ContainerPolicy.Supports); //we control the transaction from the top of the stack.
+    public TransactionPolicyManager(TransactionPolicy[][] transactionPolicy) {
+        this.transactionPolicy = transactionPolicy;
     }
 
     public TransactionPolicy getTransactionPolicy(EJBInterfaceType invocationType, int operationIndex) {
         return transactionPolicy[invocationType.getOrdinal()][operationIndex];
     }
 
-    private static TransactionPolicy[] mapPolicies(String intfName, InterfaceMethodSignature[] signatures, TransactionPolicySource transactionPolicySource) {
-        TransactionPolicy[] policies = new TransactionPolicy[signatures.length];
-        for (int index = 0; index < signatures.length; index++) {
-            InterfaceMethodSignature signature = signatures[index];
-            policies[index] = transactionPolicySource.getTransactionPolicy(intfName, signature);
-        }
-        return policies;
-    }
 }

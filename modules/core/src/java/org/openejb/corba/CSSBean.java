@@ -51,25 +51,27 @@ import java.util.Properties;
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.UserException;
-import org.omg.CORBA.PolicyManager;
-import org.omg.CORBA.PolicyManagerHelper;
-import org.omg.CORBA.Any;
-import org.omg.CORBA.Policy;
-import org.omg.CORBA.SetOverrideType;
-import org.omg.CosNaming.NameComponent;
-import org.omg.CosNaming.NamingContextExt;
-import org.omg.CosNaming.NamingContextExtHelper;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.PolicyManager;
+import org.omg.CORBA.PolicyManagerHelper;
+import org.omg.CORBA.SetOverrideType;
+import org.omg.CORBA.UserException;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
+import org.openejb.corba.security.ClientPolicyFactory;
 import org.openejb.corba.security.config.ConfigAdapter;
 import org.openejb.corba.security.config.css.CSSConfig;
-import org.openejb.corba.security.ClientPolicyFactory;
+import org.openejb.corba.transaction.ClientTransactionPolicyConfig;
+import org.openejb.corba.transaction.ClientTransactionPolicyFactory;
+import org.openejb.corba.transaction.nodistributedtransactions.NoDTxClientTransactionPolicyConfig;
 
 
 /**
@@ -82,6 +84,7 @@ public class CSSBean implements GBeanLifecycle {
     private final ClassLoader classLoader;
     private final Executor threadPool;
     private final ConfigAdapter configAdapter;
+    private final TransactionContextManager transactionContextManager;
     private String description;
     private CSSConfig nssConfig;
     private CSSConfig cssConfig;
@@ -96,11 +99,13 @@ public class CSSBean implements GBeanLifecycle {
         this.classLoader = null;
         this.threadPool = null;
         this.configAdapter = null;
+        this.transactionContextManager = null;
     }
 
-    public CSSBean(ClassLoader classLoader, Executor threadPool, String configAdapter) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public CSSBean(String configAdapter, Executor threadPool, TransactionContextManager transactionContextManager, ClassLoader classLoader) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         this.classLoader = classLoader;
         this.threadPool = threadPool;
+        this.transactionContextManager = transactionContextManager;
         this.configAdapter = (ConfigAdapter) classLoader.loadClass(configAdapter).newInstance();
     }
 
@@ -181,8 +186,9 @@ public class CSSBean implements GBeanLifecycle {
             return cssORB.string_to_object(beanIOR);
         } catch (UserException ue) {
             // do nothing
+            throw new RuntimeException(ue);
         }
-        return null;
+//        return null;
     }
 
     public void doStart() throws Exception {
@@ -213,10 +219,14 @@ public class CSSBean implements GBeanLifecycle {
             org.omg.CORBA.Object ref = cssORB.resolve_initial_references("ORBPolicyManager");
             PolicyManager pm = PolicyManagerHelper.narrow(ref);
 
-            Any any = cssORB.create_any();
-            any.insert_Value(cssConfig);
+            Any cssany = cssORB.create_any();
+            cssany.insert_Value(cssConfig);
 
-            pm.set_policy_overrides(new Policy[]{cssORB.create_policy(ClientPolicyFactory.POLICY_TYPE, any)}, SetOverrideType.ADD_OVERRIDE);
+            Any txany = cssORB.create_any();
+            txany.insert_Value(buildClientTransactionPolicyConfig());
+
+            pm.set_policy_overrides(new Policy[]{cssORB.create_policy(ClientPolicyFactory.POLICY_TYPE, cssany),
+                                                 cssORB.create_policy(ClientTransactionPolicyFactory.POLICY_TYPE, txany)}, SetOverrideType.ADD_OVERRIDE);
 
             threadPool.execute(new Runnable() {
                 public void run() {
@@ -228,6 +238,10 @@ public class CSSBean implements GBeanLifecycle {
         }
 
         log.info("Started CORBA Client Security Server - " + description);
+    }
+
+    private ClientTransactionPolicyConfig buildClientTransactionPolicyConfig() {
+        return new NoDTxClientTransactionPolicyConfig(transactionContextManager);
     }
 
     public void doStop() throws Exception {
@@ -246,8 +260,6 @@ public class CSSBean implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(CSSBean.class);
 
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("configAdapter", String.class, true);
         infoFactory.addAttribute("description", String.class, true);
         infoFactory.addAttribute("nssConfig", CSSConfig.class, true);
@@ -259,7 +271,11 @@ public class CSSBean implements GBeanLifecycle {
         infoFactory.addAttribute("cssProps", Properties.class, true);
         infoFactory.addOperation("getHome", new Class[]{URI.class, String.class});
 
-        infoFactory.setConstructor(new String[]{"classLoader", "ThreadPool", "configAdapter"});
+        infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+
+        infoFactory.setConstructor(new String[]{"configAdapter", "ThreadPool", "TransactionContextManager", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

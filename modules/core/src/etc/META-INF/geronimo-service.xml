@@ -76,9 +76,6 @@
         <uri>openorb/jars/openorb-orb-omg-${openorb_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>openorb/jars/openorb-ots-${openorb_version}.jar</uri>
-    </dependency>
-    <dependency>
         <uri>bouncycastle/jars/bcprov-${bouncycastle_version}.jar</uri>
     </dependency>
     <dependency>

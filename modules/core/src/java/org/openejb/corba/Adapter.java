@@ -45,10 +45,12 @@
 package org.openejb.corba;
 
 import java.rmi.Remote;
+import java.util.Map;
 import javax.rmi.CORBA.Tie;
-import javax.rmi.CORBA.Util;
 
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.Any;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContext;
 import org.omg.CosNaming.NamingContextExt;
@@ -58,9 +60,14 @@ import org.omg.CosNaming.NamingContextPackage.NotEmpty;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
-
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
 import org.openejb.EJBContainer;
 import org.openejb.corba.util.TieLoader;
+import org.openejb.corba.transaction.ServerTransactionPolicyFactory;
 import org.openejb.proxy.ProxyInfo;
 
 
@@ -69,8 +76,9 @@ import org.openejb.proxy.ProxyInfo;
  */
 public abstract class Adapter implements RefGenerator {
 
-    private final EJBContainer container;
+    private final EJBContainer container;                                                        
     private final POA parentPOA;
+    protected final POA homePOA;
     private final NamingContextExt initialContext;
     private final TieLoader tieLoader;
     private final byte[] home_id;
@@ -82,9 +90,21 @@ public abstract class Adapter implements RefGenerator {
         this.tieLoader = tieLoader;
         this.home_id = container.getContainerID().toString().getBytes();
 
+        Any any = orb.create_any();
+        any.insert_Value(container.getHomeTxPolicyConfig());
+
         try {
-            org.omg.CORBA.Object obj = orb.resolve_initial_references("NameService");
-            initialContext = NamingContextExtHelper.narrow(obj);
+            Policy[] policies = new Policy[]{
+                orb.create_policy(ServerTransactionPolicyFactory.POLICY_TYPE, any),
+                parentPOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
+                parentPOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_ACTIVE_OBJECT_MAP_ONLY),
+                parentPOA.create_servant_retention_policy(ServantRetentionPolicyValue.RETAIN),
+                parentPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
+                parentPOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
+            };
+            homePOA = parentPOA.create_POA(container.getContainerID().toString(), parentPOA.the_POAManager(), policies);
+
+            homePOA.the_POAManager().activate();
 
 
             Servant servant = tieLoader.loadTieClass(container.getProxyInfo().getHomeInterface(),  container.getClassLoader());
@@ -95,9 +115,11 @@ public abstract class Adapter implements RefGenerator {
                 ((Tie) servant).setTarget(remote);
             }
 
-            parentPOA.activate_object_with_id(home_id, servant);
-            homeReference = parentPOA.servant_to_reference(servant);
+            homePOA.activate_object_with_id(home_id, servant);
+            homeReference = homePOA.servant_to_reference(servant);
 
+            org.omg.CORBA.Object obj = orb.resolve_initial_references("NameService");
+            initialContext = NamingContextExtHelper.narrow(obj);
             String[] names = container.getJndiNames();
             for (int i = 0; i < names.length; i++) {
                 NameComponent[] nameComponent = initialContext.to_name(names[i]);
@@ -118,6 +140,7 @@ public abstract class Adapter implements RefGenerator {
         } catch (Exception e) {
             throw new CORBAException(e);
         }
+
     }
 
     public EJBContainer getContainer() {
@@ -155,7 +178,8 @@ public abstract class Adapter implements RefGenerator {
                 }
             }
 
-            parentPOA.deactivate_object(home_id);
+            homePOA.deactivate_object(home_id);
+            homePOA.destroy(true, true);
         } catch (Exception e) {
             throw new CORBAException(e);
         }

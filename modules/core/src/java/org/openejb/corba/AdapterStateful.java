@@ -58,6 +58,7 @@ import org.omg.CORBA.LocalObject;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
+import org.omg.CORBA.Any;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
@@ -70,6 +71,7 @@ import org.omg.PortableServer.ServantRetentionPolicyValue;
 
 import org.openejb.EJBContainer;
 import org.openejb.corba.util.TieLoader;
+import org.openejb.corba.transaction.ServerTransactionPolicyFactory;
 import org.openejb.proxy.ProxyInfo;
 
 
@@ -87,16 +89,20 @@ public class AdapterStateful extends Adapter {
     public AdapterStateful(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader, Policy securityPolicy) throws CORBAException {
         super(container, orb, parentPOA, tieLoader);
 
+        Any any = orb.create_any();
+        any.insert_Value(container.getRemoteTxPolicyConfig());
+
         try {
             Policy[] policies = new Policy[]{
                 securityPolicy,
-                parentPOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
-                parentPOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_SERVANT_MANAGER),
-                parentPOA.create_servant_retention_policy(ServantRetentionPolicyValue.NON_RETAIN),
-                parentPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
-                parentPOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
+                orb.create_policy(ServerTransactionPolicyFactory.POLICY_TYPE, any),
+                homePOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
+                homePOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_SERVANT_MANAGER),
+                homePOA.create_servant_retention_policy(ServantRetentionPolicyValue.NON_RETAIN),
+                homePOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
+                homePOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
             };
-            poa = parentPOA.create_POA(container.getContainerID().toString(), parentPOA.the_POAManager(), policies);
+            poa = homePOA.create_POA(container.getContainerID().toString(), homePOA.the_POAManager(), policies);
             poa.set_servant_manager(new ObjectActivator());
 
             poa.the_POAManager().activate();
@@ -115,8 +121,8 @@ public class AdapterStateful extends Adapter {
     }
 
     public void stop() throws CORBAException {
-        super.stop();
         poa.destroy(true, true);
+        super.stop();
     }
 
     public org.omg.CORBA.Object genObjectReference(ProxyInfo proxyInfo) throws CORBAException {

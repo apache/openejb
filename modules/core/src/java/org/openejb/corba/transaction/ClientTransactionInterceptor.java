@@ -44,10 +44,19 @@
  */
 package org.openejb.corba.transaction;
 
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.LocalObject;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
+import org.omg.IOP.TaggedComponent;
+import org.omg.IOP.CodecPackage.FormatMismatch;
+import org.openejb.corba.idl.CosTSInteroperation.TAG_OTS_POLICY;
+import org.openejb.corba.idl.CosTransactions.OTSPolicyValueHelper;
+import org.openejb.corba.idl.CosTransactions.ADAPTS;
+import org.openejb.corba.util.Util;
 
 
 /**
@@ -55,34 +64,51 @@ import org.omg.PortableInterceptor.ForwardRequest;
  */
 class ClientTransactionInterceptor extends LocalObject implements ClientRequestInterceptor {
 
-    private final int slotId;
-
-    public ClientTransactionInterceptor(int slotId) {
-        this.slotId = slotId;
+    public ClientTransactionInterceptor() {
     }
 
     public void receive_exception(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void receive_other(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void receive_reply(ClientRequestInfo ri) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void send_poll(ClientRequestInfo ri) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void send_request(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
+        TaggedComponent taggedComponent = null;
+        try {
+            taggedComponent = ri.get_effective_component(TAG_OTS_POLICY.value);
+        } catch (BAD_PARAM e) {
+            if ((e.minor & 25) == 25) {
+                //tagged component missing
+                return;
+            }
+            throw e;
+        }
+        byte[] data = taggedComponent.component_data;
+        Any any = null;
+        try {
+            any = Util.getCodec().decode(data);
+        } catch (FormatMismatch formatMismatch) {
+            throw (INTERNAL) new INTERNAL("mismatched format").initCause(formatMismatch);
+        }
+        short value = OTSPolicyValueHelper.extract(any);
+        if (value == ADAPTS.value) {
+            ClientTransactionPolicy policy = (ClientTransactionPolicy) ri.get_request_policy(ClientTransactionPolicyFactory.POLICY_TYPE);
+            if (policy == null) {
+                throw new INTERNAL("No transaction policy configured");
+            }
+            ClientTransactionPolicyConfig clientTransactionPolicyConfig = policy.getClientTransactionPolicyConfig();
+            clientTransactionPolicyConfig.exportTransaction(ri);
+        }
     }
 
     public void destroy() {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**
