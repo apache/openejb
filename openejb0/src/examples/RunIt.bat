@@ -9,9 +9,10 @@ set CP=%OPENEJB_HOME%\src\examples\conf;%CP%
 
 set CP=%JAVA_HOME%\lib\tools.jar;%CP%
 
-%JAVA_HOME%\bin\java -classpath %CP% -Dopenejb.home=%OPENEJB_HOME% com.titan.clients.Client_1
-%JAVA_HOME%\bin\java -classpath %CP% -Dopenejb.home=%OPENEJB_HOME% com.titan.clients.Client_2
-%JAVA_HOME%\bin\java -classpath %CP% -Dopenejb.home=%OPENEJB_HOME% com.titan.clients.Client_3
-%JAVA_HOME%\bin\java -classpath %CP% -Dopenejb.home=%OPENEJB_HOME% com.titan.clients.Client_4
-%JAVA_HOME%\bin\java -classpath %CP% -Dopenejb.home=%OPENEJB_HOME% com.titan.clients.Client_cleanup
+REM %JAVA_HOME%\bin\java -classpath %CP% -Dopenejb.home=%OPENEJB_HOME% com.titan.clients.Client_1
+REM %JAVA_HOME%\bin\java -classpath %CP% -Dopenejb.home=%OPENEJB_HOME% com.titan.clients.Client_2
+REM %JAVA_HOME%\bin\java -classpath %CP% -Dopenejb.home=%OPENEJB_HOME% com.titan.clients.Client_3
+REM %JAVA_HOME%\bin\java -classpath %CP% -Dopenejb.home=%OPENEJB_HOME% com.titan.clients.Client_4
+REM %JAVA_HOME%\bin\java -classpath %CP% -Dopenejb.home=%OPENEJB_HOME% com.titan.clients.Client_cleanup
+%JAVA_HOME%\bin\java -classpath %CP% -Dopenejb.home=%OPENEJB_HOME% org.acme.clients.HelloWorld
 
