@@ -112,11 +112,11 @@ abstract class BeanBuilder {
 	                                                     EjbRefType[] ejbRefs,
 	                                                     GerRemoteRefType[] openejbEjbRefs,
 	                                                     EjbLocalRefType[] ejbLocalRefs,
-	                                                     GerRemoteRefType[] openejbEjbLocalRefs,
+	                                                     GerLocalRefType[] openejbEjbLocalRefs,
 	                                                     ResourceRefType[] resourceRefs,
-	                                                     GerRemoteRefType[] openejbResourceRefs,
+	                                                     GerLocalRefType[] openejbResourceRefs,
 	                                                     ResourceEnvRefType[] resourceEnvRefs,
-	                                                     GerRemoteRefType[] openejbResourceEnvRefs,
+	                                                     GerLocalRefType[] openejbResourceEnvRefs,
 	                                                     MessageDestinationRefType[] messageDestinationRefs, UserTransaction userTransaction,
 	                                                     ClassLoader cl) throws NamingException, DeploymentException {
 	
@@ -129,16 +129,27 @@ abstract class BeanBuilder {
 	
 	}
 
-	protected Map mapRefs(GerRemoteRefType[] refs) {
-	    Map refMap = new HashMap();
-	    if (refs != null) {
-	        for (int i = 0; i < refs.length; i++) {
-	            GerRemoteRefType ref = refs[i];
-	            refMap.put(ref.getRefName(), ref);
-	        }
-	    }
-	    return refMap;
-	}
+    protected Map mapRefs(GerLocalRefType[] refs) {
+        Map refMap = new HashMap();
+        if (refs != null) {
+            for (int i = 0; i < refs.length; i++) {
+                GerLocalRefType ref = refs[i];
+                refMap.put(ref.getRefName(), ref);
+            }
+        }
+        return refMap;
+    }
+
+    protected Map mapRefs(GerRemoteRefType[] refs) {
+        Map refMap = new HashMap();
+        if (refs != null) {
+            for (int i = 0; i < refs.length; i++) {
+                GerRemoteRefType ref = refs[i];
+                refMap.put(ref.getRefName(), ref);
+            }
+        }
+        return refMap;
+    }
 
 	protected ObjectName createEJBObjectName(EARContext earContext, String moduleName, String type, String ejbName) throws DeploymentException {
 	    Properties nameProps = new Properties();
