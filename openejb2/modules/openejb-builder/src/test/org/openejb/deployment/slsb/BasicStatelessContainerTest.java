@@ -63,6 +63,8 @@ import org.openejb.security.SecurityConfiguration;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.proxy.EJBProxyReference;
+import org.openejb.ContainerIndex;
 
 /**
  * @version $Revision$ $Date$
@@ -71,6 +73,18 @@ public class BasicStatelessContainerTest extends TestCase {
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
     private Kernel kernel;
     private GBeanData container;
+
+    public void testCrossClInvocation() throws Throwable {
+        EJBProxyReference proxyReference = EJBProxyReference.createRemote(CONTAINER_NAME.getCanonicalName(),
+                        true,
+                        MockRemote.class.getName(),
+                        MockHome.class.getName());
+        proxyReference.setKernel(kernel);
+        proxyReference.setClassLoader(this.getClass().getClassLoader());
+        MockHome home = (MockHome) proxyReference.getContent();
+        MockRemote remote = home.create();
+        assertEquals(2, remote.intMethod(1));
+    }
 
     public void testRemoteInvocation() throws Throwable {
         MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "ejbHome");
@@ -176,6 +190,12 @@ public class BasicStatelessContainerTest extends TestCase {
         container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME));
         container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
         start(CONTAINER_NAME, container);
+
+        ObjectName containerIndexname = JMXUtil.getObjectName("geronimo.test:type=ConatainerIndex");
+        GBeanData containerIndex = new GBeanData(containerIndexname, ContainerIndex.GBEAN_INFO);
+        containerIndex.setReferencePattern("EJBContainers", CONTAINER_NAME);
+        kernel.loadGBean(containerIndex, this.getClass().getClassLoader());
+        kernel.startGBean(containerIndexname);
     }
 
     protected void tearDown() throws Exception {
