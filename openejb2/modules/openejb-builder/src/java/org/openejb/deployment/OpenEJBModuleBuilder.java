@@ -442,6 +442,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
          * Build the security configuration.  Attempt to auto generate role mappings.
          */
         Security security = SecurityBuilder.buildSecurityConfig(openejbEjbJar.getSecurity(), collectRoleNames(ejbJar));
+        //todo: needs to take login domain name into account, perhaps should be an element on the security DD?
         if (security != null) security.autoGenerate(securityService);
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
