@@ -50,6 +50,7 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Properties;
 
+import javax.ejb.CreateException;
 import javax.ejb.SessionContext;
 import javax.naming.Context;
 import javax.naming.NameClassPair;
@@ -444,7 +445,7 @@ public abstract class WebAdminBean implements HttpBean {
     /** called with the bean is created
      * @throws CreateException if the bean cannot be created
      */    
-    public void ejbCreate() throws javax.ejb.CreateException {} 
+    public void ejbCreate() throws CreateException {} 
     
     /** called on a stateful sessionbean after the bean is
      * deserialized from storage and put back into use.      
@@ -472,7 +473,7 @@ public abstract class WebAdminBean implements HttpBean {
      * @throws EJBException if an exception is thrown
      * @throws RemoteException if an exception is thrown
      */    
-    public void setSessionContext(javax.ejb.SessionContext sessionContext) {
+    public void setSessionContext(SessionContext sessionContext) {
         ejbContext = sessionContext;
         if (navSections == null) {
             initNavSections();

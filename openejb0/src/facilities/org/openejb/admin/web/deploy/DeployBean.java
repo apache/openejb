@@ -41,7 +41,7 @@
  * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
  *
  */
-package org.openejb.admin.web;
+package org.openejb.admin.web.deploy;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,6 +64,9 @@ import javax.rmi.PortableRemoteObject;
 import org.apache.regexp.RE;
 import org.apache.regexp.RESyntaxException;
 import org.openejb.OpenEJBException;
+import org.openejb.admin.web.HttpRequest;
+import org.openejb.admin.web.HttpResponse;
+import org.openejb.admin.web.WebAdminBean;
 import org.openejb.util.FileUtils;
 import org.openejb.util.Logger;
 

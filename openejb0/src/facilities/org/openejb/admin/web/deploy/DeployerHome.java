@@ -41,29 +41,16 @@
  * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
  *
  */
-package org.openejb.admin.web;
+package org.openejb.admin.web.deploy;
 
 import java.rmi.RemoteException;
 
-import javax.ejb.EJBObject;
-
-import org.openejb.OpenEJBException;
+import javax.ejb.CreateException;
 
 /**
  *
- * @author  <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
+ * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
-public interface DeployerObject extends EJBObject {
-	//action methods
-	public void setBooleanValues(boolean[] booleanValues) throws RemoteException;
-	public boolean[] getBooleanValues() throws RemoteException;
-	public void setJarFile(String jarFile) throws RemoteException;
-	public String getJarFile() throws RemoteException;
-	public void startDeployment() throws RemoteException, OpenEJBException;
-	public void finishDeployment() throws RemoteException, OpenEJBException;
-	public String getDeploymentHTML() throws RemoteException;
-	public DeployData[] getDeployDataArray() throws RemoteException;
-	public String createIdTable() throws RemoteException, OpenEJBException;
-	public void setDeployAndContainerIds(DeployData[] deployDataArray)
-		throws RemoteException, OpenEJBException;
+public interface DeployerHome extends javax.ejb.EJBHome {
+    public DeployerObject create() throws RemoteException, CreateException;
 }

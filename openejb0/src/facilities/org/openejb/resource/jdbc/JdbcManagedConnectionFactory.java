@@ -52,6 +52,7 @@ import javax.resource.spi.EISSystemException;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ResourceAdapterInternalException;
 
+import org.openejb.core.EnvProps;
 import org.openejb.util.Logger;
 
 
@@ -68,10 +69,10 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
     private int hashCode = 0;// assumes that this class is immutable
     
     public void init(java.util.Properties props)throws javax.resource.spi.ResourceAdapterInternalException{
-        setDefaultUserName(props.getProperty("UserName"));   
-        setDefaultPassword(props.getProperty("Password"));   
-        setJdbcUrl(props.getProperty("JdbcUrl"));   
-        setJdbcDriver(props.getProperty("JdbcDriver"));   
+        setDefaultUserName(props.getProperty(EnvProps.USER_NAME));   
+        setDefaultPassword(props.getProperty(EnvProps.PASSWORD));   
+        setJdbcUrl(props.getProperty(EnvProps.JDBC_URL));   
+        setJdbcDriver(props.getProperty(EnvProps.JDBC_DRIVER));   
 
         String userDir = System.getProperty("user.dir");
         try{

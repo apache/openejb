@@ -41,79 +41,85 @@
  * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
  *
  */
-package org.openejb.admin.web;
+package org.openejb.admin.web.deploy;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
-public class OQLData implements Serializable {
-	private String oqlStatementName;
-	private String oqlStatementValue;
-	private String methodName;
-	private List oqlParameterValueList;
-	private String oqlParameterName;
-	private String methodString;
-	
-	public OQLData() {
+public class DeployData implements Serializable {
+	private String ejbName;
+	private String deploymentIdName;
+	private String deploymentIdValue;
+	private String containerIdName;
+	private String containerIdValue;
+	private OQLData[] oqlDataArray;
+	private ReferenceData[] referenceDataArray;
+
+	public DeployData() {
 		super();
-		this.oqlStatementName = "";
-		this.oqlStatementValue = "";
-		this.oqlParameterName = "";
-		this.oqlParameterValueList = new ArrayList();
-		this.methodName = "";
-		this.methodString = "";
+		this.deploymentIdName = "";
+		this.deploymentIdValue = "";
+		this.containerIdName = "";
+		this.containerIdValue = "";
+		this.oqlDataArray = new OQLData[0];
+		this.referenceDataArray = new ReferenceData[0];
+	}
+	
+	public String getContainerIdName() {
+		return containerIdName;
 	}
 
-	public String getMethodName() {
-		return methodName;
+	public String getContainerIdValue() {
+		return containerIdValue;
 	}
 
-	public String getOqlParameterName() {
-		return oqlParameterName;
+	public String getDeploymentIdName() {
+		return deploymentIdName;
 	}
 
-	public List getOqlParameterValueList() {
-		return oqlParameterValueList;
+	public String getDeploymentIdValue() {
+		return deploymentIdValue;
 	}
 
-	public String getOqlStatementName() {
-		return oqlStatementName;
+	public OQLData[] getOqlDataArray() {
+		return oqlDataArray;
 	}
 
-	public String getOqlStatementValue() {
-		return oqlStatementValue;
+	public void setContainerIdName(String string) {
+		containerIdName = string;
 	}
 
-	public void setMethodName(String string) {
-		methodName = string;
+	public void setContainerIdValue(String string) {
+		containerIdValue = string;
 	}
 
-	public void setOqlParameterName(String string) {
-		oqlParameterName = string;
+	public void setDeploymentIdName(String string) {
+		deploymentIdName = string;
 	}
 
-	public void setOqlParameterValueList(List list) {
-		oqlParameterValueList = list;
+	public void setDeploymentIdValue(String string) {
+		deploymentIdValue = string;
 	}
 
-	public void setOqlStatementName(String string) {
-		oqlStatementName = string;
+	public void setOqlDataArray(OQLData[] informations) {
+		oqlDataArray = informations;
+	}
+	public String getEjbName() {
+		return ejbName;
 	}
 
-	public void setOqlStatementValue(String string) {
-		oqlStatementValue = string;
+	public void setEjbName(String string) {
+		ejbName = string;
 	}
 
-	public String getMethodString() {
-		return methodString;
+	public ReferenceData[] getReferenceDataArray() {
+		return referenceDataArray;
 	}
 
-	public void setMethodString(String string) {
-		methodString = string;
+	public void setReferenceDataArray(ReferenceData[] datas) {
+		referenceDataArray = datas;
 	}
 
 }
