@@ -150,7 +150,13 @@ public class EjbValidator {
         
         ValidationFailure[] failures = set.getFailures();
         for (int i=0; i < failures.length; i++){
+            System.out.print((i+1)+". ");
+            System.out.print(failures[i].getBean().getEjbName());
+            System.out.print(": ");
             System.out.println(failures[i].getMessage());
+            System.out.println();
+            System.out.print('\t');
+            System.out.println(failures[i].getDetails());
             System.out.println();
         }
         if (failures.length > 0) {
@@ -161,7 +167,13 @@ public class EjbValidator {
         
         ValidationWarning[] warnings = set.getWarnings();
         for (int i=0; i < warnings.length; i++){
+            System.out.print((i+1)+". ");
+            System.out.print(warnings[i].getBean().getEjbName());
+            System.out.print(": ");
             System.out.println(warnings[i].getMessage());
+            System.out.println();
+            System.out.print('\t');
+            System.out.println(warnings[i].getDetails());
             System.out.println();
         }
         if (warnings.length > 0) {

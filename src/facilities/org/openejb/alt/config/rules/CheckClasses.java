@@ -87,18 +87,18 @@ public class CheckClasses implements ValidationRule {
     
     public void check_isEjbClass( Bean b ) {
         if ( b instanceof org.openejb.alt.config.SessionBean ) {
-            compareTypes( b.getEjbClass(), javax.ejb.SessionBean.class);
+            compareTypes(b, b.getEjbClass(), javax.ejb.SessionBean.class);
         } else if (b instanceof org.openejb.alt.config.EntityBean ) {
-            compareTypes( b.getEjbClass(), javax.ejb.EntityBean.class);
+            compareTypes(b, b.getEjbClass(), javax.ejb.EntityBean.class);
         }
     }
     
     public void check_isHomeInterface( Bean b ) {
-        compareTypes( b.getHome(), javax.ejb.EJBHome.class);
+        compareTypes(b, b.getHome(), javax.ejb.EJBHome.class);
     }
     
     public void check_isRemoteInterface( Bean b ) {
-        compareTypes( b.getRemote(), javax.ejb.EJBObject.class);
+        compareTypes(b, b.getRemote(), javax.ejb.EJBObject.class);
     }
     
     private void lookForClass(Bean b, String clazz, String type){
@@ -110,18 +110,30 @@ public class CheckClasses implements ValidationRule {
             # 1 - Element (home, ejb-class, remote)
             # 2 - Bean name
             */
-            set.addFailure( new ValidationFailure("missing.class", clazz, type, b.getEjbName()) );
+
+            ValidationFailure failure = new ValidationFailure("s.missing.class");
+            failure.setDetails("d.missing.class", clazz, type, b.getEjbName());
+            failure.setBean( b );
+
+            set.addFailure( failure );
+
+            //set.addFailure( new ValidationFailure("missing.class", clazz, type, b.getEjbName()) );
         }
     }
 
-    private void compareTypes( String clazz1, Class class2 ){
+    private void compareTypes(Bean b, String clazz1, Class class2 ){
         Class class1 = null;
         try {
             class1 = SafeToolkit.loadClass( clazz1 , set.getJarPath() );
         } catch ( OpenEJBException e ) {}
 
         if ( class1 != null && !class2.isAssignableFrom( class1 ) ) {
-            set.addFailure( new ValidationFailure("wrong.class.type", clazz1, class2.getName()) );
+            ValidationFailure failure = new ValidationFailure("s.wrong.class.type");
+            failure.setDetails("d.wrong.class.type", clazz1, class2.getName());
+            failure.setBean( b );
+
+            set.addFailure( failure );
+            //set.addFailure( new ValidationFailure("wrong.class.type", clazz1, class2.getName()) );
         }
     }
 }
