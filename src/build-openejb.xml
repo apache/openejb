@@ -52,6 +52,7 @@
     <mkdir dir="${build.openejb.src}"/>
     <mkdir dir="${build.openejb.dest}"/>
     <mkdir dir="${build.openejb.dest}/openejb"/>
+    <mkdir dir="${build.openejb.dest}/openejb/dtds"/>
     <mkdir dir="${dest.openejb.javadoc.dir}"/>
     
     <copy todir="${build.openejb.src}">
@@ -73,6 +74,10 @@
     
     <copy todir="${build.openejb.dest}/openejb">
       <fileset dir="bin" includes="*.txt" />
+    </copy>
+    
+    <copy todir="${build.openejb.dest}/openejb/dtds">
+      <fileset dir="src/schema" includes="*.dtd" />
     </copy>
     
     <echo file="${build.openejb.dest}/openejb-version.properties">copyright=Copyright ${year} (C) ${copyright}, All Rights Reserved.
