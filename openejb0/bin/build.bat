@@ -11,7 +11,8 @@ if "%OPENEJB_HOME%"=="" set OPENEJB_HOME=%CD%
 set JAVA=%JAVA_HOME%\bin\java
 
 set CP=
-set CP=%OPENEJB_HOME%\lib\ant_1_4_1.jar;%CP%
+set CP=%OPENEJB_HOME%\lib\ant-1.5.1.jar;%CP%
+set CP=%OPENEJB_HOME%\lib\ant-optional-1.5.1.jar;%CP%
 set CP=%OPENEJB_HOME%\lib\castor-0.9.3.9.jar;%CP%
 set CP=%OPENEJB_HOME%\lib\ejb-1.0.jar;%CP%
 set CP=%OPENEJB_HOME%\lib\idb_3.26.jar;%CP%
