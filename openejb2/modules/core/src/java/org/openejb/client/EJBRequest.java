@@ -233,8 +233,41 @@ public class EJBRequest implements Request {
      *              restored cannot be found.
      */
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        ClassNotFoundException result = null;
+        clearState();
 
+        readRequestMethod(in);
+
+        readContainerId(in);
+        
+        readClientIdentity(in);
+        
+        readPrimaryKey(in);
+
+        readMethod(in);
+
+        readMethodParameters(in);
+
+        loadMethodInstance();
+    }
+
+    protected void loadMethodInstance() throws IOException {
+        try {
+            methodInstance = methodClass.getDeclaredMethod(methodName, methodParamTypes);
+        } catch (NoSuchMethodException nsme) {
+            throw (IOException)new IOException("Invalid EJB request data.").initCause(nsme); 
+        }
+    }
+
+    protected void readMethod(ObjectInput in) throws ClassNotFoundException, IOException {
+        methodClass = (Class) in.readObject();
+        methodName = in.readUTF();
+    }
+
+    protected void readPrimaryKey(ObjectInput in) throws ClassNotFoundException, IOException {
+        primaryKey = in.readObject();
+    }
+
+    protected void clearState() {
         requestMethod = -1;
         deploymentId = null;
         deploymentCode = -1;
@@ -243,40 +276,19 @@ public class EJBRequest implements Request {
         methodClass = null;
         methodName = null;
         methodInstance = null;
+    }
 
-        requestMethod = in.readByte();
-        try {
-            deploymentId = (String) in.readObject();
-        } catch (ClassNotFoundException cnfe) {
-            result = cnfe;
-        }
+    protected void readClientIdentity(ObjectInput in) throws ClassNotFoundException, IOException {
+        clientIdentity = in.readObject();
+    }
+
+    protected void readContainerId(ObjectInput in) throws ClassNotFoundException, IOException {
+        deploymentId = (String) in.readObject();
         deploymentCode = in.readShort();
-        try {
-            clientIdentity = in.readObject();
-            primaryKey = in.readObject();
-            methodClass = (Class) in.readObject();
-        } catch (ClassNotFoundException cnfe) {
-            if (result == null) result = cnfe;
-        }
-        methodName = in.readUTF();
+    }
 
-        try {
-            readMethodParameters(in);
-        } catch (ClassNotFoundException cnfe) {
-            if (result == null) result = cnfe;
-        }
-
-        if (methodClass != null) {
-            try {
-                methodInstance = methodClass
-                        .getDeclaredMethod(methodName, methodParamTypes);
-            } catch (NoSuchMethodException nsme) {
-                //if (result == null) result = nsme;
-            }
-        }
-
-        if (result != null)
-            throw result;
+    protected void readRequestMethod(ObjectInput in) throws IOException {
+        requestMethod = in.readByte();
     }
 
     /**

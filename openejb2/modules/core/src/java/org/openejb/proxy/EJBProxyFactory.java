@@ -45,6 +45,11 @@
 package org.openejb.proxy;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -73,11 +78,13 @@ public class EJBProxyFactory implements Serializable {
     private transient final int[] ejbObjectMap;
     private transient final int[] ejbHomeMap;
     
+    private transient final Map legacyMethodMap;
+
+    private transient EJBContainer container;
+    
     private final ProxyInfo proxyInfo;
 
     private final InterfaceMethodSignature[] signatures;
-
-    private transient EJBContainer container;
 
     public EJBProxyFactory(ProxyInfo proxyInfo, InterfaceMethodSignature[] signatures) {
         this.signatures = signatures;
@@ -88,13 +95,28 @@ public class EJBProxyFactory implements Serializable {
         this.ejbObjectFactory = getFactory(EJBInterfaceType.REMOTE.getOrdinal(), proxyInfo.getRemoteInterface());
         this.ejbHomeFactory = getFactory(EJBInterfaceType.HOME.getOrdinal(), proxyInfo.getHomeInterface());
     
+        // build the legacy map
+        Map map = new HashMap();
+        addLegacyMethods(map, proxyInfo.getHomeInterface(), signatures);
+        addLegacyMethods(map, proxyInfo.getRemoteInterface(), signatures);
+        addLegacyMethods(map, proxyInfo.getLocalHomeInterface(), signatures);
+        addLegacyMethods(map, proxyInfo.getLocalInterface(), signatures);
+        legacyMethodMap = Collections.unmodifiableMap(map);
         
         ejbLocalObjectMap = getOperationsMap(ejbLocalObjectFactory);
         ejbLocalHomeMap = getOperationsMap(ejbLocalHomeFactory);
         ejbObjectMap = getOperationsMap(ejbObjectFactory);
         ejbHomeMap = getOperationsMap(ejbHomeFactory);
     }
-
+    
+    public int getMethodIndex(Method method) {
+        Integer index = (Integer) legacyMethodMap.get(method);
+        if (index == null) {
+            index = new Integer(-1);
+        }
+        return index.intValue();
+    }
+    
     public void setContainer(EJBContainer container) {
         this.container = container;
     }
@@ -175,4 +197,19 @@ public class EJBProxyFactory implements Serializable {
     private Object readResolve() {
         return new EJBProxyFactory(proxyInfo, signatures);
     }
+    
+    private static void addLegacyMethods(Map legacyMethodMap, Class clazz, InterfaceMethodSignature[] signatures) {
+        if (clazz == null) {
+            return;
+        }
+
+        for (int i = 0; i < signatures.length; i++) {
+            InterfaceMethodSignature signature = signatures[i];
+            Method method = signature.getMethod(clazz);
+            if (method != null) {
+                legacyMethodMap.put(method, new Integer(i));
+            }
+        }
+    }
+    
 }

@@ -125,7 +125,7 @@ public class EjbDaemon implements ApplicationServer, ResponseCodes, RequestMetho
                 return;
             }
 
-            ois = new ObjectInputStream(in);
+            ois = new EJBObjectInputStream(in);
             oos = new ObjectOutputStream(out);
 
             // Process the request

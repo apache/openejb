@@ -128,4 +128,7 @@ public interface EJBContainer extends Interceptor {
     EJBProxyFactory getProxyFactory();
 
     ClassLoader getClassLoader();
+
+    EJBContainer getUnmanagedReference();
+    
 }
