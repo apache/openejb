@@ -51,10 +51,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.connector.ActivationSpecWrapper;
 import org.apache.geronimo.connector.ResourceAdapterModuleImpl;
@@ -63,17 +61,19 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
 import org.apache.geronimo.connector.work.GeronimoWorkManager;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledTransactionalTimer;
 import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.openejb.deployment.mdb.mockra.MockActivationSpec;
 import org.openejb.deployment.mdb.mockra.MockResourceAdapter;
 
@@ -182,7 +182,7 @@ public class DeploymentHelper {
         start(kernel, activationSpecGBean);
     }
 
-    private static void start(Kernel kernel, GBeanData gbeanData) throws InvalidConfigException, InstanceAlreadyExistsException, InstanceNotFoundException {
+    private static void start(Kernel kernel, GBeanData gbeanData) throws InternalKernelException, GBeanAlreadyExistsException , GBeanNotFoundException {
         kernel.loadGBean(gbeanData, DeploymentHelper.class.getClassLoader());
         kernel.startGBean(gbeanData.getName());
     }
