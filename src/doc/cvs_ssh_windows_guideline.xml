@@ -46,12 +46,19 @@
         
         Change [developername] to your SF developer name. If the command
         succeeds you should be able to login to the SF system.
-        </p>        
+        </p>
+        
+        <p>
+        <img src="images/plink_one.gif" alt="first access to a SF server using plink" border="0"/>
+        
+        
+        <body-note>Figure 1: Accessing the SF server without having a public key installed on it.</body-note>
+        </p>
       </section>
       
       <section title="How to generate your public/private RSA key">
         <p>
-        SSH works with private/public asymetric key scheme like it does
+        SSH works with a private/public asymetric key scheme like it does
         PGP or other asymetric krypto systems. This fact requires that
         you generate a public/private key pair to use WinCVS with SSH (PuTTY).
         </p>
@@ -82,32 +89,51 @@
         ]]></pre>
         </p>
         
-        <section title="A word from the wise (security note)">
+
         <p>
-        The private key should _NEVER_ leave your system! Keep it as private
-        as possible!
+        <img src="images/keygen.gif" alt="generating a public/private key pair" border="0"/>
+    
+        <body-note>Figure 2: The PuTTYgen program to generate a public/private key pair.</body-note>
         </p>
+        
+        <section title="A word from the wise (security note)">
+          <p>
+          The private key should _NEVER_ leave your system! Keep it as private
+          as possible!
+          </p>
         </section>
         
         <section title="How to install the public key on the SF system">
-        <p>
-        The following section is just to demonstrate how the SSH
-        public/private key system works. To get the public key installed
-        on the SF OpenEJB CVS server you have to use SF's web based form
-        for submiting public RSA keys. This form can be found at your
-        account options page of your SF personal page.
-        </p>
         
-        <p>
-        If you are using this web based form your public key gets distributed
-        within six hours to the following systems.
+          <section title="Installing your public key manually">
+            <p>
+            The following section is just to demonstrate how the SSH
+            public/private key system works. To get the public key installed
+            on the SF OpenEJB CVS server you have to use SF's web based form
+            for submiting public RSA keys.
+            </p>
+          
+            <p>
+            </p>
+          </section>
         
-        <ul>
-          <li>The OpenEJB SF server (openejb.sf.net)</li>
-          <li>The SF shell server (shell.sf.net)</li>
-          <li>The OpenEJB CVS server at SF (cvs.openejb.sf.net)</li>
-        </ul>
-        </p>
+          <section title="Installing your public key using the SF upload form">
+            <p>
+            The SF upload form for public RSA/DSA keys can be found at your account
+            options page of your SF personal page.
+            </p>
+          
+            <p>
+            If you are using the SF web based form, your public key gets distributed
+            within six hours to the following systems.
+        
+            <ul>
+              <li>The OpenEJB SF server (openejb.sf.net)</li>
+              <li>The SF shell server (shell.sf.net)</li>
+              <li>The OpenEJB CVS server at SF (cvs.openejb.sf.net)</li>
+            </ul>
+            </p>
+          </section>
         </section>
         
         <section title="How to start and configure the PuTTY SSH agent">
