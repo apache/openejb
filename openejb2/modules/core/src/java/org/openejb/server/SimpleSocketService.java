@@ -82,9 +82,12 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
             throw new ServiceException("Error constructing server service class", e);
         }
 
-        service = new ServiceLogger(service);
-        service = new ServiceAccessController(service, onlyFrom);
+        String name = "ejb";
+        String[] logOnSuccess = new String[]{"HOST","NAME","THREADID","USERID"};
+        String[] logOnFailure = new String[]{"HOST","NAME"};
         service = new ServicePool(service);
+        service = new ServiceAccessController(service, onlyFrom);
+        service = new ServiceLogger(name, service, logOnSuccess, logOnFailure);
         server = service;
 
         // TODO Horrid hack, the concept needs to survive somewhere

@@ -66,7 +66,7 @@ import java.util.StringTokenizer;
  */
 public class ServiceAccessController implements ServerService {
     private final ServerService next;
-    private InetAddress[] allowedHosts;
+    private InetAddress[] allowHosts;
 
     public ServiceAccessController(ServerService next) {
         this.next = next;
@@ -74,7 +74,7 @@ public class ServiceAccessController implements ServerService {
 
     public ServiceAccessController(ServerService next, InetAddress[] allowedHosts) {
         this.next = next;
-        this.allowedHosts = allowedHosts;
+        this.allowHosts = allowedHosts;
     }
 
     public void service(Socket socket) throws ServiceException, IOException {
@@ -82,6 +82,14 @@ public class ServiceAccessController implements ServerService {
         checkHostsAuthorization(socket.getInetAddress(), socket.getLocalAddress());
 
         next.service(socket);
+    }
+
+    public InetAddress[] getAllowHosts() {
+        return allowHosts;
+    }
+
+    public void setAllowHosts(InetAddress[] allowHosts) {
+        this.allowHosts = allowHosts;
     }
 
     public void checkHostsAuthorization(InetAddress clientAddress, InetAddress serverAddress) throws SecurityException {
@@ -95,8 +103,8 @@ public class ServiceAccessController implements ServerService {
         // match, the following for loop will be skipped.
         authorized = clientAddress.equals(serverAddress);
 
-        for (int i = 0; !authorized && i < allowedHosts.length; i++) {
-            authorized = allowedHosts[i].equals(clientAddress);
+        for (int i = 0; !authorized && i < allowHosts.length; i++) {
+            authorized = allowHosts[i].equals(clientAddress);
         }
 
         if (!authorized) {
@@ -132,7 +140,7 @@ public class ServiceAccessController implements ServerService {
             }
         }
 
-        allowedHosts = (InetAddress[]) addresses.toArray(new InetAddress[addresses.size()]);
+        allowHosts = (InetAddress[]) addresses.toArray(new InetAddress[addresses.size()]);
     }
 
     public void init(Properties props) throws Exception {
