@@ -75,12 +75,10 @@ public class InteropBean implements SessionBean {
 
             return bean.allAccessMethod(argument1);
         } catch (NamingException e) {
-            e.printStackTrace();  //TODO: change body of catch statement use File | Settings | File Templates.
+            throw new RemoteException("Unable to lookup java:comp/env/ejb/interop/InteropBean", e);
         } catch (CreateException e) {
-            e.printStackTrace();  //TODO: change body of catch statement use File | Settings | File Templates.
+            throw new RemoteException("Unable to create BasicStateless EJB", e);
         }
-
-        return argument1;
     }
 
     public boolean isInRole(String roleName) {
