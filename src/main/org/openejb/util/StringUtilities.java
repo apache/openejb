@@ -45,7 +45,6 @@
 package org.openejb.util;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.StringTokenizer;
 
 /**

@@ -44,8 +44,8 @@
  */
 package org.acme.hello;
 
-import java.rmi.RemoteException;
-import javax.ejb.*;
+import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
 
 public class HelloBean implements SessionBean {
     private SessionContext sessionContext;

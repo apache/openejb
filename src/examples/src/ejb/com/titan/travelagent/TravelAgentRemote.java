@@ -1,7 +1,6 @@
 package com.titan.travelagent;
 
 import java.rmi.RemoteException;
-import javax.ejb.FinderException;
 
 public interface TravelAgentRemote extends javax.ejb.EJBObject {
 

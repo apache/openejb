@@ -44,9 +44,9 @@
  */
 package org.acme.hello;
 
-import java.rmi.*;
-import javax.ejb.*;
-import java.util.*;
+import java.rmi.RemoteException;
+
+import javax.ejb.EJBObject;
 
 public interface HelloObject extends EJBObject {
     public String sayHello() throws RemoteException;

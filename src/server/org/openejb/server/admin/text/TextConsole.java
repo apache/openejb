@@ -48,8 +48,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.Vector;
 
 import org.openejb.server.EjbDaemon;
 import org.openejb.util.Logger;

@@ -47,7 +47,6 @@ package org.openejb.admin.web.config;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.util.Properties;
 
 import org.openejb.alt.config.Bean;

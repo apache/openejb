@@ -2,6 +2,7 @@
 package com.titan.cabin;
 
 import java.rmi.RemoteException;
+
 import javax.ejb.CreateException;
 import javax.ejb.FinderException;
 

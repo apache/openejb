@@ -44,6 +44,7 @@
  */
 package org.openejb.tyrex;
 import org.openejb.core.ivm.naming.ENCReference;
+
 import tyrex.resource.Resource;
 
 public class TyrexReference implements org.openejb.core.ivm.naming.Reference {

@@ -47,7 +47,6 @@
 package org.openejb;
 
 import java.net.URL;
-import java.security.Permission;
 import java.util.Date;
 import java.util.Properties;
 

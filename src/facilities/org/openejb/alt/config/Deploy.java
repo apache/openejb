@@ -49,10 +49,8 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import org.openejb.OpenEJBException;
 import org.openejb.alt.config.ejb11.EjbDeployment;
@@ -68,7 +66,6 @@ import org.openejb.alt.config.sys.Openejb;
 import org.openejb.util.JarUtils;
 import org.openejb.util.Messages;
 import org.openejb.util.SafeToolkit;
-import org.openejb.util.StringUtilities;
 
 /**
  * This class represents a command line tool for deploying beans.

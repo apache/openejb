@@ -44,14 +44,18 @@
  */
 package org.acme.servlet;
 
-import java.io.*;
-import java.util.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import javax.naming.*;
-import javax.rmi.PortableRemoteObject;
+import java.io.IOException;
+import java.io.PrintWriter;
 
-import org.acme.hello.*;
+import javax.naming.InitialContext;
+import javax.rmi.PortableRemoteObject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.acme.hello.HelloHome;
+import org.acme.hello.HelloObject;
 
 public class HelloWorldServlet extends HttpServlet {
 

@@ -44,7 +44,6 @@
  */
 package org.openejb.admin.web.config;
 
-import java.io.PrintWriter;
 import java.io.Serializable;
 
 /**

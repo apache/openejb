@@ -1,24 +1,21 @@
 package com.titan.ship;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Vector;
+
+import javax.ejb.CreateException;
+import javax.ejb.EJBException;
+import javax.ejb.EntityContext;
+import javax.ejb.FinderException;
+import javax.ejb.ObjectNotFoundException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.ejb.EntityContext;
-import java.rmi.RemoteException;
-import java.sql.SQLException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import javax.sql.DataSource;
-import javax.ejb.CreateException;
-import javax.ejb.EJBException;
-import javax.ejb.FinderException;
-import javax.ejb.ObjectNotFoundException;
-import java.util.Enumeration;
-import java.util.Properties;
-import java.util.Vector;
-import java.util.Collection;
 
 public class ShipBean implements javax.ejb.EntityBean
 {
