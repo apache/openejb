@@ -120,6 +120,7 @@ class EntityBuilder extends BeanBuilder {
         builder.setPrimaryKeyClassName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getPrimKeyClass()));
         TransactionPolicySource transactionPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);
         builder.setTransactionPolicySource(transactionPolicySource);
+        builder.setTransactionImportPolicyBuilder(getModuleBuilder().getTransactionImportPolicyBuilder());
         builder.setTransactedTimerName(earContext.getTransactedTimerName());
         builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
         builder.setReentrant(entityBean.getReentrant().getBooleanValue());

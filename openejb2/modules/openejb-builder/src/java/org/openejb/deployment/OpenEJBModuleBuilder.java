@@ -107,6 +107,8 @@ import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
 
 import org.openejb.EJBModuleImpl;
+import org.openejb.deployment.corba.TransactionImportPolicyBuilder;
+import org.openejb.deployment.corba.NoDistributedTxTransactionImportPolicyBuilder;
 import org.openejb.corba.CORBAHandleDelegate;
 import org.openejb.corba.compiler.CompilerException;
 import org.openejb.corba.compiler.SkeletonGenerator;
@@ -133,12 +135,14 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final MdbBuilder mdbBuilder;
     private final ContainerSecurityBuilder containerSecurityBuilder;
     private final SkeletonGenerator skeletonGenerator;
+    private final TransactionImportPolicyBuilder transactionImportPolicyBuilder;
     private final Repository repository;
 
     public OpenEJBModuleBuilder(URI defaultParentId, ObjectName listener, SkeletonGenerator skeletonGenerator, Repository repository) {
         this.defaultParentId = defaultParentId;
         this.listener = listener;
         this.skeletonGenerator = skeletonGenerator;
+        this.transactionImportPolicyBuilder = new NoDistributedTxTransactionImportPolicyBuilder();
         this.containerSecurityBuilder = new ContainerSecurityBuilder(this);
         this.cmpEntityBuilder = new CMPEntityBuilder(this);
         this.sessionBuilder = new SessionBuilder(this);
@@ -153,6 +157,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
     public SkeletonGenerator getSkeletonGenerator() {
         return skeletonGenerator;
+    }
+
+    public TransactionImportPolicyBuilder getTransactionImportPolicyBuilder() {
+        return transactionImportPolicyBuilder;
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {

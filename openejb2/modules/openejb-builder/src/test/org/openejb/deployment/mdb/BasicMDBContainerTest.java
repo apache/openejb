@@ -44,8 +44,8 @@
  */
 package org.openejb.deployment.mdb;
 
-import java.util.HashSet;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
@@ -53,9 +53,8 @@ import org.apache.geronimo.kernel.Kernel;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.MDBContainerBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.transaction.ContainerPolicy;
-import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.transaction.TransactionPolicyType;
 
 /**
  * @version $Revision$ $Date$
@@ -79,8 +78,8 @@ public class BasicMDBContainerTest extends TestCase {
         builder.setActivationSpecName(DeploymentHelper.ACTIVATIONSPEC_NAME);
         builder.setUnshareableResources(new HashSet());
         builder.setTransactionPolicySource(new TransactionPolicySource() {
-            public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-                return ContainerPolicy.Required;
+            public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
+                return TransactionPolicyType.Required;
             }
         });
         builder.setComponentContext(new HashMap());

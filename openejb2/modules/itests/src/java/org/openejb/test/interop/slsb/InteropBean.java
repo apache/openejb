@@ -138,10 +138,45 @@ public class InteropBean implements SessionBean {
 
             return bean.allAccessMethod(argument1);
         } catch (NamingException e) {
+            e.printStackTrace();
             throw new RemoteException("Unable to lookup java:comp/env/ejb/interop/InteropBean", e);
         } catch (CreateException e) {
+            e.printStackTrace();
             throw new RemoteException("Unable to create BasicStateless EJB", e);
+        } catch (Throwable t) {
+            t.printStackTrace();
+            throw new RemoteException("Throwable", t);
         }
+
+    }
+
+     public String callAllAccessTx(String argument1) throws RemoteException {
+        try {
+            InitialContext ic = new InitialContext();
+            Object ref = ic.lookup("java:comp/env/ejb/interop/InteropBean");
+
+            BasicStatelessHome home = (BasicStatelessHome) PortableRemoteObject.narrow(ref, BasicStatelessHome.class);
+            BasicStateless bean = home.create();
+
+            bean.allAccessMethod(argument1);
+
+        } catch (NamingException e) {
+            e.printStackTrace();
+            throw new RemoteException("Unable to lookup java:comp/env/ejb/interop/InteropBean", e);
+        } catch (CreateException e) {
+            e.printStackTrace();
+            throw new RemoteException("Unable to create BasicStateless EJB", e);
+        } catch (RemoteException e) {
+            //expected
+            System.out.println("SUCCESS, got RemoteException: ");
+            e.printStackTrace();
+            return "SUCCESS";
+        } catch (Throwable t) {
+            t.printStackTrace();
+            throw new RemoteException("Throwable", t);
+        }
+         throw new RemoteException("NO EXCEPTION THROWN");
+
     }
 
     public boolean isInRole(String roleName) {

@@ -49,6 +49,8 @@ package org.openejb.deployment;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
+import java.io.Serializable;
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.management.ObjectName;
@@ -63,6 +65,8 @@ import org.openejb.EJBContainer;
 import org.openejb.GenericEJBContainer;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
+import org.openejb.EJBInterfaceType;
+import org.openejb.deployment.corba.TransactionImportPolicyBuilder;
 import org.openejb.cache.InstanceFactory;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -74,6 +78,7 @@ import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicyManager;
 import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.transaction.TransactionPolicies;
 import org.openejb.util.SoftLimitedInstancePool;
 
 /**
@@ -101,6 +106,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private Set applicationManagedSecurityResources;
     private UserTransactionImpl userTransaction;
     private TransactionPolicySource transactionPolicySource;
+    private TransactionImportPolicyBuilder transactionImportPolicyBuilder;
     private String[] jndiNames;
     private String[] localJndiNames;
     //todo use object names here for build configuration rather than in ModuleBuilder.
@@ -109,6 +115,9 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
 
     private ObjectName transactedTimerName;
     private ObjectName nonTransactedTimerName;
+
+    //corba tx import
+
 
     public ClassLoader getClassLoader() {
         return classLoader;
@@ -278,6 +287,15 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         this.transactionPolicySource = transactionPolicySource;
     }
 
+
+    public TransactionImportPolicyBuilder getTransactionImportPolicyBuilder() {
+        return transactionImportPolicyBuilder;
+    }
+
+    public void setTransactionImportPolicyBuilder(TransactionImportPolicyBuilder transactionImportPolicyBuilder) {
+        this.transactionImportPolicyBuilder = transactionImportPolicyBuilder;
+    }
+
     public String[] getJndiNames() {
         return jndiNames;
     }
@@ -346,9 +364,59 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         interceptorBuilder.setDoAsCurrentCaller(doAsCurrentCaller);
         interceptorBuilder.setSecurityEnabled(securityEnabled);
         interceptorBuilder.setUseContextHandler(useContextHandler);
-        interceptorBuilder.setTransactionPolicyManager(new TransactionPolicyManager(transactionPolicySource, signatures));
+        interceptorBuilder.setTransactionPolicyManager(new TransactionPolicyManager(buildTransactionPolicies(transactionPolicySource, signatures)));
         interceptorBuilder.setPermissionManager(new PermissionManager(ejbName, signatures));
         return interceptorBuilder;
+    }
+
+    private TransactionPolicy[][] buildTransactionPolicies(TransactionPolicySource transactionPolicySource, InterfaceMethodSignature[] signatures) {
+        TransactionPolicy[][] transactionPolicy = new TransactionPolicy[EJBInterfaceType.MAX_ORDINAL][];
+        transactionPolicy[EJBInterfaceType.HOME.getOrdinal()] = mapPolicies("Home", signatures, transactionPolicySource);
+        transactionPolicy[EJBInterfaceType.REMOTE.getOrdinal()] = mapPolicies("Remote", signatures, transactionPolicySource);
+        transactionPolicy[EJBInterfaceType.LOCALHOME.getOrdinal()] = mapPolicies("LocalHome", signatures, transactionPolicySource);
+        transactionPolicy[EJBInterfaceType.LOCAL.getOrdinal()] = mapPolicies("Local", signatures, transactionPolicySource);
+        transactionPolicy[EJBInterfaceType.WEB_SERVICE.getOrdinal()] = mapPolicies("ServiceEndpoint", signatures, transactionPolicySource);
+        transactionPolicy[EJBInterfaceType.TIMEOUT.getOrdinal()] = new TransactionPolicy[signatures.length];
+        Arrays.fill(transactionPolicy[EJBInterfaceType.TIMEOUT.getOrdinal()], ContainerPolicy.Supports); //we control the transaction from the top of the stack.
+
+        return transactionPolicy;
+    }
+
+    private static TransactionPolicy[] mapPolicies(String intfName, InterfaceMethodSignature[] signatures, TransactionPolicySource transactionPolicySource) {
+        TransactionPolicy[] policies = new TransactionPolicy[signatures.length];
+        for (int index = 0; index < signatures.length; index++) {
+            InterfaceMethodSignature signature = signatures[index];
+            policies[index] = TransactionPolicies.getTransactionPolicy(transactionPolicySource.getTransactionPolicy(intfName, signature));
+        }
+        return policies;
+    }
+
+    private Serializable getHomeTxPolicyConfig() throws ClassNotFoundException {
+        if (transactionImportPolicyBuilder == null) {
+            return null;
+        }
+        ClassLoader classLoader = getClassLoader();
+        Class homeInterface = loadOptionalClass(homeInterfaceName, classLoader);
+        if (homeInterface == null) {
+            return null;
+        } else {
+            Serializable policy = transactionImportPolicyBuilder.buildTransactionImportPolicy("Home", homeInterface, true, transactionPolicySource);
+            return policy;
+        }
+    }
+
+    private Serializable getRemoteTxPolicyConfig() throws ClassNotFoundException {
+        if (transactionImportPolicyBuilder == null) {
+            return null;
+        }
+        ClassLoader classLoader = getClassLoader();
+        Class remoteInterface = loadOptionalClass(remoteInterfaceName, classLoader);
+        if (remoteInterface == null) {
+            return null;
+        } else {
+            Serializable policy = transactionImportPolicyBuilder.buildTransactionImportPolicy("Remote", remoteInterface, false, transactionPolicySource);
+            return policy;
+        }
     }
 
     protected ProxyInfo createProxyInfo() throws ClassNotFoundException {
@@ -382,9 +450,9 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     }
 
     protected EJBContainer createContainer(InterfaceMethodSignature[] signatures,
-            InstanceContextFactory contextFactory,
-            InterceptorBuilder interceptorBuilder,
-            InstancePool pool) throws Exception {
+                                           InstanceContextFactory contextFactory,
+                                           InterceptorBuilder interceptorBuilder,
+                                           InstancePool pool) throws Exception {
 
         return new GenericEJBContainer(getContainerId(),
                 getEJBName(),
@@ -405,14 +473,17 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 getSecurityConfiguration(),
                 getDefaultSubject(),
                 runAs,
+                getHomeTxPolicyConfig(),
+                getRemoteTxPolicyConfig(),
                 Thread.currentThread().getContextClassLoader());
     }
 
+
     protected GBeanData createConfiguration(ClassLoader cl, InterfaceMethodSignature[] signatures,
-            InstanceContextFactory contextFactory,
-            InterceptorBuilder interceptorBuilder,
-            InstancePool pool,
-            ObjectName timerName) throws Exception {
+                                            InstanceContextFactory contextFactory,
+                                            InterceptorBuilder interceptorBuilder,
+                                            InstancePool pool,
+                                            ObjectName timerName) throws Exception {
 
         GBeanData gbean = new GBeanData(GenericEJBContainer.GBEAN_INFO);
         gbean.setAttribute("ContainerID", getContainerId());
@@ -430,6 +501,8 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         gbean.setAttribute("SecurityConfiguration", getSecurityConfiguration());
         gbean.setAttribute("DefaultSubject", getDefaultSubject());
         gbean.setAttribute("RunAsSubject", getRunAs());
+        gbean.setAttribute("HomeTxPolicyConfig", getHomeTxPolicyConfig());
+        gbean.setAttribute("RemoteTxPolicyConfig", getRemoteTxPolicyConfig());
 
         return gbean;
     }
@@ -438,7 +511,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         ObjectName timerName = null;
         if (TimedObject.class.isAssignableFrom(beanClass)) {
             InterfaceMethodSignature signature = new InterfaceMethodSignature("ejbTimeout", new Class[]{Timer.class}, false);
-            TransactionPolicy transactionPolicy = getTransactionPolicySource().getTransactionPolicy("timeout", signature);
+            TransactionPolicy transactionPolicy = TransactionPolicies.getTransactionPolicy(getTransactionPolicySource().getTransactionPolicy("timeout", signature));
             boolean isTransacted = transactionPolicy == ContainerPolicy.Required || transactionPolicy == ContainerPolicy.RequiresNew;
             if (isTransacted) {
                 timerName = getTransactedTimerName();

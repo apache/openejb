@@ -53,6 +53,7 @@ import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.EJBContainer;
+import org.openejb.deployment.corba.TransactionImportPolicyBuilder;
 import org.openejb.transaction.TransactionPolicySource;
 
 /**
@@ -135,4 +136,7 @@ public interface ContainerBuilder extends ResourceEnvironmentBuilder, SecureBuil
 
     void setNonTransactedTimerName(ObjectName nonTransactedTimerName);
 
+    TransactionImportPolicyBuilder getTransactionImportPolicyBuilder();
+
+    void setTransactionImportPolicyBuilder(TransactionImportPolicyBuilder transactionImportPolicyBuilder);
 }

@@ -713,6 +713,7 @@ class CMPEntityBuilder extends EntityBuilder {
         builder.setCMP2(isCMP2(entityBean));
         TransactionPolicySource transactionPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);
         builder.setTransactionPolicySource(transactionPolicySource);
+        builder.setTransactionImportPolicyBuilder(getModuleBuilder().getTransactionImportPolicyBuilder());
         builder.setTransactedTimerName(earContext.getTransactedTimerName());
         builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
         builder.setReentrant(entityBean.getReentrant().getBooleanValue());

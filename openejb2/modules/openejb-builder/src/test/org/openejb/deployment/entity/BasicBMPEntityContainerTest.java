@@ -61,9 +61,8 @@ import org.openejb.deployment.BMPContainerBuilder;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.security.SecurityConfiguration;
-import org.openejb.transaction.ContainerPolicy;
-import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.transaction.TransactionPolicyType;
 
 /**
  * @version $Revision$ $Date$
@@ -151,8 +150,8 @@ public class BasicBMPEntityContainerTest extends TestCase {
         builder.setLocalJndiNames(new String[0]);
         builder.setUnshareableResources(new HashSet());
         builder.setTransactionPolicySource(new TransactionPolicySource() {
-            public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-                return ContainerPolicy.Required;
+            public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
+                return TransactionPolicyType.Required;
             }
         });
         builder.setSecurityConfiguration(new SecurityConfiguration());
