@@ -32,7 +32,7 @@ import org.openejb.deployment.TransactionPolicySource;
  *
  * @version $Revision$ $Date$
  */
-public interface ContainerBuilder {
+public interface ContainerBuilder extends ResourceEnvironmentBuilder {
     ClassLoader getClassLoader();
 
     void setClassLoader(ClassLoader classLoader);
@@ -77,10 +77,6 @@ public interface ContainerBuilder {
 
     void setComponentContext(ReadOnlyContext componentContext);
 
-    Set getUnshareableResources();
-
-    void setUnshareableResources(Set unshareableResources);
-
     UserTransactionImpl getUserTransaction();
 
     void setUserTransaction(UserTransactionImpl userTransaction);
@@ -109,7 +105,4 @@ public interface ContainerBuilder {
 
     GBeanMBean createConfiguration() throws Exception;
 
-    Set getApplicationManagedSecurityResources();
-
-    void setApplicationManagedSecurityResources(Set applicationManagedSecurityResources);
 }

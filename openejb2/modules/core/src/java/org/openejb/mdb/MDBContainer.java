@@ -51,16 +51,15 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.resource.ResourceException;
-import javax.resource.spi.ActivationSpec;
-import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.UnavailableException;
 import javax.resource.spi.endpoint.MessageEndpoint;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
-import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 
+import org.apache.geronimo.connector.ActivationSpecWrapper;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
@@ -69,16 +68,15 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.apache.geronimo.transaction.manager.NamedXAResource;
-import org.apache.geronimo.transaction.manager.ResourceManager;
 import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
 import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.cache.InstancePool;
 
 /**
  * @version $Revision$ $Date$
  */
-public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle, ResourceManager {
-    private final ActivationSpec activationSpec;
+public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
+    private final ActivationSpecWrapper activationSpecWrapper;
     private final ClassLoader classLoader;
     private final EndpointFactory endpointFactory;
     private final String containerId;
@@ -92,12 +90,12 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle, Res
 
     public MDBContainer(String containerId,
             String ejbName,
-            ActivationSpec activationSpec,
             String endpointInterfaceName,
             InterfaceMethodSignature[] signatures,
             boolean[] deliveryTransacted,
             MDBInterceptorBuilder interceptorBuilder,
-            UserTransactionImpl userTransaction,
+            InstancePool instancePool, UserTransactionImpl userTransaction,
+            ActivationSpecWrapper activationSpecWrapper,
             TransactionManager transactionManager,
             TrackedConnectionAssociator trackedConnectionAssociator,
             ClassLoader classLoader) throws Exception {
@@ -105,25 +103,26 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle, Res
         assert (containerId != null && containerId.length() > 0);
         assert (classLoader != null);
         assert (ejbName != null && ejbName.length() > 0);
-        assert (activationSpec != null);
         assert (signatures != null);
         assert (deliveryTransacted != null);
         assert (signatures.length == deliveryTransacted.length);
         assert (interceptorBuilder != null);
         assert (transactionManager != null);
+        assert (activationSpecWrapper != null);
 
         this.classLoader = classLoader;
-        this.activationSpec = activationSpec;
+
         this.containerId = containerId;
         this.ejbName = ejbName;
         this.signatures = signatures;
         this.deliveryTransacted = deliveryTransacted;
         this.transactionManager = transactionManager;
-
+        this.activationSpecWrapper = activationSpecWrapper;
         Class endpointInterface = classLoader.loadClass(endpointInterfaceName);
         endpointFactory = new EndpointFactory(this, endpointInterface, classLoader);
 
         // build the interceptor chain
+        interceptorBuilder.setInstancePool(instancePool);
         interceptorBuilder.setTrackedConnectionAssociator(trackedConnectionAssociator);
         interceptor = interceptorBuilder.buildInterceptorChain();
 
@@ -162,18 +161,11 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle, Res
     }
 
     public void doStart() throws ResourceException {
-        ResourceAdapter resourceAdapter = activationSpec.getResourceAdapter();
-        if (resourceAdapter == null) {
-            throw new IllegalStateException("Attempting to use activation spec when it is not activated");
-        }
-        resourceAdapter.endpointActivation(this, activationSpec);
+        activationSpecWrapper.activate(this);
     }
 
     public void doStop() {
-        ResourceAdapter resourceAdapter = activationSpec.getResourceAdapter();
-        if (resourceAdapter != null) {
-            resourceAdapter.endpointDeactivation(this, activationSpec);
-        }
+        activationSpecWrapper.deactivate(this);
     }
 
     public void doFail() {
@@ -184,31 +176,11 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle, Res
         return interceptor.invoke(invocation);
     }
 
-    public NamedXAResource getRecoveryXAResources() throws SystemException {
-        ResourceAdapter resourceAdapter = activationSpec.getResourceAdapter();
-        if (resourceAdapter == null) {
-            throw new IllegalStateException("Attempting to use activation spec when it is not activated");
-        }
-        try {
-            XAResource[] xaResources = resourceAdapter.getXAResources(new ActivationSpec[]{activationSpec});
-            if (xaResources.length == 0) {
-                return null;
-            }
-            return new WrapperNamedXAResource(xaResources[0], containerId);
-        } catch (ResourceException e) {
-            throw (SystemException) new SystemException("Could not get XAResource for recovery for mdb: " + containerId).initCause(e);
-        }
-    }
-
-    public void returnResource(NamedXAResource xaResource) {
-        //do nothing, no way to return anything.
-    }
-
     public ClassLoader getClassLoader() {
         return classLoader;
     }
 
-    public Object getContainerID() {
+    public String getContainerId() {
         return containerId;
     }
 
@@ -235,6 +207,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle, Res
         return methodIndexMap;
     }
 
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -242,30 +215,30 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle, Res
 
         infoFactory.addAttribute("containerId", String.class, true);
         infoFactory.addAttribute("ejbName", String.class, true);
-        infoFactory.addAttribute("activationSpec", ActivationSpec.class, true);
         infoFactory.addAttribute("endpointInterfaceName", String.class, true);
         infoFactory.addAttribute("signatures", InterfaceMethodSignature[].class, true);
         infoFactory.addAttribute("deliveryTransacted", boolean[].class, true);
         infoFactory.addAttribute("interceptorBuilder", MDBInterceptorBuilder.class, true);
+        infoFactory.addAttribute("instancePool", InstancePool.class, true);
         infoFactory.addAttribute("userTransaction", UserTransactionImpl.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.addInterface(ResourceManager.class);
-
-        infoFactory.addReference("TransactionManager", TransactionManager.class);
-        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
+        infoFactory.addReference("activationSpecWrapper", ActivationSpecWrapper.class);
+        infoFactory.addReference("transactionManager", TransactionManager.class);
+        infoFactory.addReference("trackedConnectionAssociator", TrackedConnectionAssociator.class);
 
         infoFactory.setConstructor(new String[]{
             "containerId",
             "ejbName",
-            "activationSpec",
             "endpointInterfaceName",
             "signatures",
             "deliveryTransacted",
             "interceptorBuilder",
+            "instancePool",
             "userTransaction",
-            "TransactionManager",
-            "TrackedConnectionAssociator",
+            "activationSpecWrapper",
+            "transactionManager",
+            "trackedConnectionAssociator",
             "classLoader",
         });
 

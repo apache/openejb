@@ -45,33 +45,32 @@
  *
  * ====================================================================
  */
-package org.openejb.mdb;
+package org.openejb.test.simple.mdb;
 
-import javax.resource.spi.endpoint.MessageEndpoint;
-
-import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.proxy.CglibEJBProxyFactory;
-import org.openejb.proxy.EJBProxyHelper;
+import javax.ejb.MessageDrivenBean;
+import javax.ejb.EJBException;
+import javax.ejb.MessageDrivenContext;
+import javax.ejb.CreateException;
+import javax.jms.MessageListener;
+import javax.jms.Message;
 
 /**
+ *
+ *
  * @version $Revision$ $Date$
- */
-public class EndpointFactory {
-    private final MDBContainer mdbContainer;
-    private final CglibEJBProxyFactory endpointFactory;
-    private final int[] operationMap;
+ *
+ * */
+public class SimpleMessageDrivenBean implements MessageDrivenBean, MessageListener {
 
-    public EndpointFactory(MDBContainer mdbContainer, Class mdbInterface, ClassLoader classLoader) {
-        this.mdbContainer = mdbContainer;
-        InterfaceMethodSignature[] signatures = mdbContainer.getSignatures();
-        endpointFactory = new CglibEJBProxyFactory(EndpointProxy.class, new Class[]{mdbInterface, MessageEndpoint.class}, classLoader);
-        operationMap = EJBProxyHelper.getOperationMap(endpointFactory.getType(), signatures, true);
+    public void ejbCreate() throws CreateException {
     }
 
-    public MessageEndpoint getMessageEndpoint(Object primaryKey) {
-        EndpointHandler handler = new EndpointHandler(mdbContainer, operationMap);
-        return (MessageEndpoint) endpointFactory.create(handler,
-                new Class[]{EndpointHandler.class},
-                new Object[]{handler});
+    public void ejbRemove() throws EJBException {
+    }
+
+    public void setMessageDrivenContext(MessageDrivenContext ctx) throws EJBException {
+    }
+
+    public void onMessage(Message message) {
     }
 }

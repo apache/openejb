@@ -264,7 +264,7 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
 
     private int[] createOperationsMap(CglibEJBProxyFactory factory, InterfaceMethodSignature[] signatures) {
         if (factory == null) return new int[0];
-        return EJBProxyHelper.getOperationMap(factory.getType(), signatures);
+        return EJBProxyHelper.getOperationMap(factory.getType(), signatures, false);
     }
 
     private CglibEJBProxyFactory getFactory(int interfaceType, Class interfaceClass) {

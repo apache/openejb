@@ -85,10 +85,10 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
         if (trackedConnectionAssociator != null) {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
         }
+        lifecycleInteceptorChain = firstInterceptor;
         if (securityEnabled) {
             firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, containerId, permissionManager);
         }
-        lifecycleInteceptorChain = firstInterceptor;
         if (runAs != null) {
             firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);
         }

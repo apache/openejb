@@ -60,8 +60,8 @@ import org.openejb.dispatch.MethodHelper;
  * @version $Revision$ $Date$
  */
 public class EJBProxyHelper {
-    public static int[] getOperationMap(Class proxyType, InterfaceMethodSignature[] signatures) {
-        boolean isHomeInterface = isHomeInterface(proxyType);
+    public static int[] getOperationMap(Class proxyType, InterfaceMethodSignature[] signatures, boolean isMessageDriven) {
+        boolean isHomeInterface = isMessageDriven? false: isHomeInterface(proxyType);
 
         // get the map from method keys to the intercepted shadow index
         Map proxyToShadowIndex = buildProxyToShadowIndex(proxyType, isHomeInterface);

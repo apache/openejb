@@ -62,6 +62,9 @@ import javax.resource.spi.UnavailableException;
 import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.WorkManager;
 
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+
 /**
  * @version $Revision$ $Date$
  */
@@ -88,6 +91,18 @@ public class MockBootstrapContext implements BootstrapContext {
     public Timer createTimer() throws UnavailableException {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(MockBootstrapContext.class);
+        infoFactory.addInterface(BootstrapContext.class);
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 
 }
