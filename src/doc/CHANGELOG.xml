@@ -88,9 +88,11 @@
         <Entry task="581805">Stop the remote server after tests run</Entry>
         <Entry task="581821">Switch DataOutputStream to PrintStream</Entry>
 	</Version>
+	<Version id="0.8.1" releaseDate="July 31st, 2002" cvsTag="v0_8_1" released="true" release_id="102635">
+        <Entry bug="587783">The input line is too long.</Entry>
+	</Version>
 	<Version id="0.9" releaseDate="TBD" cvsTag="TBD" released="false">
 		<Entry task="578360">Complete web administration</Entry>
-        <Entry bug="587783">The input line is too long.</Entry>
 		<Entry>Full task details to be determined</Entry>
 	</Version>
 </ChangeLog>
