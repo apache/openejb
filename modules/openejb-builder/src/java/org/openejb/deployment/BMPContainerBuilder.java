@@ -130,6 +130,13 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
             throw new IllegalArgumentException("Bean does not implement javax.ejb.EntityBean");
         }
 
+        if (TimedObject.class.isAssignableFrom(beanClass)) {
+            MethodSignature signature = new MethodSignature("ejbTimeout", new Class[]{Timer.class});
+            vopMap.put(
+                    MethodHelper.translateToInterface(signature)
+                    , EJBTimeoutOperation.INSTANCE);
+        }
+
         // Build the VirtualOperations for business methods defined by the EJB implementation
         Method[] beanMethods = beanClass.getMethods();
         for (int i = 0; i < beanMethods.length; i++) {
@@ -142,12 +149,6 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
 
             // create a VirtualOperation for the method (if the method is understood)
             String name = beanMethod.getName();
-            if (TimedObject.class.isAssignableFrom(beanClass)) {
-                MethodSignature signature = new MethodSignature("ejbTimeout", new Class[]{Timer.class});
-                vopMap.put(
-                        MethodHelper.translateToInterface(signature)
-                        , EJBTimeoutOperation.INSTANCE);
-            }
 
             MethodSignature signature = new MethodSignature(beanMethod);
             if (name.startsWith("ejbCreate")) {
