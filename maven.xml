@@ -359,12 +359,14 @@
             <!-- Fix CRLF -->
             <fixcrlf srcdir="${aggregate.dir}/bin" eol="lf" eof="remove">
                 <include name="*"/>
+                <exclude name="*.jar"/>
                 <exclude name="*.bat"/>
                 <exclude name="*.cmd"/>
             </fixcrlf>
             <fixcrlf srcdir="${aggregate.dir}/bin" eol="crlf">
                 <include name="*.bat"/>
                 <include name="*.cmd"/>
+                <exclude name="*.jar"/>
             </fixcrlf>
         </u:available>
     </goal>
