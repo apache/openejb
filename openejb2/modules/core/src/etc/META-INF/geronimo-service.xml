@@ -70,7 +70,7 @@
         <uri>tmporb/jars/tmporb-pss-${tmporb_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tmporb/jars/tmporb-ssl-${tmporb_version}.jar</uri>
+        <uri>geronimo-spec/jars/geronimo-spec-corba-${geronimo_spec_corba_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>bouncycastle/jars/bcprov-${bouncycastle_version}.jar</uri>

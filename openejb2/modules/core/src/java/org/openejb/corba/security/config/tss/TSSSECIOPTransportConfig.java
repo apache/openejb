@@ -62,7 +62,6 @@ import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
 import org.omg.CSIIOP.TransportAddress;
 import org.omg.IOP.Codec;
 import org.omg.IOP.TaggedComponent;
-import org.openorb.orb.csiv2.ASN1Utils;
 
 import org.openejb.corba.security.SASException;
 import org.openejb.corba.util.Util;
@@ -141,7 +140,7 @@ public class TSSSECIOPTransportConfig extends TSSTransportMechConfig {
 
         sst.target_supports = supports;
         sst.target_requires = requires;
-        sst.mech_oid = ASN1Utils.encodeObjectIdentifier(mechOID);
+        sst.mech_oid = Util.encodeOID(mechOID);
         sst.target_name = targetName.getBytes();
 
         sst.addresses = new TransportAddress[addresses.size()];
