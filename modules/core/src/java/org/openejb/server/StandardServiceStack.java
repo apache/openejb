@@ -62,7 +62,7 @@ public class StandardServiceStack implements GBeanLifecycle {
     private ServicePool pool;
     private ServerService server;
 
-    public StandardServiceStack(String name, int port, InetAddress address, InetAddress[] allowHosts, String[] logOnSuccess, String[] logOnFailure, Executor executor, ServerService server) {
+    public StandardServiceStack(String name, int port, InetAddress address, ServiceAccessController.IPAddressMask[] allowHosts, String[] logOnSuccess, String[] logOnFailure, Executor executor, ServerService server) {
         this.server = server;
         this.name = name;
         this.pool = new ServicePool(server, executor);
@@ -100,11 +100,11 @@ public class StandardServiceStack implements GBeanLifecycle {
         return logger.getLogOnFailure();
     }
 
-    public InetAddress[] getAllowHosts() {
+    public ServiceAccessController.IPAddressMask[] getAllowHosts() {
         return hba.getAllowHosts();
     }
 
-    public void setAllowHosts(InetAddress[] allowHosts) {
+    public void setAllowHosts(ServiceAccessController.IPAddressMask[] allowHosts) {
         hba.setAllowHosts(allowHosts);
     }
 

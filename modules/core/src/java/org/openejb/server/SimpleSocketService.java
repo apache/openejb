@@ -69,7 +69,7 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(SimpleSocketService.class);
     private final ServerService server;
 
-    public SimpleSocketService(String serviceClassName, InetAddress[] onlyFrom, ContainerIndex containerIndex, ClassLoader cl) throws Exception {
+    public SimpleSocketService(String serviceClassName, ServiceAccessController.IPAddressMask[] onlyFrom, ContainerIndex containerIndex, ClassLoader cl) throws Exception {
         ServerService service;
 
         Class serviceClass = ClassLoading.loadClass(serviceClassName, cl);
