@@ -61,46 +61,52 @@ import org.openejb.core.EnvProps;
  * @version $Revision$ $Date$
  */
 public class SimplePassivater implements PassivationStrategy {
-    
-    private final static String defaultSessionDirectory = "sessions";
-
-    File sessionDirectory;
+    private File sessionDirectory;
+    final static protected org.apache.log4j.Category logger = org.apache.log4j.Category.getInstance("OpenEJB");
 
     public void init(Properties props) throws org.openejb.SystemException{
         String dir = null;
         if (props != null) {
-            dir = props.getProperty(EnvProps.IM_PASSIVATOR_PATH_PREFIX, defaultSessionDirectory);
+            dir = props.getProperty(EnvProps.IM_PASSIVATOR_PATH_PREFIX);
         }
 
-	try{
+        try{
+            if(dir!=null) {
             sessionDirectory = FileUtils.getDirectory(dir);
-	}catch(java.io.IOException e) {
-	    throw new org.openejb.SystemException(getClass().getName()+".init(): can't use directory prefix "+dir+":"+e);
-	}
+            }else {
+                sessionDirectory = FileUtils.createTempDirectory();
+            }
+            logger.info("Using directory "+sessionDirectory+" for stateful session passivation");
+        }catch(java.io.IOException e) {
+            throw new org.openejb.SystemException(getClass().getName()+".init(): can't use directory prefix "+dir+":"+e);
+        }
     }
     
-    public synchronized void passivate(Object primaryKey, Object state)
+    public void passivate(Object primaryKey, Object state)
     throws org.openejb.SystemException{
         try{
-           // The replace(':','-') ensures the filename is correct under Microsoft Windows OS
-            File sessionFile = new File( sessionDirectory, primaryKey.toString().replace(':', '-' )+".ser" );
+           // The replace(':','=') ensures the filename is correct under Microsoft Windows OS
+            String filename = primaryKey.toString().replace(':', '=' );
+
+            File sessionFile = new File( sessionDirectory, filename);
+            logger.info("Passivating to file "+sessionFile);
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(sessionFile));
             
             oos.writeObject(state);// passivate just the bean instance
-            oos.flush();
             oos.close();
-            
         }
 	catch(java.io.NotSerializableException nse ) {
-	    throw new org.openejb.SystemException("The type " + nse.getMessage() + " in the bean class " + ((BeanEntry)state).bean.getClass().getName() + " is not serializable as mandated by the EJB specification."); 
+            logger.info("Passivation failed ", nse);
+            throw new org.openejb.SystemException("The type " + nse.getMessage() + " in the bean class " + ((BeanEntry)state).bean.getClass().getName() + " is not serializable as mandated by the EJB specification."); 
 	}
 	catch(Exception t){
+            logger.info("Passivation failed ", t);
             // FIXME: More intelligent exception handling needed
             throw new org.openejb.SystemException(t);
         }
         
     }
-    public synchronized void passivate(Hashtable hash)throws org.openejb.SystemException{
+    public void passivate(Hashtable hash)throws org.openejb.SystemException{
         Enumeration enum = hash.keys();
         while(enum.hasMoreElements()){
             Object id = enum.nextElement();
@@ -115,24 +121,29 @@ public class SimplePassivater implements PassivationStrategy {
      * @exception org.openejb.SystemException
      *                   If there is an problem retreiving the instance from the .ser file.
      */
-    public synchronized Object activate(Object primaryKey) throws org.openejb.SystemException{
+    public Object activate(Object primaryKey) throws org.openejb.SystemException{
         
         try{
+            // The replace(':','=') ensures the filename is correct under Microsoft Windows OS
+            String filename = primaryKey.toString().replace(':', '=' );
             
-            // The replace(':','-') ensures the filename is correct under Microsoft Windows OS
-            File sessionFile = new File( sessionDirectory, primaryKey.toString().replace(':', '-' )+".ser" );
-            
+            File sessionFile = new File( sessionDirectory, filename);
+
             if(sessionFile.exists()){                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                logger.info("Activating from file "+sessionFile);
+
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(sessionFile));
                 Object state = ois.readObject();
-                sessionFile.delete();
                 ois.close();
+                sessionFile.delete();
                 return state; 
             }else{
+                logger.info("Activation failed: file not found "+sessionFile);
                 return null;
             }
         
         }catch(Exception t){
+            logger.info("Activation failed ", t);
             // FIXME: More intelligent exception handling needed
             throw new org.openejb.SystemException(t);
         }

@@ -53,7 +53,7 @@ import org.openejb.util.FastThreadLocal;
 /**
  * TODO: Add comment
  */
-public class ThreadContext {
+public class ThreadContext implements Cloneable {
 
     /**
      * TODO: Add comment
@@ -289,6 +289,9 @@ public class ThreadContext {
         return valid;
     }
 
+    public java.lang.Object clone() throws java.lang.CloneNotSupportedException {
+        return super.clone();
+    }
 }
 
 

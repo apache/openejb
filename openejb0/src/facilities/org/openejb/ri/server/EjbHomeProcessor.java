@@ -158,7 +158,7 @@ public class EjbHomeProcessor {
             // Extract the primary key from the handle
             RiBaseHandle handle = (RiBaseHandle)mi.getArguments()[0];
 
-            EjbProxyHandler proxyHandler = (EjbProxyHandler)ProxyManager.getInvocationHandler(handle.theProxy);
+            EjbProxyHandler proxyHandler = (EjbProxyHandler)ProxyManager.getInvocationHandler(handle.getEJBObject());
             Object primKey = proxyHandler.primaryKey;
             mi.setPrimaryKey(primKey);    
             // invoke the remove on the container

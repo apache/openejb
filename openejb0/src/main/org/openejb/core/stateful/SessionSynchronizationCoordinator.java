@@ -13,7 +13,6 @@ import org.openejb.SystemException;
 import org.openejb.InvalidateReferenceException;
 import org.openejb.core.ThreadContext;
 import org.openejb.core.Operations;
-import org.openejb.core.TransactionManagerWrapper;
 import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionPolicy;
 import org.openejb.util.Logger;
@@ -46,6 +45,7 @@ public class SessionSynchronizationCoordinator implements javax.transaction.Sync
      * session instance is passivated and activated several times.  Instead, we
      * hold the primary key of the stateful session instance and ask the 
      * StatefulInstanceManager for the instance when the time is right.
+     * key: primaryKey value: ThreadContext
      */
     private java.util.HashMap sessionSynchronizations = new java.util.HashMap();
     
@@ -57,42 +57,42 @@ public class SessionSynchronizationCoordinator implements javax.transaction.Sync
 
         if (coordinator == null) {
             coordinator = new SessionSynchronizationCoordinator();
-            
-            TransactionManagerWrapper.TransactionWrapper txWrapper = null;
-           
-           /* Register with the transaction manager; may throw TransactionRollbackException
-            * Rregistering the sync as priority one ensures that it will be handled before 
-            * lower priority sync objects. 
-            * See TransactionManagerWrapper for more details.
-            */
-            txWrapper = (TransactionManagerWrapper.TransactionWrapper) context.currentTx;
-            txWrapper.registerSynchronization( coordinator , 1);
-            
+            try{
+                context.currentTx.registerSynchronization( coordinator);
+            }catch(Exception e) {
+                // this should never fail because of the bahavior defined in TransactionManagerWrapper
+                logger.error("", e);
+                return;
+            }
             coordinators.put( context.currentTx, coordinator );
         }
 
-        coordinator._registerSessionSynchronization( session, context );
+        coordinator._registerSessionSynchronization( session, context.callContext );
     }
     
-    private void _registerSessionSynchronization(SessionSynchronization session, TransactionContext context){
-        boolean registered = sessionSynchronizations.containsKey( context.callContext.getPrimaryKey() );
+    private void _registerSessionSynchronization(SessionSynchronization session, ThreadContext callContext){
+        boolean registered = sessionSynchronizations.containsKey( callContext.getPrimaryKey() );
 
         if ( registered ) return;
 
-        sessionSynchronizations.put(context.callContext.getPrimaryKey(), context);
-            
-        context.callContext.setCurrentOperation(Operations.OP_AFTER_BEGIN);
-        
+        try{
+            callContext = (ThreadContext)callContext.clone();
+        }catch(Exception e) {}
+        sessionSynchronizations.put(callContext.getPrimaryKey(), callContext);
+
+        byte currentOperation = callContext.getCurrentOperation();
+        callContext.setCurrentOperation(Operations.OP_AFTER_BEGIN);        
         try{
             
             session.afterBegin();
         
         } catch (Exception e){
             String message = "An unexpected system exception occured while invoking the afterBegin method on the SessionSynchronization object: "+e.getClass().getName()+" "+e.getMessage();
+            logger.error(message, e);
             throw new RuntimeException( message );
 
         } finally {
-           context.callContext.setCurrentOperation(Operations.OP_BUSINESS);
+           callContext.setCurrentOperation(currentOperation);
         }
     }
 
@@ -109,8 +109,7 @@ public class SessionSynchronizationCoordinator implements javax.transaction.Sync
         for(int i = 0; i < contexts.length; i++){
 
             // Have to reassocaite the original thread context with the thread before invoking
-            TransactionContext context = (TransactionContext)contexts[i];
-            ThreadContext callContext  = context.callContext;
+            ThreadContext callContext  = (ThreadContext)contexts[i];
             
             ThreadContext.setThreadContext(callContext);
             StatefulInstanceManager instanceManager = null;
@@ -124,9 +123,14 @@ public class SessionSynchronizationCoordinator implements javax.transaction.Sync
                 */
                 callContext.setCurrentOperation(Operations.OP_BEFORE_COMPLETION);
                 
-                SessionSynchronization bean = (SessionSynchronization)instanceManager.obtainInstance(callContext.getPrimaryKey());
-                
+                SessionSynchronization bean = (SessionSynchronization)instanceManager.obtainInstance(callContext.getPrimaryKey(), callContext);
                 bean.beforeCompletion();
+                instanceManager.poolInstance(callContext.getPrimaryKey(), bean);
+            }catch(org.openejb.InvalidateReferenceException inv) {
+                // the bean doesn't exist anymore, e.g. a system exception occured
+                // and the bean hass been discarded. No container callbacks
+                // are allowed at this point
+                // therefore we simply do nothing() here....
             }catch(Exception e){
                 // This exception should go back to the TransactionManager where
                 // it will be rethrown by the TransactionManager as the appropriate
@@ -139,7 +143,7 @@ public class SessionSynchronizationCoordinator implements javax.transaction.Sync
                 String message = "An unexpected system exception occured while invoking the beforeCompletion method on the SessionSynchronization object: "+e.getClass().getName()+" "+e.getMessage();
                 
                 /* [1] Log the exception or error */
-                logger.error( message );
+                logger.error( message, e);
                 
                 /* [2] If the instance is in a transaction, mark the transaction for rollback. */
                 Transaction tx = null;
@@ -177,17 +181,16 @@ public class SessionSynchronizationCoordinator implements javax.transaction.Sync
         
         Object[] contexts = sessionSynchronizations.values().toArray();
 
-        if (contexts.length > 0) {
-            // The transaction is complete, remove this coordinator
-            Transaction tx = ((TransactionContext)contexts[0]).currentTx;
+        try{
+            Transaction tx = getTxMngr().getTransaction();
             coordinators.remove( tx );
+        }catch(Exception e) {
+            logger.error("", e);
         }
-
         for(int i = 0; i < contexts.length; i++){
 
             // Have to reassocaite the original thread context with the thread before invoking
-            TransactionContext context = (TransactionContext)contexts[i];
-            ThreadContext callContext  = context.callContext;
+            ThreadContext callContext  = (ThreadContext)contexts[i];
             
             ThreadContext.setThreadContext(callContext);
             StatefulInstanceManager instanceManager = null;
@@ -201,15 +204,21 @@ public class SessionSynchronizationCoordinator implements javax.transaction.Sync
                 */
                 callContext.setCurrentOperation(Operations.OP_AFTER_COMPLETION);
                 
-                SessionSynchronization bean = (SessionSynchronization)instanceManager.obtainInstance(callContext.getPrimaryKey());
+                SessionSynchronization bean = (SessionSynchronization)instanceManager.obtainInstance(callContext.getPrimaryKey(), callContext);
                 
                 bean.afterCompletion( status == Status.STATUS_COMMITTED );
+                instanceManager.poolInstance(callContext.getPrimaryKey(), bean);
+            }catch(org.openejb.InvalidateReferenceException inv) {
+                // the bean doesn't exist anymore, e.g. a system exception occured
+                // and the bean has been discarded. No container callbacks
+                // are allowed at this point
+                // therefore we simply do nothing() here....
             }catch(Exception e){
                 // EJB 2.0: 18.3.3 Exceptions from container-invoked callbacks
                 String message = "An unexpected system exception occured while invoking the afterCompletion method on the SessionSynchronization object: "+e.getClass().getName()+" "+e.getMessage();
                 
                 /* [1] Log the exception or error */
-                logger.error( message );
+                logger.error( message, e);
                 
                 /* [2] If the instance is in a transaction, mark the transaction for rollback. */
                 Transaction tx = null;
@@ -228,6 +237,7 @@ public class SessionSynchronizationCoordinator implements javax.transaction.Sync
                 discardInstance( instanceManager, callContext );
             
                 /* [4] throw the java.rmi.RemoteException to the client */
+                // this will be caught in TransactionManagerWrapper
                 throw new RuntimeException( message );
             } finally {
                 ThreadContext.setThreadContext( originalContext );

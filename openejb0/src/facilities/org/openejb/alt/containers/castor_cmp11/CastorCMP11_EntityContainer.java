@@ -690,7 +690,7 @@ public class CastorCMP11_EntityContainer
                                callContext.getPrimaryKey());
             SynchronizationWrapper sync = new SynchronizationWrapper( ((javax.ejb.EntityBean)bean), key );
 
-            ( ( org.openejb.core.TransactionManagerWrapper.TransactionWrapper ) OpenEJB.getTransactionManager().getTransaction() ).registerSynchronization( sync, 1 );
+            OpenEJB.getTransactionManager().getTransaction().registerSynchronization( sync );
 
             syncWrappers.put( key, sync );
             } catch ( Exception ex ) { ex.printStackTrace(); }

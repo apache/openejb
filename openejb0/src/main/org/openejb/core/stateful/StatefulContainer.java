@@ -46,33 +46,19 @@
 
 package org.openejb.core.stateful;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Properties;
-import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
-import javax.ejb.EJBMetaData;
 import javax.ejb.EJBObject;
 import javax.ejb.EnterpriseBean;
-import javax.ejb.Handle;
-import javax.ejb.HomeHandle;
 import javax.ejb.SessionBean;
 import javax.transaction.Status;
-import javax.transaction.Status;
 import javax.transaction.Transaction;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-import javax.transaction.TransactionRequiredException;
-import javax.transaction.UserTransaction;
 import org.openejb.Container;
 import org.openejb.DeploymentInfo;
-import org.openejb.InvalidateReferenceException;
 import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.ProxyInfo;
@@ -83,6 +69,7 @@ import org.openejb.core.ThreadContext;
 import org.openejb.core.transaction.TransactionContainer;
 import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionPolicy;
+import org.openejb.util.Logger;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 
@@ -93,7 +80,7 @@ import org.openejb.util.SafeToolkit;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @version $Revision$ $Date$
  */
-public class StatefulContainer implements org.openejb.RpcContainer, TransactionContainer{
+public class StatefulContainer implements org.openejb.RpcContainer, TransactionContainer {
 
     // managed bean instances; passivation and cache
     StatefulInstanceManager instanceManager;
@@ -101,9 +88,11 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
     HashMap deploymentRegistry;
     // the server unique id for this container
     Object containerID = null;
-    
+
     // the remove method is used repeatedly in the removeEJBObject method. 
     Method EJB_REMOVE_METHOD = null;
+
+    final static protected Logger logger = Logger.getInstance("OpenEJB");
 
     // manages the transactional scope according to the bean's transaction attributes
     //StatefulTransactionScopeHandler txScopeHandle;
@@ -122,20 +111,20 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
      */
     public void init(Object id, HashMap registry, Properties properties)
     throws org.openejb.OpenEJBException{
-         containerID = id;
-         deploymentRegistry = registry;
+        containerID = id;
+        deploymentRegistry = registry;
 
-         if(properties == null)properties = new Properties();
+        if ( properties == null )properties = new Properties();
 
-         SafeToolkit toolkit = SafeToolkit.getToolkit("StatefulContainer");
-         SafeProperties safeProps = toolkit.getSafeProperties(properties);
-         try{
-         String className = safeProps.getProperty(EnvProps.IM_CLASS_NAME, "org.openejb.core.stateful.StatefulInstanceManager");
-         instanceManager =(StatefulInstanceManager)Class.forName(className).newInstance();
-         }catch(Exception e){
+        SafeToolkit toolkit = SafeToolkit.getToolkit("StatefulContainer");
+        SafeProperties safeProps = toolkit.getSafeProperties(properties);
+        try {
+            String className = safeProps.getProperty(EnvProps.IM_CLASS_NAME, "org.openejb.core.stateful.StatefulInstanceManager");
+            instanceManager =(StatefulInstanceManager)Class.forName(className).newInstance();
+        } catch ( Exception e ) {
             throw new org.openejb.SystemException("Initialization of InstanceManager for the \""+containerID+"\" stateful container failed",e);
-         }
-         instanceManager.init(properties);
+        }
+        instanceManager.init(properties);
 
 //         txScopeHandle = new StatefulTransactionScopeHandler(this,instanceManager);
 
@@ -146,14 +135,14 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
         * deployment info object's their containers.
         */
         org.openejb.DeploymentInfo [] deploys = this.deployments();
-        for(int x = 0; x < deploys.length; x++){
+        for ( int x = 0; x < deploys.length; x++ ) {
             org.openejb.core.DeploymentInfo di = (org.openejb.core.DeploymentInfo)deploys[x];
             di.setContainer(this);
         }
-        
-        try{
-        EJB_REMOVE_METHOD =  javax.ejb.SessionBean.class.getMethod("ejbRemove", new Class [0]);
-        }catch(NoSuchMethodException nse){
+
+        try {
+            EJB_REMOVE_METHOD =  javax.ejb.SessionBean.class.getMethod("ejbRemove", new Class [0]);
+        } catch ( NoSuchMethodException nse ) {
             throw new SystemException("Fixed remove method can not be initated", nse);
         }
 
@@ -170,8 +159,8 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
      * @see org.openejb.DeploymentInfo
      * @see org.openejb.ContainerSystem#deployments() ContainerSystem.deployments()
      */
-    public DeploymentInfo [] deployments(){
-        return (DeploymentInfo [])deploymentRegistry.values().toArray(new DeploymentInfo[deploymentRegistry.size()]);
+    public DeploymentInfo [] deployments() {
+        return(DeploymentInfo [])deploymentRegistry.values().toArray(new DeploymentInfo[deploymentRegistry.size()]);
     }
 
     /**
@@ -183,15 +172,15 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
      * @see org.openejb.ContainerSystem#getDeploymentInfo(Object) ContainerSystem.getDeploymentInfo
      * @see org.openejb.DeploymentInfo#getDeploymentID()
      */
-    public DeploymentInfo getDeploymentInfo(Object deploymentID){
-        return (DeploymentInfo)deploymentRegistry.get(deploymentID);
+    public DeploymentInfo getDeploymentInfo(Object deploymentID) {
+        return(DeploymentInfo)deploymentRegistry.get(deploymentID);
     }
     /**
      * Gets the type of container (STATELESS, STATEFUL, ENTITY, or MESSAGE_DRIVEN
      *
      * @return id type bean container
      */
-    public int getContainerType( ){
+    public int getContainerType( ) {
         return Container.STATEFUL;
     }
     /**
@@ -200,7 +189,7 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
      * @return the id of this container.
      * @see org.openejb.DeploymentInfo#getContainerID() DeploymentInfo.getContainerID()
      */
-    public Object getContainerID(){
+    public Object getContainerID() {
         return containerID;
     }
 
@@ -233,51 +222,51 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
      */
     // process all business methods on an remote interface
     public Object invoke(Object deployID, Method callMethod,Object [] args,Object primKey, Object securityIdentity)    throws org.openejb.OpenEJBException{
-        try{
+        try {
 
-        org.openejb.core.DeploymentInfo deployInfo = (org.openejb.core.DeploymentInfo)this.getDeploymentInfo(deployID);
+            org.openejb.core.DeploymentInfo deployInfo = (org.openejb.core.DeploymentInfo)this.getDeploymentInfo(deployID);
 
-        ThreadContext callContext = ThreadContext.getThreadContext();
-        callContext.set(deployInfo, primKey, securityIdentity);
+            ThreadContext callContext = ThreadContext.getThreadContext();
+            callContext.set(deployInfo, primKey, securityIdentity);
 
-        // check authorization to invoke
-        boolean authorized = OpenEJB.getSecurityService().isCallerAuthorized(securityIdentity, deployInfo.getAuthorizedRoles(callMethod));
-        if(!authorized)
-            throw new org.openejb.ApplicationException(new RemoteException("Unauthorized Access by Principal Denied"));
+            // check authorization to invoke
+            boolean authorized = OpenEJB.getSecurityService().isCallerAuthorized(securityIdentity, deployInfo.getAuthorizedRoles(callMethod));
+            if ( !authorized )
+                throw new org.openejb.ApplicationException(new RemoteException("Unauthorized Access by Principal Denied"));
 
-        // use special methods for remove and create requests
-        if(EJBHome.class.isAssignableFrom(callMethod.getDeclaringClass())){
-            if(callMethod.getName().equals("create")){
-                return createEJBObject(callMethod, args, callContext);
-            }else if(callMethod.getName().equals("remove")){
+            // use special methods for remove and create requests
+            if ( EJBHome.class.isAssignableFrom(callMethod.getDeclaringClass()) ) {
+                if ( callMethod.getName().equals("create") ) {
+                    return createEJBObject(callMethod, args, callContext);
+                } else if ( callMethod.getName().equals("remove") ) {
+                    removeEJBObject(callMethod,args,callContext);
+                    return null;
+                }
+            } else if ( EJBObject.class == callMethod.getDeclaringClass()
+                        && callMethod.getName().equals("remove") ) {
                 removeEJBObject(callMethod,args,callContext);
                 return null;
             }
-        }else if(EJBObject.class == callMethod.getDeclaringClass()
-              && callMethod.getName().equals("remove")){
-              removeEJBObject(callMethod,args,callContext);
-              return null;
-        }
 
 
-        SessionBean bean = null;
+            SessionBean bean = null;
 
-        // retreive instance from instance manager
-        bean = (SessionBean)instanceManager.obtainInstance(primKey);
-        callContext.setCurrentOperation(Operations.OP_BUSINESS);
-        Object returnValue = null;
-        Method runMethod = deployInfo.getMatchingBeanMethod(callMethod);
+            // retreive instance from instance manager
+            bean = instanceManager.obtainInstance(primKey, callContext);
+            callContext.setCurrentOperation(Operations.OP_BUSINESS);
+            Object returnValue = null;
+            Method runMethod = deployInfo.getMatchingBeanMethod(callMethod);
 
-        returnValue = this.invoke(callMethod,runMethod, args, bean, callContext);
+            returnValue = this.invoke(callMethod,runMethod, args, bean, callContext);
 
-        // DMB: If an exception is thrown, this bean will not be put back in the
-        // pool.
-        instanceManager.poolInstance(primKey, bean);
+            // DMB: If an exception is thrown, this bean will not be put back in the
+            // pool.
+            instanceManager.poolInstance(primKey, bean);
 
-        // see comments in org.openejb.core.DeploymentInfo.
-        return deployInfo.convertIfLocalReference(callMethod, returnValue);
+            // see comments in org.openejb.core.DeploymentInfo.
+            return deployInfo.convertIfLocalReference(callMethod, returnValue);
 
-        }finally{
+        } finally {
             /*
                 The thread context must be stripped from the thread before returning or throwing an exception
                 so that an object outside the container does not have access to a
@@ -306,13 +295,25 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
 
     protected Object invoke(Method callMethod, Method runMethod, Object [] args, EnterpriseBean bean, ThreadContext callContext)
     throws org.openejb.OpenEJBException{
-        
+
         //OLD:Transaction originalTx = txScopeHandle.beforeInvoke(callMethod, bean, callContext);
         // txScopeHandler.afterInvoke( ) peformed in the finally clause
         TransactionPolicy txPolicy = callContext.getDeploymentInfo().getTransactionPolicy( callMethod );
         TransactionContext txContext = new TransactionContext( callContext );
-        
-        txPolicy.beforeInvoke( bean, txContext );
+
+        try {
+            txPolicy.beforeInvoke( bean, txContext );
+        } catch ( org.openejb.ApplicationException e ) {
+            if ( e.getRootCause() instanceof javax.transaction.TransactionRequiredException ||
+                 e.getRootCause() instanceof java.rmi.RemoteException ) {
+                // SR: this handles the case where the CMT attribute is "mandatory" 
+                // but there was no client transaction, or "never" with a transaction.
+                // The session bean should not be destroyed because it is still in a valid state.
+                instanceManager.poolInstance(callContext.getPrimaryKey(), bean);
+            }
+            throw e;
+        }
+
         Object returnValue = null;
         try {
             returnValue = runMethod.invoke(bean, args);
@@ -327,7 +328,7 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
                 //OLD:txScopeHandle.handleApplicationException(callMethod,bean,callContext, originalTx,ite.getTargetException());
                 txPolicy.handleApplicationException( ite.getTargetException(), txContext );
             }
-        }catch(Throwable re){// handle reflection exception
+        } catch ( Throwable re ) {// handle reflection exception
             /*
               Any exception thrown by reflection; not by the enterprise bean. Possible
               Exceptions are:
@@ -339,7 +340,7 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
             //OLD:txScopeHandle.handleSystemException(callMethod,bean,callContext, originalTx,re);
             txPolicy.handleSystemException( re, bean, txContext );
 
-        }finally {
+        } finally {
             //OLD:txScopeHandle.afterInvoke(callMethod, bean,callContext, originalTx);
             txPolicy.afterInvoke( bean, txContext );
         }
@@ -347,7 +348,7 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
         return returnValue;
     }
 
-    public StatefulInstanceManager getInstanceManager( ){
+    public StatefulInstanceManager getInstanceManager( ) {
         return instanceManager;
     }
 
@@ -355,16 +356,16 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
     // of the target instance even if the remove method orgininated on the home interface.
     protected void removeEJBObject(Method callMethod, Object [] args, ThreadContext callContext)
     throws org.openejb.OpenEJBException{
-        
+
         // ejbRemoved could be invoked from the EJBHome or EJBObject, so need a special MethodInvocation that specifies the ejbRemove on the SessionBean interface with no arguments
-        try{
-        EnterpriseBean bean = instanceManager.obtainInstance(callContext.getPrimaryKey());
-        if(bean!=null){
-            // ejbRemove is invoked with the TX_NOT_SUPPORTS
-            callContext.setCurrentOperation(Operations.OP_REMOVE);
-            invoke(callMethod,this.EJB_REMOVE_METHOD,null,bean,callContext);
-        }
-        }finally{
+        try {
+            EnterpriseBean bean = instanceManager.obtainInstance(callContext.getPrimaryKey(), callContext);
+            if ( bean!=null ) {
+                // ejbRemove is invoked with the TX_NOT_SUPPORTS
+                callContext.setCurrentOperation(Operations.OP_REMOVE);
+                invoke(callMethod,this.EJB_REMOVE_METHOD,null,bean,callContext);
+            }
+        } finally {
             instanceManager.freeInstance(callContext.getPrimaryKey());
         }
 
@@ -377,7 +378,7 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
         Class beanType = deploymentInfo.getBeanClass();
         Object primaryKey = this.newPrimaryKey();
         callContext.setPrimaryKey(primaryKey);
-        
+
         EnterpriseBean bean = instanceManager.newInstance(primaryKey,beanType);
 
         Method runMethod = deploymentInfo.getMatchingBeanMethod(callMethod);
@@ -391,22 +392,21 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
     }
 
 
-     // autogenerate stateful primary key. may need a more sophisticated algo.
-     long keyCount;
-     protected Object newPrimaryKey(){
+    // autogenerate stateful primary key. may need a more sophisticated algo.
+    protected Object newPrimaryKey() {
         return new java.rmi.dgc.VMID();
-     }
+    }
 
     //
     // end other methods unique to this implementation
     //================================================
 
-     public void discardInstance(EnterpriseBean bean, ThreadContext threadContext){
-         try {
-         Object primaryKey = threadContext.getPrimaryKey();
-         instanceManager.freeInstance(primaryKey);
-         } catch (Throwable t){
-             //TODO:2: Log it this exception
-         }
-     }
+    public void discardInstance(EnterpriseBean bean, ThreadContext threadContext) {
+        try {
+            Object primaryKey = threadContext.getPrimaryKey();
+            instanceManager.freeInstance(primaryKey);
+        } catch ( Throwable t ) {
+            logger.error("", t);
+        }
+    }
 }
