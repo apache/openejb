@@ -51,6 +51,8 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 
 import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
+import javax.ejb.Timer;
 
 import junit.framework.TestCase;
 import net.sf.cglib.reflect.FastClass;
@@ -71,6 +73,16 @@ public class InvocationTest extends TestCase {
     private BusinessMethod bizMethod;
     private FastClass fastClass;
     private int index;
+    private final static InterfaceMethodSignature[] signatures = new InterfaceMethodSignature[] {
+        new InterfaceMethodSignature("ejbActivate", false),
+        new InterfaceMethodSignature("ejbLoad", false),
+        new InterfaceMethodSignature("ejbPassivate", false),
+        new InterfaceMethodSignature("ejbStore", false),
+        new InterfaceMethodSignature("ejbCreate", false),
+        new InterfaceMethodSignature("ejbRemove", false),
+        new InterfaceMethodSignature("ejbTimeout", new Class[] {Timer.class}, false),
+        new InterfaceMethodSignature("setSessionContext", new Class[] {SessionContext.class}, false),
+    };
 
     public void testMethodInvoke() throws Exception {
         MockEJB instance = new MockEJB();
@@ -130,7 +142,7 @@ public class InvocationTest extends TestCase {
 //                transactionContextManager,
                 null,
                 null,
-                SystemMethodIndices.createSystemMethodIndices(new InterfaceMethodSignature[] {}, null, null, null),
+                SystemMethodIndices.createSystemMethodIndices(signatures, "setSessionContext", SessionContext.class.getName(), null),
                 null, new HashSet(),
                 new HashSet(),
                 null);

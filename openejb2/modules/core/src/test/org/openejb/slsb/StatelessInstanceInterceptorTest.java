@@ -49,6 +49,9 @@ package org.openejb.slsb;
 
 import java.util.HashSet;
 
+import javax.ejb.Timer;
+import javax.ejb.SessionContext;
+
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationKey;
@@ -79,6 +82,18 @@ public class StatelessInstanceInterceptorTest extends TestCase {
     private StatelessInstanceInterceptor interceptor;
     private EJBInstanceContext ctx;
     private MockEJB mockEJB;
+    private final static InterfaceMethodSignature[] signatures = new InterfaceMethodSignature[] {
+        new InterfaceMethodSignature("ejbActivate", false),
+        new InterfaceMethodSignature("ejbLoad", false),
+        new InterfaceMethodSignature("ejbPassivate", false),
+        new InterfaceMethodSignature("ejbStore", false),
+        new InterfaceMethodSignature("ejbCreate", false),
+        new InterfaceMethodSignature("ejbRemove", false),
+        new InterfaceMethodSignature("ejbTimeout", new Class[] {Timer.class}, false),
+        new InterfaceMethodSignature("setSessionContext", new Class[] {SessionContext.class}, false),
+    };
+
+
 
     public void testNormalInvocation() throws Throwable {
         EJBInvocationImpl invocation = new EJBInvocationImpl(EJBInterfaceType.REMOTE, 0, null);
@@ -125,7 +140,7 @@ public class StatelessInstanceInterceptorTest extends TestCase {
 //                    transactionContextManager,
                     null,
                     null,
-                    SystemMethodIndices.createSystemMethodIndices(new InterfaceMethodSignature[] {}, null, null, null),
+                    SystemMethodIndices.createSystemMethodIndices(signatures, "setSessionContext", SessionContext.class.getName(), null),
                     null,
                     new HashSet(),
                     new HashSet(),
