@@ -83,6 +83,8 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
+import org.apache.geronimo.kernel.Kernel;
+
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.EJBModuleImpl;
@@ -113,6 +115,7 @@ import org.tranql.sql.sql92.SQL92Schema;
  */
 public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder {
 
+    private final Kernel kernel;
     private final URI defaultParentId;
     private final CMPEntityBuilder cmpEntityBuilder;
     private final SessionBuilder sessionBuilder;
@@ -121,7 +124,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final SecurityBuilder securityBuilder;
     private final SkeletonGenerator skeletonGenerator;
 
-    public OpenEJBModuleBuilder(URI defaultParentId, SkeletonGenerator skeletonGenerator) {
+    public OpenEJBModuleBuilder(Kernel kernel, URI defaultParentId, SkeletonGenerator skeletonGenerator) {
+        this.kernel = kernel;
         this.defaultParentId = defaultParentId;
         this.skeletonGenerator = skeletonGenerator;
         this.securityBuilder = new SecurityBuilder(this);
@@ -129,6 +133,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         this.sessionBuilder = new SessionBuilder(this);
         this.entityBuilder = new EntityBuilder(this);
         this.mdbBuilder = new MdbBuilder(this);
+    }
+
+    public Kernel getKernel() {
+        return kernel;
     }
 
     public SecurityBuilder getSecurityBuilder() {
@@ -520,12 +528,13 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class);
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class);
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(EJBReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[] {"defaultParentId", "SkeletonGenerator"});
+        infoBuilder.setConstructor(new String[] {"kernel", "defaultParentId", "SkeletonGenerator"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
