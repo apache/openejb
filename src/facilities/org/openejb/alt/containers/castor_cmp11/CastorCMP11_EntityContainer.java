@@ -44,6 +44,7 @@
  */
 package org.openejb.alt.containers.castor_cmp11;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -301,6 +302,19 @@ public class CastorCMP11_EntityContainer
         Global_TX_Database = safeProps.getProperty("Global_TX_Database");
         Local_TX_Database  = safeProps.getProperty("Local_TX_Database");
         
+        File gTxDb = null;
+        File lTxDb = null;
+        try{
+            gTxDb = org.openejb.util.FileUtils.getFile( Global_TX_Database );
+        } catch (Exception e){
+            throw new OpenEJBException("Cannot locate the Global_TX_Database file. "+e.getMessage()); 
+        }
+        try{
+            lTxDb = org.openejb.util.FileUtils.getFile( Local_TX_Database );
+        } catch (Exception e){
+            throw new OpenEJBException("Cannot locate the Local_TX_Database file. "+e.getMessage()); 
+        }
+
         /*
          * Castor JDO obtains a reference to the TransactionManager throught the InitialContext.
          * The new InitialContext will use the deployment's JNDI Context, which is normal inside 
@@ -329,7 +343,7 @@ public class CastorCMP11_EntityContainer
         // Assign the TransactionManager JNDI name to the dynamically generated JNDI name
         jdo_ForGlobalTransaction.setTransactionManager("java:comp/"+transactionManagerJndiNameTyrex);
         jdo_ForGlobalTransaction.setDatabasePooling( true );
-        jdo_ForGlobalTransaction.setConfiguration(Global_TX_Database);
+        jdo_ForGlobalTransaction.setConfiguration(gTxDb.getAbsolutePath());
         jdo_ForGlobalTransaction.setDatabaseName("Global_TX_Database");
         jdo_ForGlobalTransaction.setCallbackInterceptor(this);
         jdo_ForGlobalTransaction.setInstanceFactory(this);
@@ -339,7 +353,7 @@ public class CastorCMP11_EntityContainer
         jdo_ForLocalTransaction = new JDO();
 
 
-        jdo_ForLocalTransaction.setConfiguration(Local_TX_Database);
+        jdo_ForLocalTransaction.setConfiguration(lTxDb.getAbsolutePath());
         jdo_ForLocalTransaction.setDatabaseName("Local_TX_Database");
         jdo_ForLocalTransaction.setCallbackInterceptor(this);
         jdo_ForLocalTransaction.setInstanceFactory(this);
