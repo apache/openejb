@@ -375,7 +375,7 @@ public class DeployBean extends WebAdminBean {
 	private void writeForm(PrintWriter body) throws IOException {
 		//the form decleration
 		body.println(
-			"<form action=\"Deployment\" method=\"post\" onsubmit=\"return checkDeploy(this)\">");
+			"<form action=\"Deployment\" method=\"post\" enctype=\"multipart/form-data\" onsubmit=\"return checkDeploy(this)\">");
 		//the start table
 		body.println("<table border=\"0\" cellspacing=\"0\" cellpadding=\"2\">");
 
@@ -406,8 +406,10 @@ public class DeployBean extends WebAdminBean {
 		//the file upload for the jar file (this may need to be changed)
 		body.println("<tr>");
 		body.println("<td><nobr>Jar File</nobr></td>");
+		//body.println(
+		//	"<td><input type=\"text\" name=\"jarFile\" size=\"35\" maxlength=\"100\"></td>");
 		body.println(
-			"<td><input type=\"text\" name=\"jarFile\" size=\"35\" maxlength=\"100\"></td>");
+			"<td><input type=\"file\" name=\"jarFile\" size=\"35\"></td>");
 		body.println("</tr>");
 		body.println("<tr>");
 		body.println("<td colspan=\"2\">&nbsp;</td>");
