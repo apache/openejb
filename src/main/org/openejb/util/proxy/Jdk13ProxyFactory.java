@@ -42,7 +42,7 @@
  *
  * $Id$
  */
-package org.openejb.util.proxy.jdk13;
+package org.openejb.util.proxy;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -61,7 +61,7 @@ import org.openejb.util.proxy.ProxyFactory;
  */
 public class Jdk13ProxyFactory implements ProxyFactory {
     public void init(Properties props) throws OpenEJBException {
-        String version = ""; 
+        String version = "";
         String badVersion = "1.3.0-";
         try{
             version = System.getProperty("java.vm.version");

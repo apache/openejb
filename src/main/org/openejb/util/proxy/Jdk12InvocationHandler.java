@@ -42,11 +42,11 @@
  *
  * $Id$
  */
-package org.openejb.util.proxy.jdk13;
+package org.openejb.util.proxy;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import org.opentools.proxies.Proxy;
 import org.openejb.util.proxy.ProxyFactory;
 
 /**
@@ -60,13 +60,13 @@ import org.openejb.util.proxy.ProxyFactory;
  * @author Aaron Mulder (ammulder@alumni.princeton.edu)
  * @version $Revision$
  */
-public class Jdk13InvocationHandler implements java.lang.reflect.InvocationHandler, Serializable {
+public class Jdk12InvocationHandler implements org.opentools.proxies.InvocationHandler, Serializable {
     private org.openejb.util.proxy.InvocationHandler delegate;
 
-    public Jdk13InvocationHandler() {
+    public Jdk12InvocationHandler() {
     }
 
-    public Jdk13InvocationHandler(org.openejb.util.proxy.InvocationHandler delegate) {
+    public Jdk12InvocationHandler(org.openejb.util.proxy.InvocationHandler delegate) {
         setInvocationHandler(delegate);
     }
 

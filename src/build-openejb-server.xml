@@ -75,23 +75,45 @@
   <!-- ================================================================== -->
   
   <target name="compile"
-          depends="prepare"
-          description="--> compiles the java source files">
-          
-    <javac srcdir="${build.openejb.server.src}"
-           destdir="${build.openejb.server.dest}"
-           debug="${debug}"
-           deprecation="${deprecation}">
+          depends="prepare, compile.jdk12, compile.jdk13"
+          description="--> compiles the java source files"/>
            
-      <classpath>
-        <path refid="project.classpath"/>
-        <pathelement location="${build.dest}/openejb"/>
-      </classpath>
-           
-    </javac>
-          
-  </target>
-  
+    <target name="compile.jdk12" unless="jdk13">
+            
+		<delete>
+			<fileset dir="${build.openejb.server.src}" includes="**/Jdk13*.java"/>
+		</delete>
+
+		<javac srcdir="${build.openejb.server.src}"
+			   destdir="${build.openejb.server.dest}"
+			   debug="${debug}"
+			   deprecation="${deprecation}">
+
+		  <classpath>
+			<path refid="project.classpath"/>
+			<pathelement location="${build.dest}/openejb"/>
+		  </classpath>
+
+		</javac>
+            
+    </target>
+    
+    <target name="compile.jdk13" if="jdk13">
+            
+		<javac srcdir="${build.openejb.server.src}"
+			   destdir="${build.openejb.server.dest}"
+			   debug="${debug}"
+			   deprecation="${deprecation}">
+
+		  <classpath>
+			<path refid="project.classpath"/>
+			<pathelement location="${build.dest}/openejb"/>
+		  </classpath>
+
+		</javac>
+            
+    </target>
+
   <!-- ================================================================== -->
   <!-- Compiles the source directory and creates a .jar file              -->
   <!-- ================================================================== -->

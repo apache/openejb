@@ -203,6 +203,8 @@ public class DynamicProxyFactory implements ProxyFactory {
                 } else {
                     clazz = proxyloader.defineClass( proxyName , generateProxyByteCode( proxyName ) );
                 }
+	    } catch ( InstantiationException ie ) {
+		throw new IllegalArgumentException("Cant instatiate compiler: "+ie.getMessage());
             } catch ( ClassNotFoundException cnfe2 ){
                 throw new IllegalArgumentException("Cannot load the proxy from the classpath or PROXY_OUTPUT_DIRECTORY:"+PROXY_OUTPUT_DIRECTORY+"   "+cnfe2.getMessage());
             } catch ( IllegalAccessException iae ){
@@ -778,6 +780,8 @@ public class DynamicProxyFactory implements ProxyFactory {
             baos.close();
             if ( DELETE_DEFINITIONS ) classFile.delete();
 
+	} catch ( InstantiationException ie ) {
+	    throw new IllegalAccessException("Cant instatiate compiler: "+ie.getMessage());
         } catch ( SecurityException se ) {
             throw new IllegalAccessException("Cant compile. SecurityManager restriction");
         } catch ( IOException io ) {
@@ -786,7 +790,7 @@ public class DynamicProxyFactory implements ProxyFactory {
         return byteCode;
     }
 
-    private File compileSourceCode(String sourceCode, String proxyClassName) throws IllegalAccessException{
+    private File compileSourceCode(String sourceCode, String proxyClassName) throws IllegalAccessException, InstantiationException {
         File classFile = null;
 
         try {
@@ -827,13 +831,15 @@ public class DynamicProxyFactory implements ProxyFactory {
             String[] args = new String[cargs.size()];
             cargs.copyInto(args);
 
-            sun.tools.javac.Main compiler = new sun.tools.javac.Main(System.err, "javac");
+	    org.openejb.util.compiler.Compiler compiler = org.openejb.util.compiler.CompilerFactory.newCompilerInstance();
             compiler.compile(args);
 
             //=====================
             // Delete source file
             if ( DELETE_DEFINITIONS ) javaFile.delete();
 
+	} catch ( InstantiationException ie ) {
+	    throw new IllegalAccessException("Cant instatiate compiler: "+ie.getMessage());
         } catch ( SecurityException se ) {
             throw new IllegalAccessException("SecurityManager restriction. Can't compile "+classFile.getAbsoluteFile());
         }
