@@ -102,7 +102,8 @@ public class JarUtils{
             String jarPath = null;
             if ( url.getProtocol().compareTo("resource") == 0 ) {
                 String resource = url.getFile().substring( 1 );
-                url = ClassLoader.getSystemResource( resource );
+                //url = ClassLoader.getSystemResource( resource );
+                url = getContextClassLoader().getResource( resource );
                 if (url == null) {
                     throw new OpenEJBException("Could not locate a jar containing the path "+path);
                 }
@@ -175,4 +176,15 @@ public class JarUtils{
         }
         return jar;
     }
+
+    public static ClassLoader getContextClassLoader() {
+        return (ClassLoader) java.security.AccessController.doPrivileged(
+            new java.security.PrivilegedAction() {
+                public Object run() {
+                    return Thread.currentThread().getContextClassLoader();
+                }
+            }
+        );
+    }
+
 }
