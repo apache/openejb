@@ -179,7 +179,7 @@
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
-            <version>DEV</version>
+            <version>SNAPSHOT</version>
             <properties>
                 <repository>true</repository>
             </properties>
