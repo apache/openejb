@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -59,13 +59,13 @@ public class LookupDescriptor extends org.exolab.castor.xml.util.XMLClassDescrip
         desc = new XMLFieldDescriptorImpl(java.lang.String.class, "_jndiName", "jndi-name", NodeType.Attribute);
         desc.setImmutable(true);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 Lookup target = (Lookup) object;
                 return target.getJndiName();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -76,7 +76,7 @@ public class LookupDescriptor extends org.exolab.castor.xml.util.XMLClassDescrip
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return null;
             }
         } );
@@ -97,13 +97,13 @@ public class LookupDescriptor extends org.exolab.castor.xml.util.XMLClassDescrip
         desc = new XMLFieldDescriptorImpl(java.lang.String.class, "_jndiProviderId", "jndi-provider-id", NodeType.Attribute);
         desc.setImmutable(true);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 Lookup target = (Lookup) object;
                 return target.getJndiProviderId();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -114,7 +114,7 @@ public class LookupDescriptor extends org.exolab.castor.xml.util.XMLClassDescrip
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return null;
             }
         } );

@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -49,6 +49,8 @@ public class Lookup implements java.io.Serializable {
     //-----------/
 
     /**
+     * Returns the value of field 'jndiName'.
+     * @return the value of field 'jndiName'.
     **/
     public java.lang.String getJndiName()
     {
@@ -56,6 +58,8 @@ public class Lookup implements java.io.Serializable {
     } //-- java.lang.String getJndiName() 
 
     /**
+     * Returns the value of field 'jndiProviderId'.
+     * @return the value of field 'jndiProviderId'.
     **/
     public java.lang.String getJndiProviderId()
     {
@@ -98,21 +102,21 @@ public class Lookup implements java.io.Serializable {
     } //-- void marshal(org.xml.sax.DocumentHandler) 
 
     /**
-     * 
-     * @param _jndiName
+     * Sets the value of field 'jndiName'.
+     * @param jndiName the value of field 'jndiName'.
     **/
-    public void setJndiName(java.lang.String _jndiName)
+    public void setJndiName(java.lang.String jndiName)
     {
-        this._jndiName = _jndiName;
+        this._jndiName = jndiName;
     } //-- void setJndiName(java.lang.String) 
 
     /**
-     * 
-     * @param _jndiProviderId
+     * Sets the value of field 'jndiProviderId'.
+     * @param jndiProviderId the value of field 'jndiProviderId'.
     **/
-    public void setJndiProviderId(java.lang.String _jndiProviderId)
+    public void setJndiProviderId(java.lang.String jndiProviderId)
     {
-        this._jndiProviderId = _jndiProviderId;
+        this._jndiProviderId = jndiProviderId;
     } //-- void setJndiProviderId(java.lang.String) 
 
     /**

@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -60,13 +60,13 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
         desc = new XMLFieldDescriptorImpl(java.lang.String.class, "_content", "PCDATA", NodeType.Text);
         desc.setImmutable(true);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 Openejb target = (Openejb) object;
                 return target.getContent();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -77,7 +77,7 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return null;
             }
         } );
@@ -100,13 +100,13 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
         //-- _containerList
         desc = new XMLFieldDescriptorImpl(Container.class, "_containerList", "Container", NodeType.Element);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 Openejb target = (Openejb) object;
                 return target.getContainer();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -117,7 +117,7 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return new Container();
             }
         } );
@@ -135,13 +135,13 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
         //-- _jndiProviderList
         desc = new XMLFieldDescriptorImpl(JndiProvider.class, "_jndiProviderList", "JndiProvider", NodeType.Element);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 Openejb target = (Openejb) object;
                 return target.getJndiProvider();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -152,7 +152,7 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return new JndiProvider();
             }
         } );
@@ -163,19 +163,18 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
         
         //-- validation code for: _jndiProviderList
         fieldValidator = new FieldValidator();
-        fieldValidator.setMinOccurs(0);
         desc.setValidator(fieldValidator);
         
         //-- _securityService
         desc = new XMLFieldDescriptorImpl(SecurityService.class, "_securityService", "SecurityService", NodeType.Element);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 Openejb target = (Openejb) object;
                 return target.getSecurityService();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -186,7 +185,7 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return new SecurityService();
             }
         } );
@@ -202,13 +201,13 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
         //-- _transactionService
         desc = new XMLFieldDescriptorImpl(TransactionService.class, "_transactionService", "TransactionService", NodeType.Element);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 Openejb target = (Openejb) object;
                 return target.getTransactionService();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -219,7 +218,7 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return new TransactionService();
             }
         } );
@@ -235,13 +234,13 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
         //-- _proxyFactory
         desc = new XMLFieldDescriptorImpl(ProxyFactory.class, "_proxyFactory", "ProxyFactory", NodeType.Element);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 Openejb target = (Openejb) object;
                 return target.getProxyFactory();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -252,7 +251,7 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return new ProxyFactory();
             }
         } );
@@ -268,13 +267,13 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
         //-- _connectorList
         desc = new XMLFieldDescriptorImpl(Connector.class, "_connectorList", "Connector", NodeType.Element);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 Openejb target = (Openejb) object;
                 return target.getConnector();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -285,31 +284,62 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return new Connector();
             }
         } );
         desc.setHandler(handler);
         desc.setNameSpaceURI("http://www.openejb.org/System/Configuration");
-        desc.setRequired(true);
         desc.setMultivalued(true);
         addFieldDescriptor(desc);
         
         //-- validation code for: _connectorList
         fieldValidator = new FieldValidator();
-        fieldValidator.setMinOccurs(1);
+        desc.setValidator(fieldValidator);
+        
+        //-- _resourceList
+        desc = new XMLFieldDescriptorImpl(Resource.class, "_resourceList", "Resource", NodeType.Element);
+        handler = (new XMLFieldHandler() {
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                Openejb target = (Openejb) object;
+                return target.getResource();
+            }
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    Openejb target = (Openejb) object;
+                    target.addResource( (Resource) value);
+                }
+                catch (Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            public java.lang.Object newInstance( java.lang.Object parent ) {
+                return new Resource();
+            }
+        } );
+        desc.setHandler(handler);
+        desc.setNameSpaceURI("http://www.openejb.org/System/Configuration");
+        desc.setMultivalued(true);
+        addFieldDescriptor(desc);
+        
+        //-- validation code for: _resourceList
+        fieldValidator = new FieldValidator();
         desc.setValidator(fieldValidator);
         
         //-- _deploymentsList
         desc = new XMLFieldDescriptorImpl(Deployments.class, "_deploymentsList", "Deployments", NodeType.Element);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 Openejb target = (Openejb) object;
                 return target.getDeployments();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -320,19 +350,17 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return new Deployments();
             }
         } );
         desc.setHandler(handler);
         desc.setNameSpaceURI("http://www.openejb.org/System/Configuration");
-        desc.setRequired(true);
         desc.setMultivalued(true);
         addFieldDescriptor(desc);
         
         //-- validation code for: _deploymentsList
         fieldValidator = new FieldValidator();
-        fieldValidator.setMinOccurs(1);
         desc.setValidator(fieldValidator);
         
     } //-- org.openejb.alt.config.sys.OpenejbDescriptor()

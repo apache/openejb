@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -49,6 +49,8 @@ public class Deployments implements java.io.Serializable {
     //-----------/
 
     /**
+     * Returns the value of field 'dir'.
+     * @return the value of field 'dir'.
     **/
     public java.lang.String getDir()
     {
@@ -56,6 +58,8 @@ public class Deployments implements java.io.Serializable {
     } //-- java.lang.String getDir() 
 
     /**
+     * Returns the value of field 'jar'.
+     * @return the value of field 'jar'.
     **/
     public java.lang.String getJar()
     {
@@ -98,21 +102,21 @@ public class Deployments implements java.io.Serializable {
     } //-- void marshal(org.xml.sax.DocumentHandler) 
 
     /**
-     * 
-     * @param _dir
+     * Sets the value of field 'dir'.
+     * @param dir the value of field 'dir'.
     **/
-    public void setDir(java.lang.String _dir)
+    public void setDir(java.lang.String dir)
     {
-        this._dir = _dir;
+        this._dir = dir;
     } //-- void setDir(java.lang.String) 
 
     /**
-     * 
-     * @param _jar
+     * Sets the value of field 'jar'.
+     * @param jar the value of field 'jar'.
     **/
-    public void setJar(java.lang.String _jar)
+    public void setJar(java.lang.String jar)
     {
-        this._jar = _jar;
+        this._jar = jar;
     } //-- void setJar(java.lang.String) 
 
     /**

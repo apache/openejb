@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -64,6 +64,8 @@ public class ServiceProvider implements java.io.Serializable {
     //-----------/
 
     /**
+     * Returns the value of field 'className'.
+     * @return the value of field 'className'.
     **/
     public java.lang.String getClassName()
     {
@@ -71,6 +73,9 @@ public class ServiceProvider implements java.io.Serializable {
     } //-- java.lang.String getClassName() 
 
     /**
+     * Returns the value of field 'content'. The field 'content'
+     * has the following description: internal content storage
+     * @return the value of field 'content'.
     **/
     public java.lang.String getContent()
     {
@@ -78,6 +83,8 @@ public class ServiceProvider implements java.io.Serializable {
     } //-- java.lang.String getContent() 
 
     /**
+     * Returns the value of field 'description'.
+     * @return the value of field 'description'.
     **/
     public java.lang.String getDescription()
     {
@@ -85,6 +92,8 @@ public class ServiceProvider implements java.io.Serializable {
     } //-- java.lang.String getDescription() 
 
     /**
+     * Returns the value of field 'displayName'.
+     * @return the value of field 'displayName'.
     **/
     public java.lang.String getDisplayName()
     {
@@ -92,6 +101,8 @@ public class ServiceProvider implements java.io.Serializable {
     } //-- java.lang.String getDisplayName() 
 
     /**
+     * Returns the value of field 'id'.
+     * @return the value of field 'id'.
     **/
     public java.lang.String getId()
     {
@@ -99,6 +110,8 @@ public class ServiceProvider implements java.io.Serializable {
     } //-- java.lang.String getId() 
 
     /**
+     * Returns the value of field 'lookup'.
+     * @return the value of field 'lookup'.
     **/
     public Lookup getLookup()
     {
@@ -106,6 +119,8 @@ public class ServiceProvider implements java.io.Serializable {
     } //-- Lookup getLookup() 
 
     /**
+     * Returns the value of field 'propertiesFile'.
+     * @return the value of field 'propertiesFile'.
     **/
     public PropertiesFile getPropertiesFile()
     {
@@ -113,6 +128,8 @@ public class ServiceProvider implements java.io.Serializable {
     } //-- PropertiesFile getPropertiesFile() 
 
     /**
+     * Returns the value of field 'providerType'.
+     * @return the value of field 'providerType'.
     **/
     public java.lang.String getProviderType()
     {
@@ -155,75 +172,76 @@ public class ServiceProvider implements java.io.Serializable {
     } //-- void marshal(org.xml.sax.DocumentHandler) 
 
     /**
-     * 
-     * @param _className
+     * Sets the value of field 'className'.
+     * @param className the value of field 'className'.
     **/
-    public void setClassName(java.lang.String _className)
+    public void setClassName(java.lang.String className)
     {
-        this._className = _className;
+        this._className = className;
     } //-- void setClassName(java.lang.String) 
 
     /**
-     * 
-     * @param _content
+     * Sets the value of field 'content'. The field 'content' has
+     * the following description: internal content storage
+     * @param content the value of field 'content'.
     **/
-    public void setContent(java.lang.String _content)
+    public void setContent(java.lang.String content)
     {
-        this._content = _content;
+        this._content = content;
     } //-- void setContent(java.lang.String) 
 
     /**
-     * 
-     * @param _description
+     * Sets the value of field 'description'.
+     * @param description the value of field 'description'.
     **/
-    public void setDescription(java.lang.String _description)
+    public void setDescription(java.lang.String description)
     {
-        this._description = _description;
+        this._description = description;
     } //-- void setDescription(java.lang.String) 
 
     /**
-     * 
-     * @param _displayName
+     * Sets the value of field 'displayName'.
+     * @param displayName the value of field 'displayName'.
     **/
-    public void setDisplayName(java.lang.String _displayName)
+    public void setDisplayName(java.lang.String displayName)
     {
-        this._displayName = _displayName;
+        this._displayName = displayName;
     } //-- void setDisplayName(java.lang.String) 
 
     /**
-     * 
-     * @param _id
+     * Sets the value of field 'id'.
+     * @param id the value of field 'id'.
     **/
-    public void setId(java.lang.String _id)
+    public void setId(java.lang.String id)
     {
-        this._id = _id;
+        this._id = id;
     } //-- void setId(java.lang.String) 
 
     /**
-     * 
-     * @param _lookup
+     * Sets the value of field 'lookup'.
+     * @param lookup the value of field 'lookup'.
     **/
-    public void setLookup(Lookup _lookup)
+    public void setLookup(Lookup lookup)
     {
-        this._lookup = _lookup;
+        this._lookup = lookup;
     } //-- void setLookup(Lookup) 
 
     /**
-     * 
-     * @param _propertiesFile
+     * Sets the value of field 'propertiesFile'.
+     * @param propertiesFile the value of field 'propertiesFile'.
     **/
-    public void setPropertiesFile(PropertiesFile _propertiesFile)
+    public void setPropertiesFile(PropertiesFile propertiesFile)
     {
-        this._propertiesFile = _propertiesFile;
+        this._propertiesFile = propertiesFile;
     } //-- void setPropertiesFile(PropertiesFile) 
 
     /**
-     * 
-     * @param _providerType
+     * Sets the value of field 'providerType'.
+     * @param providerType the value of field 'providerType'.
     **/
-    public void setProviderType(java.lang.String _providerType)
+    public void setProviderType(java.lang.String providerType)
     {
-        this._providerType = _providerType;
+        this._providerType = providerType;
     } //-- void setProviderType(java.lang.String) 
 
     /**

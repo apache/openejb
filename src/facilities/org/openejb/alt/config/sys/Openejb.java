@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -49,6 +49,8 @@ public class Openejb implements java.io.Serializable {
 
     private java.util.Vector _connectorList;
 
+    private java.util.Vector _resourceList;
+
     private java.util.Vector _deploymentsList;
 
 
@@ -61,6 +63,7 @@ public class Openejb implements java.io.Serializable {
         _containerList = new Vector();
         _jndiProviderList = new Vector();
         _connectorList = new Vector();
+        _resourceList = new Vector();
         _deploymentsList = new Vector();
     } //-- org.openejb.alt.config.sys.Openejb()
 
@@ -81,6 +84,17 @@ public class Openejb implements java.io.Serializable {
 
     /**
      * 
+     * @param index
+     * @param vConnector
+    **/
+    public void addConnector(int index, Connector vConnector)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _connectorList.insertElementAt(vConnector, index);
+    } //-- void addConnector(int, Connector) 
+
+    /**
+     * 
      * @param vContainer
     **/
     public void addContainer(Container vContainer)
@@ -88,6 +102,17 @@ public class Openejb implements java.io.Serializable {
     {
         _containerList.addElement(vContainer);
     } //-- void addContainer(Container) 
+
+    /**
+     * 
+     * @param index
+     * @param vContainer
+    **/
+    public void addContainer(int index, Container vContainer)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _containerList.insertElementAt(vContainer, index);
+    } //-- void addContainer(int, Container) 
 
     /**
      * 
@@ -101,6 +126,17 @@ public class Openejb implements java.io.Serializable {
 
     /**
      * 
+     * @param index
+     * @param vDeployments
+    **/
+    public void addDeployments(int index, Deployments vDeployments)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _deploymentsList.insertElementAt(vDeployments, index);
+    } //-- void addDeployments(int, Deployments) 
+
+    /**
+     * 
      * @param vJndiProvider
     **/
     public void addJndiProvider(JndiProvider vJndiProvider)
@@ -108,6 +144,38 @@ public class Openejb implements java.io.Serializable {
     {
         _jndiProviderList.addElement(vJndiProvider);
     } //-- void addJndiProvider(JndiProvider) 
+
+    /**
+     * 
+     * @param index
+     * @param vJndiProvider
+    **/
+    public void addJndiProvider(int index, JndiProvider vJndiProvider)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _jndiProviderList.insertElementAt(vJndiProvider, index);
+    } //-- void addJndiProvider(int, JndiProvider) 
+
+    /**
+     * 
+     * @param vResource
+    **/
+    public void addResource(Resource vResource)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _resourceList.addElement(vResource);
+    } //-- void addResource(Resource) 
+
+    /**
+     * 
+     * @param index
+     * @param vResource
+    **/
+    public void addResource(int index, Resource vResource)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _resourceList.insertElementAt(vResource, index);
+    } //-- void addResource(int, Resource) 
 
     /**
     **/
@@ -136,6 +204,13 @@ public class Openejb implements java.io.Serializable {
     {
         return _jndiProviderList.elements();
     } //-- java.util.Enumeration enumerateJndiProvider() 
+
+    /**
+    **/
+    public java.util.Enumeration enumerateResource()
+    {
+        return _resourceList.elements();
+    } //-- java.util.Enumeration enumerateResource() 
 
     /**
      * 
@@ -206,6 +281,9 @@ public class Openejb implements java.io.Serializable {
     } //-- int getContainerCount() 
 
     /**
+     * Returns the value of field 'content'. The field 'content'
+     * has the following description: internal content storage
+     * @return the value of field 'content'.
     **/
     public java.lang.String getContent()
     {
@@ -281,6 +359,8 @@ public class Openejb implements java.io.Serializable {
     } //-- int getJndiProviderCount() 
 
     /**
+     * Returns the value of field 'proxyFactory'.
+     * @return the value of field 'proxyFactory'.
     **/
     public ProxyFactory getProxyFactory()
     {
@@ -288,6 +368,42 @@ public class Openejb implements java.io.Serializable {
     } //-- ProxyFactory getProxyFactory() 
 
     /**
+     * 
+     * @param index
+    **/
+    public Resource getResource(int index)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        //-- check bounds for index
+        if ((index < 0) || (index > _resourceList.size())) {
+            throw new IndexOutOfBoundsException();
+        }
+        
+        return (Resource) _resourceList.elementAt(index);
+    } //-- Resource getResource(int) 
+
+    /**
+    **/
+    public Resource[] getResource()
+    {
+        int size = _resourceList.size();
+        Resource[] mArray = new Resource[size];
+        for (int index = 0; index < size; index++) {
+            mArray[index] = (Resource) _resourceList.elementAt(index);
+        }
+        return mArray;
+    } //-- Resource[] getResource() 
+
+    /**
+    **/
+    public int getResourceCount()
+    {
+        return _resourceList.size();
+    } //-- int getResourceCount() 
+
+    /**
+     * Returns the value of field 'securityService'.
+     * @return the value of field 'securityService'.
     **/
     public SecurityService getSecurityService()
     {
@@ -295,6 +411,8 @@ public class Openejb implements java.io.Serializable {
     } //-- SecurityService getSecurityService() 
 
     /**
+     * Returns the value of field 'transactionService'.
+     * @return the value of field 'transactionService'.
     **/
     public TransactionService getTransactionService()
     {
@@ -365,12 +483,19 @@ public class Openejb implements java.io.Serializable {
     } //-- void removeAllJndiProvider() 
 
     /**
+    **/
+    public void removeAllResource()
+    {
+        _resourceList.removeAllElements();
+    } //-- void removeAllResource() 
+
+    /**
      * 
      * @param index
     **/
     public Connector removeConnector(int index)
     {
-        Object obj = _connectorList.elementAt(index);
+        java.lang.Object obj = _connectorList.elementAt(index);
         _connectorList.removeElementAt(index);
         return (Connector) obj;
     } //-- Connector removeConnector(int) 
@@ -381,7 +506,7 @@ public class Openejb implements java.io.Serializable {
     **/
     public Container removeContainer(int index)
     {
-        Object obj = _containerList.elementAt(index);
+        java.lang.Object obj = _containerList.elementAt(index);
         _containerList.removeElementAt(index);
         return (Container) obj;
     } //-- Container removeContainer(int) 
@@ -392,7 +517,7 @@ public class Openejb implements java.io.Serializable {
     **/
     public Deployments removeDeployments(int index)
     {
-        Object obj = _deploymentsList.elementAt(index);
+        java.lang.Object obj = _deploymentsList.elementAt(index);
         _deploymentsList.removeElementAt(index);
         return (Deployments) obj;
     } //-- Deployments removeDeployments(int) 
@@ -403,10 +528,21 @@ public class Openejb implements java.io.Serializable {
     **/
     public JndiProvider removeJndiProvider(int index)
     {
-        Object obj = _jndiProviderList.elementAt(index);
+        java.lang.Object obj = _jndiProviderList.elementAt(index);
         _jndiProviderList.removeElementAt(index);
         return (JndiProvider) obj;
     } //-- JndiProvider removeJndiProvider(int) 
+
+    /**
+     * 
+     * @param index
+    **/
+    public Resource removeResource(int index)
+    {
+        java.lang.Object obj = _resourceList.elementAt(index);
+        _resourceList.removeElementAt(index);
+        return (Resource) obj;
+    } //-- Resource removeResource(int) 
 
     /**
      * 
@@ -465,12 +601,13 @@ public class Openejb implements java.io.Serializable {
     } //-- void setContainer(Container) 
 
     /**
-     * 
-     * @param _content
+     * Sets the value of field 'content'. The field 'content' has
+     * the following description: internal content storage
+     * @param content the value of field 'content'.
     **/
-    public void setContent(java.lang.String _content)
+    public void setContent(java.lang.String content)
     {
-        this._content = _content;
+        this._content = content;
     } //-- void setContent(java.lang.String) 
 
     /**
@@ -530,30 +667,59 @@ public class Openejb implements java.io.Serializable {
     } //-- void setJndiProvider(JndiProvider) 
 
     /**
-     * 
-     * @param _proxyFactory
+     * Sets the value of field 'proxyFactory'.
+     * @param proxyFactory the value of field 'proxyFactory'.
     **/
-    public void setProxyFactory(ProxyFactory _proxyFactory)
+    public void setProxyFactory(ProxyFactory proxyFactory)
     {
-        this._proxyFactory = _proxyFactory;
+        this._proxyFactory = proxyFactory;
     } //-- void setProxyFactory(ProxyFactory) 
 
     /**
      * 
-     * @param _securityService
+     * @param index
+     * @param vResource
     **/
-    public void setSecurityService(SecurityService _securityService)
+    public void setResource(int index, Resource vResource)
+        throws java.lang.IndexOutOfBoundsException
     {
-        this._securityService = _securityService;
-    } //-- void setSecurityService(SecurityService) 
+        //-- check bounds for index
+        if ((index < 0) || (index > _resourceList.size())) {
+            throw new IndexOutOfBoundsException();
+        }
+        _resourceList.setElementAt(vResource, index);
+    } //-- void setResource(int, Resource) 
 
     /**
      * 
-     * @param _transactionService
+     * @param resourceArray
     **/
-    public void setTransactionService(TransactionService _transactionService)
+    public void setResource(Resource[] resourceArray)
     {
-        this._transactionService = _transactionService;
+        //-- copy array
+        _resourceList.removeAllElements();
+        for (int i = 0; i < resourceArray.length; i++) {
+            _resourceList.addElement(resourceArray[i]);
+        }
+    } //-- void setResource(Resource) 
+
+    /**
+     * Sets the value of field 'securityService'.
+     * @param securityService the value of field 'securityService'.
+    **/
+    public void setSecurityService(SecurityService securityService)
+    {
+        this._securityService = securityService;
+    } //-- void setSecurityService(SecurityService) 
+
+    /**
+     * Sets the value of field 'transactionService'.
+     * @param transactionService the value of field
+     * 'transactionService'.
+    **/
+    public void setTransactionService(TransactionService transactionService)
+    {
+        this._transactionService = transactionService;
     } //-- void setTransactionService(TransactionService) 
 
     /**

@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -47,6 +47,8 @@ public class PropertiesFile implements java.io.Serializable {
     //-----------/
 
     /**
+     * Returns the value of field 'file'.
+     * @return the value of field 'file'.
     **/
     public java.lang.String getFile()
     {
@@ -89,12 +91,12 @@ public class PropertiesFile implements java.io.Serializable {
     } //-- void marshal(org.xml.sax.DocumentHandler) 
 
     /**
-     * 
-     * @param _file
+     * Sets the value of field 'file'.
+     * @param file the value of field 'file'.
     **/
-    public void setFile(java.lang.String _file)
+    public void setFile(java.lang.String file)
     {
-        this._file = _file;
+        this._file = file;
     } //-- void setFile(java.lang.String) 
 
     /**
