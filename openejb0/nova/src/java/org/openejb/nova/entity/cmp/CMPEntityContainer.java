@@ -61,6 +61,7 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 
 import org.openejb.nova.AbstractEJBContainer;
+import org.openejb.nova.EJBInstanceFactory;
 import org.openejb.nova.transaction.TransactionContextInterceptor;
 import org.openejb.nova.util.SoftLimitedInstancePool;
 import org.openejb.nova.dispatch.VirtualOperationFactory;
@@ -92,7 +93,8 @@ public class CMPEntityContainer extends AbstractEJBContainer implements CMPEntit
         VirtualOperationFactory vopFactory = CMPOperationFactory.newInstance(beanClass);
         vtable = vopFactory.getVTable();
 
-        pool = new SoftLimitedInstancePool(new EntityInstanceFactory(this), 1);
+        EJBInstanceFactory implFactory = new CMPInstanceFactory(beanClass);
+        pool = new SoftLimitedInstancePool(new EntityInstanceFactory(this, implFactory), 1);
 
         Interceptor firstInterceptor = new TransactionContextInterceptor(txnManager);
         addInterceptor(firstInterceptor);

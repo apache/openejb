@@ -53,69 +53,43 @@
  *
  * ====================================================================
  */
-package org.openejb.nova.entity;
+package org.openejb.nova.entity.cmp;
 
-import javax.ejb.CreateException;
-import javax.ejb.EntityBean;
-import javax.ejb.EntityContext;
-import javax.ejb.FinderException;
-import javax.ejb.RemoveException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import javax.ejb.EnterpriseBean;
+
+import net.sf.cglib.proxy.CallbackFilter;
+import net.sf.cglib.proxy.Callbacks;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.SimpleCallbacks;
+
+import org.openejb.nova.EJBInstanceFactory;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
-public abstract class MockCMPEJB implements EntityBean {
-    private int field;
+public class CMPInstanceFactory implements EJBInstanceFactory {
+    private final Factory factory;
+    private final MethodInterceptor handler;
 
-    public Object ejbCreate(Integer id) throws CreateException {
-        return id;
+    public CMPInstanceFactory(Class beanClass) {
+        handler = null;
+        Callbacks callbacks = new SimpleCallbacks();
+        factory = Enhancer.create(beanClass, new Class[0], FILTER, callbacks);
     }
 
-    public void ejbPostCreate(Integer id) {
+    public EnterpriseBean newInstance() throws Exception {
+        return (EnterpriseBean) factory.newInstance(handler);
     }
 
-    public Object ejbFindByPrimaryKey(Object pk) throws FinderException {
-        return pk;
-    }
-
-    public int ejbHomeIntMethod(int i) {
-        return i + 1;
-    }
-
-    public int intMethod(int i) {
-        return 1 + i + ((Integer) context.getPrimaryKey()).intValue();
-    }
-
-    public int getIntField() {
-        return field;
-    }
-
-    private EntityContext context;
-
-    public void setEntityContext(EntityContext ctx) {
-        context = ctx;
-    }
-
-    public void unsetEntityContext() {
-    }
-
-    public void ejbActivate() {
-        field = 0;
-    }
-
-    public void ejbPassivate() {
-        field = 0;
-    }
-
-    public void ejbLoad() {
-        field = ((Integer) context.getPrimaryKey()).intValue();
-    }
-
-    public void ejbStore() {
-    }
-
-    public void ejbRemove() throws RemoveException {
-    }
+    private static final CallbackFilter FILTER = new CallbackFilter() {
+        public int accept(Method method) {
+            return (Modifier.isAbstract(method.getModifiers())) ? Callbacks.INTERCEPT : Callbacks.NO_OP;
+        }
+    };
 }
