@@ -231,6 +231,39 @@ public class OpenejbDescriptor extends org.exolab.castor.xml.util.XMLClassDescri
         fieldValidator = new FieldValidator();
         desc.setValidator(fieldValidator);
         
+        //-- _connectionManager
+        desc = new XMLFieldDescriptorImpl(ConnectionManager.class, "_connectionManager", "ConnectionManager", NodeType.Element);
+        handler = (new XMLFieldHandler() {
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                Openejb target = (Openejb) object;
+                return target.getConnectionManager();
+            }
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    Openejb target = (Openejb) object;
+                    target.setConnectionManager( (ConnectionManager) value);
+                }
+                catch (Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            public java.lang.Object newInstance( java.lang.Object parent ) {
+                return new ConnectionManager();
+            }
+        } );
+        desc.setHandler(handler);
+        desc.setNameSpaceURI("http://www.openejb.org/System/Configuration");
+        desc.setMultivalued(false);
+        addFieldDescriptor(desc);
+        
+        //-- validation code for: _connectionManager
+        fieldValidator = new FieldValidator();
+        desc.setValidator(fieldValidator);
+
         //-- _proxyFactory
         desc = new XMLFieldDescriptorImpl(ProxyFactory.class, "_proxyFactory", "ProxyFactory", NodeType.Element);
         handler = (new XMLFieldHandler() {

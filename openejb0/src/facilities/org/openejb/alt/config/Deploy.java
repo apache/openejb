@@ -146,21 +146,14 @@ public class Deploy {
     public Deploy() throws OpenEJBException {
     }
 
-    public void init(String openejbConfigFile) throws OpenEJBException{
+    public void init(String openejbConfigFile) throws OpenEJBException {
         try {
             in  = new DataInputStream(System.in); 
             out = System.out;
 
             configFile = openejbConfigFile;
-            if (configFile == null) {
-                try{
-                    configFile = System.getProperty("openejb.configuration");
-                } catch (Exception e){}
-            }
-            if (configFile == null) {
-                configFile = ConfigUtils.searchForConfiguration();
-            }
-            config = ConfigUtils.readConfig(configFile);
+	    
+	    config = ConfigUtils.loadAndResolveConfigFiles( configFile );
             
             /* Load container list */
             containers = new Container[config.getContainerCount()];

@@ -23,17 +23,15 @@ import org.openejb.util.FileUtils;
  * This class doesn't do any configuring per se.  It just
  * reads in the config information for the assebler.
  */
-public class ConfigurationFactory implements OpenEjbConfigurationFactory, ProviderDefaults{
+public class ConfigurationFactory implements OpenEjbConfigurationFactory, ProviderDefaults {
     
     public static final String DEFAULT_SECURITY_ROLE = "openejb.default.security.role";
 
+    String configLocation;
     Openejb openejb;
+
     DeployedJar[] jars;
-    ServicesJar openejbDefaults = null;
-
     
-
-    String configLocation = "";
 
     Vector deploymentIds = new Vector();
     Vector securityRoles = new Vector();
@@ -61,15 +59,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     public void init(Properties props) throws OpenEJBException {
         if ( props == null ) props = new Properties();
 
-        configLocation = props.getProperty("openejb.conf.file");
-        if ( configLocation == null ) {
-            configLocation = props.getProperty("openejb.configuration","conf/default.openejb.conf");
-        }
-
-        if ( configLocation == null ) {
-            configLocation = ConfigUtils.searchForConfiguration();
-        }
-        
+        configLocation = props.getProperty("openejb.conf.file");        
     }
 
     public static void main(String[] args){
@@ -102,7 +92,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         
         // Load configuration
         // Validate Configuration
-        openejb = ConfigUtils.readConfig(configLocation);
+        openejb = ConfigUtils.loadAndResolveConfigFiles( configLocation );
         
         // Resolve File Locations
         // Resolve Classes
@@ -178,9 +168,9 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         for (int i=0; i < provider.length; i++){
             ServiceProvider service = ConfigUtils.getService(provider[i].getJar(), provider[i].getId());
 
-			if (!service.getProviderType().equals("JndiProvider")) {
-				handleException("conf.4902", provider[i].getId(), provider[i].getJar(), "JndiProvider");
-			}
+	    if (!service.getProviderType().equals("JndiProvider")) {
+		    handleException("conf.4902", provider[i].getId(), provider[i].getJar(), "JndiProvider");
+	    }
 	
             ctxInfo[i] = new JndiContextInfo();
 
@@ -208,9 +198,9 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         SecurityServiceInfo ssi = new SecurityServiceInfo();
         ServiceProvider ssp     = ConfigUtils.getService(ss.getJar(), ss.getId());
         
-		if (!ssp.getProviderType().equals("Security")) {
-			handleException("conf.4902", ss.getId(), ss.getJar(), "Security");
-		}
+	if (!ssp.getProviderType().equals("Security")) {
+		handleException("conf.4902", ss.getId(), ss.getJar(), "Security");
+	}
 
         ssi.codebase         = ss.getJar();
         ssi.description      = ssp.getDescription();
@@ -248,9 +238,9 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         TransactionServiceInfo tsi = new TransactionServiceInfo();
         ServiceProvider service    = ConfigUtils.getService(ts.getJar(), ts.getId());
 
-		if (!service.getProviderType().equals("Transaction")) {
-			handleException("conf.4902", ts.getId(), ts.getJar(), "Transaction");
-		}
+	if (!service.getProviderType().equals("Transaction")) {
+		handleException("conf.4902", ts.getId(), ts.getJar(), "Transaction");
+	}
 
         tsi.codebase         = ts.getJar();
         tsi.description      = service.getDescription();
@@ -287,11 +277,11 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         for (int i=0; i < conn.length; i++){
             ServiceProvider service = ConfigUtils.getService(conn[i].getJar(), conn[i].getId());
 
-			if (!service.getProviderType().equals("Connector")) {
-				handleException("conf.4902", conn[i].getId(), conn[i].getJar(), "Connector");
-			}
-				
-			ManagedConnectionFactoryInfo factory = new ManagedConnectionFactoryInfo();
+	    if (!service.getProviderType().equals("Connector")) {
+		    handleException("conf.4902", conn[i].getId(), conn[i].getJar(), "Connector");
+	    }
+		    
+	    ManagedConnectionFactoryInfo factory = new ManagedConnectionFactoryInfo();
 
             info[i]                     = new ConnectorInfo();
             info[i].connectorId         = conn[i].getId();
@@ -317,27 +307,25 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     }
     
     private void initConnectionManagers(Openejb openejb, FacilitiesInfo facilities) throws OpenEJBException{
-            
-        String defaultJar = ConfigUtils.OPENEJB_JAR_FILE.getPath();
-
-        ConnectionManagerInfo manager = new ConnectionManagerInfo();
-        ServiceProvider service = ConfigUtils.getService(defaultJar, DEFAULT_LOCAL_TX_CON_MANAGER);
+        ConnectionManager cm      = openejb.getConnectionManager();
+        ConnectionManagerInfo cmi = new ConnectionManagerInfo();
+        ServiceProvider service    = ConfigUtils.getService(cm.getJar(), cm.getId());
 
         if (!service.getProviderType().equals("ConnectionManager")) {
-                handleException("conf.4902", DEFAULT_LOCAL_TX_CON_MANAGER, defaultJar, "ConnectionManager");
+                handleException("conf.4902", cm.getId(), cm.getJar(), "ConnectionManager");
         }
 
-        manager.connectionManagerId = DEFAULT_LOCAL_TX_CON_MANAGER;
-        manager.className           = service.getClassName();
-        manager.codebase            = defaultJar;
-        manager.properties          = ConfigUtils.assemblePropertiesFor(
+        cmi.connectionManagerId = cm.getId();
+        cmi.className           = service.getClassName();
+        cmi.codebase            = cm.getJar();
+        cmi.properties          = ConfigUtils.assemblePropertiesFor(
                                                         "ConnectionManager", 
-                                                        DEFAULT_LOCAL_TX_CON_MANAGER,
+                                                        cm.getId(),
                                                         null, configLocation,
-                                                        defaultJar, service);
+                                                        cm.getJar(), service);
 
 
-        facilities.connectionManagers = new ConnectionManagerInfo[]{manager};
+        facilities.connectionManagers = new ConnectionManagerInfo[]{cmi};
     }
     
     
@@ -347,11 +335,11 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         ServiceProvider pfp   = ConfigUtils.getService(pf.getJar(), pf.getId());
         
 
-		if (!pfp.getProviderType().equals("Proxy")) {
-			handleException("conf.4902", pf.getId(), pf.getJar(), "Proxy");
-		}
-		
-		IntraVmServerInfo pfi = new IntraVmServerInfo();
+	if (!pfp.getProviderType().equals("Proxy")) {
+		handleException("conf.4902", pf.getId(), pf.getJar(), "Proxy");
+	}
+	
+	IntraVmServerInfo pfi = new IntraVmServerInfo();
         
         facilities.intraVmServer  = pfi; 
         pfi.proxyFactoryClassName = pfp.getClassName();
@@ -1101,29 +1089,29 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     /*------------------------------------------------------*/
     /*    Methods for easy exception handling               */
     /*------------------------------------------------------*/
-	public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3) throws OpenEJBException {
-		Object[] args = { arg0, arg1, arg2, arg3};
-		throw new OpenEJBException(errorCode, args);
-	}
-	
-	public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2) throws OpenEJBException {
-		Object[] args = { arg0, arg1, arg2};
-		throw new OpenEJBException(errorCode, args);
-	}
-	
-	public static void handleException(String errorCode, Object arg0, Object arg1) throws OpenEJBException {
-		Object[] args = { arg0, arg1};
-		throw new OpenEJBException(errorCode, args);
-	}
-	
-	public static void handleException(String errorCode, Object arg0) throws OpenEJBException {
-		Object[] args = { arg0};
-		throw new OpenEJBException(errorCode, args);
-	}
-	
-	public static void handleException(String errorCode) throws OpenEJBException {
-		throw new OpenEJBException(errorCode);
-	}
+    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3) throws OpenEJBException {
+	    Object[] args = { arg0, arg1, arg2, arg3};
+	    throw new OpenEJBException(errorCode, args);
+    }
+    
+    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2) throws OpenEJBException {
+	    Object[] args = { arg0, arg1, arg2};
+	    throw new OpenEJBException(errorCode, args);
+    }
+    
+    public static void handleException(String errorCode, Object arg0, Object arg1) throws OpenEJBException {
+	    Object[] args = { arg0, arg1};
+	    throw new OpenEJBException(errorCode, args);
+    }
+    
+    public static void handleException(String errorCode, Object arg0) throws OpenEJBException {
+	    Object[] args = { arg0};
+	    throw new OpenEJBException(errorCode, args);
+    }
+    
+    public static void handleException(String errorCode) throws OpenEJBException {
+	    throw new OpenEJBException(errorCode);
+    }
 }
 
 class DeployedJar {
