@@ -1,0 +1,171 @@
+<project name="OpenEJB-Webadmin" default="jar" basedir="../">
+  <!-- $Id$ -->
+  <!-- 
+  		Contributions by:
+  			Daniel S. Haischt <sirabyss@gmx.net>
+  	-->
+
+  <property name="build.clienttools.src" value="${build.src}/webconsole-clienttools"/>
+  <property name="build.clienttools.dest" value="${build.dest}/webconsole-clienttools"/>
+  <property name="src.clienttools.dir" value="${src.dir}/facilities"/>
+  <property name="dest.clienttools.javadoc.dir" value="${dest.javadoc.dir}/webconsole-clienttools"/>
+  
+  <!-- Build classpath -->
+  <path id="project.classpath">
+    <pathelement location="${jrefactory.jar}"/>
+    <pathelement location="${castor.home}/${castor.jar}"/>
+    <pathelement location="${castor.home}/${castor.xml.jar}"/>
+    <pathelement location="${ejb11.jar}"/>
+    <pathelement location="${ejb20.jar}"/>
+    <pathelement location="${jaas.home}/${jaas.jar}"/>
+    <pathelement location="${jca.jar}"/>
+    <pathelement location="${jdbcext.jar}"/>
+    <pathelement location="${jdk12proxy.jar}"/>
+    <pathelement location="${jedi.home}/lib/${jedi.jar}"/>
+    <pathelement location="${jedi.home}/lib/${jediplugin.jar}"/>
+    <pathelement location="${jms.jar}"/>
+    <pathelement location="${jndi.jar}"/>
+    <pathelement location="${jta.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+    <pathelement location="${minerva.jar}"/>
+    <pathelement location="${openorb.home}/${openorb.jar}"/>
+    <pathelement location="${openorb.home}/${openorb.rmi.jar}"/>
+    <pathelement location="${openorb.home}/${openorb.tools.jar}"/>
+    <pathelement location="${jts.jar}"/>
+    <pathelement location="${tyrex.home}/${tyrex.jar}"/>
+    <pathelement location="${tyrex.home}/${tyrex.iiop.jar}"/>
+    <pathelement location="${jaxp.home}/jaxp.jar"/>
+    <pathelement location="${jaxp.home}/${jaxp.parser.jar}"/>
+    <pathelement location="${jaxp.home}/${jaxp.xsltprocessor.jar}"/>
+    <pathelement location="${jaxp.home}/${jaxp.xalan1compat.jar}"/>
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${jakarta.regexp.jar}"/>
+    <pathelement location="${xslp.jar}"/>
+  </path>
+  
+  
+  <!-- ================================================================== -->
+  <!-- Prepares the build directory                                       -->
+  <!-- ================================================================== -->
+
+  <target name="prepare">
+    <echo message="preparing clienttools"/>
+    <mkdir dir="${build.clienttools.src}"/>
+    <mkdir dir="${build.clienttools.dest}"/>
+    <mkdir dir="${dest.clienttools.javadoc.dir}"/>
+    <mkdir dir="${build.clienttools.dest}/META-INF"/>
+    <mkdir dir="${build.clienttools.dest}/htdocs"/>
+    <mkdir dir="${build.clienttools.dest}/htdocs/images"/>
+    <mkdir dir="beans"/>
+    
+    <copy todir="${build.clienttools.src}">
+      <fileset dir="${src.clienttools.dir}" >
+        <include name="**/clienttools/**"/>
+        <include name="**/admin/web/WebAdminBean**"/>
+        <exclude name="**/CVS/**"/>
+        <exclude name="**/javax/**"/>
+        <exclude name="**/*.class"/>
+      </fileset>
+    </copy>
+    
+    
+    <copy todir="${build.clienttools.dest}/htdocs/images">
+      <fileset dir="${src.dir}/doc/images" >
+        <include name="TreeOpen.gif"/>
+        <include name="TreeClosed.gif"/>
+        <include name="ejb.gif"/>
+        <include name="pepper.gif"/>
+      </fileset>
+    </copy>
+    
+    <copy todir="${build.clienttools.dest}">
+      <fileset dir="${src.java.dir}/etc" >
+        <include name="**/CHANGELOG"/>
+        <include name="**/LICENSE"/>
+        <include name="**/MANIFEST.MF"/>
+        <include name="**/README"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${build.clienttools.dest}/META-INF">
+    
+      <fileset dir="${src.clienttools.dir}/org/openejb/admin/web/clienttools" >
+        <include name="ejb-jar.xml"/>
+        <include name="openejb-jar.xml"/>
+      </fileset>
+
+    </copy>
+    
+    <replace file="${build.clienttools.dest}/MANIFEST.MF" token="$$VERSION$$" value="${version}"/>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Compiles the source directory                                      -->
+  <!-- ================================================================== -->
+  
+  <target name="compile"
+          depends="prepare"
+          description="--> compiles the java source files">
+          
+    <echo message="compiling clienttools"/>
+    <javac srcdir="${build.clienttools.src}"
+           destdir="${build.clienttools.dest}"
+           debug="${debug}"
+           deprecation="${deprecation}">
+           
+      <classpath>
+        <path refid="project.classpath"/>
+        <pathelement location="${build.dest}/openejb"/>
+        <pathelement location="${build.dest}/httpbean-api"/>
+      </classpath>
+           
+    </javac>
+          
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Compiles the source directory and creates a .jar file              -->
+  <!-- ================================================================== -->
+  
+  <target name="jar"
+          depends="compile"
+          description="--> generates all java archives (default)">
+    
+    <echo message="jarring clienttools"/>      
+    
+    <jar jarfile="beans/${project}_webconsole-clienttools-${version}.jar"
+         basedir="${build.clienttools.dest}"
+         includes="**/*.class,META-INF/*.xml,**/images/*"
+         manifest="${build.clienttools.dest}/MANIFEST.MF"/>
+
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Creates the API documentation                                      -->
+  <!-- ================================================================== -->
+  
+  <target name="javadocs"
+          depends="compile"
+          description="--> generates the API documentation">
+          
+    <javadoc packagenames="org.openejb.*"
+             sourcepath="${build.clienttools.src}"
+             destdir="${dest.clienttools.javadoc.dir}"
+             doctitle="${name} clienttools JavaDoc"
+             windowtitle="${name} JavaDoc"
+             bottom="${copyright}"
+		     package="true"
+             author="true"
+             version="true"
+             noindex="true">
+             
+      <classpath>
+        <path refid="project.classpath"/>
+        <pathelement location="${build.dest}/openejb"/>
+      </classpath>
+             
+    </javadoc>
+          
+  </target>
+  
+</project>
