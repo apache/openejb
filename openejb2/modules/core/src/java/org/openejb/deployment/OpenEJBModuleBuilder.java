@@ -49,7 +49,6 @@
 package org.openejb.deployment;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -57,14 +56,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
-import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
@@ -73,7 +69,6 @@ import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.JarUtil;
-import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -282,54 +277,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         try {
-            // extract the ejbJar file into a standalone packed jar file, unless the file is already available unpacked
-            File ejbJarFile;
-
-            JarFile moduleFile = module.getModuleFile();
-            if (moduleFile.getClass() == JarFile.class) {
-                // this is a plain old jar... nothign special
-                ejbJarFile = new File(moduleFile.getName());
-            } else if (moduleFile instanceof NestedJarFile && ((NestedJarFile)moduleFile).isPacked()) {
-                JarFile nestedBaseJar = ((NestedJarFile)moduleFile).getBaseJar();
-                ejbJarFile = new File(nestedBaseJar.getName());
-            } else {
-                // copy out the module contents to a standalone jar file (entry by entry)
-                ejbJarFile = File.createTempFile("openejb", null);
-
-                JarOutputStream out = new JarOutputStream(new FileOutputStream(ejbJarFile));
-                try {
-                    byte[] buffer = new byte[4096];
-                    Enumeration entries = moduleFile.entries();
-                    while (entries.hasMoreElements()) {
-                        ZipEntry entry = (ZipEntry) entries.nextElement();
-
-                        InputStream in = moduleFile.getInputStream(entry);
-                        try {
-                            out.putNextEntry(new ZipEntry(entry.getName()));
-                            try {
-                                int count;
-                                while ((count = in.read(buffer)) > 0) {
-                                    out.write(buffer, 0, count);
-                                }
-                            } finally {
-                                out.closeEntry();
-                            }
-                        } finally {
-                            try {
-                                in.close();
-                            } catch (IOException e) {
-                            }
-                        }
-                    }
-                } finally {
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                    }
-                }
-            }
-
-            // add the ejbjar file into the output ear context
+            // extract the ejbJar file into a standalone packed jar file and add the contents to the output
+            File ejbJarFile = JarUtil.extractToPackedJar(module.getModuleFile());
             earContext.addInclude(URI.create(module.getTargetPath()), ejbJarFile.toURL());
 
             // add the dependencies declared in the openejb-jar.xml file

@@ -248,9 +248,19 @@ public class EJBConfigBuilderTest extends TestCase {
 
         File carFile = File.createTempFile("OpenEJBTest", ".car");
         try {
-            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName), DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, DeploymentHelper.TRANSACTIONALTIMER_NAME, DeploymentHelper.NONTRANSACTIONALTIMER_NAME, null, moduleBuilder, moduleBuilder, null, null, null
-                    // web
-                    //connector
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(
+                    new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
+                    DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
+                    DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
+                    DeploymentHelper.TRANSACTIONALTIMER_NAME,
+                    DeploymentHelper.NONTRANSACTIONALTIMER_NAME,
+                    null, // repository
+                    moduleBuilder,
+                    moduleBuilder,
+                    null, // web
+                    null, // connector
+                    null, // app client
+                    null // kernel
             );
 
             XmlObject plan = earConfigBuilder.getDeploymentPlan(earFile.toURL());
@@ -280,9 +290,19 @@ public class EJBConfigBuilderTest extends TestCase {
 
         File carFile = File.createTempFile("OpenEJBTest", ".car");
         try {
-            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName), DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, DeploymentHelper.TRANSACTIONALTIMER_NAME, DeploymentHelper.NONTRANSACTIONALTIMER_NAME, null, moduleBuilder, moduleBuilder, null, null, null
-                    // web
-                    //connector
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(
+                    new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
+                    DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
+                    DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
+                    DeploymentHelper.TRANSACTIONALTIMER_NAME,
+                    DeploymentHelper.NONTRANSACTIONALTIMER_NAME,
+                    null, // Repository
+                    moduleBuilder, 
+                    moduleBuilder,
+                    null, // web
+                    null, // connector
+                    null, // app client
+                    null // kernel
             );
 
             XmlObject plan = earConfigBuilder.getDeploymentPlan(earFile.toURL());
