@@ -16,4 +16,4 @@ set SERVER=-Dopenejb.test.server=org.openejb.test.OpenEjbTestServer
 set DATABASE=-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase
 set OPTIONS=%SERVER% %DATABASE%
 
-%JAVA% %OPTIONS% -classpath %CP% org.openejb.test.ClientTestRunner -s src\tests-ejb\OpenEjbServer_config.properties org.openejb.test.ClientTestSuite
+%JAVA% %OPTIONS% -classpath %CP% org.openejb.test.Main -s src\tests-ejb\OpenEjbServer_config.properties org.openejb.test.ClientTestSuite

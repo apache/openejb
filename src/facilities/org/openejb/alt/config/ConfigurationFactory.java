@@ -611,7 +611,15 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         }
 
         assignBeansToContainers(beans, ejbds);
-
+        
+        try{
+            //TODO:2: This is really temporary, jars should have their
+            // own classpaths.  We have code for this, but it has a couple
+            // issues in the CMP container that prevent us from relying on it.
+            org.openejb.util.ClasspathUtils.addJarToSystemPath( jar.jarURI );
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 

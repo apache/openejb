@@ -54,6 +54,7 @@ import java.security.PrivilegedAction;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class ClasspathUtils{
+    private static java.lang.reflect.Field ucpField;
 
     /**
      * Appends the jars and zips in the dir to the classpath of the 
@@ -93,43 +94,112 @@ public class ClasspathUtils{
      * @param url the URL to be added to the search path of URLs
      */
     public static void addJarsToPath(final File dir, final URLClassLoader loader) throws Exception {
-        System.out.println("DIR "+dir);
+        //System.out.println("DIR "+dir);
 
         // Get the list of jars and zips
         String[] jarNames = dir.list(new java.io.FilenameFilter(){
             public boolean accept(File dir, String name) {
-                System.out.println("FILE "+name);
+                //System.out.println("FILE "+name);
                 return (name.endsWith(".jar") ||name.endsWith(".zip"));
             }
         });
 
         // Create URLs from them
         final URL[] jars = new URL[jarNames.length];
-        System.out.println("URL "+jars.length);
+        //System.out.println("URL "+jars.length);
         for (int j=0; j < jarNames.length; j++){
             jars[j] = new File( dir, jarNames[j]).toURL();
-            System.out.println("URL "+jars[j]);
+            //System.out.println("URL "+jars[j]);
         }
 
-        // Add them to the URLClassLoader's classpath
-        AccessController.doPrivileged(new PrivilegedAction(){
-            public Object run() { try{
-            java.lang.reflect.Field ucp = null;
-            //ucp = URLClassLoader.class.getMethod("addURL", new Class[]{URL.class});
-            ucp = URLClassLoader.class.getDeclaredField("ucp");
-            ucp.setAccessible(true);
-            sun.misc.URLClassPath path = (sun.misc.URLClassPath)ucp.get(loader);
-            for (int i=0; i < jars.length; i++){
-                System.out.println("URL "+jars[i]);
-                path.addURL( jars[i] );
-            }
-            } catch (Exception e2){
-                e2.printStackTrace();
-            }
-            return null;
-            }
-        });
+        sun.misc.URLClassPath path = getURLClassPath(loader);
+        for (int i=0; i < jars.length; i++){
+            //System.out.println("URL "+jars[i]);
+            path.addURL( jars[i] );
+        }
     }
+
+    /**
+     * Appends the jar to the classpath of the classloader passed in.
+     *
+     * @param url the URL to be added to the search path of URLs
+     */
+    public static void addJarToSystemPath(String jar) throws Exception {
+        addJarToSystemPath( FileUtils.getFile(jar) );
+    }       
+
+    /**
+     * Appends the jar to the classpath of the classloader passed in.
+     *
+     * @param url the URL to be added to the search path of URLs
+     */
+    public static void addJarToSystemPath(final File jar) throws Exception {
+        addJarToSystemPath( jar.toURL() );
+    }       
+
+    /**
+     * Appends the jar to the classpath of the classloader passed in.
+     *
+     * @param url the URL to be added to the search path of URLs
+     */
+    public static void addJarToSystemPath(final URL jar) throws Exception {
+        java.net.URLClassLoader systemLoader = (java.net.URLClassLoader)ClassLoader.getSystemClassLoader();
+        getURLClassPath(systemLoader).addURL( jar );
+    }       
+    
+    /**
+     * Appends the jar to the classpath of the classloader passed in.
+     *
+     * @param url the URL to be added to the search path of URLs
+     */
+    public static void addJarToPath(String jar, final URLClassLoader loader) throws Exception {
+        addJarToPath( FileUtils.getFile(jar), loader );
+    }       
+
+    /**
+     * Appends the jar to the classpath of the classloader passed in.
+     *
+     * @param url the URL to be added to the search path of URLs
+     */
+    public static void addJarToPath(final File jar, final URLClassLoader loader) throws Exception {
+        addJarToPath( jar.toURL(), loader );
+    }       
+
+    /**
+     * Appends the jar to the classpath of the classloader passed in.
+     *
+     * @param url the URL to be added to the search path of URLs
+     */
+    public static void addJarToPath(final URL jar, final URLClassLoader loader) throws Exception {
+        getURLClassPath(loader).addURL( jar );
+    }       
+    
+    private static sun.misc.URLClassPath getURLClassPath(URLClassLoader loader) throws Exception{
+        return (sun.misc.URLClassPath)getUcpField().get(loader);
+    }
+
+    private static java.lang.reflect.Field getUcpField() throws Exception{
+        if (ucpField == null) {
+            // Add them to the URLClassLoader's classpath
+            ucpField = (java.lang.reflect.Field)AccessController.doPrivileged(
+                new PrivilegedAction(){
+                    public Object run() { 
+                        java.lang.reflect.Field ucp = null;
+                        try{
+                        ucp = URLClassLoader.class.getDeclaredField("ucp");
+                        ucp.setAccessible(true);
+                        } catch (Exception e2){
+                            e2.printStackTrace();
+                        }
+                        return ucp;
+                    }
+                }
+            );
+        }
+        
+        return ucpField;
+    }
+
 }
 
 
