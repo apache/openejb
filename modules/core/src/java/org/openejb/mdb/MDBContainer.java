@@ -72,6 +72,7 @@ import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
+import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.openejb.TwoChains;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -165,7 +166,8 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
     }
 
     public MessageEndpoint createEndpoint(XAResource adapterXAResource) throws UnavailableException {
-        return endpointFactory.getMessageEndpoint(new WrapperNamedXAResource(adapterXAResource, containerId));
+        NamedXAResource wrapper = adapterXAResource == null? null: new WrapperNamedXAResource(adapterXAResource, containerId);
+        return endpointFactory.getMessageEndpoint(wrapper);
     }
 
     public boolean isDeliveryTransacted(Method method) throws NoSuchMethodException {
