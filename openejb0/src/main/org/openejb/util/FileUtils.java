@@ -64,7 +64,7 @@ public class FileUtils{
      * @return 
      * @exception java.io.IOException
      */
-    public static File getDirectory(String path) throws java.io.IOException{
+    public static File getHomeDirectory(String path) throws java.io.IOException {
         File dir = null;
         
         if ( home == null ) resolveOpenEjbHome();
@@ -86,6 +86,35 @@ public class FileUtils{
         return dir;
     }	
 
+    /**
+     * Resolves the specifed path reletive to the openejb.base variable
+     * 
+     * @param path
+     * @return 
+     * @exception java.io.IOException
+     */
+    public static File getBaseDirectory(String path) throws java.io.IOException {
+        File dir = null;
+        
+        if ( home == null ) resolveOpenEjbHome();
+        
+        dir = new File(home, path);
+        dir = dir.getCanonicalFile();
+
+
+        if( !dir.exists() ) {
+            try{
+                if (!dir.mkdirs()) throw new IOException("Cannot create the directory "+dir.getPath());
+            } catch (SecurityException e){
+                throw new IOException("Permission denied: Cannot create the directory "+dir.getPath()+" : "+e.getMessage());
+            }
+        } else if ( dir.exists() && !dir.isDirectory() ) {
+            throw new IOException("The path specified is not a valid directory: "+dir.getPath());
+        }
+
+        return dir;
+    }	
+    
     public static File getFile(String path) throws java.io.FileNotFoundException, java.io.IOException{
         return FileUtils.getFile(path, true);
     }	
