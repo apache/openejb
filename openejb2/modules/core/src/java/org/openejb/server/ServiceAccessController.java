@@ -44,13 +44,17 @@
  */
 package org.openejb.server;
 
+import java.beans.PropertyEditorSupport;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *  The Server will call the following methods.
@@ -66,15 +70,15 @@ import java.util.StringTokenizer;
  */
 public class ServiceAccessController implements ServerService {
     private final ServerService next;
-    private InetAddress[] allowHosts;
+    private IPAddressMask[] allowHosts;
 
     public ServiceAccessController(ServerService next) {
         this.next = next;
     }
 
-    public ServiceAccessController(String name, ServerService next, InetAddress[] allowedHosts) {
+    public ServiceAccessController(String name, ServerService next, IPAddressMask[] ipAddressMasks) {
         this.next = next;
-        this.allowHosts = allowedHosts;
+        this.allowHosts = ipAddressMasks;
     }
 
     public void service(Socket socket) throws ServiceException, IOException {
@@ -84,41 +88,38 @@ public class ServiceAccessController implements ServerService {
         next.service(socket);
     }
 
-    public InetAddress[] getAllowHosts() {
+    public IPAddressMask[] getAllowHosts() {
         return allowHosts;
     }
 
-    public void setAllowHosts(InetAddress[] allowHosts) {
-        this.allowHosts = allowHosts;
+    public void setAllowHosts(IPAddressMask[] ipAddressMasks) {
+        this.allowHosts = ipAddressMasks;
     }
 
     public void checkHostsAuthorization(InetAddress clientAddress, InetAddress serverAddress) throws SecurityException {
-        // Authorization flag.  This starts out as unauthorized
-        // and will stay that way unless a matching admin ip is
-        // found.
-        boolean authorized = false;
-
         // Check the client ip against the server ip. Hosts are
         // allowed to access themselves, so if these ips
         // match, the following for loop will be skipped.
-        authorized = clientAddress.equals(serverAddress);
-
-        for (int i = 0; !authorized && i < allowHosts.length; i++) {
-            authorized = allowHosts[i].equals(clientAddress);
+        if (clientAddress.equals(serverAddress)) {
+            return;
         }
 
-        if (!authorized) {
-            throw new SecurityException("Host " + clientAddress.getHostAddress() + " is not authorized to access this service.");
+        for (int i = 0; i < allowHosts.length; i++) {
+            if (allowHosts[i].implies(clientAddress)) {
+                return;
+            }
         }
+
+        throw new SecurityException("Host " + clientAddress.getHostAddress() + " is not authorized to access this service.");
     }
 
     private void parseAdminIPs(Properties props) throws ServiceException {
-        LinkedList addresses = new LinkedList();
+        LinkedList ipAddressMasksList = new LinkedList();
 
         try {
             InetAddress[] localIps = InetAddress.getAllByName("localhost");
             for (int i = 0; i < localIps.length; i++) {
-                addresses.add(localIps[i]);
+                ipAddressMasksList.add(new IPAddressMask(localIps[i].getHostAddress()));
             }
         } catch (UnknownHostException e) {
             throw new ServiceException("Could not get localhost inet address", e);
@@ -128,19 +129,12 @@ public class ServiceAccessController implements ServerService {
         if (ipString != null) {
             StringTokenizer st = new StringTokenizer(ipString, ",");
             while (st.hasMoreTokens()) {
-                String address = null;
-                InetAddress ip = null;
-                try {
-                    address = st.nextToken();
-                    ip = InetAddress.getByName(address);
-                    addresses.add(ip);
-                } catch (Exception e) {
-                    throw new ServiceException("Error parsing only_from ip addresses");
-                }
+                String mask = st.nextToken();
+                ipAddressMasksList.add(new IPAddressMask(mask));
             }
         }
 
-        allowHosts = (InetAddress[]) addresses.toArray(new InetAddress[addresses.size()]);
+        allowHosts = (IPAddressMask[]) ipAddressMasksList.toArray(new IPAddressMask[ipAddressMasksList.size()]);
     }
 
     public void init(Properties props) throws Exception {
@@ -166,5 +160,62 @@ public class ServiceAccessController implements ServerService {
 
     public int getPort() {
         return next.getPort();
+    }
+    
+    public static class IPAddressMask implements Serializable {
+        private static final Pattern MASK_VALIDATOR = Pattern.compile("^(\\*|\\d{1,3})\\.(\\*|\\d{1,3})\\.(\\*|\\d{1,3})\\.(\\*|\\d{1,3})$");
+
+        private final String mask;
+        private final byte[] byteMask;
+        private final boolean[] definedBytes;
+        
+        public IPAddressMask(String mask) {
+            this.mask = mask;
+            
+            Matcher matcher = MASK_VALIDATOR.matcher(mask);
+            if (false == matcher.matches()) {
+                throw new IllegalArgumentException("Mask does not match pattern " + MASK_VALIDATOR.pattern());
+            }
+            
+            byteMask = new byte[4];
+            definedBytes = new boolean[4];
+            for (int i = 1; i < 5; i++) {
+                String group = matcher.group(i);
+                if (false == group.equals("*")) {
+                    int value = Integer.parseInt(group);
+                    if (value < 0 || 255 < value) {
+                        throw new IllegalArgumentException("byte #" + i + " is not valid.");
+                    }
+                    byteMask[i - 1] = (byte) value;
+                    definedBytes[i - 1] = true;
+                }
+            }
+        }
+        
+        public String getMask() {
+            return mask;
+        }
+        
+        public boolean implies(InetAddress address) {
+            byte[] byteAddress = address.getAddress();
+            for (int i = 0; i < 4; i++) {
+                if (definedBytes[i] && byteAddress[i] != byteMask[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+    
+    public static class IPAddressMaskEditor extends PropertyEditorSupport {
+        private IPAddressMask addressMask;
+        
+        public void setAsText(String text) throws IllegalArgumentException {
+            addressMask = new IPAddressMask(text);
+        }
+
+        public Object getValue() {
+            return addressMask;
+        }
     }
 }
