@@ -14,6 +14,7 @@
   <path id="project.classpath">
     <pathelement location="${ejb20.jar}"/>
     <pathelement location="${jta.jar}"/>
+    <pathelement location="${jts.jar}"/>
     <pathelement location="${jdbcext.jar}"/>
     <pathelement location="${log4j.jar}"/>
     <pathelement location="${openorb.jar}"/>
