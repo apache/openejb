@@ -125,12 +125,14 @@ public class CastorCMP11_EntityContainer
      * Contains all the KeyGenerator objects for each Deployment, indexed by deployment id.
      * The KeyGenerator objects provide quick extraction of primary keys from entity bean
      * classes and conversion between a primary key and a Castor Complex identity.
+        DMB: Instead of looking up an KeyGenerator for the deployment, we could attach it 
+        to the DeploymentInfo, or a new DeploymentInfo subclass for the CMP container.
      */
-    protected HashMap keyGeneratorMap = new HashMap();
+//    protected HashMap keyGeneratorMap = new HashMap();
 
     /* 
-     * contains a collection of LinkListStacks indexed by deployment id. Each indexed stack 
-     * represents the method ready pool of for that class. 
+     * contains a collection of LinkListStacks indexed by deployment id. Each 
+     * indexed stack represents the method ready pool of for that class. 
      */
     protected HashMap methodReadyPoolMap = new HashMap();
 
@@ -247,22 +249,31 @@ public class CastorCMP11_EntityContainer
 
         SafeToolkit toolkit = SafeToolkit.getToolkit("CastorCMP11_EntityContainer");
         SafeProperties safeProps = toolkit.getSafeProperties(properties);
-        poolsize = safeProps.getPropertyAsInt("PoolSize", 100);
-
+        
+        poolsize           = safeProps.getPropertyAsInt("PoolSize", 100);
         Global_TX_Database = safeProps.getProperty("Global_TX_Database");
-        Local_TX_Database = safeProps.getProperty("Local_TX_Database");
+        Local_TX_Database  = safeProps.getProperty("Local_TX_Database");
 
         String globalTxLogName = safeProps.getProperty("Global_TX_Log", "castor_global_tx.log");
-        String localTxLogName  = safeProps.getProperty("Local_TX_Log", "castor_local_tx.log");
+        String localTxLogName  = safeProps.getProperty("Local_TX_Log",  "castor_local_tx.log");
+        String keyDirectory    = safeProps.getProperty("KeyDirectory",  "keys");
 
         try {
             globalTransactionLogWriter = new java.io.PrintWriter( new java.io.FileWriter( globalTxLogName ) );         
             localTransactionLogWriter  = new java.io.PrintWriter( new java.io.FileWriter( localTxLogName  ) ); 
         } catch ( java.io.IOException e ) {
-            // TODO:1: Log this warning.
-            // log( "Warning: Cannot open the log files "+localTxLogName+" and "+globalTxLogName+", using system out instead." );
+            logger.warn("Cannot open the log files "+localTxLogName+" and "+globalTxLogName+", using system out instead." );
             globalTransactionLogWriter = new java.io.PrintWriter( new java.io.OutputStreamWriter( System.out ) );
             localTransactionLogWriter  = new java.io.PrintWriter( new java.io.OutputStreamWriter( System.out ) );
+        }
+        
+        try {
+            KeyGeneratorFactory.setKeyOutputDirectory( keyDirectory );
+        } catch ( java.io.IOException e ) {
+            logger.warn("Cannot set the KeyDirectory to "+ keyDirectory + "using the current working directory instead." );
+            try {
+                KeyGeneratorFactory.setKeyOutputDirectory( System.getProperty("user.dir") );
+            } catch ( Exception x ) {}
         }
 
         /*
@@ -311,13 +322,14 @@ public class CastorCMP11_EntityContainer
 
 
         /*
-         * This block of code is necessary to avoid a chicken and egg problem. The DeploymentInfo
-         * objects must have a reference to their container during this assembly process, but the
-         * container is created after the DeploymentInfo necessitating this loop to assign all
-         * deployment info object's their containers.
+         * This block of code is necessary to avoid a chicken and egg problem. 
+         * The DeploymentInfo objects must have a reference to their container 
+         * during this assembly process, but the container is created after the 
+         * DeploymentInfo necessitating this loop to assign all deployment info 
+         * object's their containers.
          *
-         * In addition the loop is leveraged for other oprations like creating the method ready pool
-         * and the keyGenerator pool.
+         * In addition the loop is leveraged for other oprations like creating 
+         * the method ready pool and the keyGenerator pool.
          */
         org.openejb.DeploymentInfo [] deploys = this.deployments();
 
@@ -335,7 +347,7 @@ public class CastorCMP11_EntityContainer
             KeyGenerator kg = null;
             try {
                 kg = KeyGeneratorFactory.createKeyGenerator(di);
-                keyGeneratorMap.put(di.getDeploymentID(), kg);
+                di.setKeyGenerator( kg );
             } catch ( Exception e ) {
                 e.printStackTrace();
                 throw new org.openejb.SystemException("Unable to create KeyGenerator for deployment id = "+di.getDeploymentID(), e);
@@ -772,13 +784,13 @@ public class CastorCMP11_EntityContainer
             }
 
             /*
-            Each bean deployment has a unique KeyGenerator that is responsible for two operations.
-            1. Convert EJB developer defined complex primary keys to Castor JDO Complex objects
+            Each bean deployment has a unique KeyGenerator that is responsible 
+            for two operations.
+            1. Convert EJB developer defined complex primary keys to Castor 
+               JDO Complex objects
             2. Extract a primary key object from a loaded Entity bean instance.
-            DMB: Instead of looking up an KeyGenerator for the deployment, we could attach it 
-                 to the DeploymentInfo, or a new DeploymentInfo subclass for the CMP container.
             */
-            KeyGenerator kg = (KeyGenerator)keyGeneratorMap.get(deploymentInfo.getDeploymentID()); 
+            KeyGenerator kg = deploymentInfo.getKeyGenerator(); 
 
             /* 
             The KeyGenerator creates a new primary key and populates its fields with the 
@@ -932,7 +944,7 @@ public class CastorCMP11_EntityContainer
 
             if ( callMethod.getName().equals("findByPrimaryKey") ) {
                 // bind complex primary key to query
-                KeyGenerator kg = (KeyGenerator)keyGeneratorMap.get(deploymentInfo.getDeploymentID());
+                KeyGenerator kg = deploymentInfo.getKeyGenerator();
                 
                 if ( kg.isKeyComplex() ) {
                     /*
@@ -1000,7 +1012,7 @@ public class CastorCMP11_EntityContainer
             1. Convert EJB developer defined complex primary keys to Castor JDO Complex objects
             2. Extract a primary key object from a loaded Entity bean instance.
             */
-            KeyGenerator kg = (KeyGenerator)keyGeneratorMap.get(deploymentInfo.getDeploymentID());         
+            KeyGenerator kg = deploymentInfo.getKeyGenerator();
 
             Object primaryKey = null;
 
@@ -1237,7 +1249,7 @@ public class CastorCMP11_EntityContainer
           
           2. Extract a primary key object from a loaded Entity bean instance.
         */
-        KeyGenerator kg = (KeyGenerator)keyGeneratorMap.get(callContext.getDeploymentInfo().getDeploymentID());
+        KeyGenerator kg = callContext.getDeploymentInfo().getKeyGenerator();
 
         /* 
             obtains a bean instance from the method ready pool, or 
