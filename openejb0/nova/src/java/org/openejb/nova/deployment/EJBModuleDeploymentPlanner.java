@@ -71,6 +71,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.model.ejb.CmpField;
 import org.apache.geronimo.deployment.model.ejb.Ejb;
 import org.apache.geronimo.deployment.model.ejb.RpcBean;
+import org.apache.geronimo.deployment.model.ejb.CmrField;
+import org.apache.geronimo.deployment.model.ejb.EjbRelation;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
@@ -104,6 +106,7 @@ import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.openejb.nova.EJBContainerConfiguration;
 import org.openejb.nova.entity.EntityContainerConfiguration;
+import org.openejb.nova.entity.cmp.CMRelation;
 import org.openejb.nova.sfsb.StatefulContainer;
 import org.openejb.nova.slsb.StatelessContainer;
 import org.openejb.nova.transaction.EJBUserTransaction;
@@ -214,6 +217,12 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
             plan.addTask(new StartMBeanInstance(getServer(), schemaMetadata));
         }
 
+        EjbRelation[] ejbRelations = ejbJar.getRelationships().getEjbRelation();
+        for (int i = 0; i < ejbRelations.length; i++) {
+            EjbRelation ejbRelation = ejbRelations[i];
+
+        }
+
         //Now set up the entities.
         for (int i = 0; i < enterpriseBeans.getGeronimoEntity().length; i++) {
             Entity entity = enterpriseBeans.getGeronimoEntity()[i];
@@ -253,6 +262,8 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
             CmpField field = fields[i];
             cmpFieldNames[i] = field.getFieldName();
         }
+
+        CmrField cmrFields = null;
 
 
         plan.addTask(new DeployCMPEntityContainer(getServer(),

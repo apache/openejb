@@ -75,13 +75,15 @@ public class CMPEntityContainer extends AbstractEJBContainer {
     private final CMPQuery[] queries;
     private InstanceOperation[] itable;
     private final String[] cmpFieldNames;
+    private final CMRelation[] relations;
 
-    public CMPEntityContainer(EntityContainerConfiguration config, CMPCommandFactory persistenceFactory, CMPQuery[] queries, String[] cmpFieldNames) {
+    public CMPEntityContainer(EntityContainerConfiguration config, CMPCommandFactory persistenceFactory, CMPQuery[] queries, String[] cmpFieldNames, CMRelation[] relations) {
         super(config);
         pkClassName = config.pkClassName;
         this.persistenceFactory = persistenceFactory;
         this.queries = queries;
         this.cmpFieldNames = cmpFieldNames;
+        this.relations = relations;
     }
 
     public void doStart() {
@@ -94,7 +96,7 @@ public class CMPEntityContainer extends AbstractEJBContainer {
             throw new AssertionError(e);
         }
 
-        CMPOperationFactory vopFactory = CMPOperationFactory.newInstance(this, queries, persistenceFactory, cmpFieldNames);
+        CMPOperationFactory vopFactory = CMPOperationFactory.newInstance(this, queries, persistenceFactory, cmpFieldNames, relations);
         vtable = vopFactory.getVTable();
         itable = vopFactory.getITable();
 

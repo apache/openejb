@@ -77,7 +77,7 @@ import org.openejb.nova.persistence.QueryCommand;
 public class CMPOperationFactory extends AbstractOperationFactory {
     private final InstanceOperation itable[];
 
-    public static CMPOperationFactory newInstance(CMPEntityContainer container, CMPQuery[] queries, CMPCommandFactory persistenceFactory, String[] fieldNames) {
+    public static CMPOperationFactory newInstance(CMPEntityContainer container, CMPQuery[] queries, CMPCommandFactory persistenceFactory, String[] fieldNames, CMRelation[] relations) {
         Class beanClass = container.getBeanClass();
         Factory factory = Enhancer.create(beanClass, new Class[0], FILTER, new SimpleCallbacks());
         Class enhancedClass = factory.getClass();
@@ -93,6 +93,8 @@ public class CMPOperationFactory extends AbstractOperationFactory {
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Bean does not implement javax.ejb.EntityBean");
         }
+
+        int slots = fieldNames.length + relations.length;
 
         // Build the VirtualOperations for business methods defined by the EJB implementation
         Method[] beanMethods = beanClass.getMethods();
@@ -124,7 +126,7 @@ public class CMPOperationFactory extends AbstractOperationFactory {
             if (name.startsWith("ejbCreate")) {
                 // ejbCreate vop needs a reference to the ejbPostCreate method
                 int postCreateIndex = fastClass.getIndex("ejbPostCreate" + name.substring(9), beanMethod.getParameterTypes());
-                vop = new CMPCreateMethod(container, fastClass, index, postCreateIndex, persistenceFactory.getUpdateCommand(signature), fieldNames.length);
+                vop = new CMPCreateMethod(container, fastClass, index, postCreateIndex, persistenceFactory.getUpdateCommand(signature), slots);
             } else if (name.startsWith("ejbHome")) {
                 vop = new HomeMethod(fastClass, index);
             } else if (name.equals("ejbRemove")) {
@@ -150,12 +152,7 @@ public class CMPOperationFactory extends AbstractOperationFactory {
             boolean multiValue = query.isMultiValue();
 
             String returnSchemaName = query.getReturnSchemaName();
-            if (!signature.getMethodName().startsWith("ejbSelect")) {
-                VirtualOperation vop = new CMPFinder(persistenceFactory.getContainer(returnSchemaName), queryCommand, multiValue);
-                sigList.add(signature);
-                vopList.add(vop);
-                signatureMap.put(signature, new Integer(vopId++));
-            } else {
+            if (signature.getMethodName().startsWith("ejbSelect")) {
                 int index;
                 try {
                     index = MethodHelper.getSuperIndex(fastClass, signature);
@@ -164,6 +161,11 @@ public class CMPOperationFactory extends AbstractOperationFactory {
                 }
                 CMPEntityContainer queryContainer = (returnSchemaName == null) ? null : persistenceFactory.getContainer(returnSchemaName);
                 itable[index] = new CMPSelectMethod(queryContainer, queryCommand, multiValue, query.isLocal());
+            } else {
+                VirtualOperation vop = new CMPFinder(persistenceFactory.getContainer(returnSchemaName), queryCommand, multiValue);
+                sigList.add(signature);
+                vopList.add(vop);
+                signatureMap.put(signature, new Integer(vopId++));
             }
         }
 
@@ -176,16 +178,45 @@ public class CMPOperationFactory extends AbstractOperationFactory {
             try {
                 String baseName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
                 Method getter = beanClass.getMethod("get"+baseName, null);
-                int index = MethodHelper.getSuperIndex(fastClass, getter);
-                itable[index] = new CMPFieldGetter(i);
-
                 Method setter = beanClass.getMethod("set"+baseName, new Class[] {getter.getReturnType()});
-                index = MethodHelper.getSuperIndex(fastClass, setter);
-                itable[index] = new CMPFieldSetter(i);
+
+                itable[MethodHelper.getSuperIndex(fastClass, getter)] = new CMPFieldGetter(i);
+                itable[MethodHelper.getSuperIndex(fastClass, setter)] = new CMPFieldSetter(i);
             } catch (NoSuchMethodException e) {
                 throw new IllegalArgumentException("Missing accessor for field "+fieldName);
             }
         }
+
+        int slot = fieldNames.length;
+        for (int i = 0; i < relations.length; i++) {
+            CMRelation relation = relations[i];
+            String fieldName = relation.getName();
+            String schemaName = relation.getSchemaName();
+
+            try {
+                String baseName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+                Method getter = beanClass.getMethod("get"+baseName, null);
+                Method setter = beanClass.getMethod("set"+baseName, new Class[] {getter.getReturnType()});
+                boolean multiValued = Collection.class.isAssignableFrom(getter.getReturnType());
+
+                InstanceOperation getOperation;
+                InstanceOperation setOperation;
+
+                if (multiValued) {
+                    throw new UnsupportedOperationException();
+                } else {
+                    getOperation = new SingleValuedCMRGetter(slot++, persistenceFactory.getContainer(schemaName));
+                    setOperation = new SingleValuedCMRSetter(slot++, persistenceFactory.getContainer(schemaName));
+                }
+
+                itable[MethodHelper.getSuperIndex(fastClass, getter)] = getOperation;
+                itable[MethodHelper.getSuperIndex(fastClass, setter)] = setOperation;
+            } catch (NoSuchMethodException e) {
+                throw new IllegalArgumentException("Missing accessor for cmr-field "+fieldName);
+            }
+        }
+
+
         CMPInstanceContextFactory contextFactory = new CMPInstanceContextFactory(container, factory);
         return new CMPOperationFactory(vtable, signatures, itable, contextFactory);
     }
