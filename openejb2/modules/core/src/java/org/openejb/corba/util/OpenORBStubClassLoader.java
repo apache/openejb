@@ -49,19 +49,17 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-
 import org.openejb.corba.compiler.CompilerException;
 import org.openejb.corba.compiler.StubGenerator;
 
@@ -78,7 +76,8 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
     private int state;
     private final StubGenerator stubGenerator;
     private final File cacheDir;
-    private final Map loaders = new Hashtable();
+    private final Map parentToNameToLoaderMap = new HashMap();
+    private final Map nameToClassMap = new HashMap();
     private static long jarId = 0;
 
     public OpenORBStubClassLoader(ServerInfo serverInfo, StubGenerator stubGenerator, String cacheDir) {
@@ -89,7 +88,9 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
 
     public synchronized Class loadClass(String name) throws ClassNotFoundException {
 
-        if (state == STOPPED) return null;
+        if (state == STOPPED) {
+            throw new ClassNotFoundException("OpenORBStubClassLoader is stopped");
+        }
 
         if (log.isDebugEnabled()) log.debug("Load class " + name);
 
@@ -97,33 +98,43 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
         Class result = null;
         try {
             result = classLoader.loadClass(name);
+            return result;
         } catch (ClassNotFoundException e) {
             if (log.isDebugEnabled()) log.debug("Unable to load class from the context class loader");
         }
 
-        if (result != null) return result;
-
-        if (result == null && name.endsWith("_Stub")) {
+        if (name.endsWith("_Stub")) {
             int begin = name.lastIndexOf('.') + 1;
             if (name.charAt(begin) == '_') {
-                String iPackage = name.substring(0, begin);
-                String iName = iPackage + name.substring(begin + 1, name.length() - 5);
-                ClassLoader loader = (ClassLoader) loaders.get(name);
+                Map nameToLoaderMap = (Map) parentToNameToLoaderMap.get(classLoader);
+                ClassLoader loader = null;
+                if (nameToLoaderMap == null) {
+                    nameToLoaderMap = new HashMap();
+                    parentToNameToLoaderMap.put(classLoader, nameToLoaderMap);
+                } else {
+                    loader = (ClassLoader) nameToLoaderMap.get(name);
+                }
 
                 if (loader == null) {
-                    File file = null;
-                    try {
-                        file = new File(cacheDir, "STUB_" + (jarId++) + ".jar");
+                    URL url = (URL) nameToClassMap.get(name);
+                    if (url == null) {
+                        try {
 
-                        if (log.isDebugEnabled()) log.debug("Generating stubs in " + file.toString());
+                            File file = new File(cacheDir, "STUB_" + (jarId++) + ".jar");
 
-                        stubGenerator.generateStubs(Collections.singleton(iName), file, classLoader);
-                        loader = new URLClassLoader(new URL[]{file.toURL()}, classLoader);
-                        loaders.put(name, loader);
-                    } catch (IOException e) {
-                        throw new ClassNotFoundException("Unable to generate stub", e);
-                    } catch (CompilerException e) {
-                        throw new ClassNotFoundException("Unable to generate stub", e);
+                            if (log.isDebugEnabled()) log.debug("Generating stubs in " + file.toString());
+
+                            String iPackage = name.substring(0, begin);
+                            String iName = iPackage + name.substring(begin + 1, name.length() - 5);
+                            stubGenerator.generateStubs(Collections.singleton(iName), file, classLoader);
+                            url = file.toURL();
+                        } catch (IOException e) {
+                            throw new ClassNotFoundException("Unable to generate stub", e);
+                        } catch (CompilerException e) {
+                            throw new ClassNotFoundException("Unable to generate stub", e);
+                        }
+                        loader = new URLClassLoader(new URL[]{url}, classLoader);
+                        nameToLoaderMap.put(name, loader);
                     }
                 } else {
                     if (log.isDebugEnabled()) log.debug("Found cached loader");
@@ -132,10 +143,10 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
                 result = loader.loadClass(name);
 
                 if (log.isDebugEnabled()) log.debug("result: " + (result == null ? "NULL" : result.getName()));
+                return result;
             }
         }
-
-        return result;
+        throw new ClassNotFoundException("Could not load class: " + name);
     }
 
     public synchronized void doStart() throws Exception {
@@ -151,7 +162,8 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
 
     public synchronized void doStop() throws Exception {
         this.state = STOPPED;
-        loaders.clear();
+        parentToNameToLoaderMap.clear();
+        nameToClassMap.clear();
         DeploymentUtil.recursiveDelete(cacheDir);
 
         log.info("Stopped");
