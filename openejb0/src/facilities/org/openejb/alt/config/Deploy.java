@@ -659,7 +659,12 @@ public class Deploy {
                     // We must have reached the jar list
                     d.init(null);
                     for (int j=i; j < args.length; j++){
-                        d.deploy( args[j] );
+                        try{
+                            d.deploy( args[j] );
+                        } catch (Exception e){
+                            System.out.println("ERROR:");
+                            System.out.println(e.getMessage());
+                        }
                     }
                 }
             }

@@ -180,18 +180,15 @@ public class EjbJarUtils {
         
         // Safety checks
         if (!origFile.exists()){
-            ConfigUtils.logWarning("deploy.m.010", origFile.getAbsolutePath());
-            return jar;
+            handleException("deploy.m.010", origFile.getAbsolutePath());
         }
 
         if (origFile.isDirectory()){
-            ConfigUtils.logWarning("deploy.m.020", origFile.getAbsolutePath());
-            return jar;
+            handleException("deploy.m.020", origFile.getAbsolutePath());
         }
 
         if (!origFile.isFile()){
-            ConfigUtils.logWarning("deploy.m.030", origFile.getAbsolutePath());
-            return jar;
+            handleException("deploy.m.030", origFile.getAbsolutePath());
         }
 
         // Move file
@@ -200,8 +197,7 @@ public class EjbJarUtils {
         try {
             beansDir = FileUtils.getDirectory("beans"); 
         } catch (java.io.IOException ioe){
-            ConfigUtils.logWarning("deploy.m.040", origFile.getAbsolutePath(), ioe.getMessage());
-            return jar;
+            handleException("deploy.m.040", origFile.getAbsolutePath(), ioe.getMessage());
         }
         
         File newFile = new File(beansDir, jarName);
@@ -217,15 +213,13 @@ public class EjbJarUtils {
 	    }
             moved = origFile.renameTo(newFile); 
         } catch (SecurityException se){
-            ConfigUtils.logWarning("deploy.m.050", origFile.getAbsolutePath(), se.getMessage());
+            handleException("deploy.m.050", origFile.getAbsolutePath(), se.getMessage());
         }
 
-        if ( moved ){
-            return newFile.getAbsolutePath();
-        } else {
-            ConfigUtils.logWarning("deploy.m.060", origFile.getAbsolutePath(), newFile.getAbsoluteFile());
-            return origFile.getAbsolutePath();
+        if ( !moved ){
+            handleException("deploy.m.060", origFile.getAbsolutePath(), newFile.getAbsoluteFile());
         }
+        return newFile.getAbsolutePath();
     }
 
     public static String copyJar(String jar, boolean overwrite) throws OpenEJBException{
@@ -233,17 +227,17 @@ public class EjbJarUtils {
         
         // Safety checks
         if (!origFile.exists()){
-            ConfigUtils.logWarning("deploy.c.010", origFile.getAbsolutePath());
+            handleException("deploy.c.010", origFile.getAbsolutePath());
             return jar;
         }
 
         if (origFile.isDirectory()){
-            ConfigUtils.logWarning("deploy.c.020", origFile.getAbsolutePath());
+            handleException("deploy.c.020", origFile.getAbsolutePath());
             return jar;
         }
 
         if (!origFile.isFile()){
-            ConfigUtils.logWarning("deploy.c.030", origFile.getAbsolutePath());
+            handleException("deploy.c.030", origFile.getAbsolutePath());
             return jar;
         }
 
@@ -253,7 +247,7 @@ public class EjbJarUtils {
         try {
             beansDir = FileUtils.getDirectory("beans"); 
         } catch (java.io.IOException ioe){
-            ConfigUtils.logWarning("deploy.c.040", origFile.getAbsolutePath(), ioe.getMessage());
+            handleException("deploy.c.040", origFile.getAbsolutePath(), ioe.getMessage());
             return jar;
         }
         
@@ -281,9 +275,9 @@ public class EjbJarUtils {
             out.close();
 
         } catch (SecurityException e){
-            ConfigUtils.logWarning("deploy.c.050", origFile.getAbsolutePath(), beansDir.getAbsolutePath(), e.getMessage());
+            handleException("deploy.c.050", origFile.getAbsolutePath(), beansDir.getAbsolutePath(), e.getMessage());
         } catch (IOException e){
-            ConfigUtils.logWarning("deploy.c.060", origFile.getAbsolutePath(), newFile.getAbsolutePath(), e.getClass().getName(), e.getMessage());
+            handleException("deploy.c.060", origFile.getAbsolutePath(), newFile.getAbsolutePath(), e.getClass().getName(), e.getMessage());
         }
 
         return newFile.getAbsolutePath();
