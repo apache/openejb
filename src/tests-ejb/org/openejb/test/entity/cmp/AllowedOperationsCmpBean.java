@@ -133,6 +133,25 @@ public class AllowedOperationsCmpBean implements javax.ejb.EntityBean{
         return b.reverse().toString();
     }
 
+    /**
+     * Throws an ApplicationException when invoked
+     * 
+     */
+    public void throwApplicationException() throws org.openejb.test.ApplicationException{
+        throw new org.openejb.test.ApplicationException("Don't Panic");
+    }
+    
+    /**
+     * Throws a java.lang.NullPointerException when invoked
+     * This is a system exception and should result in the 
+     * destruction of the instance and invalidation of the
+     * remote reference.
+     * 
+     */
+    public void throwSystemException_NullPointer() {
+        throw new NullPointerException("Panic");
+    }
+    
     
     /**
      * Maps to BasicCmpObject.getPermissionsReport

@@ -49,6 +49,7 @@ import java.util.Properties;
 import org.openejb.test.object.OperationsPolicy;
 import java.rmi.RemoteException;
 import org.openejb.test.TestFailureException;
+import org.openejb.test.ApplicationException;
 
 /**
  * 
@@ -63,6 +64,21 @@ public interface BasicBmpObject extends javax.ejb.EJBObject{
      * @return 
      */
     public String businessMethod(String text) throws RemoteException;
+    
+    /**
+     * Throws an ApplicationException when invoked
+     * 
+     */
+    public void throwApplicationException() throws RemoteException, ApplicationException;
+    
+    /**
+     * Throws a java.lang.NullPointerException when invoked
+     * This is a system exception and should result in the 
+     * destruction of the instance and invalidation of the
+     * remote reference.
+     * 
+     */
+    public void throwSystemException_NullPointer() throws RemoteException;
     
     /**
      * Returns a report of the bean's 

@@ -53,6 +53,7 @@ import javax.sql.*;
 import java.sql.*;
 import org.openejb.test.object.OperationsPolicy;
 import org.openejb.test.TestFailureException;
+import org.openejb.test.ApplicationException;
 import javax.naming.InitialContext;
 
 /**
@@ -105,6 +106,24 @@ public class BMTStatefulBean implements javax.ejb.SessionBean {
         return b.reverse().toString();
     }
 
+    /**
+     * Throws an ApplicationException when invoked
+     * 
+     */
+    public void throwApplicationException() throws ApplicationException{
+        throw new ApplicationException("Don't Panic");
+    }
+    
+    /**
+     * Throws a java.lang.NullPointerException when invoked
+     * This is a system exception and should result in the 
+     * destruction of the instance and invalidation of the
+     * remote reference.
+     * 
+     */
+    public void throwSystemException_NullPointer() {
+        throw new NullPointerException("Panic");
+    }
     
     /**
      * Maps to BasicStatefulObject.getPermissionsReport
