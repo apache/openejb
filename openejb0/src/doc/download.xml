@@ -17,6 +17,23 @@ fixed, if not, please let us know.
 </p>
 </section>
 
+<section title="Fixes in 0.8beta3" ref-id="new.features.0.8beta3">
+<ul>
+<li>SourceForge bugs fixed:</li>
+<ul>
+<li>[ 563891 ] Bad client-side error messages</li>
+<li>[ 565604 ] Setting the handler system property</li>
+<li>[ 566953 ] openejb.bat on NT fails to display</li>
+<li>[ 566956 ] deploy doesn't overwrite</li>
+<li>[ 566961 ] typos in HelloWorld example</li>
+<li>[ 566966 ] Need a sample client run script</li>
+<li>[ 566967 ] sun.tools.javac.Main deprecated</li>
+<li>[ 566974 ] openejb.bat help screen fails on NT</li>
+</ul>
+<li>ejbserver scripts now include OPENEJB_HOME/beans in classpath</li>
+</ul>
+</section>
+
 <section title="Fixes in 0.8beta2" ref-id="new.features.0.8beta2">
 <ul>
 <li>Fixed fatal file path bug affecting UNIX/Linux/Mac OS X Users</li>
