@@ -44,8 +44,8 @@
  */
 package org.openejb.admin.web;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.*; //Added by Jeremy Whitlock (jcscoobyrs) 10/22/03 08:54:14 AM
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.StringTokenizer;
