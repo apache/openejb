@@ -115,11 +115,11 @@ public class StatefulEjbHomeTests extends BasicStatefulTestClient{
     public void test03_removeByPrimaryKey(){
         try{
             ejbHome.remove("primaryKey");
-        } catch (java.rmi.RemoteException e){
+        } catch (javax.ejb.RemoveException e){
             assertTrue( true );
             return;
         } catch (Exception e){
-            fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
+            fail("Received "+e.getClass()+" instead of javax.ejb.RemoveException");
         }
         assertTrue("java.rmi.RemoteException should have been thrown", false );
     }

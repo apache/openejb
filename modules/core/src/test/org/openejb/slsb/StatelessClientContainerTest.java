@@ -47,7 +47,6 @@
  */
 package org.openejb.slsb;
 
-import java.net.URI;
 import java.rmi.RemoteException;
 import java.util.HashSet;
 import javax.ejb.EJBException;
@@ -59,16 +58,14 @@ import javax.ejb.RemoveException;
 import javax.rmi.PortableRemoteObject;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.apache.geronimo.naming.java.ReadOnlyContext;
 
 import junit.framework.TestCase;
+import junit.framework.AssertionFailedError;
+import org.openejb.EJBContainer;
 import org.openejb.MockTransactionManager;
-import org.openejb.TransactionDemarcation;
 import org.openejb.deployment.TransactionPolicySource;
-import org.openejb.dispatch.MethodSignature;
+import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
 
@@ -79,156 +76,152 @@ import org.openejb.transaction.TransactionPolicy;
  * @version $Revision$ $Date$
  */
 public class StatelessClientContainerTest extends TestCase {
-//    private StatelessContainer container;
+    private EJBContainer container;
 
-    public void XtestMetadata() throws Exception {
-//        EJBMetaData metaData = container.getEJBHome().getEJBMetaData();
-//        assertTrue(metaData.isSession());
-//        assertTrue(metaData.isStatelessSession());
-//        assertEquals(MockHome.class, metaData.getHomeInterfaceClass());
-//        assertEquals(MockRemote.class, metaData.getRemoteInterfaceClass());
-//        EJBHome home = metaData.getEJBHome();
-//        assertTrue(home instanceof MockHome);
-//        try {
-//            PortableRemoteObject.narrow(home, MockHome.class);
-//        } catch (ClassCastException e) {
-//            fail("Unable to narrow home interface");
-//        }
-//        try {
-//            metaData.getPrimaryKeyClass();
-//            fail("Expected IllegalStateException");
-//        } catch (IllegalStateException e) {
+    public void testMetadata() throws Exception {
+        EJBMetaData metaData = container.getEJBHome().getEJBMetaData();
+        assertTrue(metaData.isSession());
+        assertTrue(metaData.isStatelessSession());
+        assertEquals(MockHome.class, metaData.getHomeInterfaceClass());
+        assertEquals(MockRemote.class, metaData.getRemoteInterfaceClass());
+        EJBHome home = metaData.getEJBHome();
+        assertTrue(home instanceof MockHome);
+        try {
+            PortableRemoteObject.narrow(home, MockHome.class);
+        } catch (ClassCastException e) {
+            fail("Unable to narrow home interface");
+        }
+        try {
+            metaData.getPrimaryKeyClass();
+            fail("Expected EJBException, but no exception was thrown");
+        } catch (EJBException e) {
             // OK
-//        } catch (Throwable t) {
-//            fail("Expected IllegalStateException");
-//        }
+        } catch (AssertionFailedError e) {
+            throw e;
+        } catch (Throwable t) {
+            fail("Expected EJBException, but got " + t.getClass().getName());
+        }
     }
 
-    public void XtestHomeInterface() throws Exception {
-//        MockHome home = (MockHome) container.getEJBHome();
-//        assertTrue(home.create() instanceof MockRemote);
-//        try {
-//            home.remove(new Integer(1));
-//            fail("Expected RemoveException");
-//        } catch (RemoveException e) {
+    public void testHomeInterface() throws Exception {
+        MockHome home = (MockHome) container.getEJBHome();
+        assertTrue(home.create() instanceof MockRemote);
+        try {
+            home.remove(new Integer(1));
+            fail("Expected RemoveException, but no exception was thrown");
+        } catch (RemoveException e) {
             // OK
-//        } catch (Throwable t) {
-//            fail("Expected RemoveException");
-//        }
-//        try {
-//            home.remove(new Handle() {
-//                public EJBObject getEJBObject() throws RemoteException {
-//                    return null;
-//                }
-//            });
-//            fail("Expected RemoteException");
-//        } catch (RemoteException e) {
+        } catch (AssertionFailedError e) {
+            throw e;
+        } catch (Throwable t) {
+            fail("Expected RemoveException, but got " + t.getClass().getName());
+        }
+        try {
+            home.remove(new Handle() {
+                public EJBObject getEJBObject() throws RemoteException {
+                    return null;
+                }
+            });
+            fail("Expected RemoteException, but no exception was thrown");
+        } catch (RemoteException e) {
             // OK
-//        } catch (Throwable t) {
-//            fail("Expected RemoteException");
-//        }
+        } catch (AssertionFailedError e) {
+            throw e;
+        } catch (Throwable t) {
+            fail("Expected RemoteException, but got " + t.getClass().getName());
+        }
     }
 
     public void testLocalHomeInterface() {
-//        MockLocalHome localHome = (MockLocalHome) container.getEJBLocalHome();
-//        try {
-//            localHome.remove(new Integer(1));
-//            fail("Expected RemoveException");
-//        } catch (RemoveException e) {
+        MockLocalHome localHome = (MockLocalHome) container.getEJBLocalHome();
+        try {
+            localHome.remove(new Integer(1));
+            fail("Expected RemoveException, but no exception was thrown");
+        } catch (RemoveException e) {
             // OK
-//        } catch (Throwable t) {
-//            fail("Expected RemoveException");
-//        }
+        } catch (AssertionFailedError e) {
+            throw e;
+        } catch (Throwable t) {
+            fail("Expected RemoveExceptions, but got " + t.getClass().getName());
+        }
     }
 
-    public void XtestObjectInterface() throws Exception {
-//        MockHome home = (MockHome) container.getEJBHome();
-//        MockRemote remote = home.create();
-//        assertTrue(home == remote.getEJBHome());
-//        assertTrue(remote.isIdentical(remote));
-//        assertTrue(remote.isIdentical(home.create()));
-//        try {
-//            remote.getPrimaryKey();
-//            fail("Expected RemoteException");
-//        } catch (RemoteException e) {
+    public void testObjectInterface() throws Exception {
+        MockHome home = (MockHome) container.getEJBHome();
+        MockRemote remote = home.create();
+        assertTrue(remote.isIdentical(remote));
+        assertTrue(remote.isIdentical(home.create()));
+        try {
+            remote.getPrimaryKey();
+            fail("Expected RemoteException, but no exception was thrown");
+        } catch (RemoteException e) {
             // OK
-//        } catch (Throwable t) {
-//            fail("Expected RemoteException");
-//        }
-//        remote.remove();
+        } catch (AssertionFailedError e) {
+            throw e;
+        } catch (Throwable t) {
+            fail("Expected RemoteException, but got " + t.getClass().getName());
+        }
+        remote.remove();
     }
 
     public void testLocalInterface() throws Exception {
-//        MockLocalHome localHome = (MockLocalHome) container.getEJBLocalHome();
-//        MockLocal local = localHome.create();
-//        assertTrue(localHome == local.getEJBLocalHome());
-//        assertTrue(local.isIdentical(local));
-//        assertTrue(local.isIdentical(localHome.create()));
-//        try {
-//            local.getPrimaryKey();
-//            fail("Expected EJBException");
-//        } catch (EJBException e) {
+        MockLocalHome localHome = (MockLocalHome) container.getEJBLocalHome();
+        MockLocal local = localHome.create();
+        assertTrue(local.isIdentical(local));
+        assertTrue(local.isIdentical(localHome.create()));
+        try {
+            local.getPrimaryKey();
+            fail("Expected EJBException, but no exception was thrown");
+        } catch (EJBException e) {
              //OK
-//        } catch (Throwable t) {
-//            fail("Expected EJBException");
-//        }
-//        local.remove();
+        } catch (AssertionFailedError e) {
+            throw e;
+        } catch (Throwable t) {
+            fail("Expected EJBException, but got " + t.getClass().getName());
+        }
+        local.remove();
     }
 
-    public void XtestInvocation() throws Exception {
-//        MockHome home = (MockHome) container.getEJBHome();
-//        MockRemote remote = home.create();
-//        assertEquals(2, remote.intMethod(1));
-//        try {
-//            remote.appException();
-//            fail("Expected AppException");
-//        } catch (AppException e) {
+    public void testInvocation() throws Exception {
+        MockHome home = (MockHome) container.getEJBHome();
+        MockRemote remote = home.create();
+        assertEquals(2, remote.intMethod(1));
+        try {
+            remote.appException();
+            fail("Expected AppException, but no exception was thrown");
+        } catch (AppException e) {
             // OK
-//        }
-//        try {
-//            remote.sysException();
-//            fail("Expected RemoteException");
-//        } catch (RemoteException e) {
+        }
+        try {
+            remote.sysException();
+            fail("Expected RemoteException, but no exception was thrown");
+        } catch (RemoteException e) {
             // OK
-//        }
-    }
-
-    public void XtestProxySpeed() throws Exception {
-        Interceptor localEndpoint = new Interceptor() {
-
-            public InvocationResult invoke(Invocation invocation) throws Throwable {
-                return new SimpleInvocationResult(true, new Integer(1));
-            }
-
-        };
-
-        MethodSignature[] signatures = {new MethodSignature("intMethod", new Class[]{Integer.TYPE})};
-        // TODO: Fix implementation
+        }
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-//        URI uri = new URI("async://localhost:3434#1234");
-//
-//        org.openejb.EJBContainerConfiguration config;
-//        config = new org.openejb.EJBContainerConfiguration();
-        //config.uri = uri;
-//        config.ejbName = "MockSession";
-//        config.beanClassName = MockEJB.class.getName();
-//        config.homeInterfaceName = MockHome.class.getName();
-//        config.localHomeInterfaceName = MockLocalHome.class.getName();
-//        config.remoteInterfaceName = MockRemote.class.getName();
-//        config.localInterfaceName = MockLocal.class.getName();
-//        config.txnDemarcation = TransactionDemarcation.CONTAINER;
-//        config.unshareableResources = new HashSet();
-//        config.transactionPolicySource = new TransactionPolicySource() {
-//            public TransactionPolicy getTransactionPolicy(String methodIntf, MethodSignature signature) {
-//                return ContainerPolicy.Required;
-//            }
-//        };
-//        config.contextId = "Mock Deployment Id";
-//
-//        container = new StatelessContainer(config, new MockTransactionManager(), new ConnectionTrackingCoordinator());
-//        container.doStart();
+        StatelessContainerBuilder builder = new StatelessContainerBuilder();
+        builder.setClassLoader(this.getClass().getClassLoader());
+        builder.setContainerId("MockEJB");
+        builder.setEJBName("MockEJB");
+        builder.setBeanClassName(MockEJB.class.getName());
+        builder.setHomeInterfaceName(MockHome.class.getName());
+        builder.setLocalHomeInterfaceName(MockLocalHome.class.getName());
+        builder.setRemoteInterfaceName(MockRemote.class.getName());
+        builder.setLocalInterfaceName(MockLocal.class.getName());
+        builder.setJndiNames(new String[0]);
+        builder.setLocalJndiNames(new String[0]);
+        builder.setUnshareableResources(new HashSet());
+        builder.setTransactionPolicySource(new TransactionPolicySource() {
+            public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
+                return ContainerPolicy.Required;
+            }
+        });
+        builder.setComponentContext(new ReadOnlyContext());
+        builder.setTransactionManager(new MockTransactionManager());
+        builder.setTrackedConnectionAssociator(new ConnectionTrackingCoordinator());
+        container = builder.createContainer();
     }
 }

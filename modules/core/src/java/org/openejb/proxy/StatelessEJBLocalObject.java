@@ -44,10 +44,8 @@
  */
 package org.openejb.proxy;
 
-import java.rmi.RemoteException;
-
 import javax.ejb.EJBException;
-import javax.ejb.EJBObject;
+import javax.ejb.EJBLocalObject;
 import javax.ejb.RemoveException;
 
 
@@ -61,13 +59,15 @@ public abstract class StatelessEJBLocalObject extends EJBLocalObjectImpl {
         throw new EJBException("Statless Session objects are anonymous resources and do not have primary keys");        
     }
 
-    public boolean isIdentical(EJBObject obj) throws EJBException {
+    public boolean isIdentical(EJBLocalObject obj) throws EJBException {
         try {
             if (obj instanceof StatelessEJBLocalObject){
                 Object thatID = ((StatelessEJBLocalObject)obj).getProxyInfo().getContainerID();
                 Object thisID = getProxyInfo().getContainerID();
                 return thisID.equals(thatID);
-            } else return false;
+            } else {
+                return false;
+            }
         } catch (Throwable t){
             return false;
         }

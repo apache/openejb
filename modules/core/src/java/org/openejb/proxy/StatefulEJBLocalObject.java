@@ -44,10 +44,8 @@
  */
 package org.openejb.proxy;
 
-import java.rmi.RemoteException;
-
 import javax.ejb.EJBException;
-import javax.ejb.EJBObject;
+import javax.ejb.EJBLocalObject;
 import javax.ejb.RemoveException;
 
 
@@ -58,22 +56,24 @@ public abstract class StatefulEJBLocalObject extends EJBLocalObjectImpl {
     }
 
     public Object getPrimaryKey() throws EJBException {
-        throw new EJBException("Session objects are private resources and do not have primary keys");        
+        throw new EJBException("Session objects are private resources and do not have primary keys");
     }
 
-    public boolean isIdentical(EJBObject obj) throws RemoteException {
+    public boolean isIdentical(EJBLocalObject obj) throws EJBException {
         try {
-            if (obj instanceof StatefulEJBLocalObject){
-                Object thatID = ((StatefulEJBLocalObject)obj).getProxyInfo().getContainerID();
+            if (obj instanceof StatefulEJBLocalObject) {
+                Object thatID = ((StatefulEJBLocalObject) obj).getProxyInfo().getContainerID();
                 Object thisID = getProxyInfo().getContainerID();
                 return thisID.equals(thatID);
-            } else return false;
-        } catch (Throwable t){
+            } else {
+                return false;
+            }
+        } catch (Throwable t) {
             return false;
         }
     }
-    
+
     public void remove() throws EJBException, RemoveException {
     }
-    
+
 }
