@@ -15,7 +15,7 @@
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
  *    permission of The OpenEJB Group.  For written permission,
- *    please contact openejb-group@openejb.sf.net.
+ *    please contact openejb@openejb.org.
  *
  * 4. Products derived from this Software may not be called "OpenEJB"
  *    nor may "OpenEJB" appear in their names without prior written
@@ -23,7 +23,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://openejb.sf.net/).
+ *    (http://openejb.org/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -42,63 +42,38 @@
  *
  * $Id$
  */
-package org.openejb.server.ejbd;
+package org.openejb.server.soap;
 
 
 import java.io.IOException;
-import java.net.Socket;
-import java.util.Properties;
 
-import org.openejb.server.ServerFederation;
-import org.openejb.server.ServiceException;
-import org.openejb.server.ServerService;
-import org.openejb.ContainerIndex;
-import org.openejb.OpenEJB;
+import org.codehaus.xfire.MessageContext;
+import org.openejb.server.httpd.HttpListener;
+import org.openejb.server.httpd.HttpRequest;
+import org.openejb.server.httpd.HttpResponse;
 
-/**
- * @since 11/25/2001
- */
-public class EjbServer implements ServerService {
-    private EjbDaemon ejbDaemon;
+public class SoapHttpListener implements HttpListener {
 
-    static {
-        // TODO Horrid hack, the concept needs to survive somewhere
-        if (OpenEJB.getApplicationServer() == null) {
-            OpenEJB.setApplicationServer(new ServerFederation());
+    private final WSContainerIndex containerIndex;
+
+    public SoapHttpListener(WSContainerIndex containerIndex) {
+        this.containerIndex = containerIndex;
+    }
+
+    public void onMessage(HttpRequest req, HttpResponse res) throws IOException {
+        MessageContext context = new MessageContext("not-used", null, res.getOutputStream(), null, req.getURI().toString());
+        context.setRequestStream(req.getInputStream());
+
+        String path = req.getURI().getPath();
+        WSContainer container = containerIndex.getContainer(path);
+
+        if (container == null) {
+            res.setCode(404);
+            res.setResponseString("No such web service");
         }
-    }
-    public EjbServer() throws Exception {
-        ejbDaemon = EjbDaemon.getEjbDaemon();
-    }
 
-    public EjbServer(ContainerIndex containerIndex) throws Exception {
-        ejbDaemon = new EjbDaemon(containerIndex);
-    }
-
-    public void init(Properties props) throws Exception {
-    }
-
-    public void service(Socket socket) throws ServiceException, IOException {
-        ServerFederation.setApplicationServer(ejbDaemon);
-        ejbDaemon.service(socket);
-    }
-
-    public void start() throws ServiceException {
-    }
-
-    public void stop() throws ServiceException {
-    }
-
-    public String getName() {
-        return "ejbd";
-    }
-
-    public int getPort() {
-        return 0;
-    }
-
-    public String getIP() {
-        return "";
+        res.setContentType("text/xml");
+        container.invoke(context);
     }
 
 }

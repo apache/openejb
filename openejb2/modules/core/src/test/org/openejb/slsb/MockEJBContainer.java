@@ -49,10 +49,18 @@ import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
+import javax.management.ObjectName;
 import javax.security.auth.Subject;
 
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.EJBComponentType;
 import org.openejb.EJBContainer;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -65,7 +73,7 @@ public class MockEJBContainer implements EJBContainer {
     private final Class ejbClass;
 
     public MockEJBContainer() {
-        this.proxyInfo = new ProxyInfo(EJBComponentType.STATELESS,"foo",MockHome.class,MockRemote.class,MockLocalHome.class,MockLocal.class,MockServiceEndpoint.class, null);
+        this.proxyInfo = new ProxyInfo(EJBComponentType.STATELESS, "foo", MockHome.class, MockRemote.class, MockLocalHome.class, MockLocal.class, MockServiceEndpoint.class, null);
         ejbClass = MockEJB.class;
     }
 
@@ -135,4 +143,33 @@ public class MockEJBContainer implements EJBContainer {
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         return null;
     }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MockEJBContainer.class);
+
+        infoFactory.addOperation("invoke", new Class[]{Invocation.class});
+        infoFactory.addOperation("invoke", new Class[]{Method.class, Object[].class, Object.class});
+        infoFactory.addAttribute("EJBName", String.class, true);
+        infoFactory.addAttribute("ProxyInfo", ProxyInfo.class, true);
+
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
+    public static ObjectName addGBean(Kernel kernel, String name) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+        ObjectName gbeanName = JMXUtil.getObjectName("openejb:j2eeType=StatelessSessionBean,name=" + name);
+
+        GBeanData gbean1 = new GBeanData(gbeanName, MockEJBContainer.GBEAN_INFO);
+
+        GBeanData gbean = gbean1;
+        kernel.loadGBean(gbean, MockEJBContainer.class.getClassLoader());
+        kernel.startGBean(gbean.getName());
+        return gbean.getName();
+    }
+
 }

@@ -451,6 +451,59 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>xfire</groupId>
+            <artifactId>xfire</artifactId>
+            <version>${xfire_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>xfire</groupId>
+            <artifactId>xfire-java</artifactId>
+            <version>${xfire_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>xfire</groupId>
+            <artifactId>xfire-jaxrpc</artifactId>
+            <version>${xfire_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>${wsdl4j_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax</artifactId>
+            <version>${stax_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+            <version>${stax_api_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
     </dependencies>
 
     <!-- =================== -->

@@ -15,7 +15,7 @@
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
  *    permission of The OpenEJB Group.  For written permission,
- *    please contact openejb-group@openejb.sf.net.
+ *    please contact openejb@openejb.org.
  *
  * 4. Products derived from this Software may not be called "OpenEJB"
  *    nor may "OpenEJB" appear in their names without prior written
@@ -23,7 +23,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://openejb.sf.net/).
+ *    (http://openejb.org/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -42,63 +42,25 @@
  *
  * $Id$
  */
-package org.openejb.server.ejbd;
+package org.openejb.deployment;
 
+import java.util.jar.JarFile;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.util.Properties;
+import javax.management.ObjectName;
 
-import org.openejb.server.ServerFederation;
-import org.openejb.server.ServiceException;
-import org.openejb.server.ServerService;
-import org.openejb.ContainerIndex;
-import org.openejb.OpenEJB;
+import junit.framework.TestCase;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 
-/**
- * @since 11/25/2001
- */
-public class EjbServer implements ServerService {
-    private EjbDaemon ejbDaemon;
+public class WSContainerBuilderTest extends TestCase {
 
-    static {
-        // TODO Horrid hack, the concept needs to survive somewhere
-        if (OpenEJB.getApplicationServer() == null) {
-            OpenEJB.setApplicationServer(new ServerFederation());
-        }
+    public void testBuildGBeanData() throws Exception {
+        WSContainerBuilder wsContainerBuilder = new WSContainerBuilder();
+        JarFile jarFile = new JarFile("target/test-ejb-jar.jar");
+        String serviceEndpointName = "org.openejb.test.simple.slsb.SimpleStatelessSessionEndpoint";
+        ObjectName sessionObjectName = JMXUtil.getObjectName("openejb:type=StatelessSessionBean,name=MockSession");
+        GBeanData gBeanData = wsContainerBuilder.buildGBeanData(sessionObjectName, "MockSession", serviceEndpointName, jarFile);
+        assertEquals("encoded", gBeanData.getAttribute("encoding"));
+        assertEquals("rpc", gBeanData.getAttribute("style"));
     }
-    public EjbServer() throws Exception {
-        ejbDaemon = EjbDaemon.getEjbDaemon();
-    }
-
-    public EjbServer(ContainerIndex containerIndex) throws Exception {
-        ejbDaemon = new EjbDaemon(containerIndex);
-    }
-
-    public void init(Properties props) throws Exception {
-    }
-
-    public void service(Socket socket) throws ServiceException, IOException {
-        ServerFederation.setApplicationServer(ejbDaemon);
-        ejbDaemon.service(socket);
-    }
-
-    public void start() throws ServiceException {
-    }
-
-    public void stop() throws ServiceException {
-    }
-
-    public String getName() {
-        return "ejbd";
-    }
-
-    public int getPort() {
-        return 0;
-    }
-
-    public String getIP() {
-        return "";
-    }
-
 }

@@ -15,7 +15,7 @@
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
  *    permission of The OpenEJB Group.  For written permission,
- *    please contact openejb-group@openejb.sf.net.
+ *    please contact openejb@openejb.org.
  *
  * 4. Products derived from this Software may not be called "OpenEJB"
  *    nor may "OpenEJB" appear in their names without prior written
@@ -23,7 +23,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://openejb.sf.net/).
+ *    (http://openejb.org/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -42,63 +42,52 @@
  *
  * $Id$
  */
-package org.openejb.server.ejbd;
+package org.openejb.server.soap;
 
+import javax.management.ObjectName;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.util.Properties;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.openejb.server.httpd.HttpRequest;
+import org.openejb.server.httpd.HttpResponse;
 
-import org.openejb.server.ServerFederation;
-import org.openejb.server.ServiceException;
-import org.openejb.server.ServerService;
-import org.openejb.ContainerIndex;
-import org.openejb.OpenEJB;
+public class SoapHttpListenerGBean {
 
-/**
- * @since 11/25/2001
- */
-public class EjbServer implements ServerService {
-    private EjbDaemon ejbDaemon;
+    public static final GBeanInfo GBEAN_INFO;
 
     static {
-        // TODO Horrid hack, the concept needs to survive somewhere
-        if (OpenEJB.getApplicationServer() == null) {
-            OpenEJB.setApplicationServer(new ServerFederation());
-        }
-    }
-    public EjbServer() throws Exception {
-        ejbDaemon = EjbDaemon.getEjbDaemon();
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SoapHttpListener.class);
+
+        infoFactory.addOperation("onMessage", new Class[]{HttpRequest.class, HttpResponse.class});
+        infoFactory.addReference("WSContainerIndex", WSContainerIndex.class);
+
+        infoFactory.setConstructor(new String[]{"WSContainerIndex"});
+
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public EjbServer(ContainerIndex containerIndex) throws Exception {
-        ejbDaemon = new EjbDaemon(containerIndex);
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 
-    public void init(Properties props) throws Exception {
+    public static ObjectName addGBean(Kernel kernel, String name, ObjectName containerIndex) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+        GBeanData gbean = createGBean(name, containerIndex);
+        kernel.loadGBean(gbean, SoapHttpListener.class.getClassLoader());
+        kernel.startGBean(gbean.getName());
+        return gbean.getName();
     }
 
-    public void service(Socket socket) throws ServiceException, IOException {
-        ServerFederation.setApplicationServer(ejbDaemon);
-        ejbDaemon.service(socket);
-    }
+    public static GBeanData createGBean(String name, ObjectName containerIndex) {
+        ObjectName gbeanName = JMXUtil.getObjectName("openejb:type=SoapHttpListener,name=" + name);
 
-    public void start() throws ServiceException {
-    }
+        GBeanData gbean = new GBeanData(gbeanName, SoapHttpListenerGBean.GBEAN_INFO);
+        gbean.setReferencePattern("WSContainerIndex", containerIndex);
 
-    public void stop() throws ServiceException {
+        return gbean;
     }
-
-    public String getName() {
-        return "ejbd";
-    }
-
-    public int getPort() {
-        return 0;
-    }
-
-    public String getIP() {
-        return "";
-    }
-
 }
