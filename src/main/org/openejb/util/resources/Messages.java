@@ -67,6 +67,33 @@ public class Messages extends ListResourceBundle{
 
  	static final Object[][] contents = {
  	// LOCALIZE THIS
+{"startup.banner", "\n********************************************************************************\nOpenEJB {0}\nStartup: {1}\n{2}\nVersion: {3}\nBuild date: {4}\nBuild time: {5}\n********************************************************************************\n\n"},
+{"startup.alreadyInitialzied", "Cannot initialize OpenEJB a second time in the same VM."},
+{"startup.noSecurityManagerInstalled", "No SecurityManager installed. Installing default."},
+{"startup.couldNotInstalllDefaultSecurityManager", "Could not install default SecurityManager: {0}: {1}"},
+{"startup.noInitializationProperties", "No initialization properties were passed in, using system properties instead."},
+{"startup.noApplicationServerSpecified", "No ApplicationServer was specified!  The container system will only be accessible by same-vm clients via the IntraVm Server."},
+{"startup.deprecatedPropertyName", "Deprecated: The propery name \"{0}\" is deprecated and will be removed in a future version of OpenEJB, please use the property name \"openejb.assembler\" instead."},
+{"startup.instantiatingAssemberClass", "Instantiating assembler class {0}"},
+{"startup.assemblerCannotBeInstanitated", "OpenEJB has encountered a fatal error and cannot be started: Assembler cannot be instantiated."},
+{"startup.openEjbEncounterUnexpectedError", "OpenEJB has encountered a fatal error and cannot be started: OpenEJB encountered an unexpected error while attempting to instantiate the assembler."},
+{"startup.assemblerFailedToInitialize", "OpenEJB has encountered a fatal error and cannot be started: Assembler failed to initialize."},
+{"startup.assemblerEncounterUnexpectedError", "OpenEJB has encountered a fatal error and cannot be started: The Assembler encountered an unexpected error while attempting to initialize."},
+{"startup.assemblerFailedToBuild", "OpenEJB has encountered a fatal error and cannot be started: Assembler failed to build the container system."},
+{"startup.assemblerEncounterUnexpectedBuildError", "OpenEJB has encountered a fatal error and cannot be started: The Assembler encountered an unexpected error while attempting to build the container system."},
+{"startup.assemblerReturnedNullContainer", "OpenEJB has encountered a fatal error and cannot be started: The Assembler returned a null container system."},
+{"startup.debugContainers", "Containers        : {0}"},
+{"startup.debugContainersType", "   Type        Container ID"},
+{"startup.debugEntry", "{0}"},
+{"startup.debugDeployments", "Deployments       : {0}"},
+{"startup.debugDeploymentsType", "   Type        Deployment ID"},
+{"startup.assemblerReturnedNullSecurityService", "OpenEJB has encountered a fatal error and cannot be started: The Assembler returned a null security service."},
+{"startup.securityService", "SecurityService   : {0}"},
+{"startup.assemblerReturnedNullTransactionManager", "OpenEJB has encountered a fatal error and cannot be started: The Assembler returned a null transaction manager."},
+{"startup.transactionManager", "TransactionManager: {0}"},
+{"startup.ready", "OpenEJB ready."},
+{"startup.noContainersConfigured", "Attemtped to access containers where none are configured."},
+
 {"ge0001", "FATAL ERROR: Unknown error in {0}.  Please send the following stack trace and this message to openejb-user@lists.sf.net :\n {1}"},
 {"ge0002", "The required properties object needed by {0} is null ."},// param 0 is the part of the system that needs the Properties object.
 {"ge0003", "Properties file {0} for {1} not found."}, //param 0 is the properties file name, param 1 is the part of the system that needs the properties file.

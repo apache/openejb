@@ -66,7 +66,6 @@ import javax.naming.NameClassPair;
 import org.openejb.Container;
 import org.openejb.DeploymentInfo;
 import org.openejb.ProxyInfo;
-import org.openejb.util.Logger;
 import org.openejb.util.Messages;
 import org.openejb.util.proxy.DynamicProxyFactory;
 import org.openejb.util.proxy.ProxyManager;
