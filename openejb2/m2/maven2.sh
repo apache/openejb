@@ -5,11 +5,20 @@ dir=`pwd`/openejb
 poms=`pwd`
 modules_dir=$dir/modules
 
+echo Backing up IntelliJ files
+rm -rf intellij
+mkdir -p intellij
+find openejb -name '*.iml' -exec cp --parents {} intellij \;
+cp openejb/*.iws intellij/openejb
+cp openejb/*.ipr intellij/openejb
+
 echo Removing old version
 rm -rf $dir > /dev/null 2>&1
 
 echo Setting up base
 mkdir -p $dir > /dev/null 2>&1
+
+cp -r intellij/openejb/* openejb
 
 cp $poms/ejb-group.pom $dir/pom.xml
 
@@ -39,5 +48,6 @@ rm -rf $modules_dir/openejb-builder/src/test-ejb-jar
 
 # ---------------------------------------------------
 
+echo Removing CVS directories
 find $dir -name 'CVS*' -exec rm -rf {} \; > /dev/null 2>&1
 
