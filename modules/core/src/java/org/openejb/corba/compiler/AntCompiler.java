@@ -45,18 +45,18 @@
 package org.openejb.corba.compiler;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Iterator;
 import java.util.Set;
-
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.Javac;
-import org.apache.tools.ant.types.Path;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.Javac;
+import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.util.FileUtils;
 
 
 /**
@@ -65,33 +65,60 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 public class AntCompiler implements Compiler {
 
     public void compileDirectory(File srcDirectory, File destDirectory, Set classpaths) throws CompilerException {
-        try {
-            Project project = new Project();
+        Project project = new Project();
 
-            Path path = new Path(project);
-            path.setLocation(srcDirectory);
+        Path path = new Path(project);
+        path.setLocation(srcDirectory);
 
-            Javac javac = new Javac();
-            javac.setProject(project);
-            javac.setSrcdir(path);
-            javac.setDestdir(destDirectory);
-            javac.setFork(false);
-            javac.setDebug(true);
+        Javac javac = new Javac();
+        javac.setProject(project);
+        javac.setSrcdir(path);
+        javac.setDestdir(destDirectory);
+        javac.setFork(false);
+        javac.setDebug(true);
 
-            for (Iterator iter = classpaths.iterator(); iter.hasNext();) {
-                path = new Path(project);
-                path.setLocation(new File(new URI(iter.next().toString())));
-                if (javac.getClasspath() == null) {
-                    javac.setClasspath(path);
-                } else {
-                    javac.getClasspath().addExisting(path);
+        FileUtils utils = FileUtils.newFileUtils();
+        Path classPath = new Path(project);
+
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        addPathsFromClassLoader(project, classPath, utils, cl);
+        
+        for (Iterator iter = classpaths.iterator(); iter.hasNext();) {
+            URL url = (URL) iter.next();
+            // We only can add file based paths.
+            if( url.getProtocol().equals("file") ) {
+                Path p = new Path(project);
+                p.setLocation(utils.normalize(url.getPath()));
+                classPath.addExisting(p);
+            }
+        }
+        javac.setClasspath(classPath);
+
+        javac.execute();
+    }
+
+    private void addPathsFromClassLoader(Project project, Path classPath, FileUtils utils, ClassLoader cl) {
+        if( cl == null ) {
+            classPath.addJavaRuntime();
+        } else {
+            // Add the parent first.
+            addPathsFromClassLoader(project, classPath, utils, cl.getParent());
+            // We can only add paths if it is a URLClassLoader
+            if( cl instanceof URLClassLoader ) {
+                URLClassLoader ucl = (URLClassLoader)cl;
+                URL[] urls = ucl.getURLs();
+                for (int i = 0; i < urls.length; i++) {
+                    URL url = urls[i];
+                    // We only can add file based paths.
+                    if( url.getProtocol().equals("file") ) {
+                        Path p = new Path(project);
+                        p.setLocation(utils.normalize(url.getPath()));
+                        classPath.addExisting(p);               
+                    }
                 }
             }
-
-            javac.execute();
-        } catch (URISyntaxException e) {
-            throw new CompilerException(e);
         }
+        
     }
 
     public static final GBeanInfo GBEAN_INFO;
