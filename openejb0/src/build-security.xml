@@ -11,7 +11,7 @@
   
     <!-- Build classpath -->
     <path id="project.classpath">
-        <pathelement location="${log4j.jar}"/>
+        <pathelement location="${log4j.jar}"/> 
         <pathelement location="lib/xercesImpl-2.0.2.jar"/>
         <pathelement location="${junit.jar}"/>
     </path>
