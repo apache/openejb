@@ -57,6 +57,9 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.deployment.service.MBeanRelationshipMetadata;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBean;
+import org.openejb.nova.deployment.EJBInfo;
 
 /**
  *
@@ -70,12 +73,14 @@ public class ServerUtil {
     private static final ObjectName RELATIONSHIP = JMXUtil.getObjectName("geronimo.remoting:role=Relationship,name=Route");
     private static final Object[] REL_ARGS = {"name=Route\nleft.name=Source\nright.name=Target\nright.class=org.apache.geronimo.remoting.router.RouterTargetMBean"};
     private static final ObjectName RELATION_SERVICE = JMXUtil.getObjectName("geronimo.boot:role=RelationService");
-    private static final ObjectName DEPENDS_SERVICE = JMXUtil.getObjectName("geronimo.boot:role=DependencyService");
+    private static final ObjectName DEPENDS_SERVICE1 = JMXUtil.getObjectName("geronimo.boot:role=DependencyService");
+    private static final ObjectName DEPENDS_SERVICE2 = JMXUtil.getObjectName("geronimo.boot:role=DependencyService2");
 
     public static MBeanServer newLocalServer() throws Exception {
         MBeanServer mbServer = MBeanServerFactory.createMBeanServer("LocalTestServer");
         mbServer.createMBean("javax.management.relation.RelationService", RELATION_SERVICE, new Object[]{Boolean.TRUE}, new String[]{"boolean"});
-        mbServer.createMBean("org.apache.geronimo.kernel.deployment.DependencyService", DEPENDS_SERVICE);
+        mbServer.createMBean("org.apache.geronimo.kernel.deployment.DependencyService", DEPENDS_SERVICE1);
+        mbServer.createMBean("org.apache.geronimo.kernel.service.DependencyService2", DEPENDS_SERVICE2);
 
         return mbServer;
     }
@@ -94,7 +99,7 @@ public class ServerUtil {
         MBeanRelationshipMetadata relMetadata = new MBeanRelationshipMetadata("/JMX", "Route", "Target", SUBSYSTEM, "Source");
         HashSet relations = new HashSet();
         relations.add(relMetadata);
-        mbServer.invoke(DEPENDS_SERVICE, "addRelationships", new Object[]{JMX_ROUTER, relations}, new String[]{ObjectName.class.getName(), Set.class.getName()});
+        mbServer.invoke(DEPENDS_SERVICE1, "addRelationships", new Object[]{JMX_ROUTER, relations}, new String[]{ObjectName.class.getName(), Set.class.getName()});
 
         mbServer.invoke(SUBSYSTEM, "start", null, null);
         mbServer.invoke(LOADER, "start", null, null);
@@ -111,5 +116,15 @@ public class ServerUtil {
 
     public static void stopLocalServer(MBeanServer mbServer) throws Exception {
         MBeanServerFactory.releaseMBeanServer(mbServer);
+    }
+
+    public static Object registerGeronimoMbean(MBeanServer server, ObjectName objectName, String className, Object[] args, String[] types) throws Exception {
+        GeronimoMBeanInfo mbeanInfo = EJBInfo.getGeronimoMBeanInfo(className);
+        Object target = server.instantiate(className, args, types);
+        mbeanInfo.setTarget(target); //how does deployGeronimoMBean do this?
+        GeronimoMBean mbean = new GeronimoMBean();
+        mbean.setMBeanInfo(mbeanInfo);
+        server.registerMBean(mbean, objectName);
+        return target;
     }
 }

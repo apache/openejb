@@ -155,4 +155,9 @@ public class CMPEntityContainer extends AbstractEJBContainer {
         data.store(values);
         ejbStoreCommand.executeUpdate(values);
     }
+
+    public String getPrimaryKeyClassName() {
+        return pkClassName;
+    }
+
 }

@@ -64,9 +64,12 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
 import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
+import org.openejb.nova.entity.bmp.BMPEntityContainer;
+import org.openejb.nova.entity.cmp.CMPEntityContainer;
 
 /**
- *
+ * EJBInfo has static methods to construct GeronimoMBeanInfo objects for each type of
+ * Container, to avoid contaminating Nova classes with Geronimo kernel structue.
  *
  * @version $Revision$ $Date$
  *
@@ -74,6 +77,30 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 public class EJBInfo {
 
     private EJBInfo() {}
+
+    public static GeronimoMBeanInfo getSessionGeronimoMBeanInfo(String className) {
+        GeronimoMBeanInfo mbeanInfo= getGeronimoMBeanInfo(className);
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Demarcation", true, false, "Transaction demarcation"));
+        return mbeanInfo;
+    }
+
+    public static GeronimoMBeanInfo getBMPEntityGeronimoMBeanInfo() {
+        GeronimoMBeanInfo mbeanInfo= getGeronimoMBeanInfo(BMPEntityContainer.class.getName());
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("PrimaryKeyClassName", true, false, "Primary Key class name"));
+        return mbeanInfo;
+    }
+
+    public static GeronimoMBeanInfo getCMPEntityGeronimoMBeanInfo() {
+        GeronimoMBeanInfo mbeanInfo= getGeronimoMBeanInfo(CMPEntityContainer.class.getName());
+        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("PrimaryKeyClassName", true, false, "Primary Key class name"));
+        return mbeanInfo;
+    }
+
+    public static GeronimoMBeanInfo getMessageDrivenGeronimoMBeanInfo() {
+        GeronimoMBeanInfo mbeanInfo = new GeronimoMBeanInfo();
+        return mbeanInfo; //TODO
+    }
+
 
 
     public static GeronimoMBeanInfo getGeronimoMBeanInfo(String className) {
@@ -85,8 +112,6 @@ public class EJBInfo {
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("RemoteClassName", true, false, "Remote interface class name"));
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LocalHomeClassName", true, false, "Local home interface class name"));
         mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LocalClassName", true, false, "Local interface class name"));
-        //mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("TransactionDemarcation", true, false, "Transaction demarcation"));
-
         mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getEJBHome"));
         mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getEJBLocalHome"));
         try {

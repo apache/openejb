@@ -129,7 +129,8 @@ public class BasicEJBDeploymentTest extends ContextBuilderTest {
 
     public void testPlanSession() throws Exception {
         //null is no parent.
-        DeploymentPlan plan = planner.planSession(session, null, csMetadata, baseURI);
+        DeploymentPlan plan = new DeploymentPlan();
+        planner.planSession(plan, session, null, csMetadata, baseURI);
         assertTrue("plan exists", null != plan);
         plan.execute();
         assertTrue("Expected session container mbean ", kernel.getMBeanServer().isRegistered(sessionName));

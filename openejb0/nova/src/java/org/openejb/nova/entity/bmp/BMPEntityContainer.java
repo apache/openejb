@@ -67,6 +67,7 @@ import org.openejb.nova.util.SoftLimitedInstancePool;
  * @version $Revision$ $Date$
  */
 public class BMPEntityContainer extends AbstractEJBContainer {
+
     private final String pkClassName;
 
     public BMPEntityContainer(EntityContainerConfiguration config) {
@@ -119,4 +120,9 @@ public class BMPEntityContainer extends AbstractEJBContainer {
         pool = null;
         super.doStop();
     }
+
+    public String getPrimaryKeyClassName() {
+        return pkClassName;
+    }
+
 }

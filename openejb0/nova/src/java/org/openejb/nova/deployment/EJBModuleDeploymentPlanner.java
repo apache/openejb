@@ -93,6 +93,9 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
+import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 import org.apache.geronimo.deployment.model.ejb.RpcBean;
 import org.apache.geronimo.deployment.model.ejb.Ejb;
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
@@ -106,6 +109,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.openejb.nova.slsb.StatelessContainer;
 import org.openejb.nova.EJBContainerConfiguration;
+import org.openejb.nova.entity.bmp.BMPEntityContainer;
+import org.openejb.nova.entity.EntityContainerConfiguration;
 import org.openejb.nova.sfsb.StatefulContainer;
 import org.openejb.nova.transaction.EJBUserTransaction;
 
@@ -128,7 +133,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
     protected boolean addURL(DeployURL goal, Set goals, Set plans) throws DeploymentException {
         URL url = goal.getUrl();
         DeploymentHelper dHelper =
-                new DeploymentHelper(url, goal.getType(), "EJBModule", ".jar", "ejb-jar.xml", "geronimo-ejb-jar.xml");
+                new DeploymentHelper(url, goal.getType(), "EJBModule", "ejb-jar.xml", "geronimo-ejb-jar.xml");
         //URL j2eeURL = dHelper.locateJ2eeDD();
         URL geronimoURL = dHelper.locateGeronimoDD();
         // Is the specific URL deployable?
@@ -180,51 +185,140 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
             throw new DeploymentException("Deployment descriptor not readable", e1);
         }
         EjbJar ejbJar = gejbDoc.getEjbJar();
+        String moduleName = ejbJar.getModuleName();
+        String datasourceName = ejbJar.getDatasourceName();
         EnterpriseBeans enterpriseBeans = ejbJar.getGeronimoEnterpriseBeans();
+        //All ejbs deployed in one plan
+        DeploymentPlan plan = new DeploymentPlan();
         for (int i = 0; i < enterpriseBeans.getGeronimoSession().length; i++) {
             Session session = enterpriseBeans.getGeronimoSession(i);
-            plans.add(planSession(session, deploymentUnitName, classSpaceMetaData, baseURI));
-
+            planSession(plan, session, deploymentUnitName, classSpaceMetaData, baseURI);
         }
 
+        //Message driven
+        for (int i = 0; i < enterpriseBeans.getGeronimoMessageDriven().length; i++) {
+            MessageDriven messageDriven = enterpriseBeans.getGeronimoMessageDriven()[i];
+            planMessageDriven(plan, messageDriven, deploymentUnitName, classSpaceMetaData, baseURI);
+        }
+
+        //Entity
+        //Create the schema if datasource is specified
+        DeploySchemaMBean schemaTask = null;
+        if (datasourceName != null) {
+            MBeanMetadata schemaMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
+            ObjectName datasourceObjectName;
+            try {
+                schemaMetadata.setName(ObjectName.getInstance("geronimo.j2ee:J2eeType=AbstractSchema,name=" + moduleName));
+                datasourceObjectName = ObjectName.getInstance("geronimo.j2ee:J2eeType=ConnectionFactory,name=" + datasourceName);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Bad object name", e);
+            }
+
+            schemaTask = new DeploySchemaMBean(getServer(), datasourceObjectName, schemaMetadata);
+            plan.addTask(schemaTask);
+            plan.addTask(new StartMBeanInstance(getServer(), schemaMetadata));
+        }
+
+        //Now set up the entities.
+        for (int i = 0; i < enterpriseBeans.getGeronimoEntity().length; i++) {
+            Entity entity = enterpriseBeans.getGeronimoEntity()[i];
+            if (entity.getPersistenceType().equals("Container")) {
+                assert datasourceName != null;
+                planCMPEntity(plan, entity, schemaTask, deploymentUnitName, classSpaceMetaData, baseURI);
+            } else {
+                planBMPEntity(plan, entity, deploymentUnitName, classSpaceMetaData, baseURI);
+            }
+        }
+        plans.add(plan);
         return true;
     }
 
-    DeploymentPlan planSession(Session session, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
+    private void planBMPEntity(DeploymentPlan plan, Entity entity, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
+        MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
+        ejbMetadata.setName(getContainerName(entity));
+        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getBMPEntityGeronimoMBeanInfo());
+        EJBContainerConfiguration config = getEntityConfig(entity);
+
+        ejbMetadata.setConstructorArgs(new Object[] {config},
+                new String[] {EntityContainerConfiguration.class.getName()});
+        addTasks(plan, ejbMetadata);
+    }
+
+    private void planCMPEntity(DeploymentPlan plan, Entity entity, DeploySchemaMBean schemaTask, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
+        MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
+        ejbMetadata.setName(getContainerName(entity));
+        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getBMPEntityGeronimoMBeanInfo());
+        EJBContainerConfiguration config = getEntityConfig(entity);
+
+        ejbMetadata.setConstructorArgs(new Object[] {config},
+                new String[] {EJBContainerConfiguration.class.getName()});
+        addTasks(plan, ejbMetadata);
+    }
+
+    void planSession(DeploymentPlan plan, Session session, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
         MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
         ejbMetadata.setName(getContainerName(session));
-        ejbMetadata.setGeronimoMBeanInfo(getSessionGeronimoMBeanInfo(session.getSessionType().equals("Stateless")?
+        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getSessionGeronimoMBeanInfo(session.getSessionType().equals("Stateless")?
                 StatelessContainer.class.getName():StatefulContainer.class.getName()));
         EJBContainerConfiguration config = getSessionConfig(session);
 
         ejbMetadata.setConstructorArgs(new Object[] {config},
                 new String[] {EJBContainerConfiguration.class.getName()});
-        return addTasks(ejbMetadata);
+        addTasks(plan, ejbMetadata);
     }
+
+    void planMessageDriven(DeploymentPlan plan, MessageDriven messageDriven, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
+        MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
+        ejbMetadata.setName(getContainerName(messageDriven));
+        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getMessageDrivenGeronimoMBeanInfo());
+//        MessageDrivenContainer.class.getName()));
+        EJBContainerConfiguration config = getMessageDrivenConfig(messageDriven);
+
+        ejbMetadata.setConstructorArgs(new Object[] {config},
+                new String[] {EJBContainerConfiguration.class.getName()});
+        addTasks(plan, ejbMetadata);
+    }
+
+    private EJBContainerConfiguration getMessageDrivenConfig(MessageDriven messageDriven) {
+        return null;//TODO
+
+    }
+
 
     EJBContainerConfiguration getSessionConfig(Session session) throws DeploymentException {
         EJBContainerConfiguration config = new EJBContainerConfiguration();
         //configure config
 
-        RpcBean bean = session;
-
-        config.uri = null;//???
-        config.beanClassName = bean.getEJBClass();
-        config.homeInterfaceName = bean.getHome();
-        config.remoteInterfaceName = bean.getRemote();
-        config.localHomeInterfaceName = bean.getLocalHome();
-        config.localInterfaceName = bean.getLocal();
+        genericConfig(session, config);
         config.txnDemarcation = TransactionDemarcation.valueOf(session.getTransactionType());
         config.userTransaction = config.txnDemarcation.isContainer()? null: new EJBUserTransaction();
-        config.componentContext = getComponentContext(session, config.userTransaction);
+
         //config.txnManager = txManager;   // needs to be endpoint
         return config;
     }
 
-    private  ReadOnlyContext getComponentContext(Session session, UserTransaction userTransaction) throws DeploymentException {
+    private EntityContainerConfiguration getEntityConfig(Entity entity) throws DeploymentException {
+        EntityContainerConfiguration config = new EntityContainerConfiguration();
+        genericConfig(entity, config);
+        config.pkClassName = entity.getPrimKeyClass();
+        return config;
+    }
+
+    private void genericConfig(RpcBean rpcBean, EJBContainerConfiguration config) throws DeploymentException {
+
+        config.uri = null;//???
+        config.beanClassName = rpcBean.getEJBClass();
+        config.homeInterfaceName = rpcBean.getHome();
+        config.remoteInterfaceName = rpcBean.getRemote();
+        config.localHomeInterfaceName = rpcBean.getLocalHome();
+        config.localInterfaceName = rpcBean.getLocal();
+        config.componentContext = getComponentContext((JNDIEnvironmentRefs)rpcBean, config.userTransaction);
+    }
+
+    private  ReadOnlyContext getComponentContext(JNDIEnvironmentRefs refs, UserTransaction userTransaction) throws DeploymentException {
         ReferenceFactory referenceFactory = new JMXReferenceFactory(getMBeanServerId());
         ComponentContextBuilder builder = new ComponentContextBuilder(referenceFactory, userTransaction);
-        ReadOnlyContext context = builder.buildContext(session);
+        ReadOnlyContext context = builder.buildContext(refs);
         return context;
     }
 
@@ -239,35 +333,10 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
         this.serverId = serverId;
     }
 
-    private GeronimoMBeanInfo getSessionGeronimoMBeanInfo(String className) {
-        GeronimoMBeanInfo mbeanInfo= new GeronimoMBeanInfo();
-        mbeanInfo.setTargetClass(className);
-        //mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Uri", true, false, "Original deployment package URI?"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("BeanClassName", true, false, "Bean implementation class name"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("HomeClassName", true, false, "Home interface class name"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("RemoteClassName", true, false, "Remote interface class name"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LocalHomeClassName", true, false, "Local home interface class name"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("LocalClassName", true, false, "Local interface class name"));
-        mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Demarcation", true, false, "Transaction demarcation"));
 
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getEJBHome"));
-        mbeanInfo.addOperationInfo(new GeronimoOperationInfo("getEJBLocalHome"));
-        try {
-            mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("TransactionManager",
-                    TransactionManager.class.getName(),
-                    ObjectName.getInstance("geronimo.transaction:role=TransactionManager"),
-                    true));
-        } catch (MalformedObjectNameException e) {
-            throw new AssertionError();//our o.n. is not malformed.
-        }
-        return mbeanInfo;
-    }
-
-    DeploymentPlan addTasks(MBeanMetadata ejbMetadata) {
-        DeploymentPlan deploymentPlan = new DeploymentPlan();
-        deploymentPlan.addTask(new DeployGeronimoMBean(getServer(), ejbMetadata));
-        deploymentPlan.addTask(new StartMBeanInstance(getServer(), ejbMetadata));
-        return deploymentPlan;
+    void addTasks(DeploymentPlan plan, MBeanMetadata ejbMetadata) {
+        plan.addTask(new DeployGeronimoMBean(getServer(), ejbMetadata));
+        plan.addTask(new StartMBeanInstance(getServer(), ejbMetadata));
     }
 
     private ObjectName getContainerName(Ejb ejb) throws DeploymentException {
