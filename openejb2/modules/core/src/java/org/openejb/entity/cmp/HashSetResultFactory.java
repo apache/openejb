@@ -47,108 +47,20 @@
  */
 package org.openejb.entity.cmp;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.HashSet;
 
-import org.tranql.query.QueryResult;
+import org.apache.geronimo.core.service.InvocationResult;
+
 import org.tranql.ql.QueryException;
+import org.tranql.query.QueryResult;
 
 /**
+ * 
+ * 
  * @version $Revision$ $Date$
  */
-public class CollectionResults implements Collection {
-    public static class Factory implements QueryResultsFactory {
-        public Object createQueryResults(QueryResult result) throws QueryException {
-            LinkedList list = new LinkedList();
-            while(result.next()) {
-                list.add(result.getValues().get(0));
-            }
-            return new CollectionResults(list);
-        }
-    }
-
-    private final Collection delegate;
-
-    public CollectionResults(Collection delegate) {
-        this.delegate = delegate;
-    }
-
-    public int size() {
-        return delegate.size();
-    }
-
-    public boolean isEmpty() {
-        return delegate.isEmpty();
-    }
-
-    public boolean contains(Object o) {
-        return delegate.contains(o);
-    }
-
-    public Iterator iterator() {
-        return new Iterator() {
-            private Iterator iterator = delegate.iterator();
-
-            public boolean hasNext() {
-                return iterator.hasNext();
-            }
-
-            public Object next() {
-                return iterator.next();
-            }
-
-            public void remove() {
-                iterator.remove();
-            }
-        };
-    }
-
-    public Object[] toArray() {
-        return delegate.toArray();
-    }
-
-    public Object[] toArray(Object a[]) {
-        return delegate.toArray(a);
-    }
-
-    public boolean add(Object o) {
-        return delegate.add(o);
-    }
-
-    public boolean remove(Object o) {
-        return delegate.remove(o);
-    }
-
-    public boolean containsAll(Collection c) {
-        return delegate.containsAll(c);
-    }
-
-    public boolean addAll(Collection c) {
-        return delegate.addAll(c);
-    }
-
-    public boolean removeAll(Collection c) {
-        return delegate.removeAll(c);
-    }
-
-    public boolean retainAll(Collection c) {
-        return delegate.retainAll(c);
-    }
-
-    public void clear() {
-        delegate.clear();
-    }
-
-    public boolean equals(Object o) {
-        return delegate.equals(o);
-    }
-
-    public int hashCode() {
-        return delegate.hashCode();
-    }
-
-    public String toString() {
-        return delegate.toString();
+public class HashSetResultFactory extends CollectionResultFactory {
+    public InvocationResult createQueryResults(QueryResult result) throws QueryException {
+        return fetchAll(new HashSet(), result);
     }
 }

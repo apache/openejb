@@ -49,19 +49,17 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 
+import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
 import org.openejb.EJBInterfaceType;
-import org.openejb.ContainerIndex;
 import org.openejb.dispatch.InterfaceMethodSignature;
 
-public class EJBProxyFactory implements Serializable {
-
+public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFactory {
     private static final Class[] sessionBaseClasses =
             new Class[]{SessionEJBObject.class, SessionEJBHome.class, SessionEJBLocalObject.class, SessionEJBLocalHome.class};
 
@@ -70,7 +68,6 @@ public class EJBProxyFactory implements Serializable {
 
     private final String containerId;
     private final boolean isSessionBean;
-
     private final Class remoteInterface;
     private final Class homeInterface;
     private final Class localInterface;
@@ -112,7 +109,6 @@ public class EJBProxyFactory implements Serializable {
             Class homeInterface,
             Class localInterface,
             Class localHomeInterface) {
-
         this.containerId = containerId;
         isSessionBean = sessionBean;
 
@@ -142,7 +138,6 @@ public class EJBProxyFactory implements Serializable {
         if (container == null) {
             locateContainer();
         }
-
         return container;
     }
 
@@ -163,6 +158,7 @@ public class EJBProxyFactory implements Serializable {
 
         remoteMap = createOperationsMap(remoteFactory, signatures);
         homeMap = createOperationsMap(homeFactory, signatures);
+
         localMap = createOperationsMap(localFactory, signatures);
         localHomeMap = createOperationsMap(localHomeFactory, signatures);
     }
@@ -193,13 +189,21 @@ public class EJBProxyFactory implements Serializable {
         return index.intValue();
     }
 
+    public Class getLocalInterfaceClass() {
+        return localInterface;
+    }
+
+    public Class getRemoteInterfaceClass() {
+        return remoteInterface;
+    }
+
     /**
      * Return a proxy for the EJB's remote interface. This can be passed back
      * to any client that wishes to access the EJB (e.g. in response to a
      * call to SessionContext.getEJBObject() )
      * @return the proxy for this EJB's home interface
      */
-    public EJBObject getEJBObject(Object primaryKey){
+    public EJBObject getEJBObject(Object primaryKey) {
         EJBMethodInterceptor handler = new EJBMethodInterceptor(
                 this,
                 EJBInterfaceType.REMOTE,
@@ -215,7 +219,7 @@ public class EJBProxyFactory implements Serializable {
      * call to EJBContext.getEJBHome() )
      * @return the proxy for this EJB's home interface
      */
-    public EJBHome getEJBHome(){
+    public EJBHome getEJBHome() {
         EJBMethodInterceptor handler = new EJBMethodInterceptor(
                 this,
                 EJBInterfaceType.HOME,
@@ -230,7 +234,8 @@ public class EJBProxyFactory implements Serializable {
      * call to SessionContext.getEJBLocalObject() )
      * @return the proxy for this EJB's local interface
      */
-    public EJBLocalObject getEJBLocalObject(Object primaryKey){
+
+    public EJBLocalObject getEJBLocalObject(Object primaryKey) {
         EJBMethodInterceptor handler = new EJBMethodInterceptor(
                 this,
                 EJBInterfaceType.LOCAL,
@@ -246,7 +251,8 @@ public class EJBProxyFactory implements Serializable {
      * (e.g. in response to a call to EJBContext.getEJBLocalHome() )
      * @return the proxy for this EJB's local home interface
      */
-    public EJBLocalHome getEJBLocalHome(){
+
+    public EJBLocalHome getEJBLocalHome() {
         EJBMethodInterceptor handler = new EJBMethodInterceptor(
                 this,
                 EJBInterfaceType.LOCALHOME,
@@ -255,12 +261,12 @@ public class EJBProxyFactory implements Serializable {
         return (EJBLocalHome) localHomeFactory.create(handler);
     }
 
-    private int[] createOperationsMap(CglibEJBProxyFactory factory, InterfaceMethodSignature[] signatures){
+    private int[] createOperationsMap(CglibEJBProxyFactory factory, InterfaceMethodSignature[] signatures) {
         if (factory == null) return new int[0];
         return EJBProxyHelper.getOperationMap(factory.getType(), signatures);
     }
 
-    private CglibEJBProxyFactory getFactory(int interfaceType, Class interfaceClass){
+    private CglibEJBProxyFactory getFactory(int interfaceType, Class interfaceClass) {
         if (interfaceClass == null) {
             return null;
         }
@@ -287,7 +293,7 @@ public class EJBProxyFactory implements Serializable {
             }
         }
     }
-    
+
     private void locateContainer() {
         ContainerIndex containerIndex = ContainerIndex.getInstance();
         EJBContainer c = containerIndex.getContainer(containerId);

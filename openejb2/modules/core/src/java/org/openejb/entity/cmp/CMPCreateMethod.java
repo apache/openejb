@@ -50,29 +50,23 @@ package org.openejb.entity.cmp;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import javax.ejb.CreateException;
-import javax.ejb.DuplicateKeyException;
-import javax.ejb.EJBLocalObject;
-import javax.ejb.EJBObject;
 import javax.ejb.EntityBean;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.transaction.TransactionContext;
-
-import net.sf.cglib.reflect.FastClass;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
+
+import net.sf.cglib.reflect.FastClass;
 import org.tranql.cache.CacheRow;
 import org.tranql.cache.CacheTable;
-import org.tranql.cache.DuplicateIdentityException;
 import org.tranql.cache.InTxCache;
-import org.tranql.identity.IdentityTransform;
-import org.tranql.identity.UndefinedIdentityException;
-import org.tranql.identity.IdentityTransformException;
+import org.tranql.identity.GlobalIdentity;
 import org.tranql.identity.IdentityDefiner;
+import org.tranql.identity.IdentityTransform;
 
 /**
  *
@@ -151,39 +145,24 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             ctx.setOperation(EJBOperation.INACTIVE);
         }
 
+        // define identity (may require insert to database)
+        GlobalIdentity globalId = identityDefiner.defineIdentity(cacheRow);
+
+        // ============================================================================
+        // FROM HERE ON WE MAY HAVE MODIFIED THE DATABASE SO ERRORS MUST CAUSE ROLLBACK
+        // ============================================================================
+
         // cache insert
-        Object proxy;
-        try {
-            TransactionContext transactionContext = invocation.getTransactionContext();
-            InTxCache cache = transactionContext.getInTxCache();
+        TransactionContext transactionContext = invocation.getTransactionContext();
+        InTxCache cache = transactionContext.getInTxCache();
 
-            // add the row to the cache (returning a new row containing identity)
-            cacheRow = cacheTable.addRow(cache, identityDefiner.defineIdentity(cacheRow), cacheRow);
-            ctx.setCacheRow(cacheRow);
+        // add the row to the cache (returning a new row containing identity)
+        cacheRow = cacheTable.addRow(cache, globalId, cacheRow);
+        ctx.setCacheRow(cacheRow);
+        ctx.setId(globalId.getId());
 
-            // convert the global identity into a pk and assign the pk into the context
-            if (invocation.getType().isLocal()) {
-                EJBLocalObject localProxy = (EJBLocalObject) localProxyTransform.getDomainIdentity(cacheRow.getId());
-                ctx.setId(localProxy.getPrimaryKey());
-                proxy = localProxy;
-            } else {
-                EJBObject remoteProxy = (EJBObject) remoteProxyTransform.getDomainIdentity(cacheRow.getId());
-                ctx.setId(remoteProxy.getPrimaryKey());
-                proxy = remoteProxy;
-            }
-
-            // associate the new cmp instance with the tx context
-            transactionContext.associate(ctx);
-        } catch (UndefinedIdentityException e) {
-            return new SimpleInvocationResult(false,
-                    new CreateException("Could not create a primary key").initCause(e));
-        } catch (DuplicateIdentityException e) {
-            return new SimpleInvocationResult(false,
-                    new DuplicateKeyException("Cache already contains an Entity with the key").initCause(e));
-        } catch (IdentityTransformException e) {
-            return new SimpleInvocationResult(false,
-                    new CreateException("Could not create a primary key instance").initCause(e));
-        }
+        // associate the new cmp instance with the tx context
+        transactionContext.associate(ctx);
 
         // call the post create method
         try {
@@ -193,6 +172,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             Throwable t = ite.getTargetException();
             if (t instanceof Exception && t instanceof RuntimeException == false) {
                 // checked exception - which we simply include in the result
+                // we do not force rollback, that is up to the application
                 return new SimpleInvocationResult(false, t);
             } else {
                 // unchecked Exception - just throw it to indicate an abnormal completion
@@ -203,7 +183,8 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
         }
 
         // return a new proxy
-        return new SimpleInvocationResult(true, proxy);
+        IdentityTransform transform = invocation.getType().isLocal() ? localProxyTransform : remoteProxyTransform;
+        return new SimpleInvocationResult(true, transform.getDomainIdentity(globalId));
     }
 
     private Object readResolve() {

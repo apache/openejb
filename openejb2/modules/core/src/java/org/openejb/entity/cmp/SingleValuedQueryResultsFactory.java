@@ -47,19 +47,35 @@
  */
 package org.openejb.entity.cmp;
 
+import javax.ejb.ObjectNotFoundException;
+import javax.ejb.FinderException;
+
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
+
 import org.tranql.ql.QueryException;
 import org.tranql.query.QueryResult;
+import org.tranql.field.Row;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public class SingleValuedQueryResultsFactory implements QueryResultsFactory {
-    public Object createQueryResults(QueryResult result) throws QueryException {
-        if(result.next()) {
-            return result.getValues().get(0);
+    public InvocationResult createQueryResults(QueryResult result) throws QueryException {
+        try {
+            Row row = new Row(new Object[0]);
+            if (!result.fetch(row)) {
+                return new SimpleInvocationResult(false, new ObjectNotFoundException());
+            }
+            Object value = row.get(0);
+            if (result.fetch(row)) {
+                return new SimpleInvocationResult(false, new FinderException("More than one result returned from single valued finder"));
+            }
+            return new SimpleInvocationResult(true, value);
+        } finally {
+            result.close();
         }
-        return null;
     }
 }
