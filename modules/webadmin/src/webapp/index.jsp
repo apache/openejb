@@ -47,11 +47,38 @@
                 <p>
                 <FONT SIZE='2'>
                 <B>Welcome to the OpenEJB/Tomcat integration page!</B><br><BR>
-                If you haven't already done so, please set the <B>openejb.home</B> init-param in the 
+<% 
+   String openejbHome = org.openejb.OpenEJB.getProperty("openejb.home"); 
+   String openejbBase = org.openejb.OpenEJB.getProperty("openejb.base"); 
+   String openejbConf = org.openejb.OpenEJB.getProperty("openejb.configuration");
+   String localCopy = org.openejb.OpenEJB.getProperty("openejb.localcopy");
+   
+   boolean openejbHomeSet = (openejbHome != null);
+   boolean openejbBaseSet = (openejbBase != null);
+   boolean openejbConfSet = (openejbConf != null);
+   boolean localCopySet = (localCopy != null);
+   
+   final String EMPTY = "&lt;empty&gt;";
+%>
+<% 
+   if (!openejbHomeSet) {
+%>
+                It seems you haven't yet set the <B>openejb.home</B> init-param in the 
                 web.xml of this application.  Setting the openejb.home correctly is the most
                 important thing to do.  In fact, it is the only thing you have to do.
                 <BR><BR>
-                Once you think you have the openejb.home set, click on 
+                Please set the variable, restart Tomcat instance and the message will not show up again!
+<%
+   } else {
+%>
+                Important OpenEJB properties:
+                <UL>
+                   <LI>openejb.home: <%= openejbHome %></LI>
+                   <LI>openejb.base: <%= (openejbBaseSet ? openejbBase : EMPTY) %></LI>
+                   <LI>openejb.configuration: <%= (openejbConfSet ? openejbConf : EMPTY) %></LI>
+                   <LI>openejb.localcopy: <%= (localCopySet ? localCopy : Boolean.FALSE.toString()) %></LI>
+                </UL>
+                If you think you have the variables set correctly, click on 
                 the "Testing your setup" link below to verify it.  When everything
                 is setup well, feel free to play around with the tools provided below!
                 <BR><BR>
@@ -69,6 +96,9 @@
                 <A HREF="ejbclasses.html">Where to put your bean classes</A><BR>
                 <A HREF="ejbref.html">How to configure java:comp/env lookups</A><BR>
                 <BR>
+<%
+   }
+%>
                 </FONT>
                 </p>
                 <p>

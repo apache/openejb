@@ -52,6 +52,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.URL;
@@ -407,26 +408,27 @@ public class ConfigUtils  {
         return (file == null)? null: file.getAbsolutePath() ;
     }
 
-    public static File createConfig(File config) throws java.io.IOException{
-        try{
+    public static File createConfig(File config) throws java.io.IOException {
+        InputStream in = null;
+        OutputStream out = null;
+        try {
             URL defaultConfig = new URL("resource:/default.openejb.conf");
-            InputStream in = defaultConfig.openStream();
-            FileOutputStream out = new FileOutputStream(config);
+            in = defaultConfig.openStream();
+            out = new FileOutputStream(config);
 
-            int b = in.read();
-
-            while (b != -1) {
+            int b;
+            while ((b = in.read()) != -1) {
                 out.write(b);
-                b = in.read();
+            }
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
             }
 
-            in.close();
-            out.close();
-
-        } catch (Exception e){
-            e.printStackTrace();
         }
-
         return config;
     }
 
