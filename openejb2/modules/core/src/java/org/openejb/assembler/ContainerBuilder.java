@@ -47,24 +47,15 @@ package org.openejb.assembler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Properties;
-import javax.ejb.EJBHome;
 import javax.naming.Context;
 import javax.naming.NameClassPair;
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.openejb.ContainerIndex;
 import org.openejb.EJBComponentType;
-import org.openejb.EJBContainer;
-import org.openejb.GenericEJBContainer;
 import org.openejb.OpenEJBException;
-import org.openejb.deployment.BMPContainerBuilder;
-import org.openejb.deployment.StatefulContainerBuilder;
-import org.openejb.deployment.StatefulContainerBuilder;
-import org.openejb.deployment.StatelessContainerBuilder;
 
 public class ContainerBuilder implements RpcContainer {
 
