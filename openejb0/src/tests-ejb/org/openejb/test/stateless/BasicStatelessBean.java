@@ -61,6 +61,7 @@ import org.openejb.test.stateful.BasicStatefulHome;
 import org.openejb.test.stateful.BasicStatefulObject;
 import org.openejb.test.stateless.BasicStatelessHome;
 import org.openejb.test.stateless.BasicStatelessObject;
+import org.openejb.test.ApplicationException;
 
 /**
  * 
@@ -95,6 +96,26 @@ public class BasicStatelessBean implements javax.ejb.SessionBean{
         testAllowedOperations("businessMethod");
         StringBuffer b = new StringBuffer(text);
         return b.reverse().toString();
+    }
+    
+
+    /**
+     * Throws an ApplicationException when invoked
+     * 
+     */
+    public void throwApplicationException() throws ApplicationException{
+        throw new ApplicationException("Don't Panic");
+    }
+    
+    /**
+     * Throws a java.lang.NullPointerException when invoked
+     * This is a system exception and should result in the 
+     * destruction of the instance and invalidation of the
+     * remote reference.
+     * 
+     */
+    public void throwSystemException_NullPointer() {
+        throw new NullPointerException("Panic");
     }
     
     /**
