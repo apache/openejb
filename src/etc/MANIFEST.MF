@@ -4,6 +4,9 @@ Specification-Vendor: Sun Microsystems Corp
 Specification-Version: 2.0
 Implementation-Title: OpenEJB
 Implementation-Version: $VERSION$
-Class-path: xerces-J_1.3.1.jar, jndi_1.2.1.jar, jta_1.0.1.jar, castor-0.9.1.jar tyrex-0.9.8.jar
+Class-path: ..\lib\log4j-1.2.1.jar ..\lib\jta_1.0.1.jar ..\lib\jca_1.0.jar ..\lib\castor-0.9.3.9.jar ..\lib\xercesImpl-2.0.2.jar ..\lib\jakarta-regexp-1.1.jar ..\lib\idb_3.26.jar
+
+Name: org/openejb/
+Sealed: true
 
 

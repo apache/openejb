@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+
+<database name="Global_TX_Database" engine="postgresql">
+  <jndi name="java:comp/env/jdbc/titanDB" />
+  <mapping href="src/examples/conf/postgresql.titan_or_mapping.xml" />
+</database>

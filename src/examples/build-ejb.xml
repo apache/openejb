@@ -13,10 +13,6 @@
     <pathelement location="${ejb11.jar}"/>
     <pathelement location="${jndi.jar}"/>
   </path>
-  
-  <!-- ================================================================== -->
-  <!-- Prepares the build directory                                       -->
-  <!-- ================================================================== -->
 
   <target name="prepare">
   
@@ -24,14 +20,14 @@
     <mkdir dir="${build.ejb.dest}"/>
         
     <copy todir="${build.ejb.src}">
-    
       <fileset dir="${src.ejb.dir}" >
         <include name="**/**"/>
         <exclude name="**/CVS/**"/>
         <exclude name="**/*.class"/>
       </fileset>
-    
     </copy>
+
+    <replace file="${build.ejb.src}/org/acme/clients/Main.java" token="$$VERSION$$" value="${version}"/>
 
   </target>
   
@@ -48,6 +44,7 @@
     </copy>
     
     <replace file="${build.ejb.dest}/META-INF/MANIFEST.MF" token="$$VERSION$$" value="${version}"/>
+    <replace file="${build.ejb.dest}/META-INF/MANIFEST.MF" token="$$OPENEJB_VERSION$$" value="${openejb.version}"/>
   
   </target>
     
@@ -118,14 +115,8 @@
          manifest="${build.ejb.dest}/META-INF/MANIFEST.MF"/>
 
   </target>
-      
-  <!-- ================================================================== -->
-  <!-- Installs onto Tomcat                                               -->
-  <!-- ================================================================== -->
-  
-  <target name="install"
-          description="--> installs onto Tomcat">
-  </target>
+
+  <target name="install"/>
       
   <!-- ================================================================== -->
   <!-- Cleans up the build directory                                      -->
