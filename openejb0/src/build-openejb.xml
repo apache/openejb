@@ -69,9 +69,14 @@
     
     <copy todir="${build.openejb.dest}">
       <fileset dir="conf"
-               includes="default*.*" />
+               includes="default*.*" 
+               excludes="*service-jar.xml"
+               />
     </copy>
     
+    <copy file="conf/default.service-jar.xml"
+      tofile="${build.openejb.dest}/org/openejb/service-jar.xml"/>
+        
     <copy todir="${build.openejb.dest}/openejb">
       <fileset dir="bin" includes="*.txt" />
     </copy>
