@@ -60,11 +60,8 @@ import javax.naming.Context;
 */
 public abstract class ENCReference implements Reference{
     
-    protected Object  reference;
-    protected String  jndiName;
-    protected String  linkedContextName;
+    protected Reference ref = null;
     protected boolean checking = true;
-    protected javax.naming.Context linkedContext;
     
     /*
     * This constructor is used when the object to be referenced is accessible through 
@@ -74,7 +71,7 @@ public abstract class ENCReference implements Reference{
     * the JNDI ENC for a bean.
     */
     public ENCReference(String jndiName){
-        this.jndiName = jndiName;
+        this.ref = new IntraVmJndiReference( jndiName );
     }
     
     /*
@@ -83,8 +80,7 @@ public abstract class ENCReference implements Reference{
     * object is not resolved until it's requested. 
     */
     public ENCReference(javax.naming.Context linkedContext, String jndiName){
-        this.linkedContext = linkedContext;
-        this.jndiName = jndiName;
+        this.ref = new JndiReference( linkedContext, jndiName );
     }
  
     /*
@@ -93,9 +89,13 @@ public abstract class ENCReference implements Reference{
     * context. To resolve the reference we must first look up the foreign context in the OpenEJB
     * root and then resolve the lookup on that.
     */
-    public ENCReference(String openEjbContext, String jndiName){
-        this.jndiName = jndiName;
-        this.linkedContextName = openEjbContext;
+    public ENCReference(String linkedContextName, String jndiName){
+        try{
+        javax.naming.Context linkedContext = (javax.naming.Context)org.openejb.OpenEJB.getJNDIContext().lookup(linkedContextName);
+        this.ref = new JndiReference( linkedContext, jndiName );
+        } catch (javax.naming.NamingException e){
+            throw new RuntimeException("The linked context cannot be looked up from the OpenEJB JNDI namespace: Received exception: "+e.getClass().getName() + " : "+e.getMessage());
+        }
     }
     
     /*
@@ -103,7 +103,7 @@ public abstract class ENCReference implements Reference{
     * the reference is created.
     */
     public ENCReference(Object reference){
-        this.reference = reference;
+        this.ref = new ObjectReference( reference );
     }
     
     public void setChecking( boolean value ) {
@@ -119,32 +119,8 @@ public abstract class ENCReference implements Reference{
             byte operation = cntx.getCurrentOperation();
             checkOperation(operation);
         }
-        if(reference == null){
-            Context externalContext = getLinkedContext();
-            // use a federated context
-            synchronized(externalContext){
-                /* According to the JNDI SPI specification multiple threads may not access the same JNDI 
-                Context *instance* concurrently. Since we don't know the origines of the federated context we must
-                synchonrize access to it.  JNDI SPI Sepecifiation 1.2 Section 2.2
-                */
-                reference = externalContext.lookup(jndiName);
-            }
-            
-        }
-        return reference;
+        return ref.getObject();
     }
     
     public abstract void checkOperation(byte opertionType) throws NameNotFoundException;
-    
-    protected Context getLinkedContext() throws javax.naming.NamingException{
-        if(linkedContext == null){
-            if(linkedContextName != null){
-                linkedContext = (javax.naming.Context)org.openejb.OpenEJB.getJNDIContext().lookup(linkedContextName);
-            }else{
-                linkedContext = org.openejb.OpenEJB.getJNDIContext();
-            }
-        }
-
-        return linkedContext;
-    }
 }
