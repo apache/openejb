@@ -47,12 +47,11 @@
  */
 package org.openejb;
 
-import java.lang.reflect.InvocationTargetException;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import javax.ejb.EnterpriseBean;
 
 import net.sf.cglib.reflect.FastClass;
-import org.openejb.transaction.ContainerPolicy;
 
 /**
  *

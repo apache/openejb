@@ -45,73 +45,72 @@
  *
  * ====================================================================
  */
-package org.openejb.sfsb;
+package org.openejb.test.simple.bmp;
 
-import java.io.Serializable;
-import javax.ejb.SessionBean;
-
-import org.apache.geronimo.transaction.InstanceContext;
-
-import org.openejb.EJBInstanceFactory;
-import org.openejb.EJBInstanceFactoryImpl;
-import org.openejb.InstanceContextFactory;
-import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.transaction.EJBUserTransaction;
+import javax.ejb.EJBException;
+import javax.ejb.EntityBean;
+import javax.ejb.EntityContext;
+import javax.ejb.RemoveException;
 
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public class StatefulInstanceContextFactory implements InstanceContextFactory, Serializable {
-    private final Object containerId;
-    private final EJBProxyFactory proxyFactory;
-    private final EJBInstanceFactory factory;
-    private final EJBUserTransaction userTransaction;
+public class SimpleBMPEntityEJB implements EntityBean {
+    private static final Integer PK = new Integer(1);
+    private static String name = "SomeName";
+    private static String value = "SomeValue";
 
-    public StatefulInstanceContextFactory(Object containerId, EJBProxyFactory proxyFactory, Class beanClass, EJBUserTransaction userTransaction) {
-        this.containerId = containerId;
-        this.proxyFactory = proxyFactory;
-        this.factory = new EJBInstanceFactoryImpl(beanClass);
-        this.userTransaction = userTransaction;
+    public Integer ejbCreate() {
+        return PK;
     }
 
-    public InstanceContext newInstance() throws Exception {
-        return new StatefulInstanceContext(
-                containerId,
-                proxyFactory,
-                (SessionBean) factory.newInstance(),
-                createInstanceId(),
-                userTransaction);
+    public void ejbPostCreate() {
     }
 
-    private static int nextId;
-    private StatefulInstanceId createInstanceId() {
-        synchronized(this) {
-            return new StatefulInstanceId(nextId++);
+    public Integer ejbFindByPrimaryKey(Integer key) throws javax.ejb.FinderException {
+        if(PK.equals(key)) {
+            return PK;
+        } else {
+            return null;
         }
     }
 
-    private static class StatefulInstanceId implements Serializable {
-        private final int id;
+    public String getName() {
+        return name;
+    }
 
-        public StatefulInstanceId(int id) {
-            this.id = id;
-        }
+    public void setName(String name) {
+        SimpleBMPEntityEJB.name = name;
+    }
 
-        public int hashCode() {
-            return id;
-        }
+    public String getValue() {
+        return value;
+    }
 
-        public boolean equals(Object object) {
-            if (object instanceof StatefulInstanceId) {
-                return id == ((StatefulInstanceId) object).id;
-            }
-            return false;
-        }
+    public void setValue(String value) {
+        SimpleBMPEntityEJB.value = value;
+    }
 
-        public String toString() {
-            return "StatefulInstanceId: " + id;
-        }
+    public void ejbActivate() throws EJBException {
+    }
+
+    public void ejbLoad() throws EJBException {
+    }
+
+    public void ejbPassivate() throws EJBException {
+    }
+
+    public void ejbRemove() throws RemoveException, EJBException {
+    }
+
+    public void ejbStore() throws EJBException {
+    }
+
+    public void setEntityContext(EntityContext ctx) throws EJBException {
+    }
+
+    public void unsetEntityContext() throws EJBException {
     }
 }

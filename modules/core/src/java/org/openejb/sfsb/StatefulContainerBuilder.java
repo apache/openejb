@@ -49,20 +49,18 @@ package org.openejb.sfsb;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
-import javax.ejb.SessionContext;
 import javax.ejb.Handle;
+import javax.ejb.SessionContext;
 
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
-import org.openejb.EJBContainer;
-import org.openejb.GenericEJBContainer;
 import org.openejb.InterceptorBuilder;
 import org.openejb.cache.InstancePool;
 import org.openejb.cache.SimpleInstanceCache;
-import org.openejb.dispatch.MethodSignature;
-import org.openejb.dispatch.VirtualOperation;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodHelper;
+import org.openejb.dispatch.MethodSignature;
+import org.openejb.dispatch.VirtualOperation;
 import org.openejb.proxy.EJBProxyFactory;
 
 /**
@@ -73,10 +71,9 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
         return EJBComponentType.STATEFUL;
     }
 
-    public EJBContainer createContainer() throws Exception {
+    protected Object buildIt(boolean buildContainer) throws Exception {
         // get the bean class
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        Class beanClass = classLoader.loadClass(getBeanClassName());
+        Class beanClass = getClassLoader().loadClass(getBeanClassName());
 
         // build the vop table
         LinkedHashMap vopMap = buildVopMap(beanClass);
@@ -97,17 +94,11 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
 
-        // construct the container
-        return new GenericEJBContainer(
-                getContainerId(),
-                getEJBName(),
-                proxyFactory,
-                signatures,
-                interceptorBuilder,
-                pool,
-                getUserTransaction(),
-                getTransactionManager(),
-                getTrackedConnectionAssociator());
+        if (buildContainer) {
+            return createContainer(proxyFactory, signatures, interceptorBuilder, pool);
+        } else {
+            return createConfiguration(proxyFactory, signatures, interceptorBuilder, pool);
+        }
     }
 
     protected LinkedHashMap buildVopMap(Class beanClass) {

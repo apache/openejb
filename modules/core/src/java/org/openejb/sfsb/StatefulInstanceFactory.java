@@ -47,6 +47,7 @@
  */
 package org.openejb.sfsb;
 
+import java.io.Serializable;
 import javax.ejb.SessionBean;
 
 import org.apache.commons.logging.Log;
@@ -67,7 +68,7 @@ import org.openejb.cache.InstanceFactory;
  *
  * @version $Revision$ $Date$
  */
-public class StatefulInstanceFactory implements InstanceFactory {
+public class StatefulInstanceFactory implements InstanceFactory, Serializable {
     private static final Log log = LogFactory.getLog(StatefulInstanceFactory.class);
 
     private final ReadOnlyContext componentContext;

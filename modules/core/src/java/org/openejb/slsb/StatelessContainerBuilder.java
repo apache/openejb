@@ -51,11 +51,8 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import javax.ejb.SessionContext;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
-import org.openejb.EJBContainer;
 import org.openejb.InterceptorBuilder;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -71,15 +68,7 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
         return EJBComponentType.STATELESS;
     }
 
-    public EJBContainer createContainer() throws Exception {
-        return (EJBContainer) buildIt(true);
-    }
-
-    public GBeanMBean createConfiguration() throws Exception {
-        return (GBeanMBean) buildIt(false);
-    }
-
-    private Object buildIt(boolean buildContainer) throws Exception {
+    protected Object buildIt(boolean buildContainer) throws Exception {
         // get the bean class
         ClassLoader classLoader = getClassLoader();
         Class beanClass = classLoader.loadClass(getBeanClassName());

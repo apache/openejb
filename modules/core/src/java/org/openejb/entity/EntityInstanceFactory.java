@@ -47,6 +47,7 @@
  */
 package org.openejb.entity;
 
+import java.io.Serializable;
 import javax.ejb.EntityBean;
 
 import org.apache.commons.logging.Log;
@@ -66,7 +67,7 @@ import org.apache.geronimo.naming.java.RootContext;
  *
  * @version $Revision$ $Date$
  */
-public class EntityInstanceFactory implements InstanceFactory {
+public class EntityInstanceFactory implements InstanceFactory, Serializable {
     private static final Log log = LogFactory.getLog(EntityInstanceFactory.class);
 
     private final ReadOnlyContext componentContext;

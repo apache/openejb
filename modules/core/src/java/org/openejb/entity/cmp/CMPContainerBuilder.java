@@ -56,24 +56,22 @@ import javax.ejb.Handle;
 
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
-import org.openejb.EJBContainer;
-import org.openejb.GenericEJBContainer;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
 import org.openejb.cache.InstancePool;
-import org.openejb.dispatch.MethodSignature;
-import org.openejb.dispatch.VirtualOperation;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodHelper;
+import org.openejb.dispatch.MethodSignature;
+import org.openejb.dispatch.VirtualOperation;
 import org.openejb.entity.BusinessMethod;
 import org.openejb.entity.EntityInstanceFactory;
 import org.openejb.entity.EntityInterceptorBuilder;
 import org.openejb.entity.HomeMethod;
 import org.openejb.proxy.EJBProxyFactory;
 import org.tranql.cache.CacheTable;
+import org.tranql.field.FieldTransform;
 import org.tranql.identity.IdentityTransform;
 import org.tranql.query.QueryCommand;
-import org.tranql.field.FieldTransform;
 
 /**
  *
@@ -92,7 +90,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return EJBComponentType.CMP_ENTITY;
     }
 
-    public EJBContainer createContainer() throws Exception {
+    protected Object buildIt(boolean buildContainer) throws Exception {
         // stuff we still need
         String[] cmpFields = null;
         String[] relations = null;
@@ -102,8 +100,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         FieldTransform[] relationTransforms = null;
 
         // get the bean class
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        Class beanClass = classLoader.loadClass(getBeanClassName());
+        Class beanClass = getClassLoader().loadClass(getBeanClassName());
 
         // build the vop table
         LinkedHashMap vopMap = buildVopMap(beanClass);
@@ -123,17 +120,11 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
 
-        // construct the container
-        return new GenericEJBContainer(
-                getContainerId(),
-                getEJBName(),
-                proxyFactory,
-                signatures,
-                interceptorBuilder,
-                pool,
-                getUserTransaction(),
-                getTransactionManager(),
-                getTrackedConnectionAssociator());
+        if (buildContainer) {
+            return createContainer(proxyFactory, signatures, interceptorBuilder, pool);
+        } else {
+            return createConfiguration(proxyFactory, signatures, interceptorBuilder, pool);
+        }
     }
 
     private Map buildInstanceMap(Class beanClass, String[] cmpFields, FieldTransform[] cmpFieldTransforms, String[] relations, FieldTransform[] relationTransforms, MethodSignature[] queries, QueryCommand[][] queryCommands) {

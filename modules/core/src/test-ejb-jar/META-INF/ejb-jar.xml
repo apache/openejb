@@ -17,6 +17,27 @@
             <session-type>Stateless</session-type>
             <transaction-type>Container</transaction-type>
         </session>
+        <session>
+            <ejb-name>SimpleStatefulSession</ejb-name>
+            <home>org.openejb.test.simple.sfsb.SimpleStatefulSessionHome</home>
+            <remote>org.openejb.test.simple.sfsb.SimpleStatefulSession</remote>
+            <local-home>org.openejb.test.simple.sfsb.SimpleStatefulSessionLocalHome</local-home>
+            <local>org.openejb.test.simple.sfsb.SimpleStatefulSessionLocal</local>
+            <ejb-class>org.openejb.test.simple.sfsb.SimpleStatefulSessionEJB</ejb-class>
+            <session-type>Stateful</session-type>
+            <transaction-type>Container</transaction-type>
+        </session>
+        <entity>
+            <ejb-name>SimpleBMPEntity</ejb-name>
+            <home>org.openejb.test.simple.bmp.SimpleBMPEntityHome</home>
+            <remote>org.openejb.test.simple.bmp.SimpleBMPEntity</remote>
+            <local-home>org.openejb.test.simple.bmp.SimpleBMPEntityLocalHome</local-home>
+            <local>org.openejb.test.simple.bmp.SimpleBMPEntityLocal</local>
+            <ejb-class>org.openejb.test.simple.bmp.SimpleBMPEntityEJB</ejb-class>
+            <persistence-type>Bean</persistence-type>
+            <prim-key-class>java.lang.Integer</prim-key-class>
+            <reentrant>False</reentrant>
+        </entity>
     </enterprise-beans>
     <assembly-descriptor>
         <container-transaction>
@@ -27,9 +48,32 @@
             </method>
             <trans-attribute>Required</trans-attribute>
         </container-transaction>
+        <container-transaction>
+            <description>Transaction attributes for 'SimpleStatefulSession' methods</description>
+            <method>
+                <ejb-name>SimpleStatefulSession</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <trans-attribute>Required</trans-attribute>
+        </container-transaction>
+        <container-transaction>
+            <description>Transaction attributes for 'SimpleBMPEntity' methods</description>
+            <method>
+                <ejb-name>SimpleBMPEntity</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <trans-attribute>Required</trans-attribute>
+        </container-transaction>
         <method-permission>
             <method>
                 <ejb-name>SimpleStatelessSession</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <unchecked/>
+        </method-permission>
+        <method-permission>
+            <method>
+                <ejb-name>SimpleStatefulSession</ejb-name>
                 <method-name>*</method-name>
             </method>
             <unchecked/>

@@ -48,6 +48,7 @@
 package org.openejb.cache;
 
 import java.util.HashMap;
+import java.io.Serializable;
 
 /**
  * This is a very simple implementation of InstanceCache designed for raw flat
@@ -57,9 +58,9 @@ import java.util.HashMap;
  *
  * @version $Revision$ $Date$
  */
-public final class SimpleInstanceCache implements InstanceCache {
-    private HashMap active = new HashMap();
-    private HashMap inactive = new HashMap();
+public final class SimpleInstanceCache implements InstanceCache, Serializable {
+    private final transient HashMap active = new HashMap();
+    private final transient HashMap inactive = new HashMap();
 
     public synchronized void putActive(Object key, Object value) {
         inactive.remove(key);
@@ -110,6 +111,10 @@ public final class SimpleInstanceCache implements InstanceCache {
 
     public synchronized boolean isActive(Object key) {
         return active.containsKey(key);
+    }
+
+    private Object readResolve() {
+        return new SimpleInstanceCache();
     }
 }
 
