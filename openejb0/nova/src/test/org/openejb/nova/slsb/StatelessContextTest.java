@@ -91,7 +91,7 @@ public class StatelessContextTest extends TestCase {
 
     public void XtestSessionContextCMT() throws Exception {
         config.txnDemarcation = TransactionDemarcation.CONTAINER;
-        config.componentContext = new ComponentContextBuilder().buildContext(session);
+        config.componentContext = new ComponentContextBuilder(null, null).buildContext(session);
         cmt = true;
         container = new StatelessContainer(config);
         mbServer.registerMBean(container, CONTAINER_NAME);
@@ -115,7 +115,7 @@ public class StatelessContextTest extends TestCase {
     public void XtestSessionContextBMT() throws Exception {
         config.txnDemarcation = TransactionDemarcation.BEAN;
         config.userTransaction = new EJBUserTransaction(null);
-        config.componentContext = new ComponentContextBuilder(config.userTransaction).buildContext(session);
+        config.componentContext = new ComponentContextBuilder(null, config.userTransaction).buildContext(session);
         cmt = false;
         container = new StatelessContainer(config);
         mbServer.registerMBean(container, CONTAINER_NAME);
