@@ -55,6 +55,8 @@ import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+
 /**
  * Implementation of UserTransaction for use in an EJB.
  * This adds the ability to enable or disable the operations depending on
@@ -64,6 +66,7 @@ import javax.transaction.UserTransaction;
  */
 public class EJBUserTransaction implements UserTransaction {
     private TransactionManager txnManager;
+    private TrackedConnectionAssociator trackedConnectionAssociator;
     private final ThreadLocal state = new ThreadLocal() {
         protected Object initialValue() {
             return OFFLINE;
@@ -74,9 +77,10 @@ public class EJBUserTransaction implements UserTransaction {
         state.set(OFFLINE);
     }
 
-    public void setTransactionManager(TransactionManager txnManager) {
+    public void setUp(TransactionManager txnManager, TrackedConnectionAssociator trackedConnectionAssociator) {
         assert !isOnline() : "Only set the tx manager when UserTransaction is offline";
         this.txnManager = txnManager;
+        this.trackedConnectionAssociator = trackedConnectionAssociator;
     }
 
     public boolean isOnline() {
@@ -149,6 +153,7 @@ public class EJBUserTransaction implements UserTransaction {
                 throw e;
             }
             TransactionContext.setContext(newContext);
+            trackedConnectionAssociator.setConnectorTransactionContext(newContext);
         }
 
         public void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException {
@@ -162,6 +167,7 @@ public class EJBUserTransaction implements UserTransaction {
             } finally {
                 UnspecifiedTransactionContext oldContext = beanContext.getOldContext();
                 TransactionContext.setContext(oldContext);
+                trackedConnectionAssociator.setConnectorTransactionContext(oldContext);
                 oldContext.resume();
             }
         }

@@ -49,7 +49,6 @@ package org.openejb.nova;
 
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,6 +59,7 @@ import javax.ejb.EJBObject;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.cache.InstancePool;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
@@ -67,8 +67,6 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
 import org.apache.geronimo.remoting.InterceptorRegistry;
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
-
 import org.openejb.nova.dispatch.MethodHelper;
 import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.dispatch.VirtualOperation;
@@ -81,8 +79,6 @@ import org.openejb.nova.transaction.EJBUserTransaction;
  */
 public abstract class AbstractEJBContainer
         implements EJBContainer, GeronimoMBeanTarget {
-
-    private GeronimoMBeanContext context;
 
     protected final URI uri;
     protected final String ejbClassName;
@@ -138,16 +134,11 @@ public abstract class AbstractEJBContainer
         this.txnManager = txnManager;
     }
 
-    public void setMBeanContext(GeronimoMBeanContext context) {
-        this.context = context;
-    }
-
-    public TrackedConnectionAssociator getTrackedConnectionAssociator() {
-        return trackedConnectionAssociator;
-    }
-
     public void setTrackedConnectionAssociator(TrackedConnectionAssociator trackedConnectionAssociator) {
         this.trackedConnectionAssociator = trackedConnectionAssociator;
+    }
+
+    public void setMBeanContext(GeronimoMBeanContext context) {
     }
 
     public boolean canStart() {
@@ -163,7 +154,7 @@ public abstract class AbstractEJBContainer
         System.out.println("classloader="+classLoader);
         try {
             if (userTransaction != null) {
-                userTransaction.setTransactionManager(txnManager);
+                userTransaction.setUp(txnManager, trackedConnectionAssociator);
             }
             beanClass = classLoader.loadClass(ejbClassName);
 
@@ -200,7 +191,7 @@ public abstract class AbstractEJBContainer
         localInterface = null;
         beanClass = null;
         if (userTransaction != null) {
-            userTransaction.setTransactionManager(null);
+            userTransaction.setUp(null, trackedConnectionAssociator);
         }
         //super.doStop();
     }
@@ -259,7 +250,6 @@ public abstract class AbstractEJBContainer
     /**
      * Return the name of this EJB's implementation class
      * @return the name of this EJB's implementation class
-     * @jmx.managed-attribute
      */
     public String getBeanClassName() {
         return ejbClassName;
@@ -268,7 +258,6 @@ public abstract class AbstractEJBContainer
     /**
      * Return the name of this EJB's home interface class
      * @return the name of this EJB's home interface class
-     * @jmx.managed-attribute
      */
     public String getHomeClassName() {
         return homeClassName;
@@ -277,7 +266,6 @@ public abstract class AbstractEJBContainer
     /**
      * Return the name of this EJB's remote component interface class
      * @return the name of this EJB's remote component interface class
-     * @jmx.managed-attribute
      */
     public String getRemoteClassName() {
         return remoteClassName;
@@ -286,7 +274,6 @@ public abstract class AbstractEJBContainer
     /**
      * Return the name of this EJB's local home class
      * @return the name of this EJB's local home class
-     * @jmx.managed-attribute
      */
     public String getLocalHomeClassName() {
         return localHomeClassName;
@@ -295,7 +282,6 @@ public abstract class AbstractEJBContainer
     /**
      * Return the name of this EJB's local component interface class
      * @return the name of this EJB's local component interface class
-     * @jmx.managed-attribute
      */
     public String getLocalClassName() {
         return localClassName;
