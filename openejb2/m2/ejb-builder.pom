@@ -32,7 +32,7 @@
         <includes>*.xsd,*.dtd</includes>
       </resource>
       <resource>
-        <directory>src/java</directory>
+        <directory>src/main/java</directory>
         <includes>**/*.xml,**/*.properties</includes>
       </resource>
       <resource>

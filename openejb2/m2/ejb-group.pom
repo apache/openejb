@@ -542,8 +542,6 @@
   </ciManagement>
 
   <build>
-    <sourceDirectory>src/java</sourceDirectory>
-    <testSourceDirectory>src/test</testSourceDirectory>
     <pluginManagement>
       <plugins>
         <plugin>
