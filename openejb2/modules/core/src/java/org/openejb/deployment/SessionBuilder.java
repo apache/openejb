@@ -51,14 +51,15 @@ import java.net.URI;
 import java.security.Permissions;
 import java.util.Map;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.security.deploy.Security;
@@ -161,7 +162,11 @@ class SessionBuilder extends BeanBuilder {
         String ejbName = sessionBean.getEjbName().getStringValue().trim();
         //todo use constants from NameFactory
         String type = sessionBean.getSessionType().getStringValue().trim() + "SessionBean";
-        return NameFactory.getEjbComponentName(null, null, null, null, ejbName, type, moduleJ2eeContext);
+        try {
+            return NameFactory.getEjbComponentName(null, null, null, null, ejbName, type, moduleJ2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct ejb object name: " + ejbName, e);
+        }
     }
 
     public void processEnvironmentRefs(ContainerBuilder builder, EARContext earContext, EJBModule ejbModule, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
