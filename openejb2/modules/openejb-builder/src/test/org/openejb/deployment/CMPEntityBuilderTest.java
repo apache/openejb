@@ -121,7 +121,7 @@ public class CMPEntityBuilderTest extends TestCase {
         
         GlobalSchema globalSchema = new GlobalSchema("Test");
         EJBSchema ejbSchema = new EJBSchema("Test");
-        SQL92Schema sqlSchema = new SQL92Schema("Test", null);
+        SQL92Schema sqlSchema = new SQL92Schema("Test", null, null);
         
         File tempDir = DeploymentUtil.createTempDir();
         try {
@@ -166,7 +166,7 @@ public class CMPEntityBuilderTest extends TestCase {
         
         GlobalSchema globalSchema = new GlobalSchema("Test");
         EJBSchema ejbSchema = new EJBSchema("Test");
-        SQL92Schema sqlSchema = new SQL92Schema("Test", null);
+        SQL92Schema sqlSchema = new SQL92Schema("Test", null, null);
 
         File tempDir = DeploymentUtil.createTempDir();
         try {
@@ -212,7 +212,7 @@ public class CMPEntityBuilderTest extends TestCase {
         
         GlobalSchema globalSchema = new GlobalSchema("Test");
         EJBSchema ejbSchema = new EJBSchema("Test");
-        SQL92Schema sqlSchema = new SQL92Schema("Test", null);
+        SQL92Schema sqlSchema = new SQL92Schema("Test", null, null);
         
         File tempDir = DeploymentUtil.createTempDir();
         try {

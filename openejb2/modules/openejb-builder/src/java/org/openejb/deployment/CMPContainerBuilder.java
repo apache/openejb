@@ -135,8 +135,8 @@ import org.tranql.query.SchemaMapper;
 import org.tranql.schema.Association;
 import org.tranql.schema.Attribute;
 import org.tranql.schema.Schema;
+import org.tranql.sql.EJBQLToPhysicalQuery;
 import org.tranql.sql.SQLSchema;
-import org.tranql.sql.sql92.EJBQLToPhysicalQuery;
 
 /**
  * @version $Revision$ $Date$

@@ -97,6 +97,7 @@ import org.tranql.cache.GlobalSchema;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.TransactionManagerDelegate;
+import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
 import org.tranql.sql.sql92.SQL92Schema;
 
 /**
@@ -175,7 +176,7 @@ public class EJBQLTest extends TestCase {
         tmDelegate.setTransactionManager(tm);
 
         ejbSchema = new EJBSchema("Mock");
-        sqlSchema = new SQL92Schema("Mock", ds);
+        sqlSchema = new SQL92Schema("Mock", ds, new DerbyEJBQLCompilerFactory());
         cacheSchema = new GlobalSchema("Mock");
 
         File ejbJarFile = new File(basedir, getEjbJarDD());

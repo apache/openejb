@@ -50,6 +50,7 @@ package org.openejb.deployment;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -58,6 +59,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
@@ -106,8 +108,13 @@ import org.tranql.cache.GlobalSchema;
 import org.tranql.cache.SimpleFlushStrategyFactory;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.TransactionManagerDelegate;
+import org.tranql.ejbqlcompiler.DerbyDBSyntaxtFactory;
+import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
+import org.tranql.sql.BaseSQLSchema;
+import org.tranql.sql.DBSyntaxFactory;
 import org.tranql.sql.DataSourceDelegate;
-import org.tranql.sql.sql92.SQL92Schema;
+import org.tranql.sql.EJBQLCompilerFactory;
+import org.tranql.sql.SQLSchema;
 
 
 /**
@@ -377,7 +384,41 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         EJBSchema ejbSchema = new EJBSchema(module.getName());
         TransactionManagerDelegate tmDelegate = new TransactionManagerDelegate();
         DataSourceDelegate delegate = new DataSourceDelegate();
-        SQL92Schema sqlSchema = new SQL92Schema(module.getName(), delegate);
+
+        EJBQLCompilerFactory compilerFactory = new DerbyEJBQLCompilerFactory();
+        try {
+            if (openejbEjbJar.isSetEjbQlCompilerFactory()) {
+                String className = openejbEjbJar.getEjbQlCompilerFactory().toString();
+                Class clazz = cl.loadClass(className);
+                Constructor constructor = clazz.getConstructor(null);
+                Object factory = constructor.newInstance(null);
+                if (false == factory instanceof EJBQLCompilerFactory) {
+                    throw new DeploymentException("EJBQLCompilerFactory expected. was=" + factory);
+                }
+                compilerFactory = (EJBQLCompilerFactory) factory;
+            }
+        } catch (Exception e) {
+            throw new DeploymentException("Can not initialize ejb-ql-compiler-factory=" + openejbEjbJar.getEjbQlCompilerFactory(), e);
+        }
+        
+        DBSyntaxFactory syntaxFactory = new DerbyDBSyntaxtFactory();
+        try {
+            if (openejbEjbJar.isSetDbSyntaxFactory()) {
+                String className = openejbEjbJar.getDbSyntaxFactory().toString();
+                Class clazz = cl.loadClass(className);
+                Constructor constructor = clazz.getConstructor(null);
+                Object factory = constructor.newInstance(null);
+                if (false == factory instanceof DBSyntaxFactory) {
+                    throw new DeploymentException("DBSyntaxFactory expected. was=" + factory);
+                }
+                syntaxFactory = (DBSyntaxFactory) factory;
+            }
+        } catch (Exception e) {
+            throw new DeploymentException("Can not initialize ejb-ql-compiler-factory=" + openejbEjbJar.getEjbQlCompilerFactory(), e);
+        }
+        
+        SQLSchema sqlSchema = new BaseSQLSchema(module.getName(), delegate, syntaxFactory, compilerFactory);
+        
         GlobalSchema globalSchema = new GlobalSchema(module.getName(), flushStrategyFactory);
 
         GBeanData ejbModuleGBeanData = new GBeanData(ejbModuleObjectName, EJBModuleImpl.GBEAN_INFO);

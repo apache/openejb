@@ -88,6 +88,7 @@ import org.tranql.ejb.CMPField;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBQueryBuilder;
 import org.tranql.ejb.EJBSchema;
+import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
 import org.tranql.identity.IdentityDefinerBuilder;
 import org.tranql.query.SchemaMapper;
 import org.tranql.query.UpdateCommand;
@@ -425,7 +426,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         });
         builder.setSecurityConfiguration(new SecurityConfiguration());
         EJBSchema ejbSchema = new EJBSchema("MOCK");
-        SQL92Schema sqlSchema = new SQL92Schema("MOCK", ds);
+        SQL92Schema sqlSchema = new SQL92Schema("MOCK", ds, new DerbyEJBQLCompilerFactory());
         GlobalSchema globalSchema = new GlobalSchema("MOCK");
         builder.setEJBSchema(ejbSchema);
         builder.setSQLSchema(sqlSchema);
