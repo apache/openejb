@@ -16,7 +16,7 @@
 		HelloHome ejbHome = (HelloHome)PortableRemoteObject.narrow(obj, HelloHome.class);
 		HelloObject ejbObject = ejbHome.create();
         
-		//The part we've all been wainting for...
+		//The part we've all been waiting for...
 		message = ejbObject.sayHello();
 
     } catch (Exception e) {
