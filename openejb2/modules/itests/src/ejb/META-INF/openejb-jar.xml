@@ -9,7 +9,11 @@
         <uri>junit/jars/junit-3.8.1.jar</uri>
     </dependency>
 
-    <cmp-connection-factory>DefaultDatasource</cmp-connection-factory>
+    <cmp-connection-factory>
+        <application>null</application>
+        <module>org/apache/geronimo/DefaultDatabase</module>
+        <name>DefaultDatasource</name>
+    </cmp-connection-factory>
 
     <enterprise-beans>
         <!--
@@ -22,7 +26,9 @@
             <jndi-name>client/tests/stateless/BasicStatelessHome</jndi-name>
             <resource-ref>
                 <ref-name>stateless/references/Resource_manager_access</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </session>
         <session>
@@ -30,7 +36,9 @@
             <jndi-name>client/tests/stateless/BeanManagedBasicStatelessHome</jndi-name>
             <resource-ref>
                 <ref-name>stateless/references/Resource_manager_access</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </session>
         <session>
@@ -38,7 +46,9 @@
             <jndi-name>client/tools/DatabaseHome</jndi-name>
             <resource-ref>
                 <ref-name>database</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </session>
         <session>
@@ -46,7 +56,9 @@
             <jndi-name>client/tests/stateless/BeanManagedTransactionTests/EJBHome</jndi-name>
             <resource-ref>
                 <ref-name>database</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </session>
         <session>
@@ -54,7 +66,9 @@
             <jndi-name>client/tests/stateless/EncBean</jndi-name>
             <resource-ref>
                 <ref-name>datasource</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </session>
         <session>
@@ -74,7 +88,9 @@
             <jndi-name>client/tests/stateful/BasicStatefulHome</jndi-name>
             <resource-ref>
                 <ref-name>stateful/references/Resource_manager_access</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </session>
         <session>
@@ -82,7 +98,9 @@
             <jndi-name>client/tests/stateful/BeanManagedBasicStatefulHome</jndi-name>
             <resource-ref>
                 <ref-name>stateful/references/Resource_manager_access</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </session>
         <session>
@@ -90,7 +108,9 @@
             <jndi-name>client/tests/stateful/BeanManagedTransactionTests/EJBHome</jndi-name>
             <resource-ref>
                 <ref-name>datasource</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </session>
         <session>
@@ -98,7 +118,9 @@
             <jndi-name>client/tests/stateful/EncBean</jndi-name>
             <resource-ref>
                 <ref-name>datasource</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </session>
         <session>
@@ -116,7 +138,9 @@
             <jndi-name>client/tests/entity/bmp/BasicBmpHome</jndi-name>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
         <entity>
@@ -124,11 +148,15 @@
             <jndi-name>client/tests/entity/bmp/allowed_operations/EntityHome</jndi-name>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
             <resource-ref>
                 <ref-name>entity/references/Resource_manager_access</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
         <entity>
@@ -136,11 +164,15 @@
             <jndi-name>client/tests/entity/bmp/EncBean</jndi-name>
             <resource-ref>
                 <ref-name>datasource</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
         <entity>
@@ -188,7 +220,9 @@
             </query>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
         <entity>
@@ -225,11 +259,15 @@
             </query>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
             <resource-ref>
                 <ref-name>entity/references/Resource_manager_access</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
         <entity>
@@ -250,11 +288,15 @@
             </cmp-field-mapping>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
             <resource-ref>
                 <ref-name>datasource</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
         <entity>
@@ -315,7 +357,9 @@
             </query>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
         <entity>
@@ -352,11 +396,15 @@
             </query>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
             <resource-ref>
                 <ref-name>entity/references/Resource_manager_access</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
         <entity>
@@ -377,11 +425,15 @@
             </cmp-field-mapping>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
             <resource-ref>
                 <ref-name>datasource</ref-name>
-                <target-name>DefaultDatasource</target-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
             </resource-ref>
         </entity>
         <entity>

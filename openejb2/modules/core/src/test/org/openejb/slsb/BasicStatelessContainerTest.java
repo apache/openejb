@@ -110,12 +110,12 @@ public class BasicStatelessContainerTest extends TestCase {
         MockLocal local = home.create();
         Integer integer = new Integer(1);
         local.integerMethod(integer);
-        int COUNT = 10000;
+        int COUNT = 100000;
         for (int i = 0; i < COUNT; i++) {
             local.integerMethod(integer);
         }
 
-        COUNT = 100000;
+        COUNT = 1000000;
         long start = System.currentTimeMillis();
         for (int i = 0; i < COUNT; i++) {
             local.integerMethod(integer);

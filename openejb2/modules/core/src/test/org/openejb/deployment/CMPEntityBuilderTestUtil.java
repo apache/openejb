@@ -50,6 +50,7 @@ package org.openejb.deployment;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.tranql.cache.GlobalSchema;
@@ -72,8 +73,8 @@ public class CMPEntityBuilderTestUtil extends TestCase {
         this.delegate = new CMPEntityBuilder(builder);
     }
     
-    public void buildCMPSchema(EARContext earContext, String ejbModuleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema, GlobalSchema globalSchema) throws DeploymentException {
-        delegate.buildCMPSchema(earContext, ejbModuleName, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema, globalSchema);
+    public void buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema, GlobalSchema globalSchema) throws DeploymentException {
+        delegate.buildCMPSchema(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema, globalSchema);
     }
     
 }

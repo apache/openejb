@@ -53,12 +53,28 @@ package org.openejb.config;
  */
 
 import java.beans.PropertyEditor;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.jar.JarFile;
-import javax.management.*;
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
 import javax.naming.Context;
 import javax.transaction.TransactionManager;
 
@@ -273,17 +289,18 @@ public class NovaAssembler implements Assembler {
 
     private static GBeanMBean setUpEarModule(Kernel kernel, File earFile, File tempDir) throws MalformedObjectNameException, IOException, DeploymentException, AttributeNotFoundException, ReflectionException, ClassNotFoundException, OpenEJBException {
         GBeanMBean earGBean;
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
         EARConfigBuilder earConfigBuilder = new EARConfigBuilder(new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
                 getObjectName("TransactionContextManager"),
                 getObjectName("ConnectionTracker"),
                 getObjectName("TransactionalTimer"),
                 getObjectName("NonTransactionalTimer"),
                 null, // repository
-                moduleBuilder,
-                moduleBuilder,
+                moduleBuilder,  //ejb config builder
+                moduleBuilder,  //ejb reference builder 
                 null, // web
                 null, // connector
+                null, //resource reference builder
                 null, // app client
                 null // kernel
         );

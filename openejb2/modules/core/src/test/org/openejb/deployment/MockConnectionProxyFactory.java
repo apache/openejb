@@ -59,7 +59,7 @@ import org.axiondb.jdbc.AxionDataSource;
  * @version $Revision$ $Date$
  */
 public class MockConnectionProxyFactory implements ConnectionProxyFactory {
-    public Object getProxy() {
+    public Object $getResource() {
         return new AxionDataSource("jdbc:axiondb:testdb");
     }
 

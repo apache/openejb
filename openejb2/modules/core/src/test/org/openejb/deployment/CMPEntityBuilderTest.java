@@ -58,6 +58,8 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
@@ -99,7 +101,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         
         GlobalSchema globalSchema = new GlobalSchema("Test");
@@ -121,9 +123,9 @@ public class CMPEntityBuilderTest extends TestCase {
                     null,
                     null,
                     null);
-
+            J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "TestGeronimoServer", "null", "MockModule", null, null);
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            builder.buildCMPSchema(earContext, "MockModule", ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, globalSchema);
+            builder.buildCMPSchema(earContext, moduleJ2eeContext, ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, globalSchema);
 
             assertOneToOneEntity(ejbSchema.getEntity("A"), ejbSchema.getEntity("B"));
             assertOneToOneEntity(sqlSchema.getEntity("A"), sqlSchema.getEntity("B"));
@@ -146,7 +148,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         
         GlobalSchema globalSchema = new GlobalSchema("Test");
@@ -169,8 +171,9 @@ public class CMPEntityBuilderTest extends TestCase {
                     null,
                     null);
 
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            builder.buildCMPSchema(earContext, "MockModule", ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, globalSchema);
+            J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "TestGeronimoServer", "null", "MockModule", null, null);
+             ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            builder.buildCMPSchema(earContext, moduleJ2eeContext, ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, globalSchema);
 
             assertOneToManyEntity(ejbSchema.getEntity("A"), ejbSchema.getEntity("B"));
             assertOneToManyEntity(sqlSchema.getEntity("A"), sqlSchema.getEntity("B"));
@@ -193,7 +196,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         
         GlobalSchema globalSchema = new GlobalSchema("Test");
@@ -216,8 +219,9 @@ public class CMPEntityBuilderTest extends TestCase {
                     null,
                     null);
 
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            builder.buildCMPSchema(earContext, "MockModule", ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, globalSchema);
+            J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "TestGeronimoServer", "null", "MockModule", null, null);
+             ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            builder.buildCMPSchema(earContext, moduleJ2eeContext, ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, globalSchema);
 
             assertManyToManyEntity(ejbSchema.getEntity("A"), ejbSchema.getEntity("B"));
             assertManyToManyEntity(sqlSchema.getEntity("A"), sqlSchema.getEntity("B"));

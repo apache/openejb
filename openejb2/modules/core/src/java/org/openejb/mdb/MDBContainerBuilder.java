@@ -61,7 +61,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 
-import org.openejb.ResourceEnvironmentBuilder;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.openejb.SecureBuilder;
 import org.openejb.cache.InstancePool;
 import org.openejb.deployment.TransactionPolicySource;

@@ -155,7 +155,7 @@ public class EJBModuleImpl implements GBeanLifecycle {
 
     public void doStart() throws WaitingException, Exception {
         if (delegate != null) {
-            delegate.setConnectionFactory(connectionFactory.getProxy());
+            delegate.setConnectionFactory(connectionFactory.$getResource());
         }
         if ( null != tmDelegate ) {
             tmDelegate.setTransactionManager(transactionContextManager.getTransactionManager());

@@ -55,7 +55,6 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
 import javax.management.ObjectName;
@@ -63,12 +62,13 @@ import javax.sql.DataSource;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
 import org.openejb.DeploymentHelper;
@@ -98,8 +98,11 @@ import org.tranql.sql.sql92.SQL92Schema;
  * @version $Revision$ $Date$
  */
 public class BasicCMPEntityContainerTest extends TestCase {
-    private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
-    private static final ObjectName CI_NAME = JMXUtil.getObjectName("geronimo.test:role=ContainerIndex");
+    private static final String j2eeDomainName = "openejb.server";
+    private static final String j2eeServerName = "TestOpenEJBServer";
+    private J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, "testapp", "testejbmodule", "testapp", NameFactory.J2EE_APPLICATION);
+    private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("openejb.server:ejb=Mock");
+    private static final ObjectName CI_NAME = JMXUtil.getObjectName("openejb.server:role=ContainerIndex");
     private Kernel kernel;
     private GBeanMBean container;
 
@@ -427,7 +430,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         builder.setSQLSchema(sqlSchema);
         builder.setGlobalSchema(globalSchema);
         builder.setComponentContext(new ReadOnlyContext());
-        builder.setConnectionFactoryName("defaultDatasource");
+//        builder.setConnectionFactoryName("defaultDatasource");
 
         EJBProxyFactory proxyFactory = new EJBProxyFactory(CONTAINER_NAME.getCanonicalName(), false, MockRemote.class, MockHome.class, MockLocal.class, MockLocalHome.class);
         EJB ejb = new EJB("MockEJB", "MOCK", Integer.class, proxyFactory);
@@ -461,7 +464,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         start(CI_NAME, containerIndex);
 
         GBeanMBean connectionProxyFactoryGBean = new GBeanMBean(MockConnectionProxyFactory.GBEAN_INFO);
-        ObjectName connectionProxyFactoryObjectName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo" + JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + "DefaultDatasource");
+        ObjectName connectionProxyFactoryObjectName = NameFactory.getResourceComponentName(null, null, null, "jcamodule", "testcf", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
         kernel.loadGBean(connectionProxyFactoryObjectName, connectionProxyFactoryGBean);
         kernel.startGBean(connectionProxyFactoryObjectName);
 

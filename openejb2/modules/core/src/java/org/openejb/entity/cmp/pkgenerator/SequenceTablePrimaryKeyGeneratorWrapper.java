@@ -82,7 +82,7 @@ public class SequenceTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenera
     }
     
     public void doStart() throws WaitingException, Exception {
-        DataSource dataSource = (DataSource) connectionFactoryWrapper.getProxy();
+        DataSource dataSource = (DataSource) connectionFactoryWrapper.$getResource();
         delegate = new SequenceTablePrimaryKeyGenerator(dataSource, tableName, sequenceName, batchSize);
         delegate.initSequenceTable();
     }
