@@ -60,6 +60,7 @@
                excludes="**/CVS/**,**/*.class"
       />
     </copy>
+    
     <copy todir="${build.openejb.src}" >
       <fileset dir="${src.java.dir}/facilities" 
                includes="**/alt/**,**/resource/**,**/tyrex/**,**/sp/**" 
@@ -112,6 +113,18 @@ time=${TSTAMP}</echo>
   
   </target>
   
+  <target name="copy.i18n">
+  
+    <copy todir="${build.openejb.dest}">
+    
+      <fileset dir="${src.java.dir}/main" >
+        <include name="**/resources/*.properties"/>
+      </fileset>
+    
+    </copy>
+  
+  </target>
+  
   <!-- ================================================================== -->
   <!-- Compiles the source directory                                      -->
   <!-- ================================================================== -->
@@ -157,7 +170,7 @@ time=${TSTAMP}</echo>
   <!-- ================================================================== -->
   
   <target name="jar"
-          depends="compile, copy.manifest"
+          depends="compile, copy.manifest, copy.i18n"
           description="--> generates all java archives (default)">
           
     <jar jarfile="dist/${project}-${version}.jar"

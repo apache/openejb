@@ -81,7 +81,19 @@
     <replace file="${build.openejb.server.dest}/MANIFEST.MF" token="$$VERSION$$" value="${version}"/>
   
   </target>
-  
+    
+    <target name="copy.i18n">
+    
+      <copy todir="${build.openejb.server.dest}">
+      
+        <fileset dir="${src.java.dir}/server" >
+          <include name="**/resources/*.properties"/>
+        </fileset>
+      
+      </copy>
+    
+    </target>
+
   <!-- ================================================================== -->
   <!-- Compiles the source directory                                      -->
   <!-- ================================================================== -->
@@ -131,7 +143,7 @@
   <!-- ================================================================== -->
   
   <target name="jar"
-          depends="compile, copy.manifest"
+          depends="compile, copy.manifest, copy.i18n"
           description="--> generates all java archives (default)">
           
     <jar jarfile="dist/${project}_server-${version}.jar"
