@@ -175,7 +175,23 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             try{
                 serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
             } catch (Exception e){
-                System.out.println("Cannot bind to the ip: "+ip+" and port: "+port+".  Received exception: "+ e.getClass().getName()+":"+ e.getMessage());
+                System.out.println("");
+                System.out.println("");
+                System.out.println("");
+                System.out.println("Cannot bind to the ip: "+ip+" and port: "+port+".");
+                System.out.println("Received exception: "+ e.getClass().getName()+":"+ e.getMessage());
+                System.out.println("");
+                System.out.println("This is most likely because you have another version of OpenEJB running");
+                System.out.println("somewhere on your machine.  To shut that version down, type:");
+                System.out.println("");
+                System.out.println("telnet "+ip+" "+(port-1));
+                System.out.println("");
+                System.out.println("and issue the command 'stop'.  If you do not get an OpenEJB prompt when");
+                System.out.println("you telnet, then another program has that address and port bound. "); 
+		System.out.println("You can select a new port by setting the system property ");
+		System.out.println("'openejb.server.port'.  You can select a new port by setting the system");
+		System.out.println("property 'openejb.server.ip'.");
+
                 System.exit(1);
             }
             int threads = Integer.parseInt( (String)props.get("openejb.server.threads") );
