@@ -15,7 +15,7 @@
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
  *    permission of The OpenEJB Group.  For written permission,
- *    please contact openejb-group@openejb.sf.net.
+ *    please contact info@openejb.org.
  *
  * 4. Products derived from this Software may not be called "OpenEJB"
  *    nor may "OpenEJB" appear in their names without prior written
@@ -23,7 +23,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://openejb.sf.net/).
+ *    (http://openejb.org/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -38,68 +38,17 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2005 (C) The OpenEJB Group. All Rights Reserved.
  *
  * $Id$
  */
-package org.openejb.server.ejbd;
+package org.openejb.corba;
 
-
-import java.io.IOException;
-import java.net.Socket;
-import java.util.Properties;
-
-import org.openejb.server.ServerFederation;
-import org.openejb.server.ServiceException;
-import org.openejb.server.ServerService;
-import org.openejb.ContainerIndex;
-import org.openejb.OpenEJB;
-import org.openejb.corba.ORBRef;
+import org.omg.CORBA.ORB;
 
 /**
- * @since 11/25/2001
+ * @version $Revision$ $Date$
  */
-public class EjbServer implements ServerService {
-    private EjbDaemon ejbDaemon;
-
-    static {
-        // TODO Horrid hack, the concept needs to survive somewhere
-        if (OpenEJB.getApplicationServer() == null) {
-            OpenEJB.setApplicationServer(new ServerFederation());
-        }
-    }
-    public EjbServer() throws Exception {
-        ejbDaemon = EjbDaemon.getEjbDaemon();
-    }
-
-    public EjbServer(ContainerIndex containerIndex, ORBRef orbRef) throws Exception {
-        ejbDaemon = new EjbDaemon(containerIndex, orbRef);
-    }
-
-    public void init(Properties props) throws Exception {
-    }
-
-    public void service(Socket socket) throws ServiceException, IOException {
-        ServerFederation.setApplicationServer(ejbDaemon);
-        ejbDaemon.service(socket);
-    }
-
-    public void start() throws ServiceException {
-    }
-
-    public void stop() throws ServiceException {
-    }
-
-    public String getName() {
-        return "ejbd";
-    }
-
-    public int getPort() {
-        return 0;
-    }
-
-    public String getIP() {
-        return "";
-    }
-
+public interface ORBRef {
+    ORB getORB();
 }

@@ -60,6 +60,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openejb.ContainerIndex;
+import org.openejb.corba.ORBRef;
 import org.openejb.client.RequestMethods;
 import org.openejb.client.ResponseCodes;
 import org.openejb.proxy.ProxyInfo;
@@ -85,14 +86,14 @@ public class EjbDaemon implements ApplicationServer, ResponseCodes, RequestMetho
     private final AuthRequestHandler authHandler;
 
     private EjbDaemon() throws Exception {
-        this(ContainerIndex.getInstance());
+        this(ContainerIndex.getInstance(), null);
     }
 
-    public EjbDaemon(ContainerIndex containerIndex) throws Exception {
+    public EjbDaemon(ContainerIndex containerIndex, ORBRef orbRef) throws Exception {
         clientObjectFactory = new ClientObjectFactory(containerIndex);
 
         // Request Handlers
-        ejbHandler = new EjbRequestHandler(containerIndex);
+        ejbHandler = new EjbRequestHandler(containerIndex, orbRef);
         jndiHandler = new JndiRequestHandler(containerIndex);
         authHandler = new AuthRequestHandler();
     }

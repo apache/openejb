@@ -50,13 +50,12 @@ import java.lang.reflect.Method;
 
 import org.apache.geronimo.core.service.InvocationKey;
 import org.apache.geronimo.transaction.context.TransactionContext;
-import org.openejb.EJBContainer;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
+import org.openejb.corba.ORBRef;
 import org.openejb.client.EJBRequest;
-import org.openejb.proxy.EJBProxyFactory;
 
 public class EJBInvocationStream extends EJBRequest implements EJBInvocation {
 
@@ -69,6 +68,10 @@ public class EJBInvocationStream extends EJBRequest implements EJBInvocation {
 
     public EJBInvocationStream() {
         super();
+    }
+
+    public EJBInvocationStream(ORBRef orbRef) {
+        super(orbRef);
     }
 
     public EJBInvocationStream(int requestMethod) {

@@ -62,6 +62,7 @@ import org.apache.geronimo.security.IdentificationPrincipal;
 import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
 import org.openejb.InvalidateReferenceException;
+import org.openejb.corba.ORBRef;
 import org.openejb.client.EJBRequest;
 import org.openejb.client.EJBResponse;
 import org.openejb.client.RequestMethods;
@@ -74,9 +75,11 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
     private static final Log log = LogFactory.getLog(EjbRequestHandler.class);
     private final ContainerIndex containerIndex;
+    private final ORBRef orbRef;
 
 
-    EjbRequestHandler(ContainerIndex containerIndex) {
+    EjbRequestHandler(ContainerIndex containerIndex, ORBRef orbRef) {
+        this.orbRef = orbRef;
 
         if (containerIndex == null) {
             containerIndex = ContainerIndex.getInstance();
@@ -89,7 +92,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
         EJBObjectInputStream in = (EJBObjectInputStream) input;
 
-        EJBInvocationStream req = new EJBInvocationStream();
+        EJBInvocationStream req = new EJBInvocationStream(orbRef);
 
         EJBResponse res = new EJBResponse();
 
