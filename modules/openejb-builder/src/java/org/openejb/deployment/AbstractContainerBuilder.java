@@ -404,6 +404,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 null, //kernel
                 getSecurityConfiguration(),
                 getDefaultSubject(),
+                runAs,
                 Thread.currentThread().getContextClassLoader());
     }
 
@@ -428,6 +429,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         gbean.setReferencePattern("Timer", timerName);
         gbean.setAttribute("SecurityConfiguration", getSecurityConfiguration());
         gbean.setAttribute("DefaultSubject", getDefaultSubject());
+        gbean.setAttribute("RunAsSubject", getRunAs());
 
         return gbean;
     }
