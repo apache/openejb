@@ -65,6 +65,14 @@
     
     </copy>
     
+    <copy todir="${build.openejb.server.dest}/META-INF">
+    
+      <fileset dir="${src.java.dir}/server/org/openejb/server/admin" >
+        <include name="ejb-jar.xml"/>
+        <include name="openejb-jar.xml"/>
+      </fileset>
+
+    </copy>
   </target>
   
   <target name="copy.manifest">
@@ -159,8 +167,8 @@
   <target name="jar"
           depends="compile, copy.manifest, copy.i18n"
           description="--> generates all java archives (default)">
-          
     <jar jarfile="dist/${project}_server-${version}.jar"
+         excludes="**/WebSession*"
          basedir="${build.openejb.server.dest}"
          manifest="${build.openejb.server.dest}/MANIFEST.MF"/>
     
@@ -169,6 +177,10 @@
          excludes="**/server/**"
          manifest="${build.openejb.server.dest}/MANIFEST.MF"/>
           
+    <jar jarfile="beans/${project}_httpdbeans-${version}.jar" manifest="${build.openejb.server.dest}/MANIFEST.MF">
+        <fileset dir="${build.openejb.server.dest}" includes="**/WebSession**,META-INF/*.xml"/>
+        <fileset dir="${build.dest}/webadmin" includes="**/HttpSession.class**"/>
+    </jar>
           
   </target>
   

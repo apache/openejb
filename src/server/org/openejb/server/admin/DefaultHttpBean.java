@@ -42,39 +42,63 @@
  *
  * $Id$
  */
-package org.openejb.admin.web;
+package org.openejb.server.admin;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import javax.ejb.SessionContext;
+
+import org.openejb.admin.web.HttpBean;
+import org.openejb.admin.web.HttpRequest;
+import org.openejb.admin.web.HttpResponse;
+import org.openejb.util.FileUtils;
 
 /** This is a webadmin bean which has default functionality such as genderating
  * error pages and setting page content.
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class DefaultHttpBean implements HttpBean {
-	/** The base url for this page */
-	private static final URL BASE_URL = getBaseUrl();
-	/** the ejb session context */
+
+    /** The path in which to look for files. */
+    private static final URL[] PATH = getSearchPath();
+    
+    /** the ejb session context */
 	private SessionContext context;
 
-	/** gets the base URL for this page
-	 * @return The base URL
-	 */
-	private static URL getBaseUrl() {
-		URL url = null;
-		try {
-			url = new URL("resource:/openejb/webadmin");
-		} catch (Exception e) {
-			// TODO: 1: We should never get an exception here
-			e.printStackTrace();
-		}
-		return url;
-	}
+    
+    private static URL[] getSearchPath(){
+        ArrayList path = new ArrayList();
+
+        try {
+            //OpenEJB Home and Base folders
+            URL base = FileUtils.getBase().getDirectory().toURL();
+            URL home = FileUtils.getHome().getDirectory().toURL();
+
+            
+            if (!base.sameFile(home)){
+                path.add(new URL(base,"htdocs/"));
+            }
+            path.add(new URL(home,"htdocs/"));
+            path.add(new URL("resource:/htdocs/"));
+            path.add(new URL("resource:/openejb/webadmin/"));
+           } catch (Exception e) {
+            // TODO: 1: We should never get an exception here
+            e.printStackTrace();
+        }
+        
+        return (URL[]) path.toArray(new URL[0]);
+    }
 
 	/** Creates a new instance */
 	public void ejbCreate() {}
@@ -85,6 +109,8 @@ public class DefaultHttpBean implements HttpBean {
 	 * @throws IOException if an exception is thrown
 	 */
 	public void onMessage(HttpRequest request, HttpResponse response) throws java.io.IOException {
+        InputStream in = null;  
+        OutputStream out = null;
 		// Internationalize this
 		try {
 			String file = request.getURI().getFile();
@@ -113,42 +139,41 @@ public class DefaultHttpBean implements HttpBean {
 				}
 			}
 
-			InputStream in = new URL(BASE_URL + request.getURI().getFile()).openConnection().getInputStream();
-			OutputStream out = response.getOutputStream();
+            
+            
+			URLConnection resource = findResource(request.getURI().getFile());  
+            HttpResponseImpl res = (HttpResponseImpl)response;
+            res.setContent(resource);
 
-			int b = in.read();
-			while (b != -1) {
-				out.write(b);
-				b = in.read();
-			}
-		} catch (java.io.FileNotFoundException e1) {
-			
-			try
-			{
-				//String file = request.getURI().getFile().substring(1,request.getURI().getFile().length()); //Returns the proper file without the beginning "/"
-				String file = request.getURI().getFile();
-				//file = file.substring(file.indexOf("/"), file.length()); //Returns the file without the webadmin module name in front of it
-				String oehp = System.getProperty("openejb.home"); //OpenEJB Home to get to the proper folder
-				String psep = System.getProperty("file.separator"); //Obvious
-				InputStream in = new FileInputStream(oehp + psep + "httpd" + file); //Creates a FileInputStream to the proper location
-				OutputStream out = response.getOutputStream();
-					
-					int b = in.read();
-					while (b != -1)
-					{
-						out.write(b);
-						b = in.read();
-					}  
-			}
-			catch (java.io.FileNotFoundException e)
-			{
-				do404(request, response);
-			}
+        } catch (java.io.FileNotFoundException e) {
+			do404(request, response);
+
 		} catch (java.io.IOException e) {
 			do500(request, response, e.getMessage());
-		}
+		} finally {
+            if (in != null) in.close();
+        }
 	}
 
+    private URLConnection findResource(String fileName) throws FileNotFoundException, IOException{
+        if (fileName.startsWith("/")){
+            fileName = fileName.substring(1);
+        }
+        
+        for (int i = 0; i < PATH.length; i++) {
+            try {
+                URL base = PATH[i];
+                URL resource = new URL(base, fileName);
+                URLConnection conn = resource.openConnection();
+                if (resource.openConnection().getContentLength() > 0){
+                    return conn;
+                }
+            } catch (MalformedURLException e) {
+            } catch (FileNotFoundException e) {
+            }
+        }
+        throw new FileNotFoundException("Cannot locate resource: "+fileName);
+    }
 	/** Creates a "Page not found" error screen
 	 * @param request the HTTP request object
 	 * @param response the HTTP response object
