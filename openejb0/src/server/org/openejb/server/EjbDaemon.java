@@ -307,7 +307,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             return;            
         }
         
-        logger.info( "EJB REQUEST: "+req );
+        logger.info( "EJB REQUEST : "+req );
 
         try {
             switch (req.getRequestMethod()) {
