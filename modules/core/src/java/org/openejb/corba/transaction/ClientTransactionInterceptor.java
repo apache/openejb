@@ -53,6 +53,8 @@ import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.IOP.TaggedComponent;
 import org.omg.IOP.CodecPackage.FormatMismatch;
+import org.omg.IOP.CodecPackage.TypeMismatch;
+
 import org.openejb.corba.idl.CosTSInteroperation.TAG_OTS_POLICY;
 import org.openejb.corba.idl.CosTransactions.OTSPolicyValueHelper;
 import org.openejb.corba.idl.CosTransactions.ADAPTS;
@@ -93,9 +95,11 @@ class ClientTransactionInterceptor extends LocalObject implements ClientRequestI
         byte[] data = taggedComponent.component_data;
         Any any = null;
         try {
-            any = Util.getCodec().decode(data);
+            any = Util.getCodec().decode_value(data, OTSPolicyValueHelper.type());
         } catch (FormatMismatch formatMismatch) {
             throw (INTERNAL) new INTERNAL("mismatched format").initCause(formatMismatch);
+        } catch (TypeMismatch typeMismatch) {
+            throw (INTERNAL) new INTERNAL("Type mismatch").initCause(typeMismatch);
         }
         short value = OTSPolicyValueHelper.extract(any);
         if (value == ADAPTS.value) {
@@ -124,6 +128,6 @@ class ClientTransactionInterceptor extends LocalObject implements ClientRequestI
      * @return the name of the interceptor.
      */
     public String name() {
-        return "ClientTransactionInterceptor";
+        return "org.openejb.corba.transaction.ClientTransactionInterceptor";
     }
 }
