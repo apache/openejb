@@ -9,18 +9,15 @@
 <p><a href="http://sourceforge.net/project/showfiles.php?group_id=44351">Download OpenEJB 0.8 beta 2</a></p>
 
 <p>
-We are cycling through a series of beta releases based on user-feedback.  So, if
-you've had this release for a while, be sure to check the 
+We are cycling through a series of beta releases based on user-feedback.  Be sure to check 
 OpenEJB's <a href="http://sourceforge.net/project/showfiles.php?group_id=44351">download 
-page</a> at SourceForge for new releases.  Any problems you have experienced may have been
-fixed, if not, please let us know.
+page</a> at SourceForge for new releases.
 </p>
 </section>
 
 <section title="Fixes in 0.8beta3" ref-id="new.features.0.8beta3">
 <ul>
 <li>SourceForge bugs fixed:</li>
-<ul>
 <li>[ 563891 ] Bad client-side error messages</li>
 <li>[ 565604 ] Setting the handler system property</li>
 <li>[ 566953 ] openejb.bat on NT fails to display</li>
@@ -29,8 +26,10 @@ fixed, if not, please let us know.
 <li>[ 566966 ] Need a sample client run script</li>
 <li>[ 566967 ] sun.tools.javac.Main deprecated</li>
 <li>[ 566974 ] openejb.bat help screen fails on NT</li>
-</ul>
-<li>ejbserver scripts now include OPENEJB_HOME/beans in classpath</li>
+<li>Scripts now pass OPENEJB_HOME to OpenEJB</li>
+<li>Scripts now include OPENEJB_HOME\beans in classpath</li>
+<li>If your OpenEJB configuration isn't found, one will be created for you.</li>
+<li>ProxyFactory element in the openejb.conf is now optional</li>
 </ul>
 </section>
 
