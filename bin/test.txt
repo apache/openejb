@@ -1,0 +1,18 @@
+Usage: openejb test [options]
+
+OPTIONS:
+
+  intra-vm  Default. Runs the test suite against OpenEJB in 
+            embedded library mode using the IntraVm Server
+  
+  corba     Runs the test suite against OpenEJB in client/server
+            mode using the OpenEJB CORBA Server with OpenORB
+
+  help      Display this message.
+         
+The OpenEJB EJB Container System, a local EJB API and Server.
+For OpenEJB updates and additional information, visit
+http://openejb.sf.net  
+
+Bug Reports to <openejb-user@lists.sf.net>
+
