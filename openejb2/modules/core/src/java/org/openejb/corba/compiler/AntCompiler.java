@@ -75,6 +75,7 @@ public class AntCompiler implements Compiler {
             javac.setSrcdir(path);
             javac.setDestdir(destDirectory);
             javac.setFork(false);
+            javac.setDebug(true);
 
             for (Iterator iter = classpaths.iterator(); iter.hasNext();) {
                 path = new Path(project);
