@@ -70,6 +70,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.main.ToolsJarHack;
 
+import org.openejb.util.FileUtils;
 import org.openejb.util.JarUtils;
 
 
@@ -184,7 +185,7 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
             throw new CompilerException(e.toString());
         } finally {
             Thread.currentThread().setContextClassLoader(savedLoader);
-            DeploymentUtil.recursiveDelete(TEMPDIR);
+            FileUtils.recursiveDelete(TEMPDIR);
         }
     }
 
