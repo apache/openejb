@@ -293,7 +293,9 @@ to where you installed OpenEJB.<br/>
 3. Check C:\Program Files\Apache Group\Tomcat 4.1 to see if there is
 an openejb.log file.<br/>
 4. Send an email to the email list <a href="mailto:openejb-user@lists.sourceforge.net">
-openejb-user@lists.sourceforge.net</a> and give a thorough explain the problem.
+openejb-user@lists.sourceforge.net</a> and give a thorough explain the problem.<br/>
+5. As a last resort, back-up all of your important files and re-install Tomcat 
+(it worked for me, when I did all the debugging I could).
 </p>
 </section>
 
