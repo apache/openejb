@@ -31,6 +31,8 @@
     <pathelement location="${jaxp.home}/${jaxp.xalan1compat.jar}"/>
     <pathelement location="${junit.jar}"/>
     <pathelement location="${jakarta.regexp.jar}"/>
+    <pathelement location="${jakarta.regexp.jar}"/>
+    <pathelement location="lib/commons-fileupload-1.0-rc1.jar"/>
   </path>
   
   <!-- ================================================================== -->
