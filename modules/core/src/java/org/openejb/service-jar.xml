@@ -1,6 +1,6 @@
 <ServiceJar>
 
-<!-- 
+<!--
 #===================================================================#
 #       D E F A U L T    O P E N E J B    S E R V I C E S           #
 #===================================================================#
@@ -8,18 +8,18 @@
 #
 #  This file defines all the default configurations of containers,
 #  factories, managers and services that come with OpenEJB.
-#   
+#
 #  Can contain numerous configurations of the standard services
 #  making it easy for users to simply name the one they want in
 #  their configuration files.
 #
-#  Over time this will be become a library of default 
+#  Over time this will be become a library of default
 #  configurations
 #
 #
 #  The Configuraitions in this file reference the following other
 #  files:
-#  
+#
 #  conf/default.cmp_global_tx_database.xml
 #  conf/default.cmp_local_tx_database.xml
 #  conf/default.idb_database.conf
@@ -30,35 +30,35 @@
 # Default Container-Managed Persistence EntityBean Container
 # ==========================================================
 -->
-<ServiceProvider id="Default CMP Container" 
-    provider-type="Container" 
+<ServiceProvider id="Default CMP Container"
+    provider-type="Container"
     class-name="org.openejb.assembler.ContainerBuilder" >
 
-#  The default size of the method ready bean pools. 
+#  The default size of the method ready bean pools.
 #  Every bean class gets its own pool of this size.
 
 PoolSize  100
 
-#  The name of the database.xml file that is used for global or 
-#  container managed transactions.  This will be used when the 
-#  TransactionManager is managing the transaction, such as when 
-#  the tx attribute is Supports (client has tx), RequiresNew, 
+#  The name of the database.xml file that is used for global or
+#  container managed transactions.  This will be used when the
+#  TransactionManager is managing the transaction, such as when
+#  the tx attribute is Supports (client has tx), RequiresNew,
 #  Required or Manditory.
-#  
+#
 #  Specifies the configuration for obtaining database connections
-#  and the mapping.xml schema which describes how beans map to 
+#  and the mapping.xml schema which describes how beans map to
 #  the database.
 
 Global_TX_Database  conf/default.cmp_global_tx_database.xml
 
-#  The name of the database.xml file that is used for local or 
-#  unspecified transaction contexts.  This will be used when 
-#  the TransactionManager is not managing the transaction, such 
-#  as when the tx attribute is Supports (no client tx), 
+#  The name of the database.xml file that is used for local or
+#  unspecified transaction contexts.  This will be used when
+#  the TransactionManager is not managing the transaction, such
+#  as when the tx attribute is Supports (no client tx),
 #  NotSupported, or Never.
-#  
-#  Specifies the configuration for obtaining database connections 
-#  and the mapping.xml schema which describes how beans map to 
+#
+#  Specifies the configuration for obtaining database connections
+#  and the mapping.xml schema which describes how beans map to
 #  the database.
 
 Local_TX_Database   conf/default.cmp_local_tx_database.xml
@@ -70,9 +70,9 @@ Local_TX_Database   conf/default.cmp_local_tx_database.xml
 # Default Bean-Managed Persistence EntityBean Container
 # ==========================================================
 -->
-<ServiceProvider 
-    id="Default BMP Container" 
-    provider-type="Container" 
+<ServiceProvider
+    id="Default BMP Container"
+    provider-type="Container"
     class-name="org.openejb.assembler.ContainerBuilder"/>
 
 <!--
@@ -80,32 +80,32 @@ Local_TX_Database   conf/default.cmp_local_tx_database.xml
 # Default Stateless SessinBean Container
 # ==========================================================
 -->
-<ServiceProvider 
-    id="Default Stateless Container" 
-    provider-type="Container" 
+<ServiceProvider
+    id="Default Stateless Container"
+    provider-type="Container"
     class-name="org.openejb.assembler.ContainerBuilder" >
 
-#  Specifies the time to wait between invocations. This 
-#  value is measured in milliseconds.  A value of 5 would 
+#  Specifies the time to wait between invocations. This
+#  value is measured in milliseconds.  A value of 5 would
 #  result in a time-out of 5 milliseconds between invocations.
 #  A value of zero would mean no timeout.
 
 TimeOut  0
-   
-#  Specifies the size of the bean pools for this 
+
+#  Specifies the size of the bean pools for this
 #  stateless SessionBean container.
 
 PoolSize  10
 
-#  StrictPooling tells the container what to do when the pool 
+#  StrictPooling tells the container what to do when the pool
 #  reaches it's maximum size and there are incoming requests
 #  that need instances.
 #
 #  With strict pooling, requests will have to wait for instances
-#  to become available.  The pool size will never grow beyond the  
+#  to become available.  The pool size will never grow beyond the
 #  the set PoolSize value.
-#  
-#  Without strict pooling, the container will create temporary 
+#
+#  Without strict pooling, the container will create temporary
 #  instances to meet demand.  The instances will last for just one
 #  method invocation and then are removed.
 
@@ -120,16 +120,16 @@ StrictPooling  true
 # Default Stateful SessinBean Container
 # ==========================================================
 -->
-<ServiceProvider 
-    id="Default Stateful Container" 
-    provider-type="Container" 
+<ServiceProvider
+    id="Default Stateful Container"
+    provider-type="Container"
    class-name="org.openejb.assembler.ContainerBuilder" >
 
-#  The passivator is responsible for writing beans to disk 
-#  at passivation time. Different passivators can be used 
+#  The passivator is responsible for writing beans to disk
+#  at passivation time. Different passivators can be used
 #  by setting this property to the fully qualified class name
 #  of the PassivationStrategy implementation. The passivator
-#  is not responsible for invoking any callbacks or other 
+#  is not responsible for invoking any callbacks or other
 #  processing, its only responsibly is to write the bean state
 #  to disk.
 #
@@ -139,22 +139,22 @@ StrictPooling  true
 
 Passivator   org.openejb.core.stateful.SimplePassivater
 
-#  Specifies the time to wait between invocations. This 
-#  value is measured in minutes.  A value of 5 would 
+#  Specifies the time to wait between invocations. This
+#  value is measured in minutes.  A value of 5 would
 #  result in a time-out of 5 minutes between invocations.
 
 TimeOut  20
-   
-#  Specifies the size of the bean pools for this 
+
+#  Specifies the size of the bean pools for this
 #  stateful SessionBean container.
 
 PoolSize  100
 
 #  Property name that specifies the number of instances
 #  to passivate at one time when doing bulk passivation.
-    
+
 BulkPassivate  50
-    
+
 </ServiceProvider>
 
 <!--
@@ -162,9 +162,9 @@ BulkPassivate  50
 # Default Proxy Factory implementation for JDK 1.2
 # ================================================
 -->
-<ServiceProvider 
-    id="Default JDK 1.2 ProxyFactory" 
-    provider-type="Proxy" 
+<ServiceProvider
+    id="Default JDK 1.2 ProxyFactory"
+    provider-type="Proxy"
     class-name="org.openejb.util.proxy.Jdk12ProxyFactory" />
 
 <!--
@@ -172,9 +172,9 @@ BulkPassivate  50
 # Default Proxy Factory implementation for JDK 1.3
 # ================================================
 -->
-<ServiceProvider 
-    id="Default JDK 1.3 ProxyFactory" 
-    provider-type="Proxy" 
+<ServiceProvider
+    id="Default JDK 1.3 ProxyFactory"
+    provider-type="Proxy"
     class-name="org.openejb.util.proxy.Jdk13ProxyFactory" />
 
 <!--
@@ -182,7 +182,7 @@ BulkPassivate  50
 # Default Security Service implementation
 # ================================================
 -->
-<ServiceProvider 
+<ServiceProvider
     id="Default Security Service"
     provider-type="Security"
     class-name="org.openejb.server.ejbd.PseudoSecurityService" />
@@ -192,7 +192,7 @@ BulkPassivate  50
 # Default Transaction Manager implementation
 # ================================================
 -->
-<ServiceProvider 
+<ServiceProvider
     id="Default Transaction Manager"
     provider-type="Transaction"
     class-name="org.openejb.server.ejbd.PseudoTransactionService" />
@@ -202,13 +202,14 @@ BulkPassivate  50
 # Default JCA ManagedConnectionFactory for JDBC
 # ================================================
 -->
-<ServiceProvider 
+<!--
+<ServiceProvider
     id="Default JDBC Database"
     provider-type="Connector"
     class-name="org.openejb.resource.jdbc.JdbcManagedConnectionFactory" >
 
 #  Driver class name
-                            
+
 JdbcDriver   org.enhydra.instantdb.jdbc.idbDriver
 
 #  Url for creating connections
@@ -224,13 +225,36 @@ UserName     Admin
 Password     pass
 
 </ServiceProvider>
+-->
+<ServiceProvider
+    id="Default JDBC Database"
+    provider-type="Connector"
+    class-name="org.openejb.resource.jdbc.JdbcManagedConnectionFactory" >
+
+#  Driver class name
+
+JdbcDriver   org.axiondb.jdbc.AxionDriver
+
+#  Url for creating connections
+
+JdbcUrl      jdbc:axiondb:DefaultDatabase
+
+#  Default user name
+
+UserName
+
+#  Default password
+
+Password
+
+</ServiceProvider>
 
 <!--
 # ================================================
 # Default JCA ConnectionManager
 # ================================================
 -->
-<ServiceProvider 
+<ServiceProvider
     id="Default Local TX ConnectionManager"
     provider-type="ConnectionManager"
     class-name="org.openejb.resource.SharedLocalConnectionManager" />

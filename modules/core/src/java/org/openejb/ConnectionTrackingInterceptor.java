@@ -51,11 +51,10 @@ package org.openejb;
 import java.util.Set;
 
 import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 
 /**
  *
@@ -69,16 +68,19 @@ public class ConnectionTrackingInterceptor implements Interceptor {
     private final TrackedConnectionAssociator trackedConnectionAssociator;
     private final Set unshareableResources;
 
-    public ConnectionTrackingInterceptor(final Interceptor next,
-                                         final TrackedConnectionAssociator trackedConnectionAssociator,
-                                         final Set unshareableResources) {
+    public ConnectionTrackingInterceptor(
+            final Interceptor next,
+            final TrackedConnectionAssociator trackedConnectionAssociator,
+            final Set unshareableResources) {
+
+        assert unshareableResources != null: "unshareableResources is null";
         this.next = next;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
         this.unshareableResources = unshareableResources;
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
-        EJBInvocation ejbInvocation = (EJBInvocation)invocation;
+        EJBInvocation ejbInvocation = (EJBInvocation) invocation;
         InstanceContext enteringInstanceContext = ejbInvocation.getEJBInstanceContext();
         TrackedConnectionAssociator.ConnectorContextInfo leavingConnectorContext = trackedConnectionAssociator.enter(enteringInstanceContext, unshareableResources);
         try {
