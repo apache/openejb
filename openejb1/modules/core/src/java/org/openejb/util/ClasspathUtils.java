@@ -117,7 +117,7 @@ public class ClasspathUtils {
 
     /**
      * Appends the jar to the classpath of the classloader passed in.
-     * 
+     *
      * @param url
      *            the URL to be added to the search path of URLs
      */
@@ -127,7 +127,7 @@ public class ClasspathUtils {
 
     /**
      * Appends the jar to the classpath of the classloader passed in.
-     * 
+     *
      * @param url
      *            the URL to be added to the search path of URLs
      */
@@ -137,7 +137,7 @@ public class ClasspathUtils {
 
     /**
      * Appends the jar to the classpath of the classloader passed in.
-     * 
+     *
      * @param url
      *            the URL to be added to the search path of URLs
      */
@@ -396,7 +396,9 @@ public class ClasspathUtils {
         }
 
         public void addRepository(String path) throws Exception {
-            this.getAddRepositoryMethod().invoke(getCommonLoader(), new Object[] { path });
+
+	        // Add this repository to our underlying class loader
+            this.getAddRepositoryMethod().invoke(getCommonLoader(), new Object[] { new URL(path) });
         }
 
         private void rebuild() {
@@ -449,20 +451,22 @@ public class ClasspathUtils {
          * via reflection. This allows us to call the addRepository method for
          * Tomcat integration, but doesn't require us to include or ship any
          * Tomcat libraries.
-         * 
+         *
          * @param clazz
          * @return @exception
          *         Exception
          */
         private java.lang.reflect.Method getAddRepositoryMethod() throws Exception {
             if (addRepositoryMethod == null) {
-                final Class clazz = getCommonLoader().getClass();
+
+				final Class clazz = URLClassLoader.class;
+
                 this.addRepositoryMethod = (java.lang.reflect.Method) AccessController
                         .doPrivileged(new PrivilegedAction() {
                             public Object run() {
                                 java.lang.reflect.Method method = null;
                                 try {
-                                    method = clazz.getDeclaredMethod("addRepository", new Class[] { String.class });
+                                    method = clazz.getDeclaredMethod("addURL", new Class[] { URL.class });
                                     method.setAccessible(true);
                                 } catch (Exception e2) {
                                     e2.printStackTrace();
@@ -487,4 +491,3 @@ public class ClasspathUtils {
         }
     }
 }
-
