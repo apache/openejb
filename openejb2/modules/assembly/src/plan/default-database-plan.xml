@@ -24,6 +24,10 @@
         <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
     </dependency>
 
+    <dependency>
+        <uri>geronimo/jars/geronimo-derby-${geronimo_version}.jar</uri>
+    </dependency>
+
     <resourceadapter>
         <outbound-resourceadapter>
             <connection-definition>
@@ -35,19 +39,24 @@
                     <config-property-setting name="DatabaseName">DefaultDatasource</config-property-setting>
                     <config-property-setting name="CreateDatabase">create</config-property-setting>
                     <connectionmanager>
-                        <local-transaction/>
                         <single-pool>
-                            <max-size>10</max-size>
-                            <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
                             <match-one/>
                         </single-pool>
                     </connectionmanager>
-                    <global-jndi-name>tranql/derby</global-jndi-name>
-                    <!--credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface-->
                 </connectiondefinition-instance>
             </connection-definition>
         </outbound-resourceadapter>
     </resourceadapter>
+
+    <gbean name="geronimo.server:role=DerbySystem" class="org.apache.geronimo.derby.DerbySystemGBean">
+        <reference name="serverInfo">geronimo.system:role=ServerInfo</reference>
+        <attribute name="derbySystemHome" type="java.lang.String">var/derby</attribute>
+    </gbean>
+    <gbean name="geronimo.server:role=DerbyNetwork" class="org.apache.geronimo.derby.DerbyNetworkGBean">
+        <reference name="derbySystem">geronimo.server:role=DerbySystem</reference>
+        <attribute name="host" type="java.lang.String">127.0.0.1</attribute>
+        <attribute name="port" type="int">1527</attribute>
+    </gbean>
 
     <!--gbean name="geronimo.security:service=RealmBridge,name=TargetRealm" class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge">
         <attribute name="TargetRealm" type="java.lang.String">TargetRealm</attribute>
