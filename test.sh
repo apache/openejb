@@ -69,7 +69,7 @@ unset i
 CP=lib/xerces-J_1.3.1.jar${PS}${CP}
 
 # Setup options for testsuite execution
-OPTIONS="-Dlog4j.configuration=file:conf/logging.conf"
+OPTIONS="-Dlog4j.configuration=file:conf/default.logging.conf"
 
 CLASSPATH=${CP}
 #$JAVA $OPTIONS -classpath $CLASSPATH org.openejb.test.ClientTestRunner -s test/conf/IvmServer_config.properties org.openejb.test.ClientTestSuite
