@@ -1,10 +1,11 @@
 package javax.ejb;
 
-//
-// Interface definition : EJBHome
-//
-// @author OpenORB Compiler
-//
+/**
+ * Interface definition : EJBHome
+ * 
+ * @author OpenORB Compiler
+ */
+
 public class _EJBHome_Tie extends org.omg.PortableServer.Servant
 		implements javax.rmi.CORBA.Tie
 {
@@ -14,8 +15,13 @@ public class _EJBHome_Tie extends org.omg.PortableServer.Servant
 		"RMI:javax.ejb.EJBHome:0000000000000000"
 	};
 
+	private org.omg.PortableServer.POA _poa;
+	private byte [] _oid;
+
 	public String[] _all_interfaces( org.omg.PortableServer.POA poa, byte [] oid )
 	{
+		_poa = poa;
+		_oid = oid;
 		return _ids_list;
 	}
 
@@ -60,7 +66,7 @@ public class _EJBHome_Tie extends org.omg.PortableServer.Servant
 	{
 		try
 		{
-			_poa().deactivate_object(_object_id());
+			_poa.deactivate_object( _oid );
 		}
 		catch ( org.omg.PortableServer.POAPackage.ObjectNotActive ex )
 		{
@@ -91,8 +97,9 @@ public class _EJBHome_Tie extends org.omg.PortableServer.Servant
 	//
 	// Invoke method ( for remote call )
 	//
-	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream _is, org.omg.CORBA.portable.ResponseHandler handler)
+	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream is, org.omg.CORBA.portable.ResponseHandler handler)
 	{
+		org.omg.CORBA_2_3.portable.InputStream _is = (org.omg.CORBA_2_3.portable.InputStream)is;
 		org.omg.CORBA_2_3.portable.OutputStream _output = null;
 		try
 		{
@@ -112,27 +119,6 @@ public class _EJBHome_Tie extends org.omg.PortableServer.Servant
 				return _output;
 			}
 			else
-			if ( opName.equals("remove__java_lang_Object") )
-			{
-				java.lang.Object arg0_in = javax.rmi.CORBA.Util.readAny(_is);
-
-				try
-				{
-					target.remove(arg0_in);
-
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-
-				}
-				catch ( javax.ejb.RemoveException _exception )
-				{
-					String exid = "RMI:javax.ejb.RemoveException:000000004A49EB2E:0000000000000000";
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
-					_output.write_string(exid);
-					_output.write_value(_exception);
-				}
-				return _output;
-			}
-			else
 			if ( opName.equals("remove__javax_ejb_Handle") )
 			{
 				javax.ejb.Handle arg0_in = ( javax.ejb.Handle ) javax.rmi.PortableRemoteObject.narrow(((org.omg.CORBA_2_3.portable.InputStream)_is).read_abstract_interface(), javax.ejb.Handle.class);
@@ -146,7 +132,28 @@ public class _EJBHome_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.RemoveException _exception )
 				{
-					String exid = "RMI:javax.ejb.RemoveException:000000004A49EB2E:0000000000000000";
+					String exid = "IDL:javax/ejb/RemoveEx:1.0";
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
+					_output.write_string(exid);
+					_output.write_value(_exception);
+				}
+				return _output;
+			}
+			else
+			if ( opName.equals("remove__java_lang_Object") )
+			{
+				java.lang.Object arg0_in = javax.rmi.CORBA.Util.readAny(_is);
+
+				try
+				{
+					target.remove(arg0_in);
+
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
+
+				}
+				catch ( javax.ejb.RemoveException _exception )
+				{
+					String exid = "IDL:javax/ejb/RemoveEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);

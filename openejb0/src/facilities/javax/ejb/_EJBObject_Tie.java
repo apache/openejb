@@ -1,10 +1,11 @@
 package javax.ejb;
 
-//
-// Interface definition : EJBObject
-//
-// @author OpenORB Compiler
-//
+/**
+ * Interface definition : EJBObject
+ * 
+ * @author OpenORB Compiler
+ */
+
 public class _EJBObject_Tie extends org.omg.PortableServer.Servant
 		implements javax.rmi.CORBA.Tie
 {
@@ -14,8 +15,13 @@ public class _EJBObject_Tie extends org.omg.PortableServer.Servant
 		"RMI:javax.ejb.EJBObject:0000000000000000"
 	};
 
+	private org.omg.PortableServer.POA _poa;
+	private byte [] _oid;
+
 	public String[] _all_interfaces( org.omg.PortableServer.POA poa, byte [] oid )
 	{
+		_poa = poa;
+		_oid = oid;
 		return _ids_list;
 	}
 
@@ -60,7 +66,7 @@ public class _EJBObject_Tie extends org.omg.PortableServer.Servant
 	{
 		try
 		{
-			_poa().deactivate_object(_object_id());
+			_poa.deactivate_object( _oid );
 		}
 		catch ( org.omg.PortableServer.POAPackage.ObjectNotActive ex )
 		{
@@ -91,8 +97,9 @@ public class _EJBObject_Tie extends org.omg.PortableServer.Servant
 	//
 	// Invoke method ( for remote call )
 	//
-	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream _is, org.omg.CORBA.portable.ResponseHandler handler)
+	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream is, org.omg.CORBA.portable.ResponseHandler handler)
 	{
+		org.omg.CORBA_2_3.portable.InputStream _is = (org.omg.CORBA_2_3.portable.InputStream)is;
 		org.omg.CORBA_2_3.portable.OutputStream _output = null;
 		try
 		{
@@ -114,22 +121,9 @@ public class _EJBObject_Tie extends org.omg.PortableServer.Servant
 			else
 			if ( opName.equals("_get_primaryKey") )
 			{
-				System.out.println("Get primary key...");
 				java.lang.Object arg = target.getPrimaryKey();
 				_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
 				javax.rmi.CORBA.Util.writeAny(_output,arg);
-				return _output;
-			}
-			else
-			if ( opName.equals("isIdentical") )
-			{
-				javax.ejb.EJBObject arg0_in = ( javax.ejb.EJBObject ) javax.rmi.PortableRemoteObject.narrow(_is.read_Object(), javax.ejb.EJBObject.class);
-
-				boolean _arg_result = target.isIdentical(arg0_in);
-
-				_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-				_output.write_boolean(_arg_result);
-
 				return _output;
 			}
 			else
@@ -145,11 +139,23 @@ public class _EJBObject_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.RemoveException _exception )
 				{
-					String exid = "RMI:javax.ejb.RemoveException:000000004A49EB2E:0000000000000000";
+					String exid = "IDL:javax/ejb/RemoveEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);
 				}
+				return _output;
+			}
+			else
+			if ( opName.equals("isIdentical") )
+			{
+				javax.ejb.EJBObject arg0_in = ( javax.ejb.EJBObject ) javax.rmi.PortableRemoteObject.narrow(_is.read_Object(), javax.ejb.EJBObject.class);
+
+				boolean _arg_result = target.isIdentical(arg0_in);
+
+				_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
+				_output.write_boolean(_arg_result);
+
 				return _output;
 			}
 			else
