@@ -70,7 +70,7 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
         this.port = port;
     }
 
-    public void startClient(ObjectName appClientModuleName, Kernel kernel) throws Exception {
+    public void startClient(ObjectName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception {
 
         Context context;
         try {

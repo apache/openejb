@@ -96,8 +96,7 @@ import org.openejb.EJBModuleImpl;
 import org.openejb.corba.compiler.CompilerException;
 import org.openejb.corba.compiler.SkeletonGenerator;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.proxy.ProxyObjectFactory;
-import org.openejb.proxy.ProxyRefAddr;
+import org.openejb.proxy.EJBProxyReference;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
@@ -326,15 +325,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     }
 
     public Reference createEJBLocalReference(String objectName, boolean session, String localHome, String local) {
-        ProxyRefAddr address = ProxyRefAddr.createLocal(objectName, session, local, localHome);
-        Reference reference = new Reference(null, address, ProxyObjectFactory.class.getName(), null);
-        return reference;
+        return EJBProxyReference.createLocal(objectName, session, local, localHome);
     }
 
     public Reference createEJBRemoteReference(String objectName, boolean session, String home, String remote) {
-        ProxyRefAddr address = ProxyRefAddr.createRemote(objectName, session, remote, home);
-        Reference reference = new Reference(null, address, ProxyObjectFactory.class.getName(), null);
-        return reference;
+        return EJBProxyReference.createRemote(objectName, session, remote, home);
     }
 
     public CMPEntityBuilder getCmpEntityBuilder() {

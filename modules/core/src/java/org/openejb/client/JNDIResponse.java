@@ -47,9 +47,12 @@ package org.openejb.client;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import javax.naming.*;
+import javax.naming.Binding;
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 
-import org.openejb.proxy.ProxyObjectFactory;
+import org.openejb.proxy.EJBProxyReference;
 
 /**
  *
@@ -222,13 +225,9 @@ public class JNDIResponse implements Response {
                     out.write(CONTEXT);
                     out.writeUTF(name);
                     writeContextTree(out, (Context)obj);
-                } else if ( obj instanceof Reference ){
-                    Reference reference = (Reference) obj;
-                    String factoryClassName = reference.getFactoryClassName();
-                    if (ProxyObjectFactory.class.getName().equals(factoryClassName)){
-                        ProxyObjectFactory factory = new ProxyObjectFactory();
-                        obj = factory.getObjectInstance(reference,null,context,null);
-                    }
+                } else if ( obj instanceof EJBProxyReference ){
+                    EJBProxyReference reference = (EJBProxyReference) obj;
+                    obj = reference.getContent();
                     out.write(OBJECT);
                     out.writeUTF(name);
                     out.writeObject(obj);
