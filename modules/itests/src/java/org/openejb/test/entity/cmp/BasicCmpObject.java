@@ -47,57 +47,49 @@ package org.openejb.test.entity.cmp;
 import java.rmi.RemoteException;
 import java.util.Properties;
 
+import javax.ejb.EJBObject;
+
 import org.openejb.test.ApplicationException;
 import org.openejb.test.object.OperationsPolicy;
 
-/**
- * 
- */
-public interface BasicCmpObject extends javax.ejb.EJBObject{
-    public String getFirstName();
+public interface BasicCmpObject extends EJBObject {
+    public String getFirstName() throws RemoteException;
 
-    public void setFirstName(String firstName);
+    public void setFirstName(String firstName) throws RemoteException;
 
-    public String getLastName();
+    public String getLastName() throws RemoteException;
 
-    public void setLastName(String lastName);
+    public void setLastName(String lastName) throws RemoteException;
 
     /**
      * Reverses the string passed in then returns it
-     * 
-     * @return 
      */
     public String businessMethod(String text) throws RemoteException;
-    
+
     /**
      * Throws an ApplicationException when invoked
-     * 
      */
     public void throwApplicationException() throws RemoteException, ApplicationException;
-    
+
     /**
      * Throws a java.lang.NullPointerException when invoked
-     * This is a system exception and should result in the 
+     * This is a system exception and should result in the
      * destruction of the instance and invalidation of the
      * remote reference.
-     * 
      */
     public void throwSystemException_NullPointer() throws RemoteException;
-    
+
     /**
-     * Returns a report of the bean's 
+     * Returns a report of the bean's
      * runtime permissions
-     * 
-     * @return 
      */
     public Properties getPermissionsReport() throws RemoteException;
-    
+
     /**
      * Returns a report of the allowed opperations
      * for one of the bean's methods.
-     * 
+     *
      * @param methodName The method for which to get the allowed opperations report
-     * @return 
      */
     public OperationsPolicy getAllowedOperationsReport(String methodName) throws RemoteException;
 }

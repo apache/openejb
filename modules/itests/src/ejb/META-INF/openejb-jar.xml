@@ -155,7 +155,7 @@
         -->
 
         <entity>
-            <ejb-name>BasicCmpBean</ejb-name>
+            <ejb-name>BasicCmp2Bean</ejb-name>
             <jndi-name>client/tests/entity/cmp/BasicCmpHome</jndi-name>
             <query>
                 <query-method>
@@ -164,14 +164,14 @@
                         <method-param>java.lang.String</method-param>
                     </method-params>
                 </query-method>
-                <sql>SELECT id FROM BasicCmp WHERE lastName = ?</sql>
+                <sql>SELECT id FROM BasicCmp2 WHERE lastName = ?</sql>
             </query>
             <query>
                 <query-method>
                     <method-name>findEmptyCollection</method-name>
                     <method-params/>
                 </query-method>
-                <sql>SELECT id FROM BasicCmp WHERE 1 = 0</sql>
+                <sql>SELECT id FROM BasicCmp2 WHERE 1 = 0</sql>
             </query>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
@@ -179,7 +179,7 @@
             </resource-ref>
         </entity>
         <entity>
-            <ejb-name>AOBasicCmpBean</ejb-name>
+            <ejb-name>AOBasicCmp2Bean</ejb-name>
             <jndi-name>client/tests/entity/cmp/allowed_operations/EntityHome</jndi-name>
             <query>
                 <query-method>
@@ -188,14 +188,14 @@
                         <method-param>java.lang.String</method-param>
                     </method-params>
                 </query-method>
-                <sql>SELECT id FROM AOBasicCmp WHERE lastName = ?</sql>
+                <sql>SELECT id FROM AOBasicCmp2 WHERE lastName = ?</sql>
             </query>
             <query>
                 <query-method>
                     <method-name>findEmptyCollection</method-name>
                     <method-params/>
                 </query-method>
-                <sql>SELECT id FROM AOBasicCmp WHERE 1 = 0</sql>
+                <sql>SELECT id FROM AOBasicCmp2 WHERE 1 = 0</sql>
             </query>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
@@ -207,7 +207,7 @@
             </resource-ref>
         </entity>
         <entity>
-            <ejb-name>EncCmpBean</ejb-name>
+            <ejb-name>EncCmp2Bean</ejb-name>
             <jndi-name>client/tests/entity/cmp/EncBean</jndi-name>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
@@ -219,7 +219,7 @@
             </resource-ref>
         </entity>
         <entity>
-            <ejb-name>CmpRMIIIOPBean</ejb-name>
+            <ejb-name>Cmp2RMIIIOPBean</ejb-name>
             <jndi-name>client/tests/entity/cmp/RMI-over-IIOP/EJBHome</jndi-name>
         </entity>
     </enterprise-beans>

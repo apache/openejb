@@ -47,15 +47,16 @@
  */
 package org.openejb.entity.cmp;
 
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
+import javax.ejb.EJBException;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackFilter;
@@ -81,6 +82,7 @@ import org.tranql.identity.IdentityTransform;
  */
 public class CMPInstanceContextFactory implements InstanceContextFactory, Serializable {
     private final Object containerId;
+    private final boolean cmp2;
     private final IdentityTransform primaryKeyTransform;
     private final FaultHandler loadFault;
     private final Class beanClass;
@@ -89,14 +91,16 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
     private final Set applicationManagedSecurityResources;
     private transient final InstanceOperation[] itable;
     private transient final Enhancer enhancer;
+    private transient final FastClass beanFastClass;
     private transient EJBProxyFactory proxyFactory;
     private transient Interceptor systemChain;
     private transient SystemMethodIndices systemMethodIndices;
     private transient TransactionContextManager transactionContextManager;
     private transient BasicTimerService timerService;
 
-    public CMPInstanceContextFactory(Object containerId, IdentityTransform primaryKeyTransform, FaultHandler loadFault, Class beanClass, Map imap, Set unshareableResources, Set applicationManagedSecurityResources) {
+    public CMPInstanceContextFactory(Object containerId, boolean cmp2, IdentityTransform primaryKeyTransform, FaultHandler loadFault, Class beanClass, Map imap, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.containerId = containerId;
+        this.cmp2 = cmp2;
         this.primaryKeyTransform = primaryKeyTransform;
         this.loadFault = loadFault;
         this.beanClass = beanClass;
@@ -104,22 +108,28 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
 
-        // create a factory to generate concrete subclasses of the abstract cmp implementation class
-        enhancer = new Enhancer();
-        enhancer.setSuperclass(beanClass);
-        enhancer.setCallbackTypes(new Class[]{NoOp.class, MethodInterceptor.class});
-        enhancer.setCallbackFilter(FILTER);
-        enhancer.setUseFactory(false);
-        Class enhancedClass = enhancer.createClass();
+        if (cmp2) {
+            // create a factory to generate concrete subclasses of the abstract cmp implementation class
+            enhancer = new Enhancer();
+            enhancer.setSuperclass(beanClass);
+            enhancer.setCallbackTypes(new Class[]{NoOp.class, MethodInterceptor.class});
+            enhancer.setCallbackFilter(FILTER);
+            enhancer.setUseFactory(false);
+            Class enhancedClass = enhancer.createClass();
 
-        FastClass fastClass = FastClass.create(enhancedClass);
+            beanFastClass = FastClass.create(enhancedClass);
 
-        itable = new InstanceOperation[fastClass.getMaxIndex() + 1];
-        for (Iterator iterator = imap.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            MethodSignature signature = (MethodSignature) entry.getKey();
-            InstanceOperation iop = (InstanceOperation) entry.getValue();
-            itable[MethodHelper.getSuperIndex(enhancedClass, signature)] = iop;
+            itable = new InstanceOperation[beanFastClass.getMaxIndex() + 1];
+            for (Iterator iterator = imap.entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                MethodSignature signature = (MethodSignature) entry.getKey();
+                InstanceOperation iop = (InstanceOperation) entry.getValue();
+                itable[MethodHelper.getSuperIndex(enhancedClass, signature)] = iop;
+            }
+        } else {
+            enhancer = null;
+            itable = null;
+            beanFastClass = FastClass.create(beanClass);
         }
     }
 
@@ -151,9 +161,19 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
         return new CMPInstanceContext(containerId, proxyFactory, itable, loadFault, primaryKeyTransform, this, systemChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, transactionContextManager, timerService);
     }
 
-    public synchronized EntityBean createCMPBeanInstance(CMPInstanceContext instanceContext) {
-        enhancer.setCallbacks(new Callback[]{NoOp.INSTANCE, instanceContext});
-        return (EntityBean) enhancer.create();
+    public EntityBean createCMPBeanInstance(CMPInstanceContext instanceContext) {
+        if (cmp2) {
+            synchronized (this) {
+                enhancer.setCallbacks(new Callback[]{NoOp.INSTANCE, instanceContext});
+                return (EntityBean) enhancer.create();
+            }
+        } else {
+            try {
+                return (EntityBean) beanFastClass.newInstance();
+            } catch (InvocationTargetException e) {
+                throw new EJBException("Unable to create entity bean instance", e);
+            }
+        }
     }
 
     private static final CallbackFilter FILTER = new CallbackFilter() {
@@ -165,7 +185,7 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
         }
     };
 
-    private Object readResolve() throws ObjectStreamException {
-        return new CMPInstanceContextFactory(containerId, primaryKeyTransform, loadFault, beanClass, imap, unshareableResources, applicationManagedSecurityResources);
+    private Object readResolve() {
+        return new CMPInstanceContextFactory(containerId, cmp2, primaryKeyTransform, loadFault, beanClass, imap, unshareableResources, applicationManagedSecurityResources);
     }
 }

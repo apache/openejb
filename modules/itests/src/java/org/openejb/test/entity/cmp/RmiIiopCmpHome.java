@@ -44,18 +44,17 @@
  */
 package org.openejb.test.entity.cmp;
 
-/**
- * 
- */
-public interface RmiIiopCmpHome extends javax.ejb.EJBHome {
+import java.rmi.RemoteException;
+import java.util.Collection;
+import javax.ejb.CreateException;
+import javax.ejb.FinderException;
+import javax.ejb.EJBHome;
 
-    public RmiIiopCmpObject create(String name)
-    throws javax.ejb.CreateException, java.rmi.RemoteException;
-    
-    public RmiIiopCmpObject findByPrimaryKey(Integer primarykey)
-    throws javax.ejb.FinderException, java.rmi.RemoteException;
-    
-    public java.util.Collection findEmptyCollection()
-    throws javax.ejb.FinderException, java.rmi.RemoteException;
-    
+public interface RmiIiopCmpHome extends EJBHome {
+    public RmiIiopCmpObject create(String name) throws CreateException, RemoteException;
+
+    public RmiIiopCmpObject findByPrimaryKey(Integer primarykey) throws FinderException, RemoteException;
+
+    public Collection findEmptyCollection() throws FinderException, RemoteException;
+
 }

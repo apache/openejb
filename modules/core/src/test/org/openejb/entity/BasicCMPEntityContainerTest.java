@@ -402,6 +402,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         builder.setRemoteInterfaceName(MockRemote.class.getName());
         builder.setLocalInterfaceName(MockLocal.class.getName());
         builder.setPrimaryKeyClassName(Integer.class.getName());
+        builder.setCMP2(true);
         builder.setJndiNames(new String[0]);
         builder.setLocalJndiNames(new String[0]);
         builder.setUnshareableResources(new HashSet());

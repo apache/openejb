@@ -44,14 +44,12 @@
  */
 package org.openejb.test.entity.cmp;
 
-import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.StringTokenizer;
-
-import javax.ejb.EJBException;
 import javax.ejb.EntityContext;
-import javax.ejb.RemoveException;
+import javax.ejb.EntityBean;
+import javax.ejb.CreateException;
 import javax.naming.InitialContext;
 
 import org.openejb.test.ApplicationException;
@@ -60,11 +58,10 @@ import org.openejb.test.object.OperationsPolicy;
 /**
  * 
  */
-public class BasicCmpBean implements javax.ejb.EntityBean{
-    
+public class BasicCmpBean implements EntityBean {
     public static int key = 1000;
-    
-    public int primaryKey;
+
+    public Integer id;
     public String firstName;
     public String lastName;
     public EntityContext ejbContext;
@@ -92,28 +89,26 @@ public class BasicCmpBean implements javax.ejb.EntityBean{
     
     /**
      * Maps to BasicCmpHome.sum
-     * 
+     * <p/>
      * Adds x and y and returns the result.
      */
     public int ejbHomeSum(int x, int y) {
         testAllowedOperations("ejbHome");
-        return x+y;
+        return x + y;
     }
-    
+
     /**
      * Maps to BasicCmpHome.create
      */
-    public Integer ejbCreate(String name)
-    throws javax.ejb.CreateException{
-        StringTokenizer st = new StringTokenizer(name, " ");    
+    public Integer ejbCreate(String name) throws CreateException {
+        StringTokenizer st = new StringTokenizer(name, " ");
         firstName = st.nextToken();
         lastName = st.nextToken();
-        this.primaryKey = key++;
+        this.id = new Integer(key++);
         return null;
     }
-    
-    public void ejbPostCreate(String name)
-    throws javax.ejb.CreateException{
+
+    public void ejbPostCreate(String name) throws CreateException {
     }
     
     //    
@@ -128,7 +123,7 @@ public class BasicCmpBean implements javax.ejb.EntityBean{
     /**
      * Maps to BasicCmpObject.businessMethod
      */
-    public String businessMethod(String text){
+    public String businessMethod(String text) {
         testAllowedOperations("businessMethod");
         StringBuffer b = new StringBuffer(text);
         return b.reverse().toString();
@@ -137,44 +132,42 @@ public class BasicCmpBean implements javax.ejb.EntityBean{
 
     /**
      * Throws an ApplicationException when invoked
-     * 
      */
-    public void throwApplicationException() throws ApplicationException{
+    public void throwApplicationException() throws ApplicationException {
         throw new ApplicationException("Testing ability to throw Application Exceptions");
     }
-    
+
     /**
      * Throws a java.lang.NullPointerException when invoked
-     * This is a system exception and should result in the 
+     * This is a system exception and should result in the
      * destruction of the instance and invalidation of the
      * remote reference.
-     * 
      */
     public void throwSystemException_NullPointer() {
         throw new NullPointerException("Testing ability to throw System Exceptions");
     }
-    
-    
+
+
     /**
      * Maps to BasicCmpObject.getPermissionsReport
-     * 
+     * <p/>
      * Returns a report of the bean's
      * runtime permissions
      */
-    public Properties getPermissionsReport(){
+    public Properties getPermissionsReport() {
         /* TO DO: */
         return null;
     }
-    
+
     /**
      * Maps to BasicCmpObject.getAllowedOperationsReport
-     * 
+     * <p/>
      * Returns a report of the allowed opperations
      * for one of the bean's methods.
-     * 
+     *
      * @param methodName The method for which to get the allowed opperations report
      */
-    public OperationsPolicy getAllowedOperationsReport(String methodName){
+    public OperationsPolicy getAllowedOperationsReport(String methodName) {
         return (OperationsPolicy) allowedOperationsTable.get(methodName);
     }
     
@@ -192,10 +185,10 @@ public class BasicCmpBean implements javax.ejb.EntityBean{
      * instance to synchronize its state by loading it state from the
      * underlying database.
      */
-    public void ejbLoad()  {
+    public void ejbLoad() {
         testAllowedOperations("ejbLoad");
     }
-    
+
     /**
      * Set the associated entity context. The container invokes this method
      * on an instance after the instance has been created.
@@ -204,7 +197,7 @@ public class BasicCmpBean implements javax.ejb.EntityBean{
         ejbContext = ctx;
         testAllowedOperations("setEntityContext");
     }
-    
+
     /**
      * Unset the associated entity context. The container calls this method
      * before removing the instance.
@@ -212,7 +205,7 @@ public class BasicCmpBean implements javax.ejb.EntityBean{
     public void unsetEntityContext() {
         testAllowedOperations("unsetEntityContext");
     }
-    
+
     /**
      * A container invokes this method to instruct the
      * instance to synchronize its state by storing it to the underlying
@@ -221,7 +214,7 @@ public class BasicCmpBean implements javax.ejb.EntityBean{
     public void ejbStore() {
         testAllowedOperations("ejbStore");
     }
-    
+
     /**
      * A container invokes this method before it removes the EJB object
      * that is currently associated with the instance. This method
@@ -233,17 +226,17 @@ public class BasicCmpBean implements javax.ejb.EntityBean{
     public void ejbRemove() {
         testAllowedOperations("ejbRemove");
     }
-    
+
     /**
      * A container invokes this method when the instance
      * is taken out of the pool of available instances to become associated
      * with a specific EJB object. This method transitions the instance to
      * the ready state.
      */
-    public void ejbActivate() throws EJBException,RemoteException {
+    public void ejbActivate() {
         testAllowedOperations("ejbActivate");
     }
-    
+
     /**
      * A container invokes this method on an instance before the instance
      * becomes disassociated with a specific EJB object. After this method
@@ -257,56 +250,64 @@ public class BasicCmpBean implements javax.ejb.EntityBean{
     // EntityBean interface methods
     //================================
     
-    protected void testAllowedOperations(String methodName){
+    protected void testAllowedOperations(String methodName) {
         OperationsPolicy policy = new OperationsPolicy();
         
         /*[1] Test getEJBHome /////////////////*/ 
-        try{
+        try {
             ejbContext.getEJBHome();
-            policy.allow(policy.Context_getEJBHome);
-        }catch(IllegalStateException ise){}
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+        } catch (IllegalStateException ise) {
+        }
         
         /*[2] Test getCallerPrincipal /////////*/ 
-        try{
+        try {
             ejbContext.getCallerPrincipal();
-            policy.allow( policy.Context_getCallerPrincipal );
-        }catch(IllegalStateException ise){}
+            policy.allow(OperationsPolicy.Context_getCallerPrincipal);
+        } catch (IllegalStateException ise) {
+        }
         
         /*[3] Test isCallerInRole /////////////*/ 
-        try{
+        try {
             ejbContext.isCallerInRole("ROLE");
-            policy.allow( policy.Context_isCallerInRole );
-        }catch(IllegalStateException ise){}
+            policy.allow(OperationsPolicy.Context_isCallerInRole);
+        } catch (IllegalStateException ise) {
+        }
         
         /*[4] Test getRollbackOnly ////////////*/ 
-        try{
+        try {
             ejbContext.getRollbackOnly();
-            policy.allow( policy.Context_getRollbackOnly );
-        }catch(IllegalStateException ise){}
+            policy.allow(OperationsPolicy.Context_getRollbackOnly);
+        } catch (IllegalStateException ise) {
+        }
         
         /*[5] Test setRollbackOnly ////////////*/ 
-        try{
+        try {
             ejbContext.setRollbackOnly();
-            policy.allow( policy.Context_setRollbackOnly );
-        }catch(IllegalStateException ise){}
+            policy.allow(OperationsPolicy.Context_setRollbackOnly);
+        } catch (IllegalStateException ise) {
+        }
         
         /*[6] Test getUserTransaction /////////*/ 
-        try{
+        try {
             ejbContext.getUserTransaction();
-            policy.allow( policy.Context_getUserTransaction );
-        }catch(Exception e){}
+            policy.allow(OperationsPolicy.Context_getUserTransaction);
+        } catch (Exception e) {
+        }
         
         /*[7] Test getEJBObject ///////////////*/ 
-        try{
+        try {
             ejbContext.getEJBObject();
-            policy.allow( policy.Context_getEJBObject );
-        }catch(IllegalStateException ise){}
+            policy.allow(OperationsPolicy.Context_getEJBObject);
+        } catch (IllegalStateException ise) {
+        }
 
         /*[8] Test getPrimaryKey //////////////*/ 
-        try{
+        try {
             ejbContext.getPrimaryKey();
-            policy.allow( policy.Context_getPrimaryKey );
-        }catch(IllegalStateException ise){}
+            policy.allow(OperationsPolicy.Context_getPrimaryKey);
+        } catch (IllegalStateException ise) {
+        }
          
         /* TO DO:  
          * Check for policy.Enterprise_bean_access       
@@ -320,7 +321,7 @@ public class BasicCmpBean implements javax.ejb.EntityBean{
 
             jndiContext.lookup("java:comp/env/entity/references/JNDI_access_to_java_comp_env");
 
-            policy.allow(policy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
         } catch (IllegalStateException ise) {
         } catch (javax.naming.NamingException ne) {
         }
