@@ -64,9 +64,9 @@ public class ProxyManager {
     //=============================================================
     //  Methods and members for the ProxyManager abstract factory
     //
-    private static ProxyFactory defaultFactory;
-    private static HashMap factories = new HashMap();
-    private static String defaultFactoryName;
+    private static volatile ProxyFactory defaultFactory;
+    private static final HashMap factories = new HashMap();
+    private static volatile String defaultFactoryName;
 
     public static synchronized ProxyFactory registerFactory(String factoryName, ProxyFactory factory){
         return (ProxyFactory)factories.put( factoryName, factory );
