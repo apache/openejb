@@ -10,6 +10,8 @@ COMMANDS:
 
   start  Start the OpenEJB Remote Server for 
          accessing beans in client/server mode.
+  
+  stop   Stop the OpenEJB Remote Server.
 
   deploy Deploy an ejb jar into OpenEJB.
   
