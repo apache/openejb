@@ -139,7 +139,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         URL url = goal.getUrl();
         DeploymentHelper dHelper =
                 new DeploymentHelper(url, goal.getType(), "EJBModule", "ejb-jar.xml", "geronimo-ejb-jar.xml");
-        //URL j2eeURL = dHelper.locateJ2eeDD();
+        //URL j2eeURL = dHelper.locateJ2EEDD();
         URL geronimoURL = dHelper.locateGeronimoDD();
         // Is the specific URL deployable?
         if (null == geronimoURL) {
