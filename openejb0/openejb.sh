@@ -88,6 +88,7 @@ _start_corba()
    sh ./bin/launch_jndi.sh -print &> jndi.log
    pid=$?
    trap ' kill $pid; exit 1' 1 2 15
+   sleep 20
    echo " 2. Starting OpenEJB CORBA Server with OpenORB"
    ./bin/launch_server.sh 
 }
@@ -96,7 +97,7 @@ _test_noargs()
 {
    _test_intravm
    _test_server
-#   _test_corba
+   _test_corba
 }
 #============================================================
 _test_intravm()
@@ -127,13 +128,17 @@ _test_corba()
    echo "Running EJB compliance tests on CORBA Server"
    echo "_________________________________________________"
    echo " 1. Starting OpenORB JNDI Server..."
+   trap ' kill $pids; exit 1' 1 2 15
    sh ./bin/launch_jndi.sh -default > corba.jndi.log &
-   sleep 2
+   pids="$?"
+   sleep 10
    echo " 2. Starting OpenEJB CORBA Server with OpenORB..."
    sh ./bin/launch_server.sh > corba.server.log &
-   sleep 6
+   pids="$pids $?"
+   sleep 20
    echo " 3. Starting test client..."
    ./bin/launch_client.sh
+   kill $pids
 }
 #============================================================
 
