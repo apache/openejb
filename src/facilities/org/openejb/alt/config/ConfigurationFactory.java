@@ -672,6 +672,12 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                 info.location = new EjbReferenceLocationInfo();
 
                 EnterpriseBeanInfo otherBean  = (EnterpriseBeanInfo)infos.get(ejb.getEjbLink());
+		if ( otherBean == null ) {
+		    String msg = messages.format( "config.noBeanFound", ejb.getEjbRefName(), bean.ejbName );
+
+		    logger.fatal( msg );
+		    throw new OpenEJBException( msg );
+		}
                 info.location.ejbDeploymentId = otherBean.ejbDeploymentId;
 
                 ejbRef.add(info);
@@ -925,7 +931,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             // Get the container it was assigned to
             ContainerInfo cInfo = (ContainerInfo)containerTable.get(d.getContainerId());
 	    if ( cInfo == null ) {
-		String msg = messages.format( "config.NoContainerFound", d.getContainerId(), d.getEjbName() );
+		String msg = messages.format( "config.noContainerFound", d.getContainerId(), d.getEjbName() );
 
 		logger.fatal( msg );
 		throw new OpenEJBException( msg );
