@@ -362,7 +362,6 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     private void initProxyFactory(Openejb openejb, FacilitiesInfo facilities) throws OpenEJBException{
 
         ProxyFactory pf = openejb.getProxyFactory();
-        System.out.println("ProxyFactory="+pf);
         
         if (pf == null) {
             pf = new ProxyFactory();
