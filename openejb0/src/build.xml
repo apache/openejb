@@ -629,13 +629,6 @@
     <mkdir dir="${build.dest}"/>
     <mkdir dir="${dest.doc.dir}"/>
     <mkdir dir="${dest.javadoc.dir}"/>
-    <mkdir dir="${final.dir}"/>
-    <mkdir dir="${final.dir}/bin"/>
-    <mkdir dir="${final.dir}/conf"/>
-    <mkdir dir="${final.dir}/docs"/>
-    <mkdir dir="${final.dir}/lib"/>
-    <mkdir dir="${final.dir}/src"/>
-    <mkdir dir="${final.dir}/beans"/>
     
     <style
         style="src/doc/style/changelog.xsl"
@@ -911,9 +904,17 @@
           description="--> archives all files as a complete OpenEJB distribution package"/>
           
   <target name="prepare-package">
+    <mkdir dir="${final.dir}"/>
+    <mkdir dir="${final.dir}/bin"/>
+    <mkdir dir="${final.dir}/conf"/>
+    <mkdir dir="${final.dir}/docs"/>
+    <mkdir dir="${final.dir}/lib"/>
+    <mkdir dir="${final.dir}/dist"/>
+    <mkdir dir="${final.dir}/src"/>
+    <mkdir dir="${final.dir}/beans"/>
   
     <!-- copy required jar files -->               
-    <copy todir="${final.dir}/lib">
+    <copy todir="${final.dir}/dist">
     
       <fileset dir="dist" >
         <include name="openejb-${version}.jar"/>
@@ -923,7 +924,7 @@
       </fileset>
     
     </copy>
-  
+    
     <!-- copy required jar files -->               
     <copy todir="${final.dir}/beans">
       <fileset dir="dist" >

@@ -52,7 +52,6 @@
     <mkdir dir="${build.testsuite.src}"/>
     <mkdir dir="${build.testsuite.dest}"/>
     <mkdir dir="${dest.testsuite.javadoc.dir}"/>
-    <mkdir dir="dist/beans"/>
     
     <copy todir="${build.testsuite.src}">
     
@@ -140,7 +139,7 @@
          manifest="${build.testsuite.dest}/MANIFEST.MF"/>
     
     <!-- This jar file will give an error: Cannot find the openejb-jar.xml in jar -->
-    <jar jarfile="dist/beans/undeployedBeans.jar"
+    <jar jarfile="beans/undeployedBeans.jar"
          basedir="${build.testsuite.dest}"
          includes="org/openejb/test/beans/**,
                    org/openejb/test/entity/bmp/**,
@@ -156,7 +155,7 @@
                    META-INF/openejb-jar.xml"
          manifest="${build.testsuite.dest}/MANIFEST.MF"/>
 
-    <jar jarfile="dist/beans/${project}_ejb_tests-${version}.jar"
+    <jar jarfile="beans/${project}_ejb_tests-${version}.jar"
          basedir="${build.testsuite.dest}"
          includes="org/openejb/test/beans/**,
                    org/openejb/test/entity/bmp/**,
