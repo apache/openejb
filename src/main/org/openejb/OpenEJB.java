@@ -47,6 +47,7 @@
 package org.openejb;
 
 import java.security.Permission;
+import java.net.URL;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -136,34 +137,50 @@ public final class OpenEJB {
         if ( initialized ) {
             logger.error( "Cannot initialize OpenEJB a second time in the same VM." );
             throw new OpenEJBException( "OpenEJB has already been initialized." );
-        } else {
-	    /*
-	     * Setup the java protocol handler path to include org.openejb.util.urlhandler
-	     * so that org.openejb.util.urlhandler.resource.Handler will be used for URLs
-	     * of the form "resource:/path".
-	     */
-            try {
-                String oldPkgs = System.getProperty( "java.protocol.handler.pkgs" );
-
-                if ( oldPkgs == null )
-                    System.setProperty( "java.protocol.handler.pkgs", "org.openejb.util.urlhandler" );
-                else if ( oldPkgs.indexOf( "org.openejb.util.urlhandler" ) < 0 )
-                    System.setProperty( "java.protocol.handler.pkgs", oldPkgs + "|" + "org.openejb.util.urlhandler" );
-            } catch ( SecurityException ex ) {
-            }
-	    
-	    // Set log4j's configuration (Note the URL's form)
-	    if( System.getProperty( "log4j.configuration" ) == null ) {
-		System.setProperty( "log4j.configuration", "resource:/default.logging.conf" );
-	    }
-
-	    logger = Category.getInstance( "OpenEJB" );
-
-            initialized = true;
         }
+
+	/*
+	 * Setup the java protocol handler path to include org.openejb.util.urlhandler
+	 * so that org.openejb.util.urlhandler.resource.Handler will be used for URLs
+	 * of the form "resource:/path".
+	 */
+	try {
+	    String oldPkgs = System.getProperty( "java.protocol.handler.pkgs" );
+
+	    if ( oldPkgs == null )
+		System.setProperty( "java.protocol.handler.pkgs", "org.openejb.util.urlhandler" );
+	    else if ( oldPkgs.indexOf( "org.openejb.util.urlhandler" ) < 0 )
+		System.setProperty( "java.protocol.handler.pkgs", oldPkgs + "|" + "org.openejb.util.urlhandler" );
+	} catch ( SecurityException ex ) {
+	}
+	
+	// Set log4j's configuration (Note the URL's form)
+	if( System.getProperty( "log4j.configuration" ) == null ) {
+	    System.setProperty( "log4j.configuration", "resource:/default.logging.conf" );
+	}
+
+	logger = Category.getInstance( "OpenEJB" );
         
-        logger.info("Intializing OpenEJB...");
-        logger.info(new Date());
+
+	/*
+	 * Output startup message
+	 */
+	Properties versionInfo = new Properties();
+
+	try {
+	    versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
+	} catch (java.io.IOException e) {
+	}
+	logger.info( "" );
+        logger.info( "********************************************************************************" );
+        logger.info( "OpenEJB " + versionInfo.get( "url" ) );
+        logger.info( "Startup: " + new Date() );
+	logger.info( versionInfo.get( "copyright" ) );
+	logger.info( "Version: " + versionInfo.get( "version" ) );
+	logger.info( "Build date: " + versionInfo.get( "date" ) );
+	logger.info( "Build time: " + versionInfo.get( "time" ) );
+
+
 
         SecurityManager sm = System.getSecurityManager();
         if (sm == null) {
@@ -296,6 +313,8 @@ public final class OpenEJB {
             logger.debug("TransactionManager: "+transactionManager.getClass().getName());
         }
         
+	initialized = true;
+
         logger.info("OpenEJB ready.");
     }
 

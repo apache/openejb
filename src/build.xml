@@ -90,6 +90,12 @@
   <!-- ================================================================== -->
   
   <target name="env" depends="check_available">
+    <tstamp/>
+
+    <echo message="version                = ${version}"/>
+    <echo message="DSTAMP                 = ${DSTAMP}"/>
+    <echo message="TSTAMP                 = ${TSTAMP}"/>
+
     <echo message="java.home              = ${java.home}"/>
     <echo message="user.home              = ${user.home}"/>   
 

@@ -70,7 +70,12 @@
                includes="default*.*" />
     </copy>
     
-    
+    <echo file="${build.openejb.dest}/openejb-version.properties">copyright=Copyright ${year} (C) ${copyright}, All Rights Reserved.
+url=${url}
+version=${version}
+date=${DSTAMP}
+time=${TSTAMP}</echo>
+
   </target>
   
   <target name="copy.manifest">
