@@ -60,15 +60,11 @@ import java.net.URI;
 
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
-import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
-import org.apache.geronimo.kernel.jmx.JMXKernel;
 import org.apache.geronimo.kernel.deployment.DeploymentPlan;
 import org.apache.geronimo.kernel.deployment.service.ClassSpaceMetadata;
-import org.apache.geronimo.kernel.service.GeronimoMBean;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
-import org.apache.geronimo.naming.java.ContextBuilderTest;
+//import org.apache.geronimo.naming.java.ContextBuilderTest; //copy now in this directory
 import org.openejb.nova.EJBContainerConfiguration;
 import org.openejb.nova.slsb.MockEJB;
 import org.openejb.nova.slsb.MockHome;
