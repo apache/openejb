@@ -56,7 +56,6 @@ import org.omg.PortableServer.POAHelper;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.pool.ThreadPool;
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 
@@ -109,7 +108,7 @@ public class CORBABean implements GBeanLifecycle {
         this.props = props;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
 
         ClassLoader savedLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -133,7 +132,7 @@ public class CORBABean implements GBeanLifecycle {
         log.info("Started CORBABean");
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         orb.shutdown(true);
         log.info("Stopped CORBABean");
     }

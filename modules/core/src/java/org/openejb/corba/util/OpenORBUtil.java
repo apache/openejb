@@ -51,7 +51,6 @@ import org.openorb.orb.rmi.DefaultORB;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 
 import org.openejb.corba.CORBABean;
 
@@ -79,14 +78,14 @@ public class OpenORBUtil implements GBeanLifecycle {
         return server;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
 
         DefaultORB.setORB(server.getORB());
 
         log.info("Started OpenORBUtil");
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         log.info("Stopped OpenORBUtil");
     }
 

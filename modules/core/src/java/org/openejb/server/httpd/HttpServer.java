@@ -65,7 +65,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import sun.net.www.protocol.http.HttpURLConnection;
 
 /**
@@ -232,10 +231,10 @@ public class HttpServer implements SocketService, ServerService, GBeanLifecycle 
         return listener;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
     }
 
     public void doFail() {

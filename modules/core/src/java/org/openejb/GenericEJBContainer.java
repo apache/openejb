@@ -75,7 +75,6 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
@@ -359,7 +358,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
 
         if (timerService != null) {
             timerService.doStart();
@@ -411,7 +410,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         log.info("GenericEJBContainer '" + containerId + "'started");
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         if (timerService != null) {
             timerService.doStop();
         }

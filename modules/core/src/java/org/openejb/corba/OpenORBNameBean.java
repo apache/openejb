@@ -58,7 +58,6 @@ import org.openorb.ins.Service;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.pool.ThreadPool;
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 
@@ -123,7 +122,7 @@ public class OpenORBNameBean implements GBeanLifecycle {
         return props;
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         threadPool.execute(new Runnable() {
             public void run() {
                 Thread.currentThread().setContextClassLoader(classLoader);
@@ -134,7 +133,7 @@ public class OpenORBNameBean implements GBeanLifecycle {
         log.info("Started OpenORBNameBean");
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         server.getORB().shutdown(true);
 
         log.info("Stopped OpenORBNameBean");

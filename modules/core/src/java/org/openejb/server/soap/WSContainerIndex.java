@@ -48,7 +48,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.apache.geronimo.gbean.*;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
 
 
 /**
@@ -82,14 +85,14 @@ public class WSContainerIndex implements ReferenceCollectionListener, GBeanLifec
         this.wsContainers.addReferenceCollectionListener(this);
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         for (Iterator iterator = wsContainers.iterator(); iterator.hasNext();) {
             WSContainer container = (WSContainer) iterator.next();
             urlToContainerMap.put(container.getLocation().getPath(), container);
         }
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         urlToContainerMap.clear();
     }
 
