@@ -39,19 +39,20 @@
   </repository>
 
   <mailingLists>
-    <!--
     <mailingList>
-      <name>Geronimo User List</name>
-      <subscribe>geronimo-users-subscribe@incubator.apache.org</subscribe>
-      <unsubscribe>geronimo-users-unsubscribe@incubator.apache.org</unsubscribe>
-      <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listName=geronimo-user@jakarta.apache.org</archive>
+      <name>OpenEJB User List</name>
+      <subscribe>user-subscribe@openejb.org</subscribe>
+      <unsubscribe>user-unsubscribe@openejb.org</unsubscribe>
     </mailingList>
-    -->
     <mailingList>
       <name>OpenEJB Developer List</name>
-      <subscribe>openejb-dev-subscribe@incubator.apache.org</subscribe>
-      <unsubscribe>openejb-dev-unsubscribe@incubator.apache.org</unsubscribe>
-      <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listId=140</archive>
+      <subscribe>dev-subscribe@openejb.org</subscribe>
+      <unsubscribe>dev-unsubscribe@openejb.org</unsubscribe>
+    </mailingList>
+    <mailingList>
+      <name>OpenEJB Source Control List</name>
+      <subscribe>scm-subscribe@openejb.org</subscribe>
+      <unsubscribe>scm-unsubscribe@openejb.org</unsubscribe>
     </mailingList>
   </mailingLists>
 
