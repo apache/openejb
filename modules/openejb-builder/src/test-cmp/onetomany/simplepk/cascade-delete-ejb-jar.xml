@@ -9,13 +9,13 @@
     <enterprise-beans>
         <entity>
             <ejb-name>A</ejb-name>
-            <local-home>org.openejb.deployment.entity.cmp.cmr.onetoone.ALocalHome</local-home>
-            <local>org.openejb.deployment.entity.cmp.cmr.onetoone.ALocal</local>
-            <ejb-class>org.openejb.deployment.entity.cmp.cmr.onetoone.ABean</ejb-class>
+            <local-home>org.openejb.deployment.entity.cmp.cmr.onetomany.ALocalHome</local-home>
+            <local>org.openejb.deployment.entity.cmp.cmr.onetomany.ALocal</local>
+            <ejb-class>org.openejb.deployment.entity.cmp.cmr.onetomany.ABean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <cmp-version>2.x</cmp-version>
-            <abstract-schema-name>OneToOneA</abstract-schema-name>
+            <abstract-schema-name>onetomanyA</abstract-schema-name>
             <cmp-field>
                 <field-name>field1</field-name>
             </cmp-field>
@@ -26,13 +26,13 @@
         </entity>
         <entity>
             <ejb-name>B</ejb-name>
-            <local-home>org.openejb.deployment.entity.cmp.cmr.onetoone.BLocalHome</local-home>
-            <local>org.openejb.deployment.entity.cmp.cmr.onetoone.BLocal</local>
-            <ejb-class>org.openejb.deployment.entity.cmp.cmr.onetoone.BBean</ejb-class>
+            <local-home>org.openejb.deployment.entity.cmp.cmr.onetomany.BLocalHome</local-home>
+            <local>org.openejb.deployment.entity.cmp.cmr.onetomany.BLocal</local>
+            <ejb-class>org.openejb.deployment.entity.cmp.cmr.onetomany.BBean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
             <cmp-version>2.x</cmp-version>
-            <abstract-schema-name>OneToOneB</abstract-schema-name>
+            <abstract-schema-name>onetomanyB</abstract-schema-name>
             <cmp-field>
                 <field-name>field1</field-name>
             </cmp-field>
@@ -48,7 +48,6 @@
             <ejb-relationship-role>
                 <ejb-relationship-role-name>ASide</ejb-relationship-role-name>
                 <multiplicity>One</multiplicity>
-                <cascade-delete/>
                 <relationship-role-source>
                     <ejb-name>A</ejb-name>
                 </relationship-role-source>
@@ -58,7 +57,8 @@
             </ejb-relationship-role>
             <ejb-relationship-role>
                 <ejb-relationship-role-name>BSide</ejb-relationship-role-name>
-                <multiplicity>One</multiplicity>
+                <multiplicity>Many</multiplicity>
+                <cascade-delete/>
                 <relationship-role-source>
                     <ejb-name>B</ejb-name>
                 </relationship-role-source>

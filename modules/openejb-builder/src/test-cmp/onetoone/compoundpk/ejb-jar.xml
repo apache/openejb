@@ -47,6 +47,7 @@
             <ejb-relationship-role>
                 <ejb-relationship-role-name>ASide</ejb-relationship-role-name>
                 <multiplicity>One</multiplicity>
+                <cascade-delete/>
                 <relationship-role-source>
                     <ejb-name>A</ejb-name>
                 </relationship-role-source>

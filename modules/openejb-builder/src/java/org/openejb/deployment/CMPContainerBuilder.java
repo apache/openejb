@@ -305,7 +305,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
 
         // build the vop table
-        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGeneratorDelegate(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, queryCommands);
+        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrFieldAccessors, cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGeneratorDelegate(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, queryCommands);
 
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
@@ -356,9 +356,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         int offset = ejb.getAttributes().size();
         for (int i = offset; i < offset + associationEnds.size(); i++) {
             CMRField field = (CMRField) associationEnds.get(i - offset);
-            if ( field.isVirtual() ) {
-                continue;
-            }
+
             String name = field.getName();
             Association association = field.getAssociation(); 
             CMRField relatedField = (CMRField) association.getOtherEnd(field);
@@ -396,7 +394,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                         relatedEJB.getProxyFactory().getLocalInterfaceClass());
             }
 
-            cmrFieldAccessors.put(field.getName(), accessor);
+            cmrFieldAccessors.put(name, accessor);
         }
         return cmrFieldAccessors;
     }
@@ -469,6 +467,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
     protected LinkedHashMap buildVopMap(Class beanClass,
             CacheTable cacheTable,
+            Map cmrFieldAccessors,
             CMP1Bridge cmp1Bridge,
             IdentityDefiner identityDefiner,
             PrimaryKeyGeneratorDelegate keyGenerator,
@@ -536,16 +535,16 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
                 // ejbObject.remove()
                 vopMap.put(new InterfaceMethodSignature("remove", false),
-                        new CMPRemoveMethod(beanClass, signature));
+                        new CMPRemoveMethod(beanClass, signature, cacheTable, cmrFieldAccessors));
 
                 // ejbHome.remove(primaryKey)
                 vopMap.put(new InterfaceMethodSignature("ejbRemove", new Class[]{Object.class}, true),
-                        new CMPRemoveMethod(beanClass, signature));
+                        new CMPRemoveMethod(beanClass, signature, cacheTable, cmrFieldAccessors));
 
                 // ejbHome.remove(handle)
                 Class handleClass = getClassLoader().loadClass("javax.ejb.Handle");
                 vopMap.put(new InterfaceMethodSignature("ejbRemove", new Class[]{handleClass}, true),
-                        new CMPRemoveMethod(beanClass, signature));
+                        new CMPRemoveMethod(beanClass, signature, cacheTable, cmrFieldAccessors));
             } else if (name.equals("ejbActivate")) {
                 vopMap.put(MethodHelper.translateToInterface(signature)
                         , EJBActivateOperation.INSTANCE);

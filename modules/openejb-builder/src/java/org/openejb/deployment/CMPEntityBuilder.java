@@ -391,6 +391,9 @@ class CMPEntityBuilder extends EntityBuilder {
         if ("One".equals(role.getMultiplicity().getStringValue())) {
             roleInfo.isOne = true;
         }
+        if ( role.isSetCascadeDelete() ) {
+            roleInfo.isCascadeDelete = true;
+        }
         return roleInfo;
     }
 
@@ -463,13 +466,13 @@ class CMPEntityBuilder extends EntityBuilder {
 
         boolean isVirtual = null == roleInfo[0].cmrFieldName;
         String endName = isVirtual ? "$VirtualEnd" + id : roleInfo[0].cmrFieldName;
-        roleInfo[0].ejb.addCMRField(new CMRField(endName, roleInfo[1].ejb, roleInfo[1].isOne, relationship, isVirtual));
-        roleInfo[0].table.addEndTable(new EndTable(endName, roleInfo[1].table, roleInfo[1].isOne, joinTable, isVirtual));
+        roleInfo[0].ejb.addCMRField(new CMRField(endName, roleInfo[1].ejb, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, relationship, isVirtual));
+        roleInfo[0].table.addEndTable(new EndTable(endName, roleInfo[1].table, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, joinTable, isVirtual));
 
         isVirtual = null == roleInfo[1].cmrFieldName;
         endName = isVirtual ? "$VirtualEnd" + id : roleInfo[1].cmrFieldName;
-        roleInfo[1].ejb.addCMRField(new CMRField(endName, roleInfo[0].ejb, roleInfo[0].isOne, relationship, isVirtual));
-        roleInfo[1].table.addEndTable(new EndTable(endName, roleInfo[0].table, roleInfo[0].isOne, joinTable, isVirtual));
+        roleInfo[1].ejb.addCMRField(new CMRField(endName, roleInfo[0].ejb, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, relationship, isVirtual));
+        roleInfo[1].table.addEndTable(new EndTable(endName, roleInfo[0].table, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, joinTable, isVirtual));
     }
 
     private Class getCMPFieldType(boolean cmp2, String fieldName, Class beanClass) throws DeploymentException {
@@ -611,6 +614,7 @@ class CMPEntityBuilder extends EntityBuilder {
         private EJB ejb;
         private Table table;
         private boolean isOne;
+        private boolean isCascadeDelete;
         private JoinDefinition ejbJDef;
         private JoinDefinition tableJDef;
         private RoleInfo(String entityName, String cmrFieldName) {
