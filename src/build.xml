@@ -986,14 +986,19 @@
     </zip>
   
   </target>
-  
+
   <target name="package.tar.gz" depends="prepare-package">
-  
     <!-- create a zip file containing the whole OpenEJB dist -->
     <tar tarfile="dist/${project}-${version}.tar">
-      <tarfileset dir="${final.dir}"/>
+      <tarfileset dir="${final.dir}/.." mode="755">
+        <include name="**/**.sh"/>
+      </tarfileset>
+      <tarfileset dir="${final.dir}/..">
+        <include name="${project}-${version}/**"/>
+        <exclude name="**/**.sh"/>
+      </tarfileset>
     </tar>
-    
+  
     <gzip zipfile="dist/${project}-${version}.tar.gz"
           src="dist/${project}-${version}.tar"/>
     
