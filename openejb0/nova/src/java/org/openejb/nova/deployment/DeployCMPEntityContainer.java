@@ -85,6 +85,7 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
     private final DeploySchemaMBean schemaFactory;
     private final EntityContainerConfiguration config;
     private final Query[] queries;
+    private final Query[] updates;
     private final String[] cmpFieldNames;
 
 
@@ -93,11 +94,13 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
                                     DeploySchemaMBean schemaFactory,
                                     EntityContainerConfiguration config,
                                     Query[] queries,
+                                    Query[] updates,
                                     String[] cmpFieldNames) {
         super(server, metadata);
         this.schemaFactory = schemaFactory;
         this.config = config;
         this.queries = queries;
+        this.updates = updates;
         this.cmpFieldNames = cmpFieldNames;
     }
 
@@ -106,59 +109,72 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
         try {
             ClassSpaceUtil.setContextClassLoader(server, JMXUtil.getObjectName("geronimo.system:role=ClassSpace,name=System"));
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        SimpleCommandFactory schema = schemaFactory.getSchema();
-        CMPQuery[] cmpQueries = new CMPQuery[queries.length];
-        for (int i = 0; i < queries.length; i++) {
-            Query query = queries[i];
-            MethodSignature methodSignature = new MethodSignature(query.getQueryMethod().getMethodName(),
-                    query.getQueryMethod().getMethodParam());
-            org.apache.geronimo.deployment.model.geronimo.ejb.Binding[] bindings = query.getInputBinding();
-            Binding[] inputBindings = new Binding[bindings.length];
-            for (int j = 0; j < bindings.length; j++) {
-                String bindingClassName = bindings[j].getType();
-                int slot = bindings[j].getParam();
-                inputBindings[j] = getBinding(cl, bindingClassName, j, slot);
+            SimpleCommandFactory schema = schemaFactory.getSchema();
+
+            //register the queries
+            CMPQuery[] cmpQueries = new CMPQuery[queries.length];
+            for (int i = 0; i < queries.length; i++) {
+                Query query = queries[i];
+                MethodSignature methodSignature = new MethodSignature(query.getQueryMethod().getMethodName(),
+                        query.getQueryMethod().getMethodParam());
+
+                Binding[] inputBindings = translateBindings(query.getInputBinding(), cl);
+
+                Binding[] outputBindings = translateBindings(query.getOutputBinding(), cl);
+
+                schema.defineQuery(methodSignature, query.getSql(), inputBindings, outputBindings);
+                //if method name begins with "find", local is ignored.  Set to false.
+                //otherwise,
+                //if abstract schema name is specified, then you must specify local
+                boolean local = "Local".equals(query.getResultTypeMapping());
+                boolean multivalue = "Many".equals(query.getMultiplicity());
+                cmpQueries[i] = new CMPQuery(query.getAbstractSchemaName(),
+                        local,
+                        methodSignature,
+                        multivalue,
+                        query.getEjbQl());
             }
-            Binding[] outputBindings = new Binding[1];
-            outputBindings[0] = getBinding(cl, query.getOutputBinding().getType(), 0, query.getOutputBinding().getParam());
-            if (methodSignature.getMethodName().startsWith("ejbCreate")) {
+            for (int i = 0; i < updates.length; i++) {
+                Query query = updates[i];
+                MethodSignature methodSignature = new MethodSignature(query.getQueryMethod().getMethodName(),
+                        query.getQueryMethod().getMethodParam());
+
+                Binding[] inputBindings = translateBindings(query.getInputBinding(), cl);
+                //currently we are not using the output bindings.  Could be for "update returning"
+                //Binding[] outputBindings = translateBindings(query.getOutputBinding(), cl);
+
                 schema.defineUpdate(methodSignature, query.getSql(), inputBindings);
-            } else if (methodSignature.getMethodName().startsWith("ejbStore")) {
-                schema.defineUpdate(methodSignature, query.getSql(), inputBindings);
-            } else {
-            schema.defineQuery(methodSignature, query.getSql(), inputBindings, outputBindings);
             }
-            //if method name begins with "find", local is ignored.  Set to false.
-            //otherwise,
-            //if abstract schema name is specified, then you must specify local
-            boolean local = "Local".equals(query.getResultTypeMapping());
-            boolean multivalue = query.isMultivalue();
-            cmpQueries[i] = new CMPQuery(query.getAbstractSchemaName(),
-                    local,
-                    methodSignature,
-                    multivalue,
-                    query.getEjbQl());
-        }
-        CMPEntityContainer container = new CMPEntityContainer(config,
-                schema,
-                cmpQueries,
-                cmpFieldNames);
-        GeronimoMBeanInfo mbeanInfo = metadata.getGeronimoMBeanInfo();
-        mbeanInfo.setTarget(container);
-        super.perform();
+            CMPEntityContainer container = new CMPEntityContainer(config,
+                    schema,
+                    cmpQueries,
+                    cmpFieldNames);
+            GeronimoMBeanInfo mbeanInfo = metadata.getGeronimoMBeanInfo();
+            mbeanInfo.setTarget(container);
+            super.perform();
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
+    }
+
+    private Binding[] translateBindings(org.apache.geronimo.deployment.model.geronimo.ejb.Binding[] inBindings, ClassLoader cl) throws DeploymentException {
+        Binding[] bindings = new Binding[inBindings.length];
+        for (int j = 0; j < inBindings.length; j++) {
+            String bindingClassName = inBindings[j].getType();
+            int slot = inBindings[j].getParam();
+            bindings[j] = getBinding(cl, bindingClassName, j, slot);
+        }
+        return bindings;
     }
 
     private Binding getBinding(ClassLoader cl, String bindingClassName, int j, int slot) throws DeploymentException {
         try {
             System.out.println("cl = " + cl);
             Class bindingClass = cl.loadClass(bindingClassName);
-            Constructor constructor = bindingClass.getConstructor( new Class[] {Integer.TYPE, Integer.TYPE});
+            Constructor constructor = bindingClass.getConstructor(new Class[]{Integer.TYPE, Integer.TYPE});
 
             // j+1 because ResultSet and PS use 1-based numbering
-            return (Binding)constructor.newInstance(new Object[] {new Integer(j+1), new Integer(slot)});
+            return (Binding) constructor.newInstance(new Object[]{new Integer(j + 1), new Integer(slot)});
         } catch (Exception e) {
             throw new DeploymentException("Could not load binding class or create binding", e);
         }

@@ -246,6 +246,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
         EntityContainerConfiguration config = getEntityConfig(entity);
 
         Query[] queries = entity.getGeronimoQuery();
+        Query[] updates = entity.getUpdate();
         CmpField[] fields = entity.getCmpField();
         String[] cmpFieldNames = new String[fields.length];
         for (int i = 0; i < fields.length; i++) {
@@ -254,7 +255,13 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
         }
 
 
-        plan.addTask(new DeployCMPEntityContainer(getServer(), ejbMetadata, schemaTask, config, queries, cmpFieldNames));
+        plan.addTask(new DeployCMPEntityContainer(getServer(),
+                ejbMetadata,
+                schemaTask,
+                config,
+                queries,
+                updates,
+                cmpFieldNames));
         plan.addTask(new StartMBeanInstance(getServer(), ejbMetadata));
 
     }
