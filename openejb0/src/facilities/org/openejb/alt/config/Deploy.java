@@ -3,10 +3,13 @@ package org.openejb.alt.config;
 import org.openejb.alt.config.sys.*;
 import org.openejb.alt.config.ejb11.*;
 import org.openejb.OpenEJBException;
+import org.openejb.util.Messages;
+import org.openejb.util.FileUtils;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.io.PrintStream;
 import java.io.DataInputStream;
+import java.io.File;
 
 
 /**
@@ -150,9 +153,14 @@ public class Deploy {
 
             configFile = openejbConfigFile;
             if (configFile == null) {
+                try{
+                    configFile = System.getProperty("openejb.configuration");
+                } catch (Exception e){}
+            }
+            if (configFile == null) {
                 configFile = ConfigUtils.searchForConfiguration();
             }
-            config = ConfigUtils.readConfig(openejbConfigFile);
+            config = ConfigUtils.readConfig(configFile);
             
             /* Load container list */
             containers = new Container[config.getContainerCount()];
@@ -172,6 +180,7 @@ public class Deploy {
 
         } catch ( Exception e ) {
             // TODO: Better exception handling.
+            e.printStackTrace();
             throw new OpenEJBException(e.getMessage());
         }
 
@@ -192,6 +201,11 @@ public class Deploy {
         for ( int i=0; i < beans.length; i++ ) {
             openejbJar.addEjbDeployment(deployBean(beans[i]));
         }
+        
+        if (MOVE_JAR) {
+            jarLocation = moveJar(jarLocation);
+        }
+        
         /* TODO: Automatically updating the users
         config file might not be desireable for
         some people.  We could make this a 
@@ -204,6 +218,51 @@ public class Deploy {
 
     }
 
+    private String moveJar(String jar) throws OpenEJBException{
+        File origFile = new File(jar);
+        
+        // Safety checks
+        if (!origFile.exists()){
+            ConfigUtils.logWarning("deploy.m.010", origFile.getAbsolutePath());
+            return jar;
+        }
+
+        if (origFile.isDirectory()){
+            ConfigUtils.logWarning("deploy.m.020", origFile.getAbsolutePath());
+            return jar;
+        }
+
+        if (!origFile.isFile()){
+            ConfigUtils.logWarning("deploy.m.030", origFile.getAbsolutePath());
+            return jar;
+        }
+
+        // Move file
+        String jarName = origFile.getName();
+        File beansDir = null;
+        try {
+            beansDir = FileUtils.getDirectory("beans"); 
+        } catch (java.io.IOException ioe){
+            ConfigUtils.logWarning("deploy.m.040", origFile.getAbsolutePath(), ioe.getMessage());
+            return jar;
+        }
+        
+        File newFile = new File(beansDir, jarName);
+        boolean moved = false;
+        
+        try{
+            moved = origFile.renameTo(newFile); 
+        } catch (SecurityException se){
+            ConfigUtils.logWarning("deploy.m.050", origFile.getAbsolutePath(), se.getMessage());
+        }
+
+        if ( moved ){
+            return newFile.getAbsolutePath();
+        } else {
+            ConfigUtils.logWarning("deploy.m.060", origFile.getAbsolutePath(), newFile.getAbsoluteFile());
+            return origFile.getAbsolutePath();
+        }
+    }
 
     private EjbDeployment deployBean(Bean bean) throws OpenEJBException{
         EjbDeployment deployment = new EjbDeployment();
@@ -446,14 +505,45 @@ public class Deploy {
 
     private void addDeploymentEntryToConfig(String jarLocation){
         Enumeration enum = config.enumerateDeployments();
+        File jar = new File(jarLocation);
 
+        /* Check to see if the entry is already listed */
         while ( enum.hasMoreElements() ) {
             Deployments d = (Deployments)enum.nextElement();
-            if (jarLocation.equals(d.getJar())) {
-                /* It's already there, no need to add it
-                 * or go any futher.
-                 */
-                 return;
+            
+            if ( d.getJar() != null ) {
+                try {
+                    File target = FileUtils.getFile(d.getJar(), false);
+                    
+                    /* 
+                     * If the jar entry is already there, no need 
+                     * to add it to the config or go any futher.
+                     */
+                    if (jar.equals(target)) return;
+                } catch (java.io.IOException e){
+                    /* No handling needed.  If there is a problem
+                     * resolving a config file path, it is better to 
+                     * just add this jars path explicitly.
+                     */
+                }
+            } else if ( d.getDir() != null ) {
+                try {
+                    File target = FileUtils.getFile(d.getDir(), false);
+                    File jarDir = jar.getAbsoluteFile().getParentFile();
+
+                    /* 
+                     * If a dir entry is already there, the jar
+                     * will be loaded automatically.  No need 
+                     * to add it explicitly to the config or go
+                     * any futher.
+                     */
+                    if (jarDir != null && jarDir.equals(target)) return;
+                } catch (java.io.IOException e){
+                    /* No handling needed.  If there is a problem
+                     * resolving a config file path, it is better to 
+                     * just add this jars path explicitly.
+                     */
+                }
             }
         }
 
@@ -535,9 +625,15 @@ public class Deploy {
                     if (args.length > i+2 ) {
                         System.setProperty("openejb.home", args[++i]);
                     }
+                } else {
+                    // We must have reached the jar list
+                    d.init(null);
+                    for (int j=i; j < args.length; j++){
+                        d.deploy( args[j] );
+                    }
                 }
             }
-            
+                        
        } catch ( Exception e ) {
             e.printStackTrace();
         }
