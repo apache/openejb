@@ -67,7 +67,7 @@ public class ConnectionManager {
         }
     }
 
-    public Connection getConnection(ServerMetaData server) throws IOException{
+    public static Connection getConnection(ServerMetaData server) throws IOException{
         return factory.getConnection(server);
     }
 
