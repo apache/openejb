@@ -87,7 +87,6 @@ public class TyrexDeploymentInfo extends org.openejb.core.DeploymentInfo {
     public TyrexDeploymentInfo(javax.naming.Context jndiEnc,Object did, String homeClassName, String remoteClassName, String beanClassName, String pkClassName, byte componentType, ClassLoader loader)
     throws org.openejb.SystemException{
         super(did,homeClassName,remoteClassName, beanClassName, pkClassName, componentType, loader);
-        System.out.println(pkClassName);
         newRuntimeContext(jndiEnc);
     }
     public tyrex.tm.RuntimeContext getRuntimeContext(){
