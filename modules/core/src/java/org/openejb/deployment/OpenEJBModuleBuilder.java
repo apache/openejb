@@ -51,7 +51,6 @@ package org.openejb.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -65,7 +64,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
 
-import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
 import org.apache.geronimo.deployment.util.IOUtil;
@@ -87,8 +85,8 @@ import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.openejb.EJBModuleImpl;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyObjectFactory;
@@ -97,9 +95,9 @@ import org.openejb.xbeans.ejbjar.OpenejbDependencyType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbGbeanType;
 import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
-import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
+import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.sql.DataSourceDelegate;
 import org.tranql.sql.sql92.SQL92Schema;
@@ -111,7 +109,7 @@ import org.tranql.sql.sql92.SQL92Schema;
 public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder {
     private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
         XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
-        XmlBeans.typeLoaderForClassLoader(OpenejbOpenejbJarDocument.class.getClassLoader())
+        XmlBeans.typeLoaderForClassLoader(OpenejbOpenejbJarType.class.getClassLoader())
     });
 
     final Kernel kernel;
@@ -159,33 +157,31 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
     public XmlObject validateVendorDD(XmlObject dd) throws DeploymentException {
         try {
+//            dd = SchemaConversionUtils.getNestedObjectAsType(dd, "openejb-jar", OpenejbOpenejbJarType.type);
+            dd = ((OpenejbOpenejbJarDocument)dd).getOpenejbJar();
             dd = SchemaConversionUtils.convertToGeronimoNamingSchema(dd);
-            dd = dd.changeType(OpenejbOpenejbJarDocument.type);
-            SchemaConversionUtils.validateDD(dd);
+//            SchemaConversionUtils.validateDD(dd);
             return dd;
         } catch (Exception e) {
-            throw new DeploymentException(e.getMessage(), e);
+            throw new DeploymentException(e);
         }
     }
 
-    public XmlObject getDeploymentPlan(URL module) throws DeploymentException {
+    public XmlObject getDeploymentPlan(JarFile module) throws DeploymentException {
+        URL vendorDDUrl = null;
         try {
-            URL moduleBase;
-            if (module.toString().endsWith("/")) {
-                moduleBase = module;
-            } else {
-                moduleBase = new URL("jar:" + module.toString() + "!/");
-            }
-            URL vendorDDUrl = new URL(moduleBase, "META-INF/openejb-jar.xml");
-            XmlObject dd = SchemaConversionUtils.parse(vendorDDUrl.openStream());
-
-            OpenejbOpenejbJarDocument plan = (OpenejbOpenejbJarDocument) validateVendorDD(dd);
+            vendorDDUrl = JarUtil.createJarURL(module, "META-INF/openejb-jar.xml");
+        } catch (DeploymentException e) {
+            return null;
+        }
+        try {
+//            XmlObject dd = SchemaConversionUtils.parse(vendorDDUrl);
+            XmlObject dd = OpenejbOpenejbJarDocument.Factory.parse(vendorDDUrl);
+            OpenejbOpenejbJarType plan = (OpenejbOpenejbJarType) validateVendorDD(dd);
             if (plan == null) {
-                return createDefaultPlan(moduleBase);
+                return createDefaultPlan(module);
             }
             return plan;
-        } catch (MalformedURLException e) {
-            return null;
         } catch (IOException e) {
             return null;
         } catch (XmlException e) {
@@ -193,11 +189,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         }
     }
 
-    private OpenejbOpenejbJarDocument createDefaultPlan(URL moduleBase) {
-        URL ejbJarXml = null;
+    private OpenejbOpenejbJarType createDefaultPlan(JarFile module) {
+        URL ejbJarXml;
         try {
-            ejbJarXml = new URL(moduleBase, "META-INF/ejb-jar.xml");
-        } catch (MalformedURLException e) {
+            ejbJarXml = JarUtil.createJarURL(module, "META-INF/ejb-jar.xml");
+        } catch (DeploymentException e) {
             return null;
         }
 
@@ -210,7 +206,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
         String id = ejbJar.getId();
         if (id == null) {
-            id = moduleBase.getFile();
+            // TODO this name is not necessairly the original name specified on the command line which is what we want
+            id = module.getName();
             if (id.endsWith("!/")) {
                 id = id.substring(0, id.length() - 2);
             }
@@ -223,12 +220,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             id = id.substring(id.lastIndexOf('/') + 1);
         }
 
-        return newOpenejbJarDocument(ejbJar, id);
+        return newOpenejbJarType(ejbJar, id);
     }
 
-    private OpenejbOpenejbJarDocument newOpenejbJarDocument(EjbJarType ejbJar, String id) {
-        OpenejbOpenejbJarDocument openejbJarDocument = OpenejbOpenejbJarDocument.Factory.newInstance();
-        OpenejbOpenejbJarType openejbEjbJar = openejbJarDocument.addNewOpenejbJar();
+    private OpenejbOpenejbJarType newOpenejbJarType(EjbJarType ejbJar, String id) {
+        OpenejbOpenejbJarType openejbEjbJar = OpenejbOpenejbJarType.Factory.newInstance();
         openejbEjbJar.setParentId("org/apache/geronimo/Server");
         if (null != ejbJar.getId()) {
             openejbEjbJar.setConfigId(ejbJar.getId());
@@ -236,15 +232,15 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             openejbEjbJar.setConfigId(id);
         }
         openejbEjbJar.addNewEnterpriseBeans();
-        return openejbJarDocument;
+        return openejbEjbJar;
     }
 
     public boolean canHandlePlan(XmlObject plan) {
-        return plan instanceof OpenejbOpenejbJarDocument;
+        return plan instanceof OpenejbOpenejbJarType;
     }
 
     public URI getParentId(XmlObject plan) throws DeploymentException {
-        OpenejbOpenejbJarType openejbEjbJar = ((OpenejbOpenejbJarDocument) plan).getOpenejbJar();
+        OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) plan;
         URI parentID;
         if (openejbEjbJar.isSetParentId()) {
             try {
@@ -259,7 +255,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     }
 
     public URI getConfigId(XmlObject plan) throws DeploymentException {
-        OpenejbOpenejbJarType openejbEjbJar = ((OpenejbOpenejbJarDocument) plan).getOpenejbJar();
+        OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) plan;
         URI configID;
         try {
             configID = new URI(openejbEjbJar.getConfigId());
@@ -298,24 +294,28 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         EjbJarType ejbJar = (EjbJarType) parseSpecDD(specDD);
 
         if (vendorDD == null) {
+            InputStream in = null;
             try {
                 JarEntry entry = moduleFile.getJarEntry("META-INF/openejb-jar.xml");
                 if (entry != null) {
-                    InputStream in = moduleFile.getInputStream(entry);
+                    in = moduleFile.getInputStream(entry);
                     if (in != null) {
-                        vendorDD = XmlBeansUtil.parse(in, OpenejbOpenejbJarDocument.type);
+//                        XmlObject dd = SchemaConversionUtils.parse(in);
+                        XmlObject dd = OpenejbOpenejbJarDocument.Factory.parse(in);
+                        vendorDD = validateVendorDD(dd);
                     }
                 }
             } catch (Exception e) {
                 throw new DeploymentException("Unable to parse META-INF/openejb-jar.xml", e);
+            } finally {
+                IOUtil.close(in);
             }
         }
         if (vendorDD == null) {
-            vendorDD = newOpenejbJarDocument(ejbJar, name);
+            vendorDD = newOpenejbJarType(ejbJar, name);
         }
 
-        OpenejbOpenejbJarDocument openEJBJarDoc = (OpenejbOpenejbJarDocument) vendorDD;
-        OpenejbOpenejbJarType openEJBJar = openEJBJarDoc.getOpenejbJar();
+        OpenejbOpenejbJarType openEJBJar = (OpenejbOpenejbJarType)vendorDD;
 
         return new EJBModule(name, moduleURI, moduleFile, targetPath, ejbJar, openEJBJar, specDD);
     }
