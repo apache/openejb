@@ -135,13 +135,11 @@ public class SerializationHandler implements org.openejb.spi.ApplicationServer {
      * FIXME: exception handling
      */
     private Object lookup(org.openejb.ProxyInfo pinfo) {
-        Object obj=null;
         try{
             ContainerAdapter adapter = containerSystem.getContainerAdapter(pinfo.getBeanContainer());
              return adapter.createBeanProfile(pinfo);
         }catch(Throwable e) {
-            e.printStackTrace();
-            return null;
+            throw new org.omg.CORBA.MARSHAL("Internal server error while marshaling the reply", 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES);
         }
     }
 }
