@@ -46,33 +46,27 @@ package org.openejb.server.xfire;
 
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.InputStream;
-import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamException;
-
-import org.codehaus.xfire.MessageContext;
-import org.codehaus.xfire.java.DefaultJavaService;
+import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.webservices.WebServiceInvoker;
 import org.openejb.server.httpd.HttpListener;
 import org.openejb.server.httpd.HttpRequest;
 import org.openejb.server.httpd.HttpResponse;
 
-public class SoapHttpListener implements HttpListener {
+public class SoapHttpListener implements HttpListener, WebServiceContainer {
 
-    private final WSContainerIndex containerIndex;
+    private final Map contextPathToWSMap = new HashMap();
 
-    public SoapHttpListener(WSContainerIndex containerIndex) {
-        this.containerIndex = containerIndex;
-    }
 
     public void onMessage(HttpRequest req, HttpResponse res) throws IOException {
-
+        //TODO previous behavior of closing streams was inconsistent.
+        //Following servlet model, neither in or out is beinc closed.
+        //TODO probably returning 500 internal server error would be more appropriate than translating to IOException.
 
         String path = req.getURI().getPath();
-        WSContainer container = containerIndex.getContainer(path);
+        WebServiceInvoker container = (WebServiceInvoker) contextPathToWSMap.get(path);
 
         if (container == null) {
             res.setCode(404);
@@ -82,51 +76,31 @@ public class SoapHttpListener implements HttpListener {
 
         res.setContentType("text/xml");
 
-        if (req.getQueryParameter("wsdl") != null){
-            doWSDLRequest(container, res);
+        if (req.getQueryParameter("wsdl") != null) {
+            try {
+                container.getWsdl(res.getOutputStream());
+            } catch (IOException e) {
+                throw e;
+            } catch (Exception e) {
+                throw (IOException) new IOException("Could not fetch wsdl!").initCause(e);
+            }
         } else {
-            doInvoke(res, req, container);
-        }
-
-    }
-
-    private void doInvoke(HttpResponse res, HttpRequest req, WSContainer container) throws IOException {
-        //  We have to set the context classloader or the StAX API
-        //  won't be able to find it's implementation.
-        Thread thread = Thread.currentThread();
-        ClassLoader originalClassLoader = thread.getContextClassLoader();
-
-        try {
-            thread.setContextClassLoader(container.getClass().getClassLoader());
-            MessageContext context = new MessageContext("not-used", null, res.getOutputStream(), null, req.getURI().toString());
-            context.setRequestStream(req.getInputStream());
-            container.invoke(context);
-        } finally {
-            thread.setContextClassLoader(originalClassLoader);
-        }
-    }
-
-    private void doWSDLRequest(WSContainer container, HttpResponse res) throws IOException {
-        URL wsdlURL = container.getWsdlURL();
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            in = wsdlURL.openStream();
-            out = res.getOutputStream();
-            byte[] buffer = new byte[1024];
-            for (int read = in.read(buffer); read > 0; read = in.read(buffer) ) {
-                System.out.write(buffer, 0, read);
-                out.write(buffer, 0 ,read);
-            }
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-            if (out != null) {
-                out.flush();
-                out.close();
+            try {
+                container.invoke(req.getInputStream(), res.getOutputStream(), req.getURI().toString());
+            } catch (IOException e) {
+                throw e;
+            } catch (Exception e) {
+                throw (IOException) new IOException("Could not process message!").initCause(e);
             }
         }
     }
 
+
+    public void addWebService(String contextPath, WebServiceInvoker webServiceInvoker) throws Exception {
+        contextPathToWSMap.put(contextPath, webServiceInvoker);
+    }
+
+    public void removeWebService(String contextPath) {
+        contextPathToWSMap.remove(contextPath);
+    }
 }

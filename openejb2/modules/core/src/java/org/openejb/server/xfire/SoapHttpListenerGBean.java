@@ -53,6 +53,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.webservices.WebServiceContainer;
 import org.openejb.server.httpd.HttpRequest;
 import org.openejb.server.httpd.HttpResponse;
 
@@ -61,32 +62,29 @@ public class SoapHttpListenerGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SoapHttpListener.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(SoapHttpListener.class);
 
-        infoFactory.addOperation("onMessage", new Class[]{HttpRequest.class, HttpResponse.class});
-        infoFactory.addReference("WSContainerIndex", WSContainerIndex.class);
+        infoBuilder.addOperation("onMessage", new Class[]{HttpRequest.class, HttpResponse.class});
+        infoBuilder.addInterface(WebServiceContainer.class);
 
-        infoFactory.setConstructor(new String[]{"WSContainerIndex"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 
-    public static ObjectName addGBean(Kernel kernel, String name, ObjectName containerIndex) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-        GBeanData gbean = createGBean(name, containerIndex);
+    public static ObjectName addGBean(Kernel kernel, String name) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+        GBeanData gbean = createGBean(name);
         kernel.loadGBean(gbean, SoapHttpListener.class.getClassLoader());
         kernel.startGBean(gbean.getName());
         return gbean.getName();
     }
 
-    public static GBeanData createGBean(String name, ObjectName containerIndex) {
+    public static GBeanData createGBean(String name) {
         ObjectName gbeanName = JMXUtil.getObjectName("openejb:type=SoapHttpListener,name=" + name);
 
         GBeanData gbean = new GBeanData(gbeanName, SoapHttpListenerGBean.GBEAN_INFO);
-        gbean.setReferencePattern("WSContainerIndex", containerIndex);
 
         return gbean;
     }

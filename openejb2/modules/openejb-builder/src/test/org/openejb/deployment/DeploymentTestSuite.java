@@ -153,9 +153,10 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         Thread.currentThread().setContextClassLoader(cl);
 
         try {
+            ObjectName listener = null;
             OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator(cl);
             skeletonGenerator.doStart();
-            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, skeletonGenerator, null);
+            OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, skeletonGenerator, null);
 
             tempDir = DeploymentUtil.createTempDir();
             EARConfigBuilder earConfigBuilder = new EARConfigBuilder(KernelHelper.DEFAULT_PARENTID,

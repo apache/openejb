@@ -293,10 +293,6 @@ by the server.
         <reference name="Listener">openejb:type=SoapHttpListener</reference>
     </gbean>
     <gbean name="openejb:type=SoapHttpListener" class="org.openejb.server.xfire.SoapHttpListenerGBean">
-        <reference name="WSContainerIndex">openejb:type=WSContainerIndex</reference>
-    </gbean>
-    <gbean name="openejb:type=WSContainerIndex" class="org.openejb.server.xfire.WSContainerIndexGBean">
-        <reference name="WSContainers">openejb:type=WSContainer,*</reference>
     </gbean>
 
     <!-- JSR77 Management Objects -->
@@ -339,6 +335,7 @@ by the server.
 
     <gbean namePart="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
+        <attribute name="listener">openejb:type=SoapHttpListener</attribute>
         <reference name="SkeletonGenerator">openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</reference>>
         <reference name="Repository">*:name=Repository,*</reference>
     </gbean>

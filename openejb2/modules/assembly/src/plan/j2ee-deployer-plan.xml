@@ -133,6 +133,7 @@ Configuration for the Geronimo deployer
 
     <gbean namePart="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
+        <attribute name="listener">openejb:type=SoapHttpListener</attribute>
 <!--        <reference name="SkeletonGenerator">openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</reference>-->
         <reference name="Repository">*:name=Repository,*</reference>
     </gbean>

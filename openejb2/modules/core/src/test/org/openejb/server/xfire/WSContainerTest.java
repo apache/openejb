@@ -102,15 +102,13 @@ public class WSContainerTest extends TestCase {
 
 
         ObjectName ejbContainer = MockEJBContainer.addGBean(kernel, "MockEJB");
-        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, getDefinition(wsdlURL), new URI("/test/service"), wsdlURL, "urn:testing", "encoded", "rpc");
-        ObjectName index = WSContainerIndexGBean.addGBean(kernel, "HTTPSOAP", wsContainer);
-        ObjectName listener = SoapHttpListenerGBean.addGBean(kernel, "HTTPSOAP", index);
+        ObjectName listener = SoapHttpListenerGBean.addGBean(kernel, "HTTPSOAP");
+        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, listener, getDefinition(wsdlURL), new URI("/test/service"), wsdlURL, "urn:testing", "encoded", "rpc");
         ObjectName server = HttpServerGBean.addGBean(kernel, "HTTPSOAP", listener);
         ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTPSOAP", 0, InetAddress.getByName("localhost"), null, 1, 5, null, null, server);
 
         assertRunning(kernel, ejbContainer);
         assertRunning(kernel, wsContainer);
-        assertRunning(kernel, index);
         assertRunning(kernel, listener);
         assertRunning(kernel, server);
         assertRunning(kernel, stack);
@@ -143,15 +141,13 @@ public class WSContainerTest extends TestCase {
         URL wsdlURL = new File("target/test-ejb-jar/META-INF/wsdl/test-ejb.wsdl").toURL();
 
         ObjectName ejbContainer = MockEJBContainerGBean.addGBean(kernel, new File("target/test-ejb-jar").toURL(), "SimpleEJB", "org.openejb.test.simple.slsb.SimpleStatelessSessionEJB", "org.openejb.test.simple.slsb.SimpleStatelessSessionHome", "org.openejb.test.simple.slsb.SimpleStatelessSession", "org.openejb.test.simple.slsb.SimpleStatelessSessionLocalHome", "org.openejb.test.simple.slsb.SimpleStatelessSessionLocal", "org.openejb.test.simple.slsb.SimpleStatelessSessionEndpoint");
-        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, getDefinition(wsdlURL), new URI("/services/Simple"), wsdlURL, "urn:testing", "encoded", "rpc");
-        ObjectName index = WSContainerIndexGBean.addGBean(kernel, "HTTPSOAP", wsContainer);
-        ObjectName listener = SoapHttpListenerGBean.addGBean(kernel, "HTTPSOAP", index);
+        ObjectName listener = SoapHttpListenerGBean.addGBean(kernel, "HTTPSOAP");
+        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, listener, getDefinition(wsdlURL), new URI("/services/Simple"), wsdlURL, "urn:testing", "encoded", "rpc");
         ObjectName server = HttpServerGBean.addGBean(kernel, "HTTPSOAP", listener);
         ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTPSOAP", 0, InetAddress.getByName("localhost"), null, 1, 5, null, null, server);
 
         assertRunning(kernel, ejbContainer);
         assertRunning(kernel, wsContainer);
-        assertRunning(kernel, index);
         assertRunning(kernel, listener);
         assertRunning(kernel, server);
         assertRunning(kernel, stack);

@@ -184,7 +184,7 @@ public class EJBQLTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, null, repository);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, null, null, repository);
         CMPEntityBuilderTestUtil builder = new CMPEntityBuilderTestUtil(moduleBuilder);
         File tempDir = DeploymentUtil.createTempDir();
 
