@@ -102,7 +102,9 @@
     </copy>
     
     <replace file="${build.testsuite.dest}/MANIFEST.MF" token="$$VERSION$$" value="${version}"/>
-  
+    <replace file="${build.testsuite.dest}/MANIFEST.MF" token="$$MAIN-CLASS$$" 
+             value="org.openejb.test.TestRunner"/>
+
   </target>
   
   <!-- ================================================================== -->

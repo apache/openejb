@@ -122,7 +122,13 @@ _test_intravm()
    echo " "
    echo "Running EJB compliance tests on IntraVM Server"
    echo "_________________________________________________"
-   ./bin/test.sh src/tests-ejb/IvmServer_config.properties org.openejb.test.IvmTestServer
+   
+   PROPERTIES="-Dopenejb.testsuite.properties=src/tests-ejb/IvmServer_config.properties"
+   SERVER="-Dopenejb.test.server=org.openejb.test.IvmTestServer"
+   DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
+   SUITE="org.openejb.test.ClientTestSuite"
+   
+   java $PROPERTIES $SERVER $DATABASE $OPTIONS -jar dist/openejb_ejb_tests-1.0.jar $SUITE
 }
 #================================================
 _test_server()
@@ -132,7 +138,13 @@ _test_server()
    echo " "
    echo "Running EJB compliance tests on Remote Server"
    echo "_________________________________________________"
-   ./bin/test.sh src/tests-ejb/RemoteServer_config.properties org.openejb.test.RemoteTestServer
+
+   PROPERTIES="-Dopenejb.testsuite.properties=src/tests-ejb/RemoteServer_config.properties"
+   SERVER="-Dopenejb.test.server=org.openejb.test.RemoteTestServer"
+   DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
+   SUITE="org.openejb.test.ClientTestSuite"
+
+   java $PROPERTIES $SERVER $DATABASE $OPTIONS -jar dist/openejb_ejb_tests-1.0.jar $SUITE 
 }
 #============================================================
 _test_corba()
