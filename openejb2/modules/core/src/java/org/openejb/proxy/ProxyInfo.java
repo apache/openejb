@@ -59,6 +59,7 @@ public class ProxyInfo implements Serializable {
     private final Class homeInterface;
     private final Class localObjectInterface;
     private final Class localHomeInterface;
+    private final Class serviceEndpointInterface;
     private final Class primaryKeyClass;
     
 
@@ -69,6 +70,7 @@ public class ProxyInfo implements Serializable {
         this.remoteInterface = info.remoteInterface;
         this.localHomeInterface = info.localHomeInterface;
         this.localObjectInterface = info.localObjectInterface;
+        this.serviceEndpointInterface = info.serviceEndpointInterface;
         this.primaryKeyClass = info.primaryKeyClass;
         this.primaryKey = primaryKey;
     }
@@ -80,6 +82,7 @@ public class ProxyInfo implements Serializable {
             Class remoteInterface,
             Class localHomeInterface,
             Class localObjectInterface,
+            Class serviceEndpointInterface,
             Class primaryKeyClass) {
 
         this.componentType = componentType;
@@ -88,6 +91,7 @@ public class ProxyInfo implements Serializable {
         this.remoteInterface = remoteInterface;
         this.localHomeInterface = localHomeInterface;
         this.localObjectInterface = localObjectInterface;
+        this.serviceEndpointInterface = serviceEndpointInterface;
         this.primaryKeyClass = primaryKeyClass;
         this.primaryKey = null;
     }
