@@ -47,10 +47,12 @@
  */
 package org.openejb.nova.dispatch;
 
+import javax.security.jacc.EJBMethodPermission;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.security.Permission;
 
 import net.sf.cglib.reflect.FastClass;
 import org.openejb.nova.dispatch.MethodSignature;
@@ -194,6 +196,34 @@ public final class MethodHelper {
 
     public static Map getObjectMethodMap(MethodSignature[] signatures, Class homeClass) {
         return getMethodMap(homeClass, translateObject(signatures));
+    }
+
+    public static Permission[] generatePermissions(String ejbName, MethodSignature[] signatures) {
+        Permission[] result = new Permission[5*signatures.length];
+        MethodSignature signature;
+
+        for (int i=0; i<signatures.length; i++) {
+            signature = signatures[i];
+            result[i] = new EJBMethodPermission(ejbName, signature.getMethodName(), "Remote", signature.getParameterTypes());
+        }
+        for (int i=0; i<signatures.length; i++) {
+            signature = signatures[i];
+            result[signatures.length+i] = new EJBMethodPermission(ejbName, signature.getMethodName(), "Home", signature.getParameterTypes());
+        }
+        for (int i=0; i<signatures.length; i++) {
+            signature = signatures[i];
+            result[2*signatures.length+i] = new EJBMethodPermission(ejbName, signature.getMethodName(), "Local", signature.getParameterTypes());
+        }
+        for (int i=0; i<signatures.length; i++) {
+            signature = signatures[i];
+            result[3*signatures.length+i] = new EJBMethodPermission(ejbName, signature.getMethodName(), "LocalHome", signature.getParameterTypes());
+        }
+        for (int i=0; i<signatures.length; i++) {
+            signature = signatures[i];
+            result[4*signatures.length+i] = new EJBMethodPermission(ejbName, signature.getMethodName(), "ServiceEndpoint", signature.getParameterTypes());
+        }
+
+        return result;
     }
 
     private static Map getMethodMap(Class homeClass, MethodSignature[] signatures) {
