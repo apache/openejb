@@ -44,14 +44,13 @@
  */
 package org.openejb.corba.security.config.tss;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.io.ByteArrayInputStream;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.pool.ThreadPool;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -162,7 +161,7 @@ public class TSSConfigEditorTest extends TestCase {
         ClassLoader classLoader = getClass().getClassLoader();
         ThreadPool threadPool = new ThreadPool(10, "foo", 1000, classLoader);
         String configAdapter = "org.openejb.corba.openorb.OpenORBConfigAdapter";
-        CORBABean corbaBean = new CORBABean(configAdapter, classLoader, threadPool, null);
+        CORBABean corbaBean = new CORBABean(configAdapter, classLoader, threadPool, null, null);
         ArrayList args = new ArrayList();
         args.add("-ORBPort");
         args.add("6683");
