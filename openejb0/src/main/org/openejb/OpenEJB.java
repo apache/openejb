@@ -200,7 +200,7 @@ public final class OpenEJB {
            Default is org.openejb.core.conf.Assembler*/
         String className = props.getProperty( EnvProps.ASSEMBLER );
         if ( className == null ) {
-            className = props.getProperty( "openejb.assembler", "org.openejb.alt.assembler.classic.Assembler" );
+            className = props.getProperty( "openejb.assembler", "org.openejb.alt.assembler.dynamic.DynamicAssembler" );
         } else {
             logger.i18n.warning( "startup.deprecatedPropertyName", EnvProps.ASSEMBLER );
         }
