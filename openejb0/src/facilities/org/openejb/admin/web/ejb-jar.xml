@@ -107,5 +107,14 @@
     <session-type>Stateful</session-type>
     <transaction-type>Bean</transaction-type>
   </session>
+  <session>
+    <description>Allows the user to build a skeleton for their EJB</description>
+    <ejb-name>webadmin/EJBGenerator</ejb-name>
+    <home>org.openejb.admin.web.HttpHome</home>
+    <remote>org.openejb.admin.web.HttpObject</remote>
+    <ejb-class>org.openejb.admin.web.ejbgen.EJBGenBean</ejb-class>
+    <session-type>Stateless</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
 </enterprise-beans>
 </ejb-jar>
