@@ -91,7 +91,7 @@
   
   <target name="env" depends="check_available">
     <tstamp/>
-
+<!--
     <echo message="version                = ${version}"/>
     <echo message="DSTAMP                 = ${DSTAMP}"/>
     <echo message="TSTAMP                 = ${TSTAMP}"/>
@@ -128,6 +128,7 @@
     <echo message="junit.jar              = ${junit.jar}"/>
     <echo message="jakarta.regexp.jar     = ${jakarta.regexp.jar}"/>
     <echo message="xalan.jar              = ${xalan.jar}"/>    
+-->  
   </target>
 
   <!-- ================================================================== -->
@@ -332,36 +333,6 @@
       property="jdk13"
       classname="java.lang.reflect.Proxy"
       classpathref="project.classpath"
-    />
-    
-    <available
-      property="build-corba.present"
-      file="src/build-corba.xml"
-    />
-    
-    <available
-      property="build-openejb.present"
-      file="src/build-openejb.xml"
-    />
-    
-    <available
-      property="build-openejb-server.present"
-      file="src/build-openejb-server.xml"
-    />
-    
-    <available
-      property="build-ri-client.present"
-      file="src/build-ri-client.xml"
-    />
-    
-    <available
-      property="build-ri-server.present"
-      file="src/build-ri-server.xml"
-    />
-    
-    <available
-      property="build-testsuite.present"
-      file="src/build-testsuite.xml"
     />
     
   </target>  
@@ -1084,111 +1055,63 @@
           src="dist/${project}-${version}-doc.tar"/>
   
   </target>
-  
-  <target name="delegate-openejb" if="build-openejb.present">
-    <ant antfile="src/build-openejb.xml" target="${target.name}">
-      <property file="build.properties"/>
-      
-      <property name="build.src" value="${build.src}"/>
-      <property name="build.dest" value="${build.dest}"/>
-      <property name="src.java.dir" value="${src.java.dir}"/>
-      <property name="src.doc.dir" value="${src.doc.dir}"/>
-      <property name="dest.doc.dir" value="${dest.doc.dir}"/>
-      <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="final.name" value="${final.name}"/>
-      <property name="final.dir" value="${final.dir}/"/>
-    </ant>
-  </target>
-  
-  <target name="delegate-openejb-server" if="build-openejb-server.present">
-    <ant antfile="src/build-openejb-server.xml" target="${target.name}">
-      <property file="build.properties"/>
-      
-      <property name="build.src" value="${build.src}"/>
-      <property name="build.dest" value="${build.dest}"/>
-      <property name="src.java.dir" value="${src.java.dir}"/>
-      <property name="src.doc.dir" value="${src.doc.dir}"/>
-      <property name="dest.doc.dir" value="${dest.doc.dir}"/>
-      <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="final.name" value="${final.name}"/>
-      <property name="final.dir" value="${final.dir}/"/>
-    </ant>
-  </target>
-  
-  <target name="delegate-corba" if="build-corba.present">
-    <ant antfile="src/build-corba.xml" target="${target.name}">
-      <property file="build.properties"/>
-      
-      <property name="build.src" value="${build.src}"/>
-      <property name="build.dest" value="${build.dest}"/>
-      <property name="src.java.dir" value="${src.java.dir}"/>
-      <property name="src.doc.dir" value="${src.doc.dir}"/>
-      <property name="dest.doc.dir" value="${dest.doc.dir}"/>
-      <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="final.name" value="${final.name}"/>
-      <property name="final.dir" value="${final.dir}/"/>
-    </ant>
-  </target>
-  
-  <target name="delegate-ri-client" if="build-ri-client.present">
-    <ant antfile="src/build-ri-client.xml" target="${target.name}">
-      <property file="build.properties"/>
-      
-      <property name="build.src" value="${build.src}"/>
-      <property name="build.dest" value="${build.dest}"/>
-      <property name="src.java.dir" value="${src.java.dir}"/>
-      <property name="src.doc.dir" value="${src.doc.dir}"/>
-      <property name="dest.doc.dir" value="${dest.doc.dir}"/>
-      <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="final.name" value="${final.name}"/>
-      <property name="final.dir" value="${final.dir}/"/>
-    </ant>
-  </target>
-  
-  <target name="delegate-ri-server" if="build-ri-server.present">
-    <ant antfile="src/build-ri-server.xml" target="${target.name}">
-      <property file="build.properties"/>
-      
-      <property name="build.src" value="${build.src}"/>
-      <property name="build.dest" value="${build.dest}"/>
-      <property name="src.java.dir" value="${src.java.dir}"/>
-      <property name="src.doc.dir" value="${src.doc.dir}"/>
-      <property name="dest.doc.dir" value="${dest.doc.dir}"/>
-      <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="final.name" value="${final.name}"/>
-      <property name="final.dir" value="${final.dir}/"/>
-    </ant>
-  </target>
-  
-  <target name="delegate-testsuite" if="build-testsuite.present">
-    <ant antfile="src/build-testsuite.xml" target="${target.name}">
-      <property file="build.properties"/>
-      
-      <property name="build.src" value="${build.src}"/>
-      <property name="build.dest" value="${build.dest}"/>
-      <property name="src.java.dir" value="${src.java.dir}"/>
-      <property name="src.doc.dir" value="${src.doc.dir}"/>
-      <property name="dest.doc.dir" value="${dest.doc.dir}"/>
-      <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="final.name" value="${final.name}"/>
-      <property name="final.dir" value="${final.dir}/"/>
-    </ant>
-  </target>
 
   <target name="delegate">
   
-    <antcall target="delegate-openejb" />
+    <antcall target="pre-delegate">
+        <param name="module" value="openejb"/>
+    </antcall>    
     
-    <antcall target="delegate-openejb-server" />
+    <antcall target="pre-delegate">
+        <param name="module" value="openejb-server"/>
+    </antcall>    
     
-    <antcall target="delegate-corba" />
+    <antcall target="pre-delegate">
+        <param name="module" value="corba"/>
+    </antcall>    
     
-    <antcall target="delegate-ri-client" />
+    <antcall target="pre-delegate">
+        <param name="module" value="ri-client"/>
+    </antcall>    
     
-    <antcall target="delegate-ri-server" />
+    <antcall target="pre-delegate">
+        <param name="module" value="ri-server"/>
+    </antcall>    
     
-    <antcall target="delegate-testsuite" />
+    <antcall target="pre-delegate">
+        <param name="module" value="testsuite"/>
+    </antcall>    
+    
+    <antcall target="pre-delegate">
+        <param name="module" value="unit-tests"/>
+    </antcall>    
 
+  </target>
+  
+  <target name="pre-delegate">
+    <available
+      property="build-${module}.present"
+      file="src/build-${module}.xml"
+    />
+    
+    <antcall target="post-delegate" />
+  </target>
+
+  <target name="post-delegate" if="build-${module}.present">
+    <echo message="${target.name}   ${module}"/>
+    
+    <ant antfile="src/build-${module}.xml" target="${target.name}">
+      <property file="build.properties"/>
+      
+      <property name="build.src" value="${build.src}"/>
+      <property name="build.dest" value="${build.dest}"/>
+      <property name="src.java.dir" value="${src.java.dir}"/>
+      <property name="src.doc.dir" value="${src.doc.dir}"/>
+      <property name="dest.doc.dir" value="${dest.doc.dir}"/>
+      <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
+      <property name="final.name" value="${final.name}"/>
+      <property name="final.dir" value="${final.dir}/"/>
+    </ant>
   </target>
   
 </project>

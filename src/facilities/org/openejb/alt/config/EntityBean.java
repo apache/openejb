@@ -44,20 +44,68 @@
  */
 package org.openejb.alt.config;
 
+import org.openejb.alt.config.ejb11.*;
+
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
-interface ProviderDefaults {
+public class EntityBean implements Bean {
+    
+    Entity bean;
+    String type;
+    
+    EntityBean(Entity bean) {
+        this.bean = bean;
+        if ( bean.getPersistenceType().equals("Container") ) {
+            type = CMP_ENTITY;
+        } else {
+            type = BMP_ENTITY;
+        }
+    }
 
-    public static final String DEFAULT_CMP_CONTAINER         = "Default CMP Container";              
-    public static final String DEFAULT_BMP_CONTAINER         = "Default BMP Container";              
-    public static final String DEFAULT_STATELESS_CONTAINER   = "Default Stateless Container";        
-    public static final String DEFAULT_STATEFUL_CONTAINER    = "Default Stateful Container";         
-    public static final String DEFAULT_JDK_12_PROXYFACTORY   = "Default JDK 1.2 ProxyFactory";       
-    public static final String DEFAULT_JDK_13_PROXYFACTORY   = "Default JDK 1.3 ProxyFactory";       
-    public static final String DEFAULT_SECURITY_SERVICE      = "Default Security Service";           
-    public static final String DEFAULT_TRANSACTION_MANAGER   = "Default Transaction Manager";        
-    public static final String DEFAULT_JDBC_DATABASE         = "Default JDBC Database";              
-    public static final String DEFAULT_LOCAL_TX_CON_MANAGER  = "Default Local TX ConnectionManager"; 
+    public String getType() {
+        return type;
+    }
+    
+    public Object getBean() {
+        return bean;
+    }
+
+    public String getEjbName(){
+        return bean.getEjbName();
+    }
+
+    public String getEjbClass(){
+        return bean.getEjbClass();
+    }
+
+    public String getHome(){
+        return bean.getHome();
+    }
+
+    public String getRemote(){
+        return bean.getRemote();
+    }
+
+    public String getPrimaryKey(){
+        return bean.getPrimKeyClass();
+    }
+
+    public EjbRef[] getEjbRef(){
+        return bean.getEjbRef();
+    }
+
+    public EnvEntry[] getEnvEntry(){
+        return bean.getEnvEntry();
+    }
+
+    public ResourceRef[] getResourceRef(){
+        return bean.getResourceRef();
+    }
+
+    public SecurityRoleRef[] getSecurityRoleRef(){
+        return bean.getSecurityRoleRef();
+    }
 
 }
+
