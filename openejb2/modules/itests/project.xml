@@ -68,13 +68,6 @@
 
         <dependency>
             <groupId>openejb</groupId>
-            <artifactId>openejb-itests-ejb</artifactId>
-            <version>${pom.currentVersion}</version>
-            <type>ejb</type>
-        </dependency>
-
-        <dependency>
-            <groupId>openejb</groupId>
             <artifactId>openejb-assembly</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
