@@ -118,7 +118,8 @@ public class BeanPolicy {
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
                     if (beanContext != transactionContextManager.getContext()) {
-                        throw new UncommittedTransactionException("Support for transactions held between invocations is not supported");
+//                        throw new UncommittedTransactionException("Support for transactions held between invocations is not supported");
+                        new UncommittedTransactionException("Support for transactions held between invocations is not supported").printStackTrace();
                     }
                     beanContext.commit();
                     return result;
