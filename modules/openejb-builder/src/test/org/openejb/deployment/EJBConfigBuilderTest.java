@@ -338,7 +338,7 @@ public class EJBConfigBuilderTest extends TestCase {
             // load the configuration
             ObjectName objectName = ObjectName.getInstance("test:configuration=test-ejb-jar");
             kernel.loadGBean(objectName, config);
-            config.setAttribute("baseURL", tempDir.toURL());
+            kernel.setAttribute(objectName, "baseURL", tempDir.toURL());
 
             // start the configuration
             kernel.startRecursiveGBean(objectName);
