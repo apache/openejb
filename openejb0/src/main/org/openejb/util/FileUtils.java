@@ -118,11 +118,11 @@ public class FileUtils{
         return dir;
     }	
 
-    public File getFile(String path) throws java.io.FileNotFoundException, java.io.IOException{
+    public File getFile(String path) throws java.io.FileNotFoundException {
         return getFile(path, true);
     }	
 
-    public File getFile(String path, boolean validate) throws java.io.FileNotFoundException, java.io.IOException{
+    public File getFile(String path, boolean validate) throws java.io.FileNotFoundException {
         File file = null;
         
         file = new File(path);
