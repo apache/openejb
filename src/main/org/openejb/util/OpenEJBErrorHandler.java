@@ -96,9 +96,7 @@ public class OpenEJBErrorHandler {
         pw.close();
         // }
 
-        OpenEJBException exception = new OpenEJBException( _messages.format( "ge0001", systemLocation, new String(baos.toByteArray()) ) );
-
-        _logger.i18n.error("ge0001", exception);
+        _logger.i18n.error("ge0001", systemLocation, new String(baos.toByteArray()));
 
         /*
          * An error broadcasting system is under development.
@@ -261,7 +259,7 @@ public class OpenEJBErrorHandler {
      * @param exceptionClassName    replaces {3} in the error message.
      * @param message               replaces {4} in the error message.
      */
-    public static void classNotIntantiateableFromCodebaseForUnknownReason(String systemLocation, String className, String codebase, String exceptionClassName, String message) 
+    public static void classNotIntantiateableFromCodebaseForUnknownReason(String systemLocation, String className, String codebase, String exceptionClassName, String message)
 	throws OpenEJBException
     {
         throw new OpenEJBException( _messages.format( "ge0012", systemLocation, className, codebase, exceptionClassName, message ) );
@@ -270,14 +268,14 @@ public class OpenEJBErrorHandler {
     /**
      * The {0} cannot locate the class {1}, the codebase '{2}' cannot
      * be accessed. Received message: {3}"
-     * 
+     *
      * @param systemLocation
      *                  replaces {0} in the error message.
      * @param className replaces {1} in the error message.
      * @param codebase  replaces {2} in the error message.
-     *                  
+     *
      * @param e         e.getMessage() replaces {3} in the error message.
-     *                  
+     *
      * @exception OpenEJBException
      */
     public static void classCodebaseNotFound(String systemLocation, String className, String codebase, Exception e) throws OpenEJBException{
