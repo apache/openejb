@@ -45,59 +45,54 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.sfsb;
 
-import java.util.HashMap;
-import java.util.Map;
-import javax.sql.DataSource;
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 
-import org.openejb.dispatch.MethodSignature;
-import org.openejb.persistence.QueryCommand;
-import org.openejb.persistence.UpdateCommand;
-import org.openejb.persistence.jdbc.Binding;
-import org.openejb.persistence.jdbc.JDBCQueryCommand;
-import org.openejb.persistence.jdbc.JDBCUpdateCommand;
-import org.openejb.persistence.jdbc.JDBCCallCommand;
+import org.openejb.AbstractInterceptorBuilder;
+import org.openejb.ConnectionTrackingInterceptor;
+import org.openejb.SystemExceptionInterceptor;
+import org.openejb.dispatch.DispatchInterceptor;
+import org.openejb.security.EJBIdentityInterceptor;
+import org.openejb.security.EJBRunAsInterceptor;
+import org.openejb.security.EJBSecurityInterceptor;
+import org.openejb.security.PolicyContextHandlerEJBInterceptor;
+import org.openejb.transaction.TransactionContextInterceptor;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
-public class SimpleCommandFactory implements CMPCommandFactory {
-    private final DataSource ds;
-    private final Map commandMap = new HashMap();
-    private final Map containerMap = new HashMap();
+public class StatefulInterceptorBuilder extends AbstractInterceptorBuilder {
+    public Interceptor buildInterceptorChain() {
+        if (transactionManager == null) {
+            throw new IllegalStateException("Transaction manager must be set before building the interceptor chain");
+        }
+        if (instancePool == null) {
+            throw new IllegalStateException("Pool must be set before building the interceptor chain");
+        }
 
-    public SimpleCommandFactory(DataSource ds) {
-        this.ds = ds;
-    }
-
-    public void defineQuery(MethodSignature signature, String sql, Binding[] inputBindings, Binding[] outputBindings) {
-        commandMap.put(signature, new JDBCQueryCommand(ds, sql, inputBindings, outputBindings));
-    }
-
-    public void defineUpdate(MethodSignature signature, String sql, Binding[] inputBindings) {
-        commandMap.put(signature, new JDBCUpdateCommand(ds, sql, inputBindings));
-    }
-
-    public void defineCall(MethodSignature signature, String sql, Binding[] inputBindings, Binding[] outputBindings) {
-        commandMap.put(signature, new JDBCCallCommand(ds, sql, inputBindings, outputBindings));
-    }
-
-    public void defineContainer(String abstractSchemaName, CMPEntityContainer container) {
-        containerMap.put(abstractSchemaName, container);
-    }
-
-    public QueryCommand getQueryCommand(MethodSignature signature) {
-        return (JDBCQueryCommand) commandMap.get(signature);
-    }
-
-    public UpdateCommand getUpdateCommand(MethodSignature signature) {
-        return (JDBCUpdateCommand) commandMap.get(signature);
-    }
-
-    public CMPEntityContainer getContainer(String abstractSchemaName) {
-        return (CMPEntityContainer) containerMap.get(abstractSchemaName);
+        Interceptor firstInterceptor;
+        firstInterceptor = new DispatchInterceptor(vtable);
+        if (trackedConnectionAssociator != null) {
+            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources);
+        }
+        if (setIdentityEnabled) {
+            firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
+        }
+        if (securityEnabled) {
+            firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, containerId, permissionManager);
+        }
+        if (runAs != null) {
+            firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);
+        }
+        if (securityEnabled) {
+            firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
+        }
+        firstInterceptor = new StatefulInstanceInterceptor(firstInterceptor, containerId, instanceFactory, instanceCache);
+        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, transactionPolicyManager);
+        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
+        firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
+        return firstInterceptor;
     }
 }

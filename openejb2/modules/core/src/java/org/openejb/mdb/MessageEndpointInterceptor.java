@@ -89,7 +89,8 @@ public class MessageEndpointInterceptor implements MethodInterceptor, EJBInterce
         this.container = container;
 
         objectFactory = new CglibEJBProxyFactory(MessageEndpointProxy.class, new Class[]{mdbInterface, MessageEndpoint.class});
-        operationMap = EJBProxyHelper.getOperationMap(EJBInterfaceType.LOCAL, objectFactory.getType(), signatures);
+//        operationMap = EJBProxyHelper.getOperationMap(EJBInterfaceType.LOCAL, objectFactory.getType(), signatures);
+        operationMap = null;
     }
 
     public MessageEndpoint getMessageEndpoint(XAResource resource) {

@@ -48,16 +48,12 @@
 package org.openejb;
 
 import java.lang.reflect.Method;
-
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 
 import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
-
-import org.openejb.transaction.EJBUserTransaction;
 
 /**
  * Interface exposed by server side EJB Containers to allow the interceptor
@@ -80,12 +76,6 @@ public interface EJBContainer extends Interceptor {
      * @return the name of the EJB
      */
     String getEJBName();
-
-    /**
-     * Return the implementation class
-     * @return the EJB's implementation class
-     */
-    Class getBeanClass();
 
     /**
      * Return a proxy for the EJB's home interface. This can be passed back
@@ -120,30 +110,12 @@ public interface EJBContainer extends Interceptor {
     EJBLocalObject getEJBLocalObject(Object primaryKey);
 
     /**
-     * Return the type of transaction demarcation this EJB is using.
-     * @see org.openejb.TransactionDemarcation
-     * @return this EJB's demaraction mechanism
+     * Legacy invoke method for openejb 1.0 code
+     * @param callMethod the method object for the method called on the interface
+     * @param args arguemnts to the method
+     * @param primKey primary key of the instance to invoke
+     * @return the return value
+     * @throws Throwable if a problem occurs while calling the bean
      */
-    TransactionDemarcation getDemarcation();
-    
-    /**
-     * Return's the type of EJB component this contianer is represents
-     * The constants are from EJBComponentType
-     * @return appropriate constant from EJBComponentType
-     */
-    int getComponentType();
-    
-    /**
-     * Return the UserTransaction implementation for this EJB.
-     * @return this EJB's UserTransaction; null if using CMT
-     */
-    EJBUserTransaction getUserTransaction();
-
-    /**
-     * Return the JNDI Context for java:comp/env
-     * @return this EJB's JNDI ComponentContext
-     */
-    ReadOnlyContext getComponentContext();
-    
     Object invoke(Method callMethod, Object[] args, Object primKey) throws Throwable;
 }

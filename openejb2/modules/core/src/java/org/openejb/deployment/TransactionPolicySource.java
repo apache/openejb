@@ -47,7 +47,7 @@
  */
 package org.openejb.deployment;
 
-import org.openejb.dispatch.MethodSignature;
+import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.TransactionPolicy;
 
 /**
@@ -57,5 +57,5 @@ import org.openejb.transaction.TransactionPolicy;
  *
  * */
 public interface TransactionPolicySource {
-    TransactionPolicy getTransactionPolicy(String methodIntf, MethodSignature signature);
+    TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature);
 }

@@ -47,17 +47,16 @@
  */
 package org.openejb.sfsb;
 
-import java.io.Serializable;
 import javax.ejb.SessionBean;
 
-import net.sf.cglib.reflect.FastClass;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openejb.EJBInstanceFactoryImpl;
-import org.openejb.EJBOperation;
-import org.openejb.cache.InstanceFactory;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
+
+import org.openejb.EJBOperation;
+import org.openejb.InstanceContextFactory;
+import org.openejb.cache.InstanceFactory;
 
 
 /**
@@ -72,15 +71,11 @@ public class StatefulInstanceFactory implements InstanceFactory {
     private static final Log log = LogFactory.getLog(StatefulInstanceFactory.class);
 
     private final ReadOnlyContext componentContext;
-    private final StatefulContainer container;
-    private final EJBInstanceFactoryImpl factory;
+    private final InstanceContextFactory factory;
 
-    public StatefulInstanceFactory(ReadOnlyContext componentContext, StatefulContainer container) {
+    public StatefulInstanceFactory(ReadOnlyContext componentContext, InstanceContextFactory factory) {
         this.componentContext = componentContext;
-        this.container = container;
-
-        FastClass implClass = FastClass.create(container.getBeanClass());
-        factory = new EJBInstanceFactoryImpl(implClass);
+        this.factory = factory;
     }
 
     public Object createInstance() throws Exception {
@@ -90,9 +85,9 @@ public class StatefulInstanceFactory implements InstanceFactory {
             // Disassociate from JNDI Component Context whilst creating instance
             RootContext.setComponentContext(null);
 
-            // create the instance and wrap in a StatefulInstanceContext
-            SessionBean instance = (SessionBean) factory.newInstance();
-            StatefulInstanceContext ctx = new StatefulInstanceContext(container, instance, createInstanceId());
+            // create an EJBInstanceContext wrapping the raw instance
+            StatefulInstanceContext ctx = (StatefulInstanceContext) factory.newInstance();
+            SessionBean instance = (SessionBean) ctx.getInstance();
 
             // Activate this components JNDI Component Context
             RootContext.setComponentContext(componentContext);
@@ -130,35 +125,4 @@ public class StatefulInstanceFactory implements InstanceFactory {
             RootContext.setComponentContext(oldContext);
         }
     }
-
-    private static int nextId;
-    private StatefulInstanceId createInstanceId() {
-        synchronized(this) {
-            return new StatefulInstanceId(nextId++);
-        }
-    }
-
-    private static class StatefulInstanceId implements Serializable {
-        private final int id;
-
-        public StatefulInstanceId(int id) {
-            this.id = id;
-        }
-
-        public int hashCode() {
-            return id;
-        }
-
-        public boolean equals(Object object) {
-            if (object instanceof StatefulInstanceId) {
-                return id == ((StatefulInstanceId) object).id;
-            }
-            return false;
-        }
-
-        public String toString() {
-            return "StatefulInstanceId: " + id;
-        }
-    }
-
 }

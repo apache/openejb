@@ -48,11 +48,11 @@
 package org.openejb.entity.bmp;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import net.sf.cglib.reflect.FastClass;
 
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractMethodOperation;
+import org.openejb.dispatch.MethodSignature;
 import org.openejb.entity.EntityInstanceContext;
 
 /**
@@ -61,8 +61,8 @@ import org.openejb.entity.EntityInstanceContext;
  * @version $Revision$ $Date$
  */
 public class BMPRemoveMethod extends AbstractMethodOperation {
-    public BMPRemoveMethod(FastClass fastClass, int methodIndex) {
-        super(fastClass, methodIndex);
+    public BMPRemoveMethod(Class beanClass, MethodSignature signature) {
+        super(beanClass, signature);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {

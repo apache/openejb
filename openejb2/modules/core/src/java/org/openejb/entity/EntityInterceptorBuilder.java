@@ -45,21 +45,56 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.entity;
 
-import org.openejb.dispatch.MethodSignature;
-import org.openejb.persistence.QueryCommand;
-import org.openejb.persistence.UpdateCommand;
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.naming.java.ComponentContextInterceptor;
+
+import org.openejb.AbstractInterceptorBuilder;
+import org.openejb.ConnectionTrackingInterceptor;
+import org.openejb.SystemExceptionInterceptor;
+import org.openejb.dispatch.DispatchInterceptor;
+import org.openejb.security.EJBIdentityInterceptor;
+import org.openejb.security.EJBRunAsInterceptor;
+import org.openejb.security.EJBSecurityInterceptor;
+import org.openejb.security.PolicyContextHandlerEJBInterceptor;
+import org.openejb.transaction.TransactionContextInterceptor;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public interface CMPCommandFactory {
-    QueryCommand getQueryCommand(MethodSignature signature);
+public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
+    public Interceptor buildInterceptorChain() {
+        if (transactionManager == null) {
+            throw new IllegalStateException("Transaction manager must be set before building the interceptor chain");
+        }
+        if (instancePool == null) {
+            throw new IllegalStateException("Pool must be set before building the interceptor chain");
+        }
 
-    UpdateCommand getUpdateCommand(MethodSignature signature);
-
-    CMPEntityContainer getContainer(String abstractSchemaName);
+        Interceptor firstInterceptor;
+        firstInterceptor = new DispatchInterceptor(vtable);
+        if (trackedConnectionAssociator != null) {
+            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources);
+        }
+        if (setIdentityEnabled) {
+            firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
+        }
+        if (securityEnabled) {
+            firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, containerId, permissionManager);
+        }
+        if (runAs != null) {
+            firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);
+        }
+        if (securityEnabled) {
+            firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
+        }
+        firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, instancePool);
+        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
+        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, transactionPolicyManager);
+        firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
+        return firstInterceptor;
+    }
 }

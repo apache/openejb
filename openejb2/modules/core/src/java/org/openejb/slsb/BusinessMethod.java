@@ -48,12 +48,12 @@
 package org.openejb.slsb;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import net.sf.cglib.reflect.FastClass;
 
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractMethodOperation;
+import org.openejb.dispatch.MethodSignature;
 
 /**
  *
@@ -61,8 +61,8 @@ import org.openejb.dispatch.AbstractMethodOperation;
  * @version $Revision$ $Date$
  */
 public class BusinessMethod extends AbstractMethodOperation {
-    public BusinessMethod(FastClass fastClass, int methodIndex) {
-        super(fastClass, methodIndex);
+    public BusinessMethod(Class beanClass, MethodSignature signature) {
+        super(beanClass, signature);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {

@@ -60,6 +60,7 @@ import javax.xml.rpc.handler.MessageContext;
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
+import org.openejb.transaction.EJBUserTransaction;
 
 /**
  * Implementation of SessionContext using the State pattern to determine
@@ -68,14 +69,24 @@ import org.openejb.EJBOperation;
  * @version $Revision$ $Date$
  */
 public class StatelessSessionContext extends EJBContextImpl implements SessionContext {
-    public StatelessSessionContext(StatelessInstanceContext context) {
-        super(context);
+    public StatelessSessionContext(StatelessInstanceContext context, EJBUserTransaction userTransaction) {
+        super(context, userTransaction);
         state = StatelessSessionContext.INACTIVE;
     }
 
     void setState(EJBOperation operation) {
         state = states[operation.getOrdinal()];
         assert (state != null) : "Invalid EJBOperation for Stateless SessionBean, ordinal=" + operation.getOrdinal();
+
+        if(userTransaction != null) {
+            if (operation == EJBOperation.BIZMETHOD ||
+                    operation == EJBOperation.ENDPOINT ||
+                    operation == EJBOperation.TIMEOUT) {
+                userTransaction.setOnline(true);
+            } else {
+                userTransaction.setOnline(false);
+            }
+        }
     }
 
     public MessageContext getMessageContext() throws IllegalStateException {
@@ -109,11 +120,11 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("getCallerPrincipal() cannot be called when inactive");
         }
 
-        public boolean isCallerInRole(String s) {
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called when inactive");
         }
 
-        public UserTransaction getUserTransaction(EJBInstanceContext context) {
+        public UserTransaction getUserTransaction(UserTransaction userTransaction) {
             throw new IllegalStateException("getUserTransaction() cannot be called when inactive");
         }
 
@@ -147,11 +158,11 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("getCallerPrincipal() cannot be called from setSessionContext(SessionContext)");
         }
 
-        public boolean isCallerInRole(String s) {
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called from setSessionContext(SessionContext)");
         }
 
-        public UserTransaction getUserTransaction(EJBInstanceContext context) {
+        public UserTransaction getUserTransaction(UserTransaction userTransaction) {
             throw new IllegalStateException("getUserTransaction() cannot be called from setSessionContext(SessionContext)");
         }
 
@@ -177,7 +188,7 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("getCallerPrincipal() cannot be called from ejbCreate/ejbRemove");
         }
 
-        public boolean isCallerInRole(String s) {
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called from ejbCreate/ejbRemove");
         }
 
@@ -206,7 +217,7 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("getCallerPrincipal() cannot be called in a business method invocation from a web-service endpoint");
         }
 
-        public boolean isCallerInRole(String s) {
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called in a business method invocation from a web-service endpoint");
         }
     };
@@ -216,7 +227,7 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("getCallerPrincipal() cannot be called from ejbTimeout");
         }
 
-        public boolean isCallerInRole(String s) {
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called from ejbTimeout");
         }
 

@@ -51,40 +51,48 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
+import javax.ejb.EJBObject;
+import javax.ejb.Handle;
 
 import net.sf.cglib.reflect.FastClass;
-
-import org.openejb.EJBInterfaceType;
+import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodHelper;
-import org.openejb.dispatch.MethodSignature;
 
 /**
  * @version $Revision$ $Date$
  */
 public class EJBProxyHelper {
-    public static int[] getOperationMap(EJBInterfaceType ejbInvocationType, Class proxyType, MethodSignature[] signatures) {
-        // translate the method names
-        MethodSignature[] translated;
-        if (ejbInvocationType == EJBInterfaceType.HOME || ejbInvocationType == EJBInterfaceType.LOCALHOME) {
-            translated = MethodHelper.translateToHome(signatures);
-        } else if (ejbInvocationType == EJBInterfaceType.REMOTE || ejbInvocationType == EJBInterfaceType.LOCAL) {
-            translated = MethodHelper.translateToObject(signatures);
+    public static Object getPrimaryKey(Handle h) {
+        HandleImpl handle = (HandleImpl)h;
+        EJBObject ejbObject = handle.getEJBObject();
+        EJBMethodInterceptor ejbHandler = ((BaseEJB)ejbObject).ejbHandler;
+        return ejbHandler.getPrimaryKey();
+    }
+
+    public static int[] getOperationMap(Class proxyType, InterfaceMethodSignature[] signatures) {
+        boolean isHomeInterface;
+        if(EJBHome.class.isAssignableFrom(proxyType) || EJBLocalHome.class.isAssignableFrom(proxyType)) {
+            isHomeInterface = true;
+        } else if (EJBObject.class.isAssignableFrom(proxyType) || EJBLocalObject.class.isAssignableFrom(proxyType)) {
+            isHomeInterface = false;
         } else {
-            throw new AssertionError("Unsupported invocation type " +  ejbInvocationType);
+            throw new IllegalArgumentException("ProxyType must be an instance of EJBHome, EJBLocalHome, EJBObject, or EJBLocalObject");
         }
 
         // get the map from method keys to the intercepted shadow index
-        Map proxyToShadowIndex = buildProxyToShadowIndex(proxyType);
+        Map proxyToShadowIndex = buildProxyToShadowIndex(proxyType, isHomeInterface);
 
         // create the method lookup table and fill it with -1
         int[] shadowIndexToProxy = new int[FastClass.create(proxyType).getMaxIndex() + 1];
         Arrays.fill(shadowIndexToProxy, -1);
 
-        // for each translated method (the method signature on the proxy),
-        // fill in it's id into the shadowIndex table
-        for (int i = 0; i < translated.length; i++) {
-            if (translated[i] != null) {
-                Integer shadowIndex = (Integer) proxyToShadowIndex.get(translated[i]);
+        // for each interface method, fill in it's id into the shadowIndex table
+        for (int i = 0; i < signatures.length; i++) {
+            if (signatures[i] != null) {
+                Integer shadowIndex = (Integer) proxyToShadowIndex.get(signatures[i]);
                 if (shadowIndex != null) {
                     shadowIndexToProxy[shadowIndex.intValue()] = i;
                 }
@@ -101,17 +109,13 @@ public class EJBProxyHelper {
      * @param proxyType the generated proxy implementation class
      * @return a map from MethodKeys to the Integer for the shadow method
      */
-    private static Map buildProxyToShadowIndex(Class proxyType) {
+    private static Map buildProxyToShadowIndex(Class proxyType, boolean isHome) {
         Map shadowMap = new HashMap();
         Method[] methods = proxyType.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++) {
             int shadowIndex = MethodHelper.getSuperIndex(proxyType, methods[i]);
             if (shadowIndex >= 0) {
-                if (methods[i].getName().equals("remove")) {
-                    shadowMap.put(new MethodSignature("remove"), new Integer(shadowIndex));
-                } else {
-                    shadowMap.put(new MethodSignature(methods[i]), new Integer(shadowIndex));
-                }
+                shadowMap.put(new InterfaceMethodSignature(methods[i], isHome), new Integer(shadowIndex));
             }
         }
         return shadowMap;

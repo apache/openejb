@@ -51,7 +51,7 @@ import java.security.Permission;
 import javax.security.jacc.EJBMethodPermission;
 
 import org.openejb.EJBInterfaceType;
-import org.openejb.dispatch.MethodSignature;
+import org.openejb.dispatch.InterfaceMethodSignature;
 
 /**
  * @version $Revision$ $Date$
@@ -59,7 +59,7 @@ import org.openejb.dispatch.MethodSignature;
 public final class PermissionManager {
     private final Permission[][] permissions = new Permission[EJBInterfaceType.MAX_ORDINAL][];
 
-    public PermissionManager(String ejbName, MethodSignature[] signatures) {
+    public PermissionManager(String ejbName, InterfaceMethodSignature[] signatures) {
         permissions[EJBInterfaceType.HOME.getOrdinal()] = mapPermissions(ejbName, "Home", signatures);
         permissions[EJBInterfaceType.REMOTE.getOrdinal()] = mapPermissions(ejbName, "Remote", signatures);
         permissions[EJBInterfaceType.LOCALHOME.getOrdinal()] = mapPermissions(ejbName, "LocalHome", signatures);
@@ -71,10 +71,10 @@ public final class PermissionManager {
         return permissions[invocationType.getOrdinal()][operationIndex];
     }
 
-    private static Permission[] mapPermissions(String ejbName, String intfName, MethodSignature[] signatures) {
+    private static Permission[] mapPermissions(String ejbName, String intfName, InterfaceMethodSignature[] signatures) {
         Permission[] permissions = new Permission[signatures.length];
         for (int index = 0; index < signatures.length; index++) {
-            MethodSignature signature = signatures[index];
+            InterfaceMethodSignature signature = signatures[index];
             permissions[index] = new EJBMethodPermission(ejbName, signature.getMethodName(), intfName, signature.getParameterTypes());
         }
         return permissions;

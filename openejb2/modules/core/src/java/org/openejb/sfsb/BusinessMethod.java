@@ -48,13 +48,12 @@
 package org.openejb.sfsb;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import net.sf.cglib.reflect.FastClass;
+import org.apache.geronimo.transaction.TransactionContext;
 
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
-import org.openejb.TransactionDemarcation;
-import org.apache.geronimo.transaction.TransactionContext;
 import org.openejb.dispatch.AbstractMethodOperation;
+import org.openejb.dispatch.MethodSignature;
 
 /**
  *
@@ -62,21 +61,18 @@ import org.openejb.dispatch.AbstractMethodOperation;
  * @version $Revision$ $Date$
  */
 public class BusinessMethod extends AbstractMethodOperation {
-    private final StatefulContainer container;
-    public BusinessMethod(StatefulContainer container, FastClass fastClass, int methodIndex) {
-        super(fastClass, methodIndex);
-        this.container = container;
+    protected final boolean isBMT;
+
+    public BusinessMethod(Class beanClass, MethodSignature signature, boolean isBMT) {
+        super(beanClass, signature);
+        this.isBMT = isBMT;
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         try {
             return invoke(invocation, EJBOperation.BIZMETHOD);
-        } catch(Throwable t) {
-            // Biz method threw a system exception, so we must kill it
-            ((StatefulInstanceContext)invocation.getEJBInstanceContext()).die();
-            throw t;
         } finally {
-            if(container.getDemarcation() == TransactionDemarcation.BEAN) {
+            if(isBMT) {
                 // we need to update the invocation cache of the transaction context
                 // because they may have used UserTransaction to push a new context
                 invocation.setTransactionContext(TransactionContext.getContext());

@@ -57,10 +57,11 @@ import java.util.TreeSet;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.xbeans.j2ee.ContainerTransactionType;
-import org.apache.geronimo.xbeans.j2ee.MethodType;
 import org.apache.geronimo.xbeans.j2ee.JavaTypeType;
 import org.apache.geronimo.xbeans.j2ee.MethodIntfType;
-import org.openejb.dispatch.MethodSignature;
+import org.apache.geronimo.xbeans.j2ee.MethodType;
+
+import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.BeanPolicy;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
@@ -74,13 +75,13 @@ import org.openejb.transaction.TransactionPolicy;
 public class TransactionPolicyHelper {
 
     public final static TransactionPolicySource StatefulBeanPolicySource = new TransactionPolicySource() {
-        public TransactionPolicy getTransactionPolicy(String methodIntf, MethodSignature signature) {
+        public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
             return BeanPolicy.Stateful;
         }
     };
 
     public final static TransactionPolicySource StatelessBeanPolicySource = new TransactionPolicySource() {
-        public TransactionPolicy getTransactionPolicy(String methodIntf, MethodSignature signature) {
+        public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
             return BeanPolicy.Stateless;
         }
     };
@@ -116,7 +117,7 @@ public class TransactionPolicyHelper {
             this.transactionPolicies = transactionPolicies;
         }
 
-        public TransactionPolicy getTransactionPolicy(String methodIntf, MethodSignature signature) {
+        public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
             for (Iterator iterator = transactionPolicies.iterator(); iterator.hasNext();) {
                 MethodTransaction methodTransaction = (MethodTransaction) iterator.next();
                 if (methodTransaction.matches(methodIntf, signature.getMethodName(), signature.getParameterTypes())) {

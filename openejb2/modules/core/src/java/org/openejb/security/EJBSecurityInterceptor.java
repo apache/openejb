@@ -70,10 +70,10 @@ import org.openejb.EJBInvocation;
  */
 public class EJBSecurityInterceptor implements Interceptor {
     private final Interceptor next;
-    private final String contextId;
+    private final Object contextId;
     private final PermissionManager permissionManager;
 
-    public EJBSecurityInterceptor(Interceptor next, String contextId, PermissionManager permissionManager) {
+    public EJBSecurityInterceptor(Interceptor next, Object contextId, PermissionManager permissionManager) {
         this.next = next;
         this.contextId = contextId;
         this.permissionManager = permissionManager;
@@ -85,7 +85,8 @@ public class EJBSecurityInterceptor implements Interceptor {
         Subject subject = ContextManager.getCurrentCaller();
         try {
             ContextManager.setCurrentCaller(ContextManager.getNextCaller());
-            PolicyContext.setContextID(contextId);
+            // @todo should setContainerId take an object?
+            PolicyContext.setContextID(contextId.toString());
             AccessControlContext accessContext = ContextManager.getCurrentContext();
             if (accessContext != null) {
                 Permission permission = permissionManager.getPermission(ejbInvocation.getType(), ejbInvocation.getMethodIndex());

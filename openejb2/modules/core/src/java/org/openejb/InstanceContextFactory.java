@@ -45,23 +45,16 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb;
+
+import org.apache.geronimo.transaction.InstanceContext;
+
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
-public class CMPFieldSetter implements InstanceOperation {
-    private final int slot;
-
-    public CMPFieldSetter(int slot) {
-        this.slot = slot;
-    }
-
-    public Object invokeInstance(CMPInstanceContext ctx, Object[] args) {
-        InstanceData data = ctx.getInstanceData();
-        data.set(slot, args[0]);
-        return null;
-    }
+public interface InstanceContextFactory {
+    InstanceContext newInstance() throws Exception;
 }

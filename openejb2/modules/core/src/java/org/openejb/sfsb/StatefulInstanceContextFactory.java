@@ -45,54 +45,73 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.sfsb;
 
-import java.util.Arrays;
+import java.io.Serializable;
+import javax.ejb.SessionBean;
+
+import org.apache.geronimo.transaction.InstanceContext;
+
+import org.openejb.EJBInstanceFactory;
+import org.openejb.EJBInstanceFactoryImpl;
+import org.openejb.InstanceContextFactory;
+import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.transaction.EJBUserTransaction;
 
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public final class InstanceData {
-    private final Object[] values;
-    private final boolean[] modified;
+public class StatefulInstanceContextFactory implements InstanceContextFactory {
+    private final Object containerId;
+    private final EJBProxyFactory proxyFactory;
+    private final EJBInstanceFactory factory;
+    private final EJBUserTransaction userTransaction;
 
-    public InstanceData(int length) {
-        values = new Object[length];
-        modified = new boolean[length];
+    public StatefulInstanceContextFactory(Object containerId, EJBProxyFactory proxyFactory, Class beanClass, EJBUserTransaction userTransaction) {
+        this.containerId = containerId;
+        this.proxyFactory = proxyFactory;
+        this.factory = new EJBInstanceFactoryImpl(beanClass);
+        this.userTransaction = userTransaction;
     }
 
-    public void load(Object[] newValues) {
-        assert (values.length == newValues.length) : "Array size mismatch";
-        System.arraycopy(newValues, 0, values, 0, newValues.length);
-        reset();
+    public InstanceContext newInstance() throws Exception {
+        return new StatefulInstanceContext(
+                containerId,
+                proxyFactory,
+                (SessionBean) factory.newInstance(),
+                createInstanceId(),
+                userTransaction);
     }
 
-    public void store(Object[] newValues) {
-        assert (values.length == newValues.length) : "Array size mismatch";
-        System.arraycopy(values, 0, newValues, 0, newValues.length);
-        reset();
+    private static int nextId;
+    private StatefulInstanceId createInstanceId() {
+        synchronized(this) {
+            return new StatefulInstanceId(nextId++);
+        }
     }
 
-    public void reset() {
-        Arrays.fill(modified, false);
-    }
+    private static class StatefulInstanceId implements Serializable {
+        private final int id;
 
-    public void set(int index, Object value) {
-        values[index] = value;
-        modified[index] = true;
-    }
+        public StatefulInstanceId(int id) {
+            this.id = id;
+        }
 
-    public Object get(int index) {
-        return values[index];
-    }
+        public int hashCode() {
+            return id;
+        }
 
-    public int getSize() {
-        return values.length;
-    }
+        public boolean equals(Object object) {
+            if (object instanceof StatefulInstanceId) {
+                return id == ((StatefulInstanceId) object).id;
+            }
+            return false;
+        }
 
-    public boolean isModified(int index) {
-        return modified[index];
+        public String toString() {
+            return "StatefulInstanceId: " + id;
+        }
     }
 }

@@ -51,6 +51,8 @@ import javax.ejb.EnterpriseBean;
 
 import org.apache.geronimo.transaction.InstanceContext;
 
+import org.openejb.proxy.EJBProxyFactory;
+
 /**
  *
  *
@@ -63,4 +65,5 @@ public interface EJBInstanceContext extends InstanceContext {
 
     void setOperation(EJBOperation operation);
 
+    EJBProxyFactory getProxyFactory();
 }

@@ -50,7 +50,6 @@ package org.openejb;
 import java.security.Identity;
 import java.security.Principal;
 import java.util.Properties;
-
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
@@ -64,6 +63,8 @@ import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.transaction.ContainerTransactionContext;
 import org.apache.geronimo.transaction.TransactionContext;
 
+import org.openejb.transaction.EJBUserTransaction;
+
 /**
  * Implementation of EJBContext that uses the State pattern to determine
  * which operations can be performed for a given EJB.
@@ -72,10 +73,12 @@ import org.apache.geronimo.transaction.TransactionContext;
  */
 public abstract class EJBContextImpl {
     protected final EJBInstanceContext context;
+    protected final EJBUserTransaction userTransaction;
     protected EJBContextState state;
 
-    public EJBContextImpl(EJBInstanceContext context) {
+    public EJBContextImpl(EJBInstanceContext context, EJBUserTransaction userTransaction) {
         this.context = context;
+        this.userTransaction = userTransaction;
     }
 
     public EJBHome getEJBHome() {
@@ -103,14 +106,24 @@ public abstract class EJBContextImpl {
     }
 
     public UserTransaction getUserTransaction() {
-        return state.getUserTransaction(context);
+        // handle the getUserTransaction directly as it is anoying and always allowed
+        if (userTransaction == null) {
+            throw new IllegalStateException("getUserTransaction is not allowed when using Container Managed Transactions");
+        }
+        return state.getUserTransaction(userTransaction);
     }
 
     public void setRollbackOnly() {
+        if (userTransaction != null) {
+            throw new IllegalStateException("Calls to setRollbackOnly are not allowed for EJBs with container-managed transaction demarcation");
+        }
         state.setRollbackOnly(context);
     }
 
     public boolean getRollbackOnly() {
+        if (userTransaction != null) {
+            throw new IllegalStateException("Calls to setRollbackOnly are not allowed for EJBs with container-managed transaction demarcation");
+        }
         return state.getRollbackOnly(context);
     }
 
@@ -132,7 +145,7 @@ public abstract class EJBContextImpl {
 
     public abstract static class EJBContextState {
         public EJBHome getEJBHome(EJBInstanceContext context) {
-            EJBHome home = ((EJBContainer)context.getContainer()).getEJBHome();
+            EJBHome home = context.getProxyFactory().getEJBHome();
             if (home == null) {
                 throw new IllegalStateException("getEJBHome is not allowed if no home interface is defined");
             }
@@ -140,7 +153,7 @@ public abstract class EJBContextImpl {
         }
 
         public EJBLocalHome getEJBLocalHome(EJBInstanceContext context) {
-            EJBLocalHome localHome = ((EJBContainer)context.getContainer()).getEJBLocalHome();
+            EJBLocalHome localHome = context.getProxyFactory().getEJBLocalHome();
             if (localHome == null) {
                 throw new IllegalStateException("getEJBLocalHome is not allowed if no local localHome interface is defined");
             }
@@ -148,7 +161,7 @@ public abstract class EJBContextImpl {
         }
 
         public EJBObject getEJBObject(EJBInstanceContext context) {
-            EJBObject remote = ((EJBContainer)context.getContainer()).getEJBObject(context.getId());
+            EJBObject remote = context.getProxyFactory().getEJBObject(context.getId());
             if (remote == null) {
                 throw new IllegalStateException("getEJBObject is not allowed if no remote interface is defined");
             }
@@ -156,7 +169,7 @@ public abstract class EJBContextImpl {
         }
 
         public EJBLocalObject getEJBLocalObject(EJBInstanceContext context) {
-            EJBLocalObject local = ((EJBContainer)context.getContainer()).getEJBLocalObject(context.getId());
+            EJBLocalObject local = context.getProxyFactory().getEJBLocalObject(context.getId());
             if (local == null) {
                 throw new IllegalStateException("getEJBLocalObject is not allowed if no local interface is defined");
             }
@@ -168,55 +181,38 @@ public abstract class EJBContextImpl {
         }
 
         public boolean isCallerInRole(String s, EJBInstanceContext context) {
-            return ContextManager.isCallerInRole(((EJBContainer)context.getContainer()).getEJBName(), s);
+            return ContextManager.isCallerInRole(context.getProxyFactory().getEJBName(), s);
         }
 
-        public UserTransaction getUserTransaction(EJBInstanceContext context) {
-            EJBContainer container = (EJBContainer)context.getContainer();
-            TransactionDemarcation demarcation = container.getDemarcation();
-            if (demarcation.isContainer()) {
-                throw new IllegalStateException("getUserTransaction is not allowed when using Container Managed Transactions");
-            }
-            return container.getUserTransaction();
+        public UserTransaction getUserTransaction(UserTransaction userTransaction) {
+            return userTransaction;
         }
 
         public void setRollbackOnly(EJBInstanceContext context) {
-            TransactionDemarcation demarcation = ((EJBContainer)context.getContainer()).getDemarcation();
-            if (demarcation.isContainer()) {
-                TransactionContext ctx = TransactionContext.getContext();
-                if (ctx instanceof ContainerTransactionContext) {
-                    ContainerTransactionContext containerContext = (ContainerTransactionContext) ctx;
-                    try {
-                        containerContext.setRollbackOnly();
-                    } catch (SystemException e) {
-                        throw new EJBException(e);
-                    }
-                } else {
-                    throw new IllegalStateException("There is no transaction in progess.");
+            TransactionContext ctx = TransactionContext.getContext();
+            if (ctx instanceof ContainerTransactionContext) {
+                ContainerTransactionContext containerContext = (ContainerTransactionContext) ctx;
+                try {
+                    containerContext.setRollbackOnly();
+                } catch (SystemException e) {
+                    throw new EJBException(e);
                 }
-
             } else {
-                throw new IllegalStateException("Calls to setRollbackOnly are not allowed for SessionBeans with bean-managed transaction demarcation");
+                throw new IllegalStateException("There is no transaction in progess.");
             }
         }
 
         public boolean getRollbackOnly(EJBInstanceContext context) {
-            TransactionDemarcation demarcation = ((EJBContainer)context.getContainer()).getDemarcation();
-            if (demarcation.isContainer()) {
-                TransactionContext ctx = TransactionContext.getContext();
-                if (ctx instanceof ContainerTransactionContext) {
-                    ContainerTransactionContext containerContext = (ContainerTransactionContext) ctx;
-                    try {
-                        return containerContext.getRollbackOnly();
-                    } catch (SystemException e) {
-                        throw new EJBException(e);
-                    }
-                } else {
-                    throw new IllegalStateException("There is no transaction in progess.");
+            TransactionContext ctx = TransactionContext.getContext();
+            if (ctx instanceof ContainerTransactionContext) {
+                ContainerTransactionContext containerContext = (ContainerTransactionContext) ctx;
+                try {
+                    return containerContext.getRollbackOnly();
+                } catch (SystemException e) {
+                    throw new EJBException(e);
                 }
-
             } else {
-                throw new IllegalStateException("Calls to getRollbackOnly are not allowed for SessionBeans with bean-managed transaction demarcation");
+                throw new IllegalStateException("There is no transaction in progess.");
             }
         }
 

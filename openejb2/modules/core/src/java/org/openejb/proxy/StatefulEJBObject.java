@@ -45,13 +45,10 @@
 package org.openejb.proxy;
 
 import java.rmi.RemoteException;
-
 import javax.ejb.EJBObject;
-import javax.ejb.RemoveException;
 
 
-public class StatefulEJBObject extends EJBObjectImpl {
-
+public abstract class StatefulEJBObject extends EJBObjectImpl {
     public StatefulEJBObject(EJBMethodInterceptor handler) {
         super(handler);
     }
@@ -71,8 +68,4 @@ public class StatefulEJBObject extends EJBObjectImpl {
             return false;
         }
     }
-    
-    public void remove() throws RemoteException, RemoveException {
-    }
-    
 }

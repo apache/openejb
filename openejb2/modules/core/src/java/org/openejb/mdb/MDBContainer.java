@@ -159,13 +159,13 @@ public class MDBContainer implements MessageEndpointFactory, GBean {
         if (trackedConnectionAssociator != null) {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources);
         }
-        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, new TransactionPolicyManager(transactionPolicySource, signatures));
+//        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, new TransactionPolicyManager(transactionPolicySource, signatures));
         if (setIdentity) {
             firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
         }
         if (setSecurityInterceptor) {
             // todo check if we need to do security checks on MDBs
-            firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, contextId, new PermissionManager(ejbName, signatures));
+//            firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, contextId, new PermissionManager(ejbName, signatures));
         }
         if (runAs != null) {
             firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);
@@ -190,23 +190,23 @@ public class MDBContainer implements MessageEndpointFactory, GBean {
     }
 
     public void doStart() throws WaitingException, Exception {
-        if (userTransaction != null) {
-            userTransaction.setOnline(true);
-        }
+//        if (userTransaction != null) {
+//            userTransaction.setOnline(true);
+//        }
         getAdapter().endpointActivation(this, activationSpec);
     }
 
     public void doStop() throws WaitingException, Exception {
-        if (userTransaction != null) {
-            userTransaction.setOnline(false);
-        }
+//        if (userTransaction != null) {
+//            userTransaction.setOnline(false);
+//        }
         getAdapter().endpointDeactivation(this, activationSpec);
     }
 
     public void doFail() {
-        if (userTransaction != null) {
-            userTransaction.setOnline(false);
-        }
+//        if (userTransaction != null) {
+//            userTransaction.setOnline(false);
+//        }
         getAdapter().endpointDeactivation(this, activationSpec);
     }
 

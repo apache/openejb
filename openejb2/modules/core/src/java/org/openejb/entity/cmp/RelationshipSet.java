@@ -54,6 +54,8 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.ejb.EJBLocalObject;
 
+import org.openejb.GenericEJBContainer;
+
 /**
  *
  *
@@ -62,16 +64,16 @@ import javax.ejb.EJBLocalObject;
 public class RelationshipSet implements Set {
     private CMPInstanceContext context;
     private int slot;
-    private CMPEntityContainer relatedContainer;
+    private GenericEJBContainer relatedContainer;
     private Collection keys;
     private Class relatedLocalInterface;
 
-    public RelationshipSet(CMPInstanceContext context, int slot, CMPEntityContainer relatedContainer, Collection keys) {
+    public RelationshipSet(CMPInstanceContext context, int slot, GenericEJBContainer relatedContainer, Collection keys) {
         this.context = context;
         this.slot = slot;
         this.relatedContainer = relatedContainer;
         this.keys = keys;
-        relatedLocalInterface = relatedContainer.getLocalInterface();
+//        relatedLocalInterface = relatedContainer.getLocalInterface();
     }
 
     void invalidate() {

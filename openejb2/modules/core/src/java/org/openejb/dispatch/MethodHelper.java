@@ -145,8 +145,7 @@ public final class MethodHelper {
                 String translatedName = Character.toLowerCase(name.charAt(7)) + name.substring(8);
                 translated[i] = new MethodSignature(translatedName, signature.getParameterTypes());
             } else if (name.startsWith("ejbRemove")) {
-                // This is a hack, there are really *two* methods that map
-                translated[i] = new MethodSignature("remove", new String[]{"java.lang.Object"});
+                translated[i] = new MethodSignature("remove", signature.getParameterTypes());
             }
         }
         return translated;
@@ -164,5 +163,22 @@ public final class MethodHelper {
             }
         }
         return translated;
+    }
+
+    public static InterfaceMethodSignature translateToInterface(MethodSignature signature) {
+        String name = signature.getMethodName();
+        if (name.startsWith("ejbCreate")) {
+            return new InterfaceMethodSignature("c" + name.substring(4), signature.getParameterTypes(), true);
+        } else if (name.startsWith("ejbFind")) {
+            return new InterfaceMethodSignature("f" + name.substring(4), signature.getParameterTypes(), true);
+        } else if (name.startsWith("ejbHome")) {
+            String translatedName = Character.toLowerCase(name.charAt(7)) + name.substring(8);
+            return new InterfaceMethodSignature(translatedName, signature.getParameterTypes(), true);
+        } else if (name.startsWith("ejbRemove")) {
+            boolean isHome = signature.getParameterTypes().length == 1;
+            return new InterfaceMethodSignature("remove", signature.getParameterTypes(), isHome);
+        } else {
+            return new InterfaceMethodSignature(signature.getMethodName(), signature.getParameterTypes(),false);
+        }
     }
 }

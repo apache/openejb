@@ -51,8 +51,4 @@ public abstract class EJBLocalHomeImpl extends BaseEJB implements EJBLocalHome {
     public EJBLocalHomeImpl(EJBMethodInterceptor handler) {
         super(handler);
     }
-
-//TODO: public void remove(Object primaryKey) throws RemoveException, EJBException {
-//
-//    }
 }

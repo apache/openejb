@@ -1,7 +1,7 @@
 /* ====================================================================
  * Redistribution and use of this software and associated documentation
  * ("Software"), with or without modification, are permitted provided
-  * that the following conditions are met:
+ * that the following conditions are met:
  *
  * 1. Redistributions of source code must retain copyright
  *    statements and notices.  Redistributions must also contain a
@@ -47,40 +47,37 @@
  */
 package org.openejb.entity.cmp;
 
-import java.util.HashMap;
+import javax.ejb.EJBException;
+
+import org.tranql.cache.CacheRow;
+import org.tranql.cache.FieldTransform;
+import org.tranql.cache.FieldTransformException;
+import org.tranql.cache.InTxCache;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public class CMPConfiguration {
-    /**
-     * Becomes a CMPCommandFactory (superclass of SimpleCF) within the container
-     * however we need to stay as subclass for now because of instance needed defs.
-     */
-    public SimpleCommandFactory persistenceFactory;
-    public CMPQuery[] queries;
-    public CMRelation[] relations;
+public class CMPGetter implements InstanceOperation {
+    private final String fieldName;
+    private final FieldTransform field;
 
-    /**
-     * Abstract schema name
-     */
-    public String schema;
+    public CMPGetter(String fieldName, FieldTransform field) {
+        this.fieldName = fieldName;
+        this.field = field;
+    }
 
-    // These should not be set manually...set them via defineFields
-    // TODO: Change visibility and force usage to setter/getterss
-    public String[] cmpFieldNames;
-    public HashMap cmpFieldMap;
+    public Object invokeInstance(CMPInstanceContext ctx, Object[] args) {
+        assert args.length != 0 : "CMPGetter must not be passed any arguments:" +
+                " fieldName=" + fieldName + ", args.length=" + args.length;
 
-    public void defineFields(String[] fields) {
-        this.cmpFieldNames = fields;
-        this.cmpFieldMap = new HashMap();
-
-        // TODO: See if we can map easier...
-        for (int i = 0; i < cmpFieldNames.length; i++) {
-            cmpFieldMap.put(cmpFieldNames[i], new Integer(i));
+        try {
+            CacheRow row = ctx.getCacheRow();
+            InTxCache inTxCache = ctx.getTransactionContext().getInTxCache();
+            return field.get(inTxCache, row);
+        } catch (FieldTransformException e) {
+            throw new EJBException("Unable to get value for cmp-field: " + fieldName, e);
         }
-
     }
 }

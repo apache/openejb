@@ -59,7 +59,7 @@ public abstract class EJBLocalObjectImpl extends BaseEJB implements EJBLocalObje
     }
 
     public EJBLocalHome getEJBLocalHome() throws EJBException {
-        return getEjbContainer().getEJBLocalHome();
+        return getProxyFactory().getEJBLocalHome();
     }
 
     public Object writeReplace() throws ObjectStreamException{

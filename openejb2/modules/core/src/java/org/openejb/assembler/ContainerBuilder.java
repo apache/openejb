@@ -47,44 +47,37 @@ package org.openejb.assembler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Properties;
-
 import javax.ejb.EJBHome;
 import javax.naming.Context;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.openejb.AbstractEJBContainer;
+
 import org.openejb.ContainerIndex;
 import org.openejb.EJBComponentType;
 import org.openejb.EJBContainer;
-import org.openejb.EJBContainerConfiguration;
+import org.openejb.GenericEJBContainer;
+import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
-import org.openejb.TransactionDemarcation;
-import org.openejb.entity.bmp.BMPEntityContainer;
-import org.openejb.sfsb.StatefulContainer;
-import org.openejb.slsb.StatelessContainer;
+import org.openejb.entity.bmp.BMPContainerBuilder;
+import org.openejb.sfsb.StatefulContainerBuilder;
+import org.openejb.slsb.StatelessContainerBuilder;
 import org.openejb.transaction.EJBUserTransaction;
-import org.openejb.proxy.CglibEJBProxyFactory;
-import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.proxy.EntityEJBHome;
-import org.openejb.proxy.EntityEJBObject;
-import org.openejb.proxy.ProxyInfo;
-import org.openejb.proxy.StatefulEJBHome;
-import org.openejb.proxy.StatefulEJBObject;
 
 public class ContainerBuilder implements RpcContainer {
 
     private Object containerId = null;
     private HashMap deployments = new HashMap();
 
-    public void init( Object containerId, HashMap deploymentsMap, Properties properties)
-    throws OpenEJBException {
+    public void init(Object containerId, HashMap deploymentsMap, Properties properties)
+            throws OpenEJBException {
 
         setupJndi();
-        
-        
+
+
         this.containerId = containerId;
 
         Object[] deploys = deploymentsMap.values().toArray();
@@ -111,10 +104,10 @@ public class ContainerBuilder implements RpcContainer {
             Object[] args,
             Object primKey,
             Object securityIdentity)
-    throws OpenEJBException {
+            throws OpenEJBException {
 
         DeploymentInfoWrapper dep =
-        (DeploymentInfoWrapper) deployments.get(deployID);
+                (DeploymentInfoWrapper) deployments.get(deployID);
         Object obj = dep.invoke(callMethod, args, primKey);
         //System.out.println("[obj]"+obj);
         return obj;
@@ -129,12 +122,12 @@ public class ContainerBuilder implements RpcContainer {
     }
 
     public org.openejb.assembler.DeploymentInfo[] deployments() {
-        return (CoreDeploymentInfo[])deployments.values().toArray( new DeploymentInfoWrapper[0]);
+        return (CoreDeploymentInfo[]) deployments.values().toArray(new DeploymentInfoWrapper[0]);
 
     }
 
     public void deploy(Object deploymentID, org.openejb.assembler.DeploymentInfo info)
-    throws OpenEJBException {
+            throws OpenEJBException {
         ((org.openejb.assembler.CoreDeploymentInfo) info).setContainer(this);
         deployments.put(info.getDeploymentID(), new DeploymentInfoWrapper(info));
     }
@@ -142,38 +135,46 @@ public class ContainerBuilder implements RpcContainer {
     public Object getContainerID() {
         return containerId;
     }
-    
+
     static class DeploymentInfoWrapper extends CoreDeploymentInfo {
         CoreDeploymentInfo deploymentInfo;
-        AbstractEJBContainer container;
+        GenericEJBContainer container;
 
         public DeploymentInfoWrapper(org.openejb.assembler.DeploymentInfo deploymentInfo) {
             this((CoreDeploymentInfo) deploymentInfo);
         }
+
         public DeploymentInfoWrapper(CoreDeploymentInfo di) {
             this.deploymentInfo = di;
 
-            
+
             try {
-                switch (di.getComponentType()){
-                    case EJBComponentType.BMP_ENTITY: container = new BMPEntityEJBContainerWapper(deploymentInfo); break; 
-                    case EJBComponentType.CMP_ENTITY: container = new BMPEntityEJBContainerWapper(deploymentInfo); break; //TODO: only a hack.  Course, this hole file is a hack. 
-                    case EJBComponentType.STATEFUL: container = new StatefulContainerWapper(deploymentInfo); break; 
-                    case EJBComponentType.STATELESS: container = new StatelessContainerWapper(deploymentInfo); break; 
+                switch (di.getComponentType()) {
+                case EJBComponentType.BMP_ENTITY:
+                    container = createBMPEntityEJBContainerWapper(deploymentInfo);
+                    break;
+                case EJBComponentType.CMP_ENTITY:
+                    container = createBMPEntityEJBContainerWapper(deploymentInfo);
+                    break; //TODO: only a hack.  Course, this hole file is a hack.
+                case EJBComponentType.STATEFUL:
+                    container = createStatefulEJBContainerWapper(deploymentInfo);
+                    break;
+                case EJBComponentType.STATELESS:
+                    container = createStatelessEJBContainerWapper(deploymentInfo);
+                    break;
                 }
                 ContainerIndex index = ContainerIndex.getInstance();
-                
-                if (container != null){
+
+                if (container != null) {
                     index.addContainer(container);
-                    container.doStart();
                 }
-                
+
             } catch (Exception e) {
                 // TODO Auto-generated catch block
-                System.out.println("FAILED "+e.getMessage());
-                throw new RuntimeException("Cannot create stateless container.",e);
+                System.out.println("FAILED " + e.getMessage());
+                throw new RuntimeException("Cannot create container.", e);
             }
-            
+
         }
 
         public Object invoke(Method callMethod, Object[] args, Object primKey) throws OpenEJBException {
@@ -287,160 +288,77 @@ public class ContainerBuilder implements RpcContainer {
         public String toString() {
             return deploymentInfo.toString();
         }
-        
+
     }
 
-    static class BMPEntityEJBContainerWapper extends BMPEntityContainer {
-        CoreDeploymentInfo deploymentInfo;
-        
-        final CglibEJBProxyFactory ejbObjectFactory;
-        final CglibEJBProxyFactory ejbHomeFactory;
-        
-        EJBHome ejbHome;
-        
-        private static EJBContainerConfiguration getConfig(CoreDeploymentInfo di) throws NamingException{
-            EJBContainerConfiguration ejbConfig = new EJBContainerConfiguration();
-            ejbConfig.containerID = di.getDeploymentID();
-            ejbConfig.ejbName = di.getDeploymentID().toString();
-            ejbConfig.beanClassName = di.getBeanClass().getName();
-            ejbConfig.homeInterfaceName = di.getHomeInterface().getName();
-            ejbConfig.remoteInterfaceName = di.getRemoteInterface().getName();
-            ejbConfig.transactionPolicySource = new DeploymentInfoTxPolicySource(di);
-            ejbConfig.txnDemarcation = TransactionDemarcation.CONTAINER;
-            ejbConfig.pkClassName = di.getPrimaryKeyClass().getName();
-            ejbConfig.componentContext = new ReadOnlyContextWrapper(di.getJndiEnc());
-            return ejbConfig;
+    private static GenericEJBContainer createStatelessEJBContainerWapper(CoreDeploymentInfo deploymentInfo) throws Exception {
+        StatelessContainerBuilder builder = new StatelessContainerBuilder();
+        builder.setContainerId(deploymentInfo.getDeploymentID());
+        builder.setEJBName(deploymentInfo.getDeploymentID().toString());
+        builder.setBeanClassName(deploymentInfo.getBeanClass().getName());
+        builder.setHomeInterfaceName(deploymentInfo.getHomeInterface().getName());
+        builder.setRemoteInterfaceName(deploymentInfo.getRemoteInterface().getName());
+        builder.setTransactionPolicySource(new DeploymentInfoTxPolicySource(deploymentInfo));
+        builder.setTransactionManager(OpenEJB.getTransactionManager());
+
+        EJBUserTransaction userTransaction = new EJBUserTransaction();
+        if (deploymentInfo.isBeanManagedTransaction()) {
+            builder.setUserTransaction(userTransaction);
         }
-        
-        public BMPEntityEJBContainerWapper(CoreDeploymentInfo deploymentInfo) throws Exception {
-            super(getConfig(deploymentInfo), org.openejb.OpenEJB.getTransactionManager(), null);
-            this.deploymentInfo = deploymentInfo;
-            this.ejbHomeFactory = new CglibEJBProxyFactory(EntityEJBHome.class,getHomeInterface()); 
-            this.ejbObjectFactory = new CglibEJBProxyFactory(EntityEJBObject.class,getRemoteInterface()); 
-        }
-        
-//        public EJBHome getEJBHome() {
-//            if (ejbHome==null){
-//                //BaseEJBHandler handler = new BaseEJBHandler(this, null, deploymentInfo.getDeploymentID());
-//                ProxyInfo info = new ProxyInfo(EJBComponentType.BMP_ENTITY,containerID,homeInterface,remoteInterface, this.primaryKeyClass, null);
-//                EJBMethodHandler handler = new EJBMethodHandler(this, info);
-//                ejbHome = (EJBHome) ejbHomeFactory.create(handler); 
-//            }
-//            return ejbHome;
-//        }
-//
-//        public EJBObject getEJBObject(Object primaryKey) {
-//            ProxyInfo info = new ProxyInfo(EJBComponentType.BMP_ENTITY,containerID,homeInterface,remoteInterface, this.primaryKeyClass, primaryKey);
-//            EJBMethodHandler handler = new EJBMethodHandler(this, info);
-//            return(javax.ejb.EJBObject)ejbObjectFactory.create(handler);
-//        }
+        builder.setComponentContext(new ReadOnlyContextWrapper(deploymentInfo.getJndiEnc(), userTransaction));
+
+        return (GenericEJBContainer)builder.createContainer();
     }
-    
-    static class StatefulContainerWapper extends StatefulContainer {
-        final CglibEJBProxyFactory ejbObjectFactory;
-        final CglibEJBProxyFactory ejbHomeFactory;
-        CoreDeploymentInfo deploymentInfo;
-        EJBHome ejbHome;
-        
-        private static EJBContainerConfiguration getConfig(CoreDeploymentInfo di) throws NamingException{
-            EJBContainerConfiguration ejbConfig = new EJBContainerConfiguration();
-            ejbConfig.containerID = di.getDeploymentID();
-            ejbConfig.ejbName = di.getDeploymentID().toString();
-            ejbConfig.beanClassName = di.getBeanClass().getName();
-            ejbConfig.homeInterfaceName = di.getHomeInterface().getName();
-            ejbConfig.remoteInterfaceName = di.getRemoteInterface().getName();
-            ejbConfig.transactionPolicySource = new DeploymentInfoTxPolicySource(di);
-            ejbConfig.componentContext = new ReadOnlyContextWrapper(di.getJndiEnc());
-            
-            if (di.isBeanManagedTransaction()) {
-                ejbConfig.userTransaction = new EJBUserTransaction();
-                ejbConfig.txnDemarcation = TransactionDemarcation.BEAN;
-            } else {
-                ejbConfig.txnDemarcation = TransactionDemarcation.CONTAINER;
-            }
-            return ejbConfig;
+
+    private static GenericEJBContainer createStatefulEJBContainerWapper(CoreDeploymentInfo deploymentInfo) throws Exception {
+        StatefulContainerBuilder builder = new StatefulContainerBuilder();
+        builder.setContainerId(deploymentInfo.getDeploymentID());
+        builder.setEJBName(deploymentInfo.getDeploymentID().toString());
+        builder.setBeanClassName(deploymentInfo.getBeanClass().getName());
+        builder.setHomeInterfaceName(deploymentInfo.getHomeInterface().getName());
+        builder.setRemoteInterfaceName(deploymentInfo.getRemoteInterface().getName());
+        builder.setTransactionPolicySource(new DeploymentInfoTxPolicySource(deploymentInfo));
+        builder.setTransactionManager(OpenEJB.getTransactionManager());
+
+        EJBUserTransaction userTransaction = new EJBUserTransaction();
+        if (deploymentInfo.isBeanManagedTransaction()) {
+            builder.setUserTransaction(userTransaction);
         }
-        
-        public StatefulContainerWapper(CoreDeploymentInfo deploymentInfo) throws Exception {
-            super(getConfig(deploymentInfo), org.openejb.OpenEJB.getTransactionManager(), null);
-            this.deploymentInfo = deploymentInfo;
-            this.ejbHomeFactory = new CglibEJBProxyFactory(StatefulEJBHome.class,getHomeInterface()); 
-            this.ejbObjectFactory = new CglibEJBProxyFactory(StatefulEJBObject.class,getRemoteInterface()); 
-        }
-        
-//        public EJBHome getEJBHome() {
-//            if (ejbHome==null){
-//                ProxyInfo info = new ProxyInfo(EJBComponentType.STATEFUL,containerID,homeInterface,remoteInterface, null, null);
-//                EJBMethodHandler handler = new EJBMethodHandler(this, info);
-//                ejbHome = (EJBHome) ejbHomeFactory.create(handler); 
-//            }
-//            return ejbHome;
-//        }
-//
-//        public EJBObject getEJBObject(Object primaryKey) {
-//            ProxyInfo info = new ProxyInfo(EJBComponentType.STATEFUL,containerID,homeInterface,remoteInterface, null, primaryKey);
-//            EJBMethodHandler handler = new EJBMethodHandler(this, info);
-//            return(javax.ejb.EJBObject)ejbObjectFactory.create(handler);
-//        }
+        builder.setComponentContext(new ReadOnlyContextWrapper(deploymentInfo.getJndiEnc(), userTransaction));
+
+        return (GenericEJBContainer)builder.createContainer();
     }
-    
-    static class StatelessContainerWapper extends StatelessContainer {
-//        final CglibProxyFactory ejbObjectFactory;
-//        final CglibProxyFactory ejbHomeFactory;
-        EJBProxyFactory proxyFactory;
-        CoreDeploymentInfo deploymentInfo;
-        EJBHome ejbHome;
-        
-        private static EJBContainerConfiguration getConfig(CoreDeploymentInfo di) throws NamingException{
-            EJBContainerConfiguration ejbConfig = new EJBContainerConfiguration();
-            ejbConfig.containerID = di.getDeploymentID();
-            ejbConfig.ejbName = di.getDeploymentID().toString();
-            ejbConfig.beanClassName = di.getBeanClass().getName();
-            ejbConfig.homeInterfaceName = di.getHomeInterface().getName();
-            ejbConfig.remoteInterfaceName = di.getRemoteInterface().getName();
-            ejbConfig.transactionPolicySource = new DeploymentInfoTxPolicySource(di);
-            ejbConfig.componentContext = new ReadOnlyContextWrapper(di.getJndiEnc());
-            
-            if (di.isBeanManagedTransaction()) {
-                ejbConfig.userTransaction = new EJBUserTransaction();
-                ejbConfig.txnDemarcation = TransactionDemarcation.BEAN;
-            } else {
-                ejbConfig.txnDemarcation = TransactionDemarcation.CONTAINER;
-            }
-            return ejbConfig;
-        }
-        
-        public StatelessContainerWapper(CoreDeploymentInfo deploymentInfo) throws Exception {
-            super(getConfig(deploymentInfo), org.openejb.OpenEJB.getTransactionManager(), null);
-//            ProxyInfo info = new ProxyInfo(getComponentType(),containerID,homeInterface,remoteInterface, null, null);
-//            proxyFactory = new EJBProxyFactory(this,info);            
-        }
-        
-//        public EJBHome getEJBHome() {
-//            if (ejbHome==null){
-//                ejbHome = proxyFactory.getEJBHome();
-//            }
-//            return ejbHome;
-//        }
-//
-//        public EJBObject getEJBObject(Object primaryKey) {
-//            return proxyFactory.getEJBObject(primaryKey);
-//        }
+
+    private static GenericEJBContainer createBMPEntityEJBContainerWapper(CoreDeploymentInfo deploymentInfo) throws Exception {
+        BMPContainerBuilder builder = new BMPContainerBuilder();
+        builder.setContainerId(deploymentInfo.getDeploymentID());
+        builder.setEJBName(deploymentInfo.getDeploymentID().toString());
+        builder.setBeanClassName(deploymentInfo.getBeanClass().getName());
+        builder.setHomeInterfaceName(deploymentInfo.getHomeInterface().getName());
+        builder.setRemoteInterfaceName(deploymentInfo.getRemoteInterface().getName());
+        builder.setPrimaryKeyClassName(deploymentInfo.getPrimaryKeyClass().getName());
+        builder.setComponentContext(new ReadOnlyContextWrapper(deploymentInfo.getJndiEnc(), null));
+        builder.setTransactionPolicySource(new DeploymentInfoTxPolicySource(deploymentInfo));
+        builder.setTransactionManager(OpenEJB.getTransactionManager());
+        return (GenericEJBContainer)builder.createContainer();
     }
-    
+
     static class ReadOnlyContextWrapper extends ReadOnlyContext {
-    
-        public ReadOnlyContextWrapper(Context ctx) throws NamingException{
+        public ReadOnlyContextWrapper(Context ctx, UserTransaction userTransaction) throws NamingException {
             super();
-            NamingEnumeration enum = ctx.list( "" );
-    
-            while (enum.hasMoreElements()){
-                NameClassPair pair = (NameClassPair)enum.next();
-                
+            NamingEnumeration enum = ctx.list("");
+
+            while (enum.hasMoreElements()) {
+                NameClassPair pair = (NameClassPair) enum.next();
+
                 String name = pair.getName();
                 Object value = ctx.lookup(name);
-                
+
                 internalBind(name, value);
+            }
+
+            if (userTransaction != null) {
+                internalBind("UserTransaction", userTransaction);
             }
         }
     }

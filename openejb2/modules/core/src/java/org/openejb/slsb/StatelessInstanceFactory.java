@@ -48,41 +48,39 @@
 package org.openejb.slsb;
 
 import java.lang.reflect.InvocationTargetException;
+import java.io.Serializable;
 import javax.ejb.SessionBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openejb.EJBContainer;
-import org.openejb.EJBInstanceFactoryImpl;
-import org.openejb.EJBOperation;
-import org.openejb.cache.InstanceFactory;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
+
 import net.sf.cglib.reflect.FastClass;
+import org.openejb.EJBOperation;
+import org.openejb.cache.InstanceFactory;
 
 
 /**
- *
- *
- *
  * @version $Revision$ $Date$
  */
-public class StatelessInstanceFactory implements InstanceFactory {
+public class StatelessInstanceFactory implements InstanceFactory, Serializable {
     private static final Log log = LogFactory.getLog(StatelessInstanceFactory.class);
 
-    private final EJBContainer container;
     private final ReadOnlyContext componentContext;
-    private final int createIndex;
-    private final EJBInstanceFactoryImpl factory;
-    private final FastClass implClass;
+    private final StatelessInstanceContextFactory factory;
+    private final Class beanClass;
 
-    public StatelessInstanceFactory(EJBContainer container) {
-        this.container = container;
-        componentContext = container.getComponentContext();
+    private transient final int createIndex;
+    private transient final FastClass implClass;
 
-        implClass = FastClass.create(container.getBeanClass());
+    public StatelessInstanceFactory(ReadOnlyContext componentContext, StatelessInstanceContextFactory factory, Class beanClass) {
+        this.componentContext = componentContext;
+        this.factory = factory;
+        this.beanClass = beanClass;
+
+        implClass = FastClass.create(beanClass);
         createIndex = implClass.getIndex("ejbCreate", new Class[0]);
-        factory = new EJBInstanceFactoryImpl(implClass);
     }
 
     public Object createInstance() throws Exception {
@@ -92,9 +90,10 @@ public class StatelessInstanceFactory implements InstanceFactory {
             // Disassociate from JNDI Component Context whilst creating instance
             RootContext.setComponentContext(null);
 
-            // create the instance and wrap in a StatelessInstanceContext
-            SessionBean instance = (SessionBean) factory.newInstance();
-            StatelessInstanceContext ctx = new StatelessInstanceContext(container, instance);
+            // create the StatelessInstanceContext which contains the instance
+            StatelessInstanceContext ctx = (StatelessInstanceContext) factory.newInstance();
+            SessionBean instance = (SessionBean) ctx.getInstance();
+            assert(instance != null);
 
             // Activate this components JNDI Component Context
             RootContext.setComponentContext(componentContext);
@@ -142,4 +141,9 @@ public class StatelessInstanceFactory implements InstanceFactory {
             RootContext.setComponentContext(oldContext);
         }
     }
+
+    private Object readResolve() {
+        return new StatelessInstanceFactory(componentContext, factory, beanClass);
+    }
 }
+

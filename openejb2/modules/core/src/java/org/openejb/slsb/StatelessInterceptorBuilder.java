@@ -45,14 +45,54 @@
  *
  * ====================================================================
  */
-package org.openejb.entity;
+package org.openejb.slsb;
 
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.naming.java.ComponentContextInterceptor;
+
+import org.openejb.AbstractInterceptorBuilder;
+import org.openejb.ConnectionTrackingInterceptor;
+import org.openejb.SystemExceptionInterceptor;
+import org.openejb.dispatch.DispatchInterceptor;
+import org.openejb.security.EJBIdentityInterceptor;
+import org.openejb.security.EJBRunAsInterceptor;
+import org.openejb.security.EJBSecurityInterceptor;
+import org.openejb.security.PolicyContextHandlerEJBInterceptor;
+import org.openejb.transaction.TransactionContextInterceptor;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
-public interface EntityInstanceContextFactory {
-    EntityInstanceContext newInstance() throws Exception;
+public class StatelessInterceptorBuilder extends AbstractInterceptorBuilder {
+    public Interceptor buildInterceptorChain() {
+        if (transactionManager == null) {
+            throw new IllegalStateException("Transaction manager must be set before building the interceptor chain");
+        }
+        if (instancePool == null) {
+            throw new IllegalStateException("Pool must be set before building the interceptor chain");
+        }
+
+        Interceptor firstInterceptor;
+        firstInterceptor = new DispatchInterceptor(vtable);
+        if (trackedConnectionAssociator != null) {
+            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources);
+        }
+        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, transactionPolicyManager);
+        if (setIdentityEnabled) {
+            firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
+        }
+        if (securityEnabled) {
+            firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, containerId, permissionManager);
+        }
+        if (runAs != null) {
+            firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);
+        }
+        if (securityEnabled) {
+            firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
+        }
+        firstInterceptor = new StatelessInstanceInterceptor(firstInterceptor, instancePool);
+        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
+        firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
+        return firstInterceptor;
+    }
 }

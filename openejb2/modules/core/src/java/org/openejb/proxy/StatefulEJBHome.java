@@ -45,8 +45,6 @@
 package org.openejb.proxy;
 
 import java.rmi.RemoteException;
-
-import javax.ejb.Handle;
 import javax.ejb.RemoveException;
 
 
@@ -57,9 +55,6 @@ public abstract class StatefulEJBHome extends EJBHomeImpl{
 
     public StatefulEJBHome(EJBMethodInterceptor handler) {
         super(handler);
-    }
-
-    public void remove(Handle handle) throws RemoteException, RemoveException {
     }
 
     public void remove(Object primaryKey) throws RemoteException, RemoveException {

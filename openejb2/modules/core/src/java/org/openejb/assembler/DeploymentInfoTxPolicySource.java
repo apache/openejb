@@ -50,100 +50,51 @@ import java.util.Map;
 
 import org.openejb.EJBComponentType;
 import org.openejb.deployment.TransactionPolicySource;
-import org.openejb.dispatch.MethodSignature;
+import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.BeanPolicy;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
 
 public class DeploymentInfoTxPolicySource implements TransactionPolicySource {    private final CoreDeploymentInfo deployment;
     private final Map policyMap = new HashMap();
-    
+
     public DeploymentInfoTxPolicySource(CoreDeploymentInfo deployment) {
         this.deployment = deployment;
-        Class bean = deployment.getBeanClass();
         Class remote = deployment.getRemoteInterface();
-        policyMap.put("Remote", buildRemotePolicyMap(bean,remote));
-        
+        policyMap.put("Remote", buildRemotePolicyMap(remote));
+
         Class home = deployment.getHomeInterface();
-        policyMap.put("Home", buildHomePolicyMap(bean,home));
+        policyMap.put("Home", buildHomePolicyMap(home));
     }
 
-    public TransactionPolicy getTransactionPolicy(String methodIntf, MethodSignature signature) {
+    public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
         Map policies = (Map)policyMap.get(methodIntf);
         return (policies == null)? null: (TransactionPolicy)policies.get(signature);
     }
-    private Map buildRemotePolicyMap(Class bean, Class interfce) {
+    private Map buildRemotePolicyMap(Class remoteInterface) {
         Map policies = new HashMap();
-        
-        Method[] methods = bean.getMethods();
+
+        Method[] methods = remoteInterface.getMethods();
 
         for (int i = 0; i < methods.length; i++) {
-            MethodSignature signature = new MethodSignature(methods[i]);
-            MethodSignature beanSig = signature; 
-            //TODO: Remove this hack 
-            String name = signature.getMethodName();
-            if (name.startsWith("ejbRemove")) {
-                signature = new MethodSignature("remove", signature.getParameterTypes());
-            } else {
-                signature = new MethodSignature(signature.getMethodName(), signature.getParameterTypes());
-            }
-            
-            try {
-                Method method = interfce.getMethod(signature.getMethodName(), methods[i].getParameterTypes());
-                TransactionPolicy policy = getTransactionPolicy(method);
-                policies.put(beanSig, policy);
-            } catch (SecurityException e) {
-            } catch (NoSuchMethodException e) {
-            }
+            InterfaceMethodSignature signature = new InterfaceMethodSignature(methods[i], false);
+            policies.put(signature, getTransactionPolicy(methods[i]));
         }
         return policies;
     }
-        
-    private Map buildHomePolicyMap(Class bean, Class interfce) {
+
+    private Map buildHomePolicyMap(Class homeInterface) {
         Map policies = new HashMap();
-        
-        Method[] methods = bean.getMethods();
+
+        Method[] methods = homeInterface.getMethods();
 
         for (int i = 0; i < methods.length; i++) {
-            MethodSignature signature = new MethodSignature(methods[i]);
-            MethodSignature beanSig = signature; 
-            String name = signature.getMethodName();
-            if (name.startsWith("ejbCreate")) {
-                signature = new MethodSignature("c" + name.substring(4), signature.getParameterTypes());
-            } else if (name.startsWith("ejbFind")) {
-                signature = new MethodSignature("f" + name.substring(4), signature.getParameterTypes());
-            } else if (name.startsWith("ejbHome")) {
-                String translatedName = Character.toLowerCase(name.charAt(7)) + name.substring(8);
-                signature = new MethodSignature(translatedName, signature.getParameterTypes());
-            } else if (name.startsWith("ejbRemove")) {
-                signature = new MethodSignature("remove", signature.getParameterTypes());
-            }
-            
-            try {
-                Method method = interfce.getMethod(signature.getMethodName(), methods[i].getParameterTypes());
-                TransactionPolicy policy = getTransactionPolicy(method);
-                policies.put(beanSig, policy);
-            } catch (SecurityException e) {
-            } catch (NoSuchMethodException e) {
-            }
+            InterfaceMethodSignature signature = new InterfaceMethodSignature(methods[i], true);
+            policies.put(signature, getTransactionPolicy(methods[i]));
         }
         return policies;
     }
-    
-    
-    private Map _buildPolicyMap(Class interfce) {
-        Map policies = new HashMap();
-        
-        Method[] methods = interfce.getMethods();
 
-        for (int i = 0; i < methods.length; i++) {
-            TransactionPolicy policy = getTransactionPolicy(methods[i]);
-            MethodSignature sig = new MethodSignature(methods[i]);
-            policies.put(sig, policy);
-        }
-        return policies;
-    }
-    
     private TransactionPolicy getTransactionPolicy(Method method) {
         switch (deployment.getTransactionAttribute(method)) {
             case CoreDeploymentInfo.TX_MANDITORY: return ContainerPolicy.Mandatory;

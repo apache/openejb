@@ -48,11 +48,11 @@
 package org.openejb.entity;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import net.sf.cglib.reflect.FastClass;
 
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractMethodOperation;
+import org.openejb.dispatch.MethodSignature;
 
 /**
  *
@@ -60,8 +60,8 @@ import org.openejb.dispatch.AbstractMethodOperation;
  * @version $Revision$ $Date$
  */
 public class HomeMethod extends AbstractMethodOperation {
-    public HomeMethod(FastClass fastClass, int methodIndex) {
-        super(fastClass, methodIndex);
+    public HomeMethod(Class beanClass, MethodSignature signature) {
+        super(beanClass, signature);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {

@@ -49,27 +49,30 @@ package org.openejb.entity.bmp;
 
 import javax.ejb.EntityBean;
 
-import org.openejb.EJBContainer;
+import org.apache.geronimo.transaction.InstanceContext;
+
 import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
-import org.openejb.entity.EntityInstanceContextFactory;
-import org.openejb.entity.EntityInstanceContext;
+import org.openejb.InstanceContextFactory;
+import org.openejb.proxy.EJBProxyFactory;
 
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public class BMPInstanceContextFactory implements EntityInstanceContextFactory {
-    private final EJBContainer container;
+public class BMPInstanceContextFactory implements InstanceContextFactory {
+    private final Object containerId;
+    private final EJBProxyFactory proxyFactory;
     private final EJBInstanceFactory factory;
 
-    public BMPInstanceContextFactory(EJBContainer container) {
-        this.container = container;
-        this.factory = new EJBInstanceFactoryImpl(container.getBeanClass());
+    public BMPInstanceContextFactory(Object containerId, EJBProxyFactory proxyFactory, Class beanClass) {
+        this.containerId = containerId;
+        this.proxyFactory = proxyFactory;
+        this.factory = new EJBInstanceFactoryImpl(beanClass);
     }
 
-    public EntityInstanceContext newInstance() throws Exception {
-        return new BMPInstanceContext(container, (EntityBean) factory.newInstance());
+    public InstanceContext newInstance() throws Exception {
+        return new BMPInstanceContext(containerId, proxyFactory, (EntityBean) factory.newInstance());
     }
 }

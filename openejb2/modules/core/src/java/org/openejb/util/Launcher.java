@@ -111,6 +111,18 @@ public final class Launcher {
         Process process = null;
         try {
             Runtime rt = Runtime.getRuntime();
+//            System.err.println();
+//            System.err.println();
+//            System.err.println();
+//            System.err.println();
+//            for (Iterator iterator = cmd.iterator(); iterator.hasNext();) {
+//                String s = (String) iterator.next();
+//                System.err.println(s);
+//            }
+//            System.err.println();
+//            System.err.println();
+//            System.err.println();
+//            System.err.println();
             process = rt.exec((String[])cmd.toArray(new String[0]));
 
             StreamGrabber stderr = new StreamGrabber(process.getErrorStream(), System.err);

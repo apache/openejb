@@ -80,35 +80,57 @@ public final class EntityInstanceInterceptor implements Interceptor {
 
         EntityInstanceContext context = (EntityInstanceContext) pool.acquire();
 
+        EntityBean instance = (EntityBean) context.getInstance();
         if (id != null) {
-            EntityBean instance = (EntityBean) context.getInstance();
+            // always activate on the way in....
             context.setId(id);
             try {
                 context.setOperation(EJBOperation.EJBACTIVATE);
                 instance.ejbActivate();
-                context.setOperation(EJBOperation.INACTIVE);
             } catch (Throwable t) {
                 // problem activating instance - discard it and throw the problem (will cause rollback)
                 pool.remove(context);
                 throw t;
+            } finally {
+                context.setOperation(EJBOperation.INACTIVE);
             }
 
             // associate this instance with the TransactionContext
+            context.setTransactionContext(transactionContext);
             transactionContext.associate(context);
         }
 
         ejbInvocation.setEJBInstanceContext(context);
         InstanceContext oldContext = transactionContext.beginInvocation(context);
+        boolean threwException = false;
         try {
             InvocationResult result = next.invoke(invocation);
-            if (context.getId() == null) {
-                // we are done with this instance, return it to the pool
-                pool.release(context);
-            }
             return result;
+        } catch (Throwable t) {
+            threwException = true;
+            throw t;
         } finally {
             transactionContext.endInvocation(oldContext);
             ejbInvocation.setEJBInstanceContext(null);
+
+            if (id == null) id = context.getId();
+
+            if (id != null) {
+                // always passivate on the way out...
+                try {
+                    context.setOperation(EJBOperation.EJBACTIVATE);
+                    instance.ejbPassivate();
+                } catch (Throwable t) {
+                    // problem passivating instance - discard it and throw the problem (will cause rollback)
+                    pool.remove(context);
+                    // throw this exception only if we are not already throwing a business exception
+                    if (!threwException) throw t;
+                } finally {
+                    context.setOperation(EJBOperation.INACTIVE);
+                    context.setTransactionContext(null);
+                    transactionContext.unassociate(context.getContainerId(), id);
+                }
+            }
         }
     }
 }

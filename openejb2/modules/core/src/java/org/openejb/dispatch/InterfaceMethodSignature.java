@@ -51,6 +51,11 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBObject;
+import javax.ejb.EJBLocalObject;
+
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
@@ -58,36 +63,40 @@ import org.apache.geronimo.kernel.ClassLoading;
  *
  * @version $Revision$ $Date$
  */
-public final class MethodSignature implements Serializable {
+public final class InterfaceMethodSignature implements Serializable {
     private static final String[] NOARGS = {};
     private final String methodName;
     private final String[] parameterTypes;
+    private final boolean isHomeMethod;
+    private final int hashCode;
 
-    public MethodSignature(Method method) {
-        methodName = method.getName();
-        Class[] params = method.getParameterTypes();
-        parameterTypes = new String[params.length];
-        for (int i = 0; i < params.length; i++) {
-            parameterTypes[i] = params[i].getName();
-        }
+    public InterfaceMethodSignature(Method method, boolean isHomeMethod) {
+        this(method.getName(), convertParameterTypes(method.getParameterTypes()), isHomeMethod);
     }
 
-    public MethodSignature(String methodName) {
-        this.methodName = methodName;
-        parameterTypes = NOARGS;
+    public InterfaceMethodSignature(String methodName, boolean isHomeMethod) {
+        this(methodName, NOARGS, isHomeMethod);
     }
 
-    public MethodSignature(String methodName, String[] parameterTypes) {
+    public InterfaceMethodSignature(String methodName, Class[] params, boolean isHomeMethod) {
+        this(methodName, convertParameterTypes(params), isHomeMethod);
+    }
+
+    public InterfaceMethodSignature(MethodSignature signature, boolean isHomeMethod) {
+        this(signature.getMethodName(), signature.getParameterTypes(), isHomeMethod);
+    }
+
+    public InterfaceMethodSignature(String methodName, String[] parameterTypes, boolean isHomeMethod) {
         this.methodName = methodName;
         this.parameterTypes = parameterTypes != null ? parameterTypes : NOARGS;
-    }
+        this.isHomeMethod = isHomeMethod;
 
-    public MethodSignature(String methodName, Class[] params) {
-        this.methodName = methodName;
-        parameterTypes = new String[params.length];
-        for (int i = 0; i < params.length; i++) {
-            parameterTypes[i] = params[i].getName();
+        int result = 17;
+        result = 37 * result + methodName.hashCode();
+        for (int i = 0; i < parameterTypes.length; i++) {
+            result = 37 * result + parameterTypes[i].hashCode();
         }
+        hashCode = result;
     }
 
     public String getMethodName() {
@@ -96,6 +105,10 @@ public final class MethodSignature implements Serializable {
 
     public String[] getParameterTypes() {
         return parameterTypes;
+    }
+
+    public boolean isHomeMethod() {
+        return isHomeMethod;
     }
 
     public String toString() {
@@ -115,6 +128,10 @@ public final class MethodSignature implements Serializable {
     }
 
     public boolean match(Method method) {
+        if (!isCorrectType(method.getDeclaringClass())) {
+            return false;
+        }
+
         if(!methodName.equals(method.getName())) {
             return false;
         }
@@ -131,6 +148,10 @@ public final class MethodSignature implements Serializable {
     }
 
     public Method getMethod(Class clazz) {
+        if (!isCorrectType(clazz)) {
+            return null;
+        }
+
         try {
             ClassLoader classLoader = clazz.getClassLoader();
             Class[] args = new Class[parameterTypes.length];
@@ -144,17 +165,45 @@ public final class MethodSignature implements Serializable {
     }
 
     public int hashCode() {
-        return toString().hashCode();
+        return hashCode;
     }
 
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
         }
-        if (obj instanceof MethodSignature == false) {
+        if (obj instanceof InterfaceMethodSignature == false) {
             return false;
         }
-        MethodSignature other = (MethodSignature) obj;
-        return methodName.equals(other.methodName) && Arrays.equals(parameterTypes, other.parameterTypes);
+        InterfaceMethodSignature other = (InterfaceMethodSignature) obj;
+        return  hashCode == other.hashCode &&
+                isHomeMethod == other.isHomeMethod &&
+                methodName.equals(other.methodName) &&
+                Arrays.equals(parameterTypes, other.parameterTypes);
+    }
+
+    private static String[] convertParameterTypes(Class[] params) {
+        if(params == null || params.length == 0) {
+            return NOARGS;
+        }
+
+        String[] types = new String[params.length];
+        for (int i = 0; i < params.length; i++) {
+            types[i] = params[i].getName();
+        }
+        return types;
+    }
+
+    private boolean isCorrectType(Class clazz) {
+        if (isHomeMethod) {
+            if(!EJBHome.class.isAssignableFrom(clazz) && !EJBLocalHome.class.isAssignableFrom(clazz)) {
+                return false;
+            }
+        } else {
+            if(!EJBObject.class.isAssignableFrom(clazz) && !EJBLocalObject.class.isAssignableFrom(clazz)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

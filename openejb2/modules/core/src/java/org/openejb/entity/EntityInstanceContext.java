@@ -51,9 +51,11 @@ import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
-import org.openejb.EJBContainer;
+import org.apache.geronimo.transaction.TransactionContext;
+
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
+import org.openejb.proxy.EJBProxyFactory;
 
 /**
  *
@@ -61,18 +63,24 @@ import org.openejb.EJBOperation;
  * @version $Revision$ $Date$
  */
 public abstract class EntityInstanceContext extends DefaultComponentContext implements EJBInstanceContext {
-    protected final EJBContainer container;
-    protected Object id;
-    protected final EntityContextImpl entityContext;
+    private final Object containerId;
+    private final EntityContextImpl entityContext;
+    private final EJBProxyFactory proxyFactory;
+    private Object id;
     private boolean stateValid;
 
-    public EntityInstanceContext(EJBContainer container) {
-        this.container = container;
+    public EntityInstanceContext(Object containerId, EJBProxyFactory proxyFactory) {
+        this.containerId = containerId;
+        this.proxyFactory = proxyFactory;
         entityContext = new EntityContextImpl(this);
     }
 
-    public final Object getContainer() {
-        return container;
+    public EJBProxyFactory getProxyFactory() {
+        return proxyFactory;
+    }
+
+    public Object getContainerId() {
+        return containerId;
     }
 
     public Object getId() {
@@ -89,6 +97,9 @@ public abstract class EntityInstanceContext extends DefaultComponentContext impl
 
     public EntityContext getEntityContext() {
         return entityContext;
+    }
+
+    public void setTransactionContext(TransactionContext transactionContext) {
     }
 
     public boolean isStateValid() {

@@ -52,6 +52,7 @@ import javax.ejb.EntityBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openejb.EJBOperation;
+import org.openejb.InstanceContextFactory;
 import org.openejb.cache.InstanceFactory;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
@@ -69,9 +70,9 @@ public class EntityInstanceFactory implements InstanceFactory {
     private static final Log log = LogFactory.getLog(EntityInstanceFactory.class);
 
     private final ReadOnlyContext componentContext;
-    private final EntityInstanceContextFactory factory;
+    private final InstanceContextFactory factory;
 
-    public EntityInstanceFactory(ReadOnlyContext componentContext, EntityInstanceContextFactory factory) {
+    public EntityInstanceFactory(ReadOnlyContext componentContext, InstanceContextFactory factory) {
         this.componentContext = componentContext;
         this.factory = factory;
     }
@@ -84,7 +85,7 @@ public class EntityInstanceFactory implements InstanceFactory {
             RootContext.setComponentContext(null);
 
             // create an EJBInstanceContext wrapping the raw instance
-            EntityInstanceContext ctx = factory.newInstance();
+            EntityInstanceContext ctx = (EntityInstanceContext) factory.newInstance();
             EntityBean instance = (EntityBean) ctx.getInstance();
 
             // Activate this components JNDI Component Context
@@ -92,9 +93,11 @@ public class EntityInstanceFactory implements InstanceFactory {
 
             // initialize the instance
             ctx.setOperation(EJBOperation.SETCONTEXT);
-            instance.setEntityContext(ctx.getEntityContext());
-
-            ctx.setOperation(EJBOperation.INACTIVE);
+            try {
+                instance.setEntityContext(ctx.getEntityContext());
+            } finally {
+                ctx.setOperation(EJBOperation.INACTIVE);
+            }
 
             return ctx;
         } finally {

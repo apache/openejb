@@ -76,6 +76,7 @@ public class TransactionContextInterceptor implements Interceptor {
         EJBInterfaceType invocationType = ejbInvocation.getType();
         int methodIndex = ejbInvocation.getMethodIndex();
 
+
         TransactionPolicy policy = transactionPolicyManager.getTransactionPolicy(invocationType, methodIndex);
         assert policy != null: "transaction policy array was not set up correctly, no policy for " + invocation;
         return policy.invoke(next, ejbInvocation, txnManager);

@@ -47,6 +47,7 @@
  */
 package org.openejb.entity.bmp;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import javax.ejb.EntityBean;
@@ -54,25 +55,52 @@ import javax.ejb.EntityBean;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
-import org.openejb.EJBContainer;
+import net.sf.cglib.reflect.FastClass;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
-import org.openejb.entity.EntityInstanceContext;
+import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
+import org.openejb.entity.EntityInstanceContext;
+import org.openejb.proxy.EJBProxyFactory;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public class BMPCreateMethod implements VirtualOperation {
-    private final Method createMethod;
-    private final Method postCreateMethod;
+public class BMPCreateMethod implements VirtualOperation, Serializable {
+    private final Class beanClass;
+    private final MethodSignature createSignature;
+    private final MethodSignature postCreateSignature;
+    private final transient FastClass fastBeanClass;
+    private final transient int createIndex;
+    private final transient int postCreateIndex;
 
-    public BMPCreateMethod(Method createMethod, Method postCreateMethod) {
-        this.createMethod = createMethod;
-        this.postCreateMethod = postCreateMethod;
+
+    public BMPCreateMethod(
+            Class beanClass,
+            MethodSignature createSignature,
+            MethodSignature postCreateSignature) {
+
+        this.beanClass = beanClass;
+        this.createSignature = createSignature;
+        this.postCreateSignature = postCreateSignature;
+
+        fastBeanClass = FastClass.create(beanClass);
+        Method createMethod = createSignature.getMethod(beanClass);
+        if (createMethod == null) {
+            throw new IllegalArgumentException("Bean class does not implement create method:" +
+                    " beanClass=" + beanClass.getName() + " method=" + createSignature);
+        }
+        createIndex = fastBeanClass.getIndex(createMethod.getName(), createMethod.getParameterTypes());
+
+        Method postCreateMethod = postCreateSignature.getMethod(beanClass);
+        if (postCreateMethod == null) {
+            throw new IllegalArgumentException("Bean class does not implement post create method:" +
+                    " beanClass=" + beanClass.getName() + " method=" + postCreateSignature);
+        }
+        postCreateIndex = fastBeanClass.getIndex(postCreateMethod.getName(), postCreateMethod.getParameterTypes());
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
@@ -81,31 +109,13 @@ public class BMPCreateMethod implements VirtualOperation {
         EntityBean instance = (EntityBean) ctx.getInstance();
         Object[] args = invocation.getArguments();
 
+        // call the create method
         Object id;
         try {
             ctx.setOperation(EJBOperation.EJBCREATE);
-            id = createMethod.invoke(instance, args);
-        } catch (InvocationTargetException e) {
-            ctx.setOperation(EJBOperation.INACTIVE);
-            // unwrap the exception
-            Throwable t = e.getTargetException();
-            if (t instanceof Exception && t instanceof RuntimeException == false) {
-                // checked exception - which we simply include in the result
-                return new SimpleInvocationResult(false, t);
-            } else {
-                // unchecked Exception - just throw it to indicate an abnormal completion
-                throw t;
-            }
-        }
-
-        ctx.setId(id);
-
-        try {
-            ctx.setOperation(EJBOperation.EJBPOSTCREATE);
-            postCreateMethod.invoke(instance, args);
-        } catch (InvocationTargetException e) {
-            // unwrap the exception
-            Throwable t = e.getTargetException();
+            id = fastBeanClass.invoke(createIndex, instance, args);
+        } catch (InvocationTargetException ite) {
+            Throwable t = ite.getTargetException();
             if (t instanceof Exception && t instanceof RuntimeException == false) {
                 // checked exception - which we simply include in the result
                 return new SimpleInvocationResult(false, t);
@@ -117,16 +127,43 @@ public class BMPCreateMethod implements VirtualOperation {
             ctx.setOperation(EJBOperation.INACTIVE);
         }
 
+        // assign the context the new id
+        ctx.setId(id);
+
+        // associate the new BMP instance with the tx cache
+        invocation.getTransactionContext().associate(ctx);
+
+        // call the post create method
+        try {
+            ctx.setOperation(EJBOperation.EJBPOSTCREATE);
+            fastBeanClass.invoke(postCreateIndex, instance, args);
+        } catch (InvocationTargetException ite) {
+            Throwable t = ite.getTargetException();
+            if (t instanceof Exception && t instanceof RuntimeException == false) {
+                // checked exception - which we simply include in the result
+                return new SimpleInvocationResult(false, t);
+            } else {
+                // unchecked Exception - just throw it to indicate an abnormal completion
+                throw t;
+            }
+        } finally {
+            ctx.setOperation(EJBOperation.INACTIVE);
+        }
+
+
         EJBInterfaceType type = invocation.getType();
-        EJBContainer container = (EJBContainer)ctx.getContainer();
-        return new SimpleInvocationResult(true, getReference(type.isLocal(), container, id));
+        return new SimpleInvocationResult(true, getReference(type.isLocal(), ctx.getProxyFactory(), id));
     }
 
-    private Object getReference(boolean local, EJBContainer container, Object id) {
+    private Object getReference(boolean local, EJBProxyFactory proxyFactory, Object id) {
         if (local) {
-            return container.getEJBLocalObject(id);
+            return proxyFactory.getEJBLocalObject(id);
         } else {
-            return container.getEJBObject(id);
+            return proxyFactory.getEJBObject(id);
         }
+    }
+
+    private Object readResolve() {
+        return new BMPCreateMethod(beanClass, createSignature, postCreateSignature);
     }
 }

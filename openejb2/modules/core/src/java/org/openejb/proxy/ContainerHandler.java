@@ -44,10 +44,8 @@
  */
 package org.openejb.proxy;
 
-import java.lang.reflect.Method;
-import java.rmi.RemoteException;
-
 import org.apache.geronimo.core.service.InvocationResult;
+
 import org.openejb.EJBContainer;
 import org.openejb.EJBInvocation;
 
@@ -64,29 +62,29 @@ public class ContainerHandler implements EJBInterceptor {
         return container.invoke(ejbInvocation);
     }
     
-    /**
-     * Old-style invoke 
-     * @param pk
-     * @param method
-     * @param args
-     * @return
-     * @throws Throwable
-     */
-    public Object invoke(Object pk, Method method, Object[] args)
-        throws Throwable {
-        try {
-            return container.invoke(method,args,pk);
-        } catch ( org.openejb.InvalidateReferenceException ire ) {
-            throw (ire.getRootCause() != null )? ire.getRootCause(): ire;
-        } catch ( org.openejb.ApplicationException ae ) {
-            throw (ae.getRootCause() != null )? ae.getRootCause(): ae;
-        } catch ( org.openejb.SystemException se ) {
-            Throwable exc = (se.getRootCause() != null )? se.getRootCause(): se;
-            throw new RemoteException("Container has suffered a SystemException", exc);
-        } catch ( org.openejb.OpenEJBException oe ) {
-            Throwable exc = (oe.getRootCause() != null )? oe.getRootCause(): oe;
-            throw new RemoteException("Unknown Container Exception",oe.getRootCause());
-        }            
-    }
+//    /**
+//     * Old-style invoke
+//     * @param pk
+//     * @param method
+//     * @param args
+//     * @return
+//     * @throws Throwable
+//     */
+//    public Object invoke(Object pk, Method method, Object[] args)
+//        throws Throwable {
+//        try {
+//            return container.invoke(method,args,pk);
+//        } catch ( org.openejb.InvalidateReferenceException ire ) {
+//            throw (ire.getRootCause() != null )? ire.getRootCause(): ire;
+//        } catch ( org.openejb.ApplicationException ae ) {
+//            throw (ae.getRootCause() != null )? ae.getRootCause(): ae;
+//        } catch ( org.openejb.SystemException se ) {
+//            Throwable exc = (se.getRootCause() != null )? se.getRootCause(): se;
+//            throw new RemoteException("Container has suffered a SystemException", exc);
+//        } catch ( org.openejb.OpenEJBException oe ) {
+//            Throwable exc = (oe.getRootCause() != null )? oe.getRootCause(): oe;
+//            throw new RemoteException("Unknown Container Exception",oe.getRootCause());
+//        }
+//    }
 
 }
