@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision$ $Date$ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    xmlns:define="jelly:define"
+    xmlns:bootstrap="geronimo:bootstrap">
+
+    <!-- ================= -->
+    <!-- Global Properties -->
+    <!-- ================= -->
+
+    <!-- Determine what the top-level project root is -->
+    <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
+
+    <!-- Determine what the top-level project root is -->
+    <j:set var="distDir" value="${project.root}/target/assembly"/>
+
+    <!-- Load the global properties -->
+    <ant:property file="${project.root}/etc/global.properties"/>
+
+    <!-- ==================== -->
+    <!-- Default Global Goals -->
+    <!-- ==================== -->
+
+    <goal name="default">
+        <attainGoal name="build"/>
+    </goal>
+
+    <goal name="build">
+        <attainGoal name="assemble"/>
+    </goal>
+
+    <goal name="rebuild">
+        <attainGoal name="clean"/>
+        <attainGoal name="build"/>
+    </goal>
+
+    <postGoal name="clean:clean">
+        <ant:delete dir="${distDir}"/>
+    </postGoal>
+
+    <!-- ==================================================== -->
+    <!-- Assemble server installation from generated modules  -->
+    <!-- ==================================================== -->
+    <goal name="assemble">
+        <!-- delete the dist directory first, to remove any cruft -->
+        <ant:delete dir="${distDir}"/>
+
+        <!-- Copy  the runtime dependencies into lib and create a classpath for the server.jar file -->
+        <j:set var="libDir" value="${distDir}/lib"/>
+        <ant:mkdir dir="${libDir}"/>
+        <j:forEach var="artifact" items="${pom.artifacts}">
+            <j:set var="dependency" value="${artifact.dependency}"/>
+            <j:if test="${dependency.getProperty('lib') == 'true'}">
+                <ant:copy todir="${libDir}" file="${artifact.path}"/>
+                <j:set var="classpath" value="${classpath} ../lib/${artifact.name}"/>
+            </j:if>
+            <j:if test="${dependency.getProperty('server') == 'true'}">
+                <j:set var="server.classpath" value="${server.classpath} ../lib/${artifact.name}"/>
+            </j:if>
+            <j:if test="${dependency.getProperty('deploy') == 'true'}">
+                <j:set var="deploy.classpath" value="${deploy.classpath} ../lib/${artifact.name}"/>
+            </j:if>
+        </j:forEach>
+
+        <!-- Create directory for XML schema documents -->
+        <ant:mkdir dir="${distDir}/schema"/>
+        <ant:copy todir="${distDir}/schema" flatten="true">
+            <ant:fileset dir="${project.root}/modules/core/src/schema">
+                <ant:include name="*.xsd"/>
+                <ant:include name="*.dtd"/>
+            </ant:fileset>
+            <ant:fileset dir="src/etc"/>
+        </ant:copy>
+
+        <!-- Pre-load the server's repository -->
+        <ant:mkdir dir="${distDir}/repository"/>
+        <ant:copy todir="${distDir}/repository">
+            <ant:fileset dir="${maven.repo.local}">
+                <ant:include name="openejb/**"/>
+
+                <j:forEach var="artifact" items="${pom.artifacts}">
+                    <j:set var="dependency" value="${artifact.dependency}"/>
+                    <j:if test="${dependency.getProperty('repository') == 'true'}">
+                        <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
+                    </j:if>
+                </j:forEach>
+            </ant:fileset>
+        </ant:copy>
+
+        <ant:copy todir="${distDir}/repository">
+            <mapper type="glob" from="${maven.repo.local}*" to="*"/>
+            <ant:fileset dir="${maven.repo.local}">
+                <j:forEach var="artifact" items="${pom.artifacts}">
+                    <j:set var="dependency" value="${artifact.dependency}"/>
+                    <j:if test="${dependency.getProperty('repository') == 'true'}">
+                        <ant:fileset include="${artifact.path}"/>
+                    </j:if>
+                </j:forEach>
+            </ant:fileset>
+        </ant:copy>
+
+        <!-- bootstrap the deployer -->
+        <ant:echo>Bootstrapping service deployer</ant:echo>
+        <ant:mkdir dir="${distDir}/bin"/>
+        <ant:mkdir dir="${distDir}/config-store"/>
+
+        <define:taglib uri="geronimo:bootstrap">
+            <define:jellybean
+                name="bootstrap"
+                className="org.apache.geronimo.deployment.Bootstrap"
+                method="bootstrap"/>
+        </define:taglib>
+
+        <bootstrap:bootstrap
+            deployerJar="${distDir}/bin/deployer.jar"
+            storeDir="${distDir}/config-store"
+            repositoryDir="${distDir}/repository"
+            deployerSystemPlan="${basedir}/src/plan/deployer-system-plan.xml"
+            j2eeDeployerPlan="${basedir}/src/plan/j2ee-deployer-plan.xml"
+            deployerClassPath="${deploy.classpath}"
+            deployerGBean="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer"
+            />
+
+        <!-- build the system configuration and server.jar -->
+        <ant:echo>Building system configuration</ant:echo>
+        <ant:mkdir dir="${distDir}/bin"/>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:arg value="--install"/>
+            <ant:arg value="--plan"/>
+            <ant:arg value="src/plan/system-plan.xml"/>
+            <ant:arg value="--outfile"/>
+            <ant:arg value="${distDir}/bin/server.jar"/>
+        </ant:java>
+
+        <!-- build the J2EEServer configuration -->
+        <ant:echo>Building server configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:arg value="--install"/>
+            <ant:arg value="--plan"/>
+            <ant:arg value="src/plan/j2ee-server-plan.xml"/>
+        </ant:java>
+
+        <!-- build the itests configuration -->
+        <ant:echo>Building server configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:arg value="--install"/>
+            <ant:arg value="--module"/>
+            <ant:arg value="${project.root}/modules/itests/target/openejb-itests-beans2.jar"/>
+        </ant:java>
+    </goal>
+</project>

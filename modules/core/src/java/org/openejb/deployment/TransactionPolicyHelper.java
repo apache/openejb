@@ -103,16 +103,16 @@ public class TransactionPolicyHelper {
     }
 
     public TransactionPolicySource getTransactionPolicySource(String ejbName) throws DeploymentException {
-        return new TransactionPolicySourceImpl((SortedSet) ejbNameToTransactionAttributesMap.get(ejbName));
+        return new TransactionPolicySourceImpl(ejbName, (SortedSet) ejbNameToTransactionAttributesMap.get(ejbName));
     }
 
     private static class TransactionPolicySourceImpl implements TransactionPolicySource {
         private final SortedSet transactionPolicies;
 
-        public TransactionPolicySourceImpl(SortedSet transactionPolicies) throws DeploymentException {
+        public TransactionPolicySourceImpl(String ejbName, SortedSet transactionPolicies) throws DeploymentException {
             //To allow more lenient spec interpretations, with default of Requires, substitute an empty sorted set here.
             if (transactionPolicies == null) {
-                throw new DeploymentException("You must specify transaction attributes, see ejb 2.1 spec 17.4.1");
+                throw new DeploymentException("You must specify transaction attributes, see ejb 2.1 spec 17.4.1: ejbName=" + ejbName);
             }
             this.transactionPolicies = transactionPolicies;
         }

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+  
+
+<!--
+Configuration for the innermost ring of a Geronimo server.
+This configuration should only contain critical services needed to
+run other Configurations - for example, the ServerInfo, Logging
+and Repository services used to load them.
+
+This configuration should *NOT* be used to provide server or application
+specific services - those should be provided by children.
+-->
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="org/apache/geronimo/System"
+    >
+
+    <executable mainClass="org.apache.geronimo.system.main.Daemon" classPath="../lib/geronimo-kernel-DEV.jar ../lib/geronimo-system-DEV.jar ../lib/cglib-full-2.0-RC2.jar ../lib/commons-cli-1.0.jar ../lib/commons-logging-1.0.3.jar ../lib/log4j-1.2.8.jar ../lib/mx4j-SNAPSHOT.jar ../lib/xercesImpl-2.6.0.jar ../lib/xmlParserAPIs-2.2.1.jar"/>
+
+    <!-- ServerInfo service -->
+    <gbean name="geronimo.system:role=ServerInfo" class="org.apache.geronimo.system.serverinfo.ServerInfo"/>
+
+    <!-- ServerInfo service -->
+    <gbean name="geronimo.system:role=URLFactory" class="org.apache.geronimo.system.url.GeronimoURLFactory"/>
+
+    <!-- Configuration Store service -->
+    <gbean name="geronimo.system:role=ConfigurationStore,type=Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
+        <attribute name="root" type="java.net.URI">config-store</attribute>
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    </gbean>
+
+    <!-- Repository -->
+    <gbean name="geronimo.system:role=Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
+        <attribute name="Root" type="java.net.URI">repository/</attribute>
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    </gbean>
+
+    <!-- Logging service -->
+    <gbean name="geronimo.system:role=Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
+        <attribute name="RefreshPeriod" type="int">60</attribute>
+        <attribute name="ConfigurationURL" type="java.net.URL">log4j.xml</attribute>
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    </gbean>
+
+    <gbean name="geronimo.system:role=LogAppender,type=ConsoleAppender" class="org.apache.geronimo.system.logging.log4j.appender.ConsoleAppenderService">
+        <attribute name="Threshold" type="java.lang.String">INFO</attribute>
+        <attribute name="LayoutPattern" type="java.lang.String">%d{ABSOLUTE} %-5p [%c{1}] %m%n</attribute>
+        <attribute name="Target" type="java.lang.String">System.out</attribute>
+    </gbean>
+
+    <gbean name="geronimo.system:role=LogAppender,type=DailyRollingFileAppender" class="org.apache.geronimo.system.logging.log4j.appender.RollingFileAppenderService">
+        <attribute name="Threshold" type="java.lang.String">DEBUG</attribute>
+        <attribute name="LayoutPattern" type="java.lang.String">%d{ABSOLUTE} %-5p [%c{1}] %m%n</attribute>
+        <attribute name="Append" type="boolean">true</attribute>
+        <attribute name="File" type="java.lang.String">var/log/geronimo.log</attribute>
+        <attribute name="BufferedIO" type="boolean">false</attribute>
+        <attribute name="BufferedSize" type="int">8192</attribute>
+        <attribute name="MaxBackupIndex" type="int">1</attribute>
+        <attribute name="MaxFileSize" type="java.lang.String">10MB</attribute>
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    </gbean>
+</configuration>

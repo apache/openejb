@@ -45,6 +45,11 @@
 package org.openejb;
 
 import java.util.HashMap;
+import java.util.Collection;
+
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.ReferenceCollection;
 
 
 /**
@@ -52,58 +57,88 @@ import java.util.HashMap;
  * and more along the lines of a collection of containers registered as gbeans
  */
 public class ContainerIndex {
-
-
     // TODO: Should be an array list or something
-    EJBContainer[] containers = new EJBContainer[1];
-    
-    HashMap index = new HashMap();
+    private EJBContainer[] containers = new EJBContainer[1];
+
+    private final HashMap index = new HashMap();
 
     private static final ContainerIndex containerIndex = new ContainerIndex();
-    
-    public static ContainerIndex getInstance(){
+
+    private ReferenceCollection ejbContainers;
+
+    public static ContainerIndex getInstance() {
         return containerIndex;
     }
-    
-    private ContainerIndex(){}
 
-    
-    public void addContainer(EJBContainer container){
-        int i = containers.length;
-
-        EJBContainer[] newArray = new EJBContainer[i+1];
-        System.arraycopy(containers, 0, newArray, 0, i);
-        containers = newArray;
-        
-        containers[i] =  container;
-        index.put( container.getContainerID(), new Integer(i));
+    private ContainerIndex() {
     }
 
-    public int length(){
+    public ContainerIndex(Collection ejbContainers) {
+        this.ejbContainers = (ReferenceCollection) ejbContainers;
+    }
+
+    public void addContainer(EJBContainer container) {
+        int i = containers.length;
+
+        EJBContainer[] newArray = new EJBContainer[i + 1];
+        System.arraycopy(containers, 0, newArray, 0, i);
+        containers = newArray;
+
+        containers[i] = container;
+        index.put(container.getContainerID(), new Integer(i));
+    }
+
+    public int length() {
         return containers.length;
     }
 
-    public int getContainerIndex(Object containerID){
-        return getContainerIndex( (String)containerID);
+    public int getContainerIndex(Object containerID) {
+        return getContainerIndex((String) containerID);
     }
-    
-    public int getContainerIndex(String containerID){
-        Integer idCode = (Integer)index.get( containerID );
-        
-        return ( idCode == null )? -1: idCode.intValue();
+
+    public int getContainerIndex(String containerID) {
+        Integer idCode = (Integer) index.get(containerID);
+
+        return (idCode == null) ? -1 : idCode.intValue();
     }
-    
-    public EJBContainer getContainer(String containerID){
+
+    public EJBContainer getContainer(String containerID) {
         return getContainer(getContainerIndex(containerID));
     }
-    
-    public EJBContainer getContainer(Integer index){
-        return (index == null)? null: getContainer(index.intValue());
+
+    public EJBContainer getContainer(Integer index) {
+        return (index == null) ? null : getContainer(index.intValue());
     }
-    
-    public EJBContainer getContainer(int index){
+
+    public EJBContainer getContainer(int index) {
         return containers[index];
     }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ContainerIndex.class);
+
+        infoFactory.setConstructor(
+                new String[]{ "ejbContainers" },
+                new Class[]{ Collection.class });
+
+        infoFactory.addOperation("getContainerIndex", new Class[]{Object.class});
+        infoFactory.addOperation("getContainerIndex", new Class[]{String.class});
+        infoFactory.addOperation("getContainer", new Class[]{String.class});
+        infoFactory.addOperation("getContainer", new Class[]{Integer.class});
+        infoFactory.addOperation("getContainer", new Class[]{Integer.TYPE});
+
+        infoFactory.addReference("ejbContainers", EJBContainer.class);
+
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 }
+
 
 

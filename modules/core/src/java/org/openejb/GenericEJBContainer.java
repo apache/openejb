@@ -59,21 +59,20 @@ import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 import org.openejb.cache.InstancePool;
 import org.openejb.client.EJBObjectHandler;
 import org.openejb.client.EJBObjectProxy;
 import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.entity.EntityInterceptorBuilder;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
-import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  * @version $Revision$ $Date$

@@ -51,8 +51,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.ejb.EntityContext;
-import javax.ejb.Handle;
 
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
@@ -167,14 +165,15 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
-    protected LinkedHashMap buildVopMap(Class beanClass) {
+    protected LinkedHashMap buildVopMap(Class beanClass) throws Exception {
         LinkedHashMap vopMap = new LinkedHashMap();
 
         // get the context set unset method objects
         Method setEntityContext;
         Method unsetEntityContext;
         try {
-            setEntityContext = beanClass.getMethod("setEntityContext", new Class[]{EntityContext.class});
+            Class entityContextClass = getClassLoader().loadClass("javax.ejb.EntityContext");
+            setEntityContext = beanClass.getMethod("setEntityContext", new Class[]{entityContextClass});
             unsetEntityContext = beanClass.getMethod("unsetEntityContext", null);
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Bean does not implement javax.ejb.EntityBean");
@@ -232,8 +231,9 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                         new CMPRemoveMethod(beanClass, signature, primaryKeyTransform));
 
                 // ejbHome.remove(handle)
+                Class handleClass = getClassLoader().loadClass("javax.ejb.Handle");
                 vopMap.put(
-                        new InterfaceMethodSignature("ejbRemove", new Class[]{Handle.class}, true),
+                        new InterfaceMethodSignature("ejbRemove", new Class[]{handleClass}, true),
                         new CMPRemoveMethod(beanClass, signature, primaryKeyTransform));
             } else if (name.startsWith("ejb")) {
                 continue;

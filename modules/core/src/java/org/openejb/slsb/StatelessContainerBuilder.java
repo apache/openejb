@@ -49,7 +49,6 @@ package org.openejb.slsb;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
-import javax.ejb.SessionContext;
 
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
@@ -97,12 +96,13 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
-    protected LinkedHashMap buildVopMap(Class beanClass) {
+    protected LinkedHashMap buildVopMap(Class beanClass) throws Exception {
         LinkedHashMap vopMap = new LinkedHashMap();
 
         Method setSessionContext = null;
         try {
-            setSessionContext = beanClass.getMethod("setSessionContext", new Class[]{SessionContext.class});
+            Class sessionContextClass = getClassLoader().loadClass("javax.ejb.SessionContext");
+            setSessionContext = beanClass.getMethod("setSessionContext", new Class[]{sessionContextClass});
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Bean does not implement setSessionContext(javax.ejb.SessionContext)");
         }

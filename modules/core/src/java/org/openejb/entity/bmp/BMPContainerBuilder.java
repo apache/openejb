@@ -49,8 +49,6 @@ package org.openejb.entity.bmp;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
-import javax.ejb.EntityContext;
-import javax.ejb.Handle;
 
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
@@ -105,14 +103,15 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
-    protected LinkedHashMap buildVopMap(final Class beanClass) {
+    protected LinkedHashMap buildVopMap(final Class beanClass) throws Exception{
         LinkedHashMap vopMap = new LinkedHashMap();
 
         // get the context set unset method objects
         Method setEntityContext;
         Method unsetEntityContext;
         try {
-            setEntityContext = beanClass.getMethod("setEntityContext", new Class[]{EntityContext.class});
+            Class entityContextClass = getClassLoader().loadClass("javax.ejb.EntityContext");
+            setEntityContext = beanClass.getMethod("setEntityContext", new Class[]{entityContextClass});
             unsetEntityContext = beanClass.getMethod("unsetEntityContext", null);
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Bean does not implement javax.ejb.EntityBean");
@@ -164,8 +163,9 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
                         new BMPRemoveMethod(beanClass, signature));
 
                 // ejbHome.remove(handle)
+                Class handleClass = getClassLoader().loadClass("javax.ejb.Handle");
                 vopMap.put(
-                        new InterfaceMethodSignature("remove", new Class[]{Handle.class}, true),
+                        new InterfaceMethodSignature("remove", new Class[]{handleClass}, true),
                         new BMPRemoveMethod(beanClass, signature));
             } else if (signature.getMethodName().startsWith("ejbFind")) {
                 vopMap.put(

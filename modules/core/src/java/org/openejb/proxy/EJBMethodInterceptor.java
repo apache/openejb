@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import javax.ejb.EJBException;
 import javax.ejb.Handle;
+import javax.ejb.EJBObject;
 
 import org.apache.geronimo.core.service.InvocationResult;
 
@@ -93,7 +94,10 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
             }
             id = args[0];
             if(id instanceof Handle && interfaceType == EJBInterfaceType.HOME) {
-                id = EJBProxyHelper.getPrimaryKey((Handle)id);
+                HandleImpl handle = (HandleImpl) id;
+                EJBObject ejbObject = handle.getEJBObject();
+                EJBMethodInterceptor ejbHandler = ((BaseEJB)ejbObject).ejbHandler;
+                id = ejbHandler.getPrimaryKey();
             }
         }
 

@@ -49,8 +49,6 @@ package org.openejb.sfsb;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
-import javax.ejb.Handle;
-import javax.ejb.SessionContext;
 
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
@@ -101,12 +99,13 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
-    protected LinkedHashMap buildVopMap(Class beanClass) {
+    protected LinkedHashMap buildVopMap(Class beanClass) throws Exception {
         LinkedHashMap vopMap = new LinkedHashMap();
 
         Method setSessionContext = null;
         try {
-            setSessionContext = beanClass.getMethod("setSessionContext", new Class[]{SessionContext.class});
+            Class sessionContextClass = getClassLoader().loadClass("javax.ejb.SessionContext");
+            setSessionContext = beanClass.getMethod("setSessionContext", new Class[]{sessionContextClass});
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Bean does not implement setSessionContext(javax.ejb.SessionContext)");
         }
@@ -142,8 +141,9 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
                         new RemoveMethod(beanClass, signature, isBMT));
 
                 // ejbHome.remove(handle)
+                Class handleClass = getClassLoader().loadClass("javax.ejb.Handle");
                 vopMap.put(
-                        new InterfaceMethodSignature("remove", new Class[]{Handle.class}, true),
+                        new InterfaceMethodSignature("remove", new Class[]{handleClass}, true),
                         new RemoveMethod(beanClass, signature, isBMT));
             } else {
                 continue;
