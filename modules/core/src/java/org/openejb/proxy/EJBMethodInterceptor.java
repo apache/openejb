@@ -53,10 +53,17 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         this.operationMap = operationMap;
         this.proxyFactory = proxyFactory;
 
-        EJBInterceptor interceptor = new ContainerHandler(container);
+        EJBInterceptor interceptor;
+        if (container == null){
+            interceptor = new ContainerReferenceHandler(proxyInfo.getContainerID());
+        } else {
+            interceptor = new ContainerHandler(container);    
+        }
+        
         if (!interfaceType.isLocal() || !skipCopy()) {
             interceptor = new SerializationHanlder(interceptor);
         }
+        
         next = interceptor;
     }
 
