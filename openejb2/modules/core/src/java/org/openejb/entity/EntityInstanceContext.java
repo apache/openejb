@@ -76,6 +76,7 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
     private final EJBInvocation loadInvocation;
     private final EJBInvocation storeInvocation;
     private boolean stateValid;
+    private int callDepth;
 
     public EntityInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EnterpriseBean instance, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, TransactionContextManager transactionContextManager, BasicTimerService timerService) {
         super(lifecycleInterceptorChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, timerService);
@@ -124,6 +125,20 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
 
     public void setStateValid(boolean stateValid) {
         this.stateValid = stateValid;
+    }
+
+
+    public boolean isInCall() {
+        return callDepth > 0;
+    }
+
+    public void enter() {
+        callDepth++;
+    }
+
+    public void exit() {
+        assert isInCall();
+        callDepth--;
     }
 
     public void ejbActivate() throws Throwable {

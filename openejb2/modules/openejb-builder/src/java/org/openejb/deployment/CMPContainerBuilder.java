@@ -149,6 +149,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     private GlobalSchema globalSchema;
     private EJB ejb;
     private TransactionManagerDelegate tm;
+    private boolean reentrant;
 
     public boolean isCMP2() {
         return cmp2;
@@ -193,10 +194,19 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     public void setTransactionManagerDelegate(TransactionManagerDelegate tm) {
         this.tm = tm;
     }
-    
+
+    public boolean isReentrant() {
+        return reentrant;
+    }
+
+    public void setReentrant(boolean reentrant) {
+        this.reentrant = reentrant;
+    }
+
     protected InterceptorBuilder initializeInterceptorBuilder(CMPEntityInterceptorBuilder interceptorBuilder, InterfaceMethodSignature[] signatures, VirtualOperation[] vtable) {
         super.initializeInterceptorBuilder(interceptorBuilder, signatures, vtable);
         interceptorBuilder.setCacheFlushStrategyFactory(globalSchema.getCacheFlushStrategyFactorr());
+        interceptorBuilder.setReentrant(reentrant);
         return interceptorBuilder;
     }
     

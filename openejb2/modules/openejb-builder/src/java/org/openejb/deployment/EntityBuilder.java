@@ -121,6 +121,7 @@ class EntityBuilder extends BeanBuilder {
         builder.setTransactionPolicySource(transactionPolicySource);
         builder.setTransactedTimerName(earContext.getTransactedTimerName());
         builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
+        builder.setReentrant(entityBean.getReentrant().getBooleanValue());
 
         Permissions toBeChecked = new Permissions();
         ContainerSecurityBuilder containerSecurityBuilder = getModuleBuilder().getSecurityBuilder();

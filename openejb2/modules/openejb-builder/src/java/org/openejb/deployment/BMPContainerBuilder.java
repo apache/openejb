@@ -64,7 +64,7 @@ import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
 import org.openejb.entity.BusinessMethod;
 import org.openejb.entity.EntityInstanceFactory;
-import org.openejb.entity.EntityInterceptorBuilder;
+import org.openejb.entity.bmp.BMPEntityInterceptorBuilder;
 import org.openejb.entity.HomeMethod;
 import org.openejb.entity.bmp.BMPCreateMethod;
 import org.openejb.entity.bmp.BMPFinderMethod;
@@ -78,13 +78,27 @@ import org.openejb.entity.dispatch.SetEntityContextOperation;
 import org.openejb.entity.dispatch.UnsetEntityContextOperation;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class BMPContainerBuilder extends AbstractContainerBuilder {
+    private boolean reentrant;
+
+    public boolean isReentrant() {
+        return reentrant;
+    }
+
+    public void setReentrant(boolean reentrant) {
+        this.reentrant = reentrant;
+    }
+
     protected int getEJBComponentType() {
         return EJBComponentType.BMP_ENTITY;
+    }
+
+    protected InterceptorBuilder initializeInterceptorBuilder(BMPEntityInterceptorBuilder interceptorBuilder, InterfaceMethodSignature[] signatures, VirtualOperation[] vtable) {
+        super.initializeInterceptorBuilder(interceptorBuilder, signatures, vtable);
+        interceptorBuilder.setReentrant(reentrant);
+        return interceptorBuilder;
     }
 
     protected Object buildIt(boolean buildContainer) throws Exception {
@@ -98,7 +112,7 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
         VirtualOperation[] vtable = (VirtualOperation[])vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
 
         // create and intitalize the interceptor moduleBuilder
-        InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new EntityInterceptorBuilder(), signatures, vtable);
+        InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new BMPEntityInterceptorBuilder(), signatures, vtable);
 
         // build the context factory
         InstanceContextFactory contextFactory = new BMPInstanceContextFactory(getContainerId(), beanClass, getUnshareableResources(), getApplicationManagedSecurityResources());

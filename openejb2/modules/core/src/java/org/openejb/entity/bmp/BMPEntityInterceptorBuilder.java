@@ -45,7 +45,7 @@
  *
  * ====================================================================
  */
-package org.openejb.entity;
+package org.openejb.entity.bmp;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
@@ -54,6 +54,7 @@ import org.openejb.AbstractInterceptorBuilder;
 import org.openejb.ConnectionTrackingInterceptor;
 import org.openejb.SystemExceptionInterceptor;
 import org.openejb.TwoChains;
+import org.openejb.entity.EntityInstanceInterceptor;
 import org.openejb.dispatch.DispatchInterceptor;
 import org.openejb.security.EJBIdentityInterceptor;
 import org.openejb.security.EJBRunAsInterceptor;
@@ -66,8 +67,17 @@ import org.openejb.transaction.TransactionContextInterceptor;
  *
  * @version $Revision$ $Date$
  */
-public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
-    
+public class BMPEntityInterceptorBuilder extends AbstractInterceptorBuilder {
+    private boolean reentrant;
+
+    public boolean isReentrant() {
+        return reentrant;
+    }
+
+    public void setReentrant(boolean reentrant) {
+        this.reentrant = reentrant;
+    }
+
     public TwoChains buildInterceptorChains() {
         if (transactionContextManager == null) {
             throw new IllegalStateException("Transaction context manager must be set before building the interceptor chain");
@@ -99,7 +109,7 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
         if (trackedConnectionAssociator != null) {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
         }
-        firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, containerId, instancePool);
+        firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, containerId, instancePool, reentrant);
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
         return new TwoChains(firstInterceptor, systemChain);
