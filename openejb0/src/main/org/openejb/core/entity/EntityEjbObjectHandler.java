@@ -75,7 +75,38 @@ import org.openejb.util.proxy.ProxyManager;
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
 public class EntityEjbObjectHandler extends EjbObjectProxyHandler {
-    
+
+    private final static class RegistryEntry{
+        final Object primaryKey;
+        final Object deploymentId;
+        final Object containerId;
+
+        RegistryEntry(Object primaryKey, Object deploymentId, Object containerId) {
+            if(primaryKey==null || deploymentId==null || containerId==null) {
+                throw new IllegalArgumentException();
+            }
+            this.primaryKey=primaryKey;
+            this.deploymentId=deploymentId;
+            this.containerId=containerId;
+        }
+
+        public boolean equals(Object other) {
+            if(other==this) {
+                return true;
+            }
+            if(other instanceof RegistryEntry) {
+                RegistryEntry otherEntry = (RegistryEntry) other;
+                return primaryKey.equals(otherEntry.primaryKey) &&
+                    deploymentId.equals(otherEntry.deploymentId) &&
+                    containerId.equals(otherEntry.containerId);
+            }
+            return false;
+        }
+
+        public int hashCode() {
+            return primaryKey.hashCode();
+        }
+    }
     /*
     * The registryId is a logical identifier that is used as a key when placing EntityEjbObjectHandler into
     * the BaseEjbProxyHanlder's liveHandleRegistry.  EntityEjbObjectHandlers that represent the same
@@ -85,7 +116,7 @@ public class EntityEjbObjectHandler extends EjbObjectProxyHandler {
     * container id.  This uniquely identifies the bean identity that is proxied by this handler allowing it
     * to be removed with other handlers bound to the same registry id.
     */
-    public Object registryId;      
+    private Object registryId;      
                     
     public EntityEjbObjectHandler(RpcContainer container, Object pk, Object depID){
         super(container, pk, depID);
@@ -99,7 +130,7 @@ public class EntityEjbObjectHandler extends EjbObjectProxyHandler {
     * is called.
     */
     public static Object getRegistryId(Object primKey, Object deployId, Container contnr){
-        return ""+primKey+deployId+contnr.getContainerID();
+        return new RegistryEntry(primKey, deployId, contnr.getContainerID());
     }
     
     /**
@@ -149,10 +180,10 @@ public class EntityEjbObjectHandler extends EjbObjectProxyHandler {
             * within the IntraVM.
             */
             if(this.getRegistryId().equals(handler.getRegistryId())){
-                return new Boolean(true);
+                return Boolean.TRUE;
             }
         }
-        return new Boolean(false);
+        return Boolean.FALSE;
         
     }
     
