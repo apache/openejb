@@ -68,10 +68,11 @@ Install Tomcat
 Go to the directory you downloaded and double click jakarta-tomcat-xxx.exe.  An install
 shield will pop up and ask you for several options.  You may wish to click the check box that
 installs Tomcat as an NT service.<br/>
-<br/>
+</p>
+<p>
 <img src="images/tomcat_windows_nt_service.jpg" width="426" height="288" border="0" alt=""/>
-<br/><br/>
-
+</p>
+<p>
 Once Tomcat is finished installing, it will automatically start up and you can test it by
 visiting this link: <a href="http://localhost:8080" target="_blank">http://localhost:8080</a>.  If there are
 any problems, consult the Tomcat documentation on their website.
@@ -110,22 +111,37 @@ using the CATALINA_OPTS environment variable
 <p>
 In order to do this, we'll need to add CATALINA_OPTS to our environment variables.
 To do this, go to your desk top and right-click on my computer and choose Properties.
-Click on the Advanced tab and click Environment Variables.<br/><br/>
-<img src="images/tomcat_windows_env_variables.jpg" width="410" height="461" border="0" alt=""/>
+Click on the Advanced tab and click Environment Variables.
 
-<br/><br/>
+</p>
+
+<p>
+<img src="images/tomcat_windows_env_variables.jpg" width="410" height="461" border="0" alt=""/>
+</p>
+
+<p>
 Now, we'll want to add a <b>system variable</b> called <code-block>CATALINA_OPTS</code-block>
 and add the following line as the value:<br/>
 <code-block>-Dopenejb.home=C:\openejb-0.9.0</code-block>
-<br/>
+</p>
+
+<p>
 <img src="images/tomcat_windows_env_variables2.jpg" width="384" height="423" border="0" alt=""/>
-<br/><br/>
+</p>
+
+<p>
 Then add the information:
-<br/><br/>
+</p>
+
+<p>
 <img src="images/tomcat_windows_env_variables3.jpg" width="347" height="140" border="0" alt=""/>
-<br/><br/>
+</p>
+
+<p>
 Click Ok, Ok, and Ok.
-<br/><br/>
+</p>
+
+<p>
 <note>
 If you look in web.xml, in webapps\openejb_loader-0.9.0\WEB-INF, there is an init-param node called 
 openejb.home.  You may set this value to your OpenEJB home directory instead of setting CATALINA_OPTS
@@ -142,19 +158,20 @@ Add the OpenEJB Loader to Tomcat
 
 <p>
 We'll want to copy <b>openejb_loader-0.9.0.war</b> from the OpenEJB dist directory
-to the Tomcat webapps directory.<br/><br/>
+to the Tomcat webapps directory.
+</p>
+
+<p>
 <note>
 If you add openejb_loader-0.9.0.war to the webapps directory while Tomcat is running, it
 may automatically unpack the file and create a openejb_loader-0.9.0 folder.  You won't need
 to restart Tomcat for it to be installed.  This may or may not be turned on in the
 server.xml file that comes with Tomcat.
 </note>
-<br/><br/>
-<img src="images/tomcat_windows_dist_dir.jpg" width="552" height="381" border="0" alt=""/>
-<br/><br/>
-<img src="images/tomcat_windows_webapps_dir.jpg" width="552" height="381" border="0" alt=""/>
-
 </p>
+
+<img src="images/tomcat_windows_dist_dir.jpg" width="552" height="381" border="0" alt=""/>
+<img src="images/tomcat_windows_webapps_dir.jpg" width="552" height="381" border="0" alt=""/>
 
 <p>
  At this point, you're actually finished.
