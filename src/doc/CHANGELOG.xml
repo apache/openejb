@@ -127,9 +127,43 @@
         <Entry task="612686">Test scripts shouldn't start server</Entry>
         <Entry task="612688">Cannot bind to the ip: 127.0.0.1 and port</Entry>
 	</Version>
-	<Version id="0.9" releaseDate="TBD" cvsTag="TBD" released="false">
-		<Entry task="578360">Complete web administration</Entry>
-		<Entry>Full task details to be determined</Entry>
+	<Version id="0.9.0" releaseDate="November 17th, 2002" cvsTag="v0_9_0" 
+  released="true" release_id="122784">
+        <Entry bug="618369">Missing ejbFind method syntax</Entry>
+        <Entry bug="635643">Can't locate default.service-jar.xml</Entry>
+        <Entry bug="618365">Assembly errors not printed to screen</Entry>
+        <Entry bug="632824">Exception for bad XML in ejb-jar.xml</Entry>
+        <Entry bug="632826">Multiple jars in deploy command</Entry>
+        <Entry bug="618285">ejbLoad and exception handling</Entry>
+        <Entry bug="618279">Home ref's get invalidated in some cases</Entry>
+        <Entry bug="626453">Entity container abuses PK toString()</Entry>
+        <Entry task="630906">Easy Tomcat Integration</Entry>
+        <Entry task="635495">Service provider declaration enhancement</Entry>
+        <Entry task="540804">An OpenEJB configuration guide</Entry>
+        <Entry task="637560">Start flag --local-copy=[true|false]</Entry>
+        <Entry task="635489">Add bean validation to startup</Entry>
+        <Entry task="635311">CMP Finder FAQ</Entry>
+        <Entry task="633372">Write log files to a logs directory</Entry>
+        <Entry task="612133">Update the tomcat doc</Entry>
+        <Entry task="561572">Setup Tomcat to run with OpenEJB embedded</Entry>
+        <Entry task="630908">Support for Context Classloader</Entry>
+        <Entry task="619004">Create LocalInitialContextFactory</Entry>
+        <Entry task="633365">change OSTYPE parameter in every shell script</Entry>
+        <Entry task="612684">Hello World: with Linux commands</Entry>
+        <Entry task="611643">Add validate command to openejb.sh</Entry>
+        <Entry task="611640">Add validation to the deploy tool</Entry>
+        <Entry task="606442">Validate: PostCreate methods are impleme</Entry>
+        <Entry task="606445">Validate: Warn about unused ejbCreates</Entry>
+        <Entry task="606088">Validate: EJB Classes are in jar</Entry>
+        <Entry task="592129">Validate: Business methods are implement</Entry>
+        <Entry task="592123">Validate: Create methods are implemented</Entry>
+        <Entry task="606091">Validate: EJB, home, and remote classes</Entry>
+        <Entry task="632756">Need missing container error message</Entry>
+        <Entry task="631193">Update the ant jars to v1.5.1</Entry>
+        <Entry task="587849">XSLT files need some tweaking</Entry>
+        <Entry task="637572">Update openejb.conf comments</Entry>
+        <Entry task="620500">Upgrade OpenORB to 1.3</Entry>
+        <Entry task="540451">Remove org.openejb.corba.util.Verbose</Entry>
 	</Version>
 </ChangeLog>
 
