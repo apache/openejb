@@ -66,9 +66,8 @@ import javax.naming.Reference;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -80,7 +79,6 @@ import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.openejb.ContainerIndex;
@@ -105,11 +103,11 @@ public class EJBConfigBuilderTest extends TestCase {
             return null;
         }
 
-        public ObjectName locateResourceName(ObjectName query) throws DeploymentException {
+        public ObjectName locateResourceName(ObjectName query) {
             return DeploymentHelper.RESOURCE_ADAPTER_NAME;
         }
 
-        public Object locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface) throws DeploymentException {
+        public Object locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface) {
             return DeploymentHelper.ACTIVATION_SPEC_INFO;
         }
     };
@@ -284,7 +282,7 @@ public class EJBConfigBuilderTest extends TestCase {
     private void verifyDeployment(File tempDir, ClassLoader cl, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName) throws Exception {
         DataSource ds = null;
         try {
-            GBeanMBean config = loadConfig(tempDir);
+            GBeanMBean config = loadConfig(tempDir, cl);
 
             GBeanMBean containerIndexGBean = new GBeanMBean(ContainerIndex.GBEAN_INFO);
             ObjectName containerIndexObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ContainerIndex");
@@ -411,13 +409,13 @@ public class EJBConfigBuilderTest extends TestCase {
         assertEquals("should be running: " + objectName, State.RUNNING_INDEX, state);
     }
 
-    private GBeanMBean loadConfig(File unpackedCar) throws Exception {
+    private GBeanMBean loadConfig(File unpackedCar, ClassLoader classLoader) throws Exception {
         InputStream in = new FileInputStream(new File(unpackedCar, "META-INF/config.ser"));
         try {
             ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(in));
-            GBeanInfo gbeanInfo = Configuration.GBEAN_INFO;
-            GBeanMBean config = new GBeanMBean(gbeanInfo);
-            Configuration.loadGMBeanState(config, ois);
+            GBeanData gbeanData = new GBeanData();
+            gbeanData.readExternal(ois);
+            GBeanMBean config = new GBeanMBean(gbeanData, classLoader);
             return config;
         } finally {
             in.close();

@@ -84,13 +84,13 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
@@ -218,7 +218,7 @@ public class NovaAssembler implements Assembler {
         String j2eeModuleName = earFile.getName().split("\\.")[0];
         File tempDir = DeploymentUtil.createTempDir();
 
-        GBeanMBean earGBean = setUpEarModule(kernel, earFile, tempDir);
+        GBeanMBean earGBean = setUpEarModule(earFile, tempDir, cl);
 
         // load the configuration
         ObjectName objectName = ObjectName.getInstance(j2eeDomainName + ":configuration=" + j2eeModuleName);
@@ -287,8 +287,7 @@ public class NovaAssembler implements Assembler {
     }
 
 
-    private static GBeanMBean setUpEarModule(Kernel kernel, File earFile, File tempDir) throws MalformedObjectNameException, IOException, DeploymentException, AttributeNotFoundException, ReflectionException, ClassNotFoundException, OpenEJBException {
-        GBeanMBean earGBean;
+    private static GBeanMBean setUpEarModule(File earFile, File tempDir, ClassLoader classLoader) throws MalformedObjectNameException, IOException, DeploymentException, AttributeNotFoundException, ReflectionException, ClassNotFoundException, OpenEJBException {
         OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
         EARConfigBuilder earConfigBuilder = new EARConfigBuilder(new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
                 getObjectName("TransactionContextManager"),
@@ -320,15 +319,13 @@ public class NovaAssembler implements Assembler {
             }
         }
 
+        GBeanMBean earGBean;
         InputStream in = new FileInputStream(new File(tempDir, "META-INF/config.ser"));
         try {
             ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(in));
-            GBeanInfo gbeanInfo = Configuration.GBEAN_INFO;
-            GBeanMBean config1 = new GBeanMBean(gbeanInfo);
-            Configuration.loadGMBeanState(config1, ois);
-            earGBean = config1;
-
-
+            GBeanData gbeanData = new GBeanData();
+            gbeanData.readExternal(ois);
+            earGBean = new GBeanMBean(gbeanData, classLoader);
         } finally {
             in.close();
         }
