@@ -299,7 +299,16 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         Map instanceMap = null;
         CMP1Bridge cmp1Bridge = null;
         if (cmp2) {
-            instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors, cmrFieldAccessors);
+            // filter out the accessors associated to virtual CMR fields.
+            LinkedHashMap existingCMRFieldAccessores = new LinkedHashMap(cmrFieldAccessors);
+            for (Iterator iter = existingCMRFieldAccessores.entrySet().iterator(); iter.hasNext();) {
+                Map.Entry entry = (Map.Entry) iter.next();
+                String name = (String) entry.getKey();
+                if ( ejb.getAssociationEnd(name).isVirtual() ) {
+                    iter.remove();
+                }
+            }
+            instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors, existingCMRFieldAccessores);
         } else {
             cmp1Bridge = new CMP1Bridge(beanClass, cmpFieldAccessors);
         }
