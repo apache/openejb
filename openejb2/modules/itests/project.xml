@@ -105,6 +105,14 @@
             <version>&geronimo-spec-j2ee-connector-version;</version>
         </dependency>
 
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>&junit-version;</version>
+            <properties>
+                <classloader>root</classloader>
+            </properties>
+        </dependency>
     </dependencies>
 
 
