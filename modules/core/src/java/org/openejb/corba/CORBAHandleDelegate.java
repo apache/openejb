@@ -51,6 +51,8 @@ import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 import javax.ejb.spi.HandleDelegate;
 
+import org.apache.geronimo.naming.reference.SimpleReference;
+
 
 /**
  * @version $Revision$ $Date$
@@ -72,5 +74,12 @@ public class CORBAHandleDelegate implements HandleDelegate {
 
     public void writeEJBObject(EJBObject ejbObject, ObjectOutputStream out) throws IOException {
         out.writeObject(ejbObject);
+    }
+
+    public static class HandleDelegateReference extends SimpleReference {
+
+        public Object getContent() {
+            return new CORBAHandleDelegate();
+        }
     }
 }

@@ -95,6 +95,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.openejb.EJBModuleImpl;
 import org.openejb.corba.compiler.CompilerException;
 import org.openejb.corba.compiler.SkeletonGenerator;
+import org.openejb.corba.CORBAHandleDelegate;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.EJBProxyReference;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
@@ -339,6 +340,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
     public Reference createEJBRemoteReference(String objectName, boolean session, String home, String remote) {
         return EJBProxyReference.createRemote(objectName, session, remote, home);
+    }
+
+    public Object createHandleDelegateReference() {
+        return new CORBAHandleDelegate.HandleDelegateReference();
     }
 
     public CMPEntityBuilder getCmpEntityBuilder() {

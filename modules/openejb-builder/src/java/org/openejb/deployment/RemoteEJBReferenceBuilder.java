@@ -7,6 +7,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.openejb.client.naming.RemoteEJBObjectFactory;
 import org.openejb.client.naming.RemoteEJBRefAddr;
+import org.openejb.corba.CORBAHandleDelegate;
 
 /**
  */
@@ -20,6 +21,10 @@ public class RemoteEJBReferenceBuilder implements EJBReferenceBuilder {
         RemoteEJBRefAddr addr = new RemoteEJBRefAddr(objectName);
         Reference reference = new Reference(null, addr, RemoteEJBObjectFactory.class.getName(), null);
         return reference;
+    }
+
+    public Object createHandleDelegateReference() {
+        return new CORBAHandleDelegate.HandleDelegateReference();
     }
 
     public static final GBeanInfo GBEAN_INFO;
