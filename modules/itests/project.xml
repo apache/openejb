@@ -30,65 +30,51 @@
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
             <version>${pom.currentVersion}</version>
-            <properties>
-                <module>true</module>
-            </properties>
         </dependency>
 
-        <!-- Thirdparty -->
+        <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-itests-ejb</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>ejb</type>
+        </dependency>
+
+        <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-assembly</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+         <!-- Thirdparty -->
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
             <version>1.0.1B-rc2</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
             <version>2.1-rc2</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
             <version>2.4-rc2</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
             <version>1.5-rc2</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>idb</groupId>
-            <artifactId>idb</artifactId>
-            <version>3.26</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>3.8</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
     </dependencies>
 
@@ -115,7 +101,7 @@
         </resources>
         <unitTest>
             <includes>
-                <include>**/*Test.java</include>
+                <include>**/*Tests.java</include>
             </includes>
             <excludes>
                 <exclude>**/Abstract*.java</exclude>
