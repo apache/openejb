@@ -46,6 +46,19 @@ A:active {
 	line-height: 16px; color: #222222;
 }
 
+.newsSummary { 
+	font-size: 12px; 
+	font-family: arial, helvetica, sans-serif;
+	line-height: 16px; color: #222222;
+}
+
+.newsTitle { 
+	font-size: 12px; 
+	font-family: arial, helvetica, sans-serif;
+	line-height: 16px; color: #222222;
+	font-weight: bold; 
+}
+
 .option { 
 	font-size: 12px; 
 	font-family: arial, helvetica, sans-serif;

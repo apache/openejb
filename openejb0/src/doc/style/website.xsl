@@ -10,6 +10,7 @@
   <xsl:include href="leftNav.xsl"/>
   <xsl:include href="keywords.xsl"/>
   <xsl:include href="searchForm.xsl"/>
+  <xsl:include href="news.xsl"/>
 
 
   <!-- Template for document -->
@@ -113,24 +114,26 @@
             <tr>
               <td valign="top" align="left"><br/><img border="0" height="55" hspace="0"
                   src="{$project/logo}" vspace="0" width="200"/><br/>
-                  <img border="0" height="7" hspace="0" src="images/dotTrans.gif"/><br/>
-                    <xsl:choose>
-                      <xsl:when test="/document/body/title">
-                        <span class="pageTitle"><xsl:value-of select="/document/body/title"/></span><br/>
-                      </xsl:when>
-                      <xsl:when test="/document/properties/title">
-                        <span class="pageTitle"><xsl:value-of select="/document/properties/title"/></span><br/>
-                          <xsl:if test="/document/properties/sub-title">
-                            <span class="pageSubTitle"><xsl:value-of select="/document/properties/sub-title"/></span><br/>
-                          </xsl:if>
-                      </xsl:when>
-                    </xsl:choose>
-                  <xsl:if test="/document/properties/author">
-                    <p>
-                    <span class="author">by <xsl:value-of select="/document/properties/author"/></span><br/>
-                    </p>
-                  </xsl:if>
-                  <img border="0" height="1" hspace="0" src="images/dotTrans.gif"/>
+                   <xsl:if test="not(document[@page-title='none'])">
+                       <img border="0" height="7" hspace="0" src="images/dotTrans.gif"/><br/>
+                        <xsl:choose>
+                          <xsl:when test="/document/body/title">
+                            <span class="pageTitle"><xsl:value-of select="/document/body/title"/></span><br/>
+                          </xsl:when>
+                          <xsl:when test="/document/properties/title">
+                            <span class="pageTitle"><xsl:value-of select="/document/properties/title"/></span><br/>
+                              <xsl:if test="/document/properties/sub-title">
+                                <span class="pageSubTitle"><xsl:value-of select="/document/properties/sub-title"/></span><br/>
+                              </xsl:if>
+                          </xsl:when>
+                        </xsl:choose>
+                      <xsl:if test="/document/properties/author">
+                        <p>
+                        <span class="author">by <xsl:value-of select="/document/properties/author"/></span><br/>
+                        </p>
+                      </xsl:if>
+                      <img border="0" height="1" hspace="0" src="images/dotTrans.gif"/>
+                   </xsl:if>
               </td>
             </tr>
           </table>
