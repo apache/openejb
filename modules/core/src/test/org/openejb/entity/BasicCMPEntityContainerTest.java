@@ -50,16 +50,18 @@ package org.openejb.entity;
 import java.rmi.NoSuchObjectException;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
+import junit.framework.AssertionFailedError;
+import junit.framework.TestCase;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
@@ -67,25 +69,22 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.transaction.TransactionManagerProxy;
-
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
 import org.axiondb.jdbc.AxionDataSource;
-import org.openejb.MockTransactionManager;
 import org.openejb.ContainerIndex;
-import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.deployment.TransactionPolicySource;
+import org.openejb.MockTransactionManager;
 import org.openejb.deployment.MockConnectionProxyFactory;
+import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.entity.cmp.CMPContainerBuilder;
+import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
 import org.tranql.ejb.CMPField;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBSchema;
-import org.tranql.sql.sql92.SQL92Schema;
-import org.tranql.sql.Table;
 import org.tranql.sql.Column;
+import org.tranql.sql.Table;
+import org.tranql.sql.sql92.SQL92Schema;
 
 /**
  * @version $Revision$ $Date$
@@ -193,22 +192,22 @@ public class BasicCMPEntityContainerTest extends TestCase {
         try {
             local.intMethod(33);
             fail("Expected NoSuchObjectLocalException, but no exception was thrown");
-        } catch(AssertionFailedError e) {
+        } catch (AssertionFailedError e) {
             throw e;
-        } catch(NoSuchObjectLocalException e) {
+        } catch (NoSuchObjectLocalException e) {
             // expected
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             fail("Expected NoSuchObjectLocalException, but got " + e.getClass().getName());
         }
 
         try {
             local.getValue();
             fail("Expected NoSuchObjectLocalException, but no exception was thrown");
-        } catch(AssertionFailedError e) {
+        } catch (AssertionFailedError e) {
             throw e;
-        } catch(NoSuchObjectLocalException e) {
+        } catch (NoSuchObjectLocalException e) {
             // expected
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             fail("Expected NoSuchObjectLocalException, but got " + e.getClass().getName());
         }
@@ -216,11 +215,11 @@ public class BasicCMPEntityContainerTest extends TestCase {
         try {
             local = home.findByPrimaryKey(new Integer(2));
             fail("Expected ObjectNotFoundException, but no exception was thrown");
-        } catch(AssertionFailedError e) {
+        } catch (AssertionFailedError e) {
             throw e;
-        } catch(ObjectNotFoundException e) {
+        } catch (ObjectNotFoundException e) {
             // expected
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             fail("Expected ObjectNotFoundException, but got " + e.getClass().getName());
         }
 
@@ -266,23 +265,24 @@ public class BasicCMPEntityContainerTest extends TestCase {
         try {
             remote.intMethod(33);
             fail("Expected NoSuchObjectException, but no exception was thrown");
-        } catch(AssertionFailedError e) {
+        } catch (AssertionFailedError e) {
             throw e;
-        } catch(NoSuchObjectException e) {
+        } catch (NoSuchObjectException e) {
             // expected
-        } catch(Throwable e) {
-            e.printStackTrace();;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            ;
             fail("Expected NoSuchObjectException, but got " + e.getClass().getName());
         }
 
         try {
             remote.getValue();
             fail("Expected NoSuchObjectException, but no exception was thrown");
-        } catch(AssertionFailedError e) {
+        } catch (AssertionFailedError e) {
             throw e;
-        } catch(NoSuchObjectException e) {
+        } catch (NoSuchObjectException e) {
             // expected
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             fail("Expected NoSuchObjectException, but got " + e.getClass().getName());
         }
@@ -290,11 +290,11 @@ public class BasicCMPEntityContainerTest extends TestCase {
         try {
             remote = home.findByPrimaryKey(new Integer(2));
             fail("Expected ObjectNotFoundException, but no exception was thrown");
-        } catch(AssertionFailedError e) {
+        } catch (AssertionFailedError e) {
             throw e;
-        } catch(ObjectNotFoundException e) {
+        } catch (ObjectNotFoundException e) {
             // expected
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             fail("Expected ObjectNotFoundException, but got " + e.getClass().getName());
         }
 
@@ -312,7 +312,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
 //            home.singleSelect(new Integer(2));
 //            fail("did not get ObjectNotFoundException");
 //        } catch (ObjectNotFoundException e) {
-             //ok
+        //ok
 //        }
 //
 //        Collection result = home.multiSelect(new Integer(1));
@@ -422,10 +422,6 @@ public class BasicCMPEntityContainerTest extends TestCase {
         builder.setQueries(new HashMap());
 
         container = builder.createConfiguration();
-
-        kernel = new Kernel("BeanManagedPersistenceTest");
-        kernel.boot();
-
 
         kernel = new Kernel("ContainerManagedPersistenceTest");
         kernel.boot();
