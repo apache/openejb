@@ -68,6 +68,7 @@ import javax.naming.Reference;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
+import org.apache.geronimo.deployment.util.IOUtil;
 import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -136,12 +137,24 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     public XmlObject parseSpecDD(URL path) throws DeploymentException {
         try {
             // check if we have an alt spec dd
-            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
-            EjbJarDocument ejbJarDoc = SchemaConversionUtils.convertToEJBSchema(dd);
-            return ejbJarDoc.getEjbJar();
+            return parseSpecDD(SchemaConversionUtils.parse(path.openStream()));
         } catch (Exception e) {
             throw new DeploymentException("Unable to parse " + path, e);
         }
+    }
+
+    public XmlObject parseSpecDD(String specDD) throws DeploymentException {
+        try {
+            // check if we have an alt spec dd
+            return parseSpecDD(SchemaConversionUtils.parse(specDD));
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to parse specDD");
+        }
+    }
+
+    private XmlObject parseSpecDD(XmlObject dd) throws XmlException {
+        EjbJarDocument ejbJarDoc = SchemaConversionUtils.convertToEJBSchema(dd);
+        return ejbJarDoc.getEjbJar();
     }
 
     public XmlObject parseVendorDD(URL url) throws XmlException {
@@ -243,12 +256,30 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     }
 
     public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
-        return createModule(name, URI.create(""), moduleFile, "ejb.jar", vendorDD, null);
+        return createModule(name, moduleFile, vendorDD, "ejb.jar", null);
     }
 
-    public Module createModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject vendorDD, URL specDD) throws DeploymentException {
-        if (specDD == null) {
-            specDD = JarUtil.createJarURL(moduleFile, "META-INF/ejb-jar.xml");
+    public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD, String targetPath, URL specDDUrl) throws DeploymentException {
+        URI moduleURI;
+        if (targetPath != null) {
+            moduleURI = URI.create(targetPath);
+            if (targetPath.endsWith("/")) {
+                throw new DeploymentException("targetPath must not end with a '/'");
+            }
+        } else {
+            targetPath = "ejb.jar";
+            moduleURI = URI.create("");
+        }
+
+
+        if (specDDUrl == null) {
+            specDDUrl = JarUtil.createJarURL(moduleFile, "META-INF/ejb-jar.xml");
+        }
+        String specDD;
+        try {
+            specDD = IOUtil.readAll(specDDUrl);
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to read specDD: " + specDDUrl.toExternalForm());
         }
         EjbJarType ejbJar = (EjbJarType) parseSpecDD(specDD);
 
@@ -272,7 +303,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         OpenejbOpenejbJarDocument openEJBJarDoc = (OpenejbOpenejbJarDocument) vendorDD;
         OpenejbOpenejbJarType openEJBJar = openEJBJarDoc.getOpenejbJar();
 
-        return new EJBModule(name, moduleURI, moduleFile, targetPath, ejbJar, openEJBJar);
+        return new EJBModule(name, moduleURI, moduleFile, targetPath, ejbJar, openEJBJar, specDD);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
@@ -368,9 +399,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
                 ejbModuleGBean.setReferencePatterns("J2EEApplication", Collections.singleton(earContext.getApplicationObjectName()));
             }
 
-            EjbJarDocument ejbJarDoc = EjbJarDocument.Factory.newInstance();
-            ejbJarDoc.setEjbJar((org.apache.geronimo.xbeans.j2ee.EjbJarType) module.getSpecDD());
-            ejbModuleGBean.setAttribute("deploymentDescriptor", ejbJarDoc.toString());
+            ejbModuleGBean.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
 
             if (connectionFactoryName != null) {
                 ObjectName connectionFactoryObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + connectionFactoryName);
