@@ -9,6 +9,7 @@ import java.util.Vector;
 import java.util.jar.*;
 import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.ValidationException;
+import org.exolab.castor.xml.Unmarshaller;
 import org.openejb.OpenEJBException;
 import org.openejb.alt.assembler.classic.*;
 import org.openejb.alt.config.ejb11.*;
@@ -382,8 +383,9 @@ public class ConfigUtils  {
         /*[1.4]  Get the OpenejbJar from the openejb-jar.xml ***************/
         EjbJar obj = null;
         try {
-            obj = EjbJar.unmarshal(reader);
+            obj = unmarshalEjbJar(reader);
         } catch ( MarshalException e ) {
+            e.printStackTrace();
             if (e.getException() instanceof UnknownHostException){
                 handleException("conf.3121", jarFile, e.getLocalizedMessage());
             } else if (e.getException() instanceof IOException){
@@ -407,6 +409,16 @@ public class ConfigUtils  {
         return obj;
     }
     
+    private static DTDResolver resolver = new DTDResolver();
+    
+    private static EjbJar unmarshalEjbJar(java.io.Reader reader) 
+    throws MarshalException, ValidationException {
+        Unmarshaller unmarshaller = new Unmarshaller(org.openejb.alt.config.ejb11.EjbJar.class);
+        unmarshaller.setEntityResolver(resolver);
+
+        return (org.openejb.alt.config.ejb11.EjbJar)unmarshaller.unmarshal(reader);
+    } 
+
     public static void writeEjbJar(String xmlFile, EjbJar ejbJarObject) throws OpenEJBException{
         /* TODO:  Just to be picky, the xml file created by
         Castor is really hard to read -- it is all on one line.
