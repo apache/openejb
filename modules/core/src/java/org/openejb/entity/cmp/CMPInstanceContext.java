@@ -58,8 +58,8 @@ import net.sf.cglib.proxy.MethodProxy;
 import org.openejb.entity.EntityInstanceContext;
 import org.openejb.proxy.EJBProxyFactory;
 import org.tranql.cache.CacheRow;
-import org.tranql.cache.GlobalIdentity;
-import org.tranql.cache.IdentityTransform;
+import org.tranql.identity.IdentityTransform;
+import org.tranql.identity.GlobalIdentity;
 
 /**
  *

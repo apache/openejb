@@ -71,9 +71,9 @@ import org.openejb.entity.EntityInterceptorBuilder;
 import org.openejb.entity.HomeMethod;
 import org.openejb.proxy.EJBProxyFactory;
 import org.tranql.cache.CacheTable;
-import org.tranql.cache.FieldTransform;
-import org.tranql.cache.IdentityTransform;
-import org.tranql.cache.QueryCommand;
+import org.tranql.identity.IdentityTransform;
+import org.tranql.query.QueryCommand;
+import org.tranql.field.FieldTransform;
 
 /**
  *
@@ -168,8 +168,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 Method getter = beanClass.getMethod("get" + baseName, null);
                 Method setter = beanClass.getMethod("set" + baseName, new Class[]{getter.getReturnType()});
 
-                instanceMap.put(new MethodSignature(getter), new CMPGetter(fieldName, transforms[i]));
-                instanceMap.put(new MethodSignature(setter), new CMPSetter(fieldName, transforms[i]));
+//                instanceMap.put(new MethodSignature(getter), new CMPGetter(fieldName, transforms[i]));
+//                instanceMap.put(new MethodSignature(setter), new CMPSetter(fieldName, transforms[i]));
             } catch (NoSuchMethodException e) {
                 throw new IllegalArgumentException("Missing accessor for field " + fieldName);
             }
