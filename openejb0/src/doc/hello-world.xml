@@ -22,8 +22,12 @@ haven't yet installed OpenEJB.
 First, create the package where we will place our ejb and application files.
 </p>
 
+<p>Windows</p>
 <command>c:\my\app> mkdir org</command><br/>
 <command>c:\my\app> mkdir org\acme</command>
+<p>Linux/Unix</p>
+<command>[user@host app]# mkdir org</command><br/>
+<command>[user@host app]# mkdir org/acme</command>
 
 <p>
 In your favorite editor, create the file below.
@@ -92,8 +96,20 @@ public interface HelloObject extends EJBObject {
 
 <section title="Create the ejb-jar.xml" ref-id="ejb-jar.xml">
 <p>
-<command>c:\my\app> mkdir META-INF</command>
+Create a META-INF directory to put your ejb-jar.xml into.
 </p>
+
+
+<p>Windows</p>
+<command>c:\my\app> mkdir META-INF</command>
+<p>Linux/Unix</p>
+<command>[user@host app]# mkdir META-INF</command>
+
+<p>
+Create am ejb-jar.xml file in your META-INF directory.
+</p>
+
+
 <p>
 <file name="c:\my\app\META-INF\ejb-jar.xml">
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -124,8 +140,18 @@ public interface HelloObject extends EJBObject {
 
 <section title="Compile the EJB" ref-id="compile">
 <p>
-<command>C:\my\app> javac org\acme\*.java</command>
+Compile your bean.
 </p> 
+
+<p>Windows</p>
+<command>c:\my\app> javac org\acme\*.java</command>
+<p>Linux/Unix</p>
+<command>[user@host app]# javac org/acme/*.java</command>
+<p>
+Make sure you don't make the mistake of trying to compile your classes 
+while sitting inside the org/acme/ directory.
+</p> 
+
 <p>
 <note>
 To compile an EJB, you need to have Sun's EJB library
@@ -138,8 +164,34 @@ in the directory lib/ejb-2.0.jar
 
 <section title="Package the EJB" ref-id="jar">
 <p>
+Now, package your EJB classes and your META-INF directory into a jar.
+</p>
+
+<p>Windows</p>
 <command>C:\my\app> jar cvf myHelloEjb.jar org META-INF</command>
-</p> 
+<p>Linux/Unix</p>
+<command>[user@host app]# jar cvf myHelloEjb.jar org META-INF</command>
+
+<p>
+That command should give you output like the following.
+</p>
+<file>
+added manifest
+adding: org/(in = 0) (out= 0)(stored 0%)
+adding: org/acme/(in = 0) (out= 0)(stored 0%)
+adding: org/acme/HelloBean.class(in = 946) (out= 467)(deflated 50%)
+adding: org/acme/HelloObject.class(in = 234) (out= 177)(deflated 24%)
+adding: org/acme/HelloHome.class(in = 263) (out= 188)(deflated 28%)
+ignoring entry META-INF/
+ignoring entry META-INF/MANIFEST.MF
+adding: META-INF/ejb-jar.xml(in = 733) (out= 319)(deflated 56%)
+</file>
+<p>
+Check to make sure at least the three classes are there and the 
+ejb-jar.xml is there and that everything is in the directories you see 
+above.</p>
+
+
 </section>
 
 <section title="Deploy the EJB jar" ref-id="deploy">
@@ -147,10 +199,12 @@ in the directory lib/ejb-2.0.jar
 Use the OpenEJB <a href="deploy.html">Deploy Tool</a> to deploy your jar.
 </p> 
 
-<p>
+<p>Windows</p>
 <command>C:\my\app> cd C:\openejb</command><br/>
 <command>C:\openejb> openejb.bat deploy -a -m c:\my\app\myHelloEjb.jar</command>
-</p> 
+<p>Linux/Unix</p>
+<command>[user@host app]# cd /openejb</command><br/>
+<command>[user@host openejb]# ./openejb.sh deploy -a -m /my/app/myHelloEjb.jar</command>
 
 <p>
 <note>
@@ -187,8 +241,11 @@ public class HelloWorld {
     
     <comment>//The JNDI properties you set depend</comment>
     <comment>//on which server you are using.</comment>
-    p.put("java.naming.factory.initial", ... 
-    ...
+    <comment>//These properties are for the Remote Server.</comment>
+    p.put("java.naming.factory.initial", "org.openejb.client.JNDIContext");
+    p.put("java.naming.provider.url", "127.0.0.1:4201");
+    p.put("java.naming.security.principal", "myuser");
+    p.put("java.naming.security.credentials", "mypass");    
     
     <comment>//Now use those properties to create</comment>
     <comment>//a JNDI InitialContext with the server.</comment>
@@ -250,8 +307,7 @@ using the Remote Server.
 <p>
 <code>
 Properties p = new Properties();
-p.put("java.naming.factory.initial", 
-    "org.openejb.client.JNDIContext");
+p.put("java.naming.factory.initial", "org.openejb.client.JNDIContext");
 p.put("java.naming.provider.url", "127.0.0.1:4201");
 p.put("java.naming.security.principal", "myuser");
 p.put("java.naming.security.credentials", "mypass");
@@ -268,8 +324,15 @@ Update the HelloWorld.java to contain the right JNDI properties.
 
 <section title="Compile the application" ref-id="compile.app">
 <p>
+Compile your client code.  Don't forget to add your EJBs in the 
+classpath!
+</p>
+ 
+<p>Windows</p>
 <command>C:\my\app> javac org\acme\HelloWorld.java</command>
-</p> 
+<p>Linux/Unix</p>
+<command>[user@host app]# javac org/acme/HelloWorld.java</command>
+
 <p>
 <note>
 To compile this application, you need to have Sun's 
@@ -288,6 +351,8 @@ that will add those classes automactically.  Feel free to use this script, or ad
 it's contents to you own scripts.
 </p> 
 
+<p>
+Example Windows Batch script.
 <file name="c:\my\app\RunIt.bat">
 @echo off
 
@@ -303,11 +368,44 @@ set CLASSPATH=%JAVA_HOME%\lib\tools.jar;%CP%
 
 %JAVA% %OPTIONS% -Dopenejb.home=%OPENEJB_HOME% org.acme.HelloWorld
 </file>
+</p> 
+
+<p>
+Example Linux/Unix Batch script.
+<file name="/my/app/RunIt.sh">
+#!/bin/sh
+
+# Set OPENEJB_HOME to the full path where you 
+# installed your OpenEJB distribution
+export OPENEJB_HOME=/openejb
+
+# Set JAVA_HOME to the full path where you 
+# installed your JDK distribution
+export JAVA_HOME=/usr/java/jdk1.3.1
+
+
+
+export PATH=${PATH}:${OPENEJB_HOME}/bin
+export JAVA=${JAVA_HOME}/bin/java
+
+export CP=
+CP=`echo $OPENEJB_HOME/lib/*.jar | tr ' ' ':'`:${CP}
+CP=`echo $OPENEJB_HOME/dist/*.jar | tr ' ' ':'`:${CP}
+CP=`echo $OPENEJB_HOME/beans/*.jar | tr ' ' ':'`:${CP}
+export CLASSPATH=$JAVA_HOME/lib/tools.jar:${CP}
+
+$JAVA -Dopenejb.home=$OPENEJB_HOME org.acme.HelloWorld
+</file>
+</p> 
+
 <p>
 Now run the script!
 </p> 
-<p>
+<p>Windows</p>
 <command>C:\my\app> RunIt</command>
+<p>Linux/Unix</p>
+<command>[user@host app]# ./RunIt.sh</command>
+<p>
 </p> 
 
 </section>
@@ -316,8 +414,8 @@ Now run the script!
 <section title="What if it didn't work" ref-id="problems">
 <p>
 If you ran into any problems, first check your openejb.log file at c:\openejb\openejb.log.
-Look for any lines that begin with <term>"WARN"</term>, <term>"ERROR"</term>, or 
-<term>"FATAL"</term>.
+Look for any lines that begin with <b><term>"WARN"</term></b>, 
+<term>"ERROR"</term>, or <term>"FATAL"</term>.
 </p> 
 <p>
 If the log file doesn't help you, email it to the OpenEJB <a href="lists.html#openejb-user">
