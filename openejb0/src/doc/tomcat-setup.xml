@@ -65,10 +65,13 @@ Java HotSpot(TM) Client VM (build 1.3.1-b24, mixed mode)
 <section title="Install Tomcat" ref-id="download.tomcat">
 <p>
 If you don't already have Tomcat on your machine, download the 
-Tomcat version of your choice from Apache.
+Tomcat version of your choice from Apache we recommend the latest
+version as it has the most up-to-date libraries) In our example,
+we'll be using version 4.1.12.
 </p>
 <p>
-http://jakarta.apache.org/builds/jakarta-tomcat-4.0/release/
+<a href="http://jakarta.apache.org/builds/jakarta-tomcat-4.0/release/" target="_blank">
+http://jakarta.apache.org/builds/jakarta-tomcat-4.0/release/</a>
 </p>
 <p>
 Unpack Tomcat
@@ -79,12 +82,14 @@ dblevins@Miles /dev/j2ee
 $ tar xzvf jakarta-tomcat-4.1.12.tar.gz
 </code-block>
 </p>
+
 </section>
 
 <section title="Install OpenEJB" ref-id="download.openejb">
 <p>
 You need OpenEJB 0.9.0 or higher, any older versions of OpenEJB will not 
-work.  You can get that here: http://openejb.sf.net/download.html
+work.  You can get that here: <a href="http://openejb.sf.net/download.html" target="_blank">
+http://openejb.sf.net/download.html</a>
 </p>
 <p>
 Unpack OpenEJB 
@@ -153,6 +158,7 @@ InitialContext from OpenEJB
 </section>
 </section>
 
+
 <section title="Example Servlet" ref-id="example">
 <p>
 You can use the OpenEJB Hello World as an
@@ -162,7 +168,7 @@ the myHelloEjb.jar just as described.
 </p>
 
 <p>
-http://openejb.sourceforge.net/hello-world.html
+<a href="http://openejb.sourceforge.net/hello-world.html" target="_blank">http://openejb.sourceforge.net/hello-world.html</a>
 </p>
 
 <p>
@@ -195,6 +201,7 @@ jakarta-tomcat-4.1.12/webapps/examples/WEB-INF/classes
 </code>
 </p>
 <p>
+
 <file name="HelloOpenEJB.java"><![CDATA[
 import java.io.*;
 import java.util.*;
@@ -211,10 +218,9 @@ public class HelloOpenEJB extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
     throws IOException, ServletException {
     PrintWriter out = response.getWriter();
+
     try{
-        
         Properties p = new Properties();
-        
         p.put(Context.INITIAL_CONTEXT_FACTORY, factory );
         InitialContext ctx = new InitialContext( p );
 
@@ -224,10 +230,10 @@ public class HelloOpenEJB extends HttpServlet {
         HelloHome ejbHome = (HelloHome) obj;
 
         //Use the HelloHome to create a HelloObject
-        HelloObject ejbObject = ejbHome.create();
+        HelloHome ejbHome = (HelloHome) 
+                             PortableRemoteObject.narrow(obj, HelloHome.class);
 
         //The part we've all been wainting for...
-
         out.println("<html>");
         out.println("<body>");
         out.println("<head>");
@@ -241,7 +247,6 @@ public class HelloOpenEJB extends HttpServlet {
             response.setContentType("text/plain");
             e.printStackTrace(out);
         }
-
     }
 }]]>
 </file>
@@ -249,6 +254,7 @@ public class HelloOpenEJB extends HttpServlet {
 <p>
 Now you can start Tomcat...
 </p>
+
 
 <p>
 <code-block>
@@ -266,9 +272,10 @@ Now, pop open your browser and go to the
 following URL.
 </p>
 
+
 <p>
 <code>
-http://localhost:8080/examples/servlet/HelloOpenEJB
+<a href="http://localhost:8080/examples/servlet/HelloOpenEJB" target="_blank">http://localhost:8080/examples/servlet/HelloOpenEJB</a>
 </code>
 </p>
 
@@ -278,4 +285,3 @@ Should say "Hello World!!!" on the screen
 </section>
 </body>
 </document>
-

@@ -44,8 +44,6 @@
     
     <mkdir dir="${build.openejb.server.dest}/openejb/server"/>
     
-    <get src="file:src/server/org/openejb/server/admin/text" dest="${build.openejb.server.dest}/openejb/server/commandlist.txt"/>
-    
     <copy todir="${build.openejb.server.src}">
     
       <fileset dir="${src.java.dir}/server" >
