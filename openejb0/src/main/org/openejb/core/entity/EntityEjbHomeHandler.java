@@ -159,7 +159,7 @@ public class EntityEjbHomeHandler extends EjbHomeProxyHandler {
                    a) Although we know the core containers return a Vector we shouldn't assume that
                    b) The Vector's impl of Enumeration is not serializable.
                 */
-                return ((java.util.Vector)proxies).elements();
+                return new org.openejb.util.ArrayEnumeration(proxies);
             }else
                 return proxies;// vector is a type of Collection.
 
