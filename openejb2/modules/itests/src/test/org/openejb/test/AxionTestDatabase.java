@@ -97,7 +97,14 @@ public class AxionTestDatabase implements TestDatabase {
 
     public void start() throws IllegalStateException {
         try {
-            Properties properties = TestManager.getServer().getContextEnvironment();
+            // @todo this is a hack that limits us to a single server 
+//            Properties properties = TestManager.getServer().getContextEnvironment();
+            Properties properties = new Properties();
+            properties.put("test.server.class","org.openejb.test.RemoteTestServer");
+            properties.put("java.naming.factory.initial","org.openejb.client.RemoteInitialContextFactory");
+            properties.put("java.naming.provider.url","127.0.0.1:4201");
+            properties.put("java.naming.security.principal","testuser");
+            properties.put("java.naming.security.credentials","testpassword");
             initialContext = new InitialContext(properties);
         } catch (Exception e) {
             throw new IllegalStateException("Cannot create initial context: " + e.getClass().getName() + " " + e.getMessage());
@@ -106,6 +113,9 @@ public class AxionTestDatabase implements TestDatabase {
 
 
     private Database getDatabase() {
+        if (initialContext == null) {
+            start();
+        }
         if (database == null) {
             database = createDatabaseObject();
         }
