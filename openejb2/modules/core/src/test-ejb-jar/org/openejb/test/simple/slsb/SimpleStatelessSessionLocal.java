@@ -50,10 +50,10 @@ package org.openejb.test.simple.slsb;
 import javax.ejb.EJBLocalObject;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public interface SimpleStatelessSessionLocal extends EJBLocalObject {
-    void doNothing();
+    String echo(String message);
 }

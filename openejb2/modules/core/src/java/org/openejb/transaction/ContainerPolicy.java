@@ -71,21 +71,16 @@ import org.openejb.EJBInvocation;
 public class ContainerPolicy {
     private static final Log log = LogFactory.getLog(ContainerPolicy.class);
 
-    public static final TransactionPolicy NotSupported = new TxNotSupported(log);
-    public static final TransactionPolicy Required = new TxRequired(log);
-    public static final TransactionPolicy Supports = new TxSupports(log);
-    public static final TransactionPolicy RequiresNew = new TxRequiresNew(log);
+    public static final TransactionPolicy NotSupported = new TxNotSupported();
+    public static final TransactionPolicy Required = new TxRequired();
+    public static final TransactionPolicy Supports = new TxSupports();
+    public static final TransactionPolicy RequiresNew = new TxRequiresNew();
     public static final TransactionPolicy Mandatory = new TxMandatory();
-    public static final TransactionPolicy Never = new TxNever(log);
+    public static final TransactionPolicy Never = new TxNever();
     public static final TransactionPolicy BeforeDelivery = new TxBeforeDelivery();
-    public static final TransactionPolicy AfterDelivery = new TxAfterDelivery(log);
+    public static final TransactionPolicy AfterDelivery = new TxAfterDelivery();
     
     private static final class TxNotSupported implements TransactionPolicy {
-        private final Log log;
-        private TxNotSupported(Log log) {
-            super();
-            this.log = log;
-        }
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
             TransactionContext clientContext = TransactionContext.getContext();
             if (clientContext != null) {
@@ -119,13 +114,12 @@ public class ContainerPolicy {
         public String toString() {
             return "NotSupported";
         }
+
+        private Object readResolve() {
+            return ContainerPolicy.NotSupported;
+        }
     }
     private static final class TxRequired implements TransactionPolicy {
-        private final Log log;
-        private TxRequired(Log log) {
-            super();
-            this.log = log;
-        }
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
             TransactionContext clientContext = TransactionContext.getContext();
             if (clientContext instanceof InheritableTransactionContext) {
@@ -163,13 +157,12 @@ public class ContainerPolicy {
         public String toString() {
             return "Required";
         }
+
+        private Object readResolve() {
+            return ContainerPolicy.Required;
+        }
     }
     private static final class TxSupports implements TransactionPolicy {
-        private final Log log;
-        private TxSupports(Log log) {
-            super();
-            this.log = log;
-        }
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
             TransactionContext clientContext = TransactionContext.getContext();
             if (clientContext != null) {
@@ -201,13 +194,12 @@ public class ContainerPolicy {
         public String toString() {
             return "Supports";
         }
+
+        private Object readResolve() {
+            return ContainerPolicy.Supports;
+        }
     }
     private static final class TxRequiresNew implements TransactionPolicy {
-        private final Log log;
-        private TxRequiresNew(Log log) {
-            super();
-            this.log = log;
-        }
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
             TransactionContext clientContext = TransactionContext.getContext();
 
@@ -242,6 +234,10 @@ public class ContainerPolicy {
         public String toString() {
             return "RequiresNew";
         }
+
+        private Object readResolve() {
+            return ContainerPolicy.RequiresNew;
+        }
     }
     private static final class TxMandatory implements TransactionPolicy {
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
@@ -259,13 +255,12 @@ public class ContainerPolicy {
         public String toString() {
             return "Mandatory";
         }
+
+        private Object readResolve() {
+            return ContainerPolicy.Mandatory;
+        }
     }
     private static final class TxNever implements TransactionPolicy {
-        private final Log log;
-        private TxNever(Log log) {
-            super();
-            this.log = log;
-        }
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
             TransactionContext clientContext = TransactionContext.getContext();
 
@@ -302,6 +297,10 @@ public class ContainerPolicy {
         public String toString() {
             return "Never";
         }
+
+        private Object readResolve() {
+            return ContainerPolicy.Never;
+        }
     }
     //TODO INCOMPLETE: XAResource is not enlisted in new tx. Method tx attr. is not checked. clientContext is not saved.
     private static final class TxBeforeDelivery implements TransactionPolicy {
@@ -327,14 +326,13 @@ public class ContainerPolicy {
         public String toString() {
             return "BeforeDelivery";
         }
+
+        private Object readResolve() {
+            return ContainerPolicy.BeforeDelivery;
+        }
     }
     //TODO really broken. possible (imported) tx context is not restored.  XAResource is not delisted.
     private static final class TxAfterDelivery implements TransactionPolicy {
-        private final Log log;
-        private TxAfterDelivery(Log log) {
-            super();
-            this.log = log;
-        }
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
             TransactionContext beanContext = TransactionContext.getContext();
             try {
@@ -356,6 +354,11 @@ public class ContainerPolicy {
         }
         public String toString() {
             return "AfterDelivery";
+        }
+
+
+        private Object readResolve() {
+            return ContainerPolicy.AfterDelivery;
         }
     }
 }

@@ -120,6 +120,12 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>DEV</version>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
             <version>DEV</version>
@@ -306,6 +312,12 @@
                 <directory>${basedir}/src/etc</directory>
                 <includes>
                     <include>*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/target/xmlbeans</directory>
+                <includes>
+                    <include>schema/**</include>
                 </includes>
             </resource>
         </resources>

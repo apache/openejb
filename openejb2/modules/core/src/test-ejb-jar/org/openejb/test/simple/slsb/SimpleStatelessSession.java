@@ -51,10 +51,10 @@ import java.rmi.RemoteException;
 import javax.ejb.EJBObject;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public interface SimpleStatelessSession extends EJBObject {
-    void doNothing() throws RemoteException;
+    String echo(String message) throws RemoteException;
 }

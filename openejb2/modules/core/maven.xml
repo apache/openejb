@@ -7,9 +7,9 @@
     xmlns:ant="jelly:ant"
     xmlns:xmlbeans="geronimo:xmlbeans">
 
-    <preGoal name="xdoc:jelly-transform">
-        <attainGoal name="html2xdoc"/>
-    </preGoal>
+<!--    <preGoal name="xdoc:jelly-transform">-->
+<!--        <attainGoal name="html2xdoc"/>-->
+<!--    </preGoal>-->
 
     <preGoal name="java:compile">
         <xmlbeans:schema2java

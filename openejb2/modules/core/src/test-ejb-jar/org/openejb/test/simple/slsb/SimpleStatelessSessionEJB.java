@@ -52,15 +52,16 @@ import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public class SimpleStatelessSessionEJB implements SessionBean {
     public SimpleStatelessSessionEJB() {
     }
 
-    public void doNothing() {
+    public String echo(String message) {
+        return message;
     }
 
     public void ejbCreate() throws javax.ejb.CreateException {

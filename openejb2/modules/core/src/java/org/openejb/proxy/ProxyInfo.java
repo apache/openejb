@@ -44,8 +44,10 @@
  */
 package org.openejb.proxy;
 
+import java.io.Serializable;
 
-public class ProxyInfo {
+
+public class ProxyInfo implements Serializable {
     
     private final int componentType;
     private final Object containerId;
