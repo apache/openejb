@@ -68,7 +68,7 @@
         <!-- Create directory for XML schema documents -->
         <ant:mkdir dir="${distDir}/schema"/>
         <ant:copy todir="${distDir}/schema" flatten="true">
-            <ant:fileset dir="${project.root}/modules/core/src/schema">
+            <ant:fileset dir="${project.root}/modules/openejb-builder/src/schema">
                 <ant:include name="*.xsd"/>
                 <ant:include name="*.dtd"/>
             </ant:fileset>
