@@ -75,8 +75,7 @@ function popUpHelp(url)
    window.open(url, "helpWindow", "width=640,height=480,resizable,scrollbars");
 }
 
-//validates the form for the EJB Generator.  Added by Jeremy Whitlock
-//(jcscoobyrs) on 10/09/03 at 01:20:43 PM
+//validates the form for the EJB Generator.
 function validate(form)
 {
 	if (form.ejbname.value == "")
@@ -111,9 +110,7 @@ function validate(form)
   	}
 }
 
-//Function to popup an alert with the help for the
-//EJB Generator.  Added by Jeremy Whitlock
-//(jcscoobyrs) on 10/22/03 at 04:10:09 PM
+//Function to popup an alert with the help for the EJB Generator.
 function popupMsg(text)
 {
 	alert(text);
