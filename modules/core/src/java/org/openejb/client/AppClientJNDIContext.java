@@ -52,6 +52,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
+import org.apache.geronimo.kernel.Kernel;
 import org.openejb.client.naming.java.javaURLContextFactory;
 
 /**
@@ -69,7 +70,7 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
         this.port = port;
     }
 
-    public void startClient(ObjectName appClientModuleName) throws Exception {
+    public void startClient(ObjectName appClientModuleName, Kernel kernel) throws Exception {
 
         Context context;
         try {
