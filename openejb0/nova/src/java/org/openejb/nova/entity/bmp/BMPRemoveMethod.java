@@ -55,7 +55,7 @@ import org.openejb.nova.EJBOperation;
 import org.openejb.nova.entity.BusinessMethod;
 
 /**
- *
+ * Virtual operation handling removal of an instance.
  *
  * @version $Revision$ $Date$
  */
@@ -66,6 +66,12 @@ public class BMPRemoveMethod extends BusinessMethod {
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         ensureLoaded(invocation);
-        return invoke(invocation, EJBOperation.EJBREMOVE);
+        InvocationResult result = invoke(invocation, EJBOperation.EJBREMOVE);
+
+        if (result.isNormal()) {
+            // clear id as we are no longer associated
+            invocation.getEJBInstanceContext().setId(null);
+        }
+        return result;
     }
 }
