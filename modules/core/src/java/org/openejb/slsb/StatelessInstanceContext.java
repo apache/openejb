@@ -57,6 +57,7 @@ import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
+import org.openejb.EJBContextImpl;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
@@ -139,6 +140,10 @@ public final class StatelessInstanceContext extends AbstractInstanceContext {
 
     public boolean setTimerState(EJBOperation operation) {
         return sessionContext.setTimerState(operation);
+    }
+
+    public EJBContextImpl getEJBContextImpl() {
+        return sessionContext;
     }
 
     public void setContext() throws Throwable {

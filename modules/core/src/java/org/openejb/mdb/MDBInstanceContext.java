@@ -57,6 +57,7 @@ import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.EJBInvocation;
+import org.openejb.EJBContextImpl;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.timer.BasicTimerService;
@@ -124,6 +125,10 @@ public final class MDBInstanceContext extends AbstractInstanceContext {
 
     public boolean setTimerState(EJBOperation operation) {
         return mdbContext.setTimerState(operation);
+    }
+
+    public EJBContextImpl getEJBContextImpl() {
+        return mdbContext;
     }
 
     public void setContext() throws Throwable {
