@@ -115,7 +115,7 @@ public class StatelessInstanceManager {
                 bean = (SessionBean)pool.pop();
             
             // apply strict pooling policy if used. Wait for available instance
-            while(strictPooling &&  bean == null && pool.totalBeanCount >= poolLimit){
+             while(strictPooling &&  bean == null && pool.totalBeanCount() >= poolLimit){
                poolQueue.waitForAvailableInstance();
                bean = (SessionBean)pool.pop();
             }
@@ -142,7 +142,7 @@ public class StatelessInstanceManager {
                 }catch(Exception e){
                     throw new org.openejb.ApplicationException(new RemoteException("Can not obtain a free instance."));
                 }
-                pool.totalBeanCount++;
+                pool.addToBeanCount(1);
             }
             return bean;
     }
@@ -156,7 +156,7 @@ public class StatelessInstanceManager {
             pool.push(bean);
             poolQueue.notifyWaitingThreads();
         }else{
-            if(pool.totalBeanCount>poolLimit)
+            if(pool.totalBeanCount() > poolLimit)
                 freeInstance(callContext,bean);
             else
                 pool.push(bean);
@@ -165,7 +165,7 @@ public class StatelessInstanceManager {
     }
     public void freeInstance(ThreadContext callContext, EnterpriseBean bean){
         StackHolder pool = (StackHolder)poolMap.get(callContext.getDeploymentInfo().getDeploymentID());
-        pool.totalBeanCount--;
+        pool.addToBeanCount(-1);
         
         try{
             callContext.setCurrentOperation(Operations.OP_REMOVE);
@@ -178,14 +178,23 @@ public class StatelessInstanceManager {
         // allow the bean instance to be GCed.
     }
     
-    class StackHolder extends LinkedListStack {
-        // this field is manipulated directly; int values are modified atomically
-        // in a multi-threaded enviroment so its safe. Its also faster then synchronizing
-        public int totalBeanCount;
+   class StackHolder extends LinkedListStack {
+	// access to this variable MUST be synchronized, since we add values to it,
+	// which is NOT an atomic operations. We avoid the infamous lost update problem.
+        private int totalBeanCount;
+
+	synchronized int totalBeanCount() {
+	    return totalBeanCount;
+	}
+
+	synchronized void addToBeanCount(int value) {
+	    totalBeanCount+=value;
+	}
+
         public StackHolder(int initialSize){super(initialSize);}
     }
     class PoolQueue{
-        private long waitPeriod;
+        private final long waitPeriod;
         public PoolQueue(long time){waitPeriod = time;}
         public synchronized void waitForAvailableInstance( )
         throws org.openejb.InvalidateReferenceException{
