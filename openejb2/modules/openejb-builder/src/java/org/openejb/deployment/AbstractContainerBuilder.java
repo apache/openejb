@@ -47,8 +47,8 @@
  */
 package org.openejb.deployment;
 
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.management.ObjectName;

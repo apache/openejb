@@ -101,7 +101,7 @@ import org.tranql.sql.sql92.SQL92Schema;
 public class BasicCMPEntityContainerTest extends TestCase {
     private static final String j2eeDomainName = "openejb.server";
     private static final String j2eeServerName = "TestOpenEJBServer";
-    private J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, "testapp", "testejbmodule", "testapp", NameFactory.J2EE_APPLICATION);
+    private J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, "testapp", NameFactory.EJB_MODULE, "testejbmodule", "testapp", NameFactory.J2EE_APPLICATION);
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("openejb.server:ejb=Mock");
     private static final ObjectName CI_NAME = JMXUtil.getObjectName("openejb.server:role=ContainerIndex");
     private Kernel kernel;

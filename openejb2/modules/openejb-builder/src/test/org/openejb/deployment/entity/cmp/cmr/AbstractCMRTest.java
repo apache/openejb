@@ -103,7 +103,7 @@ public abstract class AbstractCMRTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
     private static final String j2eeDomainName = "openejb.server";
     private static final String j2eeServerName = "TestOpenEJBServer";
-    private static final J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, NameFactory.NULL, "MockModule", "testapp", NameFactory.J2EE_MODULE);
+    private static final J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, NameFactory.NULL, NameFactory.EJB_MODULE, "MockModule", "testapp", NameFactory.J2EE_MODULE);
     protected static final ObjectName CI_NAME = JMXUtil.getObjectName("openejb.server:role=ContainerIndex");
     protected static final ObjectName C_NAME_A;
     protected static final ObjectName C_NAME_B;

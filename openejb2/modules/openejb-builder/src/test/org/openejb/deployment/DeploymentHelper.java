@@ -89,7 +89,7 @@ public class DeploymentHelper {
     private static final String appName = NameFactory.NULL;
     private static final String moduleName = "MockRA";
     //type is random to look for problems.
-    private static final J2eeContext raContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, appName, moduleName, "xxx", NameFactory.JCA_WORK_MANAGER);
+    private static final J2eeContext raContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, appName, NameFactory.RESOURCE_ADAPTER_MODULE, moduleName, "xxx", NameFactory.JCA_WORK_MANAGER);
     public static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
     public static final ObjectName TRANSACTIONMANAGER_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionManager");
     public static final ObjectName TRANSACTIONCONTEXTMANAGER_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionContextManager");
@@ -106,7 +106,7 @@ public class DeploymentHelper {
 
     static {
         try {
-            RESOURCE_ADAPTER_MODULE_NAME = NameFactory.getModuleName(null, null, null, null, NameFactory.RESOURCE_ADAPTER_MODULE, raContext);
+            RESOURCE_ADAPTER_MODULE_NAME = NameFactory.getModuleName(null, null, null, null, null, raContext);
             RESOURCE_ADAPTER_NAME = NameFactory.getResourceComponentName(null, null, null, null, "MockRA", NameFactory.JCA_RESOURCE_ADAPTER, raContext);
             ACTIVATIONSPEC_NAME = NameFactory.getResourceComponentName(null, null, null, null, "MockRA", NameFactory.JCA_ACTIVATION_SPEC, raContext);
         } catch (MalformedObjectNameException e) {

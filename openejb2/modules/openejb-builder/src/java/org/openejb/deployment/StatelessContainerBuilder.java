@@ -61,12 +61,12 @@ import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
 import org.openejb.slsb.BusinessMethod;
+import org.openejb.slsb.CreateMethod;
 import org.openejb.slsb.EJBCreateMethod;
 import org.openejb.slsb.RemoveMethod;
 import org.openejb.slsb.StatelessInstanceContextFactory;
 import org.openejb.slsb.StatelessInstanceFactory;
 import org.openejb.slsb.StatelessInterceptorBuilder;
-import org.openejb.slsb.CreateMethod;
 import org.openejb.slsb.dispatch.SetSessionContextOperation;
 
 /**
