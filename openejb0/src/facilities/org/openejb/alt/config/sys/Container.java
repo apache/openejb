@@ -23,7 +23,7 @@ import org.xml.sax.DocumentHandler;
  * 
  * @version $Revision$ $Date$
 **/
-public class Container implements java.io.Serializable {
+public class Container implements java.io.Serializable, org.openejb.alt.config.Service {
 
 
       //--------------------------/
@@ -31,6 +31,8 @@ public class Container implements java.io.Serializable {
     //--------------------------/
 
     private java.lang.String _id;
+
+    private java.lang.String _provider;
 
     private java.lang.String _ctype;
 
@@ -91,6 +93,15 @@ public class Container implements java.io.Serializable {
     {
         return this._jar;
     } //-- java.lang.String getJar() 
+
+    /**
+     * Returns the value of field 'provider'.
+     * @return the value of field 'provider'.
+    **/
+    public java.lang.String getProvider()
+    {
+        return this._provider;
+    } //-- java.lang.String getProvider() 
 
     /**
     **/
@@ -163,6 +174,15 @@ public class Container implements java.io.Serializable {
     {
         this._jar = jar;
     } //-- void setJar(java.lang.String) 
+
+    /**
+     * Sets the value of field 'provider'.
+     * @param provider the value of field 'provider'.
+    **/
+    public void setProvider(java.lang.String provider)
+    {
+        this._provider = provider;
+    } //-- void setProvider(java.lang.String) 
 
     /**
      * 

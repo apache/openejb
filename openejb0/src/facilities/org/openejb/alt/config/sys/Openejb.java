@@ -215,6 +215,15 @@ public class Openejb implements java.io.Serializable {
     } //-- java.util.Enumeration enumerateResource() 
 
     /**
+     * Returns the value of field 'connectionManager'.
+     * @return the value of field 'connectionManager'.
+    **/
+    public ConnectionManager getConnectionManager()
+    {
+        return this._connectionManager;
+    } //-- ConnectionManager getConnectionManager() 
+
+    /**
      * 
      * @param index
     **/
@@ -422,15 +431,6 @@ public class Openejb implements java.io.Serializable {
     } //-- TransactionService getTransactionService() 
 
     /**
-     * Returns the value of field 'connectionManager'.
-     * @return the value of field 'connectionManager'.
-    **/
-    public ConnectionManager getConnectionManager()
-    {
-        return this._connectionManager;
-    } //-- ConnectionManager getConnectionManager() 
-
-    /**
     **/
     public boolean isValid()
     {
@@ -554,6 +554,16 @@ public class Openejb implements java.io.Serializable {
         _resourceList.removeElementAt(index);
         return (Resource) obj;
     } //-- Resource removeResource(int) 
+
+    /**
+     * Sets the value of field 'connectionManager'.
+     * @param connectionManager the value of field
+     * 'connectionManager'.
+    **/
+    public void setConnectionManager(ConnectionManager connectionManager)
+    {
+        this._connectionManager = connectionManager;
+    } //-- void setConnectionManager(ConnectionManager) 
 
     /**
      * 
@@ -732,16 +742,6 @@ public class Openejb implements java.io.Serializable {
     {
         this._transactionService = transactionService;
     } //-- void setTransactionService(TransactionService) 
-
-    /**
-     * Sets the value of field 'connectionManager'.
-     * @param connectionManager the value of field
-     * 'connectionManager'.
-    **/
-    public void setConnectionManager(ConnectionManager connectionManager)
-    {
-        this._connectionManager = connectionManager;
-    } //-- void setConnectionManager(ConnectionManager) 
 
     /**
      * 
