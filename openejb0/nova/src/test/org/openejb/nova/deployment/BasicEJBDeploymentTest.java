@@ -53,13 +53,23 @@ import java.net.URI;
 import javax.management.ObjectName;
 import javax.jms.MessageListener;
 
+import javax.resource.spi.work.WorkManager;
+
 import org.apache.geronimo.kernel.deployment.DeploymentPlan;
+import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.service.ClassSpaceMetadata;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBean;
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
 import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
 import org.apache.geronimo.deployment.model.geronimo.ejb.ActivationConfig;
+import org.apache.geronimo.deployment.model.connector.ResourceAdapter;
+import org.apache.geronimo.deployment.model.geronimo.connector.GeronimoResourceAdapter;
+import org.apache.geronimo.connector.deployment.ConnectorDeploymentPlanner;
+import org.apache.geronimo.connector.BootstrapContext;
+import org.apache.geronimo.connector.work.GeronimoWorkManager;
 //import org.apache.geronimo.naming.java.ContextBuilderTest; //copy now in this directory
 import org.openejb.nova.EJBContainerConfiguration;
 import org.openejb.nova.slsb.MockEJB;
@@ -69,6 +79,7 @@ import org.openejb.nova.slsb.MockLocalHome;
 import org.openejb.nova.slsb.MockLocal;
 
 import org.openejb.nova.mdb.mockra.MockActivationSpec;
+import org.openejb.nova.mdb.mockra.MockResourceAdapter;
 
 /**
  *
@@ -81,6 +92,7 @@ public class BasicEJBDeploymentTest extends ContextBuilderTest {
     private static final String SESSION_NAME = "geronimo.j2ee:J2eeType=SessionBean,name=MockSession";
     private static final String MDB_NAME = "geronimo.j2ee:J2eeType=SessionBean,name=MockMDB";
     private static final String RESOURCE_ADAPTER_NAME="MockRA";
+    private static final String BOOTSTRAP_CONTEXT_NAME = "geronimo.test:service=BootstrapContext";
 
     private EJBModuleDeploymentPlanner planner;
     private ObjectName ejbObjectName;
@@ -175,15 +187,42 @@ public class BasicEJBDeploymentTest extends ContextBuilderTest {
     }
 
     public void testPlanMDB() throws Exception {
+        deployResourceAdapter();
         buildMDB();
         //null is no parent.
         DeploymentPlan plan = new DeploymentPlan();
         planner.planMessageDriven(plan, (MessageDriven)ejb, null, csMetadata, baseURI);
         assertTrue("plan exists", null != plan);
-        if (plan.canRun()) {
-            plan.execute();
-            assertTrue("Expected mdb container mbean ", kernel.getMBeanServer().isRegistered(ejbObjectName));
-        }
+        assertTrue("Expected plan to be runnable", plan.canRun());
+        plan.execute();
+        assertTrue("Expected mdb container mbean ", kernel.getMBeanServer().isRegistered(ejbObjectName));
+    }
+
+    private void deployResourceAdapter() throws Exception {
+        WorkManager workManager = new GeronimoWorkManager();
+        BootstrapContext bootstrapContext = new BootstrapContext(workManager, null);
+        GeronimoMBeanInfo info = new GeronimoMBeanInfo();
+        info.setTargetClass(BootstrapContext.class);
+        info.addOperationsDeclaredIn(javax.resource.spi.BootstrapContext.class);
+        info.setTarget(bootstrapContext);
+        GeronimoMBean mbean = new GeronimoMBean();
+        mbean.setMBeanInfo(info);
+        kernel.getMBeanServer().registerMBean(mbean, ObjectName.getInstance(BOOTSTRAP_CONTEXT_NAME));
+        kernel.getMBeanServer().invoke(ObjectName.getInstance(BOOTSTRAP_CONTEXT_NAME), "start", null, null);
+
+        GeronimoMBeanContext context = new GeronimoMBeanContext(kernel.getMBeanServer(), null, null);
+        ConnectorDeploymentPlanner connectorPlanner = new ConnectorDeploymentPlanner();
+        connectorPlanner.setMBeanContext(context);
+        DeploymentPlan plan = new DeploymentPlan();
+        ResourceAdapter ra = new ResourceAdapter();
+        ra.setResourceAdapterClass(MockResourceAdapter.class.getName());
+        GeronimoResourceAdapter gra = new GeronimoResourceAdapter(ra);
+        gra.setName(RESOURCE_ADAPTER_NAME);
+        gra.setBootstrapContext(BOOTSTRAP_CONTEXT_NAME);
+        connectorPlanner.planResourceAdapter(plan, gra, csMetadata, null, baseURI);
+        plan.execute();
+        assertTrue("expected ResourceAdapter mbean", kernel.getMBeanServer().isRegistered(ObjectName.getInstance("geronimo.j2ee:J2eeType=ResourceAdapter,name=" + RESOURCE_ADAPTER_NAME)));
+
     }
 
 }

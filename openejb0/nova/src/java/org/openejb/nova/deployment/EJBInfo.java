@@ -105,18 +105,6 @@ public class EJBInfo {
 
         }
 
-        //set up resource adapter endpoint.
-        ObjectName resourceAdapterName;
-        try {
-            resourceAdapterName = ObjectName.getInstance("geronimo.j2ee:J2eeType=ResourceAdapter,name=" + activationConfig.getResourceAdapterName());
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Bad resource adapter name", e);
-        }
-
-        mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("ResourceAdapter",
-                ResourceAdapterHelper.class.getName(),
-                resourceAdapterName,
-                true));
         return mbeanInfo;
     }
 

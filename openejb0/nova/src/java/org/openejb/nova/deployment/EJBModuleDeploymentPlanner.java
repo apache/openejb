@@ -361,23 +361,15 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         ejbMetadata.setName(getContainerName(messageDriven));
         EJBContainerConfiguration config = getMessageDrivenConfig(messageDriven);
         ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getMessageDrivenGeronimoMBeanInfo(config, messageDriven.getGeronimoActivationConfig()));
-        //fish the resource adapter name back out of the endpoint.
-        ObjectName resourceAdapterName = null;
-        for (Iterator iterator = ejbMetadata.getGeronimoMBeanInfo().getEndpointsSet().iterator(); iterator.hasNext();) {
-            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) iterator.next();
-            if (endpoint.getName().equals("ResourceAdapter")) {
-                Collection peers = endpoint.getPeers();
-                assert peers.size() == 1;
-                resourceAdapterName = (ObjectName)peers.iterator().next();
-                break;
-            }
+
+        ObjectName resourceAdapterName;
+        try {
+            resourceAdapterName = ObjectName.getInstance("geronimo.j2ee:J2eeType=ResourceAdapter,name=" + messageDriven.getGeronimoActivationConfig().getResourceAdapterName());
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Bad resource adapter name", e);
         }
-        if (resourceAdapterName == null) {
-            throw new DeploymentException("could not find resourceAdapterName!");
-        }
-        //we are constructing both targets explicitly ourselves in the DeployMDBContainer task.
-        //ejbMetadata.setConstructorArgs(new Object[] {config},
-        //        new String[] {EJBContainerConfiguration.class.getName()});
+        //we are constructing both targets explicitly ourselves in the DeployMDBContainer task,
+        //so we don't set the constructor args.
         plan.addTask(new DeployMDBContainer(getServer(),
                 ejbMetadata,
                 config,

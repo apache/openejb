@@ -285,6 +285,10 @@ public abstract class AbstractEJBContainer
         return localClassName;
     }
 
+    public String getMessageEndpointClassName() {
+        return messageEndpointClassName;
+    }
+
     protected URI startServerRemoting(Interceptor firstInterceptor) {
         // set up server side remoting endpoint
         DeMarshalingInterceptor demarshaller = new DeMarshalingInterceptor();
