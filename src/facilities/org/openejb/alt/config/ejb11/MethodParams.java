@@ -62,6 +62,17 @@ public class MethodParams implements java.io.Serializable {
     } //-- void addMethodParam(java.lang.String) 
 
     /**
+     * 
+     * @param index
+     * @param vMethodParam
+    **/
+    public void addMethodParam(int index, java.lang.String vMethodParam)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _methodParamList.insertElementAt(vMethodParam, index);
+    } //-- void addMethodParam(int, java.lang.String) 
+
+    /**
     **/
     public java.util.Enumeration enumerateMethodParam()
     {
@@ -69,6 +80,8 @@ public class MethodParams implements java.io.Serializable {
     } //-- java.util.Enumeration enumerateMethodParam() 
 
     /**
+     * Returns the value of field 'id'.
+     * @return the value of field 'id'.
     **/
     public java.lang.String getId()
     {
@@ -95,7 +108,7 @@ public class MethodParams implements java.io.Serializable {
     public java.lang.String[] getMethodParam()
     {
         int size = _methodParamList.size();
-        java.lang.String[] mArray = new String[size];
+        java.lang.String[] mArray = new java.lang.String[size];
         for (int index = 0; index < size; index++) {
             mArray[index] = (String)_methodParamList.elementAt(index);
         }
@@ -157,18 +170,18 @@ public class MethodParams implements java.io.Serializable {
     **/
     public java.lang.String removeMethodParam(int index)
     {
-        Object obj = _methodParamList.elementAt(index);
+        java.lang.Object obj = _methodParamList.elementAt(index);
         _methodParamList.removeElementAt(index);
         return (String)obj;
     } //-- java.lang.String removeMethodParam(int) 
 
     /**
-     * 
-     * @param _id
+     * Sets the value of field 'id'.
+     * @param id the value of field 'id'.
     **/
-    public void setId(java.lang.String _id)
+    public void setId(java.lang.String id)
     {
-        this._id = _id;
+        this._id = id;
     } //-- void setId(java.lang.String) 
 
     /**

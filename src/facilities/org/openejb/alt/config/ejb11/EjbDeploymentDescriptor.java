@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -62,13 +62,13 @@ public class EjbDeploymentDescriptor extends org.exolab.castor.xml.util.XMLClass
         desc = new XMLFieldDescriptorImpl(java.lang.String.class, "_ejbName", "ejb-name", NodeType.Attribute);
         desc.setImmutable(true);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 EjbDeployment target = (EjbDeployment) object;
                 return target.getEjbName();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -79,7 +79,7 @@ public class EjbDeploymentDescriptor extends org.exolab.castor.xml.util.XMLClass
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return null;
             }
         } );
@@ -100,13 +100,13 @@ public class EjbDeploymentDescriptor extends org.exolab.castor.xml.util.XMLClass
         desc = new XMLFieldDescriptorImpl(java.lang.String.class, "_deploymentId", "deployment-id", NodeType.Attribute);
         this.identity = desc;
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 EjbDeployment target = (EjbDeployment) object;
                 return target.getDeploymentId();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -117,7 +117,7 @@ public class EjbDeploymentDescriptor extends org.exolab.castor.xml.util.XMLClass
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return new java.lang.String();
             }
         } );
@@ -133,13 +133,13 @@ public class EjbDeploymentDescriptor extends org.exolab.castor.xml.util.XMLClass
         desc = new XMLFieldDescriptorImpl(java.lang.String.class, "_containerId", "container-id", NodeType.Attribute);
         desc.setImmutable(true);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 EjbDeployment target = (EjbDeployment) object;
                 return target.getContainerId();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -150,7 +150,7 @@ public class EjbDeploymentDescriptor extends org.exolab.castor.xml.util.XMLClass
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return null;
             }
         } );
@@ -172,13 +172,13 @@ public class EjbDeploymentDescriptor extends org.exolab.castor.xml.util.XMLClass
         //-- _resourceLinkList
         desc = new XMLFieldDescriptorImpl(ResourceLink.class, "_resourceLinkList", "resource-link", NodeType.Element);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 EjbDeployment target = (EjbDeployment) object;
                 return target.getResourceLink();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -189,7 +189,7 @@ public class EjbDeploymentDescriptor extends org.exolab.castor.xml.util.XMLClass
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return new ResourceLink();
             }
         } );
@@ -200,7 +200,39 @@ public class EjbDeploymentDescriptor extends org.exolab.castor.xml.util.XMLClass
         
         //-- validation code for: _resourceLinkList
         fieldValidator = new FieldValidator();
-        fieldValidator.setMinOccurs(0);
+        desc.setValidator(fieldValidator);
+        
+        //-- _queryList
+        desc = new XMLFieldDescriptorImpl(Query.class, "_queryList", "query", NodeType.Element);
+        handler = (new XMLFieldHandler() {
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                EjbDeployment target = (EjbDeployment) object;
+                return target.getQuery();
+            }
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    EjbDeployment target = (EjbDeployment) object;
+                    target.addQuery( (Query) value);
+                }
+                catch (Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            public java.lang.Object newInstance( java.lang.Object parent ) {
+                return new Query();
+            }
+        } );
+        desc.setHandler(handler);
+        desc.setNameSpaceURI("http://www.openejb.org/openejb-jar/1.1");
+        desc.setMultivalued(true);
+        addFieldDescriptor(desc);
+        
+        //-- validation code for: _queryList
+        fieldValidator = new FieldValidator();
         desc.setValidator(fieldValidator);
         
     } //-- org.openejb.alt.config.ejb11.EjbDeploymentDescriptor()
