@@ -53,8 +53,11 @@ package org.openejb.corba.proxy;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openorb.compiler.CompilerHost;
+import org.openorb.compiler.object.IdlAttribute;
 import org.openorb.compiler.object.IdlFactoryMember;
 import org.openorb.compiler.object.IdlFixed;
 import org.openorb.compiler.object.IdlIdent;
@@ -79,6 +82,76 @@ public class StubGenerator extends Javatoidl {
 
     public StubGenerator(RmiCompilerProperties rcp, CompilerHost ch) {
         super(rcp, ch);
+    }
+
+    public void translateStub(IdlObject obj, String packageName) {
+        _root = obj;
+
+        java.io.File writeInto = createDirectory(packageName, m_cp.getM_destdir());
+
+        translate_rmi_stub(obj, writeInto);
+    }
+
+    public void translate_rmi_stub_interface(IdlObject obj, java.io.File writeInto) {
+        java.io.PrintWriter output = null;
+        output = newFile(writeInto, "_" + obj.name() + "_Stub");
+
+        addDescriptiveHeader(output, obj);
+        java.util.List impList = getImportList(_root);
+        if (impList != null && !org.openorb.util.JREVersion.V1_4) {
+            for (int j = 0; j < impList.size(); j++) {
+                output.println("import " + (String) impList.get(j) + ";");
+            }
+            output.println("");
+        }
+        java.util.List inhList = new java.util.Vector();
+        inhList = getInheritanceList(obj, inhList);
+
+        output.println("public class _" + obj.name() + "_Stub extends javax.rmi.CORBA.Stub");
+        output.println("    implements " + fullname(obj));
+        output.println("{");
+        output.println("");
+        // Create the typeid array
+        output.println("    static final String[] _ids_list =");
+        output.println("    {");
+        for (int i = 0; i < inhList.size(); i++) {
+            output.print("        \"" + (String) inhList.get(i) + "\"");
+            if (i + 1 < inhList.size()) {
+                output.println(", ");
+            }
+        }
+        output.println("");
+        output.println("    };");
+        output.println("");
+        // Create the _id method
+        output.println("    public String[] _ids()");
+        output.println("    {");
+        output.println("        return _ids_list;");
+        output.println("    }");
+        output.println("");
+        if (m_cp.getM_map_poa()) {
+            output.println("    final public static java.lang.Class _opsClass = " + fullname(obj) + ".class;");
+            output.println("");
+        }
+        java.util.List intoList = getInheritanceOpList(obj, new java.util.Vector());
+        for (int i = 0; i < intoList.size(); i++) {
+            switch (((IdlObject) intoList.get(i)).kind()) {
+                case IdlType.e_operation:
+                    translate_operation_rmi_stub(((IdlObject) intoList.get(i)), obj, output);
+                    break;
+
+                case IdlType.e_attribute:
+                    translate_read_attribute_rmi_stub(((IdlObject) intoList.get(i)),
+                                                      obj, output);
+                    if (!((IdlAttribute) ((IdlObject) intoList.get(i))).readOnly()) {
+                        translate_write_attribute_rmi_stub(((IdlObject) intoList.get(i)),
+                                                           obj, output);
+                    }
+                    break;
+            }
+        }
+        output.println("}");
+        output.close();
     }
 
     public void translate_object(IdlObject obj) {
@@ -125,17 +198,7 @@ public class StubGenerator extends Javatoidl {
         boolean real_corba_object = false;
         boolean abstract_object = false;
 
-        if (current_pkg != null) {
-            if (current_pkg.equals("generated")) {
-                if (m_cp.getM_use_package() == true) {
-                    output.println("package " + current_pkg + ";");
-                    output.println("");
-                }
-            } else if (!current_pkg.equals("")) {
-                output.println("package " + current_pkg + ";");
-                output.println("");
-            }
-        }
+        addPackageName(output);
 
         output.println("/** ");
         output.println(" * Helper class for : " + obj.name());
@@ -237,11 +300,7 @@ public class StubGenerator extends Javatoidl {
 
         output.println(tab + " */");
 
-        output.print(tab + "public static void insert(org.omg.CORBA.Any a, ");
-
-        translate_type(obj, output);
-
-        output.println(" t)");
+        output.print(tab + "public static void insert(org.omg.CORBA.Any a, " + fullname(obj) + " t)");
 
         output.println(tab + "{");
 
@@ -270,11 +329,7 @@ public class StubGenerator extends Javatoidl {
             case IdlType.e_union:
 
             case IdlType.e_exception:
-                output.print(tab2 + "a.insert_Streamable(new ");
-
-                translate_type(obj, output);
-
-                output.println("Holder(t));");
+                output.print(tab2 + "a.insert_Streamable(new " + fullname(obj) + "Holder(t));");
 
                 break;
 
@@ -303,11 +358,7 @@ public class StubGenerator extends Javatoidl {
         output.println(tab + " * @param a an any");
         output.println(tab + " * @return the extracted " + obj.name() + " value");
         output.println(tab + " */");
-        output.print(tab + "public static ");
-
-        translate_type(obj, output);
-
-        output.println(" extract( org.omg.CORBA.Any a )");
+        output.print(tab + "public static " + fullname(obj) + " extract( org.omg.CORBA.Any a )");
         output.println(tab + "{");
         output.println(tab2 + "if ( !a.type().equivalent( type() ) )");
         output.println(tab2 + "{");
@@ -319,9 +370,7 @@ public class StubGenerator extends Javatoidl {
             case IdlType.e_interface:
                 output.println(tab2 + "try");
                 output.println(tab2 + "{");
-                output.print(tab3 + "return ");
-                translate_type(obj, output);
-                output.println("Helper.narrow( a.extract_Object() );");
+                output.print(tab3 + "return " + obj.name() + "Helper.narrow( a.extract_Object() );");
                 output.println(tab2 + "}");
                 output.println(tab2 + "catch ( final org.omg.CORBA.BAD_PARAM e )");
                 output.println(tab2 + "{");
@@ -596,7 +645,7 @@ public class StubGenerator extends Javatoidl {
 
             translate_type(final_type(obj), output);
 
-            output.println(") ((org.omg.CORBA_2_3.portable.InputStream)istream).read_value(new " + fullname(final_type(obj)) + "Helper());");
+            output.println(") ((org.omg.CORBA_2_3.portable.InputStream)istream).read_value(new " + obj.name() + "Helper());");
         } else if (final_kind(obj) == IdlType.e_forward_interface) {
             if ((((IdlInterface) final_type(obj)).getInterface().local_interface()) || (m_cp.getM_pidl()))
                 output.println(tab2 + "throw new org.omg.CORBA.MARSHAL();");
@@ -695,17 +744,18 @@ public class StubGenerator extends Javatoidl {
                 abstract_object = true;
 
             if (abstract_object) {
-                output.println(tab + "/**");
                 output.println(tab + " * Narrow CORBA::Object to " + obj.name());
-                output.println(tab + " * @param obj the abstract Object");
+                output.println(tab + " * @param obj the CORBA Object");
                 output.println(tab + " * @return " + obj.name() + " Object");
                 output.println(tab + " */");
-                output.println(tab + "public static " + obj.name() + " narrow(Object obj)");
+                output.print(tab + "public static " + fullname(obj) + " narrow(Object obj)");
                 output.println(tab + "{");
                 output.println(tab2 + "if (obj == null)");
                 output.println(tab3 + "return null;");
-                output.println(tab2 + "if (obj instanceof " + obj.name() + ")");
-                output.println(tab3 + "return (" + obj.name() + ")obj;");
+
+                output.print(tab2 + "if (obj instanceof " + fullname(obj) + ")");
+
+                output.print(tab3 + "return (" + fullname(obj) + ")obj;");
 
                 if (!m_cp.getM_pidl() && !((IdlInterface) obj).local_interface()) {
                     output.println();
@@ -728,15 +778,18 @@ public class StubGenerator extends Javatoidl {
                 // Unchecked narrow
                 output.println(tab + "/**");
                 output.println(tab + " * Unchecked Narrow CORBA::Object to " + obj.name());
+                output.println(tab + " * @param obj the CORBA Object");
                 output.println(tab + " * @param obj the abstract Object");
-                output.println(tab + " * @return " + obj.name() + " Object");
+                output.print(tab + " * @return " + fullname(obj) + " Object");
                 output.println(tab + " */");
-                output.println(tab + "public static " + obj.name() + " unchecked_narrow(Object obj)");
+                output.print(tab + "public static " + fullname(obj) + " unchecked_narrow(Object obj)");
                 output.println(tab + "{");
                 output.println(tab2 + "if (obj == null)");
                 output.println(tab3 + "return null;");
-                output.println(tab2 + "if (obj instanceof " + obj.name() + ")");
-                output.println(tab3 + "return (" + obj.name() + ")obj;");
+
+                output.print(tab2 + "if (obj instanceof " + fullname(obj) + ")");
+
+                output.print(tab3 + "return (" + fullname(obj) + ")obj;");
 
                 if (!m_cp.getM_pidl() && !((IdlInterface) obj).local_interface()) {
                     output.println();
@@ -762,10 +815,11 @@ public class StubGenerator extends Javatoidl {
                 output.println(tab + " * @return " + obj.name() + " Object");
                 output.println(tab + " */");
 
-                if (!m_cp.getM_pidl())
-                    output.println(tab + "public static " + obj.name() + " narrow(org.omg.CORBA.Object obj)");
-                else
-                    output.println(tab + "public static " + obj.name() + " narrow(Object obj)");
+                if (!m_cp.getM_pidl()) {
+                    output.print(tab + "public static " + fullname(obj) + " narrow(org.omg.CORBA.Object obj)");
+                } else {
+                    output.print(tab + "public static " + fullname(obj) + " narrow(Object obj)");
+                }
 
                 output.println(tab + "{");
 
@@ -773,9 +827,9 @@ public class StubGenerator extends Javatoidl {
 
                 output.println(tab3 + "return null;");
 
-                output.println(tab2 + "if (obj instanceof " + obj.name() + ")");
+                output.print(tab2 + "if (obj instanceof " + fullname(obj) + ")");
 
-                output.println(tab3 + "return (" + obj.name() + ")obj;");
+                output.print(tab3 + "return (" + fullname(obj) + ")obj;");
 
                 output.println("");
 
@@ -800,10 +854,11 @@ public class StubGenerator extends Javatoidl {
                 output.println(tab + " * @return " + obj.name() + " Object");
                 output.println(tab + " */");
 
-                if (m_cp.getM_pidl() == false)
-                    output.println(tab + "public static " + obj.name() + " unchecked_narrow(org.omg.CORBA.Object obj)");
-                else
-                    output.println(tab + "public static " + obj.name() + " unchecked_narrow(Object obj)");
+                if (m_cp.getM_pidl() == false) {
+                    output.print(tab + "public static " + fullname(obj) + " unchecked_narrow(org.omg.CORBA.Object obj)");
+                } else {
+                    output.print(tab + "public static " + fullname(obj) + " unchecked_narrow(Object obj)");
+                }
 
                 output.println(tab + "{");
 
@@ -811,9 +866,9 @@ public class StubGenerator extends Javatoidl {
 
                 output.println(tab3 + "return null;");
 
-                output.println(tab2 + "if (obj instanceof " + obj.name() + ")");
+                output.print(tab2 + "if (obj instanceof " + fullname(obj) + ")");
 
-                output.println(tab3 + "return (" + obj.name() + ")obj;");
+                output.print(tab3 + "return (" + fullname(obj) + ")obj;");
 
                 output.println("");
 
@@ -1140,27 +1195,14 @@ public class StubGenerator extends Javatoidl {
                 if (((IdlInterface) obj).abstract_interface()) {
                     output.print(tab2 + "Object new_one = ((org.omg.CORBA_2_3.portable.InputStream)" + inname + ").read_abstract_interface(");
 
-                    String stubname = fullname(obj);
-
-                    if (stubname.lastIndexOf(".") != -1)
-                        stubname = stubname.substring(0, stubname.lastIndexOf(".") + 1);
-                    else
-                        stubname = "";
-
-                    stubname = stubname + "_" + obj.name() + "Stub";
+                    String stubname = "_" + obj.name() + "Stub";
 
                     output.println(stubname + ".class);");
 
                     output.println(tab2 + "return (" + fullname(obj) + ") new_one;");
                 } else {
-                    String stubname = fullname(obj);
 
-                    if (stubname.lastIndexOf(".") != -1)
-                        stubname = stubname.substring(0, stubname.lastIndexOf(".") + 1);
-                    else
-                        stubname = "";
-
-                    stubname = stubname + "_" + obj.name() + "_Stub";
+                    String stubname = "_" + obj.name() + "_Stub";
 
                     output.println(tab2 + "return(" + fullname(obj) + ")" + inname + ".read_Object(" + stubname + ".class);");
                 }
@@ -1199,6 +1241,100 @@ public class StubGenerator extends Javatoidl {
 
                 output.println(tab2 + "return _box;");
                 break;
+        }
+    }
+
+    /**
+     * Returns the complete name of a CORBA object
+     *
+     * @param obj the object the name has to be retrieved
+     * @return the complete name
+     */
+    public String fullname(IdlObject obj) {
+        List v = new ArrayList();
+        IdlObject obj2 = obj;
+        String name = new String("");
+        String s;
+        boolean first = false;
+
+        while (obj2 != null) {
+            if (first) {
+                if ((obj2.kind() == IdlType.e_interface) ||
+                    (obj2.kind() == IdlType.e_value) ||
+                    (obj2.kind() == IdlType.e_struct) ||
+                    (obj2.kind() == IdlType.e_union) ||
+                    (obj2.kind() == IdlType.e_exception)) {
+                    v.add((obj2.name() + "Package"));
+                } else {
+                    if (obj2.kind() != IdlType.e_union_member) {
+                        v.add(obj2.adaptName(obj2.name()));
+                    }
+                }
+            } else {
+                if (obj2.kind() != IdlType.e_union_member) {
+                    v.add(obj2.name());
+                }
+            }
+            if (obj2.upper() != null) {
+                if (obj2.upper().kind() == IdlType.e_root) {
+                    break;
+                }
+            }
+
+            obj2 = obj2.upper();
+
+            first = true;
+        }
+
+        if (m_cp.getM_packageName() != null) {
+            if (!obj.included()) {
+                if (!m_cp.getM_packageName().equals("")) {
+                    if ((!(m_cp.getM_packageName().equals("generated")) && (m_cp.getM_use_package() == true)))
+                        name = adaptToDot(m_cp.getM_packageName());
+                }
+            }
+        }
+
+        if (m_cp.getM_usePrefix())
+            if (obj.getPrefix() != null) {
+                if (!name.equals(""))
+                    name = name + ".";
+
+                if (m_cp.getM_reversePrefix())
+                    name = name + inversedPrefix(obj.getPrefix());
+                else
+                    name = name + obj.getPrefix();
+            }
+
+        for (int i = v.size() - 1; i >= 0; i--) {
+            s = (String) v.get(i);
+
+            if (s != null) {
+                if (!name.equals(""))
+                    name = name + ".";
+
+                name = name + s;
+            }
+        }
+
+        return name;
+    }
+
+    public void addPackageName(final PrintWriter output) {
+        if (current_pkg != null) {
+            if (current_pkg.equals("generated")) {
+                if (m_cp.getM_use_package() == true) {
+                    output.println("package " + current_pkg + ";");
+                    output.println("");
+                }
+            } else if (!current_pkg.equals("")) {
+                if (m_cp.getM_packageName().equals("")) {
+                    output.println("package " + current_pkg + ";");
+                } else {
+                    output.println("package " + adaptToDot(m_cp.getM_packageName()) + "." + current_pkg + ";");
+                }
+                output.println("");
+            }
         }
     }
 
@@ -1262,5 +1398,21 @@ public class StubGenerator extends Javatoidl {
         }
     }
 
+
+    /**
+     * This method replaces in a path the file separator by '.'
+     */
+    private String adaptToDot(String path) {
+        char[] tmp = new char[path.length()];
+
+        for (int i = 0; i < path.length(); i++) {
+            if ((path.charAt(i) == '/') || (path.charAt(i) == '\\'))
+                tmp[i] = '.';
+            else
+                tmp[i] = path.charAt(i);
+        }
+
+        return new String(tmp);
+    }
 }
 

@@ -54,14 +54,16 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+
 import org.openejb.corba.compiler.CompilerException;
 import org.openejb.corba.compiler.StubGenerator;
+import org.openejb.util.FileUtils;
 
 
 /**
@@ -69,7 +71,8 @@ import org.openejb.corba.compiler.StubGenerator;
  */
 public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycle {
 
-    private static Log log = LogFactory.getLog(OpenORBStubClassLoader.class);
+    private final static Log log = LogFactory.getLog(OpenORBStubClassLoader.class);
+    private final static String PACKAGE_PREFIX = "org.omg.stub.";
 
     private final static int STOPPED = 0;
     private final static int STARTED = 1;
@@ -103,54 +106,56 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
             if (log.isDebugEnabled()) log.debug("Unable to load class from the context class loader");
         }
 
-        if (name.endsWith("_Stub")) {
-            int begin = name.lastIndexOf('.') + 1;
-            if (name.charAt(begin) == '_') {
-                Map nameToLoaderMap = (Map) parentToNameToLoaderMap.get(classLoader);
-                ClassLoader loader = null;
-                if (nameToLoaderMap == null) {
-                    nameToLoaderMap = new HashMap();
-                    parentToNameToLoaderMap.put(classLoader, nameToLoaderMap);
-                } else {
-                    loader = (ClassLoader) nameToLoaderMap.get(name);
-                }
+        if (name.startsWith(PACKAGE_PREFIX)) {
 
-                if (loader == null) {
-                    URL url = (URL) nameToClassMap.get(name);
-                    if (url == null) {
-                        try {
-
-                            File file = new File(cacheDir, "STUB_" + (jarId++) + ".jar");
-
-                            if (log.isDebugEnabled()) log.debug("Generating stubs in " + file.toString());
-
-                            String iPackage = name.substring(0, begin);
-                            String iName = iPackage + name.substring(begin + 1, name.length() - 5);
-                            stubGenerator.generateStubs(Collections.singleton(iName), file, classLoader);
-                            url = file.toURL();
-                        } catch (IOException e) {
-                            throw new ClassNotFoundException("Unable to generate stub", e);
-                        } catch (CompilerException e) {
-                            throw new ClassNotFoundException("Unable to generate stub", e);
-                        }
-                        loader = new URLClassLoader(new URL[]{url}, classLoader);
-                        nameToLoaderMap.put(name, loader);
-                    }
-                } else {
-                    if (log.isDebugEnabled()) log.debug("Found cached loader");
-                }
-
-                result = loader.loadClass(name);
-
-                if (log.isDebugEnabled()) log.debug("result: " + (result == null ? "NULL" : result.getName()));
-                return result;
+            Map nameToLoaderMap = (Map) parentToNameToLoaderMap.get(classLoader);
+            ClassLoader loader = null;
+            if (nameToLoaderMap == null) {
+                nameToLoaderMap = new HashMap();
+                parentToNameToLoaderMap.put(classLoader, nameToLoaderMap);
+            } else {
+                loader = (ClassLoader) nameToLoaderMap.get(name);
             }
+
+            if (loader == null) {
+                URL url = (URL) nameToClassMap.get(name);
+                if (url == null) {
+                    try {
+
+                        File file = new File(cacheDir, "STUB_" + (jarId++) + ".jar");
+
+                        if (log.isDebugEnabled()) log.debug("Generating stubs in " + file.toString());
+
+                        int begin = name.lastIndexOf('.') + 1;
+                        String iPackage = name.substring(13, begin);
+                        String iName = iPackage + name.substring(begin + 1, name.length() - 5);
+
+                        stubGenerator.generateStubs(Collections.singleton(iName), file, classLoader);
+
+                        url = file.toURL();
+                    } catch (IOException e) {
+                        throw new ClassNotFoundException("Unable to generate stub", e);
+                    } catch (CompilerException e) {
+                        throw new ClassNotFoundException("Unable to generate stub", e);
+                    }
+                    loader = new URLClassLoader(new URL[]{url}, classLoader);
+                    nameToLoaderMap.put(name, loader);
+                }
+            } else {
+                if (log.isDebugEnabled()) log.debug("Found cached loader");
+            }
+
+            result = loader.loadClass(name);
+
+            if (log.isDebugEnabled()) log.debug("result: " + (result == null ? "NULL" : result.getName()));
+            return result;
+
         }
         throw new ClassNotFoundException("Could not load class: " + name);
     }
 
     public synchronized void doStart() throws Exception {
-        DeploymentUtil.recursiveDelete(cacheDir);
+        FileUtils.recursiveDelete(cacheDir);
         cacheDir.mkdirs();
 
         UtilDelegateImpl.setClassLoader(this);
@@ -162,17 +167,19 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
 
     public synchronized void doStop() throws Exception {
         this.state = STOPPED;
+        
         parentToNameToLoaderMap.clear();
         nameToClassMap.clear();
-        DeploymentUtil.recursiveDelete(cacheDir);
+
+        FileUtils.recursiveDelete(cacheDir);
 
         log.info("Stopped");
     }
 
     public synchronized void doFail() {
-        DeploymentUtil.recursiveDelete(cacheDir);
-
         this.state = STOPPED;
+
+        FileUtils.recursiveDelete(cacheDir);
 
         log.info("Failed");
     }
