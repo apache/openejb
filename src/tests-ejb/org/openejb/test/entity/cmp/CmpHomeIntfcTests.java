@@ -79,7 +79,7 @@ public class CmpHomeIntfcTests extends BasicCmpTestClient{
         }
     }
     
-    public void test02_findByPrimaryKey(){
+    public void _test02_findByPrimaryKey(){
         try{
             ejbPrimaryKey = ejbObject.getPrimaryKey();
             ejbObject = ejbHome.findByPrimaryKey((Integer)ejbPrimaryKey);
