@@ -7,13 +7,25 @@
   <property name="build.corba.src" value="${build.src}/corba"/>
   <property name="build.corba.dest" value="${build.dest}/corba"/>
   <property name="dest.corba.javadoc.dir" value="${dest.javadoc.dir}/corba"/>
+  <property name="dest.gensrc.dir" value="${build.src}/corba-stubs"/>
+  <property name="build.testsuite.dest" value="${build.dest}/testsuite"/>
   
   <!-- Build classpath -->
   <path id="project.classpath">
     <pathelement location="${ejb20.jar}"/>
+    <pathelement location="${jta.jar}"/>
+    <pathelement location="${jdbcext.jar}"/>
     <pathelement location="${log4j.jar}"/>
-    <pathelement location="${openorb.home}/${openorb.jar}"/>
+    <pathelement location="${openorb.jar}"/>
+    <pathelement location="${openorb.rmi.jar}"/>
+    <pathelement location="${openorb.rmi.tools.jar}"/>
+    <pathelement location="${openorb.tools.jar}"/>
     <pathelement location="${tyrex.home}/${tyrex.jar}"/>
+    <pathelement location="lib/xml-apis-2.4.D1.jar"/>
+    <pathelement location="lib/logkit.jar"/>
+    <pathelement location="lib/avalon-framework.jar"/>
+    <pathelement location="lib/xercesImpl-2.0.2.jar"/>
+    <pathelement location="${junit.jar}"/>
   </path>
   
   
@@ -26,6 +38,7 @@
     <mkdir dir="${build.corba.src}"/>
     <mkdir dir="${build.corba.dest}"/>
     <mkdir dir="${dest.corba.javadoc.dir}"/>
+    <mkdir dir="${dest.gensrc.dir}"/>
     
     <copy todir="${build.corba.src}">
           
@@ -76,6 +89,143 @@
     
     </target>
 
+   <!-- =============================== -->
+   <!--                IDL              -->
+   <!-- =============================== -->
+   <target name="java2idl">
+     <echo message="Compiling ${source}..." />
+     <java failonerror="true" classname="org.openorb.rmi.compiler.JavaToIdl" fork="true">
+       <classpath refid="project.classpath" />
+       <classpath location="${build.testsuite.dest}" />
+       <arg line="-all -silence -stub -tie -noidl -d ${dest.gensrc.dir} ${source}" />
+     </java>
+   </target>
+
+  <target name="compile-idl-classes">
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateless.RmiIiopStatelessObject" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateless.RmiIiopStatelessHome" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateless.EncStatelessObject" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateless.EncStatelessHome" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateless.BeanTxStatelessObject" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateless.BeanTxStatelessHome" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateless.BasicStatelessObject" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateless.BasicStatelessHome" />
+    </antcall>
+
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateful.RmiIiopStatefulObject" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateful.RmiIiopStatefulHome" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateful.EncStatefulObject" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateful.EncStatefulHome" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateful.BeanTxStatefulObject" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateful.BeanTxStatefulHome" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateful.BasicStatefulObject" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.stateful.BasicStatefulHome" />
+    </antcall>
+
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.entity.cmp.RmiIiopCmpObject" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.entity.cmp.RmiIiopCmpHome" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.entity.cmp.EncCmpObject" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.entity.cmp.EncCmpHome" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.entity.cmp.BasicCmpObject" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.entity.cmp.BasicCmpHome" />
+    </antcall>
+
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.entity.bmp.RmiIiopBmpObject" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.entity.bmp.RmiIiopBmpHome" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.entity.bmp.EncBmpObject" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.entity.bmp.EncBmpHome" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.entity.bmp.BasicBmpObject" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.entity.bmp.BasicBmpHome" />
+    </antcall>
+    
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.beans.Database" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.beans.DatabaseHome" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.beans.ShoppingCart" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.beans.ShoppingCartHome" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.beans.Employee" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.beans.EmployeeHome" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.beans.Calculator" />
+    </antcall>
+    <antcall target="java2idl" >
+      <param name="source" value="org.openejb.test.beans.CalculatorHome" />
+    </antcall>
+    
+    <javac srcdir="${dest.gensrc.dir}"
+           destdir="build/classes/testsuite"
+           debug="${debug}"
+           deprecation="${deprecation}"
+           optimize="${optimize}" >
+      <classpath refid="project.classpath" />
+       <classpath location="${build.testsuite.dest}" />
+    </javac>
+
+  </target>
+
   <!-- ================================================================== -->
   <!-- Compiles the source directory                                      -->
   <!-- ================================================================== -->
@@ -112,7 +262,7 @@
   <!-- ================================================================== -->
   
   <target name="jar"
-          depends="compile, copy.manifest, copy.i18n"
+          depends="compile, compile-idl-classes, copy.manifest, copy.i18n"
           description="--> generates all java archives (default)">
           
     <jar jarfile="dist/${project}_corba-${version}.jar"

@@ -62,7 +62,7 @@ CLASSPATH=$CP
 
 #######################################
 # Launch the OpenEJB/CORBA adapter
-OPENORB_OPTIONS=" -Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFactory -Dorg.omg.CORBA.ORBClass=org.openorb.CORBA.ORB -Dorg.omg.CORBA.ORBSingletonClass=org.openorb.CORBA.ORBSingleton -Djavax.rmi.CORBA.StubClass=org.openorb.rmi.system.StubDelegateImpl -Djavax.rmi.CORBA.UtilClass=org.openorb.rmi.system.UtilDelegateImpl -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl"
+OPENORB_OPTIONS=" -Djava.naming.provider.url=corbaloc::localhost:2001/NameService -Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFactory -Dorg.omg.CORBA.ORBClass=org.openorb.CORBA.ORB -Dorg.omg.CORBA.ORBSingletonClass=org.openorb.CORBA.ORBSingleton -Djavax.rmi.CORBA.StubClass=org.openorb.rmi.system.StubDelegateImpl -Djavax.rmi.CORBA.UtilClass=org.openejb.corba.core.UtilDelegateImpl -Dorg.openejb.corba.core.UtilDelegateClass=org.openorb.rmi.system.UtilDelegateImpl -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl"
 
 #-----------------------------------------------------------
 # Classic Assembler w/ new Configuration Factory 
@@ -89,15 +89,16 @@ OPENORB_OPTIONS=" -Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFactory 
 # subclasses ThreadContext. The binding should be added to 
 # the System Properties.
 #
+# Using the thread class below will break transactions. DOnt' use it
 #OPENEJB_OPTION_2="-Dorg/openejb/core/ThreadContext/IMPL_CLASS=org.openejb.sp.tyrex.TyrexThreadContext"
-OPENEJB_OPTION_2="-Dorg/openejb/core/ThreadContext/IMPL_CLASS=org.openejb.tyrex.TyrexThreadContext"
+
 
 #-----------------------------------------------------------
 # Logging Configuration
 #-----------------------------------------------------------
 # Specifies the file to use as Log4j's configuration.
 #
-# OPENEJB_OPTION_3="-Dlog4j.configuration=file:conf/default.logging.conf"
+OPENEJB_OPTION_3="-Dlog4j.configuration=file:conf/default.logging.conf"
 
 #-----------------------------------------------------------
 # Testing Server helper  -- For Testing Only
@@ -113,5 +114,4 @@ OPENEJB_OPTION_4="test.server.class=org.openejb.test.CorbaTestServer"
 #        
 OPTIONS="$OPENEJB_OPTION_X $OPENEJB_OPTION_1 $OPENEJB_OPTION_2 $OPENEJB_OPTION_3 $OPENORB_OPTIONS"
 
-$JAVA $OPTIONS -classpath $CLASSPATH org.openejb.corba.Server -ORBProfile=ejb -domain conf/tyrex_resources.xml -verbose
-
+$JAVA $OPTIONS -classpath $CLASSPATH org.openejb.corba.Server -ORBProfile=ejb 
