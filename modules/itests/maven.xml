@@ -16,11 +16,11 @@
     </preGoal>
 
     <goal name="default" prereqs="ejb:install"/>
-<!-- Aaron: This always breaks saying "no goal [itest]"
+
     <postGoal name="ejb:install">
         <attainGoal name="itest"/>
     </postGoal>
--->
+
     <preGoal name="itest:setup">
         <ant:delete dir="${maven.build.dir}/openejb"/>
         <deploy:unpackServer
