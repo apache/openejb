@@ -120,7 +120,9 @@ public class Start {
             Map.Entry entry = (Map.Entry) iter.next();
             String key = (String)entry.getKey();
             String value = (String)entry.getValue();
-            if ( !key.matches("^(java|javax|os|sun|user|file|awt|line|path)\\..*") ){
+            if ( key.matches("^-X.*") ){
+                cmd.add(key+value);
+            } else if ( !key.matches("^(java|javax|os|sun|user|file|awt|line|path)\\..*") ){
                 cmd.add("-D"+key+"="+value);
             }
         }
