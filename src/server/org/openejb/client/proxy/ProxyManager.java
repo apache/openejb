@@ -73,6 +73,7 @@ public class ProxyManager {
             //TODO: Better exception handling
             throw new RuntimeException("Unable to determine the version of your VM.  No ProxyFactory Can be installed");
         }
+        ClassLoader cl = getContextClassLoader();
 
         if ( version.startsWith("1.1") ) {
             throw new RuntimeException("This VM version is not supported: "+version);
@@ -80,14 +81,14 @@ public class ProxyManager {
             defaultFactoryName = "JDK 1.2 ProxyFactory";
 
             try {
-                Class.forName("org.opentools.proxies.Proxy");
+                Class.forName("org.opentools.proxies.Proxy", true, cl);
             } catch ( Exception e ) {
                 //TODO: Better exception handling
                 throw new RuntimeException("No ProxyFactory Can be installed. Unable to load the class org.opentools.proxies.Proxy.  This class is needed for generating proxies in JDK 1.2 VMs.");
             }
 
             try {
-                factory = Class.forName("org.openejb.client.proxy.Jdk12ProxyFactory");
+                factory = Class.forName("org.openejb.client.proxy.Jdk12ProxyFactory", true, cl);
             } catch ( Exception e ) {
                 //TODO: Better exception handling
                 throw new RuntimeException("No ProxyFactory Can be installed. Unable to load the class org.openejb.client.proxy.Jdk12ProxyFactory.");
@@ -96,7 +97,7 @@ public class ProxyManager {
             defaultFactoryName = "JDK 1.3 ProxyFactory";
 
             try {
-                factory = Class.forName("org.openejb.client.proxy.Jdk13ProxyFactory");
+                factory = Class.forName("org.openejb.client.proxy.Jdk13ProxyFactory", true, cl);
             } catch ( Exception e ) {
                 //TODO: Better exception handling
                 throw new RuntimeException("No ProxyFactory Can be installed. Unable to load the class org.openejb.client.proxy.Jdk13ProxyFactory.");
@@ -198,4 +199,14 @@ public class ProxyManager {
     //
     //  Methods and members for the ProxyFactory abstract factory
     //===================================================
+    
+    public static ClassLoader getContextClassLoader() {
+        return (ClassLoader) java.security.AccessController.doPrivileged(
+            new java.security.PrivilegedAction() {
+                public Object run() {
+                    return Thread.currentThread().getContextClassLoader();
+                }
+            }
+        );
+    }
 }

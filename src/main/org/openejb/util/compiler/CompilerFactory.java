@@ -58,20 +58,22 @@ public class CompilerFactory {
         if ( version.startsWith("1.1") ) {
             throw new RuntimeException("This VM version is not supported: "+version);
         } else if ( version.startsWith("1.2") ) {
+            ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
             try {
-                Class.forName("org.opentools.proxies.Proxy");
+                Class.forName("org.opentools.proxies.Proxy", true, cl);
             } catch ( Exception e ) {
                 throw new RuntimeException("No ProxyFactory Can be installed. Unable to load the class org.opentools.proxies.Proxy.  This class is needed for generating proxies in JDK 1.2 VMs.");
             }
 
             try {
-                factory = Class.forName("org.openejb.util.compiler.Jdk12Compiler");
+                factory = Class.forName("org.openejb.util.compiler.Jdk12Compiler", true, cl);
             } catch ( Exception e ) {
                 throw new RuntimeException("No ProxyFactory Can be installed. Unable to load the class org.openejb.client.proxy.Jdk12ProxyFactory.");
             }
         } else {
+            ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
             try {
-                factory = Class.forName("org.openejb.util.compiler.Jdk13Compiler");
+                factory = Class.forName("org.openejb.util.compiler.Jdk13Compiler", true, cl);
             } catch ( Exception e ) {
                 throw new RuntimeException("No ProxyFactory Can be installed. Unable to load the class org.openejb.client.proxy.Jdk13ProxyFactory.");
             }

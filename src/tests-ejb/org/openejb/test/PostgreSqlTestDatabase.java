@@ -135,7 +135,8 @@ public class PostgreSqlTestDatabase implements TestDatabase{
     public static void main(String[] args){
         System.out.println("Checking if driver is registered with DriverManager.");
         try{
-            Class.forName("org.postgresql.Driver");
+            ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+            Class.forName("org.postgresql.Driver", true, cl);
         } catch (ClassNotFoundException e){
             System.out.println("Couldn't find the driver!");
             e.printStackTrace();

@@ -120,7 +120,8 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
         SafeProperties safeProps = toolkit.getSafeProperties(properties);
         try {
             String className = safeProps.getProperty(EnvProps.IM_CLASS_NAME, "org.openejb.core.stateful.StatefulInstanceManager");
-            instanceManager =(StatefulInstanceManager)Class.forName(className).newInstance();
+            ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+            instanceManager =(StatefulInstanceManager)Class.forName(className, true, cl).newInstance();
         } catch ( Exception e ) {
             throw new org.openejb.SystemException("Initialization of InstanceManager for the \""+containerID+"\" stateful container failed",e);
         }
