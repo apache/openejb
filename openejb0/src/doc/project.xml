@@ -43,6 +43,10 @@
         <url>contributors.xml</url>
         <display>The Team</display>
       </navLink>
+      <navLink>
+        <url>http://sourceforge.net/projects/openejb/</url>
+        <display>SourceForge</display>
+      </navLink>
     </section>
 
     <section name="Users">
