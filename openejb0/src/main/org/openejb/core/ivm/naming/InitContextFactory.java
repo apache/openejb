@@ -91,7 +91,6 @@ public class InitContextFactory implements javax.naming.spi.InitialContextFactor
         props.put(EnvProps.ASSEMBLER, "org.openejb.alt.assembler.classic.Assembler");
         props.put(EnvProps.CONFIGURATION_FACTORY, "org.openejb.alt.config.ConfigurationFactory");
         props.put(EnvProps.CONFIGURATION, "conf/default.openejb.conf");
-        props.put("log4j.configuration", "file:conf/default.logging.conf");
 
         //  Override defaults with System properties
         props.putAll(System.getProperties());
