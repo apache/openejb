@@ -108,6 +108,10 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
         super(container, pk, depID);
     }
 
+    public void invalidateReference(){
+        throw new IllegalStateException("A home reference must never be invalidated!");
+    }
+    
     protected Object createProxy(ProxyInfo proxyInfo){
         
         if (proxyInfo instanceof SpecialProxyInfo) {
@@ -189,7 +193,6 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
          * the server to the stub.
          */
         }catch ( org.openejb.InvalidateReferenceException ire ) {
-            invalidateReference();
             throw ire.getRootCause();
         /*
          * Application exceptions must be reported dirctly to the client. They
@@ -202,7 +205,6 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
          * problem with the container system.
          */
         } catch ( org.openejb.SystemException se ) {
-            invalidateReference();
             throw new RemoteException("Container has suffered a SystemException",se.getRootCause());
         } catch ( org.openejb.OpenEJBException oe ) {
             throw new RemoteException("Unknown Container Exception",oe.getRootCause());
