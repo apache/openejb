@@ -47,12 +47,16 @@ public class TxRequiresNew extends TransactionPolicy {
         policyType = RequiresNew;
     }
     
+    public String policyToString() {
+        return "TX_RequiresNew: ";
+    }
+    
     public void beforeInvoke(EnterpriseBean instance, TransactionContext context) throws org.openejb.SystemException, org.openejb.ApplicationException{
         
         try {
         
             // if no transaction ---> suspend returns null
-            context.clientTx  = getTxMngr().suspend();
+            context.clientTx  = suspendTransaction();
             beginTransaction();
             context.currentTx = getTxMngr().getTransaction();
         
@@ -76,19 +80,10 @@ public class TxRequiresNew extends TransactionPolicy {
             throw new org.openejb.SystemException(se);
         } finally {
             if ( context.clientTx != null ) {
-                try{
-                    getTxMngr( ).resume( context.clientTx );
-                }catch(javax.transaction.InvalidTransactionException ite){
-                    // TODO:3: Localize the message; add to Messages.java
-                    logger.error("Could not resume the client's transaction, the transaction is no longer valid: "+ite.getMessage());
-                }catch(IllegalStateException e){
-                    // TODO:3: Localize the message; add to Messages.java
-                    logger.error("Could not resume the client's transaction: "+e.getMessage());
-                }catch(javax.transaction.SystemException e){
-                    // TODO:3: Localize the message; add to Messages.java
-                    logger.error("Could not resume the client's transaction: The transaction reported a system exception: "+e.getMessage());
-                }
-            }
+                resumeTransaction( context.clientTx );
+            } else if(txLogger.isInfoEnabled()) {
+                txLogger.info(policyToString()+"No transaction to resume");
+            }            
         }
     }
 
@@ -113,28 +108,7 @@ public class TxRequiresNew extends TransactionPolicy {
      * </P>
      */
     public void handleApplicationException( Throwable appException, TransactionContext context) throws ApplicationException{
-       /*
-        * If the instance called setRollbackOnly(), then rollback the transaction, 
-        * and re-throw AppException.
-        * 
-        * Otherwise, attempt to commit the transaction, and then re-throw 
-        * AppException.
-        */
-        
-        try {
-            if (context.currentTx.getStatus() == Status.STATUS_MARKED_ROLLBACK) {
-                rollbackTransaction( context.currentTx );
-            } else {
-                commitTransaction( context.currentTx );
-            }
-        } catch (javax.transaction.SystemException e){
-            logger.error("The transaction manager encountered an unexpected system error attempting to rollback or commit the transaction while handling an application exception: "+e.getMessage());
-        } catch (org.openejb.SystemException e){
-            logger.error("Unexpected error attempting to rollback or commit the transaction while handling an application exception: "+e.getRootCause().getClass().getName()+" "+e.getRootCause().getMessage());
-        }
-
         throw new ApplicationException( appException );
-
     }
     
     /**
@@ -177,8 +151,8 @@ public class TxRequiresNew extends TransactionPolicy {
         /* [1] Log the system exception or error **********/
         logSystemException( sysException );
 
-        /* [2] Rollback the container-started transaction */
-        rollbackTransaction( context.currentTx );
+        /* [2] afterInvoke will roll back the tx */
+        markTxRollbackOnly( context.currentTx );
 
         /* [3] Discard instance. **************************/
         discardBeanInstance( instance, context.callContext);

@@ -39,9 +39,12 @@ public class TxManditory extends TransactionPolicy {
     }
 
     public TxManditory(){
-        policyType = Manditory;
+        policyType = Mandatory;
     }
 
+    public String policyToString() {
+        return "TX_Mandatory: ";
+    }
     public void beforeInvoke(EnterpriseBean instance, TransactionContext context) throws org.openejb.SystemException, org.openejb.ApplicationException{
         
         try {
@@ -56,7 +59,7 @@ public class TxManditory extends TransactionPolicy {
             context.currentTx = context.clientTx;
 
         } catch ( javax.transaction.SystemException se ) {
-            //TODO:0: Log the transaction system exception
+            logger.error("Exception during getTransaction()", se);
             throw new org.openejb.SystemException(se);
         }
     }
