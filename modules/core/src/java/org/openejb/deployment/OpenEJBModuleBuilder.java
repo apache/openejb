@@ -243,7 +243,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     }
 
     public Module createModule(String name, JarFile moduleFile, XmlObject vendorDD) throws DeploymentException {
-        return createModule(name, URI.create(""), moduleFile, "connector", vendorDD, null);
+        return createModule(name, URI.create(""), moduleFile, "ejb.jar", vendorDD, null);
     }
 
     public Module createModule(String name, URI moduleURI, JarFile moduleFile, String targetPath, XmlObject vendorDD, URL specDD) throws DeploymentException {
