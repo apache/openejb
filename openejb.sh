@@ -42,18 +42,6 @@ function command_deploy  () {
 }
 #================================================
 function command_start  () {
-   case     $2 in
-   "intra-vm"  ) start_intravm $@ ;;
-   "intravm"   ) start_intravm $@ ;;
-   "corba"     ) start_corba   $@ ;;
-   "ejbserver" ) start_server  $@ ;;
-   "server"    ) start_server  $@ ;;
-   ""          ) start_server  $@ ;;
-   esac
-}
-#================================================
-function start_server () {
-   echo "Starting OpenEJB Server..."
    ./bin/ejbserver.sh $@
 }
 #================================================
@@ -64,10 +52,6 @@ function start_corba () {
    trap ' kill $pid; exit 1' 1 2 15
    echo " 2. Starting OpenEJB CORBA Server with OpenORB"
    ./bin/launch_server.sh 
-}
-#================================================
-function start_intravm () {
-   cat ./bin/intravm.txt
 }
 #================================================
 function test_noargs () {
@@ -119,6 +103,7 @@ case     $1 in
 "test"   )  command_test   $@ ;;
 "deploy" )  command_deploy $@ ;;
 "start"  )  command_start  $@ ;;
+"corba"  )  start_corba    $@ ;;
 "help"   )  command_help   $@ ;;
 "-help"  )  command_help   $@ ;;
 "--help" )  command_help   $@ ;;

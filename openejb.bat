@@ -21,7 +21,8 @@ set P2=_%2
 if /I %P1% EQU _TEST    goto TEST
 if /I %P1% EQU _BUILD   goto BUILD
 if /I %P1% EQU _DEPLOY  goto DEPLOY 
-if /I %P1% EQU _START   goto START
+if /I %P1% EQU _START   goto START_SERVER
+if /I %P1% EQU _CORBA   goto CORBA
 if /I %P1% EQU _HELP    goto HELP
 if /I %P1% EQU _-HELP   goto HELP
 if /I %P1% EQU _--HELP  goto HELP
@@ -65,35 +66,18 @@ REM================================================
 
 goto EOF
 REM================================================
-:START 
-   if /I %P2% EQU _INTRA-VM  goto START_INTRAVM
-   if /I %P2% EQU _INTRAVM   goto START_INTRAVM
-   if /I %P2% EQU _CORBA     goto START_CORBA
-   if /I %P2% EQU _EJBSERVER goto START_SERVER
-   if /I %P2% EQU _SERVER    goto START_SERVER
-   if /I %P2% EQU _          goto START_SERVER
-   
-   goto START_SERVER
-
-goto EOF
-REM================================================
 :START_SERVER
    echo "Starting OpenEJB Server..."
    .\bin\ejbserver.bat %2 %3 %4 %5 %6 %7 %8 %9
 
 goto EOF
 REM================================================
-:START_CORBA
+:CORBA
    echo " 1. Starting OpenORB JNDI Server..."
    start "OpenORB JNDI Server" .\bin\launch_jndi.bat -print > jndi.log 2>&1
    sleep 2
    echo " 2. Starting OpenEJB CORBA Server with OpenORB"
    .\bin\launch_server.bat 
-
-goto EOF
-REM================================================
-:START_INTRAVM
-   more .\bin\intravm.txt
 
 goto EOF
 REM================================================
