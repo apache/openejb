@@ -57,7 +57,7 @@ public class Main{
         } catch (Exception e){
             e.printStackTrace();
         }
-        
+
         EjbDaemon.main( args );
     }
 
