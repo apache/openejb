@@ -44,7 +44,9 @@
  */
 package org.openejb.util;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -63,6 +65,9 @@ import org.apache.log4j.PropertyConfigurator;
  * and more likely, the OpenEJB URL handler has not been registered.  (Note
  * that the log4j.configuration default setting uses the protocol resource.)
  * <p>
+ * 
+ * TODO: Create a wrapper to Tomcat logging facility; Make Logger class a factory
+ * 
  * @author <a href="mailto:adc@toolazydogs.com">Alan Cabrera</a>
  * @version $Revision$ $Date$
  */
@@ -1629,17 +1634,33 @@ public class Logger {
             return props;
         }
 
-        public Properties filterProperties(Properties props) throws Exception{
-            Object[] names = props.keySet().toArray();
+        /**
+         * Replace log4j file-related settings to reflect OpenEJB configuration
+         * (openejb.home and openejb.base)
+         * 
+         * @param props log4j initialization properties
+         * @return properties with log4j File properties changed
+         */
+        public Properties filterProperties(Properties log4jProps) {
+            Object[] names = log4jProps.keySet().toArray();
             for (int i=0; i < names.length; i++){
                 String name = (String)names[i];
                 if (name.endsWith(".File")) {
-                    String path = props.getProperty(name);
-                    path = FileUtils.getBase().getFile(path,false).getPath();
-                    props.setProperty(name, path);
+                    String path = log4jProps.getProperty(name);
+                    try {
+                        File file = FileUtils.getBase(props).getFile(path, false);
+                        if (!file.getParentFile().exists()) {
+                            file = FileUtils.getHome(props).getFile(path, false);
+                        }
+                        path = file.getPath();
+                    } catch (IOException ignored) {
+                        // as there's no validation - false in getFile - no
+                        // exception is to be thrown
+                    }
+                    log4jProps.setProperty(name, path);
                 }
             }
-            return props;
+            return log4jProps;
         }
     }
 }
