@@ -99,6 +99,12 @@ Configuration for the Geronimo deployer
     <dependency>
         <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
     </dependency>
+    <dependency>
+         <uri>geronimo/jars/geronimo-axis-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+         <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
+    </dependency>
 
 
     <gbean namePart="Deployer" type="Deployer" class="org.apache.geronimo.deployment.Deployer">
@@ -124,6 +130,7 @@ Configuration for the Geronimo deployer
         <reference name="EJBReferenceBuilder">geronimo.server:name=EJBBuilder,J2EEModule=org/apache/geronimo/J2EEDeployer,*</reference>
         <reference name="ConnectorConfigBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=ConnectorBuilder</reference>
         <reference name="ResourceReferenceBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=ConnectorBuilder</reference>
+        <reference name="ServiceReferenceBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=WebServiceBuilder</reference>
     </gbean>
 
     <gbean namePart="EJBBuilder" type="ModuleBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
@@ -143,6 +150,8 @@ Configuration for the Geronimo deployer
         <reference name="Repository">*:name=Repository,*</reference>
     </gbean>
 
+    <gbean namePart="WebServiceBuilder" type="ModuleBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
+    </gbean>
     <!-- gbean name="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>
 
     <gbean name="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">
