@@ -38,15 +38,6 @@
         <!-- Thirdparty -->
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
             <version>DEV</version>
@@ -86,6 +77,15 @@
             <groupId>idb</groupId>
             <artifactId>idb</artifactId>
             <version>3.26</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
