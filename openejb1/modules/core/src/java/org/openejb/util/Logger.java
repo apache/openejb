@@ -1608,6 +1608,9 @@ public class Logger {
         
         public void configure(){
             String config = props.getProperty( "log4j.configuration" );
+            if (config == null) {
+                config = "conf/logging.conf";
+            }
             try{
                 // resolve the config file location
                 config = FileUtils.getAbsolutePath(config, "conf/default.logging.conf", props, false);
