@@ -120,9 +120,6 @@
     <jar jarfile="dist/${project}-${version}.jar"
          basedir="${build.openejb.dest}"
          manifest="${build.openejb.dest}/MANIFEST.MF"/>
-         
-    <copy file="src/etc/jedi-plugin-openejb11.properties"
-          tofile="${build.openejb.dest}/plugin.properties" />
           
     <copy todir="${build.openejb.dest}">
       <fileset dir="src/schema"

@@ -957,7 +957,7 @@
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
-    
+<!--    
     <ant antfile="src/build-testsuite.xml" target="${target.name}">
       <property file="build.properties"/>
       
@@ -971,7 +971,7 @@
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
-          
+-->          
   </target>
   
 </project>
