@@ -118,6 +118,18 @@
          manifest="${build.ejb.dest}/META-INF/MANIFEST.MF"/>
 
   </target>
+      
+  <!-- ================================================================== -->
+  <!-- Installs onto Tomcat                                               -->
+  <!-- ================================================================== -->
+  
+  <target name="install"
+          description="--> installs onto Tomcat">
+  </target>
+      
+  <!-- ================================================================== -->
+  <!-- Cleans up the build directory                                      -->
+  <!-- ================================================================== -->
     
   <target name="clean"
           description="--> cleans up the jars">

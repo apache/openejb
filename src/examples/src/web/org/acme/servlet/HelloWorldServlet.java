@@ -42,14 +42,47 @@
  *
  * $Id$
  */
-package org.acme.hello;
+package org.acme.servlet;
 
-import java.rmi.*;
-import javax.ejb.*;
+import java.io.*;
 import java.util.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import javax.naming.*;
+import javax.rmi.PortableRemoteObject;
 
-public interface HelloObject extends EJBObject {
-    public String sayHello() throws RemoteException;
+import org.acme.hello.*;
+
+public class HelloWorldServlet extends HttpServlet {
+
+    String factory = "org.openejb.client.LocalInitialContextFactory";
+
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
+	throws IOException, ServletException
+    {
+	PrintWriter out = response.getWriter();
+	try {
+	    //Lookup the bean using it's deployment id
+	    Object obj = new InitialContext().lookup("java:openejb/ejb/Hello");
+	    HelloHome ejbHome = (HelloHome)PortableRemoteObject.narrow(obj, HelloHome.class);
+	    HelloObject ejbObject = ejbHome.create();
+    
+	    //The part we've all been waiting for...
+    
+	    out.println("<html>");
+	    out.println("<body>");
+	    out.println("<head>");
+	    out.println("<title>OpenEJB -- EJB for Tomcat Servlets</title>");
+	    out.println("</head>");
+	    out.println("<body>");
+	    out.println("<h1>"+ ejbObject.sayHello() +"</h1>");
+	    out.println("</body>");
+	    out.println("</html>");
+        } catch (Exception e){
+            response.setContentType("text/plain");
+            e.printStackTrace(out);
+        }
+    }
 }
 
 

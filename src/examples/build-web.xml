@@ -1,0 +1,154 @@
+<project name="Example--Web" default="jar" basedir="./">
+    <!-- 
+        Contributions by:
+        Daniel S. Haischt <sirabyss@gmx.net>
+    -->
+    
+    <property name="src.web.dir" value="${src.dir}/web"/>
+    <property name="build.web.src" value="${build.src}/web"/>
+    <property name="build.web.dest" value="${build.dest}/web"/>
+    <property name="build.ejb.dest" value="${build.dest}/ejb"/>
+    <property name="example.jar" value="${project}_clients-${version}.jar"/>
+    
+    <!-- Build classpath -->
+    <path id="project.classpath">
+        <pathelement location="${ejb11.jar}"/>
+        <pathelement location="${jndi.jar}"/>
+        <pathelement location="${build.ejb.dest}"/>
+    </path>
+    
+    <!-- ================================================================== -->
+    <!-- Prepares the build directory                                       -->
+    <!-- ================================================================== -->
+    
+    <target name="prepare">
+    
+        <mkdir dir="${build.web.src}"/>
+        <mkdir dir="${build.web.dest}"/>
+        
+        <copy todir="${build.web.src}">
+        
+        <fileset dir="${src.web.dir}" >
+            <include name="**/**"/>
+            <exclude name="**/CVS/**"/>
+            <exclude name="**/*.class"/>
+        </fileset>
+        
+        </copy>
+        
+    </target>
+    
+    <target name="copy.manifest">
+    
+        <copy todir="${build.web.dest}/META-INF">
+        
+            <fileset dir="${src.web.dir}/META-INF" >
+                <include name="MANIFEST.MF"/>
+            </fileset>
+        
+        </copy>
+        
+        <replace file="${build.web.dest}/META-INF/MANIFEST.MF" token="$$VERSION$$" value="${version}"/>
+        
+        <copy todir="${build.web.dest}/WEB-INF">
+        
+            <fileset dir="${src.web.dir}/WEB-INF" >
+                <include name="web.xml"/>
+            </fileset>
+        
+        </copy>
+    
+    </target>
+    
+    <!-- ================================================================== -->
+    <!-- Compiles the source directory                                      -->
+    <!-- ================================================================== -->
+    
+    <target name="compile"
+        depends="prepare, compile.jdk12, compile.jdk13"
+        description="--> compiles the java source files"/>
+    
+    <target name="compile.jdk12" unless="jdk13">
+    
+        <delete>
+            <fileset dir="${build.openejb.server.src}" includes="**/Jdk13*.java"/>
+        </delete>
+        
+        <javac srcdir="${build.web.src}"
+            destdir="${build.web.dest}"
+            debug="${debug}"
+            deprecation="${deprecation}">
+        
+            <classpath>
+                <path refid="project.classpath"/>
+                <pathelement location="${build.dest}/openejb"/>
+                <pathelement location="${build.dest}/loader"/>
+            </classpath>
+        
+        </javac>
+        
+    </target>
+    
+    <target name="compile.jdk13" if="jdk13">
+    
+        <javac srcdir="${build.web.src}"
+            destdir="${build.web.dest}"
+            debug="${debug}"
+            deprecation="${deprecation}">
+        
+            <classpath>
+                <path refid="project.classpath"/>
+                <pathelement location="${build.dest}/openejb"/>
+                <pathelement location="${build.dest}/loader"/>
+            </classpath>
+        
+        </javac>
+    
+    </target>
+    
+    <!-- ================================================================== -->
+    <!-- Compiles the source directory and creates a .war file              -->
+    <!-- ================================================================== -->
+    
+    <target name="jar"
+        depends="compile, copy.manifest"
+        description="--> generates all java archives (default)">
+    
+        <war warfile="${openejb.dir}/dist/${project}_web-${version}.war"
+            webxml="${build.web.dest}/WEB-INF/web.xml">
+            <fileset dir="${build.web.src}">
+                <include name="**/*.jsp"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+            <classes dir="${build.web.dest}">
+                <include name="**/*.class"/>
+            </classes>
+        </war>          
+    
+    </target>
+
+    <!-- ================================================================== -->
+    <!-- Installs onto Tomcat                                               -->
+    <!-- ================================================================== -->
+  
+    <target name="install"
+          description="--> installs onto Tomcat">
+        <copy todir="${tomcat.dir}/webapps">
+        
+            <fileset dir="${openejb.dir}/dist" >
+                <include name="${project}_web-${version}.war"/>
+            </fileset>
+        
+        </copy>
+    </target>
+      
+    <!-- ================================================================== -->
+    <!-- Cleans up the build directory                                      -->
+    <!-- ================================================================== -->
+    
+    <target name="clean"
+        description="--> cleans up the jars">
+        <delete file="${openejb.dir}/dist/${project}_web-${version}.war"/>
+    </target>
+    
+</project>

@@ -20,7 +20,7 @@
   <path id="project.classpath">
     <pathelement location="${ejb11.jar}"/>
     <pathelement location="${jndi.jar}"/>
-    <pathelement location="${jta.jar}"/>
+    <pathelement location="${tomcat.dir}/server/lib/catalina.jar"/>
   </path>
     
   <!-- ================================================================== -->
@@ -36,6 +36,8 @@
 
     <echo message="java.home              = ${java.home}"/>
     <echo message="user.home              = ${user.home}"/>   
+    <echo message="openejb.dir            = ${openejb.dir}"/>   
+    <echo message="tomcat.dir             = ${tomcat.dir}"/>   
 
     <echo message="ejb11.jar              = ${ejb11.jar}"/>
     <echo message="jndi.jar               = ${jndi.jar}"/>
@@ -84,6 +86,12 @@
       classpathref="project.classpath"
     />
     
+    <available 
+      file="${tomcat.dir}/server/lib/catalina.jar"
+      property="tomcat.present"
+      classpathref="project.classpath"
+    />
+    
   </target>  
     
   <target name="check.ejb11" unless="ejb11.present">
@@ -97,6 +105,13 @@
     <antcall target="property-warning">
       <param name="name" value="jndi.jar"/>
       <param name="value" value="${jndi.jar}"/>
+    </antcall>
+  </target>
+
+  <target name="check.tomcat" unless="tomcat.present">
+    <antcall target="property-warning">
+      <param name="name" value="tomcat.dir"/>
+      <param name="value" value="${tomcat.dir}"/>
     </antcall>
   </target>
                                             
@@ -132,7 +147,8 @@
   <target name="prepare"
           depends="env,
                    check.ejb11,
-                   check.jndi"
+                   check.jndi,
+                   check.tomcat"
           description="--> prepares the build environment">
           
     <mkdir dir="${build.src}"/>
@@ -172,6 +188,17 @@
     </antcall>    
           
           
+  </target>
+      
+  <!-- ================================================================== -->
+  <!-- Installs onto Tomcat                                               -->
+  <!-- ================================================================== -->
+  
+  <target name="install"
+          description="--> installs onto Tomcat">
+    <antcall target="delegate">
+        <param name="target.name" value="install"/>
+    </antcall>    
   </target>
       
   <!-- ================================================================== -->
