@@ -57,6 +57,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.security.auth.Subject;
+import javax.security.auth.x500.X500Principal;
 import javax.security.jacc.EJBMethodPermission;
 import javax.security.jacc.EJBRoleRefPermission;
 
@@ -69,6 +70,7 @@ import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deploy.DistinguishedName;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
 import org.apache.geronimo.xbeans.j2ee.ExcludeListType;
@@ -344,7 +346,6 @@ class ContainerSecurityBuilder {
                 while (principals.hasNext()) {
                     Principal principal = (Principal) principals.next();
 
-                    //todo: needs a proper login domain name to go with the realm name
                     RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
 
                     if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
@@ -353,6 +354,18 @@ class ContainerSecurityBuilder {
                     if (principal.isDesignatedRunAs()) roleDesignate.getPrincipals().add(realmPrincipal);
                 }
             }
+
+            for (Iterator names = role.getDNames().iterator(); names.hasNext();) {
+                DistinguishedName dn = (DistinguishedName) names.next();
+
+                X500Principal x500Principal = ConfigurationUtil.generateX500Principal(dn.getName());
+
+                principalSet.add(x500Principal);
+                if (dn.isDesignatedRunAs()) {
+                    roleDesignate.getPrincipals().add(x500Principal);
+                }
+            }
+
             Set roleMapping = (Set) securityConfiguration.getRoleMapping().get(roleName);
             if (roleMapping == null) {
                 roleMapping = new HashSet();

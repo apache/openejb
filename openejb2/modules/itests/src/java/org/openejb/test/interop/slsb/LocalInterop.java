@@ -53,6 +53,14 @@ import javax.ejb.EJBLocalObject;
  */
 public interface LocalInterop extends EJBLocalObject {
 
-    public String callRemote(String argument1) throws RemoteException;
+    public String callNoAccess(String argument1) throws RemoteException;
+
+    public String callLowAccess(String argument1) throws RemoteException;
+
+    public String callMedAccess(String argument1) throws RemoteException;
+
+    public String callHighAccess(String argument1) throws RemoteException;
+
+    public String callAllAccess(String argument1) throws RemoteException;
 
 }

@@ -32,13 +32,44 @@
 
     <assembly-descriptor>
 
+        <security-role>
+            <description>Role for methods that are not assigned</description>
+            <role-name>UNASSIGNED</role-name>
+        </security-role>
+
+
         <method-permission>
            <description>The description</description>
            <unchecked/>
            <method>
                <description>The description</description>
                <ejb-name>InteropBean</ejb-name>
-               <method-name>callRemote</method-name>
+               <method-name>callNoAccess</method-name>
+           </method>
+           <method>
+               <description>The description</description>
+               <ejb-name>InteropBean</ejb-name>
+               <method-name>callHighAccess</method-name>
+           </method>
+           <method>
+               <description>The description</description>
+               <ejb-name>InteropBean</ejb-name>
+               <method-name>callAllAccess</method-name>
+           </method>
+           <method>
+               <description>The description</description>
+               <ejb-name>InteropBean</ejb-name>
+               <method-name>callMedAccess</method-name>
+           </method>
+           <method>
+               <description>The description</description>
+               <ejb-name>InteropBean</ejb-name>
+               <method-name>callLowAccess</method-name>
+           </method>
+           <method>
+               <description>The description</description>
+               <ejb-name>InteropBean</ejb-name>
+               <method-name>callAllAccess</method-name>
            </method>
             <method>
                 <description>The description</description>
