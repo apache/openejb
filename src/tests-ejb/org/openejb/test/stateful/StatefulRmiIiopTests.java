@@ -548,7 +548,7 @@ public class StatefulRmiIiopTests extends StatefulTestClient{
             EncStatefulHome expected = (EncStatefulHome)javax.rmi.PortableRemoteObject.narrow( obj, EncStatefulHome.class);
             assertNotNull("The EJBHome returned from JNDI is null", expected);
             
-            EncStatefulHome actual = (EncStatefulHome)ejbObject.returnEJBHome(expected);
+            EncStatefulHome actual = (EncStatefulHome)javax.rmi.PortableRemoteObject.narrow(ejbObject.returnEJBHome(expected), EncStatefulHome.class);
             assertNotNull("The EJBHome returned is null", actual);
         
         } catch (Exception e){
@@ -558,7 +558,7 @@ public class StatefulRmiIiopTests extends StatefulTestClient{
 
     public void test36_returnEJBHome2() {
         try{
-            EncStatefulHome actual = (EncStatefulHome)ejbObject.returnEJBHome();
+            EncStatefulHome actual = (EncStatefulHome)javax.rmi.PortableRemoteObject.narrow(ejbObject.returnEJBHome(), EncStatefulHome.class);
             assertNotNull("The EJBHome returned is null", actual);
         
         } catch (Exception e){
@@ -575,7 +575,7 @@ public class StatefulRmiIiopTests extends StatefulTestClient{
             ObjectGraph graph = ejbObject.returnObjectGraph(new ObjectGraph(expected));
             assertNotNull("The ObjectGraph is null", graph);
             
-            EncStatefulHome actual = (EncStatefulHome)graph.getObject();
+            EncStatefulHome actual = (EncStatefulHome)javax.rmi.PortableRemoteObject.narrow(graph.getObject(), EncStatefulHome.class);
             assertNotNull("The EJBHome returned is null", actual);
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
@@ -587,7 +587,7 @@ public class StatefulRmiIiopTests extends StatefulTestClient{
             ObjectGraph graph = ejbObject.returnNestedEJBHome();
             assertNotNull("The ObjectGraph is null", graph);
             
-            EncStatefulHome actual = (EncStatefulHome)graph.getObject();
+            EncStatefulHome actual = (EncStatefulHome)javax.rmi.PortableRemoteObject.narrow(graph.getObject(), EncStatefulHome.class);
             assertNotNull("The EJBHome returned is null", actual);
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
@@ -604,7 +604,7 @@ public class StatefulRmiIiopTests extends StatefulTestClient{
                 assertNotNull("The EJBHome returned from JNDI is null", expected[i]);
             }
             
-            EncStatefulHome[] actual = (EncStatefulHome[])ejbObject.returnEJBHomeArray(expected);
+            EJBHome[] actual = ejbObject.returnEJBHomeArray(expected);
             assertNotNull("The EJBHome array returned is null", actual);
             assertEquals(expected.length, actual.length);
         
@@ -627,7 +627,7 @@ public class StatefulRmiIiopTests extends StatefulTestClient{
             EncStatefulObject expected = home.create("test_40 StatefulBean");
             assertNotNull("The EJBObject created is null", expected);
             
-            EncStatefulObject actual = (EncStatefulObject)ejbObject.returnEJBObject(expected);
+            EncStatefulObject actual = (EncStatefulObject)javax.rmi.PortableRemoteObject.narrow(ejbObject.returnEJBObject(expected), EncStatefulObject.class);
             assertNotNull("The EJBObject returned is null", actual);
         
             assert("The EJBObejcts are not identical", expected.isIdentical(actual));
@@ -638,7 +638,7 @@ public class StatefulRmiIiopTests extends StatefulTestClient{
 
     public void test41_returnEJBObject2() {
         try{
-            EncStatefulObject actual = (EncStatefulObject)ejbObject.returnEJBObject();
+            EncStatefulObject actual = (EncStatefulObject)javax.rmi.PortableRemoteObject.narrow(ejbObject.returnEJBObject(), EncStatefulObject.class);
             assertNotNull("The EJBObject returned is null", actual);
         
         } catch (Exception e){
@@ -658,7 +658,7 @@ public class StatefulRmiIiopTests extends StatefulTestClient{
             ObjectGraph graph = ejbObject.returnObjectGraph(new ObjectGraph(expected));
             assertNotNull("The ObjectGraph is null", graph);
             
-            EncStatefulObject actual = (EncStatefulObject)graph.getObject();
+            EncStatefulObject actual = (EncStatefulObject)javax.rmi.PortableRemoteObject.narrow(graph.getObject(), EncStatefulObject.class);
             assertNotNull("The EJBObject returned is null", actual);
         
             assert("The EJBObejcts are not identical", expected.isIdentical(actual));
@@ -672,7 +672,7 @@ public class StatefulRmiIiopTests extends StatefulTestClient{
             ObjectGraph graph = ejbObject.returnNestedEJBObject();
             assertNotNull("The ObjectGraph is null", graph);
             
-            EncStatefulObject actual = (EncStatefulObject)graph.getObject();
+            EncStatefulObject actual = (EncStatefulObject)javax.rmi.PortableRemoteObject.narrow(graph.getObject(), EncStatefulObject.class);
             assertNotNull("The EJBHome returned is null", actual);
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
@@ -691,7 +691,7 @@ public class StatefulRmiIiopTests extends StatefulTestClient{
                 assertNotNull("The EJBObject created is null", expected[i]);
             }
             
-            EncStatefulObject[] actual = (EncStatefulObject[])ejbObject.returnEJBObjectArray(expected);
+            EJBObject[] actual = ejbObject.returnEJBObjectArray(expected);
             assertNotNull("The EJBObject array returned is null", actual);
             assertEquals(expected.length, actual.length);
             
