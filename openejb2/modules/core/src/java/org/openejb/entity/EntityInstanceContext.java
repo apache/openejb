@@ -54,6 +54,7 @@ import javax.ejb.EntityContext;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
@@ -74,10 +75,10 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
     private final EJBInvocation storeInvocation;
     private boolean stateValid;
 
-    public EntityInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EnterpriseBean instance, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) {
+    public EntityInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EnterpriseBean instance, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, TransactionContextManager transactionContextManager, BasicTimerService timerService) {
         super(systemMethodIndices, lifecycleInterceptorChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, timerService);
         this.containerId = containerId;
-        entityContext = new EntityContextImpl(this);
+        entityContext = new EntityContextImpl(this, transactionContextManager);
         loadInvocation = systemMethodIndices.getEjbLoadInvocation(this);
         storeInvocation = systemMethodIndices.getEjbStoreInvocation(this);
         setContextInvocation = systemMethodIndices.getSetContextInvocation(this, entityContext);

@@ -54,6 +54,7 @@ import javax.ejb.SessionSynchronization;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.SystemMethodIndices;
@@ -70,12 +71,12 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
     private final StatefulSessionContext statefulContext;
     private boolean dead = false;
 
-    public StatefulInstanceContext(Object containerId, EJBProxyFactory proxyFactory, SessionBean instance, Object id, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources) {
+    public StatefulInstanceContext(Object containerId, EJBProxyFactory proxyFactory, SessionBean instance, Object id, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources) {
         //currently stateful beans have no timer service.
         super(systemMethodIndices, systemChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, null);
         this.containerId = containerId;
         this.id = id;
-        statefulContext = new StatefulSessionContext(this, userTransaction);
+        statefulContext = new StatefulSessionContext(this, transactionContextManager, userTransaction);
         setContextInvocation = systemMethodIndices.getSetContextInvocation(this, statefulContext);
         unsetContextInvocation = systemMethodIndices.getSetContextInvocation(this, null);
     }

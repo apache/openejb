@@ -48,6 +48,7 @@
 package org.openejb;
 
 import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.core.service.Interceptor;
 
 import org.openejb.proxy.EJBProxyFactory;
@@ -69,6 +70,8 @@ public interface InstanceContextFactory {
     void setSystemChain(Interceptor lifecycleInterceptorChain);
 
     SystemMethodIndices setSignatures(InterfaceMethodSignature[] signatures);
+
+    void setTransactionContextManager(TransactionContextManager transactionContextManager);
 
     void setTimerService(BasicTimerService timerService);
 }

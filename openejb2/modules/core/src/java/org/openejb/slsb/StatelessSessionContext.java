@@ -61,6 +61,7 @@ import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * Implementation of SessionContext using the State pattern to determine
@@ -69,8 +70,8 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
  * @version $Revision$ $Date$
  */
 public class StatelessSessionContext extends EJBContextImpl implements SessionContext {
-    public StatelessSessionContext(StatelessInstanceContext context, UserTransactionImpl userTransaction) {
-        super(context, userTransaction);
+    public StatelessSessionContext(StatelessInstanceContext context, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction) {
+        super(context, transactionContextManager, userTransaction);
         state = StatelessSessionContext.INACTIVE;
     }
 

@@ -75,6 +75,7 @@ public class BusinessMethod extends AbstractMethodOperation {
             if(isBMT) {
                 // we need to update the invocation cache of the transaction context
                 // because they may have used UserTransaction to push a new context
+                //TODO MOVE THIS TO AN INTERCEPTOR that is included only if the bean is BMT
                 invocation.setTransactionContext(TransactionContext.getContext());
             }
         }

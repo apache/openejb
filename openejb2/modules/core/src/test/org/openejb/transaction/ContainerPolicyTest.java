@@ -81,10 +81,10 @@ public class ContainerPolicyTest extends TestCase {
 
     public void testNotSupportedInContext() throws Throwable {
         MockUnspecifiedTransactionContext outer = new MockUnspecifiedTransactionContext(interceptor);
-        TransactionContext.setContext(outer);
+        transactionContextManager.setContext(outer);
 
         ContainerPolicy.NotSupported.invoke(interceptor, invocation, transactionContextManager);
-        assertTrue(TransactionContext.getContext() == outer);
+        assertTrue(transactionContextManager.getContext() == outer);
         assertTrue(interceptor.context instanceof UnspecifiedTransactionContext);
         assertTrue(interceptor.context != outer);
         assertTrue(outer.suspended);
@@ -112,17 +112,22 @@ public class ContainerPolicyTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         txnManager = new MockTransactionManager();
-        transactionContextManager = new TransactionContextManager(txnManager);
-        interceptor = new MockInterceptor();
+        transactionContextManager = new TransactionContextManager(txnManager, null, null);
+        interceptor = new MockInterceptor(transactionContextManager);
         invocation = new EJBInvocationImpl(EJBInterfaceType.LOCAL, 0, null);
     }
 
     private static class MockInterceptor implements Interceptor {
+        private final TransactionContextManager transactionContextManager;
         private boolean throwException;
         private TransactionContext context;
 
+        public MockInterceptor(TransactionContextManager transactionContextManager) {
+            this.transactionContextManager = transactionContextManager;
+        }
+
         public InvocationResult invoke(Invocation invocation) throws Throwable {
-            context = TransactionContext.getContext();
+            context = transactionContextManager.getContext();
             if (throwException) {
                 throw new MockSystemException();
             } else {

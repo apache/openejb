@@ -49,6 +49,7 @@ package org.openejb.transaction;
 
 import javax.ejb.TransactionRequiredLocalException;
 import javax.transaction.TransactionRequiredException;
+import javax.transaction.RollbackException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -74,8 +75,6 @@ public class ContainerPolicy {
     public static final TransactionPolicy RequiresNew = new TxRequiresNew();
     public static final TransactionPolicy Mandatory = new TxMandatory();
     public static final TransactionPolicy Never = new TxNever();
-    public static final TransactionPolicy BeforeDelivery = new TxBeforeDelivery();
-    public static final TransactionPolicy AfterDelivery = new TxAfterDelivery();
 
     private static final class TxNotSupported implements TransactionPolicy {
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
@@ -90,6 +89,8 @@ public class ContainerPolicy {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
                     beanContext.commit();
                     return result;
+                } catch (RollbackException re) {
+                    throw re;
                 } catch (Throwable t) {
                     try {
                         beanContext.rollback();
@@ -136,6 +137,8 @@ public class ContainerPolicy {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
                     beanContext.commit();
                     return result;
+                } catch (RollbackException re) {
+                    throw re;
                 } catch (Throwable t) {
                     try {
                         beanContext.rollback();
@@ -179,6 +182,8 @@ public class ContainerPolicy {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
                     beanContext.commit();
                     return result;
+                } catch (RollbackException re) {
+                    throw re;
                 } catch (Throwable t) {
                     try {
                         beanContext.rollback();
@@ -214,6 +219,8 @@ public class ContainerPolicy {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
                     beanContext.commit();
                     return result;
+                } catch (RollbackException re) {
+                    throw re;
                 } catch (Throwable t) {
                     try {
                         beanContext.rollback();
@@ -288,6 +295,8 @@ public class ContainerPolicy {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
                     beanContext.commit();
                     return result;
+                } catch (RollbackException re) {
+                    throw re;
                 } catch (Throwable t) {
                     try {
                         beanContext.rollback();
@@ -309,66 +318,5 @@ public class ContainerPolicy {
             return ContainerPolicy.Never;
         }
     }
-    //TODO INCOMPLETE: XAResource is not enlisted in new tx. Method tx attr. is not checked. clientContext is not saved.
-    private static final class TxBeforeDelivery implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
-            TransactionContext clientContext = transactionContextManager.getContext();
-            if (clientContext instanceof InheritableTransactionContext) {
-                try {
-                    ejbInvocation.setTransactionContext(clientContext);
-                    return interceptor.invoke(ejbInvocation);
-                } finally {
-                    ejbInvocation.setTransactionContext(null);
-                }
-            }
 
-            if (clientContext != null) {
-                clientContext.suspend();
-            }
-            try {
-                TransactionContext beanContext = transactionContextManager.newContainerTransactionContext();
-                ejbInvocation.setTransactionContext(beanContext);
-                return new SimpleInvocationResult(true, null);
-            } catch (Exception e) {
-                return new SimpleInvocationResult(false, e);
-            }
-        }
-        public String toString() {
-            return "BeforeDelivery";
-        }
-
-        private Object readResolve() {
-            return ContainerPolicy.BeforeDelivery;
-        }
-    }
-    //TODO really broken. possible (imported) tx context is not restored.  XAResource is not delisted.
-    private static final class TxAfterDelivery implements TransactionPolicy {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
-            TransactionContext beanContext = transactionContextManager.getContext();
-            try {
-                try {
-                    beanContext.commit();
-                    return new SimpleInvocationResult(true, null);
-                } catch (Throwable t) {
-                    try {
-                        beanContext.rollback();
-                    } catch (Exception e) {
-                        log.warn("Unable to roll back", e);
-                    }
-                    throw t;
-                }
-            } finally {
-                ejbInvocation.setTransactionContext(null);
-                transactionContextManager.setContext(null);
-            }
-        }
-        public String toString() {
-            return "AfterDelivery";
-        }
-
-
-        private Object readResolve() {
-            return ContainerPolicy.AfterDelivery;
-        }
-    }
 }

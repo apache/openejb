@@ -60,10 +60,10 @@ import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.ContainerTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
-
-import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * Implementation of EJBContext that uses the State pattern to determine
@@ -74,11 +74,13 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 public abstract class EJBContextImpl {
     protected final EJBInstanceContext context;
     protected final UserTransactionImpl userTransaction;
+    private final TransactionContextManager transactionContextManager;
     protected EJBContextState state;
 
-    public EJBContextImpl(EJBInstanceContext context, UserTransactionImpl userTransaction) {
+    public EJBContextImpl(EJBInstanceContext context, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction) {
         this.context = context;
         this.userTransaction = userTransaction;
+        this.transactionContextManager = transactionContextManager;
     }
 
     public EJBHome getEJBHome() {
@@ -115,16 +117,16 @@ public abstract class EJBContextImpl {
 
     public void setRollbackOnly() {
         if (userTransaction != null) {
-            throw new IllegalStateException("Calls to setRollbackOnly are not allowed for EJBs with container-managed transaction demarcation");
+            throw new IllegalStateException("Calls to setRollbackOnly are not allowed for EJBs with bean-managed transaction demarcation");
         }
-        state.setRollbackOnly(context);
+        state.setRollbackOnly(context, transactionContextManager);
     }
 
     public boolean getRollbackOnly() {
         if (userTransaction != null) {
-            throw new IllegalStateException("Calls to setRollbackOnly are not allowed for EJBs with container-managed transaction demarcation");
+            throw new IllegalStateException("Calls to getRollbackOnly are not allowed for EJBs with bean-managed transaction demarcation");
         }
-        return state.getRollbackOnly(context);
+        return state.getRollbackOnly(context, transactionContextManager);
     }
 
     public TimerService getTimerService() {
@@ -188,8 +190,8 @@ public abstract class EJBContextImpl {
             return userTransaction;
         }
 
-        public void setRollbackOnly(EJBInstanceContext context) {
-            TransactionContext ctx = TransactionContext.getContext();
+        public void setRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
+            TransactionContext ctx = transactionContextManager.getContext();
             if (ctx instanceof ContainerTransactionContext) {
                 ContainerTransactionContext containerContext = (ContainerTransactionContext) ctx;
                 try {
@@ -202,8 +204,8 @@ public abstract class EJBContextImpl {
             }
         }
 
-        public boolean getRollbackOnly(EJBInstanceContext context) {
-            TransactionContext ctx = TransactionContext.getContext();
+        public boolean getRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
+            TransactionContext ctx = transactionContextManager.getContext();
             if (ctx instanceof ContainerTransactionContext) {
                 ContainerTransactionContext containerContext = (ContainerTransactionContext) ctx;
                 try {

@@ -55,6 +55,7 @@ import javax.ejb.EntityContext;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
 import org.openejb.InstanceContextFactory;
@@ -76,7 +77,8 @@ public class BMPInstanceContextFactory implements InstanceContextFactory, Serial
     private transient EJBProxyFactory proxyFactory;
     private transient Interceptor systemChain;
     private transient SystemMethodIndices systemMethodIndices;
-    private BasicTimerService timerService;
+    private transient TransactionContextManager transactionContextManager;
+    private transient BasicTimerService timerService;
 
 
     public BMPInstanceContextFactory(Object containerId, Class beanClass, Set unshareableResources, Set applicationManagedSecurityResources) {
@@ -99,6 +101,10 @@ public class BMPInstanceContextFactory implements InstanceContextFactory, Serial
         return systemMethodIndices;
     }
 
+    public void setTransactionContextManager(TransactionContextManager transactionContextManager) {
+        this.transactionContextManager = transactionContextManager;
+    }
+
     public void setTimerService(BasicTimerService timerService) {
         this.timerService = timerService;
     }
@@ -107,6 +113,6 @@ public class BMPInstanceContextFactory implements InstanceContextFactory, Serial
         if (proxyFactory == null) {
             throw new IllegalStateException("ProxyFactory has not been set");
         }
-        return new BMPInstanceContext(containerId, proxyFactory, (EntityBean) factory.newInstance(), systemChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, timerService);
+        return new BMPInstanceContext(containerId, proxyFactory, (EntityBean) factory.newInstance(), systemChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, transactionContextManager, timerService);
     }
 }

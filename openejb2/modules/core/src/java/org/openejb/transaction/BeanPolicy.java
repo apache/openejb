@@ -56,8 +56,6 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBInvocation;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class BeanPolicy {
@@ -102,6 +100,7 @@ public class BeanPolicy {
                 }
             }
         }
+
         private Object readResolve() {
             return Stateless;
         }
@@ -146,6 +145,7 @@ public class BeanPolicy {
                 }
             }
         }
+
         private Object readResolve() {
             return Stateful;
         }

@@ -105,8 +105,8 @@ public class TimerServiceImplTest extends TestCase {
     private Serializable userKey = "test user info";
 
     protected void setUp() throws Exception {
-        TransactionManager transactionManager = new TransactionManagerImpl();
-        transactionContextManager = new TransactionContextManager(transactionManager);
+        TransactionManagerImpl transactionManager = new TransactionManagerImpl();
+        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager, null);
         executableWorkFactory = new TransactionalExecutorTaskFactory(transactionContextManager, 1);
         threadPool = new ThreadPool();
         threadPool.setPoolSize(5);
@@ -114,7 +114,7 @@ public class TimerServiceImplTest extends TestCase {
         threadPool.setPoolName("TestPool");
         threadPool.doStart();
         WorkerPersistence workerPersistence = new VMWorkerPersistence();
-        threadPooledTimer = new ThreadPooledTimer(executableWorkFactory, workerPersistence, threadPool);
+        threadPooledTimer = new ThreadPooledTimer(executableWorkFactory, workerPersistence, threadPool, transactionContextManager);
         threadPooledTimer.doStart();
 
         TransactionContext.setContext(null);

@@ -100,6 +100,8 @@ public class DeploymentHelper {
         start(kernel, TRANSACTIONMANAGER_NAME, tmGBean);
         GBeanMBean tcmGBean = new GBeanMBean(TransactionContextManager.GBEAN_INFO);
         tcmGBean.setReferencePattern("TransactionManager", TRANSACTIONMANAGER_NAME);
+        tcmGBean.setReferencePattern("XidImporter", TRANSACTIONMANAGER_NAME);
+        tcmGBean.setReferencePattern("Recovery", TRANSACTIONMANAGER_NAME);
         start(kernel, TRANSACTIONCONTEXTMANAGER_NAME, tcmGBean);
         GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
         DeploymentHelper.start(kernel, TRACKEDCONNECTIONASSOCIATOR_NAME, trackedConnectionAssociator);
@@ -127,7 +129,7 @@ public class DeploymentHelper {
         geronimoWorkManagerGBean.setAttribute("syncMaximumPoolSize", new Integer(5));
         geronimoWorkManagerGBean.setAttribute("startMaximumPoolSize", new Integer(5));
         geronimoWorkManagerGBean.setAttribute("scheduledMaximumPoolSize", new Integer(5));
-        geronimoWorkManagerGBean.setReferencePattern("XAServices", TRANSACTIONMANAGER_NAME);
+        geronimoWorkManagerGBean.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
         start(kernel, WORKMANAGER_NAME, geronimoWorkManagerGBean);
 
         GBeanMBean resourceAdapterGBean = new GBeanMBean(ResourceAdapterWrapper.getGBeanInfo());

@@ -141,7 +141,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         SystemMethodIndices systemMethodIndices = contextFactory.setSignatures(getSignatures());
 
         contextFactory.setSystemChain(chains.getSystemChain());
-
+        contextFactory.setTransactionContextManager(transactionContextManager);
         if (timer != null) {
             timerService = new BasicTimerService(systemMethodIndices, interceptor, timer, objectName, kernel.getKernelName(), ObjectName.getInstance(objectName), transactionContextManager);
             contextFactory.setTimerService(timerService);

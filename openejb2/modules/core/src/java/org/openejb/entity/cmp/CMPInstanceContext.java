@@ -56,6 +56,7 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.entity.EntityInstanceContext;
 import org.openejb.proxy.EJBProxyFactory;
@@ -79,8 +80,8 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
     private CacheRow cacheRow;
     private TransactionContext transactionContext;
 
-    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, InstanceOperation[] itable, FaultHandler loadFault, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) throws Exception {
-        super(containerId, proxyFactory, null, lifecycleInterceptorChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, timerService);
+    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, InstanceOperation[] itable, FaultHandler loadFault, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, TransactionContextManager transactionContextManager, BasicTimerService timerService) throws Exception {
+        super(containerId, proxyFactory, null, lifecycleInterceptorChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, transactionContextManager, timerService);
         this.itable = itable;
         this.loadFault = loadFault;
         this.primaryKeyTransform = primaryKeyTransform;

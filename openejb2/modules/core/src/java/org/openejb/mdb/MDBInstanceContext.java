@@ -53,6 +53,7 @@ import javax.ejb.MessageDrivenBean;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.SystemMethodIndices;
@@ -67,10 +68,10 @@ public final class MDBInstanceContext extends AbstractInstanceContext {
     private final Object containerId;
     private final MDBContext mdbContext;
 
-    public MDBInstanceContext(Object containerId, MessageDrivenBean instance, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) {
+    public MDBInstanceContext(Object containerId, MessageDrivenBean instance, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) {
         super(systemMethodIndices, systemChain, unshareableResources, applicationManagedSecurityResources, instance, null, timerService);
         this.containerId = containerId;
-        this.mdbContext = new MDBContext(this, userTransaction);
+        this.mdbContext = new MDBContext(this, transactionContextManager, userTransaction);
         setContextInvocation = systemMethodIndices.getSetContextInvocation(this, mdbContext);
         unsetContextInvocation = systemMethodIndices.getSetContextInvocation(this, null);
     }
