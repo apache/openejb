@@ -153,14 +153,14 @@ public class Messages extends ListResourceBundle{
 {"conf.0005" ,"Unable to load properties file {0}.  {1}"},
 {"conf.0006" ,"Properties file {0} not found.  Received message: {1}"},
 {"conf.0007" ,"Cannot read properties file {0}.  {1}"},
-{"conf.0008" ,"Jar {0} cannot be assembled.  The number of beans deployed ({2}) does not match the number of beans actually in the jar ({1}).  Please redeploy this jar."},
+{"conf.0008" ,"Jar {0} cannot be loaded.  The number of beans deployed ({2}) does not match the number of beans actually in the jar ({1}).  Please redeploy this jar."},
 {"conf.0009" ,"Security role reference {0} is not linked.  The reference will be linked to the OpenEJB default security role.  Bean name is {1}, jar file is {2}."},
 {"conf.0010" ,"Properties file {0} for JndiProvider {1} not found.  Received message: {2}"},
 {"conf.0011" ,"Cannot read properties file {0} for JndiProvider {1}.  Received message: {2}"},
 {"conf.0012" ,"Error while parsing properties.  Received message: {0}"},
 {"conf.0013" ,"Cannot create properties for service provider {0} in jar {1}.  {2}"},
 {"conf.0014" ,"Cannot create properties for {0} with ID {1} in config file {2}.  {3}"},
-{"conf.0100" ,"The Deployment ID {0} is already in use.  Please redeploy jar {1}."},
+{"conf.0100" ,"Jar {1} cannot be loaded.  The Deployment ID {0} is already in use.  Please redeploy this jar and assign a different deployment ID to the bean with the ejb-name {2}."},
 {"conf.0102" ,"Role {1} already present.  Jar {0} declares a security role already present in another jar.  The role will be mapped to the pre-existing role by the same name."},
 {"conf.0101" ,"Invalid configuration {0}.  ID {1} is not unique!  Container IDs cannot be duplicated."},
 {"conf.0103" ,"Invalid configuration {0}.  ID {1} is not unique!  JndiProvider IDs cannot be duplicated."},
@@ -215,6 +215,13 @@ public class Messages extends ListResourceBundle{
 {"deploy.m.040" , "Deploy option -m.  Could not move jar {0}. An error occurred while resolving the default beans directory: {1}"},
 {"deploy.m.050" , "Deploy option -m.  Could not move jar {0}. A security exception occurred while attempting to move the jar to the default beans directory: {1}"},
 {"deploy.m.060" , "Deploy option -m.  Could not move jar {0} to {1}.  Make sure the jar is not open in another program."},
+
+{"deploy.c.010" , "Deploy option -c.  Could not copy jar {0}, file does not exist."},
+{"deploy.c.020" , "Deploy option -c.  Could not copy jar {0}, the specified path is a directory not a valid file."},
+{"deploy.c.030" , "Deploy option -c.  Could not copy jar {0}, that path is not a valid file."},
+{"deploy.c.040" , "Deploy option -c.  Could not copy jar {0}. An error occurred while resolving the default beans directory: {1}"},
+{"deploy.c.050" , "Deploy option -c.  Could not copy jar {0}. A security exception occurred while attempting to copy the jar to the default beans directory {1}. Exception message: {2}"},
+{"deploy.c.060" , "Deploy option -c.  Could not copy jar {0} to {1}. Received exception: {2}: {3}"},
 
 
 // END OF MATERIAL TO LOCALIZE

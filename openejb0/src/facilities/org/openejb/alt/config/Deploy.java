@@ -5,11 +5,19 @@ import org.openejb.alt.config.ejb11.*;
 import org.openejb.OpenEJBException;
 import org.openejb.util.Messages;
 import org.openejb.util.FileUtils;
+import org.openejb.util.JarUtils;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.util.Properties;
 import java.io.PrintStream;
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.IOException;
+import java.net.URL;
 
 
 /**
@@ -39,11 +47,11 @@ import java.io.File;
  */
 public class Deploy {
 
-    private final String DEPLOYMENT_ID_HELP = "Deployment ID ----- \nA name for the ejb that is unique not only in this jar,    \nbut in all the jars in the container system.  This name    \nwill allow OpenEJB to place the bean in a global index and \nreference the bean quickly.  OpenEJB will also use this    \nname as the global JNDI name for application clients in the\nsame VM.  The integrating server may also use this name to \nas part of a global JNDI namespace available to remote     \napplication clients.\n\nExample: client/acme/bugsBunnyBean";
-    private final String CONTAINER_ID_HELP = "TODO: Give some direction";
-    private final String CONNECTOR_ID_HELP = "TODO: Give some direction";
+    private final String DEPLOYMENT_ID_HELP = "\nDeployment ID ----- \n\nA name for the ejb that is unique not only in this jar, but \nin all the jars in the container system.  This name will \nallow OpenEJB to place the bean in a global index and \nreference the bean quickly.  OpenEJB will also use this name \nas the global JNDI name for the Remote Server and the Local \nServer.  Clients of the Remote or Local servers can use this\nname to perform JNDI lookups.\n\nThe other EJB Server's using OpenEJB as the EJB Container \nSystem may also use this name to as part of a global JNDI \nnamespace available to remote application clients.\n\nExample: /my/acme/bugsBunnyBean\n\nSee http://openejb.sf.net/deploymentids.html for details.\n";
+    private final String CONTAINER_ID_HELP  = "\nContainer ID ----- \n\nThe name of the container where this ejb should run. \nContainers are declared and configured in the openejb.conf\nfile.\n";
+    private final String CONNECTOR_ID_HELP  = "\nConnector ID ----- \n\nThe name of the connector or JDBC resource this resoure \nreference should be mapped to. Connectors and JDBC resources \nare declared and configured in the openejb.conf file.\n";
     
-    /*=======----------TODO----------=======
+     /*=======----------TODO----------=======
        Neat options that this Deploy tool 
        could support
       
@@ -70,6 +78,15 @@ public class Deploy {
      */
     private boolean MOVE_JAR;
     
+    /**
+     * Idea for a command line option
+     * 
+     * -c   Copy the jar to the OPENEJB_HOME/beans directory
+     *
+     * not implemented
+     */
+    private boolean COPY_JAR;
+
     /**
      * Idea for a command line option
      * 
@@ -150,6 +167,12 @@ public class Deploy {
 
     public void init(String openejbConfigFile) throws OpenEJBException{
         try {
+            if( System.getProperty( "openejb.nobanner" ) == null ) {
+                printVersion();
+                System.out.println("");
+            }
+            
+            
             in  = new DataInputStream(System.in); 
             out = System.out;
 
@@ -211,6 +234,8 @@ public class Deploy {
         
         if (MOVE_JAR) {
             jarLocation = moveJar(jarLocation);
+        } else if (COPY_JAR) {
+            jarLocation = copyJar(jarLocation);
         }
         
         /* TODO: Automatically updating the users
@@ -269,6 +294,59 @@ public class Deploy {
             ConfigUtils.logWarning("deploy.m.060", origFile.getAbsolutePath(), newFile.getAbsoluteFile());
             return origFile.getAbsolutePath();
         }
+    }
+
+    private String copyJar(String jar) throws OpenEJBException{
+        File origFile = new File(jar);
+        
+        // Safety checks
+        if (!origFile.exists()){
+            ConfigUtils.logWarning("deploy.c.010", origFile.getAbsolutePath());
+            return jar;
+        }
+
+        if (origFile.isDirectory()){
+            ConfigUtils.logWarning("deploy.c.020", origFile.getAbsolutePath());
+            return jar;
+        }
+
+        if (!origFile.isFile()){
+            ConfigUtils.logWarning("deploy.c.030", origFile.getAbsolutePath());
+            return jar;
+        }
+
+        // Move file
+        String jarName = origFile.getName();
+        File beansDir = null;
+        try {
+            beansDir = FileUtils.getDirectory("beans"); 
+        } catch (java.io.IOException ioe){
+            ConfigUtils.logWarning("deploy.c.040", origFile.getAbsolutePath(), ioe.getMessage());
+            return jar;
+        }
+        
+        File newFile = new File(beansDir, jarName);
+        
+        try{
+            FileInputStream  in  = new FileInputStream(origFile);
+            FileOutputStream out = new FileOutputStream(newFile);
+        
+            int b = in.read();
+            while( b != -1 ){
+                b = in.read();
+                out.write( b );
+            }
+
+            in.close();
+            out.close();
+
+        } catch (SecurityException e){
+            ConfigUtils.logWarning("deploy.c.050", origFile.getAbsolutePath(), beansDir.getAbsolutePath(), e.getMessage());
+        } catch (IOException e){
+            ConfigUtils.logWarning("deploy.c.060", origFile.getAbsolutePath(), newFile.getAbsolutePath(), e.getClass().getName(), e.getMessage());
+        }
+
+        return newFile.getAbsolutePath();
     }
 
     private EjbDeployment deployBean(Bean bean) throws OpenEJBException{
@@ -658,6 +736,11 @@ public class Deploy {
         try {
             Deploy d = new Deploy();
 
+            if (args.length == 0) {
+                printHelp();
+                return;
+            }
+            
             for (int i=0; i < args.length; i++){
                 //AUTODEPLOY
                 if (args[i].equals("-a")){
@@ -666,6 +749,12 @@ public class Deploy {
                 } else if (args[i].equals("-m")){
                     d.MOVE_JAR = true;
                 } else if (args[i].equals("-c")){
+                    d.COPY_JAR = true;
+                } else if (args[i].equals("-C")){
+                    d.AUTO_ASSIGN = true;
+                } else if (args[i].equals("-D")){
+                    d.GENERATE_DEPLOYMENT_ID = true;
+                } else if (args[i].equals("-conf")){
                     if (args.length > i+1 ) {
                         System.setProperty("openejb.configuration", args[++i]);
                     }
@@ -677,6 +766,12 @@ public class Deploy {
                     if (args.length > i+1 ) {
                         System.setProperty("openejb.home", args[++i]);
                     }
+                } else if (args[i].equals("-help")){
+                    printHelp();
+                } else if (args[i].equals("-examples")){
+                    printExamples();
+                } else if (args[i].equals("-version")){
+                    printVersion();
                 } else {
                     // We must have reached the jar list
                     d.init(null);
@@ -686,27 +781,76 @@ public class Deploy {
                 }
             }
                         
-       } catch ( Exception e ) {
-            e.printStackTrace();
+        } catch ( Exception e ) {
+            System.out.println(e.getMessage());
+            //e.printStackTrace();
         }
     }
 
-    private static void usage() {
-        String usage = ""+
-                       "OpenEJB Deployer\n"+
-                       "\n"+
-                       "Usage: Deploy configfile jar-file\n"+
-                       "\n"+
-                       "configfile - The OpenEJB configuration file\n"+
-                       "    for your container system.\n"+
-                       "jar-file   - The beans jar file containing the \n"+
-                       "    the ejb-jar.xml deployment descriptor.\n"+
-                       "\n"+
-                       "Example:\n"+
-                       "    Deploy myOpenEJB.conf myBeans.jar\n";
-        System.out.print(usage);
+    private static void printVersion() {
+        /*
+         * Output startup message
+         */
+        Properties versionInfo = new Properties();
+
+        try {
+            JarUtils.setHandlerSystemProperty();
+            versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
+        } catch (java.io.IOException e) {
+        }
+        System.out.println( "OpenEJB Deploy Tool " + versionInfo.get( "version" ) );
+        System.out.println( "" + versionInfo.get( "url" ) );
+    }
+    
+    private static void printHelp() {
+        String header = "OpenEJB Deploy Tool ";
+        try {
+            JarUtils.setHandlerSystemProperty();
+            Properties versionInfo = new Properties();
+            versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
+            header += versionInfo.get( "version" );
+        } catch (java.io.IOException e) {
+        }
+        
+        System.out.println( header );
+        
+        // Internationalize this
+        try {
+            InputStream in = new URL( "resource:/openejb/deploy.txt" ).openConnection().getInputStream();
+
+            int b = in.read();
+            while (b != -1) {
+                System.out.write( b );
+                b = in.read();
+            }
+        } catch (java.io.IOException e) {
+        }
     }
 
+    private static void printExamples() {
+        String header = "OpenEJB Deploy Tool ";
+        try {
+            JarUtils.setHandlerSystemProperty();
+            Properties versionInfo = new Properties();
+            versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
+            header += versionInfo.get( "version" );
+        } catch (java.io.IOException e) {
+        }
+        
+        System.out.println( header );
+        
+        // Internationalize this
+        try {
+            InputStream in = new URL( "resource:/openejb/deploy-examples.txt" ).openConnection().getInputStream();
+
+            int b = in.read();
+            while (b != -1) {
+                System.out.write( b );
+                b = in.read();
+            }
+        } catch (java.io.IOException e) {
+        }
+    }
 
     /*------------------------------------------------------*/
     /*    Methods for collecting beans                      */
