@@ -121,48 +121,30 @@ public class EntityEjbHomeHandler extends EjbHomeProxyHandler {
      * @return Returns an new EJBObject proxy and handler
      * @exception Throwable
      */
-    /**
-     * <P>
-     * Locates and returns a new EJBObject or a collection
-     * of EJBObjects.  The EJBObject(s) is a new proxy with
-     * a new handler. This implementation should not be
-     * sent outside the virtual machine.
-     * </P>
-     * <P>
-     * This method propogates to the container
-     * system.
-     * </P>
-     * <P>
-     * The find method is required to be defined
-     * by the bean's home interface of Entity beans.
-     * </P>
-     * 
-     * @param method
-     * @param args
-     * @param proxy
-     * @return Returns an new EJBObject proxy and handler
-     * @exception Throwable
-     */
     protected Object findX(Method method, Object[] args, Object proxy) throws Throwable {
         Object retValue = container.invoke(deploymentID,method,args,null, getThreadSpecificSecurityIdentity());
 
         if ( retValue instanceof java.util.Collection ) {
-
             Object [] proxyInfos = ((java.util.Collection)retValue).toArray();
             Vector proxies = new Vector();
             for ( int i = 0; i < proxyInfos.length; i++ ) {
                 proxies.addElement( createProxy((ProxyInfo)proxyInfos[i]) );
             }
-            if(method.getReturnType() == Enumeration.class){
-                /* 
-                   FIXME: This needs to change for two reasons:
-                   a) Although we know the core containers return a Vector we shouldn't assume that
-                   b) The Vector's impl of Enumeration is not serializable.
-                */
+            return proxies;
+        }else if ( retValue instanceof org.openejb.util.ArrayEnumeration ) {
+            org.openejb.util.ArrayEnumeration enum = (org.openejb.util.ArrayEnumeration) retValue;
+            for ( int i = enum.size()-1; i >=0 ; --i ) {
+                enum.set( i, createProxy((ProxyInfo)enum.get(i)) );
+            }
+            return enum;
+        }else if ( retValue instanceof java.util.Enumeration ) {
+            java.util.Enumeration enum = (java.util.Enumeration) retValue;
+            // Don't use Vector, because it contains unnecessary synchronization
+            java.util.List proxies = new java.util.ArrayList();
+            while ( enum.hasMoreElements() ) {
+                proxies.add( createProxy((ProxyInfo)enum.nextElement()) );
+            }
                 return new org.openejb.util.ArrayEnumeration(proxies);
-            }else
-                return proxies;// vector is a type of Collection.
-
         } else {
             org.openejb.ProxyInfo proxyInfo = (org.openejb.ProxyInfo)
               container.invoke(deploymentID,method,args,null, getThreadSpecificSecurityIdentity());
@@ -198,7 +180,6 @@ public class EntityEjbHomeHandler extends EjbHomeProxyHandler {
      * @see javax.ejb.EJBHome#remove
      */
     protected Object removeByPrimaryKey(Method method, Object[] args, Object proxy) throws Throwable{
-        checkAuthorization(method);
         Object primKey = args[0];
         container.invoke(deploymentID, method, args, primKey, getThreadSpecificSecurityIdentity());
             
@@ -208,91 +189,6 @@ public class EntityEjbHomeHandler extends EjbHomeProxyHandler {
         */
         invalidateAllHandlers(EntityEjbObjectHandler.getRegistryId(primKey,deploymentID,container));
         return null;
-    }
-    /**
-     * <P>
-     * Attempts to remove an EJBObject from the
-     * container system.  The EJBObject to be removed
-     * is represented by the javax.ejb.Handle object passed
-     * into the remove method in the EJBHome.
-     * </P>
-     * <P>
-     * This method propogates to the container system.
-     * </P>
-     * <P>
-     * remove(Handle handle) is a method of javax.ejb.EJBHome
-     * </P>
-     * <P>
-     * Checks if the caller is authorized to invoke the
-     * javax.ejb.EJBHome.remove on the EJBHome of the
-     * deployment.
-     * </P>
-     * 
-     * @param method
-     * @param args
-     * @return Returns null
-     * @exception Throwable
-     * @see javax.ejb.EJBHome
-     * @see javax.ejb.EJBHome#remove
-     */
-    protected Object removeWithHandle(Method method, Object[] args, Object proxy) throws Throwable{
-        checkAuthorization(method);
-
-        // Extract the primary key from the handle
-        IntraVmHandle handle = (IntraVmHandle)args[0];
-        EjbObjectProxyHandler stub = (EjbObjectProxyHandler)ProxyManager.getInvocationHandler(handle.theProxy);
-        Object primKey = stub.primaryKey;
-        // invoke the remove on the container
-        container.invoke(deploymentID, method, args, primKey, ThreadContext.getThreadContext().getSecurityIdentity());
-        
-        /* 
-        * This operation takes care of invalidating all the EjbObjectProxyHanders associated with 
-        * the same RegistryId. See this.createProxy().
-        */
-        invalidateAllHandlers(stub.getRegistryId());
-        return null;
-    }
-    
-    /*-------------------------------------------------*/
-    /*  EJBHome methods                                */  
-    /*-------------------------------------------------*/
-
-    /**
-     * <P>
-     * Returns an EJBMetaData implementation that is
-     * valid inside this virtual machine.  This
-     * implementation should not be sent outside the
-     * virtual machine.
-     * </P>
-     * <P>
-     * This method does not propogate to the container
-     * system.
-     * </P>
-     * <P>
-     * getMetaData is a method of javax.ejb.EJBHome
-     * </P>
-     * <P>
-     * Checks if the caller is authorized to invoke the
-     * javax.ejb.EJBHome.getMetaData on the EJBHome of the
-     * deployment.
-     * </P>
-     * 
-     * @return Returns an IntraVmMetaData
-     * @exception Throwable
-     * @see IntraVmMetaData
-     * @see javax.ejb.EJBHome
-     * @see javax.ejb.EJBHome#getEJBMetaData
-     */
-    protected Object getEJBMetaData(Method method, Object[] args, Object proxy) throws Throwable {
-        checkAuthorization(method);
-
-        byte compType = IntraVmMetaData.ENTITY;
-
-        // component type is identified outside the IntraVmMetaData so that IntraVmMetaData doesn't reference DeploymentInfo avoiding the need to load the DeploymentInfo class into the client VM.
-        IntraVmMetaData metaData = new IntraVmMetaData(deploymentInfo.getHomeInterface(), deploymentInfo.getRemoteInterface(),deploymentInfo.getPrimaryKeyClass(),compType);
-        metaData.setEJBHome((EJBHome)proxy);
-        return metaData;
-
     }
     
     protected EjbObjectProxyHandler newEjbObjectHandler(RpcContainer container, Object pk, Object depID) {
