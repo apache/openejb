@@ -559,7 +559,7 @@ public class CmpRmiIiopTests extends CmpTestClient{
 
     public void test36_returnEJBHome2() {
         try{
-            EncCmpHome actual = (EncCmpHome)ejbObject.returnEJBHome();
+            EncCmpHome actual = (EncCmpHome)javax.rmi.PortableRemoteObject.narrow(ejbObject.returnEJBHome(), EncCmpHome.class);
             assertNotNull("The EJBHome returned is null", actual);
 
         } catch (Exception e){
