@@ -45,43 +45,26 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.entity.cmp.cmr.manytomany;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import javax.ejb.CreateException;
+import javax.ejb.EJBLocalHome;
 import javax.ejb.FinderException;
 
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
-import org.openejb.EJBInvocation;
-import org.tranql.field.Row;
-import org.tranql.ql.QueryException;
-import org.tranql.query.CollectionResultHandler;
-import org.tranql.query.QueryCommandView;
+import org.openejb.entity.cmp.cmr.CompoundPK;
 
 /**
- * 
- * 
+ *
  * @version $Revision$ $Date$
  */
-public class EnumerationValuedFinder extends CMPFinder {
+public interface ALocalHome extends EJBLocalHome {
 
-    public EnumerationValuedFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
-        super(localQueryView, remoteQueryView);
-    }
+    // Create
+    public ALocal create(Integer field1) throws CreateException;
+    public ALocal create(CompoundPK primaryKey) throws CreateException;
 
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        try {
-            QueryCommandView commandView = getCommand(invocation);
-            List results = new ArrayList();
-            CollectionResultHandler handler = new CollectionResultHandler(commandView.getView()[0]);
-            commandView.getQueryCommand().execute(handler, new Row(invocation.getArguments()), results);
-            return new SimpleInvocationResult(true, Collections.enumeration(results));
-        } catch (QueryException e) {
-            return new SimpleInvocationResult(false, new FinderException(e.getMessage()).initCause(e));
-        }
-    }
+    // Finder
+    public ALocal findByPrimaryKey(Integer primaryKey) throws FinderException;
+    public ALocal findByPrimaryKey(CompoundPK primaryKey) throws FinderException;
 
 }

@@ -93,7 +93,9 @@ import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
+import org.tranql.cache.GlobalSchema;
 import org.tranql.ejb.EJBSchema;
+import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.sql.DataSourceDelegate;
 import org.tranql.sql.sql92.SQL92Schema;
 
@@ -325,11 +327,22 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             throw new DeploymentException("Unable to construct ObjectName", e);
         }
 
+        TransactionManagerDelegate tmDelegate = null;
+        ObjectName tmObjectName = null;
+        if ( null != openejbEjbJar.getTransactionManager() ) {
+            try {
+                tmObjectName = ObjectName.getInstance(openejbEjbJar.getTransactionManager());
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("transaction-manager incorrect", e);
+            }
+            tmDelegate = new TransactionManagerDelegate();
+        }
         // EJBModule GBean
         String connectionFactoryName = openejbEjbJar.getCmpConnectionFactory();
         EJBSchema ejbSchema = new EJBSchema(module.getName());
         DataSourceDelegate delegate = new DataSourceDelegate();
         SQL92Schema sqlSchema = new SQL92Schema(module.getName(), delegate);
+        GlobalSchema globalSchema = new GlobalSchema(module.getName());
         GBeanMBean ejbModuleGBean = new GBeanMBean(EJBModuleImpl.GBEAN_INFO, cl);
         try {
             ejbModuleGBean.setReferencePatterns("J2EEServer", Collections.singleton(earContext.getServerObjectName()));
@@ -345,13 +358,18 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
                 ejbModuleGBean.setReferencePattern("ConnectionFactory", connectionFactoryObjectName);
                 ejbModuleGBean.setAttribute("Delegate", delegate);
             }
+            
+            if ( null != tmObjectName ) {
+                ejbModuleGBean.setReferencePattern("TransactionManager", tmObjectName);
+                ejbModuleGBean.setAttribute("TMDelegate", tmDelegate);
+            }
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize EJBModule GBean", e);
         }
         earContext.addGBean(ejbModuleObjectName, ejbModuleGBean);
 
         // @todo need a better schema name
-        cmpEntityBuilder.buildCMPSchema(earContext, module.getName(), ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema);
+        cmpEntityBuilder.buildCMPSchema(earContext, module.getName(), ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema, globalSchema);
 
         // create an index of the openejb ejb configurations by ejb-name
         Map openejbBeans = new HashMap();
@@ -389,7 +407,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
         entityBuilder.buildBeans(earContext, module, cl, ejbModule, openejbBeans, transactionPolicyHelper, security, enterpriseBeans);
 
-        cmpEntityBuilder.buildBeans(earContext, module, cl, ejbModule, connectionFactoryName, ejbSchema, sqlSchema, openejbBeans, transactionPolicyHelper, security, enterpriseBeans);
+        cmpEntityBuilder.buildBeans(earContext, module, cl, ejbModule, connectionFactoryName, ejbSchema, sqlSchema, globalSchema, openejbBeans, transactionPolicyHelper, security, enterpriseBeans, tmDelegate);
 
         mdbBuilder.buildBeans(earContext, module, cl, ejbModule, openejbBeans, transactionPolicyHelper, security, enterpriseBeans);
 

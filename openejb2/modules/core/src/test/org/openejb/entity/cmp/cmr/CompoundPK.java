@@ -45,43 +45,36 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.entity.cmp.cmr;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.io.Serializable;
 
-import javax.ejb.FinderException;
-
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
-import org.openejb.EJBInvocation;
-import org.tranql.field.Row;
-import org.tranql.ql.QueryException;
-import org.tranql.query.CollectionResultHandler;
-import org.tranql.query.QueryCommandView;
 
 /**
- * 
- * 
+ *
  * @version $Revision$ $Date$
  */
-public class EnumerationValuedFinder extends CMPFinder {
+public class CompoundPK implements Serializable {
+    public Integer field1;
+    public String field2;
 
-    public EnumerationValuedFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
-        super(localQueryView, remoteQueryView);
+    public CompoundPK() {};
+    
+    public CompoundPK(Integer field1, String field2) {
+        this.field1 = field1;
+        this.field2 = field2;
     }
-
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        try {
-            QueryCommandView commandView = getCommand(invocation);
-            List results = new ArrayList();
-            CollectionResultHandler handler = new CollectionResultHandler(commandView.getView()[0]);
-            commandView.getQueryCommand().execute(handler, new Row(invocation.getArguments()), results);
-            return new SimpleInvocationResult(true, Collections.enumeration(results));
-        } catch (QueryException e) {
-            return new SimpleInvocationResult(false, new FinderException(e.getMessage()).initCause(e));
-        }
+    
+    public boolean equals(Object other) {
+      if ( false == other instanceof CompoundPK ) {
+          return false;
+      }
+      CompoundPK otherPK = (CompoundPK) other;
+      return field1.equals(otherPK.field1) && field2.equals(otherPK.field2);
+    }
+    
+    public int hashCode() {
+      return field1.hashCode() ^ field2.hashCode();
     }
 
 }
