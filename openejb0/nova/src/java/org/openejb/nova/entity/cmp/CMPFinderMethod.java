@@ -123,10 +123,4 @@ public class CMPFinderMethod implements VirtualOperation {
             return container.getEJBLocalObject(id);
         }
     }
-
-    public void start() throws Exception {
-    }
-
-    public void stop() {
-    }
 }

@@ -129,10 +129,4 @@ public class BMPCreateMethod implements VirtualOperation {
             return container.getEJBLocalObject(id);
         }
     }
-
-    public void start() throws Exception {
-    }
-
-    public void stop() {
-    }
 }
