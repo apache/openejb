@@ -34,62 +34,62 @@ Configuration for the CORBA server.
     </dependency>
 
     <gbean name="geronimo.remoting:target=JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">
-        <attribute name="bindURI" type="java.net.URI">tcp://0.0.0.0:4242</attribute>
+        <attribute name="bindURI">tcp://0.0.0.0:4242</attribute>
         <reference name="loginService">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JaasLoginService</reference>
     </gbean>
 
     <!-- public security realm -->
-    <gbean namePart="public-login" type="LoginModule"
+    <gbean namePart="public-login"
         class="org.apache.geronimo.security.jaas.LoginModuleGBean">
-        <attribute name="loginModuleClass" type="java.lang.String">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
-        <attribute name="serverSide" type="boolean">true</attribute>
-        <attribute name="options" type="java.util.Properties">
+        <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
+        <attribute name="serverSide">true</attribute>
+        <attribute name="options">
             usersURI=var/security/public_users.properties
             groupsURI=var/security/public_groups.properties
         </attribute>
-        <attribute name="loginDomainName" type="java.lang.String">public-properties-realm</attribute>
+        <attribute name="loginDomainName">public-properties-realm</attribute>
     </gbean>
 
-    <gbean namePart="public-properties-realm" type="SecurityRealm"
+    <gbean namePart="public-properties-realm"
            class="org.apache.geronimo.security.realm.GenericSecurityRealm">
-        <attribute name="realmName" type="java.lang.String">public-properties-realm</attribute>
-        <attribute name="loginModuleConfiguration" type="java.util.Properties">
+        <attribute name="realmName">public-properties-realm</attribute>
+        <attribute name="loginModuleConfiguration">
             LoginModule.1.REQUIRED=openejb.server:j2eeType=LoginModule,J2EEServer=openejb,J2EEApplication=null,J2EEModule=org/openejb/Security,name=public-login
         </attribute>
         <reference name="ServerInfo">openejb.server:name=ServerInfo,*</reference>
     </gbean>
 
-    <gbean namePart="public" type="ConfigurationEntry"
+    <gbean namePart="public"
            class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
-        <attribute name="applicationConfigName" type="java.lang.String">public</attribute>
-        <attribute name="realmName" type="java.lang.String">public-properties-realm</attribute>
+        <attribute name="applicationConfigName">public</attribute>
+        <attribute name="realmName">public-properties-realm</attribute>
     </gbean>
 
     <!-- secret internal auditing security realm -->
-    <gbean namePart="black-login" type="LoginModule"
+    <gbean namePart="black-login"
         class="org.apache.geronimo.security.jaas.LoginModuleGBean">
-        <attribute name="loginModuleClass" type="java.lang.String">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
-        <attribute name="serverSide" type="boolean">true</attribute>
-        <attribute name="options" type="java.util.Properties">
+        <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
+        <attribute name="serverSide">true</attribute>
+        <attribute name="options">
             usersURI=var/security/black_users.properties
             groupsURI=var/security/black_groups.properties
         </attribute>
-        <attribute name="loginDomainName" type="java.lang.String">black-properties-realm</attribute>
+        <attribute name="loginDomainName">black-properties-realm</attribute>
     </gbean>
 
-    <gbean namePart="black-properties-realm" type="SecurityRealm"
+    <gbean namePart="black-properties-realm"
            class="org.apache.geronimo.security.realm.GenericSecurityRealm">
-        <attribute name="realmName" type="java.lang.String">black-properties-realm</attribute>
-        <attribute name="loginModuleConfiguration" type="java.util.Properties">
+        <attribute name="realmName">black-properties-realm</attribute>
+        <attribute name="loginModuleConfiguration">
             LoginModule.1.REQUIRED=openejb.server:j2eeType=LoginModule,J2EEServer=openejb,J2EEApplication=null,J2EEModule=org/openejb/Security,name=black-login
         </attribute>
         <reference name="ServerInfo">openejb.server:name=ServerInfo,*</reference>
     </gbean>
 
-    <gbean namePart="black" type="ConfigurationEntry"
+    <gbean namePart="black"
            class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
-        <attribute name="applicationConfigName" type="java.lang.String">black</attribute>
-        <attribute name="realmName" type="java.lang.String">black-properties-realm</attribute>
+        <attribute name="applicationConfigName">black</attribute>
+        <attribute name="realmName">black-properties-realm</attribute>
     </gbean>
 
 

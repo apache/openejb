@@ -59,6 +59,7 @@ import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.j2ee.management.impl.Util;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
@@ -183,7 +184,7 @@ public class EJBModuleImpl implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(EJBModuleImpl.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(EJBModuleImpl.class, NameFactory.EJB_MODULE);
         infoFactory.addReference("J2EEServer", J2EEServer.class);
         infoFactory.addReference("J2EEApplication", J2EEApplication.class);
 

@@ -210,7 +210,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ContainerIndex.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ContainerIndex.class); //name apparently hardcoded
 
         infoFactory.setConstructor(new String[]{"EJBContainers"});
 

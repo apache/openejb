@@ -35,6 +35,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev:  $ $Date$
@@ -113,7 +114,7 @@ public class KernelHelper {
         private static final byte[] NO_OBJECTS_OS;
 
         static {
-            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MockConfigStore.class);
+            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
             infoBuilder.addInterface(ConfigurationStore.class);
             GBEAN_INFO = infoBuilder.getBeanInfo();
 

@@ -73,6 +73,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.openejb.TwoChains;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -245,7 +246,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MDBContainer.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MDBContainer.class, NameFactory.MESSAGE_DRIVEN_BEAN);
 
         infoFactory.addAttribute("containerId", String.class, true);
         infoFactory.addAttribute("ejbName", String.class, true);
