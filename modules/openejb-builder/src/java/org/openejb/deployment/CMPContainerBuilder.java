@@ -317,13 +317,13 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
-    private Map createFinders(EJB ejb) throws Exception {
+    private Map createFinders(EJB ejb) throws QueryException {
         EJBQLToPhysicalQuery toPhysicalQuery = new EJBQLToPhysicalQuery(ejbSchema, sqlSchema, globalSchema);
 
         return toPhysicalQuery.buildFinders(ejb);
     }
     
-    private Map createSelects(EJB ejb) throws Exception {
+    private Map createSelects(EJB ejb) throws QueryException {
         EJBQLToPhysicalQuery toPhysicalQuery = new EJBQLToPhysicalQuery(ejbSchema, sqlSchema, globalSchema);
 
         return toPhysicalQuery.buildSelects(ejb);
@@ -346,7 +346,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return cmpFieldAccessors;
     }
 
-    private LinkedHashMap createCMRFieldAccessors() throws Exception {
+    private LinkedHashMap createCMRFieldAccessors() throws QueryException {
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
         IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(ejb);
 

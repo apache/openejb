@@ -60,6 +60,8 @@ import java.util.Set;
 
 import javax.management.ObjectName;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -98,6 +100,7 @@ import org.tranql.ejb.Relationship;
 import org.tranql.ejb.SelectEJBQLQuery;
 import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
+import org.tranql.ql.QueryException;
 import org.tranql.schema.Association.JoinDefinition;
 import org.tranql.sql.Column;
 import org.tranql.sql.EndTable;
@@ -113,6 +116,8 @@ import org.tranql.sql.jdbc.SQLTypeLoader;
  * @version $Revision$ $Date$
  */
 class CMPEntityBuilder extends EntityBuilder {
+    private static final Log log = LogFactory.getLog(CMPEntityBuilder.class);
+    
     public CMPEntityBuilder(OpenEJBModuleBuilder builder) {
         super(builder);
     }
@@ -734,7 +739,22 @@ class CMPEntityBuilder extends EntityBuilder {
         builder.setTransactionManagerDelegate(tmDelegate);
 
         try {
-            GBeanData gbean = builder.createConfiguration();
+            GBeanData gbean;
+            try {
+                gbean = builder.createConfiguration();
+            } catch (QueryException e) {
+                log.error("Deployment exception.", e);
+                Throwable exception = e;
+                StringBuffer message = new StringBuffer();
+                while (null != exception) {
+                    message.append('\t');
+                    message.append(exception.getMessage());
+                    message.append('\n');
+                    exception = exception.getCause();
+                }
+                throw new DeploymentException("A stack-trace has been provided on the server-side.\n" +
+                        "Message\n" + message.toString());
+            }
             gbean.setName(containerObjectName);
             gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
             gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
