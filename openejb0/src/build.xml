@@ -333,7 +333,37 @@
       classname="java.lang.reflect.Proxy"
       classpathref="project.classpath"
     />
-      
+    
+    <available
+      property="build-corba.present"
+      file="src/build-corba.xml"
+    />
+    
+    <available
+      property="build-openejb.present"
+      file="src/build-openejb.xml"
+    />
+    
+    <available
+      property="build-openejb-server.present"
+      file="src/build-openejb-server.xml"
+    />
+    
+    <available
+      property="build-ri-client.present"
+      file="src/build-ri-client.xml"
+    />
+    
+    <available
+      property="build-ri-server.present"
+      file="src/build-ri-server.xml"
+    />
+    
+    <available
+      property="build-testsuite.present"
+      file="src/build-testsuite.xml"
+    />
+    
   </target>  
   
   <!-- uncomment this section if you wanna use the pretty printer -->
@@ -877,6 +907,7 @@
         <include name="**/*.java"/>
         <include name="**/*.properties"/>
         <include name="**/build*.xml"/>
+        <exclude name="**/build-corba.xml"/>
       </fileset>
     
     </copy>
@@ -980,9 +1011,8 @@
           src="dist/${project}-${version}-doc.tar"/>
   
   </target>
-
-  <target name="delegate">
-    
+  
+  <target name="delegate-openejb" if="build-openejb.present">
     <ant antfile="src/build-openejb.xml" target="${target.name}">
       <property file="build.properties"/>
       
@@ -995,7 +1025,9 @@
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
-    
+  </target>
+  
+  <target name="delegate-openejb-server" if="build-openejb-server.present">
     <ant antfile="src/build-openejb-server.xml" target="${target.name}">
       <property file="build.properties"/>
       
@@ -1008,7 +1040,9 @@
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
-    
+  </target>
+  
+  <target name="delegate-corba" if="build-corba.present">
     <ant antfile="src/build-corba.xml" target="${target.name}">
       <property file="build.properties"/>
       
@@ -1021,7 +1055,9 @@
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
-    
+  </target>
+  
+  <target name="delegate-ri-client" if="build-ri-client.present">
     <ant antfile="src/build-ri-client.xml" target="${target.name}">
       <property file="build.properties"/>
       
@@ -1034,7 +1070,9 @@
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
-    
+  </target>
+  
+  <target name="delegate-ri-server" if="build-ri-server.present">
     <ant antfile="src/build-ri-server.xml" target="${target.name}">
       <property file="build.properties"/>
       
@@ -1047,7 +1085,9 @@
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
-    
+  </target>
+  
+  <target name="delegate-testsuite" if="build-testsuite.present">
     <ant antfile="src/build-testsuite.xml" target="${target.name}">
       <property file="build.properties"/>
       
@@ -1060,7 +1100,22 @@
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
+  </target>
+
+  <target name="delegate">
+  
+    <antcall target="delegate-openejb" />
     
+    <antcall target="delegate-openejb-server" />
+    
+    <antcall target="delegate-corba" />
+    
+    <antcall target="delegate-ri-client" />
+    
+    <antcall target="delegate-ri-server" />
+    
+    <antcall target="delegate-testsuite" />
+
   </target>
   
 </project>
