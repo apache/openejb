@@ -49,6 +49,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.rmi.Remote;
 import javax.rmi.CORBA.Tie;
 
 import org.apache.commons.logging.Log;
@@ -81,6 +82,7 @@ public final class AdapterEntity extends Adapter {
 
     private final POA poa;
     private final String referenceInterface;
+    private final AdapterProxyFactory factory;
 
     public AdapterEntity(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader) throws CORBAException {
         super(container, orb, parentPOA, tieLoader);
@@ -100,6 +102,8 @@ public final class AdapterEntity extends Adapter {
 
             Servant servant = getTieLoader().loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getProxyInfo());
             referenceInterface = servant._all_interfaces(null, null)[0];
+
+            factory = new AdapterProxyFactory(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
         } catch (Exception e) {
             throw new CORBAException(e);
         }
@@ -145,8 +149,10 @@ public final class AdapterEntity extends Adapter {
 
                 EJBContainer container = getContainer();
                 Servant servant = getTieLoader().loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getProxyInfo());
+                Remote remote = (Remote) factory.create(container.getEJBObject(pk));
+
                 if (servant instanceof Tie) {
-                    ((Tie) servant).setTarget(container.getEJBObject(pk));
+                    ((Tie) servant).setTarget(remote);
                 }
                 return servant;
             } catch (IOException e) {
