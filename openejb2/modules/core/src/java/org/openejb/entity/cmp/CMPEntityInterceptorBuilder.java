@@ -45,7 +45,7 @@
  *
  * ====================================================================
  */
-package org.openejb.entity;
+package org.openejb.entity.cmp;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
@@ -55,18 +55,29 @@ import org.openejb.ConnectionTrackingInterceptor;
 import org.openejb.SystemExceptionInterceptor;
 import org.openejb.TwoChains;
 import org.openejb.dispatch.DispatchInterceptor;
+import org.openejb.entity.EntityInstanceInterceptor;
 import org.openejb.security.EJBIdentityInterceptor;
 import org.openejb.security.EJBRunAsInterceptor;
 import org.openejb.security.EJBSecurityInterceptor;
 import org.openejb.security.PolicyContextHandlerEJBInterceptor;
 import org.openejb.transaction.TransactionContextInterceptor;
+import org.tranql.cache.CacheFlushStrategyFactory;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
+public class CMPEntityInterceptorBuilder extends AbstractInterceptorBuilder {
+    private CacheFlushStrategyFactory strategyFactory;
+    
+    public CacheFlushStrategyFactory getCacheFlushStrategyFactory() {
+        return strategyFactory;
+    }
+
+    public void setCacheFlushStrategyFactory(CacheFlushStrategyFactory strategyFactory) {
+        this.strategyFactory = strategyFactory;
+    }
     
     public TwoChains buildInterceptorChains() {
         if (transactionContextManager == null) {
@@ -74,6 +85,9 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
         }
         if (instancePool == null) {
             throw new IllegalStateException("Pool must be set before building the interceptor chain");
+        }
+        if ( null == strategyFactory ) {
+            throw new IllegalStateException("Cache flush strategy must be set before building the interceptor chain");
         }
 
         Interceptor firstInterceptor;
@@ -100,6 +114,7 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
         }
         firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, instancePool);
+        firstInterceptor = new InTxCacheInterceptor(firstInterceptor, strategyFactory);
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
         return new TwoChains(firstInterceptor, systemChain);

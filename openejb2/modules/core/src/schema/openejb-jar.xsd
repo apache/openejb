@@ -89,6 +89,7 @@
             <xs:element name="dependency" type="openejb:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
             <!-- use a ref to put this element in the naming namespace rather than openejb namespace-->
             <xs:element ref="naming:cmp-connection-factory" minOccurs="0"/>
+            <xs:element name="enforce-foreign-key-constraints" minOccurs="0"/>
 
             <xs:element name="enterprise-beans">
                 <xs:complexType>
