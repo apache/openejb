@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<document url="http://openejb.sf.net/download.xml" toc="none">
+  <properties>
+    <title>Download</title>
+  </properties>
+  <body>
+
+<section title="Current Release 0.8 beta 1" ref-id="current.release">
+<p>Release scheduled for Tuesday, May 7th, 2002</p>
+</section>
+<section title="New Features" ref-id="new.features">
+<ul>
+<li>Command-line tool for deploying, starting, testing, and getting help</li>
+<li>New configuration similar to the Apache httpd.conf style.  The openejb.conf contains
+    the information about your container system.  </li>
+<li>A default configuration is packed in the jar.  If we can't find yours, 
+    the container system can still start</li>
+<li>OpenEJB services are now packaged in jars and deployed in
+    the openejb.conf file.</li>
+<li>Deployed EJBs are loaded using the ejb-jar.xml and openejb-jar.xml in the bean's jar file.  
+    No need to edit your openejb.conf file</li>
+<li>Deployment directories. Specify a dir where your deployed jars will be
+    loaded, then just throw 'em in</li>
+<li>Basic ejb-jar.xml validation using XSD with regular expressions</li>
+<li>Advanced EJB validation using extendible framework.</li>
+<li>The entire configuration is validated, any problems will be reported
+    with very precise error messages and enough detail to fix the problem.</li>
+<li>New modular build system</li>
+<li>Fixed major bug in IntraVM serialization that severely affected the 
+    container-server contract.</li>
+<li>Complete rewrite of Transaction Handling, several bugs fixed</li>
+<li>Rewrite of Exception Handling, now much more spec compliant</li>
+<li>Logging with log4j</li>
+<li>Remote server for running OpenEJB stand-alone</li>
+<li>CORBA adapter for plugging OpenEJB into OpenORB</li>
+</ul>
+</section>
+
+</body>
+</document>

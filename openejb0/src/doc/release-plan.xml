@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<document url="http://openejb.sf.net/corba-adapter.xml">
+  <properties>
+    <title>Release Plan</title>
+  </properties>
+  <body>
+<section title="0.7 -- Compliance" ref-id="0.7">
+<p>            
+<tab/>Filling in EJB 1.1 compliance gaps<br/>
+<tab/>EJB Tests<br/>
+<tab/>OpenEJB API Unit Tests<br/>
+</p>  
+</section>
+<section title="0.8 -- Usability" ref-id="0.8">
+<p>
+<tab/>Feedback-driven enhancements<br/>
+<tab/>Bug fixes<br/>
+<tab/>Internationalization<br/>
+<tab/>Filling documentation gaps<br/>
+</p>           
+</section>
+<section title="0.9 -- Performance" ref-id="0.9">
+<p>
+<tab/>Speed tests<br/>
+<tab/>Scalability tests<br/>
+<tab/>Tuning<br/>
+</p>
+</section>
+<section title="1.0 -- Final release!" ref-id="1.0">
+
+
+</section>
+<section title="Where are we now?" ref-id="now">
+<p>
+    We are in the process of leaving the 0.7 stage and about three days away from the long awaited 0.8!
+</p>
+</section>
+
+</body>
+</document>

@@ -27,25 +27,16 @@
         <display>Welcome!</display>
       </navLink>
       <navLink>
-        <url>datasheet.xml</url>
-        <display>Overview</display>
+        <url>download.xml</url>
+        <display>Download</display>
       </navLink>
       <navLink>
         <url>lists.xml</url>
         <display>Mailing Lists</display>
       </navLink>
-      
-      <navLink>
-        <url>cvs.xml</url>
-        <display>CVS</display>
-      </navLink>
       <navLink>
         <url>contributors.xml</url>
         <display>The Team</display>
-      </navLink>
-      <navLink>
-        <url>http://sourceforge.net/projects/openejb/</url>
-        <display>SourceForge</display>
       </navLink>
     </section>
 
@@ -58,8 +49,12 @@
         <url>http://sourceforge.net/tracker/?group_id=44351&amp;atid=439275</url>
         <display>Support</display>
       </navLink>
+      <navLink>
+        <url>http://sourceforge.net/tracker/index.php?group_id=44351&amp;atid=439277</url>
+        <display>Request Feature</display>
+      </navLink>
     </section>
-
+    
     <section name="Servers">
       <navLink>
         <url>embedded.xml</url>
@@ -82,11 +77,14 @@
       </navLink>
     </section>
 
-
     <section name="Integrators">
       <navLink>
         <url>whyopenejb.xml</url>
         <display>Why OpenEJB</display>
+      </navLink>
+      <navLink>
+        <url>datasheet.xml</url>
+        <display>Overview</display>
       </navLink>
       <navLink>
         <url>design_openejb.xml</url>
@@ -101,6 +99,22 @@
         <display>Presentation</display>
       </navLink>
     </section>
+    
+    <section name="Developers">
+      <navLink>
+        <url>release-plan.xml</url>
+        <display>Release Plan</display>
+      </navLink>
+      <navLink>
+        <url>cvs.xml</url>
+        <display>Source Code</display>
+      </navLink>
+      <navLink>
+        <url>http://sourceforge.net/projects/openejb/</url>
+        <display>SourceForge</display>
+      </navLink>
+    </section>
+
     
   </navSections>
 
