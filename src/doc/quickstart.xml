@@ -39,7 +39,9 @@ command, it won't work.</note>
 </p>
 <p><command>openejb help</command></p>
  
+<p>
  For Windows users, that looks like this:
+</p>
   
 <p><command>C:\openejb> openejb help</command></p>
    
