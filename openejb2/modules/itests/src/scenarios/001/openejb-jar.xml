@@ -12,13 +12,23 @@
 
     <enterprise-beans>
         <!--
-        ########################################################
-        Stateless
-        ########################################################
+            ########################################################
+            Stateless
+            ########################################################
         -->
         <session>
             <ejb-name>BasicStatelessBean</ejb-name>
             <jndi-name>security/001/BasicStatelessHome</jndi-name>
+        </session>
+
+        <!--
+            ########################################################
+            Stateful
+            ########################################################
+        -->
+        <session>
+            <ejb-name>BasicStatefulBean</ejb-name>
+            <jndi-name>security/001/BasicStatefulHome</jndi-name>
         </session>
 
     </enterprise-beans>

@@ -26,6 +26,24 @@
             </security-role-ref>
         </session>
 
+        <session>
+            <description>
+                A basic stateful session bean with contianer-managed transaction demarcation.
+            </description>
+            <ejb-name>BasicStatefulBean</ejb-name>
+            <home>org.openejb.test.security.sfsb.BasicStatefulHome</home>
+            <remote>org.openejb.test.security.sfsb.BasicStateful</remote>
+            <local-home>org.openejb.test.security.sfsb.LocalBasicStatefulHome</local-home>
+            <local>org.openejb.test.security.sfsb.LocalBasicStateful</local>
+            <ejb-class>org.openejb.test.security.sfsb.BasicStatefulBean</ejb-class>
+            <session-type>Stateful</session-type>
+            <transaction-type>Container</transaction-type>
+            <security-role-ref>
+                <role-name>LOW_ROLE_REF</role-name>
+                <role-link>LOW</role-link>
+            </security-role-ref>
+        </session>
+
     </enterprise-beans>
 
     <assembly-descriptor>
@@ -56,6 +74,11 @@
                 <ejb-name>BasicStatelessBean</ejb-name>
                 <method-name>lowSecurityMethod</method-name>
             </method>
+            <method>
+                <description>The description</description>
+                <ejb-name>BasicStatefulBean</ejb-name>
+                <method-name>lowSecurityMethod</method-name>
+            </method>
         </method-permission>
 
         <method-permission>
@@ -67,6 +90,11 @@
                 <ejb-name>BasicStatelessBean</ejb-name>
                 <method-name>mediumSecurityMethod</method-name>
             </method>
+            <method>
+                <description>The description</description>
+                <ejb-name>BasicStatefulBean</ejb-name>
+                <method-name>mediumSecurityMethod</method-name>
+            </method>
         </method-permission>
 
         <method-permission>
@@ -75,6 +103,11 @@
             <method>
                 <description>The description</description>
                 <ejb-name>BasicStatelessBean</ejb-name>
+                <method-name>highSecurityMethod</method-name>
+            </method>
+            <method>
+                <description>The description</description>
+                <ejb-name>BasicStatefulBean</ejb-name>
                 <method-name>highSecurityMethod</method-name>
             </method>
         </method-permission>
@@ -102,11 +135,35 @@
                 <ejb-name>BasicStatelessBean</ejb-name>
                 <method-name>remove</method-name>
             </method>
+            <method>
+                <description>The description</description>
+                <ejb-name>BasicStatefulBean</ejb-name>
+                <method-name>allAccessMethod</method-name>
+            </method>
+            <method>
+                <description>The description</description>
+                <ejb-name>BasicStatefulBean</ejb-name>
+                <method-name>isInRole</method-name>
+            </method>
+            <method>
+                <description>The description</description>
+                <ejb-name>BasicStatefulBean</ejb-name>
+                <method-name>create</method-name>
+            </method>
+            <method>
+                <description>The description</description>
+                <ejb-name>BasicStatefulBean</ejb-name>
+                <method-name>remove</method-name>
+            </method>
         </method-permission>
 
         <container-transaction>
             <method>
                 <ejb-name>BasicStatelessBean</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <method>
+                <ejb-name>BasicStatefulBean</ejb-name>
                 <method-name>*</method-name>
             </method>
             <trans-attribute>Supports</trans-attribute>
@@ -135,6 +192,34 @@
             </method>
             <method>
                 <ejb-name>BasicStatelessBean</ejb-name>
+                <method-name>highSecurityMethod</method-name>
+                <method-params>
+                    <method-param>java.lang.String</method-param>
+                    <method-param>java.lang.String</method-param>
+                </method-params>
+            </method>
+            <method>
+                <ejb-name>BasicStatefulBean</ejb-name>
+                <method-name>noAccessMethod</method-name>
+            </method>
+            <method>
+                <ejb-name>BasicStatefulBean</ejb-name>
+                <method-name>lowSecurityMethod</method-name>
+                <method-params>
+                    <method-param>java.lang.String</method-param>
+                    <method-param>java.lang.String</method-param>
+                </method-params>
+            </method>
+            <method>
+                <ejb-name>BasicStatefulBean</ejb-name>
+                <method-name>mediumSecurityMethod</method-name>
+                <method-params>
+                    <method-param>java.lang.String</method-param>
+                    <method-param>java.lang.String</method-param>
+                </method-params>
+            </method>
+            <method>
+                <ejb-name>BasicStatefulBean</ejb-name>
                 <method-name>highSecurityMethod</method-name>
                 <method-params>
                     <method-param>java.lang.String</method-param>
