@@ -159,7 +159,7 @@ java.util.HashMap
 
         ctx = new InitialContext( p );
         Object obj = ctx.lookup(name);
-        String objID = ejb.getRemoteInterface().getName()+"@"+obj.hashCode();
+        String objID = ejb.getHomeInterface().getName()+"@"+obj.hashCode();
         objects.put(objID,obj);
         String invokerURL = "<a href='invokeobj.jsp?obj="+objID+"'>Invoke this EJB</a>";
         printRow(pepperImg,invokerURL, out);
