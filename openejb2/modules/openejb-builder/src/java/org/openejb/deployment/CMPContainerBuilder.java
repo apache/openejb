@@ -48,8 +48,8 @@
 package org.openejb.deployment;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,7 +60,6 @@ import javax.ejb.Timer;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.ClassLoading;
 import org.openejb.EJBComponentType;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
@@ -81,8 +80,12 @@ import org.openejb.entity.cmp.CMPInstanceContextFactory;
 import org.openejb.entity.cmp.CMPRemoveMethod;
 import org.openejb.entity.cmp.CMPSetter;
 import org.openejb.entity.cmp.CollectionValuedFinder;
+import org.openejb.entity.cmp.CollectionValuedSelect;
 import org.openejb.entity.cmp.EnumerationValuedFinder;
+import org.openejb.entity.cmp.SetValuedFinder;
+import org.openejb.entity.cmp.SetValuedSelect;
 import org.openejb.entity.cmp.SingleValuedFinder;
+import org.openejb.entity.cmp.SingleValuedSelect;
 import org.openejb.entity.dispatch.EJBActivateOperation;
 import org.openejb.entity.dispatch.EJBLoadOperation;
 import org.openejb.entity.dispatch.EJBPassivateOperation;
@@ -102,11 +105,9 @@ import org.tranql.ejb.CMPFieldFaultTransform;
 import org.tranql.ejb.CMPFieldTransform;
 import org.tranql.ejb.CMRField;
 import org.tranql.ejb.EJB;
-import org.tranql.ejb.EJBLocalObjectAsIdTransform;
-import org.tranql.ejb.EJBObjectAsIdTransform;
+import org.tranql.ejb.EJBQLQuery;
 import org.tranql.ejb.EJBQueryBuilder;
 import org.tranql.ejb.EJBSchema;
-import org.tranql.ejb.FinderEJBQLQuery;
 import org.tranql.ejb.LocalProxyTransform;
 import org.tranql.ejb.ManyToManyCMR;
 import org.tranql.ejb.ManyToOneCMR;
@@ -118,9 +119,7 @@ import org.tranql.ejb.RemoteProxyTransform;
 import org.tranql.ejb.SingleValuedCMRAccessor;
 import org.tranql.ejb.SingleValuedCMRFaultHandler;
 import org.tranql.ejb.TransactionManagerDelegate;
-import org.tranql.field.DomainIdentityAccessor;
 import org.tranql.field.FieldAccessor;
-import org.tranql.field.FieldTransform;
 import org.tranql.field.ReferenceAccessor;
 import org.tranql.identity.DerivedIdentity;
 import org.tranql.identity.IdentityDefiner;
@@ -129,9 +128,6 @@ import org.tranql.identity.IdentityTransform;
 import org.tranql.identity.UndefinedIdentityException;
 import org.tranql.identity.UserDefinedIdentity;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
-import org.tranql.ql.Query;
-import org.tranql.ql.QueryBinding;
-import org.tranql.ql.QueryBindingImpl;
 import org.tranql.ql.QueryException;
 import org.tranql.query.AssociationEndFaultHandlerBuilder;
 import org.tranql.query.CommandTransform;
@@ -241,7 +237,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         FaultHandler faultHandler = new QueryFaultHandler(loadCommand, identityDefiner, slotLoaders);
 
         // EJB QL queries
-        LinkedHashMap queryCommands = createEJBQLQueries(ejb);
+        Map finders = createFinders(ejb);
+        Map selects = createSelects(ejb);
         
         // findByPrimaryKey
         QueryCommandView localProxyLoadView = queryBuilder.buildFindByPrimaryKey(getEJBName(), true);
@@ -252,7 +249,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         QueryCommand remoteProxyLoad = mapper.transform(remoteProxyLoadView.getQueryCommand());
         remoteProxyLoadView = new QueryCommandView(remoteProxyLoad, remoteProxyLoadView.getView());
 
-        queryCommands.put(new InterfaceMethodSignature("findByPrimaryKey",
+        finders.put(new InterfaceMethodSignature("findByPrimaryKey",
                 new String[]{getPrimaryKeyClassName()}, true),
                 new QueryCommandView[]{localProxyLoadView, remoteProxyLoadView});
 
@@ -277,7 +274,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
 
         // build the vop table
-        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrFieldAccessors, cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGeneratorDelegate(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, queryCommands);
+        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrFieldAccessors, cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGeneratorDelegate(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, finders, selects);
 
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
@@ -299,53 +296,31 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
-    private LinkedHashMap createEJBQLQueries(EJB ejb) throws Exception {
-        IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(globalSchema);
-        IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(ejb, 0);
-        IdentityTransform identityTransform = identityDefinerBuilder.getPrimaryKeyTransform(ejb);
+    private Map createFinders(EJB ejb) throws Exception {
+        EJBQLToPhysicalQuery toPhysicalQuery = new EJBQLToPhysicalQuery(ejbSchema, sqlSchema, globalSchema);
 
-        EJBProxyFactory proxyFactory = (EJBProxyFactory) ejb.getProxyFactory();
+        IdentityHashMap findersMap = toPhysicalQuery.buildFinders(ejb);
+        return createEJBQLQueryMap(findersMap);
+    }
+    
+    private Map createSelects(EJB ejb) throws Exception {
+        EJBQLToPhysicalQuery toPhysicalQuery = new EJBQLToPhysicalQuery(ejbSchema, sqlSchema, globalSchema);
 
-        ClassLoader classLoader = getClassLoader();
+        IdentityHashMap selectsMap = toPhysicalQuery.buildSelects(ejb);
+        return createEJBQLQueryMap(selectsMap);
+    }
 
-        LinkedHashMap queryCommands = new LinkedHashMap();
-
-        EJBQLToPhysicalQuery toPhysicalQuery = new EJBQLToPhysicalQuery(ejbSchema, sqlSchema);
-
-        Collection finders = ejb.getFinderEJBQLQueries();
-        for (Iterator iter = finders.iterator(); iter.hasNext();) {
-            FinderEJBQLQuery finder = (FinderEJBQLQuery) iter.next();
-
-            String[] parameterTypes = finder.getParameterTypes();
-            QueryBinding[] parameterTransforms = new QueryBinding[parameterTypes.length];
-            for (int i = 0; i < parameterTransforms.length; i++) {
-                parameterTransforms[i] = new QueryBindingImpl(i, ClassLoading.loadClass(parameterTypes[i], classLoader));
-            }
-
-            List pkFields = ejb.getPrimaryKeyFields();
-            QueryBinding[] resultTransforms = new QueryBinding[pkFields.size()];
-            for (int i = 0; i < resultTransforms.length; i++) {
-                Attribute attribute = (Attribute) pkFields.get(i);
-                resultTransforms[i] = new QueryBindingImpl(i, ejb, attribute);
-            }
-
-            Query query = toPhysicalQuery.transform(finder.getEjbQL(), parameterTransforms, resultTransforms);
-
-            // Local Proxy Results
-            FieldTransform baseView = new ReferenceAccessor(identityDefiner);
-            baseView = new DomainIdentityAccessor(baseView, identityTransform);
-
-            FieldTransform localView = new EJBLocalObjectAsIdTransform(baseView, proxyFactory, ejb.getPrimaryKeyClass());
-            QueryCommand queryCommand = sqlSchema.getCommandFactory().createQuery(query);
-            QueryCommandView localProxyLoadView = new QueryCommandView(queryCommand, new FieldTransform[] {localView});
-
-            FieldTransform remoteView = new EJBObjectAsIdTransform(baseView, proxyFactory, ejb.getPrimaryKeyClass());
-            QueryCommandView remoteProxyLoadView = new QueryCommandView(queryCommand, new FieldTransform[] {remoteView});
+    private Map createEJBQLQueryMap(Map ejbQLMap) {
+        Map queryCommands = new HashMap();
+        
+        for (Iterator iter = ejbQLMap.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            EJBQLQuery ejbQLQuery = (EJBQLQuery) entry.getKey();
             
-            MethodSignature signature = new MethodSignature(finder.getMethodName(), finder.getParameterTypes());
-            queryCommands.put(new InterfaceMethodSignature(signature, true),
-                    new QueryCommandView[]{localProxyLoadView, remoteProxyLoadView});
+            MethodSignature signature = new MethodSignature(ejbQLQuery.getMethodName(), ejbQLQuery.getParameterTypes());
+            queryCommands.put(new InterfaceMethodSignature(signature, true), entry.getValue());
         }
+        
         return queryCommands;
     }
     
@@ -496,7 +471,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             IdentityTransform primaryKeyTransform,
             IdentityTransform localProxyTransform,
             IdentityTransform remoteProxyTransform,
-            LinkedHashMap queries) throws Exception {
+            Map finders,
+            Map selects) throws Exception {
 
         ProxyInfo proxyInfo = createProxyInfo();
 
@@ -513,6 +489,12 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             throw new IllegalArgumentException("Bean does not implement javax.ejb.EntityBean");
         }
 
+        if (TimedObject.class.isAssignableFrom(beanClass)) {
+            MethodSignature signature = new MethodSignature("ejbTimeout", new Class[]{Timer.class});
+            vopMap.put(MethodHelper.translateToInterface(signature)
+                    , EJBTimeoutOperation.INSTANCE);
+        }
+
         // Build the VirtualOperations for business methods defined by the EJB implementation
         Method[] beanMethods = beanClass.getMethods();
         for (int i = 0; i < beanMethods.length; i++) {
@@ -525,12 +507,6 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
             // create a VirtualOperation for the method (if the method is understood)
             String name = beanMethod.getName();
-
-            if (TimedObject.class.isAssignableFrom(beanClass)) {
-                MethodSignature signature = new MethodSignature("ejbTimeout", new Class[]{Timer.class});
-                vopMap.put(MethodHelper.translateToInterface(signature)
-                        , EJBTimeoutOperation.INSTANCE);
-            }
 
             MethodSignature signature = new MethodSignature(beanMethod);
 
@@ -585,6 +561,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             } else if (unsetEntityContext.equals(beanMethod)) {
                 vopMap.put(MethodHelper.translateToInterface(signature)
                         , UnsetEntityContextOperation.INSTANCE);
+            } else if (name.startsWith("ejbSelect")) {
+                ;
             } else if (name.startsWith("ejb")) {
                 //TODO this shouldn't happen?
                 continue;
@@ -596,10 +574,10 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
         Class homeInterface = proxyInfo.getHomeInterface();
         Class localHomeInterface = proxyInfo.getLocalHomeInterface();
-        for (Iterator iterator = queries.entrySet().iterator(); iterator.hasNext();) {
+        for (Iterator iterator = finders.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             InterfaceMethodSignature signature = (InterfaceMethodSignature) entry.getKey();
-            QueryCommandView[] queryCommandViews = (QueryCommandView[]) entry.getValue();
+            QueryCommandView[] views = (QueryCommandView[]) entry.getValue();
 
             Method method = signature.getMethod(homeInterface);
             if (method == null) {
@@ -611,16 +589,36 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
             String returnType = method.getReturnType().getName();
             if (returnType.equals("java.util.Collection")) {
-                vopMap.put(signature, new CollectionValuedFinder(cacheTable, identityDefiner,
-                        localProxyTransform, remoteProxyTransform, queryCommandViews[0], queryCommandViews[1]));
+                vopMap.put(signature, new CollectionValuedFinder(views[0], views[1]));
+            } else if (returnType.equals("java.util.Set")) {
+                vopMap.put(signature, new SetValuedFinder(views[0], views[1]));
             } else if (returnType.equals("java.util.Enumeration")) {
-                vopMap.put(signature, new EnumerationValuedFinder(cacheTable, identityDefiner,
-                        localProxyTransform, remoteProxyTransform, queryCommandViews[0], queryCommandViews[1]));
+                vopMap.put(signature, new EnumerationValuedFinder(views[0], views[1]));
             } else {
-                vopMap.put(signature, new SingleValuedFinder(cacheTable, identityDefiner,
-                        localProxyTransform, remoteProxyTransform, queryCommandViews[0], queryCommandViews[1]));
+                vopMap.put(signature, new SingleValuedFinder(views[0], views[1]));
             }
         }
+        
+        for (Iterator iterator = selects.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            InterfaceMethodSignature signature = (InterfaceMethodSignature) entry.getKey();
+            QueryCommandView view = (QueryCommandView) entry.getValue();
+
+            Method method = signature.getMethod(beanClass);
+            if (method == null) {
+                throw new DeploymentException("Could not find method for signature: " + signature);
+            }
+
+            String returnType = method.getReturnType().getName();
+            if (returnType.equals("java.util.Collection")) {
+                vopMap.put(signature, new CollectionValuedSelect(view));
+            } else if (returnType.equals("java.util.Set")) {
+                vopMap.put(signature, new SetValuedSelect(view));
+            } else {
+                vopMap.put(signature, new SingleValuedSelect(view));
+            }
+        }
+        
         return vopMap;
     }
 }

@@ -65,6 +65,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.xbeans.j2ee.CmpFieldType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
@@ -109,6 +110,9 @@ import org.tranql.sql.jdbc.SQLTypeLoader;
 import org.tranql.sql.sql92.SQL92Schema;
 
 
+/**
+ * @version $Revision$ $Date$
+ */
 class CMPEntityBuilder extends EntityBuilder {
     public CMPEntityBuilder(OpenEJBModuleBuilder builder) {
         super(builder);
@@ -326,14 +330,14 @@ class CMPEntityBuilder extends EntityBuilder {
                 throw new DeploymentException(fields.toString());
             }
             
-            processQuery(ejb, entityBean);
+            processQuery(ejb, entityBean, cl);
             
             ejbSchema.addEJB(ejb);
             sqlSchema.addTable(table);
         }
     }
 
-    private void processQuery(EJB ejb, EntityBeanType entityBean) throws DeploymentException {
+    private void processQuery(EJB ejb, EntityBeanType entityBean, ClassLoader cl) throws DeploymentException {
         QueryType[] queryTypes = entityBean.getQueryArray();
         if (null == queryTypes) {
             return;
@@ -341,18 +345,24 @@ class CMPEntityBuilder extends EntityBuilder {
         for (int i = 0; i < queryTypes.length; i++) {
             QueryType queryType = queryTypes[i];
             String methodName = getString(queryType.getQueryMethod().getMethodName());
-            String[] parameterTypes = null;
+            Class[] parameterTypes = null;
             JavaTypeType[] javaTypeTypes = queryType.getQueryMethod().getMethodParams().getMethodParamArray();
             if (null != javaTypeTypes) {
-                parameterTypes = new String[javaTypeTypes.length];
+                parameterTypes = new Class[javaTypeTypes.length];
                 for (int j = 0; j < javaTypeTypes.length; j++) {
-                    parameterTypes[j] = getString(javaTypeTypes[j]);
+                    String paramType = getString(javaTypeTypes[j]);
+                    try {
+                        parameterTypes[j] = ClassLoading.loadClass(paramType, cl);
+                    } catch (ClassNotFoundException e) {
+                        throw new DeploymentException("Can not load parameter type " + paramType +
+                                " defined by method " + methodName);
+                    }
                 }
             }
             String ejbQL = queryType.getEjbQl().getStringValue();
             if (methodName.startsWith("find")) {
-                ejb.addFinderEJBQLQuery(new FinderEJBQLQuery(methodName, parameterTypes, ejbQL));
-            } else if (methodName.startsWith("select")) {
+                ejb.addFinder(new FinderEJBQLQuery(methodName, parameterTypes, ejbQL));
+            } else if (methodName.startsWith("ejbSelect")) {
                 boolean isLocal = true;
                 if (queryType.isSetResultTypeMapping()) {
                     String typeMapping = getString(queryType.getResultTypeMapping());
@@ -360,7 +370,7 @@ class CMPEntityBuilder extends EntityBuilder {
                         isLocal = false;
                     }
                 }
-                ejb.addSelectEJBQLQuery(new SelectEJBQLQuery(methodName, parameterTypes, ejbQL, isLocal));
+                ejb.addSelect(new SelectEJBQLQuery(methodName, parameterTypes, ejbQL, isLocal));
             } else {
                 throw new DeploymentException("EJB [" + ejb.getName() + "] is misconfigured: method " +
                         methodName + " is neiher a finder nor a select.");
@@ -528,27 +538,22 @@ class CMPEntityBuilder extends EntityBuilder {
         roleInfo[1].table.addEndTable(new EndTable(endName1, roleInfo[0].table, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, joinTable, isVirtual));
         
         if (null != mtmEntityName) {
-            EJB mtmEJB = (EJB) ejbSchema.getEJB(mtmEntityName);
+            EJB mtmEJB = ejbSchema.getEJB(mtmEntityName);
             Relationship mtmRelationship = new Relationship(relationship.getLeftJoinDefinition());
-            CMRField field = new CMRField(endName0, roleInfo[0].ejb, true, false, mtmRelationship, true);
-            mtmEJB.addCMRField(field);
+            mtmEJB.addCMRField(new CMRField(endName0, roleInfo[0].ejb, true, false, mtmRelationship, true));
             mtmRelationship.addAssociationEnd(roleInfo[0].ejb.getAssociationEnd(endName0));
             
             mtmRelationship = new Relationship(relationship.getRightJoinDefinition());
-            field = new CMRField(endName1, roleInfo[1].ejb, true, false, mtmRelationship, true);
-            mtmEJB.addCMRField(field);
+            mtmEJB.addCMRField(new CMRField(endName1, roleInfo[1].ejb, true, false, mtmRelationship, true));
             mtmRelationship.addAssociationEnd(roleInfo[1].ejb.getAssociationEnd(endName1));
             
-            Table mtmTable = (Table) sqlSchema.getTable(mtmEntityName);
+            Table mtmTable = sqlSchema.getTable(mtmEntityName);
             JoinTable mtmJoinTable = new JoinTable(joinTable.getLeftJoinDefinition());
-            EndTable endTable = new EndTable(endName0, roleInfo[0].table, true, false, mtmJoinTable, true);
-            mtmTable.addEndTable(endTable);
+            mtmTable.addEndTable(new EndTable(endName0, roleInfo[0].table, true, false, mtmJoinTable, true));
             mtmJoinTable.addAssociationEnd(roleInfo[0].table.getAssociationEnd(endName0));
             
-            mtmTable = (Table) sqlSchema.getTable(mtmEntityName);
             mtmJoinTable = new JoinTable(joinTable.getRightJoinDefinition());
-            endTable = new EndTable(endName1, roleInfo[1].table, true, false, mtmJoinTable, true);
-            mtmTable.addEndTable(endTable);
+            mtmTable.addEndTable(new EndTable(endName1, roleInfo[1].table, true, false, mtmJoinTable, true));
             mtmJoinTable.addAssociationEnd(roleInfo[1].table.getAssociationEnd(endName1));
         }
     }
