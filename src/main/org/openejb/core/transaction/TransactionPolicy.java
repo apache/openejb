@@ -7,12 +7,12 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionRolledbackException;
 import org.openejb.ApplicationException;
+import org.openejb.Container;
+import org.openejb.InvalidateReferenceException;
 import org.openejb.OpenEJB;
 import org.openejb.SystemException;
 import org.openejb.core.ThreadContext;
 import org.openejb.util.Logger;
-//import org.openejb.core.Container;
-import org.openejb.Container;
 
 /**
  * Use container callbacks so containers can implement any special behavior
@@ -26,7 +26,7 @@ import org.openejb.Container;
  */
 public abstract class TransactionPolicy {
     
-    public static final int Manditory    = 0;
+    public static final int Mandatory    = 0;
     public static final int Never 	 = 1;
     public static final int NotSupported = 2;
     public static final int Required     = 3;
