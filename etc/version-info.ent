@@ -3,16 +3,16 @@
 <!ENTITY tranql-version "1.0-SNAPSHOT">
 <!ENTITY tranql-connector-version "1.0-SNAPSHOT">
 
-<!ENTITY geronimo-spec-ejb-version "2.1-rc2">
-<!ENTITY geronimo-spec-j2ee-version "1.4-rc2">
-<!ENTITY geronimo-spec-j2ee-connector-version "1.5-rc2">
-<!ENTITY geronimo-spec-j2ee-deployment-version "1.1-rc2">
-<!ENTITY geronimo-spec-j2ee-jacc-version "1.0-rc2">
-<!ENTITY geronimo-spec-j2ee-management-version "1.0-rc2">
-<!ENTITY geronimo-spec-jms-version "1.1-rc2">
-<!ENTITY geronimo-spec-jsp-version "2.0-rc2">
-<!ENTITY geronimo-spec-jta-version "1.0.1B-rc2">
-<!ENTITY geronimo-spec-servlet-version "2.4-rc2">
+<!ENTITY geronimo-spec-ejb-version "2.1-SNAPSHOT">
+<!ENTITY geronimo-spec-j2ee-version "1.4-SNAPSHOT">
+<!ENTITY geronimo-spec-j2ee-connector-version "1.5-SNAPSHOT">
+<!ENTITY geronimo-spec-j2ee-deployment-version "1.1-SNAPSHOT">
+<!ENTITY geronimo-spec-j2ee-jacc-version "1.0-SNAPSHOT">
+<!ENTITY geronimo-spec-j2ee-management-version "1.0-SNAPSHOT">
+<!ENTITY geronimo-spec-jms-version "1.1-SNAPSHOT">
+<!ENTITY geronimo-spec-jsp-version "2.0-SNAPSHOT">
+<!ENTITY geronimo-spec-jta-version "1.0.1B-SNAPSHOT">
+<!ENTITY geronimo-spec-servlet-version "2.4-SNAPSHOT">
 
 <!ENTITY ant-version "1.5">
 <!ENTITY axion-version "1.0-M3-dev">
