@@ -52,9 +52,9 @@ import java.lang.reflect.Method;
 import java.security.Permissions;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Iterator;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentException;
@@ -84,58 +84,54 @@ import org.tranql.sql.sql92.SQL92Schema;
 
 
 class CMPEntityBuilder extends EntityBuilder {
-	
-	private OpenEJBModuleBuilder builder;
+    public CMPEntityBuilder(OpenEJBModuleBuilder builder) {
+        super(builder);
+    }
 
-	public CMPEntityBuilder(OpenEJBModuleBuilder builder, OpenEJBModuleBuilder moduleBuilder) {
-		super(builder, moduleBuilder);
-		this.builder = builder;
-	}
+    protected void buildBeans(EARContext earContext, Module module, ClassLoader cl, EJBModule ejbModule, String connectionFactoryName, EJBSchema ejbSchema, SQL92Schema sqlSchema, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, Security security, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
+        // CMP Entity Beans
+        EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
+        for (int i = 0; i < entityBeans.length; i++) {
+            EntityBeanType entityBean = entityBeans[i];
 
-	protected void buildBeans(EARContext earContext, Module module, ClassLoader cl, EJBModule ejbModule, String connectionFactoryName, EJBSchema ejbSchema, SQL92Schema sqlSchema, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, Security security, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
-		// CMP Entity Beans
-	    EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
-	    for (int i = 0; i < entityBeans.length; i++) {
-	        EntityBeanType entityBean = entityBeans[i];
-	
-	        if (!"Container".equals(entityBean.getPersistenceType().getStringValue())) {
-	        	continue;
-	        }
-	        
-	        OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(entityBean.getEjbName().getStringValue());
-	        ObjectName entityObjectName = super.createEJBObjectName(earContext, module.getName(), entityBean);
-	
-	        GBeanMBean entityGBean = createBean(earContext, ejbModule, entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, ejbSchema, sqlSchema, connectionFactoryName, transactionPolicyHelper, security, cl);
-	        
-	        earContext.addGBean(entityObjectName, entityGBean);
-	    }
-	}
+            if (!"Container".equals(entityBean.getPersistenceType().getStringValue())) {
+                continue;
+            }
 
-	public void buildCMPSchema(EARContext earContext, String ejbModuleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema) throws DeploymentException {
-	    EntityBeanType[] entityBeans = ejbJar.getEnterpriseBeans().getEntityArray();
-	
-	    for (int i = 0; i < entityBeans.length; i++) {
-	        EntityBeanType entityBean = entityBeans[i];
-	        if ("Container".equals(entityBean.getPersistenceType().getStringValue())) {
-	            String ejbName = entityBean.getEjbName().getStringValue();
-	            String abstractSchemaName = entityBean.getAbstractSchemaName().getStringValue();
-	
-	            ObjectName entityObjectName = super.createEJBObjectName(earContext, ejbModuleName, entityBean);
-	
-	            EJBProxyFactory proxyFactory = (EJBProxyFactory) this.builder.createEJBProxyFactory(entityObjectName.getCanonicalName(),
-	                                                                                   false,
-	                                                                                   OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getRemote()),
-	                                                                                   OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getHome()),
-	                                                                                   OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocal()),
-	                                                                                   OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocalHome()),
-	                                                                                   cl);
-	
-	            Class ejbClass;
-	            try {
-	                ejbClass = cl.loadClass(entityBean.getEjbClass().getStringValue());
-	            } catch (ClassNotFoundException e) {
-	                throw new DeploymentException("Could not load cmp bean class: ejbName=" + ejbName + " ejbClass=" + entityBean.getEjbClass().getStringValue());
-	            }
+            OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(entityBean.getEjbName().getStringValue());
+            ObjectName entityObjectName = super.createEJBObjectName(earContext, module.getName(), entityBean);
+
+            GBeanMBean entityGBean = createBean(earContext, ejbModule, entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, ejbSchema, sqlSchema, connectionFactoryName, transactionPolicyHelper, security, cl);
+
+            earContext.addGBean(entityObjectName, entityGBean);
+        }
+    }
+
+    public void buildCMPSchema(EARContext earContext, String ejbModuleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema) throws DeploymentException {
+        EntityBeanType[] entityBeans = ejbJar.getEnterpriseBeans().getEntityArray();
+
+        for (int i = 0; i < entityBeans.length; i++) {
+            EntityBeanType entityBean = entityBeans[i];
+            if ("Container".equals(entityBean.getPersistenceType().getStringValue())) {
+                String ejbName = entityBean.getEjbName().getStringValue();
+                String abstractSchemaName = entityBean.getAbstractSchemaName().getStringValue();
+
+                ObjectName entityObjectName = super.createEJBObjectName(earContext, ejbModuleName, entityBean);
+
+                EJBProxyFactory proxyFactory = (EJBProxyFactory) getModuleBuilder().createEJBProxyFactory(entityObjectName.getCanonicalName(),
+                        false,
+                        OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getRemote()),
+                        OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getHome()),
+                        OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocal()),
+                        OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocalHome()),
+                        cl);
+
+                Class ejbClass;
+                try {
+                    ejbClass = cl.loadClass(entityBean.getEjbClass().getStringValue());
+                } catch (ClassNotFoundException e) {
+                    throw new DeploymentException("Could not load cmp bean class: ejbName=" + ejbName + " ejbClass=" + entityBean.getEjbClass().getStringValue());
+                }
 
                 Class pkClass;
                 try {
@@ -144,12 +140,12 @@ class CMPEntityBuilder extends EntityBuilder {
                     throw new DeploymentException("Could not load cmp primary key class: ejbName=" + ejbName + " pkClass=" + entityBean.getPrimKeyClass().getStringValue());
                 }
 
-	            EJB ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory);
-	            Table table = new Table(ejbName, abstractSchemaName);
+                EJB ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory);
+                Table table = new Table(ejbName, abstractSchemaName);
 
                 Set pkFieldNames;
                 if (entityBean.getPrimkeyField() == null) {
-                    // no field name specified, must be a compound pk so get the field names from the public fields
+// no field name specified, must be a compound pk so get the field names from the public fields
                     Field[] fields = pkClass.getFields();
                     pkFieldNames = new HashSet(fields.length);
                     for (int j = 0; j < fields.length; j++) {
@@ -157,7 +153,7 @@ class CMPEntityBuilder extends EntityBuilder {
                         pkFieldNames.add(field.getName());
                     }
                 } else {
-                    // specific field is primary key
+// specific field is primary key
                     pkFieldNames = new HashSet(1);
                     pkFieldNames.add(entityBean.getPrimkeyField().getStringValue());
                 }
@@ -184,93 +180,94 @@ class CMPEntityBuilder extends EntityBuilder {
                     throw new DeploymentException(fields.toString());
                 }
 
-	            ejbSchema.addEJB(ejb);
-	            sqlSchema.addTable(table);
-	        }
-	    }
-	}
+                ejbSchema.addEJB(ejb);
+                sqlSchema.addTable(table);
+            }
+        }
+    }
 
-	private Class getCMPFieldType(String fieldName, Class beanClass) throws DeploymentException {
-	    try {
-	        String getterName = "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-	        Method getter = beanClass.getMethod(getterName, null);
-	        return getter.getReturnType();
-	    } catch (Exception e) {
-	        throw new DeploymentException("Getter for CMP field not found: fieldName=" + fieldName + " beanClass=" + beanClass.getName());
-	    }
-	}
+    private Class getCMPFieldType(String fieldName, Class beanClass) throws DeploymentException {
+        try {
+            String getterName = "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+            Method getter = beanClass.getMethod(getterName, null);
+            return getter.getReturnType();
+        } catch (Exception e) {
+            throw new DeploymentException("Getter for CMP field not found: fieldName=" + fieldName + " beanClass=" + beanClass.getName());
+        }
+    }
 
-	public GBeanMBean createBean(EARContext earContext, EJBModule ejbModule, String containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, EJBSchema ejbSchema, Schema sqlSchema, String connectionFactoryName, TransactionPolicyHelper transactionPolicyHelper, Security security, ClassLoader cl) throws DeploymentException {
-	    String ejbName = entityBean.getEjbName().getStringValue();
-	
-	    CMPContainerBuilder builder = new CMPContainerBuilder();
-	    builder.setClassLoader(cl);
-	    builder.setContainerId(containerId);
-	    builder.setEJBName(ejbName);
-	    builder.setBeanClassName(entityBean.getEjbClass().getStringValue());
-	    builder.setHomeInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getHome()));
-	    builder.setRemoteInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getRemote()));
-	    builder.setLocalHomeInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocalHome()));
-	    builder.setLocalInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocal()));
-	    builder.setPrimaryKeyClassName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getPrimKeyClass()));
-	    TransactionPolicySource transactionPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);
-	    builder.setTransactionPolicySource(transactionPolicySource);
-	    builder.setTransactedTimerName(earContext.getTransactedTimerName());
-	    builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
-	
-	    Permissions toBeChecked = new Permissions();
-	    securityBuilder.addToPermissions(toBeChecked, ejbName, "Home", builder.getHomeInterfaceName(), cl);
-	    securityBuilder.addToPermissions(toBeChecked, ejbName, "LocalHome", builder.getLocalHomeInterfaceName(), cl);
-	    securityBuilder.addToPermissions(toBeChecked, ejbName, "Remote", builder.getRemoteInterfaceName(), cl);
-	    securityBuilder.addToPermissions(toBeChecked, ejbName, "Local", builder.getLocalInterfaceName(), cl);
-	    securityBuilder.fillContainerBuilderSecurity(builder,
-	                                 toBeChecked,
-	                                 security,
-	                                 ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
-	                                 entityBean.getEjbName().getStringValue(),
-	                                 entityBean.getSecurityIdentity(),
-	                                 entityBean.getSecurityRoleRefArray());
-	
-	    try {
-	        ReadOnlyContext compContext = super.buildComponentContext(earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
-	        builder.setComponentContext(compContext);
-	    } catch (Exception e) {
-	        throw new DeploymentException("Unable to create EJB jndi environment: ejbName=" + ejbName, e);
-	    }
-	
-	    if (openejbEntityBean != null) {
-	        setResourceEnvironment(builder, entityBean.getResourceRefArray(), openejbEntityBean.getResourceRefArray());
-	        builder.setJndiNames(openejbEntityBean.getJndiNameArray());
-	        builder.setLocalJndiNames(openejbEntityBean.getLocalJndiNameArray());
-	    } else {
-	        builder.setJndiNames(new String[]{ejbName});
-	        builder.setLocalJndiNames(new String[]{"local/" + ejbName});
-	    }
-	
-	    builder.setEJBSchema(ejbSchema);
-	    builder.setSQLSchema(sqlSchema);
-	    builder.setConnectionFactoryName(connectionFactoryName);
-	
-	    Map queries = new HashMap();
-	    if (openejbEntityBean != null) {
-	        OpenejbQueryType[] queryTypes = openejbEntityBean.getQueryArray();
-	        for (int i = 0; i < queryTypes.length; i++) {
-	            OpenejbQueryType queryType = queryTypes[i];
-	            MethodSignature signature = new MethodSignature(queryType.getQueryMethod().getMethodName(),
-	                                                            queryType.getQueryMethod().getMethodParams().getMethodParamArray());
-	            String sql = queryType.getSql();
-	            queries.put(signature, sql);
-	        }
-	    }
-	    builder.setQueries(queries);
-	
-	    try {
-	        GBeanMBean gbean = builder.createConfiguration();
-	        gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
-	        gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
-	        return gbean;
-	    } catch (Throwable e) {
-	        throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName=" + ejbName, e);
-	    }
-	}
+    public GBeanMBean createBean(EARContext earContext, EJBModule ejbModule, String containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, EJBSchema ejbSchema, Schema sqlSchema, String connectionFactoryName, TransactionPolicyHelper transactionPolicyHelper, Security security, ClassLoader cl) throws DeploymentException {
+        String ejbName = entityBean.getEjbName().getStringValue();
+
+        CMPContainerBuilder builder = new CMPContainerBuilder();
+        builder.setClassLoader(cl);
+        builder.setContainerId(containerId);
+        builder.setEJBName(ejbName);
+        builder.setBeanClassName(entityBean.getEjbClass().getStringValue());
+        builder.setHomeInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getHome()));
+        builder.setRemoteInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getRemote()));
+        builder.setLocalHomeInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocalHome()));
+        builder.setLocalInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocal()));
+        builder.setPrimaryKeyClassName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getPrimKeyClass()));
+        TransactionPolicySource transactionPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);
+        builder.setTransactionPolicySource(transactionPolicySource);
+        builder.setTransactedTimerName(earContext.getTransactedTimerName());
+        builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
+
+        Permissions toBeChecked = new Permissions();
+        SecurityBuilder securityBuilder = getModuleBuilder().getSecurityBuilder();
+        securityBuilder.addToPermissions(toBeChecked, ejbName, "Home", builder.getHomeInterfaceName(), cl);
+        securityBuilder.addToPermissions(toBeChecked, ejbName, "LocalHome", builder.getLocalHomeInterfaceName(), cl);
+        securityBuilder.addToPermissions(toBeChecked, ejbName, "Remote", builder.getRemoteInterfaceName(), cl);
+        securityBuilder.addToPermissions(toBeChecked, ejbName, "Local", builder.getLocalInterfaceName(), cl);
+        securityBuilder.fillContainerBuilderSecurity(builder,
+                toBeChecked,
+                security,
+                ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
+                entityBean.getEjbName().getStringValue(),
+                entityBean.getSecurityIdentity(),
+                entityBean.getSecurityRoleRefArray());
+
+        try {
+            ReadOnlyContext compContext = super.buildComponentContext(earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
+            builder.setComponentContext(compContext);
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to create EJB jndi environment: ejbName=" + ejbName, e);
+        }
+
+        if (openejbEntityBean != null) {
+            setResourceEnvironment(builder, entityBean.getResourceRefArray(), openejbEntityBean.getResourceRefArray());
+            builder.setJndiNames(openejbEntityBean.getJndiNameArray());
+            builder.setLocalJndiNames(openejbEntityBean.getLocalJndiNameArray());
+        } else {
+            builder.setJndiNames(new String[]{ejbName});
+            builder.setLocalJndiNames(new String[]{"local/" + ejbName});
+        }
+
+        builder.setEJBSchema(ejbSchema);
+        builder.setSQLSchema(sqlSchema);
+        builder.setConnectionFactoryName(connectionFactoryName);
+
+        Map queries = new HashMap();
+        if (openejbEntityBean != null) {
+            OpenejbQueryType[] queryTypes = openejbEntityBean.getQueryArray();
+            for (int i = 0; i < queryTypes.length; i++) {
+                OpenejbQueryType queryType = queryTypes[i];
+                MethodSignature signature = new MethodSignature(queryType.getQueryMethod().getMethodName(),
+                        queryType.getQueryMethod().getMethodParams().getMethodParamArray());
+                String sql = queryType.getSql();
+                queries.put(signature, sql);
+            }
+        }
+        builder.setQueries(queries);
+
+        try {
+            GBeanMBean gbean = builder.createConfiguration();
+            gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
+            gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
+            return gbean;
+        } catch (Throwable e) {
+            throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName=" + ejbName, e);
+        }
+    }
 }

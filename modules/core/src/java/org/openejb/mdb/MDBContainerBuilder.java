@@ -271,7 +271,7 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
         // build the pool
         InstancePool pool = new SoftLimitedInstancePool(instanceFactory, 1);
 
-        // create and intitalize the interceptor builder
+        // create and intitalize the interceptor moduleBuilder
         MDBInterceptorBuilder interceptorBuilder = new MDBInterceptorBuilder();
         interceptorBuilder.setEJBName(ejbName);
         interceptorBuilder.setVtable(vtable);

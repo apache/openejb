@@ -61,8 +61,8 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
+import java.util.jar.JarFile;
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
@@ -70,6 +70,7 @@ import javax.sql.DataSource;
 import junit.framework.TestCase;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.util.FileUtil;
+import org.apache.geronimo.deployment.util.JarUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
@@ -90,6 +91,7 @@ import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.ContainerIndex;
 import org.openejb.DeploymentHelper;
+import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -148,9 +150,8 @@ public class EJBConfigBuilderTest extends TestCase {
         try {
             Thread.currentThread().setContextClassLoader(cl);
             //     ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor().getMethodPermissionArray(),
-
-            EJBModule module = new EJBModule("TestModule", URI.create("/"));
-            module.setSpecDD(ejbJar);
+            OpenejbOpenejbJarDocument openEJBDoc = (OpenejbOpenejbJarDocument) configBuilder.getDeploymentPlan(ejbJarFile.toURL());
+            EJBModule module = new EJBModule("TestModule", URI.create("TestModule"), JarUtil.createJarFile(ejbJarFile), "/", ejbJar, openEJBDoc.getOpenejbJar());
             configBuilder.getSessionBuilder().createBean(earContext, module, "containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, null, cl);
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
@@ -164,7 +165,7 @@ public class EJBConfigBuilderTest extends TestCase {
                 return ejbJarFile;
             }
             public void install(OpenEJBModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-                moduleBuilder.installModule(ejbJarFile, earContext, module);
+                moduleBuilder.installModule(JarUtil.createJarFile(ejbJarFile), earContext, module);
             }
         };
         executeTestBuildModule(action);
@@ -198,7 +199,7 @@ public class EJBConfigBuilderTest extends TestCase {
         XmlObject plan = moduleBuilder.getDeploymentPlan(ejbJarFile.toURL());
         URI parentId = moduleBuilder.getParentId(plan);
         URI configId = moduleBuilder.getConfigId(plan);
-        Module module = moduleBuilder.createModule(configId.toString(), plan);
+        Module module = moduleBuilder.createModule(configId.toString(), JarUtil.createJarFile(ejbJarFile), plan);
 
         File carFile = File.createTempFile("OpenEJBTest", ".car");
         try {
