@@ -95,9 +95,9 @@ public class JNDIResponseTest extends TestCase {
     }
 
     private void compare(Context original, Context copy) throws Exception{
-        NamingEnumeration enum = original.listBindings("");
-        while (enum.hasMoreElements()) {
-            Binding binding = (Binding) enum.nextElement();
+        NamingEnumeration en = original.listBindings("");
+        while (en.hasMoreElements()) {
+            Binding binding = (Binding) en.nextElement();
             String name = binding.getName();
             Object expected = binding.getObject();
 
