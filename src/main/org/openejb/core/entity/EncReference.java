@@ -48,6 +48,7 @@ import javax.ejb.EJBHome;
 import javax.naming.NameNotFoundException;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
+import org.openejb.core.ivm.naming.Reference;
 
 /*
   This class is a wrapper for an Intra-VM EJB or Connector references in the 
@@ -55,6 +56,13 @@ import org.openejb.core.ThreadContext;
   Operation is checked to ensure that its is allowed for the bean's current state.
 */
 public class EncReference extends org.openejb.core.ivm.naming.ENCReference{
+    
+    /**
+     */
+    public EncReference(Reference ref){
+        super(ref);
+    }
+
     
     /*
     * This constructor is used when the object to be referenced is accessible through 

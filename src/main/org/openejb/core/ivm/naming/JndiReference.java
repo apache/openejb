@@ -17,7 +17,7 @@ public class JndiReference implements Reference{
     private Context   context;
     private Hashtable envProperties;
     private String    jndiName;
-    
+    private String    contextJndiName;
     /*
     * This constructor is used when the object to be referenced is accessible through 
     * some other JNDI name space. The context is provided and the lookup name, but the 
@@ -25,6 +25,13 @@ public class JndiReference implements Reference{
     */
     public JndiReference(javax.naming.Context linkedContext, String jndiName){
         this.context  = linkedContext;
+        this.jndiName = jndiName;
+    }
+    
+    /*
+    */
+    public JndiReference(String contextJndiName, String jndiName){
+        this.contextJndiName = contextJndiName;
         this.jndiName = jndiName;
     }
     
@@ -50,7 +57,11 @@ public class JndiReference implements Reference{
 
     protected Context getContext() throws NamingException{
         if (context == null) {
-            context = new InitialContext(envProperties);
+            if ( contextJndiName != null ) {
+                context = (Context)org.openejb.OpenEJB.getJNDIContext().lookup(contextJndiName);
+            } else {
+                context = new InitialContext(envProperties);
+            }
         }
         return context;
     }
