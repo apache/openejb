@@ -16,6 +16,12 @@
 # $Id$
 #============================================================
 
+if [ -z "$OPENEJB_HOME" ]; then
+  OPENEJB_HOME=$PWD
+fi
+
+OPTIONS="-Dopenejb.home=$OPENEJB_HOME"
+
 #============================================================
 _command_help()
 {
@@ -83,7 +89,7 @@ _command_validate()
 #============================================================
 _command_start()
 {
-   ./bin/ejbserver.sh $@
+   java -cp dist/openejb-1.0.jar org.openejb.util.Launcher org.openejb.server.Main $@
 }
 #============================================================
 _command_stop()
