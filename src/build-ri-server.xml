@@ -11,10 +11,11 @@
   <!-- Build classpath -->
   <path id="project.classpath">
     <pathelement location="${jrefactory.jar}"/>
-    <pathelement location="${castor.home}/dist/${castor.jar}"/>
+    <pathelement location="${castor.home}/${castor.jar}"/>
+    <pathelement location="${castor.home}/${castor.xml.jar}"/>
     <pathelement location="${ejb11.jar}"/>
     <pathelement location="${ejb20.jar}"/>
-    <pathelement location="${jaas.home}/lib/${jaas.jar}"/>
+    <pathelement location="${jaas.home}/${jaas.jar}"/>
     <pathelement location="${jca.jar}"/>
     <pathelement location="${jdbcext.jar}"/>
     <pathelement location="${jdk12proxy.jar}"/>
@@ -25,19 +26,21 @@
     <pathelement location="${jta.jar}"/>
     <pathelement location="${log4j.jar}"/>
     <pathelement location="${minerva.jar}"/>
-    <pathelement location="${openorb.home}/dist/${openorb.jar}"/>
-    <pathelement location="${openorb.home}/dist/${openorb.rmi.jar}"/>
-    <pathelement location="${openorb.home}/dist/${openorb.tools.jar}"/>
+    <pathelement location="${openorb.home}/${openorb.jar}"/>
+    <pathelement location="${openorb.home}/${openorb.rmi.jar}"/>
+    <pathelement location="${openorb.home}/${openorb.tools.jar}"/>
     <pathelement location="${jts.jar}"/>
-    <pathelement location="${tyrex.home}/dist/${tyrex.jar}"/>
-    <pathelement location="${tyrex.home}/dist/${tyrex.iiop.jar}"/>
+    <pathelement location="${tyrex.home}/${tyrex.jar}"/>
+    <pathelement location="${tyrex.home}/${tyrex.iiop.jar}"/>
     <pathelement location="${jaxp.home}/jaxp.jar"/>
     <pathelement location="${jaxp.home}/${jaxp.parser.jar}"/>
     <pathelement location="${jaxp.home}/${jaxp.xsltprocessor.jar}"/>
     <pathelement location="${jaxp.home}/${jaxp.xalan1compat.jar}"/>
     <pathelement location="${junit.jar}"/>
+    <pathelement location="${jakarta.regexp.jar}"/>
     <pathelement location="${xslp.jar}"/>
   </path>
+  
   
   <!-- ================================================================== -->
   <!-- Prepares the build directory                                       -->

@@ -32,6 +32,7 @@
   <path id="project.classpath">
     <pathelement location="${jrefactory.jar}"/>
     <pathelement location="${castor.home}/${castor.jar}"/>
+    <pathelement location="${castor.home}/${castor.xml.jar}"/>
     <pathelement location="${ejb11.jar}"/>
     <pathelement location="${ejb20.jar}"/>
     <pathelement location="${jaas.home}/${jaas.jar}"/>
@@ -94,9 +95,10 @@
 
     <echo message="jrefactory.jar         = ${jrefactory.jar}"/>
     <echo message="castor.jar             = ${castor.home}/${castor.jar}"/>
+    <echo message="castor.xml.jar         = ${castor.home}/${castor.xml.jar}"/>
     <echo message="ejb11.jar              = ${ejb11.jar}"/>
     <echo message="ejb20.jar              = ${ejb20.jar}"/>
-    <echo message="jaas.jar               = ${jaas.home}/lib/${jaas.jar}"/>
+    <echo message="jaas.jar               = ${jaas.home}/${jaas.jar}"/>
     <echo message="jca.jar                = ${jca.jar}"/>
     <echo message="jdbcext.jar            = ${jdbcext.jar}"/>
     <echo message="jdk12proxy.jar         = ${jdk12proxy.jar}"/>
