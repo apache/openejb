@@ -107,7 +107,7 @@ public interface DeploymentTestContants {
 
     public static final ServiceReferenceBuilder serviceReferenceBuilder = new ServiceReferenceBuilder() {
         //it could return a Service or a Reference, we don't care
-        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Map portLocationMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) {
+        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Map portLocationMap, Map credentialsNameMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) {
             return null;
         }
     };

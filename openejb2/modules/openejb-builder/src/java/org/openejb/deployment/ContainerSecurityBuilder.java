@@ -62,15 +62,12 @@ import javax.security.jacc.EJBMethodPermission;
 import javax.security.jacc.EJBRoleRefPermission;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.GeronimoSecurityException;
-import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.DistinguishedName;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.security.deploy.DistinguishedName;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
 import org.apache.geronimo.xbeans.j2ee.ExcludeListType;
@@ -80,7 +77,6 @@ import org.apache.geronimo.xbeans.j2ee.MethodType;
 import org.apache.geronimo.xbeans.j2ee.RoleNameType;
 import org.apache.geronimo.xbeans.j2ee.SecurityIdentityType;
 import org.apache.geronimo.xbeans.j2ee.SecurityRoleRefType;
-
 import org.openejb.security.SecurityConfiguration;
 
 
@@ -136,7 +132,7 @@ class ContainerSecurityBuilder {
         /**
          * Add the default subject
          */
-        builder.setDefaultSubject(generateDefaultSubject(security));
+        builder.setDefaultPrincipal(security.getDefaultPrincipal());
 
         /**
          * JACC v1.0 section 3.1.5.1
@@ -258,31 +254,6 @@ class ContainerSecurityBuilder {
             Permission p = (Permission) e.nextElement();
             permissions.add(p);
         }
-    }
-
-    /**
-     * Generate the default principal from the security config.
-     *
-     * @param security The Geronimo security configuration.
-     * @return the default principal
-     */
-    protected Subject generateDefaultSubject(Security security) throws GeronimoSecurityException {
-        DefaultPrincipal defaultPrincipal = security.getDefaultPrincipal();
-        Subject defaultSubject = new Subject();
-
-        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
-        if (realmPrincipal == null) {
-            throw new GeronimoSecurityException("Unable to create realm principal");
-        }
-        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
-        if (primaryRealmPrincipal == null) {
-            throw new GeronimoSecurityException("Unable to create primary realm principal");
-        }
-
-        defaultSubject.getPrincipals().add(realmPrincipal);
-        defaultSubject.getPrincipals().add(primaryRealmPrincipal);
-
-        return defaultSubject;
     }
 
     /**

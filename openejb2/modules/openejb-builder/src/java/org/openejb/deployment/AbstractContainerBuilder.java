@@ -61,6 +61,7 @@ import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.openejb.EJBContainer;
 import org.openejb.GenericEJBContainer;
 import org.openejb.InstanceContextFactory;
@@ -95,7 +96,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private String localInterfaceName;
     private String serviceEndpointName;
     private String primaryKeyClassName;
-    private Subject defaultSubject;
+    private DefaultPrincipal defaultPrincipal;
     private Subject runAs;
     private boolean doAsCurrentCaller = false;
     private boolean securityEnabled = false;
@@ -199,12 +200,12 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         this.primaryKeyClassName = primaryKeyClassName;
     }
 
-    public Subject getDefaultSubject() {
-        return defaultSubject;
+    public DefaultPrincipal getDefaultPrincipal() {
+        return defaultPrincipal;
     }
 
-    public void setDefaultSubject(Subject defaultSubject) {
-        this.defaultSubject = defaultSubject;
+    public void setDefaultPrincipal(DefaultPrincipal defaultPrincipal) {
+        this.defaultPrincipal = defaultPrincipal;
     }
 
     public Subject getRunAs() {
@@ -471,7 +472,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 null, //objectname
                 null, //kernel
                 getSecurityConfiguration(),
-                getDefaultSubject(),
+                getDefaultPrincipal(),
                 runAs,
                 getHomeTxPolicyConfig(),
                 getRemoteTxPolicyConfig(),
@@ -499,7 +500,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         gbean.setAttribute("LocalJndiNames", getLocalJndiNames());
         gbean.setReferencePattern("Timer", timerName);
         gbean.setAttribute("SecurityConfiguration", getSecurityConfiguration());
-        gbean.setAttribute("DefaultSubject", getDefaultSubject());
+        gbean.setAttribute("DefaultPrincipal", getDefaultPrincipal());
         gbean.setAttribute("RunAsSubject", getRunAs());
         gbean.setAttribute("HomeTxPolicyConfig", getHomeTxPolicyConfig());
         gbean.setAttribute("RemoteTxPolicyConfig", getRemoteTxPolicyConfig());

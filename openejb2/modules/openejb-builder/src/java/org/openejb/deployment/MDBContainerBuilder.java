@@ -48,7 +48,6 @@
 package org.openejb.deployment;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -59,6 +58,7 @@ import javax.security.auth.Subject;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.EJBTimeoutOperation;
@@ -74,8 +74,6 @@ import org.openejb.mdb.dispatch.SetMessageDrivenContextOperation;
 import org.openejb.security.SecurityConfiguration;
 import org.openejb.slsb.EJBCreateMethod;
 import org.openejb.slsb.RemoveMethod;
-import org.openejb.transaction.ContainerPolicy;
-import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.util.SoftLimitedInstancePool;
@@ -147,11 +145,11 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
         this.endpointInterfaceName = endpointInterfaceName;
     }
 
-    public Subject getDefaultSubject() {
+    public DefaultPrincipal getDefaultPrincipal() {
         return null;  // RETURN NOTHING
     }
 
-    public void setDefaultSubject(Subject defaultSubject) {
+    public void setDefaultPrincipal(DefaultPrincipal defaultPrincipal) {
         // DO NOTHING
     }
 
