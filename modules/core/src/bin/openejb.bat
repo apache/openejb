@@ -17,9 +17,38 @@ REM================================================
 
 SETLOCAL
 
-set PATH=%PATH%;.\bin
-if "%OPENEJB_HOME%"=="" set OPENEJB_HOME=%CD%
+rem %~dp0 is expanded pathname of the current script under NT
+set DEFAULT_ANT_HOME=%~dp0..
 
+if "%ANT_HOME%"=="" set ANT_HOME=%DEFAULT_ANT_HOME%
+set DEFAULT_ANT_HOME=
+
+rem find OPENEJB_HOME if it does not exist due to either an invalid value passed
+rem by the user or the %0 problem on Windows 9x
+if exist "%OPENEJB_HOME%\lib\openejb-core-*.jar" goto openejbHomeSet
+
+rem check for OpenEJB in Program Files
+if not exist "%ProgramFiles%\openejb" goto checkSystemDrive
+set ANT_HOME=%ProgramFiles%\openejb
+goto openejbHomeSet
+
+:checkSystemDrive
+rem check for ant in root directory of system drive
+if not exist %SystemDrive%\openejb\lib\openejb-core-*.jar goto checkCDrive
+set ANT_HOME=%SystemDrive%\openejb
+goto openejbHomeSet
+
+:checkCDrive
+rem check for openejb in C:\openejb for Win9X users
+if not exist C:\openejb\lib\openejb-core-*.jar goto noOpenEJBHome
+set OPENEJB_HOME=C:\openejb
+goto openejbHomeSet
+
+:noOpenEJBHome
+echo OPENEJB_HOME is set incorrectly or OpenEJB could not be located. Please set OPENEJB_HOME.
+goto EOF
+
+:openejbHomeSet
 set OPTIONS=-Dopenejb.home=%OPENEJB_HOME%
 
 set P1=_%1
@@ -38,7 +67,7 @@ if /I %P1% EQU _-HELP        goto HELP
 if /I %P1% EQU _--HELP       goto HELP
 
 echo Unknown command: %1
-more < .\bin\commands.txt
+more < %OPENEJB_HOME%\bin\commands.txt
 
 goto EOF
 REM================================================
@@ -53,12 +82,12 @@ REM================================================
    if /I %P2% EQU _CREATE_STUBS goto HELP_CREATE_STUBS
 
    REM TODO Update commands.txt with CORBA and CREATE_STUBS
-   more < .\bin\commands.txt
+   more < %OPENEJB_HOME%\bin\commands.txt
 
 goto EOF
 REM================================================
 :BUILD
-    ant -f src\build.xml %2 %3 %4 %5 %6 %7 %8
+    ant -f %OPENEJB_HOME%\src\build.xml %2 %3 %4 %5 %6 %7 %8
 
 goto EOF
 REM================================================
@@ -141,7 +170,7 @@ REM================================================
    set DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
    set SUITE="org.openejb.test.ClientTestSuite"
    
-   java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% -jar dist/openejb_ejb_tests-1.0.jar %SUITE%
+   java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% -jar %OPENEJB_HOME%/dist/openejb_ejb_tests-@REPLACED-BY-MAVEN-XML@.jar %SUITE%
 
    echo "_________________________________________________"
    echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
@@ -154,7 +183,7 @@ REM================================================
    set DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
    set SUITE="org.openejb.test.ClientTestSuite"
    
-   java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% -jar dist/openejb_ejb_tests-1.0.jar %SUITE%
+   java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% -jar %OPENEJB_HOME%/dist/openejb_ejb_tests-@REPLACED-BY-MAVEN-XML@.jar %SUITE%
 
    REM Invoke CORBA tests
    REM TODO the following doesn't work, but gives the idea of what shall be done
@@ -174,7 +203,7 @@ REM================================================
    set DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
    set SUITE="org.openejb.test.ClientTestSuite"
    
-   java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% -jar dist/openejb_ejb_tests-1.0.jar %SUITE%
+   java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% -jar %OPENEJB_HOME%/dist/openejb_ejb_tests-@REPLACED-BY-MAVEN-XML@.jar %SUITE%
          
 goto EOF
 REM================================================
@@ -190,7 +219,7 @@ REM================================================
    set DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
    set SUITE="org.openejb.test.ClientTestSuite"
    
-   java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% -jar dist/openejb_ejb_tests-1.0.jar %SUITE%
+   java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% -jar %OPENEJB_HOME%/dist/openejb_ejb_tests-@REPLACED-BY-MAVEN-XML@.jar %SUITE%
 
 goto EOF
 REM================================================
@@ -211,7 +240,7 @@ REM================================================
    set NAMING_OPTIONS=%NAMING_OPTIONS% -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl
 
    REM  >logs\corba.jndi.log 2>&1 doesn't work with 'start'
-   start "OpenORB JNDI Server" java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-DEV.jar org.openejb.util.Launcher %NAMING_OPTIONS% org.openorb.util.MapNamingContext -ORBPort=2001 -default
+   start "OpenORB JNDI Server" java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.util.Launcher %NAMING_OPTIONS% org.openorb.util.MapNamingContext -ORBPort=2001 -default
 
    sleep 20
    echo 2. OpenEJB RMI/IIOP Server...
@@ -228,7 +257,7 @@ REM================================================
    set SERVER_OPTIONS=-Dlog4j.configuration=file:conf/default.logging.conf
    set SERVER_OPTIONS=%SERVER_OPTIONS% -Dorg/openejb/core/ThreadContext/IMPL_CLASS=org.openejb.tyrex.TyrexThreadContext
    REM  > logs\corba.server.log 2>&1 doesn't work with 'start'
-   start "OpenEJB RMI/IIOP Server" java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-DEV.jar org.openejb.util.Launcher %SERVER_OPTIONS% %OPENORB_OPTIONS% org.openejb.corba.Server -ORBProfile=ejb -domain conf\tyrex_resources.xml
+   start "OpenEJB RMI/IIOP Server" java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.util.Launcher %SERVER_OPTIONS% %OPENORB_OPTIONS% org.openejb.corba.Server -ORBProfile=ejb -domain conf\tyrex_resources.xml
 
    echo 3. Starting test client...
 
@@ -246,7 +275,7 @@ REM================================================
    set DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
    set SUITE="org.openejb.test.ClientTestSuite"
 
-   java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% %ORB% -jar dist/openejb_ejb_tests-1.0.jar %SUITE% 
+   java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% %ORB% -jar %OPENEJB_HOME%/dist/openejb_ejb_tests-@REPLACED-BY-MAVEN-XML@.jar %SUITE% 
 
 goto EOF
 REM================================================
@@ -259,42 +288,42 @@ REM================================================
 goto EOF
 REM================================================
 :HELP_BUILD
-   ant -f src\build.xml -projecthelp    
+   ant -f %OPENEJB_HOME%/src/build.xml -projecthelp    
    
 goto EOF
 REM================================================
 :HELP_TEST
-   more < .\bin\test.txt    
+   more < %OPENEJB_HOME%/bin/test.txt    
 
 goto EOF
 REM================================================
 :HELP_DEPLOY
-   more < .\bin\deploy.txt
+   more < %OPENEJB_HOME%/bin/deploy.txt
 
 goto EOF
 REM================================================
 :HELP_VALIDATE
-   more < .\bin\validate.txt
+   more < %OPENEJB_HOME%/bin/validate.txt
 
 goto EOF
 REM================================================
 :HELP_START
-   more < .\bin\start.txt    
+   more < %OPENEJB_HOME%/bin/start.txt
 
 goto EOF
 REM================================================
 :HELP_STOP
-   more < .\bin\stop.txt    
+   more < %OPENEJB_HOME%/bin/stop.txt
 
 goto EOF
 REM================================================
 :HELP_CORBA
-   more < .\bin\corba.txt    
+   more < %OPENEJB_HOME%/bin/corba.txt
 
 goto EOF
 REM================================================
 :HELP_CREATE_STUBS
-   more < .\bin\create_stubs.txt    
+   more < %OPENEJB_HOME%/bin/create_stubs.txt    
 
 goto EOF
 
