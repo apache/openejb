@@ -147,6 +147,8 @@
                    org/openejb/test/object/**,
                    org/openejb/test/stateful/**,
                    org/openejb/test/stateless/**,
+		   org/openejb/test/TestFailureException.class,
+		   org/openejb/test/ApplicationException.class,
                    META-INF/*.xml"
          excludes="org/openejb/test/entity/bmp/*Test*.class,
                    org/openejb/test/entity/cmp/*Test*.class,
@@ -163,6 +165,8 @@
                    org/openejb/test/object/**,
                    org/openejb/test/stateful/**,
                    org/openejb/test/stateless/**,
+		   org/openejb/test/ApplicationException.class,
+		   org/openejb/test/TestFailureException.class,
                    META-INF/*.xml"
          excludes="org/openejb/test/entity/bmp/*Test*.class,
                    org/openejb/test/entity/cmp/*Test*.class,
