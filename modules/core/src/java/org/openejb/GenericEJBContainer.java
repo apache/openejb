@@ -81,6 +81,7 @@ import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
+import org.apache.geronimo.security.jacc.RoleMappingConfigurationFactory;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
@@ -391,12 +392,13 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
                     policyConfiguration.addToRole(role, (Permissions) securityConfiguration.getRolePolicies().get(role));
                 }
 
-                if (policyConfiguration instanceof RoleMappingConfiguration) {
+                RoleMappingConfiguration roleMapper = RoleMappingConfigurationFactory.getRoleMappingFactory().getRoleMappingConfiguration(securityConfiguration.getPolicyContextId(), true);
+                if (roleMapper != null) {
                     Iterator iter = securityConfiguration.getRoleMapping().keySet().iterator();
                     while (iter.hasNext()) {
                         String roleName = (String) iter.next();
                         Set principalSet = (Set) securityConfiguration.getRoleMapping().get(roleName);
-                        ((RoleMappingConfiguration) policyConfiguration).addRoleMapping(roleName, principalSet);
+                        roleMapper.addRoleMapping(roleName, principalSet);
                     }
                 }
 
