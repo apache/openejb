@@ -24,6 +24,34 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-jacc</artifactId>
+            <version>1.0-rc2</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-full</artifactId>
+            <version>2.0</version>
+            <url>http://cglib.sf.net</url>
+        </dependency>
+
         <!-- Module Dependencies -->
 
         <dependency>
@@ -71,11 +99,11 @@
             <version>1.5-rc2</version>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>3.8</version>
-        </dependency>
+        </dependency-->
     </dependencies>
 
 
@@ -101,7 +129,10 @@
         </resources>
         <unitTest>
             <includes>
-                <include>**/*Tests.java</include>
+                <include>**/StatelessTestSuite.java</include>
+                <include>**/StatefulTestSuite.java</include>
+                <include>**/BmpTestSuite.java</include>
+                <include>**/CmpTestSuite.java</include>
             </includes>
             <excludes>
                 <exclude>**/Abstract*.java</exclude>

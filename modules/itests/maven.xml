@@ -9,23 +9,19 @@
     xmlns:maven="jelly:maven"
     >
 
-    <!-- Determine what the top-level project root is -->
-    <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
-
-    <!-- Determine where geronimo is installed (from assembly module) -->
-    <j:set var="geronimoTarget" value="${project.root}/target/${pom.groupId}-${pom.currentVersion}"/>
-    <!--j:set var="geronimoTarget" value="${project.root}/target/assembly"/-->
-    <!--j:set var="geronimoTarget" value="/Users/david/geronimo/geronimo/1geronimo/target/geronimo-1.0-SNAPSHOT"/-->
-
     <preGoal name="xdoc:jelly-transform">
         <attainGoal name="html2xdoc"/>
     </preGoal>
 
 
     <preGoal name="test:test">
-        <ant:echo message="Trying to start server at: ${geronimoTarget}"/>
+        <ant:delete dir="${maven.build.dir}/openejb"/>
+        <deploy:unpackServer
+            geronimoVersion="2.0-SNAPSHOT"
+            geronimoName="openejb"
+            targetDir="${maven.build.dir}/openejb"/>
         <deploy:startRemoteServer
-            geronimoTarget="${geronimoTarget}"
+            geronimoTarget="${maven.build.dir}/openejb"
             configs="org/apache/geronimo/DefaultDatabase"/>
         <deploy:waitForStarted
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
