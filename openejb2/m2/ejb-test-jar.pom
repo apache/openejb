@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision$ $Date$ -->
+
+<project>
+  <modelVersion>4.0.0</modelVersion>  
+  <parent>
+    <groupId>openejb</groupId>
+    <artifactId>openejb</artifactId>
+    <version>1.0</version>
+  </parent>  
+  <groupId>openejb</groupId>
+  <artifactId>ejb-test-jar</artifactId>
+  <version>1.0</version>
+  <name>OpenEJB Test Jar</name>  
+</project>

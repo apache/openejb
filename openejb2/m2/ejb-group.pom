@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision$ $Date$ -->
+
+<project>
+
+  <modelVersion>4.0.0</modelVersion>
+  <name>OpenEJB</name>
+  <groupId>openejb</groupId>
+  <artifactId>openejb</artifactId>
+  <version>1.0</version>
+  <package>org.openejb</package>
+
+  <organization>
+    <name>OpenEJB</name>
+    <url>http://www.openejb.org/</url>
+    <logo>http://www.openejb.org/images/logo_ejb2.gif</logo>
+  </organization>
+
+  <inceptionYear>1999</inceptionYear>
+  <logo>http://www.openejb.org/images/logo_ejb2.gif</logo>
+  <description>OpenEJB EJB Container</description>
+  <shortDescription>OpenEJB EJB Container</shortDescription>
+  <url>http://www.openejb.org/</url>
+  <issueTrackingUrl>http://jira.codehaus.org/secure/BrowseProject.jspa?id=10401</issueTrackingUrl>
+
+  <siteAddress>openejb.org</siteAddress>
+  <siteDirectory>/www/openejb.org</siteDirectory>
+  <distributionDirectory>/www/openejb.org/builds</distributionDirectory>
+
+  <scm>
+    <connection>scm:cvs:pserver:anoncvs@cvs.openejb.org:/home/cvspublic:openejb</connection>
+    <developerConnection>scm:cvs:ext:${openejb.username}@cvs.openejb.org/home/cvs:openejb</developerConnection>
+    <url>http://cvs.openejb.org/viewcvs/openejb/</url>
+  </scm>
+
+  <mailingLists>
+    <mailingList>
+      <name>OpenEJB User List</name>
+      <subscribe>user-subscribe@openejb.org</subscribe>
+      <unsubscribe>user-unsubscribe@openejb.org</unsubscribe>
+    </mailingList>
+    <mailingList>
+      <name>OpenEJB Developer List</name>
+      <subscribe>dev-subscribe@openejb.org</subscribe>
+      <unsubscribe>dev-unsubscribe@openejb.org</unsubscribe>
+    </mailingList>
+    <mailingList>
+      <name>OpenEJB Source Control List</name>
+      <subscribe>scm-subscribe@openejb.org</subscribe>
+      <unsubscribe>scm-unsubscribe@openejb.org</unsubscribe>
+    </mailingList>
+  </mailingLists>
+
+  <developers>
+
+    <developer>
+      <name>Dain Sundstrom</name>
+      <id>dain</id>
+      <email>dain@apache.org</email>
+      <organization></organization>
+    </developer>
+
+    <developer>
+      <name>David Blevins</name>
+      <id>dblevins</id>
+      <email>dblevins@apache.org</email>
+      <organization></organization>
+    </developer>
+
+    <developer>
+      <name>David Jencks</name>
+      <id>djencks</id>
+      <email>djencks@apache.org</email>
+      <organization></organization>
+    </developer>
+
+    <developer>
+      <name>Jeremy Boynes</name>
+      <id>jboynes</id>
+      <email>jboynes@apache.org</email>
+      <organization></organization>
+    </developer>
+
+    <developer>
+      <name>Richard Monson-Haefel</name>
+      <id>rmonson</id>
+      <email>rmonson@apache.org</email>
+      <organization></organization>
+    </developer>
+
+    <developer>
+      <name>Remigio Chirino</name>
+      <id>chirino</id>
+      <email>chirino@apache.org</email>
+      <organization></organization>
+    </developer>
+
+    <developer>
+      <name>Aaron Mulder</name>
+      <id>ammulder</id>
+      <email>ammulder@apache.org</email>
+      <organization></organization>
+    </developer>
+
+    <developer>
+      <name>Alan D. Cabrera</name>
+      <id>adc</id>
+      <email>adc@apache.org</email>
+      <organization></organization>
+    </developer>
+  </developers>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+      </dependency>
+      <dependency>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <ciManagement>
+    <nagEmailAddress>openejb-development@lists.sourceforge.net</nagEmailAddress>
+  </ciManagement>
+
+</project>
