@@ -54,6 +54,7 @@ import org.apache.axis.description.JavaServiceDesc;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis.builder.AxisServiceBuilder;
+import org.apache.geronimo.axis.builder.ServiceInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -90,8 +91,9 @@ public class AxisWebServiceContainerBuilder {
     }
 
     public GBeanData buildGBeanData(ObjectName sessionObjectName, ObjectName listener, String ejbName, String serviceEndpointName, JarFile jarFile, ClassLoader cl) throws DeploymentException {
-        JavaServiceDesc ejbServiceDesc = AxisServiceBuilder.createEJBServiceDesc(jarFile, ejbName, cl);    
-        
+        ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(jarFile, ejbName, cl);
+        JavaServiceDesc ejbServiceDesc = serviceInfo.getServiceDesc();
+
         // Strip the jar file path from the WSDL file since jar file location may change at runtime.
         String wsdlFile = ejbServiceDesc.getWSDLFile();
         wsdlFile = wsdlFile.substring(wsdlFile.indexOf("!")+2);
@@ -110,7 +112,7 @@ public class AxisWebServiceContainerBuilder {
             throw new DeploymentException("Invalid address location URI: "+ejbServiceDesc.getEndpointURL(), e);
         }
 
-        GBeanData gBean = WSContainerGBean.createGBean(ejbName,sessionObjectName,listener, location, wsdlURI, ejbServiceDesc);
+        GBeanData gBean = WSContainerGBean.createGBean(ejbName,sessionObjectName,listener, location, wsdlURI, serviceInfo);
         return gBean;
     }
 }
