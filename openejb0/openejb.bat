@@ -16,6 +16,10 @@ REM $Id$
 REM================================================
 
 set PATH=%PATH%;.\bin
+if "%OPENEJB_HOME%"=="" set OPENEJB_HOME=%CD%
+
+set OPTIONS=-Dopenejb.home=%OPENEJB_HOME%
+
 
 set P1=_%1
 set P2=_%2
@@ -79,7 +83,8 @@ REM================================================
 goto EOF
 REM================================================
 :START_SERVER
-   .\bin\ejbserver.bat %2 %3 %4 %5 %6 %7 %8 %9
+   shift
+   java -cp dist/openejb-1.0.jar org.openejb.util.Launcher org.openejb.server.Main %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 goto EOF
 REM================================================
