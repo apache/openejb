@@ -59,6 +59,7 @@ import org.openejb.spi.AssemblerFactory;
 import org.openejb.spi.ContainerSystem;
 import org.openejb.spi.SecurityService;
 import org.openejb.util.SafeToolkit;
+import org.openejb.util.JarUtils;
 import org.apache.log4j.Category;
 
 /**
@@ -120,7 +121,7 @@ public final class OpenEJB {
     private static Properties         props;
     private static boolean            initialized;
     private static Category           logger;
-
+    
     public static void init(Properties props)
     throws OpenEJBException{
         init(props,null);
@@ -137,30 +138,16 @@ public final class OpenEJB {
         if ( initialized ) {
             logger.error( "Cannot initialize OpenEJB a second time in the same VM." );
             throw new OpenEJBException( "OpenEJB has already been initialized." );
+        } else {
+	    // Set log4j's configuration (Note the URL's form)
+	    if( System.getProperty( "log4j.configuration" ) == null ) {
+		System.setProperty( "log4j.configuration", "resource:/default.logging.conf" );
+	    }
+
+	    logger = Category.getInstance( "OpenEJB" );
+
+            initialized = true;
         }
-
-	/*
-	 * Setup the java protocol handler path to include org.openejb.util.urlhandler
-	 * so that org.openejb.util.urlhandler.resource.Handler will be used for URLs
-	 * of the form "resource:/path".
-	 */
-	try {
-	    String oldPkgs = System.getProperty( "java.protocol.handler.pkgs" );
-
-	    if ( oldPkgs == null )
-		System.setProperty( "java.protocol.handler.pkgs", "org.openejb.util.urlhandler" );
-	    else if ( oldPkgs.indexOf( "org.openejb.util.urlhandler" ) < 0 )
-		System.setProperty( "java.protocol.handler.pkgs", oldPkgs + "|" + "org.openejb.util.urlhandler" );
-	} catch ( SecurityException ex ) {
-	}
-	
-	// Set log4j's configuration (Note the URL's form)
-	if( System.getProperty( "log4j.configuration" ) == null ) {
-	    System.setProperty( "log4j.configuration", "resource:/default.logging.conf" );
-	}
-
-	logger = Category.getInstance( "OpenEJB" );
-        
 
 	/*
 	 * Output startup message
@@ -168,10 +155,16 @@ public final class OpenEJB {
 	Properties versionInfo = new Properties();
 
 	try {
+            JarUtils.setHandlerSystemProperty();
 	    versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
 	} catch (java.io.IOException e) {
 	}
-	logger.info( "" );
+        if( System.getProperty( "openejb.nobanner" ) == null ) {
+            System.out.println("OpenEJB " + versionInfo.get( "version" ) );
+            System.out.println("" + versionInfo.get( "url" ) );
+        }
+
+        logger.info( "" );
         logger.info( "********************************************************************************" );
         logger.info( "OpenEJB " + versionInfo.get( "url" ) );
         logger.info( "Startup: " + new Date() );
@@ -313,8 +306,6 @@ public final class OpenEJB {
             logger.debug("TransactionManager: "+transactionManager.getClass().getName());
         }
         
-	initialized = true;
-
         logger.info("OpenEJB ready.");
     }
 
