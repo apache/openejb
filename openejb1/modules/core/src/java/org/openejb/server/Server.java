@@ -68,8 +68,8 @@ import org.openejb.util.SafeToolkit;
 public class Server implements org.openejb.spi.Service {
 
     private SafeToolkit toolkit = SafeToolkit.getToolkit("OpenEJB EJB Server");
-    private Messages _messages = new Messages( "org.openejb.server.util.resources" );
-    private Logger logger = Logger.getInstance( "OpenEJB.server.remote", "org.openejb.server.util.resources" );
+    private Messages _messages = new Messages( "org.openejb.server" );
+    private Logger logger = Logger.getInstance( "OpenEJB.server.remote", "org.openejb.server" );
 
     Properties props;
 
