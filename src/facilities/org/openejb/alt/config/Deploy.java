@@ -81,6 +81,15 @@ public class Deploy {
     /**
      * Idea for a command line option
      * 
+     * -f   Force an overwrite if the jar already exists
+     *
+     * not implemented
+     */
+    private boolean FORCE_OVERWRITE_JAR;
+    
+    /**
+     * Idea for a command line option
+     * 
      * -c   Copy the jar to the OPENEJB_HOME/beans directory
      *
      * not implemented
@@ -176,11 +185,6 @@ public class Deploy {
             in  = new DataInputStream(System.in); 
             out = System.out;
 
-	    // Set log4j's configuration (Note the URL's form)
-	    if( System.getProperty( "log4j.configuration" ) == null ) {
-		System.setProperty( "log4j.configuration", "resource:/default.logging.conf" );
-	    }
-            
             configFile = openejbConfigFile;
             if (configFile == null) {
                 try{
@@ -283,6 +287,13 @@ public class Deploy {
         boolean moved = false;
         
         try{
+	    if ( newFile.exists() ) {
+		if ( FORCE_OVERWRITE_JAR ) {
+		    newFile.delete();
+		} else {
+		    throw new OpenEJBException( Messages.format( "deploy.m.061", origFile.getAbsolutePath(), beansDir.getAbsolutePath() ) );
+		}
+	    }
             moved = origFile.renameTo(newFile); 
         } catch (SecurityException se){
             ConfigUtils.logWarning("deploy.m.050", origFile.getAbsolutePath(), se.getMessage());
@@ -328,13 +339,21 @@ public class Deploy {
         File newFile = new File(beansDir, jarName);
         
         try{
+	    if ( newFile.exists() ) {
+		if ( FORCE_OVERWRITE_JAR ) {
+		    newFile.delete();
+		} else {
+		    throw new OpenEJBException( Messages.format( "deploy.c.061", origFile.getAbsolutePath(), beansDir.getAbsolutePath() ) );
+		}
+	    }
+
             FileInputStream  in  = new FileInputStream(origFile);
             FileOutputStream out = new FileOutputStream(newFile);
         
             int b = in.read();
             while( b != -1 ){
-                b = in.read();
                 out.write( b );
+                b = in.read();
             }
 
             in.close();
@@ -532,7 +551,7 @@ public class Deploy {
             System.exit(-1);
         }
         
-        out.print("\nContainer: "+cs[0].getId());
+        out.println("\nContainer: "+cs[0].getId());
         return cs[0].getId();
     }
 
@@ -748,6 +767,8 @@ public class Deploy {
                     d.GENERATE_DEPLOYMENT_ID = true;
                 } else if (args[i].equals("-m")){
                     d.MOVE_JAR = true;
+                } else if (args[i].equals("-f")){
+                    d.FORCE_OVERWRITE_JAR = true;
                 } else if (args[i].equals("-c")){
                     d.COPY_JAR = true;
                 } else if (args[i].equals("-C")){
