@@ -16,13 +16,13 @@
  */
 package org.openejb;
 
-import java.io.Serializable;
-
 import javax.security.auth.Subject;
+import java.io.Serializable;
 
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+
 import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstanceFactory;
 import org.openejb.cache.InstancePool;
@@ -30,12 +30,12 @@ import org.openejb.dispatch.VirtualOperation;
 import org.openejb.security.PermissionManager;
 import org.openejb.transaction.TransactionPolicyManager;
 
+
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public interface InterceptorBuilder extends Serializable {
+
     void setContainerId(Object contextId);
 
     void setEJBName(String ejbName);
@@ -50,9 +50,11 @@ public interface InterceptorBuilder extends Serializable {
 
     void setPermissionManager(PermissionManager permissionManager);
 
-    void setSetIdentityEnabled(boolean setIdentityEnabled);
+    void setDoAsCurrentCaller(boolean doAsCurrentCaller);
 
     void setSecurityEnabled(boolean securityEnabled);
+
+    void setUseContextHandler(boolean useContextHandler);
 
     void setTransactionContextManager(TransactionContextManager transactionContextManager);
 
