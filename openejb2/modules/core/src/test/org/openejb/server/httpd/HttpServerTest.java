@@ -59,16 +59,13 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.log4j.BasicConfigurator;
-import org.openejb.server.ServerService;
-import org.openejb.server.ServiceDaemon;
-import org.openejb.server.StandardServiceStack;
-import org.openejb.server.StandardServiceStackGBean;
+import org.openejb.server.*;
 
 public class HttpServerTest extends TestCase {
 
-    static {
-        BasicConfigurator.configure();
-    }
+//    static {
+//        BasicConfigurator.configure();
+//    }
 
     public void testBareService() throws Exception {
         ServerService service = new HttpServer(new TestHttpListener());
@@ -76,7 +73,7 @@ public class HttpServerTest extends TestCase {
         HttpURLConnection connection = null;
 
         try {
-            daemon.setSoTimeout(100);
+            daemon.setSoTimeout(1000);
             daemon.doStart();
 
             int port = daemon.getPort();
@@ -89,8 +86,31 @@ public class HttpServerTest extends TestCase {
             connection.disconnect();
             daemon.doStop();
         }
-
     }
+
+    public void testBareChannelService() throws Exception {
+        ServerService service = new HttpServer(new TestHttpListener());
+        SynchChannelServerDaemon daemon = new SynchChannelServerDaemon("HTTP", service, InetAddress.getByName("localhost"), 0);
+        HttpURLConnection connection = null;
+
+        try {
+            daemon.setSoTimeout(1000);
+            daemon.doStart();
+
+            int port = daemon.getPort();
+            URL url = new URL("http://localhost:" + port + "/this/should/hit/something");
+            connection = (HttpURLConnection) url.openConnection();
+
+            int responseCode = connection.getResponseCode();
+            assertEquals("HTTP response code should be 204", HttpURLConnection.HTTP_NO_CONTENT, responseCode);
+        } finally {
+            if (connection != null ) {
+                connection.disconnect();
+            }
+            daemon.doStop();
+        }
+    }
+
 
     public void testServiceStack() throws Exception {
         ServerService service = new HttpServer(new TestHttpListener());
@@ -98,7 +118,7 @@ public class HttpServerTest extends TestCase {
         HttpURLConnection connection = null;
 
         try {
-            serviceStack.setSoTimeout(100);
+            serviceStack.setSoTimeout(1000);
             serviceStack.doStart();
 
             int port = serviceStack.getPort();
