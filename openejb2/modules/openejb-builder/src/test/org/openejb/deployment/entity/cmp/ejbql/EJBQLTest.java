@@ -205,7 +205,7 @@ public class EJBQLTest extends TestCase {
                     null,
                     null,
                     null,
-                    null);
+                    null, null);
 
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
             builder.buildCMPSchema(earContext, j2eeContext, ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, cacheSchema);

@@ -138,7 +138,7 @@ public class CMPEntityBuilderTest extends TestCase {
                     null,
                     null,
                     null,
-                    null);
+                    null, null);
             J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "TestGeronimoServer", "null", NameFactory.EJB_MODULE, "MockModule", null, null);
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
             builder.buildCMPSchema(earContext, moduleJ2eeContext, ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, globalSchema);
@@ -183,7 +183,7 @@ public class CMPEntityBuilderTest extends TestCase {
                     null,
                     null,
                     null,
-                    null);
+                    null, null);
 
             J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "TestGeronimoServer", "null", NameFactory.EJB_MODULE, "MockModule", null, null);
              ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -229,7 +229,7 @@ public class CMPEntityBuilderTest extends TestCase {
                     null,
                     null,
                     null,
-                    null);
+                    null, null);
 
             J2eeContext moduleJ2eeContext = new J2eeContextImpl("geronimo.server", "TestGeronimoServer", "null", NameFactory.EJB_MODULE, "MockModule", null, null);
              ClassLoader cl = Thread.currentThread().getContextClassLoader();
