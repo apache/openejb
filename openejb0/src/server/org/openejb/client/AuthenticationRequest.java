@@ -65,6 +65,10 @@ public class AuthenticationRequest implements Request {
      * a password, passphrase, certificate, etc.
      */
     private transient Object credentials;
+    /**
+     * The security realm to use when validating the client's credentials.
+     */
+    private transient String _realm;
 
     /**
      * Constructs a new AuthenticationRequest to send to the server.
@@ -77,10 +81,12 @@ public class AuthenticationRequest implements Request {
      * 
      * @param principle
      * @param credentials
+     * @param realm
      */
-    public AuthenticationRequest(Object principle, Object credentials) {
+    public AuthenticationRequest(Object principle, Object credentials, String realm) {
         this.principle   = principle;
         this.credentials = credentials;
+        this._realm      = realm;
     }
     
     public byte getRequestType(){
@@ -107,6 +113,15 @@ public class AuthenticationRequest implements Request {
     }
     
     /**
+     * Returns the security realm.
+     * 
+     * @return 
+     */
+    public String getRealm(){
+        return _realm;
+    }
+    
+    /**
      * Sets the client's principle.
      * 
      * @param principle
@@ -125,6 +140,15 @@ public class AuthenticationRequest implements Request {
     }
     
     /**
+     * Sets the security realm.
+     * 
+     * @param realm
+     */
+    public void setCredentials(String realm) {
+        this._realm = realm;
+    }
+    
+    /**
      * The object implements the readExternal method to restore its
      * contents by calling the methods of DataInput for primitive
      * types and readObject for objects, strings and arrays.  The
@@ -139,6 +163,7 @@ public class AuthenticationRequest implements Request {
     public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {
         principle   = in.readObject(); 
         credentials = in.readObject(); 
+        _realm      = in.readUTF();
     }
     /**
      * The object implements the writeExternal method to save its contents
@@ -157,6 +182,7 @@ public class AuthenticationRequest implements Request {
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(principle  );
         out.writeObject(credentials);
+	out.writeUTF(_realm);
     }
 }
 

@@ -152,14 +152,19 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         else
             env = (Hashtable)environment.clone();
 
-        String userID    = (String) env.get(Context.SECURITY_PRINCIPAL);
-        String psswrd    = (String) env.get(Context.SECURITY_CREDENTIALS);
+        Object userID    = (String) env.get(Context.SECURITY_PRINCIPAL);
+        Object psswrd    = (String) env.get(Context.SECURITY_CREDENTIALS);
+        String realm     = (String) env.get("org.openenb.security.realm");
         Object serverURL = env.get(Context.PROVIDER_URL);
 
         if (userID == null) throw new ConfigurationException("Context property cannot be null: "+Context.SECURITY_PRINCIPAL);
         if (psswrd == null) throw new ConfigurationException("Context property cannot be null: "+Context.SECURITY_CREDENTIALS);
         if (serverURL == null) throw new ConfigurationException("Context property cannot be null: "+Context.PROVIDER_URL);
         
+	if (realm == null) {
+	    realm = "Pseudo Realm";
+	}
+
         URL url;
         if ( serverURL instanceof String ) {
             try {
@@ -184,16 +189,16 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         
         //TODO:1: Either aggressively initiate authentication or wait for the 
         //        server to send us an authentication challange.
-        authenticate(userID, psswrd);
+        authenticate(userID, psswrd, realm);
 
         return this;
     }
     
     
-    public void authenticate(String userID, String psswrd) throws javax.naming.AuthenticationException {
+    public void authenticate(Object userID, Object psswrd, String realm) throws javax.naming.AuthenticationException {
         // TODO:1: Skip this if the identity hasn't been changed and
         // the user already has been authenticated.
-        AuthenticationRequest  req = new AuthenticationRequest(userID, psswrd);
+        AuthenticationRequest  req = new AuthenticationRequest(userID, psswrd, realm);
         AuthenticationResponse res = null;
 
 	try {
