@@ -95,9 +95,6 @@ import org.openejb.util.proxy.ProxyManager;
  */
 public class DeploymentInfo implements org.openejb.DeploymentInfo{
 
-    // DMB This is defined in the interface.  We don't need it again here.
-    final public static String AC_CREATE_EJBHOME = "create.ejbhome";
-
     private Object    deploymentId;
     private Class     homeInterface;
     private Class     remoteInterface;
@@ -353,6 +350,9 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     public TransactionPolicy getTransactionPolicy(Method method){
 
         TransactionPolicy policy = (TransactionPolicy)methodTransactionPolicies.get(method);
+        if(policy==null && !isBeanManagedTransaction) {
+            org.apache.log4j.Logger.getLogger("OpenEJB").warn("The following method doesn't have a transaction policy assigned: "+method);
+        }
         if ( policy == null && container instanceof TransactionContainer) {
             if ( isBeanManagedTransaction ) {
                 if ( componentType == STATEFUL ) {
@@ -746,18 +746,28 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
             throw new IllegalArgumentException("Invalid transaction attribute \""+transAttribute+"\" declared for method "+method.getName()+". Please check your configuration.");
         }
         
-        // If this is a Statful SessionBean that implements the 
+        /* EJB 1.1 page 55
+         Only a stateful Session bean with container-managed transaction demarcation may implement the
+         SessionSynchronization interface. A stateless Session bean must not implement the SessionSynchronization
+         interface.
+         */
+        // If this is a Stateful SessionBean that implements the 
         // SessionSynchronization interface and the method transaction
         // attribute is not Never or notSupported, then wrap the TransactionPolicy
         // with a SessionSynchronizationTxPolicy
-        if ( componentType == STATELESS && !isBeanManagedTransaction && container instanceof TransactionContainer){
-            if ( SessionSynchronization.class.isAssignableFrom(beanClass) &&
-                 !( transAttribute.equals("Never") || transAttribute.equals("NotSupported"))){
-                
-                policy = new SessionSynchronizationTxPolicy( policy );
+        if ( componentType == STATEFUL && !isBeanManagedTransaction  && container instanceof TransactionContainer){
+
+            // we have a stateful session bean with container-managed transactions
+            if ( SessionSynchronization.class.isAssignableFrom(beanClass) ) {
+                if ( !transAttribute.equals("Never") && !transAttribute.equals("NotSupported") ){
+                    // wrap the policy unless attribute is "never" or "NotSupported"
+                    policy = new SessionSynchronizationTxPolicy( policy );
+                }
             } else {
+                // CMT stateful session bean but does not implement SessionSynchronization
                 policy = new StatefulContainerManagedTxPolicy( policy );
             }
+
         } else if ( componentType == CMP_ENTITY && container instanceof CastorCMP11_EntityContainer){
             policy = new CastorCmpEntityTxPolicy( policy );
         }
