@@ -43,7 +43,7 @@
  * $Id$
  */
 package org.openejb.client;
- 
+
 import java.util.Properties;
 
 
@@ -57,10 +57,8 @@ public interface ProxyFactory {
     /**
      * Prepares the ProxyFactory for use.  Called once right after
      * the ProxyFactory is instantiated.
-     * 
-     * @param props
      */
-    public void init(Properties props) ;
+    public void init(Properties props);
 
     /**
      * Returns the invocation handler for the specified proxy instance.
@@ -68,38 +66,19 @@ public interface ProxyFactory {
     public InvocationHandler getInvocationHandler(Object proxy) throws IllegalArgumentException;
 
     /**
-     * Returns true if and only if the specified class was dynamically generated 
+     * Returns true if and only if the specified class was dynamically generated
      * to be a proxy class using the getProxyClass method or the newProxyInstance
      * method.
-     * 
-     * @param cl
-     * @return 
      */
     public boolean isProxyClass(Class cl);
 
     /**
-     * Returns an instance of a proxy class for the specified interface that 
+     * Returns an instance of a proxy class for the specified interface that
      * dispatches method invocations to the specified invocation handler.
-     * 
-     * @param interfce
-     * @param h
-     * @return 
-     * @exception IllegalArgumentException
      */
-    public Object newProxyInstance(Class interfce, InvocationHandler h) throws IllegalArgumentException;
-    public Object newProxyInstance(Class superClass, Class interfce, InvocationHandler h) throws IllegalArgumentException;
-    
-    /**
-     * Returns an instance of a proxy class for the specified interface that 
-     * dispatches method invocations to the specified invocation handler.
-     * 
-     * @param interfaces
-     * @param h
-     * @return 
-     * @exception IllegalArgumentException
-     */
-    public Object newProxyInstance(Class[] interfaces, InvocationHandler h) throws IllegalArgumentException;
-    public Object newProxyInstance(Class superClass, Class[] interfaces, InvocationHandler h) throws IllegalArgumentException;
-    
+    public Object newProxyInstance(Class[] interfaces, InvocationHandler h, ClassLoader classLoader) throws IllegalArgumentException;
+
+    public Object newProxyInstance(Class superClass, Class[] interfaces, InvocationHandler h, ClassLoader classLoader) throws IllegalArgumentException;
+
 }
 
