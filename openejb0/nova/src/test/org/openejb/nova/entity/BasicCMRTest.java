@@ -93,6 +93,10 @@ public class BasicCMRTest extends TestCase {
     private CMPEntityContainer container;
     private final jdbcDataSource ds = new jdbcDataSource();
 
+    public void testDummy() {
+        // JUnit requires one test
+    }
+
     protected void setUp() throws Exception {
         super.setUp();
 
