@@ -884,7 +884,6 @@
     
       <fileset dir="lib" >
         <include name="*.jar"/>
-        <exclude name="openorb*.jar"/>
       </fileset>
     
     </copy>
@@ -904,14 +903,20 @@
     <copy todir="${final.dir}/src">
     
       <fileset dir="src" >
+		<include name="etc/CHANGELOG"/>
+		<include name="etc/LICENSE"/>
+		<include name="etc/MANIFEST.MF"/>
+		<include name="etc/README"/>
         <include name="**/*.java"/>
+        <include name="**/*.xsd"/>
+        <include name="**/*.dtd"/>
         <include name="**/*.properties"/>
         <include name="**/build*.xml"/>
         <exclude name="**/build-corba.xml"/>
       </fileset>
     
     </copy>
-    
+
     <!-- copy configuration files -->
     <copy todir="${final.dir}/conf">
     
@@ -922,6 +927,7 @@
         <include name="default.idb_database.conf"/>
         <include name="default.logging.conf"/>
         <include name="default.openejb.conf"/>
+        <include name="default.service-jar.xml"/>
       </fileset>
     
     </copy>
