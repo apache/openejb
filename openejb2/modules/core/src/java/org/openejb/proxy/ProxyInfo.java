@@ -124,10 +124,14 @@ public class ProxyInfo implements Serializable {
         return localObjectInterface;
     }
 
+    public Class getServiceEndpointInterface() {
+        return serviceEndpointInterface;
+    }
+
     public Class getPrimaryKeyClass() {
         return primaryKeyClass;
     }
-    
+
     // TODO: Kill this method
     public Object getPrimaryKey() {
         return primaryKey;
