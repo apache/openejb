@@ -106,7 +106,7 @@ Create a META-INF directory to put your ejb-jar.xml into.
 <command>[user@host app]# mkdir META-INF</command>
 
 <p>
-Create am ejb-jar.xml file in your META-INF directory.
+Create a ejb-jar.xml file in your META-INF directory.
 </p>
 
 
@@ -262,7 +262,7 @@ public class HelloWorld {
     <comment>//Use the HelloHome to create a HelloObject</comment>
     HelloObject ejbObject = ejbHome.create();
     
-    <comment>//The part we've all been wainting for...</comment>
+    <comment>//The part we've all been waiting for...</comment>
     String message = ejbObject.sayHello();
 
     <comment>//A drum roll please.</comment>
