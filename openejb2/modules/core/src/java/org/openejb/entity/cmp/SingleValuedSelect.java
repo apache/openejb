@@ -50,6 +50,8 @@ package org.openejb.entity.cmp;
 import javax.ejb.FinderException;
 import javax.ejb.ObjectNotFoundException;
 
+import org.openejb.EJBInvocation;
+import org.tranql.cache.InTxCache;
 import org.tranql.field.FieldTransform;
 import org.tranql.field.FieldTransformException;
 import org.tranql.field.Row;
@@ -66,12 +68,18 @@ public class SingleValuedSelect implements InstanceOperation {
     private static final Object NODATA = new Object();
 
     private final QueryCommandView commandView;
-
-    public SingleValuedSelect(QueryCommandView commandView) {
+    private final boolean flushCache;
+    
+    public SingleValuedSelect(QueryCommandView commandView, boolean flushCache) {
         this.commandView = commandView;
+        this.flushCache = flushCache;
     }
 
     public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
+        if (flushCache) {
+            ctx.getTransactionContext().getInTxCache().flush();
+        }
+
         Object o;
         try {
             SingleValuedResultHandler handler = new SingleValuedResultHandler(commandView.getView()[0]);

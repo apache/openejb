@@ -67,6 +67,7 @@ public class StatefulJndiEncTests extends StatefulTestClient {
         
         /*[2] Create database table */
         TestManager.getDatabase().createEntityTable();
+        TestManager.getDatabase().createEntityExplicitePKTable();
     }
 
     /**
@@ -77,6 +78,7 @@ public class StatefulJndiEncTests extends StatefulTestClient {
         try {
             /*[1] Drop database table */
             TestManager.getDatabase().dropEntityTable();
+            TestManager.getDatabase().dropEntityExplicitePKTable();
         } catch (Exception e) {
             throw e;
         } finally {

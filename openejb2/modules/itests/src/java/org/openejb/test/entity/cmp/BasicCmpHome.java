@@ -51,6 +51,8 @@ import javax.ejb.FinderException;
 
 
 public interface BasicCmpHome extends javax.ejb.EJBHome {
+    public BasicCmpObject create(Integer primarykey, String name) throws CreateException, RemoteException;
+
     public BasicCmpObject create(String name) throws CreateException, RemoteException;
 
     public BasicCmpObject findByPrimaryKey(Integer primarykey) throws FinderException, RemoteException;

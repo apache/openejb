@@ -11,6 +11,10 @@ public interface TestDatabase {
 
     public void dropEntityTable() throws java.sql.SQLException;
 
+    public void createEntityExplicitePKTable() throws java.sql.SQLException;
+    
+    public void dropEntityExplicitePKTable() throws java.sql.SQLException;
+
     public void createAccountTable() throws java.sql.SQLException;
 
     public void dropAccountTable() throws java.sql.SQLException;

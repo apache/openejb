@@ -58,6 +58,30 @@
 
         <!--
         ########################################################
+        ID:  client/tests/entity/cmp/BasicCmpHomeExplicitPK
+        ########################################################
+        -->
+
+        <entity>
+            <description>
+            	Same as BasicCmpBean; however primary key is not auto-generated.
+            </description>
+            <ejb-name>BasicCmpBeanExplicitPK</ejb-name>
+            <home>org.openejb.test.entity.cmp.BasicCmpHome</home>
+            <remote>org.openejb.test.entity.cmp.BasicCmpObject</remote>
+            <ejb-class>org.openejb.test.entity.cmp.BasicCmpBean</ejb-class>
+            <persistence-type>Container</persistence-type>
+            <prim-key-class>java.lang.Integer</prim-key-class>
+            <reentrant>false</reentrant>
+            <cmp-version>1.x</cmp-version>
+            <cmp-field><field-name>id</field-name></cmp-field>
+            <cmp-field><field-name>firstName</field-name></cmp-field>
+            <cmp-field><field-name>lastName</field-name></cmp-field>
+            <primkey-field>id</primkey-field>
+        </entity>
+
+        <!--
+        ########################################################
         ID:  client/tests/entity/cmp/allowed_operations/EntityHome
         ########################################################
         -->
@@ -1037,6 +1061,31 @@
 
         <!--
         ########################################################
+        ID:  client/tests/entity/cmp/SessionFacadeBean
+        ########################################################
+        -->
+
+        <session>
+            <description>A Session Facade Bean for specific CMP tests,
+            e.g. Transaction.
+            </description>
+            <ejb-name>SessionFacadeBean</ejb-name>
+            <home>org.openejb.test.entity.cmp.SessionFacadeHome</home>
+            <remote>org.openejb.test.entity.cmp.SessionFacadeObject</remote>
+            <ejb-class>org.openejb.test.entity.cmp.SessionFacadeBean</ejb-class>
+            <session-type>Stateless</session-type>
+            <transaction-type>Container</transaction-type>
+            <ejb-ref>
+                <ejb-ref-name>ejb/BasicCmpBeanExplicitPK</ejb-ref-name>
+                <ejb-ref-type>Entity</ejb-ref-type>
+                <home>org.openejb.test.entity.cmp.BasicCmpHome</home>
+                <remote>org.openejb.test.entity.cmp.BasicCmpObject</remote>
+                <ejb-link>BasicCmpBeanExplicitPK</ejb-link>
+            </ejb-ref>
+        </session>
+
+        <!--
+        ########################################################
         ########################################################
         ######  BMP   E N T I T Y   B E A N S  #################
         ########################################################
@@ -1393,6 +1442,15 @@
             </method>
             <trans-attribute>Never</trans-attribute>
         </container-transaction>
+        
+        <container-transaction>
+            <method>
+                <ejb-name>SessionFacadeBean</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <trans-attribute>RequiresNew</trans-attribute>
+        </container-transaction>
+
         <container-transaction>
             <method>
                 <ejb-name>BasicBmpBean</ejb-name>

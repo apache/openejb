@@ -47,6 +47,7 @@ package org.openejb.test.entity.cmp;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.StringTokenizer;
+
 import javax.ejb.CreateException;
 import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
@@ -87,7 +88,7 @@ public abstract class BasicCmp2Bean implements EntityBean {
     }
 
     /**
-     * Maps to BasicCmpHome.create
+     * Maps to BasicCmpHome.create(String name)
      */
     public Integer ejbCreate(String name) throws CreateException {
         StringTokenizer st = new StringTokenizer(name, " ");
@@ -99,7 +100,20 @@ public abstract class BasicCmp2Bean implements EntityBean {
 
     public void ejbPostCreate(String name) {
     }
+    
+    /**
+     * Maps to BasicCmpHome.create(Integer primarykey, String name)
+     */
+    public Integer ejbCreate(Integer primarykey, String name) throws CreateException {
+        StringTokenizer st = new StringTokenizer(name, " ");
+        setFirstName(st.nextToken());
+        setLastName(st.nextToken());
+        setId(primarykey);
+        return null;
+    }
 
+    public void ejbPostCreate(Integer primarykey, String name) throws CreateException {
+    }
     //
     // Home interface methods
     //=============================

@@ -75,8 +75,20 @@
             <ejb-name>StatelessRMIIIOPBean</ejb-name>
             <jndi-name>client/tests/stateless/RMI-over-IIOP/EJBHome</jndi-name>
         </session>
-
-
+        <session>
+            <ejb-name>BasicStatelessBean</ejb-name>
+            <jndi-name>client/tests/stateless/BasicStatelessHome</jndi-name>
+            <resource-ref>
+                <ref-name>stateless/references/Resource_manager_access</ref-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
+            </resource-ref>
+        </session>
+        <session>
+            <ejb-name>SessionFacadeBean</ejb-name>
+            <jndi-name>client/tests/entity/cmp/SessionFacadeBean</jndi-name>
+        </session>
 
         <!--
         ########################################################
@@ -352,6 +364,34 @@
                 <ejb-ql>
                 <![CDATA[SELECT OBJECT(a) FROM BasicCmpBean AS a WHERE 1 = 0]]>
                 </ejb-ql>
+            </query>
+        </entity>
+        <entity>
+            <ejb-name>BasicCmpBeanExplicitPK</ejb-name>
+            <table-name>entity_explicit_pk</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>firstName</cmp-field-name>
+                <table-column>first_name</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>lastName</cmp-field-name>
+                <table-column>last_name</table-column>
+            </cmp-field-mapping>
+            <query>
+                <query-method>
+                    <method-name>findByLastName</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>
+                <![CDATA[SELECT OBJECT(a) FROM BasicCmpBeanExplicitPK AS a WHERE a.lastName = ?1]]>
+                </ejb-ql>
+                <flush-cache-before-query/>
             </query>
         </entity>
         <entity>

@@ -68,11 +68,13 @@ import org.tranql.query.ResultHandler;
 public class SingleValuedFinder extends CMPFinder {
     private static final Object NODATA = new Object();
 
-    public SingleValuedFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
-        super(localQueryView, remoteQueryView);
+    public SingleValuedFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView, boolean flushCache) {
+        super(localQueryView, remoteQueryView, flushCache);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+        flushCache(invocation);
+        
         try {
             QueryCommandView commandView = getCommand(invocation);
             SingleValuedResultHandler handler = new SingleValuedResultHandler(commandView.getView()[0]);

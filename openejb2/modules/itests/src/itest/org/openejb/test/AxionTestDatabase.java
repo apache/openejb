@@ -1,16 +1,13 @@
 package org.openejb.test;
 
-import java.rmi.RemoteException;
-import java.util.Properties;
 import javax.naming.InitialContext;
 
 import org.openejb.test.beans.Database;
-import org.openejb.test.beans.DatabaseHome;
 
 /**
  *
  */
-public class AxionTestDatabase implements TestDatabase {
+public class AxionTestDatabase extends AbstractTestDatabase {
 
     protected Database database;
     protected InitialContext initialContext;
@@ -21,6 +18,9 @@ public class AxionTestDatabase implements TestDatabase {
     private static final String CREATE_ENTITY = "CREATE TABLE entity ( id integer default entity_seq.nextval, first_name string, last_name string )";
     private static final String DROP_ENTITY = "DROP TABLE entity";
 
+    private static final String CREATE_ENTITY_EXPLICIT_PK = "CREATE TABLE entity_explicit_pk ( id integer, first_name string, last_name string )";
+    private static final String DROP_ENTITY_EXPLICIT_PK = "DROP TABLE entity_explicit_pk";
+
     private static final String CREATE_ENTITY_SEQ = "CREATE SEQUENCE entity_seq";
     private static final String DROP_ENTITY_SEQ = "DROP SEQUENCE entity_seq";
 
@@ -28,101 +28,39 @@ public class AxionTestDatabase implements TestDatabase {
         System.setProperty("noBanner", "true");
     }
 
-
     public void createEntityTable() throws java.sql.SQLException {
-        executeStatementIgnoreErrors(DROP_ENTITY);
         executeStatementIgnoreErrors(DROP_ENTITY_SEQ);
+        super.createEntityTable();
         executeStatement(CREATE_ENTITY_SEQ);
-        executeStatement(CREATE_ENTITY);
     }
 
     public void dropEntityTable() throws java.sql.SQLException {
-        executeStatement(DROP_ENTITY);
+        super.dropEntityTable();
         executeStatement(DROP_ENTITY_SEQ);
     }
 
-
-    private void executeStatementIgnoreErrors(String command) {
-        try {
-            getDatabase().execute(command);
-        } catch (Exception e) {
-            // not concerned
-        }
+    protected String getCreateAccount() {
+        return CREATE_ACCOUNT;
     }
 
-    private void executeStatement(String command) throws java.sql.SQLException {
-        try {
-            getDatabase().execute(command);
-        } catch (RemoteException re) {
-            if (re.detail != null && re.detail instanceof java.sql.SQLException) {
-                throw (java.sql.SQLException) re.detail;
-            } else {
-                throw new java.sql.SQLException("Cannot exectute statement: " + re.getMessage(), command);
-            }
-        }
+    protected String getDropAccount() {
+        return DROP_ACCOUNT;
     }
 
-    public void createAccountTable() throws java.sql.SQLException {
-        executeStatementIgnoreErrors(DROP_ACCOUNT);
-        executeStatement(CREATE_ACCOUNT);
+    protected String getCreateEntity() {
+        return CREATE_ENTITY;
     }
 
-    public void dropAccountTable() throws java.sql.SQLException {
-        executeStatement(DROP_ACCOUNT);
+    protected String getDropEntity() {
+        return DROP_ENTITY;
     }
 
-    public void start() throws IllegalStateException {
-        try {
-            // @todo this is a hack that limits us to a single server 
-//            Properties properties = TestManager.getServer().getContextEnvironment();
-            Properties properties = new Properties();
-            properties.put("test.server.class", "org.openejb.test.RemoteTestServer");
-            properties.put("java.naming.factory.initial", "org.openejb.client.RemoteInitialContextFactory");
-            properties.put("java.naming.provider.url", "127.0.0.1:4201");
-            properties.put("java.naming.security.principal", "testuser");
-            properties.put("java.naming.security.credentials", "testpassword");
-            initialContext = new InitialContext(properties);
-        } catch (Exception e) {
-            throw new IllegalStateException("Cannot create initial context: " + e.getClass().getName() + " " + e.getMessage());
-        }
+    protected String getCreateEntityExplictitPK() {
+        return CREATE_ENTITY_EXPLICIT_PK;
     }
 
-
-    private Database getDatabase() {
-        if (initialContext == null) {
-            start();
-        }
-        if (database == null) {
-            database = createDatabaseObject();
-        }
-        return database;
-    }
-
-    private Database createDatabaseObject() {
-        Object obj = null;
-        DatabaseHome databaseHome = null;
-        Database database = null;
-        try {
-            /* Create database */
-            obj = initialContext.lookup("client/tools/DatabaseHome");
-            databaseHome = (DatabaseHome) javax.rmi.PortableRemoteObject.narrow(obj, DatabaseHome.class);
-        } catch (Exception e) {
-            throw (IllegalStateException)new IllegalStateException("Cannot find 'client/tools/DatabaseHome': "
-                    + e.getMessage()).initCause(e);
-        }
-        try {
-            database = databaseHome.create();
-        } catch (Exception e) {
-            throw (IllegalStateException)new IllegalStateException("Cannot start database: "
-                    + e.getMessage()).initCause(e);
-        }
-        return database;
-    }
-
-    public void stop() throws IllegalStateException {
-    }
-
-    public void init(Properties props) throws IllegalStateException {
+    protected String getDropEntityExplicitPK() {
+        return DROP_ENTITY_EXPLICIT_PK;
     }
 }
 

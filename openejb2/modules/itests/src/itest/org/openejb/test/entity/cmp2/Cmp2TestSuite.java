@@ -87,6 +87,7 @@ public class Cmp2TestSuite extends org.openejb.test.TestSuite {
         
         /*[2] Create database table */
         TestManager.getDatabase().createEntityTable();
+        TestManager.getDatabase().createEntityExplicitePKTable();
     }
 
     /**
@@ -96,5 +97,6 @@ public class Cmp2TestSuite extends org.openejb.test.TestSuite {
     protected void tearDown() throws Exception {
         /*[1] Drop database table */
         TestManager.getDatabase().dropEntityTable();
+        TestManager.getDatabase().dropEntityExplicitePKTable();
     }
 }

@@ -51,6 +51,8 @@ import java.io.Serializable;
 
 import org.openejb.EJBInvocation;
 import org.openejb.dispatch.VirtualOperation;
+import org.tranql.cache.InTxCache;
+import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommandView;
 
 /**
@@ -59,14 +61,23 @@ import org.tranql.query.QueryCommandView;
 public abstract class CMPFinder implements VirtualOperation, Serializable {
     private final QueryCommandView localQueryView;
     private final QueryCommandView remoteQueryView;
+    private final boolean flushCache;
 
-    public CMPFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
+    public CMPFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView, boolean flushCache) {
         this.localQueryView = localQueryView;
         this.remoteQueryView = remoteQueryView;
+        this.flushCache = flushCache;
     }
 
     protected QueryCommandView getCommand(EJBInvocation invocation) {
         return invocation.getType().isLocal() ? localQueryView : remoteQueryView;
+    }
+    
+    protected void flushCache(EJBInvocation invocation) throws QueryException {
+        InTxCache cache = invocation.getTransactionContext().getInTxCache();
+        if (flushCache) {
+            cache.flush();
+        }
     }
     
 }

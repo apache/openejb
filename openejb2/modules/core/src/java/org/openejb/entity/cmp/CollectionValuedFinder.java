@@ -67,11 +67,13 @@ import org.tranql.query.QueryCommandView;
  */
 public class CollectionValuedFinder extends CMPFinder {
 
-    public CollectionValuedFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
-        super(localQueryView, remoteQueryView);
+    public CollectionValuedFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView, boolean flushCache) {
+        super(localQueryView, remoteQueryView, flushCache);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+        flushCache(invocation);
+
         try {
             QueryCommandView commandView = getCommand(invocation);
             Collection results = new ArrayList();

@@ -1,140 +1,85 @@
 package org.openejb.test;
 
-import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Properties;
+
 import javax.naming.InitialContext;
 
 import org.openejb.test.beans.Database;
-import org.openejb.test.beans.DatabaseHome;
 
 /**
  * 
  */
-public class PostgreSqlTestDatabase implements TestDatabase {
+public class PostgreSqlTestDatabase extends AbstractTestDatabase {
 
     protected Database database;
     protected InitialContext initialContext;
 
 
-    private static String _createAccount = "CREATE TABLE account ( ssn CHAR(11), first_name CHAR(20), last_name CHAR(20), balance INT, Constraint \"account_pkey\" Primary Key (\"ssn\"))";
-    private static String _dropAccount = "DROP TABLE account";
+    private static String CREATE_ACCOUNT = "CREATE TABLE account ( ssn CHAR(11), first_name CHAR(20), last_name CHAR(20), balance INT, Constraint \"account_pkey\" Primary Key (\"ssn\"))";
+    private static String DROP_ACCOUNT = "DROP TABLE account";
+    
+    private static String CREATE_ACCOUNT_SEQ = "CREATE SEQUENCE account_id_seq";
+    private static String DROP_ACCOUNT_SEQ = "DROP SEQUENCE account_id_seq";
+    
     //private static String _createEntity  = "CREATE TABLE entity ( id INT NOT NULL, first_name CHAR(20), last_name CHAR(20), Constraint \"entity_pkey\" Primary Key (\"id\") )";
-    private static String _createEntity = "CREATE TABLE entity ( id INT DEFAULT nextval('entity_id_seq') , first_name CHAR(20), last_name CHAR(20), Constraint \"entity_pkey\" Primary Key (\"id\") )";
-    private static String _dropEntity = "DROP TABLE entity";
+    private static String CREATE_ENTITY = "CREATE TABLE entity ( id INT DEFAULT nextval('entity_id_seq') , first_name CHAR(20), last_name CHAR(20), Constraint \"entity_pkey\" Primary Key (\"id\") )";
+    private static String DROP_ENTITY = "DROP TABLE entity";
+
+    private static final String CREATE_ENTITY_SEQ = "CREATE SEQUENCE entity_id_seq";
+    private static final String DROP_ENTITY_SEQ = "DROP SEQUENCE entity_id_seq";
+
+    private static final String CREATE_ENTITY_EXPLICIT_PK = "CREATE TABLE entity_explicit_pk ( id INT, first_name CHAR(20), last_name CHAR(20) )";
+    private static final String DROP_ENTITY_EXPLICIT_PK = "DROP TABLE entity_explicit_pk";
 
     public void createEntityTable() throws java.sql.SQLException {
-        try {
-            database.execute("DROP SEQUENCE entity_id_seq");
-        } catch (Exception e) {
-            // not concerned
-        }
-        try {
-            database.execute(_dropEntity);
-        } catch (Exception e) {
-            // not concerned
-        }
-        try {
-            database.execute("CREATE SEQUENCE entity_id_seq");
-        } catch (Exception e) {
-            // not concerned
-        }
-        try {
-            database.execute(_createEntity);
-        } catch (RemoteException re) {
-            if (re.detail != null && re.detail instanceof java.sql.SQLException) {
-                throw (java.sql.SQLException) re.detail;
-            } else {
-                throw new java.sql.SQLException("Cannot create entity table: " + re.getMessage(), _createEntity);
-            }
-        }
+        executeStatementIgnoreErrors(DROP_ENTITY_SEQ);
+        super.createEntityTable();
+        executeStatement(CREATE_ENTITY_SEQ);
     }
 
     public void dropEntityTable() throws java.sql.SQLException {
-        try {
-            database.execute("DROP SEQUENCE entity_id_seq");
-        } catch (Exception e) {
-            // not concerned
-        }
-        try {
-            database.execute(_dropEntity);
-        } catch (RemoteException re) {
-            if (re.detail != null && re.detail instanceof java.sql.SQLException) {
-                throw (java.sql.SQLException) re.detail;
-            } else {
-                throw new java.sql.SQLException("Unable to drop entity table: " + re.getMessage(), _dropEntity);
-            }
-        }
+        super.dropEntityTable();
+        executeStatement(DROP_ENTITY_SEQ);
     }
 
-
-    public void createAccountTable() throws java.sql.SQLException {
-        try {
-            database.execute("DROP SEQUENCE account_id_seq");
-        } catch (Exception e) {
-            // not concerned
-        }
-        try {
-            database.execute("DROP TABLE account");
-        } catch (Exception e) {
-            // not concerned
-        }
-        try {
-            database.execute("CREATE SEQUENCE account_id_seq");
-        } catch (Exception e) {
-            // not concerned
-        }
-        try {
-            database.execute(_createAccount);
-        } catch (RemoteException re) {
-            if (re.detail != null && re.detail instanceof java.sql.SQLException) {
-                throw (java.sql.SQLException) re.detail;
-            } else {
-                throw new java.sql.SQLException("Cannot create account table: " + re.getMessage(), _createAccount);
-            }
-        }
+    public void createAccountTable() throws SQLException {
+        executeStatement(DROP_ACCOUNT_SEQ);
+        super.createAccountTable();
+        executeStatement(CREATE_ACCOUNT_SEQ);
     }
 
-    public void dropAccountTable() throws java.sql.SQLException {
-        try {
-            try {
-                database.execute("DROP SEQUENCE account_id_seq");
-            } catch (Exception e) {
-                // not concerned
-            }
-            database.execute(_dropAccount);
-        } catch (RemoteException re) {
-            if (re.detail != null && re.detail instanceof java.sql.SQLException) {
-                throw (java.sql.SQLException) re.detail;
-            } else {
-                throw new java.sql.SQLException("Cannot drop account table: " + re.getMessage(), _dropAccount);
-            }
-        }
+    public void dropAccountTable() throws SQLException {
+        super.dropAccountTable();
+        executeStatement(DROP_ENTITY_SEQ);
     }
-
-    public void start() throws IllegalStateException {
-        try {
-            Properties properties = TestManager.getServer().getContextEnvironment();
-            initialContext = new InitialContext(properties);
     
-            /* Create database */
-            Object obj = initialContext.lookup("client/tools/DatabaseHome");
-            DatabaseHome databaseHome = (DatabaseHome) javax.rmi.PortableRemoteObject.narrow(obj, DatabaseHome.class);
-            database = databaseHome.create();
-        } catch (Exception e) {
-            throw new IllegalStateException("Cannot start database: " + e.getClass().getName() + " " + e.getMessage());
-        }
+    protected String getCreateAccount() {
+        return CREATE_ACCOUNT;
     }
 
-    public void stop() throws IllegalStateException {
+    protected String getDropAccount() {
+        return DROP_ACCOUNT;
     }
 
-    public void init(Properties props) throws IllegalStateException {
+    protected String getCreateEntity() {
+        return CREATE_ENTITY;
+    }
+
+    protected String getDropEntity() {
+        return DROP_ENTITY;
+    }
+
+    protected String getCreateEntityExplictitPK() {
+        return CREATE_ENTITY_EXPLICIT_PK;
+    }
+
+    protected String getDropEntityExplicitPK() {
+        return DROP_ENTITY_EXPLICIT_PK;
     }
 
     public static void main(String[] args) {
@@ -183,7 +128,7 @@ public class PostgreSqlTestDatabase implements TestDatabase {
 
         System.out.println("Creating entity table.");
         try {
-            stmt.execute(_createEntity);
+            stmt.execute(CREATE_ENTITY);
         } catch (SQLException e) {
             System.out.println("Couldn't create the entity table");
             e.printStackTrace();
@@ -218,7 +163,7 @@ public class PostgreSqlTestDatabase implements TestDatabase {
 
         System.out.println("Dropping the entity table.");
         try {
-            stmt.execute(_dropEntity);
+            stmt.execute(DROP_ENTITY);
         } catch (SQLException e) {
             System.out.println("Couldn't drop the entity table");
             e.printStackTrace();
