@@ -54,62 +54,54 @@ public class ValidationException extends java.lang.Exception{
     protected static Messages messages = new Messages( "org.openejb.alt.config.rules" );
     
     protected Bean bean;
-    protected String details;
+    protected Object[] details;
+    protected String message;
+
+    protected String prefix;
+
 
     public ValidationException(String message){
-        super(messages.format(message));
+        this.message = message;
     }
     
-    public ValidationException(String message, Object arg1){
-        super( messages.format(message, arg1) );
+    public void setDetails(Object arg1){
+        this.details =  new Object[]{ arg1 };
     }
 
-    public ValidationException(String message, Object arg1, Object arg2){
-        super( messages.format(message, arg1, arg2) );
+    public void setDetails(Object arg1, Object arg2){
+        this.details =  new Object[]{ arg1, arg2 };
     }
 
-    public ValidationException(String message, Object arg1, Object arg2, Object arg3){
-        super( messages.format(message, arg1, arg2, arg3) );
+    public void setDetails(Object arg1, Object arg2, Object arg3){
+        this.details =  new Object[]{ arg1, arg2, arg3 };
     }
 
-    public ValidationException(String message, Object arg1, Object arg2, Object arg3, Object arg4){
-        super( messages.format(message, arg1, arg2, arg3, arg4) );
+    public void setDetails(Object arg1, Object arg2, Object arg3, Object arg4){
+        this.details =  new Object[]{ arg1, arg2, arg3, arg4 };
     }
 
-    public ValidationException(String message, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5){
-        super( messages.format(message, arg1, arg2, arg3, arg4, arg5) );
+    public void setDetails(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5){
+        this.details =  new Object[]{ arg1, arg2, arg3, arg4, arg5 };
     }
 
-    public void setDetails(String message){
-        this.details = messages.format(message);
-    }
-    
-    public void setDetails(String message, Object arg1){
-        this.details =  messages.format(message, arg1) ;
+    public void setDetails(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6){
+        this.details =  new Object[]{ arg1, arg2, arg3, arg4, arg5, arg6 };
     }
 
-    public void setDetails(String message, Object arg1, Object arg2){
-        this.details =  messages.format(message, arg1, arg2) ;
-    }
-
-    public void setDetails(String message, Object arg1, Object arg2, Object arg3){
-        this.details =  messages.format(message, arg1, arg2, arg3) ;
-    }
-
-    public void setDetails(String message, Object arg1, Object arg2, Object arg3, Object arg4){
-        this.details =  messages.format(message, arg1, arg2, arg3, arg4) ;
-    }
-
-    public void setDetails(String message, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5){
-        this.details =  messages.format(message, arg1, arg2, arg3, arg4, arg5) ;
-    }
-
-    public String getDetails(){
+    public Object[] getDetails(){
         return details;
     }
     
     public String getSummary(){
-        return getMessage();
+        return getMessage(1);
+    }
+    
+    public String getMessage(){
+        return getMessage(2);
+    }
+
+    public String getMessage(int level){
+        return messages.format(level+"."+message, details);
     }
 
     public Bean getBean(){
@@ -118,6 +110,14 @@ public class ValidationException extends java.lang.Exception{
     
     public void setBean(Bean bean){
         this.bean = bean;
+    }
+
+    public String getPrefix(){
+        return "";
+    }
+    
+    public String getCategory() {
+        return "";
     }
 
 }

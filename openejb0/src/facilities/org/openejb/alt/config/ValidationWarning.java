@@ -53,24 +53,13 @@ public class ValidationWarning extends ValidationException{
         super( message );
     }
     
-    public ValidationWarning(String message, Object arg1){
-        super( message, arg1 );
+    public String getPrefix() {
+        return "WARN";
+    }
+    
+    public String getCategory() {
+        return "warnings";
     }
 
-    public ValidationWarning(String message, Object arg1, Object arg2){
-        super( message, arg1, arg2 );
-    }
-
-    public ValidationWarning(String message, Object arg1, Object arg2, Object arg3){
-        super( message, arg1, arg2, arg3 );
-    }
-
-    public ValidationWarning(String message, Object arg1, Object arg2, Object arg3, Object arg4){
-        super( message, arg1, arg2, arg3, arg4 );
-    }
-
-    public ValidationWarning(String message, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5){
-        super( message, arg1, arg2, arg3, arg4, arg5 );
-    }
 
 }
