@@ -73,8 +73,6 @@ public final class StatelessInstanceInterceptor implements Interceptor {
     public InvocationResult invoke(final Invocation invocation) throws Throwable {
         EJBInvocation ejbInvocation = (EJBInvocation) invocation;
 
-        assert (ejbInvocation.getType() != EJBInterfaceType.HOME && ejbInvocation.getType() != EJBInterfaceType.LOCALHOME) : "Cannot invoke home method on a SLSB";
-
         // get the context
         StatelessInstanceContext ctx = (StatelessInstanceContext) pool.acquire();
         assert ctx.getInstance() != null: "Got a context with no instance assigned";
