@@ -13,8 +13,10 @@
 
   <modules>
     <module>modules/core</module>
+    <module>modules/assembly</module>
     <module>modules/openejb-builder</module>
     <module>modules/test-ejb-jar</module>
+    <module>modules/test-ear</module>
   </modules>
 
   <repositories>
