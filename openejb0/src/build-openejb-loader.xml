@@ -120,8 +120,13 @@
          excludes="**/*Servlet.class"
          manifest="${build.openejb.dest}/MANIFEST.MF"/>
           
+    <copy file="${build.openejb.src}/org/openejb/loader/web.xml"
+         tofile="${build.openejb.dest}/web.xml" />
+    
+    <replace file="${build.openejb.dest}/web.xml" token="$$VERSION$$" value="${version}"/>
+
     <war warfile="dist/${project}_loader-${version}.war"
-         webxml="${build.openejb.src}/org/openejb/loader/web.xml">
+         webxml="${build.openejb.dest}/web.xml">
         <fileset dir="${build.openejb.src}/org/openejb/loader/">
           <include name="**/*.jsp"/>
           <exclude name="**/*.java"/>
