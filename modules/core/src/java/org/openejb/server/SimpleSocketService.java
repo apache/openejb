@@ -61,6 +61,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openejb.ContainerIndex;
+import org.openejb.OpenEJB;
 
 /**
  * @version $Revision$ $Date$
@@ -86,6 +87,11 @@ public class SimpleSocketService implements SocketService, GBean {
         service = new ServiceLogger(service);
         service = new ServiceAccessController(service, onlyFrom);
         server = service;
+
+        // TODO Horrid hack, the concept needs to survive somewhere
+        if (OpenEJB.getApplicationServer() == null){
+            OpenEJB.setApplicationServer(new ServerFederation());
+        }
     }
 
     public void setGBeanContext(GBeanContext context) {
