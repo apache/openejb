@@ -64,6 +64,7 @@ import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 
 /**
  * @version $Revision$ $Date$
@@ -106,7 +107,7 @@ public interface DeploymentTestContants {
 
     public static final ServiceReferenceBuilder serviceReferenceBuilder = new ServiceReferenceBuilder() {
         //it could return a Service or a Reference, we don't care
-        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) {
+        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) {
             return null;
         }
     };
