@@ -48,6 +48,7 @@ import org.openejb.core.ivm.naming.Reference;
 import javax.naming.NameNotFoundException;
 import org.openejb.core.ThreadContext;
 import org.openejb.core.Operations;
+import javax.naming.Context;
 
 /*
   This class is a wrapper for an Intra-VM EJB or Connector references in the 
@@ -61,7 +62,7 @@ public abstract class ENCReference implements Reference{
     
     protected Object  reference;
     protected String  jndiName;
-    protected String  openEJBContext;
+    protected String  linkedContextName;
     protected boolean checking = true;
     protected javax.naming.Context linkedContext;
     
@@ -94,7 +95,7 @@ public abstract class ENCReference implements Reference{
     */
     public ENCReference(String openEjbContext, String jndiName){
         this.jndiName = jndiName;
-        this.openEJBContext = openEjbContext;
+        this.linkedContextName = openEjbContext;
     }
     
     /*
@@ -119,20 +120,14 @@ public abstract class ENCReference implements Reference{
             checkOperation(operation);
         }
         if(reference == null){
-            if(linkedContext == null){
-                if(openEJBContext != null){
-                    linkedContext = (javax.naming.Context)org.openejb.OpenEJB.getJNDIContext().lookup(openEJBContext);
-                }else{
-                    linkedContext = org.openejb.OpenEJB.getJNDIContext();
-                }
-            }
+            Context externalContext = getLinkedContext();
             // use a federated context
-            synchronized(linkedContext){
+            synchronized(externalContext){
                 /* According to the JNDI SPI specification multiple threads may not access the same JNDI 
                 Context *instance* concurrently. Since we don't know the origines of the federated context we must
                 synchonrize access to it.  JNDI SPI Sepecifiation 1.2 Section 2.2
                 */
-                reference = linkedContext.lookup(jndiName);
+                reference = externalContext.lookup(jndiName);
             }
             
         }
@@ -141,4 +136,15 @@ public abstract class ENCReference implements Reference{
     
     public abstract void checkOperation(byte opertionType) throws NameNotFoundException;
     
+    protected Context getLinkedContext() throws javax.naming.NamingException{
+        if(linkedContext == null){
+            if(linkedContextName != null){
+                linkedContext = (javax.naming.Context)org.openejb.OpenEJB.getJNDIContext().lookup(linkedContextName);
+            }else{
+                linkedContext = org.openejb.OpenEJB.getJNDIContext();
+            }
+        }
+
+        return linkedContext;
+    }
 }
