@@ -49,6 +49,7 @@ package org.openejb.deployment;
 
 import java.lang.reflect.Method;
 import java.security.Permission;
+import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -77,6 +78,7 @@ import org.apache.geronimo.xbeans.j2ee.MethodType;
 import org.apache.geronimo.xbeans.j2ee.RoleNameType;
 import org.apache.geronimo.xbeans.j2ee.SecurityIdentityType;
 import org.apache.geronimo.xbeans.j2ee.SecurityRoleRefType;
+
 import org.openejb.security.SecurityConfiguration;
 
 
@@ -211,9 +213,9 @@ class ContainerSecurityBuilder {
                 String roleLink = roleReferences[i].getRoleLink().getStringValue();
 
                 Map roleRefPermissions = securityConfiguration.getRoleReferences();
-                Set roleLinks = (Set) roleRefPermissions.get(roleLink);
+                PermissionCollection roleLinks = (PermissionCollection) roleRefPermissions.get(roleLink);
                 if (roleLinks == null) {
-                    roleLinks = new HashSet();
+                    roleLinks = new Permissions();
                     roleRefPermissions.put(roleLink, roleLinks);
 
                 }
