@@ -20,16 +20,16 @@
   <xsl:template match="/">
 <style>
 .openejb_pageTitle {
-	font-size: 18px; 
-	font-family: arial, "Helvetica", "Arial", "sans-serif"; 
-	line-height: 28px; 
-	font-weight: bold; 
-	color: #666666;
+    font-size: 18px; 
+    font-family: arial, "Helvetica", "Arial", "sans-serif"; 
+    line-height: 28px; 
+    font-weight: bold; 
+    color: #666666;
 }
 .openejb_codeBlock { 
-	font-size: 12px; 
-	font-family: courier new, "Tahoma", "Helvetica", "Arial", "sans-serif";
-	line-height: 16px; color: #757585;
+    font-size: 12px; 
+    font-family: courier new, "Tahoma", "Helvetica", "Arial", "sans-serif";
+    line-height: 16px; color: #757585;
 }
 </style>
 <hr/>
@@ -38,9 +38,15 @@
 <h3>Version <xsl:value-of select="$current_release/attribute::id"/> - Release Date: <xsl:value-of select="$current_release/attribute::releaseDate"/></h3>
 <hr/>
 <p>CVS-TAG: <span class="openejb_codeBlock"><xsl:value-of select="$current_release/attribute::cvsTag"/></span></p>
-<ul>
-    <xsl:apply-templates select="$current_release/Entry"/>
-</ul>
+<xsl:if test="$current_release/Entry[attribute::bug]">
+<h4>Bugs:</h4>
+<ul><xsl:apply-templates select="$current_release/Entry[attribute::bug]"/></ul>
+</xsl:if>
+<xsl:if test="$current_release/Entry[attribute::task]">
+<h4>Enhancements:</h4>
+<ul><xsl:apply-templates select="$current_release/Entry[attribute::task]"/>
+    <xsl:apply-templates select="$current_release/Entry[not (@bug or @task)]"/></ul>
+</xsl:if>
   </xsl:template>
 
   <xsl:template match="Entry">

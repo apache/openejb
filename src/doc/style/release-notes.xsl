@@ -20,16 +20,16 @@
   <xsl:template match="/">
 <style>
 .openejb_pageTitle {
-	font-size: 18px; 
-	font-family: arial, "Helvetica", "Arial", "sans-serif"; 
-	line-height: 28px; 
-	font-weight: bold; 
-	color: #666666;
+    font-size: 18px; 
+    font-family: arial, "Helvetica", "Arial", "sans-serif"; 
+    line-height: 28px; 
+    font-weight: bold; 
+    color: #666666;
 }
 .openejb_codeBlock { 
-	font-size: 12px; 
-	font-family: courier new, "Tahoma", "Helvetica", "Arial", "sans-serif";
-	line-height: 16px; color: #757585;
+    font-size: 12px; 
+    font-family: courier new, "Tahoma", "Helvetica", "Arial", "sans-serif";
+    line-height: 16px; color: #757585;
 }
 </style>
 <hr/>
@@ -56,7 +56,7 @@ WinZip program.</p>
 <p>Linux users can download the tar.gz and unpack it with the 
 following command:</p>
 <span class="openejb_codeBlock">
-tar xzvf openejb-0.8beta3.tar.gz
+tar xzvf openejb-<xsl:value-of select="$current_release/attribute::cvsTag"/>.tar.gz
 </span>
 <p>If you've unpacked OpenEJB into the directory C:\openejb, for
 example, then this directory is your OPENEJB_HOME 
