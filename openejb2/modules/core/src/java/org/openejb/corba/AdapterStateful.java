@@ -61,7 +61,6 @@ import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.RequestProcessingPolicyValue;
 import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantLocator;
@@ -111,11 +110,8 @@ public class AdapterStateful extends Adapter {
     }
 
     public void stop() throws CORBAException {
-        try {
-            poa.the_POAManager().deactivate(true, true);
-        } catch (AdapterInactive e) {
-            throw new CORBAException(e);
-        }
+        super.stop();
+        poa.destroy(true, true);
     }
 
     public org.omg.CORBA.Object genObjectReference(ProxyInfo proxyInfo) throws CORBAException {

@@ -16,10 +16,15 @@
  */
 package org.openejb.test.security.slsb;
 
+import javax.ejb.CreateException;
+import javax.ejb.EJBLocalHome;
+
+
 /**
  * @version $Revision$ $Date$
  */
-public interface LocalBasicStatelessHome extends javax.ejb.EJBLocalHome {
+public interface LocalBasicStatelessHome extends EJBLocalHome {
 
-    LocalBasicStateless create() throws javax.ejb.CreateException;
+    LocalBasicStateless create() throws CreateException;
+
 }

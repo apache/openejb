@@ -53,7 +53,8 @@ import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
+import org.omg.PortableServer.POAPackage.ObjectNotActive;
+import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.PortableServer.RequestProcessingPolicyValue;
 import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantRetentionPolicyValue;
@@ -68,8 +69,9 @@ import org.openejb.proxy.ProxyInfo;
  */
 public final class AdapterStateless extends Adapter {
 
-    private POA poa;
-    private org.omg.CORBA.Object objectReference;
+    private final POA poa;
+    private final byte[] object_id;
+    private final org.omg.CORBA.Object objectReference;
 
     public AdapterStateless(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader) throws CORBAException {
         super(container, orb, parentPOA, tieLoader);
@@ -92,7 +94,7 @@ public final class AdapterStateless extends Adapter {
                 ((Tie) servant).setTarget(obj);
             }
 
-            poa.activate_object_with_id(container.getContainerID().toString().getBytes(), servant);
+            poa.activate_object_with_id(object_id = container.getContainerID().toString().getBytes(), servant);
             objectReference = poa.servant_to_reference(servant);
         } catch (Exception e) {
             throw new CORBAException(e);
@@ -101,8 +103,12 @@ public final class AdapterStateless extends Adapter {
 
     public void stop() throws CORBAException {
         try {
-            poa.the_POAManager().deactivate(true, true);
-        } catch (AdapterInactive e) {
+            super.stop();
+            poa.deactivate_object(object_id);
+            poa.destroy(true, true);
+        } catch (ObjectNotActive e) {
+            throw new CORBAException(e);
+        } catch (WrongPolicy e) {
             throw new CORBAException(e);
         }
     }

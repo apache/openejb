@@ -53,6 +53,7 @@ import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.CosNaming.NamingContextHelper;
 import org.omg.CosNaming.NamingContextPackage.NotEmpty;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
@@ -100,13 +101,12 @@ public abstract class Adapter implements RefGenerator {
                     nc[0] = nameComponent[j];
                     try {
                         currentContext = NamingContextHelper.narrow(currentContext.resolve(nc));
-                    } catch (org.omg.CosNaming.NamingContextPackage.NotFound nf) {
+                    } catch (NotFound nf) {
                         currentContext = currentContext.bind_new_context(nc);
                     }
                 }
                 nc[0] = nameComponent[lastComponent];
                 currentContext.rebind(nc, homeReference);
-                initialContext.resolve(nameComponent);
             }
         } catch (Exception e) {
             throw new CORBAException(e);
@@ -141,9 +141,8 @@ public abstract class Adapter implements RefGenerator {
                     System.arraycopy(nameComponent, 0, nc, 0, j);
                     NamingContext currentContext = NamingContextHelper.narrow(initialContext.resolve(nc));
                     try {
-                        initialContext.unbind(nc);
                         currentContext.destroy();
-                    } catch (NotEmpty nf) {
+                    } catch (NotEmpty ne) {
                         break;
                     }
                 }

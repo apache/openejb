@@ -17,12 +17,15 @@
 package org.openejb.test.security.slsb;
 
 import java.rmi.RemoteException;
+import javax.ejb.CreateException;
+import javax.ejb.EJBHome;
 
 
 /**
  * @version $Revision$ $Date$
  */
-public interface BasicStatelessHome extends javax.ejb.EJBHome {
+public interface BasicStatelessHome extends EJBHome {
 
-    BasicStateless create() throws RemoteException, javax.ejb.CreateException;
+    BasicStateless create() throws RemoteException, CreateException;
+
 }

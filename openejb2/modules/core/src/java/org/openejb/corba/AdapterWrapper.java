@@ -94,7 +94,6 @@ public final class AdapterWrapper {
     public void stop() throws CORBAException {
         generator.stop();
         adapters.remove(container.getContainerID());
-
     }
 
     public static RefGenerator getRefGenerator(String containerId) {

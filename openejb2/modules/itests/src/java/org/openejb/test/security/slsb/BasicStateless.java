@@ -16,14 +16,14 @@
  */
 package org.openejb.test.security.slsb;
 
-import javax.ejb.EJBObject;
 import java.rmi.RemoteException;
+import javax.ejb.EJBObject;
 
 
 /**
  * @version $Revision$ $Date$
  */
-public interface BasicStateless extends javax.ejb.EJBObject {
+public interface BasicStateless extends EJBObject {
 
     public String noAccessMethod(String argument1) throws RemoteException;
 
@@ -50,4 +50,5 @@ public interface BasicStateless extends javax.ejb.EJBObject {
     public String unassignedMethod(String argument1, String argument2) throws RemoteException;
 
     public boolean isInRole(String roleName) throws RemoteException;
+
 }

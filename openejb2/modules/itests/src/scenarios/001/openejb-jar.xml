@@ -11,21 +11,68 @@
     </dependency>
 
     <enterprise-beans>
-        <!--
-            ########################################################
-            Stateless
-            ########################################################
-        -->
+
+        <entity>
+            <ejb-name>BasicCmpBean</ejb-name>
+            <jndi-name>security/001/cmp/BasicCmpHome</jndi-name>
+            <table-name>entity</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>firstName</cmp-field-name>
+                <table-column>first_name</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>lastName</cmp-field-name>
+                <table-column>last_name</table-column>
+            </cmp-field-mapping>
+            <automatic-key-generation>
+                <generator-name>geronimo.server:role=CMPPKGenerator,name=SecurityEntity</generator-name>
+                <primary-key-class>java.lang.Integer</primary-key-class>
+            </automatic-key-generation>
+            <resource-ref>
+                <ref-name>jdbc/basic/entityDatabase</ref-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
+            </resource-ref>
+        </entity>
+
+        <entity>
+            <ejb-name>BasicCmp2Bean</ejb-name>
+            <jndi-name>security/001/cmp2/BasicCmpHome</jndi-name>
+            <table-name>entity</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>firstName</cmp-field-name>
+                <table-column>first_name</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>lastName</cmp-field-name>
+                <table-column>last_name</table-column>
+            </cmp-field-mapping>
+            <automatic-key-generation>
+                <generator-name>geronimo.server:role=CMPPKGenerator,name=SecurityEntity</generator-name>
+                <primary-key-class>java.lang.Integer</primary-key-class>
+            </automatic-key-generation>
+            <resource-ref>
+                <ref-name>jdbc/basic/entityDatabase</ref-name>
+                <application>null</application>
+                <module>org/apache/geronimo/DefaultDatabase</module>
+                <name>DefaultDatasource</name>
+            </resource-ref>
+        </entity>
+
         <session>
             <ejb-name>BasicStatelessBean</ejb-name>
             <jndi-name>security/001/BasicStatelessHome</jndi-name>
         </session>
 
-        <!--
-            ########################################################
-            Stateful
-            ########################################################
-        -->
         <session>
             <ejb-name>BasicStatefulBean</ejb-name>
             <jndi-name>security/001/BasicStatefulHome</jndi-name>
@@ -69,5 +116,11 @@
             </sec:role>
         </sec:role-mappings>
     </sec:security>
+
+    <gbean name="geronimo.server:role=CMPPKGenerator,name=SecurityEntity" class="org.openejb.entity.cmp.pkgenerator.AutoIncrementTablePrimaryKeyGeneratorWrapper">
+        <reference name="ManagedConnectionFactoryWrapper">geronimo.server:J2EEServer=geronimo,J2EEApplication=null,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</reference>
+        <attribute name="sql" type="java.lang.String">INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</attribute>
+        <attribute name="returnType" type="java.lang.Class">java.lang.Integer</attribute>
+    </gbean>
 
 </openejb-jar>

@@ -50,4 +50,5 @@ public interface BasicStateful extends EJBObject {
     public String unassignedMethod(String argument1, String argument2) throws RemoteException;
 
     public boolean isInRole(String roleName) throws RemoteException;
+
 }

@@ -27,4 +27,5 @@ import javax.ejb.EJBHome;
 public interface BasicStatefulHome extends EJBHome {
 
     BasicStateful create(String name) throws RemoteException, CreateException;
+
 }

@@ -18,82 +18,82 @@ package org.openejb.test.security.slsb;
 
 import javax.ejb.CreateException;
 import javax.ejb.EJBException;
+import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
-import java.rmi.RemoteException;
 
 
 /**
  * @version $Revision$ $Date$
  */
-public class BasicStatelessBean implements javax.ejb.SessionBean {
+public class BasicStatelessBean implements SessionBean {
 
     private SessionContext sessionContext;
 
-    public String noAccessMethod(String argument1) throws RemoteException {
+    public String noAccessMethod(String argument1) {
         return argument1;
     }
 
-    public String noAccessMethod(String argument1, String argument2) throws RemoteException {
+    public String noAccessMethod(String argument1, String argument2) {
         return argument1 + argument2;
     }
 
-    public String highSecurityMethod(String argument1) throws RemoteException {
+    public String highSecurityMethod(String argument1) {
         return argument1;
     }
 
-    public String highSecurityMethod(String argument1, String argument2) throws RemoteException {
+    public String highSecurityMethod(String argument1, String argument2) {
         return argument1 + argument2;
     }
 
-    public String mediumSecurityMethod(String argument1) throws RemoteException {
+    public String mediumSecurityMethod(String argument1) {
         return argument1;
     }
 
-    public String mediumSecurityMethod(String argument1, String argument2) throws RemoteException {
+    public String mediumSecurityMethod(String argument1, String argument2) {
         return argument1 + argument2;
     }
 
-    public String lowSecurityMethod(String argument1) throws RemoteException {
+    public String lowSecurityMethod(String argument1) {
         return argument1;
     }
 
-    public String lowSecurityMethod(String argument1, String argument2) throws RemoteException {
+    public String lowSecurityMethod(String argument1, String argument2) {
         return argument1 + argument2;
     }
 
-    public String allAccessMethod(String argument1) throws RemoteException {
+    public String allAccessMethod(String argument1) {
         return argument1;
     }
 
-    public String allAccessMethod(String argument1, String argument2) throws RemoteException {
+    public String allAccessMethod(String argument1, String argument2) {
         return argument1 + argument2;
     }
 
-    public String unassignedMethod(String argument1) throws RemoteException {
+    public String unassignedMethod(String argument1) {
         return argument1;
     }
 
-    public String unassignedMethod(String argument1, String argument2) throws RemoteException {
+    public String unassignedMethod(String argument1, String argument2) {
         return argument1 + argument2;
     }
 
-    public boolean isInRole(String roleName) throws RemoteException {
+    public boolean isInRole(String roleName) {
         return sessionContext.isCallerInRole(roleName);
     }
 
     public void ejbCreate() throws CreateException {
     }
 
-    public void ejbActivate() throws EJBException, RemoteException {
+    public void ejbActivate() throws EJBException {
     }
 
-    public void ejbPassivate() throws EJBException, RemoteException {
+    public void ejbPassivate() throws EJBException {
     }
 
-    public void ejbRemove() throws EJBException, RemoteException {
+    public void ejbRemove() throws EJBException {
     }
 
-    public void setSessionContext(SessionContext sessionContext) throws EJBException, RemoteException {
+    public void setSessionContext(SessionContext sessionContext) throws EJBException {
         this.sessionContext = sessionContext;
     }
 }
