@@ -74,15 +74,15 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
-import org.openejb.dd.webservices.PortComponent;
-import org.openejb.dd.webservices.ServiceImplBean;
-import org.openejb.dd.webservices.WebServiceDescription;
-import org.openejb.dd.webservices.WebServices;
-import org.openejb.dd.webservices.WebServicesFactory;
+import org.apache.geronimo.webservices.*;
+import org.apache.geronimo.validator.ValidationContext;
+import org.apache.geronimo.validator.ValidationError;
+import org.apache.geronimo.validator.ValidationFailure;
 import org.openejb.server.soap.WSContainerGBean;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 
 public class WSContainerBuilder {
+
 
     private static final Log log = LogFactory.getLog(WSContainerBuilder.class);
 
@@ -165,6 +165,26 @@ public class WSContainerBuilder {
             log.warn("Target namespace declared, but not included in document namespace declarations: "+wsdlURL);
         }
 
+        LightWeightMappingValidator validator = new LightWeightMappingValidator(definition);
+        ValidationContext result = validator.validate();
+        if (result.hasErrors()){
+            log.info("Unable to deploy web service");
+            ValidationError[] errors = result.getErrors();
+            for (int i = 0; i < errors.length; i++) {
+                log.error(errors[i]);
+            }
+            throw new DeploymentException("Unable to deploy web service.  See log for details");
+        }
+        if (result.hasFailures()){
+            log.info("The web service could not be deployed as it doesn't meed the following requirements for light-weight mapping");
+            ValidationFailure[] failures = result.getFailures();
+            for (int i = 0; i < failures.length; i++) {
+                log.info(failures[i]);
+            }
+            throw new DeploymentException("Invalid light-weight mapping.  See log for details");
+        }
+
+
         String[] strings = portComponent.getWsdlPort().split(":");
         String portName = strings[strings.length - 1];
 
@@ -226,7 +246,7 @@ public class WSContainerBuilder {
             throw new DeploymentException("Cannot determine the encoding of the binding: "+port.getBinding().getQName());
         }
 
-        GBeanData gBean = WSContainerGBean.createGBean(ejbName, sessionObjectName, location, wsdlURL, definition.getTargetNamespace(), encoding, style);
+        GBeanData gBean = WSContainerGBean.createGBean(ejbName, sessionObjectName, definition, location, wsdlURL, definition.getTargetNamespace(), encoding, style);
         return gBean;
     }
 

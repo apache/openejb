@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <definitions name="SimpleService" targetNamespace="http://openejb.org/test-ejb-jar"
-    xmlns:test="http://openb.org/test-ejb-jar"
+    xmlns:test="http://openejb.org/test-ejb-jar"
     xmlns="http://schemas.xmlsoap.org/wsdl/"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-    >
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
 
     <types/>
 

@@ -81,9 +81,6 @@
         <uri>xfire/jars/xfire-java-${xfire_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>xfire/jars/xfire-jaxrpc-${xfire_version}.jar</uri>
-    </dependency>
-    <dependency>
         <uri>wsdl4j/jars/wsdl4j-${wsdl4j_version}.jar</uri>
     </dependency>
     <dependency>

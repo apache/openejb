@@ -174,7 +174,7 @@ public class ServiceDaemon implements GBeanLifecycle {
                     }
                 } catch (SocketTimeoutException e) {
                     // we don't really care
-                    log.debug("Socket timed-out",e);
+                    // log.debug("Socket timed-out",e);
                 } catch (Throwable e) {
                     log.error("Unexpected error", e);
                 }
