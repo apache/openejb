@@ -57,7 +57,7 @@ import java.lang.reflect.Method;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @since 11/25/2001
  */
-public class EJBRequest implements Externalizable, RequestMethods {
+public class EJBRequest implements Request {
 
     private transient int      requestMethod;
     private transient int      deploymentCode = 0;
@@ -90,6 +90,10 @@ public class EJBRequest implements Externalizable, RequestMethods {
         this.requestMethod = requestMethod;
     }
 
+    public byte getRequestType(){
+        return EJB_REQUEST;
+    }
+    
     public int getRequestMethod(){
         return requestMethod;
     }

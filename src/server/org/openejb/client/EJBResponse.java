@@ -54,7 +54,7 @@ import java.io.ObjectOutput;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @since 11/25/2001
  */
-public class EJBResponse implements Externalizable, ResponseCodes {
+public class EJBResponse implements Response {
     
 
     private transient int responseCode = -1;

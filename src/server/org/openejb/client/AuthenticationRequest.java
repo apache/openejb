@@ -54,7 +54,7 @@ import java.io.ObjectOutput;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @since 11/25/2001
  */
-public class AuthenticationRequest implements Externalizable, RequestMethods {
+public class AuthenticationRequest implements Request {
     
     /**
      * The principle of the client.  Can be a user name or some other id.
@@ -82,6 +82,11 @@ public class AuthenticationRequest implements Externalizable, RequestMethods {
         this.principle   = principle;
         this.credentials = credentials;
     }
+    
+    public byte getRequestType(){
+        return AUTH_REQUEST;
+    }
+    
 
     /**
      * Returns the client's principle.

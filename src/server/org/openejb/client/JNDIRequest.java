@@ -55,7 +55,7 @@ import javax.naming.*;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @since 11/25/2001
  */
-public class JNDIRequest implements Externalizable, RequestMethods {
+public class JNDIRequest implements Request {
     
     private transient int requestMethod = -1;
     private transient String requestString;
@@ -68,6 +68,10 @@ public class JNDIRequest implements Externalizable, RequestMethods {
         this.requestString = requestString;
     }
 
+    public byte getRequestType(){
+        return JNDI_REQUEST;
+    }
+    
     public int getRequestMethod(){
         return requestMethod;
     }
