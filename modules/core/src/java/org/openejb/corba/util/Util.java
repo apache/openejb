@@ -69,8 +69,6 @@ import org.omg.IOP.Codec;
 import org.omg.IOP.CodecFactory;
 import org.omg.IOP.ENCODING_CDR_ENCAPS;
 import org.omg.IOP.Encoding;
-import org.openorb.util.HexPrintStream;
-
 
 /**
  * Various utility functions.
@@ -263,7 +261,8 @@ public final class Util {
                             bais.read(name_arr, 0, name_len);
                             result = new String(name_arr);
                         } else {
-                            System.err.print("ASN1Utils.gssImportName: Unknown OID: " + oid + " ('" + HexPrintStream.toHex(oid_arr) + "')");
+                            System.err.print("ASN1Utils.gssImportName: Unknown OID: " + oid +
+                                    " ('" + Integer.toHexString(oid_arr[0]) + "')");
                         }
                     }
                 }
