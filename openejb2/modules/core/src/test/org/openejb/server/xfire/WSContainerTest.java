@@ -42,7 +42,7 @@
  *
  * $Id$
  */
-package org.openejb.server.soap;
+package org.openejb.server.xfire;
 
 import java.io.File;
 import java.io.IOException;
@@ -239,7 +239,7 @@ public class WSContainerTest extends TestCase {
         }
 
         public static ObjectName addGBean(Kernel kernel, String name, ObjectName wsContainer) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-            ClassLoader classLoader = org.openejb.server.soap.SoapHttpListener.class.getClassLoader();
+            ClassLoader classLoader = org.openejb.server.xfire.SoapHttpListener.class.getClassLoader();
             ObjectName SERVICE_NAME = JMXUtil.getObjectName("openejb:type=TestSoapHttpListener,name=" + name);
 
             GBeanData gbean = new GBeanData(SERVICE_NAME, TestSoapHttpListener.GBEAN_INFO);
