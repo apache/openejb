@@ -162,6 +162,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         SystemMethodIndices systemMethodIndices = contextFactory.setSignatures(getSignatures());
 
         // build the interceptor chain
+        interceptorBuilder.setKernel(kernel);
+        interceptorBuilder.setClassLoader(classLoader);
         interceptorBuilder.setTransactionContextManager(transactionContextManager);
         interceptorBuilder.setTrackedConnectionAssociator(trackedConnectionAssociator);
         interceptorBuilder.setInstancePool(pool);

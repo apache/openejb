@@ -52,6 +52,7 @@ import javax.security.auth.Subject;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.kernel.Kernel;
 import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstanceFactory;
 import org.openejb.cache.InstancePool;
@@ -81,7 +82,13 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
     protected InstanceCache instanceCache;
     protected InstanceFactory instanceFactory;
 
+    public void setKernel(Kernel kernel) {
+        componentContext.setKernel(kernel);
+    }
 
+    public void setClassLoader(ClassLoader classLoader) {
+        componentContext.setClassLoader(classLoader);
+    }
     public void setContainerId(Object containerId) {
         assert (containerId != null) : "containerId is null";
         this.containerId = containerId;
