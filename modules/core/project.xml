@@ -229,6 +229,15 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-management</artifactId>
+            <version>${geronimo_spec_j2ee_management_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${geronimo_version}</version>
