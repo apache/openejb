@@ -88,6 +88,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
+
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.ContainerIndex;
 import org.openejb.DeploymentHelper;
@@ -148,7 +149,11 @@ public class EJBConfigBuilderTest extends TestCase {
         );
         try {
             Thread.currentThread().setContextClassLoader(cl);
-            configBuilder.createSessionBean(earContext, new EJBModule("TestModule", URI.create("/")), "containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, cl);
+            //     ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor().getMethodPermissionArray(),
+
+            EJBModule module = new EJBModule("TestModule", URI.create("/"));
+            module.setSpecDD(ejbJar);
+            configBuilder.createSessionBean(earContext, module, "containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, null, cl);
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }

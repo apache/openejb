@@ -67,6 +67,7 @@ import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.VirtualOperation;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.security.PermissionManager;
+import org.openejb.security.SecurityConfiguration;
 import org.openejb.transaction.TransactionPolicyManager;
 import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.ContainerPolicy;
@@ -86,8 +87,13 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private String remoteInterfaceName;
     private String localHomeInterfaceName;
     private String localInterfaceName;
+    private String serviceEndpointName;
     private String primaryKeyClassName;
     private Subject runAs;
+    private boolean doAsCurrentCaller = false;
+    private boolean securityEnabled = false;
+    private boolean useContextHandler = false;
+    private SecurityConfiguration securityConfiguration;
     private ReadOnlyContext componentContext;
     private Set unshareableResources;
     private Set applicationManagedSecurityResources;
@@ -166,6 +172,14 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         this.localInterfaceName = localInterfaceName;
     }
 
+    public String getServiceEndpointName() {
+        return serviceEndpointName;
+    }
+
+    public void setServiceEndpointName(String serviceEndpointName) {
+        this.serviceEndpointName = serviceEndpointName;
+    }
+
     public String getPrimaryKeyClassName() {
         return primaryKeyClassName;
     }
@@ -180,6 +194,38 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
 
     public void setRunAs(Subject runAs) {
         this.runAs = runAs;
+    }
+
+    public boolean isDoAsCurrentCaller() {
+        return doAsCurrentCaller;
+    }
+
+    public void setDoAsCurrentCaller(boolean doAsCurrentCaller) {
+        this.doAsCurrentCaller = doAsCurrentCaller;
+    }
+
+    public boolean isSecurityEnabled() {
+        return securityEnabled;
+    }
+
+    public void setSecurityEnabled(boolean securityEnabled) {
+        this.securityEnabled = securityEnabled;
+    }
+
+    public boolean isUseContextHandler() {
+        return useContextHandler;
+    }
+
+    public void setUseContextHandler(boolean useContextHandler) {
+        this.useContextHandler = useContextHandler;
+    }
+
+    public SecurityConfiguration getSecurityConfiguration() {
+        return securityConfiguration;
+    }
+
+    public void setSecurityConfiguration(SecurityConfiguration securityConfiguration) {
+        this.securityConfiguration = securityConfiguration;
     }
 
     public ReadOnlyContext getComponentContext() {
@@ -287,6 +333,9 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         interceptorBuilder.setEJBName(ejbName);
         interceptorBuilder.setVtable(vtable);
         interceptorBuilder.setRunAs(runAs);
+        interceptorBuilder.setDoAsCurrentCaller(doAsCurrentCaller);
+        interceptorBuilder.setSecurityEnabled(securityEnabled);
+        interceptorBuilder.setUseContextHandler(useContextHandler);
         interceptorBuilder.setComponentContext(componentContext);
         interceptorBuilder.setTransactionPolicyManager(new TransactionPolicyManager(transactionPolicySource, signatures));
         interceptorBuilder.setPermissionManager(new PermissionManager(ejbName, signatures));
@@ -343,7 +392,8 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 getTrackedConnectionAssociator(),
                 null, //timer
                 null, //objectname
-                null);//kernel
+                null, //kernel
+                getSecurityConfiguration());
     }
 
     protected GBeanMBean createConfiguration(
@@ -354,17 +404,18 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
             ObjectName timerName) throws Exception {
 
         GBeanMBean gbean = new GBeanMBean(GenericEJBContainer.GBEAN_INFO, cl);
-        gbean.setAttribute("containerID", getContainerId());
-        gbean.setAttribute("ejbName", getEJBName());
-        gbean.setAttribute("proxyInfo", createProxyInfo());
-        gbean.setAttribute("signatures", signatures);
-        gbean.setAttribute("contextFactory", contextFactory);
-        gbean.setAttribute("interceptorBuilder", interceptorBuilder);
-        gbean.setAttribute("pool", pool);
-        gbean.setAttribute("userTransaction", getUserTransaction());
-        gbean.setAttribute("jndiNames", getJndiNames());
-        gbean.setAttribute("localJndiNames", getLocalJndiNames());
+        gbean.setAttribute("ContainerID", getContainerId());
+        gbean.setAttribute("EJBName", getEJBName());
+        gbean.setAttribute("ProxyInfo", createProxyInfo());
+        gbean.setAttribute("Signatures", signatures);
+        gbean.setAttribute("ContextFactory", contextFactory);
+        gbean.setAttribute("InterceptorBuilder", interceptorBuilder);
+        gbean.setAttribute("Pool", pool);
+        gbean.setAttribute("UserTransaction", getUserTransaction());
+        gbean.setAttribute("JndiNames", getJndiNames());
+        gbean.setAttribute("LocalJndiNames", getLocalJndiNames());
         gbean.setReferencePattern("Timer", timerName);
+        gbean.setAttribute("SecurityConfiguration", getSecurityConfiguration());
 
         return gbean;
     }

@@ -62,6 +62,7 @@ import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
+import org.openejb.security.SecurityConfiguration;
 
 /**
  * @version $Revision$ $Date$
@@ -166,6 +167,7 @@ public class BasicStatelessContainerTest extends TestCase {
                 return ContainerPolicy.Required;
             }
         });
+        builder.setSecurityConfiguration(new SecurityConfiguration());
         builder.setComponentContext(new ReadOnlyContext());
         container = builder.createConfiguration();
 

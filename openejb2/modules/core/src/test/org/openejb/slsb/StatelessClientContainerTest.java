@@ -65,6 +65,7 @@ import junit.framework.TestCase;
 import junit.framework.AssertionFailedError;
 import org.openejb.EJBContainer;
 import org.openejb.MockTransactionManager;
+import org.openejb.security.SecurityConfiguration;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.ContainerPolicy;
@@ -220,6 +221,7 @@ public class StatelessClientContainerTest extends TestCase {
                 return ContainerPolicy.Required;
             }
         });
+        builder.setSecurityConfiguration(new SecurityConfiguration());
         builder.setComponentContext(new ReadOnlyContext());
         builder.setTransactionContextManager(new TransactionContextManager(new MockTransactionManager()));
         builder.setTrackedConnectionAssociator(new ConnectionTrackingCoordinator());
