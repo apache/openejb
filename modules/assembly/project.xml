@@ -37,10 +37,17 @@
             </properties>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-jca</artifactId>
             <version>${pom.currentVersion}</version>
+        </dependency-->
+
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql-connector</artifactId>
+            <version>SNAPSHOT</version>
+            <type>rar</type>
         </dependency>
 
         <dependency>
@@ -145,6 +152,15 @@
                 <lib>true</lib>
                 <server>true</server>
                 <deploy>true</deploy>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-timer</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <properties>
                 <repository>true</repository>
             </properties>
         </dependency>
