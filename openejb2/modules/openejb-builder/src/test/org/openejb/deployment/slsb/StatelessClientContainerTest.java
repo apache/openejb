@@ -229,7 +229,7 @@ public class StatelessClientContainerTest extends TestCase {
         });
         builder.setSecurityConfiguration(new SecurityConfiguration());
         builder.setComponentContext(new ReadOnlyContext());
-        builder.setTransactionContextManager(new TransactionContextManager(new MockTransactionManager(), null, null));
+        builder.setTransactionContextManager(new TransactionContextManager(new MockTransactionManager(), null));
         builder.setTrackedConnectionAssociator(new ConnectionTrackingCoordinator());
         container = builder.createContainer();
     }
