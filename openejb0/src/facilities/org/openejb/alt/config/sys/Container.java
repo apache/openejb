@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -56,6 +56,9 @@ public class Container implements java.io.Serializable {
     //-----------/
 
     /**
+     * Returns the value of field 'content'. The field 'content'
+     * has the following description: internal content storage
+     * @return the value of field 'content'.
     **/
     public java.lang.String getContent()
     {
@@ -63,6 +66,8 @@ public class Container implements java.io.Serializable {
     } //-- java.lang.String getContent() 
 
     /**
+     * Returns the value of field 'ctype'.
+     * @return the value of field 'ctype'.
     **/
     public java.lang.String getCtype()
     {
@@ -70,6 +75,8 @@ public class Container implements java.io.Serializable {
     } //-- java.lang.String getCtype() 
 
     /**
+     * Returns the value of field 'id'.
+     * @return the value of field 'id'.
     **/
     public java.lang.String getId()
     {
@@ -77,6 +84,8 @@ public class Container implements java.io.Serializable {
     } //-- java.lang.String getId() 
 
     /**
+     * Returns the value of field 'jar'.
+     * @return the value of field 'jar'.
     **/
     public java.lang.String getJar()
     {
@@ -119,39 +128,40 @@ public class Container implements java.io.Serializable {
     } //-- void marshal(org.xml.sax.DocumentHandler) 
 
     /**
-     * 
-     * @param _content
+     * Sets the value of field 'content'. The field 'content' has
+     * the following description: internal content storage
+     * @param content the value of field 'content'.
     **/
-    public void setContent(java.lang.String _content)
+    public void setContent(java.lang.String content)
     {
-        this._content = _content;
+        this._content = content;
     } //-- void setContent(java.lang.String) 
 
     /**
-     * 
-     * @param _ctype
+     * Sets the value of field 'ctype'.
+     * @param ctype the value of field 'ctype'.
     **/
-    public void setCtype(java.lang.String _ctype)
+    public void setCtype(java.lang.String ctype)
     {
-        this._ctype = _ctype;
+        this._ctype = ctype;
     } //-- void setCtype(java.lang.String) 
 
     /**
-     * 
-     * @param _id
+     * Sets the value of field 'id'.
+     * @param id the value of field 'id'.
     **/
-    public void setId(java.lang.String _id)
+    public void setId(java.lang.String id)
     {
-        this._id = _id;
+        this._id = id;
     } //-- void setId(java.lang.String) 
 
     /**
-     * 
-     * @param _jar
+     * Sets the value of field 'jar'.
+     * @param jar the value of field 'jar'.
     **/
-    public void setJar(java.lang.String _jar)
+    public void setJar(java.lang.String jar)
     {
-        this._jar = _jar;
+        this._jar = jar;
     } //-- void setJar(java.lang.String) 
 
     /**

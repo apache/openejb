@@ -50,7 +50,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Vector;
-import java.util.Vector;
 import javax.naming.CompositeName;
 import javax.naming.Context;
 import javax.naming.InvalidNameException;

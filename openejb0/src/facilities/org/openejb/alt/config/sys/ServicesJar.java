@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -58,6 +58,17 @@ public class ServicesJar implements java.io.Serializable {
     {
         _serviceProviderList.addElement(vServiceProvider);
     } //-- void addServiceProvider(ServiceProvider) 
+
+    /**
+     * 
+     * @param index
+     * @param vServiceProvider
+    **/
+    public void addServiceProvider(int index, ServiceProvider vServiceProvider)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _serviceProviderList.insertElementAt(vServiceProvider, index);
+    } //-- void addServiceProvider(int, ServiceProvider) 
 
     /**
     **/
@@ -148,7 +159,7 @@ public class ServicesJar implements java.io.Serializable {
     **/
     public ServiceProvider removeServiceProvider(int index)
     {
-        Object obj = _serviceProviderList.elementAt(index);
+        java.lang.Object obj = _serviceProviderList.elementAt(index);
         _serviceProviderList.removeElementAt(index);
         return (ServiceProvider) obj;
     } //-- ServiceProvider removeServiceProvider(int) 

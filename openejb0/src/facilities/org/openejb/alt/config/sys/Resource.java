@@ -23,7 +23,7 @@ import org.xml.sax.DocumentHandler;
  * 
  * @version $Revision$ $Date$
 **/
-public class TransactionService implements java.io.Serializable {
+public class Resource implements java.io.Serializable {
 
 
       //--------------------------/
@@ -33,6 +33,8 @@ public class TransactionService implements java.io.Serializable {
     private java.lang.String _id;
 
     private java.lang.String _jar;
+
+    private java.lang.String _jndi;
 
     /**
      * internal content storage
@@ -44,9 +46,9 @@ public class TransactionService implements java.io.Serializable {
      //- Constructors -/
     //----------------/
 
-    public TransactionService() {
+    public Resource() {
         super();
-    } //-- org.openejb.alt.config.sys.TransactionService()
+    } //-- org.openejb.alt.config.sys.Resource()
 
 
       //-----------/
@@ -80,6 +82,15 @@ public class TransactionService implements java.io.Serializable {
     {
         return this._jar;
     } //-- java.lang.String getJar() 
+
+    /**
+     * Returns the value of field 'jndi'.
+     * @return the value of field 'jndi'.
+    **/
+    public java.lang.String getJndi()
+    {
+        return this._jndi;
+    } //-- java.lang.String getJndi() 
 
     /**
     **/
@@ -145,14 +156,23 @@ public class TransactionService implements java.io.Serializable {
     } //-- void setJar(java.lang.String) 
 
     /**
+     * Sets the value of field 'jndi'.
+     * @param jndi the value of field 'jndi'.
+    **/
+    public void setJndi(java.lang.String jndi)
+    {
+        this._jndi = jndi;
+    } //-- void setJndi(java.lang.String) 
+
+    /**
      * 
      * @param reader
     **/
-    public static org.openejb.alt.config.sys.TransactionService unmarshal(java.io.Reader reader)
+    public static org.openejb.alt.config.sys.Resource unmarshal(java.io.Reader reader)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
-        return (org.openejb.alt.config.sys.TransactionService) Unmarshaller.unmarshal(org.openejb.alt.config.sys.TransactionService.class, reader);
-    } //-- org.openejb.alt.config.sys.TransactionService unmarshal(java.io.Reader) 
+        return (org.openejb.alt.config.sys.Resource) Unmarshaller.unmarshal(org.openejb.alt.config.sys.Resource.class, reader);
+    } //-- org.openejb.alt.config.sys.Resource unmarshal(java.io.Reader) 
 
     /**
     **/
