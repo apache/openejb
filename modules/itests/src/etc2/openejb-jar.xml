@@ -41,7 +41,7 @@
         </session>
         <session>
             <ejb-name>BMT StatelessBean</ejb-name>
-            <jndi-name>client/tests/stateless/BeanManagedTransactionTests</jndi-name>
+            <jndi-name>client/tests/stateless/BeanManagedTransactionTests/EJBHome</jndi-name>
             <resource-ref>
                 <ref-name>database</ref-name>
                 <target-name>DefaultDatasource</target-name>
