@@ -68,6 +68,10 @@ import org.openejb.core.entity.EntityContainer;
 import org.openejb.core.stateful.StatefulContainer;
 import org.openejb.core.stateful.StatefulInstanceManager;
 import org.openejb.core.stateless.StatelessContainer;
+import org.openejb.core.ivm.naming.Reference;
+import org.openejb.core.ivm.naming.IntraVmJndiReference;
+import org.openejb.core.ivm.naming.JndiReference;
+import org.openejb.core.ivm.naming.ObjectReference;
 import org.openejb.spi.SecurityService;
 import org.openejb.spi.TransactionService;
 import org.openejb.util.OpenEJBErrorHandler;
@@ -886,12 +890,13 @@ public class AssemblerTool {
             if (reference.resourceID != null){
                 try{
                 String jndiName = "java:openejb/connector/"+reference.resourceID;
+                Reference ref2 = new IntraVmJndiReference( jndiName );
                 if(EntityBeanInfo.class.isAssignableFrom(bean.getClass()))
-                    ref = new org.openejb.core.entity.EncReference(jndiName);
+                    ref = new org.openejb.core.entity.EncReference( ref2 );
                 else if(StatefulBeanInfo.class.isAssignableFrom(bean.getClass()))
-                    ref = new org.openejb.core.stateful.EncReference(jndiName);
+                    ref = new org.openejb.core.stateful.EncReference( ref2 );
                 else if(StatelessBeanInfo.class.isAssignableFrom(bean.getClass()))
-                    ref = new org.openejb.core.stateless.EncReference(jndiName);
+                    ref = new org.openejb.core.stateless.EncReference( ref2 );
                     
                 }catch(Exception e){ 
                     // TODO: Better excption handling so we don't need this
@@ -904,13 +909,14 @@ public class AssemblerTool {
             }else{
                 String openEjbSubContextName = "java:openejb/remote_jndi_contexts/"+reference.location.jndiContextId;
                 String jndiName = reference.location.remoteRefName;
-                
+                Reference ref2 = new JndiReference( openEjbSubContextName, jndiName );
+
                 if(StatefulBeanInfo.class.isAssignableFrom(bean.getClass()))
-                    ref = new org.openejb.core.stateful.EncReference(openEjbSubContextName,jndiName);
+                    ref = new org.openejb.core.stateful.EncReference( ref2 );
                 else if(StatelessBeanInfo.class.isAssignableFrom(bean.getClass()))
-                    ref = new org.openejb.core.stateless.EncReference(openEjbSubContextName,jndiName);
+                    ref = new org.openejb.core.stateless.EncReference( ref2 );
                 else
-                    ref = new org.openejb.core.entity.EncReference(openEjbSubContextName,jndiName);
+                    ref = new org.openejb.core.entity.EncReference( ref2 );
             }
         
             if(ref!=null){
@@ -941,22 +947,24 @@ public class AssemblerTool {
             Object ref = null;
             if (!reference.location.remote){
                 String jndiName = "java:openejb/ejb/"+reference.location.ejbDeploymentId;
+                Reference ref2 = new IntraVmJndiReference( jndiName );
                 if(StatefulBeanInfo.class.isAssignableFrom(bean.getClass()))
-                    ref = new org.openejb.core.stateful.EncReference(jndiName);
+                    ref = new org.openejb.core.stateful.EncReference( ref2 );
                 else if(StatelessBeanInfo.class.isAssignableFrom(bean.getClass()))
-                    ref = new org.openejb.core.stateless.EncReference(jndiName);
+                    ref = new org.openejb.core.stateless.EncReference( ref2 );
                 else
-                    ref = new org.openejb.core.entity.EncReference(jndiName);
+                    ref = new org.openejb.core.entity.EncReference( ref2 );
             }else{
                 String openEjbSubContextName = "java:openejb/remote_jndi_contexts/"+reference.location.jndiContextId;
                 String jndiName = reference.location.remoteRefName;
+                Reference ref2 = new JndiReference( openEjbSubContextName, jndiName );
                 
                 if(StatefulBeanInfo.class.isAssignableFrom(bean.getClass()))
-                    ref = new org.openejb.core.stateful.EncReference(openEjbSubContextName,jndiName);
+                    ref = new org.openejb.core.stateful.EncReference( ref2 );
                 else if(StatelessBeanInfo.class.isAssignableFrom(bean.getClass()))
-                    ref = new org.openejb.core.stateless.EncReference(openEjbSubContextName,jndiName);
+                    ref = new org.openejb.core.stateless.EncReference( ref2 );
                 else
-                    ref = new org.openejb.core.entity.EncReference(openEjbSubContextName,jndiName);
+                    ref = new org.openejb.core.entity.EncReference( ref2 );
             }
             if(ref!=null){
                 try{

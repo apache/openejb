@@ -82,7 +82,7 @@ public abstract class ENCReference implements Reference{
     public ENCReference(javax.naming.Context linkedContext, String jndiName){
         this.ref = new JndiReference( linkedContext, jndiName );
     }
- 
+  
     /*
     * This constructor is used when the object to be referenced is accessible through 
     * some other JNDI name space, whose initial context is an element of the OpenEJB root 
@@ -90,12 +90,7 @@ public abstract class ENCReference implements Reference{
     * root and then resolve the lookup on that.
     */
     public ENCReference(String linkedContextName, String jndiName){
-        try{
-        javax.naming.Context linkedContext = (javax.naming.Context)org.openejb.OpenEJB.getJNDIContext().lookup(linkedContextName);
-        this.ref = new JndiReference( linkedContext, jndiName );
-        } catch (javax.naming.NamingException e){
-            throw new RuntimeException("The linked context cannot be looked up from the OpenEJB JNDI namespace: Received exception: "+e.getClass().getName() + " : "+e.getMessage());
-        }
+        this.ref = new JndiReference( linkedContextName, jndiName );
     }
     
     /*
@@ -106,6 +101,12 @@ public abstract class ENCReference implements Reference{
         this.ref = new ObjectReference( reference );
     }
     
+    /**
+     */
+    public ENCReference(Reference ref){
+        this.ref = ref;
+    }
+
     public void setChecking( boolean value ) {
 	checking = value;
     }
