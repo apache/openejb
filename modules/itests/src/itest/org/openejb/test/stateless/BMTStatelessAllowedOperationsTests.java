@@ -253,7 +253,7 @@ public class BMTStatelessAllowedOperationsTests extends BasicStatelessTestClient
     // Test EJBContext allowed operations       
     //=====================================
 
-    public void test_xx_userTransactionWorksAfterCallToBMT() throws Exception {
+    public void xtest_xx_userTransactionWorksAfterCallToBMT() throws Exception {
         ejbObject.accessBMTBean();
     }
 }

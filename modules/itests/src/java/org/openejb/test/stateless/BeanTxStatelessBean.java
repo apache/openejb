@@ -53,9 +53,13 @@ import javax.ejb.CreateException;
 import javax.ejb.EJBException;
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.transaction.RollbackException;
 import javax.transaction.UserTransaction;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.SystemException;
 
 import org.openejb.test.object.Account;
 import org.openejb.test.object.Transaction;
@@ -171,8 +175,7 @@ public class BeanTxStatelessBean implements javax.ejb.SessionBean{
         return acct;
     }
 
-
-    //    
+    //
     // Remote interface methods
     //=============================
 
