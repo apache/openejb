@@ -358,6 +358,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         Class remoteInterface = loadOptionalClass(remoteInterfaceName, classLoader);
         Class localHomeInterface = loadOptionalClass(localHomeInterfaceName, classLoader);
         Class localInterface = loadOptionalClass(localInterfaceName, classLoader);
+        Class serviceInterface = loadOptionalClass(serviceEndpointName, classLoader);
         Class primaryKeyClass = loadOptionalClass(primaryKeyClassName, classLoader);
         ProxyInfo proxyInfo = new ProxyInfo(getEJBComponentType(),
                 containerId,
@@ -365,6 +366,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 remoteInterface,
                 localHomeInterface,
                 localInterface,
+                serviceInterface,
                 primaryKeyClass);
         return proxyInfo;
     }
