@@ -86,6 +86,7 @@ import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.AutomaticKeyGeneration;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.CmpFieldMapping;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbQueryType;
+import org.openejb.entity.cmp.PrimaryKeyGeneratorWrapper;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.cache.GlobalSchemaLoader;
 import org.tranql.ejb.CMPField;

@@ -30,25 +30,31 @@ by the server.
     >
 
     <!-- needed for online deployment -->
-     <!-- should be removed once openejb gets a separate builder module-->
-     <dependency>
-         <uri>geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar</uri>
-     </dependency>
-     <dependency>
-         <uri>geronimo/jars/geronimo-deployment-${geronimo_version}.jar</uri>
-     </dependency>
-     <dependency>
-         <uri>geronimo/jars/geronimo-connector-builder-${geronimo_version}.jar</uri>
-     </dependency>
-     <dependency>
-         <uri>geronimo/jars/geronimo-j2ee-builder-${geronimo_version}.jar</uri>
-     </dependency>
-     <dependency>
-         <uri>geronimo/jars/geronimo-naming-builder-${geronimo_version}.jar</uri>
-     </dependency>
-     <dependency>
-         <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
-     </dependency>
+    <!-- should be removed once openejb gets a separate builder module-->
+    <dependency>
+        <uri>geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-deployment-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-connector-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>openejb/jars/openejb-builder-${openejb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-j2ee-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-naming-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-security-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
+    </dependency>
 
     <!--runtime dependencies-->
     <dependency>
@@ -267,7 +273,7 @@ by the server.
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/Server" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-<!--        <reference name="SkeletonGenerator">openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</reference>-->
+        <!--        <reference name="SkeletonGenerator">openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</reference>-->
     </gbean>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/Server" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
@@ -281,13 +287,13 @@ by the server.
     </gbean>
 
     <!-- these need names that include the parent id so they don't conflict with the deployer namens-->
-<!--    <gbean name="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>-->
-<!---->
-<!--    <gbean name="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">-->
-<!--        <attribute name="props" type="java.util.Properties">-->
-<!--        </attribute>-->
-<!--        <reference name="Compiler">openejb.CORBA:type=Compiler,vendor=Ant</reference>-->
-<!--    </gbean>-->
+    <!--    <gbean name="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>-->
+    <!---->
+    <!--    <gbean name="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">-->
+    <!--        <attribute name="props" type="java.util.Properties">-->
+    <!--        </attribute>-->
+    <!--        <reference name="Compiler">openejb.CORBA:type=Compiler,vendor=Ant</reference>-->
+    <!--    </gbean>-->
 
     <!-- end deployment block -->
 

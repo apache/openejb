@@ -214,6 +214,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             // if we got one extract the validate it otherwise create a default one
             if (openejbJar != null) {
                 openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.convertToGeronimoNamingSchema(openejbJar);
+                openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.convertToGeronimoSecuritySchema(openejbJar);
                 SchemaConversionUtils.validateDD(openejbJar);
             } else {
                 String path;
@@ -402,7 +403,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             transactionPolicyHelper = new TransactionPolicyHelper();
         }
 
-        Security security = securityBuilder.buildSecurityConfig(openejbEjbJar);
+        Security security = org.apache.geronimo.security.deployment.SecurityBuilder.buildSecurityConfig(openejbEjbJar.getSecurity());
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 

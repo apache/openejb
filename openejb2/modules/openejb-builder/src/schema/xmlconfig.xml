@@ -11,5 +11,9 @@
         <xb:package>org.apache.geronimo.xbeans.geronimo.naming</xb:package>
         <xb:prefix>Ger</xb:prefix>
     </xb:namespace>
+    <xb:namespace uri="http://geronimo.apache.org/xml/ns/security">
+        <xb:package>org.apache.geronimo.xbeans.geronimo.security</xb:package>
+        <xb:prefix>Ger</xb:prefix>
+    </xb:namespace>
 
 </xb:config>
