@@ -53,7 +53,7 @@ import javax.ejb.NoSuchObjectLocalException;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 
 import org.openejb.EJBInvocation;
 import org.openejb.cache.InstanceCache;
@@ -91,7 +91,7 @@ public final class StatefulInstanceInterceptor implements Interceptor {
             assert ctx.getInstance() != null: "Got a context with no instance assigned";
             id = ctx.getId();
             cache.putActive(id, ctx);
-            
+
             TransactionContext transactionContext = ejbInvocation.getTransactionContext();
             transactionContext.associate(ctx);
         } else {

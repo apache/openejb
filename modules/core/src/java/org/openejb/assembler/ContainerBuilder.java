@@ -301,7 +301,7 @@ public class ContainerBuilder implements RpcContainer {
         builder.setHomeInterfaceName(deploymentInfo.getHomeInterface().getName());
         builder.setRemoteInterfaceName(deploymentInfo.getRemoteInterface().getName());
         builder.setTransactionPolicySource(new DeploymentInfoTxPolicySource(deploymentInfo));
-        builder.setTransactionManager(OpenEJB.getTransactionManager());
+        builder.setTransactionContextManager(null);//OpenEJB.getTransactionManager());
 
         UserTransactionImpl userTransaction = new UserTransactionImpl();
         if (deploymentInfo.isBeanManagedTransaction()) {
@@ -322,7 +322,7 @@ public class ContainerBuilder implements RpcContainer {
         builder.setHomeInterfaceName(deploymentInfo.getHomeInterface().getName());
         builder.setRemoteInterfaceName(deploymentInfo.getRemoteInterface().getName());
         builder.setTransactionPolicySource(new DeploymentInfoTxPolicySource(deploymentInfo));
-        builder.setTransactionManager(OpenEJB.getTransactionManager());
+        builder.setTransactionContextManager(null);//OpenEJB.getTransactionManager());
 
         UserTransactionImpl userTransaction = new UserTransactionImpl();
         if (deploymentInfo.isBeanManagedTransaction()) {
@@ -345,7 +345,7 @@ public class ContainerBuilder implements RpcContainer {
         builder.setPrimaryKeyClassName(deploymentInfo.getPrimaryKeyClass().getName());
         builder.setComponentContext(new ReadOnlyContextWrapper(deploymentInfo.getJndiEnc(), null));
         builder.setTransactionPolicySource(new DeploymentInfoTxPolicySource(deploymentInfo));
-        builder.setTransactionManager(OpenEJB.getTransactionManager());
+        builder.setTransactionContextManager(null);//OpenEJB.getTransactionManager());
         builder.setJndiNames(new String[]{deploymentInfo.getDeploymentID().toString()});
         return (GenericEJBContainer) builder.createContainer();
     }

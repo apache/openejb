@@ -47,22 +47,15 @@
  */
 package org.openejb.mdb;
 
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
-
-import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.mdb.mockra.DeploymentHelper;
+import org.openejb.DeploymentHelper;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
 
@@ -70,23 +63,13 @@ import org.openejb.transaction.TransactionPolicy;
  * @version $Revision$ $Date$
  */
 public class BasicMDBContainerTest extends TestCase {
-    private static final ObjectName TCA_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
     private Kernel kernel;
     private GBeanMBean container;
 
     protected void setUp() throws Exception {
         super.setUp();
-        kernel = new Kernel("MDBTest");
-        kernel.boot();
-        GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
-        Set rmpatterns = new HashSet();
-        rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
-        tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
-        DeploymentHelper.start(kernel, DeploymentHelper.TRANSACTIONMANAGER_NAME, tmGBean);
-        GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
-        DeploymentHelper.start(kernel, TCA_NAME, trackedConnectionAssociator);
-
-
+        kernel = DeploymentHelper.setUpKernelWithTransactionManager("MDBTest");
+        DeploymentHelper.setUpTimer(kernel);
         DeploymentHelper.setUpResourceAdapter(kernel);
 
         MDBContainerBuilder builder = new MDBContainerBuilder();
@@ -106,15 +89,16 @@ public class BasicMDBContainerTest extends TestCase {
         container = builder.createConfiguration();
 
        //start the ejb container
-        container.setReferencePatterns("transactionManager", Collections.singleton(DeploymentHelper.TRANSACTIONMANAGER_NAME));
-        container.setReferencePatterns("trackedConnectionAssociator", Collections.singleton(TCA_NAME));
+        container.setReferencePattern("TransactionContextManager", DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME);
+        container.setReferencePattern("TrackedConnectionAssociator", DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME);
+        container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
         DeploymentHelper.start(kernel, DeploymentHelper.CONTAINER_NAME, container);
     }
 
     protected void tearDown() throws Exception {
         DeploymentHelper.stop(kernel, DeploymentHelper.CONTAINER_NAME);
         DeploymentHelper.stop(kernel, DeploymentHelper.TRANSACTIONMANAGER_NAME);
-        DeploymentHelper.stop(kernel, TCA_NAME);
+        DeploymentHelper.stop(kernel, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME);
         DeploymentHelper.tearDownAdapter(kernel);
         kernel.shutdown();
     }
@@ -131,5 +115,6 @@ public class BasicMDBContainerTest extends TestCase {
         MockEJB.messageCounter.acquire();
 
         System.out.println("Done.");
+        assertTrue("Timer should have fired once by now...", MockEJB.timerFired);
     }
 }

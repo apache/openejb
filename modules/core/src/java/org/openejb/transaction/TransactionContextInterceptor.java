@@ -47,12 +47,10 @@
  */
 package org.openejb.transaction;
 
-import javax.transaction.TransactionManager;
-
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
-
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 
@@ -61,12 +59,12 @@ import org.openejb.EJBInvocation;
  */
 public class TransactionContextInterceptor implements Interceptor {
     private final Interceptor next;
-    private final TransactionManager txnManager;
+    private final TransactionContextManager transactionContextManager;
     private final TransactionPolicyManager transactionPolicyManager;
 
-    public TransactionContextInterceptor(Interceptor next, TransactionManager txnManager, TransactionPolicyManager transactionPolicyManager) {
+    public TransactionContextInterceptor(Interceptor next, TransactionContextManager transactionContextManager, TransactionPolicyManager transactionPolicyManager) {
         this.next = next;
-        this.txnManager = txnManager;
+        this.transactionContextManager = transactionContextManager;
         this.transactionPolicyManager = transactionPolicyManager;
     }
 
@@ -79,6 +77,6 @@ public class TransactionContextInterceptor implements Interceptor {
 
         TransactionPolicy policy = transactionPolicyManager.getTransactionPolicy(invocationType, methodIndex);
         assert policy != null: "transaction policy array was not set up correctly, no policy for " + invocation;
-        return policy.invoke(next, ejbInvocation, txnManager);
+        return policy.invoke(next, ejbInvocation, transactionContextManager);
     }
 }

@@ -59,6 +59,7 @@ import javax.rmi.PortableRemoteObject;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 import junit.framework.TestCase;
 import junit.framework.AssertionFailedError;
@@ -220,7 +221,7 @@ public class StatelessClientContainerTest extends TestCase {
             }
         });
         builder.setComponentContext(new ReadOnlyContext());
-        builder.setTransactionManager(new MockTransactionManager());
+        builder.setTransactionContextManager(new TransactionContextManager(new MockTransactionManager()));
         builder.setTrackedConnectionAssociator(new ConnectionTrackingCoordinator());
         container = builder.createContainer();
     }

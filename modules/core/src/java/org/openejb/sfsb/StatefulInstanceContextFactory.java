@@ -60,6 +60,7 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
 import org.openejb.InstanceContextFactory;
+import org.openejb.timer.TimerServiceImpl;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
@@ -95,8 +96,14 @@ public class StatefulInstanceContextFactory implements InstanceContextFactory, S
         this.systemChain = systemChain;
     }
 
-    public void setSignatures(InterfaceMethodSignature[] signatures) {
+    public SystemMethodIndices setSignatures(InterfaceMethodSignature[] signatures) {
         systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setSessionContext", SessionContext.class.getName(), "unsetSessionContext");
+        //perhaps this should be null, stateful doesn't have timers.
+        return systemMethodIndices;
+    }
+
+    public void setTimerService(TimerServiceImpl timerService) {
+        //stateful beans have no timers.
     }
 
     public InstanceContext newInstance() throws Exception {

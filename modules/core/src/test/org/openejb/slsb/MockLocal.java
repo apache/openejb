@@ -63,4 +63,9 @@ public interface MockLocal extends EJBLocalObject {
     void appException() throws AppException;
 
     void sysException();
+
+    void startTimer();
+
+    int getTimeoutCount();
+
 }

@@ -50,13 +50,16 @@ package org.openejb;
 import java.util.Set;
 
 import javax.security.auth.Subject;
-import javax.transaction.TransactionManager;
+import javax.management.ObjectName;
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.cache.InstanceFactory;
 import org.openejb.cache.InstancePool;
 import org.openejb.deployment.TransactionPolicySource;
@@ -65,6 +68,8 @@ import org.openejb.dispatch.VirtualOperation;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.security.PermissionManager;
 import org.openejb.transaction.TransactionPolicyManager;
+import org.openejb.transaction.TransactionPolicy;
+import org.openejb.transaction.ContainerPolicy;
 import org.openejb.util.SoftLimitedInstancePool;
 
 /**
@@ -90,8 +95,12 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private TransactionPolicySource transactionPolicySource;
     private String[] jndiNames;
     private String[] localJndiNames;
-    private TransactionManager transactionManager;
+    //todo use object names here for build configuration rather than in ModuleBuilder.
+    private TransactionContextManager transactionContextManager;
     private TrackedConnectionAssociator trackedConnectionAssociator;
+
+    private ObjectName transactedTimerName;
+    private ObjectName nonTransactedTimerName;
 
     public ClassLoader getClassLoader() {
         return classLoader;
@@ -229,12 +238,12 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         this.localJndiNames = localJndiNames;
     }
 
-    public TransactionManager getTransactionManager() {
-        return transactionManager;
+    public TransactionContextManager getTransactionContextManager() {
+        return transactionContextManager;
     }
 
-    public void setTransactionManager(TransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
+    public void setTransactionContextManager(TransactionContextManager transactionContextManager) {
+        this.transactionContextManager = transactionContextManager;
     }
 
     public TrackedConnectionAssociator getTrackedConnectionAssociator() {
@@ -243,6 +252,22 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
 
     public void setTrackedConnectionAssociator(TrackedConnectionAssociator trackedConnectionAssociator) {
         this.trackedConnectionAssociator = trackedConnectionAssociator;
+    }
+
+    public ObjectName getTransactedTimerName() {
+        return transactedTimerName;
+    }
+
+    public void setTransactedTimerName(ObjectName transactedTimerName) {
+        this.transactedTimerName = transactedTimerName;
+    }
+
+    public ObjectName getNonTransactedTimerName() {
+        return nonTransactedTimerName;
+    }
+
+    public void setNonTransactedTimerName(ObjectName nonTransactedTimerName) {
+        this.nonTransactedTimerName = nonTransactedTimerName;
     }
 
     protected abstract int getEJBComponentType();
@@ -314,29 +339,48 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 getUserTransaction(),
                 getJndiNames(),
                 getLocalJndiNames(),
-                getTransactionManager(),
-                getTrackedConnectionAssociator());
+                getTransactionContextManager(),
+                getTrackedConnectionAssociator(),
+                null, //timer
+                null, //objectname
+                null);//kernel
     }
 
     protected GBeanMBean createConfiguration(
             ClassLoader cl, InterfaceMethodSignature[] signatures,
             InstanceContextFactory contextFactory,
             InterceptorBuilder interceptorBuilder,
-            InstancePool pool
-            ) throws Exception {
+            InstancePool pool,
+            ObjectName timerName) throws Exception {
 
         GBeanMBean gbean = new GBeanMBean(GenericEJBContainer.GBEAN_INFO, cl);
-        gbean.setAttribute("ContainerID", getContainerId());
-        gbean.setAttribute("EJBName", getEJBName());
-        gbean.setAttribute("ProxyInfo", createProxyInfo());
-        gbean.setAttribute("Signatures", signatures);
-        gbean.setAttribute("ContextFactory", contextFactory);
-        gbean.setAttribute("InterceptorBuilder", interceptorBuilder);
-        gbean.setAttribute("Pool", pool);
-        gbean.setAttribute("UserTransaction", getUserTransaction());
-        gbean.setAttribute("JndiNames", getJndiNames());
-        gbean.setAttribute("LocalJndiNames", getLocalJndiNames());
+        gbean.setAttribute("containerID", getContainerId());
+        gbean.setAttribute("ejbName", getEJBName());
+        gbean.setAttribute("proxyInfo", createProxyInfo());
+        gbean.setAttribute("signatures", signatures);
+        gbean.setAttribute("contextFactory", contextFactory);
+        gbean.setAttribute("interceptorBuilder", interceptorBuilder);
+        gbean.setAttribute("pool", pool);
+        gbean.setAttribute("userTransaction", getUserTransaction());
+        gbean.setAttribute("jndiNames", getJndiNames());
+        gbean.setAttribute("localJndiNames", getLocalJndiNames());
+        gbean.setReferencePattern("Timer", timerName);
 
         return gbean;
+    }
+
+    protected ObjectName getTimerName(Class beanClass) {
+        ObjectName timerName = null;
+        if (TimedObject.class.isAssignableFrom(beanClass)) {
+            InterfaceMethodSignature signature = new InterfaceMethodSignature("ejbTimeout", new Class[]{Timer.class}, false);
+            TransactionPolicy transactionPolicy = getTransactionPolicySource().getTransactionPolicy("timeout", signature);
+            boolean isTransacted = transactionPolicy == ContainerPolicy.Required || transactionPolicy == ContainerPolicy.RequiresNew;
+            if (isTransacted) {
+                timerName = getTransactedTimerName();
+            } else {
+                timerName = getNonTransactedTimerName();
+            }
+        }
+        return timerName;
     }
 }

@@ -60,8 +60,8 @@ import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.transaction.ContainerTransactionContext;
-import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.transaction.context.ContainerTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 
 import org.apache.geronimo.transaction.UserTransactionImpl;
 
@@ -128,7 +128,7 @@ public abstract class EJBContextImpl {
     }
 
     public TimerService getTimerService() {
-        return state.getTimerService();
+        return state.getTimerService(context);
     }
 
     public Properties getEnvironment() {
@@ -216,8 +216,13 @@ public abstract class EJBContextImpl {
             }
         }
 
-        public TimerService getTimerService() {
-            throw new UnsupportedOperationException();
+        public TimerService getTimerService(EJBInstanceContext context) {
+            TimerService timerService = context.getTimerService();
+            if (timerService == null) {
+                //TODO is this correct?
+                throw new IllegalStateException("EJB does not implement EJBTimeout");
+            }
+            return timerService;
         }
     }
 }

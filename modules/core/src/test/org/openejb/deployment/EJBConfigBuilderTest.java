@@ -63,13 +63,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
+
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
@@ -80,18 +80,16 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.ContainerIndex;
-import org.openejb.mdb.mockra.DeploymentHelper;
+import org.openejb.DeploymentHelper;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -102,12 +100,10 @@ public class EJBConfigBuilderTest extends TestCase {
 
     private static final String j2eeDomainName = "openejb.server";
     private static final String j2eeServerName = "TestOpenEJBServer";
-    private static final ObjectName transactionManagerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionManager");
-    private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=ConnectionTracker");
     private Kernel kernel;
 
     public void testCreateResourceAdapterNameQuery() throws Exception {
-        EARContext earContext = new EARContext(null, null, null, null, "geronimo.server", "geronimo", null, null, null);
+        EARContext earContext = new EARContext(null, null, null, null, "geronimo.server", "geronimo", null, null, null, null, null);
         OpenEJBModuleBuilder builder = new OpenEJBModuleBuilder(null);
         ObjectName testName = builder.createResourceAdapterQueryName(earContext, "TestResourceAdapterName");
         assertEquals(ObjectName.getInstance("geronimo.server:j2eeType=ResourceAdapter,name=TestResourceAdapterName,J2EEServer=geronimo,*"), testName);
@@ -143,8 +139,11 @@ public class EJBConfigBuilderTest extends TestCase {
                 j2eeDomainName,
                 j2eeServerName,
                 null,
-                transactionManagerObjectName,
-                connectionTrackerObjectName);
+                DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
+                DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
+                DeploymentHelper.TRANSACTIONALTIMER_NAME,
+                DeploymentHelper.NONTRANSACTIONALTIMER_NAME
+        );
         try {
             Thread.currentThread().setContextClassLoader(cl);
             configBuilder.createSessionBean(earContext, new EJBModule("TestModule", URI.create("/")), "containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, cl);
@@ -179,8 +178,11 @@ public class EJBConfigBuilderTest extends TestCase {
                     j2eeDomainName,
                     j2eeServerName,
                     j2eeApplicationName,
-                    transactionManagerObjectName,
-                    connectionTrackerObjectName);
+                    DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
+                    DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
+                    DeploymentHelper.TRANSACTIONALTIMER_NAME,
+                    DeploymentHelper.NONTRANSACTIONALTIMER_NAME
+            );
 
             moduleBuilder.installModule(new JarFile(ejbJarFile), earContext, module);
             earContext.getClassLoader(null);
@@ -212,14 +214,10 @@ public class EJBConfigBuilderTest extends TestCase {
 
         File carFile = File.createTempFile("OpenEJBTest", ".car");
         try {
-            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(null,
-                    null,
-                    new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
-                    moduleBuilder,
-                    null, // web
-                    null, //connector
-                    transactionManagerObjectName,
-                    connectionTrackerObjectName);
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName), DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, DeploymentHelper.TRANSACTIONALTIMER_NAME, DeploymentHelper.NONTRANSACTIONALTIMER_NAME, null, moduleBuilder, null, null, null
+                    // web
+                    //connector
+            );
 
             XmlObject plan = earConfigBuilder.getDeploymentPlan(earFile.toURL());
             earConfigBuilder.buildConfiguration(carFile, null, earFile, plan);
@@ -248,14 +246,10 @@ public class EJBConfigBuilderTest extends TestCase {
 
         File carFile = File.createTempFile("OpenEJBTest", ".car");
         try {
-            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(null,
-                    null,
-                    new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
-                    moduleBuilder,
-                    null, // web
-                    null, //connector
-                    transactionManagerObjectName,
-                    connectionTrackerObjectName);
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName), DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, DeploymentHelper.TRANSACTIONALTIMER_NAME, DeploymentHelper.NONTRANSACTIONALTIMER_NAME, null, moduleBuilder, null, null, null
+                    // web
+                    //connector
+            );
 
             XmlObject plan = earConfigBuilder.getDeploymentPlan(earFile.toURL());
             earConfigBuilder.buildConfiguration(carFile, null, earFile, plan);
@@ -329,17 +323,21 @@ public class EJBConfigBuilderTest extends TestCase {
             assertRunning(kernel, statelessBeanName);
 
             // use reflection to invoke a method on the stateless bean, becuase we don't have access to the classes here
-            Object statelessHome = kernel.getAttribute(statelessBeanName, "EJBHome");
+            Object statelessHome = kernel.getAttribute(statelessBeanName, "ejbHome");
             assertTrue("Home is not an instance of EJBHome", statelessHome instanceof EJBHome);
             Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
             assertEquals("TestResult", stateless.getClass().getMethod("echo", new Class[]{String.class}).invoke(stateless, new Object[]{"TestResult"}));
-
+            Object statelessLocalHome = kernel.getAttribute(statelessBeanName, "ejbLocalHome");
+            Object statelessLocal = statelessLocalHome.getClass().getMethod("create", null).invoke(statelessLocalHome, null);
+            statelessLocal.getClass().getMethod("startTimer", null).invoke(statelessLocal, null);
+            Thread.currentThread().sleep(200L);
+            assertEquals(new Integer(1), statelessLocal.getClass().getMethod("getTimeoutCount", null).invoke(statelessLocal, null));
 
             // STATEFUL
             ObjectName statefulBeanName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=StatefulSessionBean,J2EEServer=" + j2eeServerName + ",J2EEApplication=" + j2eeApplicationName + ",J2EEModule=" + j2eeModuleName + ",name=SimpleStatefulSession");
             assertRunning(kernel, statefulBeanName);
 
-            Object statefulHome = kernel.getAttribute(statefulBeanName, "EJBHome");
+            Object statefulHome = kernel.getAttribute(statefulBeanName, "ejbHome");
             assertTrue("Home is not an instance of EJBHome", statefulHome instanceof EJBHome);
             Object stateful = statefulHome.getClass().getMethod("create", null).invoke(statefulHome, null);
             stateful.getClass().getMethod("setValue", new Class[]{String.class}).invoke(stateful, new Object[]{"SomeValue"});
@@ -349,7 +347,7 @@ public class EJBConfigBuilderTest extends TestCase {
             ObjectName bmpBeanName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=EntityBean,J2EEServer=" + j2eeServerName + ",J2EEApplication=" + j2eeApplicationName + ",J2EEModule=" + j2eeModuleName + ",name=SimpleBMPEntity");
             assertRunning(kernel, bmpBeanName);
 
-            Object bmpHome = kernel.getAttribute(bmpBeanName, "EJBHome");
+            Object bmpHome = kernel.getAttribute(bmpBeanName, "ejbHome");
             assertTrue("Home is not an instance of EJBHome", bmpHome instanceof EJBHome);
             Object bmp = bmpHome.getClass().getMethod("create", null).invoke(bmpHome, null);
             bmp.getClass().getMethod("setName", new Class[]{String.class}).invoke(bmp, new Object[]{"MyNameValue"});
@@ -359,7 +357,7 @@ public class EJBConfigBuilderTest extends TestCase {
             ObjectName cmpBeanName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=EntityBean,J2EEServer=" + j2eeServerName + ",J2EEApplication=" + j2eeApplicationName + ",J2EEModule=" + j2eeModuleName + ",name=SimpleCMPEntity");
             assertRunning(kernel, cmpBeanName);
 
-            Object cmpHome = kernel.getAttribute(cmpBeanName, "EJBHome");
+            Object cmpHome = kernel.getAttribute(cmpBeanName, "ejbHome");
             assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
             Object cmp = cmpHome.getClass().getMethod("create", new Class[]{Integer.class}).invoke(cmpHome, new Object[]{new Integer(42)});
 
@@ -369,7 +367,6 @@ public class EJBConfigBuilderTest extends TestCase {
             //mdb
             ObjectName mdbBeanName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=MessageDrivenBean,J2EEServer=" + j2eeServerName + ",J2EEApplication=" + j2eeApplicationName + ",J2EEModule=" + j2eeModuleName + ",name=SimpleMessageDriven");
             assertRunning(kernel, mdbBeanName);
-
 
 
             kernel.stopGBean(objectName);
@@ -394,7 +391,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
     private void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
         int state = ((Integer) kernel.getAttribute(objectName, "state")).intValue();
-        assertEquals(State.RUNNING_INDEX, state);
+        assertEquals("should be running: " + objectName, State.RUNNING_INDEX, state);
     }
 
     private GBeanMBean loadConfig(File unpackedCar) throws Exception {
@@ -419,8 +416,9 @@ public class EJBConfigBuilderTest extends TestCase {
             str = str + ":org.apache.geronimo.naming";
         }
         System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
-        kernel = new Kernel("blah");
-        kernel.boot();
+
+        kernel = DeploymentHelper.setUpKernelWithTransactionManager("EJBConfigBuilderTest");
+        DeploymentHelper.setUpTimer(kernel);
 
         GBeanMBean serverInfoGBean = new GBeanMBean(ServerInfo.GBEAN_INFO);
         serverInfoGBean.setAttribute("baseDirectory", ".");
@@ -436,21 +434,6 @@ public class EJBConfigBuilderTest extends TestCase {
         kernel.startGBean(j2eeServerObjectName);
         assertRunning(kernel, j2eeServerObjectName);
 
-        GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
-        Set patterns = new HashSet();
-        patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
-        patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=ActivationSpec,*"));
-        tmGBean.setReferencePatterns("ResourceManagers", patterns);
-        kernel.loadGBean(transactionManagerObjectName, tmGBean);
-        kernel.startGBean(transactionManagerObjectName);
-        assertRunning(kernel, transactionManagerObjectName);
-
-        GBeanMBean connectionTrackerGBean = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
-        ObjectName connectionTrackerObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ConnectionTracker");
-        kernel.loadGBean(connectionTrackerObjectName, connectionTrackerGBean);
-        kernel.startGBean(connectionTrackerObjectName);
-        assertRunning(kernel, connectionTrackerObjectName);
-
         //load mock resource adapter for mdb
         DeploymentHelper.setUpResourceAdapter(kernel);
 
@@ -458,8 +441,6 @@ public class EJBConfigBuilderTest extends TestCase {
 
     protected void tearDown() throws Exception {
         DeploymentHelper.tearDownAdapter(kernel);
-        kernel.stopGBean(connectionTrackerObjectName);
-        kernel.stopGBean(transactionManagerObjectName);
         kernel.shutdown();
     }
 }

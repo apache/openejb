@@ -107,7 +107,7 @@ import org.openejb.util.SafeToolkit;
  * Only one OpenEJB instance can be constructed in the lifetime of a VM
  * process.
  * <p>
- * 
+ *
  * @version 0.1, 3/21/2000
  * @since JDK 1.2
  * @see org.openejb.EnvProps
@@ -144,11 +144,11 @@ public final class OpenEJB {
 
         checkInitailizationState();
         checkAppServer(appServer);
-        
+
         printStartupBanner();
 
         loadInitProps(initProps);
-        
+
 
 
         SafeToolkit toolkit = SafeToolkit.getToolkit("OpenEJB");
@@ -170,9 +170,9 @@ public final class OpenEJB {
             logger.i18n.fatal( msg );
             throw new OpenEJBException( msg );
         } else {
-            logger.i18n.debug( "startup.transactionManager", transactionManager.getClass().getName() );
+            logger.i18n.debug( "startup.transactionContextManager", transactionManager.getClass().getName() );
         }
-        
+
         try {
             assembler.build();
         } catch ( OpenEJBException oe ){
@@ -190,7 +190,7 @@ public final class OpenEJB {
             logger.i18n.fatal( msg );
             throw new OpenEJBException( msg );
         }
-        
+
         if (logger.isDebugEnabled()) {
             logger.i18n.debug(
                 "startup.debugContainers",
@@ -361,12 +361,12 @@ public final class OpenEJB {
     /**
 	 * Gets the <code>TransactionManager</code> that this container manager
 	 * exposes to the <code>Container</code> s it manages.
-	 * 
+	 *
 	 * @return the TransactionManager to be used by this container manager's
 	 *         containers when servicing beans
 	 * @see "javax.transaction.TransactionManager"
 	 * @see org.openejb.spi.TransactionService#getTransactionManager()
-	 *      TransactionService.getTransactionManager()
+	 *      TransactionService.getTransactionContextManager()
 	 */
     public static TransactionManager getTransactionManager() {
         return transactionManager;
@@ -375,7 +375,7 @@ public final class OpenEJB {
     /**
 	 * Gets the <code>SecurityService</code> that this container manager
 	 * exposes to the <code>Container</code> s it manages.
-	 * 
+	 *
 	 * @return the SecurityService to be used by this container manager's
 	 *         containers when servicing beans
 	 * @see org.openejb.spi.SecurityService
@@ -391,10 +391,10 @@ public final class OpenEJB {
     public static void setApplicationServer(ApplicationServer appServer) {
         applicationServer = appServer;
     }
-    
+
     /**
 	 * Gets all the <code>Container</code> s in this container system.
-	 * 
+	 *
 	 * @return an array of all the Containers
 	 * @see Container
 	 * @see ContainerManager#containers() ContainerManager.containers()
@@ -416,7 +416,7 @@ public final class OpenEJB {
 	 * bound using their deployment-id under the java:openejb/ejb/ namespace.
 	 * For example, an enterprise bean with the deployment id = 55555 would be
 	 * have its EJBHome bound to the name "java:openejb/ejb/55555"
-	 * 
+	 *
 	 * @return the global JNDI context
 	 */
     public static javax.naming.Context getJNDIContext() {

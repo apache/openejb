@@ -22,10 +22,12 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.ejb.EnterpriseBean;
+import javax.ejb.TimerService;
 
-import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.dispatch.SystemMethodIndices;
 import org.apache.geronimo.core.service.Interceptor;
+import org.openejb.dispatch.SystemMethodIndices;
+import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.timer.TimerServiceImpl;
 
 
 /**
@@ -48,9 +50,10 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
     protected EJBInvocation setContextInvocation;
     protected EJBInvocation unsetContextInvocation;
     protected final Interceptor systemChain;
+    private final TimerServiceImpl timerService;
 
 
-    public AbstractInstanceContext(SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, EnterpriseBean instance, EJBProxyFactory proxyFactory) {
+    public AbstractInstanceContext(SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, EnterpriseBean instance, EJBProxyFactory proxyFactory, TimerServiceImpl timerService) {
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.instance = instance;
@@ -58,6 +61,7 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
         this.systemChain = systemChain;
         ejbActivateInvocation = systemMethodIndices.getEjbActivateInvocation(this);
         ejbPassivateInvocation = systemMethodIndices.getEjbPassivateInvocation(this);
+        this.timerService = timerService;
     }
 
     public Object getId() {
@@ -117,6 +121,10 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
 
     public void unsetContext() throws Throwable {
         systemChain.invoke(unsetContextInvocation);
+    }
+
+    public TimerServiceImpl getTimerService() {
+        return timerService;
     }
 
 }

@@ -57,6 +57,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.core.service.Interceptor;
 import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
+import org.openejb.timer.TimerServiceImpl;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.dispatch.InterfaceMethodSignature;
 
@@ -71,6 +72,7 @@ public class MDBInstanceContextFactory implements Serializable {
     private final Set applicationManagedSecurityResources;
     private SystemMethodIndices systemMethodIndices;
     private Interceptor systemChain;
+    private transient TimerServiceImpl timerService;
 
     public MDBInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.containerId = containerId;
@@ -84,8 +86,13 @@ public class MDBInstanceContextFactory implements Serializable {
         this.systemChain = systemChain;
     }
 
-    public void setSignatures(InterfaceMethodSignature[] signatures) {
+    public SystemMethodIndices setSignatures(InterfaceMethodSignature[] signatures) {
         systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setMessageDrivenContext", MessageDrivenContext.class.getName(), null);
+        return systemMethodIndices;
+    }
+
+    public void setTimerService(TimerServiceImpl timerService) {
+        this.timerService = timerService;
     }
 
 
@@ -94,6 +101,6 @@ public class MDBInstanceContextFactory implements Serializable {
                 (MessageDrivenBean) factory.newInstance(),
                 userTransaction,
                 systemMethodIndices, systemChain, unshareableResources,
-                applicationManagedSecurityResources);
+                applicationManagedSecurityResources, timerService);
     }
 }

@@ -130,7 +130,8 @@ public class InvocationTest extends TestCase {
                 null,
                 SystemMethodIndices.createSystemMethodIndices(new InterfaceMethodSignature[] {}, null, null, null),
                 null, new HashSet(),
-                new HashSet());
+                new HashSet(),
+                null);
         invocation.setEJBInstanceContext(ctx);
         bizMethod.execute(invocation);
         long start = System.currentTimeMillis();

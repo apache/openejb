@@ -56,6 +56,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.SystemMethodIndices;
+import org.openejb.timer.TimerServiceImpl;
 
 /**
  * Wrapper for a MDB.
@@ -66,8 +67,8 @@ public final class MDBInstanceContext extends AbstractInstanceContext {
     private final Object containerId;
     private final MDBContext mdbContext;
 
-    public MDBInstanceContext(Object containerId, MessageDrivenBean instance, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources) {
-        super(systemMethodIndices, systemChain, unshareableResources, applicationManagedSecurityResources, instance, null);
+    public MDBInstanceContext(Object containerId, MessageDrivenBean instance, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, TimerServiceImpl timerService) {
+        super(systemMethodIndices, systemChain, unshareableResources, applicationManagedSecurityResources, instance, null, timerService);
         this.containerId = containerId;
         this.mdbContext = new MDBContext(this, userTransaction);
         setContextInvocation = systemMethodIndices.getSetContextInvocation(this, mdbContext);

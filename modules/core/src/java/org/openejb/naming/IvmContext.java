@@ -73,7 +73,7 @@ import com.sun.naming.internal.ResourceManager;
 * This class wrappers a specific NameNode which is the data model for the JNDI
 * name space. This class provides javax.naming.Context specific functionality
 * to the NameNode so that it can be used by beans the JNDI ENC.
-* 
+*
 */
 public class IvmContext implements Context, java.io.Serializable{
     Hashtable myEnv;
@@ -96,7 +96,7 @@ public class IvmContext implements Context, java.io.Serializable{
         this("root");
         //this(new NameNode(null, new NameTokenizer("root"), null));
     }
-    
+
     public IvmContext(NameNode node){
         mynode = node;
     }
@@ -112,12 +112,12 @@ public class IvmContext implements Context, java.io.Serializable{
         if (compositName.equals("")) {
             return this;
         }
-        
+
         // Special case for UserTransaction
         // This is to give transaction support for non-bean ejb clients using the IntraVm Server
 //        if ( compositName.equals("java:comp/UserTransaction") && ThreadContext.getThreadContext().getDeploymentInfo() == null ) {
 //            EJBUserTransaction userTx = new EJBUserTransaction();
-//            userTx.setUp(OpenEJB.getTransactionManager(), null);
+//            userTx.setUp(OpenEJB.getTransactionContextManager(), null);
 //            userTx.setOnline(true);
 //            return userTx;
 //        }
@@ -434,7 +434,7 @@ public class IvmContext implements Context, java.io.Serializable{
           //System.out.println("[] node.parent       "+ parentNode.parent);
           //System.out.println("[] node.subTree      "+ parentNode.subTree);
             NameNode node = parentNode.subTree;
-            
+
             //<DMB> Not sure about this code
             if ( node == null ) {
                 node = parentNode;
@@ -442,7 +442,7 @@ public class IvmContext implements Context, java.io.Serializable{
                 vect.addElement(node);
             }
             //</DMB> Not sure about this code
-            
+
             gatherNodes(node,vect);
 
             buildEnumeration(vect);
@@ -477,7 +477,7 @@ public class IvmContext implements Context, java.io.Serializable{
             return myEnum.nextElement();
          }
     }
-    
+
     static class NameNode implements java.io.Serializable {
         public String atomicName;
         public int atomicHash;
@@ -487,7 +487,7 @@ public class IvmContext implements Context, java.io.Serializable{
         public NameNode parent;
         public Object myObject;
         public transient IvmContext myContext;
-        
+
         public NameNode(NameNode parent, NameTokenizer name,  Object obj){
             atomicName = name.getComponent();
             atomicHash = name.getComponentHashCode();
@@ -508,7 +508,7 @@ public class IvmContext implements Context, java.io.Serializable{
         }
         public Object resolve(NameTokenizer name)throws javax.naming.NameNotFoundException{
             int compareResult = name.compareTo(atomicHash);
-            
+
             if(compareResult == NameTokenizer.IS_EQUAL && name.getComponent().equals(atomicName)){// hashcodes and String valuse are equal
                 if(name.next()){
                     if(subTree == null) throw new NameNotFoundException("Can not resolve "+name);
@@ -518,14 +518,14 @@ public class IvmContext implements Context, java.io.Serializable{
             }else if(compareResult == NameTokenizer.IS_LESS){// parsed hash is less than
                 if(lessTree == null) throw new NameNotFoundException("Can not resolve "+name);
                 return lessTree.resolve(name);
-                
+
             }else{//NameTokenizer.IS_GREATER
                 //...or NameTokenizer.IS_EQUAL but components are not the same string (hash code collision)
                 if(grtrTree == null) throw new NameNotFoundException("Can not resolve "+name);
                 return grtrTree.resolve(name);
             }
         }
-        
+
         public void bind(NameTokenizer name, Object obj) throws NameAlreadyBoundException {
             int compareResult = name.compareTo(atomicHash);
             if(compareResult == NameTokenizer.IS_EQUAL && name.getComponent().equals(atomicName)){
@@ -570,7 +570,7 @@ public class IvmContext implements Context, java.io.Serializable{
             }
         }
     }
-    
+
     static class NameTokenizer implements java.io.Serializable {
         final static int IS_EQUAL = 0;
         final static int IS_LESS = -1;

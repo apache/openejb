@@ -52,6 +52,8 @@ import org.apache.geronimo.core.service.Interceptor;
 
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.dispatch.SystemMethodIndices;
+import org.openejb.timer.TimerServiceImpl;
 
 
 /**
@@ -66,5 +68,7 @@ public interface InstanceContextFactory {
 
     void setSystemChain(Interceptor lifecycleInterceptorChain);
 
-    void setSignatures(InterfaceMethodSignature[] signatures);
+    SystemMethodIndices setSignatures(InterfaceMethodSignature[] signatures);
+
+    void setTimerService(TimerServiceImpl timerService);
 }

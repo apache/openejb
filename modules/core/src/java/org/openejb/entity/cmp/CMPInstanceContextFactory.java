@@ -69,6 +69,7 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.NoOp;
 import net.sf.cglib.reflect.FastClass;
 import org.openejb.InstanceContextFactory;
+import org.openejb.timer.TimerServiceImpl;
 import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -95,8 +96,7 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
     private transient EJBProxyFactory proxyFactory;
     private transient Interceptor systemChain;
     private transient SystemMethodIndices systemMethodIndices;
-//    private transient int loadIndex = -1;
-//    private transient int storeIndex = -1;
+    private transient TimerServiceImpl timerService;
 
     public CMPInstanceContextFactory(Object containerId, IdentityTransform primaryKeyTransform, FaultHandler loadFault, Class beanClass, Map imap, Set unshareableResources, Set applicationManagedSecurityResources) throws ClassNotFoundException {
         this.containerId = containerId;
@@ -134,15 +134,20 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
         this.systemChain = systemChain;
     }
 
-    public void setSignatures(InterfaceMethodSignature[] signatures) {
-            systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setEntityContext", EntityContext.class.getName(), "unsetEntityContext");
+    public SystemMethodIndices setSignatures(InterfaceMethodSignature[] signatures) {
+        systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setEntityContext", EntityContext.class.getName(), "unsetEntityContext");
+        return systemMethodIndices;
+    }
+
+    public void setTimerService(TimerServiceImpl timerService) {
+        this.timerService = timerService;
     }
 
     public synchronized InstanceContext newInstance() throws Exception {
         if (proxyFactory == null) {
             throw new IllegalStateException("ProxyFactory has not been set");
         }
-        return new CMPInstanceContext(containerId, proxyFactory, itable, loadFault, primaryKeyTransform, this, systemChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources);
+        return new CMPInstanceContext(containerId, proxyFactory, itable, loadFault, primaryKeyTransform, this, systemChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, timerService);
     }
 
     public synchronized EntityBean createCMPBeanInstance(CMPInstanceContext instanceContext) {

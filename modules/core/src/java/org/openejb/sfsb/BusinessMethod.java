@@ -48,7 +48,7 @@
 package org.openejb.sfsb;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;

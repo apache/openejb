@@ -50,18 +50,39 @@ package org.openejb.test.simple.slsb;
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
+import javax.ejb.TimerService;
+import javax.ejb.Timer;
+import javax.ejb.TimedObject;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public class SimpleStatelessSessionEJB implements SessionBean {
+public class SimpleStatelessSessionEJB implements SessionBean, TimedObject {
+    private SessionContext sessionContext;
+    private int timeoutCount = 0;
+
+
     public SimpleStatelessSessionEJB() {
     }
 
     public String echo(String message) {
         return message;
+    }
+
+
+    public void startTimer() {
+        TimerService timerService = sessionContext.getTimerService();
+        timerService.createTimer(100L, null);
+    }
+
+    public int getTimeoutCount() {
+        return timeoutCount;
+    }
+
+    public void ejbTimeout(Timer timer) {
+        timeoutCount++;
     }
 
     public void ejbCreate() throws javax.ejb.CreateException {
@@ -77,5 +98,6 @@ public class SimpleStatelessSessionEJB implements SessionBean {
     }
 
     public void setSessionContext(SessionContext ctx) throws EJBException {
+        this.sessionContext = ctx;
     }
 }

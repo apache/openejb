@@ -65,20 +65,19 @@ import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.entity.bmp.BMPContainerBuilder;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
+import org.openejb.DeploymentHelper;
 
 /**
  * @version $Revision$ $Date$
  */
 public class BasicBMPEntityContainerTest extends TestCase {
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
-    private static final ObjectName TM_NAME = JMXUtil.getObjectName("geronimo.test:role=TransactionManager");
-    private static final ObjectName TCA_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
     private Kernel kernel;
     private GBeanMBean container;
 
 
     public void testSimpleConfig() throws Throwable {
-        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "EJBHome");
+        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "ejbHome");
         assertEquals(5 + 1, home.intMethod(5));
 
         EJBObject ejbObject1 = home.findByPrimaryKey(new Integer(1));
@@ -95,7 +94,7 @@ public class BasicBMPEntityContainerTest extends TestCase {
     }
 
     public void testRemoteInvoke() throws Exception {
-        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "EJBHome");
+        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "ejbHome");
         assertEquals(2, home.intMethod(1));
 
         MockRemote remote = home.findByPrimaryKey(new Integer(1));
@@ -103,7 +102,7 @@ public class BasicBMPEntityContainerTest extends TestCase {
     }
 
     public void testLocalInvoke() throws Exception {
-        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
+        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
 
         assertEquals(2, home.intMethod(1));
 
@@ -113,13 +112,13 @@ public class BasicBMPEntityContainerTest extends TestCase {
     }
 
     public void testLocalCreate() throws Exception {
-        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
+        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
         MockLocal local = home.create(new Integer(1), null);
         assertEquals(new Integer(1), local.getPrimaryKey());
     }
 
     public void testLocalRemove() throws Exception {
-        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
+        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
         home.remove(new Integer(1));
 
         MockLocal local = home.create(new Integer(1), null);
@@ -128,6 +127,8 @@ public class BasicBMPEntityContainerTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
+        kernel = DeploymentHelper.setUpKernelWithTransactionManager("BeanManagedPersistenceTest");
+        DeploymentHelper.setUpTimer(kernel);
 
         BMPContainerBuilder builder = new BMPContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
@@ -150,27 +151,14 @@ public class BasicBMPEntityContainerTest extends TestCase {
         builder.setComponentContext(new ReadOnlyContext());
         container = builder.createConfiguration();
 
-        kernel = new Kernel("BeanManagedPersistenceTest");
-        kernel.boot();
-
-        GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
-        Set rmpatterns = new HashSet();
-        rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
-        tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
-        start(TM_NAME, tmGBean);
-        GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
-        start(TCA_NAME, trackedConnectionAssociator);
-
         //start the ejb container
-        container.setReferencePatterns("TransactionManager", Collections.singleton(TM_NAME));
-        container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(TCA_NAME));
+        container.setReferencePatterns("TransactionContextManager", Collections.singleton(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME));
+        container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME));
         start(CONTAINER_NAME, container);
     }
 
     protected void tearDown() throws Exception {
         stop(CONTAINER_NAME);
-        stop(TCA_NAME);
-        stop(TM_NAME);
         kernel.shutdown();
     }
 

@@ -67,7 +67,7 @@ import org.openejb.transaction.TransactionContextInterceptor;
 public class StatefulInterceptorBuilder extends AbstractInterceptorBuilder {
 
     public TwoChains buildInterceptorChains() {
-        if (transactionManager == null) {
+        if (transactionContextManager == null) {
             throw new IllegalStateException("Transaction manager must be set before building the interceptor chain");
         }
         if (instancePool == null) {
@@ -94,7 +94,7 @@ public class StatefulInterceptorBuilder extends AbstractInterceptorBuilder {
             firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
         }
         firstInterceptor = new StatefulInstanceInterceptor(firstInterceptor, containerId, instanceFactory, instanceCache);
-        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, transactionPolicyManager);
+        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
         return new TwoChains(firstInterceptor, systemChain);
     }

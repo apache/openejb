@@ -50,6 +50,9 @@ package org.openejb.mdb;
 import javax.ejb.EJBException;
 import javax.ejb.MessageDrivenBean;
 import javax.ejb.MessageDrivenContext;
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
+import javax.ejb.TimerService;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
@@ -61,18 +64,19 @@ import EDU.oswego.cs.dl.util.concurrent.Semaphore;
  *
  * @version $Revision$ $Date$
  */
-public class MockEJB implements MessageDrivenBean, MessageListener {
+public class MockEJB implements MessageDrivenBean, MessageListener, TimedObject {
 
     public static final Semaphore messageCounter = new Semaphore(0);
     private boolean ejbCreateCalled;
     private boolean ejbRemoveCalled;
     private MessageDrivenContext messageDrivenContext;
     public static Message lastMessage;
+    public static boolean timerFired;
 
     public void ejbCreate() throws EJBException {
         ejbCreateCalled = true;
     }
-    
+
     /**
      * @see javax.ejb.MessageDrivenBean#ejbRemove()
      */
@@ -93,6 +97,12 @@ public class MockEJB implements MessageDrivenBean, MessageListener {
     public void onMessage(Message message) {
         lastMessage = message;
         messageCounter.release();
+        TimerService timerService = messageDrivenContext.getTimerService();
+        timerService.createTimer(100L, null);
+    }
+
+    public void ejbTimeout(Timer timer) {
+        timerFired = true;
     }
 
 }

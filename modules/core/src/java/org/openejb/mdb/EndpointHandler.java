@@ -49,19 +49,18 @@ package org.openejb.mdb;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+
 import javax.ejb.EJBException;
 import javax.resource.ResourceException;
-import javax.transaction.TransactionManager;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.transaction.ContainerTransactionContext;
-import org.apache.geronimo.transaction.InheritableTransactionContext;
-import org.apache.geronimo.transaction.TransactionContext;
-import org.apache.geronimo.transaction.UnspecifiedTransactionContext;
+import org.apache.geronimo.transaction.context.InheritableTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
@@ -113,7 +112,7 @@ public class EndpointHandler implements MethodInterceptor {
     private final int[] operationMap;
     private final Map methodIndexMap;
     private final ClassLoader containerCL;
-    private final TransactionManager transactionManager;
+    private final TransactionContextManager transactionContextManager;
 
     private ClassLoader adapterClassLoader;
     private TransactionContext adapterTransaction;
@@ -126,7 +125,7 @@ public class EndpointHandler implements MethodInterceptor {
         this.operationMap = operationMap;
         this.methodIndexMap = container.getMethodIndexMap();
         containerCL = container.getClassLoader();
-        transactionManager = container.getTransactionManager();
+        transactionContextManager = container.getTransactionContextManager();
     }
 
     public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException {
@@ -292,10 +291,10 @@ public class EndpointHandler implements MethodInterceptor {
             }
 
             // setup the transaction
-            adapterTransaction = TransactionContext.getContext();
+            adapterTransaction = transactionContextManager.getContext();
             boolean transactionRequired = container.isDeliveryTransacted(methodIndex);
 
-            // if the adapter gave us a transaction and we are reauired, just move on
+            // if the adapter gave us a transaction and we are required, just move on
             if (transactionRequired && adapterTransaction instanceof InheritableTransactionContext) {
                 return;
             }
@@ -308,15 +307,11 @@ public class EndpointHandler implements MethodInterceptor {
 
             if (transactionRequired) {
                 // start a new container transaction
-                beanTransaction = new ContainerTransactionContext(transactionManager);
+                beanTransaction = transactionContextManager.newContainerTransactionContext();
             } else {
                 // enter an unspecified transaction context
-                beanTransaction = new UnspecifiedTransactionContext();
+                beanTransaction = transactionContextManager.newUnspecifiedTransactionContext();
             }
-
-            // start the new context
-            TransactionContext.setContext(beanTransaction);
-            beanTransaction.begin();
         } catch (Throwable e) {
             // restore the adapter classloader if necessary
             if (adapterClassLoader != containerCL) {
@@ -325,7 +320,7 @@ public class EndpointHandler implements MethodInterceptor {
             adapterClassLoader = null;
 
             // restore the adapter transaction is possible
-            TransactionContext.setContext(adapterTransaction);
+            transactionContextManager.setContext(adapterTransaction);
             if (adapterTransactionSuspended) {
                 try {
                     adapterTransaction.resume();
@@ -366,7 +361,7 @@ public class EndpointHandler implements MethodInterceptor {
             adapterClassLoader = null;
 
             // restore the adapter transaction is possible
-            TransactionContext.setContext(adapterTransaction);
+            transactionContextManager.setContext(adapterTransaction);
             if (adapterTransaction != null) {
                 try {
                     adapterTransaction.resume();

@@ -50,6 +50,9 @@ package org.openejb.slsb;
 import javax.ejb.CreateException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
+import javax.ejb.TimedObject;
+import javax.ejb.Timer;
+import javax.ejb.TimerService;
 
 /**
  *
@@ -57,7 +60,12 @@ import javax.ejb.SessionContext;
  *
  * @version $Revision$ $Date$
  */
-public class MockEJB implements SessionBean {
+public class MockEJB implements SessionBean, TimedObject {
+
+    private int timeoutCount = 0;
+
+    private SessionContext sessionContext;
+
     public int intMethod(int i) {
         return i + 1;
     }
@@ -74,7 +82,17 @@ public class MockEJB implements SessionBean {
         throw new IllegalArgumentException("Sys Message");
     }
 
+    public void startTimer() {
+        TimerService timerService = sessionContext.getTimerService();
+        timerService.createTimer(100L, null);
+    }
+
+    public int getTimeoutCount() {
+        return timeoutCount;
+    }
+
     public void setSessionContext(SessionContext sessionContext) {
+        this.sessionContext = sessionContext;
     }
 
     public void ejbCreate() throws CreateException {
@@ -87,5 +105,9 @@ public class MockEJB implements SessionBean {
     }
 
     public void ejbRemove() {
+    }
+
+    public void ejbTimeout(Timer timer) {
+        timeoutCount++;
     }
 }
