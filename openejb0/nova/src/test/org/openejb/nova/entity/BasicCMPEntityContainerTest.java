@@ -100,30 +100,6 @@ public class BasicCMPEntityContainerTest extends TestCase {
         c.close();
     }
 
-    public void testLifeCycle() throws Exception {
-        Connection c = initDatabase();
-        MockLocalHome home = (MockLocalHome) container.getEJBLocalHome();
-
-        Statement s = c.createStatement();
-        ResultSet rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
-        assertFalse(rs.next());
-        rs.close();
-
-        MockLocal local = home.create(new Integer(2));
-        rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
-        assertTrue(rs.next());
-        rs.close();
-
-        local = home.findByPrimaryKey(new Integer(2));
-
-        local.remove();
-        rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
-        assertFalse(rs.next());
-        rs.close();
-        s.close();
-        c.close();
-    }
-
     public void testFields() throws Exception {
         Connection c = initDatabase();
         Statement s = c.createStatement();
@@ -135,6 +111,34 @@ public class BasicCMPEntityContainerTest extends TestCase {
         assertTrue(rs.next());
         assertEquals("World", rs.getString(1));
 
+        assertEquals("World", local.getValue());
+
+        s.close();
+        c.close();
+    }
+
+    public void testLifeCycle() throws Exception {
+        Connection c = initDatabase();
+        MockLocalHome home = (MockLocalHome) container.getEJBLocalHome();
+
+        Statement s = c.createStatement();
+        ResultSet rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
+        assertFalse(rs.next());
+        rs.close();
+
+        MockLocal local = home.create(new Integer(2), "Hello");
+        rs = s.executeQuery("SELECT VALUE FROM MOCK WHERE ID=2");
+        assertTrue(rs.next());
+        assertEquals("Hello", rs.getString(1));
+        rs.close();
+
+        local = home.findByPrimaryKey(new Integer(2));
+        assertEquals("Hello", local.getValue());
+
+        local.remove();
+        rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
+        assertFalse(rs.next());
+        rs.close();
         s.close();
         c.close();
     }
@@ -168,8 +172,8 @@ public class BasicCMPEntityContainerTest extends TestCase {
         persistenceFactory.defineQuery(signature, "SELECT ID,VALUE FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)}, new Binding[]{new IntBinding(1, 0), new StringBinding(2, 1)});
         queries.add(new CMPQuery(signature, false, null));
 
-        signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbCreate", new String[]{"java.lang.Integer"});
-        persistenceFactory.defineUpdate(signature, "INSERT INTO MOCK(ID) VALUES(?)", new Binding[]{new IntBinding(1, 0)});
+        signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbCreate", new String[]{"java.lang.Integer", "java.lang.String"});
+        persistenceFactory.defineUpdate(signature, "INSERT INTO MOCK(ID, VALUE) VALUES(?,?)", new Binding[]{new IntBinding(1, 0), new StringBinding(2,1)});
         signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbRemove", new String[0]);
         persistenceFactory.defineUpdate(signature, "DELETE FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)});
         signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbStore", new String[0]);

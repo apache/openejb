@@ -49,16 +49,14 @@ package org.openejb.nova.entity.cmp;
 
 import javax.ejb.EntityBean;
 
+import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
-import net.sf.cglib.reflect.FastClass;
-
 import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.EJBInvocationType;
 import org.openejb.nova.EJBOperation;
 import org.openejb.nova.dispatch.VirtualOperation;
-import org.openejb.nova.entity.EntityInstanceContext;
 import org.openejb.nova.persistence.UpdateCommand;
 
 /**
@@ -72,25 +70,28 @@ public class CMPCreateMethod implements VirtualOperation {
     private final int createIndex;
     private final int postCreateIndex;
     private final UpdateCommand updateCommand;
+    private final int slots;
 
-    public CMPCreateMethod(EJBContainer container, FastClass beanClass, int createIndex, int postCreateIndex, UpdateCommand updateCommand) {
+    public CMPCreateMethod(EJBContainer container, FastClass beanClass, int createIndex, int postCreateIndex, UpdateCommand updateCommand, int slots) {
         this.container = container;
         this.beanClass = beanClass;
         this.createIndex = createIndex;
         this.postCreateIndex = postCreateIndex;
         this.updateCommand = updateCommand;
+        this.slots = slots;
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        EntityInstanceContext ctx = (EntityInstanceContext) invocation.getEJBInstanceContext();
+        CMPInstanceContext ctx = (CMPInstanceContext) invocation.getEJBInstanceContext();
+        InstanceData instanceData = new InstanceData(slots);
+        ctx.setInstanceData(instanceData);
 
         EntityBean instance = (EntityBean) ctx.getInstance();
         Object[] args = invocation.getArguments();
 
-        Object id;
         try {
             ctx.setOperation(EJBOperation.EJBCREATE);
-            id = beanClass.invoke(createIndex, instance, args);
+            beanClass.invoke(createIndex, instance, args);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -99,8 +100,10 @@ public class CMPCreateMethod implements VirtualOperation {
             ctx.setOperation(EJBOperation.INACTIVE);
         }
 
-        ctx.setId(id);
-        updateCommand.executeUpdate(new Object[] { id });
+        ctx.setId(instanceData.get(0));
+        Object[] values = new Object[slots];
+        instanceData.store(values);
+        updateCommand.executeUpdate(values);
 
         try {
             ctx.setOperation(EJBOperation.EJBPOSTCREATE);
@@ -114,7 +117,7 @@ public class CMPCreateMethod implements VirtualOperation {
         }
 
         EJBInvocationType type = invocation.getType();
-        return new SimpleInvocationResult(true, getReference(type.isLocal(), container, id));
+        return new SimpleInvocationResult(true, getReference(type.isLocal(), container, ctx.getId()));
     }
 
     private Object getReference(boolean local, EJBContainer container, Object id) {

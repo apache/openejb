@@ -95,9 +95,8 @@ public final class EntityInstanceInterceptor extends AbstractInterceptor {
             // associate this instance with the TransactionContext
             transactionContext.associate(context);
         }
-        EntityInstanceContext ctx = context;
 
-        ejbInvocation.setEJBInstanceContext(ctx);
+        ejbInvocation.setEJBInstanceContext(context);
         EJBInstanceContext oldContext = transactionContext.beginInvocation(context);
         try {
             InvocationResult result = getNext().invoke(invocation);

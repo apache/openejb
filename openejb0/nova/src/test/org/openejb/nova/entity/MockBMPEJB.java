@@ -61,11 +61,11 @@ import javax.ejb.RemoveException;
 public class MockBMPEJB implements EntityBean {
     private int field;
 
-    public Object ejbCreate(Integer id) throws CreateException {
+    public Object ejbCreate(Integer id, String value) throws CreateException {
         return id;
     }
 
-    public void ejbPostCreate(Integer id) {
+    public void ejbPostCreate(Integer id, String value) {
     }
 
     public Object ejbFindByPrimaryKey(Object pk) throws FinderException {

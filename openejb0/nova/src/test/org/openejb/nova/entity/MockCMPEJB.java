@@ -60,11 +60,13 @@ import javax.ejb.RemoveException;
 public abstract class MockCMPEJB implements EntityBean {
     private int field;
 
-    public Object ejbCreate(Integer id) throws CreateException {
-        return id;
+    public Object ejbCreate(Integer id, String value) throws CreateException {
+        setId(id);
+        setValue(value);
+        return null;
     }
 
-    public void ejbPostCreate(Integer id) {
+    public void ejbPostCreate(Integer id, String value) {
     }
 
     public int ejbHomeIntMethod(int i) {

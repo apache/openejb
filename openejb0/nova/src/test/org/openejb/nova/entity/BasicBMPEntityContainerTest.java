@@ -108,7 +108,7 @@ public class BasicBMPEntityContainerTest extends TestCase {
 
     public void testLocalCreate() throws Exception {
         MockLocalHome home = (MockLocalHome) container.getEJBLocalHome();
-        MockLocal local = home.create(new Integer(1));
+        MockLocal local = home.create(new Integer(1), null);
         assertEquals(new Integer(1), local.getPrimaryKey());
     }
 
@@ -116,7 +116,7 @@ public class BasicBMPEntityContainerTest extends TestCase {
         MockLocalHome home = (MockLocalHome) container.getEJBLocalHome();
         home.remove(new Integer(1));
 
-        MockLocal local = home.create(new Integer(1));
+        MockLocal local = home.create(new Integer(1), null);
         local.remove();
     }
 

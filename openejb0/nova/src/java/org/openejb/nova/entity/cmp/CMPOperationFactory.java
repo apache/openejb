@@ -119,7 +119,7 @@ public class CMPOperationFactory extends AbstractOperationFactory {
             if (name.startsWith("ejbCreate")) {
                 // ejbCreate vop needs a reference to the ejbPostCreate method
                 int postCreateIndex = fastClass.getIndex("ejbPostCreate" + name.substring(9), beanMethod.getParameterTypes());
-                vop = new CMPCreateMethod(container, fastClass, index, postCreateIndex, persistenceFactory.getUpdateCommand(signature));
+                vop = new CMPCreateMethod(container, fastClass, index, postCreateIndex, persistenceFactory.getUpdateCommand(signature), fieldNames.length);
             } else if (name.startsWith("ejbHome")) {
                 vop = new HomeMethod(fastClass, index);
             } else if (name.equals("ejbRemove")) {
