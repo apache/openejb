@@ -52,6 +52,7 @@ import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
+import javax.security.auth.Subject;
 
 import org.apache.geronimo.core.service.Interceptor;
 
@@ -137,4 +138,13 @@ public interface EJBContainer extends Interceptor {
 
     ProxyInfo getProxyInfo();
 
+    /**
+     * Returns the subject to use if the client is not authenticated.
+     * <p/>
+     * This subject must have been registered at container startup, to properly
+     * work with the container's interceptors.
+     * @return the default subject
+     * @see org.apache.geronimo.security.ContextManager#registerSubject(javax.security.auth.Subject)
+     */
+    Subject getDefaultSubject();
 }

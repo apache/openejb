@@ -91,8 +91,6 @@ public class EJBHomeHandle implements java.io.Externalizable, javax.ejb.HomeHand
     public void writeExternal(ObjectOutput out) throws IOException{
 
         // Write the full proxy data
-        handler.client.writeExternal( out );
-
         EJBMetaDataImpl ejb = handler.ejb;
         out.writeObject( ejb.homeClass );
         out.writeObject( ejb.remoteClass );
@@ -125,7 +123,7 @@ public class EJBHomeHandle implements java.io.Externalizable, javax.ejb.HomeHand
 
         server.readExternal( in );
 
-        handler = EJBHomeHandler.createEJBHomeHandler(ejb, server, client);
+        handler = EJBHomeHandler.createEJBHomeHandler(ejb, server);
         ejbHomeProxy = handler.createEJBHomeProxy();
     }
 

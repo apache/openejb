@@ -50,6 +50,8 @@ import javax.ejb.EJBObject;
 
 import org.openejb.EJBComponentType;
 
+import org.apache.geronimo.security.ContextManager;
+
 
 /**
  * @since 11/25/2001
@@ -84,33 +86,33 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
     public EJBObjectHandler() {
     }
 
-    public EJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client) {
-        super(ejb, server, client);
+    public EJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server) {
+        super(ejb, server);
     }
 
-    public EJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client, Object primaryKey) {
-        super(ejb, server, client, primaryKey);
+    public EJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, Object primaryKey) {
+        super(ejb, server, primaryKey);
     }
 
     protected void setEJBHomeProxy(EJBHomeProxy ejbHome) {
         this.ejbHome = ejbHome;
     }
 
-    public static EJBObjectHandler createEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client, Object primaryKey) {
+    public static EJBObjectHandler createEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, Object primaryKey) {
 
         switch (ejb.type) {
             case EJBComponentType.BMP_ENTITY:
             case EJBComponentType.CMP_ENTITY:
 
-                return new EntityEJBObjectHandler(ejb, server, client, primaryKey);
+                return new EntityEJBObjectHandler(ejb, server, primaryKey);
 
             case EJBComponentType.STATEFUL:
 
-                return new StatefulEJBObjectHandler(ejb, server, client, primaryKey);
+                return new StatefulEJBObjectHandler(ejb, server, primaryKey);
 
             case EJBComponentType.STATELESS:
 
-                return new StatelessEJBObjectHandler(ejb, server, client, primaryKey);
+                return new StatelessEJBObjectHandler(ejb, server, primaryKey);
         }
         return null;
     }
@@ -226,7 +228,7 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
 
     protected Object getEJBHome(Method method, Object[] args, Object proxy) throws Throwable {
         if (ejbHome == null) {
-            ejbHome = EJBHomeHandler.createEJBHomeHandler(ejb, server, client).createEJBHomeProxy();
+            ejbHome = EJBHomeHandler.createEJBHomeHandler(ejb, server).createEJBHomeProxy();
         }
         return ejbHome;
     }
@@ -250,7 +252,7 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
 
         req.setMethodParameters(args);
         req.setMethodInstance(method);
-        req.setClientIdentity(client.getClientIdentity());
+        req.setClientIdentity(ContextManager.getThreadPrincipal());
         req.setContainerCode(ejb.deploymentCode);
         req.setContainerID(ejb.deploymentID);
         req.setPrimaryKey(primaryKey);

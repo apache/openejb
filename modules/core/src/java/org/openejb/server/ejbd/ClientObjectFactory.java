@@ -164,13 +164,6 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
 
         int idCode = containerIndex.getContainerIndex(info.getContainerID());
         
-        Object securityIdentity = null;
-        try {
-            securityIdentity = call.getEJBRequest().getClientIdentity();
-        } catch (Exception e) {
-            //e.printStackTrace();  not needed
-        }
-        ClientMetaData  cMetaData = new ClientMetaData(securityIdentity);
         EJBMetaDataImpl eMetaData = new EJBMetaDataImpl(info.getHomeInterface(),
                 info.getRemoteInterface(),
                 info.getPrimaryKeyClass(),
@@ -179,7 +172,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
                 idCode);
         Object primKey = info.getPrimaryKey();
 
-        EJBObjectHandler hanlder = EJBObjectHandler.createEJBObjectHandler(eMetaData,sMetaData,cMetaData,primKey);
+        EJBObjectHandler hanlder = EJBObjectHandler.createEJBObjectHandler(eMetaData,sMetaData,primKey);
 
         return new EJBObjectHandle( hanlder.createEJBObjectProxy() );
     }
@@ -198,13 +191,6 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
 
         int idCode = containerIndex.getContainerIndex(info.getContainerID());
         
-        Object securityIdentity = null;
-        try {
-            securityIdentity = call.getEJBRequest().getClientIdentity();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        ClientMetaData  cMetaData = new ClientMetaData(securityIdentity);
         EJBMetaDataImpl eMetaData = new EJBMetaDataImpl(info.getHomeInterface(),
                 info.getRemoteInterface(),
                 info.getPrimaryKeyClass(),
@@ -212,7 +198,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
                 info.getContainerID(),
                 idCode);
         
-        EJBHomeHandler hanlder = EJBHomeHandler.createEJBHomeHandler(eMetaData,sMetaData,cMetaData);
+        EJBHomeHandler hanlder = EJBHomeHandler.createEJBHomeHandler(eMetaData,sMetaData);
 
         return new EJBHomeHandle( hanlder.createEJBHomeProxy() );
     }
@@ -231,13 +217,6 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
 
         int idCode = containerIndex.getContainerIndex(info.getContainerID());
         
-        Object securityIdentity = null;
-        try {
-            securityIdentity = call.getEJBRequest().getClientIdentity();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        ClientMetaData  cMetaData = new ClientMetaData(securityIdentity);
         EJBMetaDataImpl eMetaData = new EJBMetaDataImpl(info.getHomeInterface(),
                 info.getRemoteInterface(),
                 info.getPrimaryKeyClass(),
@@ -246,7 +225,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
                 idCode);
         Object primKey = info.getPrimaryKey();
 
-        EJBObjectHandler hanlder = EJBObjectHandler.createEJBObjectHandler(eMetaData,sMetaData,cMetaData,primKey);
+        EJBObjectHandler hanlder = EJBObjectHandler.createEJBObjectHandler(eMetaData,sMetaData,primKey);
 
         return hanlder.createEJBObjectProxy();
     }
@@ -265,13 +244,6 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
 
         int idCode = containerIndex.getContainerIndex(info.getContainerID());
 
-        Object securityIdentity = null;
-        try {
-            securityIdentity = call.getEJBRequest().getClientIdentity();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        ClientMetaData  cMetaData = new ClientMetaData(securityIdentity);
         EJBMetaDataImpl eMetaData = new EJBMetaDataImpl(info.getHomeInterface(),
                                                         info.getRemoteInterface(),
                                                         info.getPrimaryKeyClass(),
@@ -279,7 +251,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
                                                         info.getContainerID(),
                                                         idCode);
 
-        EJBHomeHandler hanlder = EJBHomeHandler.createEJBHomeHandler(eMetaData,sMetaData,cMetaData);
+        EJBHomeHandler hanlder = EJBHomeHandler.createEJBHomeHandler(eMetaData,sMetaData);
 
         //EJBHomeProxyHandle handle = new EJBHomeProxyHandle( hanlder );
 

@@ -45,6 +45,7 @@
 
 package org.openejb.server.ejbd;
 
+import javax.security.auth.Subject;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
@@ -63,6 +64,8 @@ import org.openejb.proxy.BaseEJB;
 import org.openejb.proxy.ProxyInfo;
 
 import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.IdentificationPrincipal;
 
 
 class EjbRequestHandler implements ResponseCodes, RequestMethods {
@@ -126,6 +129,23 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
             ClassLoader cl = container.getClassLoader();
             Thread.currentThread().setContextClassLoader(cl);
             in.setClassLoader(cl);
+
+            /**
+             * The identification principal contains the subject id.  Use this
+             * id to obtain the registered subject.
+             */
+            IdentificationPrincipal principal = (IdentificationPrincipal) req.getClientIdentity();
+            if (principal != null && principal.getId() != null) {
+                Subject subject = ContextManager.getRegisteredSubject(principal.getId());
+
+                if (subject == null) {
+                    subject = container.getDefaultSubject();
+                }
+                
+                ContextManager.setCurrentCaller(subject);
+                ContextManager.setNextCaller(subject);
+            }
+
             log.warn("setting cl=" + cl + " for " + container.getContainerID());
         } catch (RemoteException e) {
             replyWithFatalError

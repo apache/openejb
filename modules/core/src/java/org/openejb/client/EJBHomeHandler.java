@@ -55,6 +55,8 @@ import javax.ejb.Handle;
 
 import org.openejb.EJBComponentType;
 
+import org.apache.geronimo.security.ContextManager;
+
 
 /**
  * Handles invocations from an EJBHomeProxy.
@@ -73,25 +75,25 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
     public EJBHomeHandler() {
     }
 
-    public EJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client) {
-        super(ejb, server, client);
+    public EJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData server) {
+        super(ejb, server);
     }
 
-    public static EJBHomeHandler createEJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client) {
+    public static EJBHomeHandler createEJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData server) {
 
         switch (ejb.type) {
             case EJBComponentType.BMP_ENTITY:
             case EJBComponentType.CMP_ENTITY:
 
-                return new EntityEJBHomeHandler(ejb, server, client);
+                return new EntityEJBHomeHandler(ejb, server);
 
             case EJBComponentType.STATEFUL:
 
-                return new StatefulEJBHomeHandler(ejb, server, client);
+                return new StatefulEJBHomeHandler(ejb, server);
 
             case EJBComponentType.STATELESS:
 
-                return new StatelessEJBHomeHandler(ejb, server, client);
+                return new StatelessEJBHomeHandler(ejb, server);
         }
         return null;
 
@@ -212,7 +214,7 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
     protected Object create(Method method, Object[] args, Object proxy) throws Throwable {
         EJBRequest req = new EJBRequest(EJB_HOME_CREATE);
 
-        req.setClientIdentity(client.getClientIdentity());
+        req.setClientIdentity(ContextManager.getThreadPrincipal());
         req.setContainerCode(ejb.deploymentCode);
         req.setContainerID(ejb.deploymentID);
         req.setMethodInstance(method);
@@ -230,7 +232,7 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
             case EJB_OK:
                 // Create the EJBObject proxy
                 Object primKey = res.getResult();
-                EJBObjectHandler handler = EJBObjectHandler.createEJBObjectHandler(ejb, server, client, primKey);
+                EJBObjectHandler handler = EJBObjectHandler.createEJBObjectHandler(ejb, server, primKey);
                 handler.setEJBHomeProxy((EJBHomeProxy) proxy);
                 //TODO:1: Add the proxy to the handler registry
                 return handler.createEJBObjectProxy();

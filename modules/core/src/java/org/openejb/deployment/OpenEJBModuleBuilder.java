@@ -112,6 +112,8 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Realm;
@@ -1420,6 +1422,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         builder.setUseContextHandler(security.isUseContextHandler());
 
         /**
+         * Add the default subject
+         */
+        builder.setDefaultSubject(createDefaultSubject(security));
+
+        /**
          * JACC v1.0 section 3.1.5.1
          */
         MethodPermissionType[] methodPermissions = assemblyDescriptor.getMethodPermissionArray();
@@ -1577,6 +1584,23 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         while (enum.hasMoreElements()) {
             permissions.add((Permission) enum.nextElement());
         }
+    }
+
+    private static Subject createDefaultSubject(Security security) {
+
+        Subject defaultSubject = new Subject();
+
+        DefaultPrincipal principal = security.getDefaultPrincipal();
+
+        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal.getPrincipal(), principal.getRealmName());
+        if (realmPrincipal == null) throw new GeronimoSecurityException("Unable to create realm principal");
+        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(principal.getPrincipal(), principal.getRealmName());
+        if (primaryRealmPrincipal == null) throw new GeronimoSecurityException("Unable to create primary realm principal");
+
+        defaultSubject.getPrincipals().add(realmPrincipal);
+        defaultSubject.getPrincipals().add(primaryRealmPrincipal);
+
+        return defaultSubject;
     }
 
     /**

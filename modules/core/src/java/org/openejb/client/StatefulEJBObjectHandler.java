@@ -47,6 +47,8 @@ package org.openejb.client;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 
+import org.apache.geronimo.security.ContextManager;
+
 /**
  * 
  * @since 11/25/2001
@@ -56,12 +58,12 @@ public class StatefulEJBObjectHandler extends EJBObjectHandler {
     public StatefulEJBObjectHandler() {
     }
 
-    public StatefulEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client){
-        super(ejb, server, client);
+    public StatefulEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server){
+        super(ejb, server);
     }
     
-    public StatefulEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client, Object primaryKey){
-        super(ejb, server, client, primaryKey);
+    public StatefulEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, Object primaryKey){
+        super(ejb, server, primaryKey);
         registerHandler( primaryKey, this );
     }
     
@@ -135,7 +137,7 @@ public class StatefulEJBObjectHandler extends EJBObjectHandler {
     protected Object remove(Method method, Object[] args, Object proxy) throws Throwable{
 
         EJBRequest req = new EJBRequest( EJB_OBJECT_REMOVE ); 
-        req.setClientIdentity( client.getClientIdentity() );
+        req.setClientIdentity( ContextManager.getThreadPrincipal() );
         req.setContainerCode( ejb.deploymentCode );
         req.setContainerID(   ejb.deploymentID );
         req.setMethodInstance( method );

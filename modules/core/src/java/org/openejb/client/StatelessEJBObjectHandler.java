@@ -64,12 +64,12 @@ public class StatelessEJBObjectHandler extends EJBObjectHandler {
     public StatelessEJBObjectHandler(){
     }
     
-    public StatelessEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client){
-        super(ejb, server, client);
+    public StatelessEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server){
+        super(ejb, server);
     }
     
-    public StatelessEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client, Object primaryKey){
-        super(ejb, server, client, primaryKey);
+    public StatelessEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, Object primaryKey){
+        super(ejb, server, primaryKey);
     }
     
     // This should only be created at the server side and should not reference Container

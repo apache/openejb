@@ -47,6 +47,8 @@ package org.openejb.client;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 
+import org.apache.geronimo.security.ContextManager;
+
 /**
  * This InvocationHandler and its proxy are serializable and can be used by
  * HomeHandle, Handle, and MetaData to persist and revive handles. It maintains
@@ -60,12 +62,12 @@ public class EntityEJBObjectHandler extends EJBObjectHandler {
     public EntityEJBObjectHandler(){
     }
     
-    public EntityEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client){
-        super(ejb, server, client);
+    public EntityEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server){
+        super(ejb, server);
     }
     
-    public EntityEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client, Object primaryKey){
-        super(ejb, server, client, primaryKey);
+    public EntityEJBObjectHandler(EJBMetaDataImpl ejb, ServerMetaData server, Object primaryKey){
+        super(ejb, server, primaryKey);
         registryId = ejb.deploymentID+":"+primaryKey;
         registerHandler( registryId, this );
     }
@@ -117,7 +119,7 @@ public class EntityEJBObjectHandler extends EJBObjectHandler {
         
         req.setMethodParameters( args );
         req.setMethodInstance( method );
-        req.setClientIdentity( client.getClientIdentity() );
+        req.setClientIdentity( ContextManager.getThreadPrincipal() );
         req.setContainerCode( ejb.deploymentCode );
         req.setContainerID( ejb.deploymentID );
         req.setPrimaryKey( primaryKey );

@@ -45,8 +45,9 @@
 package org.openejb.client;
 
 import java.lang.reflect.Method;
-import java.rmi.RemoteException;
 import javax.ejb.RemoveException;
+
+import org.apache.geronimo.security.ContextManager;
 
 /**
  * This InvocationHandler and its proxy are serializable and can be used by
@@ -60,8 +61,8 @@ public class StatefulEJBHomeHandler extends EJBHomeHandler {
     public StatefulEJBHomeHandler(){
     }
     
-    public StatefulEJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client){
-        super(ejb, server, client);
+    public StatefulEJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData server){
+        super(ejb, server);
     }
     
     /**
@@ -137,7 +138,7 @@ public class StatefulEJBHomeHandler extends EJBHomeHandler {
         }
 
         EJBRequest req = new EJBRequest( EJB_HOME_REMOVE_BY_HANDLE ); 
-        req.setClientIdentity( client.getClientIdentity() );
+        req.setClientIdentity( ContextManager.getThreadPrincipal() );
         req.setContainerCode( handler.ejb.deploymentCode );
         req.setContainerID(   handler.ejb.deploymentID );
         req.setMethodInstance( method );

@@ -50,6 +50,8 @@ import java.rmi.RemoteException;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 
+import org.apache.geronimo.security.ContextManager;
+
 /**
  * 
  * @since 11/25/2001
@@ -59,8 +61,8 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
     public EntityEJBHomeHandler(){
     }
     
-    public EntityEJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client){
-        super(ejb, server, client);
+    public EntityEJBHomeHandler(EJBMetaDataImpl ejb, ServerMetaData server){
+        super(ejb, server);
     }
    
     /**
@@ -121,7 +123,7 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
         
         req.setMethodParameters( args );
         req.setMethodInstance( method );
-        req.setClientIdentity( client.getClientIdentity() );
+        req.setClientIdentity( ContextManager.getThreadPrincipal() );
         req.setContainerCode( ejb.deploymentCode );
         req.setContainerID( ejb.deploymentID );
         req.setPrimaryKey( primaryKey );
@@ -142,7 +144,7 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
         
         case EJB_OK_FOUND:
             primKey = res.getResult();
-            handler = EJBObjectHandler.createEJBObjectHandler(ejb,server,client,primKey);
+            handler = EJBObjectHandler.createEJBObjectHandler(ejb,server,primKey);
             handler.setEJBHomeProxy((EJBHomeProxy)proxy);
             registerHandler(ejb.deploymentID+":"+primKey, handler);
             return handler.createEJBObjectProxy();
@@ -156,7 +158,7 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
 
             for (int i=0; i < primaryKeys.length; i++){
                 primKey = primaryKeys[i];
-                handler = EJBObjectHandler.createEJBObjectHandler(ejb,server,client,primKey);
+                handler = EJBObjectHandler.createEJBObjectHandler(ejb,server,primKey);
                 handler.setEJBHomeProxy((EJBHomeProxy)proxy);
                 registerHandler(ejb.deploymentID+":"+primKey, handler);
                 primaryKeys[i] = handler.createEJBObjectProxy();
@@ -168,7 +170,7 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
 
             for (int i=0; i < primaryKeys.length; i++){
                 primKey = primaryKeys[i];
-                handler = EJBObjectHandler.createEJBObjectHandler(ejb,server,client,primKey);
+                handler = EJBObjectHandler.createEJBObjectHandler(ejb,server,primKey);
                 handler.setEJBHomeProxy((EJBHomeProxy)proxy);
                 registerHandler(ejb.deploymentID+":"+primKey, handler);
                 primaryKeys[i] = handler.createEJBObjectProxy();
