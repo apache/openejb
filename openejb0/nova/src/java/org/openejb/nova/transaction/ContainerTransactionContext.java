@@ -148,4 +148,22 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
             return false;
         }
     }
+    
+    public void setRollbackOnly() throws IllegalStateException, SystemException {
+        if (tx == null) {
+            throw new IllegalStateException("There is no transaction in progress.");
+        }
+        tx.setRollbackOnly();
+    }
+
+    public boolean getRollbackOnly() throws SystemException {
+        if (tx == null) {
+            throw new IllegalStateException("There is no transaction in progress.");
+        }
+
+        int status = tx.getStatus();
+        return (status == Status.STATUS_MARKED_ROLLBACK || 
+                status == Status.STATUS_ROLLEDBACK || 
+                status == Status.STATUS_ROLLING_BACK );
+    }
 }

@@ -50,19 +50,18 @@ package org.openejb.nova;
 import java.security.Identity;
 import java.security.Principal;
 import java.util.Properties;
-import java.util.Map;
-import java.util.HashMap;
-
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.TimerService;
+import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
-import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
+import org.openejb.nova.transaction.ContainerTransactionContext;
+import org.openejb.nova.transaction.TransactionContext;
 
 /**
  * Implementation of EJBContext that uses the State pattern to determine
@@ -183,17 +182,41 @@ public abstract class EJBContextImpl {
         public void setRollbackOnly(EJBInstanceContext context) {
             TransactionDemarcation demarcation = context.getContainer().getDemarcation();
             if (demarcation.isContainer()) {
-                throw new IllegalStateException("getUserTransaction is not allowed when using Container Managed Transactions");
+                TransactionContext ctx = TransactionContext.getContext();
+                if (ctx instanceof ContainerTransactionContext) {
+                    ContainerTransactionContext containerContext = (ContainerTransactionContext) ctx;
+                    try {
+                        containerContext.setRollbackOnly();
+                    } catch (SystemException e) {
+                        throw new EJBException(e);
+                    }
+                } else {
+                    throw new IllegalStateException("There is no transaction in progess.");
+                }
+               
+            } else {
+                throw new IllegalStateException("Calls to setRollbackOnly are not allowed for SessionBeans with bean-managed transaction demarcation");
             }
-            throw new UnsupportedOperationException();
         }
 
         public boolean getRollbackOnly(EJBInstanceContext context) {
             TransactionDemarcation demarcation = context.getContainer().getDemarcation();
             if (demarcation.isContainer()) {
-                throw new IllegalStateException("getUserTransaction is not allowed when using Container Managed Transactions");
+                TransactionContext ctx = TransactionContext.getContext();
+                if (ctx instanceof ContainerTransactionContext) {
+                    ContainerTransactionContext containerContext = (ContainerTransactionContext) ctx;
+                    try {
+                        return containerContext.getRollbackOnly();
+                    } catch (SystemException e) {
+                        throw new EJBException(e);
+                    }
+                } else {
+                    throw new IllegalStateException("There is no transaction in progess.");
+                }
+               
+            } else {
+                throw new IllegalStateException("Calls to getRollbackOnly are not allowed for SessionBeans with bean-managed transaction demarcation");
             }
-            throw new UnsupportedOperationException();
         }
 
         public TimerService getTimerService() {
