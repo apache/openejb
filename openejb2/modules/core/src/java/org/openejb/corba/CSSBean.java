@@ -261,7 +261,7 @@ public class CSSBean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(CSSBean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(CSSBean.class, "CORBACSS");
 
         infoFactory.addAttribute("configAdapter", String.class, true);
         infoFactory.addAttribute("description", String.class, true);

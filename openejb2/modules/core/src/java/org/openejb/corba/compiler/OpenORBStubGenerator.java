@@ -213,11 +213,11 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
         // Install the lame tools jar hack
         ToolsJarHack.install();
 
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBStubGenerator.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBStubGenerator.class, NameFactory.CORBA_SERVICE);
         infoFactory.addInterface(StubGenerator.class);
         infoFactory.addAttribute("verbose", Boolean.TYPE, true);
         infoFactory.addAttribute("props", Properties.class, true);
-        infoFactory.addReference("Compiler", Compiler.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("Compiler", Compiler.class, NameFactory.CORBA_SERVICE);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

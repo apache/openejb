@@ -320,7 +320,7 @@ by the server.
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="listener">openejb:type=SoapHttpListener</attribute>
-        <reference name="SkeletonGenerator"><gbean-name>openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</gbean-name></reference>
+        <reference name="SkeletonGenerator"><name>OpenORBSkeletonGenerator</name></reference>
         <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
 
@@ -339,27 +339,27 @@ by the server.
     </gbean>
 
     <!-- these need names that include the parent id so they don't conflict with the deployer namens-->
-    <gbean gbeanName="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>
+    <gbean name="AntCompiler" class="org.openejb.corba.compiler.AntCompiler"/>
 
-    <gbean gbeanName="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">
+    <gbean name="OpenORBSkeletonGenerator" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">
         <attribute name="props">
         </attribute>
-        <reference name="Compiler"><gbean-name>openejb.CORBA:type=Compiler,vendor=Ant</gbean-name></reference>
+        <reference name="Compiler"><name>AntCompiler</name></reference>
     </gbean>
 
-    <gbean gbeanName="openejb.CORBA:type=StubGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBStubGenerator">
-        <reference name="Compiler"><gbean-name>openejb.CORBA:type=Compiler,vendor=Ant</gbean-name></reference>
+    <gbean name="OpenORBStubGenerator" class="org.openejb.corba.compiler.OpenORBStubGenerator">
+        <reference name="Compiler"><name>AntCompiler</name></reference>
     </gbean>
 
-    <gbean gbeanName="openejb.CORBA:type=StubClassLoader,vendor=OpenORB" class="org.openejb.corba.util.OpenORBStubClassLoader">
+    <gbean name="OpenORBStubClassLoader" class="org.openejb.corba.util.OpenORBStubClassLoader">
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
-        <reference name="StubGenerator"><gbean-name>openejb.CORBA:type=StubGenerator,vendor=OpenORB</gbean-name></reference>
+        <reference name="StubGenerator"><name>OpenORBStubGenerator</name></reference>
         <attribute name="cacheDir">var/caches</attribute>
     </gbean>
 
     <!-- end deployment block -->
 
-    <gbean gbeanName="openejb.CORBA:type=Server" class="org.openejb.corba.CORBABean">
+    <gbean name="Server" class="org.openejb.corba.CORBABean">
         <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
         <attribute name="args">-ORBPort, 683, -ORBInitRef, NameService=corbaloc::localhost:2809/NameService</attribute>
         <attribute name="configAdapter">org.openejb.corba.openorb.OpenORBConfigAdapter</attribute>
@@ -402,7 +402,7 @@ by the server.
         </xml-attribute>
     </gbean>
 
-    <gbean gbeanName="openejb.CORBA:type=NameServer" class="org.openejb.corba.OpenORBNameBean">
+    <gbean name="NameServer" class="org.openejb.corba.OpenORBNameBean">
         <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
         <attribute name="args">-ORBPort, 2809</attribute>
         <attribute name="props">
@@ -411,17 +411,17 @@ by the server.
 
     </gbean>
 
-    <gbean gbeanName="openejb.CORBA:type=TSS,domain=org/openejb/Itests" class="org.openejb.corba.TSSBean">
+    <gbean name="org/openejb/Itests" class="org.openejb.corba.TSSBean">
         <attribute name="POAName">org/openejb/POA</attribute>
-        <reference name="Server"><gbean-name>openejb.CORBA:type=Server</gbean-name></reference>
+        <reference name="Server"><name>Server</name></reference>
         <reference name="Containers"><gbean-name>openejb.server:EJBModule=org/openejb/scenario001,*</gbean-name></reference>
-        <reference name="TieLoader"><gbean-name>openejb.CORBA:type=TieLoader,name=ClasspathTieLoader</gbean-name></reference>
+        <reference name="TieLoader"><name>ClasspathTieLoader</name></reference>
         <xml-attribute name="tssConfig">
             <tss:tss inherit="true" xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config_1_0"/>
         </xml-attribute>
     </gbean>
 
-    <gbean gbeanName="openejb.CORBA:type=CSS,domain=IOR7" class="org.openejb.corba.CSSBean">
+    <gbean name="IOR7" class="org.openejb.corba.CSSBean">
         <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
         <reference name="TransactionContextManager"><name>TransactionContextManager</name></reference>
         <attribute name="configAdapter">org.openejb.corba.openorb.OpenORBConfigAdapter</attribute>
@@ -458,10 +458,10 @@ by the server.
         </xml-attribute>
     </gbean>
 
-    <gbean gbeanName="openejb.CORBA:type=OpenORBUtil" class="org.openejb.corba.util.OpenORBUtil">
-        <reference name="Server"><gbean-name>openejb.CORBA:type=Server</gbean-name></reference>
+    <gbean name="OpenORBUtil" class="org.openejb.corba.util.OpenORBUtil">
+        <reference name="Server"><name>Server</name></reference>
     </gbean>
 
-    <gbean gbeanName="openejb.CORBA:type=TieLoader,name=ClasspathTieLoader" class="org.openejb.corba.util.ClasspathTieLoader"/>
+    <gbean name="ClasspathTieLoader" class="org.openejb.corba.util.ClasspathTieLoader"/>
 
 </configuration>

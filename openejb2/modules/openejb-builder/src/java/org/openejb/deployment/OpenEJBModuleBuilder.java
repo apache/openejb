@@ -593,7 +593,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addAttribute("listener", ObjectName.class, true);
-        infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class, NameFactory.CORBA_SERVICE);
         infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(EJBReferenceBuilder.class);

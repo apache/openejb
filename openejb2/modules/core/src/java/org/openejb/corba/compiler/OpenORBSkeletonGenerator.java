@@ -217,11 +217,11 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
         // Install the lame tools jar hack
         ToolsJarHack.install();
 
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBSkeletonGenerator.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBSkeletonGenerator.class, NameFactory.CORBA_SERVICE);
         infoFactory.addInterface(SkeletonGenerator.class);
         infoFactory.addAttribute("verbose", Boolean.TYPE, true);
         infoFactory.addAttribute("props", Properties.class, true);
-        infoFactory.addReference("Compiler", Compiler.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("Compiler", Compiler.class, NameFactory.CORBA_SERVICE);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.setConstructor(new String[]{"classLoader"});
 

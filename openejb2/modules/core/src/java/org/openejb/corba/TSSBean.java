@@ -236,14 +236,14 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TSSBean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TSSBean.class, "CORBATSS");
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("POAName", String.class, true);
-        infoFactory.addReference("Server", CORBABean.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("Server", CORBABean.class, NameFactory.CORBA_SERVICE);
         infoFactory.addAttribute("tssConfig", TSSConfig.class, true);
         infoFactory.addReference("Containers", EJBContainer.class);//many types
-        infoFactory.addReference("TieLoader", TieLoader.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("TieLoader", TieLoader.class, NameFactory.CORBA_SERVICE);
         infoFactory.setConstructor(new String[]{"classLoader", "POAName", "Server", "TieLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();

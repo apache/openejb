@@ -97,9 +97,9 @@ public class OpenORBUtil implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBUtil.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBUtil.class, NameFactory.CORBA_SERVICE);
 
-        infoFactory.addReference("Server", CORBABean.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("Server", CORBABean.class, NameFactory.CORBA_SERVICE);
         infoFactory.setConstructor(new String[]{"Server"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
