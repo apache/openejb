@@ -98,57 +98,57 @@
 
         </j:if>
 
-</goal>
+    </goal>
 
-<goal name="itest:setup">
-    <ant:delete dir="${maven.build.dir}/openejb"/>
-    <deploy:unpackServer
-        geronimoVersion="2.0-SNAPSHOT"
-        geronimoName="openejb"
-        targetDir="${maven.build.dir}/openejb"/>
-    <deploy:startRemoteServer
-        geronimoTarget="${maven.build.dir}/openejb"
-        vmArgs="-Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"
-        configs="org/apache/geronimo/DefaultDatabase"/>
-    <deploy:waitForStarted
-        uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-        username="system"
-        password="manager"
-        id="org/apache/geronimo/DefaultDatabase"/>
-    <echo message="server has started"/>
-    <deploy:distribute
-        uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-        username="system"
-        password="manager"
-        home="${basedir}"
-        module="${maven.repo.local}/openejb/ejbs/openejb-itests-ejb-${pom.currentVersion}.jar"
-        />
-    <echo message="distributed ejbs"/>
-    <deploy:start
-        uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-        username="system"
-        password="manager"
-        id="org/openejb/Itests"/>
-    <!--        <j:set var="itest.failure.ignore" value="true"/>-->
-</goal>
+    <goal name="itest:setup">
+        <ant:delete dir="${maven.build.dir}/openejb"/>
+        <deploy:unpackServer
+            geronimoVersion="2.0-SNAPSHOT"
+            geronimoName="openejb"
+            targetDir="${maven.build.dir}/openejb"/>
+        <deploy:startRemoteServer
+            geronimoTarget="${maven.build.dir}/openejb"
+            vmArgs="-Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"
+            configs="org/apache/geronimo/DefaultDatabase"/>
+        <deploy:waitForStarted
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/DefaultDatabase"/>
+        <echo message="server has started"/>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            home="${basedir}"
+            module="${maven.repo.local}/openejb/ejbs/openejb-itests-ejb-${pom.currentVersion}.jar"
+            />
+        <echo message="distributed ejbs"/>
+        <deploy:start
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/Itests"/>
+        <!--        <j:set var="itest.failure.ignore" value="true"/>-->
+    </goal>
 
-<goal name="itest:teardown">
-    <deploy:stop
-        uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-        username="system"
-        password="manager"
-        id="org/openejb/Itests"/>
-    <deploy:undeploy
-        uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-        username="system"
-        password="manager"
-        id="org/openejb/Itests"/>
-    <echo message="undeployed ejbs"/>
-    <deploy:stopRemoteServer
-        uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-        username="system"
-        password="manager"/>
-    <echo message="server has stopped"/>
-</goal>
+    <goal name="itest:teardown">
+        <deploy:stop
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/Itests"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/Itests"/>
+        <echo message="undeployed ejbs"/>
+        <deploy:stopRemoteServer
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"/>
+        <echo message="server has stopped"/>
+    </goal>
 
 </project>
