@@ -95,7 +95,10 @@ import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
+import org.tranql.cache.CacheFlushStrategyFactory;
+import org.tranql.cache.EnforceRelationshipsFlushStrategyFactory;
 import org.tranql.cache.GlobalSchema;
+import org.tranql.cache.SimpleFlushStrategyFactory;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.sql.DataSourceDelegate;
@@ -335,11 +338,17 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
         // EJBModule GBean
         GerResourceLocatorType connectionFactoryLocator = openejbEjbJar.getCmpConnectionFactory();
+        CacheFlushStrategyFactory flushStrategyFactory;
+        if ( openejbEjbJar.isSetEnforceForeignKeyConstraints() ) {
+            flushStrategyFactory = new EnforceRelationshipsFlushStrategyFactory();
+        } else {
+            flushStrategyFactory = new SimpleFlushStrategyFactory();
+        }
         EJBSchema ejbSchema = new EJBSchema(module.getName());
         TransactionManagerDelegate tmDelegate = new TransactionManagerDelegate();
         DataSourceDelegate delegate = new DataSourceDelegate();
         SQL92Schema sqlSchema = new SQL92Schema(module.getName(), delegate);
-        GlobalSchema globalSchema = new GlobalSchema(module.getName());
+        GlobalSchema globalSchema = new GlobalSchema(module.getName(), flushStrategyFactory);
 
         GBeanMBean ejbModuleGBean = new GBeanMBean(EJBModuleImpl.GBEAN_INFO, cl);
         try {
@@ -403,8 +412,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
         entityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, security, enterpriseBeans);
 
-        //TODO appears that connectionFactoryName is not used -- this is the null parameter
-        cmpEntityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, null, ejbSchema, sqlSchema, globalSchema, openejbBeans, transactionPolicyHelper, security, enterpriseBeans, tmDelegate);
+        cmpEntityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, ejbSchema, sqlSchema, globalSchema, openejbBeans, transactionPolicyHelper, security, enterpriseBeans, tmDelegate);
 
         mdbBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, security, enterpriseBeans);
 

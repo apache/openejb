@@ -70,10 +70,10 @@ import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
 import org.openejb.entity.BusinessMethod;
 import org.openejb.entity.EntityInstanceFactory;
-import org.openejb.entity.EntityInterceptorBuilder;
 import org.openejb.entity.HomeMethod;
 import org.openejb.entity.cmp.CMP1Bridge;
 import org.openejb.entity.cmp.CMPCreateMethod;
+import org.openejb.entity.cmp.CMPEntityInterceptorBuilder;
 import org.openejb.entity.cmp.CMPGetter;
 import org.openejb.entity.cmp.CMPInstanceContextFactory;
 import org.openejb.entity.cmp.CMPRemoveMethod;
@@ -144,7 +144,6 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     private Schema sqlSchema;
     private GlobalSchema globalSchema;
     private EJB ejb;
-    private String connectionFactoryName;
     private Map queries;
     private TransactionManagerDelegate tm;
 
@@ -159,14 +158,6 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     protected int getEJBComponentType() {
         return EJBComponentType.CMP_ENTITY;
     }
-
-//    public String getConnectionFactoryName() {
-//        return connectionFactoryName;
-//    }
-//
-//    public void setConnectionFactoryName(String connectionFactoryName) {
-//        this.connectionFactoryName = connectionFactoryName;
-//    }
 
     public Map getQueries() {
         return queries;
@@ -207,7 +198,13 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     public void setTransactionManagerDelegate(TransactionManagerDelegate tm) {
         this.tm = tm;
     }
-
+    
+    protected InterceptorBuilder initializeInterceptorBuilder(CMPEntityInterceptorBuilder interceptorBuilder, InterfaceMethodSignature[] signatures, VirtualOperation[] vtable) {
+        super.initializeInterceptorBuilder(interceptorBuilder, signatures, vtable);
+        interceptorBuilder.setCacheFlushStrategyFactory(globalSchema.getCacheFlushStrategyFactorr());
+        return interceptorBuilder;
+    }
+    
     protected Object buildIt(boolean buildContainer) throws Exception {
         ejb = ejbSchema.getEJB(getEJBName());
         if (ejb == null) {
@@ -314,7 +311,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
 
         // create and intitalize the interceptor moduleBuilder
-        InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new EntityInterceptorBuilder(), signatures, vtable);
+        InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new CMPEntityInterceptorBuilder(), signatures, vtable);
 
         InstanceContextFactory contextFactory = new CMPInstanceContextFactory(getContainerId(), cmp1Bridge, primaryKeyTransform, faultHandler, beanClass, instanceMap, getUnshareableResources(), getApplicationManagedSecurityResources());
         EntityInstanceFactory instanceFactory = new EntityInstanceFactory(contextFactory);
@@ -435,24 +432,6 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 identityDefiner,
                 new ReferenceAccessor(relatedIdentityDefiner));
     }
-
-    private static final Map DEFAULTS = new HashMap();
-
-    static {
-        DEFAULTS.put(Boolean.TYPE, Boolean.FALSE);
-        DEFAULTS.put(Byte.TYPE, new Byte((byte) 0));
-        DEFAULTS.put(Short.TYPE, new Short((short) 0));
-        DEFAULTS.put(Integer.TYPE, new Integer(0));
-        DEFAULTS.put(Long.TYPE, new Long(0L));
-        DEFAULTS.put(Float.TYPE, new Float(0.0f));
-        DEFAULTS.put(Double.TYPE, new Double(0.0d));
-        DEFAULTS.put(Character.TYPE, new Character(Character.MIN_VALUE));
-    }
-
-//    private Object getDefault(Class type) {
-//        // assumes get returns null and that is valid ...
-//        return DEFAULTS.get(type);
-//    }
 
     private Map buildInstanceMap(Class beanClass, LinkedHashMap cmpFields, LinkedHashMap cmrFields) {
         Map instanceMap;

@@ -454,7 +454,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         CacheSlot slots[] = new CacheSlot[2];
         slots[0] = new CacheSlot("id", Integer.class, null);
         slots[1] = new CacheSlot("value", String.class, null);
-        CacheTable cacheTable = new CacheTable("MockEJB", slots, createCommand, storeCommand, removeCommand);
+        CacheTable cacheTable = new CacheTable("MockEJB", slots, null, createCommand, storeCommand, removeCommand);
         globalSchema.addCacheTable(cacheTable);
         
         builder.setQueries(new HashMap());
