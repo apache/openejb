@@ -48,9 +48,16 @@ import java.rmi.RemoteException;
 import javax.ejb.CreateException;
 
 /**
+ * The home interface for the deployer bean.
  *
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public interface DeployerHome extends javax.ejb.EJBHome {
+	/**
+	 * creates a deployer bean
+	 * @return a DeployerObject
+	 * @throws RemoteException if something in the system goes wrong
+	 * @throws CreateException if the bean can't be created
+	 */
     public DeployerObject create() throws RemoteException, CreateException;
 }

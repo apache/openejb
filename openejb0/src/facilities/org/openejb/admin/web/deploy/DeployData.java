@@ -46,6 +46,8 @@ package org.openejb.admin.web.deploy;
 import java.io.Serializable;
 
 /**
+ * A simple data object which holds deployment information 
+ * 
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class DeployData implements Serializable {

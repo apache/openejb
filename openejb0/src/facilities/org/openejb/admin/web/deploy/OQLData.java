@@ -48,6 +48,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * A simple data object for OQL statements.
+ * 
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class OQLData implements Serializable {
