@@ -47,14 +47,19 @@
  */
 package org.openejb.security;
 
-import java.security.Permission;
 import java.io.Serializable;
+import java.security.Permission;
 import javax.security.jacc.EJBMethodPermission;
 
 import org.openejb.EJBInterfaceType;
 import org.openejb.dispatch.InterfaceMethodSignature;
 
+
 /**
+ * Create a sparse matrix of pre-created EJB permissions.
+ * <p/>
+ * TODO: This matrix isn't sparse enough for the likes of certain cheeseheads.
+ *
  * @version $Revision$ $Date$
  */
 public final class PermissionManager implements Serializable {
@@ -68,8 +73,20 @@ public final class PermissionManager implements Serializable {
         permissions[EJBInterfaceType.WEB_SERVICE.getOrdinal()] = mapPermissions(ejbName, "ServiceEndpoint", signatures);
     }
 
+    /**
+     * Return the permission for that invocation type and operation index.
+     * Note that the permissions matrix is sparse and it may return null.
+     *
+     * @param invocationType the invocation type
+     * @param operationIndex the operation index
+     * @return
+     */
     public Permission getPermission(EJBInterfaceType invocationType, int operationIndex) {
-        return permissions[invocationType.getOrdinal()][operationIndex];
+        Permission[] pArray = permissions[invocationType.getOrdinal()];
+
+        if (pArray == null) return null;
+
+        return pArray[operationIndex];
     }
 
     private static Permission[] mapPermissions(String ejbName, String intfName, InterfaceMethodSignature[] signatures) {

@@ -89,7 +89,7 @@ public final class EJBSecurityInterceptor implements Interceptor {
             AccessControlContext accessContext = ContextManager.getCurrentContext();
             if (accessContext != null) {
                 Permission permission = permissionManager.getPermission(ejbInvocation.getType(), ejbInvocation.getMethodIndex());
-                accessContext.checkPermission(permission);
+                if (permission != null) accessContext.checkPermission(permission);
             }
 
             ContextManager.setCurrentCaller(ContextManager.getNextCaller());
