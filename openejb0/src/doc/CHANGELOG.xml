@@ -177,6 +177,29 @@
         <Entry task="662325">Documentation for openejb-jar.xml</Entry>
         <Entry task="656321">Fix Broken Links in Tomcat Documentation</Entry>
     </Version>
+
+    <Version id="0.9.2" releaseDate="June 5th, 2003" cvsTag="v0_9_2" 
+        released="true" release_id="163723">
+      <Entry task="725352">Integration Support Servlet for Tomcat/OpenEJB</Entry>
+      <Entry task="749343">Tomcat integration tools: Object invoker</Entry>
+      <Entry task="749342">Tomcat integration tools: Class browser</Entry>
+      <Entry task="749340">Tomcat integration tools: EJB Viewer</Entry>
+      <Entry task="749338">Tomcat integration tools: JNDI Browser</Entry>
+      <Entry task="744270">Create openejb.base variable</Entry>
+      <Entry task="540425">Make OpenEJB executable from any directo</Entry>
+      <Entry task="732017">Tomcat integration explicit checks for openejb.home validity</Entry>
+      <Entry task="698103">Config properties for Stateless Container</Entry>
+      <Entry bug="687404">java.io.FileNotFoundException: logs/openejb.log</Entry>
+      <Entry bug="703049">CMP problems when embedded in Tomcat -- Database not found</Entry>
+      <Entry bug="725781">OpenEJB 0.9.1 + Tomcat 4.1.24 JMX Security issue</Entry>
+      <Entry bug="702265">Erroneous Code for HelloOpenEJB.java</Entry>
+      <Entry bug="746771">Stateless isIdentical bug</Entry>
+      <Entry bug="699025">bin/validate.sh use dos eol format</Entry>
+      <Entry bug="658834">PrimaryKey loades twice</Entry>
+      <Entry bug="699044">bin/validate.sh use dos eol format</Entry>
+      <Entry bug="675760">Entity remove() doesn't work with Supports trans attr</Entry>
+    </Version>
+
 </ChangeLog>
 
 
