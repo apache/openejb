@@ -55,13 +55,7 @@
  */
 package org.openejb.entity.cmp;
 
-import javax.ejb.EJBException;
-import javax.ejb.FinderException;
-
-import org.tranql.cache.InTxCache;
-import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommand;
-import org.tranql.field.Row;
 
 /**
  *
@@ -70,13 +64,15 @@ import org.tranql.field.Row;
  * @version $Revision$ $Date$
  */
 public class CMPSelectMethod implements InstanceOperation {
-    private final org.tranql.query.QueryCommand query;
+    private final QueryCommand query;
 
     public CMPSelectMethod(QueryCommand query) {
         this.query = query;
     }
 
     public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
+        throw new UnsupportedOperationException();
+/*
         try {
             InTxCache inTxCache = ctx.getTransactionContext().getInTxCache();
             return query.execute(inTxCache, new Row(args));
@@ -87,5 +83,6 @@ public class CMPSelectMethod implements InstanceOperation {
         } catch (Exception e) {
             throw new EJBException(e);
         }
+*/
     }
 }

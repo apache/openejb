@@ -74,6 +74,7 @@ import org.openejb.proxy.ProxyInfo;
 import org.tranql.cache.CacheRowAccessor;
 import org.tranql.cache.CacheSlot;
 import org.tranql.cache.CacheTable;
+import org.tranql.cache.EmptySlotLoader;
 import org.tranql.cache.FaultHandler;
 import org.tranql.cache.QueryFaultHandler;
 import org.tranql.ejb.CMPFieldAccessor;
@@ -85,6 +86,7 @@ import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.LocalProxyTransform;
 import org.tranql.ejb.RemoteProxyTransform;
 import org.tranql.ejb.SimplePKTransform;
+import org.tranql.field.FieldAccessor;
 import org.tranql.identity.IdentityDefiner;
 import org.tranql.identity.IdentityTransform;
 import org.tranql.identity.UserDefinedIdentity;
@@ -165,9 +167,17 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         IdentityTransform remoteProxyTransform = new RemoteProxyTransform(primaryKeyTransform, proxyFactory);
         IdentityDefiner identityDefiner = getIdentityDefiner(cacheTable);
 
-        QueryCommand loadCommand = queryBuilder.buildLoadAll(getEJBName());
+        List attributes = ejb.getAttributes();
+        EmptySlotLoader[] slotLoaders = new EmptySlotLoader[attributes.size()];
+        String[] attributeNames = new String[attributes.size()];
+        for (int i = 0; i < attributes.size(); i++) {
+            Attribute attr = (Attribute) attributes.get(i);
+            attributeNames[i] = attr.getPhysicalName();
+            slotLoaders[i] = new EmptySlotLoader(i, new FieldAccessor(i, attr.getType()));
+        }
+        QueryCommand loadCommand = queryBuilder.buildLoad(getEJBName(), attributeNames);
         loadCommand = mapper.transform(loadCommand);
-        FaultHandler faultHandler = new QueryFaultHandler(loadCommand, identityDefiner);
+        FaultHandler faultHandler = new QueryFaultHandler(loadCommand, identityDefiner, slotLoaders);
 
         // queries
         LinkedHashMap queryCommands = new LinkedHashMap();
@@ -188,8 +198,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 */
 
         // findByPrimaryKey
-        QueryCommand localProxyLoad = queryBuilder.buildFindByPrimaryKey(getEJBName(), true);
-        QueryCommand remoteProxyLoad = queryBuilder.buildFindByPrimaryKey(getEJBName(), false);
+        QueryCommand localProxyLoad = mapper.transform(queryBuilder.buildFindByPrimaryKey(getEJBName(), true));
+        QueryCommand remoteProxyLoad = mapper.transform(queryBuilder.buildFindByPrimaryKey(getEJBName(), false));
         queryCommands.put(
                 new InterfaceMethodSignature("findByPrimaryKey", new String[]{getPrimaryKeyClassName()}, true),
                 new QueryCommand[]{localProxyLoad, remoteProxyLoad});
@@ -417,11 +427,11 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
             String returnType = method.getReturnType().getName();
             if (returnType.equals("java.util.Collection")) {
-                vopMap.put(signature, new CMPFinder(queryCommands[0], queryCommands[1], new ArrayListResultFactory()));
-            } else if(returnType.equals("java.util.Set")) {
-                vopMap.put(signature, new CMPFinder(queryCommands[0], queryCommands[1], new HashSetResultFactory()));
+                vopMap.put(signature, new CollectionValuedFinder(queryCommands[0], queryCommands[1]));
+            } else if(returnType.equals("java.util.Enumeration")) {
+                vopMap.put(signature, new EnumerationValuedFinder(queryCommands[0], queryCommands[1]));
             } else {
-                vopMap.put(signature, new CMPFinder(queryCommands[0], queryCommands[1], new SingleValuedQueryResultsFactory()));
+                vopMap.put(signature, new SingleValuedFinder(queryCommands[0], queryCommands[1]));
             }
         }
         return vopMap;

@@ -235,9 +235,8 @@ public class EJBConfigBuilderTest extends TestCase {
             assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
             Object cmp = cmpHome.getClass().getMethod("create", new Class[] {Integer.class}).invoke(cmpHome, new Object[] {new Integer(42)});
 
-// JNB: disabled due to problem with fault handler
-//            cmp.getClass().getMethod("setFirstName", new Class[] {String.class}).invoke(cmp, new Object[] {"MyFistName"});
-//            assertEquals("MyFistName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
+            cmp.getClass().getMethod("setFirstName", new Class[] {String.class}).invoke(cmp, new Object[] {"MyFistName"});
+            assertEquals("MyFistName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
 
             kernel.stopGBean(objectName);
             kernel.stopGBean(connectionProxyFactoryObjectName);
