@@ -93,13 +93,13 @@ REM================================================
    echo "_________________________________________________"
    echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
    echo " "
-   echo "Running EJB compliance tests on IntraVM Servera"
+   echo "Running EJB compliance tests on IntraVM Server"
    echo "_________________________________________________"
    call .\bin\test.bat src/tests-ejb/IvmServer_config.properties org.openejb.test.IvmTestServer
    echo "_________________________________________________"
    echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
    echo " "
-   echo "Running EJB compliance tests on EJB Serverv"
+   echo "Running EJB compliance tests on EJB Server"
    echo "_________________________________________________"
    echo " 1. Starting OpenEJB Server..."
    start "OpenEJB Server" .\bin\ejbserver.bat > ejb.server.log 2>&1   
