@@ -55,7 +55,7 @@ import java.net.Socket;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.openejb.ContainerIndex;
@@ -120,7 +120,7 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(SimpleSocketService.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SimpleSocketService.class);
 
         infoFactory.addAttribute("serviceClassName", String.class, true);
         infoFactory.addAttribute("onlyFrom", InetAddress[].class, true);
