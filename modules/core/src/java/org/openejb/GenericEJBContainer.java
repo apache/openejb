@@ -442,7 +442,9 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
         infoFactory.addAttribute("proxyFactory", EJBProxyFactory.class, false);
         infoFactory.addAttribute("ejbHome", EJBHome.class, false);
+        infoFactory.addAttribute("ejbObject", EJBObject.class, false);
         infoFactory.addAttribute("ejbLocalHome", EJBLocalHome.class, false);
+        infoFactory.addAttribute("ejbLocalObject", EJBLocalObject.class, false);
         infoFactory.addAttribute("unmanagedReference", EJBContainer.class, false);
 
         infoFactory.addAttribute("SecurityConfiguration", SecurityConfiguration.class, true);
@@ -481,7 +483,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         return GBEAN_INFO;
     }
 
-    private final class DefaultSubjectInterceptor implements Interceptor {
+    private class DefaultSubjectInterceptor implements Interceptor {
 
         private final Interceptor interceptor;
 
