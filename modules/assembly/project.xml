@@ -12,8 +12,8 @@
 
     <name>OpenEJB :: Assembly</name>
     <id>openejb-assembly</id>
-    <shortDescription>OpenEJb Assembly</shortDescription>
-    <description>OpenEJb Assembly</description>
+    <shortDescription>OpenEJB Assembly</shortDescription>
+    <description>OpenEJB Assembly</description>
 
     <!-- ============ -->
     <!-- Dependencies -->
