@@ -48,11 +48,10 @@
 package org.openejb;
 
 import java.util.Set;
-
-import javax.security.auth.Subject;
-import javax.management.ObjectName;
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
+import javax.management.ObjectName;
+import javax.security.auth.Subject;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.ClassLoading;
@@ -68,14 +67,12 @@ import org.openejb.dispatch.VirtualOperation;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.security.PermissionManager;
 import org.openejb.security.SecurityConfiguration;
-import org.openejb.transaction.TransactionPolicyManager;
-import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.ContainerPolicy;
+import org.openejb.transaction.TransactionPolicy;
+import org.openejb.transaction.TransactionPolicyManager;
 import org.openejb.util.SoftLimitedInstancePool;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public abstract class AbstractContainerBuilder implements ContainerBuilder {
@@ -358,8 +355,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         Class localHomeInterface = loadOptionalClass(localHomeInterfaceName, classLoader);
         Class localInterface = loadOptionalClass(localInterfaceName, classLoader);
         Class primaryKeyClass = loadOptionalClass(primaryKeyClassName, classLoader);
-        ProxyInfo proxyInfo = new ProxyInfo(
-                getEJBComponentType(),
+        ProxyInfo proxyInfo = new ProxyInfo(getEJBComponentType(),
                 containerId,
                 homeInterface,
                 remoteInterface,
@@ -380,14 +376,12 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         return ClassLoading.loadClass(className, classLoader);
     }
 
-    protected EJBContainer createContainer(
-            InterfaceMethodSignature[] signatures,
+    protected EJBContainer createContainer(InterfaceMethodSignature[] signatures,
             InstanceContextFactory contextFactory,
             InterceptorBuilder interceptorBuilder,
             InstancePool pool) throws Exception {
 
-        return new GenericEJBContainer(
-                getContainerId(),
+        return new GenericEJBContainer(getContainerId(),
                 getEJBName(),
                 createProxyInfo(),
                 signatures,
@@ -403,11 +397,11 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 null, //objectname
                 null, //kernel
                 getSecurityConfiguration(),
-                getDefaultSubject());
+                getDefaultSubject(),
+                Thread.currentThread().getContextClassLoader());
     }
 
-    protected GBeanMBean createConfiguration(
-            ClassLoader cl, InterfaceMethodSignature[] signatures,
+    protected GBeanMBean createConfiguration(ClassLoader cl, InterfaceMethodSignature[] signatures,
             InstanceContextFactory contextFactory,
             InterceptorBuilder interceptorBuilder,
             InstancePool pool,
