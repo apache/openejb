@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<faqs>
+    <super id="faq">FAQ</super>
+    <super id="faq_music"></super>
+    <name>OpenEJB with Music</name>
+
+<faq>
+<question>Do you know the sofware has a bug in it?</question> <answer 
+id="life"> <p>
+No, but if you hum a few bars, maybe I can fake it.
+</p> 
+</answer>
+</faq>
+
+       
+<faq>
+<question>How do I get to Carnagie Hall?</question>
+<answer id="life">
+<p>
+Practice, man! Practice.
+</p> 
+</answer>
+</faq>
+
+       
+</faqs>
