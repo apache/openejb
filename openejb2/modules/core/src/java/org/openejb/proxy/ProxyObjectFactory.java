@@ -69,7 +69,6 @@ public class ProxyObjectFactory implements ObjectFactory {
         if (!(refAddr instanceof ProxyRefAddr)) {
             throw new IllegalStateException("Invalid ref addr in Proxy Factory: " + refAddr);
         }
-        ProxyRefAddr proxyRefAddr = (ProxyRefAddr) refAddr;
-        return proxyRefAddr.getContent();
+        return refAddr.getContent();
     }
 }

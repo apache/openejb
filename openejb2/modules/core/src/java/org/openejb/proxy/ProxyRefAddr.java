@@ -49,10 +49,12 @@ package org.openejb.proxy;
 
 import javax.naming.RefAddr;
 
+import org.apache.geronimo.naming.reference.GBeanRefAddr;
+
 /**
  * @version $Revision$ $Date$
  */
-public class ProxyRefAddr extends RefAddr {
+public class ProxyRefAddr extends RefAddr implements GBeanRefAddr {
     public static ProxyRefAddr createRemote(String containerId, boolean sessionBean, String remoteInterfaceName, String homeInterfaceName) {
         return new ProxyRefAddr(containerId, sessionBean, remoteInterfaceName, homeInterfaceName, null, null, false);
     }
@@ -119,5 +121,14 @@ public class ProxyRefAddr extends RefAddr {
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("ejb" + (isLocal ? "-local" : "") + "-ref class not found: " + name);
         }
+    }
+
+    public String getContainerId() {
+        return containerId;
+    }
+
+    public String getKernelName() {
+        //TODO stop using a static instance of ContainerIndex in EJBProxyFactory
+        return null;
     }
 }
