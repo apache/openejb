@@ -120,7 +120,6 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
                 URL url = (URL) nameToClassMap.get(name);
                 if (url == null) {
                     try {
-
                         File file = new File(cacheDir, "STUB_" + (jarId++) + ".jar");
 
                         if (log.isDebugEnabled()) log.debug("Generating stubs in " + file.toString());
@@ -134,11 +133,9 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
                         url = file.toURL();
                         nameToClassMap.put(name, url);
                     } catch (IOException e) {
-                        log.error("Unable to generate stub", e);
-                        throw new ClassNotFoundException("Unable to generate stub", e);
+                        logAndThrow(e);
                     } catch (CompilerException e) {
-                        log.error("Unable to generate stub", e);
-                        throw new ClassNotFoundException("Unable to generate stub", e);
+                        logAndThrow(e);
                     }
                 }
                 loader = new URLClassLoader(new URL[]{url}, classLoader);
@@ -156,6 +153,24 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
         }
         if (log.isDebugEnabled()) log.debug("Could not load class: " + name);
         throw new ClassNotFoundException("Could not load class: " + name);
+    }
+
+    private static void logAndThrow(Exception e) throws ClassNotFoundException {
+        boolean shouldLog = true;
+        StackTraceElement[] stackTrace = e.getStackTrace();
+        for (int i = 0; i < stackTrace.length; i++) {
+            StackTraceElement stackTraceElement = stackTrace[i];
+            if (stackTraceElement.getClassName().equals("org.omg.CosNaming.NamingContextExtPOA") &&
+                    stackTraceElement.getMethodName().equals("_invoke")) {
+                shouldLog = false;
+                break;
+            }
+        }
+        if (shouldLog) {
+            log.error("Unable to generate stub", e);
+        }
+
+        throw new ClassNotFoundException("Unable to generate stub", e);
     }
 
     public synchronized void doStart() throws Exception {
