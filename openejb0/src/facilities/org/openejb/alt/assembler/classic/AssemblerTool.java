@@ -125,7 +125,7 @@ public class AssemblerTool {
     public static final Class CONNECTION_MANAGER = javax.resource.spi.ConnectionManager.class;        
     public static final Class CONNECTOR = javax.resource.spi.ManagedConnectionFactory.class; 
 
-    protected static Messages messages = new Messages( "org.openejb.alt.util.resources" );
+    protected static Messages messages = new Messages( "org.openejb.util.resources" );
     protected static SafeToolkit toolkit = SafeToolkit.getToolkit("AssemblerTool");
     protected static HashMap codebases = new HashMap();
     
