@@ -91,7 +91,7 @@ public final class CORBAProxyReference extends SimpleAwareReference {
         try {
             proxy = kernel.invoke(containerName, "getHome", new Object[]{nsCorbaloc, objectName}, new String[]{URI.class.getName(), String.class.getName()});
         } catch (Exception e) {
-            log.error("Could not get proxy from " + containerName);
+            log.error("Could not get proxy from " + containerName, e);
             throw (IllegalStateException) new IllegalStateException("Could not get proxy").initCause(e);
         }
         if (proxy == null) {
