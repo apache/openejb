@@ -85,7 +85,7 @@
                 <runtime>true</runtime>
             </properties>
         </dependency>
-            
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
@@ -140,7 +140,7 @@
             </properties>
         </dependency>
 
-       <dependency>
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${geronimo_version}</version>
@@ -149,7 +149,7 @@
                 <xmlbeans>true</xmlbeans>
             </properties>
         </dependency>
-            
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
@@ -255,7 +255,7 @@
                 <runtime>true</runtime>
             </properties>
         </dependency>
-        
+
         <dependency>
             <groupId>oro</groupId>
             <artifactId>oro</artifactId>
@@ -352,66 +352,66 @@
         </dependency>
         
         <!-- CORBA -->
-	<dependency>
-	    <groupId>openorb</groupId>
-	    <artifactId>openorb-orb</artifactId>
-	    <version>${openorb_version}</version>
-	    <properties>
-		<runtime>true</runtime>
-	    </properties>
-	</dependency>
-	
-	<dependency>
-	    <groupId>openorb</groupId>
-	    <artifactId>openorb-ins</artifactId>
-	    <version>${openorb_version}</version>
-	    <properties>
-		<runtime>true</runtime>
-	    </properties>
-	</dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
 
-	<dependency>
-	    <groupId>openorb</groupId>
-	    <artifactId>openorb-pss</artifactId>
-	    <version>${openorb_version}</version>
-	    <properties>
-		<runtime>true</runtime>
-	    </properties>
-	</dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-ins</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
 
-	<dependency>
-	    <groupId>openorb</groupId>
-	    <artifactId>openorb-orb-tools</artifactId>
-	    <version>${openorb_version}</version>
-	    <properties>
-		<runtime>true</runtime>
-	    </properties>
-	</dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-pss</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
 
-	<dependency>
-	    <groupId>openorb</groupId>
-	    <artifactId>openorb-orb-omg</artifactId>
-	    <version>${openorb_version}</version>
-	    <properties>
-		<runtime>true</runtime>
-	    </properties>
-	</dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb-tools</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
 
-	<dependency>
-	    <groupId>openorb</groupId>
-	    <artifactId>openorb-tools</artifactId>
-	    <version>${openorb_version}</version>
-	    <properties>
-		<runtime>true</runtime>
-	    </properties>
-	</dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb-omg</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-tools</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
 
         <dependency>
             <groupId>avalon</groupId>
             <artifactId>avalon-framework</artifactId>
             <version>${avalon_framework_version}</version>
             <properties>
-               <repository>true</repository>
+                <repository>true</repository>
             </properties>
         </dependency>
 
