@@ -74,3 +74,39 @@ function popUpHelp(url)
 {
    window.open(url, "helpWindow", "width=640,height=480,resizable,scrollbars");
 }
+
+//validates the form for the EJB Generator.  Added by Jeremy Whitlock
+//(jcscoobyrs) on 10/09/03 at 01:20:43 PM
+function validate(form)
+{
+	if (form.ejbname.value == "")
+  	{
+    alert("Please enter your EJB's Name. Thank you.");
+	 form.ejbname.focus();
+    return (false);
+  	}
+	if (form.ejbdesc.value == "")
+  	{
+    alert("Please enter your EJB's Description. Thank you.");
+	 form.ejbdesc.focus();
+    return (false);
+  	}
+	if (form.ejbauth.value == "")
+  	{
+    alert("Please enter your EJB's Author. Thank you.");
+	 form.ejbauth.focus();
+    return (false);
+  	}
+	//if (form.ejbpack.value == "")
+  	//{
+    //alert("Please enter your EJB's Package. Thank you.");
+	// form.ejbpack.focus();
+    //return (false);
+  	//}
+	if (form.ejbsloc.value == "")
+  	{
+    alert("Please enter you want your Source for your EJB to be created. Thank you.");
+	 form.ejbsloc.focus();
+    return (false);
+  	}
+}
