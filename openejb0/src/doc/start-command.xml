@@ -123,6 +123,13 @@ Default number of threads is 20.
             are allowed to administer this server.
 </option>
 
+
+<option flag="--local-copy" param"[true|false]">
+Instructs the container system whether or not marshal (copy) 
+the parameters and return values on calls between beans.
+</option>
+
+
 </options>
 </p>
 </section>
@@ -283,6 +290,33 @@ Default number of threads is 20.
  DNS server, or Windows Domain Server. 
   </p>
  </section>
+
+</section>
+
+<section title="Using -conf file" ref-id="using.-conf">
+  <p>
+ <command>openejb start -conf C:\openejb\conf\mytest.conf</command>
+  </p>
+
+ <p>
+ <command>openejb start --local-copy=true</command>
+ </p>            
+
+ <p>
+ Instructs the container system to marshall (ie, copy) all
+ calls between beans are required by the EJB 1.1 specification.  
+ </p>
+ 
+ <p>
+ <command>openejb start --local-copy=false</command>
+ </p>
+ 
+ <p>
+ Instructs the container system to not marshall (copy) calls 
+ between beans. The container system as will pass parameters 
+ and return values without copying or marshalling as is 
+ required for EJB 2.0 Local interfaces.
+ </p>
 
 </section>
 
