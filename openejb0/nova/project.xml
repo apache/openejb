@@ -120,6 +120,23 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-connector</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jms</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
 
         <!-- Thirdparty -->
 
