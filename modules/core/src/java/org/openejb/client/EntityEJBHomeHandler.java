@@ -257,5 +257,5 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
         ejbObject.remove();
         return null;
     }
-    
+
 }
