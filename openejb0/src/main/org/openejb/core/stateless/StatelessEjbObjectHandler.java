@@ -146,8 +146,15 @@ public class StatelessEjbObjectHandler extends EjbObjectProxyHandler {
      */
     protected Object isIdentical(Method method, Object[] args, Object proxy) throws Throwable{
         checkAuthorization(method);
-        EjbObjectProxyHandler handler = (EjbObjectProxyHandler)ProxyManager.getInvocationHandler(proxy);
-        return new Boolean( deploymentID.equals(handler.deploymentID) );
+        
+        try {
+            EjbObjectProxyHandler handler = 
+                (EjbObjectProxyHandler) ProxyManager.getInvocationHandler(args[0]);
+            return new Boolean( deploymentID.equals(handler.deploymentID) );
+        } catch (Throwable t){
+            return Boolean.FALSE;
+            ///System.out.println("\n\n\n[] isIdentical "+identical+"\n this\t"+deploymentID+"\n that\t"+handler.deploymentID +"\n\n");
+        }
     }
 
     protected Object remove(Method method, Object[] args, Object proxy) throws Throwable{
