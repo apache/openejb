@@ -71,6 +71,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.ActivationConfigPropertyType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
@@ -304,18 +305,22 @@ class MdbBuilder extends BeanBuilder {
         // resource env refs
         ResourceEnvRefType[] resourceEnvRefs = messageDrivenBean.getResourceEnvRefArray();
         GerResourceEnvRefType[] openejbResourceEnvRefs = null;
+
+        ServiceRefType[] serviceRefs = messageDrivenBean.getServiceRefArray();
+        GerServiceRefType[] openejbServiceRefs = null;
+        
         //get arrays from openejb plan if present
         if (openejbMessageDrivenBean != null) {
             openejbEjbRefs = openejbMessageDrivenBean.getEjbRefArray();
             openejbEjbLocalRefs = openejbMessageDrivenBean.getEjbLocalRefArray();
             openejbResourceRefs = openejbMessageDrivenBean.getResourceRefArray();
             openejbResourceEnvRefs = openejbMessageDrivenBean.getResourceEnvRefArray();
+            openejbServiceRefs = openejbMessageDrivenBean.getServiceRefArray();
         }
 
         MessageDestinationRefType[] messageDestinationRefs = messageDrivenBean.getMessageDestinationRefArray();
-        ServiceRefType[] serviceRefs = messageDrivenBean.getServiceRefArray();
 
-        Map context = ENCConfigBuilder.buildComponentContext(earContext, ejbModule, userTransaction, envEntries, ejbRefs, openejbEjbRefs, ejbLocalRefs, openejbEjbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, serviceRefs, cl);
+        Map context = ENCConfigBuilder.buildComponentContext(earContext, ejbModule, userTransaction, envEntries, ejbRefs, openejbEjbRefs, ejbLocalRefs, openejbEjbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, serviceRefs, openejbServiceRefs, cl);
         builder.setComponentContext(context);
         ENCConfigBuilder.setResourceEnvironment(earContext, ejbModule.getModuleURI(), builder, resourceRefs, openejbResourceRefs);
 
