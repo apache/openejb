@@ -82,48 +82,10 @@ public final class EntityInstanceInterceptor implements Interceptor {
 
     public InvocationResult invoke(final Invocation invocation) throws Throwable {
         EJBInvocation ejbInvocation = (EJBInvocation) invocation;
-
-        // initialize the context and set it into the invocation
-        EntityInstanceContext ctx = getInstanceContext(ejbInvocation);
-        ejbInvocation.setEJBInstanceContext(ctx);
-
-        // check reentrancy
-        if (!reentrant && ctx.isInCall()) {
-            if (ejbInvocation.getType().isLocal()) {
-                throw new NotReentrantLocalException("" + containerId);
-            } else {
-                throw new NotReentrantException("" + containerId);
-            }
-        }
-
-        TransactionContext transactionContext = ejbInvocation.getTransactionContext();
-        InstanceContext oldContext = null;
-        try {
-            oldContext = transactionContext.beginInvocation(ctx);
-        } catch (NoSuchEntityException e) {
-            if (ejbInvocation.getType().isLocal()) {
-                throw new NoSuchObjectLocalException().initCause(e);
-            } else {
-                throw new NoSuchObjectException(e.getMessage());
-            }
-        }
-        try {
-            InvocationResult result = next.invoke(invocation);
-            return result;
-        } catch(Throwable t) {
-            // we must kill the instance when a system exception is thrown
-            ctx.die();
-            transactionContext.unassociate(ctx);
-            throw t;
-        } finally {
-            ejbInvocation.getTransactionContext().endInvocation(oldContext);
-            ejbInvocation.setEJBInstanceContext(null);
-        }
-    }
-
-    private EntityInstanceContext getInstanceContext(EJBInvocation ejbInvocation) throws Throwable {
         TransactionContext transactionContext = ejbInvocation.getTransactionContext();
         Object id = ejbInvocation.getId();
+
+        // get the context
         EntityInstanceContext ctx = null;
 
         // if we have an id then check if there is already a context associated with the transaction
@@ -143,6 +105,51 @@ public final class EntityInstanceInterceptor implements Interceptor {
             ctx.setPool(pool);
             ctx.setTransactionContext(transactionContext);
         }
-        return ctx;
+
+        // set the instanct into the invocation
+        ejbInvocation.setEJBInstanceContext(ctx);
+
+        // check reentrancy
+        if (!reentrant && ctx.isInCall()) {
+            if (ejbInvocation.getType().isLocal()) {
+                throw new NotReentrantLocalException("" + containerId);
+            } else {
+                throw new NotReentrantException("" + containerId);
+            }
+        }
+
+        // associates the context with the transaction, this may result an a load that throws
+        // and NoSuchEntityException, which needs to be converted to the a NoSuchObject[Local]Exception
+        InstanceContext oldContext = null;
+        try {
+            oldContext = transactionContext.beginInvocation(ctx);
+        } catch (NoSuchEntityException e) {
+            if (ejbInvocation.getType().isLocal()) {
+                throw new NoSuchObjectLocalException().initCause(e);
+            } else {
+                throw new NoSuchObjectException(e.getMessage());
+            }
+        }
+
+        // send the invocation down the chain
+        try {
+            InvocationResult result = next.invoke(invocation);
+            return result;
+        } catch(Throwable t) {
+            // we must kill the instance when a system exception is thrown
+            ctx.die();
+            // id may have been set during create
+            if (id == null) {
+                id = ctx.getId();
+            }
+            // if we have an id unassociate the context
+            if (id != null) {
+                transactionContext.unassociate(containerId, id);
+            }
+            throw t;
+        } finally {
+            ejbInvocation.getTransactionContext().endInvocation(oldContext);
+            ejbInvocation.setEJBInstanceContext(null);
+        }
     }
 }
