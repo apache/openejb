@@ -184,15 +184,15 @@ public class HttpRequestImpl implements HttpRequest {
     }
 
     public int getContentLength() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return length;
     }
 
     public String getContentType() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return contentType;
     }
 
     public InputStream getInputStream() throws IOException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return (InputStream) this.in;
     }
 
     /*------------------------------------------------------------*/
@@ -221,7 +221,7 @@ public class HttpRequestImpl implements HttpRequest {
     private void readRequestLine(DataInput in) throws IOException {
         try {
             line = in.readLine();
-//            System.out.println(line);
+            System.out.println(line);
         } catch (Exception e) {
             throw new IOException("Could not read the HTTP Request Line :"
                     + e.getClass().getName()
@@ -336,7 +336,7 @@ public class HttpRequestImpl implements HttpRequest {
 
             try {
                 hf = in.readLine();
-                //System.out.println(hf);
+                System.out.println(hf);
             } catch (Exception e) {
                 throw new IOException("Could not read the HTTP Request Header Field :"
                         + e.getClass().getName()
@@ -383,6 +383,7 @@ public class HttpRequestImpl implements HttpRequest {
         // Content-type: application/x-www-form-urlencoded
         // or multipart/form-data
         length = parseContentLength();
+
         contentType = getHeader(HttpRequest.HEADER_CONTENT_TYPE);
 
         if (FORM_URL_ENCODED.equals(contentType)) {
