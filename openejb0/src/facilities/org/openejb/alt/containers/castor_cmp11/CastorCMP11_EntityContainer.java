@@ -1182,7 +1182,9 @@ public class CastorCMP11_EntityContainer
         txPolicy.beforeInvoke( bean, txContext );
 
         try {
-            if ( OpenEJB.getTransactionManager().getStatus() == Status.STATUS_ACTIVE ) {
+            int status = OpenEJB.getTransactionManager().getStatus();
+            // are the other statuses possible here ?
+            if ( status == Status.STATUS_ACTIVE || status == Status.STATUS_NO_TRANSACTION ) {
 
                 /*  
                   Get the JDO database for this deployment
@@ -1200,11 +1202,7 @@ public class CastorCMP11_EntityContainer
                 EJB_REMOVE_METHOD.invoke(bean, null);
 
                 db.remove(bean);
-
-            } else if ( OpenEJB.getTransactionManager().getStatus() == Status.STATUS_NO_TRANSACTION ) {
-                // DMB: Strange use of else if, there is no code!?
             }
-        
         } catch ( java.lang.reflect.InvocationTargetException ite ) {
             // handle enterprise bean exceptions
             if ( ite.getTargetException() instanceof RuntimeException ) {
