@@ -182,7 +182,7 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
             throw new CompilerException(e.toString());
         } finally {
             Thread.currentThread().setContextClassLoader(savedLoader);
-//            DeploymentUtil.recursiveDelete(TEMPDIR);
+            DeploymentUtil.recursiveDelete(TEMPDIR);
         }
     }
 
