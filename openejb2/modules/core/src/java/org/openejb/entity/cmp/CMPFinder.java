@@ -49,6 +49,7 @@ package org.openejb.entity.cmp;
 
 import java.io.Serializable;
 import javax.ejb.FinderException;
+import javax.ejb.ObjectNotFoundException;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
@@ -58,6 +59,7 @@ import org.openejb.dispatch.VirtualOperation;
 import org.tranql.cache.InTxCache;
 import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommand;
+import org.tranql.query.QueryResult;
 import org.tranql.field.Row;
 
 /**
@@ -78,7 +80,12 @@ public class CMPFinder implements VirtualOperation, Serializable {
         InTxCache inTxCache = invocation.getTransactionContext().getInTxCache();
         try {
             if (invocation.getType().isLocal()) {
-                return new SimpleInvocationResult(true, localQuery.execute(inTxCache, new Row(invocation.getArguments())));
+                QueryResult result = localQuery.execute(inTxCache, new Row(invocation.getArguments()));
+                if(result.next()) {
+                    return new SimpleInvocationResult(true, result.getValues().get(0));
+                } else {
+                    return new SimpleInvocationResult(false, new ObjectNotFoundException());
+                }
             } else {
                 return new SimpleInvocationResult(true, remoteQuery.execute(inTxCache, new Row(invocation.getArguments())));
             }

@@ -54,9 +54,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.sql.DataSource;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
+import javax.sql.DataSource;
 
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
@@ -86,6 +86,7 @@ import org.tranql.ejb.EJB;
 import org.tranql.ejb.LocalProxyTransform;
 import org.tranql.ejb.RemoteProxyTransform;
 import org.tranql.ejb.SimplePKTransform;
+import org.tranql.ejb.ProxyQueryCommand;
 import org.tranql.field.FieldAccessor;
 import org.tranql.field.FieldTransform;
 import org.tranql.identity.IdentityDefiner;
@@ -99,8 +100,8 @@ import org.tranql.query.ParamRemapper;
 import org.tranql.query.QueryCommand;
 import org.tranql.query.UpdateCommand;
 import org.tranql.schema.Attribute;
-import org.tranql.sql.SQLQuery;
 import org.tranql.sql.SQL92Generator;
+import org.tranql.sql.SQLQuery;
 import org.tranql.sql.SQLTransform;
 import org.tranql.sql.jdbc.InputBinding;
 import org.tranql.sql.jdbc.JDBCQueryCommand;
@@ -116,7 +117,6 @@ import org.tranql.sql.jdbc.binding.BindingFactory;
 public class CMPContainerBuilder extends AbstractContainerBuilder {
     private EJB ejb;
     private DataSource dataSource;
-    private IdentityDefiner identityDefiner;
 
     protected int getEJBComponentType() {
         return EJBComponentType.CMP_ENTITY;
@@ -149,7 +149,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         CacheTable cacheTable = createCacheTable(ejb, queryTransformer, dataSource);
 
         // identity definer
-        identityDefiner = new UserDefinedIdentity(cacheTable, 0);   // todo
+        IdentityDefiner identityDefiner = new UserDefinedIdentity(cacheTable, 0);
 
         // the load all by primary key command
         QueryCommand loadCommand = createLoadAllCommand(ejb, queryTransformer, identityDefiner, dataSource);
@@ -166,8 +166,16 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         IdentityTransform localProxyTransform = new LocalProxyTransform(primaryKeyTransform, tranqlEJBProxyFactory);
         IdentityTransform remoteProxyTransform = new RemoteProxyTransform(primaryKeyTransform, tranqlEJBProxyFactory);
 
+        // queries
+        LinkedHashMap queries = new LinkedHashMap();
+        QueryCommand localProxyLoad = new ProxyQueryCommand(loadCommand, identityDefiner, localProxyTransform);
+        QueryCommand remoteProxyLoad = new ProxyQueryCommand(loadCommand, identityDefiner, remoteProxyTransform);
+        queries.put(
+                new InterfaceMethodSignature("findByPrimaryKey", new String[] {getPrimaryKeyClassName()}, true),
+                new QueryCommand[] {localProxyLoad, remoteProxyLoad});
+
         // build the vop table
-        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, primaryKeyTransform, localProxyTransform, remoteProxyTransform);
+        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, identityDefiner, primaryKeyTransform, localProxyTransform, remoteProxyTransform, queries);
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
 
@@ -181,7 +189,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
         // build the instance factory
         Map instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors);
-        InstanceContextFactory contextFactory = new CMPInstanceContextFactory(getContainerId(), proxyFactory, cacheTable, primaryKeyTransform, beanClass, instanceMap);
+        InstanceContextFactory contextFactory = new CMPInstanceContextFactory(getContainerId(), proxyFactory, cacheTable, identityDefiner, primaryKeyTransform, beanClass, instanceMap);
         EntityInstanceFactory instanceFactory = new EntityInstanceFactory(getComponentContext(), contextFactory);
 
         // build the pool
@@ -241,15 +249,14 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         // todo shouldn't query builder do this transform?
         List attributes = ejb.getAttributes();
         List updateTransformList = new ArrayList(attributes.size() * 2 + 1);
-        for (Iterator iterator = attributes.iterator(); iterator.hasNext();) {
-            Attribute attribute = (Attribute) iterator.next();
-            if (!attribute.isIdentity()) {
-                int index = updateTransformList.size() / 2;
-                updateTransformList.add(new ModifiedSlotDetector(index));
-                updateTransformList.add(new ModifiedSlotAccessor(index));
+        for (int i = 0; i < attributes.size(); i++) {
+            Attribute attribute = (Attribute) attributes.get(i);
+            if(!attribute.isIdentity()) {
+                updateTransformList.add(new ModifiedSlotDetector(i));
+                updateTransformList.add(new ModifiedSlotAccessor(i));
             }
-
         }
+
         // todo I'd bet this is wrong
         updateTransformList.add(new FieldAccessor(0));
         FieldTransform[] updateTransforms = (FieldTransform[]) updateTransformList.toArray(new FieldTransform[updateTransformList.size()]);
@@ -355,9 +362,11 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     protected LinkedHashMap buildVopMap(
             Class beanClass,
             CacheTable cacheTable,
+            IdentityDefiner identityDefiner,
             IdentityTransform primaryKeyTransform,
             IdentityTransform localProxyTransform,
-            IdentityTransform remoteProxyTransform) throws Exception {
+            IdentityTransform remoteProxyTransform,
+            LinkedHashMap queries) throws Exception {
 
         LinkedHashMap vopMap = new LinkedHashMap();
 
@@ -417,18 +426,18 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 // ejbObject.remove()
                 vopMap.put(
                         new InterfaceMethodSignature("remove", false),
-                        new CMPRemoveMethod(beanClass, signature, primaryKeyTransform));
+                        new CMPRemoveMethod(beanClass, signature));
 
                 // ejbHome.remove(primaryKey)
                 vopMap.put(
                         new InterfaceMethodSignature("ejbRemove", new Class[]{Object.class}, true),
-                        new CMPRemoveMethod(beanClass, signature, primaryKeyTransform));
+                        new CMPRemoveMethod(beanClass, signature));
 
                 // ejbHome.remove(handle)
                 Class handleClass = getClassLoader().loadClass("javax.ejb.Handle");
                 vopMap.put(
                         new InterfaceMethodSignature("ejbRemove", new Class[]{handleClass}, true),
-                        new CMPRemoveMethod(beanClass, signature, primaryKeyTransform));
+                        new CMPRemoveMethod(beanClass, signature));
             } else if (name.startsWith("ejb")) {
                 continue;
             } else {
@@ -438,17 +447,12 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             }
         }
 
-//        for (int i = 0; i < queries.length; i++) {
-//            MethodSignature signature = queries[i];
-//            if (signature.getMethodName().startsWith("ejbFind")) {
-//                // add the finder method to the virtual operation table
-//                QueryCommand localQuery = queryCommands[i][0];
-//                QueryCommand remoteQuery = queryCommands[i][1];
-//                vopMap.put(
-//                        MethodHelper.translateToInterface(signature),
-//                        new CMPFinder(localQuery, remoteQuery));
-//            }
-//        }
+        for (Iterator iterator = queries.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            InterfaceMethodSignature signature = (InterfaceMethodSignature)entry.getKey();
+            QueryCommand[] queryCommands = (QueryCommand[])entry.getValue();
+            vopMap.put(signature, new CMPFinder(queryCommands[0], queryCommands[1]));
+        }
         return vopMap;
     }
 

@@ -48,13 +48,13 @@
 package org.openejb.entity.cmp;
 
 import org.apache.geronimo.core.service.InvocationResult;
+
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractMethodOperation;
 import org.openejb.dispatch.MethodSignature;
 import org.tranql.cache.InTxCache;
-import org.tranql.identity.GlobalIdentity;
-import org.tranql.identity.IdentityTransform;
+import org.tranql.cache.CacheRow;
 
 /**
  * Virtual operation handling removal of an instance.
@@ -62,11 +62,8 @@ import org.tranql.identity.IdentityTransform;
  * @version $Revision$ $Date$
  */
 public class CMPRemoveMethod extends AbstractMethodOperation {
-    private final IdentityTransform primaryKeyTransform;
-
-    public CMPRemoveMethod(Class beanClass, MethodSignature signature, IdentityTransform primaryKeyTransform) {
+    public CMPRemoveMethod(Class beanClass, MethodSignature signature) {
         super(beanClass, signature);
-        this.primaryKeyTransform = primaryKeyTransform;
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
@@ -76,8 +73,9 @@ public class CMPRemoveMethod extends AbstractMethodOperation {
         if (result.isNormal()) {
             // delete this row in the persistence engine
             InTxCache cache = invocation.getTransactionContext().getInTxCache();
-            GlobalIdentity globalId = primaryKeyTransform.getGlobalIdentity(ctx.getId());
-//            cache.remove(globalId);
+            CacheRow cacheRow = ctx.getCacheRow();
+            cacheRow.markRemoved();
+            cache.remove(cacheRow);
 
             // clear id and row data from the instance
             ctx.setId(null);
