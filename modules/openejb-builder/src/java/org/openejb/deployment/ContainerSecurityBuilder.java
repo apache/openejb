@@ -60,7 +60,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.SecurityService;
