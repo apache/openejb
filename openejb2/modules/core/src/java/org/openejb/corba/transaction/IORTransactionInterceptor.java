@@ -74,13 +74,14 @@ final class IORTransactionInterceptor extends LocalObject implements IORIntercep
         try {
             Any invAny = Util.getORB().create_any();
             InvocationPolicyValueHelper.insert(invAny, SHARED.value);
-            TaggedComponent invocationPolicyComponent = new TaggedComponent(TAG_INV_POLICY.value, Util.getCodec().encode_value(invAny));
+            byte[] invBytes = Util.getCodec().encode_value(invAny);
+            TaggedComponent invocationPolicyComponent = new TaggedComponent(TAG_INV_POLICY.value, invBytes);
             info.add_ior_component_to_profile(invocationPolicyComponent, TAG_INTERNET_IOP.value);
 
             Any otsAny = Util.getORB().create_any();
             OTSPolicyValueHelper.insert(otsAny, ADAPTS.value);
-            byte[] bytes = Util.getCodec().encode(otsAny);
-            TaggedComponent otsPolicyComponent = new TaggedComponent(TAG_OTS_POLICY.value, bytes);
+            byte[] otsBytes = Util.getCodec().encode_value(otsAny);
+            TaggedComponent otsPolicyComponent = new TaggedComponent(TAG_OTS_POLICY.value, otsBytes);
             info.add_ior_component_to_profile(otsPolicyComponent, TAG_INTERNET_IOP.value);
         } catch (INV_POLICY e) {
             // do nothing
