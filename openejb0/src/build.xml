@@ -862,6 +862,7 @@
       <fileset dir="src" >
         <include name="**/*.java"/>
         <include name="**/*.properties"/>
+        <include name="**/build*.xml"/>
       </fileset>
     
     </copy>
