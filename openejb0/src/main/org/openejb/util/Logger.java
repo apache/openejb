@@ -1662,7 +1662,7 @@ public class Logger {
                  *     openejb.home directory
                  */
                 try{
-                    file = FileUtils.getFile(path);
+                    file = FileUtils.getBase().getFile(path);
                     if (file != null && file.exists() && file.isFile()) {
                         return file.getAbsolutePath();
                     }
@@ -1675,7 +1675,7 @@ public class Logger {
                  *     relative to the openejb.home directory
                  */
                 try{
-                    file = FileUtils.getFile("conf/logging.conf");
+                    file = FileUtils.getBase().getFile("conf/logging.conf");
                     if (file != null && file.exists() && file.isFile()) {
                         return file.getAbsolutePath();
                     }
@@ -1687,7 +1687,7 @@ public class Logger {
                  *     the openejb-x.x.x.jar
                  */
                 //Gets the conf directory, creating it if needed.
-                File confDir = FileUtils.getDirectory("conf");
+                File confDir = FileUtils.getBase().getDirectory("conf");
 
                 //TODO:1: We cannot find the user's conf file and
                 // are taking the liberty of creating one for them.

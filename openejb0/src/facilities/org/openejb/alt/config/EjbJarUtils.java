@@ -196,7 +196,7 @@ public class EjbJarUtils {
         String jarName = origFile.getName();
         File beansDir = null;
         try {
-            beansDir = FileUtils.getDirectory("beans"); 
+            beansDir = FileUtils.getBase().getDirectory("beans"); 
         } catch (java.io.IOException ioe){
             handleException("deploy.m.040", origFile.getAbsolutePath(), ioe.getMessage());
         }
@@ -246,7 +246,7 @@ public class EjbJarUtils {
         String jarName = origFile.getName();
         File beansDir = null;
         try {
-            beansDir = FileUtils.getDirectory("beans"); 
+            beansDir = FileUtils.getBase().getDirectory("beans"); 
         } catch (java.io.IOException ioe){
             handleException("deploy.c.040", origFile.getAbsolutePath(), ioe.getMessage());
             return jar;

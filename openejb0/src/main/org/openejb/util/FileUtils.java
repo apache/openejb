@@ -54,9 +54,43 @@ public class FileUtils{
 
     private static final java.util.Random _random = new java.util.Random();
 
-    private static File home;
-
     
+    private static FileUtils openejbHomeUtils = new FileUtils("openejb.home", "user.dir");
+    private static FileUtils openejbBaseUtils = new FileUtils("openejb.base", "openejb.home");
+    
+    private File home;
+
+    private FileUtils(String homeDir, String defaultDir){
+        String homePath =  null;
+        try{
+            homePath = (String)System.getProperty(homeDir);
+            if (homePath == null) {
+                homePath = System.getProperty(defaultDir);
+                System.setProperty(homeDir, homePath);
+            }
+            
+            home = new File(homePath);
+            
+            if( !home.exists() || (home.exists() && !home.isDirectory())) {
+                homePath = System.getProperty("user.dir");
+                System.setProperty(homeDir, homePath);
+                home = new File(homePath);
+            }
+
+            home = home.getAbsoluteFile();
+        } catch (SecurityException e){
+            //throw new IOException("Cannot resolve the directory: "+homeDir+" : "+e.getMessage());
+        }
+    }
+
+    public static FileUtils getBase(){
+        return openejbBaseUtils;
+    }
+
+    public static FileUtils getHome(){
+        return openejbHomeUtils;
+    }
+
     /**
      * Resolves the specifed path reletive to the openejb.home variable
      * 
@@ -64,10 +98,8 @@ public class FileUtils{
      * @return 
      * @exception java.io.IOException
      */
-    public static File getHomeDirectory(String path) throws java.io.IOException {
+    public File getDirectory(String path) throws java.io.IOException{
         File dir = null;
-        
-        if ( home == null ) resolveOpenEjbHome();
         
         dir = new File(home, path);
         dir = dir.getCanonicalFile();
@@ -86,43 +118,12 @@ public class FileUtils{
         return dir;
     }	
 
-    /**
-     * Resolves the specifed path reletive to the openejb.base variable
-     * 
-     * @param path
-     * @return 
-     * @exception java.io.IOException
-     */
-    public static File getBaseDirectory(String path) throws java.io.IOException {
-        File dir = null;
-        
-        if ( home == null ) resolveOpenEjbHome();
-        
-        dir = new File(home, path);
-        dir = dir.getCanonicalFile();
-
-
-        if( !dir.exists() ) {
-            try{
-                if (!dir.mkdirs()) throw new IOException("Cannot create the directory "+dir.getPath());
-            } catch (SecurityException e){
-                throw new IOException("Permission denied: Cannot create the directory "+dir.getPath()+" : "+e.getMessage());
-            }
-        } else if ( dir.exists() && !dir.isDirectory() ) {
-            throw new IOException("The path specified is not a valid directory: "+dir.getPath());
-        }
-
-        return dir;
-    }	
-    
-    public static File getFile(String path) throws java.io.FileNotFoundException, java.io.IOException{
-        return FileUtils.getFile(path, true);
+    public File getFile(String path) throws java.io.FileNotFoundException, java.io.IOException{
+        return getFile(path, true);
     }	
 
-    public static File getFile(String path, boolean validate) throws java.io.FileNotFoundException, java.io.IOException{
+    public File getFile(String path, boolean validate) throws java.io.FileNotFoundException, java.io.IOException{
         File file = null;
-        
-        if ( home == null ) resolveOpenEjbHome();
         
         file = new File(path);
         
@@ -194,30 +195,5 @@ public class FileUtils{
 	    in.close();
 	    out.close();
 	}
-    }
-    
-    private static void resolveOpenEjbHome() throws IOException{
-        String openejb =  null;
-        try{
-            openejb = (String)System.getProperty("openejb.home", System.getProperty("user.dir"));
-            
-            home = new File(openejb);
-            
-            if( !home.exists() ) {
-                String userDir = System.getProperty("user.dir");
-                //log.warn("The OpenEJB Home directory specified at startup doesn't exist, using current working directory instead: openejb.home = "+openejb+" current dir = "+userDir);
-                openejb = userDir;
-                home = new File(openejb);
-            } else if ( home.exists() && !home.isDirectory() ) {
-                String userDir = System.getProperty("user.dir");
-                //log.warn("The OpenEJB Home directory specified at startup is not a valid directory, using current working directory instead: openejb.home = "+openejb+" current dir = "+userDir);
-                openejb = userDir;
-                home = new File(openejb);
-            }
-
-            home = home.getAbsoluteFile();
-        } catch (SecurityException e){
-            throw new IOException("Cannot resolve the OpenEJB directory: "+openejb+" : "+e.getMessage());
-        }
     }
 }

@@ -261,12 +261,12 @@ org.exolab.castor.persist.spi.InstanceFactory {
         File gTxDb = null;
         File lTxDb = null;
         try {
-            gTxDb = org.openejb.util.FileUtils.getFile( Global_TX_Database );
+            gTxDb = org.openejb.util.FileUtils.getBase().getFile( Global_TX_Database );
         } catch (Exception e) {
             throw new OpenEJBException("Cannot locate the Global_TX_Database file. "+e.getMessage()); 
         }
         try {
-            lTxDb = org.openejb.util.FileUtils.getFile( Local_TX_Database );
+            lTxDb = org.openejb.util.FileUtils.getBase().getFile( Local_TX_Database );
         } catch (Exception e) {
             throw new OpenEJBException("Cannot locate the Local_TX_Database file. "+e.getMessage()); 
         }
