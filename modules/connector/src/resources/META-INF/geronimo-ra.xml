@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee"
+    version="1.0"
+    configId="org/openjca/hsql"
+    parentId="org/apache/geronimo/Server">
+    <resourceadapter>
+        <outbound-resourceadapter>
+            <connection-definition>
+                <connectionfactory-interface>javax.sql.DataSource</connectionfactory-interface>
+                <connectiondefinition-instance>
+                    <name>petstoredb</name>
+                    <config-property-setting name="DefaultUserName">geronimo</config-property-setting>
+                    <config-property-setting name="DefaultPassword">geronimo</config-property-setting>
+                    <config-property-setting name="JdbcDriver">org.hsqldb.jdbcDriver</config-property-setting>
+                    <config-property-setting name="JdbcUrl">jdbc:hsqldb:.</config-property-setting>
+                    <connectionmanager>
+                        <!--realm-bridge>TargetRealm</realm-bridge-->
+                        <blockingTimeout>5000</blockingTimeout>
+                        <maxSize>10</maxSize>
+                        <useTransactions>true</useTransactions>
+                        <useLocalTransactions>true</useLocalTransactions>
+                        <useTransactionCaching>true</useTransactionCaching>
+                        <useConnectionRequestInfo>false</useConnectionRequestInfo>
+                        <useSubject>false</useSubject>
+                    </connectionmanager>
+                </connectiondefinition-instance>
+
+            </connection-definition>
+
+        </outbound-resourceadapter>
+    </resourceadapter>
+</connector>

@@ -44,18 +44,19 @@
  */
 package org.openejb.resource.jdbc;
 
-import java.sql.CallableStatement;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.SQLWarning;
-import java.sql.Statement;
+import java.sql.*;
+
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
 
 public class JdbcConnection implements java.sql.Connection {
+
+    private static Log log = LogFactory.getLog(JdbcConnection.class);
+
     private java.sql.Connection physicalConn;
     private JdbcManagedConnection managedConn;
     protected boolean isClosed = false;
-    
+
     protected JdbcConnection(JdbcManagedConnection managedConn, java.sql.Connection physicalConn){
         this.physicalConn = physicalConn;
         this.managedConn = managedConn;
@@ -67,9 +68,9 @@ public class JdbcConnection implements java.sql.Connection {
         return managedConn;
     }
     /**
-    * Renders this conneciton invalid; unusable.  Its called by the 
-    * JdbcManagedConnection when its connectionClose() or cleanup() 
-    * methods are invoked. 
+    * Renders this conneciton invalid; unusable.  Its called by the
+    * JdbcManagedConnection when its connectionClose() or cleanup()
+    * methods are invoked.
     */
     protected void invalidate(){
         isClosed = true;
@@ -85,7 +86,7 @@ public class JdbcConnection implements java.sql.Connection {
         if(isClosed) throw new SQLException("Connection is closed");
         try{
             synchronized(physicalConn){
-            return physicalConn.createStatement();
+            return new JdbcStatement(physicalConn.createStatement());
             }
         }catch(SQLException sqlE){
             managedConn.connectionErrorOccurred(this, sqlE);
@@ -94,10 +95,12 @@ public class JdbcConnection implements java.sql.Connection {
     }
     public PreparedStatement prepareStatement(String sql)
 	    throws SQLException{
+        System.out.println("Preparing statement: " + sql);
+        log.info("Preparing statement: " + sql);
         if(isClosed) throw new SQLException("Connection is closed");
         try{
             synchronized(physicalConn){
-            return physicalConn.prepareStatement(sql);
+            return new JdbcPreparedStatement(physicalConn.prepareStatement(sql));
             }
         }catch(SQLException sqlE){
             managedConn.connectionErrorOccurred(this, sqlE);
@@ -105,6 +108,8 @@ public class JdbcConnection implements java.sql.Connection {
         }
     }
     public CallableStatement prepareCall(String sql) throws SQLException{
+        System.out.println("Preparing call: " + sql) ;
+        log.info("Preparing call: " + sql);
         if(isClosed) throw new SQLException("Connection is closed");
         try{
             synchronized(physicalConn){
@@ -139,10 +144,10 @@ public class JdbcConnection implements java.sql.Connection {
         throw new java.sql.SQLException("Method not supported. Rollback is managed automatically by container provider");
     }
     public void close() throws SQLException{
-        if(isClosed) 
+        if(isClosed)
             return;
         else{
-            // managed conneciton will call this object's invalidate() method which 
+            // managed conneciton will call this object's invalidate() method which
             // will set isClosed = true, and nullify references to the sqlConnection and managed connection.
             managedConn.connectionClose(this);
         }
@@ -249,12 +254,12 @@ public class JdbcConnection implements java.sql.Connection {
             throw sqlE;
         }
     }
-    public Statement createStatement(int resultSetType, int resultSetConcurrency) 
+    public Statement createStatement(int resultSetType, int resultSetConcurrency)
       throws SQLException{
         if(isClosed) throw new SQLException("Connection is closed");
         try{
             synchronized(physicalConn){
-            return physicalConn.createStatement(resultSetType, resultSetConcurrency);
+            return new JdbcStatement(physicalConn.createStatement(resultSetType, resultSetConcurrency));
             }
         }catch(SQLException sqlE){
             managedConn.connectionErrorOccurred(this, sqlE);
@@ -263,10 +268,11 @@ public class JdbcConnection implements java.sql.Connection {
     }
     public PreparedStatement prepareStatement(String sql, int resultSetType,int resultSetConcurrency)
        throws SQLException{
+        System.out.println("Preparing statement: " + sql) ;
         if(isClosed) throw new SQLException("Connection is closed");
         try{
             synchronized(physicalConn){
-            return physicalConn.prepareStatement(sql, resultSetType,resultSetConcurrency);
+            return new JdbcPreparedStatement(physicalConn.prepareStatement(sql, resultSetType,resultSetConcurrency));
             }
         }catch(SQLException sqlE){
             managedConn.connectionErrorOccurred(this, sqlE);
@@ -274,6 +280,7 @@ public class JdbcConnection implements java.sql.Connection {
         }
     }
     public CallableStatement prepareCall(String sql, int resultSetType,int resultSetConcurrency) throws SQLException{
+        System.out.println("Preparing call: " + sql) ;
         if(isClosed) throw new SQLException("Connection is closed");
         try{
             synchronized(physicalConn){

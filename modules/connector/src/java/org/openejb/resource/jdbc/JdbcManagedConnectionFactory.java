@@ -45,33 +45,17 @@
 package org.openejb.resource.jdbc;
 
 import java.sql.DriverManager;
-
+import javax.resource.spi.EISSystemException;
 import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ConnectionRequestInfo;
-import javax.resource.spi.EISSystemException;
 import javax.resource.spi.ManagedConnection;
-import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.ResourceAdapterInternalException;
+import javax.resource.ResourceException;
+import javax.resource.spi.ResourceAdapter;
 
-import org.openejb.util.Logger;
-
-
-public class JdbcManagedConnectionFactory 
+public class JdbcManagedConnectionFactory
 implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
-    
-    /** The JdbcDriver string for a connector */
-    public static final String JDBC_DRIVER = "JdbcDriver";
 
-    /** The JdbcUrl string for a connector */
-    public static final String JDBC_URL = "JdbcUrl";
-
-    /** The UserName string for a connector */
-    public static final String USER_NAME = "UserName";
-
-    /** The Password string for a connector */
-    public static final String PASSWORD = "Password";
-    
-    protected Logger logger = Logger.getInstance("OpenEJB.connector", "org.openejb.alt");
 
     protected String jdbcDriver;
     protected String jdbcUrl;
@@ -79,39 +63,35 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
     protected String defaultPassword;
     protected java.io.PrintWriter logWriter;
     private int hashCode = 0;// assumes that this class is immutable
-    
+    private ResourceAdapter resourceAdapter;
+
     public void init(java.util.Properties props)throws javax.resource.spi.ResourceAdapterInternalException{
-        setDefaultUserName(props.getProperty(USER_NAME));   
-        setDefaultPassword(props.getProperty(PASSWORD));   
-        setJdbcUrl(props.getProperty(JDBC_URL));   
-        setJdbcDriver(props.getProperty(JDBC_DRIVER));   
+        setDefaultUserName(props.getProperty("UserName"));
+        setDefaultPassword(props.getProperty("Password"));
+        setJdbcUrl(props.getProperty("JdbcUrl"));
+        setJdbcDriver(props.getProperty("JdbcDriver"));
 
         String userDir = System.getProperty("user.dir");
         try{
-            System.setProperty("user.dir",System.getProperty("openejb.base"));
             // Test the connection out, problems are logged
             testDriver();
         } finally {
-            System.setProperty("user.dir",userDir);
         }
     }
 
     protected void testDriver() {
         java.sql.Connection physicalConn = null;
         try{
-            physicalConn = DriverManager.getConnection(jdbcUrl, defaultUserName, defaultPassword);        
+            physicalConn = DriverManager.getConnection(jdbcUrl, defaultUserName, defaultPassword);
         }catch(Throwable e){
-            logger.error("Testing driver failed.  "+
-                         "["+jdbcUrl+"]  "+
-                         "Could not obtain a physical JDBC connection from the DriverManager.  "+
-                         e.getMessage());
+            e.printStackTrace();
         } finally {
             try{
                 physicalConn.close();
             } catch (Exception dontCare){}
         }
     }
-   
+
     public void setDefaultUserName(String dun){
         defaultUserName = dun;
     }
@@ -124,7 +104,7 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
     public void setJdbcDriver(String driver) throws javax.resource.spi.ResourceAdapterInternalException{
         jdbcDriver = driver;
         try{
-            ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
             Class.forName( jdbcDriver, true, cl);
         }catch(ClassNotFoundException cnf){
             //BUG: If this situtuation occurs, only the words:
@@ -148,7 +128,15 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
     public String getJdbcUrl(){
         return jdbcUrl;
     }
-    
+
+    public void setResourceAdapter(ResourceAdapter resourceAdapter) {
+        this.resourceAdapter = resourceAdapter;
+    }
+
+    public ResourceAdapter getResourceAdapter() {
+        return resourceAdapter;
+    }
+
     public java.lang.Object createConnectionFactory()  throws javax.resource.ResourceException{
 
         throw new javax.resource.NotSupportedException("This connector must be used with an application server connection manager");
@@ -156,24 +144,20 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
     public java.lang.Object createConnectionFactory(ConnectionManager cxManager)  throws javax.resource.ResourceException{
         // return the DataSource
         return new JdbcConnectionFactory(this, cxManager);
-    } 
-    
+    }
+
     public ManagedConnection createManagedConnection(javax.security.auth.Subject subject,ConnectionRequestInfo cxRequestInfo)  throws javax.resource.ResourceException{
         JdbcConnectionRequestInfo rxInfo = (JdbcConnectionRequestInfo)cxRequestInfo;
         java.sql.Connection physicalConn;
-        String userDir = System.getProperty("user.dir");
         try{
-            System.setProperty("user.dir",System.getProperty("openejb.home"));
-            physicalConn = DriverManager.getConnection(jdbcUrl, rxInfo.getUserName(), rxInfo.getPassword());        
+            physicalConn = DriverManager.getConnection(jdbcUrl, rxInfo.getUserName(), rxInfo.getPassword());
         }catch(java.sql.SQLException sqlE){
             EISSystemException eisse =  new EISSystemException("Could not obtain a physical JDBC connection from the DriverManager");
             eisse.setLinkedException(sqlE);
             throw eisse;
-        } finally {
-            System.setProperty("user.dir",userDir);
         }
         return new JdbcManagedConnection(this, physicalConn, rxInfo);
-    } 
+    }
     public boolean equals(Object other){
         if(other instanceof JdbcManagedConnectionFactory){
             JdbcManagedConnectionFactory otherMCF = (JdbcManagedConnectionFactory)other;
@@ -186,7 +170,7 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
     }
     public java.io.PrintWriter getLogWriter(){
         return logWriter;
-    } 
+    }
     public int hashCode(){
         if(hashCode != 0) return hashCode;
         hashCode = jdbcDriver.hashCode()^jdbcUrl.hashCode()^defaultUserName.hashCode()^defaultPassword.hashCode();
@@ -202,16 +186,9 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
             }
         }
         return null;
-    } 
+    }
     public void setLogWriter(java.io.PrintWriter out) {
         logWriter = out;
     }
 
-    public ResourceAdapter getResourceAdapter(){
-        return null; //TODO: implement this
-    }
-    public void setResourceAdapter(ResourceAdapter ra){
-        //TODO: implement this
-    }
-    
 }
