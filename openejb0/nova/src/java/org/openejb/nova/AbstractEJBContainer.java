@@ -124,7 +124,7 @@ public abstract class AbstractEJBContainer
         componentContext = config.componentContext;
     }
 
-    protected void setTransactionManager(TransactionManager txnManager) {
+    public void setTransactionManager(TransactionManager txnManager) {
         this.txnManager = txnManager;
     }
 
