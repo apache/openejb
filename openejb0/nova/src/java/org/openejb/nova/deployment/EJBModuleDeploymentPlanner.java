@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
+import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.HashMap;
 import java.util.Collection;
@@ -304,7 +305,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
                                URI baseURI) throws DeploymentException {
         MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
         ejbMetadata.setName(getContainerName(entity));
-        EntityContainerConfiguration config = getEntityConfig(entity);
+        EntityContainerConfiguration config = getEntityConfig(entity, ejbMetadata);
         ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getEntityGeronimoMBeanInfo(CMPEntityContainer.class.getName(), config));
 
         Query[] queries = entity.getGeronimoQuery();
@@ -334,7 +335,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
     private void planBMPEntity(DeploymentPlan plan, Entity entity, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
         MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
         ejbMetadata.setName(getContainerName(entity));
-        EJBContainerConfiguration config = getEntityConfig(entity);
+        EJBContainerConfiguration config = getEntityConfig(entity, ejbMetadata);
         ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getEntityGeronimoMBeanInfo(BMPEntityContainer.class.getName(), config));
 
         ejbMetadata.setConstructorArgs(new Object[]{config},
@@ -346,7 +347,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
     void planSession(DeploymentPlan plan, Session session, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
         MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
         ejbMetadata.setName(getContainerName(session));
-        EJBContainerConfiguration config = getSessionConfig(session);
+        EJBContainerConfiguration config = getSessionConfig(session, ejbMetadata);
         ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getSessionGeronimoMBeanInfo(session.getSessionType().equals("Stateless")?
                 StatelessContainer.class.getName():StatefulContainer.class.getName(), config));
 
@@ -379,7 +380,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
 
     EJBContainerConfiguration getMessageDrivenConfig(MessageDriven messageDriven) throws DeploymentException {
         EJBContainerConfiguration config = new EJBContainerConfiguration();
-        config.uri = null;//???
+        config.uri = null;//this is local only, so this is correct.
         config.beanClassName = messageDriven.getEJBClass();
         config.messageEndpointInterfaceName = messageDriven.getMessagingType();
         config.componentContext = getComponentContext((JNDIEnvironmentRefs)messageDriven, config.userTransaction);
@@ -389,24 +390,28 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
     }
 
 
-    EJBContainerConfiguration getSessionConfig(Session session) throws DeploymentException {
+    EJBContainerConfiguration getSessionConfig(Session session, MBeanMetadata ejbMetadata) throws DeploymentException {
         EJBContainerConfiguration config = new EJBContainerConfiguration();
-        genericConfig(session, config);
+        genericConfig(session, config, ejbMetadata);
         config.txnDemarcation = TransactionDemarcation.valueOf(session.getTransactionType());
         config.userTransaction = config.txnDemarcation.isContainer() ? null : new EJBUserTransaction();
         return config;
     }
 
-    private EntityContainerConfiguration getEntityConfig(Entity entity) throws DeploymentException {
+    private EntityContainerConfiguration getEntityConfig(Entity entity, MBeanMetadata ejbMetadata) throws DeploymentException {
         EntityContainerConfiguration config = new EntityContainerConfiguration();
-        genericConfig(entity, config);
+        genericConfig(entity, config, ejbMetadata);
         config.pkClassName = entity.getPrimKeyClass();
         return config;
     }
 
-    private void genericConfig(RpcBean rpcBean, EJBContainerConfiguration config) throws DeploymentException {
-
-        config.uri = null;//???
+    private void genericConfig(RpcBean rpcBean, EJBContainerConfiguration config, MBeanMetadata ejbMetadata) throws DeploymentException {
+        //TODO presumably we only do this if bean is remote, and localhost and 3434 should be configured.
+        try {
+            config.uri = new URI("async", null, "localhost", 3434, "/JMX", null, ejbMetadata.getName().toString());
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Could not construct uri for container remoting", e);
+        }
         config.beanClassName = rpcBean.getEJBClass();
         config.homeInterfaceName = rpcBean.getHome();
         config.remoteInterfaceName = rpcBean.getRemote();

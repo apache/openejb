@@ -58,6 +58,7 @@ import javax.resource.spi.work.WorkManager;
 import org.apache.geronimo.kernel.deployment.DeploymentPlan;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.deployment.service.ClassSpaceMetadata;
+import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.kernel.service.GeronimoMBean;
@@ -96,6 +97,7 @@ public class BasicEJBDeploymentTest extends ContextBuilderTest {
 
     private EJBModuleDeploymentPlanner planner;
     private ObjectName ejbObjectName;
+    private MBeanMetadata ejbMetadata;
     private ClassSpaceMetadata csMetadata;
     private URI baseURI;
 
@@ -125,12 +127,13 @@ public class BasicEJBDeploymentTest extends ContextBuilderTest {
         session.setLocal(MockLocal.class.getName());
         session.setSessionType("Stateless");
         ejbObjectName = ObjectName.getInstance(SESSION_NAME);
+        ejbMetadata = new MBeanMetadata(ejbObjectName);
     }
 
 
     public void testSessionConfigTranslation() throws Exception {
         buildSession();
-        EJBContainerConfiguration config = planner.getSessionConfig((Session)ejb);
+        EJBContainerConfiguration config = planner.getSessionConfig((Session)ejb, ejbMetadata);
         assertTrue("expected config", config != null);
         assertEquals("EJBClass", MockEJB.class.getName(), config.beanClassName);
         //assertEquals("EJBName", "MockSession", config.beanClassName);
