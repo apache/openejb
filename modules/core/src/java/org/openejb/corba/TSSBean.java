@@ -180,8 +180,7 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
                     adapterWrapper.start(server.getORB(), localPOA, initialContext, tieLoader, securityPolicy);
                     log.info("Linked container " + adapterWrapper.getContainer().getContainerID());
                 } catch (CORBAException e) {
-                    log.error("Unable to link container " + adapterWrapper.getContainer().getContainerID());
-                    log.error(e);
+                    log.error("Unable to link container " + adapterWrapper.getContainer().getContainerID(), e);
                 }
             }
         } finally {
@@ -199,8 +198,7 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
                     adapterWrapper.stop();
                     log.info("Unlinked container " + adapterWrapper.getContainer().getContainerID());
                 } catch (CORBAException e) {
-                    log.error("Error unlinking container " + adapterWrapper.getContainer().getContainerID());
-                    log.error(e);
+                    log.error("Error unlinking container " + adapterWrapper.getContainer().getContainerID(), e);
                 }
             }
             adapters.clear();
@@ -266,8 +264,7 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
 
                 log.info("Linked container " + container.getContainerID());
             } catch (CORBAException e) {
-                log.error("Unable to link container " + container.getContainerID());
-                log.error(e);
+                log.error("Unable to link container " + container.getContainerID(), e);
             }
         }
     }
