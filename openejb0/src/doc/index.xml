@@ -1,69 +1,54 @@
 <?xml version="1.0"?>
-<document url="http://openejb.exolab.org/index.xml">
+<document url="http://openejb.sf.net/index.xml" toc="none">
   <body>
-    <title>Welcome to OpenEJB!</title>
+    <title>OpenEJB -- Open Source EJB Container System</title>
 
-    <header>
-      <p> 
-		We are building the hottest EJB container system in the world! The design is radically different, and the performance is wildly faster 
-            than anything else available today. If you've got the guts to think differently, and the brains to make a difference, then we dare you to join us. 
-            We double dog dare you! 
-	</p>
-    </header>
 
+    <section title="Welcome to OpenEJB!">
+    <p> 
+    We are building the hottest EJB container system in the world! The design 
+    is radically different, and the performance is wildly faster than anything 
+    else available today. If you've got the guts to think differently, and the 
+    brains to make a difference, then we dare you to join us. We double dog 
+    dare you! 
+    </p>
  
     <section title="What is OpenEJB ?">
 
-      <p>
-OpenEJB is an open source EJB 2.0 container system. As a container system, OpenEJB works like a big plug-in for middleware servers like Web servers, CORBA servers, and application servers. By plugging in OpenEJB these servers obtain instant EJB 2.0 compliance for hosting Enterprise JavaBeans! 
-<br/><br/>
-OpenEJB is designed for speed and low resource consumption making it a very desirable alternative for middleware providers who want EJB 2.0 compatibility. OpenEJB is already targeted for three middleware platforms including a commercial application server called  <a href="www.intalio.com">n3 </a>, a <a href="http://openorb.exolab.org">CORBA ORB</a>, and the <a href="http://jakarta.apache.org">Apache Tomcat </a> server.
-     </p>
+    <p>
+    OpenEJB is an open source EJB container system. As a container system, 
+    OpenEJB works like a big plug-in for middleware servers like Web servers, 
+    CORBA servers, and application servers. By plugging in OpenEJB these servers
+    obtain instant EJB compliance for hosting Enterprise JavaBeans! 
+    <br/><br/>
+    OpenEJB is designed for speed and low resource consumption making it a very 
+    desirable alternative for middleware providers who want EJB 1.1 compatibility. 
+    OpenEJB is already shipping in platforms like Apple Computer's 
+    <a href="http://www.apple.com/webobjects/">WebObjects</a> and 
+    Exolab's <a href="http://openccm.exolab.org">OpenCCM</a>.  OpenEJB is targeted
+    for other middleware platforms including another commercial application server 
+    called  <a href="www.intalio.com">n3 </a>, a <a href="http://openorb.exolab.org">
+    CORBA ORB</a>, and the <a href="http://jakarta.apache.org">Apache Tomcat </a> server.
+    </p>
 
     </section>
 
-    <section title="Can I use OpenEJB now ?">
-
-      <p>
-While OpenEJB can be used independently through a Reference Implementation (RI) of a middleware server, it's intended to be used with commercial products and other open source projects. The RI, which is still in development, serves as a demo platform and is not intended for production environments. 
-<br/><br/>
-The OpenEJB container system is currently in development and is not ready for you to download and run. However the source code is open to everyone at this early stage of development and we invite you can get involved and join the OpenEJB project!
-
-
-
-     </p>
-
-    </section>
 
     <section title="Who is working on OpenEJB ?">
-
-
-      <p>
-
-OpenEJB is the brainchild of Richard Monson-Haefel, author of 
-<a href="http://www.oreilly.com/catalog/entjbeans2">Enterprise JavaBeans, 2nd Edition </a> 
-(O'Reilly 2000).  David Blevins, contributing author to the book 'Component-Based Software Engineering' 
-(Addison-Wesley 2001) and author of a forthcoming Addison-Wesley book on the Java 2 Enterprise Edition, co-founded the project with Richard in December 1999 and announced it at the 2000 O'Reilly Java Conference.
-<br/><br/>
-The project is funded by <a href="http://www.exolab.org">The ExoLab Group</a>. As an organization dedicated to the ideals and objectives of the open source community, ExoLab feels that OpenEJB is an invaluable addition to the open source community. 
-
-
-     </p>
+    <p>
+    
+    OpenEJB is the brainchild of Richard Monson-Haefel and David Blevins.  
+    Richard is author of 
+    <a href="http://www.oreilly.com/catalog/entjbeans3">Enterprise JavaBeans, 3rd Edition</a> (O'Reilly 2001) 
+    and co-author of 
+    <a href="http://www.oreilly.com/catalog/javmesser">Java Message Service</a> (O'Reilly 2000).  
+    David Blevins is author of 'Understanding J2EE' a forthcoming Addison-Wesley book on the Java 2 Enterprise 
+    Edition, and contributing author to the book 'Component-Based Software Engineering' (Addison-Wesley 2001). 
+    <br/><br/>
+    </p>
 
     </section>
-
-    <section title="What else is on this site?">
-
-      <p>
-Included in this web site are links to an OpenEJB <a href="datasheet.html">data sheet </a>, white paper, and the <a href="cvs.html">source code</a> . An OpenEJB specification for middleware providers will be made available in the near future.
-
-
-
-     </p>
-
-    </section>
-
-
+</section>
 
   </body>
 </document>

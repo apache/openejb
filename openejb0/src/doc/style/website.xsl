@@ -38,10 +38,10 @@
           src="images/dotTrans.gif" width="1" height="1" border="0"/></td>
         <td width="7" valign="top" align="left"><img src="images/dotTrans.gif" border="0"
           width="1" height="1"/></td>
-        <td width="70" valign="top" align="left"><img
-          src="images/dotTrans.gif" width="70" height="6" border="0"/></td>
-        <td width="400" valign="top" align="left"><img
-          src="images/top_2.gif"  width="400" height="6" border="0"/></td>
+        <td width="40" valign="top" align="left"><img
+          src="images/dotTrans.gif" width="40" height="6" border="0"/></td>
+        <td width="430" valign="top" align="left"><img
+          src="images/top_2.gif"  width="430" height="6" border="0"/></td>
         <td width="120" valign="top" align="left"><xsl:element
           name="img"><xsl:attribute name="src">images/top_3.gif</xsl:attribute>
         <xsl:attribute name="width">120</xsl:attribute>
@@ -54,9 +54,9 @@
         <td width="95" bgcolor="#7270c2" valign="top" align="left"><img
           src="images/dotTrans.gif" border="0" width="1" height="1"/></td>
         <td width="7" bgcolor="#ffffff" valign="top" align="left"></td>
-        <td width="70" valign="top" align="left"><img
+        <td width="40" valign="top" align="left"><img
           src="images/dotTrans.gif" width="1" height="1" border="0"/></td>
-        <td width="400" valign="middle" align="left">
+        <td width="430" valign="middle" align="left">
         <xsl:apply-templates select="$project/topNav"/><br/>
         <img src="images/dotTrans.gif" width="1" height="2" border="0"/></td>
         <td width="120" height="20" valign="top" align="left">&#160;</td>
@@ -68,10 +68,10 @@
           src="images/line_sm.gif" width="105" height="3" border="0"/></td>
         <td width="7" bgcolor="#a9a5de" valign="top" align="left"><img
           src="images/line_sm.gif" width="7" height="3" border="0"/></td>
-        <td width="70" valign="top" align="left"><img
-          src="images/line_light.gif" width="70" height="3" border="0"/></td>
-        <td width="400" valign="top" align="left"><img
-          src="images/line_light.gif" width="400" height="3" border="0"/></td>
+        <td width="40" valign="top" align="left"><img
+          src="images/line_light.gif" width="40" height="3" border="0"/></td>
+        <td width="430" valign="top" align="left"><img
+          src="images/line_light.gif" width="430" height="3" border="0"/></td>
         <td width="120" valign="top" align="left"><img
           src="images/dotTrans.gif" border="0" width="1" height="1"/></td>
       </tr>
@@ -81,46 +81,160 @@
           src="images/dotTrans.gif" width="20" height="10" border="0"/></td>
 
         <td width="95" bgcolor="#7270c2" valign="top" align="left"><img src="images/dotTrans.gif" width="1" height="2" border="0"/><br/>
-<xsl:apply-templates select="$project/navSections"/></td>
+        <xsl:apply-templates select="$project/navSections"/></td>
 
         <td width="7" bgcolor="#a9a5de" valign="top" align="left">&#160;</td>
-        <td width="70" valign="top" align="left">&#160;</td>
-        <td rowspan="4" width="400" valign="top">
-          <table cols="1" rows="2" border="0" cellpadding="0" cellspacing="0" width="400">
+        <td width="40" valign="top" align="left">&#160;</td>
+        <td rowspan="4" width="430" valign="top">
+          <table cols="1" rows="2" border="0" cellpadding="0" cellspacing="0" width="430">
             <tr>
               <td valign="top" align="left"><br/><img border="0" height="50" hspace="0"
-                  src="{$project/logo}" vspace="0" width="200"/><br/><img border="0" height="10" hspace="0"
-                  src="images/dotTrans.gif"/>
+                  src="{$project/logo}" vspace="0" width="200"/><br/>
+                  <img border="0" height="7" hspace="0" src="images/dotTrans.gif"/><br/>
+                  <xsl:if test="/document/body/title">
+                    <span class="pageTitle"><xsl:value-of select="/document/body/title"/></span><br/>
+                  </xsl:if>
+                  <img border="0" height="1" hspace="0" src="images/dotTrans.gif"/>
               </td>
             </tr>
-          </table><p/><p/><br/>
+          </table>
+          <p/>
 
-          <xsl:if test="/document/body/title">
-            <span class="pageTitle"><xsl:value-of select="/document/body/title"/></span><br/><br/>
+          <xsl:if test="document/body/header">
+            <br/>          
+            <xsl:apply-templates select="document/body/header"/>
           </xsl:if>
-
-          <xsl:apply-templates select="document/body/header"/>
           <xsl:apply-templates select="document/body/mailing-list"/>
 
           <!-- build the page navigation first, section by section -->
-          <xsl:for-each select=".//section">
-          <span class="bodyBlack">
-            <xsl:if test="@title">
-              <xsl:variable name="level" select="count(ancestor::*)"/>
-              <xsl:choose>
-                <xsl:when test='$level=2'>
-                  <a href="#{@title}"><xsl:value-of select="@title"/></a><br/>
-                </xsl:when>
-                <xsl:when test='$level=3'>
-                  <a href="#{@title}"><xsl:value-of select="@title"/></a><br/>
-                </xsl:when>
-                <xsl:otherwise>
-                  &#xA0;&#xA0;&#xA0;<a href="#{@title}"><xsl:value-of select="@title"/></a><br/>
-                </xsl:otherwise>
-              </xsl:choose>
-            </xsl:if>
-          </span>
-        </xsl:for-each>
+          <xsl:choose>      
+          <xsl:if test="document[@toc='none']"></xsl:if>
+          <xsl:if test="document[@toc='numeric']">
+                    
+            <p/><br/>
+            <xsl:for-each select=".//section">
+              <span class="toc">
+                <xsl:choose>
+                 <xsl:if test="@ref-id">
+                  <xsl:variable name="level" select="count(ancestor::*)"/>
+                  <xsl:choose>
+                    <xsl:when test='$level=2'>
+                      <a href="#{@ref-id}">
+                      <xsl:number count="//section" format="1" /> 
+                      <img src="images/dotTrans.gif" width="5" height="1" border="0"/>
+                      <xsl:value-of select="@title"/></a><br/>
+                    </xsl:when>
+                    <xsl:when test='$level=3'>
+                      <img src="images/dotTrans.gif" width="15" height="1" border="0"/>
+                      <a href="#{@ref-id}">
+                      <xsl:number count="//section" format="1" /> 
+                      <img src="images/dotTrans.gif" width="5" height="1" border="0"/>
+                      <xsl:value-of select="@title"/></a><br/>
+                    </xsl:when>
+                    <xsl:when test='$level=4'>
+                      <img src="images/dotTrans.gif" width="30" height="1" border="0"/>
+                      <a href="#{@ref-id}">
+                      <xsl:number count="//section" format="1" /> 
+                      <img src="images/dotTrans.gif" width="5" height="1" border="0"/>
+                      <xsl:value-of select="@title"/></a><br/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <img src="images/dotTrans.gif" width="45" height="1" border="0"/>
+                      <a href="#{@ref-id}">
+                      <xsl:number count="//section" format="1" /> 
+                      <img src="images/dotTrans.gif" width="5" height="1" border="0"/>
+                      <xsl:value-of select="@title"/></a><br/>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                 </xsl:if>
+                 <xsl:otherwise>
+                  <xsl:variable name="level" select="count(ancestor::*)"/>
+                  <xsl:choose>
+                    <xsl:when test='$level=2'>
+                      <a href="#{@title}">
+                      <xsl:number count="//section" format="1" /> 
+                      <img src="images/dotTrans.gif" width="5" height="1" border="0"/>
+                      <xsl:value-of select="@title"/></a><br/>
+                    </xsl:when>
+                    <xsl:when test='$level=3'>
+                      <img src="images/dotTrans.gif" width="15" height="1" border="0"/>
+                      <a href="#{@title}">
+                      <xsl:number count="//section" format="1" /> 
+                      <img src="images/dotTrans.gif" width="5" height="1" border="0"/>
+                      <xsl:value-of select="@title"/></a><br/>
+                    </xsl:when>
+                    <xsl:when test='$level=4'>
+                      <img src="images/dotTrans.gif" width="30" height="1" border="0"/>
+                      <a href="#{@title}">
+                      <xsl:number count="//section" format="1" /> 
+                      <img src="images/dotTrans.gif" width="5" height="1" border="0"/>
+                      <xsl:value-of select="@title"/></a><br/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <img src="images/dotTrans.gif" width="45" height="1" border="0"/>
+                      <a href="#{@title}">
+                      <xsl:number count="//section" format="1" /> 
+                      <img src="images/dotTrans.gif" width="5" height="1" border="0"/>
+                      <xsl:value-of select="@title"/></a><br/>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                 </xsl:otherwise>
+                </xsl:choose>
+              </span>
+            </xsl:for-each>
+          
+          </xsl:if>
+          <xsl:otherwise>
+            <p/><br/>
+            <xsl:for-each select=".//section">
+              <span class="toc">
+                <xsl:choose>
+                 <xsl:if test="@ref-id">
+                  <xsl:variable name="level" select="count(ancestor::*)"/>
+                  <xsl:choose>
+                    <xsl:when test='$level=2'>
+                      <a href="#{@ref-id}"><xsl:value-of select="@title"/></a><br/>
+                    </xsl:when>
+                    <xsl:when test='$level=3'>
+                      <img src="images/dotTrans.gif" width="15" height="1" border="0"/>
+                      <a href="#{@ref-id}"><xsl:value-of select="@title"/></a><br/>
+                    </xsl:when>
+                    <xsl:when test='$level=4'>
+                      <img src="images/dotTrans.gif" width="30" height="1" border="0"/>
+                      <a href="#{@ref-id}"><xsl:value-of select="@title"/></a><br/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <img src="images/dotTrans.gif" width="45" height="1" border="0"/>
+                      <a href="#{@ref-id}"><xsl:value-of select="@title"/></a><br/>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                 </xsl:if>
+                 <xsl:otherwise>
+                  <xsl:variable name="level" select="count(ancestor::*)"/>
+                  <xsl:choose>
+                    <xsl:when test='$level=2'>
+                      <a href="#{@title}"><xsl:value-of select="@title"/></a><br/>
+                    </xsl:when>
+                    <xsl:when test='$level=3'>
+                      <img src="images/dotTrans.gif" width="15" height="1" border="0"/>
+                      <a href="#{@title}"><xsl:value-of select="@title"/></a><br/>
+                    </xsl:when>
+                    <xsl:when test='$level=4'>
+                      <img src="images/dotTrans.gif" width="30" height="1" border="0"/>
+                      <a href="#{@title}"><xsl:value-of select="@title"/></a><br/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <img src="images/dotTrans.gif" width="45" height="1" border="0"/>
+                      <a href="#{@title}"><xsl:value-of select="@title"/></a><br/>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                 </xsl:otherwise>
+                </xsl:choose>
+              </span>
+            </xsl:for-each>
+          </xsl:otherwise>
+          </xsl:choose>      
+          
 
         <br/>
 
@@ -143,7 +257,7 @@
 
         </td>
         <td width="7" height="5" bgcolor="#a9a5de" valign="top" align="left">&#160;</td>
-        <td width="70" height="5" valign="top" align="left">&#160;</td>
+        <td width="40" height="5" valign="top" align="left">&#160;</td>
         <td width="120" height="5" valign="top" align="left">&#160;</td>
       </tr>
 
@@ -151,12 +265,11 @@
 
       <tr>
         <td width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&#160;</td>
-        <td width="95" bgcolor="#7270c2" valign="top"
-          align="left"><xsl:apply-templates select="searchForm"/></td>
+        <td width="95" bgcolor="#7270c2" valign="top" align="left">&#160;</td>
         <td width="7" bgcolor="#a9a5de" valign="top" align="left">
           <img src="images/dotTrans.gif" width="1" height="25" border="0"/>
         </td>
-        <td width="70" valign="top" align="left">
+        <td width="40" valign="top" align="left">
           <img src="images/dotTrans.gif" width="1" height="25" border="0"/>
         </td>
         <td width="120" valign="top" align="left">&#160;</td>
@@ -171,7 +284,7 @@
           align="left"><img src="images/stripe105.gif" width="105" height="125" border="0"/></td>
         <td width="7" rowspan="2" height="100%" bgcolor="#a9a5de" valign="top"
           align="left">&#160;</td>
-        <td width="70" height="100%" valign="top" align="left">&#160;</td>
+        <td width="40" height="100%" valign="top" align="left">&#160;</td>
         <td width="120" height="100%" valign="top" align="left">&#160;</td>
       </tr>
 
@@ -181,10 +294,10 @@
         <!--td width="20" height="25" valign="top" align="left">&#160;</td>
         <td width="95" height="25" valign="top" align="left">&#160;</td>
         <td width="7" height="25" valign="top" align="left">&#160;</td-->
-        <td width="70" height="25" valign="top" align="left">&#160;</td>
-        <td width="400" height="25" valign="bottom" align="left">
+        <td width="40" height="25" valign="top" align="left">&#160;</td>
+        <td width="430" height="25" valign="bottom" align="left">
           <br/><br/>
-          <img src="images/line_light.gif"  border="0" width="400" height="3"  /><br/>
+          <img src="images/line_light.gif"  border="0" width="430" height="3"  /><br/>
           <p/>
           <span class="bodyGrey">
             <xsl:for-each select="$project/notice">
@@ -209,22 +322,56 @@
 
   <xsl:template match="document//section">
     <xsl:variable name="level" select="count(ancestor::*)"/>
+
+    
     <xsl:choose>
       <xsl:when test='$level=2'>
-        <xsl:if test="@ref-id"><a name="{@ref-id}"/></xsl:if>
-        <a name="{@title}"><h2><xsl:value-of select="@title"/></h2></a>
+        <xsl:choose>
+          <xsl:if test="@ref-id">
+            <a name="{@ref-id}">
+            <h2><xsl:value-of select="@title"/></h2></a>
+          </xsl:if>
+          <xsl:otherwise>
+            <a name="{@title}">
+            <h2><xsl:value-of select="@title"/></h2></a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:when test='$level=3'>
-        <xsl:if test="@ref-id"><a name="{@ref-id}"/></xsl:if>
-        <a name="{@title}"><h3><xsl:value-of select="@title"/></h3></a>
+        <xsl:choose>
+          <xsl:if test="@ref-id">
+            <a name="{@ref-id}">
+            <h3><xsl:value-of select="@title"/></h3></a>
+          </xsl:if>
+          <xsl:otherwise>
+            <a name="{@title}">
+            <h3><xsl:value-of select="@title"/></h3></a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:when test='$level=4'>
-        <xsl:if test="@ref-id"><a name="{@ref-id}"/></xsl:if>
-        <a name="{@title}"><h4><xsl:value-of select="@title"/></h4></a>
+        <xsl:choose>
+          <xsl:if test="@ref-id">
+            <a name="{@ref-id}">
+            <h4><xsl:value-of select="@title"/></h4></a>
+          </xsl:if>
+          <xsl:otherwise>
+            <a name="{@title}">
+            <h4><xsl:value-of select="@title"/></h4></a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:if test="@ref-id"><a name="{@ref-id}"/></xsl:if>
-        <a name="{@title}"><h5><xsl:value-of select="@title"/></h5></a>
+        <xsl:choose>
+          <xsl:if test="@ref-id">
+            <a name="{@ref-id}">
+            <h5><xsl:value-of select="@title"/></h5></a>
+          </xsl:if>
+          <xsl:otherwise>
+            <a name="{@title}">
+            <h5><xsl:value-of select="@title"/></h5></a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates/>
@@ -390,6 +537,10 @@
       <font color="red"><xsl:apply-templates/></font>
     </span>
   </xsl:template>
+  
+  <xsl:template match="command">
+    <span class="command"><xsl:apply-templates/></span>
+  </xsl:template>
 
   <xsl:template match="mailing-lists">
     <xsl:apply-templates/>
@@ -415,6 +566,74 @@
   </xsl:template>
 
   <xsl:template match="contributors">
+    <xsl:for-each select="type">
+      <xsl:variable name="type" select="@name"/>
+      <xsl:variable name="color-epsilon" select="'#DDDDDD'"/>
+      
+
+      <table cellpadding="4" cellspacing="2" width="90%">
+        <tr>
+          <td bgcolor="{$color-epsilon}">
+            <span class="bodyBlack">
+            <b><xsl:value-of select="@name"/></b>
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+          <p><span class="bodyGrey"><xsl:value-of select="."/></span></p>
+          </td>
+        </tr>
+        <xsl:for-each select="../contributor[@type=$type]">
+          <tr>
+            <td>
+            <center>
+            <img src="images/line_light.gif"  width="340" height="3" border="0"/>
+            </center>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p>
+                <span class="teamMember">
+                <a href="mailto:{email}"><xsl:value-of select="name/@given"/>&#xA0;<xsl:value-of select="name/@surname"/></a>
+                </span>
+                
+                <xsl:if test="role">
+                  <span class="teamMemberRole"> - <xsl:value-of select="role"/></span>
+                </xsl:if> 
+                
+                <xsl:if test="company/@id">
+                  <br/>
+                  <span class="bodyGrey">
+                  <xsl:variable name="company-id" select="company/@id"/>
+                  <xsl:variable name="company" select="../company[@id=$company-id]"/>
+                  <xsl:choose>
+                    <xsl:if test="$company/url">
+                      <a href="http://{$company/url}"><xsl:value-of select="$company/name"/></a>
+                    </xsl:if>
+                    <xsl:otherwise>
+                      <xsl:value-of select="$company/name"/>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                  </span>
+                </xsl:if> 
+              </p>
+              
+              <p>
+                <span class="bodyBlack">
+                  <xsl:value-of select="description"/>      
+                </span>
+              </p>
+            </td>
+          </tr>
+        </xsl:for-each>
+      </table>
+      <br/><br/>
+    </xsl:for-each>
+  </xsl:template>
+
+  <xsl:template match="contributors0ld">
     <xsl:for-each select="type">
       <xsl:variable name="type" select="@name"/>
       <xsl:variable name="color-epsilon" select="'#ffffff'"/>
