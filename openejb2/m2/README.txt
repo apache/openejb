@@ -16,3 +16,12 @@ This will create an openejb subdirectory (sources will be copied from the parent
 From the openejb subdirectory, run:
   m2 install
 
+
+This project depends on the XMLBeans plugin. The current version is at:
+  http://cvs.mojo.codehaus.org/mojo/maven-xmlbeans-plugin/
+
+By default, it will be downloaded from the remote repository.
+
+If you need to make changes to the plugin and install an updated version, run from that directory:
+  m2 install
+
