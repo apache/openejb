@@ -63,7 +63,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
-
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
@@ -80,8 +79,8 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
@@ -287,7 +286,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
             GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
             Set patterns = new HashSet();
-            patterns.add(ObjectName.getInstance("geronimo.management:J2eeType=ManagedConnectionFactory,*"));
+            patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
             tmGBean.setReferencePatterns("resourceManagers", patterns);
             ObjectName tmObjectName = ObjectName.getInstance(j2eeDomainName + ":type=TransactionManager");
             kernel.loadGBean(tmObjectName, tmGBean);
@@ -436,10 +435,11 @@ public class EJBConfigBuilderTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         String str = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
-        if (str == null)
+        if (str == null) {
             str = ":org.apache.geronimo.naming";
-        else
+        } else {
             str = str + ":org.apache.geronimo.naming";
+        }
         System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
     }
 }

@@ -50,7 +50,6 @@ package org.openejb.entity;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.ejb.EJBObject;
 import javax.management.ObjectName;
 
@@ -156,7 +155,7 @@ public class BasicBMPEntityContainerTest extends TestCase {
 
         GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
         Set rmpatterns = new HashSet();
-        rmpatterns.add(ObjectName.getInstance("geronimo.management:J2eeType=ManagedConnectionFactory,*"));
+        rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tmGBean.setReferencePatterns("resourceManagers", rmpatterns);
         start(TM_NAME, tmGBean);
         GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);

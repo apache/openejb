@@ -171,10 +171,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         if (id == null) {
             id = moduleBase.getFile();
             if (id.endsWith("!/")) {
-                id = id.substring(0, id.length()-2);
+                id = id.substring(0, id.length() - 2);
             }
             if (id.endsWith(".jar")) {
-                id = id.substring(0, id.length()-4);
+                id = id.substring(0, id.length() - 4);
             }
             id = id.substring(id.lastIndexOf('/') + 1);
         }
@@ -393,7 +393,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             ejbModuleGBean.setAttribute("deploymentDescriptor", null);
             if (connectionFactoryName != null) {
                 ObjectName connectionFactoryObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + connectionFactoryName);
-                ejbModuleGBean.setReferencePatterns("ConnectionFactory", Collections.singleton(connectionFactoryObjectName));
+                ejbModuleGBean.setReferencePattern("ConnectionFactory", connectionFactoryObjectName);
                 ejbModuleGBean.setAttribute("Delegate", delegate);
             }
         } catch (Exception e) {
@@ -897,7 +897,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         Set applicationManagedSecurityResources = new HashSet();
         for (int i = 0; i < resourceRefArray.length; i++) {
             ResourceRefType resourceRefType = resourceRefArray[i];
-            String name = (String)openejbNames.get(resourceRefType.getResRefName().getStringValue());
+            String name = (String) openejbNames.get(resourceRefType.getResRefName().getStringValue());
             if ("Unshareable".equals(getJ2eeStringValue(resourceRefType.getResSharingScope()))) {
                 unshareableResources.add(name);
             }
