@@ -67,7 +67,9 @@ import org.tranql.sql.sql92.SQL92Schema;
 public class CMPEntityBuilderTestUtil extends TestCase {
 
     private final CMPEntityBuilder delegate;
-    
+
+    public void testDummy() { }
+
     public CMPEntityBuilderTestUtil(OpenEJBModuleBuilder builder) {
         this.delegate = new CMPEntityBuilder(builder);
     }
