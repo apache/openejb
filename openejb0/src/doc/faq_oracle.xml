@@ -46,8 +46,8 @@ create sequence employee_seq;
 <?xml version="1.0"?>
 
 <database name="Global_TX_Database" engine="oracle">
-    <jndi name="java:comp/env/jdbc/oracle" />
-    <mapping href="c:/java/hello_world_cmp/conf/hello.cmp_or_mapping.xml" />
+    <jndi name="java:comp/env/jdbc/oracle"/>
+    <mapping href="c:/java/hello_world_cmp/conf/hello.cmp_or_mapping.xml"/>
 </database>
 ]]>
 </file>
@@ -56,15 +56,14 @@ create sequence employee_seq;
 <file name="c:/java/hello_world_cmp/conf/hello.cmp_local_database.xml"><![CDATA[
 <?xml version="1.0"?>
 
-<database name="Local_TX_Database" engine="mysql" >
-
+<database name="Local_TX_Database" engine="oracle">
     <driver class-name="oracle.jdbc.OracleDriver"
             url="jdbc:oracle:thin:@server:1521:database">
-      <param name="user"     value="user" />
-      <param name="password" value="password" />
+      <param name="user" value="user"/>
+      <param name="password" value="password"/>
     </driver>
 
-    <mapping href="c:/java/hello_world_cmp/conf/hello.cmp_or_mapping.xml" />
+    <mapping href="c:/java/hello_world_cmp/conf/hello.cmp_or_mapping.xml"/>
 </database>
 ]]>
 </file>
