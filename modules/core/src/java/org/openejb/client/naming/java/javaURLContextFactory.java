@@ -42,36 +42,39 @@
  *
  * $Id$
  */
-package org.openejb.client;
+package org.openejb.client.naming.java;
 
-/**
- * 
- * @since 11/25/2001
- */
-public interface ResponseCodes {
+import org.apache.geronimo.kernel.Kernel;
 
-    // TODO: Implement more specific response codes for EJB
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.OperationNotSupportedException;
+import javax.naming.spi.ObjectFactory;
+import java.util.Hashtable;
 
-    public static final int AUTH_GRANTED             =  1;
-    public static final int AUTH_REDIRECT            =  2;
-    public static final int AUTH_DENIED              =  3;
-    public static final int EJB_OK                   =  4;
-    public static final int EJB_OK_CREATE            =  5;
-    public static final int EJB_OK_FOUND             =  6;
-    public static final int EJB_OK_FOUND_COLLECTION  =  7;
-    public static final int EJB_OK_NOT_FOUND         =  8;
-    public static final int EJB_APP_EXCEPTION        =  9;
-    public static final int EJB_SYS_EXCEPTION        = 10;
-    public static final int EJB_ERROR                = 11;
-    public static final int JNDI_OK                  = 12;
-    public static final int JNDI_EJBHOME             = 13;
-    public static final int JNDI_CONTEXT             = 14;
-    public static final int JNDI_ENUMERATION         = 15;
-    public static final int JNDI_NOT_FOUND           = 16;
-    public static final int JNDI_NAMING_EXCEPTION    = 17;
-    public static final int JNDI_RUNTIME_EXCEPTION   = 18;
-    public static final int JNDI_ERROR               = 19;
-    public static final int EJB_OK_FOUND_ENUMERATION = 20;
-    public static final int JNDI_CONTEXT_TREE        = 21;
+public class javaURLContextFactory implements ObjectFactory {
+    private static final ObjectName JNDI_PROVIDER;
+
+    static {
+        try {
+            JNDI_PROVIDER = ObjectName.getInstance("client:type=JNDIProvider");
+        } catch (MalformedObjectNameException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable environment) throws Exception {
+        if (obj != null) {
+            throw new OperationNotSupportedException();
+        }
+
+        /* A null obj ref means the NamingManager is requesting
+        * a Context that can resolve the 'java:' schema
+        */
+        return Kernel.getSingleKernel().getAttribute(JNDI_PROVIDER, "context");
+    }
+
+
 }
-

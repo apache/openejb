@@ -44,6 +44,10 @@
  */
 package org.openejb.client;
 
+import javax.naming.Binding;
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -54,10 +58,20 @@ import java.io.ObjectOutput;
  */
 public class JNDIResponse implements Response {
 
+
+    private transient ServerMetaData serverMetaData;
     private transient int responseCode = -1;
     private transient Object result;
+    private static final int CONTEXT = 1;
+    private static final int EJBHOME = 2;
+    private static final int OBJECT = 3;
+    private static final int END = 99;
 
     public JNDIResponse(){
+    }
+
+    public JNDIResponse(ServerMetaData serverMetaData) {
+        this.serverMetaData = serverMetaData;
     }
 
     public JNDIResponse(int code, Object obj){
@@ -112,8 +126,45 @@ public class JNDIResponse implements Response {
                 m.readExternal(in);
                 result = m;
                 break;
+            case JNDI_CONTEXT_TREE:
+                result = readContextTree(in);
+                break;
         }
     }
+
+    private Context readContextTree(ObjectInput in) throws IOException, ClassNotFoundException {
+
+        ContextImpl context = new ContextImpl();
+
+        CONTEXT_LOOP: while (true) {
+            byte type = in.readByte();
+            String name = null;
+            Object obj = null;
+            switch (type) {
+                case CONTEXT:
+                    name = in.readUTF();
+                    obj = readContextTree(in);
+                    break;
+                case END:
+                    break CONTEXT_LOOP;
+                default:
+                    name = in.readUTF();
+                    obj = in.readObject();
+            }
+
+            try {
+                context.internalBind(name,obj);
+            } catch (NamingException e) {
+
+            }
+        }
+
+
+        return context;
+    }
+
+
+
 
     /**
      * The object implements the writeExternal method to save its contents
@@ -148,7 +199,41 @@ public class JNDIResponse implements Response {
                 EJBMetaDataImpl m = (EJBMetaDataImpl)result;
                 m.writeExternal(out);
                 break;
+            case JNDI_CONTEXT_TREE:
+                writeContextTree(out, (Context)result);
+                break;
 
         }
     }
+
+
+
+    private void writeContextTree(ObjectOutput out, Context context)  throws IOException {
+        String name = null;
+        try {
+            NamingEnumeration enum = context.listBindings( "" );
+            while (enum.hasMoreElements()){
+                Binding pair = (Binding)enum.next();
+                name = pair.getName();
+
+                Object obj = pair.getObject();
+
+                if ( obj instanceof Context ){
+                    out.write(CONTEXT);
+                    out.writeUTF(name);
+                    writeContextTree(out, (Context)obj);
+                } else {
+                    out.write(OBJECT);
+                    out.writeUTF(name);
+                    out.writeObject(obj);
+                }
+            }
+            out.write(END);
+        } catch (NamingException e) {
+            IOException ioException = new IOException("Unable to pull data from JNDI: "+name);
+            ioException.initCause(e);
+            throw ioException;
+        }
+    }
+
 }

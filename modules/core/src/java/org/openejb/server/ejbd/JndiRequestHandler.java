@@ -44,27 +44,24 @@
  */
 package org.openejb.server.ejbd;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import javax.naming.NamingException;
-
+import org.apache.geronimo.kernel.Kernel;
 import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
-import org.openejb.client.EJBMetaDataImpl;
-import org.openejb.client.JNDIRequest;
-import org.openejb.client.JNDIResponse;
-import org.openejb.client.RequestMethods;
-import org.openejb.client.ResponseCodes;
+import org.openejb.client.*;
 import org.openejb.proxy.ProxyInfo;
+
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
+import javax.naming.NamingException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 /**
  */
 class JndiRequestHandler implements ResponseCodes, RequestMethods {
-//    private final Context clientJndi;
     private final ContainerIndex containerIndex;
 
     JndiRequestHandler(ContainerIndex containerIndex) throws NamingException {
-//        clientJndi = (Context) OpenEJB.getJNDIContext().lookup("openejb/ejb");
         this.containerIndex = containerIndex;
     }
 
@@ -76,41 +73,65 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
         // We are assuming that the request method is JNDI_LOOKUP
         // TODO: Implement the JNDI_LIST and JNDI_LIST_BINDINGS methods
 
+        switch (req.getRequestMethod()) {
+            case JNDI_LOOKUP:
+                doLookup(req, res);
+                break;
+            case JNDI_LIST:
+                doList(req, res);
+                break;
+            case JNDI_LIST_BINDINGS:
+                doListBindings(req, res);
+                break;
+            default: throw new UnsupportedOperationException("Request method not supported: "+req.getRequestMethod());
+        }
+
+        res.writeExternal(out);
+    }
+
+    private void doListBindings(JNDIRequest req, JNDIResponse res) {
+        //TODO Implement listbindings
+        throw new UnsupportedOperationException("List bindings operation not implemented");
+    }
+
+    private void doList(JNDIRequest req, JNDIResponse res) {
+        //TODO Implement list
+        throw new UnsupportedOperationException("List operation not implemented");
+    }
+
+    private void doLookup(JNDIRequest req, JNDIResponse res) throws Exception {
         String name = req.getRequestString();
         if (name.startsWith("/")) {
             name = name.substring(1);
         }
 
-        int index = containerIndex.getContainerIndexByJndiName(name);
-        if (index > 0) {
-            EJBContainer deployment = containerIndex.getContainer(index);
-            ProxyInfo info = deployment.getProxyInfo();
-
-            res.setResponseCode(JNDI_EJBHOME);
-            EJBMetaDataImpl metaData = new EJBMetaDataImpl(info.getHomeInterface(),
-                    info.getRemoteInterface(),
-                    info.getPrimaryKeyClass(),
-                    info.getComponentType(),
-                    info.getContainerID(),
-                    index);
-            res.setResult(metaData);
+        if (req.getClientModuleID() != null) {
+            try {
+                ObjectName objectName = new ObjectName(req.getClientModuleID());
+                Kernel.getSingleKernel().getAttribute(objectName, "componentContext");
+            } catch (MalformedObjectNameException e) {
+                throw (Exception)new NamingException("Invalid client module id in request: "+req.getClientModuleID()).initCause(e);
+            } catch (Exception e) {
+                throw (Exception)new NamingException("Unable to retrieve context for module: "+req.getClientModuleID()).initCause(e);
+            }
         } else {
-//            try {
-//                Object obj = clientJndi.lookup(name);
-//
-//                if (obj instanceof Context) {
-//                    res.setResponseCode(JNDI_CONTEXT);
-//                } else {
-//                    res.setResponseCode(JNDI_NOT_FOUND);
-//                }
-//            } catch (NameNotFoundException e) {
-                res.setResponseCode(JNDI_NOT_FOUND);
-//            } catch (NamingException e) {
-//                res.setResponseCode(JNDI_NAMING_EXCEPTION);
-//                res.setResult(e);
-//            }
-        }
+            int index = containerIndex.getContainerIndexByJndiName(name);
+            if (index > 0) {
+                EJBContainer deployment = containerIndex.getContainer(index);
+                ProxyInfo info = deployment.getProxyInfo();
 
-        res.writeExternal(out);
+                res.setResponseCode(JNDI_EJBHOME);
+                EJBMetaDataImpl metaData = new EJBMetaDataImpl(info.getHomeInterface(),
+                        info.getRemoteInterface(),
+                        info.getPrimaryKeyClass(),
+                        info.getComponentType(),
+                        info.getContainerID(),
+                        index);
+                res.setResult(metaData);
+            } else {
+                res.setResponseCode(JNDI_NOT_FOUND);
+            }
+
+        }
     }
 }

@@ -64,6 +64,14 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-client</artifactId>
+            <version>&geronimo-version;</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>&geronimo-version;</version>
             <properties>
