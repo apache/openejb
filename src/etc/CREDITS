@@ -3,7 +3,7 @@ OpenEJB -- EJB Container System and EJB Server
 
  THANK YOU to our community for your support.
 
-OpenEJB 0.8             http://openejb.sf.net/
+OpenEJB 0.9            http://openejb.sf.net/
 -----------------------------------------------
 
 OpenEJB would like to thank the our community members
@@ -11,76 +11,26 @@ for their feedback, patches, time and support.
 
 OpenEJB is a better project as a result of you!
 
-**** CREDITS for version 0.8.3 ****
+**** CREDITS for version 0.9.0 ****
 
     --Feedback and Direction by--
-  Gopal M.
-    
-    --Code Contributions by--
-  David Blevins
-  Tim Urberg
-  Daniel S. Haischt
-  Jacek Laskowski
-  Alan Cabrera
-    
-    --Release by--
-  Alan Cabrera
-
-**** CREDITS for version 0.8.2 ****
-
-    --Code Contributions by--
-  Stefan Reich
-  David Blevins
-  Tim Urberg
-  Daniel S. Haischt
-  Jacek Laskowski
-  Alan Cabrera
-    
-    --Release by--
-  Alan Cabrera
-
-**** CREDITS for version 0.8 final ****
-
-    --Feedback and Direction by--
+  Zack Angelo
+  Pae Choi
+  Rick Mangi
+  Gopal Mukkamala
   Clint Olson
-  Daniel S. Haischt
-  Karthik    
-  Marc Prud'hommeaux
-  Mike Nelis
-  Morphius
-  Mykola 
-  Terry McGregor
     
-    --Code Contributions by--
-  Alan Cabrera
+    --Code and Documentation Contributions by--
   David Blevins
+  Alan Cabrera
+  Daniel S. Haischt
+  Jacek Laskowski
   Stefan Reich
+  Tim Urberg
+  
     
     --Release by--
   David Blevins
-
-
-**** CREDITS for version 0.8 Beta 3 ****
-
-    --Feedback and Direction by--
-  Aaron Mulder
-  Anthony W. Marino
-  Bradley Smith
-  Daniel S. Haischt
-  Frank Marshall
-  Pizer Chen
-  Stefan Reich
-      
-    --Code Contributions by--
-  Alan Cabrera
-  David Blevins
-  Jason Rosenberg
-  John Mettraux
-
-    --Release by--
-  Alan Cabrera
-  David Blevins
-
 
 ** GENERAL CREDITS **
 
@@ -88,12 +38,14 @@ OpenEJB is a better project as a result of you!
   David Blevins - OpenEJB Co-Founder, Project Lead
   Richard Monson-Haefel - OpenEJB Founder
   Alan Cabrera
-  Stefan Reich
-  Daniel Haischt
   Pizer Chen
-  Aaron Mulder
+  Daniel Haischt
+  Jacek Laskowski
   Morphius
-  
+  Aaron Mulder
+  Stefan Reich
+  Tim Urberg
+   
     --OpenEJB Sponsors--
   Apple Computer, Inc. [http://www.apple.com]
     
