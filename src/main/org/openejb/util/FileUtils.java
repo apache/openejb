@@ -117,6 +117,10 @@ public class FileUtils {
 		return dir;
 	}
 
+    public File getDirectory(){
+        return home;
+    }
+    
 	public File getFile(String path) throws java.io.FileNotFoundException, java.io.IOException {
 		return getFile(path, true);
 	}
