@@ -49,17 +49,17 @@ package org.openejb.slsb;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
+
 import javax.management.ObjectName;
 
+import junit.framework.TestCase;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.transaction.TransactionManagerProxy;
-
-import junit.framework.TestCase;
-import org.openejb.MockTransactionManager;
+import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.ContainerPolicy;
@@ -164,10 +164,11 @@ public class BasicStatelessContainerTest extends TestCase {
         kernel = new Kernel("statelessSessionTest");
         kernel.boot();
 
-        GBeanMBean transactionManager = new GBeanMBean(TransactionManagerProxy.GBEAN_INFO);
-        transactionManager.setAttribute("Delegate", new MockTransactionManager());
-        start(TM_NAME, transactionManager);
-
+        GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
+        Set rmpatterns = new HashSet();
+        rmpatterns.add(ObjectName.getInstance("geronimo.management:J2eeType=ManagedConnectionFactory,*"));
+        tmGBean.setReferencePatterns("resourceManagers", rmpatterns);
+        start(TM_NAME, tmGBean);
         GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
         start(TCA_NAME, trackedConnectionAssociator);
 

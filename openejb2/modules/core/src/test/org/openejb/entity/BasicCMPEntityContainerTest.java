@@ -55,6 +55,8 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
+
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
 import javax.management.ObjectName;
@@ -68,10 +70,9 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
-import org.apache.geronimo.transaction.TransactionManagerProxy;
+import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
-import org.openejb.MockTransactionManager;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -426,9 +427,11 @@ public class BasicCMPEntityContainerTest extends TestCase {
         kernel = new Kernel("ContainerManagedPersistenceTest");
         kernel.boot();
 
-        GBeanMBean transactionManager = new GBeanMBean(TransactionManagerProxy.GBEAN_INFO);
-        transactionManager.setAttribute("Delegate", new MockTransactionManager());
-        start(TM_NAME, transactionManager);
+        GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
+        Set rmpatterns = new HashSet();
+        rmpatterns.add(ObjectName.getInstance("geronimo.management:J2eeType=ManagedConnectionFactory,*"));
+        tmGBean.setReferencePatterns("resourceManagers", rmpatterns);
+        start(TM_NAME, tmGBean);
 
         GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
         start(TCA_NAME, trackedConnectionAssociator);
