@@ -44,12 +44,7 @@
  */
 package org.openejb.client;
  
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StreamCorruptedException;
-import java.net.Socket;
-import java.util.Properties;
+import java.io.IOException;import java.io.InputStream;import java.io.OutputStream;import java.io.StreamCorruptedException;import java.net.Socket;import java.util.Properties;
 
 /**
  * 
