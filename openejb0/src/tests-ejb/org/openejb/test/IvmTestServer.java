@@ -54,14 +54,14 @@ import java.sql.*;
 import javax.sql.*;
 
 /**
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
 public class IvmTestServer implements TestServer {
-    
+
     private Properties properties;
-    
+
     public void init(Properties props){
         properties = props;
         try{
@@ -73,19 +73,16 @@ public class IvmTestServer implements TestServer {
             oe.printStackTrace();
             throw new RuntimeException("OpenEJB could not be initiated");
         }
-
-        properties.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY, "org.openejb.core.ivm.naming.InitContextFactory");
-        
     }
-    
+
     public void destroy(){
     }
-    
+
     public void start(){
     }
 
     public void stop(){
-       
+
     }
 
     public Properties getContextEnvironment(){
