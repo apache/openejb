@@ -12,4 +12,11 @@
     <attainGoal name="html2xdoc"/>
   </preGoal>
 
+  <preGoal name="jar:jar">
+  <ant:echo file="${maven.build.dest}/openejb-version.properties">copyright=Copyright ${pom.inceptionYear} (C) ${pom.organization.name} Group, All Rights Reserved.
+url=${pom.url}
+version=${pom.currentVersion}
+date=${DSTAMP}
+time=${TSTAMP}</ant:echo>
+  </preGoal>
 </project>
