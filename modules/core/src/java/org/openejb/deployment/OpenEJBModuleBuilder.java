@@ -364,16 +364,17 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
 
         // EJBModule GBean
-        // todo rewrite this gbean in the style of J2EEApplicationImpl
         String connectionFactoryName = openejbEjbJar.getCmpConnectionFactory();
         EJBSchema ejbSchema = new EJBSchema(module.getName());
         DataSourceDelegate delegate = new DataSourceDelegate();
         SQL92Schema sqlSchema = new SQL92Schema(module.getName(), delegate);
         GBeanMBean ejbModuleGBean = new GBeanMBean(EJBModuleImpl.GBEAN_INFO);
         try {
-            ejbModuleGBean.setReferencePatterns("ejbs", Collections.singleton(new ObjectName("openejb:J2EEServer=null,J2EEApplication=null,EJBModule=" + module.getName() + ",*")));
-            ejbModuleGBean.setAttribute("EJBSchema", ejbSchema);
-            ejbModuleGBean.setAttribute("SQLSchema", sqlSchema);
+            ejbModuleGBean.setReferencePatterns("J2EEServer", Collections.singleton(earContext.getServerObjectName()));
+            if (!earContext.getJ2EEApplicationName().equals("null")) {
+                ejbModuleGBean.setReferencePatterns("J2EEApplication", Collections.singleton(earContext.getApplicationObjectName()));
+            }
+            ejbModuleGBean.setAttribute("deploymentDescriptor", null);
             if (connectionFactoryName != null) {
                 ObjectName connectionFactoryObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + connectionFactoryName);
                 ejbModuleGBean.setReferencePatterns("ConnectionFactory", Collections.singleton(connectionFactoryObjectName));
