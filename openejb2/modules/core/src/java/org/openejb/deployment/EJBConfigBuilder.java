@@ -64,6 +64,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
@@ -191,13 +192,13 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         return doc;
     }
 
-    public void buildConfiguration(File outfile, File module, XmlObject plan) throws IOException, DeploymentException {
+    public void buildConfiguration(File outfile, Manifest manifest, File module, XmlObject plan) throws IOException, DeploymentException {
         if (module.isDirectory()) {
             throw new DeploymentException("Unpacked ejb-jars are not supported");
         }
         FileInputStream is = new FileInputStream(module);
         try {
-            buildConfiguration(outfile, is, plan);
+            buildConfiguration(outfile, manifest, is, plan);
             return;
         } finally {
             try {
@@ -208,7 +209,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public void buildConfiguration(File outfile, InputStream module, XmlObject plan) throws IOException, DeploymentException {
+    public void buildConfiguration(File outfile, Manifest manifest, InputStream module, XmlObject plan) throws IOException, DeploymentException {
         OpenejbOpenejbJarType openejbEjbJar = ((OpenejbOpenejbJarDocument) plan).getOpenejbJar();
         URI configID = getConfigID(openejbEjbJar);
         URI parentID = getParentID(openejbEjbJar);

@@ -134,7 +134,7 @@ public class EJBConfigBuilderTest extends TestCase {
         Kernel kernel  = null;
         try {
             Thread.currentThread().setContextClassLoader(cl);
-            configBuilder.buildConfiguration(carFile, ejbJarFile, plan);
+            configBuilder.buildConfiguration(carFile, null, ejbJarFile, plan);
 
             File tempdir = new File(System.getProperty("java.io.tmpdir"));
             File unpackedDir = new File(tempdir, "OpenEJBTest-Unpacked");
