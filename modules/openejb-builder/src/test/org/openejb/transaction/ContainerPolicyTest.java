@@ -111,7 +111,7 @@ public class ContainerPolicyTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         txnManager = new MockTransactionManager();
-        transactionContextManager = new TransactionContextManager(txnManager, null, null);
+        transactionContextManager = new TransactionContextManager(txnManager, null);
         interceptor = new MockInterceptor(transactionContextManager);
         invocation = new EJBInvocationImpl(EJBInterfaceType.LOCAL, 0, null);
     }

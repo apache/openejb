@@ -47,6 +47,7 @@
  */
 package org.openejb.deployment;
 
+import java.util.Map;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
@@ -107,5 +108,9 @@ public class MockTransactionManager implements ExtendedTransactionManager {
 
     public Transaction begin(long transactionTimeoutMilliseconds) throws NotSupportedException, SystemException {
         return transaction;
+    }
+
+    public Map getExternalXids() {
+        return null;
     }
 }

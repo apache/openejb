@@ -74,7 +74,7 @@
 
     <ServiceProvider id="TransactionManager"
         provider-type="TransactionManager"
-        class-name="org.apache.geronimo.transaction.GeronimoTransactionManager">
+        class-name="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
         defaultTransactionTimeoutSeconds		10
         TransactionLog		HOWLTransactionLog
         ResourceManagers    j2eeType=JCAManagedConnectionFactory,* j2eeType=ActivationSpec,*
@@ -86,7 +86,6 @@
         class-name="org.apache.geronimo.transaction.context.TransactionContextManager">
         TransactionManager		TransactionManager
         XidImporter		        TransactionManager
-        Recovery		        TransactionManager
     </ServiceProvider>
 
     <ServiceProvider id="ContainerIndex"

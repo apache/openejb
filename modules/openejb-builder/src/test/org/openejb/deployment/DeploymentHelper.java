@@ -60,7 +60,6 @@ import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.work.GeronimoWorkManager;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -72,8 +71,8 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledTransactionalTimer;
-import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.openejb.deployment.mdb.mockra.MockActivationSpec;
 import org.openejb.deployment.mdb.mockra.MockResourceAdapter;
 
@@ -118,41 +117,40 @@ public class DeploymentHelper {
         Kernel kernel = new Kernel(kernelName);
         kernel.boot();
 
-        GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
+        GBeanData tmGBean = new GBeanData(TRANSACTIONMANAGER_NAME, TransactionManagerImpl.GBEAN_INFO);
         Set rmpatterns = new HashSet();
         rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tmGBean.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
         tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
-        start(kernel, TRANSACTIONMANAGER_NAME, tmGBean);
+        start(kernel, tmGBean);
 
-        GBeanMBean tcmGBean = new GBeanMBean(TransactionContextManager.GBEAN_INFO);
+        GBeanData tcmGBean = new GBeanData(TRANSACTIONCONTEXTMANAGER_NAME, TransactionContextManager.GBEAN_INFO);
         tcmGBean.setReferencePattern("TransactionManager", TRANSACTIONMANAGER_NAME);
         tcmGBean.setReferencePattern("XidImporter", TRANSACTIONMANAGER_NAME);
-        tcmGBean.setReferencePattern("Recovery", TRANSACTIONMANAGER_NAME);
-        start(kernel, TRANSACTIONCONTEXTMANAGER_NAME, tcmGBean);
+        start(kernel, tcmGBean);
 
-        GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
-        DeploymentHelper.start(kernel, TRACKEDCONNECTIONASSOCIATOR_NAME, trackedConnectionAssociator);
+        GBeanData trackedConnectionAssociator = new GBeanData(TRACKEDCONNECTIONASSOCIATOR_NAME, ConnectionTrackingCoordinator.GBEAN_INFO);
+        DeploymentHelper.start(kernel, trackedConnectionAssociator);
 
         return kernel;
     }
 
     public static void setUpTimer(Kernel kernel) throws Exception {
-        GBeanMBean threadPoolGBean = new GBeanMBean(ThreadPool.GBEAN_INFO);
+        GBeanData threadPoolGBean = new GBeanData(THREADPOOL_NAME, ThreadPool.GBEAN_INFO);
         threadPoolGBean.setAttribute("keepAliveTime", new Integer(5000));
         threadPoolGBean.setAttribute("poolSize", new Integer(5));
         threadPoolGBean.setAttribute("poolName", "DefaultThreadPool");
-        start(kernel, THREADPOOL_NAME, threadPoolGBean);
+        start(kernel, threadPoolGBean);
 
-        GBeanMBean transactionalTimerGBean = new GBeanMBean(VMStoreThreadPooledTransactionalTimer.GBEAN_INFO);
+        GBeanData transactionalTimerGBean = new GBeanData(TRANSACTIONALTIMER_NAME, VMStoreThreadPooledTransactionalTimer.GBEAN_INFO);
         transactionalTimerGBean.setAttribute("repeatCount", new Integer(5));
         transactionalTimerGBean.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
         transactionalTimerGBean.setReferencePattern("ThreadPool", THREADPOOL_NAME);
-        start(kernel, TRANSACTIONALTIMER_NAME, transactionalTimerGBean);
+        start(kernel, transactionalTimerGBean);
 
-        GBeanMBean nonTransactionalTimerGBean = new GBeanMBean(VMStoreThreadPooledNonTransactionalTimer.GBEAN_INFO);
+        GBeanData nonTransactionalTimerGBean = new GBeanData(NONTRANSACTIONALTIMER_NAME, VMStoreThreadPooledNonTransactionalTimer.GBEAN_INFO);
         nonTransactionalTimerGBean.setReferencePattern("ThreadPool", THREADPOOL_NAME);
-        start(kernel, NONTRANSACTIONALTIMER_NAME, nonTransactionalTimerGBean);
+        start(kernel, nonTransactionalTimerGBean);
     }
 
     public static void setUpResourceAdapter(Kernel kernel) throws Exception {
@@ -185,11 +183,6 @@ public class DeploymentHelper {
     private static void start(Kernel kernel, GBeanData gbeanData) throws InternalKernelException, GBeanAlreadyExistsException , GBeanNotFoundException {
         kernel.loadGBean(gbeanData, DeploymentHelper.class.getClassLoader());
         kernel.startGBean(gbeanData.getName());
-    }
-
-    public static void start(Kernel kernel, ObjectName name, GBeanMBean instance) throws Exception {
-        kernel.loadGBean(name, instance);
-        kernel.startGBean(name);
     }
 
     public static void tearDownAdapter(Kernel kernel) throws Exception {
