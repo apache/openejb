@@ -27,10 +27,44 @@ The term <i>visibility</i> means what classloaders handle loading of the EJBs.
             <p>
 Configure OpenEJB per Tomcat instance requires the following steps:
 <ol>
-                    <li>Copy the <i>openejb-webadmin.war</i> into the webapps dir of a running Tomcat install</li>
-                    <li>Update the openejb.home init param (inside the WEB-INF/web.xml file) to point to where OpenEJB was installed</li>
-                    <li>Restart Tomcat</li>
-                    <li>Browse to http://localhost:8080/openejb-webadmin</li>
+                    <li>Copy the <i>war/openejb-loader-1.0-SNAPSHOT.war</i> into the webapps dir of a running Tomcat install</li>
+
+<code name="Under Unix">
+$ cd $OPENEJB_HOME
+$ cp war/openejb-loader-1.0-SNAPSHOT.war $CATALINA_HOME/webapps
+</code>
+
+or
+
+<code name="Under Windows">
+c:/> cd %OPENEJB_HOME%
+%OPENEJB_HOME%> cp war/openejb-loader-1.0-SNAPSHOT.war %CATALINA_HOME%/webapps
+</code>
+
+                    <li>Update the openejb.home init param (inside the WEB-INF/web.xml file) to point to where OpenEJB was installed. <br>If OpenEJB has been built from the source you can skip it (during the build procedure it is updated automatically)</br></li>
+                    
+<code name="Under Unix">
+$ cd $CATALINA_HOME/webapps
+$ jar -xvf openejb-loader-1.0-SNAPSHOT.war WEB-INF/web.xml
+...edit WEB-INF/web.xml...
+$ jar -uvf openejb-loader-1.0-SNAPSHOT.war WEB-INF/web.xml
+$ rm -rf WEB-INF
+</code>
+
+or
+
+<code name="Under Windows">
+c:/> cd %CATALINA_HOME%/webapps
+%CATALINA_HOME%/webapps> jar -xvf openejb-loader-1.0-SNAPSHOT.war WEB-INF/web.xml
+...edit WEB-INF/web.xml...
+%CATALINA_HOME%/webapps> jar -uvf openejb-loader-1.0-SNAPSHOT.war WEB-INF/web.xml
+%CATALINA_HOME%/webapps> rmdir /S /Q WEB-INF
+</code>
+
+                   <li>Create the <i>temp</i> directory under Tomcat's home directory</li>
+                   <note>This is because the beans that's been successfully validated are deployed. During validation OpenEJB creates temporary files under the <i>temp.dir</i> directory, which is overriden by Tomcat to its temp directory. Unfortunatelly, the directory doesn't exist and needs to be created manually.</note>
+                   <li>Deploy your webapps that are using the beans deployed onto OpenEJB</li>
+                    <li>Start up Tomcat and have fun with the EJBs</li>
                 </ol>
             </p>
         </section>
@@ -39,23 +73,37 @@ Configure OpenEJB per Tomcat instance requires the following steps:
             <p>
 Configure OpenEJB per webapp requires the following steps:
 <ol>
-                    <li>Copy the <i>openejb-loader-*.jar</i> into the WEB-INF/lib directory of the webapp that uses EJBs deployed onto OpenEJB</li>
-                    <li>Add the openejb.home init param (inside the WEB-INF/web.xml file) to point to where OpenEJB was installed</li>
-                    <li>Restart Tomcat</li>
-                    <li>Browse to http://localhost:8080/openejb-webadmin</li>
-                </ol>
-            </p>
-            <p>
-As with openejb.home environment variable that has been declared in the WEB-INF/web.xml file above, it's possible to configure others as well. It's as simple as add another &lt;init-param&gt; stanza to the deployment descriptor. At startup OpenEJB prints out all of the configuration settings to Tomcat logs:</p>
+                    <li>Copy the <i>openejb-loader-*.jar</i> into the WEB-INF/lib directory of the webapp that is to use EJBs deployed onto OpenEJB</li>
+                    <li>Add the <i>loader</i> servlet definition to the WEB-INF/web.xml file of the webapp with a valid value for openejb.home init-param.
+                    <code>
+<![CDATA[
+  <servlet>
+    <servlet-name>loader</servlet-name>
+    <servlet-class>org.openejb.loader.LoaderServlet</servlet-class>
+    <init-param>
+      <param-name>openejb.loader</param-name>
+      <param-value>tomcat-webapp</param-value>
+    </init-param>
+    <init-param>
+      <param-name>openejb.home</param-name>
+      <param-value>...define OPENEJB_HOME here...</param-value>
+    </init-param>
+    <load-on-startup>0</load-on-startup>
+  </servlet>
+]]>
+</code>
+<p>Should you define other OpenEJB configuration settings use another &lt;init-param&gt; stanza. It's just for that. These parameters are directly passed to OpenEJB at initialization of the servlet. Think about the loader servlet as a bridge between OpenEJB's world (EJBs) and Tomcat's world (servlets, JSPs).</p>
+            <p>At startup OpenEJB prints out all of the configuration settings to Tomcat logs:</p>
             <code>INFO: Installing web application at context path /openejb from URL file:C:\webapps\openejb
 OpenEJB init-params:
         param-name: openejb.home, param-value: c:\openejb
         param-name: openejb.configuration, param-value: conf\openejb.cfg
         param-name: openejb.base, param-value: c:\webapps\openejb\WEB-INF\openejb
         param-name: openejb.loader, param-value: tomcat-webapp</code>
-        <p>
-            Read more on the <a href="TODO">OpenEJB WebAdmin</a> web application.
-        </p>
+                    </li>
+                    <li>Start up Tomcat and have fun with the EJBs</li>
+                </ol>
+            </p>
         </section>
         
         <section title="OpenEJB Tomcat resource factory" ref-id="tomcat-resource-factory">

@@ -16,6 +16,7 @@
         <li><b>system</b> (also: bootstrap)</li>
         <li><b>embedded</b> (also: noload)</li>
         </ul></li>
+        <li><b>openejb.configurator</b> (default: <i>org.openejb.alt.config.ConfigurationFactory</i>) - a class that builds org.openejb.alt.assembler.classic.OpenEjbConfiguration object; implements the org.openejb.alt.assembler.classic.OpenEjbConfigurationFactory interface</li>
         </ul>
         </p>
         </section>
