@@ -5,10 +5,35 @@
   </properties>
   <body>
 
-<section title="Current Release 0.8 beta 1" ref-id="current.release">
-<p><a href="http://sourceforge.net/project/showfiles.php?group_id=44351">Current release</a></p>
+<section title="Current Release 0.8 beta 2" ref-id="current.release">
+<p><a href="http://sourceforge.net/project/showfiles.php?group_id=44351">Download OpenEJB 0.8 beta 2</a></p>
+
+<p>
+We are cycling through a series of beta releases based on user-feedback.  So, if
+you've had this release for a while, be sure to check the 
+OpenEJB's <a href="http://sourceforge.net/project/showfiles.php?group_id=44351">download 
+page</a> at SourceForge for new releases.  Any problems you have experienced may have been
+fixed, if not, please let us know.
+</p>
 </section>
-<section title="New Features" ref-id="new.features">
+
+<section title="Fixes in 0.8beta2" ref-id="new.features.0.8beta2">
+<ul>
+<li>Fixed fatal file path bug affecting UNIX/Linux/Mac OS X Users</li>
+<li>Fixed bug that prevented the Remote Server from starting unless
+    additional command line options were used.</li>
+<li>Improved scripts</li>
+<li>Optimized logging</li>
+<li>Added '-help' and '-example' options to the 'openejb deploy' command</li>
+<li>Added '-help' and '-example' options to the 'openejb start' command</li>
+<li>Revised all documentation</li>
+<li>Added several new docs, including a complete "Hello World" example, Deploy
+Tool docs, Remote server starup docs, and a doc explaining the use of 
+Deployment IDs.</li>
+</ul>
+</section>
+
+<section title="New Features in 0.8" ref-id="new.features.0.8beta1">
 <ul>
 <li>Command-line tool for deploying, starting, testing, and getting help</li>
 <li>New configuration similar to the Apache httpd.conf style.  The openejb.conf contains
