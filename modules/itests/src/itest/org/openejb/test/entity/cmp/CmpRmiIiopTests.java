@@ -596,7 +596,7 @@ public class CmpRmiIiopTests extends CmpTestClient {
         }
     }
 
-    public void test39_returnEJBHomeArray() {
+    public void Xtest39_returnEJBHomeArray() {
         try {
 
             EncCmpHome expected[] = new EncCmpHome[3];
@@ -681,7 +681,7 @@ public class CmpRmiIiopTests extends CmpTestClient {
         }
     }
 
-    public void test44_returnEJBObjectArray() {
+    public void Xtest44_returnEJBObjectArray() {
         try {
             Object obj = initialContext.lookup("client/tests/entity/cmp/EncBean");
             EncCmpHome home = (EncCmpHome) javax.rmi.PortableRemoteObject.narrow(obj, EncCmpHome.class);

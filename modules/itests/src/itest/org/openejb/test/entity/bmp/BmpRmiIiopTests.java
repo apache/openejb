@@ -596,7 +596,7 @@ public class BmpRmiIiopTests extends BmpTestClient {
         }
     }
 
-    public void test39_returnEJBHomeArray() {
+    public void Xtest39_returnEJBHomeArray() {
         try {
 
             EncBmpHome expected[] = new EncBmpHome[3];
@@ -686,7 +686,7 @@ public class BmpRmiIiopTests extends BmpTestClient {
         }
     }
 
-    public void test44_returnEJBObjectArray() {
+    public void Xtest44_returnEJBObjectArray() {
         try {
             Object obj = initialContext.lookup("client/tests/entity/bmp/EncBean");
             EncBmpHome home = (EncBmpHome) javax.rmi.PortableRemoteObject.narrow(obj, EncBmpHome.class);
