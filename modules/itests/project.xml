@@ -149,9 +149,16 @@
         </dependency>
 
         <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb</artifactId>
+            <version>&openorb-version;</version>
+        </dependency>
+
+        <dependency>
             <groupId>derby</groupId>
             <artifactId>derby</artifactId>
             <version>&derby-version;</version>
         </dependency>
+
     </dependencies>
 </project>

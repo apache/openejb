@@ -141,12 +141,12 @@ Configuration for the Geronimo deployer
         <attribute name="defaultXAThreadCaching" type="boolean">false</attribute>
     </gbean>
 
-    <gbean name="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>
+    <!-- gbean name="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>
 
     <gbean name="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">
         <attribute name="props" type="java.util.Properties">
         </attribute>
         <reference name="Compiler">openejb.CORBA:type=Compiler,vendor=Ant</reference>
-    </gbean>
+    </gbean -->
 
 </configuration>

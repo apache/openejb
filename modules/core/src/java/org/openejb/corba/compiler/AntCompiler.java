@@ -45,6 +45,10 @@
 package org.openejb.corba.compiler;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Javac;
@@ -55,27 +59,45 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
-public class AntCompiler extends Compiler {
+public class AntCompiler implements Compiler {
 
-    public void compileDirectory(File source, File destination) throws CompilerException {
-        Project project = new Project();
-        Path path = new Path(project);
-        path.setLocation(source);
-        Javac javac = new Javac();
-        javac.setProject(project);
-        javac.setSrcdir(path);
-        javac.setDestdir(destination);
-        javac.execute();
+    public void compileDirectory(File srcDirectory, File destDirectory, Set classpaths) throws CompilerException {
+        try {
+            Project project = new Project();
+
+            Path path = new Path(project);
+            path.setLocation(srcDirectory);
+
+            Javac javac = new Javac();
+            javac.setProject(project);
+            javac.setSrcdir(path);
+            javac.setDestdir(destDirectory);
+            javac.setFork(false);
+
+            for (Iterator iter = classpaths.iterator(); iter.hasNext();) {
+                path = new Path(project);
+                path.setLocation(new File(new URI(iter.next().toString())));
+                if (javac.getClasspath() == null) {
+                    javac.setClasspath(path);
+                } else {
+                    javac.getClasspath().addExisting(path);
+                }
+            }
+
+            javac.execute();
+        } catch (URISyntaxException e) {
+            throw new CompilerException(e);
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AntCompiler.class, Compiler.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AntCompiler.class);
+
+        infoFactory.addInterface(Compiler.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

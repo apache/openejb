@@ -86,7 +86,7 @@ import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.AutomaticKeyGeneration;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.CmpFieldMapping;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbQueryType;
-import org.openejb.entity.cmp.PrimaryKeyGeneratorWrapper;
+//import org.openejb.entity.cmp.PrimaryKeyGeneratorWrapper;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.cache.GlobalSchemaLoader;
 import org.tranql.ejb.CMPField;
@@ -219,16 +219,16 @@ class CMPEntityBuilder extends EntityBuilder {
                 if ( null == keyGeneratorDelegate ) {
                     keyGeneratorDelegate = new PrimaryKeyGeneratorDelegate();
                     ObjectName wrapperGeneratorObjectName;
-                    GBeanMBean keyGenerator = new GBeanMBean(PrimaryKeyGeneratorWrapper.GBEAN_INFO, cl);
-                    try {
-                        ObjectName generatorObjectName = new ObjectName(generatorName);
-                        wrapperGeneratorObjectName = new ObjectName(generatorName + ",isWrapper=true");
-                        keyGenerator.setReferencePatterns("PrimaryKeyGenerator", Collections.singleton(generatorObjectName));
-                        keyGenerator.setAttribute("primaryKeyGeneratorDelegate", keyGeneratorDelegate);
-                    } catch (Exception e) {
-                        throw new DeploymentException("Unable to initialize PrimaryKeyGeneratorWrapper GBean", e);
-                    }
-                    earContext.addGBean(wrapperGeneratorObjectName, keyGenerator);
+//                    GBeanMBean keyGenerator = new GBeanMBean(PrimaryKeyGeneratorWrapper.GBEAN_INFO, cl);
+//                    try {
+//                        ObjectName generatorObjectName = new ObjectName(generatorName);
+//                        wrapperGeneratorObjectName = new ObjectName(generatorName + ",isWrapper=true");
+//                        keyGenerator.setReferencePatterns("PrimaryKeyGenerator", Collections.singleton(generatorObjectName));
+//                        keyGenerator.setAttribute("primaryKeyGeneratorDelegate", keyGeneratorDelegate);
+//                    } catch (Exception e) {
+//                        throw new DeploymentException("Unable to initialize PrimaryKeyGeneratorWrapper GBean", e);
+//                    }
+//                    earContext.addGBean(wrapperGeneratorObjectName, keyGenerator);
                     
                     keyGenerators.put(generatorName, keyGeneratorDelegate);
                 }

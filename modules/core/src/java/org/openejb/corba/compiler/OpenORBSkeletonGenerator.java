@@ -44,12 +44,13 @@
  */
 package org.openejb.corba.compiler;
 
+import javax.ejb.EJBHome;
 import java.io.File;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.Jar;
 import org.openorb.compiler.CompilerHost;
 import org.openorb.compiler.object.IdlObject;
 import org.openorb.compiler.object.IdlRoot;
@@ -57,24 +58,35 @@ import org.openorb.compiler.orb.Configurator;
 import org.openorb.compiler.rmi.RmiCompilerProperties;
 import org.openorb.compiler.rmi.generator.Javatoidl;
 import org.openorb.compiler.rmi.parser.JavaParser;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.Jar;
 
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.system.main.ToolsJarHack;
+
+import org.openejb.util.JarUtils;
 
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class OpenORBSkeletonGenerator extends SkeletonGenerator implements GBeanLifecycle, CompilerHost {
+
     private static Log log = LogFactory.getLog(OpenORBSkeletonGenerator.class);
 
+    private final ClassLoader classLoader;
     private boolean verbose;
     private Compiler compiler;
+
+    public OpenORBSkeletonGenerator(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
 
     public boolean isVerbose() {
         return verbose;
@@ -92,19 +104,24 @@ public class OpenORBSkeletonGenerator extends SkeletonGenerator implements GBean
         this.compiler = compiler;
     }
 
-    public void generateSkeleton(Class iface, File destination) throws CompilerException {
+    public void generateSkeletons(Set interfaces, File destination, ClassLoader cl) throws CompilerException {
+        ClassLoader savedLoader = Thread.currentThread().getContextClassLoader();
         File TEMPDIR = null;
         try {
+            Thread.currentThread().setContextClassLoader(classLoader);
+
+
             TEMPDIR = DeploymentUtil.createTempDir();
-            File IDLDIR = new File(TEMPDIR, "IDL");
+            File SRCDIR = new File(TEMPDIR, "JAVA");
             File CLASSESDIR = new File(TEMPDIR, "classes");
-            IDLDIR.mkdirs();
+            SRCDIR.mkdirs();
             CLASSESDIR.mkdirs();
 
             RmiCompilerProperties rcp = new RmiCompilerProperties();
-            rcp.setClassloader(getClass().getClassLoader());
+            rcp.setClassloader(cl);
             rcp.setM_verbose(verbose);
-            rcp.setM_destdir(IDLDIR);
+            rcp.setM_destdir(SRCDIR);
+            rcp.getM_includeList().add(new URL("resource:/org/openorb/idl/"));
             Configurator configurator = new Configurator(new String[0], getProps());
             JavaParser parser = new JavaParser(rcp, this, null, null, null);
 
@@ -112,32 +129,49 @@ public class OpenORBSkeletonGenerator extends SkeletonGenerator implements GBean
             parser.add_idl_files(rcp.getIncludedFiles(), rcp.getM_includeList());
             int start = parser.getCompilationTree().size();
 
-            parser.parse_class(iface);
+            Set set = new HashSet();
+            for (Iterator iter = interfaces.iterator(); iter.hasNext();) {
+                Class iface = cl.loadClass((String) iter.next());
 
-            IdlObject compilationGraph = parser.getIdlTreeRoot();
-            Javatoidl toIDL = new Javatoidl(rcp, this);
+                parser.parse_class(iface);
 
-            // -------------
-            // map tie class
-            // -------------
-            int end = parser.getCompilationTree().size();
-            for (int i = start; i < end; i++) {
-                toIDL.translateRMITie((IdlRoot) parser.getCompilationTree().get(i));
+                IdlObject compilationGraph = parser.getIdlTreeRoot();
+                Javatoidl toIDL = new Javatoidl(rcp, this);
+                int end = parser.getCompilationTree().size();
+                for (int i = start; i < end; i++) {
+                    toIDL.translateRMITie((IdlRoot) parser.getCompilationTree().get(i));
+                }
+                toIDL.translateRMITie(compilationGraph);
+
+                start = end;
+
+                collectClasspaths(set, iface);
             }
-            toIDL.translateRMITie(compilationGraph);
+            collectClasspaths(set, EJBHome.class);
 
-            compiler.compileDirectory(IDLDIR, CLASSESDIR);
+            compiler.compileDirectory(SRCDIR, CLASSESDIR, set);
 
             Project project = new Project();
             Jar jar = new Jar();
             jar.setProject(project);
             jar.setDestFile(destination);
             jar.setBasedir(CLASSESDIR);
+            jar.setUpdate(true);
             jar.execute();
         } catch (Exception e) {
             throw new CompilerException(e);
         } finally {
+            Thread.currentThread().setContextClassLoader(savedLoader);
             DeploymentUtil.recursiveDelete(TEMPDIR);
+        }
+    }
+
+    protected void collectClasspaths(Set set, Class iface) throws CompilerException {
+        set.add(iface.getProtectionDomain().getCodeSource().getLocation());
+
+        Class[] classes = iface.getDeclaredClasses();
+        for (int i = 0; i < classes.length; i++) {
+            collectClasspaths(set, classes[i]);
         }
     }
 
@@ -156,9 +190,15 @@ public class OpenORBSkeletonGenerator extends SkeletonGenerator implements GBean
     public static final GBeanInfo GBEAN_INFO;
 
     static {
+        JarUtils.setHandlerSystemProperty();
+        // Install the lame tools jar hack
+        ToolsJarHack.install();
+
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBSkeletonGenerator.class, SkeletonGenerator.GBEAN_INFO);
         infoFactory.addAttribute("verbose", Boolean.TYPE, true);
         infoFactory.addReference("Compiler", Compiler.class);
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoFactory.setConstructor(new String[]{"classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

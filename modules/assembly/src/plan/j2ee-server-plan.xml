@@ -134,6 +134,9 @@ by the server.
     <dependency>
         <uri>avalon/jars/avalon-logkit-${avalon_logkit_version}.jar</uri>
     </dependency>
+    <dependency>
+        <uri>ant/jars/ant-${ant_version}.jar</uri>
+    </dependency>
 
     <!-- Default security realm using properties files -->
     <gbean name="geronimo.security:type=SecurityRealm,realm=geronimo-properties-realm" class="org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm">
@@ -273,7 +276,7 @@ by the server.
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/Server" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <!--        <reference name="SkeletonGenerator">openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</reference>-->
+        <reference name="SkeletonGenerator">openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</reference>>
     </gbean>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/Server" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
@@ -287,13 +290,13 @@ by the server.
     </gbean>
 
     <!-- these need names that include the parent id so they don't conflict with the deployer namens-->
-    <!--    <gbean name="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>-->
-    <!---->
-    <!--    <gbean name="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">-->
-    <!--        <attribute name="props" type="java.util.Properties">-->
-    <!--        </attribute>-->
-    <!--        <reference name="Compiler">openejb.CORBA:type=Compiler,vendor=Ant</reference>-->
-    <!--    </gbean>-->
+    <gbean name="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>
+
+    <gbean name="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">
+        <attribute name="props" type="java.util.Properties">
+        </attribute>
+        <reference name="Compiler">openejb.CORBA:type=Compiler,vendor=Ant</reference>
+    </gbean>
 
     <!-- end deployment block -->
 
@@ -310,7 +313,7 @@ by the server.
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer
 
-            openorb.home=resource:org/openorb/
+            Zopenorb.home=resource:org/openorb/
 
         </attribute>
 

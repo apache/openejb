@@ -50,6 +50,7 @@ package org.openejb.deployment;
 import java.net.URI;
 import java.security.Permissions;
 import java.util.Map;
+import java.util.Set;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 import javax.transaction.UserTransaction;
@@ -195,7 +196,7 @@ class EntityBuilder extends BeanBuilder {
 
     }
 
-    public void initContext(EARContext earContext, J2eeContext moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
+    public void initContext(EARContext earContext, J2eeContext moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans, Set interfaces) throws DeploymentException {
         // Entity Beans
         EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
         for (int i = 0; i < entityBeans.length; i++) {
@@ -211,6 +212,9 @@ class EntityBuilder extends BeanBuilder {
 
                 String home = OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getHome());
                 ENCConfigBuilder.assureEJBHomeInterface(home, cl);
+
+                interfaces.add(remote);
+                interfaces.add(home);
 
                 String objectName = entityObjectName.getCanonicalName();
                 earContext.getRefContext().addEJBRemoteId(moduleUri, ejbName, objectName, false, home, remote);

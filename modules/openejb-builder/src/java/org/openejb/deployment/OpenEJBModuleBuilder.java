@@ -55,6 +55,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -85,6 +87,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.EJBModuleImpl;
 import org.openejb.corba.compiler.SkeletonGenerator;
+import org.openejb.corba.compiler.CompilerException;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyObjectFactory;
 import org.openejb.proxy.ProxyRefAddr;
@@ -130,6 +133,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
     public SecurityBuilder getSecurityBuilder() {
         return securityBuilder;
+    }
+
+    public SkeletonGenerator getSkeletonGenerator() {
+        return skeletonGenerator;
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
@@ -214,7 +221,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             // if we got one extract the validate it otherwise create a default one
             if (openejbJar != null) {
                 openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.convertToGeronimoNamingSchema(openejbJar);
-                openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.convertToGeronimoSecuritySchema(openejbJar);
                 SchemaConversionUtils.validateDD(openejbJar);
             } else {
                 String path;
@@ -282,9 +288,25 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         EjbJarType ejbJar = (EjbJarType) ejbModule.getSpecDD();
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
-        sessionBuilder.initContext(earContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans);
-        entityBuilder.initContext(earContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans);
+        Set interfaces = new HashSet();
+        sessionBuilder.initContext(earContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans, interfaces);
+        entityBuilder.initContext(earContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans, interfaces);
         mdbBuilder.initContext(cl, enterpriseBeans);
+
+        File tempJar = null;
+        try {
+            tempJar = DeploymentUtil.createTempFile();
+
+            skeletonGenerator.generateSkeletons(interfaces, tempJar, cl);
+
+            earContext.addIncludeAsPackedJar(URI.create("corba.jar"), new JarFile(tempJar));
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to generate CORBA skels for: " + moduleUri, e);
+        } catch (CompilerException e) {
+            throw new DeploymentException("Unable to generate CORBA skels for: " + moduleUri, e);
+        } finally {
+            tempJar.delete();
+        }
     }
 
     public Reference createEJBLocalReference(String objectName, boolean session, String localHome, String local) {
@@ -403,7 +425,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             transactionPolicyHelper = new TransactionPolicyHelper();
         }
 
-        Security security = org.apache.geronimo.security.deployment.SecurityBuilder.buildSecurityConfig(openejbEjbJar.getSecurity());
+        Security security = securityBuilder.buildSecurityConfig(openejbEjbJar);
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
@@ -499,9 +521,9 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
+        infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class);
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(EJBReferenceBuilder.class);
-        infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class);
 
         infoBuilder.setConstructor(new String[] {"defaultParentId", "SkeletonGenerator"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
