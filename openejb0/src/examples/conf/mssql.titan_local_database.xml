@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-
-<database name="Local_TX_Database" engine="sql-server">
-  <driver class-name="com.ddtek.jdbc.sqlserver.SQLServerDriver" url="jdbc:datadirect:sqlserver://SERVER:1433">
-    <param name="user" value="user"/>
-    <param name="password" value="password"/>
-  </driver>
-  <mapping href="src/examples/conf/mssql.titan_or_mapping.xml"/>
-</database>
