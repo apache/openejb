@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!DOCTYPE project [
+<!ENTITY % locator SYSTEM "file:locator.ent">
+%locator;
+%versions;
+ ]>
+
 <!-- $Revision$ $Date$ -->
 
 <project>
@@ -29,7 +35,7 @@
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>2.1</version>
+            <version>&commons-collections-version;</version>
             <properties>
                 <runtime>false</runtime>
             </properties>
@@ -38,7 +44,7 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.0.3</version>
+            <version>&commons-logging-version;</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
             <properties>
                 <runtime>false</runtime>
@@ -48,7 +54,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>1.5-rc2</version>
+            <version>&geronimo-spec-j2ee-connector-version;</version>
             <properties>
                 <module>true</module>
             </properties>

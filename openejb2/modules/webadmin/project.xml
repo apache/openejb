@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!DOCTYPE project [
+<!ENTITY % locator SYSTEM "file:locator.ent">
+%locator;
+%versions;
+ ]>
+
 <!-- $Revision$ $Date$ -->
 
 <project>
@@ -40,7 +46,7 @@
     <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-jta</artifactId>
-      <version>1.0.1B-rc2</version>
+      <version>&geronimo-spec-jta-version;</version>
       <properties>
         <runtime>true</runtime>
       </properties>
@@ -49,7 +55,7 @@
     <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-ejb</artifactId>
-      <version>2.1-rc2</version>
+      <version>&geronimo-spec-ejb-version;</version>
       <properties>
         <runtime>true</runtime>
       </properties>
@@ -58,7 +64,7 @@
     <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-servlet</artifactId>
-      <version>2.4-rc2</version>
+      <version>&geronimo-spec-servlet-version;</version>
       <properties>
         <runtime>true</runtime>
       </properties>
@@ -67,15 +73,16 @@
     <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-j2ee-connector</artifactId>
-      <version>1.5-rc2</version>
+      <version>&geronimo-spec-j2ee-connector-version;</version>
       <properties>
         <runtime>true</runtime>
       </properties>
     </dependency>
 
     <dependency>
-      <id>log4j</id>
-      <version>1.2.8</version>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>&log4j-version;</version>
       <url>http://jakarta.apache.org/log4j</url>
       <properties>
         <runtime>true</runtime>
@@ -83,8 +90,9 @@
     </dependency>
 
     <dependency>
-      <id>castor</id>
-      <version>0.9.3.9</version>
+      <groupId>castor</groupId>
+      <artifactId>castor</artifactId>
+      <version>&castor-version;</version>
       <url>http://www.castor.org</url>
       <properties>
         <runtime>true</runtime>
@@ -92,16 +100,18 @@
     </dependency>
 
     <dependency>
-      <id>commons-fileupload</id>
-      <version>1.0</version>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>&commons-fileupload-version;</version>
       <properties>
         <runtime>true</runtime>
       </properties>
     </dependency>
 
     <dependency>
-      <id>regexp</id>
-      <version>1.3</version>
+      <groupId>regexp</groupId>
+      <artifactId>regexp</artifactId>
+      <version>&regexp-version;</version>
       <properties>
         <runtime>true</runtime>
       </properties>

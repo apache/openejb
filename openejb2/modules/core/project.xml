@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
+<!DOCTYPE project [
+<!ENTITY % locator SYSTEM "file:locator.ent">
+%locator;
+%versions;
+ ]>
+
 <!-- $Revision$ $Date$ -->
 
 <project>
@@ -27,7 +33,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-xmlbeans-plugin</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&geronimo-version;</version>
             <type>plugin</type>
         </dependency>
 
@@ -35,13 +41,13 @@
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean-apache</artifactId>
-            <version>1.0-DEV</version>
+            <version>&xmlbeans-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&geronimo-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -50,7 +56,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&geronimo-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -59,7 +65,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&geronimo-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -68,7 +74,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&geronimo-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -77,7 +83,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&geronimo-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -86,7 +92,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&geronimo-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -95,7 +101,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-remoting</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&geronimo-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -104,7 +110,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&geronimo-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -113,7 +119,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-timer</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&geronimo-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -122,7 +128,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-transaction</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&geronimo-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -131,7 +137,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&geronimo-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -140,13 +146,13 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&geronimo-version;</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>1.1-rc2</version>
+            <version>&geronimo-spec-j2ee-deployment-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -155,7 +161,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
-            <version>1.0.1B-rc2</version>
+            <version>&geronimo-spec-jta-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -164,7 +170,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
-            <version>2.1-rc2</version>
+            <version>&geronimo-spec-ejb-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -173,7 +179,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
-            <version>2.4-rc2</version>
+            <version>&geronimo-spec-servlet-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -182,7 +188,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>1.5-rc2</version>
+            <version>&geronimo-spec-j2ee-connector-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -191,7 +197,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
-            <version>1.0-rc2</version>
+            <version>&geronimo-spec-j2ee-jacc-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -200,16 +206,16 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jms</artifactId>
-            <version>1.1-rc2</version>
+            <version>&geronimo-spec-jms-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
         </dependency>
 
         <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2eeschema</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee-schema</artifactId>
+            <version>&geronimo-version;</version>
             <properties>
                 <xmlbeans>true</xmlbeans>
             </properties>
@@ -218,7 +224,7 @@
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>&tranql-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -227,7 +233,7 @@
         <dependency>
             <groupId>axion</groupId>
             <artifactId>axion</artifactId>
-            <version>1.0-M3-dev</version>
+            <version>&axion-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -236,7 +242,7 @@
         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>
-            <version>0.9.3.9</version>
+            <version>&castor-version;</version>
             <url>http://www.castor.org</url>
             <properties>
                 <runtime>true</runtime>
@@ -246,7 +252,7 @@
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-full</artifactId>
-            <version>2.0</version>
+            <version>&cglib-version;</version>
             <url>http://cglib.sf.net</url>
             <properties>
                 <runtime>true</runtime>
@@ -256,7 +262,7 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.0.3</version>
+            <version>&commons-logging-version;</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
             <properties>
                 <runtime>true</runtime>
@@ -266,7 +272,7 @@
         <dependency>
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
-            <version>1.0</version>
+            <version>&commons-primitives-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -275,16 +281,7 @@
         <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
-            <version>1.3.4</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>idb</groupId>
-            <artifactId>idb</artifactId>
-            <version>3.26</version>
+            <version>&concurrent-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -293,7 +290,7 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.8</version>
+            <version>&log4j-version;</version>
             <url>http://jakarta.apache.org/log4j</url>
             <properties>
                 <runtime>true</runtime>
@@ -303,7 +300,7 @@
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
-            <version>2.0.1</version>
+            <version>&mx4j-version;</version>
             <properties>
                 <runtime>false</runtime>
             </properties>
@@ -312,7 +309,7 @@
         <dependency>
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
-            <version>1.3</version>
+            <version>&regexp-version;</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -321,7 +318,7 @@
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <version>2.6.0</version>
+            <version>&xerces-version;</version>
             <url>http://xml.apache.org</url>
             <properties>
                 <runtime>true</runtime>
@@ -331,7 +328,7 @@
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xmlParserAPIs</artifactId>
-            <version>2.2.1</version>
+            <version>&xml-parser-apis-version;</version>
             <properties>
                 <lib>true</lib>
                 <server>true</server>
