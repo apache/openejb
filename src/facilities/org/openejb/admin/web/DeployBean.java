@@ -438,40 +438,6 @@ public class DeployBean extends WebAdminBean {
 		body.println("</td>");
 		body.println("</tr>");
 
-		//automate deployment
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">");
-		body.println("<input type=\"checkbox\" name=\"automate\" value=\"-a\">");
-		body.println(
-			"Automate deployment as much as possible. (the equivalent of checking the next two check boxes)");
-		body.println("</td>");
-		body.println("</tr>");
-
-		//assign the bean to the first containter
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">");
-		body.println("<input type=\"checkbox\" name=\"assignC\" value=\"-C\">");
-		body.println(
-			"Automatically assign each bean in the jar to the first container of the appropriate bean type.");
-		body.println("</td>");
-		body.println("</tr>");
-
-		//assigns a deployment id
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">");
-		body.println("<input type=\"checkbox\" name=\"assignD\" value=\"-D\">");
-		body.println("Automatically assign the OpenEJB deployment ID");
-		body.println("for each bean by using the &lt;ejb-name&gt; in your");
-		body.println("ejb-jar.xml.  The deployment ID uniquely identifies");
-		body.println("the bean in the OpenEJB container system and is used");
-		body.println("by most servers as the client-side JNDI name.  No");
-		body.println("two beans can share the same deployment ID.");
-		body.println("</td>");
-		body.println("</tr>");
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">&nbsp;</td>");
-		body.println("</tr>");
-
 		/* force over write of the bean - this will have to wait for now until the bug gets fixed
 		body.println("<tr>");
 		body.println("<td colspan=\"2\">");
