@@ -48,11 +48,13 @@
 package org.openejb.entity.cmp;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 import javax.management.ObjectName;
 import javax.ejb.TimedObject;
@@ -99,11 +101,14 @@ import org.tranql.ejb.IdAsEJBObjectTransform;
 import org.tranql.ejb.LocalProxyTransform;
 import org.tranql.ejb.RemoteProxyTransform;
 import org.tranql.ejb.SimplePKTransform;
+import org.tranql.ejb.CMPField;
+import org.tranql.ejb.CompoundPKTransform;
 import org.tranql.field.FieldAccessor;
 import org.tranql.field.FieldTransform;
 import org.tranql.identity.IdentityDefiner;
 import org.tranql.identity.IdentityTransform;
 import org.tranql.identity.UserDefinedIdentity;
+import org.tranql.identity.DerivedIdentity;
 import org.tranql.ql.QueryException;
 import org.tranql.query.CommandTransform;
 import org.tranql.query.QueryCommand;
@@ -177,10 +182,10 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         CacheTable cacheTable = createCacheTable(queryBuilder, mapper);
 
         // Identity Transforms
-        IdentityTransform primaryKeyTransform = new SimplePKTransform(cacheTable);
+        IdentityDefiner identityDefiner = getIdentityDefiner(cacheTable);
+        IdentityTransform primaryKeyTransform = getPrimaryKeyTransform(cacheTable);
         IdentityTransform localProxyTransform = new LocalProxyTransform(primaryKeyTransform, proxyFactory);
         IdentityTransform remoteProxyTransform = new RemoteProxyTransform(primaryKeyTransform, proxyFactory);
-        IdentityDefiner identityDefiner = getIdentityDefiner(cacheTable);
 
         List attributes = ejb.getAttributes();
         EmptySlotLoader[] slotLoaders = new EmptySlotLoader[attributes.size()];
@@ -268,20 +273,40 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
+    private IdentityTransform getPrimaryKeyTransform(CacheTable cacheTable) {
+        CMPField pkField = ejb.getPrimaryKeyField();
+        if (pkField != null) {
+            // single field primary key
+            return new SimplePKTransform(cacheTable);
+        } else {
+            // compound primary key
+            Class pkClass = ejb.getPrimaryKeyClass();
+            Field[] fields = pkClass.getFields();
+            return new CompoundPKTransform(cacheTable, pkClass, fields);
+        }
+    }
+
     private IdentityDefiner getIdentityDefiner(CacheTable table) throws DeploymentException {
-        // @todo support more than single field primary keys
-        int pkSlot = -1;
+        List pkSlots = new ArrayList();
         List attributes = ejb.getAttributes();
         for (int index = 0; index < attributes.size(); index++) {
             Attribute attribute = (Attribute) attributes.get(index);
             if (attribute.isIdentity()) {
-                if (pkSlot != -1) {
-                    throw new DeploymentException("User defined pks are not currently supported");
-                }
-                pkSlot = index;
+                pkSlots.add(new Integer(index));
             }
         }
-        return new UserDefinedIdentity(table, pkSlot);
+
+        if (pkSlots.size() == 0) {
+            throw new DeploymentException("No primary key fields defined");
+        } else if (pkSlots.size() == 1) {
+            return new UserDefinedIdentity(table, ((Integer)pkSlots.get(0)).intValue());
+        } else {
+            int[] slots = new int[pkSlots.size()];
+            for (int i = 0; i < pkSlots.size(); i++) {
+                slots[i] = ((Integer) pkSlots.get(i)).intValue();
+            }
+            return new DerivedIdentity(table, slots);
+        }
     }
 
     private LinkedHashMap createCMPFieldAccessors(FaultHandler faultHandler) {
