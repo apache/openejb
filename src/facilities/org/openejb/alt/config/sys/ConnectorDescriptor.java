@@ -132,6 +132,44 @@ public class ConnectorDescriptor extends org.exolab.castor.xml.util.XMLClassDesc
         }
         desc.setValidator(fieldValidator);
 
+        //-- _provider
+        desc = new XMLFieldDescriptorImpl(java.lang.String.class, "_provider", "provider", NodeType.Attribute);
+        desc.setImmutable(true);
+        handler = (new XMLFieldHandler() {
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                Connector target = (Connector) object;
+                return target.getProvider();
+            }
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    Connector target = (Connector) object;
+                    target.setProvider( (java.lang.String) value);
+                }
+                catch (Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            public java.lang.Object newInstance( java.lang.Object parent ) {
+                return null;
+            }
+        } );
+        desc.setHandler(handler);
+        desc.setNameSpaceURI("http://www.openejb.org/System/Configuration");
+        addFieldDescriptor(desc);
+        
+        //-- validation code for: _provider
+        fieldValidator = new FieldValidator();
+        { //-- local scope
+            StringValidator sv = new StringValidator();
+            sv.setWhiteSpace("preserve");
+            fieldValidator.setValidator(sv);
+        }
+        desc.setValidator(fieldValidator);
+        
         //-- _jar
         desc = new XMLFieldDescriptorImpl(java.lang.String.class, "_jar", "jar", NodeType.Attribute);
         desc.setImmutable(true);
