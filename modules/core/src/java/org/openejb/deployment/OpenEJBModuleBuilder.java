@@ -157,9 +157,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         return ejbJarDoc.getEjbJar();
     }
 
-    public XmlObject parseVendorDD(URL path) throws DeploymentException {
+    public XmlObject validateVendorDD(XmlObject dd) throws DeploymentException {
         try {
-            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
             dd = SchemaConversionUtils.convertToGeronimoNamingSchema(dd);
             dd = dd.changeType(OpenejbOpenejbJarDocument.type);
             SchemaConversionUtils.validateDD(dd);
@@ -177,13 +176,20 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             } else {
                 moduleBase = new URL("jar:" + module.toString() + "!/");
             }
-            OpenejbOpenejbJarDocument plan = (OpenejbOpenejbJarDocument) parseVendorDD(new URL(moduleBase, "META-INF/openejb-jar.xml"));
+            URL vendorDDUrl = new URL(moduleBase, "META-INF/openejb-jar.xml");
+            XmlObject dd = SchemaConversionUtils.parse(vendorDDUrl.openStream());
+
+            OpenejbOpenejbJarDocument plan = (OpenejbOpenejbJarDocument) validateVendorDD(dd);
             if (plan == null) {
                 return createDefaultPlan(moduleBase);
             }
             return plan;
         } catch (MalformedURLException e) {
             return null;
+        } catch (IOException e) {
+            return null;
+        } catch (XmlException e) {
+            throw new DeploymentException(e);
         }
     }
 
