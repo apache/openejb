@@ -257,7 +257,7 @@ public class ClasspathUtils{
         }
         
         public void addJarToPath(URL jar) throws Exception {
-            System.out.println("[|] SYSTEM "+jar.toExternalForm());
+            //System.out.println("[|] SYSTEM "+jar.toExternalForm());
             addJarToPath( jar, getSystemLoader() );
             rebuildJavaClassPathVariable();
         }
@@ -343,7 +343,7 @@ public class ClasspathUtils{
         }
         
         public void addJarToPath(URL jar) throws Exception {
-            System.out.println("[|] TOMCAT "+jar.toExternalForm());
+            //System.out.println("[|] TOMCAT "+jar.toExternalForm());
             _addJarToPath(jar);
             rebuild();
         }
