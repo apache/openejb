@@ -60,26 +60,41 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.rmi.PortableRemoteObject;
 
+import org.exolab.castor.xml.ValidationException;
 import org.openejb.OpenEJBException;
 import org.openejb.admin.web.HttpRequest;
 import org.openejb.admin.web.HttpResponse;
 import org.openejb.admin.web.WebAdminBean;
 import org.openejb.alt.config.Bean;
 import org.openejb.alt.config.ConfigUtils;
+import org.openejb.alt.config.Service;
 import org.openejb.alt.config.sys.ConnectionManager;
 import org.openejb.alt.config.sys.Connector;
 import org.openejb.alt.config.sys.Container;
 import org.openejb.alt.config.sys.Deployments;
 import org.openejb.alt.config.sys.JndiProvider;
 import org.openejb.alt.config.sys.Openejb;
+import org.openejb.alt.config.sys.ProxyFactory;
 import org.openejb.alt.config.sys.Resource;
+import org.openejb.alt.config.sys.SecurityService;
+import org.openejb.alt.config.sys.TransactionService;
 import org.openejb.core.EnvProps;
 import org.openejb.util.FileUtils;
 import org.openejb.util.StringUtilities;
 
-/** This bean allows the user to graphicly edit the OpenEJB configuration
- *  TODO: Add validation to all sections
+/** This bean allows the user to graphicly edit the OpenEJB configuration file usually located at
+ *  $OPENEJB_HOME/config/openejb.conf. 
  * 
+ * @see org.openejb.alt.config.sys.ConnectionManager
+ * @see org.openejb.alt.config.sys.Connector
+ * @see org.openejb.alt.config.sys.Container
+ * @see org.openejb.alt.config.sys.Deployments
+ * @see org.openejb.alt.config.sys.JndiProvider
+ * @see org.openejb.alt.config.sys.Openejb
+ * @see org.openejb.alt.config.sys.ProxyFactory
+ * @see org.openejb.alt.config.sys.Resource
+ * @see org.openejb.alt.config.sys.SecurityService
+ * @see org.openejb.alt.config.sys.TransactionService
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
@@ -138,18 +153,16 @@ public class ConfigBean extends WebAdminBean {
 		ConfigurationDataObject configurationData;
 		String configLocation = System.getProperty("openejb.configuration");
 
+		//get all the form parameters
 		String type = request.getQueryParameter(ConfigHTMLWriter.QUERY_PARAMETER_TYPE);
 		String method = request.getQueryParameter(ConfigHTMLWriter.QUERY_PARAMETER_METHOD);
 		String handleFile = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_HANDLE_FILE);
 		String submitOpenejb = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_SUBMIT_OPENEJB);
-		String submitConnector = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_SUBMIT_CONNECTOR);
-		String submitContainer = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_SUBMIT_CONTAINER);
-		String submitDeployments = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_SUBMIT_DEPLOYMENTS);
-		String submitJndiProvider = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_SUBMIT_JNDI_PROVIDER);
-		String submitResource = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_SUBMIT_RESOURCE);
-		String submitConnectionManager = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_SUBMIT_CONNECTION_MANAGER);
+		String submitService = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_SUBMIT_SERVICE);
 		String containerType = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_CONTAINER_TYPE);
 
+		//get the main openejb configuration from ConfigurationData object
+		//also create a handle file to get the configuration next time
 		if (handleFile == null) {
 			configurationData = getConfigurationObject();
 			handleFile = createHandle(configurationData);
@@ -163,46 +176,53 @@ public class ConfigBean extends WebAdminBean {
 			openejbConfig = configurationData.getOpenejb();
 		}
 
+		//check for the action we're going to take, these actions are 
+		//grouped by "submits" and by "begins"
 		if (submitOpenejb != null) {
 			body.println(submitOpenejb(configLocation, openejbConfig));
 			return;
-		} else if (submitConnector != null) {
+		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_CONNECTOR.equals(submitService)) {
 			submitConnector(body, openejbConfig, handleFile, configLocation);
 		} else if (containerType != null) {
 			submitContainer(body, openejbConfig, handleFile, configLocation);
-		} else if (submitDeployments != null) {
+		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_DEPLOYMENTS.equals(submitService)) {
 			submitDeployments(body, openejbConfig, handleFile, configLocation);
-		} else if (submitResource != null) {
-			submitResource(body, openejbConfig, handleFile, configLocation);
-		} else if (submitJndiProvider != null) {
-			submitJNDIProvider(body, openejbConfig, handleFile, configLocation);
-		} else if (submitConnectionManager != null) {
-			submitConnectionManager(body, openejbConfig, handleFile, configLocation);
+		} else if (submitService != null) {
+			submitService(body, openejbConfig, handleFile, configLocation, submitService);
 		} else if (ConfigHTMLWriter.TYPE_CONNECTOR.equals(type)) {
 			beginConnector(method, handleFile, body, openejbConfig, configLocation);
 		} else if (ConfigHTMLWriter.TYPE_CONTAINER.equals(type)) {
 			beginContainer(method, handleFile, body, openejbConfig, configLocation);
 		} else if (ConfigHTMLWriter.TYPE_DEPLOYMENTS.equals(type)) {
 			beginDeployments(method, handleFile, body, openejbConfig, configLocation);
-		} else if (ConfigHTMLWriter.TYPE_JNDI_PROVIDER.equals(type)) {
-			beginJNDIProvider(method, handleFile, body, openejbConfig, configLocation);
-		} else if (ConfigHTMLWriter.TYPE_RESOURCE.equals(type)) {
-			beginResource(method, handleFile, body, openejbConfig, configLocation);
-		} else if (ConfigHTMLWriter.TYPE_CONNECTION_MANAGER.equals(type)) {
-			beginConnectionManager(method, handleFile, body, openejbConfig, configLocation);
+		} else if (type != null) {
+			beginService(method, handleFile, body, openejbConfig, configLocation, type);
 		} else {
 			ConfigHTMLWriter.writeOpenejb(body, openejbConfig, handleFile, configLocation);
 		}
 
+		//set the object onto the stateful bean
 		configurationData.setOpenejb(openejbConfig);
 	}
 
+	/**
+	 * Finds the connector from the array based on the id from the form and then
+	 * calls a method to create, edit or delete it
+	 * 
+	 * @param method - create, edit or delete for the action of this connector
+	 * @param handleFile - the handle for the ConfigurationDataBean
+	 * @param body - the PrintWriter to the browser
+	 * @param openejb - the main configuration object
+	 * @param configLocation - the location of the configuration object
+	 * @throws IOException - when an invalid method is passed in
+	 */
 	private void beginConnector(String method, String handleFile, PrintWriter body, Openejb openejb, String configLocation)
 		throws IOException {
 		String connectorId = request.getFormParameter(ConfigHTMLWriter.TYPE_CONNECTOR);
 		Connector[] connectors = openejb.getConnector();
 		int connectorIndex = -1;
 
+		//make sure the connectorId is not null and then loop to find a match in the array
 		connectorId = (connectorId == null) ? "" : connectorId;
 		for (int i = 0; i < connectors.length; i++) {
 			if (connectorId.equals(connectors[i].getId())) {
@@ -211,6 +231,7 @@ public class ConfigBean extends WebAdminBean {
 			}
 		}
 
+		//check for which method we're performing create, edit or delete
 		if (ConfigHTMLWriter.CREATE.equals(method)) {
 			ConfigHTMLWriter.writeConnector(body, null, handleFile, -1);
 		} else if (ConfigHTMLWriter.EDIT.equals(method)) {
@@ -228,6 +249,19 @@ public class ConfigBean extends WebAdminBean {
 		}
 	}
 
+	/**
+	 * Finds the container from the array based on the id from the form and then
+	 * calls a method to create, edit or delete it.  In addition, it uses a ContainerData
+	 * object to store the information for the container.
+	 * 
+	 * @see org.openejb.admin.web.config.ContainerData
+	 * @param method - create, edit or delete for the action of this connector
+	 * @param handleFile - the handle for the ConfigurationDataBean
+	 * @param body - the PrintWriter to the browser
+	 * @param openejb - the main configuration object
+	 * @param configLocation - the location of the configuration object
+	 * @throws IOException - when an invalid method is passed in
+	 */
 	private void beginContainer(String method, String handleFile, PrintWriter body, Openejb openejb, String configLocation)
 		throws IOException {
 		String containerId = request.getFormParameter(ConfigHTMLWriter.TYPE_CONTAINER);
@@ -235,6 +269,8 @@ public class ConfigBean extends WebAdminBean {
 		int containerIndex = -1;
 		Properties properties = new Properties();
 
+		//make sure the containerId is not null then loop through the array
+		//to find the matching container
 		containerId = (containerId == null) ? "" : containerId;
 		for (int i = 0; i < containers.length; i++) {
 			if (containerId.equals(containers[i].getId())) {
@@ -243,9 +279,12 @@ public class ConfigBean extends WebAdminBean {
 			}
 		}
 
+		//based on the method, we want to create a container, edit the existing one
+		//or delete the existing one
 		if (ConfigHTMLWriter.CREATE.equals(method)) {
 			ConfigHTMLWriter.writeContainer(body, new ContainerData(), handleFile);
 		} else if (ConfigHTMLWriter.EDIT.equals(method)) {
+			//create a new container data object and set the contents
 			ContainerData data = new ContainerData();
 			if (containerIndex > -1) {
 				data.setId(StringUtilities.nullToBlankString(containers[containerIndex].getId()));
@@ -310,85 +349,75 @@ public class ConfigBean extends WebAdminBean {
 		}
 	}
 
-	private void beginJNDIProvider(
+	private void beginService(
 		String method,
 		String handleFile,
 		PrintWriter body,
 		Openejb openejb,
-		String configLocation)
+		String configLocation,
+		String type)
 		throws IOException {
-		String jndiProviderId =
-			StringUtilities.nullToBlankString(request.getFormParameter(ConfigHTMLWriter.TYPE_JNDI_PROVIDER));
-		JndiProvider[] jndiProviders = openejb.getJndiProvider();
-		int jndiProviderIndex = -1;
+		String serviceId = StringUtilities.nullToBlankString(request.getFormParameter(type));
+		Service service = null;
+		Service[] services = new Service[0];
+		String submit = "";
 
-		for (int i = 0; i < jndiProviders.length; i++) {
-			if (jndiProviderId.equals(jndiProviders[i].getId())) {
-				jndiProviderIndex = i;
+		if (ConfigHTMLWriter.TYPE_CONNECTION_MANAGER.equals(type)) {
+			service = openejb.getConnectionManager();
+			submit = ConfigHTMLWriter.FORM_VALUE_SUBMIT_CONNECTION_MANAGER;
+		} else if (ConfigHTMLWriter.TYPE_JNDI_PROVIDER.equals(type)) {
+			services = openejb.getJndiProvider();
+			submit = ConfigHTMLWriter.FORM_VALUE_SUBMIT_JNDI_PROVIDER;
+		} else if (ConfigHTMLWriter.TYPE_PROXY_FACTORY.equals(type)) {
+			service = openejb.getProxyFactory();
+			submit = ConfigHTMLWriter.FORM_VALUE_SUBMIT_PROXY_FACTORY;
+		} else if (ConfigHTMLWriter.TYPE_SECURITY_SERVICE.equals(type)) {
+			service = openejb.getSecurityService();
+			submit = ConfigHTMLWriter.FORM_VALUE_SUBMIT_SECURITY_SERVICE;
+		} else if (ConfigHTMLWriter.TYPE_TRANSACTION_SERVICE.equals(type)) {
+			service = openejb.getTransactionService();
+			submit = ConfigHTMLWriter.FORM_VALUE_SUBMIT_TRANSACTION_SERVICE;
+		} else if (ConfigHTMLWriter.TYPE_RESOURCE.equals(type)) {
+			services = openejb.getResource();
+			submit = ConfigHTMLWriter.FORM_VALUE_SUBMIT_RESOURCE;
+		}
+
+		int serviceIndex = -1;
+
+		for (int i = 0; i < services.length; i++) {
+			if (serviceId.equals(services[i].getId())) {
+				serviceIndex = i;
+				service = services[i];
 				break;
 			}
 		}
 
 		if (ConfigHTMLWriter.CREATE.equals(method)) {
-			ConfigHTMLWriter.writeJNDIProvider(body, null, handleFile, -1);
+			ConfigHTMLWriter.writeService(body, null, handleFile, submit, -1);
 		} else if (ConfigHTMLWriter.EDIT.equals(method)) {
-			ConfigHTMLWriter.writeJNDIProvider(body, jndiProviders[jndiProviderIndex], handleFile, jndiProviderIndex);
+			ConfigHTMLWriter.writeService(body, service, handleFile, submit, serviceIndex);
 		} else if (ConfigHTMLWriter.DELETE.equals(method)) {
-			if (jndiProviderIndex > -1)
-				openejb.removeJndiProvider(jndiProviderIndex);
-			ConfigHTMLWriter.writeOpenejb(body, openejb, handleFile, configLocation);
-		} else {
-			throw new IOException("Invalid method");
-		}
-	}
-
-	private void beginResource(String method, String handleFile, PrintWriter body, Openejb openejb, String configLocation)
-		throws IOException {
-		String resourceId = StringUtilities.nullToBlankString(request.getFormParameter(ConfigHTMLWriter.TYPE_RESOURCE));
-		Resource[] resources = openejb.getResource();
-		int resourceIndex = -1;
-
-		for (int i = 0; i < resources.length; i++) {
-			if (resourceId.equals(resources[i].getId())) {
-				resourceIndex = i;
-				break;
+			if (ConfigHTMLWriter.TYPE_CONNECTION_MANAGER.equals(type)) {
+				openejb.setConnectionManager(null);
+			} else if (ConfigHTMLWriter.TYPE_JNDI_PROVIDER.equals(type) && serviceIndex > -1) {
+				openejb.removeJndiProvider(serviceIndex);
+			} else if (ConfigHTMLWriter.TYPE_PROXY_FACTORY.equals(type)) {
+				openejb.setProxyFactory(null);
+			} else if (ConfigHTMLWriter.TYPE_SECURITY_SERVICE.equals(type)) {
+				openejb.setSecurityService(null);
+			} else if (ConfigHTMLWriter.TYPE_TRANSACTION_SERVICE.equals(type)) {
+				openejb.setTransactionService(null);
+			} else if (ConfigHTMLWriter.TYPE_RESOURCE.equals(type) && serviceIndex > -1) {
+				openejb.removeResource(serviceIndex);
 			}
-		}
-
-		if (ConfigHTMLWriter.CREATE.equals(method)) {
-			ConfigHTMLWriter.writeResource(body, null, handleFile, -1);
-		} else if (ConfigHTMLWriter.EDIT.equals(method)) {
-			ConfigHTMLWriter.writeResource(body, resources[resourceIndex], handleFile, resourceIndex);
-		} else if (ConfigHTMLWriter.DELETE.equals(method)) {
-			if (resourceIndex > -1)
-				openejb.removeResource(resourceIndex);
 			ConfigHTMLWriter.writeOpenejb(body, openejb, handleFile, configLocation);
 		} else {
 			throw new IOException("Invalid method");
 		}
 	}
 
-	private void beginConnectionManager(
-		String method,
-		String handleFile,
-		PrintWriter body,
-		Openejb openejb,
-		String configLocation)
+	private void submitConnector(PrintWriter body, Openejb openejbConfig, String handleFile, String configLocation)
 		throws IOException {
-		
-		if (ConfigHTMLWriter.CREATE.equals(method)) {
-			ConfigHTMLWriter.writeConnectionManager(body, null, handleFile);
-		} else if (ConfigHTMLWriter.EDIT.equals(method)) {
-			ConfigHTMLWriter.writeConnectionManager(body, openejb.getConnectionManager(), handleFile);
-		} else if (ConfigHTMLWriter.DELETE.equals(method)) {
-			openejb.setConnectionManager(null);
-			ConfigHTMLWriter.writeOpenejb(body, openejb, handleFile, configLocation);
-		} else {
-			throw new IOException("Invalid method");
-		}
-	}
-
-	private void submitConnector(PrintWriter body, Openejb openejbConfig, String handleFile, String configLocation) {
 		Connector connector;
 
 		String id = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_ID).trim();
@@ -400,15 +429,12 @@ public class ConfigBean extends WebAdminBean {
 		String password = request.getFormParameter(EnvProps.PASSWORD).trim();
 		int index = Integer.parseInt(request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_INDEX).trim());
 		StringBuffer contentBuffer = new StringBuffer(125);
-
-		jar = ("".equals(jar)) ? null : jar;
-		provider = ("".equals(provider)) ? null : provider;
+		StringBuffer validationError = new StringBuffer(50);
 
 		if (index > -1) {
 			connector = openejbConfig.getConnector(index);
 		} else {
 			connector = new Connector();
-			openejbConfig.addConnector(connector);
 		}
 
 		if (!"".equals(jdbcDriver))
@@ -432,11 +458,21 @@ public class ConfigBean extends WebAdminBean {
 
 		connector.setContent((contentBuffer.length() > 0) ? contentBuffer.toString() : null);
 
-		body.print("<font color=\"red\"><b>");
-		body.print("Connector ");
-		body.print(id);
-		body.print(
-			" was saved.  Note: if the id was changed, all beans that use this connector will also need to be changed.</b></font><br><br>");
+		try { //perform validation
+			connector.validate();
+		} catch (ValidationException e) {
+			body.print("<font color=\"red\">You must fix the following errors before proceeding:<br>\n<b>");
+			body.print(e.getMessage());
+			body.print("</b></font>\n<br><br>");
+
+			ConfigHTMLWriter.writeConnector(body, connector, handleFile, index);
+			return;
+		}
+
+		//add the connector after validation
+		if (index == -1) {
+			openejbConfig.addConnector(connector);
+		}
 
 		ConfigHTMLWriter.writeOpenejb(body, openejbConfig, handleFile, configLocation);
 	}
@@ -445,9 +481,10 @@ public class ConfigBean extends WebAdminBean {
 		throws IOException {
 		ContainerData data = new ContainerData();
 		int index = Integer.parseInt(request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_INDEX));
-		String submit = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_SUBMIT_CONTAINER);
+		String submit = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_SUBMIT_SERVICE);
 		Container container;
 		StringBuffer contentBuffer = new StringBuffer(125);
+		StringBuffer errorBuffer = new StringBuffer(100);
 
 		data.setBulkPassivate(
 			StringUtilities.nullToBlankString(request.getFormParameter(EnvProps.IM_PASSIVATE_SIZE)).trim());
@@ -468,18 +505,16 @@ public class ConfigBean extends WebAdminBean {
 			StringUtilities.nullToBlankString(request.getFormParameter(EnvProps.IM_STRICT_POOLING)).trim());
 		data.setTimeOut(StringUtilities.nullToBlankString(request.getFormParameter(EnvProps.IM_TIME_OUT)).trim());
 
-		if (submit == null) {
-			ConfigHTMLWriter.writeContainer(body, data, handleFile);
-		} else {
+		if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_CONTAINER.equals(submit)) {
 			if (index > -1) {
 				container = openejbConfig.getContainer(index);
 			} else {
 				container = new Container();
-				openejbConfig.addContainer(container);
 			}
 
 			container.setCtype(data.getContainerType().trim());
-			container.setId(data.getId().trim());
+			if (!"".equals(data.getId().trim()))
+				container.setId(data.getId().trim());
 			if (!"".equals(data.getJar().trim()))
 				container.setJar(data.getJar().trim());
 			if ("".equals(data.getProvider().trim()))
@@ -492,9 +527,13 @@ public class ConfigBean extends WebAdminBean {
 				if (!"".equals(data.getGlobalTxDatabase()))
 					contentBuffer.append(EnvProps.GLOBAL_TX_DATABASE).append(" ").append(data.getGlobalTxDatabase()).append(
 						'\n');
+				else
+					errorBuffer.append("Global Database File is a required field.<br>\n");
 				if (!"".equals(data.getLocalTxDatabase()))
 					contentBuffer.append(EnvProps.LOCAL_TX_DATABASE).append(" ").append(data.getLocalTxDatabase()).append(
 						'\n');
+				else
+					errorBuffer.append("Local Database File is a required field.<br>\n");
 			} else if (Bean.STATEFUL.equals(data.getContainerType())) {
 				if (!"".equals(data.getPassivator()))
 					contentBuffer.append(EnvProps.IM_PASSIVATOR).append(" ").append(data.getPassivator()).append('\n');
@@ -517,7 +556,24 @@ public class ConfigBean extends WebAdminBean {
 				container.setContent((contentBuffer.length() > 0) ? contentBuffer.toString() : null);
 			}
 
+			try { //validate the container
+				container.validate();
+			} catch (ValidationException e) {
+				errorBuffer.insert(0, e.getMessage() + "<br>");
+			}
+
+			//check for an error message
+			if (errorBuffer.length() > 0) {
+				errorBuffer.insert(0, "<font color=\"red\">You must fix the following errors: <br><b>").append(
+					"</b></font><br>");
+				body.println(errorBuffer.toString());
+				ConfigHTMLWriter.writeContainer(body, data, handleFile);
+				return;
+			}
+
 			ConfigHTMLWriter.writeOpenejb(body, openejbConfig, handleFile, configLocation);
+		} else {
+			ConfigHTMLWriter.writeContainer(body, data, handleFile);
 		}
 	}
 
@@ -543,106 +599,101 @@ public class ConfigBean extends WebAdminBean {
 		ConfigHTMLWriter.writeOpenejb(body, openejbConfig, handleFile, configLocation);
 	}
 
-	private void submitJNDIProvider(PrintWriter body, Openejb openejbConfig, String handleFile, String configLocation) {
-		String id = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_ID);
-		String jar = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_JAR);
-		String provider = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_PROVIDER);
-		String jndiParameters = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_JNDI_PARAMETERS);
-		int index = Integer.parseInt(request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_INDEX));
-		JndiProvider jndiProvider;
-
-		if (index > -1) {
-			jndiProvider = openejbConfig.getJndiProvider(index);
-		} else {
-			jndiProvider = new JndiProvider();
-			openejbConfig.addJndiProvider(jndiProvider);
-		}
-
-		if (!"".equals(jndiParameters.trim())) {
-			jndiProvider.setContent(jndiParameters.trim());
-		}
-		if (!"".equals(id.trim())) {
-			jndiProvider.setId(id.trim());
-		}
-		if (!"".equals(jar.trim())) {
-			jndiProvider.setJar(jar.trim());
-		}
-		if (!"".equals(provider.trim())) {
-			jndiProvider.setProvider(provider.trim());
-		}
-
-		ConfigHTMLWriter.writeOpenejb(body, openejbConfig, handleFile, configLocation);
-	}
-
-	private void submitResource(PrintWriter body, Openejb openejbConfig, String handleFile, String configLocation) {
-		String id = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_ID);
-		String jar = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_JAR);
-		String provider = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_PROVIDER);
-		String jndi = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_JNDI_PARAMETERS);
-		String content = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_CONTENT);
-		int index = Integer.parseInt(request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_INDEX));
-		Resource resource;
-
-		if (index > -1) {
-			resource = openejbConfig.getResource(index);
-		} else {
-			resource = new Resource();
-			openejbConfig.addResource(resource);
-		}
-
-		if (!"".equals(content.trim())) {
-			resource.setContent(content.trim());
-		}
-		if (!"".equals(id.trim())) {
-			resource.setId(id.trim());
-		}
-		if (!"".equals(jar.trim())) {
-			resource.setJar(jar.trim());
-		}
-		if (!"".equals(jndi.trim())) {
-			resource.setJndi(jndi.trim());
-		}
-		if (!"".equals(provider.trim())) {
-			resource.setProvider(provider.trim());
-		}
-
-		ConfigHTMLWriter.writeOpenejb(body, openejbConfig, handleFile, configLocation);
-	}
-	
-	private void submitConnectionManager(PrintWriter body, Openejb openejbConfig, String handleFile, String configLocation) {
+	private void submitService(
+		PrintWriter body,
+		Openejb openejbConfig,
+		String handleFile,
+		String configLocation,
+		String submit)
+		throws IOException {
 		String id = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_ID);
 		String jar = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_JAR);
 		String provider = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_PROVIDER);
 		String content = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_CONTENT);
-		ConnectionManager connectionManager;
-		
-		if(openejbConfig.getConnectionManager() == null) {
-			connectionManager = new ConnectionManager();
-			openejbConfig.setConnectionManager(connectionManager);
+		int index = Integer.parseInt(request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_INDEX));
+		Service service = null;
+
+		if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_CONNECTION_MANAGER.equals(submit)) {
+			if (openejbConfig.getConnectionManager() == null) {
+				service = new ConnectionManager();
+				openejbConfig.setConnectionManager((ConnectionManager) service);
+			} else {
+				service = openejbConfig.getConnectionManager();
+			}
+		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_PROXY_FACTORY.equals(submit)) {
+			if (openejbConfig.getProxyFactory() == null) {
+				service = new ProxyFactory();
+				openejbConfig.setProxyFactory((ProxyFactory) service);
+			} else {
+				service = openejbConfig.getProxyFactory();
+			}
+		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_SECURITY_SERVICE.equals(submit)) {
+			if (openejbConfig.getSecurityService() == null) {
+				service = new SecurityService();
+				openejbConfig.setSecurityService((SecurityService) service);
+			} else {
+				service = openejbConfig.getSecurityService();
+			}
+		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_TRANSACTION_SERVICE.equals(submit)) {
+			if (openejbConfig.getTransactionService() == null) {
+				service = new TransactionService();
+				openejbConfig.setTransactionService((TransactionService) service);
+			} else {
+				service = openejbConfig.getTransactionService();
+			}
+		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_JNDI_PROVIDER.equals(submit)) {
+			if (index > -1) {
+				service = openejbConfig.getJndiProvider(index);
+			} else {
+				service = new JndiProvider();
+			}
+		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_RESOURCE.equals(submit)) {
+			if (index > -1) {
+				service = openejbConfig.getResource(index);
+			} else {
+				service = new Resource();
+			}
 		} else {
-			connectionManager = openejbConfig.getConnectionManager();
+			throw new IOException("Invalid Service type");
 		}
 
 		if (!"".equals(content.trim())) {
-			connectionManager.setContent(content.trim());
+			service.setContent(content.trim());
 		}
 		if (!"".equals(id.trim())) {
-			connectionManager.setId(id.trim());
+			service.setId(id.trim());
 		}
 		if (!"".equals(jar.trim())) {
-			connectionManager.setJar(jar.trim());
+			service.setJar(jar.trim());
 		}
 		if (!"".equals(provider.trim())) {
-			connectionManager.setProvider(provider.trim());
+			service.setProvider(provider.trim());
+		}
+
+		try {
+			service.validate();
+		} catch (ValidationException e) {
+			body.print("<font color=\"red\">You must fix the following errors before continuing.<br>\n<b>");
+			body.print(e.getMessage());
+			body.println("</b></font><br><br>");
+			ConfigHTMLWriter.writeService(body, service, handleFile, submit, index);
+			return;
+		}
+
+		//after validation, add values
+		if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_JNDI_PROVIDER.equals(submit)) {
+			if (index == -1) 
+				openejbConfig.addJndiProvider((JndiProvider) service);
+		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_RESOURCE.equals(submit)) {
+			if (index == -1) 
+				openejbConfig.addResource((Resource) service);
 		}
 
 		ConfigHTMLWriter.writeOpenejb(body, openejbConfig, handleFile, configLocation);
 	}
 
 	private String submitOpenejb(String configLocation, Openejb openejb) throws IOException {
-		String content = request.getFormParameter(ConfigHTMLWriter.TYPE_OPENEJB_CONTENT);
 		FileWriter writer = new FileWriter(configLocation);
-		openejb.setContent(content);
 
 		//TODO: validate object and give the user an error message for invalid info
 		try {
