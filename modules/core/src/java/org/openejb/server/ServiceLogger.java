@@ -68,10 +68,17 @@ import org.apache.log4j.MDC;
 public class ServiceLogger implements ServerService {
     private final Log log;
     private final ServerService next;
+    private final String[] logOnSuccess;
+    private final String[] logOnFailure;
+    private final String name;
 
-    public ServiceLogger(ServerService next) {
+
+    public ServiceLogger(String name, ServerService next, String[] logOnSuccess, String[] logOnFailure) {
+        this.log = LogFactory.getLog("OpenEJB.server.service." + name);
         this.next = next;
-        log = LogFactory.getLog("OpenEJB.server.service." + getName());
+        this.logOnSuccess = logOnSuccess;
+        this.logOnFailure = logOnFailure;
+        this.name = name;
     }
 
     /**
@@ -111,6 +118,14 @@ public class ServiceLogger implements ServerService {
             logFailure(e);
             e.printStackTrace();
         }
+    }
+
+    public String[] getLogOnSuccess() {
+        return logOnSuccess;
+    }
+
+    public String[] getLogOnFailure() {
+        return logOnFailure;
     }
 
     private void logIncoming() {
