@@ -1,0 +1,308 @@
+<?xml version="1.0"?>
+<document url="http://openejb.sf.net/embedded.xml" toc="none">
+  <properties>
+    <title>Hello World!</title>
+    <sub-title>A basic EJB example</sub-title>
+  </properties>
+  <body>
+
+<section title="Before starting" ref-id="before">
+    
+<p>
+This example assumes you have already downloaded and installed OpenEJB in the 
+directory c:\openejb. Refer to the <a href="quickstart.html">QuickStart Guide</a> if you 
+haven't yet installed OpenEJB.
+</p>
+<p>We also assume that you are running your client from the directory c:\my\app.</p>
+
+</section>
+
+<section title="Create the bean class" ref-id="bean.class">
+<p>
+First, create the package where we will place our ejb and application files.
+</p>
+
+<command>c:\my\app> mkdir org</command><br/>
+<command>c:\my\app> mkdir org\acme</command>
+
+<p>
+In your favorite editor, create the file below.
+</p>
+<p>
+<file name="c:\my\app\org\acme\HelloBean.java">
+package org.acme;
+
+import java.rmi.RemoteException;
+import javax.ejb.*;
+
+public class HelloBean implements SessionBean {
+  private SessionContext sessionContext;
+  public void ejbCreate() {
+  }
+  public void ejbRemove() {
+  }
+  public void ejbActivate() {
+  }
+  public void ejbPassivate() {
+  }
+  public void setSessionContext(SessionContext sessionContext) {
+    this.sessionContext = sessionContext;
+  }
+  public String sayHello() throws java.rmi.RemoteException {
+    return "Hello World!!!!!";
+  }
+}
+</file>
+</p> 
+</section>
+
+
+<section title="Create the EJB Home interface" ref-id="ejbhome">
+<p>
+<file name="c:\my\app\org\acme\HelloHome.java">
+package org.acme;
+
+import java.rmi.*;
+import javax.ejb.*;
+import java.util.*;
+
+public interface HelloHome extends EJBHome {
+  public HelloObject create() throws RemoteException, CreateException;
+}
+</file>
+</p> 
+</section>
+
+<section title="Create the EJB Object interface" ref-id="ejbobject">
+<p>
+<file name="c:\my\app\org\acme\HelloObject.java">
+package org.acme;
+
+import java.rmi.*;
+import javax.ejb.*;
+import java.util.*;
+
+public interface HelloObject extends EJBObject {
+  public String sayHello() throws RemoteException;
+}
+</file>
+</p> 
+</section>
+
+
+<section title="Create the ejb-jar.xml" ref-id="ejb-jar.xml">
+<p>
+<command>c:\my\app> mkdir META-INF</command>
+</p>
+<p>
+<file name="c:\my\app\META-INF\ejb-jar.xml">
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;ejb-jar&gt;
+  &lt;enterprise-beans&gt;
+    &lt;session&gt;
+      &lt;ejb-name&gt;Hello&lt;/ejb-name&gt;
+      &lt;home&gt;org.acme.HelloHome&lt;/home&gt;
+      &lt;remote&gt;org.acme.HelloObject&lt;/remote&gt;
+      &lt;ejb-class&gt;org.acme.HelloBean&lt;/ejb-class&gt;
+      &lt;session-type&gt;Stateless&lt;/session-type&gt;
+      &lt;transaction-type&gt;Container&lt;/transaction-type&gt;
+    &lt;/session&gt;
+  &lt;/enterprise-beans&gt;
+  &lt;assembly-descriptor&gt;
+    &lt;container-transaction&gt;
+      &lt;method&gt;
+        &lt;ejb-name&gt;Hello&lt;/ejb-name&gt;
+        &lt;method-name&gt;*&lt;/method-name&gt;
+      &lt;/method&gt;
+      &lt;trans-attribute&gt;Required&lt;/trans-attribute&gt;
+    &lt;/container-transaction&gt;
+  &lt;/assembly-descriptor&gt;
+&lt;/ejb-jar&gt;
+</file>
+</p> 
+</section>
+
+<section title="Compile the EJB" ref-id="compile">
+<p>
+<command>C:\my\app> javac org\acme\*.java</command>
+</p> 
+<p>
+<note>
+To compile an EJB, you need to have Sun's EJB library
+in your classpath.  One has been included for you
+in the directory lib/ejb-2.0.jar
+</note>
+</p> 
+
+</section>
+
+<section title="Package the EJB" ref-id="jar">
+<p>
+<command>C:\my\app> jar cvf myHelloEjb.jar org META-INF</command>
+</p> 
+</section>
+
+<section title="Deploy the EJB jar" ref-id="deploy">
+<p>
+Use the OpenEJB <a href="deploy.html">Deploy Tool</a> to deploy your jar.
+</p> 
+
+<p>
+<command>C:\my\app> cd C:\openejb</command><br/>
+<command>C:\openejb> openejb.bat deploy -a -m c:\my\app\myHelloEjb.jar</command>
+</p> 
+
+</section>
+
+<section title="Package the EJB" ref-id="jar">
+<p>
+<command>C:\my\app> jar cvf myHelloEjb.jar org META-INF</command>
+</p> 
+</section>
+
+<section title="A basic client application" ref-id="deploy">
+
+<p>
+Create a basic client application to access your HelloWorld bean.
+</p> 
+
+<p>
+<code name="c:\my\app\org\acme\HelloWorld.java">
+package org.acme;
+
+import java.rmi.*;
+import javax.naming.*;
+import java.util.*;
+
+public class HelloWorld {
+
+ public static void main( String args[]) {
+  try{
+    
+    Properties p = new Properties();
+    
+    <comment>//The JNDI properties you set depend</comment>
+    <comment>//on which server you are using.</comment>
+    p.put("java.naming.factory.initial", ... 
+    ...
+    
+    <comment>//Now use those properties to create</comment>
+    <comment>//a JNDI InitialContext with the server.</comment>
+    InitialContext ctx = new InitialContext( p );
+    
+    <comment>//Lookup the bean using it's deployment id</comment>
+    Object obj = ctx.lookup("/Hello");
+    
+    <comment>//Be good and use RMI remote object narrowing</comment>
+    <comment>//as required by the EJB specification.</comment>
+    HelloHome ejbHome = (HelloHome)
+        PortableRemoteObject.narrow(obj,HelloHome.class);
+
+    <comment>//Use the HelloHome to create a HelloObject</comment>
+    HelloObject ejbObject = ejbHome.create();
+    
+    <comment>//The part we've all been wainting for...</comment>
+    String message = ejbObject.sayHello();
+
+    <comment>//A drum roll please.</comment>
+    System.out.println( message );
+    
+  } catch (Exception e){
+    e.printStackTRace();
+  }
+ }
+}
+
+</code>
+</p> 
+
+<p>
+JNDI properties for the <a href="embedded.html">Local Server</a>
+would look like the following.  Be sure to read the Local Server
+<a href="embedded.html">documentation</a> if you run into
+any problems.
+</p> 
+
+<p>
+<code>
+Properties p = new Properties();
+
+p.put("java.naming.factory.initial", 
+    "org.openejb.core.ivm.naming.InitContextFactory");
+p.put("openejb.home", "c:\\openejb");
+    
+InitialContext ctx = new InitialContext(p);
+</code>
+</p>
+
+<p>
+JNDI properties for the <a href="remote-server.html">Remote Server</a>
+would look like the following.  Be sure to start the Remote Server before
+running your application.  See the Remote Server 
+<a href="remote-server.html">documentation</a> for more information on 
+using the Remote Server.
+</p> 
+
+<p>
+<code>
+Properties p = new Properties();
+p.put("java.naming.factory.initial", 
+    "org.openejb.client.JNDIContext");
+p.put("java.naming.provider.url", "127.0.0.1:4201");
+p.put("java.naming.security.principal", "myuser");
+p.put("java.naming.security.credentials", "mypass");
+    
+InitialContext ctx = new InitialContext(p);
+</code>
+</p>
+
+<p>
+Update the HelloWorld.java to contain the right JNDI properties.
+</p> 
+
+</section>
+
+<section title="Compile the application" ref-id="compile.app">
+<p>
+<command>C:\my\app> javac org\acme\HelloWorld.java</command>
+</p> 
+<p>
+<note>
+To compile this application, you need to have Sun's 
+JNDI library in your classpath.  One has been included for you
+in the directory lib/jndi_1.2.1.jar
+</note>
+</p> 
+
+</section>
+
+<section title="Run it!" ref-id="run.it">
+<p>
+<command>C:\my\app> java org.acme.HelloWorld</command>
+</p> 
+<p>
+<note>
+To run this application, you need to have Sun's 
+EJB and JNDI libraries in your classpath.
+</note>
+</p> 
+
+</section>
+
+
+<section title="What if it didn't work" ref-id="problems">
+<p>
+If you ran into any problems, first check your openejb.log file at c:\openejb\openejb.log.
+Look for any lines that begin with <term>"WARN"</term>, <term>"ERROR"</term>, or 
+<term>"FATAL"</term>.
+</p> 
+<p>
+If the log file doesn't help you, email it to the OpenEJB <a href="lists.html#openejb-user">
+user mailing list</a> and let people know you are using the Hello World example.
+</p> 
+</section>
+
+
+</body>
+</document>
+
