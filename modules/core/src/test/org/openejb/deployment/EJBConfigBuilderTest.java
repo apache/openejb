@@ -327,7 +327,7 @@ public class EJBConfigBuilderTest extends TestCase {
             assertRunning(kernel, containerIndexObjectName);
 
             GBeanMBean connectionProxyFactoryGBean = new GBeanMBean(MockConnectionProxyFactory.GBEAN_INFO);
-            ObjectName connectionProxyFactoryObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + "DefaultDatasource");
+            ObjectName connectionProxyFactoryObjectName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo" + JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + "DefaultDatasource");
             kernel.loadGBean(connectionProxyFactoryObjectName, connectionProxyFactoryGBean);
             kernel.startGBean(connectionProxyFactoryObjectName);
             assertRunning(kernel, connectionProxyFactoryObjectName);
