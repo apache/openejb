@@ -7,14 +7,22 @@
 
   <body>
     <title>OpenEJB -- Welcome</title>
-  
+
+
 
     <section title="Welcome to OpenEJB!">
         <p> 
         OpenEJB is an open source, modular, configurable, and extendable EJB Container
         System and EJB Server.
         </p>
-        
+
+        <note>
+            <p>
+            We are concurrently developing two versions of OpenEJB and working on Apache Geronimo, which can get a
+            little confusing for people trying to follow the project.  See the new <a href="status.xml">status page</a> for details on what's going on in OpenEJB.
+            </p>
+
+        </note>
         <section title="EJB Server">
             <p>
             OpenEJB comes with fast, lightweight EJB Servers for both
