@@ -68,7 +68,6 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.gbean.WaitingException;
 
 import org.openejb.EJBContainer;
 import org.openejb.corba.util.TieLoader;
@@ -129,7 +128,7 @@ public class POABean implements GBeanLifecycle, ReferenceCollectionListener {
         return (EJBContainer) containerMap.get(containerId);
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         ClassLoader savedLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
@@ -167,7 +166,7 @@ public class POABean implements GBeanLifecycle, ReferenceCollectionListener {
         log.info("Started POABean");
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         if (localPOA != null) {
             for (Iterator iter = adapters.keySet().iterator(); iter.hasNext();) {
                 AdapterWrapper adapterWrapper = (AdapterWrapper) adapters.get(iter.next());

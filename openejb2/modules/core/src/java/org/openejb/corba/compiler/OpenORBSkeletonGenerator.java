@@ -68,7 +68,6 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.system.main.ToolsJarHack;
 
 import org.openejb.util.JarUtils;
@@ -192,13 +191,13 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
         }
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         if (compiler == null) {
             compiler = new AntCompiler();
         }
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
     }
 
     public void doFail() {

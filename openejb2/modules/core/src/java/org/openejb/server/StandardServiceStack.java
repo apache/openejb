@@ -49,7 +49,6 @@ import java.net.SocketException;
 import java.io.IOException;
 
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 
 public class StandardServiceStack implements GBeanLifecycle {
 
@@ -115,11 +114,11 @@ public class StandardServiceStack implements GBeanLifecycle {
         return pool.getPriority();
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         daemon.doStart();
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         daemon.doStop();
     }
 

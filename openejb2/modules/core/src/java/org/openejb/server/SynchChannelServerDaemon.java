@@ -54,7 +54,6 @@ import org.activeio.net.SocketSynchChannelFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 
 public class SynchChannelServerDaemon implements GBeanLifecycle, Runnable {
     private static final Log log = LogFactory.getLog(SynchChannelServerDaemon.class);
@@ -87,7 +86,7 @@ public class SynchChannelServerDaemon implements GBeanLifecycle, Runnable {
         }
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         SocketSynchChannelFactory factory = new SocketSynchChannelFactory();
         server = null;
 

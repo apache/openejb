@@ -54,7 +54,6 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
@@ -154,7 +153,7 @@ public class EJBModuleImpl implements GBeanLifecycle {
         }
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         if (delegate != null) {
             delegate.setConnectionFactory(connectionFactory.$getResource());
         }
@@ -163,7 +162,7 @@ public class EJBModuleImpl implements GBeanLifecycle {
         }
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         if (delegate != null) {
             delegate.setConnectionFactory(null);
         }

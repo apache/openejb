@@ -55,7 +55,6 @@ import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.tranql.cache.CacheRow;
 import org.tranql.cache.InTxCache;
 import org.tranql.identity.GlobalIdentity;
@@ -84,12 +83,12 @@ public class AutoIncrementTablePrimaryKeyGeneratorWrapper implements PrimaryKeyG
         this.returnType = returnType;
     }
     
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         DataSource dataSource = (DataSource) connectionFactoryWrapper.$getResource();
         delegate = new AutoIncrementTablePrimaryKeyGenerator(dataSource, sql, BindingFactory.getResultBinding(1, new QueryBindingImpl(0, returnType)));
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         delegate = null;
     }
 

@@ -55,7 +55,6 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
@@ -99,7 +98,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
         this.ejbContainers.addReferenceCollectionListener(this);
     }
 
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         containers = new EJBContainer[ejbContainers.size() + 1];
         Iterator iterator = ejbContainers.iterator();
         for (int i = 1; i < containers.length && iterator.hasNext(); i++) {
@@ -121,7 +120,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
         }
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         containerIdToIndex.clear();
         Arrays.fill(containers, null);
         jndiNameToIndex.clear();

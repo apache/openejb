@@ -50,7 +50,6 @@ package org.openejb.entity.cmp;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.WaitingException;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
 
@@ -67,11 +66,11 @@ public class PrimaryKeyGeneratorWrapper implements GBeanLifecycle  {
         this.keyGeneratorDelegate = keyGeneratorDelegate;
     }
     
-    public void doStart() throws WaitingException, Exception {
+    public void doStart() throws Exception {
         keyGeneratorDelegate.setPrimaryKeyGenerator(keyGenerator);
     }
 
-    public void doStop() throws WaitingException, Exception {
+    public void doStop() throws Exception {
         keyGeneratorDelegate.setPrimaryKeyGenerator(null);
     }
 
