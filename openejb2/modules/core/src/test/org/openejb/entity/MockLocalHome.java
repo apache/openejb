@@ -53,8 +53,6 @@ import javax.ejb.EJBLocalHome;
 import javax.ejb.FinderException;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public interface MockLocalHome extends EJBLocalHome {

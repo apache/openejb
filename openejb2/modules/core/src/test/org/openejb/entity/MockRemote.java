@@ -57,4 +57,10 @@ import javax.ejb.EJBObject;
  */
 public interface MockRemote extends EJBObject {
     int intMethod(int i) throws RemoteException;
+
+    int getIntField() throws RemoteException;
+
+    String getValue() throws RemoteException;
+
+    void setValue(String value) throws RemoteException;
 }

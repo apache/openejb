@@ -48,8 +48,10 @@
 package org.openejb.entity;
 
 import java.rmi.RemoteException;
+import java.util.Collection;
 import javax.ejb.EJBHome;
 import javax.ejb.FinderException;
+import javax.ejb.CreateException;
 
 /**
  *
@@ -57,7 +59,15 @@ import javax.ejb.FinderException;
  * @version $Revision$ $Date$
  */
 public interface MockHome extends EJBHome {
-    MockRemote findByPrimaryKey(Integer i) throws FinderException, RemoteException;
+    MockRemote create(Integer i, String value) throws CreateException, RemoteException;
+
+    MockRemote findByPrimaryKey(Integer o) throws FinderException, RemoteException;
 
     int intMethod(int i) throws RemoteException;
+
+    String singleSelect(Integer i) throws FinderException, RemoteException;
+
+    Collection multiSelect(Integer i) throws FinderException, RemoteException;
+
+    Collection multiObject(Integer i) throws FinderException, RemoteException;
 }
