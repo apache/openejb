@@ -117,14 +117,12 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
         ClassLoader savedLoader = Thread.currentThread().getContextClassLoader();
         File TEMPDIR = null;
         try {
-            Thread.currentThread().setContextClassLoader(classLoader);
+            Thread.currentThread().setContextClassLoader(cl);
 
 
             TEMPDIR = DeploymentUtil.createTempDir();
-//            File SRCDIR = new File(TEMPDIR, "JAVA");
-//            File CLASSESDIR = new File(TEMPDIR, "classes");
-            File SRCDIR = new File(TEMPDIR, "adc");
-            File CLASSESDIR = new File(TEMPDIR, "adc");
+            File SRCDIR = new File(TEMPDIR, "stubs");
+            File CLASSESDIR = new File(TEMPDIR, "stubs");
             SRCDIR.mkdirs();
             CLASSESDIR.mkdirs();
 
@@ -222,7 +220,7 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
         ToolsJarHack.install();
 
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBStubGenerator.class);
-        infoFactory.addInterface(SkeletonGenerator.class);
+        infoFactory.addInterface(StubGenerator.class);
         infoFactory.addAttribute("verbose", Boolean.TYPE, true);
         infoFactory.addAttribute("props", Properties.class, true);
         infoFactory.addReference("Compiler", Compiler.class, NameFactory.GERONIMO_SERVICE);
