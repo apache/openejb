@@ -101,7 +101,7 @@
      </java>
    </target>
 
-  <target name="compile-idl-classes">
+  <target name="generate-idl-classes">
     <antcall target="java2idl" >
       <param name="source" value="org.openejb.test.stateless.RmiIiopStatelessObject" />
     </antcall>
@@ -214,7 +214,9 @@
     <antcall target="java2idl" >
       <param name="source" value="org.openejb.test.beans.CalculatorHome" />
     </antcall>
+  </target>
     
+  <target name="compile-idl-classes" depends="generate-idl-classes">
     <javac srcdir="${dest.gensrc.dir}"
            destdir="build/classes/testsuite"
            debug="${debug}"

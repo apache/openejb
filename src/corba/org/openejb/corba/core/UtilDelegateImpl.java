@@ -38,6 +38,8 @@ import org.openejb.core.ivm.BaseEjbProxyHandler;
 import org.openejb.core.ivm.EjbHomeProxyHandler;
 import org.openejb.core.ivm.EjbObjectProxyHandler;
 import org.openejb.util.proxy.ProxyManager;
+import org.omg.CORBA.MARSHAL;
+import org.omg.CORBA.CompletionStatus;
 
 /**
  * This class is used to intercept the automatic remote object activation that will
@@ -101,19 +103,21 @@ public class UtilDelegateImpl implements javax.rmi.CORBA.UtilDelegate {
             handler = (BaseEjbProxyHandler)ProxyManager.getInvocationHandler(remote);
         } else {
 	    logger.error("Encountered unknown object reference of type "+remote);
-            throw new RuntimeException();
+            throw new MARSHAL("Internal server error while marshaling the reply", 0, CompletionStatus.COMPLETED_YES);
         }
-        Class interf;
+
         if(handler instanceof EjbHomeProxyHandler) {
-            interf = handler.deploymentInfo.getHomeInterface();
+            Class interf = handler.deploymentInfo.getHomeInterface();
+            ProxyInfo info = new ProxyInfo(handler.deploymentInfo, handler.primaryKey, interf, handler.container);
+            return (org.omg.CORBA.Object) _server.getEJBHome(info);
         } else if(handler instanceof EjbObjectProxyHandler) {
-            interf = handler.deploymentInfo.getRemoteInterface();
+            Class interf = handler.deploymentInfo.getRemoteInterface();
+            ProxyInfo info = new ProxyInfo(handler.deploymentInfo, handler.primaryKey, interf, handler.container);
+            return (org.omg.CORBA.Object) _server.getEJBObject(info);
         } else {
 	    logger.error("Encountered unknown local invocation handler of type "+handler.getClass()+":"+handler);
-            throw new RuntimeException();
+            throw new MARSHAL("Internal server error while marshaling the reply", 0, CompletionStatus.COMPLETED_YES);
         }
-        ProxyInfo info = new ProxyInfo(handler.deploymentInfo, handler.primaryKey, interf, handler.container);
-        return (org.omg.CORBA.Object) _server.getEJBObject(info);
     }
 
     public java.rmi.RemoteException mapSystemException(org.omg.CORBA.SystemException ex){
@@ -127,15 +131,17 @@ public class UtilDelegateImpl implements javax.rmi.CORBA.UtilDelegate {
     }
     public void writeRemoteObject(org.omg.CORBA.portable.OutputStream out, java.lang.Object obj){
         try{
-        if ( obj != null && obj instanceof java.rmi.Remote )
-            out.write_Object( handleRemoteObject( out, ( java.rmi.Remote ) obj ) );
-        else if ( obj == null || obj instanceof org.omg.CORBA.Object )
-            out.write_Object( ( org.omg.CORBA.Object ) obj );
-        else
-	    logger.error("Encountered unknown object reference of type "+obj.getClass()+":"+obj);
-            throw new IllegalArgumentException( "Not a remote object:"+obj );
+	    if ( obj != null && obj instanceof java.rmi.Remote )
+		out.write_Object( handleRemoteObject( out, ( java.rmi.Remote ) obj ) );
+	    else if ( obj == null || obj instanceof org.omg.CORBA.Object )
+		out.write_Object( ( org.omg.CORBA.Object ) obj );
+	    else {
+		logger.error("Encountered unknown object reference of type "+obj.getClass()+":"+obj);
+                throw new MARSHAL("Internal server error while marshaling the reply", 0, CompletionStatus.COMPLETED_YES);
+	    }
         }catch(Throwable e) {
-            throw new RuntimeException();
+	    logger.error("Received unexpected exception while marshaling an object reference:", e);
+            throw new MARSHAL("Internal server error while marshaling the reply", 0, CompletionStatus.COMPLETED_YES);
         }
     }
     public void writeAbstractObject(org.omg.CORBA.portable.OutputStream stream, java.lang.Object obj){
