@@ -673,6 +673,7 @@ public class ConfigUtils  {
                 }
             } catch (NullPointerException e){
             } catch (java.io.FileNotFoundException e){
+                _logger.warning("Cannot find the configuration file ["+path+"], Using default OPENEJB_HOME/conf/openejb.conf instead.");
             }
 
             /* [3] Try finding the standard openejb.conf file 
