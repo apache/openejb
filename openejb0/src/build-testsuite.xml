@@ -133,12 +133,12 @@
   <target name="jar"
           depends="compile, copy.manifest"
           description="--> generates all java archives (default)">
-          
     <jar jarfile="dist/${project}_ejb_tests-${version}.jar"
          basedir="${build.testsuite.dest}"
-         manifest="${build.testsuite.dest}/MANIFEST.MF"/>
-    
-    <!-- This jar file will give an error: Cannot find the openejb-jar.xml in jar -->
+         manifest="${build.testsuite.dest}/MANIFEST.MF"
+         excludes="META-INF/*.xml" />
+    <!-- This jar file will give an error: Cannot find the openejb-jar.xml in jar        TODO: change the DD since the deployer doesn't like
+               multiple DDs defining the same EJBs
     <jar jarfile="beans/undeployedBeans.jar"
          basedir="${build.testsuite.dest}"
          includes="org/openejb/test/beans/**,
@@ -156,7 +156,7 @@
                    org/openejb/test/stateless/*Test*.class
                    META-INF/openejb-jar.xml"
          manifest="${build.testsuite.dest}/MANIFEST.MF"/>
-
+-->
     <jar jarfile="beans/${project}_ejb_tests-${version}.jar"
          basedir="${build.testsuite.dest}"
          includes="org/openejb/test/beans/**,
