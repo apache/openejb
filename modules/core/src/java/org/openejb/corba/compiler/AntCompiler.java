@@ -47,6 +47,8 @@ package org.openejb.corba.compiler;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -84,12 +86,16 @@ public class AntCompiler implements Compiler {
         addPathsFromClassLoader(project, classPath, utils, cl);
         
         for (Iterator iter = classpaths.iterator(); iter.hasNext();) {
-            URL url = (URL) iter.next();
-            // We only can add file based paths.
-            if( url.getProtocol().equals("file") ) {
-                Path p = new Path(project);
-                p.setLocation(utils.normalize(url.getPath()));
-                classPath.addExisting(p);
+            try {
+                URL url = (URL) iter.next();
+                // We only can add file based paths.
+                if( url.getProtocol().equals("file") ) {
+                    Path p = new Path(project);
+                    p.setLocation(new File(new URI(url.toString())));
+                    classPath.addExisting(p);
+                }
+            } catch (URISyntaxException e) {
+                // do nothing
             }
         }
         javac.setClasspath(classPath);
@@ -108,12 +114,16 @@ public class AntCompiler implements Compiler {
                 URLClassLoader ucl = (URLClassLoader)cl;
                 URL[] urls = ucl.getURLs();
                 for (int i = 0; i < urls.length; i++) {
-                    URL url = urls[i];
-                    // We only can add file based paths.
-                    if( url.getProtocol().equals("file") ) {
-                        Path p = new Path(project);
-                        p.setLocation(utils.normalize(url.getPath()));
-                        classPath.addExisting(p);               
+                    try {
+                        URL url = urls[i];
+                        // We only can add file based paths.
+                        if( url.getProtocol().equals("file") ) {
+                            Path p = new Path(project);
+                            p.setLocation(new File(new URI(url.toString())));
+                            classPath.addExisting(p);
+                        }
+                    } catch (URISyntaxException e) {
+                        // do nothing
                     }
                 }
             }
