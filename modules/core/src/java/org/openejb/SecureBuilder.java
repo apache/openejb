@@ -51,6 +51,7 @@ package org.openejb;
 import javax.security.auth.Subject;
 
 import org.openejb.security.SecurityConfiguration;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 
 
 /**

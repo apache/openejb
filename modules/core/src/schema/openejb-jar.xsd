@@ -87,11 +87,12 @@
     <xs:complexType name="openejb-jarType">
         <xs:sequence>
             <xs:element name="dependency" type="openejb:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="cmp-connection-factory" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <!-- use a ref to put this element in the naming namespace rather than openejb namespace-->
+            <xs:element ref="naming:cmp-connection-factory" minOccurs="0"/>
 
             <xs:element name="enterprise-beans">
                 <xs:complexType>
-                    <xs:choice maxOccurs="unbounded">
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
                         <xs:element name="session" type="openejb:session-beanType"/>
                         <xs:element name="entity" type="openejb:entity-beanType"/>
                         <xs:element name="message-driven" type="openejb:message-driven-beanType"/>
@@ -108,6 +109,8 @@
         <xs:attribute name="parentId" type="xs:string" use="optional"/>
     </xs:complexType>
 
+
+    <!-- session bean section-->
     <xs:complexType name="session-beanType">
         <xs:sequence>
             <xs:element name="ejb-name" type="xs:string"/>
@@ -120,6 +123,7 @@
         <xs:attribute name="id" type="xs:ID"/>
     </xs:complexType>
 
+    <!--entity bean section -->
     <xs:complexType name="entity-beanType">
         <xs:sequence>
             <xs:element name="ejb-name" type="xs:string"/>
@@ -178,22 +182,6 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="message-driven-beanType">
-        <xs:sequence>
-            <xs:element name="ejb-name" type="xs:string"/>
-
-            <xs:element name="resource-adapter-name" type="xs:string"/>
-            <xs:element name="activation-spec-class" type="xs:string"/>
-            <xs:element name="activation-config"
-                type="openejb:activation-configType"
-                minOccurs="0"/>
-
-            <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
-            <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
-        </xs:sequence>
-        <xs:attribute name="id" type="xs:ID"/>
-    </xs:complexType>
-
     <xs:complexType name="relationshipsType">
         <xs:sequence>
             <xs:element name="ejb-relation" type="openejb:ejb-relationType" maxOccurs="unbounded"/>
@@ -241,6 +229,22 @@
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
+    </xs:complexType>
+
+
+    <!--message driven bean section-->
+    <xs:complexType name="message-driven-beanType">
+        <xs:sequence>
+            <xs:element name="ejb-name" type="xs:string"/>
+            <xs:element ref="naming:resource-adapter" minOccurs="0"/>
+            <xs:element name="activation-config"
+                type="openejb:activation-configType"
+                minOccurs="0"/>
+
+            <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
+            <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID"/>
     </xs:complexType>
 
     <xs:complexType name="activation-configType">

@@ -20,6 +20,7 @@ import javax.transaction.TransactionManager;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 

@@ -153,13 +153,13 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return EJBComponentType.CMP_ENTITY;
     }
 
-    public String getConnectionFactoryName() {
-        return connectionFactoryName;
-    }
-
-    public void setConnectionFactoryName(String connectionFactoryName) {
-        this.connectionFactoryName = connectionFactoryName;
-    }
+//    public String getConnectionFactoryName() {
+//        return connectionFactoryName;
+//    }
+//
+//    public void setConnectionFactoryName(String connectionFactoryName) {
+//        this.connectionFactoryName = connectionFactoryName;
+//    }
 
     public Map getQueries() {
         return queries;

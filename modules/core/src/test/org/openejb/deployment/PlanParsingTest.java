@@ -9,7 +9,7 @@ import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
  */
 public class PlanParsingTest extends TestCase {
 
-    private OpenEJBModuleBuilder builder = new OpenEJBModuleBuilder(null);
+    private OpenEJBModuleBuilder builder = new OpenEJBModuleBuilder();
     File basedir = new File(System.getProperty("basedir", "."));
 
     public void testResourceRef() throws Exception {

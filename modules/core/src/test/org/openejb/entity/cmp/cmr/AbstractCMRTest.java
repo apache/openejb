@@ -54,25 +54,26 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
-
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.jmx.MBeanProxyFactory;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.transaction.context.ContainerTransactionContext;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.xmlbeans.XmlObject;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
@@ -103,9 +104,21 @@ import org.tranql.sql.sql92.SQL92Schema;
 public abstract class AbstractCMRTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
     
-    protected static final ObjectName CI_NAME = JMXUtil.getObjectName("geronimo.test:role=ContainerIndex");
-    protected static final ObjectName C_NAME_A = JMXUtil.getObjectName("geronimo.test:J2EEApplication=null,J2EEModule=MockModule,J2EEServer=TestGeronimoServer,j2eeType=EntityBean,name=A");
-    protected static final ObjectName C_NAME_B = JMXUtil.getObjectName("geronimo.test:J2EEApplication=null,J2EEModule=MockModule,J2EEServer=TestGeronimoServer,j2eeType=EntityBean,name=B");
+    private static final String j2eeDomainName = "openejb.server";
+    private static final String j2eeServerName = "TestOpenEJBServer";
+    private static final J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, NameFactory.NULL, "MockModule", "testapp", NameFactory.J2EE_MODULE);
+    protected static final ObjectName CI_NAME = JMXUtil.getObjectName("openejb.server:role=ContainerIndex");
+    protected static final ObjectName C_NAME_A;
+    protected static final ObjectName C_NAME_B;
+    static {
+
+        try {
+            C_NAME_A = NameFactory.getEjbComponentName(null, null, null,null, "A", NameFactory.ENTITY_BEAN, j2eeContext);
+            C_NAME_B = NameFactory.getEjbComponentName(null, null, null,null, "B", NameFactory.ENTITY_BEAN, j2eeContext);
+        } catch (DeploymentException e) {
+            throw new AssertionError(e);
+        }
+    }
     protected Kernel kernel;
     protected DataSource ds;
     protected EJBSchema ejbSchema;
@@ -153,7 +166,7 @@ public abstract class AbstractCMRTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
         CMPEntityBuilderTestUtil builder = new CMPEntityBuilderTestUtil(moduleBuilder);
         File tempDir = DeploymentUtil.createTempDir();
         try {
@@ -162,9 +175,9 @@ public abstract class AbstractCMRTest extends TestCase {
                     ConfigurationModuleType.EJB,
                     null,
                     null,
-                    "geronimo.test",
-                    "TestGeronimoServer",
-                    "null",
+                    j2eeDomainName,
+                    j2eeServerName,
+                    NameFactory.NULL,
                     null,
                     null,
                     null,
@@ -172,7 +185,7 @@ public abstract class AbstractCMRTest extends TestCase {
                     null);
 
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            builder.buildCMPSchema(earContext, "MockModule", ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, cacheSchema);
+            builder.buildCMPSchema(earContext, j2eeContext, ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, cacheSchema);
 
             GBeanMBean containerIndex = new GBeanMBean(ContainerIndex.GBEAN_INFO);
             Set patterns = new HashSet();
@@ -182,7 +195,7 @@ public abstract class AbstractCMRTest extends TestCase {
             start(CI_NAME, containerIndex);
 
             GBeanMBean connectionProxyFactoryGBean = new GBeanMBean(MockConnectionProxyFactory.GBEAN_INFO);
-            ObjectName connectionProxyFactoryObjectName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo" + JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + "DefaultDatasource");
+            ObjectName connectionProxyFactoryObjectName = NameFactory.getResourceComponentName(null, null, null, "jcamodule", "testcf", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
             kernel.loadGBean(connectionProxyFactoryObjectName, connectionProxyFactoryGBean);
             kernel.startGBean(connectionProxyFactoryObjectName);
 
@@ -220,7 +233,7 @@ public abstract class AbstractCMRTest extends TestCase {
         builder.setSQLSchema(sqlSchema);
         builder.setGlobalSchema(cacheSchema);
         builder.setComponentContext(new ReadOnlyContext());
-        builder.setConnectionFactoryName("defaultDatasource");
+//        builder.setConnectionFactoryName("defaultDatasource");
         builder.setTransactionManagerDelegate(tmDelegate);
         builder.setQueries(new HashMap());
 

@@ -57,6 +57,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.ActivationSpecInfo;
 import org.apache.geronimo.connector.ActivationSpecWrapper;
@@ -84,11 +85,12 @@ public class DeploymentHelper {
     public static final ObjectName TRANSACTIONCONTEXTMANAGER_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionContextManager");
     public static final ObjectName TRACKEDCONNECTIONASSOCIATOR_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
     public static final ObjectName WORKMANAGER_NAME = JMXUtil.getObjectName("geronimo.server:type=WorkManager,name=DefaultWorkManager");
-    public static final ObjectName RESOURCE_ADAPTER_NAME = JMXUtil.getObjectName("openejb.server:j2eeType=ResourceAdapter,J2EEServer=TestOpenEJBServer,name=MockRA");
+    public static final ObjectName RESOURCE_ADAPTER_NAME = JMXUtil.getObjectName("openejb.server:j2eeType=JCAResourceAdapter,J2EEServer=TestOpenEJBServer,J2EEApplication=null,ResourceAdapterModule=something,name=MockRA");
     public static final ObjectName ACTIVATIONSPEC_NAME = JMXUtil.getObjectName("geronimo.server:j2eeType=ActivationSpec,name=MockMDB");
     public static final ObjectName THREADPOOL_NAME = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPool,name=DefaultThreadPool");
     public static final ObjectName TRANSACTIONALTIMER_NAME = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=TransactionalThreaPooledTimer");
     public static final ObjectName NONTRANSACTIONALTIMER_NAME = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=NonTransactionalThreaPooledTimer");
+    public static final ActivationSpecInfo ACTIVATION_SPEC_INFO = new ActivationSpecInfo(MockActivationSpec.class.getName(), ActivationSpecWrapper.getGBeanInfo());
 
     public static Kernel setUpKernelWithTransactionManager(String kernelName) throws Exception {
         Kernel kernel = new Kernel(kernelName);
@@ -141,8 +143,7 @@ public class DeploymentHelper {
 
         GBeanMBean resourceAdapterGBean = new GBeanMBean(ResourceAdapterWrapper.getGBeanInfo());
         Map activationSpecInfoMap = new HashMap();
-        ActivationSpecInfo activationSpecInfo = new ActivationSpecInfo(MockActivationSpec.class, ActivationSpecWrapper.getGBeanInfo());
-        activationSpecInfoMap.put(MockActivationSpec.class.getName(), activationSpecInfo);
+        activationSpecInfoMap.put(javax.jms.MessageListener.class.getName(), ACTIVATION_SPEC_INFO);
         resourceAdapterGBean.setAttribute("resourceAdapterClass", MockResourceAdapter.class);
         resourceAdapterGBean.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
         resourceAdapterGBean.setReferencePattern("WorkManager", WORKMANAGER_NAME);

@@ -88,7 +88,7 @@ public class SQLPrimaryKeyGeneratorWrapper implements PrimaryKeyGenerator, GBean
     }
     
     public void doStart() throws WaitingException, Exception {
-        DataSource dataSource = (DataSource) connectionFactoryWrapper.getProxy();
+        DataSource dataSource = (DataSource) connectionFactoryWrapper.$getResource();
         
         Connection c = dataSource.getConnection();
         try {

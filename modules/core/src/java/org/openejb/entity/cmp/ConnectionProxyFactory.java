@@ -22,5 +22,5 @@ package org.openejb.entity.cmp;
  * @version $Revision$ $Date$
  */
 public interface ConnectionProxyFactory {
-    Object getProxy();
+    Object $getResource();
 }

@@ -61,15 +61,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.xbeans.j2ee.CmpFieldType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
@@ -84,10 +82,10 @@ import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.xbeans.ejbjar.OpenejbEjbRelationType;
 import org.openejb.xbeans.ejbjar.OpenejbEjbRelationshipRoleType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
-import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
-import org.openejb.xbeans.ejbjar.OpenejbQueryType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.AutomaticKeyGeneration;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.CmpFieldMapping;
+import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
+import org.openejb.xbeans.ejbjar.OpenejbQueryType;
 import org.tranql.cache.CacheSlot;
 import org.tranql.cache.CacheTable;
 import org.tranql.cache.GlobalSchema;
@@ -106,11 +104,11 @@ import org.tranql.query.CommandTransform;
 import org.tranql.query.SchemaMapper;
 import org.tranql.query.UpdateCommand;
 import org.tranql.schema.Association;
+import org.tranql.schema.Association.JoinDefinition;
 import org.tranql.schema.AssociationEnd;
 import org.tranql.schema.Attribute;
 import org.tranql.schema.Entity;
 import org.tranql.schema.Schema;
-import org.tranql.schema.Association.JoinDefinition;
 import org.tranql.sql.Column;
 import org.tranql.sql.EndTable;
 import org.tranql.sql.FKColumn;
@@ -125,7 +123,7 @@ class CMPEntityBuilder extends EntityBuilder {
         super(builder);
     }
 
-    protected void buildBeans(EARContext earContext, Module module, ClassLoader cl, EJBModule ejbModule, String connectionFactoryName, EJBSchema ejbSchema, SQL92Schema sqlSchema, GlobalSchema globalSchema, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, Security security, EnterpriseBeansType enterpriseBeans, TransactionManagerDelegate tmDelegate) throws DeploymentException {
+    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, String connectionFactoryName, EJBSchema ejbSchema, SQL92Schema sqlSchema, GlobalSchema globalSchema, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, Security security, EnterpriseBeansType enterpriseBeans, TransactionManagerDelegate tmDelegate) throws DeploymentException {
         // CMP Entity Beans
         EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
         for (int i = 0; i < entityBeans.length; i++) {
@@ -136,7 +134,7 @@ class CMPEntityBuilder extends EntityBuilder {
             }
 
             OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(getString(entityBean.getEjbName()));
-            ObjectName entityObjectName = super.createEJBObjectName(earContext, module.getName(), entityBean);
+            ObjectName entityObjectName = super.createEJBObjectName(moduleJ2eeContext, entityBean);
 
             GBeanMBean entityGBean = createBean(earContext, ejbModule, entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, ejbSchema, sqlSchema, globalSchema, connectionFactoryName, transactionPolicyHelper, security, cl, tmDelegate);
 
@@ -145,17 +143,17 @@ class CMPEntityBuilder extends EntityBuilder {
     }
     
 
-    public void buildCMPSchema(EARContext earContext, String ejbModuleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema, GlobalSchema globalSchema) throws DeploymentException {
+    public void buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema, GlobalSchema globalSchema) throws DeploymentException {
         try {
-            Collection entities = processEnterpriseBeans(earContext, ejbModuleName, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema);
-            processRelationships(earContext, ejbModuleName, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema);
+            Collection entities = processEnterpriseBeans(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema);
+            processRelationships(ejbJar, openejbEjbJar, ejbSchema, sqlSchema);
             populateGlobalSchema(entities, globalSchema, ejbSchema, sqlSchema);
         } catch (Exception e) {
-            throw new DeploymentException("Module [" + ejbModuleName + "]", e);
+            throw new DeploymentException("Module [" + moduleJ2eeContext.getJ2eeModuleName() + "]", e);
         }
     }
 
-    private Collection processEnterpriseBeans(EARContext earContext, String ejbModuleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema) throws DeploymentException {
+    private Collection processEnterpriseBeans(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema) throws DeploymentException {
         Collection entities = new ArrayList();
 
         Map openEjbEntities = new HashMap();
@@ -188,7 +186,7 @@ class CMPEntityBuilder extends EntityBuilder {
                 throw new DeploymentException("EJB [" + ejbName + "] is misconfigured: no CMP mapping defined by OpenEJB DD.");
             }
                 
-            ObjectName entityObjectName = super.createEJBObjectName(earContext, ejbModuleName, entityBean);
+            ObjectName entityObjectName = super.createEJBObjectName(moduleJ2eeContext, entityBean);
     
             EJBProxyFactory proxyFactory = (EJBProxyFactory) getModuleBuilder().createEJBProxyFactory(entityObjectName.getCanonicalName(),
                     false,
@@ -333,7 +331,7 @@ class CMPEntityBuilder extends EntityBuilder {
         return entities;
     }
 
-    private void processRelationships(EARContext earContext, String ejbModuleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema) throws DeploymentException {
+    private void processRelationships(EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, EJBSchema ejbSchema, SQL92Schema sqlSchema) throws DeploymentException {
         if ( !ejbJar.isSetRelationships() ) {
             return;
         } else if ( !openejbEjbJar.isSetRelationships() ) {
@@ -452,7 +450,7 @@ class CMPEntityBuilder extends EntityBuilder {
         mappedRoleInfo[0].tableJDef = new JoinDefinition(mappedRoleInfo[0].table, mappedRoleInfo[1].table, pkToFkMapTable);
     }
 
-    private void buildSchemaForJoin(RoleInfo[] roleInfo, String mtmEntityName, EJBSchema ejbSchema, SQL92Schema sqlSchema, int id) throws DeploymentException {
+    private void buildSchemaForJoin(RoleInfo[] roleInfo, String mtmEntityName, EJBSchema ejbSchema, SQL92Schema sqlSchema, int id) {
         Relationship relationship;
         JoinTable joinTable;
         if (null == mtmEntityName) {
@@ -622,26 +620,12 @@ class CMPEntityBuilder extends EntityBuilder {
                 entityBean.getSecurityIdentity(),
                 entityBean.getSecurityRoleRefArray());
 
-        try {
-            ReadOnlyContext compContext = super.buildComponentContext(earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
-            builder.setComponentContext(compContext);
-        } catch (Exception e) {
-            throw new DeploymentException("Unable to create EJB jndi environment: ejbName [" + ejbName + "]", e);
-        }
-
-        if (openejbEntityBean != null) {
-            setResourceEnvironment(builder, entityBean.getResourceRefArray(), openejbEntityBean.getResourceRefArray());
-            builder.setJndiNames(openejbEntityBean.getJndiNameArray());
-            builder.setLocalJndiNames(openejbEntityBean.getLocalJndiNameArray());
-        } else {
-            builder.setJndiNames(new String[]{ejbName});
-            builder.setLocalJndiNames(new String[]{"local/" + ejbName});
-        }
+        processEnvironmentRefs(builder, earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
 
         builder.setEJBSchema(ejbSchema);
         builder.setSQLSchema(sqlSchema);
         builder.setGlobalSchema(globalSchema);
-        builder.setConnectionFactoryName(connectionFactoryName);
+//        builder.setConnectionFactoryName(connectionFactoryName);
         builder.setTransactionManagerDelegate(tmDelegate);
 
         Map queries = new HashMap();
