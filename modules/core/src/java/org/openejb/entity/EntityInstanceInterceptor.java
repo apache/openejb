@@ -130,10 +130,10 @@ public final class EntityInstanceInterceptor implements Interceptor {
             if (id != null) {
                 // always passivate on the way out...
                 try {
-                    context.setOperation(EJBOperation.EJBACTIVATE);
-                    instance.ejbPassivate();
                     context.setOperation(EJBOperation.EJBLOAD);
                     context.flush();
+                    context.setOperation(EJBOperation.EJBACTIVATE);
+                    instance.ejbPassivate();
                 } catch (Throwable t) {
                     // problem passivating instance - discard it and throw the problem (will cause rollback)
                     pool.remove(context);

@@ -125,6 +125,7 @@ public class GenericEJBContainer implements EJBContainer {
         // give the contextFactory a reference to the proxyFactory
         // after this there is no reason to hold on to a reference to the contextFactory
         contextFactory.setProxyFactory(proxyFactory);
+        contextFactory.setSignatures(getSignatures());
 
         // build the interceptor chain
         interceptorBuilder.setTransactionManager(transactionManager);
@@ -132,17 +133,19 @@ public class GenericEJBContainer implements EJBContainer {
         interceptorBuilder.setInstancePool(pool);
         interceptor = interceptorBuilder.buildInterceptorChain();
 
+        contextFactory.setLifecycleInterceptorChain(interceptorBuilder.getLifecycleInterceptorChain());
+
         // initialize the user transaction
         if (userTransaction != null) {
             userTransaction.setUp(transactionManager, trackedConnectionAssociator);
         }
-        
+
         // TODO maybe there is a more suitable place to do this.  Maybe not.
-        
+
         setupJndi();
     }
 
-    
+
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         return interceptor.invoke(invocation);
     }
@@ -257,7 +260,7 @@ public class GenericEJBContainer implements EJBContainer {
         System.arraycopy(names, 0, copy, 0, length);
         return copy;
     }
-    
+
     private void setupJndi() {
         /* Add Geronimo JNDI service ///////////////////// */
         String str = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
@@ -267,7 +270,7 @@ public class GenericEJBContainer implements EJBContainer {
             str = str + ":org.apache.geronimo.naming";
         System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
     }
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {

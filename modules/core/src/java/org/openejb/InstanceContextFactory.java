@@ -48,8 +48,10 @@
 package org.openejb;
 
 import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.core.service.Interceptor;
 
 import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.dispatch.InterfaceMethodSignature;
 
 
 /**
@@ -61,4 +63,8 @@ public interface InstanceContextFactory {
     InstanceContext newInstance() throws Exception;
 
     void setProxyFactory(EJBProxyFactory proxyFactory);
+
+    void setLifecycleInterceptorChain(Interceptor lifecycleInterceptorChain);
+
+    void setSignatures(InterfaceMethodSignature[] signatures);
 }

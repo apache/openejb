@@ -63,6 +63,7 @@ import org.openejb.entity.BusinessMethod;
 import org.openejb.entity.EntityInstanceFactory;
 import org.openejb.entity.EntityInterceptorBuilder;
 import org.openejb.entity.HomeMethod;
+import org.openejb.entity.EJBLoadOperation;
 
 /**
  *
@@ -168,6 +169,10 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
                 vopMap.put(
                         MethodHelper.translateToInterface(signature),
                         new BMPFinderMethod(beanClass, signature));
+            } else if (name.equals("ejbLoad") || name.equals("ejbStore")) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , new EJBLoadOperation(beanClass, signature));
             } else if (name.startsWith("ejb")) {
                 continue;
             } else {

@@ -55,6 +55,7 @@ import javax.ejb.NoSuchEntityException;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import org.apache.geronimo.transaction.TransactionContext;
+import org.apache.geronimo.core.service.Interceptor;
 import org.openejb.entity.EntityInstanceContext;
 import org.openejb.proxy.EJBProxyFactory;
 import org.tranql.cache.CacheRow;
@@ -76,8 +77,8 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
     private CacheRow cacheRow;
     private TransactionContext transactionContext;
 
-    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, InstanceOperation[] itable, FaultHandler loadFault, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory, Set unshareableResources, Set applicationManagedSecurityResources) throws Exception {
-        super(containerId, proxyFactory, null, unshareableResources, applicationManagedSecurityResources);
+    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, InstanceOperation[] itable, FaultHandler loadFault, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory, Interceptor lifecycleInterceptorChain, int loadIndex, int storeIndex, Set unshareableResources, Set applicationManagedSecurityResources) throws Exception {
+        super(containerId, proxyFactory, null, lifecycleInterceptorChain, loadIndex, storeIndex, unshareableResources, applicationManagedSecurityResources);
         this.itable = itable;
         this.loadFault = loadFault;
         this.primaryKeyTransform = primaryKeyTransform;
@@ -107,7 +108,7 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
         return iop.invokeInstance(this, objects);
     }
 
-    public void associate() throws Exception {
+    public void associate() throws Throwable {
         Object id = getId();
         if (id != null) {
             // locate the cache row for this instance
@@ -128,7 +129,7 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
 
             // check that the row is not tagged as removed
             if(cacheRow.getState() == CacheRowState.REMOVED) {
-                throw new NoSuchEntityException("Entity has been reomved");
+                throw new NoSuchEntityException("Entity has been removed");
             }
 
             // copy data from tranql into instance
@@ -136,7 +137,7 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
         super.associate();
     }
 
-    public void flush() throws Exception {
+    public void flush() throws Throwable {
         super.flush();
         // copy data from instance into tranql
     }

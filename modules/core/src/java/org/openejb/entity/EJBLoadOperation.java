@@ -45,25 +45,28 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.bmp;
+package org.openejb.entity;
 
-import java.util.Set;
-
-import javax.ejb.EntityBean;
-
-import org.apache.geronimo.core.service.Interceptor;
-import org.openejb.entity.EntityInstanceContext;
-import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.dispatch.AbstractMethodOperation;
+import org.openejb.dispatch.MethodSignature;
+import org.openejb.EJBInvocation;
+import org.openejb.EJBOperation;
+import org.apache.geronimo.core.service.InvocationResult;
 
 /**
  *
  *
  * @version $Revision$ $Date$
- */
-public final class BMPInstanceContext extends EntityInstanceContext {
+ *
+ * */
+public class EJBLoadOperation extends AbstractMethodOperation {
 
-    public BMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EntityBean instance, Interceptor lifecycleInterceptorChain, int loadIndex, int storeIndex, Set unshareableResources, Set applicationManagedSecurityResources) throws Exception {
-        super(containerId, proxyFactory, instance, lifecycleInterceptorChain, loadIndex, storeIndex, unshareableResources, applicationManagedSecurityResources);
+    public EJBLoadOperation(Class beanClass, MethodSignature signature) {
+        super(beanClass, signature);
+    }
+
+    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+        return invoke(invocation, EJBOperation.EJBLOAD);
     }
 
 }

@@ -54,10 +54,12 @@ import javax.ejb.SessionBean;
 
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.core.service.Interceptor;
 
 import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
 import org.openejb.InstanceContextFactory;
+import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.EJBProxyFactory;
 
 /**
@@ -83,6 +85,14 @@ public class StatefulInstanceContextFactory implements InstanceContextFactory, S
 
     public void setProxyFactory(EJBProxyFactory proxyFactory) {
         this.proxyFactory = proxyFactory;
+    }
+
+    public void setLifecycleInterceptorChain(Interceptor lifecycleInterceptorChain) {
+        //not relevant for session beans.
+    }
+
+    public void setSignatures(InterfaceMethodSignature[] signatures) {
+        //not relevant for session beans.
     }
 
     public InstanceContext newInstance() throws Exception {
