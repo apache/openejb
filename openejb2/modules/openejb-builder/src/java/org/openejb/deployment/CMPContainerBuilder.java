@@ -256,7 +256,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         QueryCommand remoteProxyLoad = mapper.transform(remoteProxyLoadView.getQueryCommand());
         remoteProxyLoadView = new QueryCommandView(remoteProxyLoad, remoteProxyLoadView.getView());
 
-        FinderEJBQLQuery pkFinder = new FinderEJBQLQuery("findByPrimaryKey", new Class[] {ejb.getPrimaryKeyClass()}, "UNDEFINED");
+        Class pkClass = ejb.isUnknownPK() ? Object.class :  ejb.getPrimaryKeyClass();
+        FinderEJBQLQuery pkFinder = new FinderEJBQLQuery("findByPrimaryKey", new Class[] {pkClass}, "UNDEFINED");
         QueryCommandView views[] = new QueryCommandView[]{localProxyLoadView, remoteProxyLoadView};
         boolean found = false;
         for (Iterator iter = finders.entrySet().iterator(); iter.hasNext();) {
