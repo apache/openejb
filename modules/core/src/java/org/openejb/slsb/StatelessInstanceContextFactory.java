@@ -63,18 +63,24 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
  */
 public class StatelessInstanceContextFactory implements InstanceContextFactory, Serializable {
     private final Object containerId;
-    private final EJBProxyFactory proxyFactory;
     private final EJBInstanceFactory factory;
     private final UserTransactionImpl userTransaction;
+    private EJBProxyFactory proxyFactory;
 
-    public StatelessInstanceContextFactory(Object containerId, EJBProxyFactory proxyFactory, Class beanClass, UserTransactionImpl userTransaction) {
+    public StatelessInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction) {
         this.containerId = containerId;
-        this.proxyFactory = proxyFactory;
         this.userTransaction = userTransaction;
         this.factory = new EJBInstanceFactoryImpl(beanClass);
     }
 
+    public void setProxyFactory(EJBProxyFactory proxyFactory) {
+        this.proxyFactory = proxyFactory;
+    }
+
     public InstanceContext newInstance() throws Exception {
+        if (proxyFactory == null) {
+            throw new IllegalStateException("ProxyFacory has not been set");
+        }
         return new StatelessInstanceContext(
                 containerId,
                 (SessionBean) factory.newInstance(),

@@ -49,7 +49,6 @@ package org.openejb.slsb;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
@@ -144,7 +143,7 @@ public class BasicStatelessContainerTest extends TestCase {
 
         StatelessContainerBuilder builder = new StatelessContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
-        builder.setContainerId(CONTAINER_NAME);
+        builder.setContainerId(CONTAINER_NAME.getCanonicalName());
         builder.setEJBName("MockEJB");
         builder.setBeanClassName(MockEJB.class.getName());
         builder.setHomeInterfaceName(MockHome.class.getName());

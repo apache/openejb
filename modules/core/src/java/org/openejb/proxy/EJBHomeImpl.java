@@ -53,19 +53,22 @@ import javax.ejb.HomeHandle;
 import org.openejb.EJBComponentType;
 
 public abstract class EJBHomeImpl extends BaseEJB implements EJBHome {
-
-    private final EJBMetaData ejbMetaData;
+    private EJBMetaData ejbMetaData;
     
-    public EJBHomeImpl(EJBMethodInterceptor handler) {
-        super(handler);
-        ProxyInfo pi = getProxyInfo();
-        boolean isStateless = (pi.getComponentType() == EJBComponentType.STATELESS);
-        boolean isSession = (isStateless || pi.getComponentType() == EJBComponentType.STATEFUL );
-        ejbMetaData = new EJBMetaDataImpl(this, pi.getHomeInterface(), pi.getRemoteInterface(), pi.getPrimaryKeyClass(), isSession, isStateless);
+    public EJBHomeImpl(EJBMethodInterceptor ejbHandler) {
+        super(ejbHandler);
     }
 
     public EJBMetaData getEJBMetaData() throws RemoteException {
-        return ejbMetaData;
+        synchronized (ejbHandler) {
+            if (ejbMetaData == null) {
+                ProxyInfo pi = getProxyInfo();
+                boolean isStateless = (pi.getComponentType() == EJBComponentType.STATELESS);
+                boolean isSession = (isStateless || pi.getComponentType() == EJBComponentType.STATEFUL );
+                ejbMetaData = new EJBMetaDataImpl(this, pi.getHomeInterface(), pi.getRemoteInterface(), pi.getPrimaryKeyClass(), isSession, isStateless);
+            }
+            return ejbMetaData;
+        }
     }
 
     public HomeHandle getHomeHandle() throws RemoteException {

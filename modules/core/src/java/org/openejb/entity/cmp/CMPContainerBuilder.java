@@ -190,26 +190,24 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
 
-        // build the proxy factory
-        EJBProxyFactory proxyFactory = createProxyFactory(signatures);
         // todo this is a terrible hack... the vop build code needs the identity transforms and we need the vop signatures to build the transforms
-        tranqlEJBProxyFactory.ejbProxyFactory = proxyFactory;
+        tranqlEJBProxyFactory.ejbProxyFactory = new EJBProxyFactory(createProxyInfo());
 
         // create and intitalize the interceptor builder
         InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new EntityInterceptorBuilder(), signatures, vtable);
 
         // build the instance factory
         Map instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors);
-        InstanceContextFactory contextFactory = new CMPInstanceContextFactory(getContainerId(), proxyFactory, primaryKeyTransform, faultHandler, beanClass, instanceMap);
+        InstanceContextFactory contextFactory = new CMPInstanceContextFactory(getContainerId(), primaryKeyTransform, faultHandler, beanClass, instanceMap);
         EntityInstanceFactory instanceFactory = new EntityInstanceFactory(getComponentContext(), contextFactory);
 
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
 
         if (buildContainer) {
-            return createContainer(proxyFactory, signatures, interceptorBuilder, pool);
+            return createContainer(signatures, contextFactory, interceptorBuilder, pool);
         } else {
-            return createConfiguration(proxyFactory, signatures, interceptorBuilder, pool);
+            return createConfiguration(signatures, contextFactory, interceptorBuilder, pool);
         }
     }
 

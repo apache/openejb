@@ -56,6 +56,7 @@ import javax.ejb.EJBObject;
 import org.apache.geronimo.core.service.Interceptor;
 
 import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.proxy.ProxyInfo;
 import org.openejb.dispatch.InterfaceMethodSignature;
 
 /**
@@ -133,5 +134,7 @@ public interface EJBContainer extends Interceptor {
     EJBContainer getUnmanagedReference();
 
     InterfaceMethodSignature[] getSignatures();
+
+    ProxyInfo getProxyInfo();
 
 }

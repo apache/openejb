@@ -50,27 +50,69 @@ package org.openejb.proxy;
 import javax.naming.RefAddr;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public class ProxyRefAddr extends RefAddr {
     private final static String TYPE = "org.openejb.proxy.EJBType";
-    private final ProxyInfo proxyInfo;
+    private final String containerId;
+    private final boolean isSessionBean;
+    private final String remoteInterfaceName;
+    private final String homeInterfaceName;
+    private final String localInterfaceName;
+    private final String localHomeInterfaceName;
     private final boolean isLocal;
 
-    public ProxyRefAddr(ProxyInfo proxyInfo, boolean local) {
+    private transient EJBProxyFactory proxyFactory;
+
+    public ProxyRefAddr(String containerId, boolean sessionBean, String remoteInterfaceName, String homeInterfaceName, String localInterfaceName, String localHomeInterfaceName, boolean local) {
         super(TYPE);
-        this.proxyInfo = proxyInfo;
+        this.containerId = containerId;
+        isSessionBean = sessionBean;
+        this.remoteInterfaceName = remoteInterfaceName;
+        this.homeInterfaceName = homeInterfaceName;
+        this.localInterfaceName = localInterfaceName;
+        this.localHomeInterfaceName = localHomeInterfaceName;
         isLocal = local;
     }
 
     public Object getContent() {
-        EJBProxyFactory proxyFactory = new EJBProxyFactory(proxyInfo);
+        EJBProxyFactory proxyFactory = getEJBProxyFactory();
         if (isLocal) {
             return proxyFactory.getEJBLocalHome();
         } else {
             return proxyFactory.getEJBHome();
+        }
+    }
+
+    private EJBProxyFactory getEJBProxyFactory() {
+        if (proxyFactory == null) {
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            Class remoteInterface = loadClass(cl, remoteInterfaceName);
+            Class homeInterface = loadClass(cl, homeInterfaceName);
+            Class localInterface = loadClass(cl, localInterfaceName);
+            Class localHomeInterface = loadClass(cl, localHomeInterfaceName);
+
+            proxyFactory = new EJBProxyFactory(
+                    containerId,
+                    isSessionBean,
+                    remoteInterface,
+                    homeInterface,
+                    localInterface,
+                    localHomeInterface);
+        }
+        return proxyFactory;
+    }
+
+    private Class loadClass(ClassLoader cl, String name) {
+        if (name == null) {
+            return null;
+        }
+        try {
+            return cl.loadClass(name);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("ejb" + (isLocal ? "-local" : "") + "-ref class not found: " + name);
         }
     }
 }

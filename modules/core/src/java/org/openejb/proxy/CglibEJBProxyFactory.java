@@ -50,9 +50,6 @@ package org.openejb.proxy;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import org.openejb.EJBInterfaceType;
-import org.openejb.dispatch.MethodSignature;
-
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackFilter;
 import net.sf.cglib.proxy.Enhancer;
@@ -64,15 +61,8 @@ import net.sf.cglib.proxy.NoOp;
  * @version $Revision$ $Date$
  */
 public class CglibEJBProxyFactory {
-    
-    private MethodSignature[] signatures;
-    private EJBInterfaceType interfaceType;
     private final Class type;
     private final Enhancer enhancer;
-        
-    public CglibEJBProxyFactory(Class superClass, Class clientInterface, EJBInterfaceType type, MethodSignature[] signatures) {
-        this(superClass, clientInterface);
-    }
 
     public CglibEJBProxyFactory(Class superClass, Class clientInterface) {
         this(superClass, clientInterface, clientInterface.getClassLoader());
@@ -84,8 +74,10 @@ public class CglibEJBProxyFactory {
 
     
     public CglibEJBProxyFactory(Class superClass, Class[] clientInterfaces, ClassLoader classLoader) {
-        assert superClass != null;
+        assert superClass != null && !superClass.isInterface();
         assert clientInterfaces != null;
+        assert areAllInterfaces(clientInterfaces);
+
         enhancer = new Enhancer();
         enhancer.setClassLoader(classLoader);
         enhancer.setSuperclass(superClass);
@@ -96,12 +88,20 @@ public class CglibEJBProxyFactory {
         this.type = enhancer.createClass();
     }
 
+    private static boolean areAllInterfaces(Class[] clientInterfaces) {
+        for (int i = 0; i < clientInterfaces.length; i++) {
+            if (clientInterfaces[i] == null || !clientInterfaces[i].isInterface()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public Class getType() {
         return type;
     }
 
     public Object create(MethodInterceptor methodInterceptor) {
-//        return enhancer.create(new Class[]{CgLibInvocationHandler.class}, new Object[]{methodInterceptor});
         return create(methodInterceptor, new Class[]{EJBMethodInterceptor.class}, new Object[]{methodInterceptor});
     }
 

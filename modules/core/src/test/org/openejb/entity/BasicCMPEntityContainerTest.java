@@ -69,6 +69,7 @@ import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.MockTransactionManager;
+import org.openejb.ContainerIndex;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.entity.cmp.CMPContainerBuilder;
@@ -84,6 +85,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
     private static final ObjectName TM_NAME = JMXUtil.getObjectName("geronimo.test:role=TransactionManager");
     private static final ObjectName TCA_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
+    private static final ObjectName CI_NAME = JMXUtil.getObjectName("geronimo.test:role=ContainerIndex");
     private Kernel kernel;
     private GBeanMBean container;
 
@@ -367,7 +369,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
 
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
-        builder.setContainerId(CONTAINER_NAME);
+        builder.setContainerId(CONTAINER_NAME.getCanonicalName());
         builder.setEJBName("MockEJB");
         builder.setBeanClassName(MockCMPEJB.class.getName());
         builder.setHomeInterfaceName(MockHome.class.getName());
@@ -405,6 +407,10 @@ public class BasicCMPEntityContainerTest extends TestCase {
 
         GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
         start(TCA_NAME, trackedConnectionAssociator);
+
+        GBeanMBean containerIndex = new GBeanMBean(ContainerIndex.GBEAN_INFO);
+        containerIndex.setReferencePatterns("EJBContainers", Collections.singleton(CONTAINER_NAME));
+        start(CI_NAME, containerIndex);
 
         //start the ejb container
         container.setReferencePatterns("TransactionManager", Collections.singleton(TM_NAME));

@@ -131,7 +131,7 @@ public class BasicBMPEntityContainerTest extends TestCase {
 
         BMPContainerBuilder builder = new BMPContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
-        builder.setContainerId(CONTAINER_NAME);
+        builder.setContainerId(CONTAINER_NAME.getCanonicalName());
         builder.setEJBName("MockEJB");
         builder.setBeanClassName(MockBMPEJB.class.getName());
         builder.setHomeInterfaceName(MockHome.class.getName());

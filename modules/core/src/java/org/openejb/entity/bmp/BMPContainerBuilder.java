@@ -63,7 +63,6 @@ import org.openejb.entity.BusinessMethod;
 import org.openejb.entity.EntityInstanceFactory;
 import org.openejb.entity.EntityInterceptorBuilder;
 import org.openejb.entity.HomeMethod;
-import org.openejb.proxy.EJBProxyFactory;
 
 /**
  *
@@ -84,22 +83,20 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[])vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
 
-        EJBProxyFactory proxyFactory = createProxyFactory(signatures);
-
         // create and intitalize the interceptor builder
         InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new EntityInterceptorBuilder(), signatures, vtable);
 
         // build the context factory
-        InstanceContextFactory contextFactory = new BMPInstanceContextFactory(getContainerId(), proxyFactory, beanClass);
+        InstanceContextFactory contextFactory = new BMPInstanceContextFactory(getContainerId(), beanClass);
         EntityInstanceFactory instanceFactory = new EntityInstanceFactory(getComponentContext(), contextFactory);
 
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
 
         if (buildContainer) {
-            return createContainer(proxyFactory, signatures, interceptorBuilder, pool);
+            return createContainer(signatures, contextFactory, interceptorBuilder, pool);
         } else {
-            return createConfiguration(proxyFactory, signatures, interceptorBuilder, pool);
+            return createConfiguration(signatures, contextFactory, interceptorBuilder, pool);
         }
     }
 
