@@ -220,7 +220,7 @@
     <xs:complexType name="message-driven-beanType">
         <xs:sequence>
             <xs:element name="ejb-name" type="xs:string"/>
-            <xs:element ref="naming:resource-adapter" minOccurs="0"/>
+            <xs:element ref="naming:resource-adapter"/>
             <xs:element name="activation-config"
                 type="openejb:activation-configType"
                 minOccurs="0"/>
