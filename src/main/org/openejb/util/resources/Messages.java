@@ -97,7 +97,7 @@ public class Messages extends ListResourceBundle{
 /*------------------------------------------
     Conf code key
    -------------------
-   
+
    Forth Digit in Code
    0... = Misc
    1... = OpenEJB Configuration
@@ -108,7 +108,7 @@ public class Messages extends ListResourceBundle{
    Third Digit in Code
    .1.. = During input
    .0.. = During output
-   
+
    Second Digit in Code
    ..0. = Finding
    ..1. = Reading
@@ -145,6 +145,7 @@ public class Messages extends ListResourceBundle{
 {"conf.1120" ,"Cannot unmarshal the OpenEJB configuration in file {0}. Received message: {1}"},
 {"conf.1121" ,"Cannot unmarshal the OpenEJB configuration file {0}.  Received error, host [{1}] not found. If your xml references a DTD on a remote system, you must be connected to a network to download the DTD.  Alternatively, you can remove the DOCTYPE element."},
 {"conf.1130" ,"Cannot validate the OpenEJB configuration file {0}. Received message: {1}"},
+{"conf.1411" ,"OpenEJB configuration file {0} has no default jar for element <{1} id=\"{2}\"/>"},
 {"conf.1900" ,"Cannot find the OpenEJB configuration file {0}. Received message: {1}"},
 {"conf.2040" ,"Cannot validate the openejb-jar data. Received message: {1}"},
 {"conf.2050" ,"Cannot marshal the openejb-jar data to file {0}. Received message: {1}"},
@@ -172,7 +173,12 @@ public class Messages extends ListResourceBundle{
 {"conf.4900" ,"Cannot find the service-jar.xml in jar {0}. Received message: {1}"},
 {"conf.4901" ,"Cannot find the ServiceProvider id {0} in the service-jar.xml of jar {0}. Check that your OpenEJB configuration file is point to the right jar file and the right ServiceProvider id."},
 {"conf.4902" ,"ServiceProvider of id \"{0}\" in the service-jar.xml of jar \"{1}\" is not of type \"{2}\""},
- 	
+{"config.noDefaultConfig", "Default config file was not found."},
+{"config.defaultServiceMissing", "Cannot find a default service for {0}."},
+{"config.usingConfigWithDefault", "Using config file {0} with {1} as a default for OpenEJB configuration."},
+{"config.addingFromDefault", "Adding \"{0}\" of {1} from default configuration."},
+{"config.gettingFromDefault", "Getting {0} from default configuration."},
+{"config.usingDefault", "OpenEJB configuration not found, using default configuration."},
 
 {"init.0100" , "Invalid {0} provider {1}.  The factory class specified, {2}, does not implement the {3} interface.  Please check the configuration of {1}."},
 
@@ -189,5 +195,5 @@ public class Messages extends ListResourceBundle{
 
  	public Object[][] getContents() {
  		return contents;
- 	} 
+ 	}
 }

@@ -7,7 +7,7 @@
 	<xsd:element name="Connector">
         <xsd:complexType mixed='true'>
 			<xsd:attribute name="id" type="xsd:string" use="required" />
-			<xsd:attribute name="jar" type="JarFileLocation"  use="required" />
+			<xsd:attribute name="jar" type="JarFileLocation" />
 		</xsd:complexType>
 	</xsd:element>
     
@@ -27,7 +27,7 @@
         <xsd:complexType mixed='true'>
 			<xsd:attribute name="id" type="xsd:string" use="required" />
 			<xsd:attribute name="ctype" type="ContainerTypes" use="required"/>
-			<xsd:attribute name="jar" type="JarFileLocation"  use="required" />
+			<xsd:attribute name="jar" type="JarFileLocation" />
 		</xsd:complexType>
 	</xsd:element>
     
@@ -45,7 +45,7 @@
 	<xsd:element name="JndiProvider">
         <xsd:complexType mixed='true'>
 			<xsd:attribute name="id" type="xsd:string" use="required" />
-			<xsd:attribute name="jar" type="JarFileLocation"  use="required" />
+			<xsd:attribute name="jar" type="JarFileLocation" />
 		</xsd:complexType>
 	</xsd:element>
     
@@ -54,7 +54,7 @@
 	<xsd:element name="ProxyFactory">
         <xsd:complexType mixed='true'>
 			<xsd:attribute name="id" type="xsd:string" use="required" />
-			<xsd:attribute name="jar" type="JarFileLocation"  use="required" />
+			<xsd:attribute name="jar" type="JarFileLocation" />
 		</xsd:complexType>
 	</xsd:element>
     
@@ -63,7 +63,7 @@
 	<xsd:element name="SecurityService">
         <xsd:complexType mixed='true'>
 			<xsd:attribute name="id" type="xsd:string" use="required" />
-			<xsd:attribute name="jar" type="JarFileLocation"  use="required" />
+			<xsd:attribute name="jar" type="JarFileLocation" />
 		</xsd:complexType>
 	</xsd:element>
     
@@ -72,10 +72,19 @@
 	<xsd:element name="TransactionService">
         <xsd:complexType mixed='true'>
 			<xsd:attribute name="id" type="xsd:string" use="required" />
-			<xsd:attribute name="jar" type="JarFileLocation"  use="required" />
+			<xsd:attribute name="jar" type="JarFileLocation" />
 		</xsd:complexType>
 	</xsd:element>
     
+    -->
+	<xsd:element name="ConnectionManager">
+        <xsd:complexType mixed='true'>
+			<xsd:attribute name="id" type="xsd:string" use="required" />
+			<xsd:attribute name="jar" type="JarFileLocation" />
+		</xsd:complexType>
+	</xsd:element>
+    
+    <!--
     <!--
     -->
 	<xsd:element name="openejb">
@@ -85,6 +94,7 @@
 				<xsd:element ref="JndiProvider" minOccurs="0" maxOccurs="unbounded"/>
                 <xsd:element ref="SecurityService" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="TransactionService" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="ConnectionManager" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="ProxyFactory" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="Connector" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="Resource" minOccurs="0" maxOccurs="unbounded"/>

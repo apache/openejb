@@ -45,6 +45,8 @@ public class Openejb implements java.io.Serializable {
 
     private TransactionService _transactionService;
 
+    private ConnectionManager _connectionManager;
+
     private ProxyFactory _proxyFactory;
 
     private java.util.Vector _connectorList;
@@ -420,6 +422,15 @@ public class Openejb implements java.io.Serializable {
     } //-- TransactionService getTransactionService() 
 
     /**
+     * Returns the value of field 'connectionManager'.
+     * @return the value of field 'connectionManager'.
+    **/
+    public ConnectionManager getConnectionManager()
+    {
+        return this._connectionManager;
+    } //-- ConnectionManager getConnectionManager() 
+
+    /**
     **/
     public boolean isValid()
     {
@@ -721,6 +732,16 @@ public class Openejb implements java.io.Serializable {
     {
         this._transactionService = transactionService;
     } //-- void setTransactionService(TransactionService) 
+
+    /**
+     * Sets the value of field 'connectionManager'.
+     * @param connectionManager the value of field
+     * 'connectionManager'.
+    **/
+    public void setConnectionManager(ConnectionManager connectionManager)
+    {
+        this._connectionManager = connectionManager;
+    } //-- void setConnectionManager(ConnectionManager) 
 
     /**
      * 
