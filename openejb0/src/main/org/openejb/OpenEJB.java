@@ -59,6 +59,7 @@ import org.openejb.spi.AssemblerFactory;
 import org.openejb.spi.ContainerSystem;
 import org.openejb.spi.SecurityService;
 import org.openejb.util.Logger;
+import org.openejb.util.Messages;
 import org.openejb.util.JarUtils;
 import org.openejb.util.SafeToolkit;
 
@@ -122,6 +123,7 @@ public final class OpenEJB {
     private static Properties         props;
     private static boolean            initialized;
     private static Logger             logger;
+    private static Messages           messages = new Messages( "org.openejb.util.resources" );
 
     public static void init(Properties props)
     throws OpenEJBException{
@@ -137,8 +139,9 @@ public final class OpenEJB {
     public static void init(Properties initProps, ApplicationServer appServer) throws OpenEJBException {
 
         if ( initialized ) {
-            logger.i18n.error( "startup.alreadyInitialzied" );
-            throw new OpenEJBException( "startup.alreadyInitialzied" );
+	    String msg = messages.message( "startup.alreadyInitialzied" );
+            logger.i18n.error( msg );
+            throw new OpenEJBException( msg );
         } else {
             // Setting the handler system property should be the first thing
             // OpenEJB does.
@@ -212,8 +215,9 @@ public final class OpenEJB {
             logger.i18n.fatal( "startup.assemblerCannotBeInstanitated", oe );
             throw oe;
         } catch ( Throwable t ){
-            logger.i18n.fatal( "startup.openEjbEncounterUnexpectedError", t );
-            throw new OpenEJBException( "startup.openEjbEncounterUnexpectedError", t );
+	    String msg = messages.message(  "startup.openEjbEncounterUnexpectedError" );
+            logger.i18n.fatal( msg, t );
+            throw new OpenEJBException( msg, t );
         }
 
         try {
@@ -222,8 +226,9 @@ public final class OpenEJB {
             logger.i18n.fatal( "startup.assemblerFailedToInitialize", oe );
             throw oe;
         } catch ( Throwable t ){
-            logger.i18n.fatal( "startup.assemblerEncounterUnexpectedError", t );
-            throw new OpenEJBException( "startup.assemblerEncounterUnexpectedError", t );
+	    String msg = messages.message( "startup.assemblerEncounterUnexpectedError" );
+            logger.i18n.fatal( msg, t );
+            throw new OpenEJBException( msg, t );
         }
 
         try {
@@ -232,14 +237,16 @@ public final class OpenEJB {
             logger.i18n.fatal( "startup.assemblerFailedToBuild", oe );
             throw oe;
         } catch ( Throwable t ){
-            logger.i18n.fatal( "startup.assemblerEncounterUnexpectedBuildError", t );
-            throw new OpenEJBException( "startup.assemblerEncounterUnexpectedBuildError", t );
+	    String msg = messages.message( "startup.assemblerEncounterUnexpectedBuildError" );
+            logger.i18n.fatal( msg, t );
+            throw new OpenEJBException( msg, t );
         }
 
         containerSystem    = assembler.getContainerSystem();
         if (containerSystem == null) {
-            logger.i18n.fatal( "startup.assemblerReturnedNullContainer" );
-            throw new OpenEJBException( "startup.assemblerReturnedNullContainer" );
+	    String msg = messages.message( "startup.assemblerReturnedNullContainer" );
+            logger.i18n.fatal( msg );
+            throw new OpenEJBException( msg );
         }
 
         if (logger.isDebugEnabled()){
@@ -283,16 +290,18 @@ public final class OpenEJB {
 
         securityService    = assembler.getSecurityService();
         if (securityService == null) {
-            logger.i18n.fatal( "startup.assemblerReturnedNullSecurityService" );
-            throw new OpenEJBException( "startup.assemblerReturnedNullSecurityService" );
+	    String msg = messages.message( "startup.assemblerReturnedNullSecurityService" );
+            logger.i18n.fatal( msg );
+            throw new OpenEJBException( msg );
         } else {
             logger.i18n.debug( "startup.securityService", securityService.getClass().getName() );
         }
 
         transactionManager = assembler.getTransactionManager();
         if (transactionManager == null) {
-            logger.i18n.fatal( "startup.assemblerReturnedNullTransactionManager" );
-            throw new OpenEJBException( "startup.assemblerReturnedNullTransactionManager" );
+	    String msg = messages.message( "startup.assemblerReturnedNullTransactionManager" );
+            logger.i18n.fatal( msg );
+            throw new OpenEJBException( msg );
         } else {
             logger.i18n.debug( "startup.transactionManager", transactionManager.getClass().getName() );
         }
