@@ -445,11 +445,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         Security security = null;
         //TODO fix this!
         Map localSecurityRealms = new HashMap();
-        try {
-            security = SecurityBuilder.buildSecurityConfig(Collections.EMPTY_SET, openejbEjbJar.getSecurity(), collectRoleNames(ejbJar), localSecurityRealms, kernel);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Cound not automap roles", e);
-        }
+        security = SecurityBuilder.buildSecurityConfig(Collections.EMPTY_SET, openejbEjbJar.getSecurity(), collectRoleNames(ejbJar), localSecurityRealms, kernel);
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
