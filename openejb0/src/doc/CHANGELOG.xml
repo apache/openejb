@@ -167,7 +167,15 @@
     </Version>
     <Version id="0.9.1" releaseDate="January 12th, 2003" cvsTag="v0_9_1" 
   released="true" release_id="133321">
-        <Entry bug="661151 ">Bean validation breaks deploy tool</Entry>
+        <Entry bug="661151">Bean validation breaks deploy tool</Entry>
+        <Entry bug="669572">build problem -- FileNotFoundException</Entry>
+        <Entry bug="670462">Validate command not in openejb.bat</Entry>
+  
+        <Entry task="645887">Tomcat ejb-ref support</Entry>
+        <Entry task="670460">Validator error message not clear</Entry>
+        <Entry task="662318">Validator Website Documentation</Entry>
+        <Entry task="662325">Documentation for openejb-jar.xml</Entry>
+        <Entry task="656321">Fix Broken Links in Tomcat Documentation</Entry>
     </Version>
 </ChangeLog>
 
