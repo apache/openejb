@@ -88,7 +88,7 @@ public class IvmContext implements Context, java.io.Serializable{
      * Creates and returns a IvmContext object that is a root context.
      */
     public static IvmContext createRootContext() {
-	return new IvmContext(new NameNode(null,new ParsedName(""),null));
+	return new IvmContext(new NameNode(null,new ParsedName("/"),null));
     }
 
     public IvmContext(){
@@ -417,9 +417,25 @@ public class IvmContext implements Context, java.io.Serializable{
 
          public MyNamingEnumeration(NameNode parentNode){
             Vector vect = new Vector();
-
+          //System.out.println("[] node "+ parentNode);
+          //System.out.println("[] node.atatomicName "+ parentNode.atomicName);
+          //System.out.println("[] node.atomicHash   "+ parentNode.atomicHash);
+          //System.out.println("[] node.grtrTree     "+ parentNode.grtrTree);
+          //System.out.println("[] node.lessTree     "+ parentNode.lessTree);
+          //System.out.println("[] node.myContext    "+ parentNode.myContext);
+          //System.out.println("[] node.myObject     "+ parentNode.myObject);
+          //System.out.println("[] node.parent       "+ parentNode.parent);
+          //System.out.println("[] node.subTree      "+ parentNode.subTree);
             NameNode node = parentNode.subTree;
-            vect.addElement(node);
+            
+            //<DMB> Not sure about this code
+            if ( node == null ) {
+                node = parentNode;
+            } else {
+                vect.addElement(node);
+            }
+            //</DMB> Not sure about this code
+            
             gatherNodes(node,vect);
 
             buildEnumeration(vect);

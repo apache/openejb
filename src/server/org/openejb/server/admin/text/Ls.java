@@ -57,7 +57,7 @@ public class Ls extends Command {
 
     public static void register() {
         Ls cmd = new Ls();
-        Command.register("ls", cmd);
+        Command.register("system", cmd);
         //Command.register("list", cmd);
     }
     

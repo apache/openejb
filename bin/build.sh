@@ -53,7 +53,7 @@ for i in lib/*.zip ; do
     fi
 done
 unset i
-CP=
+#CP=
 CP=$JAVA_HOME/lib/tools.jar${PS}${CP}
 CP=lib/ant_1_4_1.jar${PS}${CP}
 CP=lib/ant_optional_1_4_1.jar${PS}${CP}

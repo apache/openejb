@@ -76,19 +76,22 @@ public class TextConsole implements Runnable {
 
     public void start(){
         try{
-            this.setConsole( new LocalConsole() );
+            this.setConsole( new RemoteConsole() );
             Thread d = new Thread(this);
-            d.setName("Local Text Console");
+            d.setName("Remote Text Console");
             d.setDaemon(true);
             d.start();
             
+            /* In the future we can create other types
+             * of consoles (Terminals).
             TextConsole remote = new TextConsole(ejbd);
             remote.init( props );
-            remote.setConsole( new RemoteConsole() );
+            remote.setConsole( new TelnetConsole() );
             d = new Thread(remote);
             d.setName("Remote Text Console");
             d.setDaemon(true);
             d.start();
+            */
         }catch (Throwable t){
             t.printStackTrace();
         }
@@ -104,7 +107,37 @@ public class TextConsole implements Runnable {
         this.console = c;
     }
 
-    public static final String PROMPT = "[openejb] ";
+    public static final char ESC = (char)27;
+    
+    public static final String TTY_Reset      = ESC+"[0m";
+    public static final String TTY_Bright     = ESC+"[1m";
+    public static final String TTY_Dim        = ESC+"[2m";
+    public static final String TTY_Underscore = ESC+"[4m";
+    public static final String TTY_Blink      = ESC+"[5m";
+    public static final String TTY_Reverse    = ESC+"[7m";
+    public static final String TTY_Hidden     = ESC+"[8m";
+    
+    /* Foreground Colors */
+    public static final String TTY_FG_Black   = ESC+"[30m";
+    public static final String TTY_FG_Red     = ESC+"[31m";
+    public static final String TTY_FG_Green   = ESC+"[32m";
+    public static final String TTY_FG_Yellow  = ESC+"[33m";
+    public static final String TTY_FG_Blue    = ESC+"[34m";
+    public static final String TTY_FG_Magenta = ESC+"[35m";
+    public static final String TTY_FG_Cyan    = ESC+"[36m";
+    public static final String TTY_FG_White   = ESC+"[37m";
+        
+    /* Background Colors */
+    public static final String TTY_BG_Black   = ESC+"[40m";
+    public static final String TTY_BG_Red     = ESC+"[41m";
+    public static final String TTY_BG_Green   = ESC+"[42m";
+    public static final String TTY_BG_Yellow  = ESC+"[43m";
+    public static final String TTY_BG_Blue    = ESC+"[44m";
+    public static final String TTY_BG_Magenta = ESC+"[45m";
+    public static final String TTY_BG_Cyan    = ESC+"[46m";
+    public static final String TTY_BG_White   = ESC+"[47m";
+        
+    public static String PROMPT = TTY_Bright+"[openejb]$ "+TTY_Reset;
     
     public void run( ) {
         
