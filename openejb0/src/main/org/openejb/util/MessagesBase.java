@@ -12,24 +12,24 @@
  *    following disclaimer in the documentation and/or other
  *    materials provided with the distribution.
  *
- * 3. The name "OpenEJB" must not be used to endorse or promote
+ * 3. The name "Exolab" must not be used to endorse or promote
  *    products derived from this Software without prior written
- *    permission of The OpenEJB Group.  For written permission,
- *    please contact openejb-group@openejb.sf.net.
+ *    permission of Exoffice Technologies.  For written permission,
+ *    please contact info@exolab.org.
  *
- * 4. Products derived from this Software may not be called "OpenEJB"
- *    nor may "OpenEJB" appear in their names without prior written
- *    permission of The OpenEJB Group. OpenEJB is a registered
- *    trademark of The OpenEJB Group.
+ * 4. Products derived from this Software may not be called "Exolab"
+ *    nor may "Exolab" appear in their names without prior written
+ *    permission of Exoffice Technologies. Exolab is a registered
+ *    trademark of Exoffice Technologies.
  *
- * 5. Due credit should be given to the OpenEJB Project
- *    (http://openejb.sf.net/).
+ * 5. Due credit should be given to the Exolab Project
+ *    (http://www.exolab.org/).
  *
- * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
+ * THIS SOFTWARE IS PROVIDED BY EXOFFICE TECHNOLOGIES AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
  * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
- * THE OPENEJB GROUP OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * EXOFFICE TECHNOLOGIES OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
@@ -38,10 +38,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 1999 (C) Exoffice Technologies Inc. All Rights Reserved.
  *
  * $Id$
  */
+
+
 package org.openejb.util;
 
 
@@ -54,7 +56,7 @@ import java.util.*;
  * @author <a href="arkin@exoffice.com">Assaf Arkin</a>
  * @version $Revision$ $Date$
  */
-public class Messages
+public class MessagesBase
 {
     static private Hashtable _rbBundles = new Hashtable();
     static private Hashtable _rbFormats = new Hashtable();
@@ -63,13 +65,12 @@ public class Messages
     private ResourceBundle   _messages;
     private Hashtable        _formats;
     private Locale           _locale;
-    private String           _resourceName;
+    private String           _resourceName = getResourceName();
 
 
-    public Messages( String resourceName ) {
-	synchronized (Messages.class) {
+    protected MessagesBase() {
+	synchronized (MessagesBase.class) {
 	    _locale = _globalLocale;
-	    _resourceName = resourceName + ".Messages";
 
 	    ResourceBundle rb = (ResourceBundle)_rbBundles.get( _resourceName );
 	    if ( rb == null ) {
@@ -96,6 +97,14 @@ public class Messages
 
 	_rbBundles.put( _resourceName, _messages );
 	_rbFormats.put( _resourceName, _formats );
+    }
+
+    protected String getResourceName() {
+	String className = getClass().getName();
+
+	int idxDot = className.lastIndexOf('.');
+
+	return className.substring(0, idxDot) + ".resources" + className.substring(idxDot);
     }
 
     public String format( String message, Object arg1 )
@@ -127,15 +136,11 @@ public class Messages
         return format( message, new Object[] { arg1, arg2, arg3, arg4, arg5 } );
     }
 
-    public String format( String message ) {
-	return message( message );
-    }
-
 
     public String format( String message, Object[] args )
     {
 	if ( _locale != _globalLocale ) {
-	    synchronized (Messages.class) {
+	    synchronized (MessagesBase.class) {
 		init();
 	    }
 	}
@@ -164,7 +169,7 @@ public class Messages
     public String message( String message )
     {
 	if ( _locale != _globalLocale ) {
-	    synchronized (Messages.class) {
+	    synchronized (MessagesBase.class) {
 		init();
 	    }
 	}
@@ -179,7 +184,7 @@ public class Messages
 
     static public void setLocale( Locale locale )
     {
-	synchronized (Messages.class) {
+	synchronized (MessagesBase.class) {
 	    _globalLocale = locale;
 	    _rbBundles    = new Hashtable();
 	    _rbFormats    = new Hashtable();
@@ -221,4 +226,3 @@ public class Messages
     }
 
 }
-

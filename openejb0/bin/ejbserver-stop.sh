@@ -31,7 +31,6 @@ PS=':'
 
 
 # Setup Classpath
-CP=`echo $OPENEJB_HOME/lib/*.jar | tr ' ' ${PS}`${PS}${CP}
 CP=`echo $OPENEJB_HOME/dist/*.jar | tr ' ' ${PS}`${PS}${CP}
 CLASSPATH=$CP
 

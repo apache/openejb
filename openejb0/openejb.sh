@@ -82,7 +82,6 @@ function test_server () {
    echo "_________________________________________________"
    echo " 1. Starting OpenEJB Server..."
    ./bin/ejbserver.sh &> ejb.server.log &
-   sleep 4
    echo " 2. Starting test EJB client..."
    ./bin/ejbclient.sh
 }

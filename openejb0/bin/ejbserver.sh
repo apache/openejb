@@ -32,8 +32,8 @@ PS=':'
 
 # Setup Classpath
 CP=$JAVA_HOME/lib/tools.jar${PS}${CP}
-CP=`echo $OPENEJB_HOME/lib/*.jar | tr ' ' ${PS}`${PS}${CP}
-CP=`echo $OPENEJB_HOME/beans/*.jar | tr ' ' ${PS}`${PS}${CP}
+#CP=`echo $OPENEJB_HOME/lib/*.jar | tr ' ' ${PS}`${PS}${CP}
+#CP=`echo $OPENEJB_HOME/beans/*.jar | tr ' ' ${PS}`${PS}${CP}
 CP=`echo $OPENEJB_HOME/dist/*.jar | tr ' ' ${PS}`${PS}${CP}
 CLASSPATH=$CP
 
@@ -43,5 +43,5 @@ CLASSPATH=$CP
 #        
 OPTIONS="-Dopenejb.home=$OPENEJB_HOME"
 
-$JAVA $OPTIONS -classpath $CLASSPATH org.openejb.server.EjbDaemon $@
+$JAVA $OPTIONS -classpath $CLASSPATH org.openejb.server.Main $@
 

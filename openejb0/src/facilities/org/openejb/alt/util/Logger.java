@@ -38,82 +38,50 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2002 (C) The OpenEJB Group. All Rights Reserved.
  *
  * $Id$
  */
-package org.openejb.test;
 
-import java.util.Properties;
-import javax.naming.Context;
-import java.io.OutputStream;
-import java.net.Socket;
+package org.openejb.alt.util;
 
 /**
- * 
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
+ * This is a wrapper class to the log4j facility.  In addition to the
+ * internationalization of messages, it sets a default log4j configuration,
+ * if one is not already set in the system properties.
+ * <p>
+ * If the log4j system complains that there is no configuration set, then it's
+ * probably one of two things.  First, the config file does not exist.  Second,
+ * and more likely, the OpenEJB URL handler has not been registered.  (Note
+ * that the log4j.configuration default setting uses the protocol resource.)
+ * <p>
+ * @author <a href="mailto:adc@toolazydogs.com">Alan Cabrera</a>
+ * @version $Revision$ $Date$
  */
-public class OpenEjbTestServer implements org.openejb.test.TestServer {
-    
-    static{
-        System.setProperty("noBanner", "true");
-    }
-    
-    private Properties properties;
-    
-    public void init(Properties props){
-        properties = props;
-    }
-    
-    public void destroy(){
-    }
-    
-    public void start(){
-        if (!connect()) {
-            throw new RuntimeException("Cannot connect to the server.");
-        }
+public class Logger extends org.openejb.util.LoggerBase {
+
+    /**
+     * Returns a shared instance of Logger.
+     * 
+     * @param name   the name of the log4j category to use
+     * 
+     * @return Instance of logger.
+     */
+    static public Logger getInstance( String name ) {
+	return (Logger)org.openejb.util.LoggerBase.getInstanceProtected( Logger.class, name );
     }
 
-    public void stop(){
-        try{
-            
-        Socket socket = new Socket("localhost", 4201);
-        OutputStream out = socket.getOutputStream();
+    /**
+     * Constructor.  Users must invoke getInstance() to
+     * an instance of Logger.
+     * 
+     * @see getInstance()
+     */
+    public Logger() {
+	super();
+    }
         
-        out.write( "Stop".getBytes() );
-                
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+    protected org.openejb.util.MessagesBase createMessagesBase() {
+	return new Messages();
     }
-
-    public Properties getContextEnvironment(){
-        return (Properties)properties.clone();
-    }
-
-    private boolean connect() {
-        return connect( 0 );
-    }
-    
-    private boolean connect(int tries) {
-        try{
-            Socket socket = new Socket("localhost", 4200);
-            OutputStream out = socket.getOutputStream();
-        } catch (Exception e){
-            
-            if ( tries > 5 ) {
-                return false;
-            } else {
-                try{
-                    Thread.sleep(5000);
-                } catch (Exception e2){
-                    e.printStackTrace();
-                }
-                return connect(++tries);
-            }
-        }
-        
-        return true;
-    }
-
 }

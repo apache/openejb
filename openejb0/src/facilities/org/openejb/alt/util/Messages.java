@@ -38,82 +38,26 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2002 (C) The OpenEJB Group. All Rights Reserved.
  *
  * $Id$
  */
-package org.openejb.test;
+package org.openejb.alt.util;
 
-import java.util.Properties;
-import javax.naming.Context;
-import java.io.OutputStream;
-import java.net.Socket;
+
+import java.text.*;
+import java.util.*;
 
 /**
- * 
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
+ *
+ *
+ * @author <a href="arkin@exoffice.com">Assaf Arkin</a>
+ * @version $Revision$ $Date$
  */
-public class OpenEjbTestServer implements org.openejb.test.TestServer {
-    
-    static{
-        System.setProperty("noBanner", "true");
-    }
-    
-    private Properties properties;
-    
-    public void init(Properties props){
-        properties = props;
-    }
-    
-    public void destroy(){
-    }
-    
-    public void start(){
-        if (!connect()) {
-            throw new RuntimeException("Cannot connect to the server.");
-        }
-    }
+public class Messages extends org.openejb.util.MessagesBase
+{
+    public Messages() {
+	super();
 
-    public void stop(){
-        try{
-            
-        Socket socket = new Socket("localhost", 4201);
-        OutputStream out = socket.getOutputStream();
-        
-        out.write( "Stop".getBytes() );
-                
-        } catch (Exception e){
-            e.printStackTrace();
-        }
     }
-
-    public Properties getContextEnvironment(){
-        return (Properties)properties.clone();
-    }
-
-    private boolean connect() {
-        return connect( 0 );
-    }
-    
-    private boolean connect(int tries) {
-        try{
-            Socket socket = new Socket("localhost", 4200);
-            OutputStream out = socket.getOutputStream();
-        } catch (Exception e){
-            
-            if ( tries > 5 ) {
-                return false;
-            } else {
-                try{
-                    Thread.sleep(5000);
-                } catch (Exception e2){
-                    e.printStackTrace();
-                }
-                return connect(++tries);
-            }
-        }
-        
-        return true;
-    }
-
 }
