@@ -52,16 +52,16 @@
 
     <!-- CORBA -->
     <dependency>
-        <uri>openorb/jars/openorb-orb-${openorb_version}.jar</uri>
+        <uri>tmporb/jars/tmporb-orb-${tmporb_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>openorb/jars/openorb-orb-omg-${openorb_version}.jar</uri>
+        <uri>tmporb/jars/tmporb-orb-omg-${tmporb_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>openorb/jars/openorb-orb-tools-${openorb_version}.jar</uri>
+        <uri>tmporb/jars/tmporb-orb-tools-${tmporb_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>openorb/jars/openorb-tools-${openorb_version}.jar</uri>
+        <uri>tmporb/jars/tmporb-tools-${tmporb_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>openorb/jars/openorb-ins-${openorb_version}.jar</uri>
@@ -71,9 +71,6 @@
     </dependency>
     <dependency>
         <uri>openorb/jars/openorb-ssl-${openorb_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>openorb/jars/openorb-orb-omg-${openorb_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>bouncycastle/jars/bcprov-${bouncycastle_version}.jar</uri>

@@ -157,27 +157,27 @@
         </dependency>
 
         <dependency>
-            <groupId>openorb</groupId>
-            <artifactId>openorb-orb</artifactId>
-            <version>${openorb_version}</version>
+            <groupId>tmporb</groupId>
+            <artifactId>tmporb-orb</artifactId>
+            <version>${tmporb_version}</version>
         </dependency>
 
         <dependency>
-            <groupId>openorb</groupId>
-            <artifactId>openorb-orb-omg</artifactId>
-            <version>${openorb_version}</version>
+            <groupId>tmporb</groupId>
+            <artifactId>tmporb-orb-omg</artifactId>
+            <version>${tmporb_version}</version>
         </dependency>
 
         <dependency>
-            <groupId>openorb</groupId>
-            <artifactId>openorb-orb-tools</artifactId>
-            <version>${openorb_version}</version>
+            <groupId>tmporb</groupId>
+            <artifactId>tmporb-orb-tools</artifactId>
+            <version>${tmporb_version}</version>
         </dependency>
 
         <dependency>
-            <groupId>openorb</groupId>
-            <artifactId>openorb-tools</artifactId>
-            <version>${openorb_version}</version>
+            <groupId>tmporb</groupId>
+            <artifactId>tmporb-tools</artifactId>
+            <version>${tmporb_version}</version>
         </dependency>
 
         <dependency>
