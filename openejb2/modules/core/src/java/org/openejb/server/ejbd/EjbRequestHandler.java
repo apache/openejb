@@ -119,6 +119,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
             ClassLoader cl = container.getClassLoader();
             Thread.currentThread().setContextClassLoader(cl);
             in.setClassLoader(cl);
+            log.warn("setting cl="+cl+" for "+container.getContainerID());
         } catch (RemoteException e) {
             replyWithFatalError
                     (out, e, "No such deployment");
