@@ -73,14 +73,16 @@ public class TelnetConsole implements Console, TelnetCodes {
     private TelnetOption[] options = new TelnetOption[256];
     private SafeProperties safeProps;
 
-    private int port = 4200;
+    /**
+     * The port number console is to listen to
+     */
+    private int listenPort = 4202;
 
     public TelnetConsole() {
         try {
             safeProps = new SafeProperties(System.getProperties(),"Telnet Server");
-            port = safeProps.getPropertyAsInt("openejb.server.port");
             
-            serverSocket = new ServerSocket(--port);                                    
+            serverSocket = new ServerSocket(listenPort);                                    
         } catch ( Throwable t ) {
             t.printStackTrace();
         }
@@ -325,6 +327,16 @@ public class TelnetConsole implements Console, TelnetCodes {
     // TODO:0: Replace with actual logging
     private void print(String s){
         // System.out.print(s);
+    }
+    
+    public void setListenPort( int listenPort )
+    {
+        this.listenPort = listenPort;
+    }
+    
+    public int getListenPort()
+    {
+        return listenPort;
     }
 }
 

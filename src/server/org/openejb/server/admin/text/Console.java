@@ -56,6 +56,9 @@ public interface Console {
     public void open() throws IOException;
     public void close() throws IOException;
     
+    public void setListenPort( int listenPort );
+    public int getListenPort();
+    
     public DataInputStream  getInputStream() throws IOException;
     public PrintStream getOutputStream() throws IOException;
 

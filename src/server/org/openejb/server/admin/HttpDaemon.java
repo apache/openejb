@@ -79,7 +79,7 @@ public class HttpDaemon implements Runnable{
     ServerSocket     serverSocket   = null;
 
     // The EJB Server Port
-    int    port = 4202;
+    int    listenPort = 4203;
     String ip   = "127.0.0.1";
     Properties props;
     EjbDaemon ejbd;
@@ -107,18 +107,16 @@ public class HttpDaemon implements Runnable{
         jndiContext = new InitialContext(properties);
 
         SafeProperties safeProps = new SafeProperties(System.getProperties(), "HTTP Server");
-        port = safeProps.getPropertyAsInt("openejb.server.port");
-        port += 2;
 
         try{
-            serverSocket = new ServerSocket(port);
+            serverSocket = new ServerSocket(listenPort);
             //serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
         } catch (Exception e){
             System.out.println(
                 "Cannot bind to the ip: "
                     + ip
                     + " and port: "
-                    + port
+                    + listenPort
                     + ".  Received exception: "
                     + e.getClass().getName()
                     + ":"
@@ -359,5 +357,20 @@ public class HttpDaemon implements Runnable{
         }
 
         return httpObject;
+    }
+    
+    
+    /**
+     * @return Returns the listenPort.
+     */
+    public int getListenPort() {
+        return listenPort;
+    }
+
+    /**
+     * @param listenPort The listenPort to set.
+     */
+    public void setListenPort(int listenPort) {
+        this.listenPort = listenPort;
     }
 }
