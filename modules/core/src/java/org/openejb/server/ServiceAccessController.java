@@ -48,6 +48,7 @@ import java.beans.PropertyEditorSupport;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.Inet4Address;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
@@ -119,7 +120,9 @@ public class ServiceAccessController implements ServerService {
         try {
             InetAddress[] localIps = InetAddress.getAllByName("localhost");
             for (int i = 0; i < localIps.length; i++) {
-                ipAddressMasksList.add(new IPAddressMask(localIps[i].getHostAddress()));
+                if (localIps[i] instanceof Inet4Address) {
+                    ipAddressMasksList.add(new IPAddressMask(localIps[i].getHostAddress()));
+                }
             }
         } catch (UnknownHostException e) {
             throw new ServiceException("Could not get localhost inet address", e);
@@ -174,7 +177,7 @@ public class ServiceAccessController implements ServerService {
             
             Matcher matcher = MASK_VALIDATOR.matcher(mask);
             if (false == matcher.matches()) {
-                throw new IllegalArgumentException("Mask does not match pattern " + MASK_VALIDATOR.pattern());
+                throw new IllegalArgumentException("Mask " + mask + " does not match pattern " + MASK_VALIDATOR.pattern());
             }
             
             byteMask = new byte[4];
