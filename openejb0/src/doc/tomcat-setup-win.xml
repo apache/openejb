@@ -135,6 +135,9 @@ path of your OpenEJB home directory.
 </p>
 
 <img src="images/tomcat_windows_webxml.gif" width="567" height="402" border="0" alt=""/>
+</section>
+
+<section title="Restart Tomcat" ref-id="restart">
 
 <p>
 Now, stop Tomcat and then start it again.
