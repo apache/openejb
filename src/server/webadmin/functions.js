@@ -110,3 +110,11 @@ function validate(form)
     return (false);
   	}
 }
+
+//Function to popup an alert with the help for the
+//EJB Generator.  Added by Jeremy Whitlock
+//(jcscoobyrs) on 10/22/03 at 04:10:09 PM
+function popupMsg(text)
+{
+	alert(text);
+}
