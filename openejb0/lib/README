@@ -1,4 +1,4 @@
-filename               library name           library version    library web site                   possible update    description                               needed by
+filename                library name           library version    library web site                   possible update    description                               needed by
 ========================================================================================================================================================================================
 JDBC3Fake.jar           JDBC v3.0 fake         none               none                                none              This is a JDBC 3 fake library             CORBA adapter?
                                                                                                                         to simulate JDBC 3 functionalities.
@@ -11,18 +11,18 @@ ant_optional_1_4_1.jar  ant optional packages  1.4.1              http://jakarta
                                                                                                                         build tool. they contain stuff such as    system.
                                                                                                                         tasks that build ejb-jars.
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-castor-0.9.3.9-xml.jar  castor databinding     0.9.3.9            http://www.exolab.org/castor/       none              This is the castor databinding framework  The classic asembler,
+castor-0.9.3.9-xml.jar  castor databinding     0.9.3.9            http://www.exolab.org/castor/       0.9.3.21          This is the castor databinding framework  The classic asembler,
                         framework                                                                                       the enables you to persist java objects   CMP containers etc.
                                                                                                                         to XML files or relational databases.
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-castor-0.9.3.9-xml.jar  castor main classes    0.9.3.9            http://www.exolab.org/castor/       none              This is the castor databinding framework  The classic asembler,
+castor-0.9.3.9-xml.jar  castor main classes    0.9.3.9            http://www.exolab.org/castor/       0.9.3.21          This is the castor databinding framework  The classic asembler,
                                                                                                                         the enables you to persist java objects   CMP containers etc.
                                                                                                                         to XML files or relational databases.
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-ejb-1.0.jar             EJB 1.1 classes        1.1                http://java.sun.com/j2ee/           none              These classes are implementing the EJB    EJB containers.
+ejb-1.0.jar             EJB 1.1 interface      1.1                http://java.sun.com/j2ee/           none              These classes are implementing the EJB    EJB containers.
                                                                                                                         version 1.1 spec provided by Sun.
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-ejb-2.0.jar             EJB 1.2 classes        1.2                http://java.sun.com/j2ee/           none              These classes are implementing the EJB    EJB containers.
+ejb-2.0.jar             EJB 2.0 interfaces     2.0                http://java.sun.com/j2ee/           none              These classes are implementing the EJB    EJB containers.
                                                                                                                         version 1.2 spec provided by Sun.
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 idb_3.26.jar            Instant DB             3.26               http://www.enhydra.org/             none              These classes are providing a relational  CMP containers.
@@ -56,7 +56,7 @@ jta_1.0.1.jar           Java Transaction API   1.0.1              http://java.su
                                                                                                                         parties involved in a distributed
                                                                                                                         transaction system.
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-junit_3.5.jar           JUnit test framework   3.5                http://www.junit.org/               3.8               JUnit is a simple framework to write      EJB Tests
+junit_3.5.jar           JUnit test framework   3.5                http://www.junit.org/               3.8.1             JUnit is a simple framework to write      EJB Tests
                                                                                                                         repeatable tests. It is an instance of
                                                                                                                         the xUnit architecture for unit testing
                                                                                                                         frameworks.
