@@ -225,7 +225,7 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
     /**
      *
      */
-    public void _test06_singleTransactionRollback(){
+    public void test06_singleTransactionRollback(){
         try{
             Account expected = new Account("234-56-7890","Charlie","Brown", 20000);
             Account actual = new Account();
