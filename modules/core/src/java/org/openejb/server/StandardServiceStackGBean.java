@@ -70,7 +70,7 @@ public class StandardServiceStackGBean {
         infoFactory.addAttribute("port", int.class, true);
         infoFactory.addAttribute("soTimeout", int.class, true);
         infoFactory.addAttribute("address", InetAddress.class, true);
-        infoFactory.addAttribute("allowHosts", ServiceAccessController.IPAddressMask[].class, true);
+        infoFactory.addAttribute("allowHosts", ServiceAccessController.IPAddressPermission[].class, true);
         infoFactory.addAttribute("logOnSuccess", String[].class, true);
         infoFactory.addAttribute("logOnFailure", String[].class, true);
 
