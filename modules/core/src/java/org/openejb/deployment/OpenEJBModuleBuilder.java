@@ -123,24 +123,38 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         return securityBuilder;
     }
 
-    public Module createModule(String name, Object plan, JarFile moduleFile, URL ejbJarXmlUrl, String targetPath) throws DeploymentException {
+    public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
+        return createModule(plan, moduleFile, "war", null, true);
+    }
+
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, false);
+    }
+
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone) throws DeploymentException {
+        assert moduleFile != null: "moduleFile is null";
+        assert targetPath != null: "targetPath is null";
+        assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
+
         String specDD;
         EjbJarType ejbJar;
         try {
-            if (ejbJarXmlUrl == null) {
-                ejbJarXmlUrl = JarUtil.createJarURL(moduleFile, "META-INF/ejb-jar.xml");
+            if (specDDUrl == null) {
+                specDDUrl = JarUtil.createJarURL(moduleFile, "META-INF/ejb-jar.xml");
             }
 
-            specDD = IOUtil.readAll(ejbJarXmlUrl);
+            // read in the entire specDD as a string, we need this for getDeploymentDescriptor
+            // on the J2ee management object
+            specDD = IOUtil.readAll(specDDUrl);
 
-            // check if we have an alt spec dd
+            // parse it
             EjbJarDocument ejbJarDoc = SchemaConversionUtils.convertToEJBSchema(SchemaConversionUtils.parse(specDD));
             ejbJar = ejbJarDoc.getEjbJar();
         } catch (Exception e) {
             return null;
         }
 
-        OpenejbOpenejbJarType openejbJar = getOpenejbJar(plan, moduleFile, name, ejbJar);
+        OpenejbOpenejbJarType openejbJar = getOpenejbJar(plan, moduleFile, standAlone, targetPath, ejbJar);
 
         // get the ids from either the application plan or for a stand alone module from the specific deployer
         URI configId = null;
@@ -159,21 +173,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             }
         }
 
-        URI moduleURI;
-        if (targetPath != null) {
-            moduleURI = URI.create(targetPath);
-            if (targetPath.endsWith("/")) {
-                throw new DeploymentException("targetPath must not end with a '/'");
-            }
-        } else {
-            targetPath = "ejb.jar";
-            moduleURI = URI.create("");
-        }
-
-        return new EJBModule(name, configId, parentId, moduleURI, moduleFile, targetPath, ejbJar, openejbJar, specDD);
+        return new EJBModule(standAlone, configId, parentId, moduleFile, targetPath, ejbJar, openejbJar, specDD);
     }
 
-    OpenejbOpenejbJarType getOpenejbJar(Object plan, JarFile moduleFile, String name, EjbJarType ejbJar) throws DeploymentException {
+    OpenejbOpenejbJarType getOpenejbJar(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, EjbJarType ejbJar) throws DeploymentException {
         OpenejbOpenejbJarType openejbJar = null;
         try {
             // load the openejb-jar.xml from either the supplied plan or from the earFile
@@ -203,7 +206,15 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
                 openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.convertToGeronimoNamingSchema(openejbJar);
                 SchemaConversionUtils.validateDD(openejbJar);
             } else {
-                openejbJar = createDefaultPlan(name, ejbJar);
+                String path;
+                if (standAlone) {
+                    // default configId is based on the moduleFile name
+                    path = new File(moduleFile.getName()).getName();
+                } else {
+                    // default configId is based on the module uri from the application.xml
+                    path = targetPath;
+                }
+                openejbJar = createDefaultPlan(path, ejbJar);
             }
         } catch (XmlException e) {
             throw new DeploymentException(e);
@@ -293,7 +304,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         return sessionBuilder;
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         EJBModule ejbModule = (EJBModule) module;
         OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) module.getVendorDD();
         EjbJarType ejbJar = (EjbJarType) module.getSpecDD();
@@ -382,6 +393,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
         mdbBuilder.buildBeans(earContext, module, cl, ejbModule, openejbBeans, transactionPolicyHelper, security, enterpriseBeans);
 
+        return ejbModuleObjectName.getCanonicalName();
     }
 
     public Object createEJBProxyFactory(String containerId, boolean isSessionBean, String remoteInterfaceName, String homeInterfaceName, String localInterfaceName, String localHomeInterfaceName, ClassLoader cl) throws DeploymentException {

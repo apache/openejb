@@ -188,10 +188,7 @@ public class EJBConfigBuilderTest extends TestCase {
         Thread.currentThread().setContextClassLoader(cl);
 
         JarFile jarFile = JarUtil.createJarFile(ejbJarFile);
-//        XmlObject plan = moduleBuilder.getDeploymentPlan(jarFile);
-//        URI parentId = moduleBuilder.getParentId(plan);
-//        URI configId = moduleBuilder.getConfigId(plan);
-        Module module = moduleBuilder.createModule("org/openejb/deployment/test", null, jarFile, null, null);
+        Module module = moduleBuilder.createModule(null, jarFile);
 
         File carFile = File.createTempFile("OpenEJBTest", ".car");
         try {
