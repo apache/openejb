@@ -113,6 +113,7 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
         Object newProxy = null;
         try {
             EjbObjectProxyHandler handler = newEjbObjectHandler(proxyInfo.getBeanContainer(), proxyInfo.getPrimaryKey(), proxyInfo.getDeploymentInfo().getDeploymentID());
+            handler.setLocal(isLocal());
             handler.doIntraVmCopy = this.doIntraVmCopy;
             Class[] interfaces = new Class[]{ proxyInfo.getInterface(), IntraVmProxy.class };
             newProxy = ProxyManager.newProxyInstance( interfaces , handler );

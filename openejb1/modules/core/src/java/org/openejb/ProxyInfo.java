@@ -89,6 +89,16 @@ public class ProxyInfo {
         beanContainer = cntnr;
     }
 
+    public ProxyInfo(DeploymentInfo depInfo, Object pk, boolean isLocalInterface, RpcContainer cntnr){
+        this.deploymentInfo = depInfo;
+        this.primaryKey = pk;
+        this.beanContainer = cntnr;
+        if (isLocalInterface){
+        	this.type = deploymentInfo.getLocalInterface();
+        } else {
+        	this.type = deploymentInfo.getRemoteInterface();
+        }
+    }
     /**
      * Gets the DeploymentInfo object of the bean that this proxy represents.
      *

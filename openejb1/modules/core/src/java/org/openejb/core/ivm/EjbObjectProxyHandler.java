@@ -203,7 +203,7 @@ public abstract class EjbObjectProxyHandler extends BaseEjbProxyHandler {
         return new IntraVmHandle(proxy);
     }
     public org.openejb.ProxyInfo getProxyInfo(){
-        return new org.openejb.ProxyInfo(deploymentInfo, primaryKey, deploymentInfo.getRemoteInterface(), container);
+        return new org.openejb.ProxyInfo(deploymentInfo, primaryKey, isLocal(), container);
     }
     
     /**

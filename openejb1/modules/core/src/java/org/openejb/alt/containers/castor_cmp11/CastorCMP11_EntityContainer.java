@@ -54,6 +54,8 @@ import java.util.Hashtable;
 import java.util.Properties;
 
 import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.EntityBean;
@@ -511,26 +513,28 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
                 throw new org.openejb.ApplicationException( new RemoteException( "Unauthorized Access by Principal Denied" ) );
 
             // process home interface methods
-            if ( EJBHome.class.isAssignableFrom( callMethod.getDeclaringClass() ) ) {
-
-                if ( callMethod.getDeclaringClass() != EJBHome.class ) {
+            Class declaringClass = callMethod.getDeclaringClass();
+            String methodName = callMethod.getName();
+            
+    		if (EJBHome.class.isAssignableFrom(declaringClass) || EJBLocalHome.class.isAssignableFrom(declaringClass) ){
+				if ( declaringClass != EJBHome.class ) {
                     // Its a home interface method, which is declared by the bean provider, but not a EJBHome method.
                     // only create() and find<METHOD>( ) are declared by the bean provider.
-                    if ( callMethod.getName().equals( "create" ) ) {
+                    if ( methodName.equals( "create" ) ) {
                         // create( ) method called, execute ejbCreate() method
                         return createEJBObject( callMethod, args, callContext );
-                    } else if ( callMethod.getName().startsWith( "find" ) ) {
+                    } else if ( methodName.startsWith( "find" ) ) {
                         // find<METHOD> called, execute ejbFind<METHOD>
                         return findEJBObject( callMethod, args, callContext );
                     } else {
                         // home method called, execute ejbHome method
-                        throw new org.openejb.InvalidateReferenceException( new java.rmi.RemoteException( "Invalid method " + callMethod.getName() + " only find<METHOD>( ) and create( ) method are allowed in EJB 1.1 container-managed persistence" ) );
+                        throw new org.openejb.InvalidateReferenceException( new java.rmi.RemoteException( "Invalid method " + methodName + " only find<METHOD>( ) and create( ) method are allowed in EJB 1.1 container-managed persistence" ) );
                     }
-                } else if ( callMethod.getName().equals( "remove" ) ) {
+                } else if ( methodName.equals( "remove" ) ) {
                     removeEJBObject( callMethod, args, callContext );
                     return null;
                 }
-            } else if ( EJBObject.class == callMethod.getDeclaringClass() ) {
+	        } else if((EJBObject.class == declaringClass || EJBLocalObject.class == declaringClass) && methodName.equals("remove") ) {
                 removeEJBObject( callMethod, args, callContext );
                 return null;
             }
@@ -924,8 +928,10 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         } finally {
             txPolicy.afterInvoke( bean, txContext );
         }
+        Class callingClass = callMethod.getDeclaringClass();
+		boolean isLocalInterface = EJBLocalHome.class.isAssignableFrom(callingClass);
 
-        return new ProxyInfo( deploymentInfo, primaryKey, deploymentInfo.getRemoteInterface(), this );
+        return new ProxyInfo( deploymentInfo, primaryKey, isLocalInterface, this );
     }
 
     protected static final Object[] noArgs = new Object[0];
@@ -1053,6 +1059,8 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
             KeyGenerator kg = deploymentInfo.getKeyGenerator();
 
             Object primaryKey = null;
+            Class callingClass = callMethod.getDeclaringClass();
+    		boolean isLocalInterface = EJBLocalHome.class.isAssignableFrom(callingClass);
 
             /*
             The following block of code is responsible for returning ProxyInfo object(s) for each
@@ -1072,7 +1080,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
                     */
                     primaryKey = kg.getPrimaryKey( bean );
                     /*   create a new ProxyInfo based on the deployment info and primary key and add it to the vector */
-                    proxies.addElement( new ProxyInfo( deploymentInfo, primaryKey, deploymentInfo.getRemoteInterface(), this ) );
+                    proxies.addElement( new ProxyInfo( deploymentInfo, primaryKey, isLocalInterface, this ) );
                 }
                 if ( callMethod.getReturnType() == java.util.Enumeration.class )
                     returnValue = new org.openejb.util.Enumerator( proxies );
@@ -1090,7 +1098,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
                 */
                 primaryKey = kg.getPrimaryKey( bean );
                 /*   create a new ProxyInfo based on the deployment info and primary key */
-                returnValue = new ProxyInfo( deploymentInfo, primaryKey, deploymentInfo.getRemoteInterface(), this );
+                returnValue = new ProxyInfo( deploymentInfo, primaryKey, isLocalInterface, this );
             }
 
         } catch ( javax.ejb.FinderException fe ) {
