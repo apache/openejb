@@ -48,6 +48,7 @@
 package org.openejb;
 
 import java.lang.reflect.Method;
+import java.io.Serializable;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -147,4 +148,8 @@ public interface EJBContainer extends Interceptor {
      * @see org.apache.geronimo.security.ContextManager#registerSubject(javax.security.auth.Subject)
      */
     Subject getDefaultSubject();
+
+    Serializable getHomeTxPolicyConfig();
+
+    Serializable getRemoteTxPolicyConfig();
 }

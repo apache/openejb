@@ -54,6 +54,7 @@ import java.security.Permissions;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.io.Serializable;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -125,27 +126,33 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
     private final Subject defaultSubject;
     private final Subject runAsSubject;
     private final BasicTimerServiceImpl timerService;
+    //corba tx import policies
+    private final Serializable homeTxPolicyConfig;
+    private final Serializable remoteTxPolicyConfig;
 
 
     public GenericEJBContainer(Object containerId,
-            String ejbName,
-            ProxyInfo proxyInfo,
-            InterfaceMethodSignature[] signatures,
-            InstanceContextFactory contextFactory,
-            InterceptorBuilder interceptorBuilder,
-            InstancePool pool,
-            Map componentContext,
-            UserTransactionImpl userTransaction,
-            String[] jndiNames,
-            String[] localJndiNames,
-            TransactionContextManager transactionContextManager,
-            TrackedConnectionAssociator trackedConnectionAssociator,
-            ThreadPooledTimer timer,
-            String objectName,
-            Kernel kernel,
-            SecurityConfiguration securityConfiguration,
-            Subject defaultSubject,
-            Subject runAsSubject, ClassLoader classLoader) throws Exception {
+                               String ejbName,
+                               ProxyInfo proxyInfo,
+                               InterfaceMethodSignature[] signatures,
+                               InstanceContextFactory contextFactory,
+                               InterceptorBuilder interceptorBuilder,
+                               InstancePool pool,
+                               Map componentContext,
+                               UserTransactionImpl userTransaction,
+                               String[] jndiNames,
+                               String[] localJndiNames,
+                               TransactionContextManager transactionContextManager,
+                               TrackedConnectionAssociator trackedConnectionAssociator,
+                               ThreadPooledTimer timer,
+                               String objectName,
+                               Kernel kernel,
+                               SecurityConfiguration securityConfiguration,
+                               Subject defaultSubject,
+                               Subject runAsSubject,
+                               Serializable homeTxPolicyConfig,
+                               Serializable remoteTxPolicyConfig,
+                               ClassLoader classLoader) throws Exception {
 
         assert (containerId != null);
         assert (ejbName != null && ejbName.length() > 0);
@@ -222,6 +229,9 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         // TODO maybe there is a more suitable place to do this.  Maybe not.
 
         setupJndi();
+
+        this.homeTxPolicyConfig = homeTxPolicyConfig;
+        this.remoteTxPolicyConfig = remoteTxPolicyConfig;
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
@@ -320,6 +330,14 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
     public Subject getDefaultSubject() {
         return defaultSubject;
+    }
+
+    public Serializable getHomeTxPolicyConfig() {
+        return homeTxPolicyConfig;
+    }
+
+    public Serializable getRemoteTxPolicyConfig() {
+        return remoteTxPolicyConfig;
     }
 
     public int getMethodIndex(Method method) {
@@ -497,6 +515,9 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addAttribute("DefaultSubject", Subject.class, true);
         infoFactory.addAttribute("RunAsSubject", Subject.class, true);
 
+        infoFactory.addAttribute("HomeTxPolicyConfig", Serializable.class, true);
+        infoFactory.addAttribute("RemoteTxPolicyConfig", Serializable.class, true);
+
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.addOperation("getMethodIndex", new Class[]{Method.class});
@@ -528,6 +549,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
             "SecurityConfiguration",
             "DefaultSubject",
             "RunAsSubject",
+            "HomeTxPolicyConfig",
+            "RemoteTxPolicyConfig",
             "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();

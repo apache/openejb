@@ -44,8 +44,6 @@
  */
 package org.openejb.corba.transaction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.LocalObject;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
@@ -56,9 +54,6 @@ import org.omg.PortableInterceptor.ORBInitializer;
  * @version $Revision$ $Date$
  */
 public class TransactionInitializer extends LocalObject implements ORBInitializer {
-    private final Log log = LogFactory.getLog(TransactionInitializer.class);
-
-    private static int slotId;
 
     /**
      * Called during ORB initialization.  If it is expected that initial
@@ -67,18 +62,11 @@ public class TransactionInitializer extends LocalObject implements ORBInitialize
      * this point via calls to
      * <code>ORBInitInfo.register_initial_reference</code>.
      *
-     * @param info provides initialization attributes and operations by
+     * @param orbInitInfo provides initialization attributes and operations by
      *             which Interceptors can be registered.
      */
-    public void pre_init(ORBInitInfo info) {
-        slotId = info.allocate_slot_id();
+    public void pre_init(ORBInitInfo orbInitInfo) {
 
-        try {
-            info.add_client_request_interceptor(new ClientTransactionInterceptor(slotId));
-            info.add_server_request_interceptor(new ServerTransactionInterceptor(slotId));
-        } catch (DuplicateName duplicateName) {
-            duplicateName.printStackTrace();
-        }
     }
 
     /**
@@ -96,10 +84,19 @@ public class TransactionInitializer extends LocalObject implements ORBInitialize
      * Likewise, if an operation is performed which causes an IOR to be
      * created, no IOR interceptors will be invoked.
      *
-     * @param info provides initialization attributes and
+     * @param orbInitInfo provides initialization attributes and
      *             operations by which Interceptors can be registered.
      */
-    public void post_init(ORBInitInfo info) {
+    public void post_init(ORBInitInfo orbInitInfo) {
+        try {
+            orbInitInfo.add_client_request_interceptor(new ClientTransactionInterceptor());
+            orbInitInfo.add_server_request_interceptor(new ServerTransactionInterceptor());
+            orbInitInfo.add_ior_interceptor(new IORTransactionInterceptor());
+        } catch (DuplicateName duplicateName) {
+            duplicateName.printStackTrace();
+        }
+        orbInitInfo.register_policy_factory(ClientTransactionPolicyFactory.POLICY_TYPE, new ClientTransactionPolicyFactory());
+        orbInitInfo.register_policy_factory(ServerTransactionPolicyFactory.POLICY_TYPE, new ServerTransactionPolicyFactory());
     }
 
 }

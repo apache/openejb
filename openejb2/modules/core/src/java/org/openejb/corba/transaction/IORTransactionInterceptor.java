@@ -44,59 +44,56 @@
  */
 package org.openejb.corba.transaction;
 
-import org.omg.CORBA.INTERNAL;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.INV_POLICY;
 import org.omg.CORBA.LocalObject;
-import org.omg.PortableInterceptor.ForwardRequest;
-import org.omg.PortableInterceptor.ServerRequestInfo;
-import org.omg.PortableInterceptor.ServerRequestInterceptor;
+import org.omg.IOP.TAG_INTERNET_IOP;
+import org.omg.IOP.TAG_OTS_POLICY;
+import org.omg.IOP.TaggedComponent;
+import org.omg.PortableInterceptor.IORInfo;
+import org.omg.PortableInterceptor.IORInterceptor;
+import org.openejb.corba.idl.CosTSInteroperation.TAG_INV_POLICY;
+import org.openejb.corba.idl.CosTransactions.ADAPTS;
+import org.openejb.corba.idl.CosTransactions.InvocationPolicyValueHelper;
+import org.openejb.corba.idl.CosTransactions.OTSPolicyValueHelper;
+import org.openejb.corba.idl.CosTransactions.SHARED;
+import org.openejb.corba.util.Util;
 
 
 /**
  * @version $Revision$ $Date$
  */
-class ServerTransactionInterceptor extends LocalObject implements ServerRequestInterceptor {
+final class IORTransactionInterceptor extends LocalObject implements IORInterceptor {
 
+    private final Log log = LogFactory.getLog(IORTransactionInterceptor.class);
 
-    public ServerTransactionInterceptor() {
-    }
+    public void establish_components(IORInfo info) {
 
-    public void receive_request(ServerRequestInfo serverRequestInfo) throws ForwardRequest {
-        ServerTransactionPolicy policy = (ServerTransactionPolicy) serverRequestInfo.get_server_policy(ServerTransactionPolicyFactory.POLICY_TYPE);
-        if (policy == null) {
-            throw new INTERNAL("No transaction policy configured");
+        try {
+            Any invAny = Util.getORB().create_any();
+            InvocationPolicyValueHelper.insert(invAny, SHARED.value);
+            TaggedComponent invocationPolicyComponent = new TaggedComponent(TAG_INV_POLICY.value, Util.getCodec().encode_value(invAny));
+            info.add_ior_component_to_profile(invocationPolicyComponent, TAG_INTERNET_IOP.value);
+
+            Any otsAny = Util.getORB().create_any();
+            OTSPolicyValueHelper.insert(otsAny, ADAPTS.value);
+            byte[] bytes = Util.getCodec().encode(otsAny);
+            TaggedComponent otsPolicyComponent = new TaggedComponent(TAG_OTS_POLICY.value, bytes);
+            info.add_ior_component_to_profile(otsPolicyComponent, TAG_INTERNET_IOP.value);
+        } catch (INV_POLICY e) {
+            // do nothing
+        } catch (Exception e) {
+            log.error("Generating IOR", e);
         }
-        ServerTransactionPolicyConfig serverTransactionPolicyConfig = policy.getServerTransactionPolicyConfig();
-        serverTransactionPolicyConfig.importTransaction(serverRequestInfo);
-    }
-
-    public void receive_request_service_contexts(ServerRequestInfo ri) throws ForwardRequest {
-    }
-
-    public void send_exception(ServerRequestInfo ri) throws ForwardRequest {
-    }
-
-    public void send_other(ServerRequestInfo ri) throws ForwardRequest {
-    }
-
-    public void send_reply(ServerRequestInfo ri) {
     }
 
     public void destroy() {
     }
 
-    /**
-     * Returns the name of the interceptor.
-     * <p/>
-     * Each Interceptor may have a name that may be used administratively
-     * to order the lists of Interceptors. Only one Interceptor of a given
-     * name can be registered with the ORB for each Interceptor type. An
-     * Interceptor may be anonymous, i.e., have an empty string as the name
-     * attribute. Any number of anonymous Interceptors may be registered with
-     * the ORB.
-     *
-     * @return the name of the interceptor.
-     */
     public String name() {
-        return "ServerTransactionInterceptor";
+        return "org.openejb.corba.transaction.IORTransactionInterceptor";
     }
+
 }

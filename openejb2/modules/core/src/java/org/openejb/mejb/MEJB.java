@@ -52,6 +52,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.io.Serializable;
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
@@ -204,6 +205,16 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
 
     public Subject getDefaultSubject() {
         //TODO this is wrong
+        return null;
+    }
+
+    //todo implement to make MEJB accessible through CORBA
+    public Serializable getHomeTxPolicyConfig() {
+        return null;
+    }
+
+    //todo implement to make MEJB accessible through CORBA
+    public Serializable getRemoteTxPolicyConfig() {
         return null;
     }
 

@@ -386,7 +386,7 @@ by the server.
                 <tss:default-principal realm-name="public-properties-realm">
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
-                <tss:SSL port="684" hostname="localhost">
+                <tss:SSL port="6684" hostname="localhost">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</tss:supports>
                     <tss:requires>Integrity Confidentiality EstablishTrustInClient</tss:requires>
                 </tss:SSL>
@@ -423,6 +423,7 @@ by the server.
 
     <gbean gbeanName="openejb.CORBA:type=CSS,domain=IOR7" class="org.openejb.corba.CSSBean">
         <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
+        <reference name="TransactionContextManager"><name>TransactionContextManager</name></reference>
         <attribute name="configAdapter">org.openejb.corba.openorb.OpenORBConfigAdapter</attribute>
         <attribute name="description">IOR7</attribute>
         <attribute name="cssArgs"></attribute>

@@ -74,6 +74,7 @@ import org.omg.CORBA.portable.OutputStream;
 
 import org.openejb.corba.AdapterWrapper;
 import org.openejb.corba.CORBAException;
+import org.openejb.corba.RefGenerator;
 import org.openejb.proxy.BaseEJB;
 import org.openejb.proxy.EJBHomeImpl;
 import org.openejb.proxy.EJBObjectImpl;
@@ -233,10 +234,14 @@ public final class UtilDelegateImpl implements UtilDelegate {
 
         ProxyInfo pi = proxy.getProxyInfo();
         try {
+            RefGenerator refGenerator = AdapterWrapper.getRefGenerator(pi.getContainerID());
+            if (refGenerator == null) {
+                throw new MARSHAL("Could not find RefGenerator for container ID: " + pi.getContainerID());
+            }
             if (proxy instanceof EJBHomeImpl) {
-                return AdapterWrapper.getRefGenerator(pi.getContainerID()).genHomeReference(pi);
+                return refGenerator.genHomeReference(pi);
             } else if (proxy instanceof EJBObjectImpl) {
-                return AdapterWrapper.getRefGenerator(pi.getContainerID()).genObjectReference(pi);
+                return refGenerator.genObjectReference(pi);
             } else {
                 log.error("Encountered unknown local invocation handler of type " + proxy.getClass().getSuperclass() + ":" + pi);
                 throw new MARSHAL("Internal server error while marshaling the reply", 0, CompletionStatus.COMPLETED_YES);
