@@ -411,22 +411,12 @@ Before we go on a few words about the structure of the file.
         connect to the database, i.e. PostgreSQL. 
         <br/>
         <p>
-        The <b>id</b> attribute must be "Default JDBC Database" unless you 
+        The <b>id</b> attribute should be "Default JDBC Database" unless you 
         know what changes are required upon changing the value. 
         </p>
         <br/>
     </li>
-    <li><b>SecurityService</b> and <b>TransactionService</b> - these 
-        elements are included in the file because they are required and without 
-        them OpenEJB refuses to run. Nothing to configure so we skip them 
-        silently.  
- </li> 
 </ul>
-<note>
-In future versions of OpenEJB, you won't be required to include 
-the SecurityService or TransactionService lines in your config 
-files unless there is some part of them that you wish to configure.
-</note>
 </p>
             
 <p>
