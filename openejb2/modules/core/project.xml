@@ -191,7 +191,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2eeschema</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>DEV</version>
             <properties>
                 <xmlbeans>true</xmlbeans>
             </properties>

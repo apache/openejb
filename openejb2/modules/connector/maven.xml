@@ -26,8 +26,8 @@
     </preGoal>
 
     <postGoal name="jar:jar">
-        <ant:jar destfile="${basedir}/target/jdbc.rar">
-            <ant:fileset dir="${basedir}/target" includes="openejb-jca-DEV.jar"/>
+        <ant:jar destfile="${basedir}/target/openejb-jca-${pom.currentVersion}.rar">
+            <ant:fileset dir="${basedir}/target" includes="openejb-jca-${pom.currentVersion}.jar"/>
             <ant:fileset dir="${basedir}/src/resources"/>
         </ant:jar>
     </postGoal>
