@@ -91,10 +91,20 @@ public class InstantDbTestDatabase implements TestDatabase{
         try {
             Properties properties = TestManager.getServer().getContextEnvironment();
             initialContext = new InitialContext(properties);
-    
+        } catch (Exception e){
+            throw new IllegalStateException("Cannot create initial context: "+e.getClass().getName()+" "+e.getMessage());
+        }
+
+	Object obj =null;
+	DatabaseHome databaseHome =null;
+        try {
             /* Create database */
-            Object obj = initialContext.lookup("client/tools/DatabaseHome");
-            DatabaseHome databaseHome = (DatabaseHome)javax.rmi.PortableRemoteObject.narrow( obj, DatabaseHome.class);
+            obj = initialContext.lookup("client/tools/DatabaseHome");
+            databaseHome = (DatabaseHome)javax.rmi.PortableRemoteObject.narrow( obj, DatabaseHome.class);
+        } catch (Exception e){
+            throw new IllegalStateException("Cannot find 'client/tools/DatabaseHome': "+e.getClass().getName()+" "+e.getMessage());
+        }
+        try {
             database = databaseHome.create();
         } catch (Exception e){
             throw new IllegalStateException("Cannot start database: "+e.getClass().getName()+" "+e.getMessage());
