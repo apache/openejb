@@ -77,7 +77,8 @@ _command_deploy()
 #============================================================
 _command_validate()
 {
-   ./bin/validate.sh $2 $3 $4 $5 $6 $7 $8 $9
+   shift
+   java -jar dist/openejb_validator-1.0.jar $@
 }
 #============================================================
 _command_start()
