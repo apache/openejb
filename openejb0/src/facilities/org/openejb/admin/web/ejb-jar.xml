@@ -13,15 +13,6 @@
     <transaction-type>Bean</transaction-type>
   </session>
   <session>
-    <description>This bean has all the odds and ends of the web administration</description>
-    <ejb-name>webadmin/DefaultBean</ejb-name>
-    <home>org.openejb.admin.web.HttpHome</home>
-    <remote>org.openejb.admin.web.HttpObject</remote>
-    <ejb-class>org.openejb.admin.web.DefaultHttpBean</ejb-class>
-    <session-type>Stateless</session-type>
-    <transaction-type>Bean</transaction-type>
-  </session>
-  <session>
     <description>Allows the user to graphicly edit the OPENEJB_HOME/openejb.conf file</description>
     <ejb-name>webadmin/Configuration</ejb-name>
     <home>org.openejb.admin.web.HttpHome</home>
@@ -105,15 +96,6 @@
     <remote>org.openejb.admin.web.cmp.mapping.CMPMappingDataObject</remote>
     <ejb-class>org.openejb.admin.web.cmp.mapping.CMPMappingDataBean</ejb-class>
     <session-type>Stateful</session-type>
-    <transaction-type>Bean</transaction-type>
-  </session>
-  <session>
-    <description>Allows the user to build a skeleton for their EJB</description>
-    <ejb-name>webadmin/EJBGenerator</ejb-name>
-    <home>org.openejb.admin.web.HttpHome</home>
-    <remote>org.openejb.admin.web.HttpObject</remote>
-    <ejb-class>org.openejb.admin.web.ejbgen.EJBGenBean</ejb-class>
-    <session-type>Stateless</session-type>
     <transaction-type>Bean</transaction-type>
   </session>
 </enterprise-beans>
