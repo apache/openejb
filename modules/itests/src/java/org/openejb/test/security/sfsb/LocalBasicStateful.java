@@ -49,4 +49,5 @@ public interface LocalBasicStateful extends EJBLocalObject {
     public String unassignedMethod(String argument1, String argument2);
 
     public boolean isInRole(String roleName);
+
 }

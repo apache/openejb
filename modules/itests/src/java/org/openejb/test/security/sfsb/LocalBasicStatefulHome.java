@@ -26,4 +26,5 @@ import javax.ejb.EJBLocalHome;
 public interface LocalBasicStatefulHome extends EJBLocalHome {
 
     LocalBasicStateful create() throws CreateException;
+
 }
