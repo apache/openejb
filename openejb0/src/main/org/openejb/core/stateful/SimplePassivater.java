@@ -66,16 +66,18 @@ public class SimplePassivater implements PassivationStrategy {
     final static protected org.apache.log4j.Category logger = org.apache.log4j.Category.getInstance("OpenEJB");
 
     public void init(Properties props) throws org.openejb.SystemException{
-        String dir = null;
         if (props != null) {
-            dir = props.getProperty(EnvProps.IM_PASSIVATOR_PATH_PREFIX);
+            props = new Properties();
         }
 
+        String dir = props.getProperty(EnvProps.IM_PASSIVATOR_PATH_PREFIX);
+        
         try{
+            
             if(dir!=null) {
-            sessionDirectory = FileUtils.getBase().getDirectory(dir);
+                sessionDirectory = FileUtils.getBase().getDirectory(dir);
             }else {
-                sessionDirectory = FileUtils.createTempDirectory();
+                sessionDirectory =  new File("java.io.tmpdir");
             }
             logger.info("Using directory "+sessionDirectory+" for stateful session passivation");
         }catch(java.io.IOException e) {
@@ -90,12 +92,14 @@ public class SimplePassivater implements PassivationStrategy {
             String filename = primaryKey.toString().replace(':', '=' );
 
             File sessionFile = new File( sessionDirectory, filename);
+
             logger.info("Passivating to file "+sessionFile);
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(sessionFile));
             
             oos.writeObject(state);// passivate just the bean instance
             oos.close();
-        }
+            sessionFile.deleteOnExit();
+    }
 	catch(java.io.NotSerializableException nse ) {
             logger.info("Passivation failed ", nse);
             throw new org.openejb.SystemException("The type " + nse.getMessage() + " in the bean class " + ((BeanEntry)state).bean.getClass().getName() + " is not serializable as mandated by the EJB specification."); 

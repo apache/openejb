@@ -405,7 +405,8 @@ public class SafeToolkit{
 
 	try {
 	    File codebaseFile = new File( codebase );
-	    file = File.createTempFile( "openejb_validate", ".jar", FileUtils.createTempDirectory() );
+	    file = File.createTempFile( "openejb_validate", ".jar", null );
+        file.deleteOnExit();
 
 	    FileUtils.copyFile( file, codebaseFile );
 	} catch ( Exception e ) {
