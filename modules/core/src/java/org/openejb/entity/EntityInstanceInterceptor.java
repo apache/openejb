@@ -57,6 +57,8 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.EJBInvocation;
+import org.openejb.NotReentrantException;
+import org.openejb.NotReentrantLocalException;
 import org.openejb.cache.InstancePool;
 
 /**
@@ -69,11 +71,13 @@ public final class EntityInstanceInterceptor implements Interceptor {
     private final Interceptor next;
     private final Object containerId;
     private final InstancePool pool;
+    private final boolean reentrant;
 
-    public EntityInstanceInterceptor(Interceptor next, Object containerId, InstancePool pool) {
+    public EntityInstanceInterceptor(Interceptor next, Object containerId, InstancePool pool, boolean reentrant) {
         this.next = next;
         this.containerId = containerId;
         this.pool = pool;
+        this.reentrant = reentrant;
     }
 
     public InvocationResult invoke(final Invocation invocation) throws Throwable {
@@ -119,7 +123,15 @@ public final class EntityInstanceInterceptor implements Interceptor {
         }
 
         ejbInvocation.setEJBInstanceContext(context);
+        if (!reentrant && context.isInCall()) {
+            if (ejbInvocation.getType().isLocal()) {
+                throw new NotReentrantLocalException("" + containerId);
+            } else {
+                throw new NotReentrantException("" + containerId);
+            }
+        }
         InstanceContext oldContext = transactionContext.beginInvocation(context);
+        context.enter();
         boolean threwException = false;
         try {
             InvocationResult result = next.invoke(invocation);
@@ -128,6 +140,7 @@ public final class EntityInstanceInterceptor implements Interceptor {
             threwException = true;
             throw t;
         } finally {
+            context.exit();
             transactionContext.endInvocation(oldContext);
             ejbInvocation.setEJBInstanceContext(null);
 

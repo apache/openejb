@@ -41,8 +41,10 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
     private final Map connectionManagerMap = new HashMap();
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
+
     //this not being final sucks, but the CMP instance is not available until after the superclass constructor executes.
     protected EnterpriseBean instance;
+
     private final EJBProxyFactory proxyFactory;
     //initialized in subclass, can't be final :-((
     protected EJBInvocation setContextInvocation;
@@ -52,7 +54,6 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
     private final TimerService timerService;
 
     private BasicTimerService timerState = UnavailableTimerService.INSTANCE;
-
 
     public AbstractInstanceContext(Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, EnterpriseBean instance, EJBProxyFactory proxyFactory, BasicTimerService basicTimerService) {
         this.unshareableResources = unshareableResources;

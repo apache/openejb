@@ -70,7 +70,8 @@ import org.tranql.cache.CacheFlushStrategyFactory;
  */
 public class CMPEntityInterceptorBuilder extends AbstractInterceptorBuilder {
     private CacheFlushStrategyFactory strategyFactory;
-    
+    private boolean reentrant;
+
     public CacheFlushStrategyFactory getCacheFlushStrategyFactory() {
         return strategyFactory;
     }
@@ -78,7 +79,15 @@ public class CMPEntityInterceptorBuilder extends AbstractInterceptorBuilder {
     public void setCacheFlushStrategyFactory(CacheFlushStrategyFactory strategyFactory) {
         this.strategyFactory = strategyFactory;
     }
-    
+
+    public boolean isReentrant() {
+        return reentrant;
+    }
+
+    public void setReentrant(boolean reentrant) {
+        this.reentrant = reentrant;
+    }
+
     public TwoChains buildInterceptorChains() {
         if (transactionContextManager == null) {
             throw new IllegalStateException("Transaction context manager must be set before building the interceptor chain");
@@ -113,7 +122,7 @@ public class CMPEntityInterceptorBuilder extends AbstractInterceptorBuilder {
         if (trackedConnectionAssociator != null) {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
         }
-        firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, containerId, instancePool);
+        firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, containerId, instancePool, reentrant);
         firstInterceptor = new InTxCacheInterceptor(firstInterceptor, strategyFactory);
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
