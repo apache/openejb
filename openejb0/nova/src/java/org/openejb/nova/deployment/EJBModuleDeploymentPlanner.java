@@ -67,9 +67,9 @@ import javax.transaction.UserTransaction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.model.ejb.CmpField;
+import org.apache.geronimo.deployment.model.ejb.ContainerTransaction;
 import org.apache.geronimo.deployment.model.ejb.Ejb;
 import org.apache.geronimo.deployment.model.ejb.RpcBean;
-import org.apache.geronimo.deployment.model.ejb.ContainerTransaction;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelation;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelationshipRole;
@@ -94,7 +94,6 @@ import org.apache.geronimo.kernel.deployment.service.ClassSpaceMetadata;
 import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
 import org.apache.geronimo.kernel.deployment.task.CreateClassSpace;
 import org.apache.geronimo.kernel.deployment.task.DeployGeronimoMBean;
-import org.apache.geronimo.kernel.deployment.task.RegisterMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.StartMBeanInstance;
 import org.apache.geronimo.kernel.jmx.JMXKernel;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
@@ -102,9 +101,9 @@ import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.ReferenceFactory;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
+import org.apache.geronimo.security.EJBModuleConfiguration;
 import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
-import org.apache.geronimo.security.EJBModuleConfiguration;
 import org.openejb.nova.EJBContainerConfiguration;
 import org.openejb.nova.entity.EntityContainerConfiguration;
 import org.openejb.nova.entity.bmp.BMPEntityContainer;
@@ -153,21 +152,13 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         ObjectName deploymentUnitName = dHelper.buildDeploymentName();
 
         // Defines a deployment plan for the deployment unit.
-        DeploymentPlan deploymentPlan = new DeploymentPlan();
-        DeploymentInfo deploymentInfo =
-                new DeploymentInfo(deploymentUnitName, null, url);
-        deploymentPlan.addTask(
-                new RegisterMBeanInstance(getServer(), deploymentUnitName, deploymentInfo));
-        MBeanMetadata deploymentUnitMetadata = new MBeanMetadata(deploymentUnitName);
-        deploymentPlan.addTask(
-                new StartMBeanInstance(getServer(), deploymentUnitMetadata));
+        DeploymentPlan deploymentInfoPlan = DeploymentInfo.planDeploymentInfo(getServer(), null, deploymentUnitName, null, url);
+
         // Define the ClassSpace for the archives.
         ClassSpaceMetadata classSpaceMetaData = dHelper.buildClassSpace();
-        deploymentPlan.addTask(new CreateClassSpace(getServer(), classSpaceMetaData));//parent???
-        plans.add(deploymentPlan);
+        deploymentInfoPlan.addTask(new CreateClassSpace(getServer(), classSpaceMetaData));//parent???
+        plans.add(deploymentInfoPlan);
 
-        //now another plan for the tasks that depend on the class space.
-        deploymentPlan = new DeploymentPlan();
         // Load the deployment descriptor into our POJO
         URI gejbURI = URI.create(geronimoURL.toString()).normalize();
         log.trace("Loading deployment descriptor " + gejbURI);
