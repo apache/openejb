@@ -50,6 +50,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Iterator;
+import java.util.Properties;
 
 import org.openorb.compiler.CompilerHost;
 import org.openorb.compiler.object.IdlObject;
@@ -76,12 +77,13 @@ import org.openejb.util.JarUtils;
 /**
  * @version $Revision$ $Date$
  */
-public class OpenORBSkeletonGenerator extends SkeletonGenerator implements GBeanLifecycle, CompilerHost {
+public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecycle, CompilerHost {
 
     private static Log log = LogFactory.getLog(OpenORBSkeletonGenerator.class);
 
     private final ClassLoader classLoader;
     private boolean verbose;
+    private Properties props = new Properties();
     private Compiler compiler;
 
     public OpenORBSkeletonGenerator(ClassLoader classLoader) {
@@ -94,6 +96,14 @@ public class OpenORBSkeletonGenerator extends SkeletonGenerator implements GBean
 
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
+    }
+
+    public Properties getProps() {
+        return props;
+    }
+
+    public void setProps(Properties props) {
+        this.props = props;
     }
 
     public Compiler getCompiler() {
@@ -194,8 +204,10 @@ public class OpenORBSkeletonGenerator extends SkeletonGenerator implements GBean
         // Install the lame tools jar hack
         ToolsJarHack.install();
 
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBSkeletonGenerator.class, SkeletonGenerator.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBSkeletonGenerator.class);
+        infoFactory.addInterface(SkeletonGenerator.class);
         infoFactory.addAttribute("verbose", Boolean.TYPE, true);
+        infoFactory.addAttribute("props", Properties.class, true);
         infoFactory.addReference("Compiler", Compiler.class);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.setConstructor(new String[]{"classLoader"});

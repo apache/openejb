@@ -57,31 +57,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  *
  * @version $Revision$ $Date$
  */
-public abstract class SkeletonGenerator {
-    private Properties props = new Properties();
+public interface SkeletonGenerator {
 
-    public Properties getProps() {
-        return props;
-    }
-
-    public void setProps(Properties props) {
-        this.props = props;
-    }
-
-    public abstract void generateSkeletons(Set interfaces, File destination, ClassLoader cl) throws CompilerException;
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SkeletonGenerator.class);
-
-        infoFactory.addAttribute("props", Properties.class, true);
-        infoFactory.addOperation("generateSkeletons", new Class[] {Set.class, File.class, ClassLoader.class});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
+    public void generateSkeletons(Set interfaces, File destination, ClassLoader cl) throws CompilerException;
 }
