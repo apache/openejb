@@ -174,8 +174,6 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
             jar.setUpdate(true);
             jar.execute();
         } catch (Exception e) {
-            log.error(e);
-
             /**
              * Convert the msg to string so that we don't try to serialize
              * anything that is unserializable in a cause exception
