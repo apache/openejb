@@ -220,6 +220,12 @@
         </dependency>
 
         <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>&antlr-version;</version>
+        </dependency>
+
+        <dependency>
             <groupId>axion</groupId>
             <artifactId>axion</artifactId>
             <version>&axion-version;</version>

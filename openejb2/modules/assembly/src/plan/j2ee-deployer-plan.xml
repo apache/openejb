@@ -96,6 +96,9 @@ Configuration for the Geronimo deployer
     <dependency>
         <uri>tranql/jars/tranql-${tranql_version}.jar</uri>
     </dependency>
+    <dependency>
+        <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
+    </dependency>
 
     <!-- OpenORB Skeleton generator -->
     <dependency>
