@@ -262,7 +262,7 @@ The name of the database.xml file that is used for global or
 container managed transactions.  This will be used when the 
 TransactionManager is managing the transaction, such as when 
 the tx attribute is Supports(and there is a client tx), RequiresNew, 
-Required or Manditory.
+Required or Mandatory.
 </p>
 
 <p>
