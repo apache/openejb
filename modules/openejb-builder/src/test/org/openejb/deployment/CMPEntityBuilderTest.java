@@ -62,6 +62,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.xmlbeans.XmlObject;
@@ -88,6 +89,7 @@ import org.tranql.sql.sql92.SQL92Schema;
 public class CMPEntityBuilderTest extends TestCase {
     private URI defaultParentId = null;
     private SkeletonGenerator skeletonGenerator = null;
+    private Repository repository = null;
     private Kernel kernel = null;
 
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
@@ -106,7 +108,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, repository, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         
         GlobalSchema globalSchema = new GlobalSchema("Test");
@@ -153,7 +155,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, repository, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         
         GlobalSchema globalSchema = new GlobalSchema("Test");
@@ -201,7 +203,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, repository, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         
         GlobalSchema globalSchema = new GlobalSchema("Test");

@@ -81,6 +81,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.openejb.ContainerIndex;
@@ -94,6 +95,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
     private static final String j2eeDomainName = "openejb.server";
     private static final String j2eeServerName = "TestOpenEJBServer";
+    private Repository repository = null;
     private Kernel kernel;
 
     private ResourceReferenceBuilder resourceReferenceBuilder = new ResourceReferenceBuilder() {
@@ -175,7 +177,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
         OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator(cl);
         skeletonGenerator.doStart();
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, repository, kernel);
 
         JarFile jarFile = DeploymentUtil.createJarFile(ejbJarFile);
         Module module = moduleBuilder.createModule(null, jarFile);
@@ -223,7 +225,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
         OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator(cl);
         skeletonGenerator.doStart();
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, repository, kernel);
 
         File tempDir = null;
         try {
@@ -272,7 +274,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
         OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator(cl);
         skeletonGenerator.doStart();
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, repository, kernel);
 
         File tempDir = null;
         try {

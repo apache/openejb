@@ -135,6 +135,7 @@ Configuration for the Geronimo deployer
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/J2EEDeployer" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
 <!--        <reference name="SkeletonGenerator">openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</reference>-->
+        <reference name="Repository">*:role=Repository,*</reference>
     </gbean>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/J2EEDeployer" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
@@ -145,6 +146,7 @@ Configuration for the Geronimo deployer
         <attribute name="defaultIdleTimeoutMinutes" type="int">15</attribute>
         <attribute name="defaultXATransactionCaching" type="boolean">true</attribute>
         <attribute name="defaultXAThreadCaching" type="boolean">false</attribute>
+        <reference name="Repository">*:role=Repository,*</reference>
     </gbean>
 
     <!-- gbean name="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>

@@ -67,6 +67,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
@@ -115,6 +116,7 @@ public abstract class AbstractCMRTest extends TestCase {
         }
     }
 
+    private Repository repository = null;
     protected Kernel kernel;
     protected DataSource ds;
     protected EJBSchema ejbSchema;
@@ -168,7 +170,7 @@ public abstract class AbstractCMRTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, null, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, null, repository, kernel);
         CMPEntityBuilderTestUtil builder = new CMPEntityBuilderTestUtil(moduleBuilder);
         File tempDir = DeploymentUtil.createTempDir();
 
