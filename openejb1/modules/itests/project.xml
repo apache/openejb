@@ -47,35 +47,8 @@
     
     <dependency>
       <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-jta</artifactId>
-      <version>DEV</version>
-      <properties>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
-
-    <dependency>
-      <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-ejb</artifactId>
-      <version>DEV</version>
-      <properties>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
-
-    <dependency>
-      <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-servlet</artifactId>
-      <version>DEV</version>
-      <properties>
-        <runtime>true</runtime>
-      </properties>
-    </dependency>
-
-    <dependency>
-      <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-j2ee-connector</artifactId>
-      <version>DEV</version>
+      <artifactId>geronimo-spec-j2ee</artifactId>
+      <version>1.4-rc1</version>
       <properties>
         <runtime>true</runtime>
       </properties>
