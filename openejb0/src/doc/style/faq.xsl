@@ -104,7 +104,7 @@
               <tr>
                 <td valign="top" align="left">
                     <br/>
-                    <img border="0" height="50" hspace="0" src="{$project/logo}" vspace="0" width="200"/><br/>
+                    <img border="0" height="55" hspace="0" src="{$project/logo}" vspace="0" width="200"/><br/>
                     <img border="0" height="7" hspace="0" src="images/dotTrans.gif"/><br/>
                 </td>
               </tr>
