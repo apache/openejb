@@ -1,0 +1,133 @@
+Q.  I can't 'chown postgres /usr/share/postgresql/data'
+
+Logged in to my win2000 machine as administrator, I can't
+'chown postgres /usr/share/postgresql/data'
+
+It keeps telling me that 'postgres' is an invalid user.  This only works
+when I'm logged in to my box as 'postgres'.  Can someone tell me if I got
+something totally configured wrong with cygwin?  Or am I just not
+understanding something here?
+
+A.
+
+Whenever you add a new Windows user, you need to rerun the mkpasswd
+command to sync Cygwin's /etc/passwd with the Windows user account
+information.
+
+If you have not manually edited your /etc/passwd file, then you can do
+the following:
+
+    $ mkpasswd -l >/etc/passwd # workgroup
+
+or
+
+    $ mkpasswd -d >/etc/passwd # domain
+
+as appropriate.
+
+If you add a new Windows group, then you should do the same as the above
+for /etc/group but using the mkgroup command instead.
+
+
+Q.  What does this mean: parse error at or near "auto" 
+
+java.sql.SQLException: ERROR:  parser: parse error at or near "auto"
+
+        at org.postgresql.Connection.ExecSQL(Connection.java:533)
+        at org.postgresql.jdbc2.Statement.execute(Statement.java:294)
+        at org.postgresql.jdbc2.Statement.executeQuery(Statement.java:59)
+        at org.postgresql.jdbc2.PreparedStatement.executeQuery(PreparedStatement.java:108)
+        
+You create table SQL is using the AUTO INCREMENT syntaz which 
+PostgreSQL does not support.  An example of using AUTO INCREMENT:
+  
+    CREATE TABLE Account ( 
+        acct_id INT PRIMARY KEY AUTO INCREMENT,  
+        ssn CHAR(11), 
+        first_name CHAR(20), 
+        last_name CHAR(20), 
+        balance INT);
+    
+In PostgreSQL, the same thing can be achieved with a Sequence, 
+as such:
+
+    CREATE SEQUENCE account_id_seq MINVALUE 0;
+
+    CREATE TABLE Account (
+        acct_id INT DEFAULT nextval('account_id_seq') PRIMARY KEY, 
+        ssn CHAR(11), 
+        first_name CHAR(20), 
+        last_name CHAR(20), 
+        balance INT);
+
+Q.
+
+java.lang.NullPointerException:
+        at org.postgresql.Connection.openConnection(Connection.java:148)
+
+If this happens and you are not able to connect to PostgreSQL, 
+check your JDBC URL.  If it looks like this:
+
+  
+
+Step 1. Start the cygipc ipc-daemon:
+
+$ ipc-daemon &
+
+------
+Step 2.
+
+dblevins@Miles /dev/OpenE/openejb
+$ initdb -D /dev/PostgreSQL/data
+This database system will be initialized with username "dblevins".
+This user will own all the data files and must also own the server process.
+
+Creating directory /dev/PostgreSQL/data
+Creating directory /dev/PostgreSQL/data/base
+Creating directory /dev/PostgreSQL/data/global
+Creating directory /dev/PostgreSQL/data/pg_xlog
+Creating template1 database in /dev/PostgreSQL/data/base/1
+DEBUG:  database system was shut down at 2002-02-26 14:47:22
+DEBUG:  CheckPoint record at (0, 8)
+DEBUG:  Redo record at (0, 8); Undo record at (0, 8); Shutdown TRUE
+DEBUG:  NextTransactionId: 514; NextOid: 16384
+DEBUG:  database system is in production state
+Creating global relations in /dev/PostgreSQL/data/global
+DEBUG:  database system was shut down at 2002-02-26 14:47:29
+DEBUG:  CheckPoint record at (0, 112)
+DEBUG:  Redo record at (0, 112); Undo record at (0, 0); Shutdown TRUE
+DEBUG:  NextTransactionId: 514; NextOid: 17199
+DEBUG:  database system is in production state
+Initializing pg_shadow.
+Enabling unlimited row width for system tables.
+Creating system views.
+Loading pg_description.
+Setting lastsysoid.
+Vacuuming database.
+Copying template1 to template0.
+
+Success. You can now start the database server using:
+
+    /usr/bin/postmaster -D /dev/PostgreSQL/data
+or
+    /usr/bin/pg_ctl -D /dev/PostgreSQL/data -l logfile start
+
+--------
+
+Although, you can start the database server with the 
+command '/usr/bin/postmaster -D /dev/PostgreSQL/data' it won't 
+work for JDBC.  You need to add the -i flag so that the server 
+will accept connections over TCP, like this:
+
+--------
+dblevins@Miles /dev/OpenE/openejb
+$ /usr/bin/postmaster -i -D /dev/PostgreSQL/data
+DEBUG:  database system was shut down at 2002-02-26 14:47:56
+DEBUG:  CheckPoint record at (0, 1563248)
+DEBUG:  Redo record at (0, 1563248); Undo record at (0, 0); Shutdown TRUE
+DEBUG:  NextTransactionId: 615; NextOid: 18720
+DEBUG:  database system is in production state
+--------
+
+
+
