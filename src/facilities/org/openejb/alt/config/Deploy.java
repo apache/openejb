@@ -666,15 +666,15 @@ public class Deploy {
                 } else if (args[i].equals("-m")){
                     d.MOVE_JAR = true;
                 } else if (args[i].equals("-c")){
-                    if (args.length > i+2 ) {
+                    if (args.length > i+1 ) {
                         System.setProperty("openejb.configuration", args[++i]);
                     }
                 } else if (args[i].equals("-l")){
-                    if (args.length > i+2 ) {
+                    if (args.length > i+1 ) {
                         System.setProperty("log4j.configuration", args[++i]);
                     }
                 } else if (args[i].equals("-d")){
-                    if (args.length > i+2 ) {
+                    if (args.length > i+1 ) {
                         System.setProperty("openejb.home", args[++i]);
                     }
                 } else {

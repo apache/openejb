@@ -108,9 +108,6 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
     public void init(Properties props) throws Exception{
 
-        System.out.println("====------------------------====");
-        System.out.println("Starting EJB Server");
-        System.out.println(" |");
         
         props.putAll(System.getProperties());
 
@@ -122,17 +119,15 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         
         sMetaData = new ServerMetaData(ip, port);
 
-        System.out.println(" +--ip: "+ip+" ");
-        System.out.println(" +--port: "+port+" ");
-        serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
+        try{
+            serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
+        } catch (Exception e){
+            System.out.println("Cannot bind to the ip: "+ip+" and port: "+port+".  Received exception: "+ e.getClass().getName()+":"+ e.getMessage());
+            System.exit(1);
+        }
         
-        System.out.println(" |");
-        System.out.println(" +--Starting OpenEJB");
-        System.out.println(" |  |");
-        System.out.println(" |  + initializing container system");
         OpenEJB.init(props, this);
-        System.out.println(" |");
-        System.out.println(" +--Creating deployment registry");
+        System.out.println("\nbinding to ip: "+ip+" port: "+port+"\n");
         
         clientJndi = (javax.naming.Context)OpenEJB.getJNDIContext().lookup("openejb/ejb");
 
@@ -149,9 +144,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             deploymentsMap.put( deployments[i].getDeploymentID(), new Integer(i));
         }
 
-        System.out.println(" |");
         System.out.println("Ready!");
-        System.out.println("====------------------------====");
     }
 
     // This class doesn't use its own namespace, it uses the 
@@ -795,30 +788,29 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             // should be resolved by org.openejb.OpenEJB
             props.put("log4j.configuration",       "file:conf/default.logging.conf");
 
-
             for (int i=0; i < args.length; i++){
                 if (args[i].equals("-h")){
-                    if (args.length > i+2 ) {
+                    if (args.length > i+1 ) {
                         System.setProperty("openejb.server.ip", args[++i]);
                     }
                 } else if (args[i].equals("-p")){
-                    if (args.length > i+2 ) {
+                    if (args.length > i+1 ) {
                         System.setProperty("openejb.server.port", args[++i]);
                     }
                 } else if (args[i].equals("-t")){
-                    if (args.length > i+2 ) {
+                    if (args.length > i+1 ) {
                         System.setProperty("openejb.server.threads", args[++i]);
                     }
                 } else if (args[i].equals("-c")){
-                    if (args.length > i+2 ) {
+                    if (args.length > i+1 ) {
                         System.setProperty("openejb.configuration", args[++i]);
                     }
                 } else if (args[i].equals("-l")){
-                    if (args.length > i+2 ) {
+                    if (args.length > i+1 ) {
                         System.setProperty("log4j.configuration", args[++i]);
                     }
                 } else if (args[i].equals("-d")){
-                    if (args.length > i+2 ) {
+                    if (args.length > i+1 ) {
                         System.setProperty("openejb.home", args[++i]);
                     }
                 }
