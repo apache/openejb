@@ -75,6 +75,10 @@
         <display>Startup</display>
       </navLink>
       <navLink>
+        <url>config_containers.xml</url>
+        <display>Configuration</display>
+      </navLink>
+      <navLink>
         <url>http://sourceforge.net/tracker/?group_id=44351&amp;atid=439275</url>
         <display>Support</display>
       </navLink>
@@ -97,20 +101,20 @@
         <url>remote-server.xml</url>
         <display>Remote Server</display>
       </navLink>
+      <navLink>
+        <url>tomcat.xml</url>
+        <display>Tomcat</display>
+      </navLink>
     </section>
 
-    <section name="Adapters">
 <!--      
+    <section name="Adapters">
       <navLink>
         <url>corba-adapter.xml</url>
         <display>OpenORB</display>
       </navLink>
--->      
-      <navLink>
-        <url>tomcat-adapter.xml</url>
-        <display>Tomcat</display>
-      </navLink>
     </section>
+-->      
 
     <section name="Integrators">
       <navLink>
