@@ -100,7 +100,7 @@ public class SafeToolkit{
      * @throws OpenEJBExcption if the class cannot be found.
      */
     public Class forName(String className, String codebase) throws OpenEJBException{
-        //ClassLoader cl = Class.class.getClassLoader();
+        //ClassLoader cl = Class.class.getConfigurationClassLoader();
         ClassLoader cl = getContextClassLoader();
 
         // If the codebase is present, then the classloader variable cl
@@ -245,7 +245,7 @@ public class SafeToolkit{
 			urlCodebase[0] = new java.net.URL("file",null,codebase);
                         // make sure everything works if we were not loaded by the system class loader
 			cl = new java.net.URLClassLoader(urlCodebase, SafeToolkit.class.getClassLoader() );
-                        //cl = SafeToolkit.class.getClassLoader();
+                        //cl = SafeToolkit.class.getConfigurationClassLoader();
 			codebases.put(codebase, cl);
 		    } catch (java.net.MalformedURLException mue) {
 			throw new OpenEJBException( messages.format ( "cl0001", codebase, mue.getMessage() ) );
