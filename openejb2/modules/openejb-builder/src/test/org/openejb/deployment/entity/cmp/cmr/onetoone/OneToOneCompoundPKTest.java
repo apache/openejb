@@ -262,6 +262,46 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
         assertStateExistingANewB();
     }
     
+    /**
+     * TODO Disabled due to an Axion bug. It has been tested with another
+     * DB DataSource successfully.
+     */
+    public void XtestRemoveRelationships() throws Exception {
+        ContainerTransactionContext ctx = newTransactionContext();
+        ALocal a = ahome.findByPrimaryKey(new CompoundPK(new Integer(1), "value1"));
+        a.remove();
+        ctx.commit();
+
+        Connection c = ds.getConnection();
+        Statement s = c.createStatement();
+        ResultSet rs = s.executeQuery("SELECT COUNT(*) FROM B");
+        assertTrue(rs.next());
+        assertEquals(1, rs.getInt(1));
+        rs.close();
+        rs = s.executeQuery("SELECT COUNT(*) FROM B WHERE fka1 = 1 AND fka2 = 'value1'");
+        assertTrue(rs.next());
+        assertEquals(0, rs.getInt(1));
+        rs.close();
+        s.close();
+        c.close();
+    }
+
+    public void testCascadeDelete() throws Exception {
+        ContainerTransactionContext ctx = newTransactionContext();
+        BLocal b = bhome.findByPrimaryKey(new Integer(11));
+        b.remove();
+        ctx.commit();
+
+        Connection c = ds.getConnection();
+        Statement s = c.createStatement();
+        ResultSet rs = s.executeQuery("SELECT COUNT(*) FROM A");
+        assertTrue(rs.next());
+        assertEquals(0, rs.getInt(1));
+        rs.close();
+        s.close();
+        c.close();
+    }
+    
     protected void setUp() throws Exception {
         super.setUp();
         

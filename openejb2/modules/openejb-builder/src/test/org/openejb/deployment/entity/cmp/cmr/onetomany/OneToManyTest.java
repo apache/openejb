@@ -267,6 +267,30 @@ public class OneToManyTest extends AbstractCMRTest {
         assertStateExistingANewB();
     }
 
+    /**
+     * TODO Disabled due to an Axion bug. It has been tested with another
+     * DB DataSource successfully.
+     */
+    public void XtestRemoveRelationships() throws Exception {
+        ContainerTransactionContext ctx = newTransactionContext();
+        ALocal a = ahome.findByPrimaryKey(new Integer(1));
+        a.remove();
+        ctx.commit();
+
+        Connection c = ds.getConnection();
+        Statement s = c.createStatement();
+        ResultSet rs = s.executeQuery("SELECT COUNT(*) FROM B");
+        assertTrue(rs.next());
+        assertEquals(2, rs.getInt(1));
+        rs.close();
+        rs = s.executeQuery("SELECT COUNT(*) FROM B WHERE fka1 = 1");
+        assertTrue(rs.next());
+        assertEquals(0, rs.getInt(1));
+        rs.close();
+        s.close();
+        c.close();
+    }
+
     protected void setUp() throws Exception {
         super.setUp();
         

@@ -276,6 +276,22 @@ public class ManyToManyCompoundPKTest extends AbstractCMRTest {
         assertStateExistingANewB();
     }
 
+    public void testRemoveRelationships() throws Exception {
+        ContainerTransactionContext ctx = newTransactionContext();
+        ALocal a = ahome.findByPrimaryKey(new CompoundPK(new Integer(1), "value1"));
+        a.remove();
+        ctx.commit();
+
+        Connection c = ds.getConnection();
+        Statement s = c.createStatement();
+        ResultSet rs = s.executeQuery("SELECT COUNT(*) FROM MTM WHERE fka1 = 1 AND fka2 = 'value1'");
+        assertTrue(rs.next());
+        assertEquals(0, rs.getInt(1));
+        rs.close();
+        s.close();
+        c.close();
+    }
+    
     protected void setUp() throws Exception {
         super.setUp();
         

@@ -66,4 +66,5 @@ public interface ALocal extends EJBLocalObject {
     // CMR
     public Set getB();
     public void setB(Set bSet);
+
 }

@@ -47,14 +47,27 @@
  */
 package org.openejb.entity.cmp;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.ejb.EJBLocalObject;
+
 import org.apache.geronimo.core.service.InvocationResult;
 
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractMethodOperation;
 import org.openejb.dispatch.MethodSignature;
+import org.tranql.cache.CacheTable;
 import org.tranql.cache.InTxCache;
 import org.tranql.cache.CacheRow;
+import org.tranql.ejb.CMPFieldTransform;
+import org.tranql.schema.AssociationEnd;
 
 /**
  * Virtual operation handling removal of an instance.
@@ -62,8 +75,40 @@ import org.tranql.cache.CacheRow;
  * @version $Revision$ $Date$
  */
 public class CMPRemoveMethod extends AbstractMethodOperation {
-    public CMPRemoveMethod(Class beanClass, MethodSignature signature) {
+    private final CMPFieldTransform[] cascadeOneDeleteFields;
+    private final CMPFieldTransform[] cascadeManyDeleteFields;
+    private final CMPFieldTransform[] cmrOneFields;
+    private final CMPFieldTransform[] cmrManyFields;
+
+    public CMPRemoveMethod(Class beanClass, MethodSignature signature, CacheTable cacheTable, Map cmrAccessors) {
         super(beanClass, signature);
+        List cascadeOneDeleteFieldsList = new ArrayList();
+        List cascadeManyDeleteFieldsList = new ArrayList();
+        List cmrOneFieldsList = new ArrayList();
+        List cmrManyFieldsList = new ArrayList();
+        for (Iterator iter = cacheTable.getAssociationEnds().iterator(); iter.hasNext();) {
+            AssociationEnd end = (AssociationEnd) iter.next();
+            CMPFieldTransform accessor = (CMPFieldTransform) cmrAccessors.get(end.getName());
+            if ( null == accessor ) {
+                throw new IllegalArgumentException("No CMR accessor for association end " + end.getName());
+            }
+            if ( end.isSingle() ) {
+                cmrOneFieldsList.add(accessor);
+                if ( end.isCascadeDelete() ) {
+                    cascadeOneDeleteFieldsList.add(accessor);
+                }
+            } else {
+                cmrManyFieldsList.add(accessor);
+                if ( end.isCascadeDelete() ) {
+                    cascadeManyDeleteFieldsList.add(accessor);
+                }
+            }
+        }
+        
+        cascadeOneDeleteFields = (CMPFieldTransform[]) cascadeOneDeleteFieldsList.toArray(new CMPFieldTransform[0]);
+        cascadeManyDeleteFields = (CMPFieldTransform[]) cascadeManyDeleteFieldsList.toArray(new CMPFieldTransform[0]);
+        cmrOneFields = (CMPFieldTransform[]) cmrOneFieldsList.toArray(new CMPFieldTransform[0]);
+        cmrManyFields = (CMPFieldTransform[]) cmrManyFieldsList.toArray(new CMPFieldTransform[0]);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
@@ -71,15 +116,43 @@ public class CMPRemoveMethod extends AbstractMethodOperation {
         InvocationResult result = invoke(invocation, EJBOperation.EJBREMOVE);
 
         if (result.isNormal()) {
-            // delete this row in the persistence engine
             InTxCache cache = invocation.getTransactionContext().getInTxCache();
             CacheRow cacheRow = ctx.getCacheRow();
+
+            // get the entities to be deleted as part of a cascade delete
+            Collection cascadeDeleteEntities = new ArrayList();
+            for (int i = 0; i < cascadeOneDeleteFields.length; i++) {
+                EJBLocalObject entity = (EJBLocalObject) cascadeOneDeleteFields[i].get(cache, cacheRow);
+                if ( null != entity ) {
+                    cascadeDeleteEntities.add(entity);
+                }
+            }
+            for (int i = 0; i < cascadeManyDeleteFields.length; i++) {
+                Collection entities = (Collection) cascadeManyDeleteFields[i].get(cache, cacheRow);
+                cascadeDeleteEntities.addAll(entities);
+            }
+            
+            // remove entity from all relationships
+            for (int i = 0; i < cmrOneFields.length; i++) {
+                cmrOneFields[i].set(cache, cacheRow, null);
+            }
+            for (int i = 0; i < cmrManyFields.length; i++) {
+                cmrManyFields[i].set(cache, cacheRow, Collections.EMPTY_SET);
+            }
+
+            // delete this row in the persistence engine
             cacheRow.markRemoved();
             cache.remove(cacheRow);
 
             // clear id and row data from the instance
             ctx.setId(null);
             ctx.setCacheRow(null);
+
+            // cascade delete
+            for (Iterator iter = cascadeDeleteEntities.iterator(); iter.hasNext();) {
+                EJBLocalObject entity = (EJBLocalObject) iter.next();
+                entity.remove();
+            }
         }
         return result;
     }

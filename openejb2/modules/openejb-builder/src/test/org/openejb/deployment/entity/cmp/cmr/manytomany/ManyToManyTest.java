@@ -271,6 +271,22 @@ public class ManyToManyTest extends AbstractCMRTest {
         assertStateExistingANewB();
     }
 
+    public void testRemoveRelationships() throws Exception {
+        ContainerTransactionContext ctx = newTransactionContext();
+        ALocal a = ahome.findByPrimaryKey(new Integer(1));
+        a.remove();
+        ctx.commit();
+
+        Connection c = ds.getConnection();
+        Statement s = c.createStatement();
+        ResultSet rs = s.executeQuery("SELECT COUNT(*) FROM MTM WHERE fka1 = 1");
+        assertTrue(rs.next());
+        assertEquals(0, rs.getInt(1));
+        rs.close();
+        s.close();
+        c.close();
+    }
+
     protected void setUp() throws Exception {
         super.setUp();
         
