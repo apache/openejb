@@ -60,6 +60,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.pool.ThreadPool;
+import EDU.oswego.cs.dl.util.concurrent.Executor;
 
 
 /**
@@ -71,7 +72,7 @@ public class OpenORBNameBean implements GBeanLifecycle {
 
     private final ClassLoader classLoader;
     private final Server server;
-    private final ThreadPool threadPool;
+    private final Executor threadPool;
     private ArrayList args = new ArrayList();
     private Properties props = new Properties();
 
@@ -83,7 +84,7 @@ public class OpenORBNameBean implements GBeanLifecycle {
         this.props = null;
     }
 
-    public OpenORBNameBean(ClassLoader classLoader, ThreadPool threadPool, ArrayList args, Properties props) {
+    public OpenORBNameBean(ClassLoader classLoader, Executor threadPool, ArrayList args, Properties props) {
         this.server = new Server();
         this.classLoader = classLoader;
         this.threadPool = threadPool;
@@ -149,7 +150,7 @@ public class OpenORBNameBean implements GBeanLifecycle {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBNameBean.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addReference("ThreadPool", ThreadPool.class);
+        infoFactory.addReference("ThreadPool", Executor.class);
         infoFactory.addAttribute("args", ArrayList.class, true);
         infoFactory.addAttribute("props", Properties.class, true);
 
