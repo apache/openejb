@@ -47,37 +47,26 @@
  */
 package org.openejb.mdb;
 
-import javax.ejb.EnterpriseBean;
+import java.util.Set;
+
 import javax.ejb.MessageDrivenBean;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
-
-import org.openejb.EJBInstanceContext;
+import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
-import org.openejb.proxy.EJBProxyFactory;
 
 /**
  * Wrapper for a MDB.
  *
  * @version $Revision$ $Date$
  */
-public final class MDBInstanceContext extends DefaultComponentContext implements EJBInstanceContext {
+public final class MDBInstanceContext extends AbstractInstanceContext {
     private final MDBContainer container;
-    private final MessageDrivenBean instance;
     private final MDBContext mdbContext;
 
-    public MDBInstanceContext(MDBContainer container, MessageDrivenBean instance) {
+    public MDBInstanceContext(MDBContainer container, MessageDrivenBean instance, Set unshareableResources, Set applicationManagedSecurityResources) {
+        super(unshareableResources, applicationManagedSecurityResources, instance, null);
         this.container = container;
-        this.instance = instance;
         this.mdbContext = new MDBContext(this);
-    }
-
-    public EnterpriseBean getInstance() {
-        return instance;
-    }
-
-    public EJBProxyFactory getProxyFactory() {
-        return null;
     }
 
     public Object getContainerId() {

@@ -53,8 +53,6 @@ public interface InterceptorBuilder extends Serializable {
 
     void setPermissionManager(PermissionManager permissionManager);
 
-    void setUnshareableResources(Set unshareableResources);
-
     void setSetIdentityEnabled(boolean setIdentityEnabled);
 
     void setSecurityEnabled(boolean securityEnabled);
@@ -70,6 +68,4 @@ public interface InterceptorBuilder extends Serializable {
     void setInstanceFactory(InstanceFactory instanceFactory);
 
     Interceptor buildInterceptorChain();
-
-    void setApplicationManagedSecurityResources(Set applicationManagedSecurityResources);
 }

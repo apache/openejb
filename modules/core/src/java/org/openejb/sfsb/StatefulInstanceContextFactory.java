@@ -48,6 +48,8 @@
 package org.openejb.sfsb;
 
 import java.io.Serializable;
+import java.util.Set;
+
 import javax.ejb.SessionBean;
 
 import org.apache.geronimo.transaction.InstanceContext;
@@ -67,12 +69,16 @@ public class StatefulInstanceContextFactory implements InstanceContextFactory, S
     private final Object containerId;
     private final EJBInstanceFactory factory;
     private final UserTransactionImpl userTransaction;
+    private final Set unshareableResources;
+    private final Set applicationManagedSecurityResources;
     private EJBProxyFactory proxyFactory;
 
-    public StatefulInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction) {
+    public StatefulInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.containerId = containerId;
         this.factory = new EJBInstanceFactoryImpl(beanClass);
         this.userTransaction = userTransaction;
+        this.unshareableResources = unshareableResources;
+        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
     }
 
     public void setProxyFactory(EJBProxyFactory proxyFactory) {
@@ -88,7 +94,9 @@ public class StatefulInstanceContextFactory implements InstanceContextFactory, S
                 proxyFactory,
                 (SessionBean) factory.newInstance(),
                 createInstanceId(),
-                userTransaction);
+                userTransaction,
+                unshareableResources,
+                applicationManagedSecurityResources);
     }
 
     private static int nextId;

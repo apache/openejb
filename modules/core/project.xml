@@ -38,6 +38,7 @@
             <version>1.0-DEV</version>
         </dependency>
 
+        <!-- needed only for tests -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>

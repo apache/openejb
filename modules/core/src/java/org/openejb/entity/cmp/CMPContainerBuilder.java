@@ -244,7 +244,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         LinkedHashMap cmpFieldAccessors = createCMPFieldAccessors(faultHandler);
         Map instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors);
 
-        InstanceContextFactory contextFactory = new CMPInstanceContextFactory(getContainerId(), primaryKeyTransform, faultHandler, beanClass, instanceMap);
+        InstanceContextFactory contextFactory = new CMPInstanceContextFactory(getContainerId(), primaryKeyTransform, faultHandler, beanClass, instanceMap, getUnshareableResources(), getApplicationManagedSecurityResources());
         EntityInstanceFactory instanceFactory = new EntityInstanceFactory(getComponentContext(), contextFactory);
 
         // build the pool
@@ -453,6 +453,9 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             Method method = signature.getMethod(homeInterface);
             if (method == null) {
                 method = signature.getMethod(localHomeInterface);
+            }
+            if (method == null) {
+                throw new DeploymentException("Could not find method for signature: " + signature);
             }
 
             String returnType = method.getReturnType().getName();

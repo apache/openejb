@@ -48,14 +48,13 @@
 package org.openejb.entity.cmp;
 
 import java.lang.reflect.Method;
-import javax.ejb.EnterpriseBean;
-import javax.ejb.EntityBean;
-import javax.ejb.NoSuchEntityException;
+import java.util.Set;
 
-import org.apache.geronimo.transaction.TransactionContext;
+import javax.ejb.NoSuchEntityException;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import org.apache.geronimo.transaction.TransactionContext;
 import org.openejb.entity.EntityInstanceContext;
 import org.openejb.proxy.EJBProxyFactory;
 import org.tranql.cache.CacheRow;
@@ -71,23 +70,19 @@ import org.tranql.identity.IdentityTransform;
  * @version $Revision$ $Date$
  */
 public final class CMPInstanceContext extends EntityInstanceContext implements MethodInterceptor {
-    private final EntityBean instance;
     private final InstanceOperation[] itable;
     private final FaultHandler loadFault;
     private final IdentityTransform primaryKeyTransform;
     private CacheRow cacheRow;
     private TransactionContext transactionContext;
 
-    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, InstanceOperation[] itable, FaultHandler loadFault, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory) throws Exception {
-        super(containerId, proxyFactory);
+    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, InstanceOperation[] itable, FaultHandler loadFault, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory, Set unshareableResources, Set applicationManagedSecurityResources) throws Exception {
+        super(containerId, proxyFactory, null, unshareableResources, applicationManagedSecurityResources);
         this.itable = itable;
         this.loadFault = loadFault;
         this.primaryKeyTransform = primaryKeyTransform;
+        //too bad we can't call this from the constructor
         instance = contextFactory.createCMPBeanInstance(this);
-    }
-
-    public EnterpriseBean getInstance() {
-        return instance;
     }
 
     public CacheRow getCacheRow() {

@@ -48,6 +48,8 @@
 package org.openejb.slsb;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
+
 import javax.ejb.SessionBean;
 
 import org.apache.geronimo.core.service.SimpleInvocationResult;
@@ -126,7 +128,9 @@ public class InvocationTest extends TestCase {
                 "containerID",
                 instance,
                 null,
-                null);
+                null,
+                new HashSet(),
+                new HashSet());
         invocation.setEJBInstanceContext(ctx);
         bizMethod.execute(invocation);
         long start = System.currentTimeMillis();

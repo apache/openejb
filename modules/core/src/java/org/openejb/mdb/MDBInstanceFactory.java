@@ -48,6 +48,8 @@
 package org.openejb.mdb;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Set;
+
 import javax.ejb.MessageDrivenBean;
 
 import org.apache.commons.logging.Log;
@@ -74,9 +76,13 @@ public class MDBInstanceFactory implements InstanceFactory {
     private final int createIndex;
     private final EJBInstanceFactoryImpl factory;
     private final FastClass implClass;
+    private final Set unshareableResources;
+    private final Set applicationManagedSecurityResources;
 
-    public MDBInstanceFactory(MDBContainer container) {
+    public MDBInstanceFactory(MDBContainer container, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.container = container;
+        this.unshareableResources = unshareableResources;
+        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         componentContext = container.getComponentContext();
 
         implClass = FastClass.create(container.getBeanClass());
@@ -93,7 +99,7 @@ public class MDBInstanceFactory implements InstanceFactory {
 
             // create the instance and wrap in a MDBInstanceContext
             MessageDrivenBean instance = (MessageDrivenBean) factory.newInstance();
-            MDBInstanceContext ctx = new MDBInstanceContext(container, instance);
+            MDBInstanceContext ctx = new MDBInstanceContext(container, instance, unshareableResources, applicationManagedSecurityResources);
 
             // Activate this components JNDI Component Context
             RootContext.setComponentContext(componentContext);

@@ -47,13 +47,14 @@
  */
 package org.openejb.entity;
 
+import java.util.Set;
+
+import javax.ejb.EnterpriseBean;
 import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
 import org.apache.geronimo.transaction.TransactionContext;
-
-import org.openejb.EJBInstanceContext;
+import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.proxy.EJBProxyFactory;
 
@@ -62,21 +63,16 @@ import org.openejb.proxy.EJBProxyFactory;
  *
  * @version $Revision$ $Date$
  */
-public abstract class EntityInstanceContext extends DefaultComponentContext implements EJBInstanceContext {
+public abstract class EntityInstanceContext extends AbstractInstanceContext {
     private final Object containerId;
     private final EntityContextImpl entityContext;
-    private final EJBProxyFactory proxyFactory;
     private Object id;
     private boolean stateValid;
 
-    public EntityInstanceContext(Object containerId, EJBProxyFactory proxyFactory) {
+    public EntityInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EnterpriseBean instance, Set unshareableResources, Set applicationManagedSecurityResources) {
+        super(unshareableResources, applicationManagedSecurityResources, instance, proxyFactory);
         this.containerId = containerId;
-        this.proxyFactory = proxyFactory;
         entityContext = new EntityContextImpl(this);
-    }
-
-    public EJBProxyFactory getProxyFactory() {
-        return proxyFactory;
     }
 
     public Object getContainerId() {

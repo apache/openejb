@@ -54,6 +54,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+
 import javax.ejb.EntityBean;
 
 import org.apache.geronimo.transaction.InstanceContext;
@@ -82,16 +84,20 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
     private final FaultHandler loadFault;
     private final Class beanClass;
     private final Map imap;
+    private final Set unshareableResources;
+    private final Set applicationManagedSecurityResources;
     private transient final InstanceOperation[] itable;
     private transient final Enhancer enhancer;
     private transient EJBProxyFactory proxyFactory;
 
-    public CMPInstanceContextFactory(Object containerId, IdentityTransform primaryKeyTransform, FaultHandler loadFault, Class beanClass, Map imap) throws ClassNotFoundException {
+    public CMPInstanceContextFactory(Object containerId, IdentityTransform primaryKeyTransform, FaultHandler loadFault, Class beanClass, Map imap, Set unshareableResources, Set applicationManagedSecurityResources) throws ClassNotFoundException {
         this.containerId = containerId;
         this.primaryKeyTransform = primaryKeyTransform;
         this.loadFault = loadFault;
         this.beanClass = beanClass;
         this.imap = imap;
+        this.unshareableResources = unshareableResources;
+        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
 
         // create a factory to generate concrete subclasses of the abstract cmp implementation class
         enhancer = new Enhancer();
@@ -120,7 +126,7 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
         if (proxyFactory == null) {
             throw new IllegalStateException("ProxyFacory has not been set");
         }
-        return new CMPInstanceContext(containerId, proxyFactory, itable, loadFault, primaryKeyTransform, this);
+        return new CMPInstanceContext(containerId, proxyFactory, itable, loadFault, primaryKeyTransform, this, unshareableResources, applicationManagedSecurityResources);
     }
 
     public synchronized EntityBean createCMPBeanInstance(CMPInstanceContext instanceContext) {
@@ -139,7 +145,7 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
 
     private Object readResolve() throws ObjectStreamException {
         try {
-            return new CMPInstanceContextFactory(containerId, primaryKeyTransform, loadFault, beanClass, imap);
+            return new CMPInstanceContextFactory(containerId, primaryKeyTransform, loadFault, beanClass, imap, unshareableResources, applicationManagedSecurityResources);
         } catch (ClassNotFoundException e) {
             throw (InvalidClassException) new InvalidClassException("Cound not load method argument class").initCause(e);
         }

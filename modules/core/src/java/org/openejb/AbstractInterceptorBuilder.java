@@ -47,16 +47,14 @@
  */
 package org.openejb;
 
-import java.util.Set;
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-
-import org.openejb.cache.InstancePool;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstanceFactory;
+import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.VirtualOperation;
 import org.openejb.security.PermissionManager;
 import org.openejb.transaction.TransactionPolicyManager;
@@ -74,8 +72,6 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
     protected ReadOnlyContext componentContext;
     protected TransactionPolicyManager transactionPolicyManager;
     protected PermissionManager permissionManager;
-    protected Set unshareableResources;
-    protected Set applicationManagedSecurityResources;
     protected boolean setIdentityEnabled = false;
     protected boolean securityEnabled = false;
     protected transient TransactionManager transactionManager;
@@ -117,14 +113,6 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
     public void setPermissionManager(PermissionManager permissionManager) {
         assert (permissionManager != null) : "permissionManager is null";
         this.permissionManager = permissionManager;
-    }
-
-    public void setUnshareableResources(Set unshareableResources) {
-        this.unshareableResources = unshareableResources;
-    }
-
-    public void setApplicationManagedSecurityResources(Set applicationManagedSecurityResources) {
-        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
     }
 
     public void setSetIdentityEnabled(boolean setIdentityEnabled) {

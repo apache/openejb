@@ -47,6 +47,8 @@
  */
 package org.openejb.entity.bmp;
 
+import java.util.Set;
+
 import javax.ejb.EnterpriseBean;
 import javax.ejb.EntityBean;
 
@@ -59,14 +61,9 @@ import org.openejb.proxy.EJBProxyFactory;
  * @version $Revision$ $Date$
  */
 public final class BMPInstanceContext extends EntityInstanceContext {
-    private final EntityBean instance;
 
-    public BMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EntityBean instance) throws Exception {
-        super(containerId, proxyFactory);
-        this.instance = instance;
+    public BMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EntityBean instance, Set unshareableResources, Set applicationManagedSecurityResources) throws Exception {
+        super(containerId, proxyFactory, instance, unshareableResources, applicationManagedSecurityResources);
     }
 
-    public EnterpriseBean getInstance() {
-        return instance;
-    }
 }

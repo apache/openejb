@@ -87,7 +87,7 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
         InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new EntityInterceptorBuilder(), signatures, vtable);
 
         // build the context factory
-        InstanceContextFactory contextFactory = new BMPInstanceContextFactory(getContainerId(), beanClass);
+        InstanceContextFactory contextFactory = new BMPInstanceContextFactory(getContainerId(), beanClass, getUnshareableResources(), getApplicationManagedSecurityResources());
         EntityInstanceFactory instanceFactory = new EntityInstanceFactory(getComponentContext(), contextFactory);
 
         // build the pool

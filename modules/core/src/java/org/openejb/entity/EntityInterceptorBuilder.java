@@ -76,11 +76,12 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
 
         Interceptor firstInterceptor;
         firstInterceptor = new DispatchInterceptor(vtable);
-        if (trackedConnectionAssociator != null) {
-            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources, applicationManagedSecurityResources);
-        }
         if (setIdentityEnabled) {
             firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
+        }
+        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
+        if (trackedConnectionAssociator != null) {
+            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
         }
         if (securityEnabled) {
             firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, containerId, permissionManager);
@@ -92,7 +93,6 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
             firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
         }
         firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, instancePool);
-        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, transactionPolicyManager);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
         return firstInterceptor;
