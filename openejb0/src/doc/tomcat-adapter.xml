@@ -7,13 +7,20 @@
   <body>
   <sideimg src="images/diagram-tomcat-adapter.gif" width="240" height="500"/>
 
-<section title="Accessing EJBs locally from Tomcat" ref-id="local.access">
-
+<section title="Introduction" ref-id="intro">
 <p>
 Servlets can access beans from OpenEJB using either the Local (IntraVM) Server 
 or the default Remote Server
 </p> 
 
+<p>
+This document is a starting point for using OpenEJB in Tomcat and will evolve based 
+on user contributions.  If you wish to contribute to this document, please email the
+text to the <a href="lists.html#openejb-user">OpenEJB User list</a>.
+</p>
+</section>
+
+<section title="Accessing EJBs locally from Tomcat" ref-id="local.access">
 <p>
 Local Server access:
 </p>
@@ -65,56 +72,6 @@ as a convenience, so if there is something you don't like or think should be cha
 send code.
 </p>
 
-<section title="Passing initialization parameters" ref-id="params">
-<p>
-When accessing OpenEJB in local mode, the Local (IntraVM) Server will instantiate 
-OpenEJB for you.  When it instantiates OpenEJB, it puts default values 
-for the items in the Properties object OpenEJB needs to actually instantiate.
-</p> 
-
-<p>
-Here is a simple example of passing the initialization parameters in to OpenEJB
-via the first InitialContext creation.  I stress, this is only applicable the 
-very first time an InitialContext is created within your Virtual Machine.  After
-that, OpenEJB will have been initialized and the parameters will be ignored.</p>
-
-<p>
-<file name="your servlet">
-  ...
-  try{
-    
-    Properties p = new Properties();
-    
-    p.put(Context.INITIAL_CONTEXT_FACTORY, 
-          "org.openejb.core.ivm.naming.InitContextFactory");
-    
-    p.put("openejb.home", "c:\dir\openejb");
-    
-    p.put("openejb.assembler", 
-          "org.openejb.alt.assembler.classic.Assembler");
-    
-    p.put("openejb.configurator", 
-          "org.openejb.alt.config.ConfigurationFactory");
-    
-    p.put("openejb.configuration", 
-          "c:\my\app\conf\openejb.conf");
-    
-    InitialContext ctx = new InitialContext( p );
-    
-    Object obj = ctx.lookup("my/bean/Foo");
-    
-    FooHome ejbHome = (FooHome)
-        PortableRemoteObject.narrow(obj,FooHome.class);
-  
-  } catch (Exception e){
-    e.printStackTRace();
-  }
-  ...
-</file>
-
-</p> 
-    
-</section>
 </section>
 
 

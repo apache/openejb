@@ -67,10 +67,12 @@
     </section>
 
     <section name="Adapters">
+<!--      
       <navLink>
         <url>corba-adapter.xml</url>
         <display>OpenORB</display>
       </navLink>
+-->      
       <navLink>
         <url>tomcat-adapter.xml</url>
         <display>Tomcat</display>
