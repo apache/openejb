@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
- ]>
-
 <!-- $Revision$ $Date$ -->
 
 <project>
   <pomVersion>3</pomVersion>
-  <extend>${basedir}/../../etc/project.xml</extend>
+  <extend>../../etc/project.xml</extend>
 
   <!-- ===================== -->
   <!-- Module Identification -->
@@ -46,7 +40,7 @@
     <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-jta</artifactId>
-      <version>&geronimo-spec-jta-version;</version>
+      <version>${geronimo_spec_jta_version}</version>
       <properties>
         <runtime>true</runtime>
       </properties>
@@ -55,7 +49,7 @@
     <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-ejb</artifactId>
-      <version>&geronimo-spec-ejb-version;</version>
+      <version>${geronimo_spec_ejb_version}</version>
       <properties>
         <runtime>true</runtime>
       </properties>
@@ -64,7 +58,7 @@
     <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-servlet</artifactId>
-      <version>&geronimo-spec-servlet-version;</version>
+      <version>${geronimo_spec_servlet_version}</version>
       <properties>
         <runtime>true</runtime>
       </properties>
@@ -73,7 +67,7 @@
     <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-j2ee-connector</artifactId>
-      <version>&geronimo-spec-j2ee-connector-version;</version>
+      <version>${geronimo_spec_j2ee_connector_version}</version>
       <properties>
         <runtime>true</runtime>
       </properties>
@@ -82,7 +76,7 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>&log4j-version;</version>
+      <version>${log4j_version}</version>
       <url>http://jakarta.apache.org/log4j</url>
       <properties>
         <runtime>true</runtime>
@@ -92,7 +86,7 @@
     <dependency>
       <groupId>castor</groupId>
       <artifactId>castor</artifactId>
-      <version>&castor-version;</version>
+      <version>${castor_version}</version>
       <url>http://www.castor.org</url>
       <properties>
         <runtime>true</runtime>
@@ -102,7 +96,7 @@
     <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
-      <version>&commons-fileupload-version;</version>
+      <version>${commons_fileupload_version}</version>
       <properties>
         <runtime>true</runtime>
       </properties>
@@ -111,7 +105,7 @@
     <dependency>
       <groupId>regexp</groupId>
       <artifactId>regexp</artifactId>
-      <version>&regexp-version;</version>
+      <version>${regexp_version}</version>
       <properties>
         <runtime>true</runtime>
       </properties>

@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!DOCTYPE project [
-<!ENTITY % locator SYSTEM "file:locator.ent">
-%locator;
-%versions;
- ]>
-
 <!-- $Revision$ $Date$ -->
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>${basedir}/../../etc/project.xml</extend>
+    <extend>../../etc/project.xml</extend>
 
     <!-- ===================== -->
     <!-- Module Identification -->
@@ -35,7 +29,7 @@
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>&commons-collections-version;</version>
+            <version>${commons_collections_version}</version>
             <properties>
                 <runtime>false</runtime>
             </properties>
@@ -44,7 +38,7 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>&commons-logging-version;</version>
+            <version>${commons_logging_version}</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
             <properties>
                 <runtime>false</runtime>
@@ -54,7 +48,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>&geronimo-spec-j2ee-connector-version;</version>
+            <version>${geronimo_spec_j2ee_connector_version}</version>
             <properties>
                 <module>true</module>
             </properties>
