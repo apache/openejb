@@ -1,7 +1,7 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
@@ -11,13 +11,21 @@ package org.openejb.alt.config.ejb11;
  //- Imported classes and packages -/
 //---------------------------------/
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.Writer;
+import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
+import org.exolab.castor.xml.ValidationException;
+import org.xml.sax.ContentHandler;
 
 /**
+ * Class ResourceRef.
  * 
  * @version $Revision$ $Date$
-**/
+ */
 public class ResourceRef implements java.io.Serializable {
 
 
@@ -25,14 +33,29 @@ public class ResourceRef implements java.io.Serializable {
      //- Class/Member Variables -/
     //--------------------------/
 
+    /**
+     * Field _id
+     */
     private java.lang.String _id;
 
+    /**
+     * Field _description
+     */
     private java.lang.String _description;
 
+    /**
+     * Field _resRefName
+     */
     private java.lang.String _resRefName;
 
+    /**
+     * Field _resType
+     */
     private java.lang.String _resType;
 
+    /**
+     * Field _resAuth
+     */
     private java.lang.String _resAuth;
 
 
@@ -50,42 +73,58 @@ public class ResourceRef implements java.io.Serializable {
     //-----------/
 
     /**
-    **/
+     * Returns the value of field 'description'.
+     * 
+     * @return the value of field 'description'.
+     */
     public java.lang.String getDescription()
     {
         return this._description;
     } //-- java.lang.String getDescription() 
 
     /**
-    **/
+     * Returns the value of field 'id'.
+     * 
+     * @return the value of field 'id'.
+     */
     public java.lang.String getId()
     {
         return this._id;
     } //-- java.lang.String getId() 
 
     /**
-    **/
+     * Returns the value of field 'resAuth'.
+     * 
+     * @return the value of field 'resAuth'.
+     */
     public java.lang.String getResAuth()
     {
         return this._resAuth;
     } //-- java.lang.String getResAuth() 
 
     /**
-    **/
+     * Returns the value of field 'resRefName'.
+     * 
+     * @return the value of field 'resRefName'.
+     */
     public java.lang.String getResRefName()
     {
         return this._resRefName;
     } //-- java.lang.String getResRefName() 
 
     /**
-    **/
+     * Returns the value of field 'resType'.
+     * 
+     * @return the value of field 'resType'.
+     */
     public java.lang.String getResType()
     {
         return this._resType;
     } //-- java.lang.String getResType() 
 
     /**
-    **/
+     * Method isValid
+     */
     public boolean isValid()
     {
         try {
@@ -98,9 +137,10 @@ public class ResourceRef implements java.io.Serializable {
     } //-- boolean isValid() 
 
     /**
+     * Method marshal
      * 
      * @param out
-    **/
+     */
     public void marshal(java.io.Writer out)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
@@ -109,73 +149,81 @@ public class ResourceRef implements java.io.Serializable {
     } //-- void marshal(java.io.Writer) 
 
     /**
+     * Method marshal
      * 
      * @param handler
-    **/
-    public void marshal(org.xml.sax.DocumentHandler handler)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
+     */
+    public void marshal(org.xml.sax.ContentHandler handler)
+        throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         
         Marshaller.marshal(this, handler);
-    } //-- void marshal(org.xml.sax.DocumentHandler) 
+    } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
+     * Sets the value of field 'description'.
      * 
-     * @param _description
-    **/
-    public void setDescription(java.lang.String _description)
+     * @param description the value of field 'description'.
+     */
+    public void setDescription(java.lang.String description)
     {
-        this._description = _description;
+        this._description = description;
     } //-- void setDescription(java.lang.String) 
 
     /**
+     * Sets the value of field 'id'.
      * 
-     * @param _id
-    **/
-    public void setId(java.lang.String _id)
+     * @param id the value of field 'id'.
+     */
+    public void setId(java.lang.String id)
     {
-        this._id = _id;
+        this._id = id;
     } //-- void setId(java.lang.String) 
 
     /**
+     * Sets the value of field 'resAuth'.
      * 
-     * @param _resAuth
-    **/
-    public void setResAuth(java.lang.String _resAuth)
+     * @param resAuth the value of field 'resAuth'.
+     */
+    public void setResAuth(java.lang.String resAuth)
     {
-        this._resAuth = _resAuth;
+        this._resAuth = resAuth;
     } //-- void setResAuth(java.lang.String) 
 
     /**
+     * Sets the value of field 'resRefName'.
      * 
-     * @param _resRefName
-    **/
-    public void setResRefName(java.lang.String _resRefName)
+     * @param resRefName the value of field 'resRefName'.
+     */
+    public void setResRefName(java.lang.String resRefName)
     {
-        this._resRefName = _resRefName;
+        this._resRefName = resRefName;
     } //-- void setResRefName(java.lang.String) 
 
     /**
+     * Sets the value of field 'resType'.
      * 
-     * @param _resType
-    **/
-    public void setResType(java.lang.String _resType)
+     * @param resType the value of field 'resType'.
+     */
+    public void setResType(java.lang.String resType)
     {
-        this._resType = _resType;
+        this._resType = resType;
     } //-- void setResType(java.lang.String) 
 
     /**
+     * Method unmarshal
      * 
      * @param reader
-    **/
-    public static org.openejb.alt.config.ejb11.ResourceRef unmarshal(java.io.Reader reader)
+     */
+    public static java.lang.Object unmarshal(java.io.Reader reader)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         return (org.openejb.alt.config.ejb11.ResourceRef) Unmarshaller.unmarshal(org.openejb.alt.config.ejb11.ResourceRef.class, reader);
-    } //-- org.openejb.alt.config.ejb11.ResourceRef unmarshal(java.io.Reader) 
+    } //-- java.lang.Object unmarshal(java.io.Reader) 
 
     /**
-    **/
+     * Method validate
+     */
     public void validate()
         throws org.exolab.castor.xml.ValidationException
     {

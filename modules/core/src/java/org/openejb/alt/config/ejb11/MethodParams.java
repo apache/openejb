@@ -1,7 +1,7 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
@@ -11,15 +11,23 @@ package org.openejb.alt.config.ejb11;
  //- Imported classes and packages -/
 //---------------------------------/
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.Writer;
+import java.util.Enumeration;
 import java.util.Vector;
-
+import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
+import org.exolab.castor.xml.ValidationException;
+import org.xml.sax.ContentHandler;
 
 /**
+ * Class MethodParams.
  * 
  * @version $Revision$ $Date$
-**/
+ */
 public class MethodParams implements java.io.Serializable {
 
 
@@ -27,8 +35,14 @@ public class MethodParams implements java.io.Serializable {
      //- Class/Member Variables -/
     //--------------------------/
 
+    /**
+     * Field _id
+     */
     private java.lang.String _id;
 
+    /**
+     * Field _methodParamList
+     */
     private java.util.Vector _methodParamList;
 
 
@@ -47,9 +61,10 @@ public class MethodParams implements java.io.Serializable {
     //-----------/
 
     /**
+     * Method addMethodParam
      * 
      * @param vMethodParam
-    **/
+     */
     public void addMethodParam(java.lang.String vMethodParam)
         throws java.lang.IndexOutOfBoundsException
     {
@@ -57,10 +72,11 @@ public class MethodParams implements java.io.Serializable {
     } //-- void addMethodParam(java.lang.String) 
 
     /**
+     * Method addMethodParam
      * 
      * @param index
      * @param vMethodParam
-    **/
+     */
     public void addMethodParam(int index, java.lang.String vMethodParam)
         throws java.lang.IndexOutOfBoundsException
     {
@@ -68,7 +84,8 @@ public class MethodParams implements java.io.Serializable {
     } //-- void addMethodParam(int, java.lang.String) 
 
     /**
-    **/
+     * Method enumerateMethodParam
+     */
     public java.util.Enumeration enumerateMethodParam()
     {
         return _methodParamList.elements();
@@ -76,17 +93,19 @@ public class MethodParams implements java.io.Serializable {
 
     /**
      * Returns the value of field 'id'.
+     * 
      * @return the value of field 'id'.
-    **/
+     */
     public java.lang.String getId()
     {
         return this._id;
     } //-- java.lang.String getId() 
 
     /**
+     * Method getMethodParam
      * 
      * @param index
-    **/
+     */
     public java.lang.String getMethodParam(int index)
         throws java.lang.IndexOutOfBoundsException
     {
@@ -99,7 +118,8 @@ public class MethodParams implements java.io.Serializable {
     } //-- java.lang.String getMethodParam(int) 
 
     /**
-    **/
+     * Method getMethodParam
+     */
     public java.lang.String[] getMethodParam()
     {
         int size = _methodParamList.size();
@@ -111,14 +131,16 @@ public class MethodParams implements java.io.Serializable {
     } //-- java.lang.String[] getMethodParam() 
 
     /**
-    **/
+     * Method getMethodParamCount
+     */
     public int getMethodParamCount()
     {
         return _methodParamList.size();
     } //-- int getMethodParamCount() 
 
     /**
-    **/
+     * Method isValid
+     */
     public boolean isValid()
     {
         try {
@@ -131,9 +153,10 @@ public class MethodParams implements java.io.Serializable {
     } //-- boolean isValid() 
 
     /**
+     * Method marshal
      * 
      * @param out
-    **/
+     */
     public void marshal(java.io.Writer out)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
@@ -142,27 +165,30 @@ public class MethodParams implements java.io.Serializable {
     } //-- void marshal(java.io.Writer) 
 
     /**
+     * Method marshal
      * 
      * @param handler
-    **/
-    public void marshal(org.xml.sax.DocumentHandler handler)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
+     */
+    public void marshal(org.xml.sax.ContentHandler handler)
+        throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         
         Marshaller.marshal(this, handler);
-    } //-- void marshal(org.xml.sax.DocumentHandler) 
+    } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
-    **/
+     * Method removeAllMethodParam
+     */
     public void removeAllMethodParam()
     {
         _methodParamList.removeAllElements();
     } //-- void removeAllMethodParam() 
 
     /**
+     * Method removeMethodParam
      * 
      * @param index
-    **/
+     */
     public java.lang.String removeMethodParam(int index)
     {
         java.lang.Object obj = _methodParamList.elementAt(index);
@@ -172,18 +198,20 @@ public class MethodParams implements java.io.Serializable {
 
     /**
      * Sets the value of field 'id'.
+     * 
      * @param id the value of field 'id'.
-    **/
+     */
     public void setId(java.lang.String id)
     {
         this._id = id;
     } //-- void setId(java.lang.String) 
 
     /**
+     * Method setMethodParam
      * 
      * @param index
      * @param vMethodParam
-    **/
+     */
     public void setMethodParam(int index, java.lang.String vMethodParam)
         throws java.lang.IndexOutOfBoundsException
     {
@@ -195,9 +223,10 @@ public class MethodParams implements java.io.Serializable {
     } //-- void setMethodParam(int, java.lang.String) 
 
     /**
+     * Method setMethodParam
      * 
      * @param methodParamArray
-    **/
+     */
     public void setMethodParam(java.lang.String[] methodParamArray)
     {
         //-- copy array
@@ -208,17 +237,19 @@ public class MethodParams implements java.io.Serializable {
     } //-- void setMethodParam(java.lang.String) 
 
     /**
+     * Method unmarshal
      * 
      * @param reader
-    **/
-    public static org.openejb.alt.config.ejb11.MethodParams unmarshal(java.io.Reader reader)
+     */
+    public static java.lang.Object unmarshal(java.io.Reader reader)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         return (org.openejb.alt.config.ejb11.MethodParams) Unmarshaller.unmarshal(org.openejb.alt.config.ejb11.MethodParams.class, reader);
-    } //-- org.openejb.alt.config.ejb11.MethodParams unmarshal(java.io.Reader) 
+    } //-- java.lang.Object unmarshal(java.io.Reader) 
 
     /**
-    **/
+     * Method validate
+     */
     public void validate()
         throws org.exolab.castor.xml.ValidationException
     {

@@ -1,7 +1,7 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
@@ -11,13 +11,21 @@ package org.openejb.alt.config.ejb11;
  //- Imported classes and packages -/
 //---------------------------------/
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.Writer;
+import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
+import org.exolab.castor.xml.ValidationException;
+import org.xml.sax.ContentHandler;
 
 /**
+ * Class Method.
  * 
  * @version $Revision$ $Date$
-**/
+ */
 public class Method implements java.io.Serializable {
 
 
@@ -25,17 +33,35 @@ public class Method implements java.io.Serializable {
      //- Class/Member Variables -/
     //--------------------------/
 
+    /**
+     * Field _id
+     */
     private java.lang.String _id;
 
+    /**
+     * Field _description
+     */
     private java.lang.String _description;
 
+    /**
+     * Field _ejbName
+     */
     private java.lang.String _ejbName;
 
+    /**
+     * Field _methodIntf
+     */
     private java.lang.String _methodIntf;
 
+    /**
+     * Field _methodName
+     */
     private java.lang.String _methodName;
 
-    private MethodParams _methodParams;
+    /**
+     * Field _methodParams
+     */
+    private org.openejb.alt.config.ejb11.MethodParams _methodParams;
 
 
       //----------------/
@@ -52,49 +78,68 @@ public class Method implements java.io.Serializable {
     //-----------/
 
     /**
-    **/
+     * Returns the value of field 'description'.
+     * 
+     * @return the value of field 'description'.
+     */
     public java.lang.String getDescription()
     {
         return this._description;
     } //-- java.lang.String getDescription() 
 
     /**
-    **/
+     * Returns the value of field 'ejbName'.
+     * 
+     * @return the value of field 'ejbName'.
+     */
     public java.lang.String getEjbName()
     {
         return this._ejbName;
     } //-- java.lang.String getEjbName() 
 
     /**
-    **/
+     * Returns the value of field 'id'.
+     * 
+     * @return the value of field 'id'.
+     */
     public java.lang.String getId()
     {
         return this._id;
     } //-- java.lang.String getId() 
 
     /**
-    **/
+     * Returns the value of field 'methodIntf'.
+     * 
+     * @return the value of field 'methodIntf'.
+     */
     public java.lang.String getMethodIntf()
     {
         return this._methodIntf;
     } //-- java.lang.String getMethodIntf() 
 
     /**
-    **/
+     * Returns the value of field 'methodName'.
+     * 
+     * @return the value of field 'methodName'.
+     */
     public java.lang.String getMethodName()
     {
         return this._methodName;
     } //-- java.lang.String getMethodName() 
 
     /**
-    **/
-    public MethodParams getMethodParams()
+     * Returns the value of field 'methodParams'.
+     * 
+     * @return the value of field 'methodParams'.
+     */
+    public org.openejb.alt.config.ejb11.MethodParams getMethodParams()
     {
         return this._methodParams;
-    } //-- MethodParams getMethodParams() 
+    } //-- org.openejb.alt.config.ejb11.MethodParams getMethodParams() 
 
     /**
-    **/
+     * Method isValid
+     */
     public boolean isValid()
     {
         try {
@@ -107,9 +152,10 @@ public class Method implements java.io.Serializable {
     } //-- boolean isValid() 
 
     /**
+     * Method marshal
      * 
      * @param out
-    **/
+     */
     public void marshal(java.io.Writer out)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
@@ -118,82 +164,91 @@ public class Method implements java.io.Serializable {
     } //-- void marshal(java.io.Writer) 
 
     /**
+     * Method marshal
      * 
      * @param handler
-    **/
-    public void marshal(org.xml.sax.DocumentHandler handler)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
+     */
+    public void marshal(org.xml.sax.ContentHandler handler)
+        throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         
         Marshaller.marshal(this, handler);
-    } //-- void marshal(org.xml.sax.DocumentHandler) 
+    } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
+     * Sets the value of field 'description'.
      * 
-     * @param _description
-    **/
-    public void setDescription(java.lang.String _description)
+     * @param description the value of field 'description'.
+     */
+    public void setDescription(java.lang.String description)
     {
-        this._description = _description;
+        this._description = description;
     } //-- void setDescription(java.lang.String) 
 
     /**
+     * Sets the value of field 'ejbName'.
      * 
-     * @param _ejbName
-    **/
-    public void setEjbName(java.lang.String _ejbName)
+     * @param ejbName the value of field 'ejbName'.
+     */
+    public void setEjbName(java.lang.String ejbName)
     {
-        this._ejbName = _ejbName;
+        this._ejbName = ejbName;
     } //-- void setEjbName(java.lang.String) 
 
     /**
+     * Sets the value of field 'id'.
      * 
-     * @param _id
-    **/
-    public void setId(java.lang.String _id)
+     * @param id the value of field 'id'.
+     */
+    public void setId(java.lang.String id)
     {
-        this._id = _id;
+        this._id = id;
     } //-- void setId(java.lang.String) 
 
     /**
+     * Sets the value of field 'methodIntf'.
      * 
-     * @param _methodIntf
-    **/
-    public void setMethodIntf(java.lang.String _methodIntf)
+     * @param methodIntf the value of field 'methodIntf'.
+     */
+    public void setMethodIntf(java.lang.String methodIntf)
     {
-        this._methodIntf = _methodIntf;
+        this._methodIntf = methodIntf;
     } //-- void setMethodIntf(java.lang.String) 
 
     /**
+     * Sets the value of field 'methodName'.
      * 
-     * @param _methodName
-    **/
-    public void setMethodName(java.lang.String _methodName)
+     * @param methodName the value of field 'methodName'.
+     */
+    public void setMethodName(java.lang.String methodName)
     {
-        this._methodName = _methodName;
+        this._methodName = methodName;
     } //-- void setMethodName(java.lang.String) 
 
     /**
+     * Sets the value of field 'methodParams'.
      * 
-     * @param _methodParams
-    **/
-    public void setMethodParams(MethodParams _methodParams)
+     * @param methodParams the value of field 'methodParams'.
+     */
+    public void setMethodParams(org.openejb.alt.config.ejb11.MethodParams methodParams)
     {
-        this._methodParams = _methodParams;
-    } //-- void setMethodParams(MethodParams) 
+        this._methodParams = methodParams;
+    } //-- void setMethodParams(org.openejb.alt.config.ejb11.MethodParams) 
 
     /**
+     * Method unmarshal
      * 
      * @param reader
-    **/
-    public static org.openejb.alt.config.ejb11.Method unmarshal(java.io.Reader reader)
+     */
+    public static java.lang.Object unmarshal(java.io.Reader reader)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         return (org.openejb.alt.config.ejb11.Method) Unmarshaller.unmarshal(org.openejb.alt.config.ejb11.Method.class, reader);
-    } //-- org.openejb.alt.config.ejb11.Method unmarshal(java.io.Reader) 
+    } //-- java.lang.Object unmarshal(java.io.Reader) 
 
     /**
-    **/
+     * Method validate
+     */
     public void validate()
         throws org.exolab.castor.xml.ValidationException
     {

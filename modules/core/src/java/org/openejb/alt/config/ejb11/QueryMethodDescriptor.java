@@ -1,7 +1,7 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
@@ -11,16 +11,16 @@ package org.openejb.alt.config.ejb11;
  //- Imported classes and packages -/
 //---------------------------------/
 
-import org.exolab.castor.xml.FieldValidator;
-import org.exolab.castor.xml.NodeType;
-import org.exolab.castor.xml.XMLFieldHandler;
-import org.exolab.castor.xml.util.XMLFieldDescriptorImpl;
-import org.exolab.castor.xml.validators.StringValidator;
+import org.exolab.castor.mapping.AccessMode;
+import org.exolab.castor.xml.TypeValidator;
+import org.exolab.castor.xml.XMLFieldDescriptor;
+import org.exolab.castor.xml.validators.*;
 
 /**
+ * Class QueryMethodDescriptor.
  * 
  * @version $Revision$ $Date$
-**/
+ */
 public class QueryMethodDescriptor extends org.exolab.castor.xml.util.XMLClassDescriptorImpl {
 
 
@@ -28,12 +28,24 @@ public class QueryMethodDescriptor extends org.exolab.castor.xml.util.XMLClassDe
      //- Class/Member Variables -/
     //--------------------------/
 
+    /**
+     * Field nsPrefix
+     */
     private java.lang.String nsPrefix;
 
+    /**
+     * Field nsURI
+     */
     private java.lang.String nsURI;
 
+    /**
+     * Field xmlName
+     */
     private java.lang.String xmlName;
 
+    /**
+     * Field identity
+     */
     private org.exolab.castor.xml.XMLFieldDescriptor identity;
 
 
@@ -45,20 +57,20 @@ public class QueryMethodDescriptor extends org.exolab.castor.xml.util.XMLClassDe
         super();
         nsURI = "http://www.openejb.org/openejb-jar/1.1";
         xmlName = "query-method";
-        XMLFieldDescriptorImpl  desc           = null;
-        XMLFieldHandler         handler        = null;
-        FieldValidator          fieldValidator = null;
         
         //-- set grouping compositor
         setCompositorAsSequence();
+        org.exolab.castor.xml.util.XMLFieldDescriptorImpl  desc           = null;
+        org.exolab.castor.xml.XMLFieldHandler              handler        = null;
+        org.exolab.castor.xml.FieldValidator               fieldValidator = null;
         //-- initialize attribute descriptors
         
         //-- initialize element descriptors
         
         //-- _methodName
-        desc = new XMLFieldDescriptorImpl(java.lang.String.class, "_methodName", "method-name", NodeType.Element);
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.String.class, "_methodName", "method-name", org.exolab.castor.xml.NodeType.Element);
         desc.setImmutable(true);
-        handler = (new XMLFieldHandler() {
+        handler = (new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
@@ -72,7 +84,7 @@ public class QueryMethodDescriptor extends org.exolab.castor.xml.util.XMLClassDe
                     QueryMethod target = (QueryMethod) object;
                     target.setMethodName( (java.lang.String) value);
                 }
-                catch (Exception ex) {
+                catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
             }
@@ -81,24 +93,22 @@ public class QueryMethodDescriptor extends org.exolab.castor.xml.util.XMLClassDe
             }
         } );
         desc.setHandler(handler);
-        desc.setNameSpaceURI("http://www.openejb.org/openejb-jar/1.1");
         desc.setRequired(true);
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
         
         //-- validation code for: _methodName
-        fieldValidator = new FieldValidator();
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope
-            StringValidator sv = new StringValidator();
-            sv.setWhiteSpace("preserve");
-            fieldValidator.setValidator(sv);
+            StringValidator typeValidator = new StringValidator();
+            typeValidator.setWhiteSpace("preserve");
+            fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
-        
         //-- _methodParams
-        desc = new XMLFieldDescriptorImpl(MethodParams.class, "_methodParams", "method-params", NodeType.Element);
-        handler = (new XMLFieldHandler() {
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(org.openejb.alt.config.ejb11.MethodParams.class, "_methodParams", "method-params", org.exolab.castor.xml.NodeType.Element);
+        handler = (new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
@@ -110,27 +120,27 @@ public class QueryMethodDescriptor extends org.exolab.castor.xml.util.XMLClassDe
             {
                 try {
                     QueryMethod target = (QueryMethod) object;
-                    target.setMethodParams( (MethodParams) value);
+                    target.setMethodParams( (org.openejb.alt.config.ejb11.MethodParams) value);
                 }
-                catch (Exception ex) {
+                catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
             }
             public java.lang.Object newInstance( java.lang.Object parent ) {
-                return new MethodParams();
+                return new org.openejb.alt.config.ejb11.MethodParams();
             }
         } );
         desc.setHandler(handler);
-        desc.setNameSpaceURI("http://www.openejb.org/openejb-jar/1.1");
         desc.setRequired(true);
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
         
         //-- validation code for: _methodParams
-        fieldValidator = new FieldValidator();
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
+        { //-- local scope
+        }
         desc.setValidator(fieldValidator);
-        
     } //-- org.openejb.alt.config.ejb11.QueryMethodDescriptor()
 
 
@@ -139,56 +149,64 @@ public class QueryMethodDescriptor extends org.exolab.castor.xml.util.XMLClassDe
     //-----------/
 
     /**
-    **/
+     * Method getAccessMode
+     */
     public org.exolab.castor.mapping.AccessMode getAccessMode()
     {
         return null;
     } //-- org.exolab.castor.mapping.AccessMode getAccessMode() 
 
     /**
-    **/
+     * Method getExtends
+     */
     public org.exolab.castor.mapping.ClassDescriptor getExtends()
     {
         return null;
     } //-- org.exolab.castor.mapping.ClassDescriptor getExtends() 
 
     /**
-    **/
+     * Method getIdentity
+     */
     public org.exolab.castor.mapping.FieldDescriptor getIdentity()
     {
         return identity;
     } //-- org.exolab.castor.mapping.FieldDescriptor getIdentity() 
 
     /**
-    **/
+     * Method getJavaClass
+     */
     public java.lang.Class getJavaClass()
     {
         return org.openejb.alt.config.ejb11.QueryMethod.class;
     } //-- java.lang.Class getJavaClass() 
 
     /**
-    **/
+     * Method getNameSpacePrefix
+     */
     public java.lang.String getNameSpacePrefix()
     {
         return nsPrefix;
     } //-- java.lang.String getNameSpacePrefix() 
 
     /**
-    **/
+     * Method getNameSpaceURI
+     */
     public java.lang.String getNameSpaceURI()
     {
         return nsURI;
     } //-- java.lang.String getNameSpaceURI() 
 
     /**
-    **/
+     * Method getValidator
+     */
     public org.exolab.castor.xml.TypeValidator getValidator()
     {
         return this;
     } //-- org.exolab.castor.xml.TypeValidator getValidator() 
 
     /**
-    **/
+     * Method getXMLName
+     */
     public java.lang.String getXMLName()
     {
         return xmlName;

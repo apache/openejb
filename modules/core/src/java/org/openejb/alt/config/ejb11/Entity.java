@@ -1,7 +1,7 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
@@ -11,15 +11,23 @@ package org.openejb.alt.config.ejb11;
  //- Imported classes and packages -/
 //---------------------------------/
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.Writer;
+import java.util.Enumeration;
 import java.util.Vector;
-
+import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
+import org.exolab.castor.xml.ValidationException;
+import org.xml.sax.ContentHandler;
 
 /**
+ * Class Entity.
  * 
  * @version $Revision$ $Date$
-**/
+ */
 public class Entity implements java.io.Serializable {
 
 
@@ -27,45 +35,99 @@ public class Entity implements java.io.Serializable {
      //- Class/Member Variables -/
     //--------------------------/
 
+    /**
+     * Field _id
+     */
     private java.lang.String _id;
 
+    /**
+     * Field _description
+     */
     private java.lang.String _description;
 
+    /**
+     * Field _displayName
+     */
     private java.lang.String _displayName;
 
+    /**
+     * Field _smallIcon
+     */
     private java.lang.String _smallIcon;
 
+    /**
+     * Field _largeIcon
+     */
     private java.lang.String _largeIcon;
 
+    /**
+     * Field _ejbName
+     */
     private java.lang.String _ejbName;
 
+    /**
+     * Field _home
+     */
     private java.lang.String _home;
 
+    /**
+     * Field _remote
+     */
     private java.lang.String _remote;
 
+    /**
+     * Field _ejbClass
+     */
     private java.lang.String _ejbClass;
 
+    /**
+     * Field _persistenceType
+     */
     private java.lang.String _persistenceType;
 
+    /**
+     * Field _primKeyClass
+     */
     private java.lang.String _primKeyClass;
 
-    private boolean _reentrant = false;
+    /**
+     * Field _reentrant
+     */
+    private boolean _reentrant;
 
     /**
      * keeps track of state for field: _reentrant
-    **/
+     */
     private boolean _has_reentrant;
 
+    /**
+     * Field _cmpFieldList
+     */
     private java.util.Vector _cmpFieldList;
 
+    /**
+     * Field _primkeyField
+     */
     private java.lang.String _primkeyField;
 
+    /**
+     * Field _envEntryList
+     */
     private java.util.Vector _envEntryList;
 
+    /**
+     * Field _ejbRefList
+     */
     private java.util.Vector _ejbRefList;
 
+    /**
+     * Field _securityRoleRefList
+     */
     private java.util.Vector _securityRoleRefList;
 
+    /**
+     * Field _resourceRefList
+     */
     private java.util.Vector _resourceRefList;
 
 
@@ -88,95 +150,174 @@ public class Entity implements java.io.Serializable {
     //-----------/
 
     /**
+     * Method addCmpField
      * 
      * @param vCmpField
-    **/
-    public void addCmpField(CmpField vCmpField)
+     */
+    public void addCmpField(org.openejb.alt.config.ejb11.CmpField vCmpField)
         throws java.lang.IndexOutOfBoundsException
     {
         _cmpFieldList.addElement(vCmpField);
-    } //-- void addCmpField(CmpField) 
+    } //-- void addCmpField(org.openejb.alt.config.ejb11.CmpField) 
 
     /**
+     * Method addCmpField
+     * 
+     * @param index
+     * @param vCmpField
+     */
+    public void addCmpField(int index, org.openejb.alt.config.ejb11.CmpField vCmpField)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _cmpFieldList.insertElementAt(vCmpField, index);
+    } //-- void addCmpField(int, org.openejb.alt.config.ejb11.CmpField) 
+
+    /**
+     * Method addEjbRef
      * 
      * @param vEjbRef
-    **/
-    public void addEjbRef(EjbRef vEjbRef)
+     */
+    public void addEjbRef(org.openejb.alt.config.ejb11.EjbRef vEjbRef)
         throws java.lang.IndexOutOfBoundsException
     {
         _ejbRefList.addElement(vEjbRef);
-    } //-- void addEjbRef(EjbRef) 
+    } //-- void addEjbRef(org.openejb.alt.config.ejb11.EjbRef) 
 
     /**
+     * Method addEjbRef
+     * 
+     * @param index
+     * @param vEjbRef
+     */
+    public void addEjbRef(int index, org.openejb.alt.config.ejb11.EjbRef vEjbRef)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _ejbRefList.insertElementAt(vEjbRef, index);
+    } //-- void addEjbRef(int, org.openejb.alt.config.ejb11.EjbRef) 
+
+    /**
+     * Method addEnvEntry
      * 
      * @param vEnvEntry
-    **/
-    public void addEnvEntry(EnvEntry vEnvEntry)
+     */
+    public void addEnvEntry(org.openejb.alt.config.ejb11.EnvEntry vEnvEntry)
         throws java.lang.IndexOutOfBoundsException
     {
         _envEntryList.addElement(vEnvEntry);
-    } //-- void addEnvEntry(EnvEntry) 
+    } //-- void addEnvEntry(org.openejb.alt.config.ejb11.EnvEntry) 
 
     /**
+     * Method addEnvEntry
+     * 
+     * @param index
+     * @param vEnvEntry
+     */
+    public void addEnvEntry(int index, org.openejb.alt.config.ejb11.EnvEntry vEnvEntry)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _envEntryList.insertElementAt(vEnvEntry, index);
+    } //-- void addEnvEntry(int, org.openejb.alt.config.ejb11.EnvEntry) 
+
+    /**
+     * Method addResourceRef
      * 
      * @param vResourceRef
-    **/
-    public void addResourceRef(ResourceRef vResourceRef)
+     */
+    public void addResourceRef(org.openejb.alt.config.ejb11.ResourceRef vResourceRef)
         throws java.lang.IndexOutOfBoundsException
     {
         _resourceRefList.addElement(vResourceRef);
-    } //-- void addResourceRef(ResourceRef) 
+    } //-- void addResourceRef(org.openejb.alt.config.ejb11.ResourceRef) 
 
     /**
+     * Method addResourceRef
+     * 
+     * @param index
+     * @param vResourceRef
+     */
+    public void addResourceRef(int index, org.openejb.alt.config.ejb11.ResourceRef vResourceRef)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _resourceRefList.insertElementAt(vResourceRef, index);
+    } //-- void addResourceRef(int, org.openejb.alt.config.ejb11.ResourceRef) 
+
+    /**
+     * Method addSecurityRoleRef
      * 
      * @param vSecurityRoleRef
-    **/
-    public void addSecurityRoleRef(SecurityRoleRef vSecurityRoleRef)
+     */
+    public void addSecurityRoleRef(org.openejb.alt.config.ejb11.SecurityRoleRef vSecurityRoleRef)
         throws java.lang.IndexOutOfBoundsException
     {
         _securityRoleRefList.addElement(vSecurityRoleRef);
-    } //-- void addSecurityRoleRef(SecurityRoleRef) 
+    } //-- void addSecurityRoleRef(org.openejb.alt.config.ejb11.SecurityRoleRef) 
 
     /**
-    **/
+     * Method addSecurityRoleRef
+     * 
+     * @param index
+     * @param vSecurityRoleRef
+     */
+    public void addSecurityRoleRef(int index, org.openejb.alt.config.ejb11.SecurityRoleRef vSecurityRoleRef)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _securityRoleRefList.insertElementAt(vSecurityRoleRef, index);
+    } //-- void addSecurityRoleRef(int, org.openejb.alt.config.ejb11.SecurityRoleRef) 
+
+    /**
+     * Method deleteReentrant
+     */
+    public void deleteReentrant()
+    {
+        this._has_reentrant= false;
+    } //-- void deleteReentrant() 
+
+    /**
+     * Method enumerateCmpField
+     */
     public java.util.Enumeration enumerateCmpField()
     {
         return _cmpFieldList.elements();
     } //-- java.util.Enumeration enumerateCmpField() 
 
     /**
-    **/
+     * Method enumerateEjbRef
+     */
     public java.util.Enumeration enumerateEjbRef()
     {
         return _ejbRefList.elements();
     } //-- java.util.Enumeration enumerateEjbRef() 
 
     /**
-    **/
+     * Method enumerateEnvEntry
+     */
     public java.util.Enumeration enumerateEnvEntry()
     {
         return _envEntryList.elements();
     } //-- java.util.Enumeration enumerateEnvEntry() 
 
     /**
-    **/
+     * Method enumerateResourceRef
+     */
     public java.util.Enumeration enumerateResourceRef()
     {
         return _resourceRefList.elements();
     } //-- java.util.Enumeration enumerateResourceRef() 
 
     /**
-    **/
+     * Method enumerateSecurityRoleRef
+     */
     public java.util.Enumeration enumerateSecurityRoleRef()
     {
         return _securityRoleRefList.elements();
     } //-- java.util.Enumeration enumerateSecurityRoleRef() 
 
     /**
+     * Method getCmpField
      * 
      * @param index
-    **/
-    public CmpField getCmpField(int index)
+     */
+    public org.openejb.alt.config.ejb11.CmpField getCmpField(int index)
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
@@ -184,61 +325,76 @@ public class Entity implements java.io.Serializable {
             throw new IndexOutOfBoundsException();
         }
         
-        return (CmpField) _cmpFieldList.elementAt(index);
-    } //-- CmpField getCmpField(int) 
+        return (org.openejb.alt.config.ejb11.CmpField) _cmpFieldList.elementAt(index);
+    } //-- org.openejb.alt.config.ejb11.CmpField getCmpField(int) 
 
     /**
-    **/
-    public CmpField[] getCmpField()
+     * Method getCmpField
+     */
+    public org.openejb.alt.config.ejb11.CmpField[] getCmpField()
     {
         int size = _cmpFieldList.size();
-        CmpField[] mArray = new CmpField[size];
+        org.openejb.alt.config.ejb11.CmpField[] mArray = new org.openejb.alt.config.ejb11.CmpField[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (CmpField) _cmpFieldList.elementAt(index);
+            mArray[index] = (org.openejb.alt.config.ejb11.CmpField) _cmpFieldList.elementAt(index);
         }
         return mArray;
-    } //-- CmpField[] getCmpField() 
+    } //-- org.openejb.alt.config.ejb11.CmpField[] getCmpField() 
 
     /**
-    **/
+     * Method getCmpFieldCount
+     */
     public int getCmpFieldCount()
     {
         return _cmpFieldList.size();
     } //-- int getCmpFieldCount() 
 
     /**
-    **/
+     * Returns the value of field 'description'.
+     * 
+     * @return the value of field 'description'.
+     */
     public java.lang.String getDescription()
     {
         return this._description;
     } //-- java.lang.String getDescription() 
 
     /**
-    **/
+     * Returns the value of field 'displayName'.
+     * 
+     * @return the value of field 'displayName'.
+     */
     public java.lang.String getDisplayName()
     {
         return this._displayName;
     } //-- java.lang.String getDisplayName() 
 
     /**
-    **/
+     * Returns the value of field 'ejbClass'.
+     * 
+     * @return the value of field 'ejbClass'.
+     */
     public java.lang.String getEjbClass()
     {
         return this._ejbClass;
     } //-- java.lang.String getEjbClass() 
 
     /**
-    **/
+     * Returns the value of field 'ejbName'.
+     * 
+     * @return the value of field 'ejbName'.
+     */
     public java.lang.String getEjbName()
     {
         return this._ejbName;
     } //-- java.lang.String getEjbName() 
 
     /**
+     * Method getEjbRef
      * 
      * @param index
-    **/
-    public EjbRef getEjbRef(int index)
+     */
+    public org.openejb.alt.config.ejb11.EjbRef getEjbRef(int index)
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
@@ -246,33 +402,36 @@ public class Entity implements java.io.Serializable {
             throw new IndexOutOfBoundsException();
         }
         
-        return (EjbRef) _ejbRefList.elementAt(index);
-    } //-- EjbRef getEjbRef(int) 
+        return (org.openejb.alt.config.ejb11.EjbRef) _ejbRefList.elementAt(index);
+    } //-- org.openejb.alt.config.ejb11.EjbRef getEjbRef(int) 
 
     /**
-    **/
-    public EjbRef[] getEjbRef()
+     * Method getEjbRef
+     */
+    public org.openejb.alt.config.ejb11.EjbRef[] getEjbRef()
     {
         int size = _ejbRefList.size();
-        EjbRef[] mArray = new EjbRef[size];
+        org.openejb.alt.config.ejb11.EjbRef[] mArray = new org.openejb.alt.config.ejb11.EjbRef[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (EjbRef) _ejbRefList.elementAt(index);
+            mArray[index] = (org.openejb.alt.config.ejb11.EjbRef) _ejbRefList.elementAt(index);
         }
         return mArray;
-    } //-- EjbRef[] getEjbRef() 
+    } //-- org.openejb.alt.config.ejb11.EjbRef[] getEjbRef() 
 
     /**
-    **/
+     * Method getEjbRefCount
+     */
     public int getEjbRefCount()
     {
         return _ejbRefList.size();
     } //-- int getEjbRefCount() 
 
     /**
+     * Method getEnvEntry
      * 
      * @param index
-    **/
-    public EnvEntry getEnvEntry(int index)
+     */
+    public org.openejb.alt.config.ejb11.EnvEntry getEnvEntry(int index)
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
@@ -280,89 +439,116 @@ public class Entity implements java.io.Serializable {
             throw new IndexOutOfBoundsException();
         }
         
-        return (EnvEntry) _envEntryList.elementAt(index);
-    } //-- EnvEntry getEnvEntry(int) 
+        return (org.openejb.alt.config.ejb11.EnvEntry) _envEntryList.elementAt(index);
+    } //-- org.openejb.alt.config.ejb11.EnvEntry getEnvEntry(int) 
 
     /**
-    **/
-    public EnvEntry[] getEnvEntry()
+     * Method getEnvEntry
+     */
+    public org.openejb.alt.config.ejb11.EnvEntry[] getEnvEntry()
     {
         int size = _envEntryList.size();
-        EnvEntry[] mArray = new EnvEntry[size];
+        org.openejb.alt.config.ejb11.EnvEntry[] mArray = new org.openejb.alt.config.ejb11.EnvEntry[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (EnvEntry) _envEntryList.elementAt(index);
+            mArray[index] = (org.openejb.alt.config.ejb11.EnvEntry) _envEntryList.elementAt(index);
         }
         return mArray;
-    } //-- EnvEntry[] getEnvEntry() 
+    } //-- org.openejb.alt.config.ejb11.EnvEntry[] getEnvEntry() 
 
     /**
-    **/
+     * Method getEnvEntryCount
+     */
     public int getEnvEntryCount()
     {
         return _envEntryList.size();
     } //-- int getEnvEntryCount() 
 
     /**
-    **/
+     * Returns the value of field 'home'.
+     * 
+     * @return the value of field 'home'.
+     */
     public java.lang.String getHome()
     {
         return this._home;
     } //-- java.lang.String getHome() 
 
     /**
-    **/
+     * Returns the value of field 'id'.
+     * 
+     * @return the value of field 'id'.
+     */
     public java.lang.String getId()
     {
         return this._id;
     } //-- java.lang.String getId() 
 
     /**
-    **/
+     * Returns the value of field 'largeIcon'.
+     * 
+     * @return the value of field 'largeIcon'.
+     */
     public java.lang.String getLargeIcon()
     {
         return this._largeIcon;
     } //-- java.lang.String getLargeIcon() 
 
     /**
-    **/
+     * Returns the value of field 'persistenceType'.
+     * 
+     * @return the value of field 'persistenceType'.
+     */
     public java.lang.String getPersistenceType()
     {
         return this._persistenceType;
     } //-- java.lang.String getPersistenceType() 
 
     /**
-    **/
+     * Returns the value of field 'primKeyClass'.
+     * 
+     * @return the value of field 'primKeyClass'.
+     */
     public java.lang.String getPrimKeyClass()
     {
         return this._primKeyClass;
     } //-- java.lang.String getPrimKeyClass() 
 
     /**
-    **/
+     * Returns the value of field 'primkeyField'.
+     * 
+     * @return the value of field 'primkeyField'.
+     */
     public java.lang.String getPrimkeyField()
     {
         return this._primkeyField;
     } //-- java.lang.String getPrimkeyField() 
 
     /**
-    **/
+     * Returns the value of field 'reentrant'.
+     * 
+     * @return the value of field 'reentrant'.
+     */
     public boolean getReentrant()
     {
         return this._reentrant;
     } //-- boolean getReentrant() 
 
     /**
-    **/
+     * Returns the value of field 'remote'.
+     * 
+     * @return the value of field 'remote'.
+     */
     public java.lang.String getRemote()
     {
         return this._remote;
     } //-- java.lang.String getRemote() 
 
     /**
+     * Method getResourceRef
      * 
      * @param index
-    **/
-    public ResourceRef getResourceRef(int index)
+     */
+    public org.openejb.alt.config.ejb11.ResourceRef getResourceRef(int index)
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
@@ -370,33 +556,36 @@ public class Entity implements java.io.Serializable {
             throw new IndexOutOfBoundsException();
         }
         
-        return (ResourceRef) _resourceRefList.elementAt(index);
-    } //-- ResourceRef getResourceRef(int) 
+        return (org.openejb.alt.config.ejb11.ResourceRef) _resourceRefList.elementAt(index);
+    } //-- org.openejb.alt.config.ejb11.ResourceRef getResourceRef(int) 
 
     /**
-    **/
-    public ResourceRef[] getResourceRef()
+     * Method getResourceRef
+     */
+    public org.openejb.alt.config.ejb11.ResourceRef[] getResourceRef()
     {
         int size = _resourceRefList.size();
-        ResourceRef[] mArray = new ResourceRef[size];
+        org.openejb.alt.config.ejb11.ResourceRef[] mArray = new org.openejb.alt.config.ejb11.ResourceRef[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (ResourceRef) _resourceRefList.elementAt(index);
+            mArray[index] = (org.openejb.alt.config.ejb11.ResourceRef) _resourceRefList.elementAt(index);
         }
         return mArray;
-    } //-- ResourceRef[] getResourceRef() 
+    } //-- org.openejb.alt.config.ejb11.ResourceRef[] getResourceRef() 
 
     /**
-    **/
+     * Method getResourceRefCount
+     */
     public int getResourceRefCount()
     {
         return _resourceRefList.size();
     } //-- int getResourceRefCount() 
 
     /**
+     * Method getSecurityRoleRef
      * 
      * @param index
-    **/
-    public SecurityRoleRef getSecurityRoleRef(int index)
+     */
+    public org.openejb.alt.config.ejb11.SecurityRoleRef getSecurityRoleRef(int index)
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
@@ -404,44 +593,51 @@ public class Entity implements java.io.Serializable {
             throw new IndexOutOfBoundsException();
         }
         
-        return (SecurityRoleRef) _securityRoleRefList.elementAt(index);
-    } //-- SecurityRoleRef getSecurityRoleRef(int) 
+        return (org.openejb.alt.config.ejb11.SecurityRoleRef) _securityRoleRefList.elementAt(index);
+    } //-- org.openejb.alt.config.ejb11.SecurityRoleRef getSecurityRoleRef(int) 
 
     /**
-    **/
-    public SecurityRoleRef[] getSecurityRoleRef()
+     * Method getSecurityRoleRef
+     */
+    public org.openejb.alt.config.ejb11.SecurityRoleRef[] getSecurityRoleRef()
     {
         int size = _securityRoleRefList.size();
-        SecurityRoleRef[] mArray = new SecurityRoleRef[size];
+        org.openejb.alt.config.ejb11.SecurityRoleRef[] mArray = new org.openejb.alt.config.ejb11.SecurityRoleRef[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (SecurityRoleRef) _securityRoleRefList.elementAt(index);
+            mArray[index] = (org.openejb.alt.config.ejb11.SecurityRoleRef) _securityRoleRefList.elementAt(index);
         }
         return mArray;
-    } //-- SecurityRoleRef[] getSecurityRoleRef() 
+    } //-- org.openejb.alt.config.ejb11.SecurityRoleRef[] getSecurityRoleRef() 
 
     /**
-    **/
+     * Method getSecurityRoleRefCount
+     */
     public int getSecurityRoleRefCount()
     {
         return _securityRoleRefList.size();
     } //-- int getSecurityRoleRefCount() 
 
     /**
-    **/
+     * Returns the value of field 'smallIcon'.
+     * 
+     * @return the value of field 'smallIcon'.
+     */
     public java.lang.String getSmallIcon()
     {
         return this._smallIcon;
     } //-- java.lang.String getSmallIcon() 
 
     /**
-    **/
+     * Method hasReentrant
+     */
     public boolean hasReentrant()
     {
         return this._has_reentrant;
     } //-- boolean hasReentrant() 
 
     /**
-    **/
+     * Method isValid
+     */
     public boolean isValid()
     {
         try {
@@ -454,9 +650,10 @@ public class Entity implements java.io.Serializable {
     } //-- boolean isValid() 
 
     /**
+     * Method marshal
      * 
      * @param out
-    **/
+     */
     public void marshal(java.io.Writer out)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
@@ -465,112 +662,124 @@ public class Entity implements java.io.Serializable {
     } //-- void marshal(java.io.Writer) 
 
     /**
+     * Method marshal
      * 
      * @param handler
-    **/
-    public void marshal(org.xml.sax.DocumentHandler handler)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
+     */
+    public void marshal(org.xml.sax.ContentHandler handler)
+        throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         
         Marshaller.marshal(this, handler);
-    } //-- void marshal(org.xml.sax.DocumentHandler) 
+    } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
-    **/
+     * Method removeAllCmpField
+     */
     public void removeAllCmpField()
     {
         _cmpFieldList.removeAllElements();
     } //-- void removeAllCmpField() 
 
     /**
-    **/
+     * Method removeAllEjbRef
+     */
     public void removeAllEjbRef()
     {
         _ejbRefList.removeAllElements();
     } //-- void removeAllEjbRef() 
 
     /**
-    **/
+     * Method removeAllEnvEntry
+     */
     public void removeAllEnvEntry()
     {
         _envEntryList.removeAllElements();
     } //-- void removeAllEnvEntry() 
 
     /**
-    **/
+     * Method removeAllResourceRef
+     */
     public void removeAllResourceRef()
     {
         _resourceRefList.removeAllElements();
     } //-- void removeAllResourceRef() 
 
     /**
-    **/
+     * Method removeAllSecurityRoleRef
+     */
     public void removeAllSecurityRoleRef()
     {
         _securityRoleRefList.removeAllElements();
     } //-- void removeAllSecurityRoleRef() 
 
     /**
+     * Method removeCmpField
      * 
      * @param index
-    **/
-    public CmpField removeCmpField(int index)
+     */
+    public org.openejb.alt.config.ejb11.CmpField removeCmpField(int index)
     {
-        Object obj = _cmpFieldList.elementAt(index);
+        java.lang.Object obj = _cmpFieldList.elementAt(index);
         _cmpFieldList.removeElementAt(index);
-        return (CmpField) obj;
-    } //-- CmpField removeCmpField(int) 
+        return (org.openejb.alt.config.ejb11.CmpField) obj;
+    } //-- org.openejb.alt.config.ejb11.CmpField removeCmpField(int) 
 
     /**
+     * Method removeEjbRef
      * 
      * @param index
-    **/
-    public EjbRef removeEjbRef(int index)
+     */
+    public org.openejb.alt.config.ejb11.EjbRef removeEjbRef(int index)
     {
-        Object obj = _ejbRefList.elementAt(index);
+        java.lang.Object obj = _ejbRefList.elementAt(index);
         _ejbRefList.removeElementAt(index);
-        return (EjbRef) obj;
-    } //-- EjbRef removeEjbRef(int) 
+        return (org.openejb.alt.config.ejb11.EjbRef) obj;
+    } //-- org.openejb.alt.config.ejb11.EjbRef removeEjbRef(int) 
 
     /**
+     * Method removeEnvEntry
      * 
      * @param index
-    **/
-    public EnvEntry removeEnvEntry(int index)
+     */
+    public org.openejb.alt.config.ejb11.EnvEntry removeEnvEntry(int index)
     {
-        Object obj = _envEntryList.elementAt(index);
+        java.lang.Object obj = _envEntryList.elementAt(index);
         _envEntryList.removeElementAt(index);
-        return (EnvEntry) obj;
-    } //-- EnvEntry removeEnvEntry(int) 
+        return (org.openejb.alt.config.ejb11.EnvEntry) obj;
+    } //-- org.openejb.alt.config.ejb11.EnvEntry removeEnvEntry(int) 
 
     /**
+     * Method removeResourceRef
      * 
      * @param index
-    **/
-    public ResourceRef removeResourceRef(int index)
+     */
+    public org.openejb.alt.config.ejb11.ResourceRef removeResourceRef(int index)
     {
-        Object obj = _resourceRefList.elementAt(index);
+        java.lang.Object obj = _resourceRefList.elementAt(index);
         _resourceRefList.removeElementAt(index);
-        return (ResourceRef) obj;
-    } //-- ResourceRef removeResourceRef(int) 
+        return (org.openejb.alt.config.ejb11.ResourceRef) obj;
+    } //-- org.openejb.alt.config.ejb11.ResourceRef removeResourceRef(int) 
 
     /**
+     * Method removeSecurityRoleRef
      * 
      * @param index
-    **/
-    public SecurityRoleRef removeSecurityRoleRef(int index)
+     */
+    public org.openejb.alt.config.ejb11.SecurityRoleRef removeSecurityRoleRef(int index)
     {
-        Object obj = _securityRoleRefList.elementAt(index);
+        java.lang.Object obj = _securityRoleRefList.elementAt(index);
         _securityRoleRefList.removeElementAt(index);
-        return (SecurityRoleRef) obj;
-    } //-- SecurityRoleRef removeSecurityRoleRef(int) 
+        return (org.openejb.alt.config.ejb11.SecurityRoleRef) obj;
+    } //-- org.openejb.alt.config.ejb11.SecurityRoleRef removeSecurityRoleRef(int) 
 
     /**
+     * Method setCmpField
      * 
      * @param index
      * @param vCmpField
-    **/
-    public void setCmpField(int index, CmpField vCmpField)
+     */
+    public void setCmpField(int index, org.openejb.alt.config.ejb11.CmpField vCmpField)
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
@@ -578,63 +787,69 @@ public class Entity implements java.io.Serializable {
             throw new IndexOutOfBoundsException();
         }
         _cmpFieldList.setElementAt(vCmpField, index);
-    } //-- void setCmpField(int, CmpField) 
+    } //-- void setCmpField(int, org.openejb.alt.config.ejb11.CmpField) 
 
     /**
+     * Method setCmpField
      * 
      * @param cmpFieldArray
-    **/
-    public void setCmpField(CmpField[] cmpFieldArray)
+     */
+    public void setCmpField(org.openejb.alt.config.ejb11.CmpField[] cmpFieldArray)
     {
         //-- copy array
         _cmpFieldList.removeAllElements();
         for (int i = 0; i < cmpFieldArray.length; i++) {
             _cmpFieldList.addElement(cmpFieldArray[i]);
         }
-    } //-- void setCmpField(CmpField) 
+    } //-- void setCmpField(org.openejb.alt.config.ejb11.CmpField) 
 
     /**
+     * Sets the value of field 'description'.
      * 
-     * @param _description
-    **/
-    public void setDescription(java.lang.String _description)
+     * @param description the value of field 'description'.
+     */
+    public void setDescription(java.lang.String description)
     {
-        this._description = _description;
+        this._description = description;
     } //-- void setDescription(java.lang.String) 
 
     /**
+     * Sets the value of field 'displayName'.
      * 
-     * @param _displayName
-    **/
-    public void setDisplayName(java.lang.String _displayName)
+     * @param displayName the value of field 'displayName'.
+     */
+    public void setDisplayName(java.lang.String displayName)
     {
-        this._displayName = _displayName;
+        this._displayName = displayName;
     } //-- void setDisplayName(java.lang.String) 
 
     /**
+     * Sets the value of field 'ejbClass'.
      * 
-     * @param _ejbClass
-    **/
-    public void setEjbClass(java.lang.String _ejbClass)
+     * @param ejbClass the value of field 'ejbClass'.
+     */
+    public void setEjbClass(java.lang.String ejbClass)
     {
-        this._ejbClass = _ejbClass;
+        this._ejbClass = ejbClass;
     } //-- void setEjbClass(java.lang.String) 
 
     /**
+     * Sets the value of field 'ejbName'.
      * 
-     * @param _ejbName
-    **/
-    public void setEjbName(java.lang.String _ejbName)
+     * @param ejbName the value of field 'ejbName'.
+     */
+    public void setEjbName(java.lang.String ejbName)
     {
-        this._ejbName = _ejbName;
+        this._ejbName = ejbName;
     } //-- void setEjbName(java.lang.String) 
 
     /**
+     * Method setEjbRef
      * 
      * @param index
      * @param vEjbRef
-    **/
-    public void setEjbRef(int index, EjbRef vEjbRef)
+     */
+    public void setEjbRef(int index, org.openejb.alt.config.ejb11.EjbRef vEjbRef)
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
@@ -642,27 +857,29 @@ public class Entity implements java.io.Serializable {
             throw new IndexOutOfBoundsException();
         }
         _ejbRefList.setElementAt(vEjbRef, index);
-    } //-- void setEjbRef(int, EjbRef) 
+    } //-- void setEjbRef(int, org.openejb.alt.config.ejb11.EjbRef) 
 
     /**
+     * Method setEjbRef
      * 
      * @param ejbRefArray
-    **/
-    public void setEjbRef(EjbRef[] ejbRefArray)
+     */
+    public void setEjbRef(org.openejb.alt.config.ejb11.EjbRef[] ejbRefArray)
     {
         //-- copy array
         _ejbRefList.removeAllElements();
         for (int i = 0; i < ejbRefArray.length; i++) {
             _ejbRefList.addElement(ejbRefArray[i]);
         }
-    } //-- void setEjbRef(EjbRef) 
+    } //-- void setEjbRef(org.openejb.alt.config.ejb11.EjbRef) 
 
     /**
+     * Method setEnvEntry
      * 
      * @param index
      * @param vEnvEntry
-    **/
-    public void setEnvEntry(int index, EnvEntry vEnvEntry)
+     */
+    public void setEnvEntry(int index, org.openejb.alt.config.ejb11.EnvEntry vEnvEntry)
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
@@ -670,100 +887,110 @@ public class Entity implements java.io.Serializable {
             throw new IndexOutOfBoundsException();
         }
         _envEntryList.setElementAt(vEnvEntry, index);
-    } //-- void setEnvEntry(int, EnvEntry) 
+    } //-- void setEnvEntry(int, org.openejb.alt.config.ejb11.EnvEntry) 
 
     /**
+     * Method setEnvEntry
      * 
      * @param envEntryArray
-    **/
-    public void setEnvEntry(EnvEntry[] envEntryArray)
+     */
+    public void setEnvEntry(org.openejb.alt.config.ejb11.EnvEntry[] envEntryArray)
     {
         //-- copy array
         _envEntryList.removeAllElements();
         for (int i = 0; i < envEntryArray.length; i++) {
             _envEntryList.addElement(envEntryArray[i]);
         }
-    } //-- void setEnvEntry(EnvEntry) 
+    } //-- void setEnvEntry(org.openejb.alt.config.ejb11.EnvEntry) 
 
     /**
+     * Sets the value of field 'home'.
      * 
-     * @param _home
-    **/
-    public void setHome(java.lang.String _home)
+     * @param home the value of field 'home'.
+     */
+    public void setHome(java.lang.String home)
     {
-        this._home = _home;
+        this._home = home;
     } //-- void setHome(java.lang.String) 
 
     /**
+     * Sets the value of field 'id'.
      * 
-     * @param _id
-    **/
-    public void setId(java.lang.String _id)
+     * @param id the value of field 'id'.
+     */
+    public void setId(java.lang.String id)
     {
-        this._id = _id;
+        this._id = id;
     } //-- void setId(java.lang.String) 
 
     /**
+     * Sets the value of field 'largeIcon'.
      * 
-     * @param _largeIcon
-    **/
-    public void setLargeIcon(java.lang.String _largeIcon)
+     * @param largeIcon the value of field 'largeIcon'.
+     */
+    public void setLargeIcon(java.lang.String largeIcon)
     {
-        this._largeIcon = _largeIcon;
+        this._largeIcon = largeIcon;
     } //-- void setLargeIcon(java.lang.String) 
 
     /**
+     * Sets the value of field 'persistenceType'.
      * 
-     * @param _persistenceType
-    **/
-    public void setPersistenceType(java.lang.String _persistenceType)
+     * @param persistenceType the value of field 'persistenceType'.
+     */
+    public void setPersistenceType(java.lang.String persistenceType)
     {
-        this._persistenceType = _persistenceType;
+        this._persistenceType = persistenceType;
     } //-- void setPersistenceType(java.lang.String) 
 
     /**
+     * Sets the value of field 'primKeyClass'.
      * 
-     * @param _primKeyClass
-    **/
-    public void setPrimKeyClass(java.lang.String _primKeyClass)
+     * @param primKeyClass the value of field 'primKeyClass'.
+     */
+    public void setPrimKeyClass(java.lang.String primKeyClass)
     {
-        this._primKeyClass = _primKeyClass;
+        this._primKeyClass = primKeyClass;
     } //-- void setPrimKeyClass(java.lang.String) 
 
     /**
+     * Sets the value of field 'primkeyField'.
      * 
-     * @param _primkeyField
-    **/
-    public void setPrimkeyField(java.lang.String _primkeyField)
+     * @param primkeyField the value of field 'primkeyField'.
+     */
+    public void setPrimkeyField(java.lang.String primkeyField)
     {
-        this._primkeyField = _primkeyField;
+        this._primkeyField = primkeyField;
     } //-- void setPrimkeyField(java.lang.String) 
 
     /**
+     * Sets the value of field 'reentrant'.
      * 
-     * @param _reentrant
-    **/
-    public void setReentrant(boolean _reentrant)
+     * @param reentrant the value of field 'reentrant'.
+     */
+    public void setReentrant(boolean reentrant)
     {
-        this._reentrant = _reentrant;
+        this._reentrant = reentrant;
         this._has_reentrant = true;
     } //-- void setReentrant(boolean) 
 
     /**
+     * Sets the value of field 'remote'.
      * 
-     * @param _remote
-    **/
-    public void setRemote(java.lang.String _remote)
+     * @param remote the value of field 'remote'.
+     */
+    public void setRemote(java.lang.String remote)
     {
-        this._remote = _remote;
+        this._remote = remote;
     } //-- void setRemote(java.lang.String) 
 
     /**
+     * Method setResourceRef
      * 
      * @param index
      * @param vResourceRef
-    **/
-    public void setResourceRef(int index, ResourceRef vResourceRef)
+     */
+    public void setResourceRef(int index, org.openejb.alt.config.ejb11.ResourceRef vResourceRef)
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
@@ -771,27 +998,29 @@ public class Entity implements java.io.Serializable {
             throw new IndexOutOfBoundsException();
         }
         _resourceRefList.setElementAt(vResourceRef, index);
-    } //-- void setResourceRef(int, ResourceRef) 
+    } //-- void setResourceRef(int, org.openejb.alt.config.ejb11.ResourceRef) 
 
     /**
+     * Method setResourceRef
      * 
      * @param resourceRefArray
-    **/
-    public void setResourceRef(ResourceRef[] resourceRefArray)
+     */
+    public void setResourceRef(org.openejb.alt.config.ejb11.ResourceRef[] resourceRefArray)
     {
         //-- copy array
         _resourceRefList.removeAllElements();
         for (int i = 0; i < resourceRefArray.length; i++) {
             _resourceRefList.addElement(resourceRefArray[i]);
         }
-    } //-- void setResourceRef(ResourceRef) 
+    } //-- void setResourceRef(org.openejb.alt.config.ejb11.ResourceRef) 
 
     /**
+     * Method setSecurityRoleRef
      * 
      * @param index
      * @param vSecurityRoleRef
-    **/
-    public void setSecurityRoleRef(int index, SecurityRoleRef vSecurityRoleRef)
+     */
+    public void setSecurityRoleRef(int index, org.openejb.alt.config.ejb11.SecurityRoleRef vSecurityRoleRef)
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
@@ -799,42 +1028,46 @@ public class Entity implements java.io.Serializable {
             throw new IndexOutOfBoundsException();
         }
         _securityRoleRefList.setElementAt(vSecurityRoleRef, index);
-    } //-- void setSecurityRoleRef(int, SecurityRoleRef) 
+    } //-- void setSecurityRoleRef(int, org.openejb.alt.config.ejb11.SecurityRoleRef) 
 
     /**
+     * Method setSecurityRoleRef
      * 
      * @param securityRoleRefArray
-    **/
-    public void setSecurityRoleRef(SecurityRoleRef[] securityRoleRefArray)
+     */
+    public void setSecurityRoleRef(org.openejb.alt.config.ejb11.SecurityRoleRef[] securityRoleRefArray)
     {
         //-- copy array
         _securityRoleRefList.removeAllElements();
         for (int i = 0; i < securityRoleRefArray.length; i++) {
             _securityRoleRefList.addElement(securityRoleRefArray[i]);
         }
-    } //-- void setSecurityRoleRef(SecurityRoleRef) 
+    } //-- void setSecurityRoleRef(org.openejb.alt.config.ejb11.SecurityRoleRef) 
 
     /**
+     * Sets the value of field 'smallIcon'.
      * 
-     * @param _smallIcon
-    **/
-    public void setSmallIcon(java.lang.String _smallIcon)
+     * @param smallIcon the value of field 'smallIcon'.
+     */
+    public void setSmallIcon(java.lang.String smallIcon)
     {
-        this._smallIcon = _smallIcon;
+        this._smallIcon = smallIcon;
     } //-- void setSmallIcon(java.lang.String) 
 
     /**
+     * Method unmarshal
      * 
      * @param reader
-    **/
-    public static org.openejb.alt.config.ejb11.Entity unmarshal(java.io.Reader reader)
+     */
+    public static java.lang.Object unmarshal(java.io.Reader reader)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         return (org.openejb.alt.config.ejb11.Entity) Unmarshaller.unmarshal(org.openejb.alt.config.ejb11.Entity.class, reader);
-    } //-- org.openejb.alt.config.ejb11.Entity unmarshal(java.io.Reader) 
+    } //-- java.lang.Object unmarshal(java.io.Reader) 
 
     /**
-    **/
+     * Method validate
+     */
     public void validate()
         throws org.exolab.castor.xml.ValidationException
     {

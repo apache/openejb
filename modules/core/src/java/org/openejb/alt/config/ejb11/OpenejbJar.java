@@ -1,7 +1,7 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
@@ -11,15 +11,23 @@ package org.openejb.alt.config.ejb11;
  //- Imported classes and packages -/
 //---------------------------------/
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.Writer;
+import java.util.Enumeration;
 import java.util.Vector;
-
+import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
+import org.exolab.castor.xml.ValidationException;
+import org.xml.sax.ContentHandler;
 
 /**
+ * Class OpenejbJar.
  * 
  * @version $Revision$ $Date$
-**/
+ */
 public class OpenejbJar implements java.io.Serializable {
 
 
@@ -27,6 +35,9 @@ public class OpenejbJar implements java.io.Serializable {
      //- Class/Member Variables -/
     //--------------------------/
 
+    /**
+     * Field _ejbDeploymentList
+     */
     private java.util.Vector _ejbDeploymentList;
 
 
@@ -45,27 +56,42 @@ public class OpenejbJar implements java.io.Serializable {
     //-----------/
 
     /**
+     * Method addEjbDeployment
      * 
      * @param vEjbDeployment
-    **/
-    public void addEjbDeployment(EjbDeployment vEjbDeployment)
+     */
+    public void addEjbDeployment(org.openejb.alt.config.ejb11.EjbDeployment vEjbDeployment)
         throws java.lang.IndexOutOfBoundsException
     {
         _ejbDeploymentList.addElement(vEjbDeployment);
-    } //-- void addEjbDeployment(EjbDeployment) 
+    } //-- void addEjbDeployment(org.openejb.alt.config.ejb11.EjbDeployment) 
 
     /**
-    **/
+     * Method addEjbDeployment
+     * 
+     * @param index
+     * @param vEjbDeployment
+     */
+    public void addEjbDeployment(int index, org.openejb.alt.config.ejb11.EjbDeployment vEjbDeployment)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _ejbDeploymentList.insertElementAt(vEjbDeployment, index);
+    } //-- void addEjbDeployment(int, org.openejb.alt.config.ejb11.EjbDeployment) 
+
+    /**
+     * Method enumerateEjbDeployment
+     */
     public java.util.Enumeration enumerateEjbDeployment()
     {
         return _ejbDeploymentList.elements();
     } //-- java.util.Enumeration enumerateEjbDeployment() 
 
     /**
+     * Method getEjbDeployment
      * 
      * @param index
-    **/
-    public EjbDeployment getEjbDeployment(int index)
+     */
+    public org.openejb.alt.config.ejb11.EjbDeployment getEjbDeployment(int index)
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
@@ -73,30 +99,33 @@ public class OpenejbJar implements java.io.Serializable {
             throw new IndexOutOfBoundsException();
         }
         
-        return (EjbDeployment) _ejbDeploymentList.elementAt(index);
-    } //-- EjbDeployment getEjbDeployment(int) 
+        return (org.openejb.alt.config.ejb11.EjbDeployment) _ejbDeploymentList.elementAt(index);
+    } //-- org.openejb.alt.config.ejb11.EjbDeployment getEjbDeployment(int) 
 
     /**
-    **/
-    public EjbDeployment[] getEjbDeployment()
+     * Method getEjbDeployment
+     */
+    public org.openejb.alt.config.ejb11.EjbDeployment[] getEjbDeployment()
     {
         int size = _ejbDeploymentList.size();
-        EjbDeployment[] mArray = new EjbDeployment[size];
+        org.openejb.alt.config.ejb11.EjbDeployment[] mArray = new org.openejb.alt.config.ejb11.EjbDeployment[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (EjbDeployment) _ejbDeploymentList.elementAt(index);
+            mArray[index] = (org.openejb.alt.config.ejb11.EjbDeployment) _ejbDeploymentList.elementAt(index);
         }
         return mArray;
-    } //-- EjbDeployment[] getEjbDeployment() 
+    } //-- org.openejb.alt.config.ejb11.EjbDeployment[] getEjbDeployment() 
 
     /**
-    **/
+     * Method getEjbDeploymentCount
+     */
     public int getEjbDeploymentCount()
     {
         return _ejbDeploymentList.size();
     } //-- int getEjbDeploymentCount() 
 
     /**
-    **/
+     * Method isValid
+     */
     public boolean isValid()
     {
         try {
@@ -109,9 +138,10 @@ public class OpenejbJar implements java.io.Serializable {
     } //-- boolean isValid() 
 
     /**
+     * Method marshal
      * 
      * @param out
-    **/
+     */
     public void marshal(java.io.Writer out)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
@@ -120,40 +150,44 @@ public class OpenejbJar implements java.io.Serializable {
     } //-- void marshal(java.io.Writer) 
 
     /**
+     * Method marshal
      * 
      * @param handler
-    **/
-    public void marshal(org.xml.sax.DocumentHandler handler)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
+     */
+    public void marshal(org.xml.sax.ContentHandler handler)
+        throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         
         Marshaller.marshal(this, handler);
-    } //-- void marshal(org.xml.sax.DocumentHandler) 
+    } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
-    **/
+     * Method removeAllEjbDeployment
+     */
     public void removeAllEjbDeployment()
     {
         _ejbDeploymentList.removeAllElements();
     } //-- void removeAllEjbDeployment() 
 
     /**
+     * Method removeEjbDeployment
      * 
      * @param index
-    **/
-    public EjbDeployment removeEjbDeployment(int index)
+     */
+    public org.openejb.alt.config.ejb11.EjbDeployment removeEjbDeployment(int index)
     {
-        Object obj = _ejbDeploymentList.elementAt(index);
+        java.lang.Object obj = _ejbDeploymentList.elementAt(index);
         _ejbDeploymentList.removeElementAt(index);
-        return (EjbDeployment) obj;
-    } //-- EjbDeployment removeEjbDeployment(int) 
+        return (org.openejb.alt.config.ejb11.EjbDeployment) obj;
+    } //-- org.openejb.alt.config.ejb11.EjbDeployment removeEjbDeployment(int) 
 
     /**
+     * Method setEjbDeployment
      * 
      * @param index
      * @param vEjbDeployment
-    **/
-    public void setEjbDeployment(int index, EjbDeployment vEjbDeployment)
+     */
+    public void setEjbDeployment(int index, org.openejb.alt.config.ejb11.EjbDeployment vEjbDeployment)
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
@@ -161,33 +195,36 @@ public class OpenejbJar implements java.io.Serializable {
             throw new IndexOutOfBoundsException();
         }
         _ejbDeploymentList.setElementAt(vEjbDeployment, index);
-    } //-- void setEjbDeployment(int, EjbDeployment) 
+    } //-- void setEjbDeployment(int, org.openejb.alt.config.ejb11.EjbDeployment) 
 
     /**
+     * Method setEjbDeployment
      * 
      * @param ejbDeploymentArray
-    **/
-    public void setEjbDeployment(EjbDeployment[] ejbDeploymentArray)
+     */
+    public void setEjbDeployment(org.openejb.alt.config.ejb11.EjbDeployment[] ejbDeploymentArray)
     {
         //-- copy array
         _ejbDeploymentList.removeAllElements();
         for (int i = 0; i < ejbDeploymentArray.length; i++) {
             _ejbDeploymentList.addElement(ejbDeploymentArray[i]);
         }
-    } //-- void setEjbDeployment(EjbDeployment) 
+    } //-- void setEjbDeployment(org.openejb.alt.config.ejb11.EjbDeployment) 
 
     /**
+     * Method unmarshal
      * 
      * @param reader
-    **/
-    public static org.openejb.alt.config.ejb11.OpenejbJar unmarshal(java.io.Reader reader)
+     */
+    public static java.lang.Object unmarshal(java.io.Reader reader)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         return (org.openejb.alt.config.ejb11.OpenejbJar) Unmarshaller.unmarshal(org.openejb.alt.config.ejb11.OpenejbJar.class, reader);
-    } //-- org.openejb.alt.config.ejb11.OpenejbJar unmarshal(java.io.Reader) 
+    } //-- java.lang.Object unmarshal(java.io.Reader) 
 
     /**
-    **/
+     * Method validate
+     */
     public void validate()
         throws org.exolab.castor.xml.ValidationException
     {

@@ -1,7 +1,7 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
@@ -11,13 +11,21 @@ package org.openejb.alt.config.ejb11;
  //- Imported classes and packages -/
 //---------------------------------/
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.Writer;
+import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
+import org.exolab.castor.xml.ValidationException;
+import org.xml.sax.ContentHandler;
 
 /**
+ * Class EnvEntry.
  * 
  * @version $Revision$ $Date$
-**/
+ */
 public class EnvEntry implements java.io.Serializable {
 
 
@@ -25,14 +33,29 @@ public class EnvEntry implements java.io.Serializable {
      //- Class/Member Variables -/
     //--------------------------/
 
+    /**
+     * Field _id
+     */
     private java.lang.String _id;
 
+    /**
+     * Field _description
+     */
     private java.lang.String _description;
 
+    /**
+     * Field _envEntryName
+     */
     private java.lang.String _envEntryName;
 
+    /**
+     * Field _envEntryType
+     */
     private java.lang.String _envEntryType;
 
+    /**
+     * Field _envEntryValue
+     */
     private java.lang.String _envEntryValue;
 
 
@@ -50,42 +73,58 @@ public class EnvEntry implements java.io.Serializable {
     //-----------/
 
     /**
-    **/
+     * Returns the value of field 'description'.
+     * 
+     * @return the value of field 'description'.
+     */
     public java.lang.String getDescription()
     {
         return this._description;
     } //-- java.lang.String getDescription() 
 
     /**
-    **/
+     * Returns the value of field 'envEntryName'.
+     * 
+     * @return the value of field 'envEntryName'.
+     */
     public java.lang.String getEnvEntryName()
     {
         return this._envEntryName;
     } //-- java.lang.String getEnvEntryName() 
 
     /**
-    **/
+     * Returns the value of field 'envEntryType'.
+     * 
+     * @return the value of field 'envEntryType'.
+     */
     public java.lang.String getEnvEntryType()
     {
         return this._envEntryType;
     } //-- java.lang.String getEnvEntryType() 
 
     /**
-    **/
+     * Returns the value of field 'envEntryValue'.
+     * 
+     * @return the value of field 'envEntryValue'.
+     */
     public java.lang.String getEnvEntryValue()
     {
         return this._envEntryValue;
     } //-- java.lang.String getEnvEntryValue() 
 
     /**
-    **/
+     * Returns the value of field 'id'.
+     * 
+     * @return the value of field 'id'.
+     */
     public java.lang.String getId()
     {
         return this._id;
     } //-- java.lang.String getId() 
 
     /**
-    **/
+     * Method isValid
+     */
     public boolean isValid()
     {
         try {
@@ -98,9 +137,10 @@ public class EnvEntry implements java.io.Serializable {
     } //-- boolean isValid() 
 
     /**
+     * Method marshal
      * 
      * @param out
-    **/
+     */
     public void marshal(java.io.Writer out)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
@@ -109,73 +149,81 @@ public class EnvEntry implements java.io.Serializable {
     } //-- void marshal(java.io.Writer) 
 
     /**
+     * Method marshal
      * 
      * @param handler
-    **/
-    public void marshal(org.xml.sax.DocumentHandler handler)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
+     */
+    public void marshal(org.xml.sax.ContentHandler handler)
+        throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         
         Marshaller.marshal(this, handler);
-    } //-- void marshal(org.xml.sax.DocumentHandler) 
+    } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
+     * Sets the value of field 'description'.
      * 
-     * @param _description
-    **/
-    public void setDescription(java.lang.String _description)
+     * @param description the value of field 'description'.
+     */
+    public void setDescription(java.lang.String description)
     {
-        this._description = _description;
+        this._description = description;
     } //-- void setDescription(java.lang.String) 
 
     /**
+     * Sets the value of field 'envEntryName'.
      * 
-     * @param _envEntryName
-    **/
-    public void setEnvEntryName(java.lang.String _envEntryName)
+     * @param envEntryName the value of field 'envEntryName'.
+     */
+    public void setEnvEntryName(java.lang.String envEntryName)
     {
-        this._envEntryName = _envEntryName;
+        this._envEntryName = envEntryName;
     } //-- void setEnvEntryName(java.lang.String) 
 
     /**
+     * Sets the value of field 'envEntryType'.
      * 
-     * @param _envEntryType
-    **/
-    public void setEnvEntryType(java.lang.String _envEntryType)
+     * @param envEntryType the value of field 'envEntryType'.
+     */
+    public void setEnvEntryType(java.lang.String envEntryType)
     {
-        this._envEntryType = _envEntryType;
+        this._envEntryType = envEntryType;
     } //-- void setEnvEntryType(java.lang.String) 
 
     /**
+     * Sets the value of field 'envEntryValue'.
      * 
-     * @param _envEntryValue
-    **/
-    public void setEnvEntryValue(java.lang.String _envEntryValue)
+     * @param envEntryValue the value of field 'envEntryValue'.
+     */
+    public void setEnvEntryValue(java.lang.String envEntryValue)
     {
-        this._envEntryValue = _envEntryValue;
+        this._envEntryValue = envEntryValue;
     } //-- void setEnvEntryValue(java.lang.String) 
 
     /**
+     * Sets the value of field 'id'.
      * 
-     * @param _id
-    **/
-    public void setId(java.lang.String _id)
+     * @param id the value of field 'id'.
+     */
+    public void setId(java.lang.String id)
     {
-        this._id = _id;
+        this._id = id;
     } //-- void setId(java.lang.String) 
 
     /**
+     * Method unmarshal
      * 
      * @param reader
-    **/
-    public static org.openejb.alt.config.ejb11.EnvEntry unmarshal(java.io.Reader reader)
+     */
+    public static java.lang.Object unmarshal(java.io.Reader reader)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         return (org.openejb.alt.config.ejb11.EnvEntry) Unmarshaller.unmarshal(org.openejb.alt.config.ejb11.EnvEntry.class, reader);
-    } //-- org.openejb.alt.config.ejb11.EnvEntry unmarshal(java.io.Reader) 
+    } //-- java.lang.Object unmarshal(java.io.Reader) 
 
     /**
-    **/
+     * Method validate
+     */
     public void validate()
         throws org.exolab.castor.xml.ValidationException
     {
