@@ -55,7 +55,6 @@ import java.util.Hashtable;
 import java.util.HashMap;
 import javax.transaction.TransactionManager;
 import javax.transaction.Transaction;
-import javax.naming.InitialContext;
 import javax.security.auth.Subject;
 import org.openejb.OpenEJB;
 /**
@@ -85,7 +84,6 @@ java.io.Serializable {
     private Set connSet;
     private SpecialHashThreadLocal threadLocal = new SpecialHashThreadLocal();
     private HashMap factoryMap = new HashMap();
-    private InitialContext jndiCntxt;
     
     public void init(java.util.Properties props){
         // just for test purposes
@@ -93,27 +91,6 @@ java.io.Serializable {
     }
     
     public SharedLocalConnectionManager() throws javax.resource.spi.ApplicationServerInternalException{
-        try{
-        jndiCntxt = new InitialContext();
-        }catch(javax.naming.NamingException ne){
-            if ( ne.getMessage().startsWith("CORBA") ) {
-                // this is a weird OpenORB bug.
-                // Let's try again with the workaround.
-                // TODO: A better fix should be made
-                try{
-                    java.util.Properties properties = new java.util.Properties();
-                    properties.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY, "org.openorb.rmi.jndi.CtxFactory");
-                    properties.put( "InitialNameService", "corbaloc::1.2@localhost:2001/NameService");
-
-                    jndiCntxt = new InitialContext(properties);
-                }catch(javax.naming.NamingException ne2){
-                    throw new javax.resource.spi.ApplicationServerInternalException("Unable to lookup transaction manager :"+ne2.getMessage());
-                }
-            } else {
-                //ne.printStackTrace();
-                throw new javax.resource.spi.ApplicationServerInternalException("Unable to lookup transaction manager :"+ne.getMessage());
-            }
-        }
         connSet = java.util.Collections.synchronizedSet(new HashSet());
     }
     public java.lang.Object allocateConnection(ManagedConnectionFactory factory,
