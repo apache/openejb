@@ -1,55 +1,47 @@
 /* ====================================================================
- * The Apache Software License, Version 1.1
+ * Redistribution and use of this software and associated documentation
+ * ("Software"), with or without modification, are permitted provided
+ * that the following conditions are met:
  *
- * Copyright (c) 2003 The Apache Software Foundation.  All rights
- * reserved.
+ * 1. Redistributions of source code must retain copyright
+ *    statements and notices.  Redistributions must also contain a
+ *    copy of this document.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * 2. Redistributions in binary form must reproduce this list of
+ *    conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * 3. The name "OpenEJB" must not be used to endorse or promote
+ *    products derived from this Software without prior written
+ *    permission of The OpenEJB Group.  For written permission,
+ *    please contact openejb-group@openejb.sf.net.
  *
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
+ * 4. Products derived from this Software may not be called "OpenEJB"
+ *    nor may "OpenEJB" appear in their names without prior written
+ *    permission of The OpenEJB Group. OpenEJB is a registered
+ *    trademark of The OpenEJB Group.
  *
- * 3. The end-user documentation included with the redistribution,
- *    if any, must include the following acknowledgment:
- *       "This product includes software developed by the
- *        Apache Software Foundation (http://www.apache.org/)."
- *    Alternately, this acknowledgment may appear in the software itself,
- *    if and wherever such third-party acknowledgments normally appear.
+ * 5. Due credit should be given to the OpenEJB Project
+ *    (http://openejb.org/).
  *
- * 4. The names "Apache" and "Apache Software Foundation" and
- *    "Apache Geronimo" must not be used to endorse or promote products
- *    derived from this software without prior written permission. For
- *    written permission, please contact apache@apache.org.
+ * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
+ * THE OPENEJB GROUP OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * 5. Products derived from this software may not be called "Apache",
- *    "Apache Geronimo", nor may "Apache" appear in their name, without
- *    prior written permission of the Apache Software Foundation.
- *
- * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
- * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
- * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
- * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
  * ====================================================================
  *
  * This software consists of voluntary contributions made by many
- * individuals on behalf of the Apache Software Foundation.  For more
- * information on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
+ * individuals on behalf of the OpenEJB Project.  For more information
+ * please see <http://openejb.org/>.
  *
  * ====================================================================
  */
@@ -59,11 +51,15 @@ package org.openejb.nova.deployment;
 import java.net.URI;
 
 import javax.management.ObjectName;
+import javax.jms.MessageListener;
 
 import org.apache.geronimo.kernel.deployment.DeploymentPlan;
 import org.apache.geronimo.kernel.deployment.service.ClassSpaceMetadata;
 import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
+import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
+import org.apache.geronimo.deployment.model.geronimo.ejb.ActivationConfig;
 //import org.apache.geronimo.naming.java.ContextBuilderTest; //copy now in this directory
 import org.openejb.nova.EJBContainerConfiguration;
 import org.openejb.nova.slsb.MockEJB;
@@ -71,6 +67,8 @@ import org.openejb.nova.slsb.MockHome;
 import org.openejb.nova.slsb.MockRemote;
 import org.openejb.nova.slsb.MockLocalHome;
 import org.openejb.nova.slsb.MockLocal;
+
+import org.openejb.nova.mdb.mockra.MockActivationSpec;
 
 /**
  *
@@ -81,28 +79,31 @@ import org.openejb.nova.slsb.MockLocal;
 public class BasicEJBDeploymentTest extends ContextBuilderTest {
 
     private static final String SESSION_NAME = "geronimo.j2ee:J2eeType=SessionBean,name=MockSession";
+    private static final String MDB_NAME = "geronimo.j2ee:J2eeType=SessionBean,name=MockMDB";
+    private static final String RESOURCE_ADAPTER_NAME="MockRA";
 
     private EJBModuleDeploymentPlanner planner;
-    private ObjectName sessionName;
+    private ObjectName ejbObjectName;
     private ClassSpaceMetadata csMetadata;
     private URI baseURI;
 
     protected void setUp() throws Exception {
-        super.setUp();
-
+        setUpKernel();
         kernel.getMBeanServer().createMBean("org.apache.geronimo.kernel.service.DependencyService2", new ObjectName("geronimo.boot:role=DependencyService2"));
 
         GeronimoMBeanContext context = new GeronimoMBeanContext(kernel.getMBeanServer(), null, null);
 
         planner = new EJBModuleDeploymentPlanner();
         planner.setMBeanContext(context);
-        buildSession();
-        sessionName = ObjectName.getInstance(SESSION_NAME);
         csMetadata = new ClassSpaceMetadata();
         baseURI = new URI("");
     }
 
-    private void buildSession() {
+    private void buildSession() throws Exception {
+        Session session = new Session();
+        ejb = session;
+        setUpContext();
+
         session.setEJBClass(MockEJB.class.getName());
         session.setEJBName("MockSession");
         session.setTransactionType(TransactionDemarcation.CONTAINER.toString());
@@ -111,11 +112,13 @@ public class BasicEJBDeploymentTest extends ContextBuilderTest {
         session.setLocalHome(MockLocalHome.class.getName());
         session.setLocal(MockLocal.class.getName());
         session.setSessionType("Stateless");
+        ejbObjectName = ObjectName.getInstance(SESSION_NAME);
     }
 
 
-    public void testConfigTranslation() throws Exception {
-        EJBContainerConfiguration config = planner.getSessionConfig(session);
+    public void testSessionConfigTranslation() throws Exception {
+        buildSession();
+        EJBContainerConfiguration config = planner.getSessionConfig((Session)ejb);
         assertTrue("expected config", config != null);
         assertEquals("EJBClass", MockEJB.class.getName(), config.beanClassName);
         //assertEquals("EJBName", "MockSession", config.beanClassName);
@@ -124,16 +127,63 @@ public class BasicEJBDeploymentTest extends ContextBuilderTest {
         assertEquals("Remote", MockRemote.class.getName(), config.remoteInterfaceName);
         assertEquals("LocalHome", MockLocalHome.class.getName(), config.localHomeInterfaceName);
         assertEquals("Local", MockLocal.class.getName(), config.localInterfaceName);
+        assertEquals("MessageEndpoint", null, config.messageEndpointInterfaceName);
         assertTrue("ReadOnlyContext null", null != config.componentContext);
     }
 
     public void testPlanSession() throws Exception {
+        buildSession();
         //null is no parent.
         DeploymentPlan plan = new DeploymentPlan();
-        planner.planSession(plan, session, null, csMetadata, baseURI);
+        planner.planSession(plan, (Session)ejb, null, csMetadata, baseURI);
         assertTrue("plan exists", null != plan);
         plan.execute();
-        assertTrue("Expected session container mbean ", kernel.getMBeanServer().isRegistered(sessionName));
+        assertTrue("Expected session container mbean ", kernel.getMBeanServer().isRegistered(ejbObjectName));
+    }
+
+
+    private void buildMDB() throws Exception {
+        MessageDriven messageDriven = new MessageDriven();
+        ejb = messageDriven;
+        setUpContext();
+
+        messageDriven.setEJBClass(org.openejb.nova.mdb.MockEJB.class.getName());
+        messageDriven.setEJBName("MockMDB");
+        messageDriven.setTransactionType(TransactionDemarcation.CONTAINER.toString());
+        messageDriven.setMessagingType(MessageListener.class.getName());
+        ActivationConfig activationConfig = new ActivationConfig();
+        activationConfig.setActivationSpecClass(MockActivationSpec.class.getName());
+        activationConfig.setResourceAdapterName(RESOURCE_ADAPTER_NAME);
+        messageDriven.setActivationConfig(activationConfig);
+        ejbObjectName = ObjectName.getInstance(MDB_NAME);
+    }
+
+
+    public void testMDBConfigTranslation() throws Exception {
+        buildMDB();
+        EJBContainerConfiguration config = planner.getMessageDrivenConfig((MessageDriven)ejb);
+        assertTrue("expected config", config != null);
+        assertEquals("EJBClass", org.openejb.nova.mdb.MockEJB.class.getName(), config.beanClassName);
+        //assertEquals("EJBName", "MockSession", config.beanClassName);
+        assertEquals("TxDemarcation", TransactionDemarcation.CONTAINER, config.txnDemarcation);
+        assertEquals("Home", null, config.homeInterfaceName);
+        assertEquals("Remote", null, config.remoteInterfaceName);
+        assertEquals("LocalHome", null, config.localHomeInterfaceName);
+        assertEquals("Local", null, config.localInterfaceName);
+        assertEquals("MessageEndpoint", MessageListener.class.getName(), config.messageEndpointInterfaceName);
+        assertTrue("ReadOnlyContext null", null != config.componentContext);
+    }
+
+    public void testPlanMDB() throws Exception {
+        buildMDB();
+        //null is no parent.
+        DeploymentPlan plan = new DeploymentPlan();
+        planner.planMessageDriven(plan, (MessageDriven)ejb, null, csMetadata, baseURI);
+        assertTrue("plan exists", null != plan);
+        if (plan.canRun()) {
+            plan.execute();
+            assertTrue("Expected mdb container mbean ", kernel.getMBeanServer().isRegistered(ejbObjectName));
+        }
     }
 
 }

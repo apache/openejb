@@ -57,6 +57,10 @@ package org.openejb.nova.deployment;
 
 import java.net.URL;
 import javax.management.ObjectName;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.MalformedObjectNameException;
 import javax.naming.Context;
 import javax.naming.NameNotFoundException;
 import javax.transaction.UserTransaction;
@@ -73,6 +77,7 @@ import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReferenceFactory;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.transaction.manager.UserTransactionImpl;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 
 /**
  * THIS IS A COPY OF org.apache.geronimo.naming.java.ContextBuilderTest.
@@ -86,7 +91,7 @@ public class ContextBuilderTest extends TestCase {
     protected static final String objectName3 = "geronimo.test:name=test3";
 
     protected ApplicationClient client;
-    protected Session session;
+    protected JNDIEnvironmentRefs ejb;
     protected Context compCtx;
     protected JMXKernel kernel;
     protected ReferenceFactory referenceFactory;
@@ -95,14 +100,13 @@ public class ContextBuilderTest extends TestCase {
     protected TestObject testObject3 = new TestObject();
 
     protected void setUp() throws Exception {
-        kernel = new JMXKernel("geronimo.test");
-        kernel.getMBeanServer().registerMBean(testObject1, ObjectName.getInstance(objectName1));
-        kernel.getMBeanServer().registerMBean(testObject2, ObjectName.getInstance(objectName2));
-        kernel.getMBeanServer().registerMBean(testObject3, ObjectName.getInstance(objectName3));
+        setUpKernel();
+    }
+
+    protected void setUpContext() throws InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException, MalformedObjectNameException {
+        client = new ApplicationClient();
 
         referenceFactory = new JMXReferenceFactory(kernel.getMBeanServerId());
-        client = new ApplicationClient();
-        session = new Session();
         EnvEntry stringEntry = new EnvEntry();
         stringEntry.setEnvEntryName("string");
         stringEntry.setEnvEntryType("java.lang.String");
@@ -142,16 +146,25 @@ public class ContextBuilderTest extends TestCase {
         cfRef.setJndiName(objectName1);
 
         client.setEnvEntry(new EnvEntry[] { stringEntry, intEntry });
-        session.setEnvEntry(client.getEnvEntry());
+        ejb.setEnvEntry(client.getEnvEntry());
         client.setEJBRef(new EjbRef[] {ejbRef, ejbLinkRef});
-        session.setEJBRef(client.getEJBRef());
-        session.setEJBLocalRef(new EjbLocalRef[] {ejbLocalRef, ejbLocalLinkRef});
+        ejb.setEJBRef(client.getEJBRef());
+        ejb.setEJBLocalRef(new EjbLocalRef[] {ejbLocalRef, ejbLocalLinkRef});
 
         client.setResourceRef(new ResourceRef[] { urlRef, cfRef });
-        session.setResourceRef(client.getResourceRef());
+        ejb.setResourceRef(client.getResourceRef());
+    }
+
+    protected void setUpKernel() throws InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException, MalformedObjectNameException {
+        kernel = new JMXKernel("geronimo.test");
+        kernel.getMBeanServer().registerMBean(testObject1, ObjectName.getInstance(objectName1));
+        kernel.getMBeanServer().registerMBean(testObject2, ObjectName.getInstance(objectName2));
+        kernel.getMBeanServer().registerMBean(testObject3, ObjectName.getInstance(objectName3));
     }
 
     public void testEnvEntries() throws Exception {
+        ejb = new Session();
+        setUpContext();
         compCtx = new ComponentContextBuilder(referenceFactory, null).buildContext(client);
         assertEquals("Hello World", compCtx.lookup("env/string"));
         assertEquals(new Integer(12345), compCtx.lookup("env/int"));
@@ -159,6 +172,8 @@ public class ContextBuilderTest extends TestCase {
     }
 
     public void testUserTransaction() throws Exception {
+        ejb = new Session();
+        setUpContext();
         compCtx = new ComponentContextBuilder(referenceFactory, null).buildContext(client);
         try {
             compCtx.lookup("UserTransaction");

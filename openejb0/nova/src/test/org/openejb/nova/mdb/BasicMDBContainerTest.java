@@ -86,12 +86,13 @@ public class BasicMDBContainerTest extends TestCase {
         config.beanClassName = MockEJB.class.getName();
         config.txnDemarcation = TransactionDemarcation.CONTAINER;
         config.txnManager = new MockTransactionManager();
+        config.messageEndpointInterfaceName = MessageListener.class.getName();
 
         resourceAdapter = new MockResourceAdapter();
         resourceAdapter.start(new MockBootstrapContext() );
         MockActivationSpec spec = new MockActivationSpec();
         spec.setResourceAdapter(resourceAdapter);
-        container = new MDBContainer(config, spec, MessageListener.class.getName() );
+        container = new MDBContainer(config, spec);
         container.doStart();
 
         // Wait for 3 messages to arrive..

@@ -119,7 +119,7 @@ public class ServerUtil {
     }
 
     public static Object registerGeronimoMbean(MBeanServer server, ObjectName objectName, String className, Object[] args, String[] types) throws Exception {
-        GeronimoMBeanInfo mbeanInfo = EJBInfo.getGeronimoMBeanInfo(className);
+        GeronimoMBeanInfo mbeanInfo = EJBInfo.getGeronimoMBeanInfo(className, null);
         Object target = server.instantiate(className, args, types);
         mbeanInfo.setTarget(target); //how does deployGeronimoMBean do this?
         GeronimoMBean mbean = new GeronimoMBean();

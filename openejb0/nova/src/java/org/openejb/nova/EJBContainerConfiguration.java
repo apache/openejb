@@ -67,6 +67,7 @@ public class EJBContainerConfiguration {
     public String remoteInterfaceName;
     public String localHomeInterfaceName;
     public String localInterfaceName;
+    public String messageEndpointInterfaceName;
     public TransactionDemarcation txnDemarcation;
     public EJBUserTransaction userTransaction;
     public ReadOnlyContext componentContext;

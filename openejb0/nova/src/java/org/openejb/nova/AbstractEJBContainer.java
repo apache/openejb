@@ -87,6 +87,7 @@ public abstract class AbstractEJBContainer
     protected final String localHomeClassName;
     protected final String remoteClassName;
     protected final String localClassName;
+    protected final String messageEndpointClassName;
     protected final TransactionDemarcation txnDemarcation;
     protected TransactionManager txnManager;         //not final until Endpoints can be Constructor args.
     protected final ReadOnlyContext componentContext;
@@ -118,6 +119,7 @@ public abstract class AbstractEJBContainer
         remoteClassName = config.remoteInterfaceName;
         localHomeClassName = config.localHomeInterfaceName;
         localClassName = config.localInterfaceName;
+        messageEndpointClassName = config.messageEndpointInterfaceName;
         txnDemarcation = config.txnDemarcation;
         txnManager = config.txnManager;
         userTransaction = config.userTransaction;

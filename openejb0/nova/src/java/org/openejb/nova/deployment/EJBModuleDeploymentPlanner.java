@@ -1,55 +1,47 @@
 /* ====================================================================
- * The Apache Software License, Version 1.1
+ * Redistribution and use of this software and associated documentation
+ * ("Software"), with or without modification, are permitted provided
+ * that the following conditions are met:
  *
- * Copyright (c) 2003 The Apache Software Foundation.  All rights
- * reserved.
+ * 1. Redistributions of source code must retain copyright
+ *    statements and notices.  Redistributions must also contain a
+ *    copy of this document.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * 2. Redistributions in binary form must reproduce this list of
+ *    conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ * 3. The name "OpenEJB" must not be used to endorse or promote
+ *    products derived from this Software without prior written
+ *    permission of The OpenEJB Group.  For written permission,
+ *    please contact openejb-group@openejb.sf.net.
  *
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
+ * 4. Products derived from this Software may not be called "OpenEJB"
+ *    nor may "OpenEJB" appear in their names without prior written
+ *    permission of The OpenEJB Group. OpenEJB is a registered
+ *    trademark of The OpenEJB Group.
  *
- * 3. The end-user documentation included with the redistribution,
- *    if any, must include the following acknowledgment:
- *       "This product includes software developed by the
- *        Apache Software Foundation (http://www.apache.org/)."
- *    Alternately, this acknowledgment may appear in the software itself,
- *    if and wherever such third-party acknowledgments normally appear.
+ * 5. Due credit should be given to the OpenEJB Project
+ *    (http://openejb.org/).
  *
- * 4. The names "Apache" and "Apache Software Foundation" and
- *    "Apache Geronimo" must not be used to endorse or promote products
- *    derived from this software without prior written permission. For
- *    written permission, please contact apache@apache.org.
+ * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
+ * THE OPENEJB GROUP OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * 5. Products derived from this software may not be called "Apache",
- *    "Apache Geronimo", nor may "Apache" appear in their name, without
- *    prior written permission of the Apache Software Foundation.
- *
- * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
- * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
- * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
- * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
  * ====================================================================
  *
  * This software consists of voluntary contributions made by many
- * individuals on behalf of the Apache Software Foundation.  For more
- * information on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
+ * individuals on behalf of the OpenEJB Project.  For more information
+ * please see <http://openejb.org/>.
  *
  * ====================================================================
  */
@@ -65,6 +57,7 @@ import java.util.Set;
 import java.util.HashMap;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -75,7 +68,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.model.ejb.CmpField;
 import org.apache.geronimo.deployment.model.ejb.Ejb;
 import org.apache.geronimo.deployment.model.ejb.RpcBean;
-import org.apache.geronimo.deployment.model.ejb.CmrField;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelation;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Relationships;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelationshipRole;
@@ -104,6 +96,7 @@ import org.apache.geronimo.kernel.deployment.task.RegisterMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.StartMBeanInstance;
 import org.apache.geronimo.kernel.jmx.JMXKernel;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.ReferenceFactory;
@@ -111,8 +104,11 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.openejb.nova.EJBContainerConfiguration;
+import org.openejb.nova.mdb.MDBContainer;
 import org.openejb.nova.entity.EntityContainerConfiguration;
+import org.openejb.nova.entity.bmp.BMPEntityContainer;
 import org.openejb.nova.entity.cmp.CMRelation;
+import org.openejb.nova.entity.cmp.CMPEntityContainer;
 import org.openejb.nova.sfsb.StatefulContainer;
 import org.openejb.nova.slsb.StatelessContainer;
 import org.openejb.nova.transaction.EJBUserTransaction;
@@ -139,7 +135,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         URL url = goal.getUrl();
         DeploymentHelper dHelper =
                 new DeploymentHelper(url, goal.getType(), "EJBModule", "ejb-jar.xml", "geronimo-ejb-jar.xml");
-        //URL j2eeURL = dHelper.locateJ2EEDD();
+        //URL j2EEURL = dHelper.locateJ2EEDD();
         URL geronimoURL = dHelper.locateGeronimoDD();
         // Is the specific URL deployable?
         if (null == geronimoURL) {
@@ -280,6 +276,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         return true;
     }
 
+    //CMP entity
     private void mapCMRelation(String ejbName, CMRelation cmRelation, HashMap ejbNameToRelationshipRoleCollectionMap) {
         Collection roles = (Collection) ejbNameToRelationshipRoleCollectionMap.get(ejbName);
         if (roles == null) {
@@ -298,17 +295,6 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         return new CMRelation(name, abstractSchemaName, cascadeDelete);
     }
 
-    private void planBMPEntity(DeploymentPlan plan, Entity entity, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
-        MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
-        ejbMetadata.setName(getContainerName(entity));
-        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getBMPEntityGeronimoMBeanInfo());
-        EJBContainerConfiguration config = getEntityConfig(entity);
-
-        ejbMetadata.setConstructorArgs(new Object[]{config},
-                new String[]{EntityContainerConfiguration.class.getName()});
-        addTasks(plan, ejbMetadata);
-    }
-
     private void planCMPEntity(DeploymentPlan plan,
                                Entity entity,
                                CMRelation[] cmRelations,
@@ -318,8 +304,8 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
                                URI baseURI) throws DeploymentException {
         MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
         ejbMetadata.setName(getContainerName(entity));
-        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getCMPEntityGeronimoMBeanInfo());
         EntityContainerConfiguration config = getEntityConfig(entity);
+        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getEntityGeronimoMBeanInfo(CMPEntityContainer.class.getName(), config));
 
         Query[] queries = entity.getGeronimoQuery();
         Query[] updates = entity.getUpdate();
@@ -344,45 +330,78 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
 
     }
 
+    //BMP entity
+    private void planBMPEntity(DeploymentPlan plan, Entity entity, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
+        MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
+        ejbMetadata.setName(getContainerName(entity));
+        EJBContainerConfiguration config = getEntityConfig(entity);
+        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getEntityGeronimoMBeanInfo(BMPEntityContainer.class.getName(), config));
+
+        ejbMetadata.setConstructorArgs(new Object[]{config},
+                new String[]{EntityContainerConfiguration.class.getName()});
+        addTasks(plan, ejbMetadata);
+    }
+
+    //session
     void planSession(DeploymentPlan plan, Session session, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
         MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
         ejbMetadata.setName(getContainerName(session));
-        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getSessionGeronimoMBeanInfo(session.getSessionType().equals("Stateless") ?
-                StatelessContainer.class.getName() : StatefulContainer.class.getName()));
         EJBContainerConfiguration config = getSessionConfig(session);
+        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getSessionGeronimoMBeanInfo(session.getSessionType().equals("Stateless")?
+                StatelessContainer.class.getName():StatefulContainer.class.getName(), config));
 
         ejbMetadata.setConstructorArgs(new Object[]{config},
                 new String[]{EJBContainerConfiguration.class.getName()});
         addTasks(plan, ejbMetadata);
     }
 
+    //message-driven
     void planMessageDriven(DeploymentPlan plan, MessageDriven messageDriven, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
         MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
         ejbMetadata.setName(getContainerName(messageDriven));
-        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getMessageDrivenGeronimoMBeanInfo());
-//        MessageDrivenContainer.class.getName()));
         EJBContainerConfiguration config = getMessageDrivenConfig(messageDriven);
-
-        ejbMetadata.setConstructorArgs(new Object[]{config},
-                new String[]{EJBContainerConfiguration.class.getName()});
-        addTasks(plan, ejbMetadata);
+        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getMessageDrivenGeronimoMBeanInfo(config, messageDriven.getGeronimoActivationConfig()));
+        //fish the resource adapter name back out of the endpoint.
+        ObjectName resourceAdapterName = null;
+        for (Iterator iterator = ejbMetadata.getGeronimoMBeanInfo().getEndpointsSet().iterator(); iterator.hasNext();) {
+            GeronimoMBeanEndpoint endpoint = (GeronimoMBeanEndpoint) iterator.next();
+            if (endpoint.getName().equals("ResourceAdapter")) {
+                Collection peers = endpoint.getPeers();
+                assert peers.size() == 1;
+                resourceAdapterName = (ObjectName)peers.iterator().next();
+                break;
+            }
+        }
+        if (resourceAdapterName == null) {
+            throw new DeploymentException("could not find resourceAdapterName!");
+        }
+        //we are constructing both targets explicitly ourselves in the DeployMDBContainer task.
+        //ejbMetadata.setConstructorArgs(new Object[] {config},
+        //        new String[] {EJBContainerConfiguration.class.getName()});
+        plan.addTask(new DeployMDBContainer(getServer(),
+                ejbMetadata,
+                config,
+                resourceAdapterName));
+        plan.addTask(new StartMBeanInstance(getServer(), ejbMetadata));
     }
 
-    private EJBContainerConfiguration getMessageDrivenConfig(MessageDriven messageDriven) {
-        return null;//TODO
-
+    EJBContainerConfiguration getMessageDrivenConfig(MessageDriven messageDriven) throws DeploymentException {
+        EJBContainerConfiguration config = new EJBContainerConfiguration();
+        config.uri = null;//???
+        config.beanClassName = messageDriven.getEJBClass();
+        config.messageEndpointInterfaceName = messageDriven.getMessagingType();
+        config.componentContext = getComponentContext((JNDIEnvironmentRefs)messageDriven, config.userTransaction);
+        config.txnDemarcation = TransactionDemarcation.valueOf(messageDriven.getTransactionType());
+        config.userTransaction = config.txnDemarcation.isContainer()? null: new EJBUserTransaction();
+        return config;
     }
 
 
     EJBContainerConfiguration getSessionConfig(Session session) throws DeploymentException {
         EJBContainerConfiguration config = new EJBContainerConfiguration();
-        //configure config
-
         genericConfig(session, config);
         config.txnDemarcation = TransactionDemarcation.valueOf(session.getTransactionType());
         config.userTransaction = config.txnDemarcation.isContainer() ? null : new EJBUserTransaction();
-
-        //config.txnManager = txManager;   // needs to be endpoint
         return config;
     }
 

@@ -71,30 +71,26 @@ import org.openejb.nova.util.SoftLimitedInstancePool;
  * @version $Revision$ $Date$
  */
 public class MDBContainer extends AbstractEJBContainer implements MessageEndpointFactory {
-    
+
     private ActivationSpec activationSpec;
-    private ResourceAdapter adapter;
-    private String interfaceType;
     private Class mdbInterface;
     private MDBLocalClientContainer messageClientContainer;
-    
-    public MDBContainer(EJBContainerConfiguration config, ActivationSpec activationSpec, String interfaceType) {
+
+    public MDBContainer(EJBContainerConfiguration config, ActivationSpec activationSpec) {
         super(config);
-        this.interfaceType = interfaceType;
         this.activationSpec = activationSpec;
-        adapter = activationSpec.getResourceAdapter();        
-    }        
-    
+    }
+
     public void doStart() {
         super.doStart();
 
-        
+
         try {
-            mdbInterface = Thread.currentThread().getContextClassLoader().loadClass(interfaceType);
+            mdbInterface = Thread.currentThread().getContextClassLoader().loadClass(messageEndpointClassName);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Could not load MDB interface class: "+interfaceType, e);
-        } 
-        
+            throw new RuntimeException("Could not load MDB interface class: "+messageEndpointClassName, e);
+        }
+
         MDBOperationFactory vopFactory = MDBOperationFactory.newInstance(beanClass);
         vtable = vopFactory.getVTable();
 
@@ -111,18 +107,18 @@ public class MDBContainer extends AbstractEJBContainer implements MessageEndpoin
         MDBClientContainerFactory clientFactory = new MDBClientContainerFactory(vopFactory, firstInterceptor, mdbInterface);
         messageClientContainer = clientFactory.getMessageClientContainer();
         buildMethodMap(vopFactory.getSignatures());
-        
+
         try {
-            // Setup the endpoint.        
-            adapter.endpointActivation(this, activationSpec);            
+            // Setup the endpoint.
+            getAdapter().endpointActivation(this, activationSpec);
         } catch (ResourceException e) {
-            throw new RuntimeException("The resource adpater did not accept the activation of the MDB endpoint", e);
+            throw new RuntimeException("The resource adapter did not accept the activation of the MDB endpoint", e);
         }
     }
 
     public void doStop() {
-        // Deactivate the endpoint.        
-        adapter.endpointDeactivation(this, activationSpec);            
+        // Deactivate the endpoint.
+        getAdapter().endpointDeactivation(this, activationSpec);
 
         localClientContainer = null;
         clearInterceptors();
@@ -142,8 +138,15 @@ public class MDBContainer extends AbstractEJBContainer implements MessageEndpoin
      */
     public boolean isDeliveryTransacted(Method method) throws NoSuchMethodException {
         // TODO: need to see if the method is Supports or Required.
-        return MDBContainer.this.txnDemarcation == TransactionDemarcation.CONTAINER; 
-            
+        return MDBContainer.this.txnDemarcation == TransactionDemarcation.CONTAINER;
+
+    }
+
+    private ResourceAdapter getAdapter() {
+        if (activationSpec.getResourceAdapter() == null) {
+            throw new IllegalStateException("Attempting to use activation spec when it is not activated");
+        }
+        return activationSpec.getResourceAdapter();
     }
 
 }

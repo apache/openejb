@@ -48,23 +48,20 @@
 
 package org.openejb.nova.deployment;
 
-import javax.management.ObjectName;
 import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.ReflectionException;
-import javax.management.RuntimeOperationsException;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.NotCompliantMBeanException;
-import javax.sql.DataSource;
+import javax.resource.spi.ActivationSpec;
 
 import org.apache.geronimo.kernel.deployment.task.DeployGeronimoMBean;
 import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBean;
-import org.openejb.nova.entity.cmp.SimpleCommandFactory;
+import org.openejb.nova.EJBContainerConfiguration;
+import org.openejb.nova.mdb.MDBContainer;
 
 /**
  *
@@ -72,19 +69,17 @@ import org.openejb.nova.entity.cmp.SimpleCommandFactory;
  * @version $Revision$ $Date$
  *
  * */
-public class DeploySchemaMBean extends DeployGeronimoMBean{
+public class DeployMDBContainer  extends DeployGeronimoMBean {
+    private final EJBContainerConfiguration config;
+    private final ObjectName resourceAdapterName;
 
-    private final ObjectName datasourceName;
-    private SimpleCommandFactory schema;
-
-    public DeploySchemaMBean(MBeanServer server, ObjectName datasourceName, MBeanMetadata metadata) {
+    public DeployMDBContainer(MBeanServer server,
+                              MBeanMetadata metadata,
+                              EJBContainerConfiguration config,
+                              ObjectName resourceAdapterName) {
         super(server, metadata);
-        this.datasourceName = datasourceName;
-    }
-
-    public SimpleCommandFactory getSchema() {
-        assert schema != null;
-        return schema;
+        this.config = config;
+        this.resourceAdapterName = resourceAdapterName;
     }
 
     public  boolean canRun() throws DeploymentException {
@@ -92,39 +87,41 @@ public class DeploySchemaMBean extends DeployGeronimoMBean{
             return false;
         }
         try {
-            return new Integer(State.RUNNING_INDEX).equals(server.getAttribute(datasourceName, "state"));
+            return new Integer(State.RUNNING_INDEX).equals(server.getAttribute(resourceAdapterName, "state"));
         } catch (Exception e) {
             return false;
         }
     }
 
     public void perform() throws DeploymentException {
-        DataSource ds;
+        GeronimoMBeanInfo mbeanInfo = metadata.getGeronimoMBeanInfo();
+        //Create activation spec.
+        ActivationSpec activationSpec;
+
+
         try {
-            ds = (DataSource)server.invoke(datasourceName, "getConnectionFactory", null, null);
+            activationSpec = (ActivationSpec)server.invoke(resourceAdapterName, "createActivationSpec", new Object[] {mbeanInfo.getTargetClass(EJBInfo.ACTIVATION_SPEC)}, new String[] {String.class.getName()});
         } catch (InstanceNotFoundException e) {
-            throw new DeploymentException("Did not find datasource factory at " + datasourceName, e);
+            throw new DeploymentException("Did not find resourceAdapter at " + resourceAdapterName, e);
         } catch (MBeanException e) {
-            throw new DeploymentException("Problem accessing datasource factory at " + datasourceName, e);
+            throw new DeploymentException("Problem accessing resource adapter at " + resourceAdapterName, e);
         } catch (ReflectionException e) {
-            throw new DeploymentException("Problem accessing datasource factory at " + datasourceName, e);
+            throw new DeploymentException("Problem accessing resource adapter at " + resourceAdapterName, e);
         }
-        schema = new SimpleCommandFactory(ds);
-        GeronimoMBeanInfo info = new GeronimoMBeanInfo();
-        info.setTargetClass(SimpleCommandFactory.class.getName());
-        info.setTarget(schema);
-        GeronimoMBean mbean = new GeronimoMBean();
+        mbeanInfo.setTarget(EJBInfo.ACTIVATION_SPEC, activationSpec);
+        MDBContainer container = new MDBContainer(config, activationSpec);
+        mbeanInfo.setTarget(container);
+        super.perform();//registers mbean, sets attribute values on activationSpec.
+        //TODO see if the spec indicates that the attribute values should be set before the
+        //ActivationSpec is registered with the resource adapter.
         try {
-            mbean.setMBeanInfo(info);
-            server.registerMBean(mbean, metadata.getName());
+            server.invoke(resourceAdapterName, "registerActivationSpec", new Object[] {activationSpec}, new String[] {ActivationSpec.class.getName()});
+        } catch (InstanceNotFoundException e) {
+            throw new DeploymentException("Did not find resourceAdapter at " + resourceAdapterName, e);
         } catch (MBeanException e) {
-            throw new DeploymentException("Problem setting MBeanInfo on GeronimoMBean " + metadata.getName(), e);
-        } catch (RuntimeOperationsException e) {
-            throw new DeploymentException("Problem setting MBeanInfo on GeronimoMBean " + metadata.getName(), e);
-        } catch (InstanceAlreadyExistsException e) {
-            throw new DeploymentException("Problem registering schema mbean " + metadata.getName(), e);
-        } catch (NotCompliantMBeanException e) {
-            throw new DeploymentException("Problem registering schema mbean " + metadata.getName(), e);
+            throw new DeploymentException("Problem accessing resource adapter at " + resourceAdapterName, e);
+        } catch (ReflectionException e) {
+            throw new DeploymentException("Problem accessing resource adapter at " + resourceAdapterName, e);
         }
     }
 }
