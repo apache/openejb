@@ -163,6 +163,17 @@ public class SafeToolkit{
         catch(IllegalAccessException iae){
             OpenEJBErrorHandler.classNotAccessible(systemLocation, clazz.getName());
         }
+	// mjb - Exceptions thrown here can lead to some hard to find bugs, so I've added some rigorous error handling.
+        catch(Throwable exception) {
+	    ClassLoader classLoader = clazz.getClassLoader();
+	    if( classLoader instanceof java.net.URLClassLoader) {
+		OpenEJBErrorHandler.classNotIntantiateableFromCodebaseForUnknownReason(systemLocation, clazz.getName(), getCodebase( (java.net.URLClassLoader)classLoader), 
+										       exception.getClass().getName(), exception.getMessage());
+	    }
+	    else {
+		OpenEJBErrorHandler.classNotIntantiateableForUnknownReason(systemLocation, clazz.getName(), exception.getClass().getName(), exception.getMessage());
+	    }
+        }
         return instance;
 
     }
@@ -195,11 +206,12 @@ public class SafeToolkit{
         Class clazz = null;
         try{
             clazz = cl.loadClass(className);
-        } catch (ClassNotFoundException cnfe){
+        } 
+	catch (ClassNotFoundException cnfe){
             Object[] details = { className, codebase };
             throw new OpenEJBException("cl0007", details);
-        }
-        return clazz;
+        } 
+	return clazz;
     }
 
     /**
@@ -235,5 +247,19 @@ public class SafeToolkit{
 	    }
         }
         return cl;
+    }
+
+    /**
+     * Returns the search path used by the given URLClassLoader as a ';' delimited list of URLs.
+     */
+    private static String getCodebase( java.net.URLClassLoader urlClassLoader) {
+	StringBuffer codebase = new StringBuffer();
+	java.net.URL urlList[] = urlClassLoader.getURLs();
+	codebase.append( urlList[0].toString());
+	for( int i = 1; i < urlList.length; ++i) {
+	    codebase.append(';');
+	    codebase.append( urlList[i].toString());
+	}
+	return codebase.toString();
     }
 }

@@ -205,7 +205,7 @@ public final class OpenEJB {
             throw oe;
         } catch ( Throwable t ){
             logger.fatal("OpenEJB has encountered a fatal error and cannot be started: OpenEJB encountered an unexpected error while attempting to instantiate the assembler.", t);
-            throw new OpenEJBException("OpenEJB encountered an unexpected error while attempting to instantiate the assembler.", t);
+            throw new OpenEJBException("OpenEJB encountered an unexpected error while attempting to instantiate the assembler.  Received exception " + t.getClass().getName() + ".", t);
         }
         
         try {
@@ -215,7 +215,7 @@ public final class OpenEJB {
             throw oe;
         } catch ( Throwable t ){
             logger.fatal("OpenEJB has encountered a fatal error and cannot be started: The Assembler encountered an unexpected error while attempting to initialize.", t);
-            throw new OpenEJBException("The Assembler encountered an unexpected error while attempting to initialize.", t);
+            throw new OpenEJBException("The Assembler encountered an unexpected error while attempting to initialize.  Received exception " + t.getClass().getName() + ".", t);
         }
         
         try {
@@ -225,7 +225,7 @@ public final class OpenEJB {
             throw oe;
         } catch ( Throwable t ){
             logger.fatal("OpenEJB has encountered a fatal error and cannot be started: The Assembler encountered an unexpected error while attempting to build the container system.", t);
-            throw new OpenEJBException(" The Assembler encountered an unexpected error while attempting to build the container system.", t);
+            throw new OpenEJBException("The Assembler encountered an unexpected error while attempting to build the container system.  Received exception " + t.getClass().getName() + ".", t);
         }
         
         containerSystem    = assembler.getContainerSystem();
