@@ -315,8 +315,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         return defaultSubject;
     }
 
-    public EJBProxyFactory getProxyFactory() {
-        return proxyFactory;
+    public int getMethodIndex(Method method) {
+        return proxyFactory.getMethodIndex(method);
     }
 
     public InterfaceMethodSignature[] getSignatures() {
@@ -473,7 +473,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
 
-        infoFactory.addAttribute("proxyFactory", EJBProxyFactory.class, false);
         infoFactory.addAttribute("ejbHome", EJBHome.class, false);
         infoFactory.addAttribute("ejbLocalHome", EJBLocalHome.class, false);
         infoFactory.addAttribute("unmanagedReference", EJBContainer.class, false);
@@ -483,6 +482,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
+        infoFactory.addOperation("getMethodIndex", new Class[] {Method.class});
         infoFactory.addOperation("getEJBObject", new Class[] {Object.class});
         infoFactory.addOperation("getEJBLocalObject", new Class[] {Object.class});
 
@@ -490,8 +490,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addOperation("invoke", new Class[]{Method.class, Object[].class, Object.class});
 
         infoFactory.addOperation("getTimerById", new Class[]{Long.class});
-        //TODO this should be unnecessary, when WS stack gets included in the EJBContainer, remove this:
-        infoFactory.addOperation("getProxyFactory");
 
         infoFactory.setConstructor(new String[]{
             "ContainerID",

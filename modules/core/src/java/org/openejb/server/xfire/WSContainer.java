@@ -47,11 +47,13 @@ package org.openejb.server.xfire;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.HashMap;
 import javax.wsdl.Definition;
 
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.webservices.MessageContextInvocationKey;
 import org.codehaus.xfire.MessageContext;
 import org.codehaus.xfire.XFireRuntimeException;
 import org.codehaus.xfire.fault.Soap11FaultHandler;
@@ -66,8 +68,6 @@ import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
 import org.openejb.proxy.ProxyInfo;
-import org.apache.geronimo.core.service.InvocationKey;
-import org.apache.geronimo.webservices.MessageContextInvocationKey;
 
 public class WSContainer implements Invoker {
 
@@ -128,13 +128,15 @@ public class WSContainer implements Invoker {
 
     public Object invoke(Method m, Object[] params, MessageContext context) throws XFireFault {
         try {
-            int index = ejbContainer.getProxyFactory().getMethodIndex(m);
+            int index = ejbContainer.getMethodIndex(m);
             EJBInvocation invocation = new EJBInvocationImpl(EJBInterfaceType.WEB_SERVICE, null, index, params);
-            //I give up, why would you use xfire?
-            Map properties = new HashMap();
-            javax.xml.rpc.handler.MessageContext messageContext = new SimpleMessageContext(properties);
+            javax.xml.rpc.handler.MessageContext messageContext = new SimpleMessageContext(new HashMap());
             invocation.put(MessageContextInvocationKey.INSTANCE, messageContext);
-            return ejbContainer.invoke(invocation);
+            InvocationResult invocationResult = ejbContainer.invoke(invocation);
+            if (invocationResult.isException()) {
+                throw (Throwable) invocationResult.getException();
+            }
+            return invocationResult.getResult();
         } catch (Throwable throwable) {
             throwable.printStackTrace();
             throw new XFireFault("Error invoking EJB", throwable, XFireFault.RECEIVER);

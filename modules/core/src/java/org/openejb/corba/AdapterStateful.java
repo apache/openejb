@@ -146,7 +146,7 @@ public class AdapterStateful extends Adapter {
                 EJBContainer container = getContainer();
                 Servant servant = getTieLoader().loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getProxyInfo());
                 if (servant instanceof Tie) {
-                    ((Tie) servant).setTarget(container.getProxyFactory().getEJBObject(pk));
+                    ((Tie) servant).setTarget(container.getEJBObject(pk));
                 }
                 return servant;
             } catch (IOException e) {

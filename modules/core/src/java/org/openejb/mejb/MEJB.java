@@ -182,16 +182,16 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
         return new String[0];
     }
 
-    public EJBProxyFactory getProxyFactory() {
-        return proxyFactory;
-    }
-
     public ClassLoader getClassLoader() {
         return this.getClass().getClassLoader();
     }
 
     public EJBContainer getUnmanagedReference() {
         return this;
+    }
+
+    public int getMethodIndex(Method method) {
+        return proxyFactory.getMethodIndex(method);
     }
 
     public InterfaceMethodSignature[] getSignatures() {

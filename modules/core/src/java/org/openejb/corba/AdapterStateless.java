@@ -89,7 +89,7 @@ public final class AdapterStateless extends Adapter {
             poa.the_POAManager().activate();
 
             Servant servant = tieLoader.loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getProxyInfo());
-            Remote obj = container.getProxyFactory().getEJBObject(null);
+            Remote obj = container.getEJBObject(null);
             if (servant instanceof Tie) {
                 ((Tie) servant).setTarget(obj);
             }

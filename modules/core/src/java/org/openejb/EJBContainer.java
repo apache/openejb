@@ -128,7 +128,7 @@ public interface EJBContainer extends Interceptor {
 
     String[] getLocalJndiNames();
 
-    EJBProxyFactory getProxyFactory();
+    int getMethodIndex(Method method);
 
     ClassLoader getClassLoader();
 
