@@ -49,6 +49,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.NotSerializableException;
@@ -114,9 +115,6 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
     DeploymentInfo[] deployments    = null;
     HashMap          deploymentsMap = null;
     HashMap          _sessions      = new HashMap();
-    static {
-	CallbackHandlerAdapterManager.setCallbackHandlerAdapterFactory( new EjbCallbackHandlerAdapterFactory() );
-    }
 
 
     // The EJB Server Port
@@ -674,17 +672,32 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
     }
 
     public void processAuthRequest( ObjectInputStream in, ObjectOutputStream out ) throws Exception {
+	final AuthenticationRequest req = new AuthenticationRequest();
 	AuthenticationResponse res = new AuthenticationResponse();
-	AuthenticationRequest req = new AuthenticationRequest();
         LoginContext lc = null;
 
         try {
             req.readExternal( in );
 
-	    RemoteCallbackTransport sink = new RemoteCallbackTransport( in, out );
-	    EjbCallbackHandler handler = new EjbCallbackHandler( sink );
-	    
-	    lc = new LoginContext( "Pseudo Realm", handler );
+	    lc = new LoginContext( req.getRealm(), new CallbackHandler()  {
+		    public void handle( Callback[] callbacks )throws IOException, UnsupportedCallbackException
+		    {
+			for (int i = 0; i < callbacks.length; i++) {
+                            if (callbacks[i] instanceof NameCallback) {
+                                NameCallback nc = (NameCallback)callbacks[i];
+ 
+                                nc.setName((String)req.getPrinciple());
+
+                            } else if (callbacks[i] instanceof PasswordCallback) {
+                                PasswordCallback pc = (PasswordCallback)callbacks[i];
+                                pc.setPassword(((String)req.getCredentials()).toCharArray());
+ 
+                            } else {
+                                throw new UnsupportedCallbackException(callbacks[i], "Unrecognized Callback");
+                            }
+			}
+		    }
+		} );
 	    lc.login();
 
 	    Integer sessionKey;
