@@ -47,15 +47,15 @@ information about my setup </p>
 <p>
 
 <code-block>
-dblevins@Miles /dev/j2ee
+dblevins@Miles /home/j2ee
 $ pwd
-/dev/j2ee
+/home/j2ee
 
-dblevins@Miles /dev/j2ee
+dblevins@Miles /home/j2ee
 $ uname -a
 CYGWIN_NT-5.0 Miles 1.3.12(0.54/3/2) 2002-07-06 02:16 i686 unknown
 
-dblevins@Miles /dev/j2ee
+dblevins@Miles /home/j2ee
 $ java -version
 java version "1.3.1"
 Java(TM) 2 Runtime Environment, Standard Edition (build 1.3.1-b24)
@@ -81,7 +81,7 @@ Unpack Tomcat
 </p>
 <p>
 <code-block>
-dblevins@Miles /dev/j2ee
+dblevins@Miles /home/j2ee
 $ tar xzvf jakarta-tomcat-4.1.12.tar.gz
 </code-block>
 </p>
@@ -99,7 +99,7 @@ Unpack OpenEJB
 </p>
 <p>
 <code-block>
-dblevins@Miles /dev/j2ee
+dblevins@Miles /home/j2ee
 $ tar xzvf openejb-0.9.0.tar.gz
 </code-block>
 </p>
@@ -112,7 +112,7 @@ $ tar xzvf openejb-0.9.0.tar.gz
 
 <p>
 <code-block>
-dblevins@Miles /dev/j2ee
+dblevins@Miles /home/j2ee
 $ cd jakarta-tomcat-4.1.12
 </code-block>
 </p>
@@ -124,8 +124,8 @@ using the CATALINA_OPTS environment variable
 
 <p>
 <code-block>
-dblevins@Miles /dev/j2ee/jakarta-tomcat-4.1.12
-$ export CATALINA_OPTS='-Dopenejb.home=/dev/j2ee/openejb-0.9.0'
+dblevins@Miles /home/j2ee/jakarta-tomcat-4.1.12
+$ export CATALINA_OPTS='-Dopenejb.home=/home/j2ee/openejb-0.9.0'
 </code-block>
 </p>
 
@@ -135,7 +135,7 @@ Add the OpenEJB Loader to Tomcat
 
 <p>
 <code-block>
-dblevins@Miles /dev/j2ee/jakarta-tomcat-4.1.12
+dblevins@Miles /home/j2ee/jakarta-tomcat-4.1.12
 $ cp ../openejb-0.9.0/dist/openejb_loader-0.9.0.war webapps/
 </code-block>
 </p>
@@ -211,17 +211,21 @@ import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.naming.*;
+import javax.rmi.PortableRemoteObject;
 
 import org.acme.*;
 
 public class HelloOpenEJB extends HttpServlet {
+
     String factory = "org.openejb.client.LocalInitialContextFactory";
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
     throws IOException, ServletException {
+    
     PrintWriter out = response.getWriter();
-
+    
     try{
+        
         Properties p = new Properties();
         p.put(Context.INITIAL_CONTEXT_FACTORY, factory );
         InitialContext ctx = new InitialContext( p );
@@ -229,13 +233,14 @@ public class HelloOpenEJB extends HttpServlet {
         //Lookup the bean using it's deployment id
         Object obj = ctx.lookup("/Hello");
 
-        HelloHome ejbHome = (HelloHome) obj;
-
-        //Use the HelloHome to create a HelloObject
         HelloHome ejbHome = (HelloHome) 
                              PortableRemoteObject.narrow(obj, HelloHome.class);
 
+        //Use the HelloHome to create a HelloObject
+        HelloObject ejbObject = ejbHome.create();
+
         //The part we've all been wainting for...
+        response.setContentType("text/html");
         out.println("<html>");
         out.println("<body>");
         out.println("<head>");
@@ -249,6 +254,7 @@ public class HelloOpenEJB extends HttpServlet {
             response.setContentType("text/plain");
             e.printStackTrace(out);
         }
+
     }
 }]]>
 </file>
@@ -260,11 +266,11 @@ Now you can start Tomcat...
 
 <p>
 <code-block>
-dblevins@Miles /dev/j2ee/jakarta-tomcat-4.1.12
+dblevins@Miles /home/j2ee/jakarta-tomcat-4.1.12
 $ ./bin/startup.sh
-Using CATALINA_BASE:   C:\dev\j2ee\jakarta-tomcat-4.1.12
-Using CATALINA_HOME:   C:\dev\j2ee\jakarta-tomcat-4.1.12
-Using CATALINA_TMPDIR: /dev/j2ee/jakarta-tomcat-4.1.12/temp
+Using CATALINA_BASE:   C:\home\j2ee\jakarta-tomcat-4.1.12
+Using CATALINA_HOME:   C:\home\j2ee\jakarta-tomcat-4.1.12
+Using CATALINA_TMPDIR: /home/j2ee/jakarta-tomcat-4.1.12/temp
 Using JAVA_HOME:       C:\program_files\jdk1.3.1
 </code-block>
 </p>
