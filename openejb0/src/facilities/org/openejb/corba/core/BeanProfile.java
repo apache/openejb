@@ -94,6 +94,9 @@ public class BeanProfile
 		this.poa = poa;
 		this.bean_id = bean_id;
 		
+        // -- Set Context ClassLoader
+        Thread.currentThread().setContextClassLoader(beanInterface.getClassLoader());
+
 		// -- Create the bean proxy --
 		
 		createProxy( handler );

@@ -73,6 +73,9 @@ public class HomeProfile
 		
 		this.info = info;
 		
+        // -- Set Context ClassLoader
+        Thread.currentThread().setContextClassLoader(info.getHomeInterface().getClassLoader());
+
 		// -- Create the home proxy --
 		
 		createProxy( handler );
