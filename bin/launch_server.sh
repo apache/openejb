@@ -78,7 +78,7 @@ OPENEJB_OPTION_2="-Dorg/openejb/core/ThreadContext/IMPL_CLASS=org.openejb.tyrex.
 #-----------------------------------------------------------
 # Specifies the file to use as Log4j's configuration.
 #
-OPENEJB_OPTION_3="-Dlog4j.configuration=file:conf/default.logging.conf"
+# OPENEJB_OPTION_3="-Dlog4j.configuration=file:conf/default.logging.conf"
 
 #-----------------------------------------------------------
 # Testing Server helper  -- For Testing Only

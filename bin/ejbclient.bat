@@ -17,6 +17,6 @@ set test_cp=%CLASSPATH%;%CP%
 
 set SERVER=-Dopenejb.test.server=org.openejb.test.OpenEjbTestServer
 set DATABASE=-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase
-set OPTIONS=-Dlog4j.configuration=file:conf/default.logging.conf %SERVER% %DATABASE%
+set OPTIONS=%SERVER% %DATABASE%
 
 %JAVA% %OPTIONS% -classpath %test_cp% org.openejb.test.ClientTestRunner -s src\tests-ejb\OpenEjbServer_config.properties org.openejb.test.ClientTestSuite

@@ -56,7 +56,6 @@ import javax.ejb.SessionBean;
 import javax.transaction.Status;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import org.apache.log4j.Category;
 import org.openejb.ApplicationException;
 import org.openejb.InvalidateReferenceException;
 import org.openejb.OpenEJB;
@@ -66,6 +65,7 @@ import org.openejb.core.EnvProps;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
 import org.openejb.core.ivm.IntraVmCopyMonitor;
+import org.openejb.util.Logger;
 import org.openejb.util.OpenEJBErrorHandler;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
@@ -748,7 +748,7 @@ public class StatefulInstanceManager {
         }
     }
 
-    public Category logger = Category.getInstance("OpenEJB");
+    public Logger logger = Logger.getInstance("OpenEJB");
 
 
     protected void handleCallbackException(Throwable e, EnterpriseBean instance, ThreadContext callContext, String callBack) throws ApplicationException, org.openejb.SystemException{

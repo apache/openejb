@@ -56,7 +56,7 @@ CP=lib/xerces-J_1.3.1.jar${PS}${CP}
 CLASSPATH=${CP}
 
 # Setup options for testsuite execution
-LOGGING="-Dlog4j.configuration=file:conf/logging.conf"
+# LOGGING="-Dlog4j.configuration=file:conf/logging.conf"
 
 # Setup options for testsuite execution
 BASIC_OPTIONS="-Dopenejb.test.nowarn=true $LOGGING"

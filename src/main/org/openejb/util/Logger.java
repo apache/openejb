@@ -61,6 +61,7 @@ import java.lang.Throwable;
 public class Logger {
 
     protected Category _logger;
+    protected static boolean _systemPropertyChecked = false;
 
     /**
      * Return an instance of Logger.  Since the constructor of Logger is
@@ -72,8 +73,12 @@ public class Logger {
      */
     public static Logger getInstance( String name ) {
 	// Set log4j's configuration (Note the URL's form)
-	if( System.getProperty( "log4j.configuration" ) == null ) {
-	    System.setProperty( "log4j.configuration", "resource:/default.logging.conf" );
+	if ( !_systemPropertyChecked ) {
+	    if( System.getProperty( "log4j.configuration" ) == null ) {
+		System.setProperty( "log4j.configuration", "resource:/default.logging.conf" );
+	    }
+
+	    _systemPropertyChecked = true;
 	}
 
 	return new Logger( Category.getInstance( name ) );

@@ -59,6 +59,7 @@ import org.openejb.core.EnvProps;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
 import org.openejb.core.TransactionManagerWrapper;
+import org.openejb.util.Logger;
 import org.openejb.util.LinkedListStack;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
@@ -152,7 +153,7 @@ public class EntityInstanceManager {
     }
     
     
-    
+    public Logger logger = Logger.getInstance("OpenEJB");
 
     protected SafeToolkit toolkit = SafeToolkit.getToolkit("EntityInstanceManager");
     /******************************************************************
@@ -626,7 +627,7 @@ public class EntityInstanceManager {
             */
                 this.UNSET_ENTITY_CONTEXT_METHOD.invoke(bean, null);
         }catch(java.lang.reflect.InvocationTargetException target) {
-            org.apache.log4j.Category.getInstance("OpenEJB").info(getClass().getName()+".freeInstance: ignoring exception "+target.getTargetException()+" on bean instance "+bean);
+            logger.info(getClass().getName()+".freeInstance: ignoring exception "+target.getTargetException()+" on bean instance "+bean);
             // To throw, or not to throw, this is the question! See below.
         }catch(java.lang.Exception e){
             /*
@@ -636,7 +637,7 @@ public class EntityInstanceManager {
             */
             // TODO: Not spec compliant. Must fix. The spec clearly classifies this in the callback 
             // exception handling section 18.3.3 "Exceptions from container-invoked callbacks"
-            org.apache.log4j.Category.getInstance("OpenEJB").info(getClass().getName()+".freeInstance: ignoring exception "+e+" on bean instance "+bean);
+            logger.info(getClass().getName()+".freeInstance: ignoring exception "+e+" on bean instance "+bean);
         }finally{
             callContext.setCurrentOperation(currentOp);
         }

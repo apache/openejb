@@ -64,7 +64,6 @@ import javax.transaction.TransactionManager;
 import javax.transaction.TransactionRequiredException;
 import javax.transaction.TransactionRolledbackException;
 import javax.transaction.UserTransaction;
-import org.apache.log4j.Category;
 import org.exolab.castor.jdo.Database;
 import org.exolab.castor.jdo.JDO;
 import org.exolab.castor.jdo.OQLQuery;
@@ -84,6 +83,7 @@ import org.openejb.core.transaction.TransactionContainer;
 import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionPolicy;
 import org.openejb.util.LinkedListStack;
+import org.openejb.util.Logger;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.Stack;
@@ -178,7 +178,7 @@ public class CastorCMP11_EntityContainer
     }
 
 
-    public Category logger = Category.getInstance("OpenEJB");
+    public Logger logger = Logger.getInstance("OpenEJB");
     
     // contains deployment information for each by deployed to this container
     HashMap deploymentRegistry;
@@ -268,7 +268,7 @@ public class CastorCMP11_EntityContainer
             globalTransactionLogWriter = new java.io.PrintWriter( new java.io.FileWriter( globalTxLogName ) );         
             localTransactionLogWriter  = new java.io.PrintWriter( new java.io.FileWriter( localTxLogName  ) ); 
         } catch ( java.io.IOException e ) {
-            logger.warn("Cannot open the log files "+localTxLogName+" and "+globalTxLogName+", using system out instead." );
+            logger.warning("Cannot open the log files "+localTxLogName+" and "+globalTxLogName+", using system out instead." );
             globalTransactionLogWriter = new java.io.PrintWriter( new java.io.OutputStreamWriter( System.out ) );
             localTransactionLogWriter  = new java.io.PrintWriter( new java.io.OutputStreamWriter( System.out ) );
         }
@@ -276,7 +276,7 @@ public class CastorCMP11_EntityContainer
         try {
             KeyGeneratorFactory.setKeyOutputDirectory( keyDirectory );
         } catch ( java.io.IOException e ) {
-            logger.warn("Cannot set the KeyDirectory to "+ keyDirectory + "using the current working directory instead." );
+            logger.warning("Cannot set the KeyDirectory to "+ keyDirectory + "using the current working directory instead." );
             try {
                 KeyGeneratorFactory.setKeyOutputDirectory( System.getProperty("user.dir") );
             } catch ( Exception x ) {}

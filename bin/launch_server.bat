@@ -49,7 +49,7 @@ REM  Logging Configuration
 REM -----------------------------------------------------------
 REM  Specifies the file to use as Log4j's configuration.
 REM 
-set OPENEJB_OPTION_3= -Dlog4j.configuration=file:conf/default.logging.conf
+REM set OPENEJB_OPTION_3= -Dlog4j.configuration=file:conf/default.logging.conf
 
 REM -----------------------------------------------------------
 REM  Testing Server helper  -- For Testing Only

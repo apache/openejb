@@ -7,7 +7,6 @@ import javax.transaction.Status;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionRolledbackException;
-import org.apache.log4j.Category;
 import org.openejb.ApplicationException;
 import org.openejb.OpenEJB;
 import org.openejb.SystemException;
@@ -17,6 +16,7 @@ import org.openejb.core.Operations;
 import org.openejb.core.TransactionManagerWrapper;
 import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionPolicy;
+import org.openejb.util.Logger;
 
 /**
  * This class manages all the SessionSynchronization instances for a given 
@@ -38,7 +38,7 @@ public class SessionSynchronizationCoordinator implements javax.transaction.Sync
     
 
     private static java.util.HashMap coordinators = new java.util.HashMap();
-    public Category logger = Category.getInstance("OpenEJB");
+    public Logger logger = Logger.getInstance("OpenEJB");
 
     /**
      * The actual instances are not stored in this hash as we cannot forsee how 

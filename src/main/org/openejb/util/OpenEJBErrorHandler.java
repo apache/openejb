@@ -46,14 +46,14 @@ package org.openejb.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
-import org.apache.log4j.Category;
 
 import org.openejb.OpenEJBException;
+import org.openejb.util.Logger;
 
 
 public class OpenEJBErrorHandler{
 
-    private static Category         _logger = Category.getInstance( "OpenEJB" );
+    private static Logger _logger = Logger.getInstance( "OpenEJB" );
 
     /**
      * This method is only intended for situations where an unknown error
@@ -97,7 +97,7 @@ public class OpenEJBErrorHandler{
         Object[] errorMessageParams = {systemLocation, new String(baos.toByteArray())};
         OpenEJBException exception = new OpenEJBException("ge0001", errorMessageParams);
 
-        _logger.error(exception);
+        _logger.error("ge0001", exception);
 
         /*
          * An error broadcasting system is under development.
@@ -315,7 +315,7 @@ public class OpenEJBErrorHandler{
         Object[] errorMessageParams = { messageType, message, line, column};
         OpenEJBException exception = new OpenEJBException("as0001", errorMessageParams);
 
-        _logger.error(exception);
+        _logger.error("as0001", exception);
         /*
          * An error broadcasting system is under development.
          * At this point an appropriate error would be broadcast to all listeners.

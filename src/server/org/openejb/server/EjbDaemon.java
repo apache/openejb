@@ -66,8 +66,6 @@ import java.util.Vector;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 import javax.naming.*;
-import org.apache.log4j.Category;
-import org.apache.log4j.BasicConfigurator;
 import org.openejb.client.*;
 import org.openejb.client.proxy.*;
 import org.openejb.Container;
@@ -83,16 +81,17 @@ import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.FileUtils;
 import org.openejb.util.JarUtils;
+import org.openejb.util.Logger;
 
-/** 
+/**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @since 11/25/2001
  */
 public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, ResponseCodes, RequestMethods {
-    
+
     private SafeToolkit toolkit = SafeToolkit.getToolkit("OpenEJB EJB Server");
-    
-    Category logger = Category.getInstance( "OpenEJB" );
+
+    Logger logger = Logger.getInstance( "OpenEJB" );
 
     Vector           clientSockets  = new Vector();
     ServerSocket     serverSocket   = null;
@@ -111,15 +110,15 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
     public void init(Properties props) throws Exception{
 
-        
+
         props.putAll(System.getProperties());
 
         SafeProperties safeProps = toolkit.getSafeProperties(props);
-        
+
         port = safeProps.getPropertyAsInt("openejb.server.port");
         ip   = safeProps.getProperty("openejb.server.ip");
 
-        
+
         sMetaData = new ServerMetaData(ip, port);
 
         try{
@@ -128,20 +127,20 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             System.out.println("Cannot bind to the ip: "+ip+" and port: "+port+".  Received exception: "+ e.getClass().getName()+":"+ e.getMessage());
             System.exit(1);
         }
-        
+
         OpenEJB.init(props, this);
         System.out.println("\nbinding to ip: "+ip+" port: "+port+"\n");
-        
+
         clientJndi = (javax.naming.Context)OpenEJB.getJNDIContext().lookup("openejb/ejb");
 
         DeploymentInfo[] ds = OpenEJB.deployments();
-        
-        // This intentionally has the 0 index as null. The 0 index is the 
+
+        // This intentionally has the 0 index as null. The 0 index is the
         // default value of an unset deploymentCode.
         deployments = new DeploymentInfo[ ds.length +1 ];
 
         System.arraycopy( ds, 0, deployments, 1, ds.length);
-        
+
         deploymentsMap = new HashMap( deployments.length );
         for (int i=1; i < deployments.length; i++){
             deploymentsMap.put( deployments[i].getDeploymentID(), new Integer(i));
@@ -150,14 +149,14 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         System.out.println("Ready!");
     }
 
-    // This class doesn't use its own namespace, it uses the 
+    // This class doesn't use its own namespace, it uses the
     // jndi context of OpenEJB
 
     boolean stop = false;
-    
+
 
     public void run( ) {
-        
+
         Socket socket = null;
         /**
          * The ObjectInputStream used to receive incoming messages from the client.
@@ -173,18 +172,18 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                 socket = serverSocket.accept();
                 clientIP = socket.getInetAddress();
                 Thread.currentThread().setName(clientIP.getHostAddress());
-                
+
                 ois = new ObjectInputStream(  socket.getInputStream() );
                 oos = new ObjectOutputStream( socket.getOutputStream() );
-                
+
                 byte requestType = ois.readByte();
-    
+
                 switch (requestType) {
                     case EJB_REQUEST:  processEjbRequest(ois, oos); break;
                     case JNDI_REQUEST: processJndiRequest(ois, oos);break;
                     case AUTH_REQUEST: processAuthRequest(ois, oos);break;
                 }
-    
+
                 // Exceptions should not be thrown from these methods
                 // They should handle their own exceptions and clean
                 // things up with the client accordingly.
@@ -209,9 +208,9 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
     private DeploymentInfo getDeployment(EJBRequest req) throws RemoteException {
         // This logic could probably be cleaned up quite a bit.
-        
+
         DeploymentInfo info = null;
-        
+
         if (req.getDeploymentCode() > 0 && req.getDeploymentCode() < deployments.length) {
             info = deployments[ req.getDeploymentCode() ];
             if ( info == null ) {
@@ -219,8 +218,8 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             }
             req.setDeploymentId((String) info.getDeploymentID() );
             return info;
-        } 
-        
+        }
+
         if ( req.getDeploymentId() == null ) {
             throw new RemoteException("Invalid deployment id and code: id="+req.getDeploymentId()+": code="+req.getDeploymentCode());
         }
@@ -230,13 +229,13 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         if ( idCode == null ) {
             throw new RemoteException("No such deployment id and code: id="+req.getDeploymentId()+": code="+req.getDeploymentCode());
         }
-        
+
         req.setDeploymentCode( idCode.intValue() );
 
         if (req.getDeploymentCode() < 0 || req.getDeploymentCode() >= deployments.length){
             throw new RemoteException("Invalid deployment id and code: id="+req.getDeploymentId()+": code="+req.getDeploymentCode());
         }
-        
+
         info = deployments[ req.getDeploymentCode() ];
         if ( info == null ) {
             throw new RemoteException("The deployement with this ID is null");
@@ -244,10 +243,10 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         return info;
     }
 
-    private void replyWithFatalError 
+    private void replyWithFatalError
 	(ObjectOutputStream out,
-	 Throwable error, 
-	 String message) 
+	 Throwable error,
+	 String message)
     {
 	logger.fatal(message, error);
 	RemoteException re = new RemoteException
@@ -263,13 +262,13 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 	    logger.error("Failed to write to EJBResponse", ie);
 	}
     }
-    
+
     public void processEjbRequest (ObjectInputStream in, ObjectOutputStream out) {
-        
+
         EJBRequest req = new EJBRequest();
         EJBResponse res = new EJBResponse();
 
-        // TODO:2: This method can throw a large number of exceptions, we should 
+        // TODO:2: This method can throw a large number of exceptions, we should
         // be prepared to handle them all.  Look in the ObejctOutputStream code
         // for a full list of the exceptions thrown.
         // java.io.WriteAbortedException  can be thrown containing a
@@ -295,19 +294,19 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         } catch (Throwable t) {
 	    replyWithFatalError
 		(out, t, "Error caught during request processing");
-            return;            
+            return;
         }
 
         CallContext  call = null;
         DeploymentInfo di = null;
         RpcContainer    c = null;;
-        
+
         try{
             di = getDeployment(req);
         } catch (RemoteException e){
-	    replyWithFatalError 
+	    replyWithFatalError
 		(out, e, "No such deployment");
-            return;            
+            return;
 	    /*
             logger.warn( req + "No such deployment: "+e.getMessage());
             res.setResponse( EJB_SYS_EXCEPTION, e);
@@ -317,9 +316,9 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         } catch ( Throwable t ){
 	    replyWithFatalError
 		(out, t, "Unkown error occured while retrieving deployment");
-            return;            
+            return;
         }
-            
+
         try {
             call = CallContext.getCallContext();
             call.setEJBRequest( req );
@@ -327,9 +326,9 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         } catch ( Throwable t ){
 	    replyWithFatalError
 		(out, t, "Unable to set the thread context for this request");
-            return;            
+            return;
         }
-        
+
         logger.info( "EJB REQUEST : "+req );
 
         try {
@@ -338,55 +337,55 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                 case EJB_OBJECT_BUSINESS_METHOD:
                     doEjbObject_BUSINESS_METHOD( req, res );
                     break;
-                
+
                 // Home interface methods
                 case EJB_HOME_CREATE:
                     doEjbHome_CREATE( req, res );
                     break;
-                
+
                 case EJB_HOME_FIND:
                     doEjbHome_FIND( req, res );
                     break;
-                
+
                 // javax.ejb.EJBObject methods
                 case EJB_OBJECT_GET_EJB_HOME:
                     doEjbObject_GET_EJB_HOME( req, res );
                     break;
-                
+
                 case EJB_OBJECT_GET_HANDLE:
                     doEjbObject_GET_HANDLE( req, res );
                     break;
-                
+
                 case EJB_OBJECT_GET_PRIMARY_KEY:
                     doEjbObject_GET_PRIMARY_KEY( req, res );
                     break;
-                
+
                 case EJB_OBJECT_IS_IDENTICAL:
                     doEjbObject_IS_IDENTICAL( req, res );
                     break;
-                
+
                 case EJB_OBJECT_REMOVE:
                     doEjbObject_REMOVE( req, res );
                     break;
-                
+
                 // javax.ejb.EJBHome methods
                 case EJB_HOME_GET_EJB_META_DATA:
                     doEjbHome_GET_EJB_META_DATA( req, res );
                     break;
-                
+
                 case EJB_HOME_GET_HOME_HANDLE:
                     doEjbHome_GET_HOME_HANDLE( req, res );
                     break;
-                
+
                 case EJB_HOME_REMOVE_BY_HANDLE:
                     doEjbHome_REMOVE_BY_HANDLE( req, res );
                     break;
-                
+
                 case EJB_HOME_REMOVE_BY_PKEY:
                     doEjbHome_REMOVE_BY_PKEY( req, res );
                     break;
             }
-                
+
 
         } catch (org.openejb.InvalidateReferenceException e) {
             res.setResponse(EJB_SYS_EXCEPTION, e.getRootCause());
@@ -415,14 +414,14 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             call.reset();
         }
     }
-    
+
     static javax.naming.Context clientJndi;
 
     public void processJndiRequest(ObjectInputStream in, ObjectOutputStream out) throws Exception{
         JNDIRequest  req = new JNDIRequest();
         JNDIResponse res = new JNDIResponse();
         req.readExternal( in );
-        
+
         // We are assuming that the request method is JNDI_LOOKUP
         // TODO: Implement the JNDI_LIST and JNDI_LIST_BINDINGS methods
 
@@ -439,10 +438,10 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         if ( idNum != null ) {
             deployment = deployments[idNum.intValue()];
         }
-        
+
         if (deployment == null) {
             try {
-                obj = clientJndi.lookup(name);    
+                obj = clientJndi.lookup(name);
 
                 if ( obj instanceof Context ) {
                     res.setResponseCode( JNDI_CONTEXT );
@@ -467,25 +466,25 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
         res.writeExternal( out );
     }
-    
+
     public void processAuthRequest(ObjectInputStream in, ObjectOutputStream out) throws Exception{
-        //TODO   
+        //TODO
     }
 
     protected void doEjbObject_BUSINESS_METHOD( EJBRequest req, EJBResponse res ) throws Exception {
-        
+
         CallContext call = CallContext.getCallContext();
         RpcContainer c   = (RpcContainer)call.getDeploymentInfo().getContainer();
-        
-        Object result = c.invoke( req.getDeploymentId(), 
-                                  req.getMethodInstance(), 
-                                  req.getMethodParameters(), 
-                                  req.getPrimaryKey(), 
+
+        Object result = c.invoke( req.getDeploymentId(),
+                                  req.getMethodInstance(),
+                                  req.getMethodParameters(),
+                                  req.getPrimaryKey(),
                                   req.getClientIdentity());
 
         if (result instanceof ProxyInfo) {
             ProxyInfo info = (ProxyInfo)result;
-            
+
             if ( EJBObject.class.isAssignableFrom(info.getInterface()) ) {
                 result = _getEJBObject(call, info);
             } else if ( EJBHome.class.isAssignableFrom(info.getInterface()) ) {
@@ -498,22 +497,22 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                 res.setResponse( EJB_SYS_EXCEPTION, result);
                 return;
             }
-        } 
+        }
 
         res.setResponse( EJB_OK, result);
     }
-    
+
 
     // Home interface methods
     protected void doEjbHome_CREATE( EJBRequest req, EJBResponse res ) throws Exception {
-        
+
         CallContext call = CallContext.getCallContext();
         RpcContainer c   = (RpcContainer)call.getDeploymentInfo().getContainer();
-        
-        Object result = c.invoke( req.getDeploymentId(), 
-                                  req.getMethodInstance(), 
-                                  req.getMethodParameters(), 
-                                  req.getPrimaryKey(), 
+
+        Object result = c.invoke( req.getDeploymentId(),
+                                  req.getMethodInstance(),
+                                  req.getMethodParameters(),
+                                  req.getPrimaryKey(),
                                   req.getClientIdentity());
 
         if (result instanceof ProxyInfo) {
@@ -528,22 +527,22 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             res.setResponse( EJB_SYS_EXCEPTION, result);
         }
     }
-    
+
     /**
      * EJB 1.1 --
      * 9.1.8 Finder method return type
-     * 
+     *
      * 9.1.8.1 Single-object finder
-     * 
+     *
      * Some finder methods (such as ejbFindByPrimaryKey) are designed to return
      * at most one entity object. For these single-object finders, the result type
      * of the find<METHOD>(...)method defined in the entity bean’s home interface
      * is the entity bean’s remote interface. The result type of the corresponding
      * ejbFind<METHOD>(...) method defined in the entity’s implementation class is
      * the entity bean’s primary key type.
-     * 
+     *
      * 9.1.8.2 Multi-object finders
-     * 
+     *
      * Some finder methods are designed to return multiple entity objects. For
      * these multi-object finders, the result type of the find<METHOD>(...)method
      * defined in the entity bean’s home interface is a col-lection of objects
@@ -551,38 +550,38 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
      * corresponding ejbFind<METHOD>(...) implementation method defined in the
      * entity bean’s implementation class is a collection of objects of the entity
      * bean’s primary key type.
-     * 
+     *
      * The Bean Provider can choose two types to define a collection type for a finder:
      * • the JDK™ 1.1 java.util.Enumeration interface
      * • the Java™ 2 java.util.Collection interface
-     * 
+     *
      * A Bean Provider that wants to ensure that the entity bean is compatible
      * with containers and clients based on JDK TM 1.1 software must use the
      * java.util.Enumeration interface for the finder’s result type.
      * </P>
-     * 
+     *
      * @param req
      * @param in
      * @param out
      * @exception Exception
      */
     protected void doEjbHome_FIND( EJBRequest req, EJBResponse res ) throws Exception {
-        
+
         CallContext call = CallContext.getCallContext();
         RpcContainer c   = (RpcContainer)call.getDeploymentInfo().getContainer();
-        
-        Object result = c.invoke( req.getDeploymentId(), 
-                                  req.getMethodInstance(), 
-                                  req.getMethodParameters(), 
-                                  req.getPrimaryKey(), 
+
+        Object result = c.invoke( req.getDeploymentId(),
+                                  req.getMethodInstance(),
+                                  req.getMethodParameters(),
+                                  req.getPrimaryKey(),
                                   req.getClientIdentity());
 
-    
+
         /* Multiple instances found */
         if ( result instanceof Collection ) {
 
             Object [] primaryKeys = ((Collection)result).toArray();
-            
+
             for (int i=0; i < primaryKeys.length; i++){
                 primaryKeys[i] = ((ProxyInfo)primaryKeys[i]).getPrimaryKey();
             }
@@ -603,16 +602,16 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             res.setResponse( EJB_SYS_EXCEPTION, result);
         }
     }
-    
+
     // javax.ejb.EJBObject methods
     protected void doEjbObject_GET_EJB_HOME( EJBRequest req, EJBResponse res ) throws Exception {
         checkMethodAuthorization( req, res );
     }
-    
+
     protected void doEjbObject_GET_HANDLE( EJBRequest req, EJBResponse res ) throws Exception {
         checkMethodAuthorization( req, res );
     }
-    
+
     protected void doEjbObject_GET_PRIMARY_KEY( EJBRequest req, EJBResponse res ) throws Exception {
         checkMethodAuthorization( req, res );
     }
@@ -620,60 +619,60 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
     protected void doEjbObject_IS_IDENTICAL( EJBRequest req, EJBResponse res ) throws Exception {
         checkMethodAuthorization( req, res );
     }
-    
+
     protected void doEjbObject_REMOVE( EJBRequest req, EJBResponse res ) throws Exception {
-        
+
         CallContext call = CallContext.getCallContext();
         RpcContainer c   = (RpcContainer)call.getDeploymentInfo().getContainer();
-        
-        Object result = c.invoke( req.getDeploymentId(), 
-                                  req.getMethodInstance(), 
-                                  req.getMethodParameters(), 
-                                  req.getPrimaryKey(), 
-                                  req.getClientIdentity());
-        
-        res.setResponse( EJB_OK, null);
-    }
-    
-    // javax.ejb.EJBHome methods
-    protected void doEjbHome_GET_EJB_META_DATA( EJBRequest req, EJBResponse res ) throws Exception {
-        checkMethodAuthorization( req, res );
-    }
-    
-    protected void doEjbHome_GET_HOME_HANDLE( EJBRequest req, EJBResponse res ) throws Exception {
-        checkMethodAuthorization( req, res );
-    }
-    
-    protected void doEjbHome_REMOVE_BY_HANDLE( EJBRequest req, EJBResponse res ) throws Exception {
-        
-        CallContext call = CallContext.getCallContext();
-        RpcContainer c   = (RpcContainer)call.getDeploymentInfo().getContainer();
-        
-        Object result = c.invoke( req.getDeploymentId(), 
-                                  req.getMethodInstance(), 
-                                  req.getMethodParameters(), 
-                                  req.getPrimaryKey(), 
+
+        Object result = c.invoke( req.getDeploymentId(),
+                                  req.getMethodInstance(),
+                                  req.getMethodParameters(),
+                                  req.getPrimaryKey(),
                                   req.getClientIdentity());
 
         res.setResponse( EJB_OK, null);
     }
-    
-    protected void doEjbHome_REMOVE_BY_PKEY( EJBRequest req, EJBResponse res ) throws Exception {
-        
+
+    // javax.ejb.EJBHome methods
+    protected void doEjbHome_GET_EJB_META_DATA( EJBRequest req, EJBResponse res ) throws Exception {
+        checkMethodAuthorization( req, res );
+    }
+
+    protected void doEjbHome_GET_HOME_HANDLE( EJBRequest req, EJBResponse res ) throws Exception {
+        checkMethodAuthorization( req, res );
+    }
+
+    protected void doEjbHome_REMOVE_BY_HANDLE( EJBRequest req, EJBResponse res ) throws Exception {
+
         CallContext call = CallContext.getCallContext();
         RpcContainer c   = (RpcContainer)call.getDeploymentInfo().getContainer();
-        
-        Object result = c.invoke( req.getDeploymentId(), 
-                                  req.getMethodInstance(), 
-                                  req.getMethodParameters(), 
-                                  req.getPrimaryKey(), 
+
+        Object result = c.invoke( req.getDeploymentId(),
+                                  req.getMethodInstance(),
+                                  req.getMethodParameters(),
+                                  req.getPrimaryKey(),
+                                  req.getClientIdentity());
+
+        res.setResponse( EJB_OK, null);
+    }
+
+    protected void doEjbHome_REMOVE_BY_PKEY( EJBRequest req, EJBResponse res ) throws Exception {
+
+        CallContext call = CallContext.getCallContext();
+        RpcContainer c   = (RpcContainer)call.getDeploymentInfo().getContainer();
+
+        Object result = c.invoke( req.getDeploymentId(),
+                                  req.getMethodInstance(),
+                                  req.getMethodParameters(),
+                                  req.getPrimaryKey(),
                                   req.getClientIdentity());
 
         res.setResponse( EJB_OK, null);
     }
 
     protected void checkMethodAuthorization( EJBRequest req, EJBResponse res ) throws Exception {
-        // Nothing to do here other than check to see if the client 
+        // Nothing to do here other than check to see if the client
         // is authorized to call this method
         // TODO:3: Keep a cache in the client-side handler of methods it can't access
 
@@ -689,8 +688,8 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             res.setResponse( EJB_APP_EXCEPTION , new RemoteException("Unauthorized Access by Principal Denied") );
         }
     }
-    
-    
+
+
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
@@ -707,22 +706,22 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         CallContext call = CallContext.getCallContext();
         return _getEJBMetaData(call, info);
     }
-    
+
     public javax.ejb.Handle getHandle(ProxyInfo info){
         CallContext call = CallContext.getCallContext();
         return _getHandle(call, info);
     }
-    
+
     public javax.ejb.EJBObject getEJBObject(ProxyInfo info){
         CallContext call = CallContext.getCallContext();
         return _getEJBObject(call, info);
     }
-    
+
     public javax.ejb.EJBHome getEJBHome(ProxyInfo info){
         CallContext call = CallContext.getCallContext();
         return _getEJBHome(call, info);
     }
-    
+
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
@@ -730,10 +729,10 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
     //  ApplicationServer interface methods
     //=============================================================
     private javax.ejb.EJBMetaData _getEJBMetaData(CallContext call, ProxyInfo info){
-        
+
         DeploymentInfo deployment = info.getDeploymentInfo();
         Integer idCode = (Integer)deploymentsMap.get( deployment.getDeploymentID() );
-        
+
         EJBMetaDataImpl metaData = new EJBMetaDataImpl(deployment.getHomeInterface(),
                                                        deployment.getRemoteInterface(),
                                                        deployment.getPrimaryKeyClass(),
@@ -742,10 +741,10 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                                                        idCode.intValue());
         return metaData;
     }
-    
+
     private javax.ejb.Handle _getHandle(CallContext call, ProxyInfo info){
         DeploymentInfo deployment = info.getDeploymentInfo();
-        
+
         Integer idCode = (Integer)deploymentsMap.get( deployment.getDeploymentID() );
 
         ClientMetaData  cMetaData = new ClientMetaData(call.getEJBRequest().getClientIdentity());
@@ -761,10 +760,10 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
         return new EJBObjectHandle( hanlder.createEJBObjectProxy() );
     }
-    
+
     private javax.ejb.EJBObject _getEJBObject(CallContext call, ProxyInfo info){
         DeploymentInfo deployment = info.getDeploymentInfo();
-        
+
         Integer idCode = (Integer)deploymentsMap.get( deployment.getDeploymentID() );
 
         ClientMetaData  cMetaData = new ClientMetaData(call.getEJBRequest().getClientIdentity());
@@ -780,12 +779,12 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
         return hanlder.createEJBObjectProxy();
     }
-    
+
     private javax.ejb.EJBHome _getEJBHome(CallContext call, ProxyInfo info){
         DeploymentInfo deployment = info.getDeploymentInfo();
-  
+
         Integer idCode = (Integer)deploymentsMap.get( deployment.getDeploymentID() );
-  
+
         ClientMetaData  cMetaData = new ClientMetaData(call.getEJBRequest().getClientIdentity());
         EJBMetaDataImpl eMetaData = new EJBMetaDataImpl(deployment.getHomeInterface(),
                                                         deployment.getRemoteInterface(),
@@ -795,9 +794,9 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                                                         idCode.intValue());
 
         EJBHomeHandler hanlder = EJBHomeHandler.createEJBHomeHandler(eMetaData,sMetaData,cMetaData);
-  
+
         //EJBHomeProxyHandle handle = new EJBHomeProxyHandle( hanlder );
-        
+
         return hanlder.createEJBHomeProxy();
     }
 
@@ -809,21 +808,18 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
     public static void main(String [] args) {
         try {
-            
-            // Set up a simple configuration that logs on the console.
-            //BasicConfigurator.configure();
-                    
+
             Properties props = System.getProperties();
-            
+
             // -- Set Defaults -- //
             props.put("openejb.home",              System.getProperty("user.dir"));
             props.put("openejb.server.ip",         "127.0.0.1");
             props.put("openejb.server.port",       "4201");
             props.put("openejb.server.threads",    "20");
 
-            //TODO:0: Remove this hack.  OpenEJB container system related properties
-            // should be resolved by org.openejb.OpenEJB
-            props.put("log4j.configuration",       "file:conf/default.logging.conf");
+            // Setting the handler system property should be the first thing
+            // OpenEJB does.
+            JarUtils.setHandlerSystemProperty();
 
             for (int i=0; i < args.length; i++){
                 if (args[i].equals("-h")){
@@ -861,9 +857,9 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                     return;
                 }
             }
-            
-            props.setProperty("org/openejb/configuration_factory", "org.openejb.alt.config.ConfigurationFactory");            
-            
+
+            props.setProperty("org/openejb/configuration_factory", "org.openejb.alt.config.ConfigurationFactory");
+
 
             EjbDaemon ejbd = new EjbDaemon();
             ejbd.init(props);
@@ -874,14 +870,14 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                 d.setName("EJB Daemon ["+i+"]");
                 d.start();
             }
-            
+
             // dont allow the server to exit
             while ( true ) {
                 try {
                     Thread.sleep(Long.MAX_VALUE);
                 } catch ( InterruptedException e ) {}
             }
-        
+
         } catch ( Exception re ) {
             System.err.println("[EJB Server] FATAL ERROR: "+ re.getMessage());
             re.printStackTrace();
@@ -903,7 +899,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         System.out.println( "OpenEJB Remote Server " + versionInfo.get( "version" ) );
         System.out.println( "" + versionInfo.get( "url" ) );
     }
-    
+
     private static void printHelp() {
         String header = "OpenEJB Remote Server ";
         try {
@@ -913,9 +909,9 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             header += versionInfo.get( "version" );
         } catch (java.io.IOException e) {
         }
-        
+
         System.out.println( header );
-        
+
         // Internationalize this
         try {
             InputStream in = new URL( "resource:/openejb/ejbserver.txt" ).openConnection().getInputStream();
@@ -938,9 +934,9 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             header += versionInfo.get( "version" );
         } catch (java.io.IOException e) {
         }
-        
+
         System.out.println( header );
-        
+
         // Internationalize this
         try {
             InputStream in = new URL( "resource:/openejb/ejbserver-examples.txt" ).openConnection().getInputStream();

@@ -6,11 +6,11 @@ import javax.transaction.Status;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionRolledbackException;
-import org.apache.log4j.Category;
 import org.openejb.ApplicationException;
 import org.openejb.OpenEJB;
 import org.openejb.SystemException;
 import org.openejb.core.ThreadContext;
+import org.openejb.util.Logger;
 //import org.openejb.core.Container;
 import org.openejb.Container;
 
@@ -46,7 +46,7 @@ public abstract class TransactionPolicy {
         return container;
     }
     
-    public Category logger = Category.getInstance("OpenEJB");
+    public Logger logger = Logger.getInstance("OpenEJB");
 
     public abstract void handleApplicationException( Throwable appException, TransactionContext context ) throws org.openejb.ApplicationException;
     public abstract void handleSystemException( Throwable sysException, EnterpriseBean instance, TransactionContext context ) throws org.openejb.ApplicationException, org.openejb.SystemException;
@@ -66,7 +66,7 @@ public abstract class TransactionPolicy {
             tx.commit();
         } catch ( javax.transaction.RollbackException e ) {
             // TODO:3: Localize the message; add to Messages.java
-            logger.warn("TX_WARNING: The transaction has been rolled back rather than commited: "+e.getMessage());
+            logger.warning("TX_WARNING: The transaction has been rolled back rather than commited: "+e.getMessage());
         
         } catch ( javax.transaction.HeuristicMixedException e ) {
             // TODO:3: Localize the message; add to Messages.java
