@@ -831,7 +831,7 @@ public class AssemblerTool {
      *
      * @see org.openejb.core.DeploymentInfo
      * @see MethodInfo
-     * @exeption SecurityException if 
+     * @exception SecurityException if 
      */
     protected  void resolveMethods(Vector methods, Class intrface, MethodInfo mi)
     throws SecurityException{
