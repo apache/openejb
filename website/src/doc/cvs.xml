@@ -44,6 +44,42 @@
       
     </section>
 
+<section title="Building the Source" ref-id="building">
+<p>
+Building OpenEJB from the sources requires <a href="http://maven.apache.org">Apache Maven</a> to be installed. Download, install and run it to see if it works well. See <a href="http://maven.apache.org">Apache Maven</a> web site for information on how to do it.
+</p>
+
+<code name="Do it to see if Maven is installed correctly">
+$ maven --version
+ __  __
+|  \/  |__ _Apache__ ___
+| |\/| / _` \ V / -_) ' \  ~ intelligent projects ~
+|_|  |_\__,_|\_/\___|_||_|  v. 1.0
+</code>
+
+<p>Once you've got Maven working, change the current working directory to the one where OpenEJB sources have been downloaded to. Run <i>maven</i> command at the command line prompt.</p>
+
+<code name="OpenEJB 1.0 build process (openejb1 module)">
+$ maven
+ __  __
+|  \/  |__ _Apache__ ___
+| |\/| / _` \ V / -_) ' \  ~ intelligent projects ~
+|_|  |_\__,_|\_/\___|_||_|  v. 1.0
+
+Starting the reactor...
+Our processing order:
+OpenEJB :: Core
+OpenEJB :: Integration Tests
+OpenEJB :: WebAdmin
+...
+BUILD SUCCESSFUL
+Total time: 3 minutes 31 seconds
+Finished at: Tue Aug 10 14:36:26 CEST 2004
+</code>
+
+<p>Once the maven command finishes OpenEJB binaries are found in the <i>target/openejb-1.0-SNAPSHOT/</i> directory. From now on, the directory is refered to as OpenEJB home directory (similarly to the directory where the binaries are when OpenEJB is downloaded from the web site).</p>
+</section>
+
     <section title="Guidelines For Code Contribution">
 
       <p>All code contributions must be under the license and copyright of the
