@@ -74,6 +74,7 @@ public class BeanPolicy {
                 TransactionContext beanContext = new UnspecifiedTransactionContext();
                 TransactionContext.setContext(beanContext);
                 beanContext.begin();
+                ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
                     if (beanContext != TransactionContext.getContext()) {
@@ -97,6 +98,7 @@ public class BeanPolicy {
                     throw t;
                 }
             } finally {
+                ejbInvocation.setTransactionContext(clientContext);
                 TransactionContext.setContext(clientContext);
                 if (clientContext != null) {
                     clientContext.resume();

@@ -76,6 +76,7 @@ public class ContainerPolicy {
                 TransactionContext beanContext = new UnspecifiedTransactionContext();
                 TransactionContext.setContext(beanContext);
                 beanContext.begin();
+                ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
                     beanContext.commit();
@@ -89,6 +90,7 @@ public class ContainerPolicy {
                     throw t;
                 }
             } finally {
+                ejbInvocation.setTransactionContext(clientContext);
                 TransactionContext.setContext(clientContext);
                 if (clientContext != null) {
                     clientContext.resume();
@@ -111,6 +113,7 @@ public class ContainerPolicy {
                 TransactionContext beanContext = new ContainerTransactionContext(txnManager);
                 TransactionContext.setContext(beanContext);
                 beanContext.begin();
+                ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
                     beanContext.commit();
@@ -124,6 +127,7 @@ public class ContainerPolicy {
                     throw t;
                 }
             } finally {
+                ejbInvocation.setTransactionContext(clientContext);
                 TransactionContext.setContext(clientContext);
                 if (clientContext != null) {
                     clientContext.resume();
@@ -143,6 +147,7 @@ public class ContainerPolicy {
                 TransactionContext beanContext = new UnspecifiedTransactionContext();
                 TransactionContext.setContext(beanContext);
                 beanContext.begin();
+                ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
                     beanContext.commit();
@@ -156,6 +161,7 @@ public class ContainerPolicy {
                     throw t;
                 }
             } finally {
+                ejbInvocation.setTransactionContext(null);
                 TransactionContext.setContext(null);
             }
         }
@@ -172,6 +178,7 @@ public class ContainerPolicy {
                 TransactionContext beanContext = new ContainerTransactionContext(txnManager);
                 TransactionContext.setContext(beanContext);
                 beanContext.begin();
+                ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
                     beanContext.commit();
@@ -185,6 +192,7 @@ public class ContainerPolicy {
                     throw t;
                 }
             } finally {
+                ejbInvocation.setTransactionContext(clientContext);
                 TransactionContext.setContext(clientContext);
                 if (clientContext != null) {
                     clientContext.resume();
@@ -224,6 +232,7 @@ public class ContainerPolicy {
                 TransactionContext beanContext = new UnspecifiedTransactionContext();
                 TransactionContext.setContext(beanContext);
                 beanContext.begin();
+                ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
                     beanContext.commit();
@@ -237,6 +246,7 @@ public class ContainerPolicy {
                     throw t;
                 }
             } finally {
+                ejbInvocation.setTransactionContext(null);
                 TransactionContext.setContext(null);
             }
         }
