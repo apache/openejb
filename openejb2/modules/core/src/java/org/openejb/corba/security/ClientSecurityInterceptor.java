@@ -49,18 +49,17 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.LocalObject;
-import org.omg.CORBA.Policy;
 import org.omg.IOP.ServiceContext;
 import org.omg.IOP.TAG_CSI_SEC_MECH_LIST;
 import org.omg.IOP.TaggedComponent;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 
+import org.openejb.corba.ClientContextManager;
 import org.openejb.corba.security.config.css.CSSCompoundSecMechConfig;
 import org.openejb.corba.security.config.css.CSSConfig;
 import org.openejb.corba.security.config.tss.TSSCompoundSecMechListConfig;
 import org.openejb.corba.util.Util;
-import org.openejb.corba.ClientContextManager;
 
 
 /**
@@ -75,19 +74,15 @@ final class ClientSecurityInterceptor extends LocalObject implements ClientReque
     }
 
     public void receive_exception(ClientRequestInfo ri) {
-        int i = 0;
     }
 
     public void receive_other(ClientRequestInfo ri) {
-        int i = 0;
     }
 
     public void receive_reply(ClientRequestInfo ri) {
-        int i = 0;
     }
 
     public void send_poll(ClientRequestInfo ri) {
-        int i = 0;
     }
 
     public void send_request(ClientRequestInfo ri) {
