@@ -118,6 +118,7 @@ public class OpenEJB {
     protected static ApplicationServer applicationServer;
     protected static TransactionManager transactionManager;
     protected static Properties initProps;
+    private static boolean initialized;
 
     public static void init(Properties props)
     throws OpenEJBException{
@@ -131,6 +132,12 @@ public class OpenEJB {
      * @since JDK 1.2
      */
     public static void init(Properties props, ApplicationServer appServer) throws OpenEJBException{
+        if (initialized) throw new OpenEJBException("OpenEJB has already been initialized.");
+        
+        initProps         = props;
+        applicationServer = appServer;
+        
+        
         SecurityManager sm = System.getSecurityManager();
         if (sm == null) {
             try{
@@ -141,8 +148,6 @@ public class OpenEJB {
                 });
             } catch (Exception e){}
         }
-        initProps = props;
-        applicationServer = appServer;
         if(containerSystem != null)
             throw new OpenEJBException("OpenEJB already initiated");
 
@@ -159,10 +164,12 @@ public class OpenEJB {
            Default is org.openejb.core.conf.Assembler*/
         Assembler assembler = AssemblerFactory.getAssembler(props);
         assembler.build();
-        containerSystem = assembler.getContainerSystem();
-        securityService = assembler.getSecurityService();
+        
+        containerSystem    = assembler.getContainerSystem();
+        securityService    = assembler.getSecurityService();
         transactionManager = assembler.getTransactionManager();
-
+        
+        initialized = true;
     }
 
     /**
@@ -260,5 +267,9 @@ public class OpenEJB {
     */
     public static Properties getInitProps( ){
         return (Properties)initProps.clone();
+    }
+
+    public static boolean isInitialized(){
+        return initialized;
     }
 }
