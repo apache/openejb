@@ -134,6 +134,10 @@
             <ant:arg value="src/plan/system-plan.xml"/>
             <ant:arg value="--outfile"/>
             <ant:arg value="${distDir}/bin/server.jar"/>
+            <ant:arg value="--mainClass"/>
+            <ant:arg value="org.apache.geronimo.system.main.Daemon"/>
+            <ant:arg value="--classPath"/>
+            <ant:arg value="${server.classpath}"/>
         </ant:java>
 
         <!-- build the J2EEServer configuration -->
