@@ -338,7 +338,8 @@ class ContainerSecurityBuilder {
                                        SecurityIdentityType securityIdentity)
             throws DeploymentException {
 
-        String runAsName = ((securityIdentity != null && securityIdentity.getRunAs() != null) ? securityIdentity.getRunAs().getRoleName().getStringValue() : "");
+        boolean needsRunAs = (securityIdentity != null && securityIdentity.getRunAs() != null);
+        String runAsName = (needsRunAs ? securityIdentity.getRunAs().getRoleName().getStringValue() : "");
         Iterator rollMappings = security.getRoleMappings().values().iterator();
         while (rollMappings.hasNext()) {
             Role role = (Role) rollMappings.next();
@@ -378,7 +379,7 @@ class ContainerSecurityBuilder {
                 }
             }
         }
-        if (builder.getRunAs() == null) throw new DeploymentException("Role designate not found for role: " + runAsName);
+        if (needsRunAs && builder.getRunAs() == null) throw new DeploymentException("Role designate not found for role: " + runAsName);
     }
 
     /**
