@@ -54,9 +54,6 @@ OpenEJB init-params:
         param-name: openejb.base, param-value: c:\webapps\openejb\WEB-INF\openejb
         param-name: openejb.loader, param-value: tomcat-webapp</code>
         <p>
-            The complete list of the OpenEJB configuration settings is described in <a href="TODO">TODO</a>
-        </p>
-        <p>
             Read more on the <a href="TODO">OpenEJB WebAdmin</a> web application.
         </p>
         </section>
