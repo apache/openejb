@@ -76,25 +76,25 @@ goto EOF
 REM================================================
 :VALIDATE 
    shift
-   java -jar dist/openejb_validator-1.0.jar %1 %2 %3 %4 %5 %6 %7 %8 %9
+   java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.alt.config.EjbValidator %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 goto EOF
 REM================================================
 :DEPLOY 
    shift
-   java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-DEV.jar org.openejb.util.Launcher org.openejb.alt.config.Deploy %1 %2 %3 %4 %5 %6 %7 %8 %9
+   java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.util.Launcher org.openejb.alt.config.Deploy %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 goto EOF
 REM================================================
 :START_SERVER
    shift
-   java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-DEV.jar org.openejb.util.Launcher org.openejb.server.Main %1 %2 %3 %4 %5 %6 %7 %8 %9
+   java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.util.Launcher org.openejb.server.Main %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 goto EOF
 REM================================================
 :STOP_SERVER
    shift
-   java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-DEV.jar org.openejb.util.Launcher org.openejb.server.Stop %1 %2 %3 %4 %5 %6 %7 %8 %9
+   java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.util.Launcher org.openejb.server.Stop %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 goto EOF
 REM================================================
@@ -109,7 +109,7 @@ REM================================================
    set NAMING_OPTIONS=%NAMING_OPTIONS% -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl
 
    REM  >logs\jndi.log 2>&1 doesn't work with 'start'
-   start "OpenORB JNDI Server" java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-DEV.jar org.openejb.util.Launcher %NAMING_OPTIONS% org.openorb.util.MapNamingContext -ORBPort=2001 -print
+   start "OpenORB JNDI Server" java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.util.Launcher %NAMING_OPTIONS% org.openorb.util.MapNamingContext -ORBPort=2001 -print
 
    sleep 20
    echo 2. OpenEJB RMI/IIOP Server...
@@ -125,7 +125,7 @@ REM================================================
 
    set SERVER_OPTIONS=-Dlog4j.configuration=file:conf/default.logging.conf
    set SERVER_OPTIONS=%SERVER_OPTIONS% -Dorg/openejb/core/ThreadContext/IMPL_CLASS=org.openejb.tyrex.TyrexThreadContext
-   java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-DEV.jar org.openejb.util.Launcher %SERVER_OPTIONS% %OPENORB_OPTIONS% org.openejb.corba.Server -ORBProfile=ejb -domain conf\tyrex_resources.xml
+   java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.util.Launcher %SERVER_OPTIONS% %OPENORB_OPTIONS% org.openejb.corba.Server -ORBProfile=ejb -domain conf\tyrex_resources.xml
 
 goto EOF
 REM================================================
@@ -254,7 +254,7 @@ REM================================================
    SHIFT
    IF DEFINED %1 set JAVATOIDL_OPTS=-tie -stub -noidl -local
 
-   java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-DEV.jar org.openejb.util.Launcher %OPTIONS% org.openorb.rmi.compiler.JavaToIdl %JAVATOIDL_OPTS% %1 %2 %3 %4 %5 %6 %7 %8 %9
+   java %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-@REPLACED-BY-MAVEN-XML@.jar org.openejb.util.Launcher %OPTIONS% org.openorb.rmi.compiler.JavaToIdl %JAVATOIDL_OPTS% %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 goto EOF
 REM================================================
