@@ -2,6 +2,7 @@
 <document url="http://openejb.sf.net/embedded.xml">
   <body>
     <title>OpenEJB as an embedded library</title>
+<sideimg src="images/diagram-local-server.gif" width="240" height="500"/>
 
 <section title="Accessing EJBs locally" ref-id="local.access">
     
@@ -10,8 +11,9 @@ If you wish to access ejbs locally and not in client/server
 mode, for example if your application <i><u>is</u></i> a 
 server or other middleware, you can do so by embedding 
 OpenEJB as a library and accessing ejbs through OpenEJB's 
-built-in IntraVM Server.
+built-in IntraVM (Local) Server.
 </p>
+
 
 <p>In this case, your application, server, or other middleware 
 accesses beans as you would from any other server.  The server 
@@ -30,7 +32,7 @@ otherwise none of this is necessary and you can simply access the
 IntraVM Server directly as an ordinary non-J2EE client does.
 </p> 
 <p>
-Try something like this for a simple IntraVM Client:
+Try something like this for a simple IntraVM (Local) Client:
 </p>
 
 <p>
