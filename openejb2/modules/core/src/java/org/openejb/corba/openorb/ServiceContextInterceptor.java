@@ -49,9 +49,6 @@ import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.LocalObject;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
-//import org.openorb.orb.net.ServerRequest;
-//import org.openorb.orb.net.Transport;
-//import org.openorb.orb.ssl.SSLTransport;
 
 import org.openejb.corba.security.SSLSessionManager;
 
