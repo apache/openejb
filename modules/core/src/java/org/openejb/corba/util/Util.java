@@ -381,4 +381,19 @@ public final class Util {
         }
         return result;
     }
+
+    public static String byteToString(byte[] data) {
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < data.length; i++) {
+            buffer.append(HEXCHAR[(data[i]>>>4)&0x0F]);
+            buffer.append(HEXCHAR[(data[i]    )&0x0F]);
+        }
+        return buffer.toString();
+
+    }
+
+    private static final char[] HEXCHAR = {
+        '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
 }

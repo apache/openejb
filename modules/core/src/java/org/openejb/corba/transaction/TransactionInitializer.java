@@ -44,6 +44,8 @@
  */
 package org.openejb.corba.transaction;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.LocalObject;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
@@ -55,6 +57,12 @@ import org.omg.PortableInterceptor.ORBInitializer;
  */
 public class TransactionInitializer extends LocalObject implements ORBInitializer {
 
+    private final Log log = LogFactory.getLog(TransactionInitializer.class);
+
+    public TransactionInitializer() {
+        if (log.isDebugEnabled()) log.debug("TransactionInitializer.<init>");
+    }
+
     /**
      * Called during ORB initialization.  If it is expected that initial
      * services registered by an interceptor will be used by other
@@ -63,7 +71,7 @@ public class TransactionInitializer extends LocalObject implements ORBInitialize
      * <code>ORBInitInfo.register_initial_reference</code>.
      *
      * @param orbInitInfo provides initialization attributes and operations by
-     *             which Interceptors can be registered.
+     *                    which Interceptors can be registered.
      */
     public void pre_init(ORBInitInfo orbInitInfo) {
 
@@ -85,18 +93,26 @@ public class TransactionInitializer extends LocalObject implements ORBInitialize
      * created, no IOR interceptors will be invoked.
      *
      * @param orbInitInfo provides initialization attributes and
-     *             operations by which Interceptors can be registered.
+     *                    operations by which Interceptors can be registered.
      */
     public void post_init(ORBInitInfo orbInitInfo) {
         try {
-            orbInitInfo.add_client_request_interceptor(new ClientTransactionInterceptor());
-            orbInitInfo.add_server_request_interceptor(new ServerTransactionInterceptor());
-            orbInitInfo.add_ior_interceptor(new IORTransactionInterceptor());
-        } catch (DuplicateName duplicateName) {
-            duplicateName.printStackTrace();
+            if (log.isDebugEnabled()) log.debug("Registering interceptors and policy factories");
+
+            try {
+                orbInitInfo.add_client_request_interceptor(new ClientTransactionInterceptor());
+                orbInitInfo.add_server_request_interceptor(new ServerTransactionInterceptor());
+                orbInitInfo.add_ior_interceptor(new IORTransactionInterceptor());
+            } catch (DuplicateName duplicateName) {
+                log.error("Duplicate name", duplicateName);
+            }
+
+            orbInitInfo.register_policy_factory(ClientTransactionPolicyFactory.POLICY_TYPE, new ClientTransactionPolicyFactory());
+            orbInitInfo.register_policy_factory(ServerTransactionPolicyFactory.POLICY_TYPE, new ServerTransactionPolicyFactory());
+        } catch (RuntimeException re) {
+            log.error("Error registering interceptor", re);
+            throw re;
         }
-        orbInitInfo.register_policy_factory(ClientTransactionPolicyFactory.POLICY_TYPE, new ClientTransactionPolicyFactory());
-        orbInitInfo.register_policy_factory(ServerTransactionPolicyFactory.POLICY_TYPE, new ServerTransactionPolicyFactory());
     }
 
 }

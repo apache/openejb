@@ -208,7 +208,12 @@ public final class UtilDelegateImpl implements UtilDelegate {
         if (result == null && classLoader != null) {
             if (log.isDebugEnabled()) log.debug("Attempting to load " + className + " from the static class loader");
 
-            result = classLoader.loadClass(className);
+            try {
+                result = classLoader.loadClass(className);
+            } catch (ClassNotFoundException e) {
+                if (log.isDebugEnabled()) log.debug("Unable to load " + className + " from the static class loader", e);
+                throw e;
+            }
 
             if (log.isDebugEnabled()) log.debug("result: " + (result == null ? "NULL" : result.getName()));
         }
