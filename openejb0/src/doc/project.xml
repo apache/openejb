@@ -64,7 +64,11 @@
       </navLink>
       <navLink>
         <url>cmp_entity_postgresql.xml</url>
-        <display>Hello World CMP</display>
+        <display>CMP Example</display>
+      </navLink>
+      <navLink>
+        <url>cmp_guide.xml</url>
+        <display>CMP Guide</display>
       </navLink>
       <navLink>
         <url>deploy.xml</url>
