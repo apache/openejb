@@ -51,14 +51,15 @@ import java.net.URI;
 import java.security.Permissions;
 import java.util.Map;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.security.deploy.Security;
@@ -75,8 +76,8 @@ import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
-import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 
 
 class EntityBuilder extends BeanBuilder {
@@ -148,7 +149,11 @@ class EntityBuilder extends BeanBuilder {
 
     public ObjectName createEJBObjectName(J2eeContext moduleJ2eeContext, EntityBeanType entityBean) throws DeploymentException {
         String ejbName = entityBean.getEjbName().getStringValue();
-        return NameFactory.getEjbComponentName(null, null, null, null, ejbName, NameFactory.ENTITY_BEAN, moduleJ2eeContext);
+        try {
+            return NameFactory.getEjbComponentName(null, null, null, null, ejbName, NameFactory.ENTITY_BEAN, moduleJ2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct ejb object name: " + ejbName, e);
+        }
     }
 
     public void processEnvironmentRefs(ContainerBuilder builder, EARContext earContext, EJBModule ejbModule, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {

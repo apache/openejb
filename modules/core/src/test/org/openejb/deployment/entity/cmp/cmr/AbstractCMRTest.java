@@ -54,18 +54,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -115,7 +115,7 @@ public abstract class AbstractCMRTest extends TestCase {
         try {
             C_NAME_A = NameFactory.getEjbComponentName(null, null, null,null, "A", NameFactory.ENTITY_BEAN, j2eeContext);
             C_NAME_B = NameFactory.getEjbComponentName(null, null, null,null, "B", NameFactory.ENTITY_BEAN, j2eeContext);
-        } catch (DeploymentException e) {
+        } catch (MalformedObjectNameException e) {
             throw new AssertionError(e);
         }
     }

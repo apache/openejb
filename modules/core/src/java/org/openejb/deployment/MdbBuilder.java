@@ -63,8 +63,8 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.RefContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.security.deploy.Security;
@@ -84,9 +84,9 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
+import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbActivationConfigPropertyType;
 import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
-import org.openejb.transaction.TransactionPolicySource;
 
 
 class MdbBuilder extends BeanBuilder {
@@ -106,8 +106,14 @@ class MdbBuilder extends BeanBuilder {
                 throw new DeploymentException("No openejb deployment descriptor for mdb: " + messageDrivenBean.getEjbName().getStringValue() + ". Known beans: " + openejbBeans.keySet().toArray());
             }
             String ejbName = messageDrivenBean.getEjbName().getStringValue();
-            ObjectName messageDrivenObjectName = NameFactory.getEjbComponentName(null, null, null, null, ejbName, NameFactory.MESSAGE_DRIVEN_BEAN, moduleJ2eeContext);
-            ObjectName activationSpecName = NameFactory.getEjbComponentName(null, null, null, null, ejbName, NameFactory.JCA_ACTIVATION_SPEC, moduleJ2eeContext);
+            ObjectName messageDrivenObjectName = null;
+            ObjectName activationSpecName = null;
+            try {
+                messageDrivenObjectName = NameFactory.getEjbComponentName(null, null, null, null, ejbName, NameFactory.MESSAGE_DRIVEN_BEAN, moduleJ2eeContext);
+                activationSpecName = NameFactory.getEjbComponentName(null, null, null, null, ejbName, NameFactory.JCA_ACTIVATION_SPEC, moduleJ2eeContext);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Could not construct object name: " + ejbName, e);
+            }
 
             String containerId = messageDrivenObjectName.getCanonicalName();
             GBeanMBean activationSpecGBean = createActivationSpecWrapperGBean(earContext,
@@ -286,13 +292,17 @@ class MdbBuilder extends BeanBuilder {
             throw new DeploymentException("Could not construct connector name", e);
         }
         //construct name from components
-        return NameFactory.getResourceComponentName(resourceLocator.getDomain(),
-                resourceLocator.getServer(),
-                resourceLocator.getApplication(),
-                resourceLocator.getModule(),
-                resourceLocator.getName(),
-                NameFactory.JCA_RESOURCE_ADAPTER,
-                j2eeContext);
+        try {
+            return NameFactory.getResourceComponentName(resourceLocator.getDomain(),
+                    resourceLocator.getServer(),
+                    resourceLocator.getApplication(),
+                    resourceLocator.getModule(),
+                    resourceLocator.getName(),
+                    NameFactory.JCA_RESOURCE_ADAPTER,
+                    j2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct resource adapter object name", e);
+        }
     }
 
     protected void processEnvironmentRefs(MDBContainerBuilder builder, EARContext earContext, EJBModule ejbModule, MessageDrivenBeanType messageDrivenBean, OpenejbMessageDrivenBeanType openejbMessageDrivenBean, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {

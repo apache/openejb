@@ -72,9 +72,9 @@ import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.RefContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
@@ -316,7 +316,12 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             GBeanHelper.addGbean(new OpenEJBGBeanAdapter(gbeans[i]), cl, earContext);
         }
 
-        ObjectName ejbModuleObjectName = NameFactory.getModuleName(null, null, null, null, NameFactory.EJB_MODULE, moduleJ2eeContext);
+        ObjectName ejbModuleObjectName = null;
+        try {
+            ejbModuleObjectName = NameFactory.getModuleName(null, null, null, null, NameFactory.EJB_MODULE, moduleJ2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct module name", e);
+        }
 
         // EJBModule GBean
         GerResourceLocatorType connectionFactoryLocator = openejbEjbJar.getCmpConnectionFactory();
@@ -409,15 +414,19 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             throw new DeploymentException("Could not construct connector name", e);
         }
         //construct name from components
-        return NameFactory.getResourceComponentName(resourceLocator.getDomain(),
-                resourceLocator.getServer(),
-                resourceLocator.getApplication(),
-                resourceLocator.getModule(),
-                resourceLocator.getName(),
-                //todo determine type from iface class
+        try {
+            return NameFactory.getResourceComponentName(resourceLocator.getDomain(),
+                    resourceLocator.getServer(),
+                    resourceLocator.getApplication(),
+                    resourceLocator.getModule(),
+                    resourceLocator.getName(),
+                    //todo determine type from iface class
 //                        resourceLocator.getType(),
-                NameFactory.JCA_MANAGED_CONNECTION_FACTORY,
-                j2eeContext);
+                    NameFactory.JCA_MANAGED_CONNECTION_FACTORY,
+                    j2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct cmp datasource object name", e);
+        }
     }
 
 
