@@ -99,6 +99,25 @@ by the server.
         <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
     </dependency>
 
+    <!-- CORBA -->
+    <dependency>
+        <uri>openorb/jars/openorb-orb-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>openorb/jars/openorb-orb-omg-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>openorb/jars/openorb-orb-tools-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>openorb/jars/openorb-tools-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>avalon/jars/avalon-framework-${avalon_framework_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>avalon/jars/avalon-logkit-${avalon_logkit_version}.jar</uri>
+    </dependency>
 
     <!-- Default security realm using properties files -->
     <gbean name="geronimo.security:type=SecurityRealm,realm=geronimo-properties-realm" class="org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm">
@@ -245,5 +264,30 @@ by the server.
         <attribute name="defaultXAThreadCaching" type="boolean">false</attribute>
     </gbean>
     <!-- end deployment block -->
+
+    <gbean name="openejb.CORBA:type=Server" class="org.openejb.corba.CORBABean">
+        <attribute name="Args" type="java.util.ArrayList">-ORBPort, 2001</attribute>
+        <attribute name="Props" type="java.util.Properties">
+
+            org.omg.CORBA.ORBClass=org.openorb.orb.core.ORB
+            org.omg.CORBA.ORBSingletonClass=org.openorb.orb.core.ORBSingleton
+
+            Zorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB
+            Zorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton
+
+            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer
+            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer
+
+            openorb.home=resource:org/openorb/
+
+        </attribute>
+
+    </gbean>
+
+    <gbean name="openejb.CORBA:type=POA,domain=org/openejb/Itests" class="org.openejb.corba.POABean">
+        <attribute name="POAName" type="java.lang.String">org/openejb/POA</attribute>
+        <reference name="Server">openejb.CORBA:type=Server</reference>
+        <reference name="Containers">geronimo.server:EJBModule=org/openejb/scenario001,*</reference>
+    </gbean>
 
 </configuration>

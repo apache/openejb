@@ -84,6 +84,7 @@ import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.EJBModuleImpl;
+import org.openejb.corba.compiler.SkeletonGenerator;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyObjectFactory;
 import org.openejb.proxy.ProxyRefAddr;
@@ -110,6 +111,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final EntityBuilder entityBuilder;
     private final MdbBuilder mdbBuilder;
     private final SecurityBuilder securityBuilder;
+    private SkeletonGenerator skeletonGenerator;
 
     public OpenEJBModuleBuilder() {
         this.securityBuilder = new SecurityBuilder(this);
@@ -121,6 +123,14 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
     public SecurityBuilder getSecurityBuilder() {
         return securityBuilder;
+    }
+
+    public SkeletonGenerator getSkeletonGenerator() {
+        return skeletonGenerator;
+    }
+
+    public void setSkeletonGenerator(SkeletonGenerator skeletonGenerator) {
+        this.skeletonGenerator = skeletonGenerator;
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
@@ -483,6 +493,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenEJBModuleBuilder.class);
         infoFactory.addInterface(ModuleBuilder.class);
         infoFactory.addInterface(EJBReferenceBuilder.class);
+        infoFactory.addReference("SkeletonGenerator", SkeletonGenerator.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

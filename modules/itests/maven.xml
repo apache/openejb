@@ -122,5 +122,36 @@
             password="manager"/>
         <echo message="server has stopped"/>
     </preGoal>
+    
+    <goal name="sec:start">
+        <ant:jar destfile="${basedir}/target/openejb-security-001.jar">
+            <fileset dir="${basedir}/target/classes" includes="**/security/**/*.class"/>
+            <metainf dir="${basedir}/src/scenarios/001" includes="*.xml"/>
+        </ant:jar>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            module="${basedir}/target/openejb-security-001.jar"
+            />
+        <deploy:start
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario001"/>
+    </goal>
+
+    <goal name="sec:stop">
+        <deploy:stop
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario001"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario001"/>
+    </goal>
 
 </project>
