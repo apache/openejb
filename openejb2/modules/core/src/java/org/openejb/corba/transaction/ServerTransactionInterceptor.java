@@ -97,6 +97,6 @@ class ServerTransactionInterceptor extends LocalObject implements ServerRequestI
      * @return the name of the interceptor.
      */
     public String name() {
-        return "ServerTransactionInterceptor";
+        return "org.openejb.corba.transaction.ServerTransactionInterceptor";
     }
 }
