@@ -143,6 +143,14 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
         this.endpointInterfaceName = endpointInterfaceName;
     }
 
+    public Subject getDefaultSubject() {
+        return null;  // RETURN NOTHING
+    }
+
+    public void setDefaultSubject(Subject defaultSubject) {
+        // DO NOTHING
+    }
+
     public Subject getRunAs() {
         return runAs;
     }
