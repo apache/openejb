@@ -1,24 +1,40 @@
-Usage: openejb deploy CONFIG JARFILE 
+Usage: openejb deploy [options] JARFILES...
 
-By default CONGIF is conf\openejb.conf.  If this is not found,
-the file conf/default.openejb.conf is used.
+OPTIONS
+ -m         Move the jar to the OPENEJB_HOME/beans directory
+         
+ -c         Copy the jar to the OPENEJB_HOME/beans directory
+         
+ -a         Automate deployment as much as possible.  Applies
+            all automation related flags.
+         
+ -C         Automatically assigns each bean in the jar to the
+            first container of the appropriate bean type.
+         
+ -D         Automatically assigns the OpenEJB deployment ID 
+            for each bean by using the <ejb-name> in your 
+            ejb-jar.xml.  The deployment ID uniquely identifies
+            the bean in the OpenEJB container system and is used
+            by most servers as the client-side JNDI name.  No 
+            two beans can share the same deployment ID.
 
-The JARFILE must be a valid ejb 1.1 jar file and contain the
-META_INF/ejb-jar.xml inside the jar.  When the jar is deployed,
-the file META-INF/openejb-jar.xml is added to the jar. This file
-maps your beans to elements in the CONFIG file so your ejb-jar.xml
-is never edited.  Do NOT edit the openejb-jar.xml file unless you 
-know exactly what you are doing.
+ -d dir     Sets the OPENEJB_HOME to the specified directory.
 
-To undeploy your jar, simply remove the META-INF/openejb-jar.xml
-file and restart the server.
+ -l file    Sets the log4j configuration to the specified file.
+ 
+ -conf file Sets the OpenEJB configuration to the specified file.
 
-Example:
-    
-openejb deploy conf/openejb.conf myBeans.jar
+ -version   Print the version.
+ 
+ -help      Print this help message.
 
-The OpenEJB EJB Container System, a local EJB API and Server.
-For OpenEJB updates and additional information, visit
+ -examples  Show examples of how to use the options.
+
+
+See http://openejb.sf.net/deploy.html for more information.
+
+OpenEJB -- EJB Container System and EJB Server.
+For updates and additional information, visit
 http://openejb.sf.net  
 
 Bug Reports to <openejb-user@lists.sf.net>

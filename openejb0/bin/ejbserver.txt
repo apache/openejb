@@ -1,16 +1,43 @@
-Usage: openejb start ejbserver [options]
+Usage: openejb start [options]
 
-OPTIONS:
+Starts OpenEJB as an EJB Server that can be accessed by remote 
+clients via the OpenEJB Remote Server.
 
-  -p <port> Starts the OpenEJB EJB Daemon on the port specified. 
+ALWAYS check your openejb.log file for warnings immediately after 
+starting the Remote Server.  
+
+OpenEJB issues warnings when it works around a potential problem, 
+encounters something it didn't expect, or when OpenEJB wants to 
+let you know something may not work as you expected it.
+
+OPTIONS
+ -h host    Binds the Remote Server to the specified host address.     
+            Default host address is 127.0.0.1.
+  
+ -p port    Binds the Remote Server to the specified port. 
             Default port is 4201.
   
-  -h <host> Binds the OpenEJB EJB Daemon to the specified host address.     
-            Default is 127.0.0.1.
+ -t int     Sets the number of concurrent threads the Remote 
+            server should use to service requests from clients.
+            Default number of threads is 20.
   
+ -d dir     Sets the OPENEJB_HOME to the specified directory.
 
-The OpenEJB EJB Container System, a local EJB API and Server.
+ -l file    Sets the log4j configuration to the specified file.
+ 
+ -conf file Sets the OpenEJB configuration to the specified file.
+
+ -version   Print the version.
+ 
+ -help      Print this help message.
+
+ -examples  Show examples of how to use the options.
+
+
+See http://openejb.sf.net/remote-server.html for more information.
+
+OpenEJB -- EJB Container System and EJB Server.
 For OpenEJB updates and additional information, visit
-http://openejb.sf.net
+http://openejb.sf.net  
 
 Bug Reports to <openejb-user@lists.sf.net>

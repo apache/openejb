@@ -1,0 +1,67 @@
+Usage: openejb start [options]
+
+Example: Simplest scenario
+
+ openejb start
+
+ That's it.  The server will start up and bind to IP 127.0.0.1 and port 4201.
+
+ The following properties would then be used to get an InitialContext
+ from the Remote Server.
+        
+   java.naming.factory.initial      = org.openejb.client.JNDIContext
+   java.naming.provider.url         = 127.0.0.1:4201
+   java.naming.security.principal   = myuser
+   java.naming.security.credentials = mypass
+
+Example: -h
+
+ openejb start -h 10.45.67.8
+
+ This is the most common way to use the OpenEJB Remote Server.  The server will start 
+ up and bind to IP 10.45.67.8 and port 4201.
+
+ The following properties would then be used to get an InitialContext
+ from the Remote Server.
+
+   java.naming.factory.initial      = org.openejb.client.JNDIContext
+   java.naming.provider.url         = 10.45.67.8:4201
+   java.naming.security.principal   = myuser
+   java.naming.security.credentials = mypass
+
+ DNS names can also be used.
+
+ openejb start -h myhost.foo.com
+
+ The following properties would then be used to get an InitialContext
+ from the Remote Server.
+
+   java.naming.factory.initial      = org.openejb.client.JNDIContext
+   java.naming.provider.url         = myhost.foo.com:4201
+   java.naming.security.principal   = myuser
+   java.naming.security.credentials = mypass
+
+Example: -p
+
+ openejb start -p 8765
+ 
+ The server will start up and bind to IP 127.0.0.1 and port 8765.
+
+ The following properties would then be used to get an InitialContext
+ from the Remote Server.
+        
+   java.naming.factory.initial      = org.openejb.client.JNDIContext
+   java.naming.provider.url         = 127.0.0.1:8765
+   java.naming.security.principal   = myuser
+   java.naming.security.credentials = mypass
+
+Example: -conf file   
+
+ openejb start -conf C:\openejb\conf\mytest.conf
+ 
+ Sets the openejb.configuration system variable to the file 
+ C:\openejb\conf\mytest.conf.  When the server starts up and
+ the initializes OpenEJB, this configuration will be
+ used to assemble the container system and load beans. 
+
+Bug Reports to <openejb-user@lists.sf.net>

@@ -8,7 +8,7 @@ COMMANDS:
   test   Run the test suite on your installation, verify it
          is setup and working correctly.
 
-  start  Start the OpenEJB JNDI and CORBA Servers for 
+  start  Start the OpenEJB Remote Server for 
          accessing beans in client/server mode.
 
   deploy Deploy an ejb jar into OpenEJB.
@@ -16,8 +16,8 @@ COMMANDS:
 
 Try 'openejb help <command>' for more information a command.
          
-The OpenEJB EJB Container System, a local EJB API and Server.
-For OpenEJB updates and additional information, visit
+OpenEJB -- EJB Container System and EJB Server.
+For updates and additional information, visit
 http://openejb.sf.net  
 
 Bug Reports to <openejb-user@lists.sf.net>
