@@ -3,45 +3,41 @@
 <!-- $Revision$ $Date$ -->
 
 <project default="default"
-  xmlns:j="jelly:core"
-  xmlns:ant="jelly:ant"
-  xmlns:maven="jelly:maven"
-  xmlns:xdoclet="common:xdoclet">
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    xmlns:xmlbeans="geronimo:xmlbeans">
 
-  <preGoal name="xdoc:jelly-transform">
-    <attainGoal name="html2xdoc"/>
-  </preGoal>
+    <preGoal name="xdoc:jelly-transform">
+        <attainGoal name="html2xdoc"/>
+    </preGoal>
 
-<!--
-  <postGoal name="jar:jar">
-    <copy todir="${build.clienttools.src}">
-      <fileset dir="${src.clienttools.dir}" >
-        <include name="**/clienttools/**"/>
-        <include name="**/admin/web/WebAdminBean**"/>
-        <exclude name="**/CVS/**"/>
-        <exclude name="**/javax/**"/>
-        <exclude name="**/*.class"/>
-      </fileset>
-    </copy>
-    <ant:jar destfile="${basedir}/target/geronimo-core-rmiclassloaderspi.jar"
-             basedir="${basedir}/target/classes"
-             includes="org/apache/geronimo/rmi/RMIClassLoaderSpiImpl.class"/>
-    <ant:jar todir="${basedir}/target/classes/htdocs">
-       <fileset dir="${basedir}/src/java/org/openejb/admin/web/html"/>
-    </ant:copy>
-  </postGoal>
--->  
-<!--
-  <postGoal name="jar:jar">
-    <ant:jar destfile="${basedir}/target/geronimo-core-rmiclassloaderspi.jar"
-             basedir="${basedir}/target/classes"
-             includes="org/apache/geronimo/rmi/RMIClassLoaderSpiImpl.class"/>
-  </postGoal>
+    <preGoal name="java:compile">
+        <xmlbeans:schema2java
+            sourcedir="${basedir}/src"
+            sourceschema="schema/openejb-jar.xsd"
+            xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
+            targetdir="${basedir}/target/xmlbeans"
+            cataloglocation="${basedir}/src/schema/resolver-catalog.xml"/>
+    </preGoal>
 
-  <postGoal name="jar:jar">
-    <ant:jar destfile="${basedir}/target/geronimo-schemas.jar"
-             basedir="${basedir}/src/schema"
-             includes="*.xsd"/>
-  </postGoal>
--->
+    <preGoal name="test:compile">
+        <ant:mkdir dir="${basedir}/target/test-ejb-jar/META-INF"/>
+        <copy todir="${basedir}/target/test-ejb-jar/META-INF">
+            <fileset dir="${basedir}/src/test-ejb-jar/META-INF"/>
+        </copy>
+
+        <ant:javac srcdir="${basedir}/src/test-ejb-jar"
+            destdir="${basedir}/target/test-ejb-jar"
+            target="${maven.compile.target}"
+            debug="on"
+            fork="true">
+            <ant:classpath>
+                <ant:path refid="maven.dependency.classpath"/>
+                <ant:pathelement path="${maven.build.dest}"/>
+            </ant:classpath>
+        </ant:javac>
+
+        <ant:jar destfile="${basedir}/target/test-ejb-jar.jar"
+            basedir="${basedir}/target/test-ejb-jar"/>
+    </preGoal>
 </project>

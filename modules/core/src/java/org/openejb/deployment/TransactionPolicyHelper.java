@@ -74,13 +74,13 @@ import org.openejb.transaction.TransactionPolicy;
  * */
 public class TransactionPolicyHelper {
 
-    public final static TransactionPolicySource StatefulBeanPolicySource = new TransactionPolicySource() {
+    public final static TransactionPolicySource StatefulBMTPolicySource = new TransactionPolicySource() {
         public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
             return BeanPolicy.Stateful;
         }
     };
 
-    public final static TransactionPolicySource StatelessBeanPolicySource = new TransactionPolicySource() {
+    public final static TransactionPolicySource StatelessBMTPolicySource = new TransactionPolicySource() {
         public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
             return BeanPolicy.Stateless;
         }
@@ -163,13 +163,19 @@ public class TransactionPolicyHelper {
 
         public MethodTransaction(MethodType method, String transactionAttribute) {
             transactionPolicy = (TransactionPolicy) transactionPolicyMap.get(transactionAttribute);
+
+            // interface type
             MethodIntfType methodInterface = method.getMethodIntf();
             if (methodInterface != null) {
                 methodIntf = methodInterface.getStringValue();
             } else {
                 methodIntf = null;
             }
+
+            // method name
             methodName = method.getMethodName().getStringValue();
+
+            // parameters
             if (method.getMethodParams() != null) {
                 JavaTypeType[] methodParams = method.getMethodParams().getMethodParamArray();
                 parameterTypes = new String[methodParams.length];

@@ -179,7 +179,7 @@ public class MDBContainer implements MessageEndpointFactory, GBean {
         interceptor = firstInterceptor;
 
         // set up client containers
-        messageClientContainer = new MessageEndpointInterceptor(this, vopFactory.getSignatures(), messageEndpointInterface);
+        messageClientContainer = new MessageEndpointInterceptor(this, vopFactory.getSignatures(), messageEndpointInterface, classLoader);
     }
 
     public Class getMessageEndpointInterface() {

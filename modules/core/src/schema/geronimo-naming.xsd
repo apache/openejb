@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+  
+<xsd:schema
+    xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="1.0">
+
+    <xsd:annotation>
+        <xsd:documentation>
+            <![CDATA[
+            Partial schema containing common naming elements which can be included in other schemas.
+            This schema does not define a targetNamespace and so all definitions from this
+            schema instance will end up in the targetNamespace of the including document.
+            ]]>
+        </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:import namespace="http://java.sun.com/xml/ns/j2ee" schemaLocation="j2ee_1_4.xsd"/>
+
+    <xsd:group name="jndiEnvironmentRefsGroup">
+        <xsd:annotation>
+            <xsd:documentation>
+
+                This group keeps the usage of the contained JNDI environment
+                reference elements consistent across J2EE deployment descriptors.
+
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <!--xsd:element name="env-entry"
+                type="env-entryType"
+                minOccurs="0" maxOccurs="unbounded"/-->
+            <xsd:element name="ejb-ref"
+                type="remote-refType"
+                minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="ejb-local-ref"
+                type="local-refType"
+                minOccurs="0" maxOccurs="unbounded"/>
+            <!-- leave web services out until I know what they do -->
+            <!--xsd:group ref="service-refGroup"/-->
+            <xsd:element name="resource-ref"
+                type="local-refType"
+                minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="resource-env-ref"
+                type="local-refType"
+                minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="message-destination-ref"
+                type="remote-refType"
+                minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:group>
+
+    <xsd:complexType name="remote-refType">
+        <xsd:sequence>
+            <xsd:element name="ref-name" type="xsd:string"/>
+            <xsd:choice>
+                <xsd:sequence>
+                    <xsd:element name="server" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="kernel-name" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="target-name" type="xsd:string"/>
+                </xsd:sequence>
+                <xsd:element name="external-uri" type="xsd:string"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="local-refType">
+        <xsd:complexContent>
+            <xsd:restriction base="remote-refType">
+                <xsd:sequence>
+                    <xsd:element name="ref-name" type="xsd:string"/>
+                    <xsd:choice>
+                        <xsd:sequence>
+                            <xsd:element name="server" type="xsd:string" minOccurs="0" maxOccurs="0"/>
+                            <xsd:element name="kernel-name" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="target-name" type="xsd:string"/>
+                        </xsd:sequence>
+                        <xsd:element name="external-uri" type="xsd:string"/>
+                    </xsd:choice>
+                </xsd:sequence>
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+</xsd:schema>

@@ -53,10 +53,12 @@ import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 
 import org.openejb.cache.InstanceFactory;
+import org.openejb.cache.InstancePool;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.VirtualOperation;
@@ -68,11 +70,12 @@ import org.openejb.transaction.TransactionPolicyManager;
 import org.openejb.util.SoftLimitedInstancePool;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public abstract class AbstractContainerBuilder {
+    private ClassLoader classLoader;
     private Object containerId;
     private String ejbName;
     private String beanClassName;
@@ -88,6 +91,18 @@ public abstract class AbstractContainerBuilder {
     private TransactionPolicySource transactionPolicySource;
     private TransactionManager transactionManager;
     private TrackedConnectionAssociator trackedConnectionAssociator;
+
+    public ClassLoader getClassLoader() {
+        if(classLoader != null) {
+            return classLoader;
+        } else {
+            return Thread.currentThread().getContextClassLoader();
+        }
+    }
+
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
 
     public Object getContainerId() {
         return containerId;
@@ -226,7 +241,7 @@ public abstract class AbstractContainerBuilder {
     }
 
     protected EJBProxyFactory createProxyFactory(InterfaceMethodSignature[] signatures) throws ClassNotFoundException {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader classLoader = getClassLoader();
         Class homeInterface = loadOptionalClass(homeInterfaceName, classLoader);
         Class remoteInterface = loadOptionalClass(remoteInterfaceName, classLoader);
         Class localHomeInterface = loadOptionalClass(localHomeInterfaceName, classLoader);
@@ -250,9 +265,45 @@ public abstract class AbstractContainerBuilder {
     protected abstract LinkedHashMap buildVopMap(Class beanClass);
 
     private static Class loadOptionalClass(String className, ClassLoader classLoader) throws ClassNotFoundException {
-        if(className == null) {
+        if (className == null) {
             return null;
         }
         return ClassLoading.loadClass(className, classLoader);
+    }
+
+    protected EJBContainer createContainer(
+            EJBProxyFactory proxyFactory,
+            InterfaceMethodSignature[] signatures,
+            InterceptorBuilder interceptorBuilder,
+            InstancePool pool) throws Exception {
+
+        return new GenericEJBContainer(
+                getContainerId(),
+                getEJBName(),
+                proxyFactory,
+                signatures,
+                interceptorBuilder,
+                pool,
+                getUserTransaction(),
+                getTransactionManager(),
+                getTrackedConnectionAssociator());
+    }
+
+    protected GBeanMBean createConfiguration(
+            EJBProxyFactory proxyFactory,
+            InterfaceMethodSignature[] signatures,
+            InterceptorBuilder interceptorBuilder,
+            InstancePool pool) throws Exception {
+
+        GBeanMBean gbean = new GBeanMBean(GenericEJBContainer.GBEAN_INFO);
+        gbean.setAttribute("containerId", getContainerId());
+        gbean.setAttribute("ejbName", getEJBName());
+        gbean.setAttribute("proxyFactory", proxyFactory);
+        gbean.setAttribute("signatures", signatures);
+        gbean.setAttribute("interceptorBuilder", interceptorBuilder);
+        gbean.setAttribute("pool", pool);
+        gbean.setAttribute("userTransaction", getUserTransaction());
+
+        return gbean;
     }
 }
