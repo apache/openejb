@@ -1,14 +1,14 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
 package org.openejb.config.ejb11;
 
-  //---------------------------------/
- //- Imported classes and packages -/
+//---------------------------------/
+//- Imported classes and packages -/
 //---------------------------------/
 
 import java.util.Vector;
@@ -17,27 +17,40 @@ import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 
 /**
- * 
+ * Class AssemblyDescriptor.
+ *
  * @version $Revision$ $Date$
-**/
+ */
 public class AssemblyDescriptor implements java.io.Serializable {
 
 
-      //--------------------------/
-     //- Class/Member Variables -/
+    //--------------------------/
+    //- Class/Member Variables -/
     //--------------------------/
 
+    /**
+     * Field _id
+     */
     private java.lang.String _id;
 
+    /**
+     * Field _securityRoleList
+     */
     private java.util.Vector _securityRoleList;
 
+    /**
+     * Field _methodPermissionList
+     */
     private java.util.Vector _methodPermissionList;
 
+    /**
+     * Field _containerTransactionList
+     */
     private java.util.Vector _containerTransactionList;
 
 
-      //----------------/
-     //- Constructors -/
+    //----------------/
+    //- Constructors -/
     //----------------/
 
     public AssemblyDescriptor() {
@@ -48,367 +61,401 @@ public class AssemblyDescriptor implements java.io.Serializable {
     } //-- org.openejb.config.ejb11.AssemblyDescriptor()
 
 
-      //-----------/
-     //- Methods -/
+    //-----------/
+    //- Methods -/
     //-----------/
 
     /**
-     * 
+     * Method addContainerTransaction
+     *
      * @param vContainerTransaction
-    **/
-    public void addContainerTransaction(ContainerTransaction vContainerTransaction)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void addContainerTransaction(org.openejb.config.ejb11.ContainerTransaction vContainerTransaction)
+            throws java.lang.IndexOutOfBoundsException {
         _containerTransactionList.addElement(vContainerTransaction);
-    } //-- void addContainerTransaction(ContainerTransaction) 
+    } //-- void addContainerTransaction(org.openejb.config.ejb11.ContainerTransaction) 
 
     /**
-     * 
+     * Method addContainerTransaction
+     *
+     * @param index
+     * @param vContainerTransaction
+     */
+    public void addContainerTransaction(int index, org.openejb.config.ejb11.ContainerTransaction vContainerTransaction)
+            throws java.lang.IndexOutOfBoundsException {
+        _containerTransactionList.insertElementAt(vContainerTransaction, index);
+    } //-- void addContainerTransaction(int, org.openejb.config.ejb11.ContainerTransaction) 
+
+    /**
+     * Method addMethodPermission
+     *
      * @param vMethodPermission
-    **/
-    public void addMethodPermission(MethodPermission vMethodPermission)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void addMethodPermission(org.openejb.config.ejb11.MethodPermission vMethodPermission)
+            throws java.lang.IndexOutOfBoundsException {
         _methodPermissionList.addElement(vMethodPermission);
-    } //-- void addMethodPermission(MethodPermission) 
+    } //-- void addMethodPermission(org.openejb.config.ejb11.MethodPermission) 
 
     /**
-     * 
+     * Method addMethodPermission
+     *
+     * @param index
+     * @param vMethodPermission
+     */
+    public void addMethodPermission(int index, org.openejb.config.ejb11.MethodPermission vMethodPermission)
+            throws java.lang.IndexOutOfBoundsException {
+        _methodPermissionList.insertElementAt(vMethodPermission, index);
+    } //-- void addMethodPermission(int, org.openejb.config.ejb11.MethodPermission) 
+
+    /**
+     * Method addSecurityRole
+     *
      * @param vSecurityRole
-    **/
-    public void addSecurityRole(SecurityRole vSecurityRole)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void addSecurityRole(org.openejb.config.ejb11.SecurityRole vSecurityRole)
+            throws java.lang.IndexOutOfBoundsException {
         _securityRoleList.addElement(vSecurityRole);
-    } //-- void addSecurityRole(SecurityRole) 
+    } //-- void addSecurityRole(org.openejb.config.ejb11.SecurityRole) 
 
     /**
-    **/
-    public java.util.Enumeration enumerateContainerTransaction()
-    {
+     * Method addSecurityRole
+     *
+     * @param index
+     * @param vSecurityRole
+     */
+    public void addSecurityRole(int index, org.openejb.config.ejb11.SecurityRole vSecurityRole)
+            throws java.lang.IndexOutOfBoundsException {
+        _securityRoleList.insertElementAt(vSecurityRole, index);
+    } //-- void addSecurityRole(int, org.openejb.config.ejb11.SecurityRole) 
+
+    /**
+     * Method enumerateContainerTransaction
+     */
+    public java.util.Enumeration enumerateContainerTransaction() {
         return _containerTransactionList.elements();
     } //-- java.util.Enumeration enumerateContainerTransaction() 
 
     /**
-    **/
-    public java.util.Enumeration enumerateMethodPermission()
-    {
+     * Method enumerateMethodPermission
+     */
+    public java.util.Enumeration enumerateMethodPermission() {
         return _methodPermissionList.elements();
     } //-- java.util.Enumeration enumerateMethodPermission() 
 
     /**
-    **/
-    public java.util.Enumeration enumerateSecurityRole()
-    {
+     * Method enumerateSecurityRole
+     */
+    public java.util.Enumeration enumerateSecurityRole() {
         return _securityRoleList.elements();
     } //-- java.util.Enumeration enumerateSecurityRole() 
 
     /**
-     * 
+     * Method getContainerTransaction
+     *
      * @param index
-    **/
-    public ContainerTransaction getContainerTransaction(int index)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public org.openejb.config.ejb11.ContainerTransaction getContainerTransaction(int index)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _containerTransactionList.size())) {
             throw new IndexOutOfBoundsException();
         }
-        
-        return (ContainerTransaction) _containerTransactionList.elementAt(index);
-    } //-- ContainerTransaction getContainerTransaction(int) 
+
+        return (org.openejb.config.ejb11.ContainerTransaction) _containerTransactionList.elementAt(index);
+    } //-- org.openejb.config.ejb11.ContainerTransaction getContainerTransaction(int) 
 
     /**
-    **/
-    public ContainerTransaction[] getContainerTransaction()
-    {
+     * Method getContainerTransaction
+     */
+    public org.openejb.config.ejb11.ContainerTransaction[] getContainerTransaction() {
         int size = _containerTransactionList.size();
-        ContainerTransaction[] mArray = new ContainerTransaction[size];
+        org.openejb.config.ejb11.ContainerTransaction[] mArray = new org.openejb.config.ejb11.ContainerTransaction[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (ContainerTransaction) _containerTransactionList.elementAt(index);
+            mArray[index] = (org.openejb.config.ejb11.ContainerTransaction) _containerTransactionList.elementAt(index);
         }
         return mArray;
-    } //-- ContainerTransaction[] getContainerTransaction() 
+    } //-- org.openejb.config.ejb11.ContainerTransaction[] getContainerTransaction() 
 
     /**
-    **/
-    public int getContainerTransactionCount()
-    {
+     * Method getContainerTransactionCount
+     */
+    public int getContainerTransactionCount() {
         return _containerTransactionList.size();
     } //-- int getContainerTransactionCount() 
 
     /**
-    **/
-    public java.lang.String getId()
-    {
+     * Returns the value of field 'id'.
+     *
+     * @return the value of field 'id'.
+     */
+    public java.lang.String getId() {
         return this._id;
     } //-- java.lang.String getId() 
 
     /**
-     * 
+     * Method getMethodPermission
+     *
      * @param index
-    **/
-    public MethodPermission getMethodPermission(int index)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public org.openejb.config.ejb11.MethodPermission getMethodPermission(int index)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _methodPermissionList.size())) {
             throw new IndexOutOfBoundsException();
         }
-        
-        return (MethodPermission) _methodPermissionList.elementAt(index);
-    } //-- MethodPermission getMethodPermission(int) 
+
+        return (org.openejb.config.ejb11.MethodPermission) _methodPermissionList.elementAt(index);
+    } //-- org.openejb.config.ejb11.MethodPermission getMethodPermission(int) 
 
     /**
-    **/
-    public MethodPermission[] getMethodPermission()
-    {
+     * Method getMethodPermission
+     */
+    public org.openejb.config.ejb11.MethodPermission[] getMethodPermission() {
         int size = _methodPermissionList.size();
-        MethodPermission[] mArray = new MethodPermission[size];
+        org.openejb.config.ejb11.MethodPermission[] mArray = new org.openejb.config.ejb11.MethodPermission[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (MethodPermission) _methodPermissionList.elementAt(index);
+            mArray[index] = (org.openejb.config.ejb11.MethodPermission) _methodPermissionList.elementAt(index);
         }
         return mArray;
-    } //-- MethodPermission[] getMethodPermission() 
+    } //-- org.openejb.config.ejb11.MethodPermission[] getMethodPermission() 
 
     /**
-    **/
-    public int getMethodPermissionCount()
-    {
+     * Method getMethodPermissionCount
+     */
+    public int getMethodPermissionCount() {
         return _methodPermissionList.size();
     } //-- int getMethodPermissionCount() 
 
     /**
-     * 
+     * Method getSecurityRole
+     *
      * @param index
-    **/
-    public SecurityRole getSecurityRole(int index)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public org.openejb.config.ejb11.SecurityRole getSecurityRole(int index)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _securityRoleList.size())) {
             throw new IndexOutOfBoundsException();
         }
-        
-        return (SecurityRole) _securityRoleList.elementAt(index);
-    } //-- SecurityRole getSecurityRole(int) 
+
+        return (org.openejb.config.ejb11.SecurityRole) _securityRoleList.elementAt(index);
+    } //-- org.openejb.config.ejb11.SecurityRole getSecurityRole(int) 
 
     /**
-    **/
-    public SecurityRole[] getSecurityRole()
-    {
+     * Method getSecurityRole
+     */
+    public org.openejb.config.ejb11.SecurityRole[] getSecurityRole() {
         int size = _securityRoleList.size();
-        SecurityRole[] mArray = new SecurityRole[size];
+        org.openejb.config.ejb11.SecurityRole[] mArray = new org.openejb.config.ejb11.SecurityRole[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (SecurityRole) _securityRoleList.elementAt(index);
+            mArray[index] = (org.openejb.config.ejb11.SecurityRole) _securityRoleList.elementAt(index);
         }
         return mArray;
-    } //-- SecurityRole[] getSecurityRole() 
+    } //-- org.openejb.config.ejb11.SecurityRole[] getSecurityRole() 
 
     /**
-    **/
-    public int getSecurityRoleCount()
-    {
+     * Method getSecurityRoleCount
+     */
+    public int getSecurityRoleCount() {
         return _securityRoleList.size();
     } //-- int getSecurityRoleCount() 
 
     /**
-    **/
-    public boolean isValid()
-    {
+     * Method isValid
+     */
+    public boolean isValid() {
         try {
             validate();
-        }
-        catch (org.exolab.castor.xml.ValidationException vex) {
+        } catch (org.exolab.castor.xml.ValidationException vex) {
             return false;
         }
         return true;
     } //-- boolean isValid() 
 
     /**
-     * 
+     * Method marshal
+     *
      * @param out
-    **/
+     */
     public void marshal(java.io.Writer out)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
-        
+            throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
+
         Marshaller.marshal(this, out);
     } //-- void marshal(java.io.Writer) 
 
     /**
-     * 
+     * Method marshal
+     *
      * @param handler
-    **/
-    public void marshal(org.xml.sax.DocumentHandler handler)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
-        
+     */
+    public void marshal(org.xml.sax.ContentHandler handler)
+            throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
+
         Marshaller.marshal(this, handler);
-    } //-- void marshal(org.xml.sax.DocumentHandler) 
+    } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
-    **/
-    public void removeAllContainerTransaction()
-    {
+     * Method removeAllContainerTransaction
+     */
+    public void removeAllContainerTransaction() {
         _containerTransactionList.removeAllElements();
     } //-- void removeAllContainerTransaction() 
 
     /**
-    **/
-    public void removeAllMethodPermission()
-    {
+     * Method removeAllMethodPermission
+     */
+    public void removeAllMethodPermission() {
         _methodPermissionList.removeAllElements();
     } //-- void removeAllMethodPermission() 
 
     /**
-    **/
-    public void removeAllSecurityRole()
-    {
+     * Method removeAllSecurityRole
+     */
+    public void removeAllSecurityRole() {
         _securityRoleList.removeAllElements();
     } //-- void removeAllSecurityRole() 
 
     /**
-     * 
+     * Method removeContainerTransaction
+     *
      * @param index
-    **/
-    public ContainerTransaction removeContainerTransaction(int index)
-    {
-        Object obj = _containerTransactionList.elementAt(index);
+     */
+    public org.openejb.config.ejb11.ContainerTransaction removeContainerTransaction(int index) {
+        java.lang.Object obj = _containerTransactionList.elementAt(index);
         _containerTransactionList.removeElementAt(index);
-        return (ContainerTransaction) obj;
-    } //-- ContainerTransaction removeContainerTransaction(int) 
+        return (org.openejb.config.ejb11.ContainerTransaction) obj;
+    } //-- org.openejb.config.ejb11.ContainerTransaction removeContainerTransaction(int) 
 
     /**
-     * 
+     * Method removeMethodPermission
+     *
      * @param index
-    **/
-    public MethodPermission removeMethodPermission(int index)
-    {
-        Object obj = _methodPermissionList.elementAt(index);
+     */
+    public org.openejb.config.ejb11.MethodPermission removeMethodPermission(int index) {
+        java.lang.Object obj = _methodPermissionList.elementAt(index);
         _methodPermissionList.removeElementAt(index);
-        return (MethodPermission) obj;
-    } //-- MethodPermission removeMethodPermission(int) 
+        return (org.openejb.config.ejb11.MethodPermission) obj;
+    } //-- org.openejb.config.ejb11.MethodPermission removeMethodPermission(int) 
 
     /**
-     * 
+     * Method removeSecurityRole
+     *
      * @param index
-    **/
-    public SecurityRole removeSecurityRole(int index)
-    {
-        Object obj = _securityRoleList.elementAt(index);
+     */
+    public org.openejb.config.ejb11.SecurityRole removeSecurityRole(int index) {
+        java.lang.Object obj = _securityRoleList.elementAt(index);
         _securityRoleList.removeElementAt(index);
-        return (SecurityRole) obj;
-    } //-- SecurityRole removeSecurityRole(int) 
+        return (org.openejb.config.ejb11.SecurityRole) obj;
+    } //-- org.openejb.config.ejb11.SecurityRole removeSecurityRole(int) 
 
     /**
-     * 
+     * Method setContainerTransaction
+     *
      * @param index
      * @param vContainerTransaction
-    **/
-    public void setContainerTransaction(int index, ContainerTransaction vContainerTransaction)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void setContainerTransaction(int index, org.openejb.config.ejb11.ContainerTransaction vContainerTransaction)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _containerTransactionList.size())) {
             throw new IndexOutOfBoundsException();
         }
         _containerTransactionList.setElementAt(vContainerTransaction, index);
-    } //-- void setContainerTransaction(int, ContainerTransaction) 
+    } //-- void setContainerTransaction(int, org.openejb.config.ejb11.ContainerTransaction) 
 
     /**
-     * 
+     * Method setContainerTransaction
+     *
      * @param containerTransactionArray
-    **/
-    public void setContainerTransaction(ContainerTransaction[] containerTransactionArray)
-    {
+     */
+    public void setContainerTransaction(org.openejb.config.ejb11.ContainerTransaction[] containerTransactionArray) {
         //-- copy array
         _containerTransactionList.removeAllElements();
         for (int i = 0; i < containerTransactionArray.length; i++) {
             _containerTransactionList.addElement(containerTransactionArray[i]);
         }
-    } //-- void setContainerTransaction(ContainerTransaction) 
+    } //-- void setContainerTransaction(org.openejb.config.ejb11.ContainerTransaction) 
 
     /**
-     * 
-     * @param _id
-    **/
-    public void setId(java.lang.String _id)
-    {
-        this._id = _id;
+     * Sets the value of field 'id'.
+     *
+     * @param id the value of field 'id'.
+     */
+    public void setId(java.lang.String id) {
+        this._id = id;
     } //-- void setId(java.lang.String) 
 
     /**
-     * 
+     * Method setMethodPermission
+     *
      * @param index
      * @param vMethodPermission
-    **/
-    public void setMethodPermission(int index, MethodPermission vMethodPermission)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void setMethodPermission(int index, org.openejb.config.ejb11.MethodPermission vMethodPermission)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _methodPermissionList.size())) {
             throw new IndexOutOfBoundsException();
         }
         _methodPermissionList.setElementAt(vMethodPermission, index);
-    } //-- void setMethodPermission(int, MethodPermission) 
+    } //-- void setMethodPermission(int, org.openejb.config.ejb11.MethodPermission) 
 
     /**
-     * 
+     * Method setMethodPermission
+     *
      * @param methodPermissionArray
-    **/
-    public void setMethodPermission(MethodPermission[] methodPermissionArray)
-    {
+     */
+    public void setMethodPermission(org.openejb.config.ejb11.MethodPermission[] methodPermissionArray) {
         //-- copy array
         _methodPermissionList.removeAllElements();
         for (int i = 0; i < methodPermissionArray.length; i++) {
             _methodPermissionList.addElement(methodPermissionArray[i]);
         }
-    } //-- void setMethodPermission(MethodPermission) 
+    } //-- void setMethodPermission(org.openejb.config.ejb11.MethodPermission) 
 
     /**
-     * 
+     * Method setSecurityRole
+     *
      * @param index
      * @param vSecurityRole
-    **/
-    public void setSecurityRole(int index, SecurityRole vSecurityRole)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void setSecurityRole(int index, org.openejb.config.ejb11.SecurityRole vSecurityRole)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _securityRoleList.size())) {
             throw new IndexOutOfBoundsException();
         }
         _securityRoleList.setElementAt(vSecurityRole, index);
-    } //-- void setSecurityRole(int, SecurityRole) 
+    } //-- void setSecurityRole(int, org.openejb.config.ejb11.SecurityRole) 
 
     /**
-     * 
+     * Method setSecurityRole
+     *
      * @param securityRoleArray
-    **/
-    public void setSecurityRole(SecurityRole[] securityRoleArray)
-    {
+     */
+    public void setSecurityRole(org.openejb.config.ejb11.SecurityRole[] securityRoleArray) {
         //-- copy array
         _securityRoleList.removeAllElements();
         for (int i = 0; i < securityRoleArray.length; i++) {
             _securityRoleList.addElement(securityRoleArray[i]);
         }
-    } //-- void setSecurityRole(SecurityRole) 
+    } //-- void setSecurityRole(org.openejb.config.ejb11.SecurityRole) 
 
     /**
-     * 
+     * Method unmarshal
+     *
      * @param reader
-    **/
-    public static org.openejb.config.ejb11.AssemblyDescriptor unmarshal(java.io.Reader reader)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
+     */
+    public static java.lang.Object unmarshal(java.io.Reader reader)
+            throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
         return (org.openejb.config.ejb11.AssemblyDescriptor) Unmarshaller.unmarshal(org.openejb.config.ejb11.AssemblyDescriptor.class, reader);
-    } //-- org.openejb.config.ejb11.AssemblyDescriptor unmarshal(java.io.Reader) 
+    } //-- java.lang.Object unmarshal(java.io.Reader) 
 
     /**
-    **/
+     * Method validate
+     */
     public void validate()
-        throws org.exolab.castor.xml.ValidationException
-    {
+            throws org.exolab.castor.xml.ValidationException {
         org.exolab.castor.xml.Validator validator = new org.exolab.castor.xml.Validator();
         validator.validate(this);
     } //-- void validate() 

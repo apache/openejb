@@ -1,14 +1,14 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
 package org.openejb.config.ejb11;
 
-  //---------------------------------/
- //- Imported classes and packages -/
+//---------------------------------/
+//- Imported classes and packages -/
 //---------------------------------/
 
 import java.util.Vector;
@@ -17,27 +17,40 @@ import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 
 /**
- * 
+ * Class ContainerTransaction.
+ *
  * @version $Revision$ $Date$
-**/
+ */
 public class ContainerTransaction implements java.io.Serializable {
 
 
-      //--------------------------/
-     //- Class/Member Variables -/
+    //--------------------------/
+    //- Class/Member Variables -/
     //--------------------------/
 
+    /**
+     * Field _id
+     */
     private java.lang.String _id;
 
+    /**
+     * Field _description
+     */
     private java.lang.String _description;
 
+    /**
+     * Field _methodList
+     */
     private java.util.Vector _methodList;
 
+    /**
+     * Field _transAttribute
+     */
     private java.lang.String _transAttribute;
 
 
-      //----------------/
-     //- Constructors -/
+    //----------------/
+    //- Constructors -/
     //----------------/
 
     public ContainerTransaction() {
@@ -46,205 +59,221 @@ public class ContainerTransaction implements java.io.Serializable {
     } //-- org.openejb.config.ejb11.ContainerTransaction()
 
 
-      //-----------/
-     //- Methods -/
+    //-----------/
+    //- Methods -/
     //-----------/
 
     /**
-     * 
+     * Method addMethod
+     *
      * @param vMethod
-    **/
-    public void addMethod(Method vMethod)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void addMethod(org.openejb.config.ejb11.Method vMethod)
+            throws java.lang.IndexOutOfBoundsException {
         _methodList.addElement(vMethod);
-    } //-- void addMethod(Method) 
+    } //-- void addMethod(org.openejb.config.ejb11.Method) 
 
     /**
-    **/
-    public java.util.Enumeration enumerateMethod()
-    {
+     * Method addMethod
+     *
+     * @param index
+     * @param vMethod
+     */
+    public void addMethod(int index, org.openejb.config.ejb11.Method vMethod)
+            throws java.lang.IndexOutOfBoundsException {
+        _methodList.insertElementAt(vMethod, index);
+    } //-- void addMethod(int, org.openejb.config.ejb11.Method) 
+
+    /**
+     * Method enumerateMethod
+     */
+    public java.util.Enumeration enumerateMethod() {
         return _methodList.elements();
     } //-- java.util.Enumeration enumerateMethod() 
 
     /**
-    **/
-    public java.lang.String getDescription()
-    {
+     * Returns the value of field 'description'.
+     *
+     * @return the value of field 'description'.
+     */
+    public java.lang.String getDescription() {
         return this._description;
     } //-- java.lang.String getDescription() 
 
     /**
-    **/
-    public java.lang.String getId()
-    {
+     * Returns the value of field 'id'.
+     *
+     * @return the value of field 'id'.
+     */
+    public java.lang.String getId() {
         return this._id;
     } //-- java.lang.String getId() 
 
     /**
-     * 
+     * Method getMethod
+     *
      * @param index
-    **/
-    public Method getMethod(int index)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public org.openejb.config.ejb11.Method getMethod(int index)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _methodList.size())) {
             throw new IndexOutOfBoundsException();
         }
-        
-        return (Method) _methodList.elementAt(index);
-    } //-- Method getMethod(int) 
+
+        return (org.openejb.config.ejb11.Method) _methodList.elementAt(index);
+    } //-- org.openejb.config.ejb11.Method getMethod(int) 
 
     /**
-    **/
-    public Method[] getMethod()
-    {
+     * Method getMethod
+     */
+    public org.openejb.config.ejb11.Method[] getMethod() {
         int size = _methodList.size();
-        Method[] mArray = new Method[size];
+        org.openejb.config.ejb11.Method[] mArray = new org.openejb.config.ejb11.Method[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (Method) _methodList.elementAt(index);
+            mArray[index] = (org.openejb.config.ejb11.Method) _methodList.elementAt(index);
         }
         return mArray;
-    } //-- Method[] getMethod() 
+    } //-- org.openejb.config.ejb11.Method[] getMethod() 
 
     /**
-    **/
-    public int getMethodCount()
-    {
+     * Method getMethodCount
+     */
+    public int getMethodCount() {
         return _methodList.size();
     } //-- int getMethodCount() 
 
     /**
-    **/
-    public java.lang.String getTransAttribute()
-    {
+     * Returns the value of field 'transAttribute'.
+     *
+     * @return the value of field 'transAttribute'.
+     */
+    public java.lang.String getTransAttribute() {
         return this._transAttribute;
     } //-- java.lang.String getTransAttribute() 
 
     /**
-    **/
-    public boolean isValid()
-    {
+     * Method isValid
+     */
+    public boolean isValid() {
         try {
             validate();
-        }
-        catch (org.exolab.castor.xml.ValidationException vex) {
+        } catch (org.exolab.castor.xml.ValidationException vex) {
             return false;
         }
         return true;
     } //-- boolean isValid() 
 
     /**
-     * 
+     * Method marshal
+     *
      * @param out
-    **/
+     */
     public void marshal(java.io.Writer out)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
-        
+            throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
+
         Marshaller.marshal(this, out);
     } //-- void marshal(java.io.Writer) 
 
     /**
-     * 
+     * Method marshal
+     *
      * @param handler
-    **/
-    public void marshal(org.xml.sax.DocumentHandler handler)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
-        
+     */
+    public void marshal(org.xml.sax.ContentHandler handler)
+            throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
+
         Marshaller.marshal(this, handler);
-    } //-- void marshal(org.xml.sax.DocumentHandler) 
+    } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
-    **/
-    public void removeAllMethod()
-    {
+     * Method removeAllMethod
+     */
+    public void removeAllMethod() {
         _methodList.removeAllElements();
     } //-- void removeAllMethod() 
 
     /**
-     * 
+     * Method removeMethod
+     *
      * @param index
-    **/
-    public Method removeMethod(int index)
-    {
-        Object obj = _methodList.elementAt(index);
+     */
+    public org.openejb.config.ejb11.Method removeMethod(int index) {
+        java.lang.Object obj = _methodList.elementAt(index);
         _methodList.removeElementAt(index);
-        return (Method) obj;
-    } //-- Method removeMethod(int) 
+        return (org.openejb.config.ejb11.Method) obj;
+    } //-- org.openejb.config.ejb11.Method removeMethod(int) 
 
     /**
-     * 
-     * @param _description
-    **/
-    public void setDescription(java.lang.String _description)
-    {
-        this._description = _description;
+     * Sets the value of field 'description'.
+     *
+     * @param description the value of field 'description'.
+     */
+    public void setDescription(java.lang.String description) {
+        this._description = description;
     } //-- void setDescription(java.lang.String) 
 
     /**
-     * 
-     * @param _id
-    **/
-    public void setId(java.lang.String _id)
-    {
-        this._id = _id;
+     * Sets the value of field 'id'.
+     *
+     * @param id the value of field 'id'.
+     */
+    public void setId(java.lang.String id) {
+        this._id = id;
     } //-- void setId(java.lang.String) 
 
     /**
-     * 
+     * Method setMethod
+     *
      * @param index
      * @param vMethod
-    **/
-    public void setMethod(int index, Method vMethod)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void setMethod(int index, org.openejb.config.ejb11.Method vMethod)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _methodList.size())) {
             throw new IndexOutOfBoundsException();
         }
         _methodList.setElementAt(vMethod, index);
-    } //-- void setMethod(int, Method) 
+    } //-- void setMethod(int, org.openejb.config.ejb11.Method) 
 
     /**
-     * 
+     * Method setMethod
+     *
      * @param methodArray
-    **/
-    public void setMethod(Method[] methodArray)
-    {
+     */
+    public void setMethod(org.openejb.config.ejb11.Method[] methodArray) {
         //-- copy array
         _methodList.removeAllElements();
         for (int i = 0; i < methodArray.length; i++) {
             _methodList.addElement(methodArray[i]);
         }
-    } //-- void setMethod(Method) 
+    } //-- void setMethod(org.openejb.config.ejb11.Method) 
 
     /**
-     * 
-     * @param _transAttribute
-    **/
-    public void setTransAttribute(java.lang.String _transAttribute)
-    {
-        this._transAttribute = _transAttribute;
+     * Sets the value of field 'transAttribute'.
+     *
+     * @param transAttribute the value of field 'transAttribute'.
+     */
+    public void setTransAttribute(java.lang.String transAttribute) {
+        this._transAttribute = transAttribute;
     } //-- void setTransAttribute(java.lang.String) 
 
     /**
-     * 
+     * Method unmarshal
+     *
      * @param reader
-    **/
-    public static org.openejb.config.ejb11.ContainerTransaction unmarshal(java.io.Reader reader)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
+     */
+    public static java.lang.Object unmarshal(java.io.Reader reader)
+            throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
         return (org.openejb.config.ejb11.ContainerTransaction) Unmarshaller.unmarshal(org.openejb.config.ejb11.ContainerTransaction.class, reader);
-    } //-- org.openejb.config.ejb11.ContainerTransaction unmarshal(java.io.Reader) 
+    } //-- java.lang.Object unmarshal(java.io.Reader) 
 
     /**
-    **/
+     * Method validate
+     */
     public void validate()
-        throws org.exolab.castor.xml.ValidationException
-    {
+            throws org.exolab.castor.xml.ValidationException {
         org.exolab.castor.xml.Validator validator = new org.exolab.castor.xml.Validator();
         validator.validate(this);
     } //-- void validate() 

@@ -1,41 +1,54 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
 package org.openejb.config.ejb11;
 
-  //---------------------------------/
- //- Imported classes and packages -/
+//---------------------------------/
+//- Imported classes and packages -/
 //---------------------------------/
 
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 
 /**
- * 
+ * Class SecurityRoleRef.
+ *
  * @version $Revision$ $Date$
-**/
+ */
 public class SecurityRoleRef implements java.io.Serializable {
 
 
-      //--------------------------/
-     //- Class/Member Variables -/
+    //--------------------------/
+    //- Class/Member Variables -/
     //--------------------------/
 
+    /**
+     * Field _id
+     */
     private java.lang.String _id;
 
+    /**
+     * Field _description
+     */
     private java.lang.String _description;
 
+    /**
+     * Field _roleName
+     */
     private java.lang.String _roleName;
 
+    /**
+     * Field _roleLink
+     */
     private java.lang.String _roleLink;
 
 
-      //----------------/
-     //- Constructors -/
+    //----------------/
+    //- Constructors -/
     //----------------/
 
     public SecurityRoleRef() {
@@ -43,124 +56,131 @@ public class SecurityRoleRef implements java.io.Serializable {
     } //-- org.openejb.config.ejb11.SecurityRoleRef()
 
 
-      //-----------/
-     //- Methods -/
+    //-----------/
+    //- Methods -/
     //-----------/
 
     /**
-    **/
-    public java.lang.String getDescription()
-    {
+     * Returns the value of field 'description'.
+     *
+     * @return the value of field 'description'.
+     */
+    public java.lang.String getDescription() {
         return this._description;
     } //-- java.lang.String getDescription() 
 
     /**
-    **/
-    public java.lang.String getId()
-    {
+     * Returns the value of field 'id'.
+     *
+     * @return the value of field 'id'.
+     */
+    public java.lang.String getId() {
         return this._id;
     } //-- java.lang.String getId() 
 
     /**
-    **/
-    public java.lang.String getRoleLink()
-    {
+     * Returns the value of field 'roleLink'.
+     *
+     * @return the value of field 'roleLink'.
+     */
+    public java.lang.String getRoleLink() {
         return this._roleLink;
     } //-- java.lang.String getRoleLink() 
 
     /**
-    **/
-    public java.lang.String getRoleName()
-    {
+     * Returns the value of field 'roleName'.
+     *
+     * @return the value of field 'roleName'.
+     */
+    public java.lang.String getRoleName() {
         return this._roleName;
     } //-- java.lang.String getRoleName() 
 
     /**
-    **/
-    public boolean isValid()
-    {
+     * Method isValid
+     */
+    public boolean isValid() {
         try {
             validate();
-        }
-        catch (org.exolab.castor.xml.ValidationException vex) {
+        } catch (org.exolab.castor.xml.ValidationException vex) {
             return false;
         }
         return true;
     } //-- boolean isValid() 
 
     /**
-     * 
+     * Method marshal
+     *
      * @param out
-    **/
+     */
     public void marshal(java.io.Writer out)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
-        
+            throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
+
         Marshaller.marshal(this, out);
     } //-- void marshal(java.io.Writer) 
 
     /**
-     * 
+     * Method marshal
+     *
      * @param handler
-    **/
-    public void marshal(org.xml.sax.DocumentHandler handler)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
-        
+     */
+    public void marshal(org.xml.sax.ContentHandler handler)
+            throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
+
         Marshaller.marshal(this, handler);
-    } //-- void marshal(org.xml.sax.DocumentHandler) 
+    } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
-     * 
-     * @param _description
-    **/
-    public void setDescription(java.lang.String _description)
-    {
-        this._description = _description;
+     * Sets the value of field 'description'.
+     *
+     * @param description the value of field 'description'.
+     */
+    public void setDescription(java.lang.String description) {
+        this._description = description;
     } //-- void setDescription(java.lang.String) 
 
     /**
-     * 
-     * @param _id
-    **/
-    public void setId(java.lang.String _id)
-    {
-        this._id = _id;
+     * Sets the value of field 'id'.
+     *
+     * @param id the value of field 'id'.
+     */
+    public void setId(java.lang.String id) {
+        this._id = id;
     } //-- void setId(java.lang.String) 
 
     /**
-     * 
-     * @param _roleLink
-    **/
-    public void setRoleLink(java.lang.String _roleLink)
-    {
-        this._roleLink = _roleLink;
+     * Sets the value of field 'roleLink'.
+     *
+     * @param roleLink the value of field 'roleLink'.
+     */
+    public void setRoleLink(java.lang.String roleLink) {
+        this._roleLink = roleLink;
     } //-- void setRoleLink(java.lang.String) 
 
     /**
-     * 
-     * @param _roleName
-    **/
-    public void setRoleName(java.lang.String _roleName)
-    {
-        this._roleName = _roleName;
+     * Sets the value of field 'roleName'.
+     *
+     * @param roleName the value of field 'roleName'.
+     */
+    public void setRoleName(java.lang.String roleName) {
+        this._roleName = roleName;
     } //-- void setRoleName(java.lang.String) 
 
     /**
-     * 
+     * Method unmarshal
+     *
      * @param reader
-    **/
-    public static org.openejb.config.ejb11.SecurityRoleRef unmarshal(java.io.Reader reader)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
+     */
+    public static java.lang.Object unmarshal(java.io.Reader reader)
+            throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
         return (org.openejb.config.ejb11.SecurityRoleRef) Unmarshaller.unmarshal(org.openejb.config.ejb11.SecurityRoleRef.class, reader);
-    } //-- org.openejb.config.ejb11.SecurityRoleRef unmarshal(java.io.Reader) 
+    } //-- java.lang.Object unmarshal(java.io.Reader) 
 
     /**
-    **/
+     * Method validate
+     */
     public void validate()
-        throws org.exolab.castor.xml.ValidationException
-    {
+            throws org.exolab.castor.xml.ValidationException {
         org.exolab.castor.xml.Validator validator = new org.exolab.castor.xml.Validator();
         validator.validate(this);
     } //-- void validate() 
