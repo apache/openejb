@@ -69,7 +69,8 @@ public class BMPOperationFactory extends AbstractOperationFactory {
     public static BMPOperationFactory newInstance(Class beanClass) {
         FastClass fastClass = FastClass.create(beanClass);
         String beanClassName = beanClass.getName();
-        Method[] methods = beanClass.getMethods();
+
+        // get the context set unset method objects
         Method setEntityContext;
         Method unsetEntityContext;
         try {
@@ -79,35 +80,41 @@ public class BMPOperationFactory extends AbstractOperationFactory {
             throw new IllegalArgumentException("Bean does not implement javax.ejb.EntityBean");
         }
 
-        ArrayList sigList = new ArrayList(methods.length);
-        ArrayList vopList = new ArrayList(methods.length);
+        // Build the vop table
+        Method[] beanMethods = beanClass.getMethods();
+        ArrayList sigList = new ArrayList(beanMethods.length);
+        ArrayList vopList = new ArrayList(beanMethods.length);
         Integer remove = null;
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
-            if (Object.class == method.getDeclaringClass()) {
+        for (int i = 0; i < beanMethods.length; i++) {
+            Method beanMethod = beanMethods[i];
+
+            // skip the rejects
+            if (Object.class == beanMethod.getDeclaringClass()) {
                 continue;
             }
-            if (setEntityContext.equals(method)) {
+            if (setEntityContext.equals(beanMethod)) {
                 continue;
             }
-            if (unsetEntityContext.equals(method)) {
+            if (unsetEntityContext.equals(beanMethod)) {
                 continue;
             }
-            String name = method.getName();
-            int index = fastClass.getIndex(name, method.getParameterTypes());
-            MethodSignature sig = new MethodSignature(beanClassName, method);
+
+            // create a VitrualOperation for the method (if the method is understood)
+            String name = beanMethod.getName();
+            int index = fastClass.getIndex(name, beanMethod.getParameterTypes());
             VirtualOperation vop;
             if (!name.startsWith("ejb")) {
                 vop = new BusinessMethod(fastClass, index);
             } else if (name.startsWith("ejbCreate")) {
                 try {
-                    Method postCreate = beanClass.getMethod("ejbPostCreate" + name.substring(9), method.getParameterTypes());
-                    vop = new BMPCreateMethod(method, postCreate);
+                    // ejbCreat vop needs a reference to the ejbPostCreate method
+                    Method postCreate = beanClass.getMethod("ejbPostCreate" + name.substring(9), beanMethod.getParameterTypes());
+                    vop = new BMPCreateMethod(beanMethod, postCreate);
                 } catch (NoSuchMethodException e) {
-                    throw new IllegalStateException("No ejbPostCreate method found matching " + method);
+                    throw new IllegalStateException("No ejbPostCreate method found matching " + beanMethod);
                 }
             } else if (name.startsWith("ejbFind")) {
-                vop = new BMPFinderMethod(method);
+                vop = new BMPFinderMethod(beanMethod);
             } else if (name.startsWith("ejbHome")) {
                 vop = new HomeMethod(fastClass, index);
             } else if (name.equals("ejbRemove")) {
@@ -116,7 +123,7 @@ public class BMPOperationFactory extends AbstractOperationFactory {
             } else {
                 continue;
             }
-            sigList.add(sig);
+            sigList.add(new MethodSignature(beanClassName, beanMethod));
             vopList.add(vop);
         }
         MethodSignature[] signatures = (MethodSignature[]) sigList.toArray(new MethodSignature[0]);
@@ -125,6 +132,10 @@ public class BMPOperationFactory extends AbstractOperationFactory {
         return new BMPOperationFactory(beanClass, vtable, signatures, remove);
     }
 
+    /**
+     * Index of the remove method in the vop table.  This gets special handling in entity, because
+     * the parent class ignores the remove method.
+     */
     private final Integer remove;
 
     private BMPOperationFactory(Class beanClass, VirtualOperation[] vtable, MethodSignature[] signatures, Integer remove) {
@@ -132,6 +143,11 @@ public class BMPOperationFactory extends AbstractOperationFactory {
         this.remove = remove;
     }
 
+    /**
+     * Builds a map from java.lang.reflect.Method vop index (Integer) for the Remote interface
+     * @param interfaceClass the class to build the map for
+     * @return the map from Method to Integer index
+     */
     public Map getObjectMap(Class interfaceClass) {
         Map map = super.getObjectMap(interfaceClass);
         try {
@@ -142,6 +158,11 @@ public class BMPOperationFactory extends AbstractOperationFactory {
         return map;
     }
 
+    /**
+     * Builds a map from java.lang.reflect.Method vop index (Integer) for the Local interface
+     * @param interfaceClass the class to build the map for
+     * @return the map from Method to Integer index
+     */
     public Map getLocalObjectMap(Class interfaceClass) {
         Map map = super.getLocalObjectMap(interfaceClass);
         try {
