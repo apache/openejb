@@ -68,9 +68,9 @@ import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 import org.openejb.ResourceEnvironmentBuilder;
-import org.openejb.xbeans.ejbjar.OpenejbLocalRefType;
-import org.openejb.xbeans.ejbjar.OpenejbRemoteRefType;
 
 
 abstract class BeanBuilder {
@@ -84,10 +84,10 @@ abstract class BeanBuilder {
         return moduleBuilder;
     }
 
-    protected void setResourceEnvironment(ResourceEnvironmentBuilder builder, ResourceRefType[] resourceRefArray, OpenejbLocalRefType[] openejbResourceRefArray) {
+    protected void setResourceEnvironment(ResourceEnvironmentBuilder builder, ResourceRefType[] resourceRefArray, GerLocalRefType[] openejbResourceRefArray) {
 	    Map openejbNames = new HashMap();
 	    for (int i = 0; i < openejbResourceRefArray.length; i++) {
-	        OpenejbLocalRefType openejbLocalRefType = openejbResourceRefArray[i];
+	        GerLocalRefType openejbLocalRefType = openejbResourceRefArray[i];
 	        openejbNames.put(openejbLocalRefType.getRefName(), openejbLocalRefType.getTargetName());
 	    }
 	    Set unshareableResources = new HashSet();
@@ -110,13 +110,13 @@ abstract class BeanBuilder {
 	                                                     EJBModule ejbModule,
 	                                                     EnvEntryType[] envEntries,
 	                                                     EjbRefType[] ejbRefs,
-	                                                     OpenejbRemoteRefType[] openejbEjbRefs,
+	                                                     GerRemoteRefType[] openejbEjbRefs,
 	                                                     EjbLocalRefType[] ejbLocalRefs,
-	                                                     OpenejbLocalRefType[] openejbEjbLocalRefs,
+	                                                     GerRemoteRefType[] openejbEjbLocalRefs,
 	                                                     ResourceRefType[] resourceRefs,
-	                                                     OpenejbLocalRefType[] openejbResourceRefs,
+	                                                     GerRemoteRefType[] openejbResourceRefs,
 	                                                     ResourceEnvRefType[] resourceEnvRefs,
-	                                                     OpenejbLocalRefType[] openejbResourceEnvRefs,
+	                                                     GerRemoteRefType[] openejbResourceEnvRefs,
 	                                                     MessageDestinationRefType[] messageDestinationRefs, UserTransaction userTransaction,
 	                                                     ClassLoader cl) throws NamingException, DeploymentException {
 	
@@ -129,12 +129,12 @@ abstract class BeanBuilder {
 	
 	}
 
-	protected Map mapRefs(OpenejbRemoteRefType[] refs) {
+	protected Map mapRefs(GerRemoteRefType[] refs) {
 	    Map refMap = new HashMap();
 	    if (refs != null) {
 	        for (int i = 0; i < refs.length; i++) {
-	            OpenejbRemoteRefType ref = refs[i];
-	            refMap.put(ref.getRefName(), new OpenEJBRefAdapter(ref));
+	            GerRemoteRefType ref = refs[i];
+	            refMap.put(ref.getRefName(), ref);
 	        }
 	    }
 	    return refMap;

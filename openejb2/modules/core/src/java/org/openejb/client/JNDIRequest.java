@@ -55,20 +55,17 @@ import java.io.ObjectOutput;
 public class JNDIRequest implements Request {
     
     private transient int requestMethod = -1;
-
-
-    public void setClientModuleID(String clientModuleID) {
-        this.clientModuleID = clientModuleID;
-    }
-
     private transient String clientModuleID;
     private transient String requestString;
 
     public JNDIRequest() {
     }
     
-    public JNDIRequest(int requestMethod, String requestString) {
+    public JNDIRequest(int requestMethod, String clientModuleID, String requestString) {
+        assert clientModuleID != null;
+        assert requestString != null;
         this.requestMethod = requestMethod;
+        this.clientModuleID = clientModuleID;
         this.requestString = requestString;
     }
 
@@ -82,14 +79,6 @@ public class JNDIRequest implements Request {
     
     public String getRequestString(){
         return requestString;
-    }
-
-    public void setRequestMethod(int requestMethod){
-        this.requestMethod = requestMethod;
-    }
-    
-    public void setRequestString(String requestString){
-        this.requestString = requestString;
     }
 
     public String getClientModuleID() {

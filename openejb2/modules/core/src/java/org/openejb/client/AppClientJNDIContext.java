@@ -70,9 +70,7 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
             ServerMetaData serverMetaData = new ServerMetaData(host, port);
 
             JNDIResponse res = new JNDIResponse(serverMetaData);
-            JNDIRequest req = new JNDIRequest(JNDIRequest.JNDI_LOOKUP, "");
-
-            req.setClientModuleID(appClientModuleName.toString());
+            JNDIRequest req = new JNDIRequest(JNDIRequest.JNDI_LOOKUP, appClientModuleName.toString(), "");
 
             Client.request(req, res, serverMetaData);
 

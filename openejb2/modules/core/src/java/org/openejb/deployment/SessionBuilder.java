@@ -71,11 +71,11 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 import org.openejb.ContainerBuilder;
 import org.openejb.sfsb.StatefulContainerBuilder;
 import org.openejb.slsb.StatelessContainerBuilder;
-import org.openejb.xbeans.ejbjar.OpenejbLocalRefType;
-import org.openejb.xbeans.ejbjar.OpenejbRemoteRefType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 
 
@@ -175,27 +175,27 @@ class SessionBuilder extends BeanBuilder {
 
         // ejb refs
         EjbRefType[] ejbRefs = sessionBean.getEjbRefArray();
-        OpenejbRemoteRefType[] openejbEjbRefs = null;
+        GerRemoteRefType[] openejbEjbRefs = null;
         if (openejbSessionBean != null) {
             openejbEjbRefs = openejbSessionBean.getEjbRefArray();
         }
 
         EjbLocalRefType[] ejbLocalRefs = sessionBean.getEjbLocalRefArray();
-        OpenejbLocalRefType[] openejbEjbLocalRefs = null;
+        GerLocalRefType[] openejbEjbLocalRefs = null;
         if (openejbSessionBean != null) {
             openejbEjbLocalRefs = openejbSessionBean.getEjbLocalRefArray();
         }
 
         // resource refs
         ResourceRefType[] resourceRefs = sessionBean.getResourceRefArray();
-        OpenejbLocalRefType[] openejbResourceRefs = null;
+        GerLocalRefType[] openejbResourceRefs = null;
         if (openejbSessionBean != null) {
             openejbResourceRefs = openejbSessionBean.getResourceRefArray();
         }
 
         // resource env refs
         ResourceEnvRefType[] resourceEnvRefs = sessionBean.getResourceEnvRefArray();
-        OpenejbLocalRefType[] openejbResourceEnvRefs = null;
+        GerLocalRefType[] openejbResourceEnvRefs = null;
         if (openejbSessionBean != null) {
             openejbResourceEnvRefs = openejbSessionBean.getResourceEnvRefArray();
         }

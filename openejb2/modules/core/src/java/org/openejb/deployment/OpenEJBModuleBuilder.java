@@ -87,8 +87,8 @@ import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
 import org.openejb.EJBModuleImpl;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyObjectFactory;
@@ -139,7 +139,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             // check if we have an alt spec dd
             return parseSpecDD(SchemaConversionUtils.parse(path.openStream()));
         } catch (Exception e) {
-            throw new DeploymentException("Unable to parse " + path, e);
+            throw new DeploymentException("Could not parse path " + path, e);
         }
     }
 
@@ -148,7 +148,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             // check if we have an alt spec dd
             return parseSpecDD(SchemaConversionUtils.parse(specDD));
         } catch (Exception e) {
-            throw new DeploymentException("Unable to parse specDD");
+            throw new DeploymentException("could not parse spec dd", e);
         }
     }
 
@@ -157,11 +157,19 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         return ejbJarDoc.getEjbJar();
     }
 
-    public XmlObject parseVendorDD(URL url) throws XmlException {
-        return XmlBeansUtil.getXmlObject(url, OpenejbOpenejbJarDocument.type);
+    public XmlObject parseVendorDD(URL path) throws DeploymentException {
+        try {
+            XmlObject dd = SchemaConversionUtils.parse(path.openStream());
+            dd = SchemaConversionUtils.convertToGeronimoNamingSchema(dd);
+            dd = dd.changeType(OpenejbOpenejbJarDocument.type);
+            SchemaConversionUtils.validateDD(dd);
+            return dd;
+        } catch (Exception e) {
+            throw new DeploymentException(e.getMessage(), e);
+        }
     }
 
-    public XmlObject getDeploymentPlan(URL module) throws XmlException {
+    public XmlObject getDeploymentPlan(URL module) throws DeploymentException {
         try {
             URL moduleBase;
             if (module.toString().endsWith("/")) {
@@ -512,7 +520,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(OpenEJBModuleBuilder.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.setConstructor(new String[] {"kernel"});
+        infoFactory.setConstructor(new String[]{"kernel"});
         infoFactory.addInterface(ModuleBuilder.class);
         infoFactory.addInterface(EJBReferenceBuilder.class);
 

@@ -131,18 +131,14 @@ public class AxionTestDatabase implements TestDatabase {
             obj = initialContext.lookup("client/tools/DatabaseHome");
             databaseHome = (DatabaseHome) javax.rmi.PortableRemoteObject.narrow(obj, DatabaseHome.class);
         } catch (Exception e) {
-            throw new IllegalStateException("Cannot find 'client/tools/DatabaseHome': "
-                    + e.getClass().getName()
-                    + " "
-                    + e.getMessage());
+            throw (IllegalStateException)new IllegalStateException("Cannot find 'client/tools/DatabaseHome': "
+                    + e.getMessage()).initCause(e);
         }
         try {
             database = databaseHome.create();
         } catch (Exception e) {
-            throw new IllegalStateException("Cannot start database: "
-                    + e.getClass().getName()
-                    + " "
-                    + e.getMessage());
+            throw (IllegalStateException)new IllegalStateException("Cannot start database: "
+                    + e.getMessage()).initCause(e);
         }
         return database;
     }

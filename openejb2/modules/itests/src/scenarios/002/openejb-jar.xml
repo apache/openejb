@@ -26,7 +26,7 @@
         <description>
             This deployment descriptor has no default role. This means that all
             methods are not assigned to any security roles nor contained in the
-            <exclude-list/> element will be un-checked.
+            "exclude-list" element will be un-checked.
         </description>
 
         <default-principal realm-name="public-properties-realm">
