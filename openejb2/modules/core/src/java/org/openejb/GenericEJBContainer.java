@@ -69,6 +69,7 @@ import org.openejb.client.EJBObjectHandler;
 import org.openejb.client.EJBObjectProxy;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.proxy.ProxyInfo;
 
 /**
  * @version $Revision$ $Date$
@@ -79,6 +80,7 @@ public class GenericEJBContainer implements EJBContainer {
     private final String ejbName;
 
     private final Interceptor interceptor;
+    private final ProxyInfo proxyInfo;
     private final EJBProxyFactory proxyFactory;
     private final InterfaceMethodSignature[] signatures;
 
@@ -88,8 +90,9 @@ public class GenericEJBContainer implements EJBContainer {
     public GenericEJBContainer(
             Object containerId,
             String ejbName,
-            EJBProxyFactory proxyFactory,
+            ProxyInfo proxyInfo,
             InterfaceMethodSignature[] signatures,
+            InstanceContextFactory contextFactory,
             InterceptorBuilder interceptorBuilder,
             InstancePool pool,
             UserTransactionImpl userTransaction,
@@ -116,8 +119,12 @@ public class GenericEJBContainer implements EJBContainer {
         this.signatures = signatures;
 
         // initialize the proxy factory
-        proxyFactory.setContainer(this);
-        this.proxyFactory = proxyFactory;
+        this.proxyInfo = proxyInfo;
+        this.proxyFactory = new EJBProxyFactory(this);
+
+        // give the contextFactory a reference to the proxyFactory
+        // after this there is no reason to hold on to a reference to the contextFactory
+        contextFactory.setProxyFactory(proxyFactory);
 
         // build the interceptor chain
         interceptorBuilder.setTransactionManager(transactionManager);
@@ -222,6 +229,10 @@ public class GenericEJBContainer implements EJBContainer {
         return proxyFactory.getEJBLocalObject(primaryKey);
     }
 
+    public ProxyInfo getProxyInfo() {
+        return proxyInfo;
+    }
+
     public EJBProxyFactory getProxyFactory() {
         return proxyFactory;
     }
@@ -263,13 +274,14 @@ public class GenericEJBContainer implements EJBContainer {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(GenericEJBContainer.class);
 
         infoFactory.setConstructor(
-                new String[]{"ContainerID", "EJBName", "ProxyFactory", "Signatures", "InterceptorBuilder", "Pool", "UserTransaction", "JndiNames", "LocalJndiNames", "TransactionManager", "TrackedConnectionAssociator"},
-                new Class[]{Object.class, String.class, EJBProxyFactory.class, InterfaceMethodSignature[].class, InterceptorBuilder.class, InstancePool.class, UserTransactionImpl.class, String[].class, String[].class, TransactionManager.class, TrackedConnectionAssociator.class});
+                new String[]{"ContainerID", "EJBName", "ProxyInfo", "Signatures", "ContextFactory", "InterceptorBuilder", "Pool", "UserTransaction", "JndiNames", "LocalJndiNames", "TransactionManager", "TrackedConnectionAssociator"},
+                new Class[]{Object.class, String.class, ProxyInfo.class, InterfaceMethodSignature[].class, InstanceContextFactory.class, InterceptorBuilder.class, InstancePool.class, UserTransactionImpl.class, String[].class, String[].class, TransactionManager.class, TrackedConnectionAssociator.class});
 
         infoFactory.addAttribute("ContainerID", true);
         infoFactory.addAttribute("EJBName", true);
-        infoFactory.addAttribute("ProxyFactory", true);
+        infoFactory.addAttribute("ProxyInfo", true);
         infoFactory.addAttribute("Signatures", true);
+        infoFactory.addAttribute("ContextFactory", true);
         infoFactory.addAttribute("InterceptorBuilder", true);
         infoFactory.addAttribute("Pool", true);
         infoFactory.addAttribute("UserTransaction", true);
@@ -278,6 +290,7 @@ public class GenericEJBContainer implements EJBContainer {
         infoFactory.addReference("TransactionManager", TransactionManager.class);
         infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
 
+        infoFactory.addAttribute("ProxyFactory", false);
         infoFactory.addAttribute("EJBHome", false);
         infoFactory.addAttribute("EJBLocalHome", false);
         infoFactory.addAttribute("UnmanagedReference", false);

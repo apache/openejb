@@ -106,7 +106,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
         try {
             Thread.currentThread().setContextClassLoader(cl);
-            configBuilder.createSessionBean("containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, new HashMap(), cl);
+            configBuilder.createSessionBean("containerId", sessionBean, openejbSessionBean, new HashMap(), transactionPolicyHelper, cl);
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }

@@ -128,6 +128,7 @@
         <ant:echo>Building system configuration</ant:echo>
         <ant:mkdir dir="${distDir}/bin"/>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
             <ant:arg value="--install"/>
             <ant:arg value="--plan"/>
             <ant:arg value="src/plan/system-plan.xml"/>
@@ -138,6 +139,7 @@
         <!-- build the J2EEServer configuration -->
         <ant:echo>Building server configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
             <ant:arg value="--install"/>
             <ant:arg value="--plan"/>
             <ant:arg value="src/plan/j2ee-server-plan.xml"/>
@@ -146,6 +148,7 @@
         <!-- build the itests configuration -->
         <ant:echo>Building default database configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
             <ant:arg value="--install"/>
             <ant:arg value="--module"/>
             <ant:arg value="${project.root}/modules/connector/target/jdbc.rar"/>
@@ -154,6 +157,7 @@
         <!-- build the itests configuration -->
         <ant:echo>Building itests configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
             <ant:arg value="--install"/>
             <ant:arg value="--module"/>
             <ant:arg value="${project.root}/modules/itests/target/openejb-itests-beans2.jar"/>

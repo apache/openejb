@@ -15,11 +15,9 @@ import org.openejb.EJBContainer;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
+import org.openejb.EJBComponentType;
 
 public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, Serializable {
-    private final ProxyInfo proxyInfo;
-    private final Object primaryKey;
-
     /**
      * Either the container or a serialization handler (and then the container)
      */
@@ -36,30 +34,42 @@ public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, 
     private final EJBInterfaceType interfaceType;
 
     /**
-     * Map from interface method ids to vop ids.
+     * Primary key of this proxy, or null if this is a home proxy.
      */
-    private transient int[] operationMap;
+    private final Object primaryKey;
 
     /**
      * The container we are invokeing
      */
     private transient EJBContainer container;
 
+    /**
+     * Map from interface method ids to vop ids.
+     */
+    private transient int[] operationMap;
+
+    /**
+     * Metadata for the proxy
+     */
+    private transient ProxyInfo proxyInfo;
+
     public EJBMethodInterceptor(EJBProxyFactory proxyFactory, EJBInterfaceType type, EJBContainer container, int[] operationMap) {
         this(proxyFactory, type, container, operationMap, null);
     }
 
     public EJBMethodInterceptor(EJBProxyFactory proxyFactory, EJBInterfaceType type, EJBContainer container, int[] operationMap, Object primaryKey) {
-        // @todo REMOVE: this is a dirty dirty dirty hack to make the old openejb code work
-        // this lets really stupid clients get access to the primary key of the proxy, which is readily
-        // available from several other sources
-        this.proxyInfo = new ProxyInfo(proxyFactory.getProxyInfo(), primaryKey);
-
-        this.primaryKey = primaryKey;
+        this.proxyFactory = proxyFactory;
         this.interfaceType = type;
         this.container = container;
         this.operationMap = operationMap;
-        this.proxyFactory = proxyFactory;
+        this.primaryKey = primaryKey;
+
+        if (container != null) {
+            // @todo REMOVE: this is a dirty dirty dirty hack to make the old openejb code work
+            // this lets really stupid clients get access to the primary key of the proxy, which is readily
+            // available from several other sources
+            this.proxyInfo = new ProxyInfo(container.getProxyInfo(), primaryKey);
+        }
 
         if (!interfaceType.isLocal() && !skipCopy()) {
             next = new SerializationHanlder(this);
@@ -73,6 +83,9 @@ public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, 
     }
 
     public ProxyInfo getProxyInfo() {
+        if (proxyInfo == null) {
+            loadContainerInfo();
+        }
         return proxyInfo;
     }
 
@@ -97,25 +110,30 @@ public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, 
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         // fault in the operation map if we don't have it yet
         if (operationMap == null) {
-            container = proxyFactory.getContainer();
-            operationMap = proxyFactory.getOperationMap(interfaceType);
+            loadContainerInfo();
+        }
+
+        // extract the primary key from home ejb remove invocations
+        Object id = primaryKey;
+
+        // todo lookup id of remove to make this faster
+        if ((interfaceType == EJBInterfaceType.REMOTE || interfaceType == EJBInterfaceType.LOCAL) && proxyInfo.getComponentType() == EJBComponentType.STATELESS && method.getName().equals("remove")) {
+            // remove on a stateless bean does nothing
+            return null;
         }
 
         int methodIndex = operationMap[methodProxy.getSuperIndex()];
         if (methodIndex < 0) throw new AssertionError("Unknown method: method=" + method);
-
-        // extract the primary key from home ejb remove invocations
-        Object id = primaryKey;
-        // todo lookup id of remove to make this faster
         if ((interfaceType == EJBInterfaceType.HOME || interfaceType == EJBInterfaceType.LOCALHOME) && method.getName().equals("remove")) {
-            if(args.length != 1) {
+
+            if (args.length != 1) {
                 throw new RemoteException().initCause(new EJBException("Expected one argument"));
             }
             id = args[0];
-            if(id instanceof Handle && interfaceType == EJBInterfaceType.HOME) {
+            if (id instanceof Handle && interfaceType == EJBInterfaceType.HOME) {
                 HandleImpl handle = (HandleImpl) id;
                 EJBObject ejbObject = handle.getEJBObject();
-                EJBMethodInterceptor ejbHandler = ((BaseEJB)ejbObject).ejbHandler;
+                EJBMethodInterceptor ejbHandler = ((BaseEJB) ejbObject).ejbHandler;
                 id = ejbHandler.getPrimaryKey();
             }
         }
@@ -145,11 +163,17 @@ public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, 
         }
     }
 
-    public InvocationResult invoke(EJBInvocation ejbInvocation) throws Throwable {
-        return container.invoke(ejbInvocation);
+    private void loadContainerInfo() {
+        container = proxyFactory.getContainer();
+        operationMap = proxyFactory.getOperationMap(interfaceType);
+
+        // @todo REMOVE: this is a dirty dirty dirty hack to make the old openejb code work
+        // this lets really stupid clients get access to the primary key of the proxy, which is readily
+        // available from several other sources
+        this.proxyInfo = new ProxyInfo(container.getProxyInfo(), primaryKey);
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
-        in.defaultReadObject();
+    public InvocationResult invoke(EJBInvocation ejbInvocation) throws Throwable {
+        return container.invoke(ejbInvocation);
     }
 }

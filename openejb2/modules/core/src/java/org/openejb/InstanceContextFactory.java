@@ -49,6 +49,8 @@ package org.openejb;
 
 import org.apache.geronimo.transaction.InstanceContext;
 
+import org.openejb.proxy.EJBProxyFactory;
+
 
 /**
  *
@@ -57,4 +59,6 @@ import org.apache.geronimo.transaction.InstanceContext;
  */
 public interface InstanceContextFactory {
     InstanceContext newInstance() throws Exception;
+
+    void setProxyFactory(EJBProxyFactory proxyFactory);
 }

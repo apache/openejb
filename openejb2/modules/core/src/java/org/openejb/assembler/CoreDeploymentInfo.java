@@ -46,47 +46,42 @@ package org.openejb.assembler;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.HashSet;
-
-import javax.ejb.EJBContext;
 import javax.ejb.EJBHome;
 import javax.naming.Context;
 
-import org.openejb.*;
-
 /**
- * Contains all the information needed by the container for a particular 
- * deployment.  Some of this information is generic, but this class is 
+ * Contains all the information needed by the container for a particular
+ * deployment.  Some of this information is generic, but this class is
  * largely becoming a dumping ground for information specific to individual
  * containers.  This class should be abstracted and subclassed in the individual
  * container packages.  The container should be required to provide its own DeploymentInfo
  * implementation, possibly returning it to the assembler and OpenEJB in general via a
  * new accessor method.
- * 
+ *
  * @version $Revision$ $Date$
  */
-public class CoreDeploymentInfo implements org.openejb.assembler.DeploymentInfo{
+public class CoreDeploymentInfo implements org.openejb.assembler.DeploymentInfo {
 
-    private final Object    deploymentId;
-    private final Class     homeInterface;
-    private final Class     remoteInterface;
-    private final Class     beanClass;
-    private final Class     pkClass;
-    private final byte      componentType;
-    
-    private final HashMap methodTransactionAttributes  = new HashMap();
-    
-    private boolean   isBeanManagedTransaction;
-    private boolean   isReentrant;
+    private final String deploymentId;
+    private final Class homeInterface;
+    private final Class remoteInterface;
+    private final Class beanClass;
+    private final Class pkClass;
+    private final byte componentType;
+
+    private final HashMap methodTransactionAttributes = new HashMap();
+
+    private boolean isBeanManagedTransaction;
+    private boolean isReentrant;
     private Container container;
-    private Context   jndiContextRoot;
+    private Context jndiContextRoot;
 
-    
-    public CoreDeploymentInfo( ){
-        this(null, null, null, null, null, (byte)0);
+
+    public CoreDeploymentInfo() {
+        this(null, null, null, null, null, (byte) 0);
     }
 
-    public CoreDeploymentInfo(Object did, Class homeClass, Class remoteClass, Class beanClass, Class pkClass, byte componentType){
+    public CoreDeploymentInfo(String did, Class homeClass, Class remoteClass, Class beanClass, Class pkClass, byte componentType) {
         this.deploymentId = did;
         this.homeInterface = homeClass;
         this.remoteInterface = remoteClass;
@@ -95,47 +90,47 @@ public class CoreDeploymentInfo implements org.openejb.assembler.DeploymentInfo{
         this.pkClass = pkClass;
     }
 
-    public void setContainer(Container cont){
+    public void setContainer(Container cont) {
         container = cont;
     }
 
-    public int getComponentType( ){
+    public int getComponentType() {
         return componentType;
     }
 
-    public byte getTransactionAttribute(Method method){
-        Byte byteWrapper = (Byte)methodTransactionAttributes.get(method);
-        if(byteWrapper==null)
+    public byte getTransactionAttribute(Method method) {
+        Byte byteWrapper = (Byte) methodTransactionAttributes.get(method);
+        if (byteWrapper == null)
             return TX_NOT_SUPPORTED;// non remote or home interface method
         else
             return byteWrapper.byteValue();
     }
 
-    public Container getContainer( ){
+    public Container getContainer() {
         return container;
     }
 
-    public Object getDeploymentID( ){
+    public String getDeploymentID() {
         return deploymentId;
     }
 
-    public boolean isBeanManagedTransaction(){
+    public boolean isBeanManagedTransaction() {
         return isBeanManagedTransaction;
     }
 
-    public Class getHomeInterface(){
+    public Class getHomeInterface() {
         return homeInterface;
     }
 
-    public Class getRemoteInterface(){
+    public Class getRemoteInterface() {
         return remoteInterface;
     }
 
-    public Class getBeanClass(){
+    public Class getBeanClass() {
         return beanClass;
     }
 
-    public Class getPrimaryKeyClass(){
+    public Class getPrimaryKeyClass() {
         return pkClass;
     }
 
@@ -148,53 +143,55 @@ public class CoreDeploymentInfo implements org.openejb.assembler.DeploymentInfo{
     // begin accessors & mutators for this implementation
     //
 
-    public EJBHome getEJBHome() { throw new UnsupportedOperationException(); }
+    public EJBHome getEJBHome() {
+        throw new UnsupportedOperationException();
+    }
 
-    public void setBeanManagedTransaction(boolean value){
+    public void setBeanManagedTransaction(boolean value) {
         isBeanManagedTransaction = value;
     }
 
-    public void setJndiEnc(javax.naming.Context cntx){
+    public void setJndiEnc(javax.naming.Context cntx) {
         jndiContextRoot = cntx;
     }
 
-    public javax.naming.Context getJndiEnc(){
+    public javax.naming.Context getJndiEnc() {
         return jndiContextRoot;
     }
 
-    public boolean isReentrant(){
+    public boolean isReentrant() {
         return isReentrant;
     }
 
-    public void setIsReentrant(boolean reentrant){
+    public void setIsReentrant(boolean reentrant) {
         isReentrant = reentrant;
     }
 
-    public void appendMethodPermissions(Method m, String [] roleNames){
+    public void appendMethodPermissions(Method m, String[] roleNames) {
     }
 
-    public void addSecurityRoleReference(String securityRoleReference, String [] physicalRoles){
+    public void addSecurityRoleReference(String securityRoleReference, String[] physicalRoles) {
     }
-    
-    public void setMethodTransactionAttribute(Method method, String transAttribute){
+
+    public void setMethodTransactionAttribute(Method method, String transAttribute) {
         Byte byteValue = null;
 
-        if(transAttribute.equals("Supports")){
+        if (transAttribute.equals("Supports")) {
             byteValue = new Byte(TX_SUPPORTS);
-        } else if(transAttribute.equals("RequiresNew")) {
+        } else if (transAttribute.equals("RequiresNew")) {
             byteValue = new Byte(TX_REQUIRES_NEW);
-        } else if(transAttribute.equals("Mandatory")) {
+        } else if (transAttribute.equals("Mandatory")) {
             byteValue = new Byte(TX_MANDITORY);
-        } else if(transAttribute.equals("NotSupported")) {
+        } else if (transAttribute.equals("NotSupported")) {
             byteValue = new Byte(TX_NOT_SUPPORTED);
-        } else if(transAttribute.equals("Required")) {
+        } else if (transAttribute.equals("Required")) {
             byteValue = new Byte(TX_REQUIRED);
-        } else if(transAttribute.equals("Never")) {
+        } else if (transAttribute.equals("Never")) {
             byteValue = new Byte(TX_NEVER);
-        } else{
-            throw new IllegalArgumentException("Invalid transaction attribute \""+transAttribute+"\" declared for method "+method.getName()+". Please check your configuration.");
+        } else {
+            throw new IllegalArgumentException("Invalid transaction attribute \"" + transAttribute + "\" declared for method " + method.getName() + ". Please check your configuration.");
         }
-        
-        methodTransactionAttributes.put( method, byteValue );
+
+        methodTransactionAttributes.put(method, byteValue);
     }
 }

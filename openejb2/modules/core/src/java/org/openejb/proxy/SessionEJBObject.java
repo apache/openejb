@@ -1,4 +1,4 @@
-/**
+/* ====================================================================
  * Redistribution and use of this software and associated documentation
  * ("Software"), with or without modification, are permitted provided
  * that the following conditions are met:
@@ -7,15 +7,14 @@
  *    statements and notices.  Redistributions must also contain a
  *    copy of this document.
  *
- * 2. Redistributions in binary form must reproduce the
- *    above copyright notice, this list of conditions and the
- *    following disclaimer in the documentation and/or other
- *    materials provided with the distribution.
+ * 2. Redistributions in binary form must reproduce this list of
+ *    conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
  *    permission of The OpenEJB Group.  For written permission,
- *    please contact info@openejb.org.
+ *    please contact openejb-group@openejb.sf.net.
  *
  * 4. Products derived from this Software may not be called "OpenEJB"
  *    nor may "OpenEJB" appear in their names without prior written
@@ -38,40 +37,42 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ * ====================================================================
  *
- * $Id$
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the OpenEJB Project.  For more information
+ * please see <http://openejb.org/>.
+ *
+ * ====================================================================
  */
 package org.openejb.proxy;
 
 import java.rmi.RemoteException;
-
 import javax.ejb.EJBObject;
-import javax.ejb.RemoveException;
 
-
-public class StatelessEJBObject extends EJBObjectImpl {
-
-    public StatelessEJBObject(EJBMethodInterceptor handler) {
+/**
+ * 
+ * 
+ * @version $Revision$ $Date$
+ */
+public abstract class SessionEJBObject extends EJBObjectImpl {
+    public SessionEJBObject(EJBMethodInterceptor handler) {
         super(handler);
     }
 
     public Object getPrimaryKey() throws RemoteException {
-        throw new RemoteException("Statless Session objects are anonymous resources and do not have primary keys");        
+        throw new RemoteException("Session objects are private resources and do not have primary keys");
     }
 
     public boolean isIdentical(EJBObject obj) throws RemoteException {
         try {
-            if (obj instanceof StatelessEJBObject){
-                Object thatID = ((StatelessEJBObject)obj).getProxyInfo().getContainerID();
+            if (obj instanceof SessionEJBObject){
+                Object thatID = ((SessionEJBObject)obj).getProxyInfo().getContainerID();
                 Object thisID = getProxyInfo().getContainerID();
                 return thisID.equals(thatID);
             } else return false;
         } catch (Throwable t){
             return false;
         }
-    }
-    
-    public void remove() throws RemoteException, RemoveException {
     }
 }

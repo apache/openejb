@@ -51,12 +51,12 @@ import java.io.Serializable;
 import javax.ejb.SessionBean;
 
 import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
 import org.openejb.InstanceContextFactory;
 import org.openejb.proxy.EJBProxyFactory;
-import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  *
@@ -65,18 +65,24 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
  */
 public class StatefulInstanceContextFactory implements InstanceContextFactory, Serializable {
     private final Object containerId;
-    private final EJBProxyFactory proxyFactory;
     private final EJBInstanceFactory factory;
     private final UserTransactionImpl userTransaction;
+    private EJBProxyFactory proxyFactory;
 
-    public StatefulInstanceContextFactory(Object containerId, EJBProxyFactory proxyFactory, Class beanClass, UserTransactionImpl userTransaction) {
+    public StatefulInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction) {
         this.containerId = containerId;
-        this.proxyFactory = proxyFactory;
         this.factory = new EJBInstanceFactoryImpl(beanClass);
         this.userTransaction = userTransaction;
     }
 
+    public void setProxyFactory(EJBProxyFactory proxyFactory) {
+        this.proxyFactory = proxyFactory;
+    }
+
     public InstanceContext newInstance() throws Exception {
+        if (proxyFactory == null) {
+            throw new IllegalStateException("ProxyFacory has not been set");
+        }
         return new StatefulInstanceContext(
                 containerId,
                 proxyFactory,

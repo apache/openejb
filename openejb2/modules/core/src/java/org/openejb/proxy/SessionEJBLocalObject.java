@@ -1,4 +1,4 @@
-/**
+/* ====================================================================
  * Redistribution and use of this software and associated documentation
  * ("Software"), with or without modification, are permitted provided
  * that the following conditions are met:
@@ -7,15 +7,14 @@
  *    statements and notices.  Redistributions must also contain a
  *    copy of this document.
  *
- * 2. Redistributions in binary form must reproduce the
- *    above copyright notice, this list of conditions and the
- *    following disclaimer in the documentation and/or other
- *    materials provided with the distribution.
+ * 2. Redistributions in binary form must reproduce this list of
+ *    conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
  *    permission of The OpenEJB Group.  For written permission,
- *    please contact info@openejb.org.
+ *    please contact openejb-group@openejb.sf.net.
  *
  * 4. Products derived from this Software may not be called "OpenEJB"
  *    nor may "OpenEJB" appear in their names without prior written
@@ -38,36 +37,44 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ * ====================================================================
  *
- * $Id$
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the OpenEJB Project.  For more information
+ * please see <http://openejb.org/>.
+ *
+ * ====================================================================
  */
 package org.openejb.proxy;
 
-import org.apache.geronimo.core.service.InvocationResult;
+import javax.ejb.EJBException;
+import javax.ejb.EJBLocalObject;
 
-import org.openejb.ContainerIndex;
-import org.openejb.EJBContainer;
-import org.openejb.EJBInvocation;
-
-public class ContainerReferenceHandler implements EJBInterceptor {
-
-    private final Object containerId;
-    private EJBInterceptor next;
-    
-    public ContainerReferenceHandler(Object containerId){
-        this.containerId = containerId;
+/**
+ * 
+ * 
+ * @version $Revision$ $Date$
+ */
+public abstract class SessionEJBLocalObject extends EJBLocalObjectImpl {
+    public SessionEJBLocalObject(EJBMethodInterceptor handler) {
+        super(handler);
     }
 
-    public InvocationResult invoke(EJBInvocation ejbInvocation) throws Throwable{
-        if (next == null) {
-            EJBContainer container = ContainerIndex.getInstance().getContainer((String)containerId); 
-            if (container == null){
-                throw new IllegalStateException("The EJBContainer with the following ID is not yet online: "+containerId);
+    public Object getPrimaryKey() throws EJBException {
+        throw new EJBException("Statless Session objects are anonymous resources and do not have primary keys");
+    }
+
+    public boolean isIdentical(EJBLocalObject obj) throws EJBException {
+        try {
+            if (obj instanceof SessionEJBLocalObject){
+                Object thatID = ((SessionEJBLocalObject)obj).getProxyInfo().getContainerID();
+                Object thisID = getProxyInfo().getContainerID();
+                return thisID.equals(thatID);
+            } else {
+                return false;
             }
-            next = new ContainerHandler(container);
+        } catch (Throwable t){
+            return false;
         }
-        return next.invoke(ejbInvocation);
     }
-    
 }

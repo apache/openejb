@@ -57,7 +57,6 @@ import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
-import org.openejb.proxy.EJBProxyFactory;
 
 /**
  * @version $Revision$ $Date$
@@ -77,22 +76,20 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
 
-        EJBProxyFactory proxyFactory = createProxyFactory(signatures);
-
         // create and intitalize the interceptor builder
         InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new StatelessInterceptorBuilder(), signatures, vtable);
 
         // build the instance factory
-        StatelessInstanceContextFactory contextFactory = new StatelessInstanceContextFactory(getContainerId(), proxyFactory, beanClass, getUserTransaction());
+        StatelessInstanceContextFactory contextFactory = new StatelessInstanceContextFactory(getContainerId(), beanClass, getUserTransaction());
         StatelessInstanceFactory instanceFactory = new StatelessInstanceFactory(getComponentContext(), contextFactory, beanClass);
 
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
 
         if (buildContainer) {
-            return createContainer(proxyFactory, signatures, interceptorBuilder, pool);
+            return createContainer(signatures, contextFactory, interceptorBuilder, pool);
         } else {
-            return createConfiguration(proxyFactory, signatures, interceptorBuilder, pool);
+            return createConfiguration(signatures, contextFactory, interceptorBuilder, pool);
         }
     }
 

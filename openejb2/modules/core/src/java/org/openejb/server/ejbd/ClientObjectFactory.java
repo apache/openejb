@@ -145,7 +145,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
                 info.getRemoteInterface(),
                 info.getPrimaryKeyClass(),
                 info.getComponentType(),
-                info.getContainerID().toString(),
+                info.getContainerID(),
                 idCode);
         return metaData;
     }
@@ -175,7 +175,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
                 info.getRemoteInterface(),
                 info.getPrimaryKeyClass(),
                 info.getComponentType(),
-                info.getContainerID().toString(),
+                info.getContainerID(),
                 idCode);
         Object primKey = info.getPrimaryKey();
 
@@ -209,7 +209,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
                 info.getRemoteInterface(),
                 info.getPrimaryKeyClass(),
                 info.getComponentType(),
-                info.getContainerID().toString(),
+                info.getContainerID(),
                 idCode);
         
         EJBHomeHandler hanlder = EJBHomeHandler.createEJBHomeHandler(eMetaData,sMetaData,cMetaData);
@@ -242,7 +242,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
                 info.getRemoteInterface(),
                 info.getPrimaryKeyClass(),
                 info.getComponentType(),
-                info.getContainerID().toString(),
+                info.getContainerID(),
                 idCode);
         Object primKey = info.getPrimaryKey();
 
@@ -276,7 +276,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
                                                         info.getRemoteInterface(),
                                                         info.getPrimaryKeyClass(),
                                                         info.getComponentType(),
-                                                        info.getContainerID().toString(),
+                                                        info.getContainerID(),
                                                         idCode);
 
         EJBHomeHandler hanlder = EJBHomeHandler.createEJBHomeHandler(eMetaData,sMetaData,cMetaData);

@@ -84,14 +84,14 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
         int index = containerIndex.getContainerIndexByJndiName(name);
         if (index > 0) {
             EJBContainer deployment = containerIndex.getContainer(index);
-            ProxyInfo info = deployment.getProxyFactory().getProxyInfo();
+            ProxyInfo info = deployment.getProxyInfo();
 
             res.setResponseCode(JNDI_EJBHOME);
             EJBMetaDataImpl metaData = new EJBMetaDataImpl(info.getHomeInterface(),
                     info.getRemoteInterface(),
                     info.getPrimaryKeyClass(),
                     info.getComponentType(),
-                    info.getContainerID().toString(),
+                    info.getContainerID(),
                     index);
             res.setResult(metaData);
         } else {

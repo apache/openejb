@@ -54,6 +54,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 import javax.naming.InitialContext;
+import javax.naming.Context;
 import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ManagedConnectionFactory;
 
@@ -109,15 +110,12 @@ public class AssemblerTool {
      * are constructed using the assembleContainer() method. Once constructed
      * the container and its deployments are added to the container system.
      *
-     * Assembles and returns a {@link ContainerManager} for the {@link ContainerSystem} using the
+     * Assembles and returns a for the {@link ContainerSystem} using the
      * information from the {@link ContainerManagerInfo} object passed in.
      * 
      * @param containerSystem the system to which the container should be added.
      * @param containerSystemInfo defines the contain system,its containers, and deployments.
-     * @return 
-     * @exception throws    Exception if there was a problem constructing the ContainerManager.
-     * @exception Exception
-     * @see org.openejb.core.ContainerManager
+     * @throws Exception if there was a problem constructing the ContainerManager.
      * @see org.openejb.assembler.ContainerSystem
      * @see ContainerManagerInfo
      */
@@ -159,7 +157,6 @@ public class AssemblerTool {
      * @param containerInfo describes a Container and its deployments.
      * @return the Container that was constructed (StatefulContainer, StatelessContainer, EntityContainer)
      * @see org.openejb.assembler.ContainerInfo
-     * @see org.openejb.assembler.Assembler.assembleDeploymentInfo();
     */
     public  org.openejb.assembler.Container assembleContainer(ContainerInfo containerInfo)
     throws org.openejb.OpenEJBException{
@@ -231,7 +228,6 @@ public class AssemblerTool {
     * applyMethodPermissions(), applySecurityRoleReferences() and applyTransactionAttributes()
     *
     * @param beanInfo describes the enterprise bean deployment to be assembled.
-    * @param the DeploymentInfo object that was assembled from the beanInfo configuration.
     */
     public  CoreDeploymentInfo assembleDeploymentInfo(EnterpriseBeanInfo beanInfo)
     throws org.openejb.SystemException, org.openejb.OpenEJBException {
@@ -291,7 +287,7 @@ public class AssemblerTool {
 
         /*[3] Populate a new DeploymentInfo object  */
         IvmContext root = new IvmContext("comp");
-        org.openejb.assembler.CoreDeploymentInfo deployment = createDeploymentInfoObject(root, beanInfo.ejbDeploymentId, home, remote, ejbClass, ejbPk, componentType);
+        CoreDeploymentInfo deployment = createDeploymentInfoObject(root, beanInfo.ejbDeploymentId, home, remote, ejbClass, ejbPk, componentType);
         
         /*[3.1] Add Entity bean specific values */
         if ( isEntity ) {
@@ -373,8 +369,8 @@ public class AssemblerTool {
      * this method to hook in its own DeploymentInfo subclass without duplicating
      * code.
      */
-    protected org.openejb.assembler.CoreDeploymentInfo createDeploymentInfoObject(javax.naming.Context root, Object did, Class homeClass, Class remoteClass, Class beanClass, Class pkClass, byte componentType) throws org.openejb.SystemException {
-        org.openejb.assembler.CoreDeploymentInfo info = new org.openejb.assembler.CoreDeploymentInfo(did, homeClass, remoteClass, beanClass, pkClass, componentType);
+    protected CoreDeploymentInfo createDeploymentInfoObject(Context root, String did, Class homeClass, Class remoteClass, Class beanClass, Class pkClass, byte componentType) throws org.openejb.SystemException {
+        CoreDeploymentInfo info = new CoreDeploymentInfo(did, homeClass, remoteClass, beanClass, pkClass, componentType);
         info.setJndiEnc(root);
         return info;
     }
@@ -498,7 +494,6 @@ public class AssemblerTool {
     * should be processed before anything else is done in the deployment process.
     *
     * @param ivmInfo the IntraVmServerInfo configuration object that describes the ProxyFactory
-    * @return void
     * @see org.openejb.assembler.IntraVmServerInfo
     */
     public  void applyProxyFactory(IntraVmServerInfo ivmInfo) throws OpenEJBException{
@@ -541,9 +536,7 @@ public class AssemblerTool {
     * See page 251 EJB 1.1 for an explanation of the method attribute.
     *
     * @param deploymentInfo the deployment to which the transaction attributes are applied
-    * @param MethodTransactionInfo describes the transaction attributes for the enterprise bean(s)
     * @see org.openejb.assembler.MethodTransactionInfo
-    * @see org.openejb.core.CoreDeploymentInfo.setMethodTransactionAttribute()
     */
     public  void applyTransactionAttributes(CoreDeploymentInfo deploymentInfo, MethodTransactionInfo [] mtis){
         /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!
@@ -601,7 +594,6 @@ public class AssemblerTool {
     * @param roleMapping the RoleMapping object which contains the logical to physical security roles.
     * @see org.openejb.assembler.EnterpriseBeanInfo
     * @see org.openejb.assembler.AssemblerTool.RoleMapping
-    * @see org.openejb.core.DepoymentInfo.addSecurityRoleReference()
     */
     public  void applySecurityRoleReference(CoreDeploymentInfo deployment, EnterpriseBeanInfo beanInfo, AssemblerTool.RoleMapping roleMapping){
         if(beanInfo.securityRoleReferences != null){
@@ -625,7 +617,6 @@ public class AssemblerTool {
     * @param deployment the DeploymentInfo object to which the Method Permissions should be applied.
     * @param permissions the Method Permission to be applied to the deployment.
     * @see org.openejb.assembler.MethodPermissionInfo
-    * @see org.openejb.core.CoreDeploymentInfo.appendMethodPermissions()
     */
     public  void applyMethodPermissions(CoreDeploymentInfo deployment, MethodPermissionInfo [] permissions){
         /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!
@@ -667,7 +658,6 @@ public class AssemblerTool {
     * @param roleMapping the encapsulation of logical roles and their corresponding physical role mappings.
     * @see org.openejb.assembler.MethodPermissionInfo
     * @see org.openejb.assembler.AssemblerTool.RoleMapping
-    * @see org.openejb.core.CoreDeploymentInfo.appendMethodPermissions()
     */
     public  void applyMethodPermissions(CoreDeploymentInfo deployment, MethodPermissionInfo [] permissions, AssemblerTool.RoleMapping roleMapping){
         /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!

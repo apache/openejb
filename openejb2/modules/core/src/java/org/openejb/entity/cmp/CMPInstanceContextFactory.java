@@ -78,17 +78,16 @@ import org.tranql.identity.IdentityTransform;
  */
 public class CMPInstanceContextFactory implements InstanceContextFactory, Serializable {
     private final Object containerId;
-    private final EJBProxyFactory proxyFactory;
     private final IdentityTransform primaryKeyTransform;
     private final FaultHandler loadFault;
     private final Class beanClass;
     private final Map imap;
     private transient final InstanceOperation[] itable;
     private transient final Enhancer enhancer;
+    private transient EJBProxyFactory proxyFactory;
 
-    public CMPInstanceContextFactory(Object containerId, EJBProxyFactory proxyFactory, IdentityTransform primaryKeyTransform, FaultHandler loadFault, Class beanClass, Map imap) throws ClassNotFoundException {
+    public CMPInstanceContextFactory(Object containerId, IdentityTransform primaryKeyTransform, FaultHandler loadFault, Class beanClass, Map imap) throws ClassNotFoundException {
         this.containerId = containerId;
-        this.proxyFactory = proxyFactory;
         this.primaryKeyTransform = primaryKeyTransform;
         this.loadFault = loadFault;
         this.beanClass = beanClass;
@@ -113,7 +112,14 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
         }
     }
 
+    public void setProxyFactory(EJBProxyFactory proxyFactory) {
+        this.proxyFactory = proxyFactory;
+    }
+
     public synchronized InstanceContext newInstance() throws Exception {
+        if (proxyFactory == null) {
+            throw new IllegalStateException("ProxyFacory has not been set");
+        }
         return new CMPInstanceContext(containerId, proxyFactory, itable, loadFault, primaryKeyTransform, this);
     }
 
@@ -133,7 +139,7 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
 
     private Object readResolve() throws ObjectStreamException {
         try {
-            return new CMPInstanceContextFactory(containerId, proxyFactory, primaryKeyTransform, loadFault, beanClass, imap);
+            return new CMPInstanceContextFactory(containerId, primaryKeyTransform, loadFault, beanClass, imap);
         } catch (ClassNotFoundException e) {
             throw (InvalidClassException) new InvalidClassException("Cound not load method argument class").initCause(e);
         }

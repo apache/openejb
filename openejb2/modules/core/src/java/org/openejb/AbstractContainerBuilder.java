@@ -76,7 +76,7 @@ import org.openejb.util.SoftLimitedInstancePool;
  */
 public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private ClassLoader classLoader;
-    private Object containerId;
+    private String containerId;
     private String ejbName;
     private String beanClassName;
     private String homeInterfaceName;
@@ -102,11 +102,11 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         this.classLoader = classLoader;
     }
 
-    public Object getContainerId() {
+    public String getContainerId() {
         return containerId;
     }
 
-    public void setContainerId(Object containerId) {
+    public void setContainerId(String containerId) {
         this.containerId = containerId;
     }
 
@@ -266,7 +266,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         return interceptorBuilder;
     }
 
-    protected EJBProxyFactory createProxyFactory(InterfaceMethodSignature[] signatures) throws ClassNotFoundException {
+    protected ProxyInfo createProxyInfo() throws ClassNotFoundException {
         ClassLoader classLoader = getClassLoader();
         Class homeInterface = loadOptionalClass(homeInterfaceName, classLoader);
         Class remoteInterface = loadOptionalClass(remoteInterfaceName, classLoader);
@@ -281,7 +281,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 localHomeInterface,
                 localInterface,
                 primaryKeyClass);
-        return new EJBProxyFactory(proxyInfo);
+        return proxyInfo;
     }
 
     protected SoftLimitedInstancePool createInstancePool(InstanceFactory instanceFactory) {
@@ -296,16 +296,17 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     }
 
     protected EJBContainer createContainer(
-            EJBProxyFactory proxyFactory,
             InterfaceMethodSignature[] signatures,
+            InstanceContextFactory contextFactory,
             InterceptorBuilder interceptorBuilder,
             InstancePool pool) throws Exception {
 
         return new GenericEJBContainer(
                 getContainerId(),
                 getEJBName(),
-                proxyFactory,
+                createProxyInfo(),
                 signatures,
+                contextFactory,
                 interceptorBuilder,
                 pool,
                 getUserTransaction(),
@@ -316,16 +317,17 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     }
 
     protected GBeanMBean createConfiguration(
-            EJBProxyFactory proxyFactory,
             InterfaceMethodSignature[] signatures,
+            InstanceContextFactory contextFactory,
             InterceptorBuilder interceptorBuilder,
             InstancePool pool) throws Exception {
 
         GBeanMBean gbean = new GBeanMBean(GenericEJBContainer.GBEAN_INFO);
         gbean.setAttribute("ContainerID", getContainerId());
         gbean.setAttribute("EJBName", getEJBName());
-        gbean.setAttribute("ProxyFactory", proxyFactory);
+        gbean.setAttribute("ProxyInfo", createProxyInfo());
         gbean.setAttribute("Signatures", signatures);
+        gbean.setAttribute("ContextFactory", contextFactory);
         gbean.setAttribute("InterceptorBuilder", interceptorBuilder);
         gbean.setAttribute("Pool", pool);
         gbean.setAttribute("UserTransaction", getUserTransaction());

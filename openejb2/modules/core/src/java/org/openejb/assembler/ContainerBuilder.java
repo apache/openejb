@@ -226,7 +226,7 @@ public class ContainerBuilder implements RpcContainer {
             return deploymentInfo.getContainer();
         }
 
-        public Object getDeploymentID() {
+        public String getDeploymentID() {
             return deploymentInfo.getDeploymentID();
         }
 

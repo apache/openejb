@@ -64,16 +64,22 @@ import org.openejb.proxy.EJBProxyFactory;
  */
 public class BMPInstanceContextFactory implements InstanceContextFactory, Serializable {
     private final Object containerId;
-    private final EJBProxyFactory proxyFactory;
     private final EJBInstanceFactory factory;
+    private transient EJBProxyFactory proxyFactory;
 
-    public BMPInstanceContextFactory(Object containerId, EJBProxyFactory proxyFactory, Class beanClass) {
+    public BMPInstanceContextFactory(Object containerId, Class beanClass) {
         this.containerId = containerId;
-        this.proxyFactory = proxyFactory;
         this.factory = new EJBInstanceFactoryImpl(beanClass);
     }
 
+    public void setProxyFactory(EJBProxyFactory proxyFactory) {
+        this.proxyFactory = proxyFactory;
+    }
+
     public InstanceContext newInstance() throws Exception {
+        if (proxyFactory == null) {
+            throw new IllegalStateException("ProxyFacory has not been set");
+        }
         return new BMPInstanceContext(containerId, proxyFactory, (EntityBean) factory.newInstance());
     }
 }

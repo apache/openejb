@@ -46,11 +46,13 @@ package org.openejb.proxy;
 
 import java.io.Serializable;
 
+import org.openejb.EJBComponentType;
+
 
 public class ProxyInfo implements Serializable {
     
     private final int componentType;
-    private final Object containerId;
+    private final String containerId;
     private final Object primaryKey;
     
     private final Class remoteInterface;
@@ -61,23 +63,19 @@ public class ProxyInfo implements Serializable {
     
 
     public ProxyInfo(ProxyInfo info, Object primaryKey) {
-        this(info.componentType,info.containerId, info.homeInterface, info.remoteInterface, info.primaryKeyClass, primaryKey);
+        this.componentType = info.componentType;
+        this.containerId = info.containerId;
+        this.homeInterface = info.homeInterface;
+        this.remoteInterface = info.remoteInterface;
+        this.localHomeInterface = info.localHomeInterface;
+        this.localObjectInterface = info.localObjectInterface;
+        this.primaryKeyClass = info.primaryKeyClass;
+        this.primaryKey = primaryKey;
     }
 
-    public ProxyInfo(int componentType, Object containerId, Class homeInterface, Class remoteInterface, Class primaryKeyClass, Object primaryKey) {
-        this.componentType = componentType;
-        this.containerId = containerId;
-        this.primaryKey = primaryKey;
-        this.homeInterface = homeInterface;
-        this.primaryKeyClass = primaryKeyClass;
-        this.remoteInterface = remoteInterface;
-        this.localHomeInterface = null; //TODO: add these to constructor
-        this.localObjectInterface = null; //TODO: add these to constructor
-    }
-    
     public ProxyInfo(
             int componentType,
-            Object deploymentID,
+            String containerId,
             Class homeInterface,
             Class remoteInterface,
             Class localHomeInterface,
@@ -85,13 +83,25 @@ public class ProxyInfo implements Serializable {
             Class primaryKeyClass) {
 
         this.componentType = componentType;
-        this.containerId = deploymentID;
-        this.primaryKey = null;
+        this.containerId = containerId;
         this.homeInterface = homeInterface;
-        this.primaryKeyClass = primaryKeyClass;
         this.remoteInterface = remoteInterface;
         this.localHomeInterface = localHomeInterface;
         this.localObjectInterface = localObjectInterface;
+        this.primaryKeyClass = primaryKeyClass;
+        this.primaryKey = null;
+    }
+
+    public String getContainerID() {
+        return containerId;
+    }
+
+    public boolean isSessionBean() {
+        return componentType == EJBComponentType.STATELESS || componentType == EJBComponentType.STATEFUL;
+    }
+
+    public int getComponentType() {
+        return componentType;
     }
 
     public Class getHomeInterface() {
@@ -114,14 +124,6 @@ public class ProxyInfo implements Serializable {
         return primaryKeyClass;
     }
     
-    public int getComponentType() {
-        return componentType;
-    }
-    
-    public Object getContainerID() {
-        return containerId;
-    }
-
     // TODO: Kill this method
     public Object getPrimaryKey() {
         return primaryKey;

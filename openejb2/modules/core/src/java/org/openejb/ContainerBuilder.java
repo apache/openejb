@@ -37,9 +37,9 @@ public interface ContainerBuilder {
 
     void setClassLoader(ClassLoader classLoader);
 
-    Object getContainerId();
+    String getContainerId();
 
-    void setContainerId(Object containerId);
+    void setContainerId(String containerId);
 
     String getEJBName();
 
