@@ -166,6 +166,7 @@ public class ServiceDaemon implements GBeanLifecycle {
                 Socket socket = null;
                 try {
                     socket = serverSocket.accept();
+                    socket.setTcpNoDelay(true);
                     if (!shouldStop()) {
                         // the server service is responsible
                         // for closing the socket.

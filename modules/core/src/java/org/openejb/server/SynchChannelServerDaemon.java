@@ -147,6 +147,7 @@ public class SynchChannelServerDaemon implements GBeanLifecycle, Runnable {
             try {
                 SynchChannel channel = (SynchChannel) server.accept(timeout);
                 socket = new SynchChannelToSocketAdapter(channel);
+                socket.setTcpNoDelay(true);
                 if (!shouldStop()) {
                     // the server service is responsible
                     // for closing the socket.
