@@ -66,6 +66,7 @@ import java.util.jar.JarOutputStream;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
+import javax.naming.Reference;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.common.xml.XmlBeansUtil;
@@ -82,8 +83,11 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
+import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
+import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
@@ -95,12 +99,16 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
 
 import org.openejb.ContainerBuilder;
+import org.openejb.EJBComponentType;
 import org.openejb.EJBModule;
 import org.openejb.entity.bmp.BMPContainerBuilder;
 import org.openejb.entity.cmp.CMPContainerBuilder;
+import org.openejb.proxy.ProxyInfo;
+import org.openejb.proxy.ProxyObjectFactory;
+import org.openejb.proxy.ProxyRefAddr;
 import org.openejb.sfsb.StatefulContainerBuilder;
 import org.openejb.slsb.StatelessContainerBuilder;
-import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.openejb.xbeans.ejbjar.OpenejbDependencyType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbGbeanType;
 import org.openejb.xbeans.ejbjar.OpenejbLocalRefType;
@@ -108,7 +116,6 @@ import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
-import org.openejb.xbeans.ejbjar.OpenejbDependencyType;
 import org.openejb.xbeans.ejbjar.impl.OpenejbOpenejbJarDocumentImpl;
 
 /**
@@ -164,7 +171,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         OpenejbOpenejbJarType openejbEjbJar = doc.addNewOpenejbJar();
         openejbEjbJar.setParentId("org/apache/geronimo/Server");
         String ejbModuleName = ejbJar.getId();
-        if(ejbModuleName != null) {
+        if (ejbModuleName != null) {
             openejbEjbJar.setConfigId(ejbModuleName);
         } else {
             openejbEjbJar.setConfigId("unnamed/ejbmodule/" + System.currentTimeMillis());
@@ -288,13 +295,15 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
 
         TransactionPolicyHelper transactionPolicyHelper = new TransactionPolicyHelper(ejbJar.getAssemblyDescriptor().getContainerTransactionArray());
 
+        Map proxyFactoryMap = buildProxyInfoMap(ejbModuleName, ejbJar, cl);
+
         // Session Beans
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
         SessionBeanType[] sessionBeans = enterpriseBeans.getSessionArray();
         for (int i = 0; i < sessionBeans.length; i++) {
             SessionBeanType sessionBean = sessionBeans[i];
             String ejbName = sessionBean.getEjbName().getStringValue();
-            OpenejbSessionBeanType openejbSessionBean = (OpenejbSessionBeanType)openejbBeans.get(ejbName);
+            OpenejbSessionBeanType openejbSessionBean = (OpenejbSessionBeanType) openejbBeans.get(ejbName);
 
             ObjectName sessionObjectName = createSessionObjectName(
                     sessionBean,
@@ -303,7 +312,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
                     "null",
                     ejbModuleName);
 
-            GBeanMBean sessionGBean = createSessionBean(sessionObjectName.getCanonicalName(), sessionBean, openejbSessionBean, transactionPolicyHelper, cl);
+            GBeanMBean sessionGBean = createSessionBean(sessionObjectName.getCanonicalName(), sessionBean, openejbSessionBean, transactionPolicyHelper, proxyFactoryMap, cl);
             context.addGBean(sessionObjectName, sessionGBean);
         }
 
@@ -313,7 +322,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         for (int i = 0; i < entityBeans.length; i++) {
             EntityBeanType entityBean = entityBeans[i];
             String ejbName = entityBean.getEjbName().getStringValue();
-            OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType)openejbBeans.get(ejbName);
+            OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(ejbName);
 
             ObjectName entityObjectName = createEntityObjectName(
                     entityBean,
@@ -322,12 +331,78 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
                     "null",
                     ejbModuleName);
 
-            GBeanMBean entityGBean = createEntityBean(entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, transactionPolicyHelper, cl);
+            GBeanMBean entityGBean = createEntityBean(entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, transactionPolicyHelper, proxyFactoryMap, cl);
             context.addGBean(entityObjectName, entityGBean);
         }
     }
 
-    public GBeanMBean createSessionBean(Object containerId, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl) throws DeploymentException {
+    private Map buildProxyInfoMap(String ejbModuleName, EjbJarType ejbJar, ClassLoader cl) throws DeploymentException {
+        Map proxyInfoMap = new HashMap();
+
+        EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
+        SessionBeanType[] sessionBeans = enterpriseBeans.getSessionArray();
+        for (int i = 0; i < sessionBeans.length; i++) {
+            SessionBeanType sessionBean = sessionBeans[i];
+            String ejbName = sessionBean.getEjbName().getStringValue();
+
+            int componentType;
+            if ("Stateless".equals(sessionBean.getSessionType().getStringValue())) {
+                componentType = EJBComponentType.STATELESS;
+            } else {
+                componentType = EJBComponentType.STATEFUL;
+            }
+
+            String containerId = createSessionObjectName(
+                    sessionBean,
+                    "openejb",
+                    "null",
+                    "null",
+                    ejbModuleName).getCanonicalName();
+
+            Class homeInterface = loadOptionalClass(cl, sessionBean.getHome());
+            Class remoteInterface = loadOptionalClass(cl, sessionBean.getRemote());
+            Class localHomeInterface = loadOptionalClass(cl, sessionBean.getLocalHome());
+            Class localInterface = loadOptionalClass(cl, sessionBean.getLocal());
+
+            ProxyInfo proxyInfo = new ProxyInfo(componentType, containerId, homeInterface, remoteInterface, localHomeInterface, localInterface, null);
+            proxyInfoMap.put(ejbName, proxyInfo);
+        }
+
+
+        // Entity Beans
+        EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
+        for (int i = 0; i < entityBeans.length; i++) {
+            EntityBeanType entityBean = entityBeans[i];
+            String ejbName = entityBean.getEjbName().getStringValue();
+
+            int componentType;
+            if ("Container".equals(entityBean.getPersistenceType().getStringValue())) {
+                componentType = EJBComponentType.CMP_ENTITY;
+            } else {
+                componentType = EJBComponentType.BMP_ENTITY;
+            }
+
+            String containerId = createEntityObjectName(
+                    entityBean,
+                    "openejb",
+                    "null",
+                    "null",
+                    ejbModuleName).getCanonicalName();
+
+            Class homeInterface = loadOptionalClass(cl, entityBean.getHome());
+            Class remoteInterface = loadOptionalClass(cl, entityBean.getRemote());
+            Class localHomeInterface = loadOptionalClass(cl, entityBean.getLocalHome());
+            Class localInterface = loadOptionalClass(cl, entityBean.getLocal());
+            Class primaryKeyClass = loadOptionalClass(cl, entityBean.getPrimKeyClass());
+
+            ProxyInfo proxyInfo = new ProxyInfo(componentType, containerId, homeInterface, remoteInterface, localHomeInterface, localInterface, primaryKeyClass);
+            proxyInfoMap.put(ejbName, proxyInfo);
+        }
+
+        return proxyInfoMap;
+    }
+
+    public GBeanMBean createSessionBean(Object containerId, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, Map proxyFactoryMap, ClassLoader cl) throws DeploymentException {
         String ejbName = sessionBean.getEjbName().getStringValue();
 
         ContainerBuilder builder = null;
@@ -362,7 +437,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         }
 
         try {
-            ReadOnlyContext compContext = buildComponentContext(sessionBean, openejbSessionBean, userTransaction, cl);
+            ReadOnlyContext compContext = buildComponentContext(sessionBean, openejbSessionBean, userTransaction, proxyFactoryMap, cl);
             builder.setComponentContext(compContext);
         } catch (Exception e) {
             throw new DeploymentException("Unable to create EJB jndi environment: ejbName" + ejbName, e);
@@ -372,8 +447,8 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
             builder.setJndiNames(openejbSessionBean.getJndiNameArray());
             builder.setLocalJndiNames(openejbSessionBean.getLocalJndiNameArray());
         } else {
-            builder.setJndiNames(new String[] {ejbName});
-            builder.setLocalJndiNames(new String[] {"local/" + ejbName});
+            builder.setJndiNames(new String[]{ejbName});
+            builder.setLocalJndiNames(new String[]{"local/" + ejbName});
         }
 
         try {
@@ -399,7 +474,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         return createEJBObjectName(type, domainName, serverName, applicationName, moduleName, ejbName);
     }
 
-    public GBeanMBean createEntityBean(Object containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl) throws DeploymentException {
+    public GBeanMBean createEntityBean(Object containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, TransactionPolicyHelper transactionPolicyHelper, Map proxyFactoryMap, ClassLoader cl) throws DeploymentException {
         String ejbName = entityBean.getEjbName().getStringValue();
 
         ContainerBuilder builder = null;
@@ -420,7 +495,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         builder.setTransactionPolicySource(transactionPolicySource);
 
         try {
-            ReadOnlyContext compContext = buildComponentContext(entityBean, openejbEntityBean, null, cl);
+            ReadOnlyContext compContext = buildComponentContext(entityBean, openejbEntityBean, null, proxyFactoryMap, cl);
             builder.setComponentContext(compContext);
         } catch (Exception e) {
             throw new DeploymentException("Unable to create EJB jndi environment: ejbName=" + ejbName, e);
@@ -430,8 +505,8 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
             builder.setJndiNames(openejbEntityBean.getJndiNameArray());
             builder.setLocalJndiNames(openejbEntityBean.getLocalJndiNameArray());
         } else {
-            builder.setJndiNames(new String[] {ejbName});
-            builder.setLocalJndiNames(new String[] {"local/" + ejbName});
+            builder.setJndiNames(new String[]{ejbName});
+            builder.setLocalJndiNames(new String[]{"local/" + ejbName});
         }
 
         try {
@@ -478,9 +553,13 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    private ReadOnlyContext buildComponentContext(SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, UserTransaction userTransaction, ClassLoader cl) throws Exception {
+    private ReadOnlyContext buildComponentContext(SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, UserTransaction userTransaction, Map proxyFactoryMap, ClassLoader cl) throws Exception {
         // env entries
         EnvEntryType[] envEntries = sessionBean.getEnvEntryArray();
+
+        // ejb refs
+        EjbRefType[] ejbRefs = sessionBean.getEjbRefArray();
+        EjbLocalRefType[] ejbLocalRefs = sessionBean.getEjbLocalRefArray();
 
         // resource refs
         ResourceRefType[] resourceRefs = sessionBean.getResourceRefArray();
@@ -496,13 +575,17 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
             openejbResourceEnvRefs = openejbSessionBean.getResourceEnvRefArray();
         }
 
-        return buildComponentContext(envEntries, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, userTransaction, cl);
+        return buildComponentContext(envEntries, ejbRefs, ejbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, userTransaction, proxyFactoryMap, cl);
 
     }
 
-    private ReadOnlyContext buildComponentContext(EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, UserTransaction userTransaction, ClassLoader cl) throws Exception {
+    private ReadOnlyContext buildComponentContext(EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, UserTransaction userTransaction, Map proxyFactoryMap, ClassLoader cl) throws Exception {
         // env entries
         EnvEntryType[] envEntries = entityBean.getEnvEntryArray();
+
+        // ejb refs
+        EjbRefType[] ejbRefs = entityBean.getEjbRefArray();
+        EjbLocalRefType[] ejbLocalRefs = entityBean.getEjbLocalRefArray();
 
         // resource refs
         ResourceRefType[] resourceRefs = entityBean.getResourceRefArray();
@@ -518,11 +601,11 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
             openejbResourceEnvRefs = openejbEntityBean.getResourceEnvRefArray();
         }
 
-        return buildComponentContext(envEntries, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, userTransaction, cl);
+        return buildComponentContext(envEntries, ejbRefs, ejbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, userTransaction, proxyFactoryMap, cl);
 
     }
 
-    private static ReadOnlyContext buildComponentContext(EnvEntryType[] envEntries, ResourceRefType[] resourceRefs, OpenejbLocalRefType[] openejbResourceRefs, ResourceEnvRefType[] resourceEnvRefs, OpenejbLocalRefType[] openejbResourceEnvRefs, UserTransaction userTransaction, ClassLoader cl) throws NamingException, DeploymentException {
+    private static ReadOnlyContext buildComponentContext(EnvEntryType[] envEntries, EjbRefType[] ejbRefs, EjbLocalRefType[] ejbLocalRefs, ResourceRefType[] resourceRefs, OpenejbLocalRefType[] openejbResourceRefs, ResourceEnvRefType[] resourceEnvRefs, OpenejbLocalRefType[] openejbResourceEnvRefs, UserTransaction userTransaction, Map proxyFactoryMap, ClassLoader cl) throws NamingException, DeploymentException {
         ComponentContextBuilder builder = new ComponentContextBuilder(new JMXReferenceFactory());
 
         if (userTransaction != null) {
@@ -531,23 +614,64 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
 
         ENCConfigBuilder.addEnvEntries(envEntries, builder);
 
-        // todo ejb-ref
+        // ejb-ref
+        addEJBRefs(ejbRefs, proxyFactoryMap, builder);
+        addEJBLocalRefs(ejbLocalRefs, proxyFactoryMap, builder);
 
         // todo ejb-local-ref
 
         // resource-ref
-        if(openejbResourceRefs != null) {
+        if (openejbResourceRefs != null) {
             addResourceRefs(resourceRefs, openejbResourceRefs, cl, builder);
         }
 
         // resource-env-ref
-        if(openejbResourceEnvRefs != null) {
+        if (openejbResourceEnvRefs != null) {
             addResourceEnvRefs(resourceEnvRefs, openejbResourceEnvRefs, cl, builder);
         }
 
         // todo message-destination-ref
 
         return builder.getContext();
+    }
+
+    private static void addEJBRefs(EjbRefType[] ejbRefs, Map proxyFactoryMap, ComponentContextBuilder builder) throws DeploymentException {
+        for (int i = 0; i < ejbRefs.length; i++) {
+            EjbRefType ejbRef = ejbRefs[i];
+
+            String ejbRefName = ejbRef.getEjbRefName().getStringValue();
+
+            String ejbLink = ejbRef.getEjbLink().getStringValue();
+            ProxyInfo proxyInfo = (ProxyInfo) proxyFactoryMap.get(ejbLink);
+            if(proxyInfo == null) {
+                throw new DeploymentException("Currently only local refs are supported");
+            }
+            try {
+                Reference ref = new Reference(null, ProxyObjectFactory.class.getName(), null);
+                ref.add(new ProxyRefAddr(proxyInfo, false));
+                builder.bind(ejbRefName, ref);
+            } catch (NamingException e) {
+                throw new DeploymentException("Unable to to bind ejb-ref: ejb-ref-name=" + ejbRefName);
+            }
+        }
+    }
+
+    private static void addEJBLocalRefs(EjbLocalRefType[] ejbLocalRefs, Map proxyFactoryMap, ComponentContextBuilder builder) throws DeploymentException {
+        for (int i = 0; i < ejbLocalRefs.length; i++) {
+            EjbLocalRefType ejbLocalRef = ejbLocalRefs[i];
+
+            String ejbRefName = ejbLocalRef.getEjbRefName().getStringValue();
+
+            String ejbLink = ejbLocalRef.getEjbLink().getStringValue();
+            ProxyInfo proxyInfo = (ProxyInfo) proxyFactoryMap.get(ejbLink);
+            try {
+                Reference ref = new Reference(null, ProxyObjectFactory.class.getName(), null);
+                ref.add(new ProxyRefAddr(proxyInfo, true));
+                builder.bind(ejbRefName, ref);
+            } catch (NamingException e) {
+                throw new DeploymentException("Unable to to bind ejb-local-ref: ejb-ref-name=" + ejbRefName);
+            }
+        }
     }
 
     private static void addResourceEnvRefs(ResourceEnvRefType[] resourceEnvRefs, OpenejbLocalRefType[] openejbResourceEnvRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
@@ -623,6 +747,18 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
             return null;
         }
         return string.getStringValue();
+    }
+
+    private Class loadOptionalClass(ClassLoader cl, org.apache.geronimo.xbeans.j2ee.String name) throws DeploymentException {
+        String className = getJ2eeStringValue(name);
+        if (className == null) {
+            return null;
+        }
+        try {
+            return cl.loadClass(className);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException(e);
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;

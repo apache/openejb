@@ -49,9 +49,6 @@ package org.openejb;
 
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -72,7 +69,6 @@ import org.openejb.client.EJBObjectHandler;
 import org.openejb.client.EJBObjectProxy;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.proxy.ProxyInfo;
 
 /**
  * @version $Revision$ $Date$
@@ -84,6 +80,7 @@ public class GenericEJBContainer implements EJBContainer {
 
     private final Interceptor interceptor;
     private final EJBProxyFactory proxyFactory;
+    private final InterfaceMethodSignature[] signatures;
 
     private final String[] jndiNames;
     private final String[] localJndiNames;
@@ -116,6 +113,7 @@ public class GenericEJBContainer implements EJBContainer {
         this.ejbName = ejbName;
         this.jndiNames = copyNames(jndiNames);
         this.localJndiNames = copyNames(localJndiNames);
+        this.signatures = signatures;
 
         // initialize the proxy factory
         proxyFactory.setContainer(this);
@@ -223,10 +221,17 @@ public class GenericEJBContainer implements EJBContainer {
         return proxyFactory;
     }
 
+    public InterfaceMethodSignature[] getSignatures() {
+        // return a copy just to be safe... this method should not be called often
+        InterfaceMethodSignature[] copy = new InterfaceMethodSignature[signatures.length];
+        System.arraycopy(signatures, 0, copy, 0, signatures.length);
+        return copy;
+    }
+
     public EJBContainer getUnmanagedReference(){
         return this;
     }
-    
+
     private static String[] copyNames(String[] names) {
         if(names == null) {
             return null;
@@ -261,7 +266,7 @@ public class GenericEJBContainer implements EJBContainer {
         infoFactory.addAttribute("EJBHome", false);
         infoFactory.addAttribute("EJBLocalHome", false);
         infoFactory.addAttribute("UnmanagedReference", false);
-        
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -45,26 +45,32 @@
  *
  * ====================================================================
  */
-package org.openejb.transaction;
+package org.openejb.proxy;
+
+import javax.naming.RefAddr;
 
 /**
- *
- *
+ * 
+ * 
  * @version $Revision$ $Date$
  */
-public class UncommittedTransactionException extends Exception {
-    public UncommittedTransactionException() {
+public class ProxyRefAddr extends RefAddr {
+    private final static String TYPE = "org.openejb.proxy.EJBType";
+    private final ProxyInfo proxyInfo;
+    private final boolean isLocal;
+
+    public ProxyRefAddr(ProxyInfo proxyInfo, boolean local) {
+        super(TYPE);
+        this.proxyInfo = proxyInfo;
+        isLocal = local;
     }
 
-    public UncommittedTransactionException(String message) {
-        super(message);
-    }
-
-    public UncommittedTransactionException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public UncommittedTransactionException(Throwable cause) {
-        super(cause);
+    public Object getContent() {
+        EJBProxyFactory proxyFactory = new EJBProxyFactory(proxyInfo);
+        if (isLocal) {
+            return proxyFactory.getEJBLocalHome();
+        } else {
+            return proxyFactory.getEJBHome();
+        }
     }
 }

@@ -114,7 +114,44 @@ public class BeanPolicy {
 
     public static final TransactionPolicy Stateful = new TransactionPolicy() {
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
-            throw new IllegalStateException("Not yet implemented");
+            TransactionContext clientContext = TransactionContext.getContext();
+            if (clientContext != null) {
+                clientContext.suspend();
+            }
+            try {
+                TransactionContext beanContext = new UnspecifiedTransactionContext();
+                TransactionContext.setContext(beanContext);
+                beanContext.begin();
+                ejbInvocation.setTransactionContext(beanContext);
+                try {
+                    InvocationResult result = interceptor.invoke(ejbInvocation);
+                    if (beanContext != TransactionContext.getContext()) {
+                        throw new UncommittedTransactionException("Support for transactions held between invocations is not supported");
+                    }
+                    beanContext.commit();
+                    return result;
+                } catch (Throwable t) {
+                    try {
+                        if (beanContext != TransactionContext.getContext()) {
+                            TransactionContext.getContext().rollback();
+                        }
+                    } catch (Exception e) {
+                        log.warn("Unable to roll back", e);
+                    }
+                    try {
+                        beanContext.rollback();
+                    } catch (Exception e) {
+                        log.warn("Unable to roll back", e);
+                    }
+                    throw t;
+                }
+            } finally {
+                ejbInvocation.setTransactionContext(clientContext);
+                TransactionContext.setContext(clientContext);
+                if (clientContext != null) {
+                    clientContext.resume();
+                }
+            }
         }
         private Object readResolve() {
             return Stateful;

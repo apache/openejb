@@ -276,7 +276,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 localHomeInterface,
                 localInterface,
                 primaryKeyClass);
-        return new EJBProxyFactory(proxyInfo, signatures);
+        return new EJBProxyFactory(proxyInfo);
     }
 
     protected SoftLimitedInstancePool createInstancePool(InstanceFactory instanceFactory) {

@@ -45,26 +45,31 @@
  *
  * ====================================================================
  */
-package org.openejb.transaction;
+package org.openejb.proxy;
+
+import java.util.Hashtable;
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.RefAddr;
+import javax.naming.Reference;
+import javax.naming.spi.ObjectFactory;
 
 /**
- *
- *
+ * 
+ * 
  * @version $Revision$ $Date$
  */
-public class UncommittedTransactionException extends Exception {
-    public UncommittedTransactionException() {
-    }
-
-    public UncommittedTransactionException(String message) {
-        super(message);
-    }
-
-    public UncommittedTransactionException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public UncommittedTransactionException(Throwable cause) {
-        super(cause);
+public class ProxyObjectFactory implements ObjectFactory {
+    public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable environment) throws Exception {
+        if (!(obj instanceof Reference)) {
+            return null;
+        }
+        Reference ref = (Reference) obj;
+        RefAddr refAddr = ref.get(0);
+        if (!(refAddr instanceof ProxyRefAddr)) {
+            throw new IllegalStateException("Invalid ref addr in Proxy Factory: " + refAddr);
+        }
+        ProxyRefAddr proxyRefAddr = (ProxyRefAddr) refAddr;
+        return proxyRefAddr.getContent();
     }
 }
