@@ -44,20 +44,36 @@
  */
 package org.openejb.alt.config.rules;
 
-import org.openejb.alt.config.*;
-import org.openejb.util.Messages;
-import org.openejb.util.SafeToolkit;
-import org.openejb.OpenEJBException;
 import java.lang.reflect.Method;
 
+import org.openejb.OpenEJBException;
+import org.openejb.alt.config.Bean;
+import org.openejb.alt.config.EjbSet;
+import org.openejb.alt.config.EntityBean;
+import org.openejb.alt.config.SessionBean;
+import org.openejb.alt.config.ValidationFailure;
+import org.openejb.alt.config.ValidationRule;
+import org.openejb.alt.config.ValidationWarning;
+import org.openejb.util.SafeToolkit;
+
+
+
 /**
+
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
+
  */
+
 public class CheckMethods implements ValidationRule {
-    
+
+
+
     EjbSet set;
-    
+
+
+
     public void validate( EjbSet set ) {
+
         this.set = set;
 
         Bean[] beans = set.getBeans();
@@ -67,21 +83,25 @@ public class CheckMethods implements ValidationRule {
             check_homeInterfaceMethods( b );
         }
 
+	SafeToolkit.unloadTempCodebase( set.getJarPath() );
     }
 
+
+
     private void check_remoteInterfaceMethods( Bean b ){
+
         Class intrface  = null;
         Class beanClass = null;
         try {
-            intrface  = SafeToolkit.loadClass( b.getRemote() , set.getJarPath(), false );
-            beanClass = SafeToolkit.loadClass( b.getEjbClass() , set.getJarPath(), false );
+            intrface  = SafeToolkit.loadTempClass( b.getRemote() , set.getJarPath() );
+            beanClass = SafeToolkit.loadTempClass( b.getEjbClass() , set.getJarPath() );
         } catch ( OpenEJBException e ) {
             return;
         }
-        
+
         Method[] interfaceMethods = intrface.getMethods();
         Method[] beanClassMethods = intrface.getMethods();
-        
+
         for(int i = 0; i < interfaceMethods.length; i++){
             if( interfaceMethods[i].getDeclaringClass() == javax.ejb.EJBObject.class) continue;
             try{
@@ -89,17 +109,17 @@ public class CheckMethods implements ValidationRule {
                 Class[] params = interfaceMethods[i].getParameterTypes();
                 Method beanMethod = beanClass.getMethod( name, params );
             }catch(NoSuchMethodException nsme){
-                //  0 - method name                   
-                //  1 - full method name                   
-                //  2 - remote|home                   
-                //  3 - interface name                
-                //  4 - EJB Class name                
+                //  0 - method name
+                //  1 - full method name
+                //  2 - remote|home
+                //  3 - interface name
+                //  4 - EJB Class name
                 ValidationFailure failure = new ValidationFailure("no.busines.method");
                 failure.setDetails( interfaceMethods[i].getName(),interfaceMethods[i].toString(), "remote", intrface.getName(), beanClass.getName());
                 failure.setBean( b );
 
                 set.addFailure( failure );
-                
+
                 //set.addFailure( new ValidationFailure("no.busines.method", interfaceMethods[i].toString(), "remote", intrface.getName(), beanClass.getName()));
             }
         }
@@ -109,12 +129,12 @@ public class CheckMethods implements ValidationRule {
         Class home  = null;
         Class bean = null;
         try {
-            home = SafeToolkit.loadClass( b.getHome() , set.getJarPath(), false );
-            bean = SafeToolkit.loadClass( b.getEjbClass() , set.getJarPath(), false );
+            home = SafeToolkit.loadTempClass( b.getHome() , set.getJarPath() );
+            bean = SafeToolkit.loadTempClass( b.getEjbClass() , set.getJarPath() );
         } catch ( OpenEJBException e ) {
             return;
         }
-        
+
         if ( check_hasCreateMethod(b, bean, home) ){
             check_createMethodsAreImplemented(b, bean, home);
             check_postCreateMethodsAreImplemented(b, bean, home);
@@ -125,21 +145,21 @@ public class CheckMethods implements ValidationRule {
 
     /**
      * Must have at least one create method in the home interface.
-     * 
+     *
      * @param b
      * @param bean
      * @param home
      */
     public boolean check_hasCreateMethod(Bean b, Class bean, Class home){
-        
+
         Method[] homeMethods = home.getMethods();
 
         boolean hasCreateMethod = false;
-        
+
         for (int i=0; i < homeMethods.length && !hasCreateMethod; i++){
             hasCreateMethod = homeMethods[i].getName().equals("create");
         }
-        
+
         if ( !hasCreateMethod ) {
             // 1 - home interface
             // 2 - remote interface
@@ -156,11 +176,11 @@ public class CheckMethods implements ValidationRule {
 
     /**
      * Create methods must me implemented
-     * 
+     *
      * @param b
      * @param bean
      * @param home
-     * @return 
+     * @return
      */
     public boolean check_createMethodsAreImplemented(Bean b, Class bean, Class home){
         boolean result = true;
@@ -207,21 +227,21 @@ public class CheckMethods implements ValidationRule {
         //-------------------------------------------------------------
         return result;
     }
-    
+
     /**
-     * Validate that the ejbPostCreate methods of entity beans are 
+     * Validate that the ejbPostCreate methods of entity beans are
      * implemented in the bean class
-     * 
+     *
      * @param b
      * @param bean
      * @param home
-     * @return 
+     * @return
      */
     public boolean check_postCreateMethodsAreImplemented(Bean b, Class bean, Class home){
         boolean result = true;
 
         if (b instanceof SessionBean) return true;
-        
+
         Method[] homeMethods = home.getMethods();
         Method[] beanMethods = bean.getMethods();
 
@@ -252,15 +272,15 @@ public class CheckMethods implements ValidationRule {
         //-------------------------------------------------------------
         return result;
     }
-    
+
     /**
      * Check for any create methods in the bean that
      * aren't in the home interface as well
-     * 
+     *
      * @param b
      * @param bean
      * @param home
-     * @return 
+     * @return
      */
     public boolean check_unusedCreateMethods(Bean b, Class bean, Class home){
         boolean result = true;
@@ -292,7 +312,7 @@ public class CheckMethods implements ValidationRule {
         //-------------------------------------------------------------
         return result;
     }
-    
+
 /// public void check_findMethods(){
 ///     if(this.componentType == this.BMP_ENTITY ){
 ///         // CMP 1.1 beans do not define a find method in the bean class
@@ -309,17 +329,18 @@ public class CheckMethods implements ValidationRule {
     private String getParameters(Method method){
         Class[] params = method.getParameterTypes();
         String paramString = "";
-        
+
         if (params.length > 0) {
             paramString = params[0].getName();
         }
-        
+
         for (int i=1; i < params.length; i++){
             paramString += ", "+params[i];
         }
-        
+
         return paramString;
     }
 }
+
 
 

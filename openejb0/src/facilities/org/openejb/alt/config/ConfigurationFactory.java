@@ -980,7 +980,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                 if ( d.getDir() == null && d.getJar() != null ) {
                     File jar = null;
                     try {
-                        jar = FileUtils.getFile(d.getJar(), false);
+                        jar = FileUtils.getBase().getFile(d.getJar(), false);
                     } catch ( Exception e ) {
                     }
                     if ( !jarList.contains( jar.getAbsolutePath() ) ) {
@@ -994,7 +994,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
                 File dir = null;
                 try {
-                    dir = FileUtils.getFile(d.getDir(), false);
+                    dir = FileUtils.getBase().getFile(d.getDir(), false);
                 } catch ( Exception e ) {
                 }
 
@@ -1050,7 +1050,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             String jarLocation = jarsToLoad[i];
             try {
                 // Try to resolve path relative to openejb.home
-                jarLocation = FileUtils.getFile(jarLocation,false).getAbsolutePath();
+                jarLocation = FileUtils.getBase().getFile(jarLocation,false).getAbsolutePath();
             } catch ( java.io.IOException e ) {
                 // The methods below have more specific exception 
                 // handling for this

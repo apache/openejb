@@ -10,6 +10,7 @@
   <xsl:include href="leftNav.xsl"/>
   <xsl:include href="keywords.xsl"/>
   <xsl:include href="searchForm.xsl"/>
+  <xsl:include href="news.xsl"/>
 
 
   <!-- Template for document -->
@@ -113,6 +114,7 @@
             <tr>
               <td valign="top" align="left"><br/><img border="0" height="55" hspace="0"
                   src="{$project/logo}" vspace="0" width="200"/><br/>
+                   <xsl:if test="not(document[@page-title='none'])">
                   <img border="0" height="7" hspace="0" src="images/dotTrans.gif"/><br/>
                     <xsl:choose>
                       <xsl:when test="/document/body/title">
@@ -131,6 +133,7 @@
                     </p>
                   </xsl:if>
                   <img border="0" height="1" hspace="0" src="images/dotTrans.gif"/>
+                   </xsl:if>
               </td>
             </tr>
           </table>

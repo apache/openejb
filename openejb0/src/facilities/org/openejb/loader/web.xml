@@ -13,11 +13,10 @@
     <servlet-name>loader</servlet-name>
     <servlet-class>org.openejb.loader.LoaderServlet</servlet-class>
     
-    <!--
     <init-param>
       
       <param-name>openejb.home</param-name>
-      <param-value>C:\anypath\openejb</param-value>
+      <param-value>C:\openejb-$VERSION$</param-value>
       
       <description>
         Set this to the exact path where OpenEJB is installed.
@@ -28,7 +27,6 @@
       </description>
     
     </init-param>
-    -->
  
     <!--
     <init-param>
@@ -72,10 +70,5 @@
     <load-on-startup>0</load-on-startup>
   
   </servlet>
-
-  <servlet-mapping>
-    <servlet-name>loader</servlet-name>
-    <url-pattern>*.do</url-pattern>
-  </servlet-mapping>
 
 </web-app>

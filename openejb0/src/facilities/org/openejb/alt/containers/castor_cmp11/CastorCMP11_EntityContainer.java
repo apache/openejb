@@ -97,56 +97,12 @@ import org.openejb.util.Logger;
  * @version $Revision$ $Date$
  */
 public class CastorCMP11_EntityContainer 
-	implements org.openejb.RpcContainer, 
-		TransactionContainer,
-		org.exolab.castor.persist.spi.CallbackInterceptor,
-		org.exolab.castor.persist.spi.InstanceFactory
-{
+implements org.openejb.RpcContainer, 
+TransactionContainer,
+org.exolab.castor.persist.spi.CallbackInterceptor,
+org.exolab.castor.persist.spi.InstanceFactory {
 
 
-    protected static class CMPLogger implements org.exolab.castor.persist.spi.LogInterceptor {
-        protected final Logger logger = Logger.getInstance( "OpenEJB.CastorCMP", "org.openejb.alt.util.resources" );
-        protected final String db;
-
-        public CMPLogger(String db) {
-            this.db=db+": ";
-        }
-        public void loading(java.lang.Object objClass, java.lang.Object identity) {
-            logger.debug(db+"Loading an instance of "+objClass+" with identity \""+identity+"\"");
-        }
-        public void creating(java.lang.Object objClass, java.lang.Object identity) {
-            logger.debug(db+"Creating an instance of "+objClass+" with identity \""+identity+"\"");
-        }
-
-        public void removing(java.lang.Object objClass, java.lang.Object identity) {
-            logger.debug(db+"Removing an instance of "+objClass+" with identity \""+identity+"\"");
-        }
-
-        public void storing(java.lang.Object objClass, java.lang.Object identity) {
-            logger.debug(db+"Storing an instance of "+objClass+" with identity \""+identity+"\"");
-        }
-
-        public void storeStatement(java.lang.String statement)  {
-            logger.debug(db+statement);
-        }
-
-        public void queryStatement(java.lang.String statement) {
-            logger.debug(db+statement);
-        }
-
-        public void message(java.lang.String message) {
-            logger.info(db+"JDO message:"+message);
-        }
-
-        public void exception(java.lang.Exception ex) {
-            logger.info(db+"JDO exception:", ex);
-        }
-
-        public java.io.PrintWriter getPrintWriter() {
-            return null;
-        }
-    }
-    
     /*
      * Bean instances that are currently in use are placed in the txReadyPoolMap indexed
      * by their object instance with a reference to deployment's methodReadyPoolMap entry
@@ -161,7 +117,7 @@ public class CastorCMP11_EntityContainer
      * transaction fails due to a runtime exception.
      */
     protected Hashtable txReadyPoolMap = new Hashtable();
-    
+
     //DMB: The actual stacks of instances should be kept in the DeploymentInfo also
     protected Hashtable pooledInstancesMap = new Hashtable();
     protected Hashtable readyInstancesMap = new Hashtable();
@@ -224,7 +180,7 @@ public class CastorCMP11_EntityContainer
 
 
     public Logger logger = Logger.getInstance( "OpenEJB", "org.openejb.alt.util.resources" );
-    
+
     // contains deployment information for each by deployed to this container
     HashMap deploymentRegistry;
     // the unique id for this container
@@ -265,7 +221,7 @@ public class CastorCMP11_EntityContainer
 
     // Manages the synchronization wrappers
     java.util.Hashtable syncWrappers = new java.util.Hashtable();
-    
+
     // this map contains the Java language initial values for all all data types
     protected HashMap resetMap;
 
@@ -297,21 +253,21 @@ public class CastorCMP11_EntityContainer
 
         SafeToolkit toolkit = SafeToolkit.getToolkit("CastorCMP11_EntityContainer");
         SafeProperties safeProps = toolkit.getSafeProperties(properties);
-        
+
         poolsize           = safeProps.getPropertyAsInt("PoolSize", 100);
         Global_TX_Database = safeProps.getProperty("Global_TX_Database");
         Local_TX_Database  = safeProps.getProperty("Local_TX_Database");
-        
+
         File gTxDb = null;
         File lTxDb = null;
-        try{
-            gTxDb = org.openejb.util.FileUtils.getFile( Global_TX_Database );
-        } catch (Exception e){
+        try {
+            gTxDb = org.openejb.util.FileUtils.getBase().getFile( Global_TX_Database );
+        } catch (Exception e) {
             throw new OpenEJBException("Cannot locate the Global_TX_Database file. "+e.getMessage()); 
         }
-        try{
-            lTxDb = org.openejb.util.FileUtils.getFile( Local_TX_Database );
-        } catch (Exception e){
+        try {
+            lTxDb = org.openejb.util.FileUtils.getBase().getFile( Local_TX_Database );
+        } catch (Exception e) {
             throw new OpenEJBException("Cannot locate the Local_TX_Database file. "+e.getMessage()); 
         }
 
@@ -443,6 +399,25 @@ public class CastorCMP11_EntityContainer
         resetMap.put(float.class, new Float(0));
         resetMap.put(double.class, new Double(0.0));        
     }
+    
+    boolean initialized;
+    protected void postInit() {
+        if (initialized) return;
+
+        String userDir = System.getProperty("user.dir");
+        try{
+            System.setProperty("user.dir",System.getProperty("openejb.base"));
+            jdo_ForLocalTransaction.getDatabase();
+            jdo_ForGlobalTransaction.getDatabase();
+
+        } catch (Throwable e){
+            //e.printStackTrace();
+            //throw new org.openejb.SystemException("DB thing failed",e);
+        } finally {
+            initialized = true;
+            System.setProperty("user.dir",userDir);
+        }
+    }
     //===============================
     // begin Container Implementation
     //
@@ -522,6 +497,7 @@ public class CastorCMP11_EntityContainer
     public Object invoke(Object deployID, Method callMethod,Object [] args,Object primKey, Object securityIdentity)
     throws org.openejb.OpenEJBException
     {
+        postInit();
         try {
             org.openejb.core.DeploymentInfo deployInfo = (org.openejb.core.DeploymentInfo)this.getDeploymentInfo(deployID);
 
@@ -595,7 +571,7 @@ public class CastorCMP11_EntityContainer
     //============================================
     // begin methods unique to this implementation
     //
-    
+
     /**
      * Discards this instance so that it may be garbage collected
      * 
@@ -624,12 +600,12 @@ public class CastorCMP11_EntityContainer
     public EntityBean fetchFreeInstance(ThreadContext callContext) throws IllegalAccessException, InvocationTargetException, InstantiationException{
 
         org.openejb.core.DeploymentInfo deploymentInfo = callContext.getDeploymentInfo();
-        
+
         /*
         Obtain the stack of instances of this deployment that are in the method ready state.
         */
         Stack methodReadyPool = (Stack)methodReadyPoolMap.get(deploymentInfo.getDeploymentID());
-        
+
         if ( methodReadyPool == null ) {
             // TODO:3: Localize this message
             throw new java.lang.RuntimeException("Invalid deployment id "+deploymentInfo.getDeploymentID()+" for this container");
@@ -641,7 +617,7 @@ public class CastorCMP11_EntityContainer
         //DMB: This is funny, pop will always return null because we _never_ add 
         // any instances to the stack.  What is the point of this pool?
         EntityBean bean = (EntityBean)methodReadyPool.pop();
-        
+
         if ( bean == null ) {
             byte currentOperation = callContext.getCurrentOperation();
             try {
@@ -683,7 +659,7 @@ public class CastorCMP11_EntityContainer
     {
 
         EntityBean bean = null;
-        
+
         TransactionPolicy txPolicy = callContext.getDeploymentInfo().getTransactionPolicy( callMethod );
         TransactionContext txContext = new TransactionContext( callContext );
 
@@ -696,20 +672,21 @@ public class CastorCMP11_EntityContainer
 
             bean = fetchAndLoadBean(callContext, db);
             //logger.debug("Invoking business method on "+bean);
-	    if ( OpenEJB.getTransactionManager().getTransaction() != null )
-	    {
-            try {
-            Key key = new Key( OpenEJB.getTransactionManager().getTransaction(), 
-                               callContext.getDeploymentInfo().getDeploymentID(), 
-                               callContext.getPrimaryKey());
-            SynchronizationWrapper sync = new SynchronizationWrapper( ((javax.ejb.EntityBean)bean), key );
+            if ( OpenEJB.getTransactionManager().getTransaction() != null ) {
+                try {
+                    Key key = new Key( OpenEJB.getTransactionManager().getTransaction(), 
+                                       callContext.getDeploymentInfo().getDeploymentID(), 
+                                       callContext.getPrimaryKey());
+                    SynchronizationWrapper sync = new SynchronizationWrapper( ((javax.ejb.EntityBean)bean), key );
 
-            OpenEJB.getTransactionManager().getTransaction().registerSynchronization( sync );
+                    OpenEJB.getTransactionManager().getTransaction().registerSynchronization( sync );
 
-            syncWrappers.put( key, sync );
-            } catch ( Exception ex ) { ex.printStackTrace(); }
-	   }
- 
+                    syncWrappers.put( key, sync );
+                } catch ( Exception ex ) {
+                    ex.printStackTrace();
+                }
+            }
+
             returnValue = runMethod.invoke(bean, args);
 
         } catch ( java.lang.reflect.InvocationTargetException ite ) {
@@ -717,7 +694,7 @@ public class CastorCMP11_EntityContainer
             if ( ite.getTargetException() instanceof RuntimeException ) {
                 /* System Exception ****************************/
                 txPolicy.handleSystemException( ite.getTargetException(), bean, txContext);
-            
+
             } else {
                 /* Application Exception ***********************/
                 txPolicy.handleApplicationException( ite.getTargetException(), txContext);
@@ -774,7 +751,7 @@ public class CastorCMP11_EntityContainer
         return returnValue;
 
 
-            }
+    }
 
     /**
      * This method is responsible for delegating the ejbCreate() and 
@@ -819,7 +796,7 @@ public class CastorCMP11_EntityContainer
               Set the context for allowed operations 
             */
             callContext.setCurrentOperation(Operations.OP_CREATE);
-            
+
             /* 
               Invoke the proper ejbCreate() method on the instance 
             */
@@ -832,12 +809,12 @@ public class CastorCMP11_EntityContainer
                   Get the JDO database for this deployment
                 */
                 Database db = getDatabase(callContext);
-                
+
                 /*  
                   Create a Castor Transaction if there isn't one in progress
                 */
                 if ( !db.isActive() ) db.begin();
-                    
+
                 /*  
                   Use Castor JDO to insert the entity bean into the database 
                 */
@@ -969,16 +946,16 @@ public class CastorCMP11_EntityContainer
      * @exception org.openejb.OpenEJBException
      */
     protected Object findEJBObject(Method callMethod, Object [] args, ThreadContext callContext) throws org.openejb.OpenEJBException {
-        
+
         org.openejb.core.DeploymentInfo deploymentInfo = (org.openejb.core.DeploymentInfo)callContext.getDeploymentInfo();
 
         QueryResults       results     = null;
         Object             returnValue = null;
         EntityBean         bean        = null;
-        
+
         /* Obtain the OQL statement that matches the find method of the remote interface  */
         String             queryString = deploymentInfo.getQuery(callMethod);
-                
+
         /* Get the transaction policy assigned to this method */
         TransactionPolicy  txPolicy    = callContext.getDeploymentInfo().getTransactionPolicy( callMethod );
         TransactionContext txContext   = new TransactionContext( callContext );
@@ -987,7 +964,7 @@ public class CastorCMP11_EntityContainer
 
 
         try {
-            
+
             /*  
               Get the JDO database for this deployment
             */
@@ -997,7 +974,7 @@ public class CastorCMP11_EntityContainer
               Create a Castor Transaction if there isn't one in progress
             */
             if ( !db.isActive() ) db.begin();
-            
+
             /*  
               Obtain a OQLQuery object based on the String query 
             */
@@ -1007,7 +984,7 @@ public class CastorCMP11_EntityContainer
             if ( callMethod.getName().equals("findByPrimaryKey") ) {
                 // bind complex primary key to query
                 KeyGenerator kg = deploymentInfo.getKeyGenerator();
-                
+
                 if ( kg.isKeyComplex() ) {
                     /*
                     * This code moves the fields of the primary key into a JDO Complex object 
@@ -1021,8 +998,8 @@ public class CastorCMP11_EntityContainer
             }
 
 
-            if ( args == null ) args = noArgs; 
-            
+            if ( args == null ) args = noArgs;
+
             for ( int i = 0; i < args.length; i++ ) {
                 if ( args[i] instanceof javax.ejb.EJBObject ) {
                     /*
@@ -1089,7 +1066,7 @@ public class CastorCMP11_EntityContainer
                 while ( results.hasMore() ) {
                     /*  Fetch the next entity bean from the query results */
                     bean = (EntityBean)results.next();
-                    
+
                     /* 
                     The KeyGenerator creates a new primary key and populates its fields with the 
                     primary key fields of the bean instance.  Each deployment has its own KeyGenerator.
@@ -1098,10 +1075,10 @@ public class CastorCMP11_EntityContainer
                     /*   create a new ProxyInfo based on the deployment info and primary key and add it to the vector */
                     proxies.addElement(new ProxyInfo(deploymentInfo, primaryKey, deploymentInfo.getRemoteInterface(), this));
                 }
-		if ( callMethod.getReturnType() == java.util.Enumeration.class )
-	                returnValue = new org.openejb.util.Enumerator(proxies);
-		else
-			returnValue = proxies;
+                if ( callMethod.getReturnType() == java.util.Enumeration.class )
+                    returnValue = new org.openejb.util.Enumerator(proxies);
+                else
+                    returnValue = proxies;
             } else {
                 /*  Fetch the entity bean from the query results */
                 if ( !results.hasMore() )
@@ -1178,11 +1155,13 @@ public class CastorCMP11_EntityContainer
         Object             returnValue = null;
         TransactionContext txContext   = new TransactionContext( callContext );
         TransactionPolicy  txPolicy    = callContext.getDeploymentInfo().getTransactionPolicy( callMethod );
-        
+
         txPolicy.beforeInvoke( bean, txContext );
 
         try {
-            if ( OpenEJB.getTransactionManager().getStatus() == Status.STATUS_ACTIVE ) {
+            int status = OpenEJB.getTransactionManager().getStatus();
+            // are the other statuses possible here ?
+            if ( status == Status.STATUS_ACTIVE || status == Status.STATUS_NO_TRANSACTION ) {
 
                 /*  
                   Get the JDO database for this deployment
@@ -1193,18 +1172,14 @@ public class CastorCMP11_EntityContainer
                   Create a Castor Transaction if there isn't one in progress
                 */
                 if ( !db.isActive() ) db.begin();
-                    
+
                 bean = fetchAndLoadBean(callContext, db);
 
                 callContext.setCurrentOperation(Operations.OP_REMOVE);
                 EJB_REMOVE_METHOD.invoke(bean, null);
 
                 db.remove(bean);
-
-            } else if ( OpenEJB.getTransactionManager().getStatus() == Status.STATUS_NO_TRANSACTION ) {
-                // DMB: Strange use of else if, there is no code!?
             }
-        
         } catch ( java.lang.reflect.InvocationTargetException ite ) {
             // handle enterprise bean exceptions
             if ( ite.getTargetException() instanceof RuntimeException ) {
@@ -1437,7 +1412,7 @@ public class CastorCMP11_EntityContainer
             logger.error("Internal inconsistency accessing the fields of a CMP entity bean"+bean+":"+ e);
         }
     }
-    
+
     /******************************************************************************
     *                                                                             *
     *             CallbackInterceptor methods                                     *
@@ -1455,23 +1430,23 @@ public class CastorCMP11_EntityContainer
      * @param The class loader to use when creating the object
      */
     public Object newInstance( String className, ClassLoader loader ) {
-		
-		Object obj =null;
 
-		try {
-			obj = fetchFreeInstance( ThreadContext.getThreadContext() );
-		} catch (IllegalAccessException iae) {
+        Object obj =null;
+
+        try {
+            obj = fetchFreeInstance( ThreadContext.getThreadContext() );
+        } catch (IllegalAccessException iae) {
             throw new RuntimeException( iae.getLocalizedMessage() );
-		} catch (InvocationTargetException ite) {
+        } catch (InvocationTargetException ite) {
             throw new RuntimeException( ite.getLocalizedMessage() );
-		} catch (InstantiationException ie) {
+        } catch (InstantiationException ie) {
             throw new RuntimeException( ie.getLocalizedMessage() );
-		}
+        }
 
-		return obj;
-	}
-    
-	/**
+        return obj;
+    }
+
+    /**
      * Called to indicate that the object has been loaded from persistent
      * storage.
      *
@@ -1588,19 +1563,19 @@ public class CastorCMP11_EntityContainer
         Object deploymentID, primaryKey;
         Transaction transaction;
 
-        public Key(Transaction tx, Object depID, Object prKey){
+        public Key(Transaction tx, Object depID, Object prKey) {
             transaction = tx;
             deploymentID = depID;
             primaryKey = prKey;
         }
-        public int hashCode( ){
+        public int hashCode( ) {
             return transaction.hashCode()^deploymentID.hashCode()^primaryKey.hashCode();
         }
-        public boolean equals(Object other){
-            if(other != null && other.getClass() == CastorCMP11_EntityContainer.Key.class){
+        public boolean equals(Object other) {
+            if (other != null && other.getClass() == CastorCMP11_EntityContainer.Key.class) {
                 Key otherKey = (Key)other;
-                if(otherKey.transaction.equals(transaction) && otherKey.deploymentID.equals(deploymentID) && otherKey.primaryKey.equals(
-primaryKey))
+                if (otherKey.transaction.equals(transaction) && otherKey.deploymentID.equals(deploymentID) && otherKey.primaryKey.equals(
+                                                                                                                                        primaryKey))
                     return true;
             }
             return false;
@@ -1608,30 +1583,30 @@ primaryKey))
     }
 
     public  class SynchronizationWrapper
-    implements javax.transaction.Synchronization{
-         EntityBean bean;
-         Key myIndex; 
-         public SynchronizationWrapper(EntityBean ebean, Key key){
-                bean = ebean; 
-                myIndex = key;
-         }
-         public void beforeCompletion(){ 
-                try{
-                    bean.ejbStore();
-                }catch(Exception re){
-                    javax.transaction.TransactionManager txmgr = OpenEJB.getTransactionManager();
-                    try{
+    implements javax.transaction.Synchronization {
+        EntityBean bean;
+        Key myIndex; 
+        public SynchronizationWrapper(EntityBean ebean, Key key) {
+            bean = ebean; 
+            myIndex = key;
+        }
+        public void beforeCompletion() {
+            try {
+                bean.ejbStore();
+            } catch (Exception re) {
+                javax.transaction.TransactionManager txmgr = OpenEJB.getTransactionManager();
+                try {
                     txmgr.setRollbackOnly(); 
-                    }catch(javax.transaction.SystemException se){
-                        // log the exception
-                    }
- 
+                } catch (javax.transaction.SystemException se) {
+                    // log the exception
                 }
-         }
-         public void afterCompletion(int status){
-                syncWrappers.remove( myIndex );
-         }
- 
+
+            }
+        }
+        public void afterCompletion(int status) {
+            syncWrappers.remove( myIndex );
+        }
+
     }
 
 }

@@ -3,13 +3,53 @@ OpenEJB -- EJB Container System and EJB Server
 
  THANK YOU to our community for your support.
 
-OpenEJB 0.9            http://openejb.sf.net/
+OpenEJB 0.9.2            http://openejb.sf.net/
 -----------------------------------------------
 
 OpenEJB would like to thank the our community members
 for their feedback, patches, time and support.  
 
 OpenEJB is a better project as a result of you!
+
+**** CREDITS for version 0.9.2 ****
+    
+    --Feedback and Direction by--
+  Gareth Webber
+  Deepa Chopra
+  Daniel S. Haischt
+  Zack Angelo
+  Jeremy Whitlock
+  Terry McGregor
+  Daniel Norin
+  Marcello Schmidt
+  William Byrne            
+
+    --Code and Documentation Contributions by--
+  David Blevins
+  Alan Cabrera
+  Tim Urberg
+  Jacek Laskowski
+  Mykola A. Nickishov
+  Gareth Webber
+  
+    --Release by--
+  David Blevins
+
+**** CREDITS for version 0.9.1 ****
+
+    --Feedback and Direction by--
+  Daniel S. Haischt
+  Zack Angelo
+  Jeremy Whitlock
+    
+    --Code and Documentation Contributions by--
+  Alan Cabrera
+  Jacek Laskowski
+  Tim Urberg
+  David Blevins
+  
+    --Release by--
+  Alan Cabrera
 
 **** CREDITS for version 0.9.0 ****
 
@@ -49,8 +89,8 @@ OpenEJB is a better project as a result of you!
     --OpenEJB Sponsors--
   Apple Computer, Inc. [http://www.apple.com]
     
-    We would like to thank Intalio, Inc. for their
-  continued support and use of OpenEJB.
+    We would like to thank Apple Computer, Inc. for
+  their continued support and use of OpenEJB.
     Very special thanks to Stefan Reich and the 
   WebObjects team for their support and feedback.
   

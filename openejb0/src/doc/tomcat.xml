@@ -7,17 +7,40 @@
   <sideimg src="images/diagram-tomcat-adapter.gif" width="240" height="500"/>
 
 <section title="Introduction" ref-id="intro">
+<p>The short story of setting up the OpenEJB/Tomcat integration for OpenEJB 0.9.2 is:
+<ol>
+  <li>Copy the openejb_loader-0.9.2.war into the webapps dir of a running Tomcat install</li>
+  <li>Update the openejb.home init param to point to where OpenEJB was installed</li>
+  <li>Restart Tomcat</li>
+  <li>Browse to http://localhost:8080/openejb_loader-0.9.2/index.html</li>
+</ol>
+</p>
 <p>
-Servlets can access beans from OpenEJB using either the Local (IntraVM) Server 
-or the default Remote Server
-</p> 
+That will get you an OpenEJB instance running right inside Tomcat, so everything is local and 
+there is no need for an EJB server process running externally.  You can run the Remote server 
+at the same time, but the OpenEJB instance in it will be separate from the one in Tomcat.
+</p>
 
+<p>The 0.9.2 release of OpenEJB contains some neat Tomcat integration tools:
+<ul>
+  <li>A JNDI browser</li>
+  <li>A Class browser</li>
+  <li>An EJB viewer</li>
+  <li>An Object invoker</li>
+</ul>
+</p>
 <p>
 This document is a starting point for using OpenEJB in Tomcat and will evolve based 
 on user contributions.  If you wish to contribute to this document, please email the
 text to the <a href="lists.html#openejb-user">OpenEJB User list</a>.
+<ul>
+<li><A HREF="tomcat-howitworks.html">How does the integration work</A></li>
+<li><A HREF="tomcat-ejbclasses.html">Where to put your ejb classes</A></li>
+<li><A HREF="tomcat-ejbrefs.html">How to configure java:comp/env lookups (short)</A></li>
+<li><a href="tomcat-object-factory.html">How to configure java:comp/env lookups (detailed)</a></li>
+</ul>
 </p>
-
+<!--
 <p>
 <ul>
 Local Server:
@@ -25,6 +48,7 @@ Local Server:
 <li><a href="tomcat-setup-win.html">OpenEJB and Tomcat setup (Windows)</a></li> 
 </ul>
 </p>
+-->
 
 <p>
 <ul>

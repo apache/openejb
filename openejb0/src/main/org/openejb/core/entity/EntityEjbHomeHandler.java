@@ -146,8 +146,8 @@ public class EntityEjbHomeHandler extends EjbHomeProxyHandler {
             }
                 return new org.openejb.util.ArrayEnumeration(proxies);
         } else {
-            org.openejb.ProxyInfo proxyInfo = (org.openejb.ProxyInfo)
-              container.invoke(deploymentID,method,args,null, getThreadSpecificSecurityIdentity());
+            org.openejb.ProxyInfo proxyInfo = (org.openejb.ProxyInfo) retValue;
+
 
             return createProxy(proxyInfo); 
         }
@@ -196,3 +196,4 @@ public class EntityEjbHomeHandler extends EjbHomeProxyHandler {
     }
     
 }
+

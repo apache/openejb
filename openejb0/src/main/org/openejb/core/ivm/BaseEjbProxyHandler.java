@@ -285,6 +285,14 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
 	     cntextValid = true;
         }
 
+        //*********HACK**********//
+        //String userDir = System.getProperty("user.dir");
+        String jndiEnc = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
+
+        //System.setProperty("user.dir",System.getProperty("openejb.home"));
+        System.setProperty(javax.naming.Context.URL_PKG_PREFIXES,"org.openejb.core.ivm.naming");
+        //*********HACK**********//
+        
         // the four operations on IntraVmCopyMonitor are quite expensive, because
         // all of them require a Thread.currentThread() operation, which is native code
         try{
@@ -319,6 +327,9 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
                 return _invoke(proxy,method,args);
             }
         } finally {
+            //System.setProperty("user.dir",userDir);
+            System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, jndiEnc);
+            
             // restore the context
             if(cntextValid){
                 cntext.set(depInfo, prmryKey, scrtyIdentity);

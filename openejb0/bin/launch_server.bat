@@ -3,7 +3,7 @@ REM $Id$
 
 if "%OPENEJB_HOME%"=="" set OPENEJB_HOME=%CD%
 
-set JAVA=%JAVA_HOME%\bin\java
+set JAVA="%JAVA_HOME%\bin\java"
 
 set CP=
 for %%i in (%OPENEJB_HOME%\dist\openejb*.jar) do call cp.bat %%i
@@ -21,7 +21,7 @@ set CP=%OPENEJB_HOME%\lib\log4j-1.2.1.jar;%CP%
 set CP=%OPENEJB_HOME%\lib\xercesImpl-2.0.2.jar;%CP%
 set CP=%OPENEJB_HOME%\lib\xmlParserAPIs-2.0.2.jar;%CP%
 
-set CP=%JAVA_HOME%\lib\tools.jar;%CP%
+set CP="%JAVA_HOME%\lib\tools.jar";%CP%
 
 REM   Launch the naming server
 REM ######################################

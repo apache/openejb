@@ -18,6 +18,12 @@ openejb deploy [options] jarfiles
 
 <section title="NOTE" ref-id="note">
 <p>
+    The OpenEJB Deploy tool is an OPTIONAL tool that creates  the <b>openejb-jar.xml</b> file 
+    required for your bean to be loaded into the container system at startup.  If you want to create 
+    or maintain that openejb-jar.xml file yourself, you don't need the Deploy tool at all.  For more
+    information, see the <a href="faq_openejb-jar.html">openejb-jar.xml FAQ</a>
+</p>
+<p>
 The OpenEJB Deploy tool must be executed from the OPENEJB_HOME directory.  This is the 
 directory where OpenEJB was installed or unpacked.  For for the remainder of this document
 we will assume you unpacked OpenEJB into the directory C:\openejb.

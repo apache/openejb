@@ -6,13 +6,13 @@ REM      David Blevins <david.blevins@visi.com>
 
 if "%OPENEJB_HOME%"=="" set OPENEJB_HOME=%CD%
 
-set JAVA=%JAVA_HOME%\bin\java
+set JAVA="%JAVA_HOME%\bin\java"
 
 set CP=
 for %%i in (%OPENEJB_HOME%\dist\*.jar) do call cp.bat %%i
 
 set CP=%OPENEJB_HOME%\lib\junit_3.8.1.jar;%CP%
-set CP=%JAVA_HOME%\lib\tools.jar;%CP%
+set CP="%JAVA_HOME%\lib\tools.jar";%CP%
 
 set PROPERTIES=-Dopenejb.testsuite.properties=%1
 set SERVER=-Dopenejb.test.server=%2
