@@ -56,13 +56,17 @@
             <j:set var="dependency" value="${artifact.dependency}"/>
             <j:if test="${dependency.getProperty('lib') == 'true'}">
                 <ant:copy todir="${libDir}" file="${artifact.path}"/>
-                <j:set var="classpath" value="${classpath} ../lib/${artifact.name}"/>
+                <j:set var="classpathEntry" value="../lib/${artifact.name}"/>
             </j:if>
             <j:if test="${dependency.getProperty('endorsed') == 'true'}">
                 <ant:copy todir="${libDir}/endorsed" file="${artifact.path}"/>
+                <j:set var="classpathEntry" value="../lib/endorsed/${artifact.name}"/>
             </j:if>
             <j:if test="${dependency.getProperty('server') == 'true'}">
-                <j:set var="server.classpath" value="${server.classpath} ../lib/${artifact.name}"/>
+                <j:set var="server.classpath" value="${server.classpath} ${classpathEntry}"/>
+            </j:if>
+            <j:if test="${dependency.getProperty('deploy') == 'true'}">
+                <j:set var="deploy.classpath" value="${deploy.classpath} ${classpathEntry}"/>
             </j:if>
             <j:if test="${dependency.getProperty('deploy') == 'true'}">
                 <j:set var="deploy.classpath" value="${deploy.classpath} ../lib/${artifact.name}"/>
