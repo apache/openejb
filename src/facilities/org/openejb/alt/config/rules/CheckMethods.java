@@ -73,8 +73,8 @@ public class CheckMethods implements ValidationRule {
         Class intrface  = null;
         Class beanClass = null;
         try {
-            intrface  = SafeToolkit.loadClass( b.getRemote() , set.getJarPath() );
-            beanClass = SafeToolkit.loadClass( b.getEjbClass() , set.getJarPath() );
+            intrface  = SafeToolkit.loadClass( b.getRemote() , set.getJarPath(), false );
+            beanClass = SafeToolkit.loadClass( b.getEjbClass() , set.getJarPath(), false );
         } catch ( OpenEJBException e ) {
             return;
         }
@@ -109,8 +109,8 @@ public class CheckMethods implements ValidationRule {
         Class home  = null;
         Class bean = null;
         try {
-            home = SafeToolkit.loadClass( b.getHome() , set.getJarPath() );
-            bean = SafeToolkit.loadClass( b.getEjbClass() , set.getJarPath() );
+            home = SafeToolkit.loadClass( b.getHome() , set.getJarPath(), false );
+            bean = SafeToolkit.loadClass( b.getEjbClass() , set.getJarPath(), false );
         } catch ( OpenEJBException e ) {
             return;
         }
