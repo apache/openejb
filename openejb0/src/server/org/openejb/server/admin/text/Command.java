@@ -58,9 +58,8 @@ import org.apache.regexp.RE;
 public class Command {
 
 
-    //protected static HashMap commands = new HashMap();
-    protected static HashMap commands = null;
-    
+    protected static HashMap commands = new HashMap();
+
     static{
         loadCommandList();
     }
@@ -70,14 +69,14 @@ public class Command {
     protected static void register(String name, Command cmd){
         commands.put(name, cmd);
     }
-    
+
     protected static void register(String name, Class cmd){
         commands.put(name, cmd);
     }
 
     public static Command getCommand(String name){
         Object cmd = commands.get(name);
-        
+
         if ( cmd instanceof Class ) {
             cmd = loadCommand((Class)cmd);
             register(name, (Command)cmd);
@@ -87,11 +86,11 @@ public class Command {
     }
 
     // - Public methods - //
-    
+
     public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
         out.println("not implemented");
     }
-    
+
 
     // - Protected methods - //
     protected static Command loadCommand(Class commandClass) {
@@ -104,43 +103,23 @@ public class Command {
 
         return cmd;
     }
-  
+
 
     /*
-    TODO: 
+    TODO:
     - Create the basic list in ant
     - Add the regexp package to the ant scripts
     - update the loadCommandList to read the list
       made in the ant script
-    
+
     */
     protected static void loadCommandList() {
-        try{
-            Command.commands = new HashMap();
-            URL dir = new URL("resource:/openejb/server/commandlist.txt");
-            DataInputStream in = new DataInputStream(dir.openStream());
-
-
-            RE r = new RE("href=.([A-Za-z]*).java");
-
-            Class[]  params = new Class[0];
-            String line = in.readLine();
-            while (line != null) {
-                if ( r.match(line) ){
-                    String cmdName = r.getParen(1);
-                    try{
-                        Class clazz = Class.forName("org.openejb.server.admin.text."+cmdName);
-                        java.lang.reflect.Method register = clazz.getMethod("register", params);
-                        register.invoke(null, null);
-                    }catch(Throwable e){
-                        //e.printStackTrace();
-                    }
-                }
-                line = in.readLine();
-            }
-        } catch (Throwable t){
-            t.printStackTrace();
-        }
+        Exit.register();
+        Help.register();
+        Lookup.register();
+        Ls.register();
+        Stop.register();
+        Version.register();
     }
 }
 

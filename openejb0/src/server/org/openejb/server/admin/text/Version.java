@@ -57,7 +57,7 @@ public class Version extends Command {
     public static void register() {
         Command.register("version", Version.class);
     }
-    
+
     public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
         /*
          * Output startup message

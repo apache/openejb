@@ -56,7 +56,7 @@ public class Prompt extends Command {
     public static void _DONT_register() {
         Command.register("prompt", Prompt.class);
     }
-    
+
     public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
         try{
             if (args.length == 0) return;
