@@ -261,7 +261,7 @@ public final class GSSUPContext implements GSSContextSpi {
 
         if (credential == null) return new byte[0];
 
-        return Util.encodeGSSUPToken(Util.getORB(), Util.getCodec(), credential.getUsername(), credential.getPassword(), "GSSUP-REALM");
+        return Util.encodeGSSUPToken(Util.getORB(), Util.getCodec(), credential.getUsername(), new String(credential.getPassword()), "GSSUP-REALM");
     }
 
     public Provider getProvider() {

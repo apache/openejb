@@ -193,7 +193,7 @@ public final class Util {
         try {
             byte[] oid_arr = encodeOID(oid);
             int oid_len = oid_arr.length;
-            byte[] name_arr = name.getBytes();
+            byte[] name_arr = name.getBytes("UTF-8");
             int name_len = name_arr.length;
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -294,7 +294,7 @@ public final class Util {
      * @param target The target name.
      * @return The byte array of the ASN1 encoded GSSToken.
      */
-    public static byte[] encodeGSSUPToken(ORB orb, Codec codec, String user, char[] pwd, String target) {
+    public static byte[] encodeGSSUPToken(ORB orb, Codec codec, String user, String pwd, String target) {
         byte[] result = null;
         try {
             // write the GSS ASN tag
@@ -303,10 +303,9 @@ public final class Util {
 
             // create and encode a GSSUP initial context token
             InitialContextToken init_token = new InitialContextToken();
-            init_token.username = user.getBytes();
+            init_token.username = (user + "@" + target).getBytes("UTF-8");
 
-            String password = new String(pwd);
-            init_token.password = password.getBytes();
+            init_token.password = pwd.getBytes("UTF-8");
 
             init_token.target_name = encodeGSSExportName(GSSUPMechOID.value.substring(4), target);
 
