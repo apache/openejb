@@ -131,7 +131,6 @@ public class OpenEJB {
      * @since JDK 1.2
      */
     public static void init(Properties props, ApplicationServer appServer) throws OpenEJBException{
-        BasicConfigurator.configure();
         SecurityManager sm = System.getSecurityManager();
         if (sm == null) {
             try{
