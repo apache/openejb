@@ -1628,7 +1628,17 @@ public class Logger {
             }
             return props;
         }
-        public Properties filterProperties(Properties props){
+
+        public Properties filterProperties(Properties props) throws Exception{
+            Object[] names = props.keySet().toArray();
+            for (int i=0; i < names.length; i++){
+                String name = (String)names[i];
+                if (name.endsWith(".File")) {
+                    String path = props.getProperty(name);
+                    path = FileUtils.getBase().getFile(path,false).getPath();
+                    props.setProperty(name, path);
+                }
+            }
             return props;
         }
         /**
