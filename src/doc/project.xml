@@ -82,6 +82,10 @@
         <url>http://sourceforge.net/tracker/index.php?group_id=44351&amp;atid=439277</url>
         <display>Request Feature</display>
       </navLink>
+      <navLink>
+        <url>faq.xml</url>
+        <display>FAQ</display>
+      </navLink>
     </section>
     
     <section name="Servers">
