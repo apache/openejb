@@ -47,6 +47,11 @@
  */
 package org.openejb.deployment;
 
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.security.auth.Subject;
+import javax.security.jacc.EJBMethodPermission;
+import javax.security.jacc.EJBRoleRefPermission;
 import java.lang.reflect.Method;
 import java.security.Permission;
 import java.security.Permissions;
@@ -55,19 +60,18 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import javax.security.auth.Subject;
-import javax.security.jacc.EJBMethodPermission;
-import javax.security.jacc.EJBRoleRefPermission;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.deploy.AutoMapAssistant;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
 import org.apache.geronimo.xbeans.j2ee.ExcludeListType;
@@ -76,6 +80,7 @@ import org.apache.geronimo.xbeans.j2ee.MethodType;
 import org.apache.geronimo.xbeans.j2ee.RoleNameType;
 import org.apache.geronimo.xbeans.j2ee.SecurityIdentityType;
 import org.apache.geronimo.xbeans.j2ee.SecurityRoleRefType;
+
 import org.openejb.security.SecurityConfiguration;
 
 
@@ -129,7 +134,7 @@ class SecurityBuilder {
         /**
          * Add the default subject
          */
-        builder.setDefaultSubject(createDefaultSubject(security));
+        builder.setDefaultSubject(generateDefaultSubject(security));
 
         /**
          * JACC v1.0 section 3.1.5.1
@@ -287,16 +292,48 @@ class SecurityBuilder {
         }
     }
 
-    private Subject createDefaultSubject(Security security) {
+    /**
+     * Generate the default principal from the security config.
+     *
+     * @param security The Geronimo security configuration.
+     * @return the default principal
+     */
+    protected Subject generateDefaultSubject(Security security) throws GeronimoSecurityException {
 
+        DefaultPrincipal defaultPrincipal = security.getDefaultPrincipal();
+        if (defaultPrincipal == null) {
+            AutoMapAssistant config = security.getAssistant();
+            try {
+                if (config != null) {
+                    Set assistants = moduleBuilder.getKernel().listGBeans(new ObjectName("geronimo.security:type=SecurityRealm,realm=" + config.getSecurityRealm()));
+                    if (assistants.size() < 1 || assistants.size() > 1) throw new GeronimoSecurityException("Only one auto mapping assistant should match " + config.getSecurityRealm());
+
+                    org.apache.geronimo.security.realm.AutoMapAssistant assistant = (org.apache.geronimo.security.realm.AutoMapAssistant) assistants.iterator().next();
+                    org.apache.geronimo.security.deploy.Principal principal = assistant.obtainDefaultPrincipal();
+                    defaultPrincipal = new DefaultPrincipal();
+                    defaultPrincipal.setPrincipal(principal);
+                    defaultPrincipal.setRealmName(((SecurityRealm) assistant).getRealmName());
+                }
+            } catch (MalformedObjectNameException e) {
+                throw new GeronimoSecurityException("Bad object name geronimo.security:type=SecurityRealm,realm=" + config.getSecurityRealm());
+            }
+        }
+        if (defaultPrincipal == null) throw new GeronimoSecurityException("Unable to generate default principal");
+
+        return generateDefaultSubject(security, defaultPrincipal);
+    }
+
+    protected Subject generateDefaultSubject(Security security, DefaultPrincipal defaultPrincipal) throws GeronimoSecurityException {
         Subject defaultSubject = new Subject();
 
-        DefaultPrincipal principal = security.getDefaultPrincipal();
-
-        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal.getPrincipal(), principal.getRealmName());
-        if (realmPrincipal == null) throw new GeronimoSecurityException("Unable to create realm principal");
-        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(principal.getPrincipal(), principal.getRealmName());
-        if (primaryRealmPrincipal == null) throw new GeronimoSecurityException("Unable to create primary realm principal");
+        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
+        if (realmPrincipal == null) {
+            throw new GeronimoSecurityException("Unable to create realm principal");
+        }
+        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
+        if (primaryRealmPrincipal == null) {
+            throw new GeronimoSecurityException("Unable to create primary realm principal");
+        }
 
         defaultSubject.getPrincipals().add(realmPrincipal);
         defaultSubject.getPrincipals().add(primaryRealmPrincipal);
@@ -339,6 +376,126 @@ class SecurityBuilder {
             throw new DeploymentException(e);
         }
 
+    }
+
+    protected void addRoleMappings(SecurityConfiguration securityConfiguration,
+                                   SecureBuilder builder,
+                                   Security security,
+                                   SecurityIdentityType securityIdentity)
+            throws DeploymentException {
+
+        String runAsName = ((securityIdentity != null && securityIdentity.getRunAs() != null) ? securityIdentity.getRunAs().getRoleName().getStringValue() : "");
+
+        autoMapRoles(securityConfiguration, builder, security, securityIdentity, runAsName);
+        addExplicitMappings(securityConfiguration, builder, security, securityIdentity, runAsName);
+
+        if (builder.getRunAs() == null) throw new DeploymentException("Role designate not found for role: " + runAsName);
+    }
+
+    protected void autoMapRoles(SecurityConfiguration securityConfiguration,
+                                SecureBuilder builder,
+                                Security security,
+                                SecurityIdentityType securityIdentity,
+                                String runAsName)
+            throws DeploymentException {
+
+        Iterator rollMappings = security.getRoleMappings().iterator();
+        AutoMapAssistant config = security.getAssistant();
+        try {
+            if (config != null) {
+                ObjectName assistantName = new ObjectName("geronimo.security:type=SecurityRealm,realm=" + config.getSecurityRealm());
+                Set assistants = moduleBuilder.getKernel().listGBeans(assistantName);
+                if (assistants.size() < 1 || assistants.size() > 1) throw new GeronimoSecurityException("Only one auto mapping assistant should match " + assistantName);
+
+                org.apache.geronimo.security.realm.AutoMapAssistant assistant = (org.apache.geronimo.security.realm.AutoMapAssistant) assistants.iterator().next();
+
+                while (rollMappings.hasNext()) {
+                    Role role = (Role) rollMappings.next();
+
+                    String roleName = role.getRoleName();
+                    Subject roleDesignate = new Subject();
+                    Set principalSet = new HashSet();
+
+                    Iterator classNames = assistant.obtainRolePrincipalClasses().iterator();
+                    while (classNames.hasNext()) {
+                        Principal principal = new Principal();
+                        principal.setClassName((String) classNames.next());
+                        principal.setPrincipalName(roleName);
+
+                        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, ((SecurityRealm) assistant).getRealmName());
+
+                        if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
+
+                        principalSet.add(realmPrincipal);
+                        roleDesignate.getPrincipals().add(realmPrincipal);
+                    }
+                    Set roleMapping = (Set) securityConfiguration.getRoleMapping().get(roleName);
+                    if (roleMapping == null) {
+                        roleMapping = new HashSet();
+                        securityConfiguration.getRoleMapping().put(roleName, roleMapping);
+                    }
+                    roleMapping.addAll(principalSet);
+
+                    if (roleDesignate.getPrincipals().size() > 0 && runAsName.equals(roleName)) {
+                        if (builder.getRunAs() != null) {
+                            builder.getRunAs().getPrincipals().addAll(roleDesignate.getPrincipals());
+                        } else {
+                            builder.setRunAs(roleDesignate);
+                        }
+                    }
+                }
+            }
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Bad object name geronimo.security:type=SecurityRealm,realm=" + config.getSecurityRealm());
+        }
+    }
+
+    protected void addExplicitMappings(SecurityConfiguration securityConfiguration,
+                                       SecureBuilder builder,
+                                       Security security,
+                                       SecurityIdentityType securityIdentity,
+                                       String runAsName)
+            throws DeploymentException {
+
+        Iterator rollMappings = security.getRoleMappings().iterator();
+        while (rollMappings.hasNext()) {
+            Role role = (Role) rollMappings.next();
+
+            String roleName = role.getRoleName();
+            Subject roleDesignate = new Subject();
+            Set principalSet = new HashSet();
+
+            Iterator realms = role.getRealms().iterator();
+            while (realms.hasNext()) {
+                Realm realm = (Realm) realms.next();
+
+                Iterator principals = realm.getPrincipals().iterator();
+                while (principals.hasNext()) {
+                    Principal principal = (Principal) principals.next();
+
+                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
+
+                    if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
+
+                    principalSet.add(realmPrincipal);
+                    if (principal.isDesignatedRunAs()) roleDesignate.getPrincipals().add(realmPrincipal);
+                }
+            }
+            Set roleMapping = (Set) securityConfiguration.getRoleMapping().get(roleName);
+            if (roleMapping == null) {
+                roleMapping = new HashSet();
+                securityConfiguration.getRoleMapping().put(roleName, roleMapping);
+            }
+            roleMapping.addAll(principalSet);
+
+            if (roleDesignate.getPrincipals().size() > 0 && runAsName.equals(roleName)) {
+                if (builder.getRunAs() != null) {
+                    builder.getRunAs().getPrincipals().addAll(roleDesignate.getPrincipals());
+                } else {
+                    builder.setRunAs(roleDesignate);
+                }
+            }
+        }
     }
 
     /**
