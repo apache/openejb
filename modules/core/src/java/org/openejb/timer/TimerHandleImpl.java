@@ -78,7 +78,7 @@ public class TimerHandleImpl implements TimerHandle, Serializable {
     public Timer getTimer() throws EJBException, IllegalStateException, NoSuchObjectLocalException {
         Kernel kernel = Kernel.getKernel(kernelName);
         try {
-            return (Timer) kernel.invoke(timerSourceName, "getWorkInfoById", new Object[] {new Long(id)}, new String[] {Long.class.getName()});
+            return (Timer) kernel.invoke(timerSourceName, "getTimerById", new Object[] {new Long(id)}, new String[] {Long.class.getName()});
         } catch (Exception e) {
             throw new EJBException(e);
         }

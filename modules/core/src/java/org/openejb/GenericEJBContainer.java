@@ -58,6 +58,7 @@ import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
+import javax.ejb.Timer;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyConfiguration;
@@ -79,6 +80,7 @@ import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
 import org.apache.geronimo.timer.ThreadPooledTimer;
+import org.apache.geronimo.timer.WorkInfo;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
@@ -340,6 +342,11 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         return securityConfiguration;
     }
 
+    public Timer getTimerById(Long id) {
+        assert timerService != null;
+        return timerService.getTimerById(id);
+    }
+
     private void setupJndi() {
         /* Add Geronimo JNDI service ///////////////////// */
         String str = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
@@ -479,6 +486,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
         infoFactory.addOperation("invoke", new Class[]{Invocation.class});
         infoFactory.addOperation("invoke", new Class[]{Method.class, Object[].class, Object.class});
+
+        infoFactory.addOperation("getTimerById", new Class[]{Long.class});
 
         infoFactory.setConstructor(new String[]{
             "ContainerID",
