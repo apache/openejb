@@ -3,7 +3,7 @@
 <openejb-jar
     xmlns="http://www.openejb.org/xml/ns/openejb-jar"
     configId="org/openejb/itests"
-    parentId="org/openjca/hsql">
+    parentId="org/openejb/connector/axion">
 
     <dependency>
         <uri>junit/jars/junit-3.8.jar</uri>
