@@ -54,6 +54,7 @@ import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 
 import org.openejb.nova.AbstractEJBContainer;
 import org.openejb.nova.EJBContainerConfiguration;
+import org.openejb.nova.SystemExceptionInterceptor;
 import org.openejb.nova.dispatch.DispatchInterceptor;
 import org.openejb.nova.transaction.TransactionContextInterceptor;
 import org.openejb.nova.util.SoftLimitedInstancePool;
@@ -76,8 +77,9 @@ public class StatelessContainer extends AbstractEJBContainer {
         pool = new SoftLimitedInstancePool(new StatelessInstanceFactory(this), 1);
 
         // set up server side interceptors
-        Interceptor firstInterceptor = new ComponentContextInterceptor(componentContext);
+        Interceptor firstInterceptor = new SystemExceptionInterceptor(getBeanClassName());
         addInterceptor(firstInterceptor);
+        addInterceptor(new ComponentContextInterceptor(componentContext));
         addInterceptor(new StatelessInstanceInterceptor(pool));
         addInterceptor(new TransactionContextInterceptor(txnManager));
         addInterceptor(new DispatchInterceptor(vtable));

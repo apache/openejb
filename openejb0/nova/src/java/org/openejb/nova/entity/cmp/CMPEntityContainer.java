@@ -53,6 +53,7 @@ import java.util.List;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 import org.openejb.nova.AbstractEJBContainer;
+import org.openejb.nova.SystemExceptionInterceptor;
 import org.openejb.nova.dispatch.DispatchInterceptor;
 import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.entity.EntityClientContainerFactory;
@@ -105,8 +106,9 @@ public class CMPEntityContainer extends AbstractEJBContainer {
 
         pool = new SoftLimitedInstancePool(new EntityInstanceFactory(componentContext, vopFactory.getInstanceContextFactory()), 1);
 
-        Interceptor firstInterceptor = new TransactionContextInterceptor(txnManager);
+        Interceptor firstInterceptor = new SystemExceptionInterceptor(getBeanClassName());
         addInterceptor(firstInterceptor);
+        addInterceptor(new TransactionContextInterceptor(txnManager));
         addInterceptor(new ComponentContextInterceptor(componentContext));
         addInterceptor(new EntityInstanceInterceptor(pool));
         addInterceptor(new DispatchInterceptor(vtable));
