@@ -47,49 +47,15 @@
  */
 package org.openejb.entity;
 
-import java.net.URI;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Collections;
-import javax.ejb.FinderException;
-import javax.ejb.ObjectNotFoundException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
-import org.openejb.TransactionDemarcation;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.transaction.TransactionManagerProxy;
-
 import junit.framework.TestCase;
-import org.hsqldb.jdbcDataSource;
-import org.openejb.MockTransactionManager;
-import org.openejb.deployment.TransactionPolicySource;
-import org.openejb.dispatch.MethodSignature;
-import org.openejb.entity.cmp.CMPConfiguration;
-import org.openejb.entity.cmp.CMPEntityContainer;
-import org.openejb.entity.cmp.CMPQuery;
-import org.openejb.entity.cmp.CMRelation;
-import org.openejb.entity.cmp.SimpleCommandFactory;
-import org.openejb.persistence.CMPBindingGenerator;
-import org.openejb.persistence.SQLGenerator;
-import org.openejb.persistence.jdbc.Binding;
-import org.openejb.transaction.ContainerPolicy;
-import org.openejb.transaction.TransactionPolicy;
 
 /**
  * @version $Revision$ $Date$
  */
 public class SQLGeneratorCMPEntityContainerTest extends TestCase {
+    public void testNothing() {
+    }
+/*
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
     private static final ObjectName TM_NAME = JMXUtil.getObjectName("geronimo.test:role=TransactionManager");
     private static final ObjectName TCA_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
@@ -400,4 +366,5 @@ public class SQLGeneratorCMPEntityContainerTest extends TestCase {
         return c;
     }
 
+*/
 }

@@ -115,7 +115,7 @@ public class StatelessInstanceInterceptorTest extends TestCase {
         private boolean removed;
 
         public MockPool(MockEJB mockEJB) {
-            ctx = new StatelessInstanceContext(null, mockEJB);
+            ctx = new StatelessInstanceContext("containerId", mockEJB, null, null);
         }
 
         public Object acquire() throws InterruptedException, Exception {
