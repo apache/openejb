@@ -49,6 +49,8 @@ package org.openejb.nova;
 
 import org.apache.geronimo.core.service.Invocation;
 
+import org.openejb.nova.transaction.TransactionContext;
+
 /**
  * Specialization of Invocation to define attributes specific to the
  * invocation of an EJB. This provides a type-safe mechanism for Interceptors
@@ -100,4 +102,18 @@ public interface EJBInvocation extends Invocation {
      * @param instanceContext the instance context to use
      */
     void setEJBInstanceContext(EJBInstanceContext instanceContext);
+
+    /**
+     * Gets the transaction context to use.  Eventhough the tx context is available from a
+     * thread local we carry it in the invocation context to avoid the extra tx cost.
+     * @return the transaction context to use
+     */
+    TransactionContext getTransactionContext();
+
+    /**
+     * Setx the transaction context to use.  Eventhough the tx context is available from a
+     * thread local we carry it in the invocation context to avoid the extra tx cost.
+     * @param transactionContext the transaction context to use
+     */
+    void setTransactionContext(TransactionContext transactionContext);
 }
