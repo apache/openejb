@@ -119,7 +119,7 @@ public class CSSCompoundSecMechConfig implements Serializable {
         msg.client_context_id = 0;
         msg.client_authentication_token = as_mech.encode();
         msg.authorization_token = sas_mech.encodeAuthorizationElement();
-        msg.identity_token = sas_mech.encodseIdentityToken();
+        msg.identity_token = sas_mech.encodeIdentityToken();
 
         ServiceContext context = new ServiceContext();
 
