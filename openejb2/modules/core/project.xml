@@ -99,6 +99,15 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee-builder</artifactId>
+            <version>&geronimo-version;</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+            
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>&geronimo-version;</version>
             <properties>
@@ -148,10 +157,19 @@
             <version>&geronimo-version;</version>
             <properties>
                 <runtime>true</runtime>
-                <xmlbeans>true</xmlbeans>
             </properties>
         </dependency>
 
+       <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-naming-builder</artifactId>
+            <version>&geronimo-version;</version>
+            <properties>
+                <runtime>true</runtime>
+                <xmlbeans>true</xmlbeans>
+            </properties>
+        </dependency>
+            
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
