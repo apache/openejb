@@ -6,3 +6,4 @@ junit*.properties
 target
 bin
 scout.log
+velocity.log
