@@ -44,6 +44,8 @@
  */
 package org.openejb.corba.util;
 
+import java.rmi.AccessException;
+import java.rmi.MarshalException;
 import java.rmi.NoSuchObjectException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -51,13 +53,22 @@ import javax.rmi.CORBA.Stub;
 import javax.rmi.CORBA.Tie;
 import javax.rmi.CORBA.UtilDelegate;
 import javax.rmi.CORBA.ValueHandler;
+import javax.transaction.InvalidTransactionException;
+import javax.transaction.TransactionRequiredException;
+import javax.transaction.TransactionRolledbackException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.INVALID_TRANSACTION;
 import org.omg.CORBA.MARSHAL;
+import org.omg.CORBA.NO_PERMISSION;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.SystemException;
+import org.omg.CORBA.TRANSACTION_REQUIRED;
+import org.omg.CORBA.TRANSACTION_ROLLEDBACK;
+import org.omg.CORBA.UNKNOWN;
 import org.omg.CORBA.portable.InputStream;
 import org.omg.CORBA.portable.OutputStream;
 
@@ -148,6 +159,27 @@ public final class UtilDelegateImpl implements UtilDelegate {
     }
 
     public RemoteException mapSystemException(SystemException ex) {
+        if (ex instanceof TRANSACTION_ROLLEDBACK) {
+            return new TransactionRolledbackException(((TRANSACTION_ROLLEDBACK) ex).getMessage());
+        }
+        if (ex instanceof TRANSACTION_REQUIRED) {
+            return new TransactionRequiredException(((TRANSACTION_REQUIRED) ex).getMessage());
+        }
+        if (ex instanceof INVALID_TRANSACTION) {
+            return new InvalidTransactionException(((INVALID_TRANSACTION) ex).getMessage());
+        }
+        if (ex instanceof OBJECT_NOT_EXIST) {
+            return new NoSuchObjectException(((OBJECT_NOT_EXIST) ex).getMessage());
+        }
+        if (ex instanceof NO_PERMISSION) {
+            return new AccessException(((NO_PERMISSION) ex).getMessage());
+        }
+        if (ex instanceof MARSHAL) {
+            return new MarshalException(((MARSHAL) ex).getMessage());
+        }
+        if (ex instanceof UNKNOWN) {
+            return new RemoteException(((UNKNOWN) ex).getMessage());
+        }
         return delegate.mapSystemException(ex);
     }
 
