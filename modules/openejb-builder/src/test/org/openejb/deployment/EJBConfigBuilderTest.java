@@ -62,6 +62,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Map;
 import java.util.List;
+import java.util.Iterator;
 import java.util.jar.JarFile;
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
@@ -85,6 +86,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -97,8 +99,8 @@ import org.tranql.sql.jdbc.JDBCUtil;
  */
 public class EJBConfigBuilderTest extends TestCase {
 
-    private static final String j2eeDomainName = "openejb.server";
-    private static final String j2eeServerName = "TestOpenEJBServer";
+    private static final String j2eeDomainName = "test";
+    private static final String j2eeServerName = "bar";
     private Repository repository = null;
     private Kernel kernel;
 
@@ -135,13 +137,12 @@ public class EJBConfigBuilderTest extends TestCase {
 
     private final ServiceReferenceBuilder serviceReferenceBuilder = new ServiceReferenceBuilder() {
         //it could return a Service or a Reference, we don't care
-        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
+        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
             return null;
         }
     };
 
     private J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, NameFactory.NULL, "testejbmodule", "testapp", NameFactory.J2EE_APPLICATION);
-    private URI defaultParentId;
 
 //    public void testCreateResourceAdapterNameQuery() throws Exception {
 //        File tempDir = null;
@@ -188,7 +189,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
         OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator(cl);
         skeletonGenerator.doStart();
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, repository, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, skeletonGenerator, repository, kernel);
 
         JarFile jarFile = DeploymentUtil.createJarFile(ejbJarFile);
         Module module = moduleBuilder.createModule(null, jarFile);
@@ -200,9 +201,7 @@ public class EJBConfigBuilderTest extends TestCase {
                     module.getConfigId(),
                     module.getType(),
                     module.getParentId(),
-                    null,
-                    j2eeDomainName,
-                    j2eeServerName,
+                    kernel,
                     j2eeApplicationName,
                     DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
                     DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
@@ -236,12 +235,12 @@ public class EJBConfigBuilderTest extends TestCase {
 
         OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator(cl);
         skeletonGenerator.doStart();
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, repository, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, skeletonGenerator, repository, kernel);
 
         File tempDir = null;
         try {
             tempDir = DeploymentUtil.createTempDir();
-            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(defaultParentId, new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(KernelHelper.DEFAULT_PARENTID,
                     DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
                     DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
                     DeploymentHelper.TRANSACTIONALTIMER_NAME,
@@ -252,7 +251,8 @@ public class EJBConfigBuilderTest extends TestCase {
                     null, null, resourceReferenceBuilder, // web
                     // connector
                     null, // app client
-                    serviceReferenceBuilder, null // kernel
+                    serviceReferenceBuilder,
+                    kernel
             );
 
             JarFile jarFile = null;
@@ -285,12 +285,12 @@ public class EJBConfigBuilderTest extends TestCase {
 
         OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator(cl);
         skeletonGenerator.doStart();
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, repository, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, skeletonGenerator, repository, kernel);
 
         File tempDir = null;
         try {
             tempDir = DeploymentUtil.createTempDir();
-            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(defaultParentId, new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(KernelHelper.DEFAULT_PARENTID,
                     DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
                     DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
                     DeploymentHelper.TRANSACTIONALTIMER_NAME,
@@ -301,7 +301,8 @@ public class EJBConfigBuilderTest extends TestCase {
                     null, null, resourceReferenceBuilder, // web
                     // connector
                     null, // app client
-                    serviceReferenceBuilder, null // kernel
+                    serviceReferenceBuilder,
+                    kernel
             );
 
             JarFile jarFile = DeploymentUtil.createJarFile(earFile);
@@ -317,9 +318,12 @@ public class EJBConfigBuilderTest extends TestCase {
     private void verifyDeployment(File tempDir, ClassLoader cl, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName) throws Exception {
         DataSource ds = null;
         try {
-            ObjectName objectName = ObjectName.getInstance("test:configuration=test-ejb-jar");
+            ObjectName objectName = Configuration.getConfigurationObjectName(URI.create("test-ejb-jar"));
+//                    ObjectName.getInstance("test:configuration=test-ejb-jar");
             GBeanData config = loadConfig(tempDir);
             config.setName(objectName);
+            config.setAttribute("baseURL", tempDir.toURL());
+            config.setAttribute("parentID", KernelHelper.DEFAULT_PARENTID);
 
             ObjectName containerIndexObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ContainerIndex");
             GBeanData containerIndexGBean = new GBeanData(containerIndexObjectName, ContainerIndex.GBEAN_INFO);
@@ -352,10 +356,18 @@ public class EJBConfigBuilderTest extends TestCase {
 
             // load the configuration
             kernel.loadGBean(config, cl);
-            kernel.setAttribute(objectName, "baseURL", tempDir.toURL());
 
             // start the configuration
             kernel.startRecursiveGBean(objectName);
+
+//            Set names = kernel.listGBeans(ObjectName.getInstance("*:*"));
+//            for (Iterator iterator = names.iterator(); iterator.hasNext();) {
+//                ObjectName name = (ObjectName) iterator.next();
+//                int state = ((Integer) kernel.getAttribute(name, "state")).intValue();
+//                if (State.RUNNING_INDEX != state) {
+//                    System.out.println("Not running: " + name);
+//                }
+//            }
             assertRunning(kernel, objectName);
 
             ObjectName applicationObjectName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=J2EEApplication,name=" + j2eeApplicationName + ",J2EEServer=" + j2eeServerName);
@@ -460,7 +472,6 @@ public class EJBConfigBuilderTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         ClassLoader cl = getClass().getClassLoader();
-        defaultParentId = new URI("org/apache/geronimo/Server");
         String str = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
         if (str == null) {
             str = ":org.apache.geronimo.naming";
@@ -469,7 +480,7 @@ public class EJBConfigBuilderTest extends TestCase {
         }
         System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
 
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager("EJBConfigBuilderTest");
+        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
         DeploymentHelper.setUpTimer(kernel);
 
         ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ServerInfo");

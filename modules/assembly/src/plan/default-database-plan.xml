@@ -49,11 +49,11 @@
     </resourceadapter>
 
     <gbean namePart="DerbySystem" class="org.apache.geronimo.derby.DerbySystemGBean">
-        <reference name="serverInfo">geronimo.server:name=ServerInfo,*</reference>
+        <reference name="serverInfo">openejb.server:name=ServerInfo,*</reference>
         <attribute name="derbySystemHome" type="java.lang.String">var/derby</attribute>
     </gbean>
     <gbean namePart="DerbyNetwork" class="org.apache.geronimo.derby.DerbyNetworkGBean">
-        <reference name="derbySystem">geronimo.server:name=DerbySystem,*</reference>
+        <reference name="derbySystem">openejb.server:name=DerbySystem,*</reference>
         <attribute name="host" type="java.lang.String">127.0.0.1</attribute>
         <attribute name="port" type="int">1527</attribute>
     </gbean>
@@ -66,14 +66,14 @@
 
     <gbean namePart="JDBCTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
         <attribute name="repeatCount" type="int">5</attribute>
-        <reference name="TransactionContextManager">geronimo.server:name=TransactionContextManager,*</reference>
-        <reference name="ManagedConnectionFactoryWrapper">geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</reference>
-        <reference name="ThreadPool">geronimo.server:name=DefaultThreadPool,*</reference>
+        <reference name="TransactionContextManager">openejb.server:name=TransactionContextManager,*</reference>
+        <reference name="ManagedConnectionFactoryWrapper">openejb.server:J2EEApplication=null,J2EEServer=openejb,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</reference>
+        <reference name="ThreadPool">openejb.server:name=DefaultThreadPool,*</reference>
     </gbean>
 
     <gbean namePart="JDBCNonTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledNonTransactionalTimer">
-        <reference name="ManagedConnectionFactoryWrapper">geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</reference>
-        <reference name="ThreadPool">geronimo.server:name=DefaultThreadPool,*</reference>
+        <reference name="ManagedConnectionFactoryWrapper">openejb.server:J2EEApplication=null,J2EEServer=openejb,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</reference>
+        <reference name="ThreadPool">openejb.server:name=DefaultThreadPool,*</reference>
     </gbean>
 
 </connector>

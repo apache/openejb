@@ -262,7 +262,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         }
 
         OpenejbOpenejbJarType openejbEjbJar = OpenejbOpenejbJarType.Factory.newInstance();
-        openejbEjbJar.setParentId("org/apache/geronimo/Server");
+        openejbEjbJar.setParentId(defaultParentId.toString());
         if (null != ejbJar.getId()) {
             openejbEjbJar.setConfigId(ejbJar.getId());
         } else {

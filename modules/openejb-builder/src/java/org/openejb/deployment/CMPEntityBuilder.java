@@ -225,7 +225,7 @@ class CMPEntityBuilder extends EntityBuilder {
                         ObjectName generatorObjectName = new ObjectName(generatorName);
                         ObjectName wrapperGeneratorObjectName = new ObjectName(generatorName + ",isWrapper=true");
                         keyGenerator = new GBeanData(wrapperGeneratorObjectName, PrimaryKeyGeneratorWrapper.GBEAN_INFO);
-                        keyGenerator.setReferencePatterns("PrimaryKeyGenerator", Collections.singleton(generatorObjectName));
+                        keyGenerator.setReferencePattern("PrimaryKeyGenerator", generatorObjectName);
                         keyGenerator.setAttribute("primaryKeyGeneratorDelegate", keyGeneratorDelegate);
                     } catch (Exception e) {
                         throw new DeploymentException("Unable to initialize PrimaryKeyGeneratorWrapper GBean", e);
