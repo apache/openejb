@@ -162,7 +162,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    private OpenejbOpenejbJarDocument createDefaultPlan(URL module) {
+    private OpenejbOpenejbJarDocument createDefaultPlan(URL module) throws XmlException {
         EjbJarDocument ejbJarDoc = (EjbJarDocument) XmlBeansUtil.getXmlObject(module, EjbJarDocument.type);
         if (ejbJarDoc == null) {
             return null;
@@ -230,26 +230,30 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
     }
 
     private void buildGBeanConfiguration(DeploymentContext context, OpenejbOpenejbJarType openejbEjbJar) throws DeploymentException {
-        ClassLoader cl = context.getClassLoader(repository);
+        try {
+            ClassLoader cl = context.getClassLoader(repository);
 
-        // load the ejb-jar.xml deployement descriptor
-        URL ejbJarXml = cl.getResource("META-INF/ejb-jar.xml");
-        if (ejbJarXml == null) {
-            throw new DeploymentException("Module does not contain the ejb-jar.xml deployment descriptor");
-        }
-        EjbJarDocument doc = (EjbJarDocument) XmlBeansUtil.getXmlObject(ejbJarXml, EjbJarDocument.type);
-        if (doc == null) {
-            throw new DeploymentException("The ejb-jar.xml deployment descriptor is not valid");
-        }
-        EjbJarType ejbJar = doc.getEjbJar();
+            // load the ejb-jar.xml deployement descriptor
+            URL ejbJarXml = cl.getResource("META-INF/ejb-jar.xml");
+            if (ejbJarXml == null) {
+                throw new DeploymentException("Module does not contain the ejb-jar.xml deployment descriptor");
+            }
+            EjbJarDocument doc = (EjbJarDocument) XmlBeansUtil.getXmlObject(ejbJarXml, EjbJarDocument.type);
+            if (doc == null) {
+                throw new DeploymentException("The ejb-jar.xml deployment descriptor is not valid");
+            }
+            EjbJarType ejbJar = doc.getEjbJar();
 
-        OpenejbGbeanType[] gbeans = openejbEjbJar.getGbeanArray();
-        for (int i = 0; i < gbeans.length; i++) {
-            GBeanHelper.addGbean(new OpenEJBGBeanAdapter(gbeans[i]), cl, context);
-        }
+            OpenejbGbeanType[] gbeans = openejbEjbJar.getGbeanArray();
+            for (int i = 0; i < gbeans.length; i++) {
+                GBeanHelper.addGbean(new OpenEJBGBeanAdapter(gbeans[i]), cl, context);
+            }
 
-        // add the GBean
-        addGBeans(context, ejbJar, openejbEjbJar, cl);
+            // add the GBean
+            addGBeans(context, ejbJar, openejbEjbJar, cl);
+        } catch (XmlException xe) {
+            throw new DeploymentException("The ejb-jar.xml deployment descriptor is not valid", xe);
+        }
     }
 
     public void addGBeans(DeploymentContext context, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl) throws DeploymentException {
