@@ -793,8 +793,8 @@
         <fileset dir="${docs.src}/style" includes="*.css"/>
     </copy>
     <copy todir="${docs.dest}/html">
-        <fileset dir="${docs.src}" includes="license.txt,document.dtd,*.pdf"/>
-    </copy>
+        <fileset dir="${docs.src}" includes="license.txt,document.dtd,*.pdf,*.java,faq_template.xml"/> 
+    </copy> 
     <copy todir="${docs.dest}/html">
         <fileset dir="${docs.src}" includes="*.ppt"/>
     </copy>

@@ -601,7 +601,7 @@
     </table>
   </xsl:template>
   
-  <xsl:template match="option">
+  <xsl:template match="options/option">
     <tr>
     <td width="10">&#160;</td>
     <td valign="top">
