@@ -197,9 +197,11 @@ by the server.
     </gbean>
 
     <gbean namePart="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
+        <reference name="ServerInfo">openejb.server:name=ServerInfo,*</reference>
         <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
+        <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
-
+    
     <gbean name="geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JaasLoginService" class="org.apache.geronimo.security.jaas.JaasLoginService">
         <reference name="Realms">openejb.server:j2eeType=SecurityRealm,*</reference>
         <attribute name="algorithm">HmacSHA1</attribute>
