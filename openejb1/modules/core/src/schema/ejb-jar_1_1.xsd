@@ -188,6 +188,20 @@
 			<xsd:attribute name="id" type="xsd:ID" use="optional"/>
 		</xsd:complexType>
 	</xsd:element>
+
+    <xsd:element name="ejb-local-ref">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="ejb-ref-name"/>
+				<xsd:element ref="ejb-ref-type"/>
+				<xsd:element ref="local-home"/>
+				<xsd:element ref="local"/>
+				<xsd:element ref="ejb-link" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID" use="optional"/>
+		</xsd:complexType>
+	</xsd:element>
 	
     <!--
     The ejb-ref-name element contains the name of an EJB reference. The
@@ -254,8 +268,10 @@
 				<xsd:element ref="small-icon" minOccurs="0"/>
 				<xsd:element ref="large-icon" minOccurs="0"/>
 				<xsd:element ref="ejb-name"/>
-				<xsd:element ref="home"/>
-				<xsd:element ref="remote"/>
+				<xsd:element ref="home"  minOccurs="0"/>
+				<xsd:element ref="remote"  minOccurs="0"/>
+				<xsd:element ref="local-home" minOccurs="0"/>
+				<xsd:element ref="local" minOccurs="0"/>
 				<xsd:element ref="ejb-class"/>
 				<xsd:element ref="persistence-type"/>
 				<xsd:element ref="prim-key-class"/>
@@ -264,6 +280,7 @@
 				<xsd:element ref="primkey-field" minOccurs="0"/>
 				<xsd:element ref="env-entry" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="ejb-local-ref" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="security-role-ref" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="resource-ref" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
@@ -340,6 +357,7 @@
     <home>com.aardvark.payroll.PayrollHome</home>
     -->
     <xsd:element name="home" type="ClassName" />
+    <xsd:element name="local-home" type="ClassName" />
     
     <!--
     The large-icon element contains the name of a file containing a large
@@ -626,6 +644,7 @@
     <remote>com.wombat.empl.EmployeeService</remote>
     -->
 	<xsd:element name="remote" type="ClassName" />
+    <xsd:element name="local" type="ClassName" />
     
     <!--
     The res-auth element specifies whether the enterprise bean code signs
@@ -776,13 +795,16 @@
 				<xsd:element ref="small-icon" minOccurs="0"/>
 				<xsd:element ref="large-icon" minOccurs="0"/>
 				<xsd:element ref="ejb-name"/>
-				<xsd:element ref="home"/>
-				<xsd:element ref="remote"/>
+				<xsd:element ref="home"  minOccurs="0"/>
+				<xsd:element ref="remote"  minOccurs="0"/>
+				<xsd:element ref="local-home" minOccurs="0"/>
+				<xsd:element ref="local" minOccurs="0"/>
 				<xsd:element ref="ejb-class"/>
 				<xsd:element ref="session-type"/>
 				<xsd:element ref="transaction-type"/>
 				<xsd:element ref="env-entry" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="ejb-local-ref" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="security-role-ref" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="resource-ref" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>

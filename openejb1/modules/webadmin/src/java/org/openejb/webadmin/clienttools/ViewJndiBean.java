@@ -48,6 +48,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Properties;
 
+import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalHome;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
@@ -187,7 +189,7 @@ public class ViewJndiBean extends WebAdminBean  implements Constants {
             if ( obj instanceof Context ){
                 node.type = Node.CONTEXT;
                 buildNode(node,(Context)obj);
-            } else if (obj instanceof java.rmi.Remote) {
+            } else if (obj instanceof EJBHome || obj instanceof EJBLocalHome) {
                 node.type = Node.BEAN;
             } else {
                 node.type = Node.OTHER;
@@ -229,7 +231,7 @@ public class ViewJndiBean extends WebAdminBean  implements Constants {
 
     public void printBeanNode(Node node, PrintWriter out, String tabs, String selected) throws Exception {
         String id = node.getID();
-        if (ctxID != null && ctxID.startsWith("enc")) {
+//        if (ctxID != null && ctxID.startsWith("enc")) {
             // HACK!
             try{
                 Object ejb = ctx.lookup(id);
@@ -239,9 +241,9 @@ public class ViewJndiBean extends WebAdminBean  implements Constants {
             } catch (Exception e){
                 out.print(tabs+ejbImg+"&nbsp;&nbsp;"+node.getName()+"<br>");
             }
-        } else {
-            out.print(tabs+"<a href='"+VIEW_EJB+"?ejb="+id+"'>"+ejbImg+"&nbsp;&nbsp;"+node.getName()+"</a><br>");
-        }
+//        } else {
+//            out.print(tabs+"<a href='"+VIEW_EJB+"?ejb="+id+"'>"+ejbImg+"&nbsp;&nbsp;"+node.getName()+"</a><br>");
+//        }
     }
     
     public void printOtherNode(Node node, PrintWriter out, String tabs, String selected) throws Exception {

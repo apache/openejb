@@ -47,7 +47,7 @@ package org.openejb.alt.assembler.classic;
 
 
 /**
- * EnterpriseBeanInfo is part of the OpenEjbConfiguration object structure that provides
+ * EjbReferenceInfo is part of the OpenEjbConfiguration object structure that provides
  * the information about the configuration of OpenEJB and the container system.
  * 
  * <p>
@@ -84,41 +84,9 @@ package org.openejb.alt.assembler.classic;
  * @see org.openejb.alt.assembler.classic.OpenEjbConfigurationFactory
  * @see org.openejb.xmlconf.DomOpenEjbConfigurationFactory
  */
-public abstract class EnterpriseBeanInfo extends InfoObject{
+public class EjbLocalReferenceInfo extends InfoObject{
 
-    /**
-     * The type constant for a bean managed entity bean or
-     * container managed entity bean
-     */
-    public static final int ENTITY = 0;
-
-
-    /**
-     * The  type constant for a stateful session bean .
-     */
-    public static final int STATEFUL = 1;
-
-    /**
-     * The  type constant for a stateless session bean .
-     */
-    public static final int STATELESS = 2;
-
-    public int type;
-
-    public String codebase;
-    public String description;
-    public String displayName;
-    public String smallIcon;
-    public String largeIcon;
-    public String ejbDeploymentId;
-    public String home;
-    public String remote;
-    public String localHome;
-    public String local;
-    public String ejbClass;
-    public String ejbName;
-    // this variable will always be "Container" for Entity beans.
-    public String transactionType;
-    public JndiEncInfo jndiEnc;
-    public SecurityRoleReferenceInfo [] securityRoleReferences;
+    public String referenceName;
+    public String homeType;
+    public EjbReferenceLocationInfo location;
 }

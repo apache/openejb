@@ -227,6 +227,8 @@ public interface DeploymentInfo {
      * @see javax.ejb.EJBHome
      */
     public Class getHomeInterface( );
+    public Class getLocalHomeInterface( );
+    public Class getLocalInterface( );
     
     /**
      * Gets the remote interface for the bean deployment. 

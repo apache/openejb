@@ -44,6 +44,7 @@
  */
 package org.openejb.alt.config;
 
+import org.openejb.alt.config.ejb11.EjbLocalRef;
 import org.openejb.alt.config.ejb11.EjbRef;
 import org.openejb.alt.config.ejb11.EnvEntry;
 import org.openejb.alt.config.ejb11.ResourceRef;
@@ -68,8 +69,11 @@ public interface Bean {
     public String getEjbClass();
     public String getHome();
     public String getRemote();
+    public String getLocalHome();
+    public String getLocal();
     
     public EjbRef[] getEjbRef();
+    public EjbLocalRef[] getEjbLocalRef();
     public EnvEntry[] getEnvEntry();
     public ResourceRef[] getResourceRef();
     public SecurityRoleRef[] getSecurityRoleRef();

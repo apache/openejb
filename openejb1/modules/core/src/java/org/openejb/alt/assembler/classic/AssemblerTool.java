@@ -284,6 +284,8 @@ public class AssemblerTool {
         Class ejbClass = null;
         Class home     = null;
         Class remote   = null;
+        Class localhome     = null;
+        Class local    = null;
         Class ejbPk    = null;
 
         /*[2.1] Load the bean class */
@@ -292,20 +294,36 @@ public class AssemblerTool {
         } catch (OpenEJBException e){
             throw new OpenEJBException( messages.format(  "cl0005", beanInfo.ejbClass, beanInfo.ejbDeploymentId, e.getMessage() ) );
         }
-        /*[2.2] Load the remote interface */
-        try {
-            home = toolkit.loadClass(beanInfo.home, beanInfo.codebase);
-        } catch (OpenEJBException e){
-            throw new OpenEJBException( messages.format(  "cl0004", beanInfo.home, beanInfo.ejbDeploymentId, e.getMessage() ) );
+        if (beanInfo.home != null){
+	        /*[2.2] Load the home interface */
+	        try {
+	            home = toolkit.loadClass(beanInfo.home, beanInfo.codebase);
+	        } catch (OpenEJBException e){
+	            throw new OpenEJBException( messages.format(  "cl0004", beanInfo.home, beanInfo.ejbDeploymentId, e.getMessage() ) );
+	        }
+	
+	        /*[2.3] Load the remote interface */
+	        try {
+	            remote = toolkit.loadClass(beanInfo.remote, beanInfo.codebase);
+	        } catch (OpenEJBException e){
+	            throw new OpenEJBException( messages.format(  "cl0003", beanInfo.remote, beanInfo.ejbDeploymentId, e.getMessage() ) );
+	        }
         }
-
-        /*[2.3] Load the home interface */
-        try {
-            remote = toolkit.loadClass(beanInfo.remote, beanInfo.codebase);
-        } catch (OpenEJBException e){
-            throw new OpenEJBException( messages.format(  "cl0003", beanInfo.remote, beanInfo.ejbDeploymentId, e.getMessage() ) );
+        if (beanInfo.localHome != null){
+	        /*[2.4] Load the local home interface */
+	        try {
+	            localhome = toolkit.loadClass(beanInfo.localHome, beanInfo.codebase);
+	        } catch (OpenEJBException e){
+	            throw new OpenEJBException( messages.format(  "cl0004", beanInfo.localHome, beanInfo.ejbDeploymentId, e.getMessage() ) );
+	        }
+	
+	        /*[2.5] Load the local interface */
+	        try {
+	            local = toolkit.loadClass(beanInfo.local, beanInfo.codebase);
+	        } catch (OpenEJBException e){
+	            throw new OpenEJBException( messages.format(  "cl0003", beanInfo.local, beanInfo.ejbDeploymentId, e.getMessage() ) );
+	        }
         }
-
         /*[2.4] Load the primary-key class */
         if (isEntity && ebi.primKeyClass != null) {
             try {
@@ -317,7 +335,7 @@ public class AssemblerTool {
 
         /*[3] Populate a new DeploymentInfo object  */
         IvmContext root = new IvmContext(new NameNode(null, new ParsedName("comp"), null));
-        org.openejb.core.DeploymentInfo deployment = createDeploymentInfoObject(root, beanInfo.ejbDeploymentId, home, remote, ejbClass, ejbPk, componentType);
+        org.openejb.core.DeploymentInfo deployment = createDeploymentInfoObject(root, beanInfo.ejbDeploymentId, home, remote, localhome, local, ejbClass, ejbPk, componentType);
         
         /*[3.1] Add Entity bean specific values */
         if ( isEntity ) {
@@ -383,6 +401,7 @@ public class AssemblerTool {
              
         /*[4.2] Add BeanRefs to namespace */
         bindJndiBeanRefs(beanInfo, root);
+        bindJndiLocalBeanRefs(beanInfo, root);
         
         /*[4.3] Add EnvEntries to namespace */
         bindJndiEnvEntries(beanInfo, root);
@@ -398,9 +417,11 @@ public class AssemblerTool {
      * at the same time. This is done to enable the TyrexAssembler to override
      * this method to hook in its own DeploymentInfo subclass without duplicating
      * code.
+     * @param localHomeClass TODO
+     * @param localClass TODO
      */
-    protected org.openejb.core.DeploymentInfo createDeploymentInfoObject(javax.naming.Context root, Object did, Class homeClass, Class remoteClass, Class beanClass, Class pkClass, byte componentType) throws org.openejb.SystemException {
-        org.openejb.core.DeploymentInfo info = new org.openejb.core.DeploymentInfo(did, homeClass, remoteClass, beanClass, pkClass, componentType);
+    protected org.openejb.core.DeploymentInfo createDeploymentInfoObject(javax.naming.Context root, Object did, Class homeClass, Class remoteClass, Class localHomeClass, Class localClass, Class beanClass, Class pkClass, byte componentType) throws org.openejb.SystemException {
+        org.openejb.core.DeploymentInfo info = new org.openejb.core.DeploymentInfo(did, homeClass, remoteClass,localHomeClass, localClass, beanClass, pkClass, componentType);
         info.setJndiEnc(root);
         return info;
     }
@@ -938,6 +959,43 @@ public class AssemblerTool {
                     throw new RuntimeException();}
             }
         }   
+    }
+    
+    protected  void bindJndiLocalBeanRefs(EnterpriseBeanInfo bean, IvmContext root){
+        /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!
+        there is a lot of complex code here, I'm sure something could go wrong the user
+        might want to know about.
+        At the very least, log a warning or two.
+        */
+       if(bean.jndiEnc == null || bean.jndiEnc.ejbLocalReferences == null)
+           return;
+           
+       EjbLocalReferenceInfo reference = null;
+       
+       
+       for (int i=0; i< bean.jndiEnc.ejbLocalReferences.length; i++){
+           reference = bean.jndiEnc.ejbLocalReferences[i];
+           Object ref = null;
+           if (!reference.location.remote){
+               String jndiName = "java:openejb/ejb/"+reference.location.ejbDeploymentId+"Local";
+               Reference ref2 = new IntraVmJndiReference( jndiName );
+               if(StatefulBeanInfo.class.isAssignableFrom(bean.getClass()))
+                   ref = new org.openejb.core.stateful.EncReference( ref2 );
+               else if(StatelessBeanInfo.class.isAssignableFrom(bean.getClass()))
+                   ref = new org.openejb.core.stateless.EncReference( ref2 );
+               else
+                   ref = new org.openejb.core.entity.EncReference( ref2 );
+           }
+           if(ref!=null){
+               try{
+               root.bind(prefixForBinding(reference.referenceName), ref);
+               }catch(Exception e){ 
+                   // TODO: Something more constructive.
+                   e.printStackTrace();throw new RuntimeException();
+               }
+           }
+           
+       }     
     }
     
     protected  void bindJndiBeanRefs(EnterpriseBeanInfo bean, IvmContext root){

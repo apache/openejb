@@ -48,12 +48,15 @@ import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.rmi.MarshalledObject;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+
+import javax.ejb.EJBException;
 
 import org.openejb.OpenEJB;
 import org.openejb.RpcContainer;
@@ -264,14 +267,14 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
         Object prmryKey = null;
         byte crrntOperation = (byte)0;
         Object scrtyIdentity = null;
-	boolean cntextValid = false;
+        boolean cntextValid = false;
         cntext = ThreadContext.getThreadContext();
         if(cntext.valid()){
              depInfo = cntext.getDeploymentInfo();
              prmryKey = cntext.getPrimaryKey();
              crrntOperation = cntext.getCurrentOperation();
              scrtyIdentity = cntext.getSecurityIdentity();
-	     cntextValid = true;
+             cntextValid = true;
         }
 
         String jndiEnc = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
@@ -296,18 +299,34 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
                 return returnObj;                
                 // postCopyOperation() is handled in try/finally clause.
             } else {
-                /*
-                * The EJB 1.1 specification requires that arguments and return values between beans adhere to the
-                * Java RMI copy semantics which requires that the all arguments be passed by value (copied) and 
-                * never passed as references.  However, it is possible for the system administrator to turn off the
-                * copy operation so that arguments and return values are passed by reference as a performance optimization.
-                * Simply setting the org.openejb.core.EnvProps.INTRA_VM_COPY property to FALSE will cause  
-                * IntraVM to bypass the copy operations; arguments and return values will be passed by reference not value. 
-                * This property is, by default, always TRUE but it can be changed to FALSE by setting it as a System property
-                * or a property of the Property argument when invoking OpenEJB.init(props).  The doIntraVmCopy variable is set to that
-                * property in the static block for this class.
-                */
-                return _invoke(proxy,method,args);
+                try {
+					/*
+					* The EJB 1.1 specification requires that arguments and return values between beans adhere to the
+					* Java RMI copy semantics which requires that the all arguments be passed by value (copied) and 
+					* never passed as references.  However, it is possible for the system administrator to turn off the
+					* copy operation so that arguments and return values are passed by reference as a performance optimization.
+					* Simply setting the org.openejb.core.EnvProps.INTRA_VM_COPY property to FALSE will cause  
+					* IntraVM to bypass the copy operations; arguments and return values will be passed by reference not value. 
+					* This property is, by default, always TRUE but it can be changed to FALSE by setting it as a System property
+					* or a property of the Property argument when invoking OpenEJB.init(props).  The doIntraVmCopy variable is set to that
+					* property in the static block for this class.
+					*/
+                	
+					return _invoke(proxy,method,args);
+				} catch (Throwable t) {
+					Class[] etypes = method.getExceptionTypes();
+					for (int i = 0; i < etypes.length; i++) {
+						if (t.getClass().isAssignableFrom(etypes[i])){
+							throw t;
+						}						
+					}
+					// Exception is undeclared
+					// Try and find a runtime exception in there
+					while (!(t instanceof RuntimeException)){
+						t = t.getCause();
+					}
+					throw t;
+				}
             }
         } finally {
             System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, jndiEnc);

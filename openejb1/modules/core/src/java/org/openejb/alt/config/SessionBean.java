@@ -44,6 +44,7 @@
  */
 package org.openejb.alt.config;
 
+import org.openejb.alt.config.ejb11.EjbLocalRef;
 import org.openejb.alt.config.ejb11.EjbRef;
 import org.openejb.alt.config.ejb11.EnvEntry;
 import org.openejb.alt.config.ejb11.ResourceRef;
@@ -91,6 +92,18 @@ public class SessionBean implements Bean {
         return bean.getRemote();
     }
 
+	public EjbLocalRef[] getEjbLocalRef() {
+		return bean.getEjbLocalRef();
+	}
+	
+	public String getLocal() {
+		return bean.getLocal();
+	}
+	
+	public String getLocalHome() {
+		return bean.getLocalHome();
+	}
+	
     public EjbRef[] getEjbRef(){
         return bean.getEjbRef();
     }

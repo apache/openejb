@@ -76,6 +76,16 @@ public class Entity implements java.io.Serializable {
     private java.lang.String _remote;
 
     /**
+     * Field _localHome
+     */
+    private java.lang.String _localHome;
+
+    /**
+     * Field _local
+     */
+    private java.lang.String _local;
+
+    /**
      * Field _ejbClass
      */
     private java.lang.String _ejbClass;
@@ -121,6 +131,11 @@ public class Entity implements java.io.Serializable {
     private java.util.Vector _ejbRefList;
 
     /**
+     * Field _ejbLocalRefList
+     */
+    private java.util.Vector _ejbLocalRefList;
+
+    /**
      * Field _securityRoleRefList
      */
     private java.util.Vector _securityRoleRefList;
@@ -140,6 +155,7 @@ public class Entity implements java.io.Serializable {
         _cmpFieldList = new Vector();
         _envEntryList = new Vector();
         _ejbRefList = new Vector();
+        _ejbLocalRefList = new Vector();
         _securityRoleRefList = new Vector();
         _resourceRefList = new Vector();
     } //-- org.openejb.alt.config.ejb11.Entity()
@@ -171,6 +187,33 @@ public class Entity implements java.io.Serializable {
     {
         _cmpFieldList.insertElementAt(vCmpField, index);
     } //-- void addCmpField(int, org.openejb.alt.config.ejb11.CmpField) 
+
+    /**
+     * Method addEjbLocalRef
+     * 
+     * 
+     * 
+     * @param vEjbLocalRef
+     */
+    public void addEjbLocalRef(org.openejb.alt.config.ejb11.EjbLocalRef vEjbLocalRef)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _ejbLocalRefList.addElement(vEjbLocalRef);
+    } //-- void addEjbLocalRef(org.openejb.alt.config.ejb11.EjbLocalRef) 
+
+    /**
+     * Method addEjbLocalRef
+     * 
+     * 
+     * 
+     * @param index
+     * @param vEjbLocalRef
+     */
+    public void addEjbLocalRef(int index, org.openejb.alt.config.ejb11.EjbLocalRef vEjbLocalRef)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _ejbLocalRefList.insertElementAt(vEjbLocalRef, index);
+    } //-- void addEjbLocalRef(int, org.openejb.alt.config.ejb11.EjbLocalRef) 
 
     /**
      * Method addEjbRef
@@ -281,6 +324,18 @@ public class Entity implements java.io.Serializable {
     } //-- java.util.Enumeration enumerateCmpField() 
 
     /**
+     * Method enumerateEjbLocalRef
+     * 
+     * 
+     * 
+     * @return Enumeration
+     */
+    public java.util.Enumeration enumerateEjbLocalRef()
+    {
+        return _ejbLocalRefList.elements();
+    } //-- java.util.Enumeration enumerateEjbLocalRef() 
+
+    /**
      * Method enumerateEjbRef
      */
     public java.util.Enumeration enumerateEjbRef()
@@ -378,6 +433,54 @@ public class Entity implements java.io.Serializable {
     {
         return this._ejbClass;
     } //-- java.lang.String getEjbClass() 
+
+    /**
+     * Method getEjbLocalRef
+     * 
+     * 
+     * 
+     * @param index
+     * @return EjbLocalRef
+     */
+    public org.openejb.alt.config.ejb11.EjbLocalRef getEjbLocalRef(int index)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        //-- check bounds for index
+        if ((index < 0) || (index > _ejbLocalRefList.size())) {
+            throw new IndexOutOfBoundsException();
+        }
+        
+        return (org.openejb.alt.config.ejb11.EjbLocalRef) _ejbLocalRefList.elementAt(index);
+    } //-- org.openejb.alt.config.ejb11.EjbLocalRef getEjbLocalRef(int) 
+
+    /**
+     * Method getEjbLocalRef
+     * 
+     * 
+     * 
+     * @return EjbLocalRef
+     */
+    public org.openejb.alt.config.ejb11.EjbLocalRef[] getEjbLocalRef()
+    {
+        int size = _ejbLocalRefList.size();
+        org.openejb.alt.config.ejb11.EjbLocalRef[] mArray = new org.openejb.alt.config.ejb11.EjbLocalRef[size];
+        for (int index = 0; index < size; index++) {
+            mArray[index] = (org.openejb.alt.config.ejb11.EjbLocalRef) _ejbLocalRefList.elementAt(index);
+        }
+        return mArray;
+    } //-- org.openejb.alt.config.ejb11.EjbLocalRef[] getEjbLocalRef() 
+
+    /**
+     * Method getEjbLocalRefCount
+     * 
+     * 
+     * 
+     * @return int
+     */
+    public int getEjbLocalRefCount()
+    {
+        return _ejbLocalRefList.size();
+    } //-- int getEjbLocalRefCount() 
 
     /**
      * Returns the value of field 'ejbName'.
@@ -492,6 +595,28 @@ public class Entity implements java.io.Serializable {
     {
         return this._largeIcon;
     } //-- java.lang.String getLargeIcon() 
+
+    /**
+     * Returns the value of field 'local'.
+     * 
+     * @return String
+     * @return the value of field 'local'.
+     */
+    public java.lang.String getLocal()
+    {
+        return this._local;
+    } //-- java.lang.String getLocal() 
+
+    /**
+     * Returns the value of field 'localHome'.
+     * 
+     * @return String
+     * @return the value of field 'localHome'.
+     */
+    public java.lang.String getLocalHome()
+    {
+        return this._localHome;
+    } //-- java.lang.String getLocalHome() 
 
     /**
      * Returns the value of field 'persistenceType'.
@@ -682,6 +807,15 @@ public class Entity implements java.io.Serializable {
     } //-- void removeAllCmpField() 
 
     /**
+     * Method removeAllEjbLocalRef
+     * 
+     */
+    public void removeAllEjbLocalRef()
+    {
+        _ejbLocalRefList.removeAllElements();
+    } //-- void removeAllEjbLocalRef() 
+
+    /**
      * Method removeAllEjbRef
      */
     public void removeAllEjbRef()
@@ -724,6 +858,21 @@ public class Entity implements java.io.Serializable {
         _cmpFieldList.removeElementAt(index);
         return (org.openejb.alt.config.ejb11.CmpField) obj;
     } //-- org.openejb.alt.config.ejb11.CmpField removeCmpField(int) 
+
+    /**
+     * Method removeEjbLocalRef
+     * 
+     * 
+     * 
+     * @param index
+     * @return EjbLocalRef
+     */
+    public org.openejb.alt.config.ejb11.EjbLocalRef removeEjbLocalRef(int index)
+    {
+        java.lang.Object obj = _ejbLocalRefList.elementAt(index);
+        _ejbLocalRefList.removeElementAt(index);
+        return (org.openejb.alt.config.ejb11.EjbLocalRef) obj;
+    } //-- org.openejb.alt.config.ejb11.EjbLocalRef removeEjbLocalRef(int) 
 
     /**
      * Method removeEjbRef
@@ -834,6 +983,40 @@ public class Entity implements java.io.Serializable {
     } //-- void setEjbClass(java.lang.String) 
 
     /**
+     * Method setEjbLocalRef
+     * 
+     * 
+     * 
+     * @param index
+     * @param vEjbLocalRef
+     */
+    public void setEjbLocalRef(int index, org.openejb.alt.config.ejb11.EjbLocalRef vEjbLocalRef)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        //-- check bounds for index
+        if ((index < 0) || (index > _ejbLocalRefList.size())) {
+            throw new IndexOutOfBoundsException();
+        }
+        _ejbLocalRefList.setElementAt(vEjbLocalRef, index);
+    } //-- void setEjbLocalRef(int, org.openejb.alt.config.ejb11.EjbLocalRef) 
+
+    /**
+     * Method setEjbLocalRef
+     * 
+     * 
+     * 
+     * @param ejbLocalRefArray
+     */
+    public void setEjbLocalRef(org.openejb.alt.config.ejb11.EjbLocalRef[] ejbLocalRefArray)
+    {
+        //-- copy array
+        _ejbLocalRefList.removeAllElements();
+        for (int i = 0; i < ejbLocalRefArray.length; i++) {
+            _ejbLocalRefList.addElement(ejbLocalRefArray[i]);
+        }
+    } //-- void setEjbLocalRef(org.openejb.alt.config.ejb11.EjbLocalRef) 
+
+    /**
      * Sets the value of field 'ejbName'.
      * 
      * @param ejbName the value of field 'ejbName'.
@@ -932,6 +1115,26 @@ public class Entity implements java.io.Serializable {
     {
         this._largeIcon = largeIcon;
     } //-- void setLargeIcon(java.lang.String) 
+
+    /**
+     * Sets the value of field 'local'.
+     * 
+     * @param local the value of field 'local'.
+     */
+    public void setLocal(java.lang.String local)
+    {
+        this._local = local;
+    } //-- void setLocal(java.lang.String) 
+
+    /**
+     * Sets the value of field 'localHome'.
+     * 
+     * @param localHome the value of field 'localHome'.
+     */
+    public void setLocalHome(java.lang.String localHome)
+    {
+        this._localHome = localHome;
+    } //-- void setLocalHome(java.lang.String) 
 
     /**
      * Sets the value of field 'persistenceType'.
