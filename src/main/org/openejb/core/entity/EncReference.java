@@ -70,12 +70,16 @@ public class EncReference extends org.openejb.core.ivm.naming.ENCReference{
     * class can return the requested reference object.
     */
     public void checkOperation(byte operation) throws NameNotFoundException{
-        if( operation == Operations.OP_SET_CONTEXT || 
+        // FIXME: These checks contradict EJB 1.1, page 111
+        // e.g. data source lookups in setEntityContext don't work
+        // which is a very common usage pattern.
+        /*        if( operation == Operations.OP_SET_CONTEXT || 
             operation == Operations.OP_UNSET_CONTEXT || 
             operation == Operations.OP_PASSIVATE ||
             operation == Operations.OP_ACTIVATE ){
                 throw new NameNotFoundException("Operation Not Allowed");
-        }    
+        }
+*/
     }
     
 }
