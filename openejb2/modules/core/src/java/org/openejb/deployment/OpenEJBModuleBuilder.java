@@ -549,7 +549,12 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             openejbBeans.put(messageDrivenBean.getEjbName(), messageDrivenBean);
         }
 
-        TransactionPolicyHelper transactionPolicyHelper = new TransactionPolicyHelper(ejbJar.getAssemblyDescriptor().getContainerTransactionArray());
+        TransactionPolicyHelper transactionPolicyHelper;
+        if (ejbJar.isSetAssemblyDescriptor()) {
+            transactionPolicyHelper = new TransactionPolicyHelper(ejbJar.getAssemblyDescriptor().getContainerTransactionArray());
+        } else {
+            transactionPolicyHelper = new TransactionPolicyHelper();
+        }
 
         Security security = buildSecurityConfig(openejbEjbJar);
 

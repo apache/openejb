@@ -60,18 +60,14 @@ import org.apache.geronimo.xbeans.j2ee.ContainerTransactionType;
 import org.apache.geronimo.xbeans.j2ee.JavaTypeType;
 import org.apache.geronimo.xbeans.j2ee.MethodIntfType;
 import org.apache.geronimo.xbeans.j2ee.MethodType;
-
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.BeanPolicy;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
 
 /**
- *
- *
  * @version $Revision$ $Date$
- *
- * */
+ */
 public class TransactionPolicyHelper {
 
     public final static TransactionPolicySource StatefulBMTPolicySource = new TransactionPolicySource() {
@@ -87,6 +83,9 @@ public class TransactionPolicyHelper {
     };
 
     private final Map ejbNameToTransactionAttributesMap = new HashMap();
+
+    public TransactionPolicyHelper() {
+    }
 
     public TransactionPolicyHelper(ContainerTransactionType[] containerTransactions) {
         for (int i = 0; i < containerTransactions.length; i++) {
@@ -117,11 +116,15 @@ public class TransactionPolicyHelper {
 
     private static class TransactionPolicySourceImpl implements TransactionPolicySource {
         private final SortedSet transactionPolicies;
+        private static final boolean STRICT = false;
 
         public TransactionPolicySourceImpl(String ejbName, SortedSet transactionPolicies) throws DeploymentException {
             //To allow more lenient spec interpretations, with default of Requires, substitute an empty sorted set here.
             if (transactionPolicies == null) {
-                throw new DeploymentException("You must specify transaction attributes, see ejb 2.1 spec 17.4.1: ejbName=" + ejbName);
+                if (STRICT) {
+                    throw new DeploymentException("You must specify transaction attributes, see ejb 2.1 spec 17.4.1: ejbName=" + ejbName);
+                }
+                transactionPolicies = new TreeSet();
             }
             this.transactionPolicies = transactionPolicies;
         }
