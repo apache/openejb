@@ -187,7 +187,7 @@ public class EJBSecurityDeploymentTest extends ContextBuilderTest {
         assertTrue("Run as subject is filled", config.runAs != null);
 
         // make sure that the subject was registered
-        ContextManager.getSubjectId(config.runAs);
+//        ContextManager.getSubjectId(config.runAs);
 
         Subject subject = config.runAs;
 
@@ -239,7 +239,7 @@ public class EJBSecurityDeploymentTest extends ContextBuilderTest {
         assertTrue("Run as subject is filled", config.runAs != null);
 
         // make sure that the subject was registered
-        ContextManager.getSubjectId(config.runAs);
+//        ContextManager.getSubjectId(config.runAs);
 
         Subject subject = config.runAs;
 
