@@ -9,11 +9,11 @@ case $1 in
             ./bin/test.sh
             echo "Running EJB compliance tests on CORBA Server"
             echo " 1. Starting JNDI Server...";
-            ./bin/launch_jndi.sh &> jndi.log &
+            ./bin/launch_jndi.sh -default &> jndi.log &
             sleep 2
             echo " 2. Starting CORBA Server...";
             ./bin/launch_server.sh &> server.log &
-            sleep 5
+            sleep 6
             echo " 3. Starting test client...";
             ./bin/launch_client.sh
          ;;
@@ -24,32 +24,32 @@ case $1 in
       "corba") 
             echo "Running EJB compliance tests on CORBA Server"
             echo " 1. Starting JNDI Server...";
-            ./bin/launch_jndi.sh &> jndi.log &
+            ./bin/launch_jndi.sh -default &> jndi.log &
             sleep 2
             echo " 2. Starting CORBA Server...";
             ./bin/launch_server.sh &> server.log &
-            sleep 5
+            sleep 6
             echo " 3. Starting test client...";
             ./bin/launch_client.sh
          ;;
       esac   
    ;;
+   "deploy" ) echo "deploy";;
    "start" ) echo "start";
             echo " 1. Starting JNDI Server...";
-            ./bin/launch_jndi.sh &> jndi.log &
+            ./bin/launch_jndi.sh -print &> jndi.log &
             sleep 2
             echo " 2. Starting CORBA Server...";
             ./bin/launch_server.sh 
             ;;   
-   "deploy" ) echo "deploy";;
 
    "--help" ) 
       case $2 in 
       "" ) cat ./bin/command.hlp ;;
       "build"  ) cat ./bin/build.hlp ;;   
       "test"  ) cat ./bin/test.hlp ;;   
-      "start" ) cat ./bin/start.hlp ;;   
       "deploy" ) cat ./bin/deploy.hlp ;;   
+      "start" ) cat ./bin/start.hlp ;;   
       esac
    ;;
    "" ) cat ./bin/command.hlp;;
