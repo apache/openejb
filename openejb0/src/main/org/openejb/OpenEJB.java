@@ -132,23 +132,34 @@ public final class OpenEJB {
      * @since JDK 1.2
      */
     public static void init(Properties props, ApplicationServer appServer) throws OpenEJBException{
-        if ( initialized ) throw new OpenEJBException("OpenEJB has already been initialized.");
+        if ( initialized ) {
+            logger.error("Cannot initialize OpenEJB a second time in the same VM.");
+            throw new OpenEJBException("OpenEJB has already been initialized.");
+        } else {
+            initialized = true;
+        }
         
+        logger.info("Intializing OpenEJB...");
+
         SecurityManager sm = System.getSecurityManager();
         if (sm == null) {
             try{
+                logger.debug("No SecurityManager installed. Installing default.");
                 System.setSecurityManager(new SecurityManager(){
                     public void checkPermission(Permission perm) {}
                     public void checkPermission(Permission perm, Object context) {}
                 
                 });
-            } catch (Exception e){}
+            } catch (Exception e){
+                logger.warn("Could not install default SecurityManager: "+e.getClass().getName()+": "+e.getMessage());
+            }
         }
         initProps = props;
+        if ( appServer == null ) logger.warn("No ApplicationServer was specified!  The container system will only be accessible by same-vm clients via the IntraVm Server.");
         applicationServer = appServer;
             
 
-        SafeToolkit.getToolkit("OpenEJB").getSafeProperties(props);
+        SafeToolkit toolkit = SafeToolkit.getToolkit("OpenEJB");
         Enumeration enum = System.getProperties().propertyNames();
         while(enum.hasMoreElements()){
             String name = (String)enum.nextElement();
@@ -159,13 +170,73 @@ public final class OpenEJB {
 
         /* Uses the EnvProps.ASSEMBLER property to obtain the Assembler impl.
            Default is org.openejb.core.conf.Assembler*/
-        Assembler assembler = AssemblerFactory.getAssembler(props);
-        assembler.build();
-        containerSystem    = assembler.getContainerSystem();
-        securityService    = assembler.getSecurityService();
-        transactionManager = assembler.getTransactionManager();
+        String className = props.getProperty(EnvProps.ASSEMBLER);
+        if (className == null) {
+            className = props.getProperty("openejb.assembler","org.openejb.alt.assembler.classic.Assembler");
+        } else {
+            logger.warn("Deprecated: The propery name '"+EnvProps.ASSEMBLER+"' is deprecated and will be removed in a future version of OpenEJB, please use the property name 'openejb.assembler' instead.");
+        }
         
-        initialized = true;
+        logger.debug("Instantiating assembler class "+className);
+        Assembler assembler = null;
+
+        try {
+            assembler = (Assembler)toolkit.newInstance(className);
+        } catch ( OpenEJBException oe ){
+            logger.fatal("OpenEJB has encountered a fatal error and cannot be started: Assembler cannot be instantiated.", oe);
+            throw oe;
+        } catch ( Throwable t ){
+            logger.fatal("OpenEJB has encountered a fatal error and cannot be started: OpenEJB encountered an unexpected error while attempting to instantiate the assembler.", t);
+            throw new OpenEJBException("OpenEJB encountered an unexpected error while attempting to instantiate the assembler.", t);
+        }
+        
+        try {
+            assembler.init(props);
+        } catch ( OpenEJBException oe ){
+            logger.fatal("OpenEJB has encountered a fatal error and cannot be started: Assembler failed to initialize.", oe);
+            throw oe;
+        } catch ( Throwable t ){
+            logger.fatal("OpenEJB has encountered a fatal error and cannot be started: The Assembler encountered an unexpected error while attempting to initialize.", t);
+            throw new OpenEJBException("The Assembler encountered an unexpected error while attempting to initialize.", t);
+        }
+        
+        try {
+            assembler.build();
+        } catch ( OpenEJBException oe ){
+            logger.fatal("OpenEJB has encountered a fatal error and cannot be started: Assembler failed to build the container system.", oe);
+            throw oe;
+        } catch ( Throwable t ){
+            logger.fatal("OpenEJB has encountered a fatal error and cannot be started: The Assembler encountered an unexpected error while attempting to build the container system.", t);
+            throw new OpenEJBException(" The Assembler encountered an unexpected error while attempting to build the container system.", t);
+        }
+        
+        containerSystem    = assembler.getContainerSystem();
+        if (containerSystem == null) {
+            logger.fatal("OpenEJB has encountered a fatal error and cannot be started: The Assembler returned a null container system.");
+            throw new OpenEJBException("The Assembler returned a null container system.");
+        }
+
+        
+        logger.debug("There are "+containerSystem.containers().length+" containers.");
+        logger.debug("There are "+containerSystem.deployments().length+" ejb deployments.");
+
+        securityService    = assembler.getSecurityService();
+        if (securityService == null) {
+            logger.fatal("OpenEJB has encountered a fatal error and cannot be started: The Assembler returned a null security service.");
+            throw new OpenEJBException("The Assembler returned a null security service.");
+        } else {
+            logger.debug("SecurityService implementation: "+securityService.getClass().getName());
+        }
+        
+        transactionManager = assembler.getTransactionManager();
+        if (transactionManager == null) {
+            logger.fatal("OpenEJB has encountered a fatal error and cannot be started: The Assembler returned a null transaction manager.");
+            throw new OpenEJBException("The Assembler returned a null transaction service.");
+        } else {
+            logger.debug("TransactionManager implementation: "+transactionManager.getClass().getName());
+        }
+        
+        logger.info("OpenEJB ready.");
     }
 
     /**
