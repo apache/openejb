@@ -81,10 +81,10 @@ import org.apache.geronimo.validator.ValidationFailure;
 import org.openejb.server.xfire.WSContainerGBean;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 
-public class WSContainerBuilder {
+public class XFireWebServiceContainerBuilder {
 
 
-    private static final Log log = LogFactory.getLog(WSContainerBuilder.class);
+    private static final Log log = LogFactory.getLog(XFireWebServiceContainerBuilder.class);
 
     /*
      * The ultimate goal of this method is to create an XFireService GBean that wraps the EJBContainer with
