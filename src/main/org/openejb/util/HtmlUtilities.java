@@ -45,14 +45,56 @@ package org.openejb.util;
 
 /**
  * A class for HTML utilities; see 
- * <a href="http://www.w3.org/TR/html4" target="_blank">http://www.w3.org/TR/html4</a>for more info
+ * <a href="http://www.w3.org/TR/html4" target="_blank">http://www.w3.org/TR/html4</a>
+ * for more info
  * 
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class HtmlUtilities {
+	/** type for &lt;a name="name"...&gt; */
+	public static final String ANCHOR_NAME_TYPE = "name";
+	/** type for &lt;a href="href"...&gt; */
+	public static final String ANCHOR_HREF_TYPE = "href";
+
 	//we don't want anyone creating new instances of this class
-	private HtmlUtilities (){}
-	
+	private HtmlUtilities() {}
+
+	/**
+	 * Creates an HTML anchor.  If <code>ANCHOR_NAME_TYPE</code> is passed in, 
+	 * it creates a name anchor:<br><br>
+	 * <code>
+	 * &lt;a name="value"&gt;display&lt;/a&gt;
+	 * </code><br><br>
+	 * If <code>ANCHOR_HREF_TYPE</code> is passed in it creates an href anchor:
+	 * <br><br>
+	 * <code>
+	 * &lt;a href="href"&gt;display&lt;/a&gt;
+	 * </code>
+	 * 
+	 * @see org.openejb.util.HtmlUtilities#ANCHOR_NAME_TYPE
+	 * @see org.openejb.util.HtmlUtilities#ANCHOR_HREF_TYPE
+	 * @param value the name or href value for this anchor
+	 * @param display the display for this anchor
+	 * @param type the type of this anchor (name or href)
+	 * @return an HTML anchor element
+	 */
+	public static String createAnchor(String value, String display, String type) {
+		//our type must be one of these two
+		if (!(ANCHOR_HREF_TYPE.equals(type) || ANCHOR_NAME_TYPE.equals(type))) {
+			throw new IllegalArgumentException("The type argument must be either \"name\" or \"href\"");
+		}
+
+		return new StringBuffer(100)
+			.append("<a ")
+			.append(type)
+			.append("=\"")
+			.append(value)
+			.append("\">")
+			.append(display)
+			.append("</a>")
+			.toString();
+	}
+
 	/**
 	 * Creates the beginning of an HTML select based on the name passed in
 	 * <br>
@@ -60,8 +102,8 @@ public class HtmlUtilities {
 	 * &lt;select name="name" onChange="onChange"&gt;
 	 * </code>
 	 * <br>
-	 * @param name - the name of the select form field
-	 * @param onChange - a JavaScript onChange event (pass in null for no onChange) 
+	 * @param name the name of the select form field
+	 * @param onChange a JavaScript onChange event (pass in null for no onChange) 
 	 * @return the constructed select, similar to above
 	 */
 	public static String createSelectFormField(String name, String onChange) {
@@ -81,9 +123,9 @@ public class HtmlUtilities {
 	 * &lt;option value="value" selected&gt;display&lt;/option&gt;
 	 * </code>
 	 * <br>
-	 * @param value - the value for this option
-	 * @param display - the display for this option
-	 * @param selected - whether or not this option should be selected
+	 * @param value the value for this option
+	 * @param display the display for this option
+	 * @param selected whether or not this option should be selected
 	 * @return the constructed option, similar to above
 	 */
 	public static String createSelectOption(String value, String display, boolean selected) {
@@ -103,14 +145,30 @@ public class HtmlUtilities {
 	 * &lt;input type="text" name="name" value="value" size="size" maxlength="maxlength"&gt;
 	 * </code>
 	 * <br>
-	 * @param name - the name of the text form field
-	 * @param value - the value of the text form field
-	 * @param size - the size of the text form field (0 for no size)
-	 * @param maxLength - the maxlength of the text form field  (0 or no maxlength)
+	 * @param name the name of the text form field
+	 * @param value the value of the text form field
+	 * @param size the size of the text form field (0 for no size)
+	 * @param maxLength the maxlength of the text form field  (0 for no maxlength)
 	 * @return the constructed text form field, similar to above
 	 */
 	public static String createTextFormField(String name, String value, int size, int maxLength) {
 		return createInputFormField("text", name, value, size, maxLength, null, null, null, null, false, false, false);
+	}
+	
+	/**
+	 * Creates an HTML file form field based on the parameters passed in
+	 * <br>
+	 * <code>
+	 * &lt;input type="file" name="name" value="value" size="size"&gt;
+	 * </code>
+	 * <br>
+	 * @param name the name of the file form field
+	 * @param value the value of the file form field
+	 * @param size the size of the file form field (0 for no size)
+	 * @return the constructed file form field, similar to above
+	 */
+	public static String createFileFormField(String name, String value, int size) {
+		return createInputFormField("file", name, value, size, 0, null, null, null, null, false, false, false);
 	}
 
 	/**
@@ -120,8 +178,8 @@ public class HtmlUtilities {
 	 * &lt;input type="hidden" name="name" value="value"&gt;
 	 * </code>
 	 * <br>
-	 * @param name - the name of hidden form field
-	 * @param value - the value of the hidden form field
+	 * @param name the name of hidden form field
+	 * @param value the value of the hidden form field
 	 * @return the constructed hidden form field, similar to above
 	 */
 	public static String createHiddenFormField(String name, String value) {
@@ -135,8 +193,8 @@ public class HtmlUtilities {
 	 * &lt;input type="submit" name="name" value="value"&gt;
 	 * </code>
 	 * <br>
-	 * @param name - the name of hidden form field
-	 * @param value - the value of the hidden form field
+	 * @param name the name of hidden form field
+	 * @param value the value of the hidden form field
 	 * @return the constructed hidden form field, similar to above
 	 */
 	public static String createSubmitFormButton(String name, String value) {
@@ -145,18 +203,18 @@ public class HtmlUtilities {
 
 	/** creates an input type, text, radio, button submit, etc
 	 * 
-	 * @param type - the type of input
-	 * @param name - name of the input
-	 * @param value - value of the input
-	 * @param size - size of the input (0 for no size)
-	 * @param maxLength - maxlength of the input (0 for no maxlength
-	 * @param onFocus - an onfocus event (null for no onfocus)
-	 * @param onBlur - an onblur event (null for no onblur)
-	 * @param onChange - an onchange event (null for no onchange)
-	 * @param onClick - an onclick event (null for no onclick)
-	 * @param checked - if this input is checked
-	 * @param disabled - if this input is disabled
-	 * @param readOnly - if this input is readonly
+	 * @param type the type of input
+	 * @param name the name of the input
+	 * @param value the value of the input
+	 * @param size the size of the input (0 for no size)
+	 * @param maxLength the maxlength of the input (0 for no maxlength
+	 * @param onFocus an onfocus event (null for no onfocus)
+	 * @param onBlur an onblur event (null for no onblur)
+	 * @param onChange an onchange event (null for no onchange)
+	 * @param onClick an onclick event (null for no onclick)
+	 * @param checked if this input is checked
+	 * @param disabled if this input is disabled
+	 * @param readOnly if this input is readonly
 	 * @return the constructed input
 	 */
 	public static String createInputFormField(
@@ -222,13 +280,13 @@ public class HtmlUtilities {
 	 * &lt;/textarea&gt;
 	 * </code>
 	 * 
-	 * @param name - the name of the textarea
-	 * @param content - the content of the textarea
-	 * @param rows - the number of rows of the textarea
-	 * @param columns - the numbe of columns of the textarea
-	 * @param onFocus - a javascript onfocus event (null for no onfocus)
-	 * @param onBlur - a javascript onblur event (null for no onblur)
-	 * @param onChange - a javascript onchange event (null for no onchange)
+	 * @param name the name of the textarea
+	 * @param content the content of the textarea
+	 * @param rows the number of rows of the textarea
+	 * @param columns the numbe of columns of the textarea
+	 * @param onFocus a javascript onfocus event (null for no onfocus)
+	 * @param onBlur a javascript onblur event (null for no onblur)
+	 * @param onChange a javascript onchange event (null for no onchange)
 	 * @return the constucted textarea string
 	 */
 	public static String createTextArea(
@@ -241,7 +299,8 @@ public class HtmlUtilities {
 		String onChange) {
 		StringBuffer temp = new StringBuffer(50);
 		temp.append("<textarea name=\"").append(name).append("\" rows=\"").append(rows).append("\" cols=\"").append(
-			columns).append("\"");
+			columns).append(
+			"\"");
 
 		if (onFocus != null) {
 			temp.append(" onfocus=\"").append(onFocus).append("\"");

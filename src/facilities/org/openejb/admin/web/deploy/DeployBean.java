@@ -68,6 +68,7 @@ import org.openejb.admin.web.HttpRequest;
 import org.openejb.admin.web.HttpResponse;
 import org.openejb.admin.web.WebAdminBean;
 import org.openejb.util.FileUtils;
+import org.openejb.util.HtmlUtilities;
 import org.openejb.util.Logger;
 
 /**
@@ -83,8 +84,7 @@ import org.openejb.util.Logger;
  * @author  <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class DeployBean extends WebAdminBean {
-	private static final String HANDLE_FILE =
-		System.getProperty("file.separator") + "deployerHandle.obj";
+	private static final String HANDLE_FILE = System.getProperty("file.separator") + "deployerHandle.obj";
 	private DeployerObject deployer = null;
 	private Logger logger = Logger.getInstance("OpenEJB", "org.openejb.util.resources");
 
@@ -142,13 +142,9 @@ public class DeployBean extends WebAdminBean {
 						+ "In this case <b>OQL statements are required.</b> "
 						+ "Please enter the information requested in the form fields and click \"Continue &gt;&gt;\" "
 						+ "to continue.<br>");
-				body.println(
-					"<form action=\"Deployment\" method=\"post\" onSubmit=\"return checkDeployValues(this)\">");
+				body.println("<form action=\"Deployment\" method=\"post\" onSubmit=\"return checkDeployValues(this)\">");
 				body.print(deployer.createIdTable());
-				body.println(
-					"<input type=\"hidden\" name=\"deployerHandle\" value=\""
-						+ deployerHandleString
-						+ "\">");
+				body.println(HtmlUtilities.createHiddenFormField("deployerHandle", deployerHandleString));
 				body.println("</form>");
 			} else if (submitDeployment != null) {
 				deployPartTwo(body);
@@ -161,6 +157,7 @@ public class DeployBean extends WebAdminBean {
 		}
 	}
 
+	/** handles exceptions for the page */
 	private void handleException(Exception e, PrintWriter body) {
 		if (e instanceof UndeclaredThrowableException) {
 			UndeclaredThrowableException ue = (UndeclaredThrowableException) e;
@@ -181,6 +178,9 @@ public class DeployBean extends WebAdminBean {
 		}
 	}
 
+	/** the second part of the deployment which loops through the
+	 * array of deployments and sets the values 
+	 */
 	private void deployPartTwo(PrintWriter body) throws Exception {
 		ReferenceData[] referenceDataArray;
 		OQLData[] oqlDataArray;
@@ -193,42 +193,35 @@ public class DeployBean extends WebAdminBean {
 		//loop through all the beans and set the ids
 		for (int i = 0; i < deployDataArray.length; i++) {
 			//set the containerId value and the deployment id value 
-			deployDataArray[i].setContainerIdValue(
-				request.getFormParameter(deployDataArray[i].getContainerIdName()));
-			deployDataArray[i].setDeploymentIdValue(
-				request.getFormParameter(deployDataArray[i].getDeploymentIdName()));
+			deployDataArray[i].setContainerIdValue(request.getFormParameter(deployDataArray[i].getContainerIdName()));
+			deployDataArray[i].setDeploymentIdValue(request.getFormParameter(deployDataArray[i].getDeploymentIdName()));
 
 			//get the ejb and resource references and loop through them
 			referenceDataArray = deployDataArray[i].getReferenceDataArray();
 			for (int j = 0; j < referenceDataArray.length; j++) {
 				referenceDataArray[j].setReferenceIdValue(
 					request.getFormParameter(referenceDataArray[j].getReferenceIdName()));
-				referenceDataArray[j].setReferenceValue(
-					request.getFormParameter(referenceDataArray[j].getReferenceName()));
+				referenceDataArray[j].setReferenceValue(request.getFormParameter(referenceDataArray[j].getReferenceName()));
 			}
 
 			//get the oql methods and set them
 			oqlDataArray = deployDataArray[i].getOqlDataArray();
 			for (int j = 0; j < oqlDataArray.length; j++) {
-				oqlDataArray[j].setOqlStatementValue(
-					request.getFormParameter(oqlDataArray[j].getOqlStatementName()));
+				oqlDataArray[j].setOqlStatementValue(request.getFormParameter(oqlDataArray[j].getOqlStatementName()));
 
 				//next set up the tokens for the OQL parameters
 				if (request.getFormParameter(oqlDataArray[j].getOqlParameterName()) != null) {
 					oqlParameterToken =
-						new StringTokenizer(
-							request.getFormParameter(oqlDataArray[j].getOqlParameterName()),
-							",");
+						new StringTokenizer(request.getFormParameter(oqlDataArray[j].getOqlParameterName()), ",");
 					//loop through the tokens
 					while (oqlParameterToken.hasMoreTokens()) {
-						oqlDataArray[j].getOqlParameterValueList().add(
-							oqlParameterToken.nextToken());
+						oqlDataArray[j].getOqlParameterValueList().add(oqlParameterToken.nextToken());
 					}
 
 				}
 			}
 		}
-		
+
 		deployer.setDeployAndContainerIds(deployDataArray);
 
 		//print out a message to the user to let them know thier bean was deployed
@@ -239,13 +232,15 @@ public class DeployBean extends WebAdminBean {
 				+ System.getProperty("file.separator")
 				+ "beans. You will need to restart OpenEJB for this "
 				+ "deployment to take affect.  Once you restart, you should see your bean(s) in the "
-				+ "<a href=\"DeploymentList\">list of beans</a> on this console.  Below is a table of "
+				+ HtmlUtilities.createAnchor("DeploymentList", "list of beans", HtmlUtilities.ANCHOR_HREF_TYPE)
+				+ "on this console.  Below is a table of "
 				+ "the bean(s) you deployed.<br><br>");
 
 		printDeploymentHtml(body);
 		deployer.remove();
 	}
 
+	/** prints a table of deployment HTML */
 	private void printDeploymentHtml(PrintWriter body) throws Exception {
 		deployer.finishDeployment();
 		body.println("<table cellspacing=\"1\" cellpadding=\"2\" border=\"1\">\n");
@@ -275,8 +270,7 @@ public class DeployBean extends WebAdminBean {
 		Handle deployerHandle = deployer.getHandle();
 
 		//write the handle out to a file
-		File myHandleFile =
-			new File(FileUtils.createTempDirectory().getAbsolutePath() + HANDLE_FILE);
+		File myHandleFile = new File(FileUtils.createTempDirectory().getAbsolutePath() + HANDLE_FILE);
 		if (!myHandleFile.exists()) {
 			myHandleFile.createNewFile();
 		}
@@ -306,8 +300,6 @@ public class DeployBean extends WebAdminBean {
 		String jarFile = request.getFormParameter("jarFile");
 		String force = request.getFormParameter("force");
 		String configFile = request.getFormParameter("configFile");
-		//String homeDir = request.getFormParameter("homeDir");
-		//String log4JFile = request.getFormParameter("log4JFile");
 		File testForValidFile = null;
 
 		if (jarFile == null) {
@@ -331,22 +323,6 @@ public class DeployBean extends WebAdminBean {
 
 			System.setProperty("openejb.configuration", configFile);
 		}
-		//set the OPENEJB_HOME directory
-//		if (!homeDir.trim().equals("")) {
-//			//check for valid directory
-//			testForValidFile = new File(homeDir);
-//			if (!testForValidFile.isDirectory())
-//				throw new IOException("OPENEJB_HOME: " + homeDir + " is not a directory.");
-//
-//			System.setProperty("openejb.home", homeDir);
-//		}
-//		//set the log4j configuration
-//		if (!log4JFile.trim().equals("")) {
-//			//check for valid file
-//			testForValidFile = new File(log4JFile);
-//			if (!testForValidFile.isFile())
-//				throw new IOException("OpenEJB configuration: " + configFile + " is not a file.");
-//		}
 
 		testForValidFile = null;
 		this.deployer.setBooleanValues(options);
@@ -354,7 +330,7 @@ public class DeployBean extends WebAdminBean {
 
 	/** writes the form for this page 
 	 *
-	 * timu - finish the sections that are not implemented
+	 * TODO - finish the sections that are not implemented
 	 */
 	private void writeForm(PrintWriter body) throws IOException {
 		//the form decleration
@@ -377,39 +353,21 @@ public class DeployBean extends WebAdminBean {
 		body.println("</tr>"); */
 
 		//info about step 1
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">");
-		body.println(
-			"<strong>Step 1:</strong> Browse your file system and select your bean to deploy.");
-		body.println("</td>");
-		body.println("</tr>");
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">&nbsp;</td>");
-		body.println("</tr>");
+		body.println("<tr>\n<td colspan=\"2\">");
+		body.println("<strong>Step 1:</strong> Browse your file system and select your bean to deploy.");
+		body.println("</td>\n</tr>\n<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
 
 		//the file upload for the jar file (this may need to be changed)
 		body.println("<tr>");
-		body.println("<td><nobr>Jar File</nobr></td>");
-		//body.println(
-		//	"<td><input type=\"text\" name=\"jarFile\" size=\"35\" maxlength=\"100\"></td>");
-		body.println(
-			"<td><input type=\"file\" name=\"jarFile\" size=\"35\"></td>");
-		body.println("</tr>");
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">&nbsp;</td>");
-		body.println("</tr>");
+		body.println("<td><nobr>Jar File</nobr></td>\n<td>");
+		body.println(HtmlUtilities.createFileFormField("jarFile", "", 35));
+		body.println("</td>\n</tr>\n<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
 
 		/***************************
 		 * Deployment options
 		 ***************************/
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">");
-		body.println("<strong>Step 2:</strong> Choose options for deployment.");
-		body.println("</td>");
-		body.println("</tr>");
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">&nbsp;</td>");
-		body.println("</tr>");
+		body.println("<tr>\n<td colspan=\"2\"><strong>Step 2:</strong> Choose options for deployment.");
+		body.println("</td>\n</tr>\n<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
 
 		/* force over write of the bean - this will have to wait for now until the bug gets fixed
 		body.println("<tr>");
@@ -427,57 +385,17 @@ public class DeployBean extends WebAdminBean {
 		// sets the OpenEJB configuration file 
 		body.println("<tr>");
 		body.println(
-			"<td colspan=\"2\">Sets the OpenEJB configuration to the specified file. (leave blank for non-use) " +
-			"Note: you will need to make sure the configuration files are in this location on the server.</td>");
-		body.println("</tr>");
-		body.println("<tr>");
-		body.println("<td><nobr>Config File</nobr></td>");
-		body.println(
-			"<td><input type=\"text\" name=\"configFile\" size=\"35\" maxlength=\"75\"></td>");
-		body.println("</tr>");
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">&nbsp;</td>");
-		body.println("</tr>");
-
-		// sets the openejb home env variable 
-//		body.println("<tr>");
-//		body.println(
-//			"<td colspan=\"2\">Set the OPENEJB_HOME to the specified directory. (leave blank for non-use)</td>");
-//		body.println("</tr>");
-//		body.println("<tr>");
-//		body.println("<td><nobr>OPENEJB_HOME:</nobr></td>");
-//		body.println(
-//			"<td><input type=\"text\" name=\"homeDir\" size=\"35\" maxlength=\"75\"></td>");
-//		body.println("</tr>");
-//		body.println("<tr>");
-//		body.println("<td colspan=\"2\">&nbsp;</td>");
-//		body.println("</tr>");
-//
-//		// sets the log4j configuration file 
-//		body.println("<tr>");
-//		body.println(
-//			"<td colspan=\"2\">Set the log4j configuration to the specified file. (leave blank for non-use)</td>");
-//		body.println("</tr>");
-//		body.println("<tr>");
-//		body.println("<td><nobr>Log4J File</nobr></td>");
-//		body.println(
-//			"<td><input type=\"file\" name=\"log4JFile\" size=\"35\" maxlength=\"75\"></td>");
-//		body.println("</tr>");
-//		body.println("<tr>");
-//		body.println("<td colspan=\"2\">&nbsp;</td>");
-//		body.println("</tr>");
+			"<td colspan=\"2\">Sets the OpenEJB configuration to the specified file. (leave blank for non-use) "
+				+ "Note: you will need to make sure the configuration files are in this location on the server.</td>");
+		body.println("</tr>\n<tr>\n<td><nobr>Config File</nobr></td>\n<td>");
+		body.println(HtmlUtilities.createTextFormField("configFile", "", 35, 0));
+		body.println("</td>\n</tr>\n<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
 
 		//deploy the bean
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">");
-		body.println("<strong>Step 3:</strong> Deploy the bean.");
-		body.println("</td>");
-		body.println("</tr>");
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">");
-		body.println("<input type=\"submit\" name=\"deploy\" value=\"Deploy\">");
-		body.println("</td>");
-		body.println("</tr>");
+		body.println("<tr>\n<td colspan=\"2\"><strong>Step 3:</strong> Deploy the bean.</td>\n</tr>");
+		body.println("<tr><td colspan=\"2\">");
+		body.println(HtmlUtilities.createSubmitFormButton("deploy", "Deploy"));
+		body.println("</td>\n</tr>");
 
 		//the end...
 		/* we don't have help yet
@@ -486,7 +404,7 @@ public class DeployBean extends WebAdminBean {
 		body.println("</tr>"); */
 		body.println("</table>");
 		//the handle file name
-		body.println("<input type=\"hidden\" name=\"handleFile\" value=\"\">");
+		body.println(HtmlUtilities.createHiddenFormField("handleFile", ""));
 		body.println("</form>");
 	}
 

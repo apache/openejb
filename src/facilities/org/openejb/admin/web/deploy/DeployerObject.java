@@ -50,7 +50,10 @@ import javax.ejb.EJBObject;
 import org.openejb.OpenEJBException;
 
 /**
+ * This is a stateful session bean which holds deployment information
+ * for the web deployment of an EJB. 
  *
+ * @see org.openejb.admin.web.deploy.DeployerBean
  * @author  <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public interface DeployerObject extends EJBObject {
