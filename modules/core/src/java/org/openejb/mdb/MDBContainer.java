@@ -48,9 +48,8 @@
 package org.openejb.mdb;
 
 import java.lang.reflect.Method;
-import java.util.Set;
 import java.util.HashSet;
-
+import java.util.Set;
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.UnavailableException;
@@ -60,38 +59,29 @@ import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.naming.java.ComponentContextInterceptor;
+import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.openejb.ConnectionTrackingInterceptor;
 import org.openejb.EJBContainerConfiguration;
 import org.openejb.SystemExceptionInterceptor;
 import org.openejb.TransactionDemarcation;
 import org.openejb.cache.InstancePool;
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.naming.java.ComponentContextInterceptor;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
-
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.DispatchInterceptor;
-import org.openejb.dispatch.VirtualOperation;
 import org.openejb.dispatch.MethodSignature;
+import org.openejb.dispatch.VirtualOperation;
 import org.openejb.security.EJBIdentityInterceptor;
 import org.openejb.security.EJBRunAsInterceptor;
-import org.openejb.security.EJBSecurityInterceptor;
-import org.openejb.security.PermissionManager;
 import org.openejb.security.PolicyContextHandlerEJBInterceptor;
-import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.openejb.transaction.TransactionContextInterceptor;
-import org.openejb.transaction.TransactionPolicyManager;
 import org.openejb.util.SoftLimitedInstancePool;
 
 /**
@@ -189,9 +179,6 @@ public class MDBContainer implements MessageEndpointFactory, GBean {
 
     public Class getMessageEndpointInterface() {
         return messageEndpointInterface;
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {

@@ -48,18 +48,16 @@
 package org.openejb.server;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.lang.reflect.Constructor;
 
-import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.kernel.ClassLoading;
 import org.openejb.ContainerIndex;
 import org.openejb.OpenEJB;
 
@@ -78,8 +76,8 @@ public class SimpleSocketService implements SocketService, GBean {
             throw new ServiceException("Server service class does not implement " + ServerService.class.getName() + ": " + serviceClassName);
         }
         try {
-            Constructor constructor = serviceClass.getConstructor(new Class[] { ContainerIndex.class });
-            service = (ServerService) constructor.newInstance(new Object[] {containerIndex});
+            Constructor constructor = serviceClass.getConstructor(new Class[]{ContainerIndex.class});
+            service = (ServerService) constructor.newInstance(new Object[]{containerIndex});
         } catch (Exception e) {
             throw new ServiceException("Error constructing server service class", e);
         }
@@ -90,12 +88,9 @@ public class SimpleSocketService implements SocketService, GBean {
         server = service;
 
         // TODO Horrid hack, the concept needs to survive somewhere
-        if (OpenEJB.getApplicationServer() == null){
+        if (OpenEJB.getApplicationServer() == null) {
             OpenEJB.setApplicationServer(new ServerFederation());
         }
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public synchronized void doStart() throws ServiceException {

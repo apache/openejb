@@ -52,7 +52,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
@@ -146,9 +145,6 @@ public class EJBModuleImpl implements GBean {
         if (keyPropertyList.size() != 4) {
             throw new InvalidObjectNameException("EJBModule object name can only have j2eeType, name, J2EEApplication, and J2EEServer properties", objectName);
         }
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {
