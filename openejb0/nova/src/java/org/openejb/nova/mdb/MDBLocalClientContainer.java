@@ -65,7 +65,6 @@ import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.openejb.nova.EJBInvocation;
-import org.openejb.nova.EJBInvocationImpl;
 import org.openejb.nova.EJBInvocationType;
 import org.openejb.nova.dispatch.MethodHelper;
 import org.openejb.nova.dispatch.MethodSignature;
@@ -82,17 +81,21 @@ import org.openejb.nova.method.EJBCallbackFilter;
  * @version $Revision$ $Date$
  */
 public class MDBLocalClientContainer {
+
+    public static final int BEFORE_DELIVERY = 0;
+    public static final int AFTER_DELIVERY = 1;
     private static final Class[] CONSTRUCTOR = new Class[]{MDBLocalClientContainer.class, XAResource.class};
     private static final SimpleCallbacks PROXY_CALLBACK;
     static {
         PROXY_CALLBACK = new SimpleCallbacks();
         PROXY_CALLBACK.setCallback(Callbacks.INTERCEPT, new MDBMessageEndpointCallback());
     }
-    
-    
+
+
     private final Interceptor firstInterceptor;
     private final int[] objectMap;
     private Factory proxyFactory;
+    private FastClass fastClass;
 
     /**
      * Constructor used to initialize the ClientContainer.
@@ -106,7 +109,7 @@ public class MDBLocalClientContainer {
 
         callbacks = new SimpleCallbacks();
         callbacks.setCallback(Callbacks.INTERCEPT, new MDBMessageEndpointCallback());
-        
+
         enhancer = new Enhancer();
         enhancer.setInterfaces(new Class[]{mdbInterface, MessageEndpoint.class});
         enhancer.setCallbackFilter(new EJBCallbackFilter(MDBMessageEndpointImpl.class));
@@ -114,8 +117,10 @@ public class MDBLocalClientContainer {
         enhancer.setSuperclass(MDBMessageEndpointImpl.class);
         enhancer.setClassLoader(mdbInterface.getClassLoader());
         proxyFactory = enhancer.create(CONSTRUCTOR, new Object[]{this, null});
-        
-        objectMap = MethodHelper.getObjectMap(signatures, FastClass.create(proxyFactory.getClass()));
+
+        fastClass = FastClass.create(proxyFactory.getClass());
+
+        objectMap = MethodHelper.getObjectMap(signatures, fastClass);
     }
 
     public MessageEndpoint getMessageEndpoint(XAResource resource) {
@@ -128,32 +133,56 @@ public class MDBLocalClientContainer {
      */
     public static class MDBMessageEndpointImpl implements MessageEndpoint {
 
-        XAResource resource;
+        XAResource adapterXAResource;
         MDBLocalClientContainer container;
-        
+
         /**
-         * @param resource
+         * @param adapterXAResource
          */
-        public MDBMessageEndpointImpl(MDBLocalClientContainer conatiner, XAResource resource) {
-            this.container = conatiner;
-            this.resource = resource;
+        public MDBMessageEndpointImpl(MDBLocalClientContainer container, XAResource adapterXAResource) {
+            this.container = container;
+            this.adapterXAResource = adapterXAResource;
         }
-        
-        
+
+        public XAResource getAdapterXAResource() {
+            return adapterXAResource;
+        }
+
+
         /**
          * @see javax.resource.spi.endpoint.MessageEndpoint#beforeDelivery(java.lang.reflect.Method)
          */
-        public void beforeDelivery(Method arg0) throws NoSuchMethodException, ResourceException {
-            // TODO Auto-generated method stub
-            
+        public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException {
+            //translate the method into an index.
+            //construct invocation and call.
+            int methodIndex = container.fastClass.getIndex(method.getName(), method.getParameterTypes());
+            int vopIndex = container.objectMap[methodIndex];
+            Object[] args = new Object[] {new Integer(vopIndex)};
+            try {
+                container.invoke(new MDBInvocationImpl(EJBInvocationType.MESSAGE_ENDPOINT, BEFORE_DELIVERY, args, adapterXAResource));
+            } catch (Throwable throwable) {
+                if (throwable instanceof ResourceException) {
+                    throw (ResourceException)throwable;
+                }
+                throw new ResourceException(throwable);
+            }
+
         }
 
         /**
          * @see javax.resource.spi.endpoint.MessageEndpoint#afterDelivery()
          */
         public void afterDelivery() throws ResourceException {
-            // TODO Auto-generated method stub
-            
+            Object[] args = new Object[] {};
+            try {
+                container.invoke(new MDBInvocationImpl(EJBInvocationType.MESSAGE_ENDPOINT, AFTER_DELIVERY, args, adapterXAResource));
+            } catch (Throwable throwable) {
+                if (throwable instanceof ResourceException) {
+                    throw (ResourceException)throwable;
+                }
+                throw new ResourceException(throwable);
+            }
+
         }
 
         /**
@@ -161,7 +190,7 @@ public class MDBLocalClientContainer {
          */
         public void release() {
             // TODO Auto-generated method stub
-            
+
         }
     }
 
@@ -174,11 +203,11 @@ public class MDBLocalClientContainer {
             MDBMessageEndpointImpl mdbEndpoint = ((MDBMessageEndpointImpl)o);
             MDBLocalClientContainer container = mdbEndpoint.container;
             int vopIndex = container.objectMap[methodProxy.getSuperIndex()];
-            return container.invoke(new EJBInvocationImpl(EJBInvocationType.LOCAL, null, vopIndex, args));
+            return container.invoke(new MDBInvocationImpl(EJBInvocationType.LOCAL, vopIndex, args, mdbEndpoint.getAdapterXAResource()));
         }
     }
 
-    
+
     private Object invoke(EJBInvocation invocation) throws Throwable {
         InvocationResult result;
         try {
@@ -196,5 +225,5 @@ public class MDBLocalClientContainer {
             throw result.getException();
         }
     }
-    
+
 }

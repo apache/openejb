@@ -59,6 +59,10 @@ import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.nova.EJBContainerConfiguration;
 import org.openejb.nova.MockTransactionManager;
+import org.openejb.nova.deployment.TransactionPolicySource;
+import org.openejb.nova.dispatch.MethodSignature;
+import org.openejb.nova.transaction.ContainerPolicy;
+import org.openejb.nova.transaction.TxnPolicy;
 
 /**
  *
@@ -149,6 +153,11 @@ public class BasicStatelessContainerTest extends TestCase {
         config.txnManager = new MockTransactionManager();
         config.trackedConnectionAssociator = new ConnectionTrackingCoordinator();
         config.unshareableResources = new HashSet();
+        config.transactionPolicySource = new TransactionPolicySource() {
+            public TxnPolicy getTransactionPolicy(String methodIntf, MethodSignature signature) {
+                return ContainerPolicy.Required;
+            }
+        };
 
         container = new StatelessContainer(config);
         container.doStart();

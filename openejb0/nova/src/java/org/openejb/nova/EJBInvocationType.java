@@ -58,24 +58,28 @@ import java.io.Serializable;
  */
 public final class EJBInvocationType implements Serializable {
     private final transient String name;
+    private final transient boolean local;
+    private final transient int transactionPolicyKey;
 
-    private EJBInvocationType(String name, boolean local) {
+    private EJBInvocationType(String name, boolean local, int transactionPolicyKey) {
         this.name = name;
         this.local = local;
+        this.transactionPolicyKey = transactionPolicyKey;
     }
 
-    public static final EJBInvocationType REMOTE = new EJBInvocationType("Remote", false);
-    public static final EJBInvocationType HOME = new EJBInvocationType("Home", false);
-    public static final EJBInvocationType LOCAL = new EJBInvocationType("Local", true);
-    public static final EJBInvocationType LOCALHOME = new EJBInvocationType("LocalHome", true);
-    public static final EJBInvocationType WEB_SERVICE = new EJBInvocationType("Web-Service", false);
-    public static final EJBInvocationType TIMEOUT = new EJBInvocationType("ejbTimeout", true);
+    public static final EJBInvocationType REMOTE = new EJBInvocationType("Remote", false, 0);
+    public static final EJBInvocationType HOME = new EJBInvocationType("Home", false, 0);
+    public static final EJBInvocationType LOCAL = new EJBInvocationType("Local", true, 1);
+    public static final EJBInvocationType LOCALHOME = new EJBInvocationType("LocalHome", true, 1);
+    public static final EJBInvocationType WEB_SERVICE = new EJBInvocationType("Web-Service", false, 2);
+    public static final EJBInvocationType TIMEOUT = new EJBInvocationType("ejbTimeout", true, 3);
+    //MESSAGE_ENDPOINT is only for beforeDelivery/afterDelivery.  The actual bean methods use LOCAL
+    public static final EJBInvocationType MESSAGE_ENDPOINT = new EJBInvocationType("Message-Endpoint-Delivery", true, 4);
 
     private static final EJBInvocationType[] VALUES = {
-        REMOTE, HOME, LOCAL, LOCALHOME, WEB_SERVICE, TIMEOUT
+        REMOTE, HOME, LOCAL, LOCALHOME, WEB_SERVICE, TIMEOUT, MESSAGE_ENDPOINT
     };
 
-    private final transient boolean local;
 
     public boolean isLocal() {
         return local;
@@ -85,6 +89,14 @@ public final class EJBInvocationType implements Serializable {
         return name;
     }
 
+    public int getTransactionPolicyKey() {
+        return transactionPolicyKey;
+    }
+
+    public static int getMaxTransactionPolicyKey() {
+        return maxTransactionPolicyKey;
+    }
+
     private static int nextOrdinal;
     private final int ordinal = nextOrdinal++;
 
@@ -92,12 +104,17 @@ public final class EJBInvocationType implements Serializable {
         return VALUES[ordinal];
     }
 
+    private static int maxTransactionPolicyKey = 0;
+
     // verify that all are defined and the ids match up
     static {
         assert (VALUES.length == nextOrdinal) : "VALUES is missing a value";
         for (int i = 0; i < VALUES.length; i++) {
             EJBInvocationType value = VALUES[i];
             assert (value.ordinal == i) : "Ordinal mismatch for " + value;
+            if (maxTransactionPolicyKey < value.transactionPolicyKey) {
+                maxTransactionPolicyKey = value.transactionPolicyKey;
+            }
         }
     }
 }

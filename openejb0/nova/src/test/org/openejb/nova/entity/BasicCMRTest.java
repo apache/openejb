@@ -61,6 +61,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.lang.reflect.Method;
+
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
@@ -68,6 +70,9 @@ import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.hsqldb.jdbcDataSource;
 import org.openejb.nova.MockTransactionManager;
+import org.openejb.nova.transaction.TxnPolicy;
+import org.openejb.nova.transaction.ContainerPolicy;
+import org.openejb.nova.deployment.TransactionPolicySource;
 import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.entity.cmp.CMPEntityContainer;
 import org.openejb.nova.entity.cmp.CMPQuery;
@@ -115,6 +120,14 @@ public class BasicCMRTest extends TestCase {
         config.txnDemarcation = TransactionDemarcation.CONTAINER;
         config.txnManager = new MockTransactionManager();
         config.pkClassName = Integer.class.getName();
+        config.transactionPolicySource = new TransactionPolicySource() {
+            public TxnPolicy getTransactionPolicy(String methodIntf, MethodSignature signature) {
+                return ContainerPolicy.Required;
+            }
+            public TxnPolicy getTransactionPolicy(String methodIntf, String methodName, String[] parameterTypes) {
+                return ContainerPolicy.Required;
+            }
+        };
 
         SimpleCommandFactory persistenceFactory = new SimpleCommandFactory(ds);
         ArrayList queries = new ArrayList();

@@ -50,37 +50,36 @@ package org.openejb.nova.deployment;
 
 import java.net.URI;
 
-import javax.management.ObjectName;
 import javax.jms.MessageListener;
-
+import javax.management.ObjectName;
 import javax.resource.spi.work.WorkManager;
 
-import org.apache.geronimo.kernel.deployment.DeploymentPlan;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.kernel.deployment.service.ClassSpaceMetadata;
-import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBean;
-import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
-import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
-import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
-import org.apache.geronimo.deployment.model.geronimo.ejb.ActivationConfig;
+import org.apache.geronimo.connector.BootstrapContext;
+import org.apache.geronimo.connector.deployment.ConnectorDeploymentPlanner;
+import org.apache.geronimo.connector.work.GeronimoWorkManager;
 import org.apache.geronimo.deployment.model.connector.ResourceAdapter;
 import org.apache.geronimo.deployment.model.geronimo.connector.GeronimoResourceAdapter;
-import org.apache.geronimo.connector.deployment.ConnectorDeploymentPlanner;
-import org.apache.geronimo.connector.BootstrapContext;
-import org.apache.geronimo.connector.work.GeronimoWorkManager;
-//import org.apache.geronimo.naming.java.ContextBuilderTest; //copy now in this directory
+import org.apache.geronimo.deployment.model.geronimo.ejb.ActivationConfig;
+import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
+import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
+import org.apache.geronimo.kernel.deployment.DeploymentPlan;
+import org.apache.geronimo.kernel.deployment.service.ClassSpaceMetadata;
+import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
+import org.apache.geronimo.kernel.service.GeronimoMBean;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.openejb.nova.EJBContainerConfiguration;
-import org.openejb.nova.slsb.MockEJB;
-import org.openejb.nova.slsb.MockHome;
-import org.openejb.nova.slsb.MockRemote;
-import org.openejb.nova.slsb.MockLocalHome;
-import org.openejb.nova.slsb.MockLocal;
-
+import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.mdb.mockra.MockActivationSpec;
 import org.openejb.nova.mdb.mockra.MockResourceAdapter;
+import org.openejb.nova.slsb.MockEJB;
+import org.openejb.nova.slsb.MockHome;
+import org.openejb.nova.slsb.MockLocal;
+import org.openejb.nova.slsb.MockLocalHome;
+import org.openejb.nova.slsb.MockRemote;
+import org.openejb.nova.transaction.ContainerPolicy;
+import org.openejb.nova.transaction.TxnPolicy;
 
 /**
  *
@@ -100,6 +99,12 @@ public class BasicEJBDeploymentTest extends ContextBuilderTest {
     private MBeanMetadata ejbMetadata;
     private ClassSpaceMetadata csMetadata;
     private URI baseURI;
+
+    private TransactionPolicySource transactionPolicySource = new TransactionPolicySource() {
+        public TxnPolicy getTransactionPolicy(String methodIntf, MethodSignature signature) {
+            return ContainerPolicy.Required;
+        }
+    };
 
     protected void setUp() throws Exception {
         setUpKernel();
@@ -133,7 +138,7 @@ public class BasicEJBDeploymentTest extends ContextBuilderTest {
 
     public void testSessionConfigTranslation() throws Exception {
         buildSession();
-        EJBContainerConfiguration config = planner.getSessionConfig((Session)ejb, ejbMetadata);
+        EJBContainerConfiguration config = planner.getSessionConfig((Session)ejb, ejbMetadata, transactionPolicySource);
         assertTrue("expected config", config != null);
         assertEquals("EJBClass", MockEJB.class.getName(), config.beanClassName);
         //assertEquals("EJBName", "MockSession", config.beanClassName);
@@ -150,7 +155,7 @@ public class BasicEJBDeploymentTest extends ContextBuilderTest {
         buildSession();
         //null is no parent.
         DeploymentPlan plan = new DeploymentPlan();
-        planner.planSession(plan, (Session)ejb, null, csMetadata, baseURI);
+        planner.planSession(plan, (Session)ejb, null, csMetadata, baseURI, transactionPolicySource);
         assertTrue("plan exists", null != plan);
         plan.execute();
         assertTrue("Expected session container mbean ", kernel.getMBeanServer().isRegistered(ejbObjectName));
@@ -176,7 +181,7 @@ public class BasicEJBDeploymentTest extends ContextBuilderTest {
 
     public void testMDBConfigTranslation() throws Exception {
         buildMDB();
-        EJBContainerConfiguration config = planner.getMessageDrivenConfig((MessageDriven)ejb);
+        EJBContainerConfiguration config = planner.getMessageDrivenConfig((MessageDriven)ejb, transactionPolicySource);
         assertTrue("expected config", config != null);
         assertEquals("EJBClass", org.openejb.nova.mdb.MockEJB.class.getName(), config.beanClassName);
         //assertEquals("EJBName", "MockSession", config.beanClassName);
@@ -194,7 +199,7 @@ public class BasicEJBDeploymentTest extends ContextBuilderTest {
         buildMDB();
         //null is no parent.
         DeploymentPlan plan = new DeploymentPlan();
-        planner.planMessageDriven(plan, (MessageDriven)ejb, null, csMetadata, baseURI);
+        planner.planMessageDriven(plan, (MessageDriven)ejb, null, csMetadata, baseURI, transactionPolicySource);
         assertTrue("plan exists", null != plan);
         assertTrue("Expected plan to be runnable", plan.canRun());
         plan.execute();

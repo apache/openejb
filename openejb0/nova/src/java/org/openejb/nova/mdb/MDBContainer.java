@@ -95,6 +95,7 @@ public class MDBContainer extends AbstractEJBContainer implements MessageEndpoin
 
         MDBOperationFactory vopFactory = MDBOperationFactory.newInstance(beanClass);
         vtable = vopFactory.getVTable();
+        buildMDBTransactionPolicyMap(vopFactory.getSignatures());
 
         pool = new SoftLimitedInstancePool(new MDBInstanceFactory(this), 1);
 
@@ -104,15 +105,16 @@ public class MDBContainer extends AbstractEJBContainer implements MessageEndpoin
         if (trackedConnectionAssociator != null) {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources);
         }
-        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, txnManager);
+        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, txnManager, transactionPolicy);
         firstInterceptor = new MDBInstanceInterceptor(firstInterceptor, pool);
         firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, getBeanClassName());
+        firstInterceptor = new MDBClassLoaderInterceptor(firstInterceptor, classLoader, -1, -1);
 
         // set up client containers
         MDBClientContainerFactory clientFactory = new MDBClientContainerFactory(vopFactory, firstInterceptor, mdbInterface);
         messageClientContainer = clientFactory.getMessageClientContainer();
-        buildMethodMap(vopFactory.getSignatures());
+        //buildMDBMethodMap(vopFactory.getSignatures());
 
         try {
             // Setup the endpoint.
@@ -134,8 +136,8 @@ public class MDBContainer extends AbstractEJBContainer implements MessageEndpoin
     /**
      * @see javax.resource.spi.endpoint.MessageEndpointFactory#createEndpoint(javax.transaction.xa.XAResource)
      */
-    public MessageEndpoint createEndpoint(XAResource resource) throws UnavailableException {
-        return messageClientContainer.getMessageEndpoint(resource);
+    public MessageEndpoint createEndpoint(XAResource adapterXAResource) throws UnavailableException {
+        return messageClientContainer.getMessageEndpoint(adapterXAResource);
     }
 
     /**

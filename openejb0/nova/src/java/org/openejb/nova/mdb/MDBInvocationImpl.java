@@ -45,39 +45,44 @@
  *
  * ====================================================================
  */
-package org.openejb.nova;
 
-import java.net.URI;
-import java.util.Set;
+package org.openejb.nova.mdb;
 
-import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAResource;
 
-import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
-
-import org.openejb.nova.transaction.EJBUserTransaction;
-import org.openejb.nova.transaction.TxnPolicy;
-import org.openejb.nova.deployment.TransactionPolicySource;
+import org.openejb.nova.EJBInvocationImpl;
+import org.openejb.nova.EJBInvocationType;
 
 /**
  *
  *
  * @version $Revision$ $Date$
- */
-public class EJBContainerConfiguration {
-    public URI uri;
-    public String beanClassName;
-    public String homeInterfaceName;
-    public String remoteInterfaceName;
-    public String localHomeInterfaceName;
-    public String localInterfaceName;
-    public String messageEndpointInterfaceName;
-    public TransactionDemarcation txnDemarcation;
-    public EJBUserTransaction userTransaction;
-    public ReadOnlyContext componentContext;
-    public TransactionManager txnManager;
-    public TrackedConnectionAssociator trackedConnectionAssociator;
-    public Set unshareableResources;
-    public TransactionPolicySource transactionPolicySource;
+ *
+ * */
+public class MDBInvocationImpl extends EJBInvocationImpl implements MDBInvocation {
+
+    private ClassLoader oldClassLoader;
+    private XAResource adapterXAResource;
+
+    public MDBInvocationImpl(EJBInvocationType type, int index, Object[] arguments, XAResource adapterXAResource) {
+        super(type, index, arguments);
+        this.adapterXAResource = adapterXAResource;
+    }
+
+    public ClassLoader getOldClassLoader() {
+        return oldClassLoader;
+    }
+
+    public void setOldClassLoader(ClassLoader oldClassLoader) {
+        this.oldClassLoader = oldClassLoader;
+    }
+
+    public XAResource getAdapterXAResource() {
+        return adapterXAResource;
+    }
+
+
+    public void setAdapterXAResource(XAResource adapterXAResource) {
+        this.adapterXAResource = adapterXAResource;
+    }
 }

@@ -106,4 +106,10 @@ public class BeanPolicy {
             }
         }
     };
+
+    public static final TxnPolicy Stateful = new TxnPolicy() {
+        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
+            throw new IllegalStateException("Not yet implemented");
+        }
+    };
 }

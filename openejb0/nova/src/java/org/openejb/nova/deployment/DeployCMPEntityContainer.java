@@ -107,8 +107,7 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
     public void perform() throws DeploymentException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            ClassSpaceUtil.setContextClassLoader(server, JMXUtil.getObjectName("geronimo.system:role=ClassSpace,name=System"));
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            ClassLoader cl = ClassSpaceUtil.setContextClassLoader(server, JMXUtil.getObjectName("geronimo.system:role=ClassSpace,name=System"));
             SimpleCommandFactory schema = schemaFactory.getSchema();
 
             //register the queries

@@ -104,6 +104,7 @@ public class CMPEntityContainer extends AbstractEJBContainer {
 
         ejbLoadCommand = persistenceFactory.getQueryCommand(new MethodSignature("ejbLoad"));
         ejbStoreCommand = persistenceFactory.getUpdateCommand(new MethodSignature("ejbStore"));
+        buildTransactionPolicyMap(vopFactory.getSignatures());
 
         pool = new SoftLimitedInstancePool(new EntityInstanceFactory(componentContext, vopFactory.getInstanceContextFactory()), 1);
 
@@ -114,7 +115,7 @@ public class CMPEntityContainer extends AbstractEJBContainer {
         }
         firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, pool);
         firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
-        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, txnManager);
+        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, txnManager, transactionPolicy);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, getBeanClassName());
 
         URI target;
@@ -130,7 +131,6 @@ public class CMPEntityContainer extends AbstractEJBContainer {
         remoteClientContainer = clientFactory.getRemoteClient();
         localClientContainer = clientFactory.getLocalClient();
 
-        buildMethodMap(vopFactory.getSignatures());
     }
 
     public void doStop() {

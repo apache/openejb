@@ -56,6 +56,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.lang.reflect.Method;
 
 import javax.ejb.ObjectNotFoundException;
 import javax.management.ObjectName;
@@ -66,6 +67,9 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.hsqldb.jdbcDataSource;
 import org.openejb.nova.MockTransactionManager;
+import org.openejb.nova.transaction.TxnPolicy;
+import org.openejb.nova.transaction.ContainerPolicy;
+import org.openejb.nova.deployment.TransactionPolicySource;
 import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.entity.cmp.CMPEntityContainer;
 import org.openejb.nova.entity.cmp.CMPQuery;
@@ -192,6 +196,14 @@ public class BasicCMPEntityContainerTest extends TestCase {
         config.pkClassName = Integer.class.getName();
         config.trackedConnectionAssociator = new ConnectionTrackingCoordinator();
         config.unshareableResources = new HashSet();
+        config.transactionPolicySource = new TransactionPolicySource() {
+            public TxnPolicy getTransactionPolicy(String methodIntf, MethodSignature signature) {
+                return ContainerPolicy.Required;
+            }
+            public TxnPolicy getTransactionPolicy(String methodIntf, String methodName, String[] parameterTypes) {
+                return ContainerPolicy.Required;
+            }
+        };
 
         SimpleCommandFactory persistenceFactory = new SimpleCommandFactory(ds);
         ArrayList queries = new ArrayList();

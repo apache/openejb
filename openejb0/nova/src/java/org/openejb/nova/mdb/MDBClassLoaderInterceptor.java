@@ -45,44 +45,75 @@
  *
  * ====================================================================
  */
-package org.openejb.nova.transaction;
 
-import javax.transaction.TransactionManager;
+package org.openejb.nova.mdb;
 
 import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
-
-import org.openejb.nova.EJBInvocation;
-import org.openejb.nova.EJBInvocationType;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 /**
  *
  *
  * @version $Revision$ $Date$
- */
-public class TransactionContextInterceptor implements Interceptor {
-    private final Interceptor next;
-    private final TransactionManager txnManager;
-    private final TxnPolicy[][] transactionPolicies;
+ *
+ * */
+public class MDBClassLoaderInterceptor implements Interceptor {
 
-    public TransactionContextInterceptor(Interceptor next, TransactionManager txnManager, TxnPolicy[][] transactionPolicies) {
+    private final Interceptor next;
+    private final ClassLoader classLoader;
+    private final int beforeDeliveryIndex;
+    private final int afterDeliveryIndex;
+
+    public MDBClassLoaderInterceptor(Interceptor next, ClassLoader classLoader, int beforeDeliveryIndex, int afterDeliveryIndex) {
         this.next = next;
-        this.txnManager = txnManager;
-        this.transactionPolicies = transactionPolicies;
+        this.classLoader = classLoader;
+        this.beforeDeliveryIndex = beforeDeliveryIndex;
+        this.afterDeliveryIndex = afterDeliveryIndex;
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
-        EJBInvocation ejbInvocation = (EJBInvocation) invocation;
-        EJBInvocationType invocationType = ejbInvocation.getType();
-        int index = ejbInvocation.getMethodIndex();
-        TxnPolicy policy = null;//ContainerPolicy.Required; //@todo get this from metadata
-        try {
-            policy = transactionPolicies[invocationType.getTransactionPolicyKey()][index];
-        } catch (Throwable e) {
-            throw new IllegalStateException("Could not locate transaction policy for transaction policy key " + invocationType.getTransactionPolicyKey() + " and index " + index).initCause(e);
+        MDBInvocation mdbInvocation = (MDBInvocation)invocation;
+        int methodIndex = mdbInvocation.getMethodIndex();
+        if (methodIndex == beforeDeliveryIndex) {
+            //ignore out of order calls
+            if (mdbInvocation.getOldClassLoader() != null) {
+                return new SimpleInvocationResult(true, null);
+            }
+            Thread currentThread = Thread.currentThread();
+            ClassLoader oldClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(classLoader);
+            mdbInvocation.setOldClassLoader(oldClassLoader);
+            return next.invoke(mdbInvocation);
+        } else if (methodIndex == afterDeliveryIndex) {
+            //ignore out of order calls
+            if (mdbInvocation.getOldClassLoader() == null) {
+                return new SimpleInvocationResult(true, null);
+            }
+            Thread currentThread = Thread.currentThread();
+            ClassLoader oldClassLoader = mdbInvocation.getOldClassLoader();
+            currentThread.setContextClassLoader(oldClassLoader);
+            mdbInvocation.setOldClassLoader(null);
+            return next.invoke(mdbInvocation);
+        } else {
+            if (mdbInvocation.getOldClassLoader() != null) {
+                //beforeDelivery has already been called, and classloader set
+                return next.invoke(mdbInvocation);
+            } else {
+                //beforeDeliver will not be called, we need to set/unset classloader
+                Thread currentThread = Thread.currentThread();
+                ClassLoader oldClassLoader = currentThread.getContextClassLoader();
+                currentThread.setContextClassLoader(classLoader);
+                try {
+                    return next.invoke(mdbInvocation);
+                } finally {
+                    currentThread.setContextClassLoader(oldClassLoader);
+                }
+
+            }
         }
-        assert policy != null: "transaction policy array was not set up correctly, no policy for " + invocation;
-        return policy.invoke(next, ejbInvocation, txnManager);
+
     }
+
 }

@@ -56,9 +56,13 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.openejb.nova.EJBContainerConfiguration;
 import org.openejb.nova.MockTransactionManager;
+import org.openejb.nova.deployment.TransactionPolicySource;
+import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.mdb.mockra.MockActivationSpec;
 import org.openejb.nova.mdb.mockra.MockBootstrapContext;
 import org.openejb.nova.mdb.mockra.MockResourceAdapter;
+import org.openejb.nova.transaction.ContainerPolicy;
+import org.openejb.nova.transaction.TxnPolicy;
 
 /**
  *
@@ -72,12 +76,6 @@ public class BasicMDBContainerTest extends TestCase {
     private MockResourceAdapter resourceAdapter;
 
     protected void setUp() throws Exception {
-
-
-    }
-
-    public void testNothing() throws Exception {
-
         config = new EJBContainerConfiguration();
         config.beanClassName = MockEJB.class.getName();
         config.txnDemarcation = TransactionDemarcation.CONTAINER;
@@ -85,6 +83,15 @@ public class BasicMDBContainerTest extends TestCase {
         config.messageEndpointInterfaceName = MessageListener.class.getName();
         config.trackedConnectionAssociator = new ConnectionTrackingCoordinator();
         config.unshareableResources = new HashSet();
+        config.transactionPolicySource = new TransactionPolicySource() {
+            public TxnPolicy getTransactionPolicy(String methodIntf, MethodSignature signature) {
+                return ContainerPolicy.Required;
+            }
+        };
+    }
+
+    public void testNothing() throws Exception {
+
 
         resourceAdapter = new MockResourceAdapter();
         resourceAdapter.start(new MockBootstrapContext() );
@@ -106,5 +113,6 @@ public class BasicMDBContainerTest extends TestCase {
     }
 
     protected void tearDown() throws Exception {
+        config = null;
     }
 }

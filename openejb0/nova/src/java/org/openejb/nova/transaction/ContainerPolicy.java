@@ -55,6 +55,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 import org.openejb.nova.EJBInvocation;
 
@@ -97,6 +98,10 @@ public class ContainerPolicy {
                 }
             }
         }
+
+        public String toString() {
+            return "NotSupported";
+        }
     };
 
     public static final TxnPolicy Required = new TxnPolicy() {
@@ -134,6 +139,9 @@ public class ContainerPolicy {
                 }
             }
         }
+        public String toString() {
+            return "Required";
+        }
     };
 
     public static final TxnPolicy Supports = new TxnPolicy() {
@@ -164,6 +172,9 @@ public class ContainerPolicy {
                 ejbInvocation.setTransactionContext(null);
                 TransactionContext.setContext(null);
             }
+        }
+        public String toString() {
+            return "Supports";
         }
     };
 
@@ -199,6 +210,9 @@ public class ContainerPolicy {
                 }
             }
         }
+        public String toString() {
+            return "RequiresNew";
+        }
     };
 
     public static final TxnPolicy Mandatory = new TxnPolicy() {
@@ -213,6 +227,9 @@ public class ContainerPolicy {
             } else {
                 throw new TransactionRequiredException();
             }
+        }
+        public String toString() {
+            return "Mandatory";
         }
     };
 
@@ -250,5 +267,62 @@ public class ContainerPolicy {
                 TransactionContext.setContext(null);
             }
         }
+        public String toString() {
+            return "Never";
+        }
+
+    };
+        //TODO INCOMPLETE: XAResource is not enlisted in new tx. Method tx attr. is not checked. clientContext is not saved.
+    public final static TxnPolicy BeforeDelivery = new TxnPolicy() {
+        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
+            TransactionContext clientContext = TransactionContext.getContext();
+            if (clientContext instanceof InheritableTransactionContext) {
+                return interceptor.invoke(ejbInvocation);
+            }
+
+            if (clientContext != null) {
+                clientContext.suspend();
+            }
+            try {
+                TransactionContext beanContext = new ContainerTransactionContext(txnManager);
+                TransactionContext.setContext(beanContext);
+                beanContext.begin();
+                ejbInvocation.setTransactionContext(beanContext);
+                return new SimpleInvocationResult(true, null);
+            } catch (Exception e) {
+                return new SimpleInvocationResult(false, e);
+            }
+        }
+
+        public String toString() {
+            return "BeforeDelivery";
+        }
+
+    };
+    //TODO really broken. possible (imported) tx context is not restored.  XAResource is not delisted.
+    public final static TxnPolicy AfterDelivery = new TxnPolicy() {
+        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
+            TransactionContext beanContext = TransactionContext.getContext();
+            try {
+                try {
+                    beanContext.commit();
+                    return new SimpleInvocationResult(true, null);
+                } catch (Throwable t) {
+                    try {
+                        beanContext.rollback();
+                    } catch (Exception e) {
+                        log.warn("Unable to roll back", e);
+                    }
+                    throw t;
+                }
+            } finally {
+                ejbInvocation.setTransactionContext(null);
+                TransactionContext.setContext(null);
+            }
+        }
+        public String toString() {
+            return "AfterDelivery";
+        }
+
     };
 }

@@ -122,5 +122,5 @@ public interface EJBContainer {
      */
     ReadOnlyContext getComponentContext();
 
-    int getMethodIndex(Method method, EJBInvocationType type);
+    //int getMethodIndex(Method method, EJBInvocationType type);
 }

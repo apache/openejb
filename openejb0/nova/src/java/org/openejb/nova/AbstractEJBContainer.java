@@ -51,6 +51,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Map;
 import java.util.Set;
+import java.util.Iterator;
 
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
@@ -71,6 +72,9 @@ import org.openejb.nova.dispatch.MethodHelper;
 import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.dispatch.VirtualOperation;
 import org.openejb.nova.transaction.EJBUserTransaction;
+import org.openejb.nova.transaction.TxnPolicy;
+import org.openejb.nova.transaction.ContainerPolicy;
+import org.openejb.nova.deployment.TransactionPolicySource;
 
 /**
  *
@@ -93,6 +97,7 @@ public abstract class AbstractEJBContainer
     protected final ReadOnlyContext componentContext;
     protected final EJBUserTransaction userTransaction;
     protected final Set unshareableResources;
+    protected final TransactionPolicySource transactionPolicySource;
 
 
     protected ClassLoader classLoader;
@@ -107,12 +112,11 @@ public abstract class AbstractEJBContainer
     protected Class localHomeInterface;
     protected Class localInterface;
 
+    protected Class messageEndpointInterface;
+
     protected InstancePool pool;
     private Long remoteId;
-    private Map homeMethodMap;
-    private Map remoteMethodMap;
-    private Map localHomeMethodMap;
-    private Map localMethodMap;
+    protected TxnPolicy[][] transactionPolicy = new TxnPolicy[EJBInvocationType.getMaxTransactionPolicyKey() + 1][];
 
     public AbstractEJBContainer(EJBContainerConfiguration config) {
         uri = config.uri;
@@ -128,6 +132,7 @@ public abstract class AbstractEJBContainer
         componentContext = config.componentContext;
         trackedConnectionAssociator = config.trackedConnectionAssociator;
         unshareableResources = config.unshareableResources;
+        transactionPolicySource = config.transactionPolicySource;
     }
 
     public void setTransactionManager(TransactionManager txnManager) {
@@ -172,6 +177,9 @@ public abstract class AbstractEJBContainer
                 localHomeInterface = null;
                 localInterface = null;
             }
+            if (messageEndpointClassName != null) {
+                messageEndpointInterface = classLoader.loadClass(messageEndpointClassName);
+            }
         } catch (ClassNotFoundException e) {
             throw new AssertionError(e);
         }
@@ -189,6 +197,7 @@ public abstract class AbstractEJBContainer
         remoteInterface = null;
         localHomeInterface = null;
         localInterface = null;
+        messageEndpointInterface = null;
         beanClass = null;
         if (userTransaction != null) {
             userTransaction.setUp(null, trackedConnectionAssociator);
@@ -302,32 +311,43 @@ public abstract class AbstractEJBContainer
         InterceptorRegistry.instance.unregister(remoteId);
     }
 
-    protected void buildMethodMap(MethodSignature[] signatures) {
+    protected void buildTransactionPolicyMap(MethodSignature[] signatures) {
         if (homeInterface != null) {
-            homeMethodMap = MethodHelper.getHomeMethodMap(signatures, homeInterface);
-            remoteMethodMap = MethodHelper.getObjectMethodMap(signatures, remoteInterface);
+            TxnPolicy[] remotePolicies = new TxnPolicy[signatures.length];
+            Map homeMethodMap = MethodHelper.getHomeMethodMap(signatures, homeInterface);
+            mapPolicies("Home", homeMethodMap, remotePolicies);
+            Map remoteMethodMap = MethodHelper.getObjectMethodMap(signatures, remoteInterface);
+            mapPolicies("Remote", remoteMethodMap, remotePolicies);
+            transactionPolicy[EJBInvocationType.REMOTE.getTransactionPolicyKey()] = remotePolicies;
         }
         if (localHomeInterface != null) {
-            localHomeMethodMap = MethodHelper.getHomeMethodMap(signatures, localHomeInterface);
-            localMethodMap = MethodHelper.getObjectMethodMap(signatures, localInterface);
+            TxnPolicy[] localPolicies = new TxnPolicy[signatures.length];
+            Map localHomeMethodMap = MethodHelper.getHomeMethodMap(signatures, localHomeInterface);
+            mapPolicies("LocalHome", localHomeMethodMap, localPolicies);
+            Map localMethodMap = MethodHelper.getObjectMethodMap(signatures, localInterface);
+            mapPolicies("Local", localMethodMap, localPolicies);
+            transactionPolicy[EJBInvocationType.LOCAL.getTransactionPolicyKey()] = localPolicies;
         }
     }
 
-    public int getMethodIndex(Method method, EJBInvocationType invocationType) {
-        Integer index = null;
-        if (invocationType == EJBInvocationType.HOME) {
-            index = (Integer) homeMethodMap.get(method);
-        } else if (invocationType == EJBInvocationType.REMOTE) {
-            index = (Integer) remoteMethodMap.get(method);
-        } else if (invocationType == EJBInvocationType.LOCALHOME) {
-            index = (Integer) localHomeMethodMap.get(method);
-        } else if (invocationType == EJBInvocationType.LOCAL) {
-            index = (Integer) localMethodMap.get(method);
+    protected void buildMDBTransactionPolicyMap(MethodSignature[] signatures) {
+        TxnPolicy[] localPolicies = new TxnPolicy[signatures.length];
+        Map localMethodMap = MethodHelper.getObjectMethodMap(signatures, messageEndpointInterface);
+        mapPolicies("Local", localMethodMap, localPolicies);
+        transactionPolicy[EJBInvocationType.LOCAL.getTransactionPolicyKey()] = localPolicies;
+        transactionPolicy[EJBInvocationType.MESSAGE_ENDPOINT.getTransactionPolicyKey()] =
+                new TxnPolicy[] {ContainerPolicy.BeforeDelivery, ContainerPolicy.AfterDelivery};
+    }
+
+    //TODO can the method map start out with MethodSignatures instead of methods?
+    private void mapPolicies(String intfName, Map methodMap, TxnPolicy[] policies) {
+        for (Iterator iterator = methodMap.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            MethodSignature signature = new MethodSignature((Method)entry.getKey());
+            Integer index = (Integer)entry.getValue();
+            TxnPolicy policy = transactionPolicySource.getTransactionPolicy(intfName, signature);
+            policies[index.intValue()] = policy;
         }
-        if(index != null) {
-            return index.intValue();
-        }
-        return -1;
     }
 }
 

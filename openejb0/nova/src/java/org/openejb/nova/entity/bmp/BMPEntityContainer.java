@@ -89,6 +89,7 @@ public class BMPEntityContainer extends AbstractEJBContainer {
 
         VirtualOperationFactory vopFactory = BMPOperationFactory.newInstance(beanClass);
         vtable = vopFactory.getVTable();
+        buildTransactionPolicyMap(vopFactory.getSignatures());
 
         pool = new SoftLimitedInstancePool(new EntityInstanceFactory(componentContext, new BMPInstanceContextFactory(this)), 1);
 
@@ -99,7 +100,7 @@ public class BMPEntityContainer extends AbstractEJBContainer {
         }
         firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, pool);
         firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
-        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, txnManager);
+        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, txnManager, transactionPolicy);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, getBeanClassName());
 
         URI target;
@@ -115,7 +116,6 @@ public class BMPEntityContainer extends AbstractEJBContainer {
         remoteClientContainer = clientFactory.getRemoteClient();
         localClientContainer = clientFactory.getLocalClient();
 
-        buildMethodMap(vopFactory.getSignatures());
     }
 
     public void doStop() {

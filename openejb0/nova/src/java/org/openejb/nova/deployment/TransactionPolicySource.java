@@ -45,39 +45,17 @@
  *
  * ====================================================================
  */
-package org.openejb.nova;
+package org.openejb.nova.deployment;
 
-import java.net.URI;
-import java.util.Set;
-
-import javax.transaction.TransactionManager;
-
-import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
-
-import org.openejb.nova.transaction.EJBUserTransaction;
 import org.openejb.nova.transaction.TxnPolicy;
-import org.openejb.nova.deployment.TransactionPolicySource;
+import org.openejb.nova.dispatch.MethodSignature;
 
 /**
  *
  *
  * @version $Revision$ $Date$
- */
-public class EJBContainerConfiguration {
-    public URI uri;
-    public String beanClassName;
-    public String homeInterfaceName;
-    public String remoteInterfaceName;
-    public String localHomeInterfaceName;
-    public String localInterfaceName;
-    public String messageEndpointInterfaceName;
-    public TransactionDemarcation txnDemarcation;
-    public EJBUserTransaction userTransaction;
-    public ReadOnlyContext componentContext;
-    public TransactionManager txnManager;
-    public TrackedConnectionAssociator trackedConnectionAssociator;
-    public Set unshareableResources;
-    public TransactionPolicySource transactionPolicySource;
+ *
+ * */
+public interface TransactionPolicySource {
+    TxnPolicy getTransactionPolicy(String methodIntf, MethodSignature signature);
 }

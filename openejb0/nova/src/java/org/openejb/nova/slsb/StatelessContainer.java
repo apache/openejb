@@ -74,6 +74,7 @@ public class StatelessContainer extends AbstractEJBContainer {
 
         StatelessOperationFactory vopFactory = StatelessOperationFactory.newInstance(beanClass);
         vtable = vopFactory.getVTable();
+        buildTransactionPolicyMap(vopFactory.getSignatures());
 
         pool = new SoftLimitedInstancePool(new StatelessInstanceFactory(this), 1);
 
@@ -83,7 +84,7 @@ public class StatelessContainer extends AbstractEJBContainer {
         if (trackedConnectionAssociator != null) {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources);
         }
-        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, txnManager);
+        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, txnManager, transactionPolicy);
         firstInterceptor = new StatelessInstanceInterceptor(firstInterceptor, pool);
         firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, getBeanClassName());
@@ -101,7 +102,6 @@ public class StatelessContainer extends AbstractEJBContainer {
         remoteClientContainer = clientFactory.getRemoteClient();
         localClientContainer = clientFactory.getLocalClient();
 
-        buildMethodMap(vopFactory.getSignatures());
     }
 
     public void doStop() {
