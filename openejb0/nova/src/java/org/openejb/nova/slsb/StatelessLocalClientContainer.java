@@ -47,9 +47,7 @@
  */
 package org.openejb.nova.slsb;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.Iterator;
 import java.util.Map;
 import javax.ejb.EJBException;
@@ -72,30 +70,42 @@ import org.openejb.nova.EJBInvocationImpl;
 import org.openejb.nova.EJBInvocationType;
 import org.openejb.nova.EJBLocalClientContainer;
 import org.openejb.nova.method.EJBCallbackFilter;
-import org.openejb.nova.method.EJBInterfaceMethods;
 
 /**
+ * Container for the local interface of a Stateless SessionBean.
+ * This container owns implementations of EJBLocalHome and EJBLocalObject
+ * that can be used by a client in the same classloader as the server.
  *
- *
+ * The implementation of the interfaces is generated using cglib FastClass
+ * proxies to avoid the overhead of native Java reflection.
  *
  * @version $Revision$ $Date$
  */
 public class StatelessLocalClientContainer implements EJBLocalClientContainer {
-    private final Class localHome;
+    private Interceptor firstInterceptor; // @todo make this final
+    private final int createIndex;
     private final EJBLocalHome localHomeProxy;
-    private final EJBLocalObject localProxy;
-    private Interceptor firstInterceptor;
-    private final Map localMap;
     private final int[] indexMap;
     private final EJBLocalObject fastLocalProxy;
 
+    /**
+     * Constructor used to initialize the ClientContainer.
+     * @param localHome the class of the EJB's LocalHome interface
+     * @param objectMap the mapping from methods on the local interface to the EJB's VirtualOperations
+     * @param local the class of the EJB's LocalObject interface
+     */
     public StatelessLocalClientContainer(Class localHome, Map objectMap, Class local) {
-        this.localHome = localHome;
-        localMap = objectMap;
-        this.localHomeProxy = (EJBLocalHome) Proxy.newProxyInstance(localHome.getClassLoader(), new Class[]{localHome}, new StatelessLocalHomeProxy());
-        this.localProxy = (EJBLocalObject) Proxy.newProxyInstance(local.getClassLoader(), new Class[]{local}, new StatelessLocalObjectCallback());
+        FastClass fastClass = FastClass.create(localHome);
+        createIndex = fastClass.getIndex("create", new Class[0]);
 
-        FastClass fastClass = FastClass.create(local);
+        SimpleCallbacks callbacks = new SimpleCallbacks();
+        callbacks.setCallback(Callbacks.INTERCEPT, new StatelessLocalHomeCallback());
+        Enhancer enhancer = getEnhancer(localHome, StatelessLocalHomeImpl.class, callbacks);
+        Factory factory = enhancer.create();
+        this.localHomeProxy = (EJBLocalHome) factory.newInstance(callbacks);
+
+
+        fastClass = FastClass.create(local);
         indexMap = new int[fastClass.getMaxIndex() + 1];
         for (Iterator iterator = objectMap.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
@@ -105,15 +115,21 @@ public class StatelessLocalClientContainer implements EJBLocalClientContainer {
             indexMap[index] = vopIndex;
         }
 
-        SimpleCallbacks callbacks = new SimpleCallbacks();
+        callbacks = new SimpleCallbacks();
         callbacks.setCallback(Callbacks.INTERCEPT, new StatelessLocalObjectCallback());
-        Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(StatelessLocalObjectImpl.class);
-        enhancer.setInterfaces(new Class[]{local});
-        enhancer.setCallbackFilter(new EJBCallbackFilter(StatelessLocalObjectImpl.class));
-        enhancer.setCallbacks(callbacks);
-        Factory factory = enhancer.create(new Class[]{EJBLocalHome.class}, new Object[]{localHomeProxy});
+
+        enhancer = getEnhancer(local, StatelessLocalObjectImpl.class, callbacks);
+        factory = enhancer.create(new Class[]{EJBLocalHome.class}, new Object[]{localHomeProxy});
         this.fastLocalProxy = (EJBLocalObject) factory.newInstance(new Class[]{EJBLocalHome.class}, new Object[]{localHomeProxy}, callbacks);
+    }
+
+    private static Enhancer getEnhancer(Class local, Class baseClass, SimpleCallbacks callbacks) {
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(baseClass);
+        enhancer.setInterfaces(new Class[]{local});
+        enhancer.setCallbackFilter(new EJBCallbackFilter(baseClass));
+        enhancer.setCallbacks(callbacks);
+        return enhancer;
     }
 
     public void addInterceptor(Interceptor interceptor) {
@@ -136,25 +152,18 @@ public class StatelessLocalClientContainer implements EJBLocalClientContainer {
         return fastLocalProxy;
     }
 
-    private class StatelessLocalHomeProxy implements InvocationHandler {
-        private final Method ejbCreate;
-
-        private StatelessLocalHomeProxy() {
-            try {
-                ejbCreate = localHome.getMethod("create", null);
-            } catch (NoSuchMethodException e) {
-                throw new IllegalStateException("localhome class " + localHome.getName() + " does not have a create() method");
-            }
+    public static abstract class StatelessLocalHomeImpl implements EJBLocalHome {
+        public void remove(Object primaryKey) throws RemoveException, EJBException {
+            throw new RemoveException("Cannot use remove(Object) on a Stateless SessionBean");
         }
+    }
 
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (ejbCreate.equals(method)) {
+    private class StatelessLocalHomeCallback implements MethodInterceptor {
+        public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+            if (methodProxy.getIndex() == createIndex) {
                 return fastLocalProxy;
-            } else if (EJBInterfaceMethods.LOCALHOME_REMOVE_OBJECT.equals(method)) {
-                throw new RemoveException("Cannot use remove(Object) on a Stateless SessionBean");
-            } else {
-                throw new IllegalStateException("Cannot use home method on a Stateless SessionBean");
             }
+            throw new IllegalStateException("Cannot use home method on a Stateless SessionBean");
         }
     }
 
@@ -181,7 +190,7 @@ public class StatelessLocalClientContainer implements EJBLocalClientContainer {
         }
     }
 
-    private class StatelessLocalObjectCallback implements InvocationHandler, MethodInterceptor {
+    private class StatelessLocalObjectCallback implements MethodInterceptor {
         public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
             InvocationResult result;
             try {
@@ -202,38 +211,5 @@ public class StatelessLocalClientContainer implements EJBLocalClientContainer {
                 throw result.getException();
             }
         }
-
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (EJBInterfaceMethods.LOCALOBJECT_GET_LOCALHOME.equals(method)) {
-                return localHomeProxy;
-            } else if (EJBInterfaceMethods.LOCALOBJECT_REMOVE.equals(method)) {
-                return null;
-            } else if (EJBInterfaceMethods.LOCALOBJECT_ISIDENTICAL.equals(method)) {
-                EJBLocalObject other = (EJBLocalObject) args[0];
-                return Boolean.valueOf(other == proxy); //@todo this relies on this Proxy being a Singleton
-            } else if (EJBInterfaceMethods.LOCALOBJECT_GET_PRIMARYKEY.equals(method)) {
-                throw new EJBException("Cannot use getPrimaryKey() on a Stateless SessionBean");
-            } else {
-                InvocationResult result;
-                try {
-                    Integer index = (Integer) localMap.get(method);
-                    EJBInvocation invocation = new EJBInvocationImpl(EJBInvocationType.LOCAL, index.intValue(), args);
-                    result = firstInterceptor.invoke(invocation);
-                } catch (Throwable t) {
-                    // System Exception from interceptor chain
-                    // Wrap checked Exceptions in an EJBException, otherwise just throw
-                    if (t instanceof Exception && t instanceof RuntimeException == false) {
-                        t = new EJBException((Exception) t);
-                    }
-                    throw t;
-                }
-                if (result.isNormal()) {
-                    return result.getResult();
-                } else {
-                    throw result.getException();
-                }
-            }
-        }
     }
-
 }
