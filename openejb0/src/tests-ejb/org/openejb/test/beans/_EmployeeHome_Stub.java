@@ -1,10 +1,11 @@
 package org.openejb.test.beans;
 
-//
-// Interface definition : EmployeeHome
-//
-// @author OpenORB Compiler
-//
+/**
+ * Interface definition : EmployeeHome
+ * 
+ * @author OpenORB Compiler
+ */
+
 public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 		implements EmployeeHome
 {
@@ -25,17 +26,19 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 	//
 	// Operation create
 	//
-	public org.openejb.test.beans.Employee create(java.lang.String arg0, java.lang.String arg1)
+	public org.openejb.test.beans.Employee create(String arg0, String arg1)
 		throws javax.ejb.CreateException, java.rmi.RemoteException
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
 					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("create",true);
-					_output.write_value((java.io.Serializable)arg0,java.lang.String.class);
-					_output.write_value((java.io.Serializable)arg1,java.lang.String.class);
+					_output.write_value((java.io.Serializable)arg0,String.class);
+					_output.write_value((java.io.Serializable)arg1,String.class);
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
 					org.openejb.test.beans.Employee _arg_ret = ( org.openejb.test.beans.Employee ) javax.rmi.PortableRemoteObject.narrow(_input.read_Object(), org.openejb.test.beans.Employee.class);
 					return _arg_ret;
@@ -47,10 +50,11 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:javax.ejb.CreateException:000000000076F0BF:0000000000000000") )
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:javax/ejb/CreateEx:1.0") )
 					{
-						throw ( javax.ejb.CreateException ) _input.read_value();
+						_input.read_string();
+						throw ( javax.ejb.CreateException ) _input.read_value(javax.ejb.CreateException.class);
 					}
 
 					throw new java.rmi.UnexpectedException(_exception_id);
@@ -63,91 +67,32 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
-		}
-	}
-
-	//
-	// Operation findAll
-	//
-	public java.util.Collection findAll()
-		throws javax.ejb.FinderException, java.rmi.RemoteException
-	{
-		while( true )
-		{
-				org.omg.CORBA_2_3.portable.InputStream _input = null;
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("create",_opsClass);
+				if ( _so == null )
+				   return create( arg0,  arg1);
 				try
 				{
-					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("findAll",true);
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
-					java.util.Collection _arg_ret = ( java.util.Collection )((org.omg.CORBA_2_3.portable.InputStream)_input).read_value(java.util.Collection.class);
-					return _arg_ret;
+					String arg0Copy = (String)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					String arg1Copy = (String)javax.rmi.CORBA.Util.copyObject(arg1, _orb());
+					org.openejb.test.beans.Employee _arg_ret = ((org.openejb.test.beans.EmployeeHome)_so.servant).create( arg0Copy,  arg1Copy);
+					return (org.openejb.test.beans.Employee)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
 				}
-				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				catch ( Throwable ex )
 				{
-					continue;
-				}
-				catch( org.omg.CORBA.portable.ApplicationException _exception )
-				{
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:javax.ejb.FinderException:00000000002B853B:0000000000000000") )
-					{
-						throw ( javax.ejb.FinderException ) _input.read_value();
-					}
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof javax.ejb.CreateException )
+						throw ( javax.ejb.CreateException ) ex2;
 
-					throw new java.rmi.UnexpectedException(_exception_id);
-				}
-				catch( org.omg.CORBA.SystemException _exception )
-				{
-					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
 				}
 				finally
 				{
-					this._releaseReply(_input);
+					_servant_postinvoke(_so);
 				}
-		}
-	}
-
-	//
-	// Operation findByPrimaryKey
-	//
-	public org.openejb.test.beans.Employee findByPrimaryKey(java.lang.Integer arg0)
-		throws javax.ejb.FinderException, java.rmi.RemoteException
-	{
-		while( true )
-		{
-				org.omg.CORBA_2_3.portable.InputStream _input = null;
-				try
-				{
-					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("findByPrimaryKey",true);
-					_output.write_value((java.io.Serializable)arg0,java.lang.Integer.class);
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
-					org.openejb.test.beans.Employee _arg_ret = ( org.openejb.test.beans.Employee ) javax.rmi.PortableRemoteObject.narrow(_input.read_Object(), org.openejb.test.beans.Employee.class);
-					return _arg_ret;
-				}
-				catch( org.omg.CORBA.portable.RemarshalException _exception )
-				{
-					continue;
-				}
-				catch( org.omg.CORBA.portable.ApplicationException _exception )
-				{
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:javax.ejb.FinderException:00000000002B853B:0000000000000000") )
-					{
-						throw ( javax.ejb.FinderException ) _input.read_value();
-					}
-
-					throw new java.rmi.UnexpectedException(_exception_id);
-				}
-				catch( org.omg.CORBA.SystemException _exception )
-				{
-					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
-				}
-				finally
-				{
-					this._releaseReply(_input);
-				}
+			}
 		}
 	}
 
@@ -159,6 +104,8 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -176,7 +123,7 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
+					java.lang.String _exception_id = _exception.getId();
 					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
@@ -187,6 +134,169 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("sum",_opsClass);
+				if ( _so == null )
+				   return sum( arg0,  arg1);
+				try
+				{
+					int arg0Copy = arg0;
+					int arg1Copy = arg1;
+					int _arg_ret = ((org.openejb.test.beans.EmployeeHome)_so.servant).sum( arg0Copy,  arg1Copy);
+					return _arg_ret;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
+		}
+	}
+
+	//
+	// Operation findAll
+	//
+	public java.util.Collection findAll()
+		throws javax.ejb.FinderException, java.rmi.RemoteException
+	{
+		while( true )
+		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
+				org.omg.CORBA_2_3.portable.InputStream _input = null;
+				try
+				{
+					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("findAll",true);
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
+					java.util.Collection _arg_ret = ( java.util.Collection )((org.omg.CORBA_2_3.portable.InputStream)_input).read_value(java.util.Collection.class);
+					return _arg_ret;
+				}
+				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				{
+					continue;
+				}
+				catch( org.omg.CORBA.portable.ApplicationException _exception )
+				{
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:javax/ejb/FinderEx:1.0") )
+					{
+						_input.read_string();
+						throw ( javax.ejb.FinderException ) _input.read_value(javax.ejb.FinderException.class);
+					}
+
+					throw new java.rmi.UnexpectedException(_exception_id);
+				}
+				catch( org.omg.CORBA.SystemException _exception )
+				{
+					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+				}
+				finally
+				{
+					this._releaseReply(_input);
+				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("findAll",_opsClass);
+				if ( _so == null )
+				   return findAll();
+				try
+				{
+					java.util.Collection _arg_ret = ((org.openejb.test.beans.EmployeeHome)_so.servant).findAll();
+					return (java.util.Collection)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof javax.ejb.FinderException )
+						throw ( javax.ejb.FinderException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
+		}
+	}
+
+	//
+	// Operation findByPrimaryKey
+	//
+	public org.openejb.test.beans.Employee findByPrimaryKey(java.lang.Integer arg0)
+		throws javax.ejb.FinderException, java.rmi.RemoteException
+	{
+		while( true )
+		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
+				org.omg.CORBA_2_3.portable.InputStream _input = null;
+				try
+				{
+					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("findByPrimaryKey",true);
+					_output.write_value((java.io.Serializable)arg0,java.lang.Integer.class);
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
+					org.openejb.test.beans.Employee _arg_ret = ( org.openejb.test.beans.Employee ) javax.rmi.PortableRemoteObject.narrow(_input.read_Object(), org.openejb.test.beans.Employee.class);
+					return _arg_ret;
+				}
+				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				{
+					continue;
+				}
+				catch( org.omg.CORBA.portable.ApplicationException _exception )
+				{
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:javax/ejb/FinderEx:1.0") )
+					{
+						_input.read_string();
+						throw ( javax.ejb.FinderException ) _input.read_value(javax.ejb.FinderException.class);
+					}
+
+					throw new java.rmi.UnexpectedException(_exception_id);
+				}
+				catch( org.omg.CORBA.SystemException _exception )
+				{
+					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+				}
+				finally
+				{
+					this._releaseReply(_input);
+				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("findByPrimaryKey",_opsClass);
+				if ( _so == null )
+				   return findByPrimaryKey( arg0);
+				try
+				{
+					java.lang.Integer arg0Copy = (java.lang.Integer)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					org.openejb.test.beans.Employee _arg_ret = ((org.openejb.test.beans.EmployeeHome)_so.servant).findByPrimaryKey( arg0Copy);
+					return (org.openejb.test.beans.Employee)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof javax.ejb.FinderException )
+						throw ( javax.ejb.FinderException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -198,6 +308,8 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -213,7 +325,7 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					java.lang.String _exception_id = _exception.getId();
-					throw new org.omg.CORBA.UNKNOWN("Unexcepected User Exception: "+ _exception_id);
+					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
 				{
@@ -223,6 +335,27 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("_get_EJBMetaData",_opsClass);
+				if ( _so == null )
+				   return getEJBMetaData();
+				try
+				{
+					javax.ejb.EJBMetaData _arg_ret = ((org.openejb.test.beans.EmployeeHome)_so.servant).getEJBMetaData();
+					return (javax.ejb.EJBMetaData)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -234,6 +367,8 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -249,7 +384,7 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					java.lang.String _exception_id = _exception.getId();
-					throw new org.omg.CORBA.UNKNOWN("Unexcepected User Exception: "+ _exception_id);
+					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
 				{
@@ -259,6 +394,27 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("_get_homeHandle",_opsClass);
+				if ( _so == null )
+				   return getHomeHandle();
+				try
+				{
+					javax.ejb.HomeHandle _arg_ret = ((org.openejb.test.beans.EmployeeHome)_so.servant).getHomeHandle();
+					return (javax.ejb.HomeHandle)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -270,6 +426,8 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -285,10 +443,11 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:javax.ejb.RemoveException:00000000000DF503:0000000000000000") )
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:javax/ejb/RemoveEx:1.0") )
 					{
-						throw ( javax.ejb.RemoveException ) _input.read_value();
+						_input.read_string();
+						throw ( javax.ejb.RemoveException ) _input.read_value(javax.ejb.RemoveException.class);
 					}
 
 					throw new java.rmi.UnexpectedException(_exception_id);
@@ -301,6 +460,31 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("remove__javax_ejb_Handle",_opsClass);
+				if ( _so == null )
+				   remove( arg0);
+				try
+				{
+					javax.ejb.Handle arg0Copy = (javax.ejb.Handle)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					((org.openejb.test.beans.EmployeeHome)_so.servant).remove( arg0Copy);
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof javax.ejb.RemoveException )
+						throw ( javax.ejb.RemoveException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -312,6 +496,8 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -327,10 +513,11 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:javax.ejb.RemoveException:00000000000DF503:0000000000000000") )
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:javax/ejb/RemoveEx:1.0") )
 					{
-						throw ( javax.ejb.RemoveException ) _input.read_value();
+						_input.read_string();
+						throw ( javax.ejb.RemoveException ) _input.read_value(javax.ejb.RemoveException.class);
 					}
 
 					throw new java.rmi.UnexpectedException(_exception_id);
@@ -343,6 +530,31 @@ public class _EmployeeHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("remove__java_lang_Object",_opsClass);
+				if ( _so == null )
+				   remove( arg0);
+				try
+				{
+					java.lang.Object arg0Copy = (java.lang.Object)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					((org.openejb.test.beans.EmployeeHome)_so.servant).remove( arg0Copy);
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof javax.ejb.RemoveException )
+						throw ( javax.ejb.RemoveException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 

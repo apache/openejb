@@ -1,10 +1,11 @@
 package org.openejb.test.beans;
 
-//
-// Interface definition : Employee
-//
-// @author OpenORB Compiler
-//
+/**
+ * Interface definition : Employee
+ * 
+ * @author OpenORB Compiler
+ */
+
 public class _Employee_Tie extends org.omg.PortableServer.Servant
 		implements javax.rmi.CORBA.Tie
 {
@@ -97,22 +98,23 @@ public class _Employee_Tie extends org.omg.PortableServer.Servant
 	//
 	// Invoke method ( for remote call )
 	//
-	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream _is, org.omg.CORBA.portable.ResponseHandler handler)
+	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream is, org.omg.CORBA.portable.ResponseHandler handler)
 	{
+		org.omg.CORBA_2_3.portable.InputStream _is = (org.omg.CORBA_2_3.portable.InputStream)is;
 		org.omg.CORBA_2_3.portable.OutputStream _output = null;
 		try
 		{
 			if ( opName.equals("_get_firstName") )
 			{
-				java.lang.String arg = target.getFirstName();
+				String arg = target.getFirstName();
 				_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-				_output.write_value((java.io.Serializable)arg,java.lang.String.class);
+				_output.write_value((java.io.Serializable)arg,String.class);
 				return _output;
 			}
 			else
 			if ( opName.equals("_set_firstName") )
 			{
-				java.lang.String result = ( java.lang.String )((org.omg.CORBA_2_3.portable.InputStream)_is).read_value(java.lang.String.class);
+				String result = ( String )((org.omg.CORBA_2_3.portable.InputStream)_is).read_value(String.class);
 
 				target.setFirstName( result );
 				_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
@@ -121,15 +123,15 @@ public class _Employee_Tie extends org.omg.PortableServer.Servant
 			else
 			if ( opName.equals("_get_lastName") )
 			{
-				java.lang.String arg = target.getLastName();
+				String arg = target.getLastName();
 				_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-				_output.write_value((java.io.Serializable)arg,java.lang.String.class);
+				_output.write_value((java.io.Serializable)arg,String.class);
 				return _output;
 			}
 			else
 			if ( opName.equals("_set_lastName") )
 			{
-				java.lang.String result = ( java.lang.String )((org.omg.CORBA_2_3.portable.InputStream)_is).read_value(java.lang.String.class);
+				String result = ( String )((org.omg.CORBA_2_3.portable.InputStream)_is).read_value(String.class);
 
 				target.setLastName( result );
 				_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
@@ -172,7 +174,7 @@ public class _Employee_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.RemoveException _exception )
 				{
-					String exid = "RMI:javax.ejb.RemoveException:00000000000DF503:0000000000000000";
+					String exid = "IDL:javax/ejb/RemoveEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);

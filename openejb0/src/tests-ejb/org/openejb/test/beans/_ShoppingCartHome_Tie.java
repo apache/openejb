@@ -1,10 +1,11 @@
 package org.openejb.test.beans;
 
-//
-// Interface definition : ShoppingCartHome
-//
-// @author OpenORB Compiler
-//
+/**
+ * Interface definition : ShoppingCartHome
+ * 
+ * @author OpenORB Compiler
+ */
+
 public class _ShoppingCartHome_Tie extends org.omg.PortableServer.Servant
 		implements javax.rmi.CORBA.Tie
 {
@@ -97,14 +98,15 @@ public class _ShoppingCartHome_Tie extends org.omg.PortableServer.Servant
 	//
 	// Invoke method ( for remote call )
 	//
-	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream _is, org.omg.CORBA.portable.ResponseHandler handler)
+	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream is, org.omg.CORBA.portable.ResponseHandler handler)
 	{
+		org.omg.CORBA_2_3.portable.InputStream _is = (org.omg.CORBA_2_3.portable.InputStream)is;
 		org.omg.CORBA_2_3.portable.OutputStream _output = null;
 		try
 		{
 			if ( opName.equals("create") )
 			{
-				java.lang.String arg0_in = ( java.lang.String )((org.omg.CORBA_2_3.portable.InputStream)_is).read_value(java.lang.String.class);
+				String arg0_in = ( String )((org.omg.CORBA_2_3.portable.InputStream)_is).read_value(String.class);
 
 				org.openejb.test.beans.ShoppingCart _arg_result = target.create(arg0_in);
 
@@ -143,7 +145,7 @@ public class _ShoppingCartHome_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.RemoveException _exception )
 				{
-					String exid = "RMI:javax.ejb.RemoveException:00000000000DF503:0000000000000000";
+					String exid = "IDL:javax/ejb/RemoveEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);
@@ -164,7 +166,7 @@ public class _ShoppingCartHome_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.RemoveException _exception )
 				{
-					String exid = "RMI:javax.ejb.RemoveException:00000000000DF503:0000000000000000";
+					String exid = "IDL:javax/ejb/RemoveEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);
