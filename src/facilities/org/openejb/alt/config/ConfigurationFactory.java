@@ -64,6 +64,10 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         if ( configLocation == null ) {
             configLocation = props.getProperty("openejb.configuration","conf/default.openejb.conf");
         }
+
+        if ( configLocation == null ) {
+            configLocation = ConfigUtils.searchForConfiguration();
+        }
         
     }
 
@@ -316,11 +320,11 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         String defaultJar = ConfigUtils.OPENEJB_JAR_FILE.getPath();
 
         ConnectionManagerInfo manager = new ConnectionManagerInfo();
-        ServiceProvider service = ConfigUtils.getService(defaultJar,DEFAULT_LOCAL_TX_CON_MANAGER);
+        ServiceProvider service = ConfigUtils.getService(defaultJar, DEFAULT_LOCAL_TX_CON_MANAGER);
 
-		if (!service.getProviderType().equals("ConnectionManager")) {
-			handleException("conf.4902", DEFAULT_LOCAL_TX_CON_MANAGER, defaultJar, "ConnectionManager");
-		}
+        if (!service.getProviderType().equals("ConnectionManager")) {
+                handleException("conf.4902", DEFAULT_LOCAL_TX_CON_MANAGER, defaultJar, "ConnectionManager");
+        }
 
         manager.connectionManagerId = DEFAULT_LOCAL_TX_CON_MANAGER;
         manager.className           = service.getClassName();

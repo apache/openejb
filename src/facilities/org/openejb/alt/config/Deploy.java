@@ -44,7 +44,7 @@ public class Deploy {
       
        Contributions and ideas welcome!!!
       =======----------TODO----------=======*/
-    
+        
     /**
      * Idea for a command line option
      * 
@@ -55,6 +55,15 @@ public class Deploy {
      * not implemented
      */
     private boolean AUTO_ASSIGN;
+    
+    /**
+     * Idea for a command line option
+     * 
+     * -m   Move the jar to the OPENEJB_HOME/beans directory
+     *
+     * not implemented
+     */
+    private boolean MOVE_JAR;
     
     /**
      * Idea for a command line option
@@ -131,12 +140,18 @@ public class Deploy {
     /*------------------------------------------------------*/
     /*    Constructors                                      */
     /*------------------------------------------------------*/
-    public Deploy(String openejbConfigFile) throws OpenEJBException {
+    public Deploy() throws OpenEJBException {
+    }
+
+    public void init(String openejbConfigFile) throws OpenEJBException{
         try {
-            in = new DataInputStream(System.in); 
+            in  = new DataInputStream(System.in); 
             out = System.out;
 
             configFile = openejbConfigFile;
+            if (configFile == null) {
+                configFile = ConfigUtils.searchForConfiguration();
+            }
             config = ConfigUtils.readConfig(openejbConfigFile);
             
             /* Load container list */
@@ -499,21 +514,31 @@ public class Deploy {
 
     public static void main(String args[]) {
         try {
-            Deploy d = null;
+            Deploy d = new Deploy();
 
-            /* TODO: add an '-a' flag for deploy automation
-             * that will give the deploy tool permission
-             * to make a best guess on deploying the bean
-             * See TODO's about picking the container and resource.
-             */
-            if ( args.length == 2 ) {
-                d = new Deploy(args[0]);
-                d.deploy(args[1]);
-            } else {
-                usage();
+            for (int i=0; i < args.length; i++){
+                //AUTODEPLOY
+                if (args[i].equals("-a")){
+                    d.AUTO_ASSIGN = true;
+                    d.GENERATE_DEPLOYMENT_ID = true;
+                } else if (args[i].equals("-m")){
+                    d.MOVE_JAR = true;
+                } else if (args[i].equals("-c")){
+                    if (args.length > i+2 ) {
+                        System.setProperty("openejb.configuration", args[++i]);
+                    }
+                } else if (args[i].equals("-l")){
+                    if (args.length > i+2 ) {
+                        System.setProperty("log4j.configuration", args[++i]);
+                    }
+                } else if (args[i].equals("-d")){
+                    if (args.length > i+2 ) {
+                        System.setProperty("openejb.home", args[++i]);
+                    }
+                }
             }
-
-        } catch ( Exception e ) {
+            
+       } catch ( Exception e ) {
             e.printStackTrace();
         }
     }
