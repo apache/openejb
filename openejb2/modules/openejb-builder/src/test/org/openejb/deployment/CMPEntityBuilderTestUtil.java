@@ -70,6 +70,10 @@ public class CMPEntityBuilderTestUtil extends TestCase {
 
     public void testDummy() { }
 
+    public CMPEntityBuilderTestUtil() {
+        delegate = null;
+    }
+    
     public CMPEntityBuilderTestUtil(OpenEJBModuleBuilder builder) {
         this.delegate = new CMPEntityBuilder(builder);
     }
