@@ -281,7 +281,7 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
         try{
             if(doIntraVmCopy==true){// copy arguments as required by the specification
                 // demarcate the begining of the copy operation.
-                if(args!=null) {
+                if(args!=null && args.length > 0) {
                     // methods w/o arguments pass in a null value
                     IntraVmCopyMonitor.preCopyOperation();
                     args = copyArgs(args);
