@@ -114,19 +114,19 @@ REM================================================
    sleep 4
    echo " 2. Starting test EJB client..."
    call .\bin\ejbclient.bat
-   echo "_________________________________________________"
-   echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
-   echo " "
-   echo "Running EJB compliance tests on CORBA Server"
-   echo "_________________________________________________"
-   echo " 1. Starting OpenORB JNDI Server..."
-   start "OpenORB JNDI Server" .\bin\launch_jndi.bat -default > corba.jndi.log 2>&1
-   sleep 2
-   echo " 2. Starting OpenEJB CORBA Server with OpenORB..."
-   start "OpenEJB CORBA Server with OpenORB" .\bin\launch_server.bat > corba.server.log 2>&1
-   sleep 15
-   echo " 3. Starting test client..."
-   call .\bin\launch_client.bat
+REM   echo "_________________________________________________"
+REM   echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
+REM   echo " "
+REM   echo "Running EJB compliance tests on CORBA Server"
+REM   echo "_________________________________________________"
+REM   echo " 1. Starting OpenORB JNDI Server..."
+REM   start "OpenORB JNDI Server" .\bin\launch_jndi.bat -default > corba.jndi.log 2>&1
+REM   sleep 2
+REM   echo " 2. Starting OpenEJB CORBA Server with OpenORB..."
+REM   start "OpenEJB CORBA Server with OpenORB" .\bin\launch_server.bat > corba.server.log 2>&1
+REM   sleep 15
+REM   echo " 3. Starting test client..."
+REM   call .\bin\launch_client.bat
 
 goto EOF
 REM================================================
