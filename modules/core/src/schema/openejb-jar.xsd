@@ -148,6 +148,9 @@
         <xs:sequence>
             <xs:element name="ejb-name" type="xs:string"/>
 
+            <xs:element name="resource-adapter-name" type="xs:string"/>
+            <xs:element name="activation-spec-class" type="xs:string"/>
+
             <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
         </xs:sequence>
         <xs:attribute name="id" type="xs:ID"/>

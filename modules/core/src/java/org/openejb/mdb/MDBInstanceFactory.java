@@ -66,10 +66,11 @@ public class MDBInstanceFactory implements InstanceFactory, Serializable {
     private static final Log log = LogFactory.getLog(MDBInstanceFactory.class);
 
     private final ReadOnlyContext componentContext;
-    private final int createIndex;
     private final MDBInstanceContextFactory factory;
-    private final FastClass implClass;
     private final Class beanClass;
+
+    private transient final int createIndex;
+    private transient final FastClass implClass;
 
     public MDBInstanceFactory(ReadOnlyContext componentContext, MDBInstanceContextFactory factory, Class beanClass) {
         this.componentContext = componentContext;

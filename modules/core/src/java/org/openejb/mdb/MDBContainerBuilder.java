@@ -50,14 +50,15 @@ package org.openejb.mdb;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Set;
+
 import javax.ejb.MessageDrivenContext;
+import javax.management.ObjectName;
 import javax.security.auth.Subject;
-import javax.resource.spi.ActivationSpec;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.openejb.GenericEJBContainer;
+import org.openejb.ResourceEnvironmentBuilder;
 import org.openejb.cache.InstancePool;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -71,10 +72,10 @@ import org.openejb.util.SoftLimitedInstancePool;
 /**
  * @version $Revision$ $Date$
  */
-public class MDBContainerBuilder {
+public class MDBContainerBuilder implements ResourceEnvironmentBuilder {
     private String containerId;
     private String ejbName;
-    private ActivationSpec activationSpec;
+    private ObjectName activationSpecName;
     private String beanClassName;
     private String endpointInterfaceName;
     private Subject runAs;
@@ -101,12 +102,12 @@ public class MDBContainerBuilder {
         this.ejbName = ejbName;
     }
 
-    public ActivationSpec getActivationSpec() {
-        return activationSpec;
+    public ObjectName getActivationSpecName() {
+        return activationSpecName;
     }
 
-    public void setActivationSpec(ActivationSpec activationSpec) {
-        this.activationSpec = activationSpec;
+    public void setActivationSpecName(ObjectName activationSpecName) {
+        this.activationSpecName = activationSpecName;
     }
 
     public String getBeanClassName() {
@@ -213,14 +214,15 @@ public class MDBContainerBuilder {
         }
 
         // create and initialize the GBean
-        GBeanMBean gbean = new GBeanMBean(GenericEJBContainer.GBEAN_INFO, classLoader);
-        gbean.setAttribute("containerID", containerId);
+        GBeanMBean gbean = new GBeanMBean(MDBContainer.GBEAN_INFO, classLoader);
+        gbean.setAttribute("containerId", containerId);
         gbean.setAttribute("ejbName", ejbName);
-        gbean.setAttribute("activationSpec", activationSpec);
+        gbean.setReferencePattern("activationSpecWrapper", activationSpecName);
         gbean.setAttribute("endpointInterfaceName", endpointInterfaceName);
         gbean.setAttribute("signatures", signatures);
         gbean.setAttribute("deliveryTransacted", deliveryTransacted);
         gbean.setAttribute("interceptorBuilder", interceptorBuilder);
+        gbean.setAttribute("instancePool", pool);
         gbean.setAttribute("userTransaction", userTransaction);
         return gbean;
     }

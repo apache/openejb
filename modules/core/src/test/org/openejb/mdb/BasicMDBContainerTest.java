@@ -47,98 +47,90 @@
  */
 package org.openejb.mdb;
 
-import javax.management.MBeanServer;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.openejb.mdb.mockra.MockResourceAdapter;
+import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.transaction.GeronimoTransactionManager;
+import org.openejb.deployment.TransactionPolicySource;
+import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.mdb.mockra.DeploymentHelper;
+import org.openejb.transaction.ContainerPolicy;
+import org.openejb.transaction.TransactionPolicy;
 
 /**
  * @version $Revision$ $Date$
  */
 public class BasicMDBContainerTest extends TestCase {
-    private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
     private static final ObjectName TM_NAME = JMXUtil.getObjectName("geronimo.test:role=TransactionManager");
     private static final ObjectName TCA_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
     private Kernel kernel;
     private GBeanMBean container;
-    private MBeanServer mbServer;
-    private org.openejb.EJBContainerConfiguration config;
-    private MockResourceAdapter resourceAdapter;
 
     protected void setUp() throws Exception {
         super.setUp();
+        kernel = new Kernel("MDBTest");
+        kernel.boot();
+        GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
+        Set rmpatterns = new HashSet();
+        rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
+        tmGBean.setReferencePatterns("resourceManagers", rmpatterns);
+        DeploymentHelper.start(kernel, TM_NAME, tmGBean);
+        GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
+        DeploymentHelper.start(kernel, TCA_NAME, trackedConnectionAssociator);
 
-//		mbServer = ServerUtil.newLocalServer();
-//
-//        config = new org.openejb.EJBContainerConfiguration();
-        //config.uri = new URI("async", null, "localhost", 3434, "/JMX", null, CONTAINER_NAME.toString());
-//        config.beanClassName = MockEJB.class.getName();
-//        config.txnDemarcation = TransactionDemarcation.CONTAINER;
-//        config.messageEndpointInterfaceName = MessageListener.class.getName();
-//        config.unshareableResources = new HashSet();
-//        config.transactionPolicySource = new TransactionPolicySource() {
-//            public TransactionPolicy getTransactionPolicy(String methodIntf, MethodSignature signature) {
-//                return ContainerPolicy.Required;
-//            }
-//        };
-//
-        // Todo: Is the MockResourceAdapter something that needs to be GBeaned?s
-//        resourceAdapter = new MockResourceAdapter();
-//        resourceAdapter.start(new MockBootstrapContext() );
-//        MockActivationSpec spec = new MockActivationSpec();
-//        spec.setResourceAdapter(resourceAdapter);
-//
-//
-//		kernel = new Kernel("messageDrivenTest");
-//		kernel.boot();
-//
-//		mbServer = kernel.getMBeanServer();
-//
-//        GBeanMBean transactionManager = new GBeanMBean(TransactionManagerProxy.GBEAN_INFO);
-//        transactionManager.setAttribute("Delegate", new MockTransactionManager());
-//        start(TM_NAME, transactionManager);
-//
-//        GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
-//        start(TCA_NAME, trackedConnectionAssociator);
-//
-//		container = new GBeanMBean(MDBContainer.GBEAN_INFO);
-//		container.setAttribute("EJBContainerConfiguration", config);
-//		container.setAttribute("ActivationSpec", spec);
-//        container.setReferencePatterns("TransactionManager", Collections.singleton(TM_NAME));
-//        container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(TCA_NAME));
-//		start(CONTAINER_NAME, container);
+
+        DeploymentHelper.setUpResourceAdapter(kernel);
+
+        MDBContainerBuilder builder = new MDBContainerBuilder();
+        builder.setClassLoader(this.getClass().getClassLoader());
+        builder.setContainerId(DeploymentHelper.CONTAINER_NAME.getCanonicalName());
+        builder.setEJBName("MockEJB");
+        builder.setBeanClassName(MockEJB.class.getName());
+        builder.setEndpointInterfaceName("javax.jms.MessageListener");
+        builder.setActivationSpecName(DeploymentHelper.ACTIVATIONSPEC_NAME);
+        builder.setUnshareableResources(new HashSet());
+        builder.setTransactionPolicySource(new TransactionPolicySource() {
+            public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
+                return ContainerPolicy.Required;
+            }
+        });
+        builder.setComponentContext(new ReadOnlyContext());
+        container = builder.createConfiguration();
+
+       //start the ejb container
+        container.setReferencePatterns("transactionManager", Collections.singleton(TM_NAME));
+        container.setReferencePatterns("trackedConnectionAssociator", Collections.singleton(TCA_NAME));
+        DeploymentHelper.start(kernel, DeploymentHelper.CONTAINER_NAME, container);
     }
 
-//	private void start(ObjectName name, Object instance) throws Exception {
-//		mbServer.registerMBean(instance, name);
-//		mbServer.invoke(name, "start", null, null);
-//	}
+    protected void tearDown() throws Exception {
+        DeploymentHelper.stop(kernel, DeploymentHelper.CONTAINER_NAME);
+        DeploymentHelper.stop(kernel, TM_NAME);
+        DeploymentHelper.stop(kernel, TCA_NAME);
+        DeploymentHelper.tearDownAdapter(kernel);
+        kernel.shutdown();
+    }
 
-//	private void stop(ObjectName name) throws Exception {
-//		mbServer.invoke(name, "stop", null, null);
-//		mbServer.unregisterMBean(name);
-//	}
 
-//	protected void tearDown() throws Exception {
-//		stop(CONTAINER_NAME);
-//        stop(TM_NAME);
-//        stop(TCA_NAME);
-//		kernel.shutdown();
-//	}
     public void testMessage() throws Exception {
         // @todo put a wait limit in here... otherwise this can lock a build
         // Wait for 3 messages to arrive..
-//        System.out.println("Waiting for message 1");
-//        MockEJB.messageCounter.acquire();
-//        System.out.println("Waiting for message 2");
-//        MockEJB.messageCounter.acquire();
-//        System.out.println("Waiting for message 3");
-//        MockEJB.messageCounter.acquire();
-//
-//        System.out.println("Done.");
+        System.out.println("Waiting for message 1");
+        MockEJB.messageCounter.acquire();
+        System.out.println("Waiting for message 2");
+        MockEJB.messageCounter.acquire();
+        System.out.println("Waiting for message 3");
+        MockEJB.messageCounter.acquire();
+
+        System.out.println("Done.");
     }
 }

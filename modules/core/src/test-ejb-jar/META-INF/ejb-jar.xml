@@ -55,6 +55,13 @@
             <cmp-field><field-name>lastName</field-name></cmp-field>
             <primkey-field>id</primkey-field>
         </entity>
+        <message-driven>
+            <ejb-name>SimpleMessageDriven</ejb-name>
+            <ejb-class>org.openejb.test.simple.mdb.SimpleMessageDrivenBean</ejb-class>
+            <messaging-type>javax.jms.MessageListener</messaging-type>
+            <transaction-type>Container</transaction-type>
+            <activation-config></activation-config>
+        </message-driven>
     </enterprise-beans>
     <assembly-descriptor>
         <method-permission>
@@ -113,6 +120,14 @@
             <description>Transaction attributes for 'SimpleCMPEntity' methods</description>
             <method>
                 <ejb-name>SimpleCMPEntity</ejb-name>
+                <method-name>*</method-name>
+            </method>
+            <trans-attribute>Required</trans-attribute>
+        </container-transaction>
+        <container-transaction>
+            <description>Transaction attributes for 'SimpleMessageDriven' methods</description>
+            <method>
+                <ejb-name>SimpleMessageDriven</ejb-name>
                 <method-name>*</method-name>
             </method>
             <trans-attribute>Required</trans-attribute>

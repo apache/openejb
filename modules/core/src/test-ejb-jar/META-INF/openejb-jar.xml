@@ -12,5 +12,11 @@
             <ejb-name>SimpleStatelessSession</ejb-name>
             <jndi-name>client/test/simple/SimpleStatelessSessionHome</jndi-name>
         </session>
+        <message-driven>
+            <ejb-name>SimpleMessageDriven</ejb-name>
+            <resource-adapter-name>geronimo.server:j2eeType=ResourceAdapter,name=MockRA</resource-adapter-name>
+            <activation-spec-class>org.openejb.mdb.mockra.MockActivationSpec</activation-spec-class>
+        </message-driven>
+
     </enterprise-beans>
 </openejb-jar>
