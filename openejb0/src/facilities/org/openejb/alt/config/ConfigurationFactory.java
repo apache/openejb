@@ -13,6 +13,7 @@ import org.openejb.OpenEJBException;
 import org.openejb.alt.assembler.classic.*;
 import org.openejb.alt.config.ejb11.*;
 import org.openejb.alt.config.sys.*;
+import org.openejb.util.FileUtils;
 
 /**
  * An implementation of the Classic Assembler's OpenEjbConfigurationFactory
@@ -846,8 +847,11 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             
             ///// Add Jar file  /////
             if ( d.getDir() == null && d.getJar() != null ) {
-                File jar = new File(d.getJar());
-                if ( !jarList.contains(jar.getAbsolutePath()) ) {
+                File jar = null;
+                try{
+                    jar = FileUtils.getFile(d.getJar(), false);
+                } catch (Exception e){}
+                if ( !jarList.contains( jar.getAbsolutePath() ) ) {
                     jarList.add( jar.getAbsolutePath() );
                 }
             
@@ -856,7 +860,10 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                     
             ///// A directory /////
                     
-            File dir = new File( d.getDir() );
+            File dir = null;
+            try{
+                dir = FileUtils.getFile(d.getDir(), false);
+            } catch (Exception e){}
                     
             if ( !dir.isDirectory() ) continue; // Opps! Not a directory
     
@@ -906,6 +913,13 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         for (int i=0; i < jarsToLoad.length; i++){    
             
             String jarLocation = jarsToLoad[i];
+            try{
+                // Try to resolve path relative to openejb.home
+                jarLocation = FileUtils.getFile(jarLocation,false).getAbsolutePath();
+            } catch (java.io.IOException e){
+                // The methods below have more specific exception 
+                // handling for this
+            }
             
             try{
             EjbJar ejbJar = ConfigUtils.readEjbJar(jarLocation);
