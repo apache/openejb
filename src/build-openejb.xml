@@ -104,27 +104,34 @@ time=${TSTAMP}</echo>
   <!-- Compiles the source directory                                      -->
   <!-- ================================================================== -->
   
-  <target name="compile"
-          depends="prepare, compile.jdk12, compile.jdk13"
-          description="--> compiles the java source files"/>
-         
-  <target name="compile.jdk12" unless="jdk13">
-          
-	<delete>
-		<fileset dir="${build.openejb.src}" includes="**/Jdk13*.java"/>
-	</delete>
-
+  <target name="compile" description="--> compiles the java source files">
+    <antcall target="compile.jdk.${ant.java.version}"/>
+  </target>
+  
+  <target name="compile.jdk.1.1">
+    <echo message="The OpenEJB Container System does not yet support JDK 1.1"/>          
+  </target>
+  
+  <target name="compile.jdk.1.2" depends="prepare">
     <javac srcdir="${build.openejb.src}"
            destdir="${build.openejb.dest}"
-           excludes="**/jdk13/**/"
+           excludes="**/Jdk13*.java"
            classpathref="project.classpath"
            debug="${debug}"
            deprecation="${deprecation}"/>
           
   </target>
   
-  <target name="compile.jdk13" if="jdk13">
+  <target name="compile.jdk.1.3" depends="prepare">
+    <javac srcdir="${build.openejb.src}"
+           destdir="${build.openejb.dest}"
+           classpathref="project.classpath"
+           debug="${debug}"
+           deprecation="${deprecation}"/>
           
+  </target>
+  
+  <target name="compile.jdk.1.4" depends="prepare">
     <javac srcdir="${build.openejb.src}"
            destdir="${build.openejb.dest}"
            classpathref="project.classpath"
