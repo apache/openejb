@@ -106,6 +106,19 @@ public final class MethodSignature implements Serializable {
         return buffer.toString();
     }
 
+    public boolean match(Method method) {
+        if(!methodName.equals(method.getName())) {
+            return false;
+        }
+        Class[] types = method.getParameterTypes();
+        for (int i = 0; i < parameterTypes.length; i++) {
+            if(!types[i].getName().equals(parameterTypes[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public int hashCode() {
         return toString().hashCode();
     }

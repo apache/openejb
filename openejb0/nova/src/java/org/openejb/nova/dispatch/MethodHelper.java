@@ -170,6 +170,37 @@ public final class MethodHelper {
         return shadowIndexToProxy;
     }
 
+    public static Map getHomeMethodMap(MethodSignature[] signatures, Class homeClass) {
+        return getMethodMap(homeClass, translateHome(signatures));
+    }
+
+    public static Map getObjectMethodMap(MethodSignature[] signatures, Class homeClass) {
+        return getMethodMap(homeClass, translateObject(signatures));
+    }
+
+    private static Map getMethodMap(Class homeClass, MethodSignature[] signatures) {
+        Method[] methods = homeClass.getMethods();
+        Map methodMap = new HashMap(methods.length);
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            Integer index = findMethodIndex(signatures, method);
+            if (index == null) {
+                methodMap.put(method, index);
+            }
+        }
+        return methodMap;
+    }
+
+    private static Integer findMethodIndex(MethodSignature[] signatures, Method method) {
+        for (int i = 0; i < signatures.length; i++) {
+            MethodSignature signature = signatures[i];
+            if(signature != null && signature.match(method)) {
+                return new Integer(i);
+            }
+        }
+        return null;
+    }
+
     private static MethodSignature[] translateHome(MethodSignature[] signatures) {
         MethodSignature[] translated = new MethodSignature[signatures.length];
         for (int i = 0; i < signatures.length; i++) {

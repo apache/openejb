@@ -102,6 +102,8 @@ public class StatefulContainer extends AbstractEJBContainer {
         StatefulClientContainerFactory clientFactory = new StatefulClientContainerFactory(vopFactory, target, homeInterface, remoteInterface, firstInterceptor, localHomeInterface, localInterface);
         remoteClientContainer = clientFactory.getRemoteClient();
         localClientContainer = clientFactory.getLocalClient();
+
+        buildMethodMap(vopFactory.getSignatures());
     }
 
     public void doStop() {
@@ -116,4 +118,5 @@ public class StatefulContainer extends AbstractEJBContainer {
     public InstanceCache getInstanceCache() {
         return instanceCache;
     }
+
 }

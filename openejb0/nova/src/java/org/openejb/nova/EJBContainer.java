@@ -47,6 +47,7 @@
  */
 package org.openejb.nova;
 
+import java.lang.reflect.Method;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -120,4 +121,6 @@ public interface EJBContainer {
      * @return this EJB's JNDI ComponentContext
      */
     ReadOnlyContext getComponentContext();
+
+    int getMethodIndex(Method method, EJBInvocationType type);
 }

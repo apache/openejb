@@ -94,6 +94,8 @@ public class StatelessContainer extends AbstractEJBContainer {
         StatelessClientContainerFactory clientFactory = new StatelessClientContainerFactory(vopFactory, target, homeInterface, remoteInterface, firstInterceptor, localHomeInterface, localInterface);
         remoteClientContainer = clientFactory.getRemoteClient();
         localClientContainer = clientFactory.getLocalClient();
+
+        buildMethodMap(vopFactory.getSignatures());
     }
 
     public void doStop() {

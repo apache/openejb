@@ -49,8 +49,8 @@ package org.openejb.nova.entity.bmp;
 
 import java.net.URI;
 
-import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 
 import org.openejb.nova.AbstractEJBContainer;
 import org.openejb.nova.dispatch.DispatchInterceptor;
@@ -107,6 +107,8 @@ public class BMPEntityContainer extends AbstractEJBContainer {
         EntityClientContainerFactory clientFactory = new EntityClientContainerFactory(pkClass, vopFactory, target, homeInterface, remoteInterface, firstInterceptor, localHomeInterface, localInterface);
         remoteClientContainer = clientFactory.getRemoteClient();
         localClientContainer = clientFactory.getLocalClient();
+
+        buildMethodMap(vopFactory.getSignatures());
     }
 
     public void doStop() {

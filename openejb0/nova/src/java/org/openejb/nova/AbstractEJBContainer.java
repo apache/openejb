@@ -47,8 +47,10 @@
  */
 package org.openejb.nova;
 
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.LinkedList;
+import java.util.Map;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -63,6 +65,9 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
 import org.apache.geronimo.remoting.InterceptorRegistry;
+
+import org.openejb.nova.dispatch.MethodHelper;
+import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.dispatch.VirtualOperation;
 import org.openejb.nova.transaction.EJBUserTransaction;
 
@@ -101,6 +106,10 @@ public abstract class AbstractEJBContainer
 
     protected InstancePool pool;
     private Long remoteId;
+    private Map homeMethodMap;
+    private Map remoteMethodMap;
+    private Map localHomeMethodMap;
+    private Map localMethodMap;
 
     public AbstractEJBContainer(EJBContainerConfiguration config) {
         uri = config.uri;
@@ -284,10 +293,38 @@ public abstract class AbstractEJBContainer
         }
     }
 
-
     public void clearInterceptors() {
         interceptors.clear();
         firstInterceptor = null;
     }
 
+    protected void buildMethodMap(MethodSignature[] signatures) {
+        if (homeInterface != null) {
+            homeMethodMap = MethodHelper.getHomeMethodMap(signatures, homeInterface);
+            remoteMethodMap = MethodHelper.getHomeMethodMap(signatures, remoteInterface);
+        }
+        if (localHomeInterface != null) {
+            localHomeMethodMap = MethodHelper.getHomeMethodMap(signatures, localHomeInterface);
+            localMethodMap = MethodHelper.getHomeMethodMap(signatures, localInterface);
+        }
+    }
+
+    public int getMethodIndex(Method method, EJBInvocationType invocationType) {
+        Integer index = null;
+        if (invocationType == EJBInvocationType.HOME) {
+            index = (Integer) homeMethodMap.get(method);
+        } else if (invocationType == EJBInvocationType.REMOTE) {
+            index = (Integer) remoteMethodMap.get(method);
+        } else if (invocationType == EJBInvocationType.LOCALHOME) {
+            index = (Integer) localHomeMethodMap.get(method);
+        } else if (invocationType == EJBInvocationType.LOCAL) {
+            index = (Integer) localMethodMap.get(method);
+        }
+        if(index != null) {
+            return index.intValue();
+        }
+        return -1;
+    }
 }
+
+

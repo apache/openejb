@@ -121,6 +121,8 @@ public class CMPEntityContainer extends AbstractEJBContainer {
         EntityClientContainerFactory clientFactory = new EntityClientContainerFactory(pkClass, vopFactory, target, homeInterface, remoteInterface, firstInterceptor, localHomeInterface, localInterface);
         remoteClientContainer = clientFactory.getRemoteClient();
         localClientContainer = clientFactory.getLocalClient();
+
+        buildMethodMap(vopFactory.getSignatures());
     }
 
     public void doStop() {
