@@ -47,6 +47,7 @@ package org.openejb.server.soap;
 import java.net.URI;
 import java.net.URL;
 import javax.management.ObjectName;
+import javax.wsdl.Definition;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -68,6 +69,7 @@ public class WSContainerGBean {
         infoFactory.addOperation("invoke", new Class[]{MessageContext.class});
 
         infoFactory.addReference("EJBContainer", EJBContainer.class);
+        infoFactory.addAttribute("definition", Definition.class, true);
         infoFactory.addAttribute("location", URI.class, true);
         infoFactory.addAttribute("wsdlURL", URL.class, true);
         infoFactory.addAttribute("namespace", String.class, true);
@@ -76,6 +78,7 @@ public class WSContainerGBean {
 
         infoFactory.setConstructor(new String[]{
             "EJBContainer",
+            "definition",
             "location",
             "wsdlURL",
             "namespace",
@@ -89,20 +92,21 @@ public class WSContainerGBean {
         return GBEAN_INFO;
     }
 
-    public static ObjectName addGBean(Kernel kernel, String name, ObjectName ejbContainer, URI location, URL wsdlURL, String namespace, String encoding, String style) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-        GBeanData gbean = createGBean(name, ejbContainer, location, wsdlURL, namespace, encoding, style);
+    public static ObjectName addGBean(Kernel kernel, String name, ObjectName ejbContainer, Definition definition, URI location, URL wsdlURL, String namespace, String encoding, String style) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+        GBeanData gbean = createGBean(name, ejbContainer, definition, location, wsdlURL, namespace, encoding, style);
         kernel.loadGBean(gbean, WSContainer.class.getClassLoader());
         kernel.startGBean(gbean.getName());
         return gbean.getName();
     }
 
-    public static GBeanData createGBean(String name, ObjectName ejbContainer, URI location, URL wsdlURL, String namespace, String encoding, String style) {
+    public static GBeanData createGBean(String name, ObjectName ejbContainer, Definition definition, URI location, URL wsdlURL, String namespace, String encoding, String style) {
         assert ejbContainer != null : "EJBContainer objectname is null";
 
         ObjectName gbeanName = JMXUtil.getObjectName("openejb:type=WSContainer,name=" + name);
 
         GBeanData gbean = new GBeanData(gbeanName, WSContainerGBean.GBEAN_INFO);
         gbean.setReferencePattern("EJBContainer", ejbContainer);
+        gbean.setAttribute("definition", definition);
         gbean.setAttribute("location", location);
         gbean.setAttribute("wsdlURL", wsdlURL);
         gbean.setAttribute("namespace", namespace);

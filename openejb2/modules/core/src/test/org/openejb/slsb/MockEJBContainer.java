@@ -45,6 +45,8 @@
 package org.openejb.slsb;
 
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -75,6 +77,16 @@ public class MockEJBContainer implements EJBContainer {
     public MockEJBContainer() {
         this.proxyInfo = new ProxyInfo(EJBComponentType.STATELESS, "foo", MockHome.class, MockRemote.class, MockLocalHome.class, MockLocal.class, MockServiceEndpoint.class, null);
         ejbClass = MockEJB.class;
+    }
+
+    public MockEJBContainer(URL ejbJarURL, String ejbName, String ejbClass, String home, String remote, String localHome, String local, String serviceEndpoint) {
+        ClassLoader cl = new URLClassLoader(new URL[]{ejbJarURL}, MockEJBContainer.class.getClassLoader());
+        try {
+            this.proxyInfo = new ProxyInfo(EJBComponentType.STATELESS, ejbName, cl.loadClass(home), cl.loadClass(remote), cl.loadClass(localHome), cl.loadClass(local), cl.loadClass(serviceEndpoint), null);
+            this.ejbClass = cl.loadClass(ejbClass);
+        } catch (ClassNotFoundException e) {
+            throw (IllegalStateException) new IllegalStateException("Could not initialize the MockEJBContainer").initCause(e);
+        }
     }
 
     public Object getContainerID() {

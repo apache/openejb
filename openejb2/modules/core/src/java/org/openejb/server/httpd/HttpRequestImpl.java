@@ -55,7 +55,7 @@ import java.util.StringTokenizer;
  * A class to take care of HTTP Requests.  It parses headers, content, form and url
  * parameters.
  */
-public class HttpRequestImpl implements HttpRequest {
+public class HttpRequestImpl implements HttpRequest {    
     public static final String FORM_URL_ENCODED = "application/x-www-form-urlencoded";
     public static final String TEXT_XML = "text/xml";
     public static final String MULITPART_FORM_DATA = "multipart/form-data";
@@ -309,12 +309,13 @@ public class HttpRequestImpl implements HttpRequest {
             if (name == null)
                 continue;
 
+            String value;
             /* [2] Parse the Value */
-            if (!param.hasMoreTokens())
-                continue;
-            String value = URLDecoder.decode(param.nextToken());
-            if (value == null)
-                continue;
+            if (!param.hasMoreTokens()){
+                value = "";
+            } else {
+                value = URLDecoder.decode(param.nextToken());
+            }
 
             //System.out.println("[] "+name+" = "+value);
             queryParams.put(name, value);

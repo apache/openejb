@@ -238,6 +238,15 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-webservices</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
             <version>${tranql_version}</version>
@@ -481,15 +490,6 @@
         <dependency>
             <groupId>xfire</groupId>
             <artifactId>xfire-java</artifactId>
-            <version>${xfire_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>xfire</groupId>
-            <artifactId>xfire-jaxrpc</artifactId>
             <version>${xfire_version}</version>
             <properties>
                 <runtime>true</runtime>

@@ -44,12 +44,21 @@
  */
 package org.openejb.server.soap;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
 import javax.management.ObjectName;
+import javax.wsdl.Definition;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
@@ -61,64 +70,177 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.codehaus.xfire.MessageContext;
-import org.openejb.EJBContainer;
 import org.openejb.server.StandardServiceStackGBean;
 import org.openejb.server.httpd.HttpListener;
 import org.openejb.server.httpd.HttpRequest;
 import org.openejb.server.httpd.HttpResponse;
 import org.openejb.server.httpd.HttpServerGBean;
 import org.openejb.slsb.MockEJBContainer;
+import org.openejb.slsb.MockEJBContainerGBean;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class WSContainerTest extends TestCase {
     WSContainer wsContainer;
 
 //    static {
-//        BasicConfigurator.configure();
+//        org.apache.log4j.BasicConfigurator.configure();
 //    }
 
-    public void testWSContainer() throws Exception {
-        EJBContainer ejbContainer = new MockEJBContainer();
-        WSContainer container = new WSContainer(ejbContainer, null, null, "urn:testing", "encoded", "rpc");
+//    public void testWSContainer() throws Exception {
+//        EJBContainer ejbContainer = new MockEJBContainer();
+//        WSContainer container = new WSContainer(ejbContainer, null, null, "urn:testing", "encoded", "rpc");
+//
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        PrintStream out = new PrintStream(baos);
+//        out.print("<soap:Envelope\n" +
+//                "xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"\n" +
+//                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+//                "xmlns:ns=\"urn:testing\"\n" +
+//                "soap:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" >\n" +
+//                "<Body>\n" +
+//                "<ns:intMethodRequest>\n" +
+//                "<ns:in0 xsi:type=\"int\">126</ns:in0>\n" +
+//                "</ns:intMethodRequest>\n" +
+//                "</Body>\n" +
+//                "</soap:Envelope>");
+//        out.flush();
+//        out.close();
+//
+//        ByteArrayInputStream in = new ByteArrayInputStream(baos.toByteArray());
+//        baos.reset();
+//
+//        baos = new ByteArrayOutputStream();
+//        MessageContext context = new MessageContext("not-used", null, baos, null, "/test/web/service");
+//        context.setRequestStream(in);
+//        container.invoke(context);
+//
+//        String result = getResult(new ByteArrayInputStream(baos.toByteArray()));
+//
+//        assertEquals("127", result);
+//    }
+//
+//    public void testGBeanWSContainerStack() throws Exception {
+//        Kernel kernel = new Kernel("wstest");
+//        kernel.boot();
+//
+//        WSDLReader wsdlReader = WSDLFactory.newInstance().newWSDLReader();
+//        wsdlReader.readWSDL(wsdlURL.toExternalForm());
+//
+//        ObjectName ejbContainer = MockEJBContainer.addGBean(kernel, "MockEJB");
+//        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, new URI("/test/service"), null, "urn:testing", "encoded", "rpc");
+//        ObjectName listener = TestSoapHttpListener.addGBean(kernel, "HTTPSOAP", wsContainer);
+//        ObjectName server = HttpServerGBean.addGBean(kernel, "HTTPSOAP", listener);
+//        ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTPSOAP", 0, InetAddress.getByName("localhost"), null, 1, 5, null, null, server);
+//
+//        assertRunning(kernel, ejbContainer);
+//        assertRunning(kernel, wsContainer);
+//        assertRunning(kernel, listener);
+//        assertRunning(kernel, server);
+//        assertRunning(kernel, stack);
+//
+//        HttpURLConnection connection = null;
+//
+//        try {
+//            kernel.setAttribute(stack, "soTimeout", new Integer(1000));
+//            int port = ((Integer) kernel.getAttribute(stack, "port")).intValue();
+//            URL url = new URL("http://localhost:" + port + "/this/should/hit/something");
+//
+//            connection = (HttpURLConnection) url.openConnection();
+//            connection.setDoOutput(true);
+//            connection.setRequestProperty("Content-Type", "text/xml");
+//            PrintStream out = new PrintStream(connection.getOutputStream());
+//            out.print("<soap:Envelope\n" +
+//                    "xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"\n" +
+//                    "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+//                    "xmlns:ns=\"urn:testing\"\n" +
+//                    "soap:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" >\n" +
+//                    "<Body>\n" +
+//                    "<ns:intMethodRequest>\n" +
+//                    "<ns:in0 xsi:type=\"int\">126</ns:in0>\n" +
+//                    "</ns:intMethodRequest>\n" +
+//                    "</Body>\n" +
+//                    "</soap:Envelope>");
+//            out.flush();
+//            out.close();
+//
+//            String result = getResult(connection.getInputStream());
+//
+//            assertEquals("127", result);
+//
+//        } catch (Exception e) {
+//            fail(e.getMessage());
+//        } finally {
+//            connection.disconnect();
+//            kernel.stopGBean(stack);
+//            kernel.shutdown();
+//        }
+//    }
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream out = new PrintStream(baos);
-        out.print("<soap:Envelope\n" +
-                "xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"\n" +
-                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "xmlns:ns=\"urn:testing\"\n" +
-                "soap:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" >\n" +
-                "<Body>\n" +
-                "<ns:intMethodRequest>\n" +
-                "<ns:in0 xsi:type=\"int\">126</ns:in0>\n" +
-                "</ns:intMethodRequest>\n" +
-                "</Body>\n" +
-                "</soap:Envelope>");
-        out.flush();
-        out.close();
-
-        ByteArrayInputStream in = new ByteArrayInputStream(baos.toByteArray());
-        baos.reset();
-
-        baos = new ByteArrayOutputStream();
-        MessageContext context = new MessageContext("not-used", null, baos, null, "/test/web/service");
-        context.setRequestStream(in);
-        container.invoke(context);
-        String response = new String(baos.toByteArray());
-        assertTrue(response.indexOf(("<out>127</out>")) > 0);
+    private Definition getDefinition(URL wsdlURL) throws Exception {
+        WSDLReader wsdlReader = WSDLFactory.newInstance().newWSDLReader();
+        return wsdlReader.readWSDL(wsdlURL.toExternalForm());
     }
 
-    public void testGBeanWSContainerStack() throws Exception {
+    public void testGetWSDL() throws Exception {
         Kernel kernel = new Kernel("wstest");
         kernel.boot();
 
+        URL wsdlURL = new File("target/test-ejb-jar/META-INF/wsdl/test-ejb.wsdl").toURL();
+
+
         ObjectName ejbContainer = MockEJBContainer.addGBean(kernel, "MockEJB");
-        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, new URI("/test/service"), null, "urn:testing", "encoded", "rpc");
-        ObjectName listener = TestSoapHttpListener.addGBean(kernel, "HTTPSOAP", wsContainer);
+        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, getDefinition(wsdlURL), new URI("/test/service"), wsdlURL, "urn:testing", "encoded", "rpc");
+        ObjectName index = WSContainerIndexGBean.addGBean(kernel, "HTTPSOAP", wsContainer);
+        ObjectName listener = SoapHttpListenerGBean.addGBean(kernel, "HTTPSOAP", index);
         ObjectName server = HttpServerGBean.addGBean(kernel, "HTTPSOAP", listener);
         ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTPSOAP", 0, InetAddress.getByName("localhost"), null, 1, 5, null, null, server);
 
         assertRunning(kernel, ejbContainer);
         assertRunning(kernel, wsContainer);
+        assertRunning(kernel, index);
+        assertRunning(kernel, listener);
+        assertRunning(kernel, server);
+        assertRunning(kernel, stack);
+
+        InputStream in = null;
+        try {
+            kernel.setAttribute(stack, "soTimeout", new Integer(1000));
+            int port = ((Integer) kernel.getAttribute(stack, "port")).intValue();
+            URL url = new URL("http://localhost:" + port + "/test/service?wsdl");
+            in = url.openStream();
+
+            WSDLReader wsdlReader = WSDLFactory.newInstance().newWSDLReader();
+            Definition definition = wsdlReader.readWSDL(null, new InputSource(in));
+
+            assertNotNull(definition);
+
+        } catch (Exception e) {
+            fail(e.getMessage());
+        } finally {
+            in.close();
+            kernel.stopGBean(stack);
+            kernel.shutdown();
+        }
+    }
+
+    public void testAxisStyleMessage() throws Exception {
+        Kernel kernel = new Kernel("wstest");
+        kernel.boot();
+
+        URL wsdlURL = new File("target/test-ejb-jar/META-INF/wsdl/test-ejb.wsdl").toURL();
+
+        ObjectName ejbContainer = MockEJBContainerGBean.addGBean(kernel, new File("target/test-ejb-jar").toURL(), "SimpleEJB", "org.openejb.test.simple.slsb.SimpleStatelessSessionEJB", "org.openejb.test.simple.slsb.SimpleStatelessSessionHome", "org.openejb.test.simple.slsb.SimpleStatelessSession", "org.openejb.test.simple.slsb.SimpleStatelessSessionLocalHome", "org.openejb.test.simple.slsb.SimpleStatelessSessionLocal", "org.openejb.test.simple.slsb.SimpleStatelessSessionEndpoint");
+        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, getDefinition(wsdlURL), new URI("/services/Simple"), wsdlURL, "urn:testing", "encoded", "rpc");
+        ObjectName index = WSContainerIndexGBean.addGBean(kernel, "HTTPSOAP", wsContainer);
+        ObjectName listener = SoapHttpListenerGBean.addGBean(kernel, "HTTPSOAP", index);
+        ObjectName server = HttpServerGBean.addGBean(kernel, "HTTPSOAP", listener);
+        ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTPSOAP", 0, InetAddress.getByName("localhost"), null, 1, 5, null, null, server);
+
+        assertRunning(kernel, ejbContainer);
+        assertRunning(kernel, wsContainer);
+        assertRunning(kernel, index);
         assertRunning(kernel, listener);
         assertRunning(kernel, server);
         assertRunning(kernel, stack);
@@ -128,31 +250,30 @@ public class WSContainerTest extends TestCase {
         try {
             kernel.setAttribute(stack, "soTimeout", new Integer(1000));
             int port = ((Integer) kernel.getAttribute(stack, "port")).intValue();
-            URL url = new URL("http://localhost:" + port + "/this/should/hit/something");
+            URL url = new URL("http://localhost:" + port + "/services/Simple");
 
             connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "text/xml");
             PrintStream out = new PrintStream(connection.getOutputStream());
-            out.print("<soap:Envelope\n" +
-                    "xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"\n" +
-                    "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                    "xmlns:ns=\"urn:testing\"\n" +
-                    "soap:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" >\n" +
-                    "<Body>\n" +
-                    "<ns:intMethodRequest>\n" +
-                    "<ns:in0 xsi:type=\"int\">126</ns:in0>\n" +
-                    "</ns:intMethodRequest>\n" +
-                    "</Body>\n" +
-                    "</soap:Envelope>");
+            out.print("<soapenv:Envelope\n" +
+                    "    xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"\n" +
+                    "    xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"\n" +
+                    "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                    "<soapenv:Body>\n" +
+                    "<ns1:echo soapenv:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"\n" +
+                    "          xmlns:ns1=\"http://openejb.org/test-ejb-jar\">\n" +
+                    "<String_1 xsi:type=\"xsd:string\">hello</String_1>\n" +
+                    "</ns1:echo>\n" +
+                    "</soapenv:Body>\n" +
+                    "</soapenv:Envelope>");
             out.flush();
             out.close();
 
-            byte[] bytes = new byte[connection.getContentLength()];
-            DataInputStream in = new DataInputStream(connection.getInputStream());
-            in.readFully(bytes);
-            String response = new String(bytes);
-            assertTrue(response.indexOf(("<out>127</out>")) > 0);
+            String result = getResult(connection.getInputStream());
+
+            assertEquals("hello", result);
+
         } catch (Exception e) {
             fail(e.getMessage());
         } finally {
@@ -161,6 +282,50 @@ public class WSContainerTest extends TestCase {
             kernel.shutdown();
         }
     }
+
+//    public void testAxisClient() throws Exception {
+//        Kernel kernel = new Kernel("wstest");
+//        kernel.boot();
+//
+//        URL wsdlURL = new File("target/test-ejb-jar/META-INF/wsdl/test-ejb.wsdl").toURL();
+//
+//        ObjectName ejbContainer = MockEJBContainerGBean.addGBean(kernel, new File("target/test-ejb-jar").toURL(), "SimpleEJB", "org.openejb.test.simple.slsb.SimpleStatelessSessionEJB", "org.openejb.test.simple.slsb.SimpleStatelessSessionHome", "org.openejb.test.simple.slsb.SimpleStatelessSession", "org.openejb.test.simple.slsb.SimpleStatelessSessionLocalHome", "org.openejb.test.simple.slsb.SimpleStatelessSessionLocal", "org.openejb.test.simple.slsb.SimpleStatelessSessionEndpoint" );
+//        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, getDefinition(wsdlURL), new URI("/services/Simple"), wsdlURL, "urn:testing", "encoded", "rpc");
+//        ObjectName index = WSContainerIndexGBean.addGBean(kernel, "HTTPSOAP", wsContainer);
+//        ObjectName listener = SoapHttpListenerGBean.addGBean(kernel, "HTTPSOAP", index);
+//        ObjectName server = HttpServerGBean.addGBean(kernel, "HTTPSOAP", listener);
+//        int port = 8000;
+//        ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTPSOAP", port, InetAddress.getByName("localhost"), null, 1, 5, null, null, server);
+//
+//        assertRunning(kernel, ejbContainer);
+//        assertRunning(kernel, wsContainer);
+//        assertRunning(kernel, index);
+//        assertRunning(kernel, listener);
+//        assertRunning(kernel, server);
+//        assertRunning(kernel, stack);
+//
+//        try {
+//            kernel.setAttribute(stack, "soTimeout", new Integer(1000));
+//            URL wsdl = new URL("http://localhost:" + port + "/services/Simple?wsdl");
+//
+//            String namespaceURI = "http://openejb.org/test-ejb-jar";
+//            Service service = new org.apache.axis.client.Service(wsdl, new QName(namespaceURI,"SimpleService"));
+//
+//            QName portName = new QName(namespaceURI, "SimplePort");
+//            QName operationName = new QName(namespaceURI, "echo");
+//
+//            Call call = service.createCall(portName, operationName);
+//            Object[] inputParams = new Object[]{"hello"};
+//            String result = (String) call.invoke(inputParams);
+//            System.out.println("result = " + result);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            fail(e.getMessage());
+//        } finally {
+//            kernel.stopGBean(stack);
+//            kernel.shutdown();
+//        }
+//    }
 
     private void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
         int state = ((Integer) kernel.getAttribute(objectName, "state")).intValue();
@@ -218,4 +383,19 @@ public class WSContainerTest extends TestCase {
         }
     }
 
+    private String getResult(InputStream responseStream) throws ParserConfigurationException, SAXException, IOException {
+        SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+        SAXParser saxParser = saxParserFactory.newSAXParser();
+        TestHandler handler = new TestHandler();
+        saxParser.parse(responseStream, handler);
+        return handler.result;
+    }
+
+    private static class TestHandler extends DefaultHandler {
+        String result;
+
+        public void characters(char ch[], int start, int length) throws SAXException {
+            result = new String(ch, start, length);
+        }
+    }
 }

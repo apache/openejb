@@ -46,6 +46,9 @@ package org.openejb.server.soap;
 
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.InputStream;
+import java.net.URL;
 
 import org.codehaus.xfire.MessageContext;
 import org.openejb.server.httpd.HttpListener;
@@ -61,6 +64,7 @@ public class SoapHttpListener implements HttpListener {
     }
 
     public void onMessage(HttpRequest req, HttpResponse res) throws IOException {
+
         MessageContext context = new MessageContext("not-used", null, res.getOutputStream(), null, req.getURI().toString());
         context.setRequestStream(req.getInputStream());
 
@@ -73,7 +77,31 @@ public class SoapHttpListener implements HttpListener {
         }
 
         res.setContentType("text/xml");
-        container.invoke(context);
+
+        if (req.getQueryParameter("wsdl") != null){
+            URL wsdlURL = container.getWsdlURL();
+            InputStream in = null;
+            OutputStream out = null;
+            try {
+                in = wsdlURL.openStream();
+                out = res.getOutputStream();
+                byte[] buffer = new byte[1024];
+                for (int read = in.read(buffer); read > 0; read = in.read(buffer) ) {
+                    System.out.write(buffer, 0, read);
+                    out.write(buffer, 0 ,read);
+                }
+            } finally {
+                if (in != null) {
+                    in.close();
+                }
+                if (out != null) {
+                    out.flush();
+                    out.close();
+                }
+            }
+        } else {
+            container.invoke(context);
+        }
     }
 
 }

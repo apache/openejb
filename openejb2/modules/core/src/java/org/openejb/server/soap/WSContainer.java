@@ -48,6 +48,10 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 
+import javax.wsdl.Definition;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
+
 import org.codehaus.xfire.MessageContext;
 import org.codehaus.xfire.XFireRuntimeException;
 import org.codehaus.xfire.fault.Soap11FaultHandler;
@@ -75,7 +79,7 @@ public class WSContainer implements Invoker {
         this.service = null;
     }
 
-    public WSContainer(EJBContainer ejbContainer, URI location, URL wsdlURL, String namespace, String encoding, String style) {
+    public WSContainer(EJBContainer ejbContainer, Definition definition, URI location, URL wsdlURL, String namespace, String encoding, String style) {
         this.ejbContainer = ejbContainer;
         this.location = location;
         this.wsdlURL = wsdlURL;
@@ -93,14 +97,9 @@ public class WSContainer implements Invoker {
         service.setWSDLURL(wsdlURL);
         service.setServiceHandler(new SoapHandler(new JavaServiceHandler(this)));
         service.setFaultHandler(new Soap11FaultHandler());
-        service.setAutoTyped(true);
 
-        // Setup Type Mapping
-        DefaultTypeMappingRegistry registry = new DefaultTypeMappingRegistry();
-        registry.registerDefault(registry.createDefaultMappings());
-        service.setTypeMappingRegistry(registry);
-        service.initializeTypeMapping();
-        service.initializeOperations();
+        LightWeightServiceConfigurator configurator = new LightWeightServiceConfigurator(definition, service);
+        configurator.configure();
     }
 
     public void invoke(MessageContext context) {
@@ -111,11 +110,12 @@ public class WSContainer implements Invoker {
             handler = (SoapHandler) service.getServiceHandler();
             handler.invoke(context);
         } catch (Exception e) {
+            e.printStackTrace();
             if (e instanceof XFireRuntimeException) {
                 throw (XFireRuntimeException) e;
             } else if (handler != null) {
-                //log.error("Fault occurred.", e);
-                handler.handleFault(e, context);
+                XFireFault fault = XFireFault.createFault(e);
+                handler.handleFault(fault, context);
             } else {
                 throw new XFireRuntimeException("Couldn't process message.", e);
             }
