@@ -202,7 +202,7 @@ public final class MethodHelper {
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
             Integer index = findMethodIndex(signatures, method);
-            if (index == null) {
+            if (index != null) {
                 methodMap.put(method, index);
             }
         }
