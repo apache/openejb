@@ -38,7 +38,7 @@ function command_test () {
 }
 #================================================
 function command_deploy  () {
-   ./bin/deploy.sh
+   ./bin/deploy.sh $2 $3 $4 $5 $6 $7 $8 $9
 }
 #================================================
 function command_start  () {
