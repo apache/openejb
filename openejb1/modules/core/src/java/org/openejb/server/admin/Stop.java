@@ -46,9 +46,11 @@ package org.openejb.server.admin;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.URL;
 import java.util.Properties;
+
 import org.openejb.util.JarUtils;
 
 /**
@@ -69,11 +71,17 @@ public class Stop implements org.openejb.client.RequestMethods {
         
         out.write( STOP_REQUEST_Stop );
                 
+        } catch (ConnectException e){
+            System.out.println(":: server not running ::");
         } catch (Exception e){
             e.printStackTrace();
         }
     }
 
+    public void stop() {
+        stop("localhost",4200);
+    }
+        
     public static void main(String [] args) {
         try {
 
