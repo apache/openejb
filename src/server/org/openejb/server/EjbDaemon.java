@@ -238,6 +238,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             HttpDaemon httpd = new HttpDaemon(this);
             httpd.init(props);
             Thread admin = new Thread(httpd);
+            admin.setDaemon(true);
             admin.start();
 
             System.out.println(serverIP +" "+(port+2));
@@ -256,6 +257,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             System.out.println(serverIP+":"+(port+2));
             System.out.println("---------------------------------------");
             System.out.println("Ready!");
+
             /*
              * This will cause the user thread (the thread that keeps the
              *  vm alive) to go into a state of constant waiting.
