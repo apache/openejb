@@ -157,18 +157,18 @@
         <entity>
             <ejb-name>BasicCmp2Bean</ejb-name>
             <jndi-name>client/tests/entity/cmp2/BasicCmpHome</jndi-name>
-            <table-name>BasicCmp</table-name>
+            <table-name>entity</table-name>
             <cmp-field-mapping>
                 <cmp-field-name>id</cmp-field-name>
                 <table-column>id</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>firstName</cmp-field-name>
-                <table-column>firstName</table-column>
+                <table-column>first_name</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>lastName</cmp-field-name>
-                <table-column>lastName</table-column>
+                <table-column>last_name</table-column>
             </cmp-field-mapping>
             <query>
                 <query-method>
@@ -177,7 +177,7 @@
                         <method-param>java.lang.String</method-param>
                     </method-params>
                 </query-method>
-                <sql>SELECT id FROM BasicCmp WHERE lastName = ?</sql>
+                <sql>SELECT id FROM entity WHERE last_name = ?</sql>
             </query>
             <query>
                 <query-method>
@@ -194,18 +194,18 @@
         <entity>
             <ejb-name>AOBasicCmp2Bean</ejb-name>
             <jndi-name>client/tests/entity/cmp2/allowed_operations/EntityHome</jndi-name>
-            <table-name>AOBasicCmp</table-name>
+            <table-name>entity</table-name>
             <cmp-field-mapping>
                 <cmp-field-name>id</cmp-field-name>
                 <table-column>id</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>firstName</cmp-field-name>
-                <table-column>firstName</table-column>
+                <table-column>first_name</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>lastName</cmp-field-name>
-                <table-column>lastName</table-column>
+                <table-column>last_name</table-column>
             </cmp-field-mapping>
             <query>
                 <query-method>
@@ -235,18 +235,18 @@
         <entity>
             <ejb-name>EncCmp2Bean</ejb-name>
             <jndi-name>client/tests/entity/cmp2/EncBean</jndi-name>
-            <table-name>EncCmp</table-name>
+            <table-name>entity</table-name>
             <cmp-field-mapping>
                 <cmp-field-name>id</cmp-field-name>
                 <table-column>id</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>firstName</cmp-field-name>
-                <table-column>firstName</table-column>
+                <table-column>first_name</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>lastName</cmp-field-name>
-                <table-column>lastName</table-column>
+                <table-column>last_name</table-column>
             </cmp-field-mapping>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
@@ -260,18 +260,18 @@
         <entity>
             <ejb-name>Cmp2RMIIIOPBean</ejb-name>
             <jndi-name>client/tests/entity/cmp2/RMI-over-IIOP/EJBHome</jndi-name>
-            <table-name>CmpRmiIiop</table-name>
+            <table-name>entity</table-name>
             <cmp-field-mapping>
                 <cmp-field-name>id</cmp-field-name>
                 <table-column>id</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>firstName</cmp-field-name>
-                <table-column>firstName</table-column>
+                <table-column>first_name</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>lastName</cmp-field-name>
-                <table-column>lastName</table-column>
+                <table-column>last_name</table-column>
             </cmp-field-mapping>
         </entity>
 
@@ -284,18 +284,18 @@
         <entity>
             <ejb-name>BasicCmpBean</ejb-name>
             <jndi-name>client/tests/entity/cmp/BasicCmpHome</jndi-name>
-            <table-name>BasicCmp</table-name>
+            <table-name>entity</table-name>
             <cmp-field-mapping>
                 <cmp-field-name>id</cmp-field-name>
                 <table-column>id</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>firstName</cmp-field-name>
-                <table-column>firstName</table-column>
+                <table-column>first_name</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>lastName</cmp-field-name>
-                <table-column>lastName</table-column>
+                <table-column>last_name</table-column>
             </cmp-field-mapping>
             <query>
                 <query-method>
@@ -304,7 +304,7 @@
                         <method-param>java.lang.String</method-param>
                     </method-params>
                 </query-method>
-                <sql>SELECT id FROM BasicCmp WHERE lastName = ?</sql>
+                <sql>SELECT id FROM entity WHERE last_name = ?</sql>
             </query>
             <query>
                 <query-method>
@@ -321,18 +321,18 @@
         <entity>
             <ejb-name>AOBasicCmpBean</ejb-name>
             <jndi-name>client/tests/entity/cmp/allowed_operations/EntityHome</jndi-name>
-            <table-name>AOBasicCmp</table-name>
+            <table-name>entity</table-name>
             <cmp-field-mapping>
                 <cmp-field-name>id</cmp-field-name>
                 <table-column>id</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>firstName</cmp-field-name>
-                <table-column>firstName</table-column>
+                <table-column>first_name</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>lastName</cmp-field-name>
-                <table-column>lastName</table-column>
+                <table-column>last_name</table-column>
             </cmp-field-mapping>
             <query>
                 <query-method>
@@ -362,18 +362,18 @@
         <entity>
             <ejb-name>EncCmpBean</ejb-name>
             <jndi-name>client/tests/entity/cmp/EncBean</jndi-name>
-            <table-name>EncCmp</table-name>
+            <table-name>entity</table-name>
             <cmp-field-mapping>
                 <cmp-field-name>id</cmp-field-name>
                 <table-column>id</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>firstName</cmp-field-name>
-                <table-column>firstName</table-column>
+                <table-column>first_name</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>lastName</cmp-field-name>
-                <table-column>lastName</table-column>
+                <table-column>last_name</table-column>
             </cmp-field-mapping>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
@@ -387,18 +387,18 @@
         <entity>
             <ejb-name>CmpRMIIIOPBean</ejb-name>
             <jndi-name>client/tests/entity/cmp/RMI-over-IIOP/EJBHome</jndi-name>
-            <table-name>CmpRmiIiop</table-name>
+            <table-name>entity</table-name>
             <cmp-field-mapping>
                 <cmp-field-name>id</cmp-field-name>
                 <table-column>id</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>firstName</cmp-field-name>
-                <table-column>firstName</table-column>
+                <table-column>first_name</table-column>
             </cmp-field-mapping>
             <cmp-field-mapping>
                 <cmp-field-name>lastName</cmp-field-name>
-                <table-column>lastName</table-column>
+                <table-column>last_name</table-column>
             </cmp-field-mapping>
         </entity>
     </enterprise-beans>

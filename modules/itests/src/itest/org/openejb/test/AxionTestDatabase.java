@@ -21,18 +21,6 @@ public class AxionTestDatabase implements TestDatabase {
     private static final String CREATE_ENTITY = "CREATE TABLE entity ( id integer default entity_seq.nextval, first_name string, last_name string )";
     private static final String DROP_ENTITY = "DROP TABLE entity";
 
-    private static final String CREATE_BASICCMP = "CREATE TABLE BasicCmp ( id integer default entity_seq.nextval, firstName string, lastName string )";
-    private static final String DROP_BASICCMP = "DROP TABLE BasicCmp";
-
-    private static final String CREATE_AOBASICCMP = "CREATE TABLE AOBasicCmp ( id integer default entity_seq.nextval, firstName string, lastName string )";
-    private static final String DROP_AOBASICCMP = "DROP TABLE AOBasicCmp";
-
-    private static final String CREATE_ENCCMP = "CREATE TABLE EncCmp ( id integer default entity_seq.nextval, firstName string, lastName string )";
-    private static final String DROP_ENCCMP = "DROP TABLE EncCmp";
-
-    private static final String CREATE_CMPRMIIIOP = "CREATE TABLE CmpRmiIiop ( id integer default entity_seq.nextval, firstName string, lastName string )";
-    private static final String DROP_CMPRMIIIOP = "DROP TABLE CmpRmiIiop";
-
     private static final String CREATE_ENTITY_SEQ = "CREATE SEQUENCE entity_seq";
     private static final String DROP_ENTITY_SEQ = "DROP SEQUENCE entity_seq";
 
@@ -42,25 +30,13 @@ public class AxionTestDatabase implements TestDatabase {
 
 
     public void createEntityTable() throws java.sql.SQLException {
-        executeStatementIgnoreErrors(DROP_CMPRMIIIOP);
-        executeStatementIgnoreErrors(DROP_ENCCMP);
-        executeStatementIgnoreErrors(DROP_BASICCMP);
-        executeStatementIgnoreErrors(DROP_AOBASICCMP);
         executeStatementIgnoreErrors(DROP_ENTITY);
         executeStatementIgnoreErrors(DROP_ENTITY_SEQ);
         executeStatement(CREATE_ENTITY_SEQ);
         executeStatement(CREATE_ENTITY);
-        executeStatement(CREATE_BASICCMP);
-        executeStatement(CREATE_AOBASICCMP);
-        executeStatement(CREATE_ENCCMP);
-        executeStatement(CREATE_CMPRMIIIOP);
     }
 
     public void dropEntityTable() throws java.sql.SQLException {
-        executeStatement(DROP_CMPRMIIIOP);
-        executeStatement(DROP_ENCCMP);
-        executeStatement(DROP_BASICCMP);
-        executeStatement(DROP_AOBASICCMP);
         executeStatement(DROP_ENTITY);
         executeStatement(DROP_ENTITY_SEQ);
     }
