@@ -43,7 +43,7 @@
     <replace file="${basedir}/target/resources/web.xml" token="@OPENEJB_HOME@" 
              value="${basedir}/../../target/openejb-${pom.currentVersion}"/>
 
-    <war destfile="${basedir}/target/openejb-webadmin.war" webxml="${basedir}/target/resources/web.xml">
+    <war destfile="${basedir}/target/openejb-webadmin-${pom.currentVersion}.war" webxml="${basedir}/target/resources/web.xml">
       <fileset dir="${basedir}/src/webapp">
         <exclude name="WEB-INF/web.xml"/>
       </fileset>
