@@ -89,7 +89,7 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
         String[] logOnFailure = new String[]{"HOST","NAME"};
 
         service = new ServicePool(name, service, threads, priority);
-        service = new ServiceAccessController(service, onlyFrom);
+        service = new ServiceAccessController(name, service, onlyFrom);
         service = new ServiceLogger(name, service, logOnSuccess, logOnFailure);
         server = service;
 

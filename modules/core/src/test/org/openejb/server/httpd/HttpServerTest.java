@@ -68,18 +68,44 @@ public class HttpServerTest extends TestCase {
 
     public void testBareService() throws Exception {
         ServerService service = new HttpServer();
-        ServiceDaemon daemon = new ServiceDaemon("HTTP", service, InetAddress.getByName("localhost"), 8000);
+        ServiceDaemon daemon = new ServiceDaemon("HTTP", service, InetAddress.getByName("localhost"), 0);
+        HttpURLConnection connection = null;
 
         try {
+            daemon.setSoTimeout(100);
             daemon.doStart();
-            URL url = new URL("http://localhost:8000/this/should/hit/something");
 
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            int port = daemon.getPort();
+            URL url = new URL("http://localhost:"+port+"/this/should/hit/something");
+            connection = (HttpURLConnection) url.openConnection();
+
             int responseCode = connection.getResponseCode();
             assertEquals("HTTP response code should be 500", responseCode, HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
+            connection.disconnect();
             daemon.doStop();
         }
 
     }
+
+    public void testServiceStack() throws Exception {
+        ServerService service = new HttpServer();
+        StandardServiceStack serviceStack = new StandardServiceStack("HTTP", 0, InetAddress.getByName("localhost"), null, 1,5, null, null, service);
+        HttpURLConnection connection = null;
+
+        try {
+            serviceStack.doStart();
+            int port = serviceStack.getPort();
+
+            URL url = new URL("http://localhost:"+port+"/this/should/hit/something");
+
+            connection = (HttpURLConnection) url.openConnection();
+            int responseCode = connection.getResponseCode();
+            assertEquals("HTTP response code should be 500", responseCode, HttpURLConnection.HTTP_INTERNAL_ERROR);
+        } finally {
+            connection.disconnect();
+            serviceStack.doStop();
+        }
+    }
+
 }

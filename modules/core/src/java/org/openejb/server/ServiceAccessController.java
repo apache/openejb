@@ -72,7 +72,7 @@ public class ServiceAccessController implements ServerService {
         this.next = next;
     }
 
-    public ServiceAccessController(ServerService next, InetAddress[] allowedHosts) {
+    public ServiceAccessController(String name, ServerService next, InetAddress[] allowedHosts) {
         this.next = next;
         this.allowHosts = allowedHosts;
     }
