@@ -57,7 +57,7 @@
     <p>
     To set the PATH variable on a Windows machine, execute the following command 
     in a command prompt.<br/><br/>
-    <command>set PATH=%PATH%;"C:\the\path\where\cvs\is"</command>
+    <command>set PATH=%PATH%;C:\the\path\where\cvs\is</command>
     </p>    
     </section>
     
@@ -72,7 +72,7 @@
     To set the CVSROOT variable on a Windows machine so that it points toward
     the OpenEJB cvs at SourceForge, execute the following command in a command 
     prompt.<br/><br/>
-    <command>set CVSROOT=":pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb"</command>
+    <command>set CVSROOT=:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb</command>
     </p>    
     </section>
 
@@ -90,7 +90,7 @@
     <p>
     To set the HOME variable on a Windows machine, execute the following command 
     in a command prompt.<br/><br/>
-    <command>set HOME="C:\any\directory\works"</command>
+    <command>set HOME=C:\any\directory\works</command>
     </p>    
     </section> 
     </section>

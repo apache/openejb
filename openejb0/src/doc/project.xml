@@ -60,6 +60,14 @@
       </navLink>
     </section>
 
+    <section name="Servers">
+      <navLink>
+        <url>embedded.xml</url>
+        <display>IntraVM Server</display>
+      </navLink>
+    </section>
+
+
     <section name="Integrators">
       <navLink>
         <url>whyopenejb.xml</url>
