@@ -40,6 +40,7 @@
  *
  * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
  *
+ * $Id:
  */
 package org.openejb.admin.web.config;
 
@@ -66,64 +67,114 @@ import org.openejb.util.HtmlUtilities;
 import org.openejb.util.StringUtilities;
 
 /**
+ * This class is a utility for the ConfigBean.  It takes care of printing
+ * out all the HTML for the bean.
+ * 
+ * @see org.openejb.admin.web.config.ConfigBean
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
-public class ConfigHTMLWriter implements Serializable {
+public class ConfigHTMLWriter {
+	/** create url type */
 	public static final String CREATE = "Create";
+	/** edit url type */
 	public static final String EDIT = "Edit";
+	/** delete url type */
 	public static final String DELETE = "Delete";
-
+	/** Connector object type */
 	public static final String TYPE_CONNECTOR = "Connector";
+	/** Container object type */
 	public static final String TYPE_CONTAINER = "Container";
+	/** Deployments object type */
 	public static final String TYPE_DEPLOYMENTS = "Deployments";
+	/** JndiProvider object type */
 	public static final String TYPE_JNDI_PROVIDER = "JndiProvider";
+	/** Resource object type */
 	public static final String TYPE_RESOURCE = "Resource";
+	/** Connection Manager object type */
 	public static final String TYPE_CONNECTION_MANAGER = "ConnectionManager";
+	/** Proxy Factory object type */
 	public static final String TYPE_PROXY_FACTORY = "ProxyFactory";
+	/** Securty Service object type */
 	public static final String TYPE_SECURITY_SERVICE = "SecurityService";
+	/** Transaction Service object type */
 	public static final String TYPE_TRANSACTION_SERVICE = "TransactionService";
-
+	/** type query parameter */
 	public static final String QUERY_PARAMETER_TYPE = "type";
+	/** method query parameter */
 	public static final String QUERY_PARAMETER_METHOD = "method";
-
+	/** handle file form field name */
 	public static final String FORM_FIELD_HANDLE_FILE = "handleFile";
+	/** id form field name */
 	public static final String FORM_FIELD_ID = "id";
+	/** jar form field name */
 	public static final String FORM_FIELD_JAR = "jar";
+	/** provider form field name */
 	public static final String FORM_FIELD_PROVIDER = "provider";
+	/** container type form field name */
 	public static final String FORM_FIELD_CONTAINER_TYPE = "containerType";
+	/** index form field name */
 	public static final String FORM_FIELD_INDEX = "index";
+	/** deployment type form field name */
 	public static final String FORM_FIELD_DEPLOYMENT_TYPE = "deploymentType";
+	/** deployment text form field name */
 	public static final String FORM_FIELD_DEPLOYMENT_TEXT = "deploymentText";
+	/** JNDI Parameters form field name */
 	public static final String FORM_FIELD_JNDI_PARAMETERS = "jndiParameters";
+	/** content form field name */
 	public static final String FORM_FIELD_CONTENT = "content";
-
+	/** submit button name for a service page */
 	public static final String FORM_FIELD_SUBMIT_SERVICE = "submitService";
+	/** submit button name for the main openejb page */
 	public static final String FORM_FIELD_SUBMIT_OPENEJB = "submitOpenejb";
-	
+	/** submit button value and label for a connector */
 	public static final String FORM_VALUE_SUBMIT_CONNECTOR = "Submit Connector";
+	/** submit button value and label for a container */
 	public static final String FORM_VALUE_SUBMIT_CONTAINER = "Submit Container";
+	/** submit button value and label for deployments */
 	public static final String FORM_VALUE_SUBMIT_DEPLOYMENTS = "Submit Deployments";
+	/** submit button value and label for a JNDI provider */
 	public static final String FORM_VALUE_SUBMIT_JNDI_PROVIDER = "Submit JNDI Provider";
+	/** submit button value and label for a resource */
 	public static final String FORM_VALUE_SUBMIT_RESOURCE = "Submit Resource";
+	/** submit button value and label for a connection manager */
 	public static final String FORM_VALUE_SUBMIT_CONNECTION_MANAGER = "Submit Connection Manager";
+	/** submit button value and label for a proxy factory */
 	public static final String FORM_VALUE_SUBMIT_PROXY_FACTORY = "Submit Proxy Factory";
+	/** submit button value and label for a security service */
 	public static final String FORM_VALUE_SUBMIT_SECURITY_SERVICE = "Submit Security Service";
+	/** submit button value and label for a transaction service */
 	public static final String FORM_VALUE_SUBMIT_TRANSACTION_SERVICE = "Submit Transaction Service";
-
+	/** drop down value for a jar deployment type */
 	public static final String DEPLOYMENT_TYPE_JAR = "jar";
+	/** drop down value for a directory deployment type */
 	public static final String DEPLOYMENT_TYPE_DIR = "dir";
+	//link and display for the pop up help
+	private static final String HELP_LINK_HREF = "javascript:popUpHelp('help/config/help.html')";
+	private static final String HELP_LINK_DISPLAY = "(?)";
 
-	public static void writeOpenejb(PrintWriter body, Openejb openejbConfig, String handle, String configLocation) {
+	private ConfigHTMLWriter() {} //no one should instantate this class
+
+	/**
+	 * This method takes care of writing the contents of the Openejb configuration object to
+	 * the browser.  It takes in an Openejb object, gets all the parts and constructs the HTML
+	 * 
+	 * @see org.openejb.alt.config.sys.Openejb
+	 * @param body writes the HTML to the browser
+	 * @param openejb the openejb object to write the contents of
+	 * @param handle the location of the handle file string
+	 * @param configLocation the location of the configuration file
+	 */
+	public static void writeOpenejb(PrintWriter body, Openejb openejb, String handle, String configLocation) {
 		//get all the parts of the configuration
-		Connector[] connectors = openejbConfig.getConnector();
-		Container[] containers = openejbConfig.getContainer();
-		Deployments[] deploymentsArray = openejbConfig.getDeployments();
-		JndiProvider[] jndiProviders = openejbConfig.getJndiProvider();
-		Resource[] resources = openejbConfig.getResource();
-		ConnectionManager connectionManager = openejbConfig.getConnectionManager();
-		ProxyFactory proxyFactory = openejbConfig.getProxyFactory();
-		SecurityService securityService = openejbConfig.getSecurityService();
-		TransactionService transactionService = openejbConfig.getTransactionService();
+		Connector[] connectors = openejb.getConnector();
+		Container[] containers = openejb.getContainer();
+		Deployments[] deploymentsArray = openejb.getDeployments();
+		JndiProvider[] jndiProviders = openejb.getJndiProvider();
+		Resource[] resources = openejb.getResource();
+		ConnectionManager connectionManager = openejb.getConnectionManager();
+		ProxyFactory proxyFactory = openejb.getProxyFactory();
+		SecurityService securityService = openejb.getSecurityService();
+		TransactionService transactionService = openejb.getTransactionService();
 
 		//print instructions
 		body.println("This page allows you to configure your system.  The configuration file being used is:");
@@ -159,6 +210,7 @@ public class ConfigHTMLWriter implements Serializable {
 
 		body.println("</td>\n</tr>\n<tr>\n<td>");
 
+		//print the create, edit and delete urls
 		body.println(createCEDUrl(TYPE_CONNECTOR, CREATE));
 		if (connectors != null && connectors.length > 0) {
 			body.println(createCEDUrl(TYPE_CONNECTOR, EDIT));
@@ -167,6 +219,7 @@ public class ConfigHTMLWriter implements Serializable {
 
 		body.println("</td>\n<td>");
 
+		//print the create, edit and delete urls
 		body.println(createCEDUrl(TYPE_CONTAINER, CREATE));
 		if (containers != null && containers.length > 0) {
 			body.println(createCEDUrl(TYPE_CONTAINER, EDIT));
@@ -205,6 +258,7 @@ public class ConfigHTMLWriter implements Serializable {
 
 		body.println("</td>\n</tr>\n<tr>\n<td>");
 
+		//print the create, edit and delete urls
 		body.println(createCEDUrl(TYPE_DEPLOYMENTS, CREATE));
 		if (deploymentsArray != null & deploymentsArray.length > 0) {
 			body.println(createCEDUrl(TYPE_DEPLOYMENTS, EDIT));
@@ -213,6 +267,7 @@ public class ConfigHTMLWriter implements Serializable {
 
 		body.println("</td>\n<td>");
 
+		//print the create, edit and delete urls
 		body.println(createCEDUrl(TYPE_JNDI_PROVIDER, CREATE));
 		if (jndiProviders != null && jndiProviders.length > 0) {
 			body.println(createCEDUrl(TYPE_JNDI_PROVIDER, EDIT));
@@ -239,6 +294,7 @@ public class ConfigHTMLWriter implements Serializable {
 			body.println("No Connection Manager");
 		}
 
+		//print the create, edit and delete urls
 		body.println("</td>\n</tr>\n<tr>\n<td>");
 		body.println(createCEDUrl(TYPE_RESOURCE, CREATE));
 		if (resources != null && resources.length > 0) {
@@ -248,6 +304,7 @@ public class ConfigHTMLWriter implements Serializable {
 
 		body.println("</td>\n<td>");
 
+		//print the create, edit and delete urls
 		if (connectionManager == null) {
 			body.println(createCEDUrl(TYPE_CONNECTION_MANAGER, CREATE));
 		} else {
@@ -273,6 +330,7 @@ public class ConfigHTMLWriter implements Serializable {
 
 		body.println("</td>\n</tr>\n<tr>\n<td>");
 
+		//print the create, edit and delete urls
 		if (proxyFactory == null) {
 			body.println(createCEDUrl(TYPE_PROXY_FACTORY, CREATE));
 		} else {
@@ -280,6 +338,7 @@ public class ConfigHTMLWriter implements Serializable {
 			body.println(createCEDUrl(TYPE_PROXY_FACTORY, DELETE));
 		}
 
+		//print the create, edit and delete urls
 		body.println("</td>\n<td>");
 		if (securityService == null) {
 			body.println(createCEDUrl(TYPE_SECURITY_SERVICE, CREATE));
@@ -296,6 +355,7 @@ public class ConfigHTMLWriter implements Serializable {
 			body.println("No Transaction Service");
 		}
 
+		//print the create, edit and delete urls
 		body.println("</td>\n<td>&nbsp;</td>\n</tr>\n<tr>\n<td>");
 		if (transactionService == null) {
 			body.println(createCEDUrl(TYPE_TRANSACTION_SERVICE, CREATE));
@@ -304,6 +364,7 @@ public class ConfigHTMLWriter implements Serializable {
 			body.println(createCEDUrl(TYPE_TRANSACTION_SERVICE, DELETE));
 		}
 
+		//print the buttons and hidden form fields
 		body.println("</td><td>&nbsp;</td></tr>\n<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
 		body.println("<tr>\n<td colspan=\"2\">");
 		body.println(HtmlUtilities.createSubmitFormButton(FORM_FIELD_SUBMIT_OPENEJB, "Write Changes"));
@@ -311,6 +372,16 @@ public class ConfigHTMLWriter implements Serializable {
 		body.println("</td>\n</tr>\n</table>\n</form>");
 	}
 
+	/**
+	 * This method writes out the contents of the Connector object to the
+	 * browser
+	 * 
+	 * @see org.openejb.alt.config.sys.Connector
+	 * @param body writes the HTML to the browser
+	 * @param connector the connector object to write the contents of
+	 * @param handle the location of the handle file string
+	 * @param index the index of the connector array
+	 */
 	public static void writeConnector(PrintWriter body, Connector connector, String handle, int index) throws IOException {
 		String id = "";
 		String jar = "";
@@ -321,6 +392,8 @@ public class ConfigHTMLWriter implements Serializable {
 		String password = "";
 		Properties contentProps = new Properties();
 
+		//set the variables to the connector contents if the connector is
+		//not null
 		if (connector != null) {
 			id = StringUtilities.nullToBlankString(connector.getId());
 			jar = StringUtilities.nullToBlankString(connector.getJar());
@@ -342,6 +415,7 @@ public class ConfigHTMLWriter implements Serializable {
 		body.println("Please enter the fields below for a connector.  If you need help, click on the question");
 		body.println("mark beside the field.  The bold fields are required.<br>");
 
+		//write out the table rows and the fields
 		body.println(createTableHTMLDecleration());
 		body.println(printFormRow("Id", FORM_FIELD_ID, id, 30, true));
 		body.println(printFormRow("Jar", FORM_FIELD_JAR, jar, 30, false));
@@ -351,6 +425,7 @@ public class ConfigHTMLWriter implements Serializable {
 		body.println(printFormRow("Username", EnvProps.USER_NAME, username, 30, false));
 		body.println(printFormRow("Password", EnvProps.PASSWORD, password, 30, false));
 
+		//write out the buttons and hidden form fields
 		body.println("<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
 		body.print("<tr>\n<td colspan=\"2\">");
 		body.println(HtmlUtilities.createSubmitFormButton(FORM_FIELD_SUBMIT_SERVICE, FORM_VALUE_SUBMIT_CONNECTOR));
@@ -359,6 +434,16 @@ public class ConfigHTMLWriter implements Serializable {
 		body.println("</td>\n</tr>\n</table>\n</form>");
 	}
 
+	/**
+	 * This method writes out the contents of the Container object to the
+	 * browser
+	 * 
+	 * @see org.openejb.alt.config.sys.Container
+	 * @param body writes the HTML to the browser
+	 * @param container the container to write the contents of
+	 * @param handle the location of the handle file string
+	 * @param index the index of the connector array
+	 */
 	public static void writeContainer(PrintWriter body, ContainerData containerData, String handle) throws IOException {
 		Properties properties = new Properties();
 		String[] containerTypes = { Bean.CMP_ENTITY, Bean.BMP_ENTITY, Bean.STATEFUL, Bean.STATELESS };
@@ -367,13 +452,18 @@ public class ConfigHTMLWriter implements Serializable {
 		//print instructions
 		body.println("Please enter the fields below for a container.  If you need help, click on the question");
 		body.println("mark beside the field.  The bold fields are required.<br>");
-
 		body.println(createTableHTMLDecleration());
-		body.println("<tr>\n<td><b>Container</b> <a href=\"javascript:void(0)\">(?)</a></td>\n<td>");
+		body.print("<tr>\n<td><b>Container</b> ");
+		body.print(HtmlUtilities.createAnchor(HELP_LINK_HREF, HELP_LINK_DISPLAY, HtmlUtilities.ANCHOR_HREF_TYPE));
+		body.println("</td>\n<td>");
+
+		//check to see if we're editing or creating a container
 		if (containerData.isEdit()) {
+			//hard code the container type, it can't be changed
 			body.println(containerType);
 			body.println(HtmlUtilities.createHiddenFormField(FORM_FIELD_CONTAINER_TYPE, containerType));
 		} else {
+			//create a drop down of container types
 			body.println(
 				HtmlUtilities.createSelectFormField(FORM_FIELD_CONTAINER_TYPE, "submitForm(this.form, 'Configuration')"));
 			for (int i = 0; i < containerTypes.length; i++) {
@@ -389,11 +479,12 @@ public class ConfigHTMLWriter implements Serializable {
 		}
 		body.println("</td>\n</tr>");
 
+		//print the standard service types
 		body.println(printFormRow("Id", FORM_FIELD_ID, containerData.getId(), 30, true));
 		body.println(printFormRow("Jar", FORM_FIELD_JAR, containerData.getJar(), 30, false));
 		body.println(printFormRow("Provider", FORM_FIELD_PROVIDER, containerData.getProvider(), 30, false));
 
-		//check for which type of container we're writing
+		//check for which type of container we're writing and print out the field types for each one
 		if (Bean.CMP_ENTITY.equals(containerType)) {
 			body.println(
 				printFormRow(
@@ -419,8 +510,9 @@ public class ConfigHTMLWriter implements Serializable {
 		} else if (Bean.STATELESS.equals(containerType)) {
 			body.println(printFormRow("Time Out", EnvProps.IM_TIME_OUT, containerData.getTimeOut(), 5, false));
 			body.println(printFormRow("Pool Size", EnvProps.IM_POOL_SIZE, containerData.getPoolSize(), 5, false));
-			body.println(
-				"<tr>\n<td>Strict Pooling <a href=\"javascript:popUpHelp('help/config/help.html')\">(?)</a></td>\n<td>");
+			body.print("<tr>\n<td>Strict Pooling ");
+			body.print(HtmlUtilities.createAnchor(HELP_LINK_HREF, HELP_LINK_DISPLAY, HtmlUtilities.ANCHOR_HREF_TYPE));
+			body.println("</td>\n<td>");
 			body.println(HtmlUtilities.createSelectFormField(EnvProps.IM_STRICT_POOLING, null));
 			body.println(HtmlUtilities.createSelectOption("true", "true", "true".equals(containerData.getStrictPooling())));
 			body.println(
@@ -428,6 +520,7 @@ public class ConfigHTMLWriter implements Serializable {
 			body.println("</select>\n</td>\n</tr>");
 		}
 
+		//print out the buttons and hidden form fields
 		body.println("<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
 		body.print("<tr>\n<td colspan=\"2\">");
 		body.println(HtmlUtilities.createSubmitFormButton(FORM_FIELD_SUBMIT_SERVICE, FORM_VALUE_SUBMIT_CONTAINER));
@@ -436,6 +529,16 @@ public class ConfigHTMLWriter implements Serializable {
 		body.println("</table>\n</form>");
 	}
 
+	/**
+	 * This method writes out the contents of the Resource object to the
+	 * browser
+	 * 
+	 * @see org.openejb.alt.config.sys.Container
+	 * @param body writes the HTML to the browser
+	 * @param resource the resource to write the contents of
+	 * @param handle the location of the handle file string
+	 * @param index the index of the connector array
+	 */
 	public static void writeResource(PrintWriter body, Resource resource, String handle, int index) {
 		String id = "";
 		String jar = "";
@@ -451,7 +554,7 @@ public class ConfigHTMLWriter implements Serializable {
 			content = StringUtilities.nullToBlankString(resource.getContent());
 		}
 
-		//print instructions
+		//print instructions and form fields
 		body.println("Please enter the fields below for a resource.  If you need help, click on the question");
 		body.println("mark beside the field.  The bold fields are required.<br>");
 		body.println(createTableHTMLDecleration());
@@ -459,8 +562,9 @@ public class ConfigHTMLWriter implements Serializable {
 		body.println(printFormRow("Jar", FORM_FIELD_JAR, jar, 30, false));
 		body.println(printFormRow("Provider", FORM_FIELD_PROVIDER, provider, 30, false));
 		body.println(printFormRow("JNDI", FORM_FIELD_JNDI_PARAMETERS, jndi, 30, false));
-		body.println(
-			"<tr>\n<td valign=\"top\">Content <a href=\"javascript:popUpHelp('help/config/help.html')\">(?)</a></td>\n<td>");
+		body.print("<tr>\n<td valign=\"top\">Content ");
+		body.print(HtmlUtilities.createAnchor(HELP_LINK_HREF, HELP_LINK_DISPLAY, HtmlUtilities.ANCHOR_HREF_TYPE));
+		body.println("</td>\n<td>");
 		body.println(HtmlUtilities.createTextArea(FORM_FIELD_CONTENT, content, 5, 40, null, null, null));
 		body.println("</td>\n</tr>\n<tr>\n<td colspan\"2\">&nbsp;</td>\n</tr>\n<tr>\n<td colspan=\"2\">");
 		body.println(HtmlUtilities.createSubmitFormButton(FORM_FIELD_SUBMIT_SERVICE, FORM_VALUE_SUBMIT_RESOURCE));
@@ -470,11 +574,23 @@ public class ConfigHTMLWriter implements Serializable {
 
 	}
 
+	/**
+	 * This method writes out the contents of the Deployments object to the
+	 * browser
+	 * 
+	 * @see org.openejb.alt.config.sys.Deployments
+	 * @param body writes the HTML to the browser
+	 * @param deployments the deployment info to write to the browser
+	 * @param handle the location of the handle file string
+	 * @param index the index of the connector array
+	 */
 	public static void writeDeployments(PrintWriter body, Deployments deployments, String handle, int index)
 		throws IOException {
 		String jarOrDir = null;
 		boolean isDir = true;
 
+		//loop through the deployments and see if we're printing
+		//a jar or directory
 		if (deployments != null) {
 			if (deployments.getDir() != null) {
 				jarOrDir = deployments.getDir();
@@ -487,7 +603,7 @@ public class ConfigHTMLWriter implements Serializable {
 
 		jarOrDir = StringUtilities.nullToBlankString(jarOrDir);
 
-		//print instructions
+		//print instructions and deployments information
 		body.println("Please select a Jar or Directory below.  This field is required.<br><br>");
 		body.println(createTableHTMLDecleration());
 
@@ -504,28 +620,40 @@ public class ConfigHTMLWriter implements Serializable {
 		body.println(HtmlUtilities.createHiddenFormField(FORM_FIELD_INDEX, String.valueOf(index)));
 		body.println("</td>\n</tr>\n</table>\n</form>");
 	}
-	
-	public static void writeService(PrintWriter body, Service service, String handle, String submitValue, int index){
+
+	/**
+	 * This method writes out the contents of a generic service object to the
+	 * browser
+	 * 
+	 * @see org.openejb.alt.config.Service
+	 * @param body writes the HTML to the browser
+	 * @param service the service to write to the browser
+	 * @param handle the location of the handle file string
+	 * @param submitValue the value/display for the submit button
+	 * @param index the index of the connector array
+	 */
+	public static void writeService(PrintWriter body, Service service, String handle, String submitValue, int index) {
 		String id = "";
 		String jar = "";
 		String provider = "";
 		String content = "";
-		if(service != null) {
+		if (service != null) {
 			id = StringUtilities.nullToBlankString(service.getId());
 			jar = StringUtilities.nullToBlankString(service.getJar());
 			provider = StringUtilities.nullToBlankString(service.getProvider());
 			content = StringUtilities.nullToBlankString(service.getContent());
 		}
-		
-		//print instructions
+
+		//print instructions and information to the browser
 		body.println("Please enter the fields below.  If you need help, click on the question");
 		body.println("mark beside the field.  The bold fields are required.<br>");
 		body.println(createTableHTMLDecleration());
 		body.println(printFormRow("Id", FORM_FIELD_ID, id, 30, true));
 		body.println(printFormRow("Jar", FORM_FIELD_JAR, jar, 30, false));
 		body.println(printFormRow("Provider", FORM_FIELD_PROVIDER, provider, 30, false));
-		body.println(
-			"<tr>\n<td valign=\"top\">Content <a href=\"javascript:popUpHelp('help/config/help.html')\">(?)</a></td>\n<td>");
+		body.print("<tr>\n<td valign=\"top\">Content ");
+		body.print(HtmlUtilities.createAnchor(HELP_LINK_HREF, HELP_LINK_DISPLAY, HtmlUtilities.ANCHOR_HREF_TYPE));
+		body.println("</td>\n<td>");
 		body.println(HtmlUtilities.createTextArea(FORM_FIELD_CONTENT, content, 5, 40, null, null, null));
 		body.println("</td>\n</tr>\n<tr>\n<td colspan\"2\">&nbsp;</td>\n</tr>\n<tr>\n<td colspan=\"2\">");
 		body.println(HtmlUtilities.createSubmitFormButton(FORM_FIELD_SUBMIT_SERVICE, submitValue));
@@ -534,29 +662,48 @@ public class ConfigHTMLWriter implements Serializable {
 		body.println("</table>\n</form>");
 	}
 
-	private static String printFormRow(String display, String name, String value, int size, boolean required) {
+	/**
+	 * This method prints a two column table row with a label in the first
+	 * column and a text form field in the second column 
+	 * 
+	 * @param label the label for the first column
+	 * @param name the name of the text form field
+	 * @param value the value of the text form field
+	 * @param size the size of the text form field
+	 * @param required true if this form field is required
+	 * @return the construted HTML table row
+	 */
+	private static String printFormRow(String label, String name, String value, int size, boolean required) {
 		StringBuffer temp = new StringBuffer(125).append("<tr>\n<td>");
 
 		if (required) {
-			temp.append("<b>").append(display).append("</b>");
+			temp.append("<b>").append(label).append("</b>");
 		} else {
-			temp.append(display);
+			temp.append(label);
 		}
 
 		return temp
-			.append(" <a href=\"javascript:popUpHelp('help/config/help.html')\">(?)</a>")
+			.append(HtmlUtilities.createAnchor(HELP_LINK_HREF, HELP_LINK_DISPLAY, HtmlUtilities.ANCHOR_HREF_TYPE))
 			.append("</td>\n<td>")
 			.append(HtmlUtilities.createTextFormField(name, value, size, 0))
 			.append("</td>\n</tr>\n")
 			.toString();
 	}
 
+	/** 
+	 * This method creates a url for create, edit or delete.  
+	 * 
+	 * @param type the type of url (object type)
+	 * @param method the method of the url (create, edit or delete)
+	 * @return a HTML url string
+	 */
 	private static String createCEDUrl(String type, String method) {
 		StringBuffer temp = new StringBuffer(150);
 
+		//if we're deleting we want to confirm the delete with a Javascript confirm box
 		if (DELETE.equals(method)) {
 			temp
-				.append("<a href=\"javascript:confirmSubmitForm(document.configForm, 'Configuration?")
+				.append("javascript:confirmSubmitForm(document.configForm, 'Configuration?")
 				.append(QUERY_PARAMETER_TYPE)
 				.append("=")
 				.append(type)
@@ -566,10 +713,10 @@ public class ConfigHTMLWriter implements Serializable {
 				.append(method)
 				.append("', 'Are you sure you want to delete this ")
 				.append(type)
-				.append("?\\nNote: changes will not be written until you click the Write Changes button.')\">");
+				.append("?\\nNote: changes will not be written until you click the Write Changes button.')");
 		} else {
 			temp
-				.append("<a href=\"javascript:submitForm(document.configForm, 'Configuration?")
+				.append("javascript:submitForm(document.configForm, 'Configuration?")
 				.append(QUERY_PARAMETER_TYPE)
 				.append("=")
 				.append(type)
@@ -577,39 +724,56 @@ public class ConfigHTMLWriter implements Serializable {
 				.append(QUERY_PARAMETER_METHOD)
 				.append("=")
 				.append(method)
-				.append("')\">");
+				.append("')");
 		}
 
-		return temp.append(method).append("</a>").toString();
+		return HtmlUtilities.createAnchor(temp.toString(), method, HtmlUtilities.ANCHOR_HREF_TYPE);
 	}
 
+	/**
+	 * This is a "helper" method for writing the main Openejb config section
+	 * it creates HTML for the "in between" and label sections of the table
+	 * 
+	 * @param label1 the label of the first column
+	 * @param label2 the label for the second column
+	 * @param isTop this is only true for the first call to this method
+	 * @return an HTML string for this table
+	 */
 	private static String createTableHTML(String label1, String label2, boolean isTop) {
 		StringBuffer temp = new StringBuffer(225);
 
+		//don't append this for the first call to this method
 		if (!isTop) {
 			temp.append("</td>\n</tr>\n");
 		}
 
 		temp.append("<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>\n<tr>\n<td>");
+
+		//we want a blank table cell
 		if ("&nbsp;".equals(label1)) {
 			temp.append(label1);
 		} else {
 			temp.append("<b>").append(label1).append("</b>").append(
-				" <a href=\"javascript:popUpHelp('help/config/help.html')\">(?)</a>");
+				HtmlUtilities.createAnchor(HELP_LINK_HREF, HELP_LINK_DISPLAY, HtmlUtilities.ANCHOR_HREF_TYPE));
 		}
 
 		temp.append("</td>\n<td>");
+		//we want a blank table cell
 		if ("&nbsp;".equals(label2)) {
 			temp.append(label2);
 		} else {
 			temp.append("<b>").append(label2).append("</b>").append(
-				" <a href=\"javascript:popUpHelp('help/config/help.html')\">(?)</a>");
+				HtmlUtilities.createAnchor(HELP_LINK_HREF, HELP_LINK_DISPLAY, HtmlUtilities.ANCHOR_HREF_TYPE));
 		}
 		temp.append("</td>\n</tr>\n<tr>\n<td>");
 
 		return temp.toString();
 	}
 
+	/**
+	 * This method returns the table and form decleration
+	 * @return  the table and form decleration
+	 */
 	private static String createTableHTMLDecleration() {
 		return "<form action=\"Configuration\" method=\"post\" name=\"configForm\">\n"
 			+ "<table border=\"0\" cellpadding=\"1\" cellspacing=\"1\" width=\"430\">";

@@ -50,9 +50,21 @@ import javax.ejb.EJBObject;
 import org.openejb.alt.config.sys.Openejb;
 
 /**
+ * This is a simple stateful session bean which holds onto the
+ * configuration object for the webadmin.
+ * 
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public interface ConfigurationDataObject extends EJBObject {
+	/**
+	 * gets the Openejb object
+	 * @return the openejb object
+	 */
 	public Openejb getOpenejb() throws RemoteException;
+	
+	/**
+	 * sets the Openejb object
+	 * @param openejb the openejb object to set
+	 */
 	public void setOpenejb(Openejb config) throws RemoteException;
 }

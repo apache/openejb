@@ -52,5 +52,11 @@ import javax.ejb.EJBHome;
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public interface ConfigurationDataHome extends EJBHome {
+	/**
+	 * gets a new instance of ConfigurationDataObject
+	 * @return a ConfigurationDataObject
+	 * @throws RemoteException if something goes wrong
+	 * @throws CreateException if the object can't be created
+	 */
 	public ConfigurationDataObject create() throws RemoteException, CreateException;
 }
