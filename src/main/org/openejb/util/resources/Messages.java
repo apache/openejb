@@ -74,11 +74,11 @@ public class Messages extends ListResourceBundle{
 {"ge0005", "Environment entry {0} contains illegal value {1}."}, //param 0 is the property name, param 1 is the illegal value.
 {"ge0006", "Environment entry {0} contains illegal value {1}. {2}"}, //param 0 is the property name, param 1 is the illegal value, param 2 is an additional message.
 {"ge0007", "The {0} cannot find and load the class {1}."}, //param 0 is the part of the system that needs the class, param 1 is the class that cannot be found.
-{"ge0008", "The {0} cannot instaniate the class {1}, the class or initializer is not accessible."},//param 0 is the part of the system that needs the class, param 1 is the class that cannot be accessed.
-{"ge0009", "The {0} cannot instaniate the class {1}, the class may be abstract or an interface."},//param 0 is the part of the system that needs the class, param 1 is the class that cannot be accessed.
+{"ge0008", "The {0} cannot instantiate the class {1}, the class or initializer is not accessible."},//param 0 is the part of the system that needs the class, param 1 is the class that cannot be accessed.
+{"ge0009", "The {0} cannot instantiate the class {1}, the class may be abstract or an interface."},//param 0 is the part of the system that needs the class, param 1 is the class that cannot be accessed.
 {"ge0010", "The {0} cannot locate the class {1}, the codebase {2} cannot be accessed. Received message: {3}"},
-{"ge0011", "The {0} cannot instaniate the class {1}:  Recieved exception {3}: {4}"},
-{"ge0012", "The {0} cannot instaniate the class {1} loaded from codebase {2}:  Recieved exception {3}: {4}"},
+{"ge0011", "The {0} cannot instantiate the class {1}:  Received exception {3}: {4}"},
+{"ge0012", "The {0} cannot instantiate the class {1} loaded from codebase {2}:  Received exception {3}: {4}"},
 {"cl0001", "Invalid codebase URI [{0}]. Received message: {1}"},
 {"cl0002", "Cannot access codebase [{0}]. Received message: {1}"},
 {"cl0003", "Error while loading remote interface {0} for bean {1}. Received message: {2}"},
@@ -105,7 +105,7 @@ public class Messages extends ListResourceBundle{
    3... = ejb-jar
    4... = service-jar
    
-   Thrid Digit in Code
+   Third Digit in Code
    .1.. = During input
    .0.. = During output
    
@@ -143,7 +143,7 @@ public class Messages extends ListResourceBundle{
 {"conf.1060" ,"Cannot write the OpenEJB configuration file {0}. Received message: {1}"},
 {"conf.1110" ,"Cannot read the OpenEJB configuration file {0}. Received message: {1}"},
 {"conf.1120" ,"Cannot unmarshal the OpenEJB configuration in file {0}. Received message: {1}"},
-{"conf.1121" ,"Cannot unmarshal the OpenEJB configuration file {0}.  Recived error, host [{1}] not found. If your xml references a DTD on a remote system, you must be connected to a network to download the DTD.  Alternatively, you can remove the DOCTYPE element."},
+{"conf.1121" ,"Cannot unmarshal the OpenEJB configuration file {0}.  Received error, host [{1}] not found. If your xml references a DTD on a remote system, you must be connected to a network to download the DTD.  Alternatively, you can remove the DOCTYPE element."},
 {"conf.1130" ,"Cannot validate the OpenEJB configuration file {0}. Received message: {1}"},
 {"conf.1900" ,"Cannot find the OpenEJB configuration file {0}. Received message: {1}"},
 {"conf.2040" ,"Cannot validate the openejb-jar data. Received message: {1}"},
@@ -175,6 +175,13 @@ public class Messages extends ListResourceBundle{
  	
 
 {"init.0100" , "Invalid {0} provider {1}.  The factory class specified, {2}, does not implement the {3} interface.  Please check the configuration of {1}."},
+
+{"deploy.m.010" , "Deploy option -m.  Could not move jar {0}, file does not exist."},
+{"deploy.m.020" , "Deploy option -m.  Could not move jar {0}, the specified path is a directory not a valid file."},
+{"deploy.m.030" , "Deploy option -m.  Could not move jar {0}, that path is not a valid file."},
+{"deploy.m.040" , "Deploy option -m.  Could not move jar {0}. An error occurred while resolving the default beans directory: {1}"},
+{"deploy.m.050" , "Deploy option -m.  Could not move jar {0}. A security exception occurred while attempting to move the jar to the default beans directory: {1}"},
+{"deploy.m.060" , "Deploy option -m.  Could not move jar {0} to {1}.  Make sure the jar is not open in another program."},
 
 
 // END OF MATERIAL TO LOCALIZE
