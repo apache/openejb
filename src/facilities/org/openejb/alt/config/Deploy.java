@@ -798,7 +798,8 @@ public class Deploy {
             versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
         } catch (java.io.IOException e) {
         }
-        System.out.println( "OpenEJB Deploy Tool " + versionInfo.get( "version" ) );
+        
+        System.out.println( "OpenEJB Deploy Tool " + versionInfo.get( "version" )  +"    build: "+versionInfo.get( "date" )+"-"+versionInfo.get( "time" ));
         System.out.println( "" + versionInfo.get( "url" ) );
     }
     
