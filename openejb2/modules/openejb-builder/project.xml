@@ -95,6 +95,12 @@
             
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-axis-builder</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
@@ -171,6 +177,12 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-axis</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
             <version>${geronimo_spec_j2ee_deployment_version}</version>
@@ -216,6 +228,12 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jaxrpc</artifactId>
             <version>${geronimo_spec_jaxrpc_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-saaj</artifactId>
+            <version>${geronimo_spec_saaj_version}</version>
         </dependency>
 
         <dependency>
@@ -496,15 +514,6 @@
         </dependency>
 
         <dependency>
-            <groupId>wsdl4j</groupId>
-            <artifactId>wsdl4j-qname</artifactId>
-            <version>${wsdl4j_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
             <groupId>stax</groupId>
             <artifactId>stax</artifactId>
             <version>1.1.1-dev</version>
@@ -521,6 +530,25 @@
                 <runtime>true</runtime>
             </properties>
         </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>${axis_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>${axis_commons_discovery_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
     </dependencies>
 
     <!-- =================== -->
