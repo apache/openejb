@@ -51,7 +51,7 @@ import javax.naming.InitialContext;
 
 /**
  * [3] Should be run as the third test suite of the BasicStatefulTestClients
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
@@ -78,7 +78,7 @@ public class StatefulEjbHomeTests extends BasicStatefulTestClient{
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
     }
-    
+
     public void test02_getHomeHandle(){
         try{
             ejbHomeHandle = ejbHome.getHomeHandle();
@@ -87,20 +87,20 @@ public class StatefulEjbHomeTests extends BasicStatefulTestClient{
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
     }
-    
+
     /**
      * ------------------------------------
      * 5.3.2 Removing a session object
      * A client may remove a session object using the remove() method on the javax.ejb.EJBObject
      * interface, or the remove(Handle handle) method of the javax.ejb.EJBHome interface.
-     * 
+     *
      * Because session objects do not have primary keys that are accessible to clients, invoking the
      * javax.ejb.EJBHome.remove(Object primaryKey) method on a session results in the
      * javax.ejb.RemoveException.
-     * 
+     *
      * ------------------------------------
      * 5.5 Session object identity
-     * 
+     *
      * Session objects are intended to be private resources used only by the
      * client that created them. For this reason, session objects, from the
      * client’s perspective, appear anonymous. In contrast to entity objects,
@@ -111,22 +111,22 @@ public class StatefulEjbHomeTests extends BasicStatefulTestClient{
      * method is invoked on a EJBMetaData object for a Session bean, the method throws
      * the java.lang.RuntimeException.
      * ------------------------------------
-     * 
-     * Sections 5.3.2 and 5.5 conflict.  5.3.2 says to throw javax.ejb.RemoveException, 5.5 says to 
+     *
+     * Sections 5.3.2 and 5.5 conflict.  5.3.2 says to throw javax.ejb.RemoveException, 5.5 says to
      * throw java.rmi.RemoteException.
-     * 
+     *
      * For now, we are going with java.rmi.RemoteException.
      */
     public void test03_removeByPrimaryKey(){
         try{
             ejbHome.remove("primaryKey");
         } catch (java.rmi.RemoteException e){
-            assert( true );
+            assertTrue( true );
             return;
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
-        assert("java.rmi.RemoteException should have been thrown", false );
+        assertTrue("java.rmi.RemoteException should have been thrown", false );
     }
     //
     // Test ejb home methods

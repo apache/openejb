@@ -51,7 +51,7 @@ import javax.naming.InitialContext;
 
 /**
  * [4] Should be run as the fourth test suite of the BasicBmpTestClients
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
@@ -67,7 +67,7 @@ public class BmpEjbObjectTests extends BasicBmpTestClient{
         ejbHome = (BasicBmpHome)javax.rmi.PortableRemoteObject.narrow( obj, BasicBmpHome.class);
         ejbObject = ejbHome.create("Third Bean");
     }
-    
+
     protected void tearDown() throws Exception {
         if(ejbObject!=null){// set to null by test05_remove() method
             try{
@@ -78,7 +78,7 @@ public class BmpEjbObjectTests extends BasicBmpTestClient{
         }
         super.tearDown();
     }
-    
+
     //===============================
     // Test ejb object methods
     //
@@ -90,7 +90,7 @@ public class BmpEjbObjectTests extends BasicBmpTestClient{
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
     }
-    
+
     public void test02_getPrimaryKey(){
         try{
             ejbPrimaryKey = (Integer)ejbObject.getPrimaryKey();
@@ -100,15 +100,15 @@ public class BmpEjbObjectTests extends BasicBmpTestClient{
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
     }
-    
+
     public void test03_isIdentical(){
         try{
-            assert("The EJBObjects are not identical", ejbObject.isIdentical(ejbObject) );
+            assertTrue("The EJBObjects are not identical", ejbObject.isIdentical(ejbObject) );
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
     }
-    
+
     public void test04_getEjbHome(){
         try{
             EJBHome home = ejbObject.getEJBHome();
@@ -117,15 +117,15 @@ public class BmpEjbObjectTests extends BasicBmpTestClient{
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
     }
-    
+
     public void test05_remove(){
         try{
             ejbObject.remove();
             try{
                 ejbObject.businessMethod("Should throw an exception");
-                assert( "Calling business method after removing the EJBObject does not throw an exception", false );
+                assertTrue( "Calling business method after removing the EJBObject does not throw an exception", false );
             } catch (Exception e){
-                assert( true );
+                assertTrue( true );
                 return;
             }
         } catch (Exception e){

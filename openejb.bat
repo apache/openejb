@@ -93,19 +93,18 @@ REM================================================
    echo "_________________________________________________"
    echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
    echo " "
-   echo "Running EJB compliance tests on IntraVM Server"
+   echo "Running EJB compliance tests on IntraVM Servera"
    echo "_________________________________________________"
-   call .\bin\test.bat
+   call .\bin\test.bat src/tests-ejb/IvmServer_config.properties org.openejb.test.IvmTestServer
    echo "_________________________________________________"
    echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
    echo " "
-   echo "Running EJB compliance tests on EJB Server"
+   echo "Running EJB compliance tests on EJB Serverv"
    echo "_________________________________________________"
    echo " 1. Starting OpenEJB Server..."
-   start "OpenEJB Server" .\bin\ejbserver.bat > ejb.server.log 2>&1
-   
+   start "OpenEJB Server" .\bin\ejbserver.bat > ejb.server.log 2>&1   
    echo " 2. Starting test EJB client..."
-   call .\bin\ejbclient.bat
+   call .\bin\test.bat src/tests-ejb/OpenEjbServer_config.properties org.openejb.test.OpenEjbTestServer
 REM   echo "_________________________________________________"
 REM   echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
 REM   echo " "
@@ -113,10 +112,8 @@ REM   echo "Running EJB compliance tests on CORBA Server"
 REM   echo "_________________________________________________"
 REM   echo " 1. Starting OpenORB JNDI Server..."
 REM   start "OpenORB JNDI Server" .\bin\launch_jndi.bat -default > corba.jndi.log 2>&1
-REM   sleep 2
 REM   echo " 2. Starting OpenEJB CORBA Server with OpenORB..."
 REM   start "OpenEJB CORBA Server with OpenORB" .\bin\launch_server.bat > corba.server.log 2>&1
-REM   sleep 15
 REM   echo " 3. Starting test client..."
 REM   call .\bin\launch_client.bat
 
@@ -128,7 +125,7 @@ REM================================================
    echo " "
    echo "Running EJB compliance tests on IntraVM Server"
    echo "_________________________________________________"
-   call .\bin\test.bat
+   call .\bin\test.bat src/tests-ejb/IvmServer_config.properties org.openejb.test.IvmTestServer
          
 goto EOF
 REM================================================
@@ -140,9 +137,8 @@ REM================================================
    echo "_________________________________________________"
    echo " 1. Starting OpenEJB Server..."
    start "OpenEJB Server" .\bin\ejbserver.bat > ejb.server.log 2>&1
-   sleep 4
    echo " 2. Starting test EJB client..."
-   call .\bin\ejbclient.bat
+   call .\bin\test.bat src/tests-ejb/OpenEjbServer_config.properties org.openejb.test.OpenEjbTestServer
 
 goto EOF
 REM================================================
@@ -154,10 +150,8 @@ REM================================================
    echo "_________________________________________________"
    echo " 1. Starting OpenORB JNDI Server..."
    start "OpenORB JNDI Server" .\bin\launch_jndi.bat -default > corba.jndi.log 2>&1
-   sleep 2
    echo " 2. Starting OpenEJB CORBA Server with OpenORB..."
    start "OpenEJB CORBA Server with OpenORB" .\bin\launch_server.bat > corba.server.log 2>&1
-   sleep 15
    echo " 3. Starting test client..."
    .\bin\launch_client.bat
 
@@ -188,6 +182,4 @@ REM================================================
 
 goto EOF
 
-
-      
 :EOF

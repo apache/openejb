@@ -56,38 +56,38 @@ import org.openejb.test.object.Account;
 
 /**
  * [1] Should be run as the first test suite of the StatelessTestClients
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
 public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
-    
+
     public final static String jndiEJBHomeEntry = "client/tests/stateless/BeanManagedTransactionTests/EJBHome";
-    
+
     protected BeanTxStatelessHome   ejbHome;
     protected BeanTxStatelessObject ejbObject;
-    
+
     protected EJBMetaData       ejbMetaData;
     protected HomeHandle        ejbHomeHandle;
     protected Handle            ejbHandle;
     protected Integer           ejbPrimaryKey;
-    
+
     protected InitialContext initialContext;
 
     public StatelessBeanTxTests(){
         super("Stateless.BeanManagedTransaction.");
     }
-    
+
     /**
      * Sets up the fixture, for example, open a network connection.
      * This method is called before a test is executed.
      */
     protected void setUp() throws Exception {
-        
+
         Properties properties = TestManager.getServer().getContextEnvironment();
         properties.put(Context.SECURITY_PRINCIPAL, "STATELESS_test00_CLIENT");
         properties.put(Context.SECURITY_CREDENTIALS, "STATELESS_test00_CLIENT");
-        
+
         initialContext = new InitialContext(properties);
 
         /*[1] Get bean */
@@ -98,7 +98,7 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
         /*[2] Create database table */
         TestManager.getDatabase().createAccountTable();
     }
-    
+
     /**
      * Tears down the fixture, for example, close a network connection.
      * This method is called after a test is executed.
@@ -108,7 +108,7 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
         TestManager.getDatabase().dropAccountTable();
     }
 
-    
+
     /**
      * <B>11.6.1 Bean-managed transaction demarcation</B>
      * <P>
@@ -122,7 +122,7 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
      * </P>
      * <P>--------------------------------------------------------</P>
      * <P>
-     * Check that a javax.transaction.UserTransaction can be obtained from 
+     * Check that a javax.transaction.UserTransaction can be obtained from
      * the javax.ejb.EJBContext
      * </P>
      */
@@ -136,7 +136,7 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
     }
 
     /**
-     * 
+     *
      * <B>11.6.1 Bean-managed transaction demarcation</B>
      * <P>
      * The Container must make the javax.transaction.UserTransaction interface available to
@@ -149,7 +149,7 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
      * </P>
      * <P>--------------------------------------------------------</P>
      * <P>
-     * Check that a javax.transaction.UserTransaction can be obtained from 
+     * Check that a javax.transaction.UserTransaction can be obtained from
      * the environment entry java:comp/UserTransaction
      * </P>
      */
@@ -176,7 +176,7 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
      */
     public void TODO_test03_EJBContext_setRollbackOnly(){
         try{
-        
+
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
@@ -196,20 +196,20 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
      */
     public void TODO_test04_EJBContext_getRollbackOnly(){
         try{
-        
+
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
     }
-    
+
     /**
-     * 
+     *
      */
     public void test05_singleTransactionCommit(){
         try{
             Account expected = new Account("123-45-6789","Joe","Cool",40000);
             Account actual = new Account();
-            
+
             ejbObject.openAccount(expected, new Boolean(false));
             actual = ejbObject.retreiveAccount( expected.getSsn() );
 
@@ -223,23 +223,23 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
     }
 
     /**
-     * 
+     *
      */
     public void _test06_singleTransactionRollback(){
         try{
             Account expected = new Account("234-56-7890","Charlie","Brown", 20000);
             Account actual = new Account();
-            
+
             ejbObject.openAccount(expected, new Boolean(true));
             actual = ejbObject.retreiveAccount( expected.getSsn() );
             assertNull( "The transaction was commited. A javax.transaction.RollbackException should have been thrown. ", actual );
         } catch (RollbackException re){
-            assert("Transaction was rolledback.  Received Exception "+re.getClass()+ " : "+re.getMessage(), true);
+            assertTrue("Transaction was rolledback.  Received Exception "+re.getClass()+ " : "+re.getMessage(), true);
             return;
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
-        assert( "A javax.transaction.RollbackException should have been thrown. ", false );
+        assertTrue( "A javax.transaction.RollbackException should have been thrown. ", false );
     }
 
 
@@ -252,7 +252,7 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
      */
     public void TODO_test07_serialTransactions(){
         try{
-        
+
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
@@ -261,16 +261,16 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
     /**
      * <B>11.6.1 Bean-managed transaction demarcation</B>
      * <P>
-     * When an instance attempts to start a transaction using the 
-     * begin() method of the javax.transaction.UserTransaction 
-     * interface while the instance has not committed the previous 
+     * When an instance attempts to start a transaction using the
+     * begin() method of the javax.transaction.UserTransaction
+     * interface while the instance has not committed the previous
      * transaction, the Container must throw the
      * javax.transaction.NotSupportedException in the begin() method.
      * </P>
      */
     public void TODO_test08_nestedTransactions(){
         try{
-        
+
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
@@ -280,10 +280,10 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
     /**
      * <B>11.6.1 Bean-managed transaction demarcation</B>
      * <P>
-     * If a stateless session bean instance starts a transaction in a 
-     * business method, it must commit the transaction before the 
-     * business method returns. The Container must detect the case in 
-     * which a transaction was started, but not completed, in the 
+     * If a stateless session bean instance starts a transaction in a
+     * business method, it must commit the transaction before the
+     * business method returns. The Container must detect the case in
+     * which a transaction was started, but not completed, in the
      * business method, and handle it as follows:
      * <UL>
      * <LI>Log this as an application error to alert the system administrator.
@@ -295,7 +295,7 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
      */
     public void TODO_test09_beginWithNoCommit(){
         try{
-        
+
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
@@ -313,7 +313,7 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
      * =========================================================================
      * Container’s actions for methods of beans with bean-managed transaction
      * =========================================================================
-     * 
+     *
      *            |      IF     |          AND             |          THEN
      *  scenario  |   Client’s  | Transaction currently    | Transaction associated
      *            | transaction | associated with instance | with the method is
@@ -344,7 +344,7 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
      */
     public void TODO_test10_scenario1_NoneNone(){
         try{
-        
+
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
@@ -362,7 +362,7 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
      * =========================================================================
      * Container’s actions for methods of beans with bean-managed transaction
      * =========================================================================
-     * 
+     *
      *            |      IF     |          AND             |          THEN
      *  scenario  |   Client’s  | Transaction currently    | Transaction associated
      *            | transaction | associated with instance | with the method is
@@ -393,7 +393,7 @@ public class StatelessBeanTxTests extends org.openejb.test.NamedTestCase{
      */
     public void TODO_test11_scenario2_T1None(){
         try{
-        
+
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }

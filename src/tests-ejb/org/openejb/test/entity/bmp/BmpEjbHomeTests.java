@@ -51,7 +51,7 @@ import javax.naming.InitialContext;
 
 /**
  * [3] Should be run as the third test suite of the BasicBmpTestClients
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
@@ -80,7 +80,7 @@ public class BmpEjbHomeTests extends BasicBmpTestClient{
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
     }
-    
+
     public void test02_getHomeHandle(){
         try{
             ejbHomeHandle = ejbHome.getHomeHandle();
@@ -89,15 +89,15 @@ public class BmpEjbHomeTests extends BasicBmpTestClient{
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
     }
-    
+
     public void test03_remove(){
         try{
             ejbHome.remove(ejbPrimaryKey);
             try{
                 ejbObject.businessMethod("Should throw an exception");
-                assert( "Calling business method after removing the EJBObject does not throw an exception", false );
+                assertTrue( "Calling business method after removing the EJBObject does not throw an exception", false );
             } catch (Exception e){
-                assert( true );
+                assertTrue( true );
                 return;
             }
         } catch (Exception e){

@@ -51,7 +51,7 @@ import javax.naming.InitialContext;
 
 /**
  * [7] Should be run as the seventh test suite of the BasicStatefulTestClients
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
@@ -60,7 +60,7 @@ public class StatefulHandleTests extends BasicStatefulTestClient{
     public StatefulHandleTests(){
         super("Handle.");
     }
-    
+
     protected void setUp() throws Exception{
         super.setUp();
         Object obj = initialContext.lookup("client/tests/stateful/BasicStatefulHome");
@@ -78,24 +78,24 @@ public class StatefulHandleTests extends BasicStatefulTestClient{
             EJBObject object = ejbHandle.getEJBObject();
             assertNotNull( "The EJBObject is null", object );
             // Wait until isIdentical is working.
-            //assert("EJBObjects are not identical", object.isIdentical(ejbObject));
+            //assertTrue("EJBObjects are not identical", object.isIdentical(ejbObject));
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
     }
     /**
      * This remove method of the EJBHome is placed hear as it
-     * is more a test on the handle then on the remove method 
-     * itself.  
+     * is more a test on the handle then on the remove method
+     * itself.
      */
     public void test02_EJBHome_remove(){
         try{
             ejbHome.remove(ejbHandle);
             try{
                 ejbObject.businessMethod("Should throw an exception");
-                assert( "Calling business method after removing the EJBObject does not throw an exception", false );
+                assertTrue( "Calling business method after removing the EJBObject does not throw an exception", false );
             } catch (Exception e){
-                assert( true );
+                assertTrue( true );
                 return;
             }
         } catch (Exception e){
