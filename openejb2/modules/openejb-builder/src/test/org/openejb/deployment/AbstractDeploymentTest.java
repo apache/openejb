@@ -53,12 +53,16 @@ import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
+import org.openejb.proxy.EJBProxyReference;
 
 /**
  * @version $Revision$ $Date$
  */
 public abstract class AbstractDeploymentTest extends TestCase implements DeploymentTestContants {
+    private final ObjectName STATELESS_BEAN_NAME = JMXUtil.getObjectName(DOMAIN_NAME + ":j2eeType=StatelessSessionBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=SimpleStatelessSession");
+
     public abstract Kernel getKernel();
     public abstract ClassLoader getApplicationClassLoader();
     public abstract String getJ2eeApplicationName();
@@ -80,32 +84,33 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     }
 
     public void testStatelessContainer() throws Exception {
-        ObjectName statelessBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=StatelessSessionBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=SimpleStatelessSession");
-        assertRunning(getKernel(), statelessBeanName);
+        assertRunning(getKernel(), STATELESS_BEAN_NAME);
 
         // use reflection to invoke a method on the stateless bean, because we don't have access to the classes here
-        Object statelessHome = getKernel().getAttribute(statelessBeanName, "ejbHome");
+        Object statelessHome = getKernel().getAttribute(STATELESS_BEAN_NAME, "ejbHome");
         assertTrue("Home is not an instance of EJBHome", statelessHome instanceof EJBHome);
         Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
         assertEquals("TestResult", stateless.getClass().getMethod("echo", new Class[]{String.class}).invoke(stateless, new Object[]{"TestResult"}));
-        Object statelessLocalHome = getKernel().getAttribute(statelessBeanName, "ejbLocalHome");
+        Object statelessLocalHome = getKernel().getAttribute(STATELESS_BEAN_NAME, "ejbLocalHome");
         Object statelessLocal = statelessLocalHome.getClass().getMethod("create", null).invoke(statelessLocalHome, null);
         statelessLocal.getClass().getMethod("startTimer", null).invoke(statelessLocal, null);
         Thread.sleep(200L);
         assertEquals(new Integer(1), statelessLocal.getClass().getMethod("getTimeoutCount", null).invoke(statelessLocal, null));
+    }
 
-        // TODO causes ClassCastException
-//        EJBProxyReference proxyReference = EJBProxyReference.createRemote(statelessBeanName.getCanonicalName(),
-//                        true,
-//                        "org.openejb.test.simple.slsb.SimpleStatelessSession",
-//                        "org.openejb.test.simple.slsb.SimpleStatelessSessionHome");
-//        proxyReference.setKernel(getKernel());
-//        proxyReference.setClassLoader(getApplicationClassLoader());
-//        statelessHome = proxyReference.getContent();
-//        assertTrue("Home is not an instance of EJBHome", statelessHome instanceof EJBHome);
-//        stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
-//        assertEquals("TestResult", stateless.getClass().getMethod("echo", new Class[]{String.class}).invoke(stateless, new Object[]{"TestResult"}));
-
+    public void testInClassLoaderInvoke() throws Exception {
+        Object statelessHome;
+        Object stateless;
+        EJBProxyReference proxyReference = EJBProxyReference.createRemote(STATELESS_BEAN_NAME.getCanonicalName(),
+                        true,
+                        "org.openejb.test.simple.slsb.SimpleStatelessSession",
+                        "org.openejb.test.simple.slsb.SimpleStatelessSessionHome");
+        proxyReference.setKernel(getKernel());
+        proxyReference.setClassLoader(getApplicationClassLoader());
+        statelessHome = proxyReference.getContent();
+        assertTrue("Home is not an instance of EJBHome", statelessHome instanceof EJBHome);
+        stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
+        assertEquals("TestResult", stateless.getClass().getMethod("echo", new Class[]{String.class}).invoke(stateless, new Object[]{"TestResult"}));
     }
 
     public void testStatefulContainer() throws Exception {
