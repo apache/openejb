@@ -33,22 +33,22 @@ Configuration for the system layer of the Geronimo deployer
     </gbean>
 
     <!-- Configuration Store service -->
-    <gbean namePart="Local" type="ConfigurationStore" class="org.apache.geronimo.system.configuration.LocalConfigStore">
-        <attribute name="root" type="java.net.URI">config-store/</attribute>
+    <gbean namePart="Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
+        <attribute name="root">config-store/</attribute>
         <reference name="ServerInfo">openejb.deployer:name=ServerInfo,*</reference>
     </gbean>
 
 
     <!-- Repository -->
     <gbean namePart="Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
-        <attribute name="root" type="java.net.URI">repository/</attribute>
+        <attribute name="root">repository/</attribute>
         <reference name="ServerInfo">openejb.deployer:name=ServerInfo,*</reference>
     </gbean>
 
     <!-- Logging service -->
     <gbean namePart="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
-        <attribute name="configurationFile" type="java.lang.String">var/log/deployer-log4j.properties</attribute>
-        <attribute name="refreshPeriod" type="int">60</attribute>
+        <attribute name="configurationFile">var/log/deployer-log4j.properties</attribute>
+        <attribute name="refreshPeriod">60</attribute>
         <reference name="ServerInfo">openejb.deployer:name=ServerInfo,*</reference>
     </gbean>
 </configuration>

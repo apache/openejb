@@ -107,17 +107,17 @@ Configuration for the Geronimo deployer
     </dependency>
 
 
-    <gbean namePart="Deployer" type="Deployer" class="org.apache.geronimo.deployment.Deployer">
+    <gbean namePart="Deployer" class="org.apache.geronimo.deployment.Deployer">
         <reference name="Builders">openejb.deployer:j2eeType=ConfigBuilder,J2EEModule=org/apache/geronimo/J2EEDeployer,*</reference>
         <reference name="Store">openejb.deployer:j2eeType=ConfigurationStore,*</reference>
     </gbean>
 
-    <gbean namePart="ServiceBuilder" type="ConfigBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
+    <gbean namePart="ServiceBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <reference name="Repository">*:name=Repository,*</reference>
     </gbean>
 
-    <gbean namePart="EARBuilder" type="ConfigBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
+    <gbean namePart="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="transactionContextManagerObjectName">openejb.server:name=TransactionContextManager,*</attribute>
         <attribute name="connectionTrackerObjectName">openejb.server:name=ConnectionTracker,*</attribute>
@@ -131,29 +131,29 @@ Configuration for the Geronimo deployer
         <reference name="ServiceReferenceBuilder">openejb.deployer:J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,J2EEServer=openejb,j2eeType=ModuleBuilder,name=WebServiceBuilder</reference>
     </gbean>
 
-    <gbean namePart="EJBBuilder" type="ModuleBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
+    <gbean namePart="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
 <!--        <reference name="SkeletonGenerator">openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</reference>-->
         <reference name="Repository">*:name=Repository,*</reference>
     </gbean>
 
-    <gbean namePart="ConnectorBuilder" type="ModuleBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
+    <gbean namePart="ConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <attribute name="defaultMaxSize" type="int">10</attribute>
-        <attribute name="defaultMinSize" type="int">0</attribute>
-        <attribute name="defaultBlockingTimeoutMilliseconds" type="int">5000</attribute>
-        <attribute name="defaultIdleTimeoutMinutes" type="int">15</attribute>
-        <attribute name="defaultXATransactionCaching" type="boolean">true</attribute>
-        <attribute name="defaultXAThreadCaching" type="boolean">false</attribute>
+        <attribute name="defaultMaxSize">10</attribute>
+        <attribute name="defaultMinSize">0</attribute>
+        <attribute name="defaultBlockingTimeoutMilliseconds">5000</attribute>
+        <attribute name="defaultIdleTimeoutMinutes">15</attribute>
+        <attribute name="defaultXATransactionCaching">true</attribute>
+        <attribute name="defaultXAThreadCaching">false</attribute>
         <reference name="Repository">*:name=Repository,*</reference>
     </gbean>
 
-    <gbean namePart="WebServiceBuilder" type="ModuleBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
+    <gbean namePart="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
     </gbean>
     <!-- gbean name="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>
 
     <gbean name="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">
-        <attribute name="props" type="java.util.Properties">
+        <attribute name="props">
         </attribute>
         <reference name="Compiler">openejb.CORBA:type=Compiler,vendor=Ant</reference>
     </gbean -->

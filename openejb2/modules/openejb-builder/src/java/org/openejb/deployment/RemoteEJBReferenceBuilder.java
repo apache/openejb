@@ -25,7 +25,7 @@ public class RemoteEJBReferenceBuilder implements EJBReferenceBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(RemoteEJBReferenceBuilder.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(RemoteEJBReferenceBuilder.class); //TODO decide what type this should be
         infoFactory.addInterface(EJBReferenceBuilder.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();

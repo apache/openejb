@@ -421,7 +421,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GenericEJBContainer.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GenericEJBContainer.class); //we don't know the j2eeType
 
         infoFactory.addAttribute("ContainerID", Object.class, true);
         infoFactory.addAttribute("EJBName", String.class, true);

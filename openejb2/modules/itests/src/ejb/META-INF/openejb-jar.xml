@@ -425,8 +425,8 @@
 
     <gbean name="geronimo.server:role=CMPPKGenerator,name=Entity" class="org.openejb.entity.cmp.pkgenerator.AutoIncrementTablePrimaryKeyGeneratorWrapper">
         <reference name="ManagedConnectionFactoryWrapper">*:J2EEApplication=null,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource,*</reference>
-        <attribute name="sql" type="java.lang.String">INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</attribute>
-        <attribute name="returnType" type="java.lang.Class">java.lang.Integer</attribute>
+        <attribute name="sql">INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</attribute>
+        <attribute name="returnType">java.lang.Integer</attribute>
     </gbean>
 
 </openejb-jar>
