@@ -99,6 +99,7 @@ import org.openejb.util.StringUtilities;
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class ConfigBean extends WebAdminBean {
+	/** the handle file name */
 	private static final String HANDLE_FILE = System.getProperty("file.separator") + "configurationHandle.obj";
 
 	/** Called when the container creates a new instance of this bean */
@@ -149,7 +150,7 @@ public class ConfigBean extends WebAdminBean {
 	 * @exception IOException if an exception is thrown
 	 */
 	public void writeBody(PrintWriter body) throws IOException {
-		Openejb openejbConfig;
+		Openejb openejb;
 		ConfigurationDataObject configurationData;
 		String configLocation = System.getProperty("openejb.configuration");
 
@@ -167,54 +168,54 @@ public class ConfigBean extends WebAdminBean {
 			configurationData = getConfigurationObject();
 			handleFile = createHandle(configurationData);
 			try {
-				openejbConfig = ConfigUtils.readConfig(configLocation);
+				openejb = ConfigUtils.readConfig(configLocation);
 			} catch (OpenEJBException e) {
 				throw new IOException(e.getMessage());
 			}
 		} else {
 			configurationData = getHandle(handleFile);
-			openejbConfig = configurationData.getOpenejb();
+			openejb = configurationData.getOpenejb();
 		}
 
 		//check for the action we're going to take, these actions are 
 		//grouped by "submits" and by "begins"
 		if (submitOpenejb != null) {
-			body.println(submitOpenejb(configLocation, openejbConfig));
+			body.println(submitOpenejb(configLocation, openejb));
 			return;
 		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_CONNECTOR.equals(submitService)) {
-			submitConnector(body, openejbConfig, handleFile, configLocation);
+			submitConnector(body, openejb, handleFile, configLocation);
 		} else if (containerType != null) {
-			submitContainer(body, openejbConfig, handleFile, configLocation);
+			submitContainer(body, openejb, handleFile, configLocation);
 		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_DEPLOYMENTS.equals(submitService)) {
-			submitDeployments(body, openejbConfig, handleFile, configLocation);
+			submitDeployments(body, openejb, handleFile, configLocation);
 		} else if (submitService != null) {
-			submitService(body, openejbConfig, handleFile, configLocation, submitService);
+			submitService(body, openejb, handleFile, configLocation, submitService);
 		} else if (ConfigHTMLWriter.TYPE_CONNECTOR.equals(type)) {
-			beginConnector(method, handleFile, body, openejbConfig, configLocation);
+			beginConnector(method, handleFile, body, openejb, configLocation);
 		} else if (ConfigHTMLWriter.TYPE_CONTAINER.equals(type)) {
-			beginContainer(method, handleFile, body, openejbConfig, configLocation);
+			beginContainer(method, handleFile, body, openejb, configLocation);
 		} else if (ConfigHTMLWriter.TYPE_DEPLOYMENTS.equals(type)) {
-			beginDeployments(method, handleFile, body, openejbConfig, configLocation);
+			beginDeployments(method, handleFile, body, openejb, configLocation);
 		} else if (type != null) {
-			beginService(method, handleFile, body, openejbConfig, configLocation, type);
+			beginService(method, handleFile, body, openejb, configLocation, type);
 		} else {
-			ConfigHTMLWriter.writeOpenejb(body, openejbConfig, handleFile, configLocation);
+			ConfigHTMLWriter.writeOpenejb(body, openejb, handleFile, configLocation);
 		}
 
 		//set the object onto the stateful bean
-		configurationData.setOpenejb(openejbConfig);
+		configurationData.setOpenejb(openejb);
 	}
 
 	/**
 	 * Finds the connector from the array based on the id from the form and then
 	 * calls a method to create, edit or delete it
 	 * 
-	 * @param method - create, edit or delete for the action of this connector
-	 * @param handleFile - the handle for the ConfigurationDataBean
-	 * @param body - the PrintWriter to the browser
-	 * @param openejb - the main configuration object
-	 * @param configLocation - the location of the configuration object
-	 * @throws IOException - when an invalid method is passed in
+	 * @param method create, edit or delete for the action of this connector
+	 * @param handleFile the handle for the ConfigurationDataBean
+	 * @param body the PrintWriter to the browser
+	 * @param openejb the main configuration object
+	 * @param configLocation the location of the configuration object
+	 * @throws IOException when an invalid method is passed in
 	 */
 	private void beginConnector(String method, String handleFile, PrintWriter body, Openejb openejb, String configLocation)
 		throws IOException {
@@ -254,13 +255,13 @@ public class ConfigBean extends WebAdminBean {
 	 * calls a method to create, edit or delete it.  In addition, it uses a ContainerData
 	 * object to store the information for the container.
 	 * 
+	 * @param method create, edit or delete for the action of this container
+	 * @param handleFile the handle for the ConfigurationDataBean
+	 * @param body the PrintWriter to the browser
+	 * @param openejb the main configuration object
+	 * @param configLocation the location of the configuration object
 	 * @see org.openejb.admin.web.config.ContainerData
-	 * @param method - create, edit or delete for the action of this connector
-	 * @param handleFile - the handle for the ConfigurationDataBean
-	 * @param body - the PrintWriter to the browser
-	 * @param openejb - the main configuration object
-	 * @param configLocation - the location of the configuration object
-	 * @throws IOException - when an invalid method is passed in
+	 * @throws IOException when an invalid method is passed in
 	 */
 	private void beginContainer(String method, String handleFile, PrintWriter body, Openejb openejb, String configLocation)
 		throws IOException {
@@ -317,6 +318,17 @@ public class ConfigBean extends WebAdminBean {
 		}
 	}
 
+	/**
+	 * Finds the current deployment from the array based on the jar or the directory 
+	 * from the form and then calls a method to create, edit or delete it.  
+	 * 
+	 * @param method create, edit or delete for the action of this deployment
+	 * @param handleFile the handle for the ConfigurationDataBean
+	 * @param body the PrintWriter to the browser
+	 * @param openejb the main configuration object
+	 * @param configLocation the location of the configuration object
+	 * @throws IOException when an invalid method is passed in
+	 */
 	private void beginDeployments(
 		String method,
 		String handleFile,
@@ -324,10 +336,12 @@ public class ConfigBean extends WebAdminBean {
 		Openejb openejb,
 		String configLocation)
 		throws IOException {
+		//get the id for the current deployment, if there is one
 		String deploymentId = request.getFormParameter(ConfigHTMLWriter.TYPE_DEPLOYMENTS);
 		Deployments[] deployments = openejb.getDeployments();
 		int deploymentIndex = -1;
 
+		//loop through the deployment list and grab the jar or directory
 		deploymentId = StringUtilities.nullToBlankString(deploymentId);
 		for (int i = 0; i < deployments.length; i++) {
 			if (deploymentId.equals(deployments[i].getDir()) || deploymentId.equals(deployments[i].getJar())) {
@@ -336,6 +350,7 @@ public class ConfigBean extends WebAdminBean {
 			}
 		}
 
+		//check the method and proceed with a create, edit or delete
 		if (ConfigHTMLWriter.CREATE.equals(method)) {
 			ConfigHTMLWriter.writeDeployments(body, null, handleFile, -1);
 		} else if (ConfigHTMLWriter.EDIT.equals(method)) {
@@ -349,6 +364,22 @@ public class ConfigBean extends WebAdminBean {
 		}
 	}
 
+	/**
+	 * This is a generic begin method for services where all we care about is
+	 * id, jar, provider and content.  It currently handles any services that
+	 * don't have much documentation.  In future implementations this method will
+	 * be refactored since all services should have a specalized, specific UI 
+	 * 
+	 * @param method create, edit or delete for the action of this deployment
+	 * @param handleFile the handle for the ConfigurationDataBean
+	 * @param body the PrintWriter to the browser
+	 * @param openejb the main configuration object
+	 * @param configLocation the location of the configuration object
+	 * @param type the type of service being passed in (see the "type" variables
+	 *               in ConfigHTMLWriter)
+	 * @see org.openejb.admin.web.config.ConfigHTMLWriter
+	 * @throws IOException - when an invalid method is passed in
+	 */
 	private void beginService(
 		String method,
 		String handleFile,
@@ -357,11 +388,19 @@ public class ConfigBean extends WebAdminBean {
 		String configLocation,
 		String type)
 		throws IOException {
+		//get the current id
 		String serviceId = StringUtilities.nullToBlankString(request.getFormParameter(type));
 		Service service = null;
 		Service[] services = new Service[0];
 		String submit = "";
 
+		/*
+		 * TODO: Seperate out the simple services (with just id, jar, provider and content)
+		 * into multiple specific services that are specific for the content of each type  
+		 */ 
+
+		//instantiate the service type based on the type passed in
+		//also set the value of the submit button
 		if (ConfigHTMLWriter.TYPE_CONNECTION_MANAGER.equals(type)) {
 			service = openejb.getConnectionManager();
 			submit = ConfigHTMLWriter.FORM_VALUE_SUBMIT_CONNECTION_MANAGER;
@@ -384,6 +423,7 @@ public class ConfigBean extends WebAdminBean {
 
 		int serviceIndex = -1;
 
+		//if there is an array of services, loop through them
 		for (int i = 0; i < services.length; i++) {
 			if (serviceId.equals(services[i].getId())) {
 				serviceIndex = i;
@@ -392,11 +432,14 @@ public class ConfigBean extends WebAdminBean {
 			}
 		}
 
+		//next check to see if we're doing a create, edit or delete
 		if (ConfigHTMLWriter.CREATE.equals(method)) {
 			ConfigHTMLWriter.writeService(body, null, handleFile, submit, -1);
 		} else if (ConfigHTMLWriter.EDIT.equals(method)) {
 			ConfigHTMLWriter.writeService(body, service, handleFile, submit, serviceIndex);
 		} else if (ConfigHTMLWriter.DELETE.equals(method)) {
+			//here we need to check the type again to remove the proper
+			//service
 			if (ConfigHTMLWriter.TYPE_CONNECTION_MANAGER.equals(type)) {
 				openejb.setConnectionManager(null);
 			} else if (ConfigHTMLWriter.TYPE_JNDI_PROVIDER.equals(type) && serviceIndex > -1) {
@@ -416,10 +459,20 @@ public class ConfigBean extends WebAdminBean {
 		}
 	}
 
-	private void submitConnector(PrintWriter body, Openejb openejbConfig, String handleFile, String configLocation)
-		throws IOException {
+	/**
+	 * This method takes care of submitting a connector.  It grabs the form parameters
+	 * and constructs the connector object
+	 * 
+	 * @param body the output to the browser
+	 * @param openejb the openejb object
+	 * @param handleFile the file of the handle for the ConfigurationData object
+	 * @param configLocation the location of the configuration file
+	 * @throws IOException when an exception occurs
+	 */
+	private void submitConnector(PrintWriter body, Openejb openejb, String handleFile, String configLocation) throws IOException {
 		Connector connector;
 
+		//get all the form variables
 		String id = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_ID).trim();
 		String jar = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_JAR).trim();
 		String provider = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_PROVIDER).trim();
@@ -431,12 +484,15 @@ public class ConfigBean extends WebAdminBean {
 		StringBuffer contentBuffer = new StringBuffer(125);
 		StringBuffer validationError = new StringBuffer(50);
 
+		//if the index is bigger than -1 then we want to get the current connector
+		//otherwise create a new one
 		if (index > -1) {
-			connector = openejbConfig.getConnector(index);
+			connector = openejb.getConnector(index);
 		} else {
 			connector = new Connector();
 		}
 
+		//check for blank fields in the different parts of the content
 		if (!"".equals(jdbcDriver))
 			contentBuffer.append(EnvProps.JDBC_DRIVER).append(" ").append(jdbcDriver).append('\n');
 		if (!"".equals(jdbcUrl))
@@ -445,22 +501,19 @@ public class ConfigBean extends WebAdminBean {
 			contentBuffer.append(EnvProps.USER_NAME).append(" ").append(userName).append('\n');
 		if (!"".equals(password))
 			contentBuffer.append(EnvProps.PASSWORD).append(" ").append(password).append('\n');
-
-		if (!"".equals(id.trim())) {
+		if (!"".equals(id.trim())) 
 			connector.setId(id.trim());
-		}
-		if (!"".equals(jar.trim())) {
+		if (!"".equals(jar.trim()))
 			connector.setJar(jar);
-		}
-		if (!"".equals(provider.trim())) {
+		if (!"".equals(provider.trim()))
 			connector.setProvider(provider);
-		}
 
 		connector.setContent((contentBuffer.length() > 0) ? contentBuffer.toString() : null);
 
 		try { //perform validation
 			connector.validate();
 		} catch (ValidationException e) {
+			//print the error message
 			body.print("<font color=\"red\">You must fix the following errors before proceeding:<br>\n<b>");
 			body.print(e.getMessage());
 			body.print("</b></font>\n<br><br>");
@@ -469,15 +522,27 @@ public class ConfigBean extends WebAdminBean {
 			return;
 		}
 
-		//add the connector after validation
+		//if the connector is new, add it after validation
 		if (index == -1) {
-			openejbConfig.addConnector(connector);
+			openejb.addConnector(connector);
 		}
 
-		ConfigHTMLWriter.writeOpenejb(body, openejbConfig, handleFile, configLocation);
+		ConfigHTMLWriter.writeOpenejb(body, openejb, handleFile, configLocation);
 	}
 
-	private void submitContainer(PrintWriter body, Openejb openejbConfig, String handleFile, String configLocation)
+	/**
+	 * This method takes care of submitting a container.  It constructs a ContainerData
+	 * object, puts all the info into it checks to see if we've submitted the form
+	 * or just switched the container type
+	 * 
+	 * @see org.openejb.admin.web.config.ContainerData
+	 * @param body the output to the browser
+	 * @param openejb the openejb object
+	 * @param handleFile the file of the handle for the ConfigurationData object
+	 * @param configLocation the location of the configuration file
+	 * @throws IOException when an exception occurs
+	 */
+	private void submitContainer(PrintWriter body, Openejb openejb, String handleFile, String configLocation)
 		throws IOException {
 		ContainerData data = new ContainerData();
 		int index = Integer.parseInt(request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_INDEX));
@@ -486,6 +551,7 @@ public class ConfigBean extends WebAdminBean {
 		StringBuffer contentBuffer = new StringBuffer(125);
 		StringBuffer errorBuffer = new StringBuffer(100);
 
+		//set all the form data onto the ContainerData object
 		data.setBulkPassivate(
 			StringUtilities.nullToBlankString(request.getFormParameter(EnvProps.IM_PASSIVATE_SIZE)).trim());
 		data.setContainerType(
@@ -505,13 +571,15 @@ public class ConfigBean extends WebAdminBean {
 			StringUtilities.nullToBlankString(request.getFormParameter(EnvProps.IM_STRICT_POOLING)).trim());
 		data.setTimeOut(StringUtilities.nullToBlankString(request.getFormParameter(EnvProps.IM_TIME_OUT)).trim());
 
+		//here we have submitted the form
 		if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_CONTAINER.equals(submit)) {
 			if (index > -1) {
-				container = openejbConfig.getContainer(index);
+				container = openejb.getContainer(index);
 			} else {
 				container = new Container();
 			}
 
+			//set all the common data
 			container.setCtype(data.getContainerType().trim());
 			if (!"".equals(data.getId().trim()))
 				container.setId(data.getId().trim());
@@ -571,37 +639,61 @@ public class ConfigBean extends WebAdminBean {
 				return;
 			}
 
-			ConfigHTMLWriter.writeOpenejb(body, openejbConfig, handleFile, configLocation);
+			ConfigHTMLWriter.writeOpenejb(body, openejb, handleFile, configLocation);
 		} else {
+			//in this case we just switched the container type
 			ConfigHTMLWriter.writeContainer(body, data, handleFile);
 		}
 	}
 
-	private void submitDeployments(PrintWriter body, Openejb openejbConfig, String handleFile, String configLocation) {
+	/**
+	 * This method takes care of submitting deployments.  It simply sets the jar
+	 * or directory based on which one is chosen.
+	 * 
+	 * @param body the output to the browser
+	 * @param openejb the openejb object
+	 * @param handleFile the file of the handle for the ConfigurationData object
+	 * @param configLocation the location of the configuration file
+	 */
+	private void submitDeployments(PrintWriter body, Openejb openejb, String handleFile, String configLocation) {
 		String deploymentType = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_DEPLOYMENT_TYPE);
 		String deploymentText = request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_DEPLOYMENT_TEXT);
 		int index = Integer.parseInt(request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_INDEX));
 		Deployments deployments;
 
+		//get the right deployment from the array
 		if (index > -1) {
-			deployments = openejbConfig.getDeployments(index);
+			deployments = openejb.getDeployments(index);
 		} else {
 			deployments = new Deployments();
-			openejbConfig.addDeployments(deployments);
+			openejb.addDeployments(deployments);
 		}
 
+		//set the directory or jar based on which one was chosen
 		if (ConfigHTMLWriter.DEPLOYMENT_TYPE_DIR.equals(deploymentType.trim())) {
 			deployments.setDir(deploymentText.trim());
 		} else {
 			deployments.setJar(deploymentText.trim());
 		}
 
-		ConfigHTMLWriter.writeOpenejb(body, openejbConfig, handleFile, configLocation);
+		ConfigHTMLWriter.writeOpenejb(body, openejb, handleFile, configLocation);
 	}
 
+	/**
+	 * This is a general, "catch all" method for submitting service.  It goes through
+	 * and checks to see which type of service is being submitted and then goes from
+	 * there
+	 * 
+	 * @param body the output to the browser
+	 * @param openejb the openejb object
+	 * @param handleFile the file of the handle for the ConfigurationData object
+	 * @param configLocation the location of the configuration file
+	 * @param submit the string to be shown on the submit button
+	 * @throws IOException when an exception occurs
+	 */
 	private void submitService(
 		PrintWriter body,
-		Openejb openejbConfig,
+		Openejb openejb,
 		String handleFile,
 		String configLocation,
 		String submit)
@@ -613,43 +705,44 @@ public class ConfigBean extends WebAdminBean {
 		int index = Integer.parseInt(request.getFormParameter(ConfigHTMLWriter.FORM_FIELD_INDEX));
 		Service service = null;
 
+		//check to see which type of service we're using then check for null
 		if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_CONNECTION_MANAGER.equals(submit)) {
-			if (openejbConfig.getConnectionManager() == null) {
+			if (openejb.getConnectionManager() == null) {
 				service = new ConnectionManager();
-				openejbConfig.setConnectionManager((ConnectionManager) service);
+				openejb.setConnectionManager((ConnectionManager) service);
 			} else {
-				service = openejbConfig.getConnectionManager();
+				service = openejb.getConnectionManager();
 			}
 		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_PROXY_FACTORY.equals(submit)) {
-			if (openejbConfig.getProxyFactory() == null) {
+			if (openejb.getProxyFactory() == null) {
 				service = new ProxyFactory();
-				openejbConfig.setProxyFactory((ProxyFactory) service);
+				openejb.setProxyFactory((ProxyFactory) service);
 			} else {
-				service = openejbConfig.getProxyFactory();
+				service = openejb.getProxyFactory();
 			}
 		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_SECURITY_SERVICE.equals(submit)) {
-			if (openejbConfig.getSecurityService() == null) {
+			if (openejb.getSecurityService() == null) {
 				service = new SecurityService();
-				openejbConfig.setSecurityService((SecurityService) service);
+				openejb.setSecurityService((SecurityService) service);
 			} else {
-				service = openejbConfig.getSecurityService();
+				service = openejb.getSecurityService();
 			}
 		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_TRANSACTION_SERVICE.equals(submit)) {
-			if (openejbConfig.getTransactionService() == null) {
+			if (openejb.getTransactionService() == null) {
 				service = new TransactionService();
-				openejbConfig.setTransactionService((TransactionService) service);
+				openejb.setTransactionService((TransactionService) service);
 			} else {
-				service = openejbConfig.getTransactionService();
+				service = openejb.getTransactionService();
 			}
 		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_JNDI_PROVIDER.equals(submit)) {
 			if (index > -1) {
-				service = openejbConfig.getJndiProvider(index);
+				service = openejb.getJndiProvider(index);
 			} else {
 				service = new JndiProvider();
 			}
 		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_RESOURCE.equals(submit)) {
 			if (index > -1) {
-				service = openejbConfig.getResource(index);
+				service = openejb.getResource(index);
 			} else {
 				service = new Resource();
 			}
@@ -657,6 +750,7 @@ public class ConfigBean extends WebAdminBean {
 			throw new IOException("Invalid Service type");
 		}
 
+		//set the data on the service
 		if (!"".equals(content.trim())) {
 			service.setContent(content.trim());
 		}
@@ -670,9 +764,10 @@ public class ConfigBean extends WebAdminBean {
 			service.setProvider(provider.trim());
 		}
 
-		try {
+		try { //validate the service
 			service.validate();
 		} catch (ValidationException e) {
+			//print out the error message
 			body.print("<font color=\"red\">You must fix the following errors before continuing.<br>\n<b>");
 			body.print(e.getMessage());
 			body.println("</b></font><br><br>");
@@ -680,22 +775,29 @@ public class ConfigBean extends WebAdminBean {
 			return;
 		}
 
-		//after validation, add values
+		//after validation, add new services to the array
 		if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_JNDI_PROVIDER.equals(submit)) {
 			if (index == -1) 
-				openejbConfig.addJndiProvider((JndiProvider) service);
+				openejb.addJndiProvider((JndiProvider) service);
 		} else if (ConfigHTMLWriter.FORM_VALUE_SUBMIT_RESOURCE.equals(submit)) {
 			if (index == -1) 
-				openejbConfig.addResource((Resource) service);
+				openejb.addResource((Resource) service);
 		}
 
-		ConfigHTMLWriter.writeOpenejb(body, openejbConfig, handleFile, configLocation);
+		ConfigHTMLWriter.writeOpenejb(body, openejb, handleFile, configLocation);
 	}
 
+	/**
+	 * This method submits the main Openejb object and writes it to the file
+	 * 
+	 * @param openejb the openejb object
+	 * @param configLocation the location of the configuration file
+	 * @throws IOException if the changes could not be written
+	 * @return the message of where the changes were written to
+	 */
 	private String submitOpenejb(String configLocation, Openejb openejb) throws IOException {
 		FileWriter writer = new FileWriter(configLocation);
 
-		//TODO: validate object and give the user an error message for invalid info
 		try {
 			openejb.marshal(writer);
 		} catch (Exception e) {
@@ -705,7 +807,13 @@ public class ConfigBean extends WebAdminBean {
 		return "Your changes were written to: " + configLocation;
 	}
 
-	/** gets an object reference and handle */
+	/** 
+	 * gets an object reference and handle 
+	 * 
+	 * @param configurationData the object to create a handle from
+	 * @return an absolute path of the handle file
+	 * @throws IOException if the file cannot be created
+	 */
 	private String createHandle(ConfigurationDataObject configurationData) throws IOException {
 		//write the handle out to a file
 		File myHandleFile = new File(FileUtils.createTempDirectory().getAbsolutePath() + HANDLE_FILE);
@@ -721,6 +829,12 @@ public class ConfigBean extends WebAdminBean {
 		return myHandleFile.getAbsolutePath();
 	}
 
+	/** 
+	 * creates a new ConfigurationDataObject 
+	 * 
+	 * @return a new configuration data object
+	 * @throws IOException if the object cannot be created
+	 */
 	private ConfigurationDataObject getConfigurationObject() throws IOException {
 		Properties p = new Properties();
 		p.put(Context.INITIAL_CONTEXT_FACTORY, "org.openejb.core.ivm.naming.InitContextFactory");
@@ -738,7 +852,13 @@ public class ConfigBean extends WebAdminBean {
 		}
 	}
 
-	/** this function gets the deployer handle */
+	/** 
+	 * this method gets the deployer handle 
+	 * 
+	 * @param handleFile the handle to the object
+	 * @return the configuration data object
+	 * @throws IOException if the file is not found
+	 */
 	private ConfigurationDataObject getHandle(String handleFile) throws IOException {
 		File myHandleFile = new File(handleFile);
 

@@ -47,6 +47,8 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 
 /**
+ * A simple data object for container information.
+ * 
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class ContainerData implements Serializable {
@@ -63,7 +65,6 @@ public class ContainerData implements Serializable {
 	private String containerType;
 	private int index;
 	private boolean edit;
-	
 	
 	public ContainerData() {
 		this.id = "";

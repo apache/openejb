@@ -58,21 +58,30 @@ import org.openejb.alt.config.sys.Openejb;
 public class ConfigurationDataBean implements SessionBean {
 	private Openejb openejb;
 
+	/**
+	 * gets the Openejb object
+	 * @return the openejb object
+	 */
 	public Openejb getOpenejb() {
 		return this.openejb;
 	}
 
+	/**
+	 * sets the Openejb object
+	 * @param openejb the openejb object to set
+	 */
 	public void setOpenejb(Openejb openejb) {
 		this.openejb = openejb;
 	}
 
+	/** not implemented in this bean */
 	public void ejbCreate() throws CreateException {}
-
+	/** not implemented in this bean */
 	public void ejbActivate() {}
-
+	/** not implemented in this bean */
 	public void ejbPassivate() {}
-
+	/** not implemented in this bean */
 	public void ejbRemove() {}
-
+	/** not implemented in this bean */
 	public void setSessionContext(SessionContext arg0) {}
 }
