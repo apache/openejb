@@ -393,7 +393,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
         mdbBuilder.buildBeans(earContext, module, cl, ejbModule, openejbBeans, transactionPolicyHelper, security, enterpriseBeans);
 
-        return ejbModuleObjectName.getCanonicalName();
+        return null;
     }
 
     public Object createEJBProxyFactory(String containerId, boolean isSessionBean, String remoteInterfaceName, String homeInterfaceName, String localInterfaceName, String localHomeInterfaceName, ClassLoader cl) throws DeploymentException {
