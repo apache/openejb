@@ -44,6 +44,8 @@
  */
 package org.openejb.test.entity.bmp;
 
+import java.util.Enumeration;
+
 
 /**
  * 
@@ -62,6 +64,9 @@ public interface BasicBmpHome extends javax.ejb.EJBHome {
     throws javax.ejb.FinderException, java.rmi.RemoteException;
     
     public java.util.Collection findByLastName(String lastName)
+    throws javax.ejb.FinderException, java.rmi.RemoteException;
+    
+    public Enumeration findEmptyEnumeration()
     throws javax.ejb.FinderException, java.rmi.RemoteException;
     
     public int sum(int x, int y) throws java.rmi.RemoteException;

@@ -111,6 +111,18 @@ public class BasicBmpBean implements javax.ejb.EntityBean {
     }
 
     /**
+     * Maps to BasicBmpHome.findEmptyEnumeration()
+     * 
+     * @return empty enumeration
+     * @throws javax.ejb.FinderException
+     */
+    public java.util.Enumeration ejbFindEmptyEnumeration()
+    throws javax.ejb.FinderException
+    {
+        return (new java.util.Vector()).elements();
+    }
+    
+    /**
      * Maps to BasicBmpHome.findByPrimaryKey
      * 
      * @param primaryKey
