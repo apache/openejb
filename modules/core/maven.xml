@@ -20,4 +20,15 @@ version=${pom.currentVersion}
 date=${DSTAMP}
 time=${TSTAMP}</ant:echo>
   </preGoal>
+
+  <postGoal name="jar:jar">
+    <ant:jar destfile="${basedir}/target/openejb-loader-${pom.currentVersion}.jar">
+     <fileset dir="${basedir}/target/classes" >
+             <include name="org/openejb/util/ClasspathUtils*" />
+             <include name="org/openejb/util/FileUtils.class" />
+             <include name="org/openejb/client/LocalInitialContextFactory.class" />
+             <include name="org/openejb/loader/**" />
+     </fileset>
+   </ant:jar>
+  </postGoal>
 </project>

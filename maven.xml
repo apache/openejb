@@ -269,6 +269,13 @@
                 include="*.jar"/>
         </define:tag>
 
+        <define:tag name="warfiles">
+            <aggregate:copy
+                source="${module.root}/target"
+                target="${aggregate.dir}/lib"
+                include="*.war"/>
+        </define:tag>
+
         <define:tag name="default">
             <j:if test="${scripts == null || scripts == 'true'}">
                 <aggregate:scripts/>
@@ -284,6 +291,10 @@
 
             <j:if test="${libraries == null || libraries == 'true'}">
                 <aggregate:libraries/>
+            </j:if>
+
+            <j:if test="${warfiles == null || warfiles == 'true'}">
+                <aggregate:warfiles/>
             </j:if>
         </define:tag>
 
