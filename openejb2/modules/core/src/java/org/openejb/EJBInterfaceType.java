@@ -76,9 +76,11 @@ public final class EJBInterfaceType implements Serializable {
     public static final EJBInterfaceType LOCALHOME = new EJBInterfaceType("LocalHome", true, 1);
     public static final EJBInterfaceType WEB_SERVICE = new EJBInterfaceType("Web-Service", false, 2);
     public static final EJBInterfaceType TIMEOUT = new EJBInterfaceType("ejbTimeout", true, 3);
+    //lifecycle should never go through tx interceptor, so -1 as index should produce an error if it tries.
+    public static final EJBInterfaceType LIFECYCLE = new EJBInterfaceType("container-lifecycle", true, -1);
 
     private static final EJBInterfaceType[] VALUES = {
-        REMOTE, HOME, LOCAL, LOCALHOME, WEB_SERVICE, TIMEOUT
+        REMOTE, HOME, LOCAL, LOCALHOME, WEB_SERVICE, TIMEOUT, LIFECYCLE
     };
 
     public static int MAX_ORDINAL = VALUES.length;

@@ -59,10 +59,10 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
         return null;
     }
 
-    public void associate() throws Exception {
+    public void associate() throws Throwable {
     }
 
-    public void flush() throws Exception {
+    public void flush() throws Throwable {
     }
 
     public void beforeCommit() throws Exception {

@@ -56,7 +56,6 @@ import java.util.Map;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
-
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
 import org.openejb.InstanceContextFactory;
@@ -67,12 +66,12 @@ import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
 import org.openejb.entity.BusinessMethod;
+import org.openejb.entity.EJBLoadOperation;
 import org.openejb.entity.EntityInstanceFactory;
 import org.openejb.entity.EntityInterceptorBuilder;
 import org.openejb.entity.HomeMethod;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
-
 import org.tranql.cache.CacheRowAccessor;
 import org.tranql.cache.CacheSlot;
 import org.tranql.cache.CacheTable;
@@ -85,11 +84,11 @@ import org.tranql.ejb.CMPFieldTransform;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBQueryBuilder;
 import org.tranql.ejb.EJBSchema;
+import org.tranql.ejb.IdAsEJBLocalObjectTransform;
+import org.tranql.ejb.IdAsEJBObjectTransform;
 import org.tranql.ejb.LocalProxyTransform;
 import org.tranql.ejb.RemoteProxyTransform;
 import org.tranql.ejb.SimplePKTransform;
-import org.tranql.ejb.IdAsEJBLocalObjectTransform;
-import org.tranql.ejb.IdAsEJBObjectTransform;
 import org.tranql.field.FieldAccessor;
 import org.tranql.field.FieldTransform;
 import org.tranql.identity.IdentityDefiner;
@@ -434,6 +433,10 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 vopMap.put(
                         new InterfaceMethodSignature("ejbRemove", new Class[]{handleClass}, true),
                         new CMPRemoveMethod(beanClass, signature));
+            } else if (name.equals("ejbLoad") || name.equals("ejbStore")) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , new EJBLoadOperation(beanClass, signature));
             } else if (name.startsWith("ejb")) {
                 continue;
             } else {

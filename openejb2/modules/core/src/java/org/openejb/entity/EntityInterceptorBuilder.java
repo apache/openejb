@@ -66,6 +66,8 @@ import org.openejb.transaction.TransactionContextInterceptor;
  * @version $Revision$ $Date$
  */
 public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
+    private Interceptor lifecycleInteceptorChain = null;
+
     public Interceptor buildInterceptorChain() {
         if (transactionManager == null) {
             throw new IllegalStateException("Transaction manager must be set before building the interceptor chain");
@@ -86,6 +88,7 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
         if (securityEnabled) {
             firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, containerId, permissionManager);
         }
+        lifecycleInteceptorChain = firstInterceptor;
         if (runAs != null) {
             firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);
         }
@@ -96,5 +99,12 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, transactionPolicyManager);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
         return firstInterceptor;
+    }
+
+    public Interceptor getLifecycleInterceptorChain() {
+        if (lifecycleInteceptorChain == null) {
+            throw new IllegalStateException("You must call buildInterceptorStack once before calling getLifecycleInterceptorChain");
+        }
+        return lifecycleInteceptorChain;
     }
 }

@@ -52,6 +52,7 @@ import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
+import org.apache.geronimo.core.service.Interceptor;
 import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstanceFactory;
 import org.openejb.cache.InstancePool;
@@ -141,5 +142,9 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
 
     public void setInstanceFactory(InstanceFactory instanceFactory) {
         this.instanceFactory = instanceFactory;
+    }
+
+    public Interceptor getLifecycleInterceptorChain() {
+        return null;
     }
 }
