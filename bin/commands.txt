@@ -2,18 +2,20 @@ Usage: openejb command [command-options-and-arguments]
 
 COMMANDS:
 
-  build  Invoke the Ant build targets for building the 
-         source, documentation, javadoc or all of the above.
+  build    Invoke the Ant build targets for building the 
+           source, documentation, javadoc or all of the above.
 
-  test   Run the test suite on your installation, verify it
-         is setup and working correctly.
+  test     Run the test suite on your installation, verify it
+           is setup and working correctly.
 
-  start  Start the OpenEJB Remote Server for 
-         accessing beans in client/server mode.
+  start    Start the OpenEJB Remote Server for 
+           accessing beans in client/server mode.
   
-  stop   Stop the OpenEJB Remote Server.
+  stop     Stop the OpenEJB Remote Server.
 
-  deploy Deploy an ejb jar into OpenEJB.
+  deploy   Deploy an ejb jar into OpenEJB.
+  
+  validate Validate an ejb jar
   
 
 Try 'openejb help <command>' for more information a command.

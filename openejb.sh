@@ -44,6 +44,12 @@ _command_help()
         "stop")
             cat ./bin/stop.txt | sed 's/openejb /openejb.sh /'
         ;;
+        "corba")
+            cat ./bin/corba.txt | sed 's/openejb /openejb.sh /'
+        ;;
+        "create_stubs")
+            cat ./bin/create_stubs.txt | sed 's/openejb /openejb.sh /'
+        ;;
         *)
             cat ./bin/commands.txt | sed 's/openejb /openejb.sh /'
         ;;
@@ -78,7 +84,8 @@ _command_test()
 #============================================================
 _command_deploy()
 {
-   ./bin/deploy.sh $2 $3 $4 $5 $6 $7 $8 $9
+   shift
+   java -cp dist/openejb-1.0.jar org.openejb.util.Launcher org.openejb.alt.config.Deploy $@
 }
 #============================================================
 _command_validate()
@@ -94,18 +101,39 @@ _command_start()
 #============================================================
 _command_stop()
 {
-   ./bin/ejbserver-stop.sh $@
+   java -cp dist/openejb-1.0.jar org.openejb.util.Launcher org.openejb.server.Stop $@
 }
 #============================================================
 _start_corba()
 {
-   echo " 1. Starting OpenORB JNDI Server..."
-   sh ./bin/launch_jndi.sh -print &> jndi.log
+   echo " 1. OpenORB RMI/IIOP JNDI Naming Server..."
+   
+   NAMING_OPTIONS="-Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFactory \
+          -Dorg.omg.CORBA.ORBClass=org.openorb.CORBA.ORB \
+          -Dorg.omg.CORBA.ORBSingletonClass=org.openorb.CORBA.ORBSingleton \
+          -Djavax.rmi.CORBA.StubClass=org.openorb.rmi.system.StubDelegateImpl \
+          -Djavax.rmi.CORBA.UtilClass=org.openorb.rmi.system.UtilDelegateImpl \
+          -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl"
+   java -cp dist/openejb-1.0.jar org.openejb.util.Launcher $NAMING_OPTIONS \
+        org.openorb.util.MapNamingContext -ORBPort=2001 -print > logs/jndi.log 2>&1 &
+   
    pid=$?
    trap ' kill $pid; exit 1' 1 2 15
    sleep 20
-   echo " 2. Starting OpenEJB CORBA Server with OpenORB"
-   ./bin/launch_server.sh 
+   echo " 2. OpenEJB RMI/IIOP Server..."
+
+   OPENORB_OPTIONS="-Djava.naming.provider.url=corbaloc::localhost:2001/NameService \
+           -Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFactory \
+           -Dorg.omg.CORBA.ORBClass=org.openorb.CORBA.ORB \
+           -Dorg.omg.CORBA.ORBSingletonClass=org.openorb.CORBA.ORBSingleton \
+           -Djavax.rmi.CORBA.StubClass=org.openorb.rmi.system.StubDelegateImpl \
+           -Djavax.rmi.CORBA.UtilClass=org.openejb.corba.core.UtilDelegateImpl \
+           -Dorg.openejb.corba.core.UtilDelegateClass=org.openorb.rmi.system.UtilDelegateImpl \
+           -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl"
+   SERVER_OPTIONS="-Dlog4j.configuration=file:conf/default.logging.conf \
+           -Dorg/openejb/core/ThreadContext/IMPL_CLASS=org.openejb.tyrex.TyrexThreadContext"
+   java -cp dist/openejb-1.0.jar org.openejb.util.Launcher $SERVER_OPTIONS $OPENORB_OPTIONS \
+        org.openejb.corba.Server -ORBProfile=ejb -domain conf/tyrex_resources.xml
 }
 #============================================================
 _test_noargs()
@@ -154,21 +182,70 @@ _test_corba()
    echo " "
    echo "Running EJB compliance tests on CORBA Server"
    echo "_________________________________________________"
-   echo " 1. Starting OpenORB JNDI Server..."
-   trap ' kill $pids; exit 1' 1 2 15
-   sh ./bin/launch_jndi.sh -default > corba.jndi.log &
-   pids="$?"
-   sleep 10
-   echo " 2. Starting OpenEJB CORBA Server with OpenORB..."
-   sh ./bin/launch_server.sh > corba.server.log &
-   pids="$pids $?"
+   
+      echo " 1. OpenORB RMI/IIOP JNDI Naming Server..."
+   
+   NAMING_OPTIONS="-Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFactory \
+          -Dorg.omg.CORBA.ORBClass=org.openorb.CORBA.ORB \
+          -Dorg.omg.CORBA.ORBSingletonClass=org.openorb.CORBA.ORBSingleton \
+          -Djavax.rmi.CORBA.StubClass=org.openorb.rmi.system.StubDelegateImpl \
+          -Djavax.rmi.CORBA.UtilClass=org.openorb.rmi.system.UtilDelegateImpl \
+          -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl"
+   java -cp dist/openejb-1.0.jar org.openejb.util.Launcher $NAMING_OPTIONS \
+        org.openorb.util.MapNamingContext -ORBPort=2001 -default > logs/corba.jndi.log 2>&1 &
+   
+   pid=$?
+   trap ' kill $pid; exit 1' 1 2 15
    sleep 20
+   echo " 2. OpenEJB RMI/IIOP Server..."
+
+   OPENORB_OPTIONS="-Djava.naming.provider.url=corbaloc::localhost:2001/NameService \
+           -Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFactory \
+           -Dorg.omg.CORBA.ORBClass=org.openorb.CORBA.ORB \
+           -Dorg.omg.CORBA.ORBSingletonClass=org.openorb.CORBA.ORBSingleton \
+           -Djavax.rmi.CORBA.StubClass=org.openorb.rmi.system.StubDelegateImpl \
+           -Djavax.rmi.CORBA.UtilClass=org.openejb.corba.core.UtilDelegateImpl \
+           -Dorg.openejb.corba.core.UtilDelegateClass=org.openorb.rmi.system.UtilDelegateImpl \
+           -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl"
+   SERVER_OPTIONS="-Dlog4j.configuration=file:conf/default.logging.conf \
+           -Dorg/openejb/core/ThreadContext/IMPL_CLASS=org.openejb.tyrex.TyrexThreadContext"
+   java -cp dist/openejb-1.0.jar org.openejb.util.Launcher $SERVER_OPTIONS $OPENORB_OPTIONS \
+        org.openejb.corba.Server -ORBProfile=ejb -domain conf/tyrex_resources.xml > logs/corba.server.log 2>&1 &
+
+   pid="$pid $?"
+   trap ' kill $pid; exit 1' 1 2 15
+   sleep 20
+
    echo " 3. Starting test client..."
-   ./bin/launch_client.sh
+
+   ORB="-DORBProfile=ejb \
+        -Djava.naming.provider.url=corbaloc::localhost:2001/NameService \
+        -Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFactory \
+        -Dorg.omg.CORBA.ORBClass=org.openorb.CORBA.ORB \
+        -Dorg.omg.CORBA.ORBSingletonClass=org.openorb.CORBA.ORBSingleton \
+        -Djavax.rmi.CORBA.StubClass=org.openorb.rmi.system.StubDelegateImpl \
+        -Djavax.rmi.CORBA.UtilClass=org.openorb.rmi.system.UtilDelegateImpl \
+        -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl"
+
+   PROPERTIES="-Dopenejb.testsuite.properties=src/tests-ejb/CorbaServer_config.properties"
+   SERVER="-Dopenejb.test.server=org.openejb.test.CorbaTestServer"
+   DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
+   SUITE="org.openejb.test.ClientTestSuite"
+
+   java $PROPERTIES $SERVER $DATABASE $OPTIONS $ORB -jar dist/openejb_ejb_tests-1.0.jar $SUITE 
+
    kill $pids
 }
 #============================================================
-
+_create_stubs()
+{
+   shift
+   if [ ! -z "$1" ]; then
+      JAVATOIDL_OPTS="-tie -stub -noidl -local"
+   fi
+   java -cp dist/openejb-1.0.jar org.openejb.util.Launcher $OPTIONS org.openorb.rmi.compiler.JavaToIdl $JAVATOIDL_OPTS $@
+}
+#============================================================
 case $1 in
     "build")
         _command_build $@
@@ -190,6 +267,9 @@ case $1 in
     ;;
     "corba")
         _start_corba $@
+    ;;
+    "create_stubs")
+        _create_stubs $@
     ;;
     "help")
         _command_help $@
