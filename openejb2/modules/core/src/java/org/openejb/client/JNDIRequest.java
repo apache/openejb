@@ -61,8 +61,11 @@ public class JNDIRequest implements Request {
     public JNDIRequest() {
     }
     
+    public JNDIRequest(int requestMethod, String requestString) {
+        this(requestMethod,null,requestString);
+    }
+
     public JNDIRequest(int requestMethod, String clientModuleID, String requestString) {
-        assert clientModuleID != null;
         assert requestString != null;
         this.requestMethod = requestMethod;
         this.clientModuleID = clientModuleID;
