@@ -145,7 +145,6 @@ public class CSSBean implements GBeanLifecycle {
     }
 
     public void setNssArgs(ArrayList nssArgs) {
-        if (nssArgs == null) nssArgs = new ArrayList();
         this.nssArgs = nssArgs;
     }
 
@@ -163,7 +162,6 @@ public class CSSBean implements GBeanLifecycle {
     }
 
     public void setNssProps(Properties nssProps) {
-        if (nssProps == null) nssProps = new Properties();
         this.nssProps = nssProps;
     }
 
@@ -178,7 +176,8 @@ public class CSSBean implements GBeanLifecycle {
 
     public org.omg.CORBA.Object getHome(URI nsURI, String name) {
 
-        if (log.isDebugEnabled()) log.debug("Looking up home from " + nsURI.toString() + " at " + name);
+        if (log.isDebugEnabled()) log.debug(description + " - Looking up home from " + nsURI.toString() + " at " + name);
+
         try {
             org.omg.CORBA.Object ref = nssORB.string_to_object(nsURI.toString());
             NamingContextExt ic = NamingContextExtHelper.narrow(ref);
@@ -189,15 +188,25 @@ public class CSSBean implements GBeanLifecycle {
 
             return cssORB.string_to_object(beanIOR);
         } catch (UserException ue) {
-            // do nothing
+            log.error(description + " - Looking up home", ue);
             throw new RuntimeException(ue);
         }
     }
 
     public void doStart() throws Exception {
 
-        if (nssConfig == null) nssConfig = cssConfig;
-        if (nssArgs == null) nssArgs = cssArgs;
+        if (nssConfig == null) {
+            if (log.isDebugEnabled()) log.debug("Defaulting NSS config to be CSS config");
+            nssConfig = cssConfig;
+        }
+        if (nssArgs == null) {
+            if (log.isDebugEnabled()) log.debug("Defaulting NSS args to be CSS args");
+            nssArgs = cssArgs;
+        }
+        if (nssProps == null) {
+            if (log.isDebugEnabled()) log.debug("Defaulting NSS props to be CSS props");
+            nssProps = cssProps;
+        }
 
         ClassLoader savedLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -205,6 +214,8 @@ public class CSSBean implements GBeanLifecycle {
 
             Properties properties = configAdapter.translateToProps(nssConfig);
             properties.putAll(nssProps);
+
+            if (log.isDebugEnabled()) log.debug("Starting NameService ORB");
 
             nssORB = ORB.init((String[]) nssArgs.toArray(new String[nssArgs.size()]), properties);
 
@@ -216,6 +227,8 @@ public class CSSBean implements GBeanLifecycle {
 
             properties = configAdapter.translateToProps(cssConfig);
             properties.putAll(cssProps);
+
+            if (log.isDebugEnabled()) log.debug("Starting CSS ORB");
 
             cssORB = ORB.init((String[]) cssArgs.toArray(new String[cssArgs.size()]), properties);
 
@@ -250,7 +263,9 @@ public class CSSBean implements GBeanLifecycle {
     public void doStop() throws Exception {
 
         nssORB.shutdown(true);
+        nssORB.destroy();
         cssORB.shutdown(true);
+        cssORB.destroy();
         log.info("Stopped CORBA Client Security Server - " + description);
     }
 
