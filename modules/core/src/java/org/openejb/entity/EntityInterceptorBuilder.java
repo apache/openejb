@@ -81,7 +81,11 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
         if (doAsCurrentCaller) {
             firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
         }
+
+        // system interceptor only gets only dispatch, ejbIdentity, and component context
         Interceptor systemChain = firstInterceptor;
+        systemChain = new ComponentContextInterceptor(systemChain, componentContext);
+
         if (securityEnabled) {
             firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, containerId, permissionManager);
         }
