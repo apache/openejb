@@ -73,23 +73,31 @@ public class EntityClientContainerFactory implements ClientContainerFactory {
     private final EntityRemoteClientContainer remoteContainer;
 
     public EntityClientContainerFactory(Class pkClass, VirtualOperationFactory vopFactory, URI uri, Class home, Class remote, Interceptor localEndpoint, Class localHome, Class local) {
-        Map localHomeMap = vopFactory.getLocalHomeMap(localHome);
-        Map localMap = vopFactory.getLocalObjectMap(local);
-        localContainer = new EntityLocalClientContainer(localHomeMap, localHome, localMap, local);
-        localContainer.addInterceptor(localEndpoint);
+        if (localHome != null) {
+            Map localHomeMap = vopFactory.getLocalHomeMap(localHome);
+            Map localMap = vopFactory.getLocalObjectMap(local);
+            localContainer = new EntityLocalClientContainer(localHomeMap, localHome, localMap, local);
+            localContainer.addInterceptor(localEndpoint);
+        } else {
+            localContainer = null;
+        }
 
-        Long remoteId = Long.valueOf(uri.getFragment());
-        RemoteTransportInterceptor transport = new RemoteTransportInterceptor(uri);
-        IntraVMRoutingInterceptor localRouter = new IntraVMRoutingInterceptor(remoteId, true);
-        InterVMRoutingInterceptor remoteRouter = new InterVMRoutingInterceptor(transport, localRouter);
-        Interceptor demarshaller = InterceptorRegistry.instance.lookup(remoteId);
+        if (home != null) {
+            Long remoteId = Long.valueOf(uri.getFragment());
+            RemoteTransportInterceptor transport = new RemoteTransportInterceptor(uri);
+            IntraVMRoutingInterceptor localRouter = new IntraVMRoutingInterceptor(remoteId, true);
+            InterVMRoutingInterceptor remoteRouter = new InterVMRoutingInterceptor(transport, localRouter);
+            Interceptor demarshaller = InterceptorRegistry.instance.lookup(remoteId);
 
-        remoteContainer = new EntityRemoteClientContainer(pkClass, vopFactory.getHomeMap(home), home, vopFactory.getObjectMap(remote), remote);
-        remoteContainer.addInterceptor(remoteRouter);
-        remoteContainer.addInterceptor(localRouter);
-        remoteContainer.addInterceptor(new MarshalingInterceptor());
-        remoteContainer.addInterceptor(new NullTransportInterceptor());
-        remoteContainer.addInterceptor(demarshaller);
+            remoteContainer = new EntityRemoteClientContainer(pkClass, vopFactory.getHomeMap(home), home, vopFactory.getObjectMap(remote), remote);
+            remoteContainer.addInterceptor(remoteRouter);
+            remoteContainer.addInterceptor(localRouter);
+            remoteContainer.addInterceptor(new MarshalingInterceptor());
+            remoteContainer.addInterceptor(new NullTransportInterceptor());
+            remoteContainer.addInterceptor(demarshaller);
+        } else {
+            remoteContainer = null;
+        }
     }
 
     public EJBLocalClientContainer getLocalClient() {

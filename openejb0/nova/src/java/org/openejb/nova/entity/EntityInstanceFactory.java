@@ -56,6 +56,8 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
 
 import org.openejb.nova.EJBContainer;
+import org.openejb.nova.EJBInstanceFactory;
+import org.openejb.nova.EJBInstanceFactoryImpl;
 import org.openejb.nova.EJBOperation;
 
 /**
@@ -71,11 +73,15 @@ public class EntityInstanceFactory implements InstanceFactory {
 
     private final EJBContainer container;
     private final ReadOnlyContext componentContext;
-    private final Class beanClass;
+    private final EJBInstanceFactory factory;
 
     public EntityInstanceFactory(EJBContainer container) {
+        this(container, new EJBInstanceFactoryImpl(container.getBeanClass()));
+    }
+
+    public EntityInstanceFactory(EJBContainer container, EJBInstanceFactory factory) {
         this.container = container;
-        beanClass = container.getBeanClass();
+        this.factory = factory;
         componentContext = container.getComponentContext();
     }
 
@@ -88,7 +94,7 @@ public class EntityInstanceFactory implements InstanceFactory {
             RootContext.setComponentContext(null);
 
             // create the instance
-            instance = (EntityBean) beanClass.newInstance();
+            instance = (EntityBean) factory.newInstance();
 
             // Activate this components JNDI Component Context
             RootContext.setComponentContext(componentContext);

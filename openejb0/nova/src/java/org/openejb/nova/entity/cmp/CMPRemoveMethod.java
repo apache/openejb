@@ -45,66 +45,35 @@
  *
  * ====================================================================
  */
-package org.openejb.nova.slsb;
+package org.openejb.nova.entity.cmp;
 
-import java.net.URI;
+import org.apache.geronimo.core.service.InvocationResult;
+import net.sf.cglib.reflect.FastClass;
 
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.naming.java.ComponentContextInterceptor;
-
-import org.openejb.nova.AbstractEJBContainer;
-import org.openejb.nova.EJBContainerConfiguration;
-import org.openejb.nova.dispatch.DispatchInterceptor;
-import org.openejb.nova.transaction.TransactionContextInterceptor;
-import org.openejb.nova.util.SoftLimitedInstancePool;
+import org.openejb.nova.EJBInvocation;
+import org.openejb.nova.EJBOperation;
+import org.openejb.nova.entity.BusinessMethod;
+import org.openejb.nova.entity.EntityInstanceContext;
 
 /**
- * @jmx.mbean
- *      extends="org.apache.geronimo.core.service.Container,org.apache.geronimo.kernel.management.StateManageable"
+ * Virtual operation handling removal of an instance.
  *
  * @version $Revision$ $Date$
  */
-public class StatelessContainer extends AbstractEJBContainer implements StatelessContainerMBean {
-    public StatelessContainer(EJBContainerConfiguration config) {
-        super(config);
+public class CMPRemoveMethod extends BusinessMethod {
+    public CMPRemoveMethod(FastClass fastClass, int methodIndex) {
+        super(fastClass, methodIndex);
     }
 
-    protected void doStart() throws Exception {
-        super.doStart();
+    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+        EntityInstanceContext ctx = (EntityInstanceContext) invocation.getEJBInstanceContext();
+        ensureLoaded(invocation, ctx);
+        InvocationResult result = invoke(invocation, EJBOperation.EJBREMOVE);
 
-        StatelessOperationFactory vopFactory = StatelessOperationFactory.newInstance(beanClass);
-        vtable = vopFactory.getVTable();
-
-        pool = new SoftLimitedInstancePool(new StatelessInstanceFactory(this), 1);
-
-        // set up server side interceptors
-        Interceptor firstInterceptor = new ComponentContextInterceptor(componentContext);
-        addInterceptor(firstInterceptor);
-        addInterceptor(new StatelessInstanceInterceptor(pool));
-        addInterceptor(new TransactionContextInterceptor(txnManager));
-        addInterceptor(new DispatchInterceptor(vtable));
-
-        URI target;
-        if (homeClassName != null) {
-            // set up server side remoting endpoint
-            target = startServerRemoting(firstInterceptor);
-        } else {
-            target = null;
+        if (result.isNormal()) {
+            // clear id as we are no longer associated
+            ctx.setId(null);
         }
-
-        // set up client containers
-        StatelessClientContainerFactory clientFactory = new StatelessClientContainerFactory(vopFactory, target, homeInterface, remoteInterface, firstInterceptor, localHomeInterface, localInterface);
-        remoteClientContainer = clientFactory.getRemoteClient();
-        localClientContainer = clientFactory.getLocalClient();
+        return result;
     }
-
-    protected void doStop() throws Exception {
-        stopServerRemoting();
-        remoteClientContainer = null;
-        localClientContainer = null;
-        clearInterceptors();
-        pool = null;
-        super.doStop();
-    }
-
 }

@@ -47,7 +47,6 @@
  */
 package org.openejb.nova.slsb;
 
-import java.lang.reflect.Method;
 import javax.ejb.SessionBean;
 
 import org.apache.commons.logging.Log;
@@ -55,8 +54,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.cache.InstanceFactory;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
+import net.sf.cglib.reflect.FastClass;
 
 import org.openejb.nova.EJBContainer;
+import org.openejb.nova.EJBInstanceFactory;
+import org.openejb.nova.EJBInstanceFactoryImpl;
 import org.openejb.nova.EJBOperation;
 
 /**
@@ -70,18 +72,15 @@ public class StatelessInstanceFactory implements InstanceFactory {
 
     private final EJBContainer container;
     private final ReadOnlyContext componentContext;
-    private final Class beanClass;
-    private final Method ejbCreate;
+    private final int createIndex;
+    private final FastClass implClass;
 
     public StatelessInstanceFactory(EJBContainer container) {
         this.container = container;
-        beanClass = container.getBeanClass();
-        try {
-            ejbCreate = beanClass.getMethod("ejbCreate", null);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Stateless SessionBean " + beanClass.getName() + " does not have an ejbCreate method");
-        }
         componentContext = container.getComponentContext();
+
+        implClass = FastClass.create(container.getBeanClass());
+        createIndex = implClass.getIndex("ejbCreate", new Class[0]);
     }
 
     public Object createInstance() throws Exception {
@@ -93,7 +92,7 @@ public class StatelessInstanceFactory implements InstanceFactory {
             RootContext.setComponentContext(null);
 
             // create the instance
-            instance = (SessionBean) beanClass.newInstance();
+            instance = (SessionBean) implClass.newInstance();
 
             // Activate this components JNDI Component Context
             RootContext.setComponentContext(componentContext);
@@ -106,7 +105,7 @@ public class StatelessInstanceFactory implements InstanceFactory {
             instance.setSessionContext(ctx.getSessionContext());
 
             ctx.setOperation(EJBOperation.EJBCREATE);
-            ejbCreate.invoke(instance, null);
+            implClass.invoke(createIndex, instance, null);
 
             ctx.setOperation(EJBOperation.INACTIVE);
 

@@ -49,19 +49,18 @@ package org.openejb.nova.entity.bmp;
 
 import java.net.URI;
 
-import org.apache.geronimo.cache.InstancePool;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
-import org.apache.geronimo.remoting.DeMarshalingInterceptor;
-import org.apache.geronimo.remoting.InterceptorRegistry;
+import org.apache.geronimo.core.service.Interceptor;
 
 import org.openejb.nova.AbstractEJBContainer;
-import org.openejb.nova.entity.EntityContainerConfiguration;
-import org.openejb.nova.util.SoftLimitedInstancePool;
 import org.openejb.nova.dispatch.DispatchInterceptor;
+import org.openejb.nova.dispatch.VirtualOperationFactory;
 import org.openejb.nova.entity.EntityClientContainerFactory;
+import org.openejb.nova.entity.EntityContainerConfiguration;
 import org.openejb.nova.entity.EntityInstanceFactory;
 import org.openejb.nova.entity.EntityInstanceInterceptor;
 import org.openejb.nova.transaction.TransactionContextInterceptor;
+import org.openejb.nova.util.SoftLimitedInstancePool;
 
 /**
  * @jmx.mbean
@@ -71,8 +70,6 @@ import org.openejb.nova.transaction.TransactionContextInterceptor;
  */
 public class BMPEntityContainer extends AbstractEJBContainer implements BMPEntityContainerMBean {
     private final String pkClassName;
-    private Long remoteId;
-    private InstancePool pool;
 
     public BMPEntityContainer(EntityContainerConfiguration config) {
         super(config);
@@ -84,37 +81,33 @@ public class BMPEntityContainer extends AbstractEJBContainer implements BMPEntit
 
         Class pkClass = classLoader.loadClass(pkClassName);
 
-        BMPOperationFactory vopFactory = BMPOperationFactory.newInstance(beanClass);
+        VirtualOperationFactory vopFactory = BMPOperationFactory.newInstance(beanClass);
         vtable = vopFactory.getVTable();
 
         pool = new SoftLimitedInstancePool(new EntityInstanceFactory(this), 1);
 
-        TransactionContextInterceptor firstInterceptor = new TransactionContextInterceptor(txnManager);
+        Interceptor firstInterceptor = new TransactionContextInterceptor(txnManager);
         addInterceptor(firstInterceptor);
         addInterceptor(new ComponentContextInterceptor(componentContext));
         addInterceptor(new EntityInstanceInterceptor(pool));
         addInterceptor(new DispatchInterceptor(vtable));
 
-        // set up server side remoting endpoint
-        DeMarshalingInterceptor demarshaller = new DeMarshalingInterceptor();
-        demarshaller.setClassloader(classLoader);
-        demarshaller.setNext(firstInterceptor);
-        remoteId = InterceptorRegistry.instance.register(demarshaller);
+        URI target;
+        if (homeClassName != null) {
+            // set up server side remoting endpoint
+            target = startServerRemoting(firstInterceptor);
+        } else {
+            target = null;
+        }
 
         // set up client containers
-        URI target = uri.resolve("#" + remoteId);
         EntityClientContainerFactory clientFactory = new EntityClientContainerFactory(pkClass, vopFactory, target, homeInterface, remoteInterface, firstInterceptor, localHomeInterface, localInterface);
-        if (homeClassName != null) {
-            remoteClientContainer = clientFactory.getRemoteClient();
-        }
-
-        if (localHomeClassName != null) {
-            localClientContainer = clientFactory.getLocalClient();
-        }
+        remoteClientContainer = clientFactory.getRemoteClient();
+        localClientContainer = clientFactory.getLocalClient();
     }
 
     protected void doStop() throws Exception {
-        InterceptorRegistry.instance.unregister(remoteId);
+        stopServerRemoting();
         clearInterceptors();
         remoteClientContainer = null;
         localClientContainer = null;

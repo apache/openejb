@@ -55,8 +55,12 @@ import javax.ejb.EJBObject;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.core.service.AbstractRPCContainer;
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.cache.InstancePool;
+import org.apache.geronimo.remoting.DeMarshalingInterceptor;
+import org.apache.geronimo.remoting.InterceptorRegistry;
 
 import org.openejb.nova.dispatch.VirtualOperation;
 import org.openejb.nova.transaction.EJBUserTransaction;
@@ -89,6 +93,9 @@ public abstract class AbstractEJBContainer extends AbstractRPCContainer implemen
     protected EJBLocalClientContainer localClientContainer;
     protected Class localHomeInterface;
     protected Class localInterface;
+
+    protected InstancePool pool;
+    private Long remoteId;
 
     public AbstractEJBContainer(EJBContainerConfiguration config) {
         uri = config.uri;
@@ -214,5 +221,18 @@ public abstract class AbstractEJBContainer extends AbstractRPCContainer implemen
      */
     public String getLocalClassName() {
         return localClassName;
+    }
+
+    protected URI startServerRemoting(Interceptor firstInterceptor) {
+        // set up server side remoting endpoint
+        DeMarshalingInterceptor demarshaller = new DeMarshalingInterceptor();
+        demarshaller.setClassloader(classLoader);
+        demarshaller.setNext(firstInterceptor);
+        remoteId = InterceptorRegistry.instance.register(demarshaller);
+        return uri.resolve("#" + remoteId);
+    }
+
+    protected void stopServerRemoting() {
+        InterceptorRegistry.instance.unregister(remoteId);
     }
 }

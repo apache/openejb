@@ -72,21 +72,29 @@ public class StatelessClientContainerFactory implements ClientContainerFactory {
     private final StatelessRemoteClientContainer remoteContainer;
 
     public StatelessClientContainerFactory(VirtualOperationFactory vopFactory, URI uri, Class home, Class remote, Interceptor localEndpoint, Class localHome, Class local) {
-        localContainer = new StatelessLocalClientContainer(localHome, vopFactory.getLocalObjectMap(local), local);
-        localContainer.addInterceptor(localEndpoint);
+        if (localHome != null) {
+            localContainer = new StatelessLocalClientContainer(localHome, vopFactory.getLocalObjectMap(local), local);
+            localContainer.addInterceptor(localEndpoint);
+        } else {
+            localContainer = null;
+        }
 
-        Long remoteId = Long.valueOf(uri.getFragment());
-        RemoteTransportInterceptor transport = new RemoteTransportInterceptor(uri);
-        IntraVMRoutingInterceptor localRouter = new IntraVMRoutingInterceptor(remoteId, true);
-        InterVMRoutingInterceptor remoteRouter = new InterVMRoutingInterceptor(transport, localRouter);
-        Interceptor demarshaller = InterceptorRegistry.instance.lookup(remoteId);
+        if (home != null) {
+            Long remoteId = Long.valueOf(uri.getFragment());
+            RemoteTransportInterceptor transport = new RemoteTransportInterceptor(uri);
+            IntraVMRoutingInterceptor localRouter = new IntraVMRoutingInterceptor(remoteId, true);
+            InterVMRoutingInterceptor remoteRouter = new InterVMRoutingInterceptor(transport, localRouter);
+            Interceptor demarshaller = InterceptorRegistry.instance.lookup(remoteId);
 
-        remoteContainer = new StatelessRemoteClientContainer(home, vopFactory.getObjectMap(remote), remote);
-        remoteContainer.addInterceptor(remoteRouter);
-        remoteContainer.addInterceptor(localRouter);
-        remoteContainer.addInterceptor(new MarshalingInterceptor());
-        remoteContainer.addInterceptor(new NullTransportInterceptor());
-        remoteContainer.addInterceptor(demarshaller);
+            remoteContainer = new StatelessRemoteClientContainer(home, vopFactory.getObjectMap(remote), remote);
+            remoteContainer.addInterceptor(remoteRouter);
+            remoteContainer.addInterceptor(localRouter);
+            remoteContainer.addInterceptor(new MarshalingInterceptor());
+            remoteContainer.addInterceptor(new NullTransportInterceptor());
+            remoteContainer.addInterceptor(demarshaller);
+        } else {
+            remoteContainer = null;
+        }
     }
 
     public EJBLocalClientContainer getLocalClient() {
