@@ -105,7 +105,7 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
             name = name.substring(1);
         }
 
-        if (!req.getClientModuleID() != null) {
+        if (req.getClientModuleID() != null) {
             try {
                 ObjectName objectName = new ObjectName(req.getClientModuleID());
                 Kernel.getSingleKernel().getAttribute(objectName, "componentContext");
