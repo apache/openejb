@@ -419,4 +419,12 @@ public final class OpenEJB {
         return initialized;
     }
 
+    /**
+     * @param property property name the value is asked for
+     * @return property value
+     */
+    public static String getProperty(String property)
+    {
+        return props.getProperty(property);
+    }
 }

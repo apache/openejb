@@ -120,7 +120,6 @@ java.lang.reflect.Modifier
             Properties p = new Properties();
 
             p.put(Context.INITIAL_CONTEXT_FACTORY, "org.openejb.client.LocalInitialContextFactory");
-            p.put("openejb.loader", "embed");
 
             ctx = new InitialContext( p );
             
@@ -186,7 +185,7 @@ java.lang.reflect.Modifier
 
             try{
                 Object obj =  ctx.lookup("");
-                
+
                 if (obj.getClass().getName().equals("org.openejb.core.ivm.naming.IvmContext")) {
                     out.print(OK);
                 } else {

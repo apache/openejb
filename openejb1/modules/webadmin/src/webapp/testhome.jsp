@@ -16,7 +16,8 @@ java.util.*,
 java.io.*,
 java.lang.reflect.Method,
 java.lang.reflect.InvocationTargetException,
-java.lang.reflect.Modifier
+java.lang.reflect.Modifier,
+org.openejb.OpenEJB
 "%>
 <html>
 <head>
@@ -115,13 +116,13 @@ java.lang.reflect.Modifier
         this.session = session;
         this.out = out;
         
-        out.print("<b>openejb.home = "+System.getProperty("openejb.home")+"</b><br><br>");
+        out.print("<b>openejb.home = "+ OpenEJB.getProperty("openejb.home")+"</b><br><br>");
         try{
             out.print(HR);
             out.print("<table width='300' cellspacing='4' cellpadding='4' border='0'>");
             // The openejb.home must be set
             out.print("<tr><td><font size='2'>openejb.home is set</font></td> ");
-            String homePath = System.getProperty("openejb.home");
+            String homePath = OpenEJB.getProperty("openejb.home");
             if (homePath == null) handleError(NO_HOME, INSTRUCTIONS);
             out.print(OK);
 
@@ -136,15 +137,15 @@ java.lang.reflect.Modifier
             if (!openejbHome.isDirectory()) handleError(BAD_HOME+homePath, NOT_DIRECTORY, INSTRUCTIONS);
             out.print(OK);
 
-            // The openejb.home must contain a 'dist' directory
-            out.print("<tr><td><font size='2'>has dist directory</font></td> ");
-            File openejbHomeDist = new File(openejbHome, "dist");
-            if ( !openejbHomeDist.exists() ) handleError(BAD_HOME+homePath, NO_DIST, INSTRUCTIONS);
+            // The openejb.home must contain a 'lib' directory
+            out.print("<tr><td><font size='2'>has lib directory</font></td> ");
+            File openejbHomeLib = new File(openejbHome, "lib");
+            if ( !openejbHomeLib.exists() ) handleError(BAD_HOME+homePath, NO_LIBS, INSTRUCTIONS);
             out.print(OK);
 
-            // The openejb.home there must be openejb*.jar files in the 'dist' directory
+            // The openejb.home there must be openejb*.jar files in the 'lib' directory
             out.print("<tr><td><font size='2'>has openejb* libraries</font></td> ");
-            String[] libs = openejbHomeDist.list();
+            String[] libs = openejbHomeLib.list();
             boolean found = false;
             for (int i=0; i < libs.length && !found; i++){
                 found = (libs[i].startsWith("openejb-") && libs[i].endsWith(".jar"));

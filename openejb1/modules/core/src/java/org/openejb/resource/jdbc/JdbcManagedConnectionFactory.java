@@ -55,6 +55,7 @@ import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.ResourceAdapterInternalException;
 
 import org.openejb.core.EnvProps;
+import org.openejb.util.FileUtils;
 import org.openejb.util.Logger;
 
 
@@ -76,14 +77,8 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
         setJdbcUrl(props.getProperty(EnvProps.JDBC_URL));   
         setJdbcDriver(props.getProperty(EnvProps.JDBC_DRIVER));   
 
-        String userDir = props.getProperty("user.dir");
-        try{
-            props.setProperty("user.dir", props.getProperty("openejb.base"));
-            // Test the connection out, problems are logged
-            testDriver();
-        } finally {
-            props.setProperty("user.dir",userDir);
-        }
+        // Test the connection out, problems are logged
+        testDriver();
     }
 
     protected void testDriver() {
