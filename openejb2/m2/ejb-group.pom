@@ -531,7 +531,12 @@
   </dependencyManagement>
 
   <ciManagement>
-    <nagEmailAddress>openejb-development@lists.sourceforge.net</nagEmailAddress>
+    <notifiers>
+      <notifier>
+        <type>email</type>
+        <address>openejb-development@lists.sourceforge.net</address>
+      </notifier>
+    </notifiers>
   </ciManagement>
 
   <build>
