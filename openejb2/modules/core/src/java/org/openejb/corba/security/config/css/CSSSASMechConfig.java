@@ -144,7 +144,7 @@ public class CSSSASMechConfig implements Serializable {
         return new AuthorizationElement[0];
     }
 
-    public IdentityToken encodseIdentityToken() {
+    public IdentityToken encodeIdentityToken() {
         IdentityToken token = new IdentityToken();
 
         token.anonymous(true);
