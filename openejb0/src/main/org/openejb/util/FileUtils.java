@@ -50,10 +50,12 @@ public class FileUtils{
         
         if ( home == null ) resolveOpenEjbHome();
         
-        file = new File(home, path);
-        file = file.getCanonicalFile();
-
-
+        file = new File(path);
+        
+        if (!file.isAbsolute()) {
+            file = new File(home, path);
+        }
+        
         if( validate && !file.exists() ) {
             throw new FileNotFoundException("The path specified is not a valid file: "+file.getPath());
         } else if ( validate && file.isDirectory() ) {
@@ -109,6 +111,8 @@ public class FileUtils{
                 openejb = userDir;
                 home = new File(openejb);
             }
+
+            home = home.getAbsoluteFile();
         } catch (SecurityException e){
             throw new IOException("Cannot resolve the OpenEJB directory: "+openejb+" : "+e.getMessage());
         }
