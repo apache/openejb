@@ -65,6 +65,7 @@ import org.apache.regexp.RE;
 import org.apache.regexp.RESyntaxException;
 import org.openejb.OpenEJBException;
 import org.openejb.util.FileUtils;
+import org.openejb.util.Logger;
 
 /**
  * This class takes care of deploying a bean in the web administration. 
@@ -82,6 +83,7 @@ public class DeployBean extends WebAdminBean {
 	private static final String HANDLE_FILE =
 		System.getProperty("file.separator") + "deployerHandle.obj";
 	private DeployerObject deployer = null;
+	private Logger logger = Logger.getInstance("OpenEJB", "org.openejb.util.resources");
 
 	/*  key for boolean values:
 	 *  AUTO_ASSIGN              0
@@ -162,12 +164,14 @@ public class DeployBean extends WebAdminBean {
 			Throwable t = ue.getUndeclaredThrowable();
 			if (t != null) {
 				body.println(t.getMessage());
+				logger.error("Error on web deployment", t);
 			} else {
 				body.println("An unknown system error occured.");
 			}
 		} else {
 			if (e != null) {
 				body.println(e.getMessage());
+				logger.error("Error on web deployment", e);
 			} else {
 				body.println("An unknown system error occured.");
 			}
