@@ -208,8 +208,8 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
             throw new DeploymentException("Could not get EJBModuleConfiguration mbean info", e);
         }
 
-        securityConfigMetadata.setConstructorArgs(new Object[]{ejbJar},
-                new String[]{EjbJar.class.getName()});
+        securityConfigMetadata.setConstructorArgs(new Object[]{moduleName, ejbJar},
+            new String[]{String.class.getName(), EjbJar.class.getName()});
         addTasks(plan, securityConfigMetadata);
 
         for (int i = 0; i < enterpriseBeans.getGeronimoSession().length; i++) {
@@ -552,7 +552,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         try {
             return ObjectName.getInstance("geronimo.j2ee:J2eeType=SessionBean,name=" + ejb.getEJBName());
         } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Ejb name " + ejb.getEJBName() + "won't fit in an object name", e);
+            throw new DeploymentException("Ejb name " + ejb.getEJBName() + " won't fit in an object name", e);
         }
     }
 
