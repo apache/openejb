@@ -23,11 +23,11 @@ CVS-TAG: <xsl:value-of select="@cvsTag"/><xsl:text>
 
     <xsl:template match="Entry">
         <xsl:choose>
-            <xsl:when test="@task != ''">- [task: <xsl:value-of select="@task"/>] <xsl:value-of select="./"/><xsl:text>
+            <xsl:when test="@task != ''">- [task: <xsl:value-of select="@task"/>] <xsl:value-of select="."/><xsl:text>
 </xsl:text></xsl:when>
-            <xsl:when test="@bug != ''">- [bug: <xsl:value-of select="@bug"/>] <xsl:value-of select="./"/><xsl:text>
+            <xsl:when test="@bug != ''">- [bug: <xsl:value-of select="@bug"/>] <xsl:value-of select="."/><xsl:text>
 </xsl:text></xsl:when>
-            <xsl:otherwise>- <xsl:value-of select="./"/><xsl:text>
+            <xsl:otherwise>- <xsl:value-of select="."/><xsl:text>
 </xsl:text></xsl:otherwise>
         </xsl:choose>
     </xsl:template>
