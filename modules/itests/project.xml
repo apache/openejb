@@ -38,6 +38,12 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>&geronimo-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>&geronimo-version;</version>
         </dependency>
@@ -158,6 +164,12 @@
             <groupId>derby</groupId>
             <artifactId>derby</artifactId>
             <version>&derby-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
+            <version>&mx4j-version;</version>
         </dependency>
 
     </dependencies>
