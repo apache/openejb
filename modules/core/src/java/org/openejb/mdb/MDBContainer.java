@@ -55,8 +55,10 @@ import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.UnavailableException;
 import javax.resource.spi.endpoint.MessageEndpoint;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
+import javax.resource.ResourceException;
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
+import javax.transaction.SystemException;
 import javax.transaction.xa.XAResource;
 
 import org.apache.geronimo.core.service.Interceptor;
@@ -71,6 +73,8 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
+import org.apache.geronimo.transaction.manager.ResourceManager;
+import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.openejb.ConnectionTrackingInterceptor;
 import org.openejb.EJBContainerConfiguration;
 import org.openejb.SystemExceptionInterceptor;
@@ -88,7 +92,7 @@ import org.openejb.util.SoftLimitedInstancePool;
 /**
  * @version $Revision$ $Date$
  */
-public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
+public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle, ResourceManager {
     private final String ejbName;
     private final TransactionDemarcation transactionDemarcation;
     private final ReadOnlyContext componentContext;
@@ -104,7 +108,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
 
     private final TransactionManager transactionManager;
     private final ActivationSpec activationSpec;
-    private final String xaResourceName;
+    private final String objectName;
 
     private final ClassLoader classLoader;
     private final Class beanClass;
@@ -117,7 +121,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
 
     private final Interceptor interceptor;
 
-    public MDBContainer(EJBContainerConfiguration config, TransactionManager transactionManager, TrackedConnectionAssociator trackedConnectionAssociator, ActivationSpec activationSpec, String xaResourceName) throws Exception {
+    public MDBContainer(EJBContainerConfiguration config, TransactionManager transactionManager, TrackedConnectionAssociator trackedConnectionAssociator, ActivationSpec activationSpec, String objectName) throws Exception {
         ejbName = config.ejbName;
         transactionDemarcation = config.txnDemarcation;
         userTransaction = config.userTransaction;
@@ -134,7 +138,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
 
         this.transactionManager = transactionManager;
         this.activationSpec = activationSpec;
-        this.xaResourceName = xaResourceName;
+        this.objectName = objectName;
 
         classLoader = Thread.currentThread().getContextClassLoader();
         beanClass = classLoader.loadClass(config.beanClassName);
@@ -230,7 +234,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
     }
 
     public MessageEndpoint createEndpoint(XAResource adapterXAResource) throws UnavailableException {
-        return messageClientContainer.getMessageEndpoint(new WrapperNamedXAResource(adapterXAResource, xaResourceName));
+        return messageClientContainer.getMessageEndpoint(new WrapperNamedXAResource(adapterXAResource, objectName));
     }
 
     public boolean isDeliveryTransacted(Method method) throws NoSuchMethodException {
@@ -245,6 +249,22 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         return activationSpec.getResourceAdapter();
     }
 
+    public NamedXAResource getRecoveryXAResources() throws SystemException {
+        try {
+            XAResource[] xaResources = getAdapter().getXAResources(new ActivationSpec[] {activationSpec});
+            if (xaResources.length == 0) {
+                return null;
+            }
+            return new WrapperNamedXAResource(xaResources[0], objectName);
+        } catch (ResourceException e) {
+            throw (SystemException)new SystemException("Could not get XAResource for recovery for mdb: " + objectName).initCause(e);
+        }
+    }
+
+    public void returnResource(NamedXAResource xaResource) {
+        //do nothing, no way to return anything.
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -252,6 +272,9 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
 
         infoFactory.addAttribute("ActivationSpec", ActivationSpec.class, true);
         infoFactory.addAttribute("EJBContainerConfiguration", EJBContainerConfiguration.class, true);
+        infoFactory.addAttribute("objectName", String.class, false);
+
+        infoFactory.addInterface(ResourceManager.class);
 
         infoFactory.addReference("TransactionManager", TransactionManager.class);
         infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
@@ -260,7 +283,8 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
             "EJBContainerConfiguration",
             "TransactionManager",
             "TrackedConnectionAssociator",
-            "ActivationSpec"});
+            "ActivationSpec",
+        "objectName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -269,4 +293,5 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }
