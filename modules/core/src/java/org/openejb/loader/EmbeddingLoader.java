@@ -87,16 +87,20 @@ public class EmbeddingLoader implements Loader {
         }
         loaded = true;
     }
-    
-    // Sets the openejb.home system variable
+
+    /**
+     * Loads all the libraries in the lib and dist directories depending on the
+     * environment it pulls it from openejb.home or openejb.base directory
+     * 
+     * @param env
+     * @throws Exception
+     */
     private void importOpenEJBLibraries(  Hashtable env ) throws Exception{
         try{
-            // Loads all the libraries in the openejb.home/lib directory
-            ClasspathUtils.addJarsToPath("lib", "tomcat-webapp", env);
+            String openejbLoader = (String) env.get("openejb.loader");
 
-            // Loads all the libraries in the openejb.home/dist directory
-            ClasspathUtils.addJarsToPath("dist", "tomcat-webapp", env);
-
+            ClasspathUtils.addJarsToPath("lib", (openejbLoader == null ? "tomcat" : openejbLoader), env);
+            ClasspathUtils.addJarsToPath("dist", (openejbLoader == null ? "tomcat" : openejbLoader), env);
         } catch (Exception e){
             throw new Exception( "Could not load OpenEJB libraries. Exception: "+
                                  e.getClass().getName()+" "+ e.getMessage());
