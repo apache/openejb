@@ -58,14 +58,15 @@ import net.sf.cglib.proxy.NoOp;
  *
  */
 public class CgLibProxyFactory implements ProxyFactory {
-    
 
-    public void init(Properties props) {}
-    
+
+    public void init(Properties props) {
+    }
+
     public InvocationHandler getInvocationHandler(Object proxy)
-        throws IllegalArgumentException {
-        if (proxy instanceof CgLibProxy){
-            return ((CgLibProxy)proxy).handler.getInvocationHandler();
+            throws IllegalArgumentException {
+        if (proxy instanceof CgLibProxy) {
+            return ((CgLibProxy) proxy).handler.getInvocationHandler();
         } else {
             throw new IllegalArgumentException("Object passed in is not a CgLibProxy");
         }
@@ -75,32 +76,22 @@ public class CgLibProxyFactory implements ProxyFactory {
         return cl.isAssignableFrom(CgLibProxy.class);
     }
 
-    public Object newProxyInstance(Class interfce, InvocationHandler handler)
-        throws IllegalArgumentException {
-        return newProxyInstance(new Class[]{interfce}, handler); 
+    public Object newProxyInstance(Class[] interfaces, InvocationHandler handler, ClassLoader classLoader)
+            throws IllegalArgumentException {
+        return newProxyInstance(CgLibProxy.class, interfaces, handler, classLoader);
     }
-    
-    public Object newProxyInstance(Class superClass, Class interfce, InvocationHandler handler)
-    throws IllegalArgumentException {
-        return newProxyInstance(superClass, new Class[]{interfce}, handler); 
-    }
-    
-    public Object newProxyInstance(Class[] interfaces, InvocationHandler handler)
-        throws IllegalArgumentException {
-        return newProxyInstance(CgLibProxy.class,interfaces, handler);
-    }
-    
-    public Object newProxyInstance(Class superClass, Class[] interfaces, InvocationHandler handler)
-    throws IllegalArgumentException {
-        
-        CgLibInvocationHandler interceptor = new CgLibInvocationHandler(handler);
-        Enhancer enhancer = getEnhancer(superClass,interfaces);
-        enhancer.setCallbacks(new Callback[]{NoOp.INSTANCE, interceptor});
 
-        enhancer.setClassLoader(superClass.getClassLoader());
+    public Object newProxyInstance(Class superClass, Class[] interfaces, InvocationHandler handler, ClassLoader classLoader)
+            throws IllegalArgumentException {
+
+        CgLibInvocationHandler interceptor = new CgLibInvocationHandler(handler);
+        Enhancer enhancer = getEnhancer(superClass, interfaces);
+        enhancer.setCallbacks(new Callback[]{NoOp.INSTANCE, interceptor});
+        enhancer.setClassLoader(classLoader);
+
         return enhancer.create(new Class[]{CgLibInvocationHandler.class}, new Object[]{interceptor});
     }
-    
+
     private Enhancer getEnhancer(Class superClass, Class[] interfaces) {
         Enhancer enhancer;
         enhancer = new Enhancer();
@@ -111,7 +102,7 @@ public class CgLibProxyFactory implements ProxyFactory {
         enhancer.setUseFactory(false);
         return enhancer;
     }
-    
+
     private static class NoOverrideCallbackFilter implements CallbackFilter {
         private Class superClass;
 
@@ -138,5 +129,5 @@ public class CgLibProxyFactory implements ProxyFactory {
             }
         }
     }
-    
+
 }

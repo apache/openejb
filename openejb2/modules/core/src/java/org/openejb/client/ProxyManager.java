@@ -46,22 +46,17 @@ package org.openejb.client;
 
 import java.util.Properties;
 
-import org.openejb.client.*;
-
 
 /**
- * 
  * @since 11/25/2001
  */
 public class ProxyManager {
-
-
     //=============================================================
     //  Methods and members for the ProxyManager abstract factory
     //
     private static ProxyFactory defaultFactory;
     private static String defaultFactoryName = "GcLib ProxyFactory";
-    
+
     static {
         loadProxyFactory(CgLibProxyFactory.class.getName());
     }
@@ -69,52 +64,32 @@ public class ProxyManager {
     public static ProxyFactory getInstance() {
         return defaultFactory;
     }
-    
+
     public static ProxyFactory getDefaultFactory() {
         return defaultFactory;
     }
 
-
     public static String getDefaultFactoryName() {
         return defaultFactoryName;
     }
+
     /**
      * Casts the object passed in to the appropriate proxy type and retreives
      * the InvocationHandler assigned to it.
-     *
+     * <p/>
      * Executes on the default ProxyFactory instance.
      *
-     * @param proxy  The Proxy object to retreive the InvocationHandler from.
+     * @param proxy The Proxy object to retreive the InvocationHandler from.
      * @return The implementation of InvocationHandler handling invocations on the specified Proxy object.
      */
     public static InvocationHandler getInvocationHandler(Object proxy) {
         return defaultFactory.getInvocationHandler(proxy);
     }
 
-    /**
-     * Throws a RuntimeException if there is a problem
-     * instantiating the new proxy instance.
-     *
-     * @param interfaceType
-     *               A bean's home or remote interface that the Proxy
-     *               object should implement.
-     * @param h
-     * @return
-     * @exception IllegalAccessException
-     */
-    public static Object newProxyInstance(Class interfaceType, InvocationHandler h) throws IllegalAccessException {
-        return newProxyInstance(new Class[]{interfaceType}, h);
+    public static Object newProxyInstance(Class[] interfaces, InvocationHandler h, ClassLoader classLoader) {
+        return defaultFactory.newProxyInstance(interfaces, h, classLoader);
     }
 
-    public static Object newProxyInstance(Class[] interfaces, InvocationHandler h) throws IllegalAccessException {
-        return defaultFactory.newProxyInstance(interfaces, h);
-    }
-
-    /**
-     *
-     * @param cl
-     * @return
-     */
     public static boolean isProxyClass(Class cl) {
         return defaultFactory.isProxyClass(cl);
     }
@@ -124,17 +99,17 @@ public class ProxyManager {
     //===================================================
     
     private static void loadProxyFactory(String factoryClassName) {
-        Class factory  = null;        
+        Class factory = null;
         try {
             factory = Thread.currentThread().getContextClassLoader().loadClass(factoryClassName);
-            defaultFactory = (ProxyFactory)factory.newInstance();
-            defaultFactory.init( new Properties() );
+            defaultFactory = (ProxyFactory) factory.newInstance();
+            defaultFactory.init(new Properties());
         } catch (ClassNotFoundException e1) {
-            throw new RuntimeException("No ProxyFactory Can be installed. Unable to load the class "+factoryClassName);
+            throw new RuntimeException("No ProxyFactory Can be installed. Unable to load the class " + factoryClassName);
         } catch (InstantiationException e1) {
-            throw new RuntimeException("No ProxyFactory Can be installed. Unable to instantiate "+factoryClassName);
+            throw new RuntimeException("No ProxyFactory Can be installed. Unable to instantiate " + factoryClassName);
         } catch (IllegalAccessException e1) {
-            throw new RuntimeException("No ProxyFactory Can be installed. Unable to access "+factoryClassName);
+            throw new RuntimeException("No ProxyFactory Can be installed. Unable to access " + factoryClassName);
         }
     }
 }
