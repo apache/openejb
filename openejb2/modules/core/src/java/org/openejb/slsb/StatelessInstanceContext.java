@@ -47,44 +47,32 @@
  */
 package org.openejb.slsb;
 
-import javax.ejb.EnterpriseBean;
+import java.util.Set;
+
 import javax.ejb.SessionBean;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
-
-import org.openejb.EJBInstanceContext;
+import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.proxy.EJBProxyFactory;
-import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  * Wrapper for a Stateless SessionBean.
  *
  * @version $Revision$ $Date$
  */
-public final class StatelessInstanceContext extends DefaultComponentContext implements EJBInstanceContext {
+public final class StatelessInstanceContext extends AbstractInstanceContext {
     private final Object containerId;
-    private final EJBProxyFactory proxyFactory;
-    private final SessionBean instance;
     private final StatelessSessionContext sessionContext;
 
-    public StatelessInstanceContext(Object containerId, SessionBean instance, EJBProxyFactory proxyFactory, UserTransactionImpl userTransaction) {
+    public StatelessInstanceContext(Object containerId, SessionBean instance, EJBProxyFactory proxyFactory, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
+        super(unshareableResources, applicationManagedSecurityResources, instance, proxyFactory);
         this.containerId = containerId;
-        this.proxyFactory = proxyFactory;
-        this.instance = instance;
         this.sessionContext = new StatelessSessionContext(this, userTransaction);
-    }
-
-    public EnterpriseBean getInstance() {
-        return instance;
     }
 
     public Object getContainerId() {
         return containerId;
-    }
-
-    public EJBProxyFactory getProxyFactory() {
-        return proxyFactory;
     }
 
     public Object getId() {

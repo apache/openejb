@@ -48,6 +48,8 @@
 package org.openejb.entity.bmp;
 
 import java.io.Serializable;
+import java.util.Set;
+
 import javax.ejb.EntityBean;
 
 import org.apache.geronimo.transaction.InstanceContext;
@@ -58,18 +60,22 @@ import org.openejb.InstanceContextFactory;
 import org.openejb.proxy.EJBProxyFactory;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public class BMPInstanceContextFactory implements InstanceContextFactory, Serializable {
     private final Object containerId;
     private final EJBInstanceFactory factory;
+    private final Set unshareableResources;
+    private final Set applicationManagedSecurityResources;
     private transient EJBProxyFactory proxyFactory;
 
-    public BMPInstanceContextFactory(Object containerId, Class beanClass) {
+    public BMPInstanceContextFactory(Object containerId, Class beanClass, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.containerId = containerId;
         this.factory = new EJBInstanceFactoryImpl(beanClass);
+        this.unshareableResources = unshareableResources;
+        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
     }
 
     public void setProxyFactory(EJBProxyFactory proxyFactory) {
@@ -80,6 +86,6 @@ public class BMPInstanceContextFactory implements InstanceContextFactory, Serial
         if (proxyFactory == null) {
             throw new IllegalStateException("ProxyFacory has not been set");
         }
-        return new BMPInstanceContext(containerId, proxyFactory, (EntityBean) factory.newInstance());
+        return new BMPInstanceContext(containerId, proxyFactory, (EntityBean) factory.newInstance(), unshareableResources, applicationManagedSecurityResources);
     }
 }

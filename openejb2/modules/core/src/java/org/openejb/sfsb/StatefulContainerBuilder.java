@@ -78,7 +78,7 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
 
         // build the instance factory
-        StatefulInstanceContextFactory contextFactory = new StatefulInstanceContextFactory(getContainerId(), beanClass, getUserTransaction());
+        StatefulInstanceContextFactory contextFactory = new StatefulInstanceContextFactory(getContainerId(), beanClass, getUserTransaction(), getUnshareableResources(), getApplicationManagedSecurityResources());
         StatefulInstanceFactory instanceFactory = new StatefulInstanceFactory(getComponentContext(), contextFactory);
 
         // create and intitalize the interceptor builder

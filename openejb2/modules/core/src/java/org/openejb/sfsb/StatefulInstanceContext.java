@@ -47,44 +47,36 @@
  */
 package org.openejb.sfsb;
 
-import javax.ejb.EnterpriseBean;
+import java.util.Set;
+
 import javax.ejb.SessionBean;
 import javax.ejb.SessionSynchronization;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
-
-import org.openejb.EJBInstanceContext;
+import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.proxy.EJBProxyFactory;
-import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public class StatefulInstanceContext extends DefaultComponentContext implements EJBInstanceContext {
+public class StatefulInstanceContext extends AbstractInstanceContext {
     private final Object containerId;
-    private final EJBProxyFactory proxyFactory;
-    private final SessionBean instance;
     private final Object id;
     private final StatefulSessionContext statefulContext;
     private boolean dead = false;
 
-    public StatefulInstanceContext(Object containerId, EJBProxyFactory proxyFactory, SessionBean instance, Object id, UserTransactionImpl userTransaction) {
+    public StatefulInstanceContext(Object containerId, EJBProxyFactory proxyFactory, SessionBean instance, Object id, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
+        super(unshareableResources, applicationManagedSecurityResources, instance, proxyFactory);
         this.containerId = containerId;
-        this.proxyFactory = proxyFactory;
-        this.instance = instance;
         this.id = id;
         statefulContext = new StatefulSessionContext(this, userTransaction);
     }
 
     public Object getContainerId() {
         return containerId;
-    }
-
-    public EJBProxyFactory getProxyFactory() {
-        return proxyFactory;
     }
 
     public void setOperation(EJBOperation operation) {
@@ -100,10 +92,6 @@ public class StatefulInstanceContext extends DefaultComponentContext implements 
         throw new UnsupportedOperationException();
     }
 
-    public EnterpriseBean getInstance() {
-        return instance;
-    }
-
     public void die() {
         dead = true;
     }
@@ -117,9 +105,9 @@ public class StatefulInstanceContext extends DefaultComponentContext implements 
     }
 
     public void afterBegin() throws Exception {
-        if (instance instanceof SessionSynchronization) {
+        if (getInstance() instanceof SessionSynchronization) {
             try {
-                ((SessionSynchronization) instance).afterBegin();
+                ((SessionSynchronization) getInstance()).afterBegin();
             } catch (Exception e) {
                 dead = true;
                 throw e;
@@ -131,9 +119,9 @@ public class StatefulInstanceContext extends DefaultComponentContext implements 
     }
 
     public void beforeCommit() throws Exception {
-        if (instance instanceof SessionSynchronization) {
+        if (getInstance() instanceof SessionSynchronization) {
             try {
-                ((SessionSynchronization) instance).beforeCompletion();
+                ((SessionSynchronization) getInstance()).beforeCompletion();
             } catch (Exception e) {
                 dead = true;
                 throw e;
@@ -149,8 +137,8 @@ public class StatefulInstanceContext extends DefaultComponentContext implements 
             // @todo fix me
 //            container.getInstanceCache().putInactive(id, this);
         }
-        if (instance instanceof SessionSynchronization) {
-            ((SessionSynchronization) instance).afterCompletion(committed);
+        if (getInstance() instanceof SessionSynchronization) {
+            ((SessionSynchronization) getInstance()).afterCompletion(committed);
         }
     }
 }

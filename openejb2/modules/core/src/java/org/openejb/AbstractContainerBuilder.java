@@ -47,7 +47,6 @@
  */
 package org.openejb;
 
-import java.util.Collections;
 import java.util.Set;
 
 import javax.security.auth.Subject;
@@ -266,16 +265,6 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         interceptorBuilder.setComponentContext(componentContext);
         interceptorBuilder.setTransactionPolicyManager(new TransactionPolicyManager(transactionPolicySource, signatures));
         interceptorBuilder.setPermissionManager(new PermissionManager(ejbName, signatures));
-        if(unshareableResources == null) {
-            interceptorBuilder.setUnshareableResources(Collections.EMPTY_SET);
-        } else {
-            interceptorBuilder.setUnshareableResources(unshareableResources);
-        }
-        if(applicationManagedSecurityResources == null) {
-            interceptorBuilder.setApplicationManagedSecurityResources(Collections.EMPTY_SET);
-        } else {
-            interceptorBuilder.setApplicationManagedSecurityResources(applicationManagedSecurityResources);
-        }
         return interceptorBuilder;
     }
 

@@ -156,13 +156,13 @@ public class MDBContainer implements MessageEndpointFactory, GBean {
         vtable = vopFactory.getVTable();
         signatures = vopFactory.getSignatures();
 
-        pool = new SoftLimitedInstancePool(new MDBInstanceFactory(this), 1);
+        pool = new SoftLimitedInstancePool(new MDBInstanceFactory(this, unshareableResources, applicationManagedSecurityResources), 1);
 
         // set up server side interceptors
         Interceptor firstInterceptor;
         firstInterceptor = new DispatchInterceptor(vtable);
         if (trackedConnectionAssociator != null) {
-            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources, applicationManagedSecurityResources);
+            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
         }
 //        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, new TransactionPolicyManager(transactionPolicySource, signatures));
         if (setIdentity) {

@@ -47,6 +47,8 @@
  */
 package org.openejb.slsb;
 
+import java.util.HashSet;
+
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationKey;
@@ -115,7 +117,7 @@ public class StatelessInstanceInterceptorTest extends TestCase {
         private boolean removed;
 
         public MockPool(MockEJB mockEJB) {
-            ctx = new StatelessInstanceContext("containerId", mockEJB, null, null);
+            ctx = new StatelessInstanceContext("containerId", mockEJB, null, null, new HashSet(), new HashSet());
         }
 
         public Object acquire() throws InterruptedException, Exception {
