@@ -47,12 +47,13 @@
  */
 package org.openejb.nova.security;
 
+import javax.ejb.AccessLocalException;
+import javax.security.auth.Subject;
+import javax.security.jacc.PolicyContext;
 import java.rmi.AccessException;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.Permission;
-import javax.ejb.AccessLocalException;
-import javax.security.jacc.PolicyContext;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
@@ -61,33 +62,39 @@ import org.apache.geronimo.security.util.ContextManager;
 
 import org.openejb.nova.EJBInvocation;
 
+
 /**
- *
- *
+ * An interceptor that performs the JACC EJB security check before continuing
+ * on w/ the interceptor stack call.
  * @version $Revision$ $Date$
  */
 public class EJBSecurityInterceptor implements Interceptor {
     private final Interceptor next;
     private final String contextId;
     private final Permission[] permissions;
+    private final int stride;
 
     public EJBSecurityInterceptor(Interceptor next, String contextId, Permission[] permissions) {
         this.next = next;
         this.contextId = contextId;
         this.permissions = permissions;
+        this.stride = permissions.length / 5;
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
-        EJBInvocation ejbInvocation = ((EJBInvocation)invocation);
+        EJBInvocation ejbInvocation = ((EJBInvocation) invocation);
 
-        String oldContextId = PolicyContext.getContextID();
+        Subject subject = ContextManager.getCurrentCaller();
         try {
+            ContextManager.setCurrentCaller(ContextManager.getNextCaller());
             PolicyContext.setContextID(contextId);
             AccessControlContext accessContext = ContextManager.getCurrentContext();
             if (accessContext != null) {
                 int index = ejbInvocation.getMethodIndex();
-                accessContext.checkPermission(permissions[index]);
+                accessContext.checkPermission(permissions[ejbInvocation.getType().getOrdinal() * stride + index]);
             }
+
+            return next.invoke(invocation);
         } catch (AccessControlException e) {
             if (ejbInvocation.getType().isLocal()) {
                 throw new AccessLocalException(e.getMessage());
@@ -95,9 +102,7 @@ public class EJBSecurityInterceptor implements Interceptor {
                 throw new AccessException(e.getMessage());
             }
         } finally {
-            PolicyContext.setContextID(oldContextId);
+            ContextManager.setCurrentCaller(subject);
         }
-
-        return next.invoke(invocation);
     }
 }
