@@ -26,6 +26,9 @@ _command_help()
         "test")
             cat ./bin/test.txt | sed 's/openejb /openejb.sh /'
         ;;
+        "validate")
+            cat ./bin/deploy.txt | sed 's/openejb /openejb.sh /'
+        ;;
         "deploy")
             cat ./bin/deploy.txt | sed 's/openejb /openejb.sh /'
         ;;
@@ -70,6 +73,11 @@ _command_test()
 _command_deploy()
 {
    ./bin/deploy.sh $2 $3 $4 $5 $6 $7 $8 $9
+}
+#============================================================
+_command_validate()
+{
+   ./bin/validate.sh $2 $3 $4 $5 $6 $7 $8 $9
 }
 #============================================================
 _command_start()
@@ -148,6 +156,9 @@ case $1 in
     ;;
     "test")
         _command_test $@
+    ;;
+    "validate")
+        _command_validate $@
     ;;
     "deploy")
         _command_deploy $@
