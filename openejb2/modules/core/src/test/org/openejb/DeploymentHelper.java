@@ -93,19 +93,23 @@ public class DeploymentHelper {
     public static Kernel setUpKernelWithTransactionManager(String kernelName) throws Exception {
         Kernel kernel = new Kernel(kernelName);
         kernel.boot();
+
         GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
         Set rmpatterns = new HashSet();
         rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tmGBean.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
         tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
         start(kernel, TRANSACTIONMANAGER_NAME, tmGBean);
+
         GBeanMBean tcmGBean = new GBeanMBean(TransactionContextManager.GBEAN_INFO);
         tcmGBean.setReferencePattern("TransactionManager", TRANSACTIONMANAGER_NAME);
         tcmGBean.setReferencePattern("XidImporter", TRANSACTIONMANAGER_NAME);
         tcmGBean.setReferencePattern("Recovery", TRANSACTIONMANAGER_NAME);
         start(kernel, TRANSACTIONCONTEXTMANAGER_NAME, tcmGBean);
+
         GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
         DeploymentHelper.start(kernel, TRACKEDCONNECTIONASSOCIATOR_NAME, trackedConnectionAssociator);
+
         return kernel;
     }
 
@@ -115,11 +119,13 @@ public class DeploymentHelper {
         threadPoolGBean.setAttribute("poolSize", new Integer(5));
         threadPoolGBean.setAttribute("poolName", "DefaultThreadPool");
         start(kernel, THREADPOOL_NAME, threadPoolGBean);
+
         GBeanMBean transactionalTimerGBean = new GBeanMBean(VMStoreThreadPooledTransactionalTimer.GBEAN_INFO);
         transactionalTimerGBean.setAttribute("repeatCount", new Integer(5));
         transactionalTimerGBean.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
         transactionalTimerGBean.setReferencePattern("ThreadPool", THREADPOOL_NAME);
         start(kernel, TRANSACTIONALTIMER_NAME, transactionalTimerGBean);
+
         GBeanMBean nonTransactionalTimerGBean = new GBeanMBean(VMStoreThreadPooledNonTransactionalTimer.GBEAN_INFO);
         nonTransactionalTimerGBean.setReferencePattern("ThreadPool", THREADPOOL_NAME);
         start(kernel, NONTRANSACTIONALTIMER_NAME, nonTransactionalTimerGBean);
