@@ -46,6 +46,7 @@
 package org.openejb.util;
 
 import org.apache.log4j.Category;
+import org.apache.log4j.Level;
 import java.lang.Throwable;
 
 
@@ -88,6 +89,43 @@ public class Logger {
     }
 
     /**
+     * Check to see if error messages are enabled.
+     * 
+     * @return if error messages are enabled.
+     */
+    public boolean isErrorEnabled() {
+	return _logger.isEnabledFor( Level.ERROR );
+    }
+
+    /**
+     * Check to see if fatal messages are enabled.
+     * 
+     * @return if fatal messages are enabled.
+     */
+    public boolean isFatalEnabled() {
+	return _logger.isEnabledFor( Level.FATAL );
+    }
+
+    /**
+     * Wrapper function for log4j's isInfoEnabled() method.
+     * 
+     * @return if info messages are enabled.
+     */
+    public boolean isInfoEnabled() {
+	return _logger.isInfoEnabled();
+    }
+    
+
+    /**
+     * Check to see if warning messages are enabled.
+     * 
+     * @return if warning messages are enabled.
+     */
+    public boolean isWarningEnabled() {
+	return _logger.isEnabledFor( Level.WARN );
+    }
+    
+    /**
      * An internationalized wrapper call to log4j's info method
      * 
      * @param code   The code to be internationalized.
@@ -95,7 +133,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code ) {
-	_logger.info( Messages.message( code ) );
+	if ( isInfoEnabled() ) _logger.info( Messages.message( code ) );
     }
 
     /**
@@ -107,7 +145,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Throwable t ) {
-	_logger.info( Messages.message( code ), t );
+	if ( isInfoEnabled() ) _logger.info( Messages.message( code ), t );
     }
 
 
@@ -120,8 +158,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Object arg0 ) {
-        Object[] args = { arg0 };
-	info( code, args );
+	if ( isInfoEnabled() ) {
+	    Object[] args = { arg0 };
+	    info( code, args );
+	}
     }
 
     /**
@@ -134,8 +174,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Throwable t, Object arg0 ) {
-        Object[] args = { arg0 };
-	info( code, t, args );
+	if ( isInfoEnabled() ) {
+	    Object[] args = { arg0 };
+	    info( code, t, args );
+	}
     }
 
     /**
@@ -148,8 +190,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Object arg0, Object arg1 ) {
-        Object[] args = { arg0, arg1 };
-	info( code, args );
+	if ( isInfoEnabled() ) {
+	    Object[] args = { arg0, arg1 };
+	    info( code, args );
+	}
     }
 
     /**
@@ -163,8 +207,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Throwable t, Object arg0, Object arg1 ) {
-        Object[] args = { arg0, arg1 };
-	info( code, t, args );
+	if ( isInfoEnabled() ) {
+	    Object[] args = { arg0, arg1 };
+	    info( code, t, args );
+	}
     }
 
     /**
@@ -178,8 +224,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Object arg0, Object arg1, Object arg2 ) {
-        Object[] args = { arg0, arg1, arg2 };
-	info( code, args );
+	if ( isInfoEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2 };
+	    info( code, args );
+	}
     }
 
     /**
@@ -194,8 +242,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Throwable t, Object arg0, Object arg1, Object arg2 ) {
-        Object[] args = { arg0, arg1, arg2 };
-	info( code, t, args );
+	if ( isInfoEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2 };
+	    info( code, t, args );
+	}
     }
 
     /**
@@ -210,8 +260,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Object arg0, Object arg1, Object arg2, Object arg3 ) {
-        Object[] args = { arg0, arg1, arg2, arg3 };
-	info( code, args );
+	if ( isInfoEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3 };
+	    info( code, args );
+	}
     }
 
     /**
@@ -227,8 +279,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3 ) {
-        Object[] args = { arg0, arg1, arg2, arg3 };
-	info( code, t, args );
+	if ( isInfoEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3 };
+	    info( code, t, args );
+	}
     }
 
     /**
@@ -244,8 +298,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4 };
-	info( code, args );
+	if ( isInfoEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4 };
+	    info( code, args );
+	}
     }
 
     /**
@@ -262,8 +318,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4 };
-	info( code, t, args );
+	if ( isInfoEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4 };
+	    info( code, t, args );
+	}
     }
 
     /**
@@ -280,8 +338,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
-	info( code, args );
+	if ( isInfoEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
+	    info( code, args );
+	}
     }
 
     /**
@@ -299,8 +359,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
-	info( code, t, args );
+	if ( isInfoEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
+	    info( code, t, args );
+	}
     }
 
     /**
@@ -325,7 +387,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Throwable t,  Object[] args ) {
-	_logger.info( Messages.format( code, args ), t );
+	    _logger.info( Messages.format( code, args ), t );
     }
 
     /**
@@ -336,7 +398,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code ) {
-	_logger.warn( Messages.message( code ) );
+	if ( isWarningEnabled() ) _logger.warn( Messages.message( code ) );
     }
 
     /**
@@ -348,7 +410,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Throwable t ) {
-	_logger.warn( Messages.message( code ), t );
+	if ( isWarningEnabled() ) _logger.warn( Messages.message( code ), t );
     }
 
     /**
@@ -360,8 +422,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Object arg0 ) {
-        Object[] args = { arg0 };
-	warning( code, args );
+	if ( isWarningEnabled() ) {
+	    Object[] args = { arg0 };
+	    warning( code, args );
+	}
     }
 
     /**
@@ -374,8 +438,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Throwable t, Object arg0 ) {
-        Object[] args = { arg0 };
-	warning( code, t, args );
+	if ( isWarningEnabled() ) {
+	    Object[] args = { arg0 };
+	    warning( code, t, args );
+	}
     }
 
     /**
@@ -388,8 +454,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Object arg0, Object arg1 ) {
-        Object[] args = { arg0, arg1 };
-	warning( code, args );
+	if ( isWarningEnabled() ) {
+	    Object[] args = { arg0, arg1 };
+	    warning( code, args );
+	}
     }
 
     /**
@@ -403,8 +471,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Throwable t, Object arg0, Object arg1 ) {
-        Object[] args = { arg0, arg1 };
-	warning( code, t, args );
+	if ( isWarningEnabled() ) {
+	    Object[] args = { arg0, arg1 };
+	    warning( code, t, args );
+	}
     }
 
     /**
@@ -418,8 +488,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Object arg0, Object arg1, Object arg2 ) {
-        Object[] args = { arg0, arg1, arg2 };
-	warning( code, args );
+	if ( isWarningEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2 };
+	    warning( code, args );
+	}
     }
 
     /**
@@ -434,8 +506,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Throwable t, Object arg0, Object arg1, Object arg2 ) {
-        Object[] args = { arg0, arg1, arg2 };
-	warning( code, t, args );
+	if ( isWarningEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2 };
+	    warning( code, t, args );
+	}
     }
 
     /**
@@ -450,8 +524,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Object arg0, Object arg1, Object arg2, Object arg3 ) {
-        Object[] args = { arg0, arg1, arg2, arg3 };
-	warning( code, args );
+	if ( isWarningEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3 };
+	    warning( code, args );
+	}
     }
 
     /**
@@ -467,8 +543,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3 ) {
-        Object[] args = { arg0, arg1, arg2, arg3 };
-	warning( code, t, args );
+	if ( isWarningEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3 };
+	    warning( code, t, args );
+	}
     }
 
     /**
@@ -484,8 +562,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4 };
-	warning( code, args );
+	if ( isWarningEnabled() ) {    
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4 };
+	    warning( code, args );
+	}
     }
 
     /**
@@ -502,8 +582,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4 };
-	warning( code, t, args );
+	if ( isWarningEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4 };
+	    warning( code, t, args );
+	}
     }
 
     /**
@@ -520,8 +602,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
-	warning( code, args );
+	if ( isWarningEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
+	    warning( code, args );
+	}
     }
 
     /**
@@ -539,8 +623,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
-	warning( code, t, args );
+	if ( isWarningEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
+	    warning( code, t, args );
+	}
     }
 
     /**
@@ -577,7 +663,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code ) {
-	_logger.error( Messages.message( code ) );
+	if ( isErrorEnabled() ) _logger.error( Messages.message( code ) );
     }
 
     /**
@@ -589,7 +675,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Throwable t ) {
-	_logger.error( Messages.message( code ), t );
+	if ( isErrorEnabled() ) _logger.error( Messages.message( code ), t );
     }
 
     /**
@@ -601,8 +687,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Object arg0 ) {
-        Object[] args = { arg0 };
-	error( code, args );
+	if ( isErrorEnabled() ) {
+	    Object[] args = { arg0 };
+	    error( code, args );
+	}
     }
 
     /**
@@ -615,8 +703,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Throwable t, Object arg0 ) {
-        Object[] args = { arg0 };
-	error( code, t, args );
+	if ( isErrorEnabled() ) {
+	    Object[] args = { arg0 };
+	    error( code, t, args ); 
+	}
     }
 
     /**
@@ -629,8 +719,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Object arg0, Object arg1 ) {
-        Object[] args = { arg0, arg1 };
-	error( code, args );
+	if ( isErrorEnabled() ) {
+	    Object[] args = { arg0, arg1 };
+	    error( code, args );
+	}
     }
 
     /**
@@ -644,8 +736,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Throwable t, Object arg0, Object arg1 ) {
-        Object[] args = { arg0, arg1 };
-	error( code, t, args );
+	if ( isErrorEnabled() ) {
+	    Object[] args = { arg0, arg1 };
+	    error( code, t, args );
+	}
     }
 
     /**
@@ -659,8 +753,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Object arg0, Object arg1, Object arg2 ) {
-        Object[] args = { arg0, arg1, arg2 };
-	error( code, args );
+	if ( isErrorEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2 };
+	    error( code, args );
+	}
     }
 
     /**
@@ -675,8 +771,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Throwable t, Object arg0, Object arg1, Object arg2 ) {
-        Object[] args = { arg0, arg1, arg2 };
-	error( code, t, args );
+	if ( isErrorEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2 };
+	    error( code, t, args );
+	}
     }
 
     /**
@@ -691,8 +789,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Object arg0, Object arg1, Object arg2, Object arg3 ) {
-        Object[] args = { arg0, arg1, arg2, arg3 };
-	error( code, args );
+	if ( isErrorEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3 };
+	    error( code, args );
+	}
     }
 
     /**
@@ -708,8 +808,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3 ) {
-        Object[] args = { arg0, arg1, arg2, arg3 };
-	error( code, t, args );
+	if ( isErrorEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3 };
+	    error( code, t, args );
+	}
     }
 
     /**
@@ -725,8 +827,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4 };
-	error( code, args );
+	if ( isErrorEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4 };
+	    error( code, args );
+	}
     }
 
     /**
@@ -743,8 +847,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4 };
-	error( code, t, args );
+	if ( isErrorEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4 };
+	    error( code, t, args );
+	}
     }
 
     /**
@@ -761,8 +867,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
-	error( code, args );
+	if ( isErrorEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
+	    error( code, args );
+	}
     }
 
     /**
@@ -780,8 +888,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
-	error( code, t, args );
+	if ( isErrorEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
+	    error( code, t, args );
+	}
     }
 
     /**
@@ -841,7 +951,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void fatal( String code, Object arg0 ) {
-        Object[] args = { arg0 };
+	Object[] args = { arg0 };
 	fatal( code, args );
     }
 
@@ -855,7 +965,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void fatal( String code, Throwable t, Object arg0 ) {
-        Object[] args = { arg0 };
+	Object[] args = { arg0 };
 	fatal( code, t, args );
     }
 
@@ -1058,7 +1168,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code ) {
-	_logger.debug( Messages.message( code ) );
+	if ( isDebugEnabled() ) _logger.debug( Messages.message( code ) );
     }
 
     /**
@@ -1070,7 +1180,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Throwable t ) {
-	_logger.debug( Messages.message( code ), t );
+	if ( isDebugEnabled() ) _logger.debug( Messages.message( code ), t );
     }
 
     /**
@@ -1082,8 +1192,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Object arg0 ) {
-        Object[] args = { arg0 };
-	debug( code, args );
+        if ( isDebugEnabled() ) {
+	    Object[] args = { arg0 };
+	    debug( code, args );
+	}
     }
 
     /**
@@ -1096,8 +1208,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Throwable t, Object arg0 ) {
-        Object[] args = { arg0 };
-	debug( code, t, args );
+        if ( isDebugEnabled() ) {
+	    Object[] args = { arg0 };
+	    debug( code, t, args );
+	}
     }
 
     /**
@@ -1110,8 +1224,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Object arg0, Object arg1 ) {
-        Object[] args = { arg0, arg1 };
-	debug( code, args );
+        if ( isDebugEnabled() ) {
+	    Object[] args = { arg0, arg1 };
+	    debug( code, args );
+	}
     }
 
     /**
@@ -1125,8 +1241,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Throwable t, Object arg0, Object arg1 ) {
-        Object[] args = { arg0, arg1 };
-	debug( code, t, args );
+        if ( isDebugEnabled() ) {
+	    Object[] args = { arg0, arg1 };
+	    debug( code, t, args );
+	}
     }
 
     /**
@@ -1140,8 +1258,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Object arg0, Object arg1, Object arg2 ) {
-        Object[] args = { arg0, arg1, arg2 };
-	debug( code, args );
+        if ( isDebugEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2 };
+	    debug( code, args );
+	}
     }
 
     /**
@@ -1156,8 +1276,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Throwable t, Object arg0, Object arg1, Object arg2 ) {
-        Object[] args = { arg0, arg1, arg2 };
-	debug( code, t, args );
+        if ( isDebugEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2 };
+	    debug( code, t, args );
+	}
     }
 
     /**
@@ -1172,8 +1294,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Object arg0, Object arg1, Object arg2, Object arg3 ) {
-        Object[] args = { arg0, arg1, arg2, arg3 };
-	debug( code, args );
+        if ( isDebugEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3 };
+	    debug( code, args );
+	}
     }
 
     /**
@@ -1189,8 +1313,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3 ) {
-        Object[] args = { arg0, arg1, arg2, arg3 };
-	debug( code, t, args );
+        if ( isDebugEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3 };
+	    debug( code, t, args );
+	}
     }
 
     /**
@@ -1206,8 +1332,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4 };
-	debug( code, args );
+        if ( isDebugEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4 };
+	    debug( code, args );
+	}
     }
 
     /**
@@ -1224,8 +1352,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4 };
-	debug( code, t, args );
+        if ( isDebugEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4 };
+	    debug( code, t, args );
+	}
     }
 
     /**
@@ -1242,8 +1372,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
-	debug( code, args );
+        if ( isDebugEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
+	    debug( code, args );
+	}
     }
 
     /**
@@ -1261,8 +1393,10 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
-        Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
-	debug( code, t, args );
+        if ( isDebugEnabled() ) {
+	    Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
+	    debug( code, t, args );
+	}
     }
 
     /**
