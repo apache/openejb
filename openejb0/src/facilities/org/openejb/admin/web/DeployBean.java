@@ -297,14 +297,10 @@ public class DeployBean extends WebAdminBean {
 	private void setOptions() throws Exception {
 		//the the form values
 		String jarFile = request.getFormParameter("jarFile");
-		String moveType = request.getFormParameter("moveType");
-		String containerId = request.getFormParameter("assignC");
-		String deploymentId = request.getFormParameter("assignD");
-		String automate = request.getFormParameter("automate");
 		String force = request.getFormParameter("force");
 		String configFile = request.getFormParameter("configFile");
-		String homeDir = request.getFormParameter("homeDir");
-		String log4JFile = request.getFormParameter("log4JFile");
+		//String homeDir = request.getFormParameter("homeDir");
+		//String log4JFile = request.getFormParameter("log4JFile");
 		File testForValidFile = null;
 
 		if (jarFile == null) {
@@ -314,25 +310,6 @@ public class DeployBean extends WebAdminBean {
 		//set the jar file
 		this.deployer.setJarFile(jarFile);
 
-		//copy or move the jar file
-		if (moveType.equals("-c")) {
-			options[3] = true;
-		} else if (moveType.equals("-m")) {
-			options[1] = true;
-		}
-		//set container id
-		if (containerId != null) {
-			options[0] = true;
-		}
-		//set deployment id
-		if (deploymentId != null) {
-			options[5] = true;
-		}
-		//automate deployment
-		if (automate != null) {
-			options[0] = true;
-			options[5] = true;
-		}
 		//force overwrite
 		if (force != null) {
 			options[2] = true;
@@ -348,21 +325,21 @@ public class DeployBean extends WebAdminBean {
 			System.setProperty("openejb.configuration", configFile);
 		}
 		//set the OPENEJB_HOME directory
-		if (!homeDir.trim().equals("")) {
-			//check for valid directory
-			testForValidFile = new File(homeDir);
-			if (!testForValidFile.isDirectory())
-				throw new IOException("OPENEJB_HOME: " + homeDir + " is not a directory.");
-
-			System.setProperty("openejb.home", homeDir);
-		}
-		//set the log4j configuration
-		if (!log4JFile.trim().equals("")) {
-			//check for valid file
-			testForValidFile = new File(log4JFile);
-			if (!testForValidFile.isFile())
-				throw new IOException("OpenEJB configuration: " + configFile + " is not a file.");
-		}
+//		if (!homeDir.trim().equals("")) {
+//			//check for valid directory
+//			testForValidFile = new File(homeDir);
+//			if (!testForValidFile.isDirectory())
+//				throw new IOException("OPENEJB_HOME: " + homeDir + " is not a directory.");
+//
+//			System.setProperty("openejb.home", homeDir);
+//		}
+//		//set the log4j configuration
+//		if (!log4JFile.trim().equals("")) {
+//			//check for valid file
+//			testForValidFile = new File(log4JFile);
+//			if (!testForValidFile.isFile())
+//				throw new IOException("OpenEJB configuration: " + configFile + " is not a file.");
+//		}
 
 		testForValidFile = null;
 		this.deployer.setBooleanValues(options);
@@ -396,7 +373,7 @@ public class DeployBean extends WebAdminBean {
 		body.println("<tr>");
 		body.println("<td colspan=\"2\">");
 		body.println(
-			"<strong>Step 1:</strong> Copy the full path to your bean into the form field below.");
+			"<strong>Step 1:</strong> Browse your file system and select your bean to deploy.");
 		body.println("</td>");
 		body.println("</tr>");
 		body.println("<tr>");
@@ -427,19 +404,6 @@ public class DeployBean extends WebAdminBean {
 		body.println("<td colspan=\"2\">&nbsp;</td>");
 		body.println("</tr>");
 
-		//move, copy or leave jar where it's at
-		body.println("<tr>");
-		body.println(
-			"<td colspan=\"2\">Move or copy the jar file(s) to the OPENEJB_HOME/beans directory</td>");
-		body.println("</tr>");
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">");
-		body.println("<input type=\"radio\" name=\"moveType\" value=\"-c\" checked>Copy Jar");
-		body.println("<input type=\"radio\" name=\"moveType\" value=\"-m\">Move Jar");
-		body.println("<input type=\"radio\" name=\"moveType\" value=\"\">Leave Jar Where it is");
-		body.println("</td>");
-		body.println("</tr>");
-
 		/* force over write of the bean - this will have to wait for now until the bug gets fixed
 		body.println("<tr>");
 		body.println("<td colspan=\"2\">");
@@ -456,7 +420,8 @@ public class DeployBean extends WebAdminBean {
 		// sets the OpenEJB configuration file 
 		body.println("<tr>");
 		body.println(
-			"<td colspan=\"2\">Sets the OpenEJB configuration to the specified file. (leave blank for non-use)</td>");
+			"<td colspan=\"2\">Sets the OpenEJB configuration to the specified file. (leave blank for non-use) " +
+			"Note: you will need to make sure the configuration files are in this location on the server.</td>");
 		body.println("</tr>");
 		body.println("<tr>");
 		body.println("<td><nobr>Config File</nobr></td>");
@@ -468,32 +433,32 @@ public class DeployBean extends WebAdminBean {
 		body.println("</tr>");
 
 		// sets the openejb home env variable 
-		body.println("<tr>");
-		body.println(
-			"<td colspan=\"2\">Set the OPENEJB_HOME to the specified directory. (leave blank for non-use)</td>");
-		body.println("</tr>");
-		body.println("<tr>");
-		body.println("<td><nobr>OPENEJB_HOME:</nobr></td>");
-		body.println(
-			"<td><input type=\"text\" name=\"homeDir\" size=\"35\" maxlength=\"75\"></td>");
-		body.println("</tr>");
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">&nbsp;</td>");
-		body.println("</tr>");
-
-		// sets the log4j configuration file 
-		body.println("<tr>");
-		body.println(
-			"<td colspan=\"2\">Set the log4j configuration to the specified file. (leave blank for non-use)</td>");
-		body.println("</tr>");
-		body.println("<tr>");
-		body.println("<td><nobr>Log4J File</nobr></td>");
-		body.println(
-			"<td><input type=\"text\" name=\"log4JFile\" size=\"35\" maxlength=\"75\"></td>");
-		body.println("</tr>");
-		body.println("<tr>");
-		body.println("<td colspan=\"2\">&nbsp;</td>");
-		body.println("</tr>");
+//		body.println("<tr>");
+//		body.println(
+//			"<td colspan=\"2\">Set the OPENEJB_HOME to the specified directory. (leave blank for non-use)</td>");
+//		body.println("</tr>");
+//		body.println("<tr>");
+//		body.println("<td><nobr>OPENEJB_HOME:</nobr></td>");
+//		body.println(
+//			"<td><input type=\"text\" name=\"homeDir\" size=\"35\" maxlength=\"75\"></td>");
+//		body.println("</tr>");
+//		body.println("<tr>");
+//		body.println("<td colspan=\"2\">&nbsp;</td>");
+//		body.println("</tr>");
+//
+//		// sets the log4j configuration file 
+//		body.println("<tr>");
+//		body.println(
+//			"<td colspan=\"2\">Set the log4j configuration to the specified file. (leave blank for non-use)</td>");
+//		body.println("</tr>");
+//		body.println("<tr>");
+//		body.println("<td><nobr>Log4J File</nobr></td>");
+//		body.println(
+//			"<td><input type=\"file\" name=\"log4JFile\" size=\"35\" maxlength=\"75\"></td>");
+//		body.println("</tr>");
+//		body.println("<tr>");
+//		body.println("<td colspan=\"2\">&nbsp;</td>");
+//		body.println("</tr>");
 
 		//deploy the bean
 		body.println("<tr>");

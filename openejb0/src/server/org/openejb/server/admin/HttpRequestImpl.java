@@ -73,6 +73,7 @@ public class HttpRequestImpl implements HttpRequest {
 	public static final String FORM_URL_ENCODED = "application/x-www-form-urlencoded";
 	public static final String MULITPART_FORM_DATA = "multipart/form-data";
 	public static final String FILENAME = "filename";
+	public static final String NAME = "name";
 
 	/** 5.1   Request-Line */
 	private String line;
@@ -325,8 +326,8 @@ public class HttpRequestImpl implements HttpRequest {
 		}
 
 		//temp-debug-------------------------------------------
-		java.util.Iterator myKeys = headers.keySet().iterator();
-		String temp = null;
+		//java.util.Iterator myKeys = headers.keySet().iterator();
+		//String temp = null;
 		//while(myKeys.hasNext()) {
 		//    temp = (String)myKeys.next();
 		//    System.out.println("Test: " + temp + "=" + headers.get(temp));
@@ -391,7 +392,7 @@ public class HttpRequestImpl implements HttpRequest {
 	 */
 	private void parseFormParams() throws IOException {
 		String rawParams = new String(body);
-		//        System.out.println("rawParams: " + rawParams);
+		//System.out.println("rawParams: " + rawParams);
 		StringTokenizer parameters = new StringTokenizer(rawParams, "&");
 		String name = null;
 		String value = null;
@@ -405,19 +406,26 @@ public class HttpRequestImpl implements HttpRequest {
 				break;
 
 			/* [2] Parse the Value */
-			try {
+			if(param.hasMoreTokens()) {
 				value = URLDecoder.decode(param.nextToken());
-			} catch (java.util.NoSuchElementException nse) {
-				value = ""; //if there is no token set value to null
+			} else {
+				value = ""; //if there is no token set value to blank string
 			}
 
 			if (value == null)
 				value = "";
+				
 			formParams.put(name, value);
 			//System.out.println(name + ": " + value);
 		}
 	}
 
+	
+	/**
+	 * A method which parses form parameters that are multipart/form-data
+	 * according to <a href="http://www.ietf.org/rfc/rfc1867.txt" target="_blank">
+	 * RFC 1867</a>.  Currently multipart/mixed is not implemented. 
+	 */
 	private void parseMultiPartFormParams() throws IOException {
 		/* see http://www.ietf.org/rfc/rfc1867.txt */
 		ByteArrayOutputStream output;
@@ -428,6 +436,7 @@ public class HttpRequestImpl implements HttpRequest {
 		String fileName = null;
 		byte[] outputArray;
 		int arraySize;
+		FileOutputStream fos;
 		
 		String contentType = getHeader(HttpRequest.HEADER_CONTENT_TYPE);
 		int boundaryIndex = contentType.indexOf("boundary=");
@@ -436,7 +445,7 @@ public class HttpRequestImpl implements HttpRequest {
 		}
 		byte[] boundary = contentType.substring(boundaryIndex + 9).getBytes();
 
-		InputStream input = new ByteArrayInputStream(body);
+		ByteArrayInputStream input = new ByteArrayInputStream(body);
 		MultipartStream multi = new MultipartStream(input, boundary);
 
 		boolean nextPart = multi.skipPreamble();
@@ -455,9 +464,9 @@ public class HttpRequestImpl implements HttpRequest {
 					k = j;
 					j = multiPartBuffer.indexOf(StringUtilities.CRLF, (j + 1));
 
-					//whe have come to the blank line and we have a file
+					//whe have come to the blank line and we have the data
 					if (j == (k + 2)) {
-						k += 4; //position where the file data starts
+						k += 4; //position where the data starts
 						break;
 					}
 					
@@ -465,8 +474,8 @@ public class HttpRequestImpl implements HttpRequest {
 						k += 2; //skip the CLRF
 					if (j != k) {
 						headerMap = parseMultiPartHeader(multiPartBuffer.substring(k, j));
-						if (headerMap.get("name") != null) {
-							fileName = (String) headerMap.get("name");
+						if (headerMap.get(NAME) != null) {
+							fileName = (String) headerMap.get(NAME);
 						}
 
 						//add the filename if there is one
@@ -479,17 +488,21 @@ public class HttpRequestImpl implements HttpRequest {
 
 				//here we know that we have a file and that we need to write it
 				if (isFile) {
-					//write file
+					//create file
 					jarFileInTempDir = new File((String) this.formParams.get(fileName));
 					if (!jarFileInTempDir.exists()) {
 						jarFileInTempDir.createNewFile();
 					}
 
-					//write the file
+					//create the byte array to write
 					arraySize = output.toByteArray().length - k;
 					outputArray = new byte[arraySize];
 					System.arraycopy(output.toByteArray(), k, outputArray, 0, arraySize);
-					new FileOutputStream(jarFileInTempDir).write(outputArray);
+					
+					//write the byte array to the file
+					fos = new FileOutputStream(jarFileInTempDir);
+					fos.write(outputArray);
+					fos.close();
 				} else { //form data, not a file
 					this.formParams.put(
 						fileName,
@@ -503,6 +516,15 @@ public class HttpRequestImpl implements HttpRequest {
 		}
 	}
 
+
+
+	/**
+	 * Parses the first one or two lines of a multipart.  The usual headers are
+	 * Content-Dispostion or Content-Type.
+	 * 
+	 * @param header - the header string to be parsed
+	 * @return a map of of header info and their values 
+	 */
 	private Map parseMultiPartHeader(String header) throws IOException {
 		StringBuffer headerBuffer = new StringBuffer(header);
 		Map headerMap = new HashMap();

@@ -74,7 +74,7 @@ import org.openejb.util.SafeToolkit;
 import org.openejb.util.StringUtilities;
 
 /**
- * This is a stateless session bean which handles the action of deployment for the
+ * This is a stateful session bean which handles the action of deployment for the
  * web administration.
  *
  * timu:
@@ -354,11 +354,7 @@ public class DeployerBean implements javax.ejb.SessionBean {
 	}
 
 	public void finishDeployment() throws OpenEJBException {
-		if (options[1]) {
-			jarFile = moveJar(jarFile);
-		} else if (options[3]) {
-			jarFile = copyJar(jarFile);
-		}
+		jarFile = moveJar(jarFile);
 
 		/* TODO: Automatically updating the users
 		config file might not be desireable for
