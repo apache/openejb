@@ -141,7 +141,7 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
         }
     }
 
-    public void beforeCommit() throws Exception {
+    public void beforeCommit() {
     }
 
     public void flush() throws Throwable {

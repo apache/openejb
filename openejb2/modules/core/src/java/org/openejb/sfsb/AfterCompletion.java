@@ -45,41 +45,35 @@
  *
  * ====================================================================
  */
-package org.openejb.proxy;
+package org.openejb.sfsb;
 
-import java.rmi.RemoteException;
-import javax.ejb.EJBObject;
+import java.io.Serializable;
+import javax.ejb.SessionSynchronization;
+
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.openejb.EJBInvocation;
+import org.openejb.EJBOperation;
+import org.openejb.dispatch.VirtualOperation;
 
 /**
- * 
- * 
  * @version $Revision$ $Date$
  */
-public abstract class SessionEJBObject extends EJBObjectImpl {
-    public SessionEJBObject(EJBMethodInterceptor handler) {
-        super(handler);
-    }
+public class AfterCompletion implements VirtualOperation, Serializable {
+    public static final AfterCompletion INSTANCE = new AfterCompletion();
 
-    public Object getPrimaryKey() throws RemoteException {
-        throw new RemoteException("Session objects are private resources and do not have primary keys");
-    }
+    private AfterCompletion() {}
 
-    public boolean isIdentical(EJBObject obj) throws RemoteException {
+    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+        boolean comitted = ((Boolean)invocation.getArguments()[0]).booleanValue();
+        StatefulInstanceContext ctx = (StatefulInstanceContext) invocation.getEJBInstanceContext();
+        EJBOperation oldOperation = ctx.getOperation();
         try {
-            if (!(obj instanceof SessionEJBObject)) {
-                return false;
-            }
-
-            SessionEJBObject otherEJB = ((SessionEJBObject) obj);
-            Object otherID = otherEJB.getProxyInfo().getContainerID();
-            Object otherPK = otherEJB.ejbHandler.getPrimaryKey();
-            Object myID = getProxyInfo().getContainerID();
-            Object myPK = ejbHandler.getPrimaryKey();
-            // only check for equal pks if we are a stateful bean
-            return myID.equals(otherID) &&
-                    (getProxyInfo().isStatelessSessionBean() || myPK.equals(otherPK));
-        } catch (Throwable t) {
-            return false;
+            ctx.setOperation(EJBOperation.EJBCREATE);
+            ((SessionSynchronization) ctx.getInstance()).afterCompletion(comitted);
+        } finally {
+            ctx.setOperation(oldOperation);
         }
+        return new SimpleInvocationResult(true, null);
     }
 }

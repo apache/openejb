@@ -61,11 +61,13 @@ public abstract class EntityEJBObject extends EJBObjectImpl {
 
     public boolean isIdentical(EJBObject obj) throws RemoteException {
         try {
-            if (!(obj instanceof EntityEJBObject)) return false;
+            if (!(obj instanceof EntityEJBObject)) {
+                return false;
+            }
             
             Object thatID = ((EntityEJBObject)obj).getProxyInfo().getContainerID();
-            Object thisID = getProxyInfo().getContainerID();
-            return thisID.equals(thatID) && getPrimaryKey().equals(obj.getPrimaryKey());
+            Object myID = getProxyInfo().getContainerID();
+            return myID.equals(thatID) && getPrimaryKey().equals(obj.getPrimaryKey());
         } catch (Throwable t){
             return false;
         }

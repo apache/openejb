@@ -333,6 +333,26 @@
                 <module>org/apache/geronimo/DefaultDatabase</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
+            <query>
+                <query-method>
+                    <method-name>findByLastName</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>
+                <![CDATA[SELECT OBJECT(a) FROM BasicCmpBean AS a WHERE a.lastName = ?1]]>
+                </ejb-ql>
+            </query>
+            <query>
+                <query-method>
+                    <method-name>findEmptyCollection</method-name>
+                    <method-params/>
+                </query-method>
+                <ejb-ql>
+                <![CDATA[SELECT OBJECT(a) FROM BasicCmpBean AS a WHERE 1 = 0]]>
+                </ejb-ql>
+            </query>
         </entity>
         <entity>
             <ejb-name>AOBasicCmpBean</ejb-name>
@@ -366,6 +386,26 @@
                 <module>org/apache/geronimo/DefaultDatabase</module>
                 <name>DefaultDatasource</name>
             </resource-ref>
+            <query>
+                <query-method>
+                    <method-name>findByLastName</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>
+                <![CDATA[SELECT OBJECT(a) FROM AOBasicCmpBean AS a WHERE a.lastName = ?1]]>
+                </ejb-ql>
+            </query>
+            <query>
+                <query-method>
+                    <method-name>findEmptyCollection</method-name>
+                    <method-params/>
+                </query-method>
+                <ejb-ql>
+                <![CDATA[SELECT OBJECT(a) FROM AOBasicCmpBean AS a WHERE 1 = 0]]>
+                </ejb-ql>
+            </query>
         </entity>
         <entity>
             <ejb-name>EncCmpBean</ejb-name>

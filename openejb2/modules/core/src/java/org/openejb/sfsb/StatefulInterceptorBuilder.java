@@ -93,7 +93,7 @@ public class StatefulInterceptorBuilder extends AbstractInterceptorBuilder {
         if (useContextHandler) {
             firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
         }
-        firstInterceptor = new StatefulInstanceInterceptor(firstInterceptor, containerId, instanceFactory, instanceCache);
+        firstInterceptor = new StatefulInstanceInterceptor(firstInterceptor, containerId, instanceFactory, instanceCache, transactionContextManager);
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
         return new TwoChains(firstInterceptor, systemChain);

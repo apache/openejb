@@ -215,6 +215,9 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
      * @return the proxy for this EJB's home interface
      */
     public EJBObject getEJBObject(Object primaryKey) {
+        if (remoteFactory == null) {
+            throw new IllegalStateException("getEJBObject is not allowed if no remote interface is defined");
+        }
         EJBMethodInterceptor handler = new EJBMethodInterceptor(
                 this,
                 EJBInterfaceType.REMOTE,
@@ -231,6 +234,9 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
      * @return the proxy for this EJB's home interface
      */
     public EJBHome getEJBHome() {
+        if (homeFactory == null) {
+            throw new IllegalStateException("getEJBHome is not allowed if no remote interface is defined");
+        }
         EJBMethodInterceptor handler = new EJBMethodInterceptor(
                 this,
                 EJBInterfaceType.HOME,
@@ -247,6 +253,9 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
      */
 
     public EJBLocalObject getEJBLocalObject(Object primaryKey) {
+        if (localFactory == null) {
+            throw new IllegalStateException("getEJBLocalObject is not allowed if no local interface is defined");
+        }
         EJBMethodInterceptor handler = new EJBMethodInterceptor(
                 this,
                 EJBInterfaceType.LOCAL,
@@ -264,6 +273,9 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
      */
 
     public EJBLocalHome getEJBLocalHome() {
+        if (localFactory == null) {
+            throw new IllegalStateException("getEJBLocalHome is not allowed if no local interface is defined");
+        }
         EJBMethodInterceptor handler = new EJBMethodInterceptor(
                 this,
                 EJBInterfaceType.LOCALHOME,

@@ -84,6 +84,7 @@ import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.AutomaticKeyGeneration;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.CmpFieldMapping;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
+import org.openejb.xbeans.ejbjar.OpenejbQueryType;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.cache.GlobalSchemaLoader;
 import org.tranql.ejb.CMPField;
@@ -96,7 +97,6 @@ import org.tranql.ejb.Relationship;
 import org.tranql.ejb.SelectEJBQLQuery;
 import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
-import org.tranql.schema.Association;
 import org.tranql.schema.Association.JoinDefinition;
 import org.tranql.sql.Column;
 import org.tranql.sql.EndTable;
@@ -329,50 +329,86 @@ class CMPEntityBuilder extends EntityBuilder {
                 throw new DeploymentException(fields.toString());
             }
             
-            processQuery(ejb, entityBean, cl);
+            processQuery(ejb, entityBean, openEjbEntity, cl);
             
             ejbSchema.addEJB(ejb);
             sqlSchema.addTable(table);
         }
     }
 
-    private void processQuery(EJB ejb, EntityBeanType entityBean, ClassLoader cl) throws DeploymentException {
+    private void processQuery(EJB ejb, EntityBeanType entityBean, OpenejbEntityBeanType openEjbEntity, ClassLoader cl) throws DeploymentException {
         QueryType[] queryTypes = entityBean.getQueryArray();
-        if (null == queryTypes) {
-            return;
-        }
-        for (int i = 0; i < queryTypes.length; i++) {
-            QueryType queryType = queryTypes[i];
-            String methodName = getString(queryType.getQueryMethod().getMethodName());
-            Class[] parameterTypes = null;
-            JavaTypeType[] javaTypeTypes = queryType.getQueryMethod().getMethodParams().getMethodParamArray();
-            if (null != javaTypeTypes) {
-                parameterTypes = new Class[javaTypeTypes.length];
-                for (int j = 0; j < javaTypeTypes.length; j++) {
-                    String paramType = getString(javaTypeTypes[j]);
-                    try {
-                        parameterTypes[j] = ClassLoading.loadClass(paramType, cl);
-                    } catch (ClassNotFoundException e) {
-                        throw new DeploymentException("Can not load parameter type " + paramType +
-                                " defined by method " + methodName);
+        if (null != queryTypes) {
+            for (int i = 0; i < queryTypes.length; i++) {
+                QueryType queryType = queryTypes[i];
+                String methodName = getString(queryType.getQueryMethod().getMethodName());
+                Class[] parameterTypes = null;
+                JavaTypeType[] javaTypeTypes = queryType.getQueryMethod().getMethodParams().getMethodParamArray();
+                if (null != javaTypeTypes) {
+                    parameterTypes = new Class[javaTypeTypes.length];
+                    for (int j = 0; j < javaTypeTypes.length; j++) {
+                        String paramType = getString(javaTypeTypes[j]);
+                        try {
+                            parameterTypes[j] = ClassLoading.loadClass(paramType, cl);
+                        } catch (ClassNotFoundException e) {
+                            throw new DeploymentException("Can not load parameter type " + paramType +
+                                    " defined by method " + methodName);
+                        }
                     }
+                }
+                String ejbQL = queryType.getEjbQl().getStringValue();
+                if (methodName.startsWith("find")) {
+                    ejb.addFinder(new FinderEJBQLQuery(methodName, parameterTypes, ejbQL));
+                } else if (methodName.startsWith("ejbSelect")) {
+                    boolean isLocal = true;
+                    if (queryType.isSetResultTypeMapping()) {
+                        String typeMapping = getString(queryType.getResultTypeMapping());
+                        if (typeMapping.equals("Remote")) {
+                            isLocal = false;
+                        }
+                    }
+                    ejb.addSelect(new SelectEJBQLQuery(methodName, parameterTypes, ejbQL, isLocal));
+                } else {
+                    throw new DeploymentException("EJB [" + ejb.getName() + "] is misconfigured: method " +
+                            methodName + " is neiher a finder nor a select.");
                 }
             }
-            String ejbQL = queryType.getEjbQl().getStringValue();
-            if (methodName.startsWith("find")) {
-                ejb.addFinder(new FinderEJBQLQuery(methodName, parameterTypes, ejbQL));
-            } else if (methodName.startsWith("ejbSelect")) {
-                boolean isLocal = true;
-                if (queryType.isSetResultTypeMapping()) {
-                    String typeMapping = getString(queryType.getResultTypeMapping());
-                    if (typeMapping.equals("Remote")) {
-                        isLocal = false;
+        }
+        OpenejbQueryType[] openejbQueryTypes = openEjbEntity.getQueryArray();
+        if (null != openejbQueryTypes) {
+            for (int i = 0; i < openejbQueryTypes.length; i++) {
+                OpenejbQueryType openejbQueryType = openejbQueryTypes[i];
+                String methodName = openejbQueryType.getQueryMethod().getMethodName();
+                Class[] parameterTypes = null;
+                String[] javaTypeTypes = openejbQueryType.getQueryMethod().getMethodParams().getMethodParamArray();
+                if (null != javaTypeTypes) {
+                    parameterTypes = new Class[javaTypeTypes.length];
+                    for (int j = 0; j < javaTypeTypes.length; j++) {
+                        String paramType = javaTypeTypes[j];
+                        try {
+                            parameterTypes[j] = ClassLoading.loadClass(paramType, cl);
+                        } catch (ClassNotFoundException e) {
+                            throw new DeploymentException("Can not load parameter type " + paramType +
+                                    " defined by method " + methodName);
+                        }
                     }
                 }
-                ejb.addSelect(new SelectEJBQLQuery(methodName, parameterTypes, ejbQL, isLocal));
-            } else {
-                throw new DeploymentException("EJB [" + ejb.getName() + "] is misconfigured: method " +
-                        methodName + " is neiher a finder nor a select.");
+                String ejbQL = openejbQueryType.getEjbQl();
+                if (methodName.startsWith("find")) {
+                    ejb.addFinder(new FinderEJBQLQuery(methodName, parameterTypes, ejbQL));
+                } else if (methodName.startsWith("ejbSelect")) {
+                    boolean isLocal = true;
+                    if (openejbQueryType.isSetResultTypeMapping()) {
+                        String typeMapping = openejbQueryType.getResultTypeMapping();
+                        if (typeMapping.equals("Remote")) {
+                            isLocal = false;
+                        }
+                    }
+                    ejb.addSelect(new SelectEJBQLQuery(methodName, parameterTypes, ejbQL, isLocal));
+                } else {
+                    throw new DeploymentException("EJB [" + ejb.getName() + "] is misconfigured: method " +
+                            methodName + " is neiher a finder nor a select.");
+                }
             }
         }
     }

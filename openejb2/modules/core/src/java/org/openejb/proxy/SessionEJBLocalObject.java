@@ -66,14 +66,19 @@ public abstract class SessionEJBLocalObject extends EJBLocalObjectImpl {
 
     public boolean isIdentical(EJBLocalObject obj) throws EJBException {
         try {
-            if (obj instanceof SessionEJBLocalObject){
-                Object thatID = ((SessionEJBLocalObject)obj).getProxyInfo().getContainerID();
-                Object thisID = getProxyInfo().getContainerID();
-                return thisID.equals(thatID);
-            } else {
+            if (!(obj instanceof SessionEJBLocalObject)) {
                 return false;
             }
-        } catch (Throwable t){
+
+            SessionEJBLocalObject otherEJB = ((SessionEJBLocalObject) obj);
+            Object otherID = otherEJB.getProxyInfo().getContainerID();
+            Object otherPK = otherEJB.ejbHandler.getPrimaryKey();
+            Object myID = getProxyInfo().getContainerID();
+            Object myPK = ejbHandler.getPrimaryKey();
+            // only check for equal pks if we are a stateful bean
+            return myID.equals(otherID) &&
+                    (getProxyInfo().isStatelessSessionBean() || myPK.equals(otherPK));
+        } catch (Throwable t) {
             return false;
         }
     }
