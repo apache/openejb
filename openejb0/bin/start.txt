@@ -1,0 +1,12 @@
+Usage: openejb start [options]
+
+OPTIONS:
+
+  intra-vm  Displays information on the IntraVM Server
+  
+  corba     Default. Starts OpenEJB in client/server
+            mode using the OpenEJB CORBA Server with OpenORB
+
+The OpenEJB EJB Container System, a local EJB API and Server.
+For OpenEJB updates and additional information, visit
+http://openejb.sf.net

@@ -1,0 +1,23 @@
+Usage: openejb command [command-options-and-arguments]
+
+COMMANDS:
+
+  build  Invoke the Ant build targets for building the 
+         source, documentation, javadoc or all of the above.
+
+  test   Run the test suite on your installation, verify it
+         is setup and working correctly.
+
+  start  Start the OpenEJB JNDI and CORBA Servers for 
+         accessing beans in client/server mode.
+
+  deploy Deploy an ejb jar into OpenEJB.
+  
+
+Try 'openejb help <command>' for more information a command.
+         
+The OpenEJB EJB Container System, a local EJB API and Server.
+For OpenEJB updates and additional information, visit
+http://openejb.sf.net  
+
+Bug Reports to <openejb-user@lists.sf.net>

@@ -1,0 +1,24 @@
+Usage: openejb deploy CONFIG JARFILE 
+
+By default CONGIF is conf\openejb.conf.  If this is not found,
+the file conf/default.openejb.conf is used.
+
+The JARFILE must be a valid ejb 1.1 jar file and contain the
+META_INF/ejb-jar.xml inside the jar.  When the jar is deployed,
+the file META-INF/openejb-jar.xml is added to the jar. This file
+maps your beans to elements in the CONFIG file so your ejb-jar.xml
+is never edited.  Do NOT edit the openejb-jar.xml file unless you 
+know exactly what you are doing.
+
+To undeploy your jar, simply remove the META-INF/openejb-jar.xml
+file and restart the server.
+
+Example:
+    
+openejb deploy conf/openejb.conf myBeans.jar
+
+The OpenEJB EJB Container System, a local EJB API and Server.
+For OpenEJB updates and additional information, visit
+http://openejb.sf.net  
+
+Bug Reports to <openejb-user@lists.sf.net>
