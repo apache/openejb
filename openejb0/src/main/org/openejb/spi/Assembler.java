@@ -81,7 +81,8 @@ public interface Assembler {
     /**
      * Gets the <code>Deployer</code> that OpenEJB should use to manage ongoing
      * deployment activity.  This may be null if this configuration does not
-     * support deployment activity at runtime.
+     * support deployment activity at runtime.  If non-null, the assembler
+     * should have initialized the deployer already by the time it gets here.
      */
     public Deployer getDeployer();
 }
