@@ -86,10 +86,11 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
         try{
             physicalConn = DriverManager.getConnection(jdbcUrl, defaultUserName, defaultPassword);        
         }catch(Throwable e){
-            logger.error("Testing driver failed.  "+
-                         "["+jdbcUrl+"]  "+
-                         "Could not obtain a physical JDBC connection from the DriverManager.  "+
-                         e.getMessage());
+            logger.error("Testing driver failed.  " + "[" + jdbcUrl + "]  "
+                    + "Could not obtain a physical JDBC connection from the DriverManager."
+                    + "\nThe error message was:\n" + e.getMessage() + "\nPossible cause:"
+                    + "\n\to JDBC driver classes are not available to OpenEJB"
+                    + "\n\to Relative paths are not resolved properly");
         } finally {
             try{
                 physicalConn.close();
