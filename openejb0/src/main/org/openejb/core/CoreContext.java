@@ -113,7 +113,7 @@ public abstract class CoreContext implements java.io.Serializable {
      */
     public java.security.Principal getCallerPrincipal() {
         checkBeanState(SECURITY_METHOD);
-        return OpenEJB.getSecurityService().getCalledPrincipal();
+        return OpenEJB.getSecurityService().getCallerPrincipal();
     }
     /**
      * TODO: Add comments

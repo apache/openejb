@@ -67,5 +67,5 @@ public interface SecurityService extends Service{
     /**
      * Gets the Principal for the current caller.
      */
-    public Principal getCalledPrincipal();
+    public Principal getCallerPrincipal();
 }

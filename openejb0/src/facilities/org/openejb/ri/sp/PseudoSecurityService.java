@@ -61,7 +61,7 @@ public class PseudoSecurityService implements SecurityService {
         return new javax.security.auth.Subject();
     }
 
-    public Principal getCalledPrincipal() {
+    public Principal getCallerPrincipal() {
         return new java.security.Principal(){
             public String getName(){return "TestRole";}
         };

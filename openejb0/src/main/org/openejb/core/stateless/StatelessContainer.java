@@ -224,7 +224,8 @@ public class StatelessContainer implements org.openejb.RpcContainer, Transaction
 
         // check authorization to invoke
 
-        boolean authorized = OpenEJB.getSecurityService().isCallerAuthorized(deployInfo.getAuthorizedRoles(callMethod));
+        String[] roles = deployInfo.getAuthorizedRoles(callMethod);
+        boolean authorized = roles == null || OpenEJB.getSecurityService().isCallerAuthorized(roles);
         if(!authorized)
             throw new org.openejb.ApplicationException(new RemoteException("Unauthorized Access by Principal Denied"));
 
