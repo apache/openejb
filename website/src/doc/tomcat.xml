@@ -1,46 +1,91 @@
 <?xml version="1.0"?>
-<document url="http://www.openejb.org/tomcat-adapter.xml">
-  <properties>
-    <title>OpenEJB and Tomcat</title>
-  </properties>
-  <body>
-  <sideimg src="images/diagram-tomcat-adapter.gif" width="240" height="500"/>
+<?xml-stylesheet type="text/xsl" href="style\website.xsl"?>
+<document>
+    <properties>
+        <title>OpenEJB Tomcat Integration</title>
+    </properties>
+    <body>
+        <sideimg src="images/diagram-tomcat-adapter.gif" width="240" height="500"/>
 
-<section title="Introduction" ref-id="intro">
-<p>The short story of setting up the OpenEJB/Tomcat integration for OpenEJB 0.9.2 is:
+        <section title="Introduction" ref-id="intro">
+            <p>There are a few approaches to integrate OpenEJB and <a href="http://jakarta.apache.org/tomcat">Jakarta Tomcat</a>.
+The difference between them is in the visibility of EJBs (deployed onto OpenEJB) amongst web applications (deployed onto Tomcat).
+The term <i>visibility</i> means what classloaders handle loading of the EJBs.
+<br>OpenEJB configuration by its visibility</br>
+                <ul>
+                    <li>
+                        <a href="#per-tomcat">OpenEJB per Tomcat instance</a> - deployed EJBs are shared amongst all of the web apps</li>
+                    <li>
+                        <a href="#per-webap">OpenEJB per webapp</a> - deployed EJBs are visible only to the web apps that declared to load OpenEJB</li>
+                    <li>
+                        <a href="#tomcat-resource-factory">OpenEJB Tomcat resource factory</a> - an implementation of <a href="http://jakarta.apache.org/tomcat/tomcat-5.0-doc/jndi-resources-howto.html">Tomcat's resource factory</a> mechanism</li>
+                </ul>
+            </p>
+        </section>
+        
+        <section title="OpenEJB per Tomcat instance" ref-id="per-tomcat">
+            <p>
+Configure OpenEJB per Tomcat instance requires the following steps:
 <ol>
-  <li>Copy the openejb_loader-0.9.2.war into the webapps dir of a running Tomcat install</li>
-  <li>Update the openejb.home init param to point to where OpenEJB was installed</li>
-  <li>Restart Tomcat</li>
-  <li>Browse to http://localhost:8080/openejb_loader-0.9.2/index.html</li>
-</ol>
-</p>
-<p>
-That will get you an OpenEJB instance running right inside Tomcat, so everything is local and 
-there is no need for an EJB server process running externally.  You can run the Remote server 
-at the same time, but the OpenEJB instance in it will be separate from the one in Tomcat.
-</p>
+                    <li>Copy the <i>openejb-webadmin.war</i> into the webapps dir of a running Tomcat install</li>
+                    <li>Update the openejb.home init param (inside the WEB-INF/web.xml file) to point to where OpenEJB was installed</li>
+                    <li>Restart Tomcat</li>
+                    <li>Browse to http://localhost:8080/openejb-webadmin</li>
+                </ol>
+            </p>
+        </section>
 
-<p>The 0.9.2 release of OpenEJB contains some neat Tomcat integration tools:
-<ul>
-  <li>A JNDI browser</li>
-  <li>A Class browser</li>
-  <li>An EJB viewer</li>
-  <li>An Object invoker</li>
-</ul>
-</p> 
-<p>
+        <section title="OpenEJB per webapp" ref-id="per-webapp">
+            <p>
+Configure OpenEJB per webapp requires the following steps:
+<ol>
+                    <li>Copy the <i>openejb-loader-*.jar</i> into the WEB-INF/lib directory of the webapp that uses EJBs deployed onto OpenEJB</li>
+                    <li>Add the openejb.home init param (inside the WEB-INF/web.xml file) to point to where OpenEJB was installed</li>
+                    <li>Restart Tomcat</li>
+                    <li>Browse to http://localhost:8080/openejb-webadmin</li>
+                </ol>
+            </p>
+            <p>
+As with openejb.home environment variable that has been declared in the WEB-INF/web.xml file above, it's possible to configure others as well. It's as simple as add another &lt;init-param&gt; stanza to the deployment descriptor. At startup OpenEJB prints out all of the configuration settings to Tomcat logs:</p>
+            <code>INFO: Installing web application at context path /openejb from URL file:C:\webapps\openejb
+OpenEJB init-params:
+        param-name: openejb.home, param-value: c:\openejb
+        param-name: openejb.configuration, param-value: conf\openejb.cfg
+        param-name: openejb.base, param-value: c:\webapps\openejb\WEB-INF\openejb
+        param-name: openejb.loader, param-value: tomcat-webapp</code>
+        <p>
+            The complete list of the OpenEJB configuration settings is described in <a href="TODO">TODO</a>
+        </p>
+        <p>
+            Read more on the <a href="TODO">OpenEJB WebAdmin</a> web application.
+        </p>
+        </section>
+        
+        <section title="OpenEJB Tomcat resource factory" ref-id="tomcat-resource-factory">
+        <p>Read about it <a href="tomcat-object-factory.html">here</a>.</p>        
+        </section>
+
+        <section title="How to make the document even more helpful resource" ref-id="contribution">
+            <p>
 This document is a starting point for using OpenEJB in Tomcat and will evolve based 
 on user contributions.  If you wish to contribute to this document, please email the
-text to the <a href="lists.html#openejb-user">OpenEJB User list</a>.
+text to the <a href="lists.html#user">OpenEJB User</a> list.
 <ul>
-<li><A HREF="tomcat-howitworks.html">How does the integration work</A></li>
-<li><A HREF="tomcat-ejbclasses.html">Where to put your ejb classes</A></li>
-<li><A HREF="tomcat-ejbrefs.html">How to configure java:comp/env lookups (short)</A></li>
-<li><a href="tomcat-object-factory.html">How to configure java:comp/env lookups (detailed)</a></li>
-</ul>
-</p>
-<!--
+                    <li>
+                        <A HREF="tomcat-howitworks.html">How does the integration work</A>
+                    </li>
+                    <li>
+                        <A HREF="tomcat-ejbclasses.html">Where to put your ejb classes</A>
+                    </li>
+                    <li>
+                        <A HREF="tomcat-ejbrefs.html">How to configure java:comp/env lookups (short)</A>
+                    </li>
+                    <li>
+                        <a href="tomcat-object-factory.html">How to configure java:comp/env lookups (detailed)</a>
+                    </li>
+                </ul>
+            </p>
+            <!--
 <p>
 <ul>
 Local Server:
@@ -49,17 +94,17 @@ Local Server:
 </ul>
 </p>
 -->
-
-<p>
-<ul>
+            <p>
+                <ul>
 Misc:
-<li><a href="tomcat-adapter.html">Basic info</a></li>
-<li><a href="faq_servlets.html">Servlets FAQ</a></li> 
-</ul>
-</p>
-
-</section>
-
-
-</body>
+<li>
+                        <a href="tomcat-adapter.html">Basic info</a>
+                    </li>
+                    <li>
+                        <a href="faq_servlets.html">Servlets FAQ</a>
+                    </li>
+                </ul>
+            </p>
+        </section>
+    </body>
 </document>
