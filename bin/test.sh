@@ -38,22 +38,13 @@ PS=':'
 CP=
 #==================================
 # PUT *.jar file to $CP
-for i in $OPENEJB_HOME/lib/*.jar ; do 
-    if [ -e $i ]; then
-    	CP=$i${PS}$CP
-    fi
-done
-unset i
-CP=$JAVA_HOME/lib/tools.jar${PS}${CP}
-
-
 for i in $OPENEJB_HOME/dist/*.jar ; do 
     if [ -e $i ] ; then
     	CP=$i${PS}$CP
     fi
 done
 unset i
-CP=lib/xerces-J_1.3.1.jar${PS}${CP}
+CP=$JAVA_HOME/lib/tools.jar${PS}${CP}
 
 # Setup options for testsuite execution
 #  Test suite properties
