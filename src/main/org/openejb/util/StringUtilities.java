@@ -53,6 +53,8 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class StringUtilities {
+	/** the CRLF for use in String manipulation */
+	public static final String CRLF = "\r\n";
 
 	/**
 	 * Gets the last token in a StringTokenizer.

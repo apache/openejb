@@ -70,7 +70,29 @@ public interface HttpRequest extends java.io.Serializable{
     public static final int CONNECT = 7; // Section 9.9
     /** the HTTP UNSUPPORTED type */    
     public static final int UNSUPPORTED = 8;
-
+    
+    /* 
+     * Header variables 
+     */
+	/** the Accept header */
+	public static final String HEADER_ACCEPT = "Accept";
+	/** the Accept-Encoding header */
+	public static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
+	/** the Accept-Language header */
+	public static final String HEADER_ACCEPT_LANGUAGE = "Accept-Language";
+    /** the Content-Type header */
+    public static final String HEADER_CONTENT_TYPE = "Content-Type";
+    /** the Content-Length header */
+    public static final String HEADER_CONTENT_LENGTH = "Content-Length";
+	/** the Connection header */
+	public static final String HEADER_CONNECTION = "Connection";
+	/** the Cache-Control header */
+	public static final String HEADER_CACHE_CONTROL = "Cache-Control";
+	/** the Host header */
+	public static final String HEADER_HOST = "Host";
+	/** the User-Agent header */
+	public static final String HEADER_USER_AGENT = "User-Agent";
+    
     /** Gets a header based the header name passed in.
      * @param name The name of the header to get
      * @return The value of the header
