@@ -56,7 +56,12 @@ import org.openejb.nova.AbstractEJBContainer;
 import org.openejb.nova.EJBContainerConfiguration;
 import org.openejb.nova.SystemExceptionInterceptor;
 import org.openejb.nova.ConnectionTrackingInterceptor;
+import org.openejb.nova.security.PolicyContextHandlerEJBInterceptor;
+import org.openejb.nova.security.EJBRunAsInterceptor;
+import org.openejb.nova.security.EJBSecurityInterceptor;
+import org.openejb.nova.security.EJBIdentityInterceptor;
 import org.openejb.nova.dispatch.DispatchInterceptor;
+import org.openejb.nova.dispatch.MethodHelper;
 import org.openejb.nova.transaction.TransactionContextInterceptor;
 import org.openejb.nova.util.SoftLimitedInstancePool;
 
@@ -85,6 +90,18 @@ public class StatelessContainer extends AbstractEJBContainer {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources);
         }
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, txnManager, transactionPolicy);
+        if (setIdentity) {
+            firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
+        }
+        if (setSecurityInterceptor) {
+            firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, contextId, MethodHelper.generatePermissions(ejbName, vopFactory.getSignatures()));
+        }
+        if (runAs != null) {
+            firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);
+        }
+        if (setPolicyContextHandlerDataEJB) {
+            firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
+        }
         firstInterceptor = new StatelessInstanceInterceptor(firstInterceptor, pool);
         firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, getBeanClassName());
