@@ -57,10 +57,10 @@ import java.util.TreeSet;
 
 import org.apache.geronimo.deployment.model.ejb.ContainerTransaction;
 import org.apache.geronimo.deployment.model.ejb.Method;
-import org.openejb.nova.transaction.ContainerPolicy;
-import org.openejb.nova.transaction.BeanPolicy;
-import org.openejb.nova.transaction.TxnPolicy;
 import org.openejb.nova.dispatch.MethodSignature;
+import org.openejb.nova.transaction.BeanPolicy;
+import org.openejb.nova.transaction.ContainerPolicy;
+import org.openejb.nova.transaction.TxnPolicy;
 
 /**
  *
@@ -102,11 +102,12 @@ public class TransactionPolicyHelper {
         return new TransactionPolicySourceImpl((SortedSet) ejbNameToTransactionAttributesMap.get(ejbName));
     }
 
-    private class TransactionPolicySourceImpl implements TransactionPolicySource {
+    private static class TransactionPolicySourceImpl implements TransactionPolicySource {
+        private final static SortedSet EMPTY_SORTED_SET = new TreeSet();
         private final SortedSet transactionPolicies;
 
         public TransactionPolicySourceImpl(SortedSet transactionPolicies) {
-            this.transactionPolicies = transactionPolicies;
+            this.transactionPolicies = transactionPolicies == null? EMPTY_SORTED_SET: transactionPolicies;
         }
 
         public TxnPolicy getTransactionPolicy(String methodIntf, MethodSignature signature) {
