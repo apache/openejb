@@ -52,6 +52,7 @@ import java.util.Map;
 
 import javax.ejb.EJBException;
 import javax.resource.ResourceException;
+import javax.transaction.xa.XAResource;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -61,6 +62,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.context.InheritableTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
@@ -109,6 +111,7 @@ public class EndpointHandler implements MethodInterceptor {
     private static final int STATE_ERROR = 3;
 
     private final MDBContainer container;
+    private final NamedXAResource xaResource;
     private final int[] operationMap;
     private final Map methodIndexMap;
     private final ClassLoader containerCL;
@@ -120,8 +123,9 @@ public class EndpointHandler implements MethodInterceptor {
     private boolean isReleased = false;
     private int state = STATE_NONE;
 
-    public EndpointHandler(MDBContainer container, int[] operationMap) {
+    public EndpointHandler(MDBContainer container, NamedXAResource xaResource, int[] operationMap) {
         this.container = container;
+        this.xaResource = xaResource;
         this.operationMap = operationMap;
         this.methodIndexMap = container.getMethodIndexMap();
         containerCL = container.getClassLoader();
@@ -308,6 +312,9 @@ public class EndpointHandler implements MethodInterceptor {
             if (transactionRequired) {
                 // start a new container transaction
                 beanTransaction = transactionContextManager.newContainerTransactionContext();
+                if (xaResource != null) {
+                    beanTransaction.getTransaction().enlistResource(xaResource);
+                }
             } else {
                 // enter an unspecified transaction context
                 beanTransaction = transactionContextManager.newUnspecifiedTransactionContext();
@@ -341,6 +348,10 @@ public class EndpointHandler implements MethodInterceptor {
         try {
             if (beanTransaction != null) {
                 try {
+                    //TODO is this delist necessary???????
+                    if (xaResource != null) {
+                        beanTransaction.getTransaction().delistResource(xaResource, XAResource.TMSUSPEND);
+                    }
                     beanTransaction.commit();
                 } catch (Throwable t) {
                     try {

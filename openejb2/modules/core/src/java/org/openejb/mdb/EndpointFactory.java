@@ -52,6 +52,8 @@ import javax.resource.spi.endpoint.MessageEndpoint;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.CglibEJBProxyFactory;
 import org.openejb.proxy.EJBProxyHelper;
+import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
+import org.apache.geronimo.transaction.manager.NamedXAResource;
 
 /**
  * @version $Revision$ $Date$
@@ -68,8 +70,8 @@ public class EndpointFactory {
         operationMap = EJBProxyHelper.getOperationMap(endpointFactory.getType(), signatures, true);
     }
 
-    public MessageEndpoint getMessageEndpoint(Object primaryKey) {
-        EndpointHandler handler = new EndpointHandler(mdbContainer, operationMap);
+    public MessageEndpoint getMessageEndpoint(NamedXAResource xaResource) {
+        EndpointHandler handler = new EndpointHandler(mdbContainer, xaResource, operationMap);
         return (MessageEndpoint) endpointFactory.create(handler,
                 new Class[]{EndpointHandler.class},
                 new Object[]{handler});
