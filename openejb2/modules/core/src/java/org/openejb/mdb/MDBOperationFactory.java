@@ -49,10 +49,7 @@ package org.openejb.mdb;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-
 import javax.ejb.MessageDrivenContext;
-
-import net.sf.cglib.reflect.FastClass;
 
 import org.openejb.dispatch.AbstractOperationFactory;
 import org.openejb.dispatch.MethodSignature;
@@ -65,7 +62,6 @@ import org.openejb.dispatch.VirtualOperation;
  */
 public class MDBOperationFactory extends AbstractOperationFactory {
     public static MDBOperationFactory newInstance(Class beanClass) {
-        FastClass fastClass = FastClass.create(beanClass);
 
         Method[] methods = beanClass.getMethods();
         Method setMessageDrivenContext = null;
@@ -90,7 +86,7 @@ public class MDBOperationFactory extends AbstractOperationFactory {
             }
             MethodSignature sig = new MethodSignature(method);
             sigList.add(sig);
-            vopList.add(new BusinessMethod(fastClass, fastClass.getIndex(method.getName(), method.getParameterTypes())));
+            vopList.add(new BusinessMethod(beanClass, sig));
         }
         MethodSignature[] signatures = (MethodSignature[]) sigList.toArray(new MethodSignature[0]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopList.toArray(new VirtualOperation[0]);
