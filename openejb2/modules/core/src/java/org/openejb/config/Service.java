@@ -43,36 +43,47 @@
  * $Id$
  */
 package org.openejb.config;
+
 /**
  * This interface must be implemented by the following
  * castor generated classes:
- * 
- *   ConnectionManager
- *   Connector
- *   Container
- *   JndiProvider
- *   ProxyFactory
- *   Resource
- *   SecurityService
- *   TransactionService
- *   
- *   
- * Each of these classes have the methods of this 
+ * <p/>
+ * ConnectionManager
+ * Connector
+ * Container
+ * JndiProvider
+ * ProxyFactory
+ * Resource
+ * SecurityService
+ * TransactionService
+ * <p/>
+ * <p/>
+ * Each of these classes have the methods of this
  * interface, but Castor does not generate them
  * as sharing a common interface.  Those generated
  * classes must be edited to implement this interface
  * so that building them is a lot easier and the code
  * involved can be reused.
- * 
+ *
+ * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public interface Service {
+    
     public java.lang.String getContent();
+
     public java.lang.String getId();
+
     public java.lang.String getJar();
+
     public java.lang.String getProvider();
+
     public void setContent(java.lang.String content);
+
     public void setId(java.lang.String id);
+
     public void setJar(java.lang.String jar);
+
     public void setProvider(java.lang.String provider);
-	public void validate() throws org.exolab.castor.xml.ValidationException;
+
+    public void validate() throws org.exolab.castor.xml.ValidationException;
 }

@@ -76,7 +76,6 @@ public class ContainerSystem implements org.openejb.spi.ContainerSystem{
      * @param id the deployment id of the deployed bean.
      * @return the DeploymentInfo object associated with the bean.
      * @see DeploymentInfo
-     * @see org.openejb.Container#getDeploymentInfo(Object) Container.getDeploymentInfo
      * @see DeploymentInfo#getDeploymentID()
      */
     public DeploymentInfo getDeploymentInfo(Object id){
@@ -100,9 +99,7 @@ public class ContainerSystem implements org.openejb.spi.ContainerSystem{
      * @param id the id of the Container
      * @return the Container associated with the id
      * @see Container
-     * @see ContainerManager#getContainer(Object) ContainerManager.getContainer
      * @see Container#getContainerID() Container.getContainerID()
-     * @see DeploymentInfo#getContainerID() DeploymentInfo.getContainerID()
      */
     public Container getContainer(Object id){
         return (Container)containers.get(id);
@@ -113,7 +110,6 @@ public class ContainerSystem implements org.openejb.spi.ContainerSystem{
      *
      * @return an array of all the Containers
      * @see Container
-     * @see ContainerManager#containers() ContainerManager.containers()
      */
     public Container [] containers( ){
         return (Container [])containers.values().toArray(new Container [containers.size()]);
@@ -123,7 +119,7 @@ public class ContainerSystem implements org.openejb.spi.ContainerSystem{
      * Adds a Container to the list of those that are managed by this container system.
      * If a Container previously existed with the same id it will be replaced.
      * @param id the id of the Container
-     * @param the Container to manage
+     * @param c the Container to manage
      * @see org.openejb.assembler.Container
      */
     public void addContainer(Object id, Container c){

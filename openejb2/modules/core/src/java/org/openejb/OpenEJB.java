@@ -110,8 +110,7 @@ import org.openejb.util.SafeToolkit;
  *
  * @version 0.1, 3/21/2000
  * @since JDK 1.2
- * @see org.openejb.EnvProps
- * @see org.openejb.core.conf.Assembler
+ * @see org.openejb.alt.config.NovaAssembler
  * @see org.openejb.spi.Assembler
  */
 
@@ -132,7 +131,7 @@ public final class OpenEJB {
     }
 
     /**
-	 * @param props
+	 * @param initProps
 	 *            Specifies the Assembler and other properties used to build
 	 *            the ContainerSystem
 	 * @exception org.openejb.OpenEJBException
@@ -155,23 +154,23 @@ public final class OpenEJB {
 
         Assembler assembler = initializeAssembler(toolkit);
 
-        securityService    = assembler.getSecurityService();
-        if (securityService == null) {
-            String msg = messages.message( "startup.assemblerReturnedNullSecurityService" );
-            logger.i18n.fatal( msg );
-            throw new OpenEJBException( msg );
-        } else {
-            logger.i18n.debug( "startup.securityService", securityService.getClass().getName() );
-        }
-
-        transactionManager = assembler.getTransactionManager();
-        if (transactionManager == null) {
-            String msg = messages.message( "startup.assemblerReturnedNullTransactionManager" );
-            logger.i18n.fatal( msg );
-            throw new OpenEJBException( msg );
-        } else {
-            logger.i18n.debug( "startup.transactionContextManager", transactionManager.getClass().getName() );
-        }
+//        securityService    = assembler.getSecurityService();
+//        if (securityService == null) {
+//            String msg = messages.message( "startup.assemblerReturnedNullSecurityService" );
+//            logger.i18n.fatal( msg );
+//            throw new OpenEJBException( msg );
+//        } else {
+//            logger.i18n.debug( "startup.securityService", securityService.getClass().getName() );
+//        }
+//
+//        transactionManager = assembler.getTransactionManager();
+//        if (transactionManager == null) {
+//            String msg = messages.message( "startup.assemblerReturnedNullTransactionManager" );
+//            logger.i18n.fatal( msg );
+//            throw new OpenEJBException( msg );
+//        } else {
+//            logger.i18n.debug( "startup.transactionContextManager", transactionManager.getClass().getName() );
+//        }
 
         try {
             assembler.build();
@@ -259,7 +258,8 @@ public final class OpenEJB {
         /*
          * Uses the EnvProps.ASSEMBLER property to obtain the Assembler impl.
          */
-        String className = props.getProperty("openejb.assembler", "org.openejb.assembler.Assembler");
+        //String className = props.getProperty("openejb.assembler", "org.openejb.assembler.Assembler");
+        String className = org.openejb.config.NovaAssembler.class.getName();
 
         logger.i18n.debug("startup.instantiatingAssemberClass", className);
 
@@ -397,7 +397,6 @@ public final class OpenEJB {
 	 *
 	 * @return an array of all the Containers
 	 * @see Container
-	 * @see ContainerManager#containers() ContainerManager.containers()
 	 */
     public static Container[] containers() {
         if (containerSystem == null) {

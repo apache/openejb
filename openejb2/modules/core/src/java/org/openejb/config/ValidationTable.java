@@ -46,12 +46,7 @@ package org.openejb.config;
 
 import java.io.File;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Properties;
 
 import org.openejb.util.FileUtils;
@@ -59,40 +54,43 @@ import org.openejb.util.JarUtils;
 
 /**
  * Beans should be validated, but only when:
- * 
- *  - the validator version has changed since last validation
- *  - the jar has changed since last validation
- *  - the jar has never been validated
- * 
- * 
- * This class works, but it causes problems elsewhere.  It seems that 
- * using InstantDB just causes us to not be able to shutdown the VM.  
+ * <p/>
+ * - the validator version has changed since last validation
+ * - the jar has changed since last validation
+ * - the jar has never been validated
+ * <p/>
+ * <p/>
+ * This class works, but it causes problems elsewhere.  It seems that
+ * using InstantDB just causes us to not be able to shutdown the VM.
  * Obviously, InstantDB is starting user threads.
- * 
+ * <p/>
  * This probably needs to be rewritten to not use InstantDB.
- * 
+ *
+ * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class ValidationTable {
-    
-    /** Singleton ValidationTable instance */
+
+    /**
+     * Singleton ValidationTable instance
+     */
     private static ValidationTable table;
 
     /**
      * It's possible that we can create/drop this table for each release version
      * or just keep a validator version id in the table. For now, I've added a
      * version number to the table.
-     * 
+     * <p/>
      * It's important that we make the distinction because someone could update
      * their OpenEJB version, which may have more/better validation functionality.
-     * 
+     * <p/>
      * Table looks as such:
-     * 
-     * CREATE TABLE validation ( 
-     * 
+     * <p/>
+     * CREATE TABLE validation (
+     * <p/>
      * jar_path          CHAR(150) PRIMARY KEY,
      * last_validated    CHAR(13),
      * validator_version CHAR(20)
-     * 
+     * <p/>
      * )
      */
     private final String _createTable = "CREATE TABLE validation ( jar_path CHAR(150) PRIMARY KEY, last_validated CHAR(13), validator_version CHAR(20))";
@@ -101,43 +99,44 @@ public class ValidationTable {
     private final String _insertValidated = "insert into validation (jar_path, last_validated, validator_version) values (?,?,?)";
 
     private final String jdbcDriver = "org.enhydra.instantdb.jdbc.idbDriver";
-    private final String jdbcUrl    = "jdbc:idb:conf/registry.properties";
-    private final String userName   = "system";
-    private final String password   = "system";
-    
+    private final String jdbcUrl = "jdbc:idb:conf/registry.properties";
+    private final String userName = "system";
+    private final String password = "system";
+
     private Connection conn;
     //physicalConn = DriverManager.getConnection(jdbcUrl, rxInfo.getUserName(), rxInfo.getPassword());        
 
-    private ValidationTable(){
-        try{
+    private ValidationTable() {
+        try {
             // Load the driver
             ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
-            Class.forName( jdbcDriver, true, cl);
+            Class.forName(jdbcDriver, true, cl);
             // Get a connection
             conn = getConnection();
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        try{
+        try {
             // try and create the table
             // if it's already there, an exception will 
             // be thrown.  We can ignore it.
             Statement stmt = conn.createStatement();
             stmt.execute(_createTable);
-        } catch (Exception e){              
+        } catch (Exception e) {
             // We can ignore this.
         } finally {
-            try{
-                conn.close();    
-            } catch (Exception e){}
+            try {
+                conn.close();
+            } catch (Exception e) {
+            }
         }
     }
 
-    private Connection getConnection() throws SQLException{
+    private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(jdbcUrl, userName, password);
     }
 
-    public static ValidationTable getInstance(){
+    public static ValidationTable getInstance() {
         if (table == null) {
             table = new ValidationTable();
         }
@@ -145,27 +144,27 @@ public class ValidationTable {
         return table;
     }
 
-    public boolean isValidated(String jarFile){
-        try{
+    public boolean isValidated(String jarFile) {
+        try {
             File jar = FileUtils.getBase().getFile(jarFile);
             long lastModified = jar.lastModified();
             long lastValidated = getLastValidated(jar);
             //System.out.println("  -- modified  "+lastModified);
             //System.out.println("  -- validated "+lastValidated);
             return (lastValidated > lastModified);
-        } catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
-    
-    public void setValidated(String jarFile){
+
+    public void setValidated(String jarFile) {
         setLastValidated(jarFile, System.currentTimeMillis());
     }
-    
 
-    public long getLastValidated(File jar){
+
+    public long getLastValidated(File jar) {
         long validated = 0L;
-        try{
+        try {
             conn = getConnection();
 
             String jarFileURL = jar.toURL().toExternalForm();
@@ -173,7 +172,7 @@ public class ValidationTable {
             //System.out.println("[] getLastValidated "+jarFileURL);
             PreparedStatement stmt = conn.prepareStatement(_selectValidated);
             stmt.setString(1, jarFileURL);
-            
+
             ResultSet results = stmt.executeQuery();
             if (results.next()) {
                 String version = results.getString(2);
@@ -183,47 +182,53 @@ public class ValidationTable {
                     //System.out.println("[]     validated "+validated);
                 }
             }
-        } catch (Exception e){              
+        } catch (Exception e) {
             // TODO:1: Log something...
             //e.printStackTrace();
         } finally {
-            try{conn.close();} catch (Exception e){}
+            try {
+                conn.close();
+            } catch (Exception e) {
+            }
         }
         return validated;
     }
-    
+
 
     /**
      * Same as the above getLastValidated, except that this
-     * will return the last validated date regardless of 
+     * will return the last validated date regardless of
      * the validator version.
-     * 
+     *
      * @param jarFile
-     * @return 
+     * @return
      */
-    private long _getLastValidated(String jarFileURL){
+    private long _getLastValidated(String jarFileURL) {
         long validated = 0L;
-        try{
+        try {
             conn = getConnection();
-            
+
             PreparedStatement stmt = conn.prepareStatement(_selectValidated);
             stmt.setString(1, jarFileURL);
-    
+
             ResultSet results = stmt.executeQuery();
             if (results.next()) {
                 validated = results.getLong(1);
             }
-        } catch (Exception e){              
+        } catch (Exception e) {
             // TODO:1: Log something...
             //e.printStackTrace();
         } finally {
-            try{conn.close();} catch (Exception e){}
+            try {
+                conn.close();
+            } catch (Exception e) {
+            }
         }
         return validated;
     }
 
-    public void setLastValidated(String jarFile, long timeValidated){
-        try{
+    public void setLastValidated(String jarFile, long timeValidated) {
+        try {
             conn = getConnection();
             File jar = FileUtils.getBase().getFile(jarFile);
             String jarFileURL = jar.toURL().toExternalForm();
@@ -243,17 +248,20 @@ public class ValidationTable {
             }
 
             stmt.executeUpdate();
-        } catch (Exception e){
+        } catch (Exception e) {
             // TODO:1: Log something...
             //e.printStackTrace();
         } finally {
-            try{conn.close();} catch (Exception e){}
+            try {
+                conn.close();
+            } catch (Exception e) {
+            }
         }
     }
 
     private String version = null;
 
-    private String getVersion(){
+    private String getVersion() {
         if (version == null) {
             /*
              * Output startup message
@@ -262,10 +270,10 @@ public class ValidationTable {
 
             try {
                 JarUtils.setHandlerSystemProperty();
-                versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
+                versionInfo.load(new URL("resource:/openejb-version.properties").openConnection().getInputStream());
             } catch (java.io.IOException e) {
             }
-            version = (String)versionInfo.get( "version" );
+            version = (String) versionInfo.get("version");
         }
         return version;
     }

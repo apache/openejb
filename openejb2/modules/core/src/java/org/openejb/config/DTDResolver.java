@@ -51,7 +51,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
-
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -61,6 +60,9 @@ import org.xml.sax.SAXException;
  * configuration files.  This class will fail silently if the files aren't
  * available locally, and you'll end up hitting the web anyway.
  *
+ * @author <a href="mailto:ammulder@alumni.princeton.edu">Aaron Mulder</a>
+ * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
+ * @version $Revision$
  */
 public class DTDResolver implements EntityResolver {
     public static HashMap dtds = new HashMap();
@@ -70,6 +72,10 @@ public class DTDResolver implements EntityResolver {
         if(bytes != null) {
             dtds.put("ejb-jar.dtd",     bytes);
             dtds.put("ejb-jar_1_1.dtd", bytes);
+        }
+        bytes = getDtd("ejb-jar_2_0.dtd");
+        if(bytes != null) {
+            dtds.put("ejb-jar_2_0.dtd", bytes);
         }
     }
 

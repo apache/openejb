@@ -50,8 +50,14 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.Vector;
 
+import javax.management.ObjectName;
+
 import org.openejb.util.Logger;
 import org.openejb.util.Messages;
+import org.openejb.nassembler.NovaAssembler;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
 
 
 /**
@@ -207,22 +213,32 @@ public class ServiceManager {
     }
 
     public synchronized void start() throws ServiceException {
-        System.out.println("  ** Starting Services **");
-        printRow("NAME", "IP", "PORT");
 
-        for (int i = 0; i < daemons.length; i++) {
-            ServiceDaemon d = daemons[i];
-            try {
-                d.doStart();
-                printRow(d.getServiceName(), d.getInetAddress().toString(), d.getPort() + "");
-            } catch (Exception e) {
-                logger.error(d.getServiceName() + " " + d.getInetAddress() + " " + d.getPort() + ": " + e.getMessage());
-                printRow(d.getServiceName(), "----", "FAILED");
-            }
+//        System.out.println("  ** Starting Services **");
+//        printRow("NAME", "IP", "PORT");
+
+        Kernel kernel = Kernel.getSingleKernel();
+
+        try {
+            ServiceManager.setUpServerService(kernel, "EJB", "127.0.0.1", 4201, org.openejb.server.ejbd.EjbServer.class);
+            ServiceManager.setUpServerService(kernel, "ADMIN", "127.0.0.1", 4200, org.openejb.server.admin.AdminDaemon.class);
+        } catch (Exception e) {
+            throw new ServiceException(e);
         }
 
-        System.out.println("-------");
-        System.out.println("Ready!");
+//        for (int i = 0; i < daemons.length; i++) {
+//            ServiceDaemon d = daemons[i];
+//            try {
+//                d.doStart();
+//                printRow(d.getServiceName(), d.getInetAddress().toString(), d.getPort() + "");
+//            } catch (Exception e) {
+//                logger.error(d.getServiceName() + " " + d.getInetAddress() + " " + d.getPort() + ": " + e.getMessage());
+//                printRow(d.getServiceName(), "----", "FAILED");
+//            }
+//        }
+//
+//        System.out.println("-------");
+//        System.out.println("Ready!");
         /*
          * This will cause the user thread (the thread that keeps the
          *  vm alive) to go into a state of constant waiting.
@@ -361,5 +377,22 @@ public class ServiceManager {
         }
 
         return value;
+    }
+
+    public static void setUpServerService(Kernel kernel, String type, String host, int port, Class serviceClass) throws Exception {
+        ObjectName SOCKETSERVICE_NAME = JMXUtil.getObjectName("openejb:type=SocketService,name="+type);
+        ObjectName SERVICEDAEMON_NAME = JMXUtil.getObjectName("openejb:type=ServiceDaemon,name="+type);
+
+        GBeanMBean gBeanMBean = new GBeanMBean(SimpleSocketService.GBEAN_INFO);
+        gBeanMBean.setAttribute("serviceClassName", serviceClass.getName());
+        gBeanMBean.setAttribute("onlyFrom", new InetAddress[]{InetAddress.getByName(host)});
+        gBeanMBean.setReferencePattern("ContainerIndex",NovaAssembler.CONTAINERINDEX_NAME);
+        NovaAssembler.start(kernel, SOCKETSERVICE_NAME, gBeanMBean);
+
+        GBeanMBean gBeanMBean1 = new GBeanMBean(ServiceDaemon.GBEAN_INFO);
+        gBeanMBean1.setAttribute("port", new Integer(port));
+        gBeanMBean1.setAttribute("inetAddress", InetAddress.getByName(host));
+        gBeanMBean1.setReferencePattern("SocketService",SOCKETSERVICE_NAME);
+        NovaAssembler.start(kernel, SERVICEDAEMON_NAME, gBeanMBean1);
     }
 }

@@ -45,9 +45,10 @@
 package org.openejb.config;
 
 /**
+ * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public interface ValidationRule {
-    
-    public void validate( EjbSet set );
+
+    public void validate(EjbSet set);
 
 }
