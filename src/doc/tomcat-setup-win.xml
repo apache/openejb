@@ -174,12 +174,19 @@ server.xml file that comes with Tomcat.
 <img src="images/tomcat_windows_webapps_dir.jpg" width="552" height="381" border="0" alt=""/>
 
 <p>
+Now, stop Tomcat and then start it again.
+</p>
+
+<img src="images/tomcat_windows_stop.gif" width="395" height="186" border="0" alt=""/>
+
+<p>
  At this point, you're actually finished.
  All the libraries you need are in place.
  Your servlets should use the following
  InitialContextFactory when creating
  an InitialContext to lookup beans
 </p>
+
 
 <p>
 <code>org.openejb.client.LocalInitialContextFactory</code>
