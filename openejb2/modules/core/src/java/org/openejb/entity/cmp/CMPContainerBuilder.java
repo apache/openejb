@@ -253,22 +253,25 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 new InterfaceMethodSignature("findByPrimaryKey", new String[]{getPrimaryKeyClassName()}, true),
                 new QueryCommand[]{localProxyLoad, remoteProxyLoad});
 
+        // build the instance factory
+        LinkedHashMap cmpFieldAccessors = createCMPFieldAccessors(faultHandler);
+        Map instanceMap = null;
+        CMP1Bridge cmp1Bridge = null;
+        if (cmp2) {
+            instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors);
+        } else {
+            cmp1Bridge = new CMP1Bridge(beanClass, cmpFieldAccessors);
+        }
+
         // build the vop table
-        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, identityDefiner, primaryKeyTransform, localProxyTransform, remoteProxyTransform, queryCommands);
+        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmp1Bridge, identityDefiner, primaryKeyTransform, localProxyTransform, remoteProxyTransform, queryCommands);
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
 
         // create and intitalize the interceptor moduleBuilder
         InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new EntityInterceptorBuilder(), signatures, vtable);
 
-        // build the instance factory
-        LinkedHashMap cmpFieldAccessors = createCMPFieldAccessors(faultHandler);
-        Map instanceMap = null;
-        if (cmp2) {
-            instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors);
-        }
-
-        InstanceContextFactory contextFactory = new CMPInstanceContextFactory(getContainerId(), cmp2, primaryKeyTransform, faultHandler, beanClass, instanceMap, getUnshareableResources(), getApplicationManagedSecurityResources());
+        InstanceContextFactory contextFactory = new CMPInstanceContextFactory(getContainerId(), cmp1Bridge, primaryKeyTransform, faultHandler, beanClass, instanceMap, getUnshareableResources(), getApplicationManagedSecurityResources());
         EntityInstanceFactory instanceFactory = new EntityInstanceFactory(contextFactory);
 
         // build the pool
@@ -397,9 +400,9 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
-    protected LinkedHashMap buildVopMap(
-            Class beanClass,
+    protected LinkedHashMap buildVopMap(Class beanClass,
             CacheTable cacheTable,
+            CMP1Bridge cmp1Bridge,
             IdentityDefiner identityDefiner,
             IdentityTransform primaryKeyTransform,
             IdentityTransform localProxyTransform,
@@ -452,6 +455,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                         MethodHelper.translateToInterface(signature),
                         new CMPCreateMethod(
                                 beanClass,
+                                cmp1Bridge,
                                 signature,
                                 postCreateSignature,
                                 cacheTable,

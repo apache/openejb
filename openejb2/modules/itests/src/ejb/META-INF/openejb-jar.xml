@@ -150,13 +150,13 @@
 
         <!--
         ########################################################
-        BMP
+        CMP 2
         ########################################################
         -->
 
         <entity>
             <ejb-name>BasicCmp2Bean</ejb-name>
-            <jndi-name>client/tests/entity/cmp/BasicCmpHome</jndi-name>
+            <jndi-name>client/tests/entity/cmp2/BasicCmpHome</jndi-name>
             <query>
                 <query-method>
                     <method-name>findByLastName</method-name>
@@ -180,7 +180,7 @@
         </entity>
         <entity>
             <ejb-name>AOBasicCmp2Bean</ejb-name>
-            <jndi-name>client/tests/entity/cmp/allowed_operations/EntityHome</jndi-name>
+            <jndi-name>client/tests/entity/cmp2/allowed_operations/EntityHome</jndi-name>
             <query>
                 <query-method>
                     <method-name>findByLastName</method-name>
@@ -208,7 +208,7 @@
         </entity>
         <entity>
             <ejb-name>EncCmp2Bean</ejb-name>
-            <jndi-name>client/tests/entity/cmp/EncBean</jndi-name>
+            <jndi-name>client/tests/entity/cmp2/EncBean</jndi-name>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
                 <target-name>DefaultDatasource</target-name>
@@ -220,6 +220,81 @@
         </entity>
         <entity>
             <ejb-name>Cmp2RMIIIOPBean</ejb-name>
+            <jndi-name>client/tests/entity/cmp2/RMI-over-IIOP/EJBHome</jndi-name>
+        </entity>
+
+        <!--
+        ########################################################
+        CMP
+        ########################################################
+        -->
+
+        <entity>
+            <ejb-name>BasicCmpBean</ejb-name>
+            <jndi-name>client/tests/entity/cmp/BasicCmpHome</jndi-name>
+            <query>
+                <query-method>
+                    <method-name>findByLastName</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <sql>SELECT id FROM BasicCmpBean WHERE lastName = ?</sql>
+            </query>
+            <query>
+                <query-method>
+                    <method-name>findEmptyCollection</method-name>
+                    <method-params/>
+                </query-method>
+                <sql>SELECT id FROM BasicCmpBean WHERE 1 = 0</sql>
+            </query>
+            <resource-ref>
+                <ref-name>jdbc/basic/entityDatabase</ref-name>
+                <target-name>DefaultDatasource</target-name>
+            </resource-ref>
+        </entity>
+        <entity>
+            <ejb-name>AOBasicCmpBean</ejb-name>
+            <jndi-name>client/tests/entity/cmp/allowed_operations/EntityHome</jndi-name>
+            <query>
+                <query-method>
+                    <method-name>findByLastName</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <sql>SELECT id FROM AOBasicCmpBean WHERE lastName = ?</sql>
+            </query>
+            <query>
+                <query-method>
+                    <method-name>findEmptyCollection</method-name>
+                    <method-params/>
+                </query-method>
+                <sql>SELECT id FROM AOBasicCmpBean WHERE 1 = 0</sql>
+            </query>
+            <resource-ref>
+                <ref-name>jdbc/basic/entityDatabase</ref-name>
+                <target-name>DefaultDatasource</target-name>
+            </resource-ref>
+            <resource-ref>
+                <ref-name>entity/references/Resource_manager_access</ref-name>
+                <target-name>DefaultDatasource</target-name>
+            </resource-ref>
+        </entity>
+        <entity>
+            <ejb-name>EncCmpBean</ejb-name>
+            <jndi-name>client/tests/entity/cmp/EncBean</jndi-name>
+            <resource-ref>
+                <ref-name>jdbc/basic/entityDatabase</ref-name>
+                <target-name>DefaultDatasource</target-name>
+            </resource-ref>
+            <resource-ref>
+                <ref-name>datasource</ref-name>
+                <target-name>DefaultDatasource</target-name>
+            </resource-ref>
+        </entity>
+        <entity>
+            <ejb-name>CmpRMIIIOPBean</ejb-name>
             <jndi-name>client/tests/entity/cmp/RMI-over-IIOP/EJBHome</jndi-name>
         </entity>
     </enterprise-beans>

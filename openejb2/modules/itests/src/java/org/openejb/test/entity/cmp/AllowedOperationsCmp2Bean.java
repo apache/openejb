@@ -59,7 +59,6 @@ import org.openejb.test.object.OperationsPolicy;
  *
  */
 public abstract class AllowedOperationsCmp2Bean implements EntityBean {
-
     public static int key = 20;
     public EntityContext ejbContext;
     public static final Hashtable allowedOperationsTable = new Hashtable();
@@ -251,28 +250,28 @@ public abstract class AllowedOperationsCmp2Bean implements EntityBean {
         /*[1] Test getEJBHome /////////////////*/
         try {
             ejbContext.getEJBHome();
-            policy.allow(policy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
         } catch (IllegalStateException ise) {
         }
 
         /*[2] Test getCallerPrincipal /////////*/
         try {
             ejbContext.getCallerPrincipal();
-            policy.allow(policy.Context_getCallerPrincipal);
+            policy.allow(OperationsPolicy.Context_getCallerPrincipal);
         } catch (IllegalStateException ise) {
         }
 
         /*[3] Test isCallerInRole /////////////*/
         try {
             ejbContext.isCallerInRole("ROLE");
-            policy.allow(policy.Context_isCallerInRole);
+            policy.allow(OperationsPolicy.Context_isCallerInRole);
         } catch (IllegalStateException ise) {
         }
 
         /*[4] Test getRollbackOnly ////////////*/
         try {
             ejbContext.getRollbackOnly();
-            policy.allow(policy.Context_getRollbackOnly);
+            policy.allow(OperationsPolicy.Context_getRollbackOnly);
         } catch (IllegalStateException ise) {
         }
 
@@ -280,28 +279,28 @@ public abstract class AllowedOperationsCmp2Bean implements EntityBean {
         // This is way to difficult to test as it rolls back all work
 //        try {
 //            ejbContext.setRollbackOnly();
-//            policy.allow(policy.Context_setRollbackOnly);
+//            policy.allow(OperationsPolicy.Context_setRollbackOnly);
 //        } catch (IllegalStateException ise) {
 //        }
 
         /*[6] Test getUserTransaction /////////*/
         try {
             ejbContext.getUserTransaction();
-            policy.allow(policy.Context_getUserTransaction);
+            policy.allow(OperationsPolicy.Context_getUserTransaction);
         } catch (Exception e) {
         }
 
         /*[7] Test getEJBObject ///////////////*/
         try {
             ejbContext.getEJBObject();
-            policy.allow(policy.Context_getEJBObject);
+            policy.allow(OperationsPolicy.Context_getEJBObject);
         } catch (IllegalStateException ise) {
         }
 
         /*[8] Test getPrimaryKey //////////////*/
         try {
             ejbContext.getPrimaryKey();
-            policy.allow(policy.Context_getPrimaryKey);
+            policy.allow(OperationsPolicy.Context_getPrimaryKey);
         } catch (IllegalStateException ise) {
         }
 
@@ -317,7 +316,7 @@ public abstract class AllowedOperationsCmp2Bean implements EntityBean {
 
             jndiContext.lookup("java:comp/env/entity/references/JNDI_access_to_java_comp_env");
 
-            policy.allow(policy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
         } catch (IllegalStateException ise) {
         } catch (javax.naming.NamingException ne) {
         }
@@ -328,7 +327,7 @@ public abstract class AllowedOperationsCmp2Bean implements EntityBean {
 //
 //            jndiContext.lookup("java:comp/env/stateless/references/Resource_manager_access");
 //
-//            policy.allow(policy.Resource_manager_access);
+//            policy.allow(OperationsPolicy.Resource_manager_access);
 //        } catch (IllegalStateException ise) {
 //        } catch (javax.naming.NamingException ne) {
 //        }
@@ -339,7 +338,7 @@ public abstract class AllowedOperationsCmp2Bean implements EntityBean {
 //
 //            jndiContext.lookup("java:comp/env/stateless/beanReferences/Enterprise_bean_access");
 //
-//            policy.allow(policy.Enterprise_bean_access);
+//            policy.allow(OperationsPolicy.Enterprise_bean_access);
 //        } catch (IllegalStateException ise) {
 //        } catch (javax.naming.NamingException ne) {
 //        }

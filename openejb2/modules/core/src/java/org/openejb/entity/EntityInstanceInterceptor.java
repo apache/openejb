@@ -48,7 +48,6 @@
 package org.openejb.entity;
 
 import java.rmi.NoSuchObjectException;
-import javax.ejb.EntityBean;
 import javax.ejb.NoSuchEntityException;
 import javax.ejb.NoSuchObjectLocalException;
 
@@ -57,9 +56,7 @@ import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
-
 import org.openejb.EJBInvocation;
-import org.openejb.EJBOperation;
 import org.openejb.cache.InstancePool;
 
 /**
@@ -84,7 +81,6 @@ public final class EntityInstanceInterceptor implements Interceptor {
 
         EntityInstanceContext context = (EntityInstanceContext) pool.acquire();
 
-        EntityBean instance = (EntityBean) context.getInstance();
         context.setTransactionContext(transactionContext);
         if (id != null) {
             // always activate on the way in....
