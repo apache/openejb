@@ -43,18 +43,18 @@ function command_deploy  () {
 #================================================
 function command_start  () {
    case     $2 in
-   "intra-vm"  ) start_intravm ;;
-   "intravm"   ) start_intravm ;;
-   "corba"     ) start_corba   ;;
-   "ejbserver" ) start_server  ;;
-   "server"    ) start_server  ;;
-   ""          ) start_server  ;;
+   "intra-vm"  ) start_intravm $@ ;;
+   "intravm"   ) start_intravm $@ ;;
+   "corba"     ) start_corba   $@ ;;
+   "ejbserver" ) start_server  $@ ;;
+   "server"    ) start_server  $@ ;;
+   ""          ) start_server  $@ ;;
    esac
 }
 #================================================
 function start_server () {
    echo "Starting OpenEJB Server..."
-   ./bin/ejbserver.sh $2 $3 $4 $5 $6 $7
+   ./bin/ejbserver.sh $@
 }
 #================================================
 function start_corba () {

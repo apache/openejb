@@ -1,3 +1,36 @@
-OpenEJB
-=======
+OpenEJB v0.8beta1  
+http://openejb.sf.net/
+-----------------------------------------------
+
+Installation
+===================
+If you are reading this, you've already installed OpenEJB.  You 
+simply need to unpack the release and start using OpenEJB via the
+command line tool.  For instance, move to the directory where 
+OpenEJB is unpacked and type:
+
+openejb.bat help
+
+
+Documentation
+===================
+The initial versions of the documentation for this release 
+are in the diretory docs/html,  see file docs/html/index.html
+
+Most of these docs are new and will be updated over the next
+few days. Keep an eye on http://openejb.sf.net/ for changes and
+new docs.
+
+
+Support
+===================
+Any problems with this release can be reported to our user
+mailing list or to our Support forum at SourceForge.
+
+User list:
+http://lists.sourceforge.net/lists/listinfo/openejb-user
+
+Support forum:
+http://sourceforge.net/tracker/?group_id=44351&atid=439275
+
 

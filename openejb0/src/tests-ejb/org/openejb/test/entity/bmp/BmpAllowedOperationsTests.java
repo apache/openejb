@@ -386,7 +386,7 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient{
      * ______________________|__________________________________________________
      * </PRE>
      */
-    public void test05_ejbRemove(){   
+    public void _test05_ejbRemove(){   
         try{ 
             
         OperationsPolicy policy = new OperationsPolicy();

@@ -37,7 +37,6 @@ CP=
 #  done
 #  unset i
 
-CP=lib/openejb-limited.jar${PS}$CP
 CP=lib/ejb-2.0.jar${PS}$CP
 CP=lib/jaas_1.0.jar${PS}$CP
 CP=lib/jca_1.0.jar${PS}$CP
@@ -47,13 +46,12 @@ CP=lib/jms_1.0.2a.jar${PS}$CP
 CP=lib/jndi_1.2.1.jar${PS}$CP
 CP=lib/jta_1.0.1.jar${PS}$CP
 CP=lib/junit_3.5.jar${PS}$CP
-CP=lib/openejb_ejb_tests-0.7.9.jar${PS}$CP
 CP=lib/ots-jts_1.0.jar${PS}$CP
 
 
 #==================================
 # put *.zip file to $CP
-for i in lib/*.zip ; do 
+for i in lib/openejb*.jar ; do 
     if [ -e $i ]; then
     	CP=$i${PS}$CP
     fi

@@ -38,5 +38,5 @@ CLASSPATH=$CP
 #        
 OPTIONS=""
 
-$JAVA $OPTIONS -classpath $CLASSPATH org.openejb.server.EjbDaemon $1 $2 $3 $4
+$JAVA $OPTIONS -classpath $CLASSPATH org.openejb.server.EjbDaemon $@
 

@@ -829,6 +829,13 @@
     
     </copy>
   
+    <!-- copy required jar files -->               
+    <copy todir="${final.dir}/beans">
+      <fileset dir="dist" >
+        <include name="openejb_ejb_tests-${version}.jar"/>
+      </fileset>
+    </copy>
+  
     <!-- copy OpenEJB jar files -->               
     <copy todir="${final.dir}/lib">
     
@@ -843,6 +850,8 @@
     
       <fileset dir="docs/html" >
         <include name="**/**"/>
+        <exclude name="**/OpenEJB_Specification.doc"/>
+        <exclude name="**/OpenEJB_Specification.ps"/>
       </fileset>
     
     </copy>
@@ -852,6 +861,7 @@
     
       <fileset dir="src" >
         <include name="**/*.java"/>
+        <include name="**/*.properties"/>
       </fileset>
     
     </copy>
@@ -860,12 +870,18 @@
     <copy todir="${final.dir}/conf">
     
       <fileset dir="conf" >
-        <include name="**/*.properties"/>
-        <include name="**/*.xml"/>
-        <include name="**/*.conf"/>
+        <include name="default.cmp_global_tx_database.xml"/>
+        <include name="default.cmp_local_tx_database.xml"/>
+        <include name="default.cmp_mapping.xml"/>
+        <include name="default.idb_database.conf"/>
+        <include name="default.logging.conf"/>
+        <include name="default.openejb.conf"/>
       </fileset>
     
     </copy>
+    
+    <!-- copy configuration files -->
+    <copy file="conf/default.openejb.conf" tofile="${final.dir}/conf/openejb.conf" />
     
     <!-- copy shel/batch files -->
     <copy todir="${final.dir}/bin">
@@ -877,6 +893,8 @@
       </fileset>
     
     </copy>
+    
+    <chmod dir="${final.dir}/bin" perm="ugo+rx" includes="**/*.sh"/>
   
     <!-- copy shel/batch files -->
     <copy todir="${final.dir}">
@@ -887,12 +905,13 @@
       </fileset>
     
     </copy>
+    <chmod dir="${final.dir}" perm="ugo+rx" includes="**/*.sh"/>
   
     <copy todir="${final.dir}">
     
       <fileset dir="src/etc" >
         <include name="README"/>
-        <include name="INSTALL"/>
+        <include name="LICENSE"/>
       </fileset>
     
     </copy>
