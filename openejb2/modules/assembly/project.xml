@@ -52,7 +52,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>1.0-M1</version>
+            <version>1.0-SNAPSHOT</version>
             <properties>
                 <lib>true</lib>
                 <deploy>true</deploy>
@@ -63,7 +63,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>
-            <version>1.0-M1</version>
+            <version>1.0-SNAPSHOT</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
-            <version>1.0-M1</version>
+            <version>1.0-SNAPSHOT</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -81,7 +81,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
-            <version>1.0-M1</version>
+            <version>1.0-SNAPSHOT</version>
             <properties>
                 <lib>true</lib>
                 <deploy>true</deploy>
@@ -92,7 +92,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
-            <version>1.0-M1</version>
+            <version>1.0-SNAPSHOT</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -101,7 +101,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>1.0-M1</version>
+            <version>1.0-SNAPSHOT</version>
             <properties>
                 <lib>true</lib>
                 <server>true</server>
@@ -113,7 +113,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
-            <version>1.0-M1</version>
+            <version>1.0-SNAPSHOT</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -122,7 +122,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-remoting</artifactId>
-            <version>1.0-M1</version>
+            <version>1.0-SNAPSHOT</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -131,7 +131,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
-            <version>1.0-M1</version>
+            <version>1.0-SNAPSHOT</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -140,7 +140,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>1.0-M1</version>
+            <version>1.0-SNAPSHOT</version>
             <properties>
                 <lib>true</lib>
                 <server>true</server>
@@ -152,7 +152,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-transaction</artifactId>
-            <version>1.0-M1</version>
+            <version>1.0-SNAPSHOT</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -161,7 +161,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee</artifactId>
-            <version>1.0-M1</version>
+            <version>1.4-rc1</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -170,7 +170,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2eeschema</artifactId>
-            <version>1.0-M1</version>
+            <version>1.0-SNAPSHOT</version>
             <properties>
                 <repository>true</repository>
             </properties>
@@ -179,7 +179,7 @@
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
-            <version>1.0-M1</version>
+            <version>1.0-SNAPSHOT</version>
             <properties>
                 <repository>true</repository>
             </properties>
