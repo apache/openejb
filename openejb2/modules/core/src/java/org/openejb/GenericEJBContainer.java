@@ -129,8 +129,13 @@ public class GenericEJBContainer implements EJBContainer {
         if (userTransaction != null) {
             userTransaction.setUp(transactionManager, trackedConnectionAssociator);
         }
+        
+        // TODO maybe there is a more suitable place to do this.  Maybe not.
+        
+        setupJndi();
     }
 
+    
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         return interceptor.invoke(invocation);
     }
@@ -241,7 +246,17 @@ public class GenericEJBContainer implements EJBContainer {
         System.arraycopy(names, 0, copy, 0, length);
         return copy;
     }
-
+    
+    private void setupJndi() {
+        /* Add Geronimo JNDI service ///////////////////// */
+        String str = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
+        if (str == null)
+            str = ":org.apache.geronimo.naming";
+        else
+            str = str + ":org.apache.geronimo.naming";
+        System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {

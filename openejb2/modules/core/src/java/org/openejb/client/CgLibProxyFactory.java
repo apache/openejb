@@ -44,6 +44,7 @@
  */
 package org.openejb.client;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Properties;
@@ -93,16 +94,13 @@ public class CgLibProxyFactory implements ProxyFactory {
     
     public Object newProxyInstance(Class superClass, Class[] interfaces, InvocationHandler handler)
     throws IllegalArgumentException {
-//        System.out.println();
-//        try {
-//            throw new Exception("[proxy] "+superClass+"  "+interfaces[0]);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
         
         CgLibInvocationHandler interceptor = new CgLibInvocationHandler(handler);
         Enhancer enhancer = getEnhancer(superClass,interfaces);
         enhancer.setCallbacks(new Callback[]{NoOp.INSTANCE, interceptor});
+
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        enhancer.setClassLoader(cl);
         return enhancer.create(new Class[]{CgLibInvocationHandler.class}, new Object[]{interceptor});
     }
     
