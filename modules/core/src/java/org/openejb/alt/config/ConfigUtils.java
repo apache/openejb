@@ -57,6 +57,7 @@ import java.io.Writer;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -301,50 +302,93 @@ public class ConfigUtils  {
     }
 
     public static String searchForConfiguration(String path) throws OpenEJBException{
-        File file = null;
-        try{
+        return ConfigUtils.searchForConfiguration(path, System.getProperties());
+    }
 
-            /* [1] Try finding the file relative to the 
-             *     current working directory
+    public static String searchForConfiguration(String path, Properties props) throws OpenEJBException{
+        File file = null;
+        if (path != null) {
+            /*
+             * [1] Try finding the file relative to the current working
+             * directory
              */
-            try{
-                file = new File(path);
-                if (file != null && file.exists() && file.isFile()) {
-                    return file.getAbsolutePath();
-                }
-            } catch (NullPointerException e){
+            file = new File(path);
+            if (file != null && file.exists() && file.isFile()) {
+                return file.getAbsolutePath();
             }
             
-            /* [2] Try finding the file relative to the 
-             *     openejb.home directory
+            /*
+             * [2] Try finding the file relative to the openejb.base directory
              */
-            try{
-                file = FileUtils.getBase().getFile(path);
-                if (file != null && file.exists() && file.isFile()) {
-                    return file.getAbsolutePath();
-                }
-            } catch (NullPointerException e){
-            } catch (java.io.FileNotFoundException e){
-                _logger.warning("Cannot find the configuration file ["+path+"], Using default OPENEJB_HOME/conf/openejb.conf instead.");
+            try
+            {
+            file = FileUtils.getBase(props).getFile(path);
+            if (file != null && file.exists() && file.isFile()) {
+                return file.getAbsolutePath();
             }
-
-            /* [3] Try finding the standard openejb.conf file 
-             *     relative to the openejb.home directory
+            }
+            catch (FileNotFoundException ignored)
+            {
+            }
+            catch (IOException ignored)
+            {
+            }
+            
+            /*
+             * [3] Try finding the file relative to the openejb.home directory
              */
-            try{
-                file = FileUtils.getBase().getFile("conf/openejb.conf");
+            try
+            {
+            file = FileUtils.getHome(props).getFile(path);
+            if (file != null && file.exists() && file.isFile()) {
+                return file.getAbsolutePath();
+            }
+            }
+            catch (FileNotFoundException ignored)
+            {
+            }
+            catch (IOException ignored)
+            {
+            }
+            
+        }
+
+        _logger.warning("Cannot find the configuration file ["+path+"], Trying conf/openejb.conf instead.");
+
+        try
+        {
+            /*
+             * [4] Try finding the standard openejb.conf file relative to the
+             * openejb.base directory
+             */
+            try {
+                file = FileUtils.getBase(props).getFile("conf/openejb.conf");
                 if (file != null && file.exists() && file.isFile()) {
                     return file.getAbsolutePath();
                 }
-            } catch (java.io.FileNotFoundException e){
+            } catch (java.io.FileNotFoundException e) {
             }
                         
-            /* [4] No config found! Create a config for them
+            /*
+             * [5] Try finding the standard openejb.conf file relative to the
+             * openejb.home directory
+             */
+            try {
+                file = FileUtils.getHome(props).getFile("conf/openejb.conf");
+                if (file != null && file.exists() && file.isFile()) {
+                    return file.getAbsolutePath();
+                }
+            } catch (java.io.FileNotFoundException e) {
+            }
+
+            _logger.warning("Cannot find the configuration file [conf/openejb.conf], Creating one.");
+
+            /* [6] No config found! Create a config for them
              *     using the default.openejb.conf file from 
              *     the openejb-x.x.x.jar
              */
             //Gets the conf directory, creating it if needed.
-            File confDir = FileUtils.getBase().getDirectory("conf", true);
+            File confDir = FileUtils.getBase(props).getDirectory("conf", true);
             
             //TODO:1: We cannot find the user's conf file and
             // are taking the liberty of creating one for them.

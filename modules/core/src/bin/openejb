@@ -16,8 +16,17 @@
 # $Id$
 #============================================================
 
+cygwin=false
+case "`uname`" in
+CYGWIN*) cygwin=true;;
+esac
+
 if [ -z "$OPENEJB_HOME" ]; then
   OPENEJB_HOME=$PWD
+fi
+
+if $cygwin; then
+  OPENEJB_HOME=`cygpath --path --windows "$OPENEJB_HOME"`
 fi
 
 OPTIONS="-Dopenejb.home=$OPENEJB_HOME"

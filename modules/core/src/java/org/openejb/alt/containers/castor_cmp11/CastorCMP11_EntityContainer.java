@@ -79,6 +79,7 @@ import org.openejb.core.ThreadContext;
 import org.openejb.core.transaction.TransactionContainer;
 import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionPolicy;
+import org.openejb.util.FileUtils;
 import org.openejb.util.LinkedListStack;
 import org.openejb.util.Logger;
 import org.openejb.util.SafeProperties;
@@ -218,6 +219,8 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
     // this map contains the Java language initial values for all all data types
     protected HashMap resetMap;
 
+    private Properties props;
+    
     //DMB:TODO:1: make logger for life cycle info.
 
     /**
@@ -240,8 +243,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         containerID = id;
         deploymentRegistry = registry;
 
-        if ( properties == null ) properties = new Properties();
-
+        this.props = properties;
 
         SafeToolkit toolkit = SafeToolkit.getToolkit( "CastorCMP11_EntityContainer" );
         SafeProperties safeProps = toolkit.getSafeProperties( properties );
@@ -253,14 +255,25 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         File gTxDb = null;
         File lTxDb = null;
         try {
-            gTxDb = org.openejb.util.FileUtils.getBase().getFile( Global_TX_Database );
-        } catch ( Exception e ) {
-            throw new OpenEJBException( "Cannot locate the " + EnvProps.GLOBAL_TX_DATABASE + " file. " + e.getMessage() );
+            gTxDb = FileUtils.getBase(this.props).getFile( Global_TX_Database );
+        } catch ( Exception ignored ) {
+            try {
+                gTxDb = FileUtils.getHome(this.props).getFile(Global_TX_Database);
+            } catch (Exception e) {
+                throw new OpenEJBException("Cannot locate the " + EnvProps.GLOBAL_TX_DATABASE + " file. "
+                        + e.getMessage());
+            }
         }
+
         try {
-            lTxDb = org.openejb.util.FileUtils.getBase().getFile( Local_TX_Database );
-        } catch ( Exception e ) {
-            throw new OpenEJBException( "Cannot locate the " + EnvProps.LOCAL_TX_DATABASE + " file. " + e.getMessage() );
+            lTxDb = FileUtils.getBase(this.props).getFile( Local_TX_Database );
+        } catch ( Exception ignored ) {
+            try {
+                lTxDb = FileUtils.getHome(this.props).getFile(Local_TX_Database);
+            } catch (Exception e) {
+                throw new OpenEJBException("Cannot locate the " + EnvProps.LOCAL_TX_DATABASE + " file. "
+                        + e.getMessage());
+            }
         }
 
         /*

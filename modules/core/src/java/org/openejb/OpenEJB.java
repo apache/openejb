@@ -145,9 +145,9 @@ public final class OpenEJB {
             // OpenEJB does.
             JarUtils.setHandlerSystemProperty();
 
+            Logger.initialize( initProps );
+            
             logger = Logger.getInstance( "OpenEJB.startup", "org.openejb.util.resources" );
-
-            initialized = true;
         }
 
 	/*
@@ -159,7 +159,7 @@ public final class OpenEJB {
 	    versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
 	} catch (java.io.IOException e) {
 	}
-        if( System.getProperty( "openejb.nobanner" ) == null ) {
+        if( initProps.getProperty( "openejb.nobanner" ) == null ) {
             System.out.println( "OpenEJB " + versionInfo.get( "version" ) +"    build: "+versionInfo.get( "date" )+"-"+versionInfo.get( "time" ));
             System.out.println( "" + versionInfo.get( "url" ) );
         }
@@ -307,6 +307,8 @@ public final class OpenEJB {
         } else {
             logger.i18n.debug( "startup.transactionManager", transactionManager.getClass().getName() );
         }
+
+        initialized = true;
 
         logger.i18n.info( "startup.ready" );
     }

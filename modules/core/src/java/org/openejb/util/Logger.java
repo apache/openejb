@@ -44,18 +44,13 @@
  */
 package org.openejb.util;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Properties;
 
 import org.apache.log4j.Category;
 import org.apache.log4j.Level;
 import org.apache.log4j.PropertyConfigurator;
-import org.openejb.OpenEJBException;
 
 
 /**
@@ -73,17 +68,18 @@ import org.openejb.OpenEJBException;
  */
 public class Logger {
 
-    static {
-        Log4jConfigUtils log4j = new Logger.Log4jConfigUtils();
-
-        log4j.configure();
-
-    }
-
     static protected HashMap _loggers = new HashMap();
     protected Category       _logger  = null;
     public    I18N           i18n     = null;
+    
+    private static Properties props;
+    
+    public static void initialize(Properties props)
+    {
+        Log4jConfigUtils log4j = new Logger.Log4jConfigUtils(props);
 
+        log4j.configure();
+    }
 
     /**
      * Returns a shared instance of Logger.
@@ -1598,19 +1594,23 @@ public class Logger {
 
     static class Log4jConfigUtils {
 
+        Properties props;
+        
+        public Log4jConfigUtils(Properties props)
+        {
+            this.props = props;
+        }
+        
         public void configure(){
-            String config = System.getProperty( "log4j.configuration" );
+            String config = props.getProperty( "log4j.configuration" );
             try{
                 // resolve the config file location
-                config = searchForConfiguration(config);
+                config = FileUtils.getAbsolutePath(config, "default.logging.conf", props, false);
 
                 // load the config
-                Properties props = loadProperties(config);
+                Properties log4jProps = loadProperties(config);
 
-                // filter the config
-                props = filterProperties(props);
-
-                PropertyConfigurator.configure(props);
+                PropertyConfigurator.configure(filterProperties(log4jProps));
             } catch (Exception e){
                 System.err.println("Failed to configure log4j. "+e.getMessage());
             }
@@ -1641,104 +1641,5 @@ public class Logger {
             }
             return props;
         }
-        /**
-         * Search for the config file.
-         * 
-         * OPENJB_HOME/conf/logging.conf
-         * OPENJB_HOME/conf/default.logging.conf
-         * 
-         * @return 
-         */
-        public String searchForConfiguration() throws Exception{
-            return searchForConfiguration(null);
-        }
-
-        public String searchForConfiguration(String path) throws Exception{
-            File file = null;
-            try{
-
-                /* [1] Try finding the file relative to the 
-                 *     current working directory
-                 */
-                try{
-                    file = new File(path);
-                    if (file != null && file.exists() && file.isFile()) {
-                        return file.getAbsolutePath();
-                    }
-                } catch (NullPointerException e){
-                }
-
-                /* [2] Try finding the file relative to the 
-                 *     openejb.home directory
-                 */
-                try{
-                    file = FileUtils.getBase().getFile(path);
-                    if (file != null && file.exists() && file.isFile()) {
-                        return file.getAbsolutePath();
-                    }
-                } catch (NullPointerException e){
-                } catch (java.io.FileNotFoundException e){
-                    System.err.println("Cannot find the logging configuration file ["+path+"], Using default OPENEJB_HOME/conf/logging.conf instead.");
-                }
-
-                /* [3] Try finding the standard logging.conf file 
-                 *     relative to the openejb.home directory
-                 */
-                try{
-                    file = FileUtils.getBase().getFile("conf/logging.conf");
-                    if (file != null && file.exists() && file.isFile()) {
-                        return file.getAbsolutePath();
-                    }
-                } catch (java.io.FileNotFoundException e){
-                }
-
-                /* [4] No config found! Create a config for them
-                 *     using the default.logging.conf file from 
-                 *     the openejb-x.x.x.jar
-                 */
-                //Gets the conf directory, creating it if needed.
-                File confDir = FileUtils.getBase().getDirectory("conf", true);
-
-                //TODO:1: We cannot find the user's conf file and
-                // are taking the liberty of creating one for them.
-                // We should log this.                   
-                file = createConfig(new File(confDir, "logging.conf"));
-
-            } catch (java.io.IOException e){
-                //e.printStackTrace();
-                throw new OpenEJBException("Could not locate config file: ", e);
-            }
-
-            /*TODO:2: Check these too.
-            * OPENJB_HOME/lib/openejb-x.x.x.jar
-            * OPENJB_HOME/dist/openejb-x.x.x.jar
-            */
-            //return (file == null)? null: file.getAbsoluteFile().toURL().toExternalForm();
-            return (file == null)? null: file.getAbsolutePath();
-        }
-
-        public File createConfig(File config) throws java.io.IOException{
-            try{
-                URL defaultConfig = new URL("resource:/default.logging.conf");
-                InputStream in = defaultConfig.openStream();
-                FileOutputStream out = new FileOutputStream(config);
-
-                int b = in.read();
-
-                while (b != -1) {
-                    out.write(b);
-                    b = in.read();
-                }
-
-                in.close();
-                out.close();
-
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-
-            return config;
-        }
-
     }
 }
