@@ -58,7 +58,7 @@ webapps &lt;Context&gt; section of Tomcat's server.xml file.  Here is an example
 This would link the name "ejb/hello" to a bean called "Hello" in the OpenEJB container system.
 </p>
 <p>
-For more information see <A HREF="http://openejb.sourceforge.net/tomcat-object-factory.html">Leveraging J2EE JNDI Lookups</A>
+For more information see <A HREF="http://www.openejb.org/tomcat-object-factory.html">Leveraging J2EE JNDI Lookups</A>
 </p>
 </section>
   </body>

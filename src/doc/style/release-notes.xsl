@@ -37,7 +37,7 @@
 <br/>
 <h3>Release news, <xsl:value-of select="$current_release/attribute::releaseDate"/>.</h3>       
 <br/>
-<h3>OpenEJB <xsl:value-of select="$current_release/attribute::id"/> - <a href="http://openejb.sf.net">http://openejb.sf.net</a></h3>
+<h3>OpenEJB <xsl:value-of select="$current_release/attribute::id"/> - <a href="http://www.openejb.org">http://www.openejb.org</a></h3>
 <hr/>
 <p>Release <xsl:value-of select="$current_release/attribute::id"/> available at: 
 <xsl:variable name="current_release_id" select="$current_release/@release_id"/>
