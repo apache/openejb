@@ -53,103 +53,60 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 import org.openejb.EJBInvocation;
 
 /**
  * @version $Revision$ $Date$
  */
-public class BeanPolicy {
+public class BeanPolicy implements TransactionPolicy {
     private static final Log log = LogFactory.getLog(BeanPolicy.class);
+    public static final BeanPolicy INSTANCE = new BeanPolicy();
 
-    // TODO eliminate the two policies... they are exactally the same
-    public static final TransactionPolicy Stateless = new TransactionPolicy() {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
-            TransactionContext clientContext = transactionContextManager.getContext();
-            if (clientContext != null) {
-                clientContext.suspend();
-            }
+    public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
+        TransactionContext clientContext = transactionContextManager.getContext();
+        if (clientContext != null) {
+            clientContext.suspend();
+        }
+        try {
+            UnspecifiedTransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
+            ejbInvocation.setTransactionContext(beanContext);
             try {
-                TransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
-                ejbInvocation.setTransactionContext(beanContext);
+                InvocationResult result = interceptor.invoke(ejbInvocation);
+                if (beanContext != transactionContextManager.getContext()) {
+                    throw new UncommittedTransactionException();
+                }
+                beanContext.commit();
+                return result;
+            } catch (Throwable t) {
                 try {
-                    InvocationResult result = interceptor.invoke(ejbInvocation);
                     if (beanContext != transactionContextManager.getContext()) {
-                        throw new UncommittedTransactionException();
+                        transactionContextManager.getContext().rollback();
                     }
-                    beanContext.commit();
-                    return result;
-                } catch (Throwable t) {
-                    try {
-                        if (beanContext != transactionContextManager.getContext()) {
-                            transactionContextManager.getContext().rollback();
-                        }
-                    } catch (Exception e) {
-                        log.warn("Unable to roll back", e);
-                    }
-                    try {
-                        beanContext.rollback();
-                    } catch (Exception e) {
-                        log.warn("Unable to roll back", e);
-                    }
-                    throw t;
+                } catch (Exception e) {
+                    log.warn("Unable to roll back", e);
                 }
-            } finally {
-                ejbInvocation.setTransactionContext(clientContext);
-                transactionContextManager.setContext(clientContext);
-                if (clientContext != null) {
-                    clientContext.resume();
+                try {
+                    beanContext.rollback();
+                } catch (Exception e) {
+                    log.warn("Unable to roll back", e);
                 }
+                throw t;
             }
-        }
-
-        private Object readResolve() {
-            return Stateless;
-        }
-    };
-
-    public static final TransactionPolicy Stateful = new TransactionPolicy() {
-        public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
-            TransactionContext clientContext = transactionContextManager.getContext();
+        } finally {
+            ejbInvocation.setTransactionContext(clientContext);
+            transactionContextManager.setContext(clientContext);
             if (clientContext != null) {
-                clientContext.suspend();
-            }
-            try {
-                TransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
-                ejbInvocation.setTransactionContext(beanContext);
-                try {
-                    InvocationResult result = interceptor.invoke(ejbInvocation);
-                    if (beanContext != transactionContextManager.getContext()) {
-                        throw new UncommittedTransactionException();
-                    }
-                    beanContext.commit();
-                    return result;
-                } catch (Throwable t) {
-                    try {
-                        if (beanContext != transactionContextManager.getContext()) {
-                            transactionContextManager.getContext().rollback();
-                        }
-                    } catch (Exception e) {
-                        log.warn("Unable to roll back", e);
-                    }
-                    try {
-                        beanContext.rollback();
-                    } catch (Exception e) {
-                        log.warn("Unable to roll back", e);
-                    }
-                    throw t;
-                }
-            } finally {
-                ejbInvocation.setTransactionContext(clientContext);
-                transactionContextManager.setContext(clientContext);
-                if (clientContext != null) {
-                    clientContext.resume();
-                }
+                clientContext.resume();
             }
         }
+    }
 
-        private Object readResolve() {
-            return Stateful;
-        }
-    };
+    public String toString() {
+        return "BeanManaged";
+    }
 
+    private Object readResolve() {
+        return INSTANCE;
+    }
 }

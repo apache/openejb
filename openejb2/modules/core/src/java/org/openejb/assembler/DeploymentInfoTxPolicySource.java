@@ -48,7 +48,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openejb.EJBComponentType;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.BeanPolicy;
 import org.openejb.transaction.ContainerPolicy;
@@ -103,7 +102,7 @@ public class DeploymentInfoTxPolicySource implements TransactionPolicySource {
             case CoreDeploymentInfo.TX_REQUIRED: return ContainerPolicy.Required;
             case CoreDeploymentInfo.TX_REQUIRES_NEW: return ContainerPolicy.RequiresNew;
             case CoreDeploymentInfo.TX_SUPPORTS: return ContainerPolicy.Supports;
-            default: return (deployment.getComponentType() == EJBComponentType.STATELESS)?BeanPolicy.Stateless:BeanPolicy.Stateful;
+            default: return BeanPolicy.INSTANCE;
         }
     }
 
