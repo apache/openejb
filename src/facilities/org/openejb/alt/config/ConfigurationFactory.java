@@ -73,7 +73,7 @@ import org.openejb.util.Messages;
 public class ConfigurationFactory implements OpenEjbConfigurationFactory, ProviderDefaults {
 
     public static final String DEFAULT_SECURITY_ROLE = "openejb.default.security.role";
-    protected static Messages messages = new Messages( "org.openejb.alt.util.resources" );
+    protected static Messages messages = new Messages( "org.openejb.util.resources" );
 
     Openejb openejb;
     DeployedJar[] jars;
