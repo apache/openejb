@@ -164,6 +164,7 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                     DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
                     DeploymentHelper.TRANSACTIONALTIMER_NAME,
                     DeploymentHelper.NONTRANSACTIONALTIMER_NAME,
+                    null,
                     null, // repository
                     moduleBuilder,
                     moduleBuilder,
