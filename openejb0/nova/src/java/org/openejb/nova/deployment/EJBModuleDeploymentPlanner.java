@@ -73,6 +73,7 @@ import org.apache.geronimo.deployment.model.ejb.Ejb;
 import org.apache.geronimo.deployment.model.ejb.RpcBean;
 import org.apache.geronimo.deployment.model.ejb.CmrField;
 import org.apache.geronimo.deployment.model.ejb.EjbRelation;
+import org.apache.geronimo.deployment.model.ejb.Relationships;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
@@ -217,10 +218,13 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
             plan.addTask(new StartMBeanInstance(getServer(), schemaMetadata));
         }
 
-        EjbRelation[] ejbRelations = ejbJar.getRelationships().getEjbRelation();
-        for (int i = 0; i < ejbRelations.length; i++) {
-            EjbRelation ejbRelation = ejbRelations[i];
+        Relationships relationships = ejbJar.getRelationships();
+        if (relationships != null) {
+            EjbRelation[] ejbRelations = relationships.getEjbRelation();
+            for (int i = 0; i < ejbRelations.length; i++) {
+                EjbRelation ejbRelation = ejbRelations[i];
 
+            }
         }
 
         //Now set up the entities.
