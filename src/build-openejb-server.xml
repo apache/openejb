@@ -54,6 +54,14 @@
     
     </copy>
     
+    <copy todir="${build.openejb.server.dest}/openejb">
+    
+      <fileset dir="${build.openejb.server.src}" >
+        <include name="webadmin/**"/>
+      </fileset>
+    
+    </copy>
+    
   </target>
   
   <target name="copy.manifest">
@@ -116,6 +124,7 @@
 			<path refid="project.classpath"/>
 			<pathelement location="${build.dest}/openejb"/>
 			<pathelement location="${build.dest}/loader"/>
+			<pathelement location="${build.dest}/webadmin"/>
 		  </classpath>
 
 		</javac>
@@ -133,6 +142,7 @@
 			<path refid="project.classpath"/>
 			<pathelement location="${build.dest}/openejb"/>
 			<pathelement location="${build.dest}/loader"/>
+			<pathelement location="${build.dest}/webadmin"/>
 		  </classpath>
 
 		</javac>
