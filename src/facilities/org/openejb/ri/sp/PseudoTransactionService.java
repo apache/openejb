@@ -52,6 +52,7 @@ import javax.transaction.Synchronization;
 import javax.transaction.Synchronization;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+import javax.transaction.RollbackException;
 import javax.transaction.UserTransaction;
 import javax.transaction.xa.XAResource;
 import org.openejb.spi.TransactionService;
@@ -71,7 +72,7 @@ public class PseudoTransactionService implements TransactionService {
         public UserTransaction getUserTransaction(Object txID){
             return new UserTransaction( ){
                 public void begin() {MyTransactionManager.this.begin();}
-                public void commit() {MyTransactionManager.this.commit();}
+                public void commit()  throws RollbackException {MyTransactionManager.this.commit();}
                 public int getStatus()throws javax.transaction.SystemException{
                     return MyTransactionManager.this.getStatus();
                 }
@@ -84,7 +85,7 @@ public class PseudoTransactionService implements TransactionService {
             Transaction tx = new MyTransaction( );
             map.put(Thread.currentThread(), tx);
         }
-        public void commit(){
+        public void commit() throws RollbackException {
             MyTransaction tx = (MyTransaction)map.remove(Thread.currentThread());
             if(tx!=null)
                 tx.commit();
@@ -122,11 +123,15 @@ public class PseudoTransactionService implements TransactionService {
         public void setTransactionTimeout(int x){}
     
     }
-    public class MyTransaction implements Transaction{
+    public class MyTransaction implements Transaction {
         Vector registeredSynchronizations = new Vector();
         Vector xaResources = new Vector();
         int status = Status.STATUS_ACTIVE;
-        public void commit() {
+        public void commit() throws RollbackException {
+	    if ( status == Status.STATUS_MARKED_ROLLBACK ) {
+		rollback();
+		throw new RollbackException();
+	    }
             doBeforeCompletion();
             doXAResources(Status.STATUS_COMMITTED);
             status = Status.STATUS_COMMITTED;
