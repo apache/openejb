@@ -44,34 +44,66 @@
  */
 package org.openejb.client;
 
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+
+import javax.management.ObjectName;
+import javax.naming.Context;
+import javax.naming.NamingException;
+
 /**
- * 
- * @since 11/25/2001
+ * @version $Revision$ $Date$
  */
-public interface ResponseCodes {
+public class AppClientJNDIContext implements org.apache.geronimo.client.AppClientPlugin {
 
-    // TODO: Implement more specific response codes for EJB
+    private final String host;
+    private final int port;
+    private Context context;
 
-    public static final int AUTH_GRANTED             =  1;
-    public static final int AUTH_REDIRECT            =  2;
-    public static final int AUTH_DENIED              =  3;
-    public static final int EJB_OK                   =  4;
-    public static final int EJB_OK_CREATE            =  5;
-    public static final int EJB_OK_FOUND             =  6;
-    public static final int EJB_OK_FOUND_COLLECTION  =  7;
-    public static final int EJB_OK_NOT_FOUND         =  8;
-    public static final int EJB_APP_EXCEPTION        =  9;
-    public static final int EJB_SYS_EXCEPTION        = 10;
-    public static final int EJB_ERROR                = 11;
-    public static final int JNDI_OK                  = 12;
-    public static final int JNDI_EJBHOME             = 13;
-    public static final int JNDI_CONTEXT             = 14;
-    public static final int JNDI_ENUMERATION         = 15;
-    public static final int JNDI_NOT_FOUND           = 16;
-    public static final int JNDI_NAMING_EXCEPTION    = 17;
-    public static final int JNDI_RUNTIME_EXCEPTION   = 18;
-    public static final int JNDI_ERROR               = 19;
-    public static final int EJB_OK_FOUND_ENUMERATION = 20;
-    public static final int JNDI_CONTEXT_TREE        = 21;
+    public AppClientJNDIContext(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
+
+    public void startClient(ObjectName appClientModuleName) throws Exception {
+        try {
+            ServerMetaData serverMetaData = new ServerMetaData(host, port);
+
+            JNDIResponse res = new JNDIResponse(serverMetaData);
+            JNDIRequest req = new JNDIRequest(JNDIRequest.JNDI_LOOKUP, "");
+
+            req.setClientModuleID(appClientModuleName.toString());
+
+            Client.request(req, res, serverMetaData);
+
+            context = (Context) res.getResult();
+        } catch (Exception e) {
+            NamingException namingException = new NamingException("Unable to retrieve J2EE AppClient's JNDI Context");
+            e.initCause(namingException);
+            throw namingException;
+        }
+    }
+
+    public void stopClient(ObjectName appClientModuleName) throws Exception {
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AppClientJNDIContext.class);
+
+        infoFactory.addOperation("startClient", new Class[]{ObjectName.class});
+        infoFactory.addOperation("stopClient", new Class[]{ObjectName.class});
+        infoFactory.addAttribute("host", String.class, true);
+        infoFactory.addAttribute("port", int.class, true);
+        infoFactory.addAttribute("context", Context.class, false);
+        infoFactory.setConstructor(new String[]{"host", "port"});
+
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 }
-

@@ -55,6 +55,13 @@ import java.io.ObjectOutput;
 public class JNDIRequest implements Request {
     
     private transient int requestMethod = -1;
+
+
+    public void setClientModuleID(String clientModuleID) {
+        this.clientModuleID = clientModuleID;
+    }
+
+    private transient String clientModuleID;
     private transient String requestString;
 
     public JNDIRequest() {
@@ -85,7 +92,10 @@ public class JNDIRequest implements Request {
         this.requestString = requestString;
     }
 
-    
+    public String getClientModuleID() {
+        return clientModuleID;
+    }
+
     /**
      * The object implements the readExternal method to restore its
      * contents by calling the methods of DataInput for primitive
@@ -100,6 +110,7 @@ public class JNDIRequest implements Request {
      */
     public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {
         requestMethod = in.readByte();
+        clientModuleID = in.readUTF();
         requestString = in.readUTF();
     }
     /**
@@ -119,9 +130,8 @@ public class JNDIRequest implements Request {
      */
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeByte((byte)requestMethod);
+        out.writeUTF(clientModuleID);
         out.writeUTF (requestString);
     }
 
 }
-
-

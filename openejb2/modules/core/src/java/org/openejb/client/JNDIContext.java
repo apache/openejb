@@ -44,21 +44,13 @@
  */
 package org.openejb.client;
 
+import javax.naming.*;
+import javax.naming.spi.InitialContextFactory;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Hashtable;
-
-import javax.naming.ConfigurationException;
-import javax.naming.Context;
-import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NameNotFoundException;
-import javax.naming.NameParser;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.spi.InitialContextFactory;
 /**
  * JNDI client
  * 
@@ -80,7 +72,6 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
      *
      * @param environment
      * @exception NamingException
-     * @see NamingServer
      */
     JNDIContext(Hashtable environment) throws NamingException{
         init( environment );
@@ -108,7 +99,6 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
      *
      * @param environment
      * @exception NamingException
-     * @see NamingServer
      */
     public void init(Hashtable environment) throws NamingException{
     }
@@ -160,8 +150,8 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         String psswrd    = (String) env.get(Context.SECURITY_CREDENTIALS);
         Object serverURL = env.get(Context.PROVIDER_URL);
 
-        if (userID == null) throw new ConfigurationException("Context property cannot be null: "+Context.SECURITY_PRINCIPAL);
-        if (psswrd == null) throw new ConfigurationException("Context property cannot be null: "+Context.SECURITY_CREDENTIALS);
+//        if (userID == null) throw new ConfigurationException("Context property cannot be null: "+Context.SECURITY_PRINCIPAL);
+//        if (psswrd == null) throw new ConfigurationException("Context property cannot be null: "+Context.SECURITY_CREDENTIALS);
         if (serverURL == null) throw new ConfigurationException("Context property cannot be null: "+Context.PROVIDER_URL);
         
         URL url;
@@ -200,11 +190,11 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         AuthenticationRequest  req = new AuthenticationRequest(userID, psswrd);
         AuthenticationResponse res = null;
 
-	try {
-	    res = requestAuthorization(req);
-	} catch (java.rmi.RemoteException e) {
-	    throw new javax.naming.AuthenticationException(e.getLocalizedMessage());
-	}
+        try {
+            res = requestAuthorization(req);
+        } catch (java.rmi.RemoteException e) {
+            throw new javax.naming.AuthenticationException(e.getLocalizedMessage());
+        }
         
         switch (res.getResponseCode()) {
             case AUTH_REDIRECT:

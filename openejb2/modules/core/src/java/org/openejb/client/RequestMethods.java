@@ -90,7 +90,8 @@ public interface RequestMethods {
     public static final int JNDI_LOOKUP                 = 27;
     public static final int JNDI_LIST                   = 28;
     public static final int JNDI_LIST_BINDINGS          = 29;
-    
+    public static final int JNDI_APP_CTX_PULL           = 30;
+
 
 }
 
