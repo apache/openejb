@@ -80,7 +80,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
-import org.apache.geronimo.security.SecurityServiceImpl;
+import org.apache.geronimo.security.SecurityService;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
@@ -117,7 +117,7 @@ import org.tranql.sql.sql92.SQL92Schema;
  */
 public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder {
 
-    private final SecurityServiceImpl securityService;
+    private final SecurityService securityService;
     private final URI defaultParentId;
     private final CMPEntityBuilder cmpEntityBuilder;
     private final SessionBuilder sessionBuilder;
@@ -126,7 +126,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final ContainerSecurityBuilder containerSecurityBuilder;
     private final SkeletonGenerator skeletonGenerator;
 
-    public OpenEJBModuleBuilder(SecurityServiceImpl securityService, URI defaultParentId, SkeletonGenerator skeletonGenerator) {
+    public OpenEJBModuleBuilder(SecurityService securityService, URI defaultParentId, SkeletonGenerator skeletonGenerator) {
         this.securityService = securityService;
         this.defaultParentId = defaultParentId;
         this.skeletonGenerator = skeletonGenerator;
@@ -551,13 +551,13 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class);
-        infoBuilder.addReference("SecurityServiceImpl", SecurityServiceImpl.class);
+        infoBuilder.addReference("SecurityService", SecurityService.class);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class);
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(EJBReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[] {"SecurityServiceImpl", "defaultParentId", "SkeletonGenerator"});
+        infoBuilder.setConstructor(new String[] {"SecurityService", "defaultParentId", "SkeletonGenerator"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
