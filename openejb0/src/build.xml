@@ -947,6 +947,9 @@
         <include name="openejb-${version}.jar"/>
         <include name="openejb_client-${version}.jar"/>
         <include name="openejb_server-${version}.jar"/>
+        <include name="openejb-handler-${version}.jar"/>
+        <include name="openejb_loader-${version}.war"/>
+        <include name="openejb_loader-${version}.jar"/>
         <include name="openejb_ejb_tests-${version}.jar"/>
       </fileset>
     
