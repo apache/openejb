@@ -72,7 +72,11 @@ public class ConnectionManager extends ConnectionManagerInfo  implements DomObje
      */
     public static final String CONNECTION_MANAGER_ID = "connection-manager-id";
 
-
+    /**
+        * Represents the <tt>codebase</tt> element in the XML config file.
+     */
+    public static final String CODEBASE = "codebase";
+    
     /** 
      * Parses out the values needed by this DomObject from the DOM Node passed in.
      * @see org.w3c.dom.Node
@@ -81,6 +85,7 @@ public class ConnectionManager extends ConnectionManagerInfo  implements DomObje
 
         className = DomTools.getChildElementPCData(node, CLASS_NAME);
         connectionManagerId = DomTools.getChildElementPCData(node, CONNECTION_MANAGER_ID);
+        codebase = DomTools.getChildElementPCData(node, CODEBASE);
 
         properties = DomTools.readProperties(node);
         

@@ -69,8 +69,16 @@ public class ManagedConnectionFactory extends ManagedConnectionFactoryInfo imple
      */
     public static final String CLASS_NAME = "class-name";
 
+    /**
+    * Represents the <tt>codebase</tt> element in the XML config file.
+     */
+    public static final String CODEBASE = "codebase";
 
-
+    /**
+        * Represents the <tt>codebase</tt> element in the XML config file.
+     */
+    public static final String ID = "connection-factory-id";
+    
     /** 
      * Parses out the values needed by this DomObject from the DOM Node passed in.
      * @see org.w3c.dom.Node
@@ -78,6 +86,8 @@ public class ManagedConnectionFactory extends ManagedConnectionFactoryInfo imple
     public void initializeFromDOM(Node node) throws OpenEJBException{
 
         className = DomTools.getChildElementPCData(node, CLASS_NAME);
+        codebase = DomTools.getChildElementPCData(node, CODEBASE);
+        id = DomTools.getChildElementPCData(node, ID);
 
         properties = DomTools.readProperties(node);
 
