@@ -201,7 +201,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
         // build the instance factory
         Map instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors);
-        InstanceContextFactory contextFactory = new CMPInstanceContextFactory(getContainerId(), proxyFactory, cacheTable, identityDefiner, primaryKeyTransform, beanClass, instanceMap);
+        InstanceContextFactory contextFactory = new CMPInstanceContextFactory(getContainerId(), proxyFactory, primaryKeyTransform, faultHandler, beanClass, instanceMap);
         EntityInstanceFactory instanceFactory = new EntityInstanceFactory(getComponentContext(), contextFactory);
 
         // build the pool

@@ -47,7 +47,10 @@
  */
 package org.openejb.entity;
 
+import java.rmi.NoSuchObjectException;
 import javax.ejb.EntityBean;
+import javax.ejb.NoSuchEntityException;
+import javax.ejb.NoSuchObjectLocalException;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
@@ -98,7 +101,15 @@ public final class EntityInstanceInterceptor implements Interceptor {
             }
 
             // associate this instance with the TransactionContext
-            transactionContext.associate(context);
+            try {
+                transactionContext.associate(context);
+            } catch (NoSuchEntityException e) {
+                if (ejbInvocation.getType().isLocal()) {
+                    throw new NoSuchObjectLocalException().initCause(e);
+                } else {
+                    throw new NoSuchObjectException(e.getMessage());
+                }
+            }
         }
 
         ejbInvocation.setEJBInstanceContext(context);

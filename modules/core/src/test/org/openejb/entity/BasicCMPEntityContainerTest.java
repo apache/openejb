@@ -47,17 +47,16 @@
  */
 package org.openejb.entity;
 
+import java.rmi.NoSuchObjectException;
 import java.sql.Connection;
-import java.sql.Statement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashSet;
-import java.rmi.NoSuchObjectException;
-import java.rmi.RemoteException;
-import javax.management.ObjectName;
-import javax.sql.DataSource;
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
+import javax.management.ObjectName;
+import javax.sql.DataSource;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -66,8 +65,8 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TransactionManagerProxy;
 
-import junit.framework.TestCase;
 import junit.framework.AssertionFailedError;
+import junit.framework.TestCase;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.MockTransactionManager;
 import org.openejb.deployment.TransactionPolicySource;
@@ -77,7 +76,6 @@ import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
 import org.tranql.ejb.CMPField;
 import org.tranql.ejb.EJB;
-import org.tranql.ejb.NotLoadedException;
 
 /**
  * @version $Revision$ $Date$
@@ -183,8 +181,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
 
         try {
             local.intMethod(33);
-            // todo this does not throw an exception because we are not verifying that the row exists in ejbLoad and intMethod does not access any persistent data
-//            fail("Expected NoSuchObjectLocalException, but no exception was thrown");
+            fail("Expected NoSuchObjectLocalException, but no exception was thrown");
         } catch(AssertionFailedError e) {
             throw e;
         } catch(NoSuchObjectLocalException e) {
@@ -195,15 +192,14 @@ public class BasicCMPEntityContainerTest extends TestCase {
 
         try {
             local.getValue();
-            // we don't have a load query so this is not an ObjectNotFoundException
-            fail("Expected NotLoadedException, but no exception was thrown");
+            fail("Expected NoSuchObjectLocalException, but no exception was thrown");
         } catch(AssertionFailedError e) {
             throw e;
-        } catch(NotLoadedException e) {
+        } catch(NoSuchObjectLocalException e) {
             // expected
         } catch(Throwable e) {
             e.printStackTrace();
-            fail("Expected NotLoadedException, but got " + e.getClass().getName());
+            fail("Expected NoSuchObjectLocalException, but got " + e.getClass().getName());
         }
 
         try {
@@ -258,26 +254,26 @@ public class BasicCMPEntityContainerTest extends TestCase {
 
         try {
             remote.intMethod(33);
-            // todo this does not throw an exception because we are not verifying that the row exists in ejbLoad and intMethod does not access any persistent data
-//            fail("Expected NoSuchObjectException, but no exception was thrown");
+            fail("Expected NoSuchObjectException, but no exception was thrown");
         } catch(AssertionFailedError e) {
             throw e;
         } catch(NoSuchObjectException e) {
             // expected
         } catch(Throwable e) {
+            e.printStackTrace();;
             fail("Expected NoSuchObjectException, but got " + e.getClass().getName());
         }
 
         try {
             remote.getValue();
-            fail("Expected RemoteException, but no exception was thrown");
+            fail("Expected NoSuchObjectException, but no exception was thrown");
         } catch(AssertionFailedError e) {
             throw e;
-        } catch(RemoteException e) {
+        } catch(NoSuchObjectException e) {
             // expected
         } catch(Throwable e) {
             e.printStackTrace();
-            fail("Expected RemoteException, but got " + e.getClass().getName());
+            fail("Expected NoSuchObjectException, but got " + e.getClass().getName());
         }
 
         try {
