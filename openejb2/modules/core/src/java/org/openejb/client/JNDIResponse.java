@@ -211,9 +211,9 @@ public class JNDIResponse implements Response {
     private void writeContextTree(ObjectOutput out, Context context)  throws IOException {
         String name = null;
         try {
-            NamingEnumeration enum = context.listBindings( "" );
-            while (enum.hasMoreElements()){
-                Binding pair = (Binding)enum.next();
+            NamingEnumeration namingEnum = context.listBindings( "" );
+            while (namingEnum.hasMoreElements()){
+                Binding pair = (Binding)namingEnum.next();
                 name = pair.getName();
 
                 Object obj = pair.getObject();
