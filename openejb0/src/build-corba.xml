@@ -25,6 +25,7 @@
     <pathelement location="lib/logkit.jar"/>
     <pathelement location="lib/avalon-framework.jar"/>
     <pathelement location="lib/xercesImpl-2.0.2.jar"/>
+    <pathelement location="lib/ichilli-tools.jar"/>
     <pathelement location="${junit.jar}"/>
   </path>
   
@@ -92,17 +93,44 @@
    <!-- =============================== -->
    <!--                IDL              -->
    <!-- =============================== -->
-   <target name="java2idl">
+   <!--<target name="java2idl">
      <echo message="Compiling ${source}..." />
      <java failonerror="true" classname="org.openorb.rmi.compiler.JavaToIdl" fork="true">
        <classpath refid="project.classpath" />
        <classpath location="${build.testsuite.dest}" />
        <arg line="-all -silence -stub -tie -noidl -d ${dest.gensrc.dir} ${source}" />
      </java>
-   </target>
+   </target>-->
 
   <target name="generate-idl-classes">
-    <antcall target="java2idl" >
+    <taskdef name="idl-process" classname="org.ichilli.tools.anttasks.openorb.IDLProcess">
+        <classpath refid="project.classpath"/>
+    </taskdef>
+
+    <idl-process basedir="${build.dest}/testsuite"
+             destdir="${dest.gensrc.dir}"
+             extension=".java"
+             processDependencies="true"
+             quiet="true"
+             generateStubs="true"
+             generateTies="true"
+             generateValueTypeDataMethods="true"
+             packageName="org.openejb.test"
+             verbose="false"
+             excludes="**/*Test*.class,**/*Bean*.class"
+             includes="**/stateless/*Object.class,**/stateless/*Home.class,
+                            **/statefull/*Object.class,**/statefull/*Home.class,
+                            **/cmp/*Object.class,**/cmp/*Home.class,
+                            **/bmp/*Object.class,**/bmp/*Home.class,
+                            **/Calculator*.class,**/Shopping*.class,
+                            **/Employee*.class,**/Database*.class">
+      <classpath>        
+        <pathelement location="${build.testsuite.dest}"/>
+        <path refid="project.classpath"/>
+      </classpath>
+    </idl-process>
+
+    <!--<antcall target="java2idl" >
       <param name="source" value="org.openejb.test.stateless.RmiIiopStatelessObject" />
     </antcall>
     <antcall target="java2idl" >
@@ -213,7 +241,7 @@
     </antcall>
     <antcall target="java2idl" >
       <param name="source" value="org.openejb.test.beans.CalculatorHome" />
-    </antcall>
+    </antcall>-->
   </target>
     
   <target name="compile-idl-classes" depends="generate-idl-classes">
