@@ -6,9 +6,6 @@
 #   This script is the central entry point to 
 #   all of OpenEJB's functions.
 #  
-#   Tested on Windows 2000
-#
-#
 #   Created by David Blevins 
 #             <david.blevins@visi.com>
 # _______________________________________________
