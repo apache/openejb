@@ -185,7 +185,6 @@ by the server.
             LoginModule.1.REQUIRED=geronimo.security:type=LoginModule,name=properties-login
         </attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
-<!--        <attribute name="autoMapPrincipalClasses" type="java.lang.String">org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal</attribute>-->
     </gbean>
 
     <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=JMX"

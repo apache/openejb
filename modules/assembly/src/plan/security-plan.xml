@@ -57,7 +57,6 @@ Configuration for the CORBA server.
             LoginModule.1.REQUIRED=geronimo.security:type=LoginModule,name=public-login
         </attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
-<!--        <attribute name="autoMapPrincipalClasses" type="java.lang.String">org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal</attribute> -->
     </gbean>
 
     <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=public"
@@ -85,7 +84,6 @@ Configuration for the CORBA server.
             LoginModule.1.REQUIRED=geronimo.security:type=LoginModule,name=black-login
         </attribute>
         <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
-<!--        <attribute name="autoMapPrincipalClasses" type="java.lang.String">org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal</attribute>-->
     </gbean>
 
     <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=black"
