@@ -102,8 +102,8 @@ public class CMPEntityContainer extends AbstractEJBContainer {
         vtable = vopFactory.getVTable();
         itable = vopFactory.getITable();
 
-        ejbLoadCommand = persistenceFactory.getQueryCommand(new MethodSignature("ejbLoad", new String[0])); //todo remove ejbClassName and make this a constant
-        ejbStoreCommand = persistenceFactory.getUpdateCommand(new MethodSignature("ejbStore", new String[0])); //todo remove ejbClassName and make this a constant
+        ejbLoadCommand = persistenceFactory.getQueryCommand(new MethodSignature("ejbLoad"));
+        ejbStoreCommand = persistenceFactory.getUpdateCommand(new MethodSignature("ejbStore"));
 
         pool = new SoftLimitedInstancePool(new EntityInstanceFactory(componentContext, vopFactory.getInstanceContextFactory()), 1);
 

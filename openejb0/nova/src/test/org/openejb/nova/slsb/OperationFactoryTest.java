@@ -93,7 +93,7 @@ public class OperationFactoryTest extends TestCase {
 
     private static class EJB1 implements SessionBean {
         public static final MethodSignature[] sigs = {
-            new MethodSignature("method1", new String[]{}),
+            new MethodSignature("method1"),
             new MethodSignature("method2", new String[]{"int", "java.lang.Integer"}),
             new MethodSignature("method3", new String[]{"java.lang.Integer"}),
             new MethodSignature("method4", new String[]{"[I"}),

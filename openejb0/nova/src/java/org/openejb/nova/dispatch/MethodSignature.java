@@ -57,6 +57,7 @@ import java.util.Arrays;
  * @version $Revision$ $Date$
  */
 public final class MethodSignature implements Serializable {
+    private static final String[] NOARGS = {};
     private final String methodName;
     private final String[] parameterTypes;
 
@@ -69,9 +70,14 @@ public final class MethodSignature implements Serializable {
         }
     }
 
+    public MethodSignature(String methodName) {
+        this.methodName = methodName;
+        parameterTypes = NOARGS;
+    }
+
     public MethodSignature(String methodName, String[] parameterTypes) {
         this.methodName = methodName;
-        this.parameterTypes = parameterTypes != null ? parameterTypes : new String[] {};
+        this.parameterTypes = parameterTypes != null ? parameterTypes : NOARGS;
     }
 
     public MethodSignature(String methodName, Class[] params) {
