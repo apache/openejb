@@ -49,7 +49,7 @@
 package org.openejb.deployment;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
