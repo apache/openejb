@@ -91,4 +91,18 @@ Example: --admin-ip addresses
  IP address.  This is usually done via a hosts file, interal
  DNS server, or Windows Domain Server. 
 
+Example: --local-copy
+
+ openejb start --local-copy=true
+            
+ Instructs the container system to marshal (ie, copy) all
+ calls between beans are required by the EJB 1.1 specification.  
+ 
+ openejb start --local-copy=false
+ 
+ Instructs the container system to not marshal (copy) calls 
+ between beans. The container system as will pass parameters 
+ and return values without copying or marshalling as is 
+ required for EJB 2.0 Local interfaces.
+            
 Bug Reports to <openejb-user@lists.sf.net>

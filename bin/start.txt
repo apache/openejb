@@ -36,6 +36,15 @@ OPTIONS
  --admin-ip A comma delimited list of hosts and IP addresses that
             are allowed to administer this server.
 
+ --local-copy=[true|false]
+            
+            When set to true, the container system will marshall
+            (ie, copy) all calls between beans are required by 
+            the EJB 1.1 specification.  When set to false, the 
+            container system will pass parameters and return 
+            values without copying or marshalling as is required
+            for EJB 2.0 Local interfaces.  Default is true.
+
 
 See http://openejb.sf.net/remote-server.html for more information.
 
