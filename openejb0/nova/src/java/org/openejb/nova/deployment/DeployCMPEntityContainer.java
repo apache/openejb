@@ -63,6 +63,7 @@ import org.openejb.nova.entity.cmp.CMPQuery;
 import org.openejb.nova.entity.cmp.CMPEntityContainer;
 import org.openejb.nova.entity.cmp.SimpleCommandFactory;
 import org.openejb.nova.entity.cmp.CMRelation;
+import org.openejb.nova.entity.cmp.CMPConfiguration;
 import org.openejb.nova.entity.EntityContainerConfiguration;
 import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.persistence.jdbc.Binding;
@@ -155,11 +156,12 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
 
                 schema.defineCall(methodSignature, query.getSql(), inputBindings, outputBindings);
             }
-            CMPEntityContainer container = new CMPEntityContainer(config,
-                    schema,
-                    cmpQueries,
-                    cmpFieldNames,
-                    cmRelations);
+            CMPConfiguration cmpConfig = new CMPConfiguration();
+            cmpConfig.persistenceFactory = schema;
+            cmpConfig.queries = cmpQueries;
+            cmpConfig.cmpFieldNames = cmpFieldNames;
+            cmpConfig.relations = cmRelations;
+            CMPEntityContainer container = new CMPEntityContainer(config, cmpConfig);
             GeronimoMBeanInfo mbeanInfo = metadata.getGeronimoMBeanInfo();
             mbeanInfo.setTarget(container);
             super.perform();

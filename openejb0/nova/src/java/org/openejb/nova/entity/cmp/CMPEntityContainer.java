@@ -79,13 +79,13 @@ public class CMPEntityContainer extends AbstractEJBContainer {
     private final String[] cmpFieldNames;
     private final CMRelation[] relations;
 
-    public CMPEntityContainer(EntityContainerConfiguration config, CMPCommandFactory persistenceFactory, CMPQuery[] queries, String[] cmpFieldNames, CMRelation[] relations) {
+    public CMPEntityContainer(EntityContainerConfiguration config, CMPConfiguration cmpConfig) {
         super(config);
         pkClassName = config.pkClassName;
-        this.persistenceFactory = persistenceFactory;
-        this.queries = queries;
-        this.cmpFieldNames = cmpFieldNames;
-        this.relations = relations;
+        this.persistenceFactory = cmpConfig.persistenceFactory;
+        this.queries = cmpConfig.queries;
+        this.cmpFieldNames = cmpConfig.cmpFieldNames;
+        this.relations = cmpConfig.relations;
     }
 
     public void doStart() {

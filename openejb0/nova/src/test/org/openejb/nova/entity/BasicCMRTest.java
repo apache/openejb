@@ -73,6 +73,7 @@ import org.openejb.nova.entity.cmp.CMPEntityContainer;
 import org.openejb.nova.entity.cmp.CMPQuery;
 import org.openejb.nova.entity.cmp.SimpleCommandFactory;
 import org.openejb.nova.entity.cmp.CMRelation;
+import org.openejb.nova.entity.cmp.CMPConfiguration;
 import org.openejb.nova.persistence.jdbc.Binding;
 import org.openejb.nova.persistence.jdbc.binding.IntBinding;
 import org.openejb.nova.persistence.jdbc.binding.StringBinding;
@@ -142,8 +143,12 @@ public class BasicCMRTest extends TestCase {
         signature = new MethodSignature("ejbStore", new String[0]);
         persistenceFactory.defineUpdate(signature, "UPDATE MOCK SET VALUE = ? WHERE ID=?", new Binding[]{new StringBinding(1,1), new IntBinding(2, 0)});
 
-        String[] cmpFieldNames = { "id", "value" };
-        container = new CMPEntityContainer(config, persistenceFactory, (CMPQuery[]) queries.toArray(new CMPQuery[0]), cmpFieldNames, new CMRelation[0]);
+        CMPConfiguration cmpConfig = new CMPConfiguration();
+        cmpConfig.persistenceFactory = persistenceFactory;
+        cmpConfig.queries = (CMPQuery[]) queries.toArray(new CMPQuery[0]);
+        cmpConfig.cmpFieldNames = new String[] { "id", "value" };
+        cmpConfig.relations = new CMRelation[] {};
+        container = new CMPEntityContainer(config, cmpConfig);
 
         persistenceFactory.defineContainer("Mock", container);
         container.doStart();
