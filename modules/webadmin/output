@@ -1,0 +1,60 @@
+ __  __
+|  \/  |__ _Apache__ ___
+| |\/| / _` \ V / -_) ' \  ~ intelligent projects ~
+|_|  |_\__,_|\_/\___|_||_|  v. 1.0-rc1-SNAPSHOT
+
+Attempting to download mx4j-SNAPSHOT.jar.
+default:
+java:prepare-filesystem:
+
+java:compile:
+    [depend] Deleted 0 out of date files in 0 seconds
+    [echo] Compiling to C:\dev\OpenEJB\openejb2\modules\core/target/classes
+    [javac] Compiling 392 source files to C:\dev\OpenEJB\openejb2\modules\core\target\classes
+C:\dev\OpenEJB\openejb2\modules\core\src\java\org\openejb\server\admin\HttpRequestImpl.java:67: package org.apache.commons.fileupload does not exist
+import org.apache.commons.fileupload.MultipartStream;
+                                     ^
+C:\dev\OpenEJB\openejb2\modules\core\src\java\org\openejb\alt\containers\castor_cmp11\CastorCMP11_EntityContainer.java:345: package org.openejb.tyrex does not exist
+                if ( di instanceof org.openejb.tyrex.TyrexDeploymentInfo ) {
+                                                    ^
+C:\dev\OpenEJB\openejb2\modules\core\src\java\org\openejb\core\entity\EntityContext.java:59: org.openejb.core.entity.EntityContext is not abstract and does not override abstract method getEJBLocalObject() in javax.ejb.EntityContext
+public class EntityContext 
+       ^
+C:\dev\OpenEJB\openejb2\modules\core\src\java\org\openejb\core\stateful\StatefulContext.java:60: org.openejb.core.stateful.StatefulContext is not abstract and does not override abstract method getMessageContext() in javax.ejb.SessionContext
+public class StatefulContext 
+       ^
+C:\dev\OpenEJB\openejb2\modules\core\src\java\org\openejb\core\stateless\StatelessContext.java:61: org.openejb.core.stateless.StatelessContext is not abstract and does not override abstract method getMessageContext() in javax.ejb.SessionContext
+public class StatelessContext 
+       ^
+C:\dev\OpenEJB\openejb2\modules\core\src\java\org\openejb\resource\jdbc\JdbcManagedConnectionFactory.java:59: org.openejb.resource.jdbc.JdbcManagedConnectionFactory is not abstract and does not override abstract method getResourceAdapter() in javax.resource.spi.ManagedConnectionFactory
+public class JdbcManagedConnectionFactory 
+       ^
+C:\dev\OpenEJB\openejb2\modules\core\src\java\org\openejb\server\admin\HttpRequestImpl.java:457: cannot resolve symbol
+symbol  : class MultipartStream 
+location: class org.openejb.server.admin.HttpRequestImpl
+		MultipartStream multi = new MultipartStream(input, boundary);
+                ^
+C:\dev\OpenEJB\openejb2\modules\core\src\java\org\openejb\server\admin\HttpRequestImpl.java:457: cannot resolve symbol
+symbol  : class MultipartStream 
+location: class org.openejb.server.admin.HttpRequestImpl
+		MultipartStream multi = new MultipartStream(input, boundary);
+                                            ^
+C:\dev\OpenEJB\openejb2\modules\core\src\java\org\openejb\server\admin\HttpRequestImpl.java:524: package MultipartStream does not exist
+			} catch (MultipartStream.MalformedStreamException mse) {
+                                                ^
+C:\dev\OpenEJB\openejb2\modules\core\src\java\org\openejb\util\proxy\ProxyClassLoader.java:310: package DynamicProxyFactory does not exist
+            return getCachedByteCode( DynamicProxyFactory.loader.loadClass(className) );
+                                                         ^
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -deprecation for details.
+10 errors
+
+BUILD FAILED
+File...... file:/C:/Documents and Settings/dblevins/.maven/plugins/maven-java-plugin-1.3/
+Element... ant:javac
+Line...... 34
+Column.... 48
+Compile failed; see the compiler error output for details.
+Total time: 8 seconds
+Finished at: Tue Feb 03 20:24:48 CST 2004
+

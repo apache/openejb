@@ -1,0 +1,155 @@
+#!/bin/sh
+#============================================================
+#   Control script for OpenEJB
+#   --------------------------
+#    
+#   This script is the central entry point to 
+#   all of OpenEJB's functions.
+#  
+#   Contributed by:
+#
+#    - David Blevins <david.blevins@visi.com>
+#    - Daniel S. Haischt <daniel.haischt@daniel-s-haischt.biz>
+#             
+#               
+# ___________________________________________________________
+# $Id$
+#============================================================
+
+if [ -z "$OPENEJB_HOME" ]; then
+  OPENEJB_HOME=$PWD
+fi
+
+OPTIONS="-Dopenejb.home=$OPENEJB_HOME"
+
+#============================================================
+_command_help()
+{
+    case $2 in
+        "validate")
+            cat $OPENEJB_HOME/bin/validate.txt
+        ;;
+        "deploy")
+            cat $OPENEJB_HOME/bin/deploy.txt 
+        ;;
+        "start")
+            cat $OPENEJB_HOME/bin/start.txt
+        ;;
+        "stop")
+            cat $OPENEJB_HOME/bin/stop.txt
+        ;;
+        "corba")
+            cat $OPENEJB_HOME/bin/corba.txt
+        ;;
+        "create_stubs")
+            cat $OPENEJB_HOME/bin/create_stubs.txt
+        ;;
+        *)
+            cat $OPENEJB_HOME/bin/commands.txt
+        ;;
+    esac
+}
+#============================================================
+_command_deploy()
+{
+   shift
+   java $OPTIONS -cp $OPENEJB_HOME/lib/openejb-core-*.jar org.openejb.util.Launcher org.openejb.alt.config.Deploy $@
+}
+#============================================================
+_command_validate()
+{
+   shift
+   java $OPTIONS -cp $OPENEJB_HOME/lib/openejb-core-*.jar org.openejb.util.Launcher org.openejb.alt.config.Validator $@
+}
+#============================================================
+_command_start()
+{
+   java $OPTIONS -cp $OPENEJB_HOME/lib/openejb-core-*.jar org.openejb.util.Launcher org.openejb.server.Main $@
+}
+#============================================================
+_command_stop()
+{
+   java $OPTIONS -cp $OPENEJB_HOME/lib/openejb-core-*.jar org.openejb.util.Launcher org.openejb.server.Stop $@
+}
+#============================================================
+_start_corba()
+{
+   echo " 1. OpenORB RMI/IIOP JNDI Naming Server..."
+   
+   NAMING_OPTIONS="-Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFactory \
+          -Dorg.omg.CORBA.ORBClass=org.openorb.CORBA.ORB \
+          -Dorg.omg.CORBA.ORBSingletonClass=org.openorb.CORBA.ORBSingleton \
+          -Djavax.rmi.CORBA.StubClass=org.openorb.rmi.system.StubDelegateImpl \
+          -Djavax.rmi.CORBA.UtilClass=org.openorb.rmi.system.UtilDelegateImpl \
+          -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl"
+   java $OPTIONS -cp $OPENEJB_HOME/lib/openejb-core-*.jar org.openejb.util.Launcher $NAMING_OPTIONS \
+        org.openorb.util.MapNamingContext -ORBPort=2001 -print > logs/jndi.log 2>&1 &
+   
+   pid=$?
+   trap ' kill $pid; exit 1' 1 2 15
+   sleep 20
+   echo " 2. OpenEJB RMI/IIOP Server..."
+
+   OPENORB_OPTIONS="-Djava.naming.provider.url=corbaloc::localhost:2001/NameService \
+           -Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFactory \
+           -Dorg.omg.CORBA.ORBClass=org.openorb.CORBA.ORB \
+           -Dorg.omg.CORBA.ORBSingletonClass=org.openorb.CORBA.ORBSingleton \
+           -Djavax.rmi.CORBA.StubClass=org.openorb.rmi.system.StubDelegateImpl \
+           -Djavax.rmi.CORBA.UtilClass=org.openejb.corba.core.UtilDelegateImpl \
+           -Dorg.openejb.corba.core.UtilDelegateClass=org.openorb.rmi.system.UtilDelegateImpl \
+           -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl"
+   SERVER_OPTIONS="-Dlog4j.configuration=file:conf/default.logging.conf \
+           -Dorg/openejb/core/ThreadContext/IMPL_CLASS=org.openejb.tyrex.TyrexThreadContext"
+   java $OPTIONS -cp $OPENEJB_HOME/lib/openejb-core-*.jar org.openejb.util.Launcher $SERVER_OPTIONS $OPENORB_OPTIONS \
+        org.openejb.corba.Server -ORBProfile=ejb -domain conf/tyrex_resources.xml
+}
+#============================================================
+_create_stubs()
+{
+   shift
+   if [ ! -z "$1" ]; then
+      JAVATOIDL_OPTS="-tie -stub -noidl -local"
+   fi
+   java $OPTIONS -cp $OPENEJB_HOME/lib/openejb-core-*.jar org.openejb.util.Launcher $OPTIONS org.openorb.rmi.compiler.JavaToIdl $JAVATOIDL_OPTS $@
+}
+#============================================================
+case $1 in
+    "build")
+        _command_build $@
+    ;;
+    "test")
+        _command_test $@
+    ;;
+    "validate")
+        _command_validate $@
+    ;;
+    "deploy")
+        _command_deploy $@
+    ;;
+    "start")
+        _command_start $@
+    ;;
+    "stop")
+        _command_stop $@
+    ;;
+    "corba")
+        _start_corba $@
+    ;;
+    "create_stubs")
+        _create_stubs $@
+    ;;
+    "help")
+        _command_help $@
+    ;;
+    "-help")
+        _command_help $@
+    ;;
+    "--help")
+        _command_help $@
+    ;;
+    *)  _command_help $@
+    ;;
+esac
+
+
+
