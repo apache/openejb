@@ -182,7 +182,7 @@
     <goal name="itest:setup">
         <ant:delete dir="${maven.build.dir}/openejb"/>
         <deploy:unpackServer
-            geronimoVersion="2.0-SNAPSHOT"
+            geronimoVersion="${openejb_version}"
             geronimoName="openejb"
             targetDir="${maven.build.dir}/openejb"/>
         <deploy:startRemoteServer
