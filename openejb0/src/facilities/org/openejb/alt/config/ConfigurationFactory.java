@@ -1109,19 +1109,14 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     }
 
     private void validateJar( EjbJar ejbJar, String jarLocation) throws OpenEJBException{
-        ValidationTable validationTable = ValidationTable.getInstance();
+        
+        EjbValidator validator = new EjbValidator();
+        EjbSet set = validator.validateJar( ejbJar, jarLocation );
+        if (set.hasErrors() || set.hasFailures()) {
+            //System.out.println("[] INVALID "+ jarLocation);
+            throw new OpenEJBException("Jar failed validation.  Use the validation tool for more details");
+        } 
 
-        if (!validationTable.isValidated(jarLocation)) {
-            //System.out.println("[] Not validated "+jarLocation);
-            EjbValidator validator = new EjbValidator();
-            EjbSet set = validator.validateJar( ejbJar, jarLocation );
-            if (set.hasErrors() || set.hasFailures()) {
-                //System.out.println("[] INVALID "+ jarLocation);
-                throw new OpenEJBException("Jar failed validation.  Use the validation tool for more details");
-            } else {
-                validationTable.setValidated(jarLocation);
-            }
-        }
     }
 
     String[] tabs = {""," ","    ","      ","        ","          "};

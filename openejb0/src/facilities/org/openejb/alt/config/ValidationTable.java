@@ -78,6 +78,13 @@ import java.net.MalformedURLException;
  *  - the jar has changed since last validation
  *  - the jar has never been validated
  * 
+ * 
+ * This class works, but it causes problems elsewhere.  It seems that 
+ * using InstantDB just causes us to not be able to shutdown the VM.  
+ * Obviously, InstantDB is starting user threads.
+ * 
+ * This probably needs to be rewritten to not use InstantDB.
+ * 
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class ValidationTable {
@@ -122,7 +129,7 @@ public class ValidationTable {
             ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
             Class.forName( jdbcDriver, true, cl);
             // Get a connection
-            conn = DriverManager.getConnection(jdbcUrl, userName, password);
+            conn = getConnection();
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -134,7 +141,15 @@ public class ValidationTable {
             stmt.execute(_createTable);
         } catch (Exception e){              
             // We can ignore this.
+        } finally {
+            try{
+                conn.close();    
+            } catch (Exception e){}
         }
+    }
+
+    private Connection getConnection() throws SQLException{
+        return DriverManager.getConnection(jdbcUrl, userName, password);
     }
 
     public static ValidationTable getInstance(){
@@ -166,6 +181,8 @@ public class ValidationTable {
     public long getLastValidated(File jar){
         long validated = 0L;
         try{
+            conn = getConnection();
+
             String jarFileURL = jar.toURL().toExternalForm();
 
             //System.out.println("[] getLastValidated "+jarFileURL);
@@ -184,6 +201,8 @@ public class ValidationTable {
         } catch (Exception e){              
             // TODO:1: Log something...
             //e.printStackTrace();
+        } finally {
+            try{conn.close();} catch (Exception e){}
         }
         return validated;
     }
@@ -200,6 +219,7 @@ public class ValidationTable {
     private long _getLastValidated(String jarFileURL){
         long validated = 0L;
         try{
+            conn = getConnection();
             
             PreparedStatement stmt = conn.prepareStatement(_selectValidated);
             stmt.setString(1, jarFileURL);
@@ -211,12 +231,15 @@ public class ValidationTable {
         } catch (Exception e){              
             // TODO:1: Log something...
             //e.printStackTrace();
+        } finally {
+            try{conn.close();} catch (Exception e){}
         }
         return validated;
     }
 
     public void setLastValidated(String jarFile, long timeValidated){
         try{
+            conn = getConnection();
             File jar = FileUtils.getFile(jarFile);
             String jarFileURL = jar.toURL().toExternalForm();
             //System.out.println("[] setLastValidated "+jarFileURL );
@@ -238,6 +261,8 @@ public class ValidationTable {
         } catch (Exception e){
             // TODO:1: Log something...
             //e.printStackTrace();
+        } finally {
+            try{conn.close();} catch (Exception e){}
         }
     }
 
