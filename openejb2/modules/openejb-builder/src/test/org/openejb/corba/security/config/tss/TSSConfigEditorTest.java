@@ -44,53 +44,75 @@
  */
 package org.openejb.corba.security.config.tss;
 
-import java.beans.PropertyEditorManager;
-
 import junit.framework.TestCase;
-
-import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 
 /**
  * @version $Revision$ $Date$
  */
 public class TSSConfigEditorTest extends TestCase {
+    private static final String TEST_XML1 = "<foo:tss xmlns:foo=\"http://www.openejb.org/xml/ns/corba-tss-config_1_0\">\n" +
+            "                <foo:SSL port=\"443\" hostname=\"corba.apache.org\">\n" +
+            "                    <foo:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</foo:supports>\n" +
+            "                    <foo:requires>Integrity</foo:requires>\n" +
+            "                </foo:SSL>\n" +
+            "                <foo:compoundSecMechTypeList>\n" +
+            "                    <foo:compoundSecMech>\n" +
+            "                    </foo:compoundSecMech>\n" +
+            "                </foo:compoundSecMechTypeList>\n" +
+            "            </foo:tss>";
+    private static final String TEST_XML2 = "<foo:tss inherit=\"true\" xmlns:foo=\"http://www.openejb.org/xml/ns/corba-tss-config_1_0\"/>";
+    private static final String TEST_XML3 = "<tss xmlns=\"http://www.openejb.org/xml/ns/corba-tss-config_1_0\">\n" +
+            "                <SSL port=\"443\">\n" +
+            "                    <supports>BAD_ENUM Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</supports>\n" +
+            "                    <requires>Integrity</requires>\n" +
+            "                </SSL>\n" +
+            "                <compoundSecMechTypeList>\n" +
+            "                    <compoundSecMech>\n" +
+            "                    </compoundSecMech>\n" +
+            "                </compoundSecMechTypeList>\n" +
+            "            </tss>";
 
-    public void testSimple() throws Exception {
-        TSSConfigEditor editor = (TSSConfigEditor) PropertyEditorManager.findEditor(TSSConfig.class);
-        editor.setAsText("<foo:tss xmlns:foo=\"http://www.openejb.org/xml/ns/corba-tss-config_1_0\">\n" +
-                         "                <foo:SSL port=\"443\" hostname=\"corba.apache.org\">\n" +
-                         "                    <foo:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</foo:supports>\n" +
-                         "                    <foo:requires>Integrity</foo:requires>\n" +
-                         "                </foo:SSL>\n" +
-                         "                <foo:compoundSecMechTypeList>\n" +
-                         "                    <foo:compoundSecMech>\n" +
-                         "                    </foo:compoundSecMech>\n" +
-                         "                </foo:compoundSecMechTypeList>\n" +
-                         "            </foo:tss>");
-        TSSConfig tss = (TSSConfig) editor.getValue();
+
+    private XmlObject getXmlObject(String xmlString) throws XmlException {
+        XmlObject xmlObject = XmlObject.Factory.parse(xmlString);
+        XmlCursor xmlCursor = xmlObject.newCursor();
+        try {
+            xmlCursor.toFirstChild();
+            return xmlCursor.getObject();
+        } finally {
+            xmlCursor.dispose();
+        }
+    }
+
+    public void testSimple1() throws Exception {
+        XmlObject xmlObject = getXmlObject(TEST_XML1);
+        TSSConfigEditor editor = new TSSConfigEditor();
+        Object o = editor.getValue(xmlObject, null, null);
+        TSSConfig tss = (TSSConfig) o;
         assertFalse(tss.isInherit());
         assertNotNull(tss.getTransport_mech());
+    }
 
-        editor.setAsText("<foo:tss inherit=\"true\" xmlns:foo=\"http://www.openejb.org/xml/ns/corba-tss-config_1_0\"/>");
-        tss = (TSSConfig) editor.getValue();
+    public void testSimple2() throws Exception {
+        XmlObject xmlObject = getXmlObject(TEST_XML2);
+        TSSConfigEditor editor = new TSSConfigEditor();
+        TSSConfig tss = (TSSConfig) editor.getValue(xmlObject, null, null);
         assertTrue(tss.isInherit());
         assertNull(tss.getTransport_mech());
+    }
 
+    public void testSimple3() throws Exception {
         try {
-            editor.setAsText("<tss xmlns=\"http://www.openejb.org/xml/ns/corba-tss-config_1_0\">\n" +
-                             "                <SSL port=\"443\">\n" +
-                             "                    <supports>BAD_ENUM Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</supports>\n" +
-                             "                    <requires>Integrity</requires>\n" +
-                             "                </SSL>\n" +
-                             "                <compoundSecMechTypeList>\n" +
-                             "                    <compoundSecMech>\n" +
-                             "                    </compoundSecMech>\n" +
-                             "                </compoundSecMechTypeList>\n" +
-                             "            </tss>");
-            editor.getValue();
+            XmlObject xmlObject = getXmlObject(TEST_XML3);
+            TSSConfigEditor editor = new TSSConfigEditor();
+            TSSConfig tss = (TSSConfig) editor.getValue(xmlObject, null, null);
             fail("Should fail");
-        } catch (PropertyEditorException e) {
+        } catch (DeploymentException e) {
         }
 
     }

@@ -47,6 +47,14 @@ package org.openejb.corba.security.config.tss;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
+import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.omg.CSI.ITTAbsent;
 import org.omg.CSI.ITTAnonymous;
 import org.omg.CSI.ITTDistinguishedName;
@@ -62,10 +70,6 @@ import org.omg.CSIIOP.Integrity;
 import org.omg.CSIIOP.NoDelegation;
 import org.omg.CSIIOP.NoProtection;
 import org.omg.CSIIOP.SimpleDelegation;
-
-import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
-import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
-
 import org.openejb.xbeans.csiv2.tss.TSSAssociationOption;
 import org.openejb.xbeans.csiv2.tss.TSSCompoundSecMechType;
 import org.openejb.xbeans.csiv2.tss.TSSGSSUPType;
@@ -74,7 +78,6 @@ import org.openejb.xbeans.csiv2.tss.TSSGssExportedNameType;
 import org.openejb.xbeans.csiv2.tss.TSSIdentityTokenType;
 import org.openejb.xbeans.csiv2.tss.TSSSSLType;
 import org.openejb.xbeans.csiv2.tss.TSSSasMechType;
-import org.openejb.xbeans.csiv2.tss.TSSTssDocument;
 import org.openejb.xbeans.csiv2.tss.TSSTssType;
 
 
@@ -83,7 +86,13 @@ import org.openejb.xbeans.csiv2.tss.TSSTssType;
  *
  * @version $Revision$ $Date$
  */
-public class TSSConfigEditor extends TextPropertyEditorSupport {
+public class TSSConfigEditor implements XmlAttributeBuilder {
+
+    private static final String NAMESPACE = "http://www.openejb.org/xml/ns/corba-tss-config_1_0";
+
+    public String getNamespace() {
+        return NAMESPACE;
+    }
 
     /**
      * Returns a TSSConfig object initialized with the input object
@@ -93,34 +102,41 @@ public class TSSConfigEditor extends TextPropertyEditorSupport {
      * @throws org.apache.geronimo.common.propertyeditor.PropertyEditorException
      *          An IOException occured.
      */
-    public Object getValue() {
-        TSSConfig tssConfig = new TSSConfig();
+    public Object getValue(XmlObject xmlObject, String type, ClassLoader cl) throws DeploymentException {
+        TSSTssType tss;
+        if (xmlObject instanceof TSSTssType) {
+            tss = (TSSTssType) xmlObject;
+        } else {
+            tss = (TSSTssType) xmlObject.copy().changeType(TSSTssType.type);
+        }
 
         try {
-            TSSTssDocument document = TSSTssDocument.Factory.parse(super.getAsText());
-            TSSTssType tss = document.getTss();
+            SchemaConversionUtils.validateDD(tss);
+        } catch (XmlException e) {
+            throw new DeploymentException(e);
+        }
 
-            tssConfig.setInherit(tss.getInherit());
+        TSSConfig tssConfig = new TSSConfig();
 
-            if (tss.isSetSSL()) {
-                tssConfig.setTransport_mech(extractSSL(tss.getSSL()));
-            } else if (tss.isSetSECIOP()) {
-                throw new PropertyEditorException("SECIOP processing not implemented");
+
+        tssConfig.setInherit(tss.getInherit());
+
+        if (tss.isSetSSL()) {
+            tssConfig.setTransport_mech(extractSSL(tss.getSSL()));
+        } else if (tss.isSetSECIOP()) {
+            throw new PropertyEditorException("SECIOP processing not implemented");
+        }
+
+        if (tss.isSetCompoundSecMechTypeList()) {
+            TSSCompoundSecMechListConfig mechListConfig = tssConfig.getMechListConfig();
+            mechListConfig.setStateful(tss.getCompoundSecMechTypeList().getStateful());
+
+            TSSCompoundSecMechType[] mechList = tss.getCompoundSecMechTypeList().getCompoundSecMechArray();
+            for (int i = 0; i < mechList.length; i++) {
+                TSSCompoundSecMechConfig cMech = extractCompoundSecMech(mechList[i]);
+                cMech.setTransport_mech(tssConfig.getTransport_mech());
+                mechListConfig.add(cMech);
             }
-
-            if (tss.isSetCompoundSecMechTypeList()) {
-                TSSCompoundSecMechListConfig mechListConfig = tssConfig.getMechListConfig();
-                mechListConfig.setStateful(tss.getCompoundSecMechTypeList().getStateful());
-
-                TSSCompoundSecMechType[] mechList = tss.getCompoundSecMechTypeList().getCompoundSecMechArray();
-                for (int i = 0; i < mechList.length; i++) {
-                    TSSCompoundSecMechConfig cMech = extractCompoundSecMech(mechList[i]);
-                    cMech.setTransport_mech(tssConfig.getTransport_mech());
-                    mechListConfig.add(cMech);
-                }
-            }
-        } catch (Exception e) {
-            throw new PropertyEditorException("Unable to parse property", e);
         }
 
         return tssConfig;
@@ -247,4 +263,17 @@ public class TSSConfigEditor extends TextPropertyEditorSupport {
         }
         return result;
     }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TSSConfigEditor.class, "XmlAttributeBuilder");
+        infoBuilder.addInterface(XmlAttributeBuilder.class);
+        GBEAN_INFO = infoBuilder.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
 }

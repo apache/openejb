@@ -44,28 +44,51 @@
  */
 package org.openejb.corba.security.config.css;
 
-import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
-import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
-
-import org.openejb.xbeans.csiv2.css.CSSCssDocument;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
 import org.openejb.xbeans.csiv2.css.CSSCssType;
 
 
 /**
  * @version $Revision$ $Date$
  */
-public class CSSConfigEditor extends TextPropertyEditorSupport {
+public class CSSConfigEditor implements XmlAttributeBuilder {
+    private static final String NAMESPACE = "http://www.openejb.org/xml/ns/corba-css-config_1_0";
 
-    public Object getValue() {
-        CSSConfig cssConfig = new CSSConfig();
+    public String getNamespace() {
+        return NAMESPACE;
+    }
+
+    public Object getValue(XmlObject xmlObject, String type, ClassLoader cl) throws DeploymentException {
+        CSSCssType css;
+        if (xmlObject instanceof CSSCssType) {
+            css =  (CSSCssType) xmlObject;
+        }
+        css = (CSSCssType) xmlObject.copy().changeType(CSSCssType.type);
         try {
-            CSSCssDocument document = CSSCssDocument.Factory.parse(super.getAsText());
-            CSSCssType tss = document.getCss();
-
-        } catch (Exception e) {
-            throw new PropertyEditorException("Unable to parse property", e);
+            SchemaConversionUtils.validateDD(css);
+        } catch (XmlException e) {
+            throw new DeploymentException(e);
         }
 
-        return cssConfig;
+        return css;
     }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(CSSConfigEditor.class, "XmlAttributeBuilder");
+        infoBuilder.addInterface(XmlAttributeBuilder.class);
+        GBEAN_INFO = infoBuilder.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
 }
