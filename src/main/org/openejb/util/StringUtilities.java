@@ -43,6 +43,8 @@
  */
 package org.openejb.util;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.StringTokenizer;
 
 /**
@@ -51,49 +53,81 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class StringUtilities {
-    
-    /**
-     * Gets the last token in a StringTokenizer.
-     * @param tokenString - the string to get the last token from
-     * @param delimeter - the delimeter of the string
-     * @return the last token or null if there are none
-     */
-    public static String getLastToken(String tokenString, String delimeter) {
-        StringTokenizer token = new StringTokenizer(tokenString, delimeter);
-        
-        String returnValue = null;
-        while(token.hasMoreTokens()) {
-            returnValue = token.nextToken();
-        }
-        
-        return returnValue;
-    }
 
-    /**
-     * Checks a String to see if it's value is null, 
-     * and if so returns a blank string.
-     * @param stringToCheckForNull - the string to check for null
-     * @return the checked string
-     */
-    public static String replaceNullStringWithBlankString(String stringToCheckForNull) {
-        if (stringToCheckForNull == null) {
-            return "";
-        } else {
-            return stringToCheckForNull;
-        }
-    }
+	/**
+	 * Gets the last token in a StringTokenizer.
+	 * @param tokenString - the string to get the last token from
+	 * @param delimeter - the delimeter of the string
+	 * @return the last token or null if there are none
+	 */
+	public static String getLastToken(String tokenString, String delimeter) {
+		StringTokenizer token = new StringTokenizer(tokenString, delimeter);
 
-    /**
-     * Checks a String to see if it's value is null or blank, 
-     * and if so returns a non-breaking space.
-     * @param stringToCheckForNull - the string to check for null or blank 
-     * @return the checked string
-     */
-    public static String replaceNullOrBlankStringWithNonBreakingSpace(String stringToCheckForNull) {
-        if ((stringToCheckForNull == null) || (stringToCheckForNull.equals(""))) {
-            return "&nbsp;";
-        } else {
-            return stringToCheckForNull;
-        }
-    }
+		String returnValue = null;
+		while (token.hasMoreTokens()) {
+			returnValue = token.nextToken();
+		}
+
+		return returnValue;
+	}
+
+	/**
+	 * Checks a String to see if it's value is null, 
+	 * and if so returns a blank string.
+	 * @param stringToCheckForNull - the string to check for null
+	 * @return the checked string
+	 */
+	public static String replaceNullStringWithBlankString(String stringToCheckForNull) {
+		if (stringToCheckForNull == null) {
+			return "";
+		} else {
+			return stringToCheckForNull;
+		}
+	}
+
+	/**
+	 * Checks a String to see if it's value is null or blank, 
+	 * and if so returns a non-breaking space.
+	 * @param stringToCheckForNull - the string to check for null or blank 
+	 * @return the checked string
+	 */
+	public static String replaceNullOrBlankStringWithNonBreakingSpace(String stringToCheckForNull) {
+		if ((stringToCheckForNull == null) || (stringToCheckForNull.equals(""))) {
+			return "&nbsp;";
+		} else {
+			return stringToCheckForNull;
+		}
+	}
+
+	public static String createMethodString(Method method, String lineBreak) {
+		Class[] parameterList = method.getParameterTypes();
+		Class[] exceptionList = method.getExceptionTypes();
+		StringBuffer methodString = new StringBuffer();
+
+		methodString.append(method.getName()).append("(");
+
+		for (int j = 0; j < parameterList.length; j++) {
+			methodString.append(StringUtilities.getLastToken(parameterList[j].getName(), "."));
+
+			if (j != (parameterList.length - 1)) {
+				methodString.append(", ");
+			}
+		}
+		methodString.append(") ");
+
+		if (exceptionList.length > 0) {
+			methodString.append(lineBreak);
+			methodString.append("throws ");
+		}
+
+		for (int j = 0; j < exceptionList.length; j++) {
+			methodString.append(StringUtilities.getLastToken(exceptionList[j].getName(), "."));
+
+			if (j != (exceptionList.length - 1)) {
+				methodString.append(", ");
+			}
+		}
+
+		return methodString.toString();
+	}
 }

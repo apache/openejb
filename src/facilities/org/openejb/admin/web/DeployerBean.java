@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import javax.ejb.EJBException;
 import javax.ejb.SessionContext;
 
 import org.openejb.DeploymentInfo;
@@ -63,6 +64,7 @@ import org.openejb.alt.config.ejb11.EjbJar;
 import org.openejb.alt.config.ejb11.EjbRef;
 import org.openejb.alt.config.ejb11.MethodParams;
 import org.openejb.alt.config.ejb11.OpenejbJar;
+import org.openejb.alt.config.ejb11.Query;
 import org.openejb.alt.config.ejb11.QueryMethod;
 import org.openejb.alt.config.ejb11.ResourceLink;
 import org.openejb.alt.config.ejb11.ResourceRef;
@@ -70,6 +72,7 @@ import org.openejb.alt.config.sys.Connector;
 import org.openejb.alt.config.sys.Container;
 import org.openejb.alt.config.sys.Openejb;
 import org.openejb.util.JarUtils;
+import org.openejb.util.SafeToolkit;
 import org.openejb.util.StringUtilities;
 
 /**
@@ -111,6 +114,7 @@ public class DeployerBean implements javax.ejb.SessionBean {
 	private Vector beanList = new Vector();
 	private boolean idsWritten = false;
 	private ArrayList usedBeanNames = new ArrayList();
+	private DeployData[] deployDataArray;
 
 	/** Creates a new instance of DeployerBean */
 	public void ejbCreate() {
@@ -157,13 +161,17 @@ public class DeployerBean implements javax.ejb.SessionBean {
 		return deploymentHTML.toString();
 	}
 
+	public DeployData[] getDeployDataArray() {
+		return this.deployDataArray;
+	}
+
 	/** method which starts the deployment process */
-	public void startDeployment() throws RemoteException {
+	public void startDeployment() throws OpenEJBException {
 		EjbJar jar = null;
 		try { //test for invalid file
 			jar = EjbJarUtils.readEjbJar(this.jarFile);
 		} catch (OpenEJBException oe) {
-			throw new RemoteException(this.jarFile + " is not a valid jar file. ");
+			throw new OpenEJBException(this.jarFile + " is not a valid jar file. ");
 		}
 
 		//we don't want to perform this check if we're forcing overwrite
@@ -179,7 +187,7 @@ public class DeployerBean implements javax.ejb.SessionBean {
 			File[] beans = beansDir.listFiles();
 			for (int i = 0; i < beans.length; i++) {
 				if (tempJarFile.getName().equalsIgnoreCase(beans[i].getName())) {
-					throw new RemoteException(
+					throw new OpenEJBException(
 						System.getProperty("openejb.home")
 							+ System.getProperty("file.separator")
 							+ "beans"
@@ -195,101 +203,129 @@ public class DeployerBean implements javax.ejb.SessionBean {
 	}
 
 	/** sets the deployment and container ids */
-	public void setDeployAndContainerIds(
-		String deploymentId,
-		String containerId,
-		String[][] resourceRef,
-		String[][] ejbRef,
-		int i)
-		throws RemoteException {
-
+	public void setDeployAndContainerIds(DeployData[] deployDataArray) throws OpenEJBException {
 		//local variables
-		EjbDeployment deployment = new EjbDeployment();
+		EjbDeployment deployment;
 		ResourceLink link;
+		ReferenceData[] referenceDataArray;
+		OQLData[] oqlDataArray;
+		Query query;
+		MethodParams methodParams;
+		QueryMethod queryMethod;
+		String[] methodArray;
 
-		if (this.usedBeanNames.contains(deploymentId)) {
-			throw new RemoteException(
-				"The deployment id: "
-					+ deploymentId
-					+ " is already being used by another bean, please choose another deployment id.");
-		}
+		for (int i = 0; i < deployDataArray.length; i++) {
+			if (this.usedBeanNames.contains(deployDataArray[i].getDeploymentIdValue())) {
+				throw new OpenEJBException(
+					"The deployment id: "
+						+ deployDataArray[i].getDeploymentIdValue()
+						+ " is already being used by another bean, please choose another deployment id.");
+			}
 
-		this.usedBeanNames.add(deploymentId);
+			deployment = new EjbDeployment();
+			this.usedBeanNames.add(deployDataArray[i].getDeploymentIdValue());
 
-		//set the deployment info
-		deployment.setEjbName(deployerBeans[i].getEjbName());
-		deploymentHTML.append("<tr>\n<td>").append(deployerBeans[i].getEjbName()).append("</td>\n");
-		deployment.setDeploymentId(deploymentId);
-		deploymentHTML.append("<td>").append(deploymentId).append("</td>\n");
-		deployment.setContainerId(containerId);
-		deploymentHTML.append("<td>").append(containerId).append("</td>\n");
+			//set the deployment info
+			deployment.setEjbName(deployDataArray[i].getEjbName());
+			deploymentHTML.append("<tr>\n<td>").append(deployerBeans[i].getEjbName()).append(
+				"</td>\n");
+			deployment.setDeploymentId(deployDataArray[i].getDeploymentIdValue());
+			deploymentHTML.append("<td>").append(deployDataArray[i].getDeploymentIdValue()).append(
+				"</td>\n");
+			deployment.setContainerId(deployDataArray[i].getContainerIdValue());
+			deploymentHTML.append("<td>").append(deployDataArray[i].getContainerIdValue()).append(
+				"</td>\n");
 
-		//check for string lengths
-		if (ejbRef == null && resourceRef == null) {
-			deploymentHTML.append("<td>N/A</td>\n");
-		} else {
-			deploymentHTML.append("<td>\n");
-			deploymentHTML.append(
-				"<table cellspacing=\"0\" cellpadding=\"2\" border=\"0\" width=\"100%\">\n");
-			deploymentHTML.append("<tr align=\"left\">\n");
-			deploymentHTML.append("<th>Name</th>\n");
-			deploymentHTML.append("<th>Id</th>\n");
-			deploymentHTML.append("</tr>\n");
+			//check for string lengths
+			if (deployDataArray[i].getReferenceDataArray().length == 0) {
+				deploymentHTML.append("<td>N/A</td>\n");
+			} else {
+				deploymentHTML.append("<td>\n");
+				deploymentHTML.append(
+					"<table cellspacing=\"0\" cellpadding=\"2\" border=\"0\" width=\"100%\">\n");
+				deploymentHTML.append("<tr align=\"left\">\n");
+				deploymentHTML.append("<th>Name</th>\n");
+				deploymentHTML.append("<th>Id</th>\n");
+				deploymentHTML.append("</tr>\n");
 
-			//set the resource references
-			if (resourceRef != null) {
-				for (int j = 0; j < resourceRef.length; j++) {
+				//set the resource references
+				referenceDataArray = deployDataArray[i].getReferenceDataArray();
+				for (int j = 0; j < referenceDataArray.length; j++) {
 					link = new ResourceLink();
-					link.setResId(resourceRef[j][0]);
-					link.setResRefName(resourceRef[j][1]);
-					deploymentHTML.append("<tr>\n<td>").append(resourceRef[j][1]).append("</td>\n");
-					deploymentHTML.append("<td>").append(resourceRef[j][0]).append(
+					link.setResId(referenceDataArray[j].getReferenceIdValue());
+					link.setResRefName(referenceDataArray[j].getReferenceValue());
+					deploymentHTML.append("<tr>\n<td>").append(
+						referenceDataArray[j].getReferenceValue()).append(
+						"</td>\n");
+					deploymentHTML.append("<td>").append(
+						referenceDataArray[j].getReferenceIdValue()).append(
 						"</td>\n</tr>\n");
 					deployment.addResourceLink(link);
 				}
+
+				deploymentHTML.append("</table>\n</td>\n");
 			}
 
-			//set the ejb references
-			if (ejbRef != null) {
-				for (int j = 0; j < ejbRef.length; j++) {
-					link = new ResourceLink();
-					link.setResId(ejbRef[j][0]);
-					link.setResRefName(ejbRef[j][1]);
-					deploymentHTML.append("<tr>\n<td>").append(ejbRef[j][1]).append("</td>\n");
-					deploymentHTML.append("<td>").append(ejbRef[j][0]).append("</td>\n</tr>\n");
-					deployment.addResourceLink(link);
+			deploymentHTML.append("</tr>\n");
+
+			//add in the oql methods
+			oqlDataArray = deployDataArray[i].getOqlDataArray();
+			if (oqlDataArray.length > 0) {
+				deploymentHTML.append("<tr>\n<td colspan=\"4\">&nbsp;</td>\n</tr>\n");
+				deploymentHTML.append("<tr>\n<td colspan=\"2\">").append(deployDataArray[i].getEjbName()).append(" - ");
+				deploymentHTML.append(
+					"Method</td>\n<td>OQL Statement</td>\n<td>OQL Parameters (comma seperated)</td>\n</tr>\n");
+			}
+
+			for (int j = 0; j < oqlDataArray.length; j++) {
+				//create the new instances
+				query = new Query();
+				methodParams = new MethodParams();
+				queryMethod = new QueryMethod();
+				
+				queryMethod.setMethodName(oqlDataArray[j].getMethodName());
+				query.setObjectQl(oqlDataArray[j].getOqlStatementValue());
+				
+				deploymentHTML.append("<tr>\n<td colspan=\"2\">");
+				deploymentHTML.append(oqlDataArray[j].getMethodString()).append("</td>\n");
+				deploymentHTML.append("<td>").append(oqlDataArray[j].getOqlStatementValue()).append("</td>\n");
+				deploymentHTML.append("<td>");
+				
+				//get the list of methods
+				methodArray = (String[]) oqlDataArray[j].getOqlParameterValueList().toArray(new String[0]);
+				for (int k = 0; k < methodArray.length; k++) {
+					deploymentHTML.append(k+1).append(". ").append(methodArray[k]).append("<br>");
+					methodParams.addMethodParam(k, methodArray[k]);
 				}
+				
+				if(methodArray.length == 0) {
+					deploymentHTML.append("N/A");
+				}
+				
+				queryMethod.setMethodParams(methodParams);
+				query.setQueryMethod(queryMethod);
+				deployment.addQuery(query);
+				deploymentHTML.append("</td>\n</tr>\n");
 			}
 
-			deploymentHTML.append("</table>\n</td>\n");
-		}
-
-		deploymentHTML.append("</tr>\n");
-		openejbJar.addEjbDeployment(deployment);
-	}
-
-	public void finishDeployment() throws RemoteException {
-		try {
-			if (options[1]) {
-				jarFile = moveJar(jarFile);
-			} else if (options[3]) {
-				jarFile = copyJar(jarFile);
-			}
-
-			/* TODO: Automatically updating the users
-			config file might not be desireable for
-			some people.  We could make this a 
-			configurable option. 
-			*/
-			addDeploymentEntryToConfig(jarFile);
-			saveChanges(jarFile, openejbJar);
-		} catch (OpenEJBException e) {
-			throw new RemoteException(e.getMessage());
+			openejbJar.addEjbDeployment(deployment);
 		}
 	}
 
-	public int getDeployerBeanLength() {
-		return deployerBeans.length;
+	public void finishDeployment() throws OpenEJBException {
+		if (options[1]) {
+			jarFile = moveJar(jarFile);
+		} else if (options[3]) {
+			jarFile = copyJar(jarFile);
+		}
+
+		/* TODO: Automatically updating the users
+		config file might not be desireable for
+		some people.  We could make this a 
+		configurable option. 
+		*/
+		addDeploymentEntryToConfig(jarFile);
+		saveChanges(jarFile, openejbJar);
 	}
 
 	private String autoAssignDeploymentId(Bean bean) {
@@ -333,64 +369,6 @@ public class DeployerBean implements javax.ejb.SessionBean {
 		}
 	}
 
-	private void writeOQLForEntityBeansTable(
-		Class bean,
-		StringBuffer htmlString)
-		throws OpenEJBException {
-		org.openejb.alt.config.ejb11.Query query;
-		QueryMethod queryMethod;
-		MethodParams methodParams;
-
-		Method[] methods = bean.getMethods();
-		Class[] parameterList;
-		Class[] exceptionList;
-		String answer = null;
-
-		if(methods.length > 0) {
-			htmlString.append("<tr>\n<td>Method</td>\n<td>OQL Statement</td>\n</tr>\n");
-		}
-
-		for (int i = 0; i < methods.length; i++) {
-			if (methods[i].getName().startsWith("find")
-				&& !methods[i].getName().equals("findByPrimaryKey")) {
-
-				htmlString.append("<tr>\n<td>\n");
-				parameterList = methods[i].getParameterTypes();
-				exceptionList = methods[i].getExceptionTypes();
-
-				System.out.print(methods[i].getName() + "(");
-
-				for (int j = 0; j < parameterList.length; j++) {
-					htmlString.append(
-						StringUtilities.getLastToken(parameterList[j].getName(), "."));
-
-					if (j != (parameterList.length - 1)) {
-						htmlString.append(", ");
-					}
-				}
-				htmlString.append(") ");
-
-				if (exceptionList.length > 0) {
-					htmlString.append("<br> throws ");
-				}
-
-				for (int j = 0; j < exceptionList.length; j++) {
-					htmlString.append(
-						StringUtilities.getLastToken(exceptionList[j].getName(), "."));
-
-					if (j != (exceptionList.length - 1)) {
-						htmlString.append(", ");
-					}
-				}
-
-				htmlString.append("\n</td>\n<td>");
-				htmlString.append("<textarea cols=\"20\" rows=\"4\" name=\"something\"></textarea>");
-
-				htmlString.append("<tr>\n");
-			}
-		}
-	}
-
 	public String createIdTable() throws OpenEJBException {
 		//string that contains all the html
 		StringBuffer htmlString = new StringBuffer();
@@ -399,6 +377,8 @@ public class DeployerBean implements javax.ejb.SessionBean {
 		Container[] cs;
 		ResourceRef[] refs;
 		EjbRef[] ejbRefs;
+		Class tempBean;
+		this.deployDataArray = new DeployData[deployerBeans.length];
 
 		htmlString.append("<table cellspacing=\"1\" cellpadding=\"1\" border=\"1\">\n");
 		htmlString.append("<tr align=\"left\">\n");
@@ -409,6 +389,12 @@ public class DeployerBean implements javax.ejb.SessionBean {
 		htmlString.append("</tr>\n");
 
 		for (int i = 0; i < deployerBeans.length; i++) {
+			//set up the data for the next step
+			this.deployDataArray[i] = new DeployData();
+			this.deployDataArray[i].setEjbName(deployerBeans[i].getEjbName());
+			this.deployDataArray[i].setDeploymentIdName("deploymentId" + i);
+			this.deployDataArray[i].setContainerIdName("containerId" + i);
+
 			//in here we check to see if we need to write the different parts or not
 			htmlString.append("<tr>\n");
 			htmlString.append("<td>" + deployerBeans[i].getEjbName() + "</td>\n");
@@ -455,6 +441,7 @@ public class DeployerBean implements javax.ejb.SessionBean {
 					refs,
 					ejbRefs,
 					deployerBeans[i].getEjbName(),
+					deployDataArray[i],
 					i);
 				htmlString.append("</td>");
 			} else {
@@ -462,6 +449,20 @@ public class DeployerBean implements javax.ejb.SessionBean {
 			}
 
 			htmlString.append("</tr>\n");
+		}
+
+		//loop through the beans again to get the OQL statements 
+		//(they go in a different part of the table)
+		for (int i = 0; i < deployerBeans.length; i++) {
+			//check for entity beans here
+			if ("CMP_ENTITY".equals(deployerBeans[i].getType())) {
+				tempBean = SafeToolkit.loadTempClass(deployerBeans[i].getHome(), this.jarFile);
+				htmlString.append(
+					writeOQLForEntityBeansTable(
+						tempBean,
+						deployerBeans[i].getEjbName(),
+						deployDataArray[i]));
+			}
 		}
 
 		htmlString.append(
@@ -477,6 +478,7 @@ public class DeployerBean implements javax.ejb.SessionBean {
 		ResourceRef[] refs,
 		EjbRef[] ejbRefs,
 		String deploymentName,
+		DeployData deployData,
 		int index)
 		throws OpenEJBException {
 
@@ -488,6 +490,7 @@ public class DeployerBean implements javax.ejb.SessionBean {
 		htmlString.append("<th>Type</th>\n");
 		htmlString.append("<th>Id</th>\n");
 		htmlString.append("</tr>\n");
+		ReferenceData[] referenceDataArray = new ReferenceData[(refs.length + ejbRefs.length)];
 
 		if (refs.length > 0) {
 			for (int i = 0; i < refs.length; i++) {
@@ -498,6 +501,10 @@ public class DeployerBean implements javax.ejb.SessionBean {
 					"_").append(
 					i).append(
 					"\">");
+				referenceDataArray[i] = new ReferenceData();
+				referenceDataArray[i].setReferenceType(ReferenceData.RESOURCE_REFERENCE);
+				referenceDataArray[i].setReferenceIdName("resourceRefId_" + index + "_" + i);
+				referenceDataArray[i].setReferenceName("resourceRefName_" + index + "_" + i);
 
 				//loop through the available resources
 				for (int j = 0; j < this.resources.length; j++) {
@@ -523,6 +530,10 @@ public class DeployerBean implements javax.ejb.SessionBean {
 				htmlString.append("<tr>\n");
 				htmlString.append("<td>").append(ejbRefs[i].getEjbRefName()).append("</td>\n");
 				htmlString.append("<td>").append(ejbRefs[i].getEjbRefType()).append("</td>\n");
+				referenceDataArray[i] = new ReferenceData();
+				referenceDataArray[i].setReferenceType(ReferenceData.EJB_REFERENCE);
+				referenceDataArray[i].setReferenceIdName("ejbRefId_" + index + "_" + i);
+				referenceDataArray[i].setReferenceName("ejbRefName_" + index + "_" + i);
 
 				//check for an available link
 				ejbLink = ejbRefs[i].getEjbLink();
@@ -560,7 +571,69 @@ public class DeployerBean implements javax.ejb.SessionBean {
 			}
 		}
 
+		deployData.setReferenceDataArray(referenceDataArray);
 		htmlString.append("</table>\n");
+	}
+
+	private String writeOQLForEntityBeansTable(Class bean, String beanName, DeployData deployData)
+		throws OpenEJBException {
+		org.openejb.alt.config.ejb11.Query query;
+		QueryMethod queryMethod;
+		MethodParams methodParams;
+		StringBuffer htmlString = new StringBuffer();
+		int methodCount = 0;
+		Method[] methods = bean.getMethods();
+		Class[] parameterList;
+		Class[] exceptionList;
+		String answer = null;
+		List oqlDataList = new ArrayList();
+		OQLData oqlData;
+		String methodString;
+
+		htmlString.append("<tr>\n<td colspan=\"4\">&nbsp;</td>\n</tr>\n");
+		htmlString.append("<tr>\n<td colspan=\"2\">").append(beanName).append(" - ");
+		htmlString.append(
+			"Method</td>\n<td>OQL Statement</td>\n<td>OQL Parameters (comma seperated)</td>\n</tr>\n");
+
+		for (int i = 0; i < methods.length; i++) {
+			if (methods[i].getName().startsWith("find")
+				&& !methods[i].getName().equals("findByPrimaryKey")) {
+				methodString = StringUtilities.createMethodString(methods[i], "<br>");
+
+				methodCount++;
+				oqlData = new OQLData();
+				htmlString.append("<tr>\n<td colspan=\"2\">\n");
+				htmlString.append(methodString);
+				oqlData.setMethodString(methodString);
+
+				//put the data into the oqlData object
+				oqlData.setMethodName(methods[i].getName());
+				oqlData.setOqlStatementName(
+					"oqlStatement_" + beanName + "_" + methods[i].getName());
+				oqlData.setOqlParameterName(
+					"oqlParameters_" + beanName + "_" + methods[i].getName());
+
+				//create the textarea for the OQL statement and parameters
+				htmlString.append("\n</td>\n<td>");
+				htmlString.append("<textarea cols=\"20\" rows=\"4\" name=\"oqlStatement_");
+				htmlString.append(beanName).append("_").append(methods[i].getName());
+				htmlString.append("\"></textarea></td>\n<td>");
+				htmlString.append("<textarea cols=\"20\" rows=\"4\" name=\"oqlParameters_");
+				htmlString.append(beanName).append("_").append(methods[i].getName());
+				htmlString.append("\"></textarea></td>\n</tr>\n");
+
+				oqlDataList.add(oqlData);
+			}
+		}
+
+		deployData.setOqlDataArray((OQLData[]) oqlDataList.toArray(new OQLData[0]));
+
+		//if there were no methods return a blank string
+		if (methodCount > 0) {
+			return htmlString.toString();
+		} else {
+			return "";
+		}
 	}
 
 	private void resetUsedDeploymentIds() {
@@ -597,14 +670,10 @@ public class DeployerBean implements javax.ejb.SessionBean {
 	}
 
 	//api callback methods
-	public void ejbActivate() throws javax.ejb.EJBException, java.rmi.RemoteException {}
-
-	public void ejbPassivate() throws javax.ejb.EJBException, java.rmi.RemoteException {}
-
-	public void ejbRemove() throws javax.ejb.EJBException, java.rmi.RemoteException {}
-
-	public void setSessionContext(SessionContext sessionContext)
-		throws javax.ejb.EJBException, java.rmi.RemoteException {
+	public void ejbActivate() {}
+	public void ejbPassivate() {}
+	public void ejbRemove() {}
+	public void setSessionContext(SessionContext sessionContext) {
 		this.context = sessionContext;
 	}
 }

@@ -43,27 +43,77 @@
  */
 package org.openejb.admin.web;
 
-import java.rmi.RemoteException;
-
-import javax.ejb.EJBObject;
-
-import org.openejb.OpenEJBException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- *
- * @author  <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
+ * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
-public interface DeployerObject extends EJBObject {
-	//action methods
-	public void setBooleanValues(boolean[] booleanValues) throws RemoteException;
-	public boolean[] getBooleanValues() throws RemoteException;
-	public void setJarFile(String jarFile) throws RemoteException;
-	public String getJarFile() throws RemoteException;
-	public void startDeployment() throws RemoteException, OpenEJBException;
-	public void finishDeployment() throws RemoteException, OpenEJBException;
-	public String getDeploymentHTML() throws RemoteException;
-	public DeployData[] getDeployDataArray() throws RemoteException;
-	public String createIdTable() throws RemoteException, OpenEJBException;
-	public void setDeployAndContainerIds(DeployData[] deployDataArray)
-		throws RemoteException, OpenEJBException;
+public class OQLData implements Serializable {
+	private String oqlStatementName;
+	private String oqlStatementValue;
+	private String methodName;
+	private List oqlParameterValueList;
+	private String oqlParameterName;
+	private String methodString;
+	
+	public OQLData() {
+		super();
+		this.oqlStatementName = "";
+		this.oqlStatementValue = "";
+		this.oqlParameterName = "";
+		this.oqlParameterValueList = new ArrayList();
+		this.methodName = "";
+		this.methodString = "";
+	}
+
+	public String getMethodName() {
+		return methodName;
+	}
+
+	public String getOqlParameterName() {
+		return oqlParameterName;
+	}
+
+	public List getOqlParameterValueList() {
+		return oqlParameterValueList;
+	}
+
+	public String getOqlStatementName() {
+		return oqlStatementName;
+	}
+
+	public String getOqlStatementValue() {
+		return oqlStatementValue;
+	}
+
+	public void setMethodName(String string) {
+		methodName = string;
+	}
+
+	public void setOqlParameterName(String string) {
+		oqlParameterName = string;
+	}
+
+	public void setOqlParameterValueList(List list) {
+		oqlParameterValueList = list;
+	}
+
+	public void setOqlStatementName(String string) {
+		oqlStatementName = string;
+	}
+
+	public void setOqlStatementValue(String string) {
+		oqlStatementValue = string;
+	}
+
+	public String getMethodString() {
+		return methodString;
+	}
+
+	public void setMethodString(String string) {
+		methodString = string;
+	}
+
 }

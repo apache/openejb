@@ -43,27 +43,63 @@
  */
 package org.openejb.admin.web;
 
-import java.rmi.RemoteException;
-
-import javax.ejb.EJBObject;
-
-import org.openejb.OpenEJBException;
+import java.io.Serializable;
 
 /**
- *
- * @author  <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
+ * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
-public interface DeployerObject extends EJBObject {
-	//action methods
-	public void setBooleanValues(boolean[] booleanValues) throws RemoteException;
-	public boolean[] getBooleanValues() throws RemoteException;
-	public void setJarFile(String jarFile) throws RemoteException;
-	public String getJarFile() throws RemoteException;
-	public void startDeployment() throws RemoteException, OpenEJBException;
-	public void finishDeployment() throws RemoteException, OpenEJBException;
-	public String getDeploymentHTML() throws RemoteException;
-	public DeployData[] getDeployDataArray() throws RemoteException;
-	public String createIdTable() throws RemoteException, OpenEJBException;
-	public void setDeployAndContainerIds(DeployData[] deployDataArray)
-		throws RemoteException, OpenEJBException;
+public class ReferenceData implements Serializable {
+	public static final String RESOURCE_REFERENCE = "resource_reference";
+	public static final String EJB_REFERENCE = "ejb_reference";
+	
+	private String referenceType;
+	private String referenceIdName;
+	private String referenceIdValue;
+	private String referenceName;
+	private String referenceValue;
+
+	public ReferenceData() {
+		super();
+	}
+
+	public String getReferenceIdName() {
+		return referenceIdName;
+	}
+
+	public String getReferenceIdValue() {
+		return referenceIdValue;
+	}
+
+	public String getReferenceName() {
+		return referenceName;
+	}
+
+	public String getReferenceValue() {
+		return referenceValue;
+	}
+
+	public String getReferenceType() {
+		return referenceType;
+	}
+
+	public void setReferenceIdName(String string) {
+		referenceIdName = string;
+	}
+
+	public void setReferenceIdValue(String string) {
+		referenceIdValue = string;
+	}
+
+	public void setReferenceName(String string) {
+		referenceName = string;
+	}
+
+	public void setReferenceValue(String string) {
+		referenceValue = string;
+	}
+
+	public void setReferenceType(String string) {
+		referenceType = string;
+	}
+
 }
