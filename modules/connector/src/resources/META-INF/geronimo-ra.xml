@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee"
     version="1.0"
-    configId="org/openjca/hsql"
+    configId="org/openejb/connector/axion"
     parentId="org/apache/geronimo/Server">
 
     <dependency>
@@ -28,8 +28,8 @@
                     <config-property-setting name="JdbcUrl">jdbc:axiondb:DefaultDatabase</config-property-setting>
                     <connectionmanager>
                         <!--realm-bridge>TargetRealm</realm-bridge-->
-                        <blockingTimeout>5000</blockingTimeout>
-                        <maxSize>10</maxSize>
+                        <blockingTimeout>100</blockingTimeout>
+                        <maxSize>1</maxSize>
                         <useTransactions>true</useTransactions>
                         <useLocalTransactions>true</useLocalTransactions>
                         <useTransactionCaching>true</useTransactionCaching>

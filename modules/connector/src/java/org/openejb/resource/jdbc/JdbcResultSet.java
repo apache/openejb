@@ -86,11 +86,13 @@ import org.apache.commons.logging.LogFactory;
  * */
 public class JdbcResultSet implements ResultSet {
 
-    private static Log log = LogFactory.getLog(JdbcConnection.class);
+    private static Log log = LogFactory.getLog(JdbcResultSet.class);
 
     private final ResultSet resultSet;
+    private final Statement wrappingStatement;
 
-    public JdbcResultSet(ResultSet resultSet) {
+    public JdbcResultSet(Statement wrappingStatement, ResultSet resultSet) {
+        this.wrappingStatement = wrappingStatement;
         this.resultSet = resultSet;
     }
 
@@ -568,7 +570,7 @@ public class JdbcResultSet implements ResultSet {
     }
 
     public Statement getStatement() throws SQLException {
-        return resultSet.getStatement();
+        return wrappingStatement;
     }
 
     public Object getObject(int i, Map map) throws SQLException {
