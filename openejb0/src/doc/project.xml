@@ -75,6 +75,10 @@
         <display>Startup</display>
       </navLink>
       <navLink>
+        <url>validate.xml</url>
+        <display>Validation</display>
+      </navLink>
+      <navLink>
         <url>config_containers.xml</url>
         <display>Configuration</display>
       </navLink>

@@ -44,19 +44,25 @@
  */
 package org.openejb.alt.config.rules;
 
-import org.openejb.alt.config.*;
-import org.openejb.alt.config.ejb11.*;
-import org.openejb.util.Messages;
-import org.openejb.util.SafeToolkit;
 import org.openejb.OpenEJBException;
+import org.openejb.alt.config.Bean;
+import org.openejb.alt.config.EjbSet;
+import org.openejb.alt.config.ValidationFailure;
+import org.openejb.alt.config.ValidationRule;
+import org.openejb.util.SafeToolkit;
+
+
 
 /**
+
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
+
  */
+
 public class CheckClasses implements ValidationRule {
-    
+
     EjbSet set;
-    
+
     public void validate( EjbSet set ) {
         this.set = set;
 
@@ -71,39 +77,69 @@ public class CheckClasses implements ValidationRule {
             check_isRemoteInterface( b );
         }
 
+	SafeToolkit.unloadTempCodebase( set.getJarPath() );
     }
 
+
     public void check_hasEjbClass( Bean b ) {
+
         lookForClass(b, b.getEjbClass(), "<ejb-class>");
+
     }
-    
+
+
+
     public void check_hasHomeClass( Bean b ) {
+
         lookForClass(b, b.getHome(), "<home>");
+
     }
-    
+
+
+
     public void check_hasRemoteClass( Bean b ) {
+
         lookForClass(b, b.getRemote(), "<remote>");
+
     }
-    
+
+
+
     public void check_isEjbClass( Bean b ) {
+
         if ( b instanceof org.openejb.alt.config.SessionBean ) {
+
             compareTypes(b, b.getEjbClass(), javax.ejb.SessionBean.class);
+
         } else if (b instanceof org.openejb.alt.config.EntityBean ) {
+
             compareTypes(b, b.getEjbClass(), javax.ejb.EntityBean.class);
+
         }
+
     }
-    
+
+
+
     public void check_isHomeInterface( Bean b ) {
+
         compareTypes(b, b.getHome(), javax.ejb.EJBHome.class);
+
     }
-    
+
+
+
     public void check_isRemoteInterface( Bean b ) {
+
         compareTypes(b, b.getRemote(), javax.ejb.EJBObject.class);
+
     }
-    
+
+
+
     private void lookForClass(Bean b, String clazz, String type){
-        try {
-            SafeToolkit.loadClass( clazz, set.getJarPath(), false );
+	try {
+	    SafeToolkit.loadTempClass( clazz, set.getJarPath() );
         } catch ( OpenEJBException e ) {
             /*
             # 0 - Class name
@@ -124,7 +160,7 @@ public class CheckClasses implements ValidationRule {
     private void compareTypes(Bean b, String clazz1, Class class2 ){
         Class class1 = null;
         try {
-            class1 = SafeToolkit.loadClass( clazz1 , set.getJarPath(), false );
+            class1 = SafeToolkit.loadTempClass( clazz1 , set.getJarPath() );
         } catch ( OpenEJBException e ) {}
 
         if ( class1 != null && !class2.isAssignableFrom( class1 ) ) {
@@ -137,5 +173,8 @@ public class CheckClasses implements ValidationRule {
         }
     }
 }
+
+
+
 
 

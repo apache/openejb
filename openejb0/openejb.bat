@@ -20,15 +20,16 @@ set PATH=%PATH%;.\bin
 set P1=_%1
 set P2=_%2
 
-if /I %P1% EQU _TEST    goto TEST
-if /I %P1% EQU _BUILD   goto BUILD
-if /I %P1% EQU _DEPLOY  goto DEPLOY 
-if /I %P1% EQU _START   goto START_SERVER
-if /I %P1% EQU _STOP    goto STOP_SERVER
-if /I %P1% EQU _CORBA   goto CORBA
-if /I %P1% EQU _HELP    goto HELP
-if /I %P1% EQU _-HELP   goto HELP
-if /I %P1% EQU _--HELP  goto HELP
+if /I %P1% EQU _TEST     goto TEST
+if /I %P1% EQU _BUILD    goto BUILD
+if /I %P1% EQU _VALIDATE goto VALIDATE 
+if /I %P1% EQU _DEPLOY   goto DEPLOY 
+if /I %P1% EQU _START    goto START_SERVER
+if /I %P1% EQU _STOP     goto STOP_SERVER
+if /I %P1% EQU _CORBA    goto CORBA
+if /I %P1% EQU _HELP     goto HELP
+if /I %P1% EQU _-HELP    goto HELP
+if /I %P1% EQU _--HELP   goto HELP
 
 echo Unknown command: %1
 more < .\bin\commands.txt
