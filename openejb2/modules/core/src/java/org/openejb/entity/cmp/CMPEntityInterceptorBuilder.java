@@ -113,7 +113,7 @@ public class CMPEntityInterceptorBuilder extends AbstractInterceptorBuilder {
         if (trackedConnectionAssociator != null) {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
         }
-        firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, instancePool);
+        firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, containerId, instancePool);
         firstInterceptor = new InTxCacheInterceptor(firstInterceptor, strategyFactory);
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);

@@ -67,10 +67,12 @@ import org.openejb.cache.InstancePool;
  */
 public final class EntityInstanceInterceptor implements Interceptor {
     private final Interceptor next;
+    private final Object containerId;
     private final InstancePool pool;
 
-    public EntityInstanceInterceptor(Interceptor next, InstancePool pool) {
+    public EntityInstanceInterceptor(Interceptor next, Object containerId, InstancePool pool) {
         this.next = next;
+        this.containerId = containerId;
         this.pool = pool;
     }
 
@@ -79,28 +81,39 @@ public final class EntityInstanceInterceptor implements Interceptor {
         TransactionContext transactionContext = ejbInvocation.getTransactionContext();
         Object id = ejbInvocation.getId();
 
-        EntityInstanceContext context = (EntityInstanceContext) pool.acquire();
+        boolean newContext = false;
+        EntityInstanceContext context = null;
+        // if we have an id then check if there is already a context associated with the transaction
+        if ( id != null) {
+            context = (EntityInstanceContext) transactionContext.getContext(containerId, id);
+        }
 
-        context.setTransactionContext(transactionContext);
-        if (id != null) {
-            // always activate on the way in....
-            context.setId(id);
-            try {
-                context.ejbActivate();
-            } catch (Throwable t) {
-                // problem activating instance - discard it and throw the problem (will cause rollback)
-                pool.remove(context);
-                throw t;
-            }
+        // if we didn't find an existing context, create a new one.
+        if (context == null) {
+            context = (EntityInstanceContext) pool.acquire();
+            newContext = true;
 
-            // associate this instance with the TransactionContext
-            try {
-                transactionContext.associate(context);
-            } catch (NoSuchEntityException e) {
-                if (ejbInvocation.getType().isLocal()) {
-                    throw new NoSuchObjectLocalException().initCause(e);
-                } else {
-                    throw new NoSuchObjectException(e.getMessage());
+            context.setTransactionContext(transactionContext);
+            if (id != null) {
+                // always activate on the way in....
+                context.setId(id);
+                try {
+                    context.ejbActivate();
+                } catch (Throwable t) {
+                    // problem activating instance - discard it and throw the problem (will cause rollback)
+                    pool.remove(context);
+                    throw t;
+                }
+
+                // associate this instance with the TransactionContext
+                try {
+                    transactionContext.associate(context);
+                } catch (NoSuchEntityException e) {
+                    if (ejbInvocation.getType().isLocal()) {
+                        throw new NoSuchObjectLocalException().initCause(e);
+                    } else {
+                        throw new NoSuchObjectException(e.getMessage());
+                    }
                 }
             }
         }
@@ -121,18 +134,20 @@ public final class EntityInstanceInterceptor implements Interceptor {
             if (id == null) id = context.getId();
 
             if (id != null) {
-                // always passivate on the way out...
-                try {
-                    context.flush();
-                    context.ejbPassivate();
-                } catch (Throwable t) {
-                    // problem passivating instance - discard it and throw the problem (will cause rollback)
-                    pool.remove(context);
-                    // throw this exception only if we are not already throwing a business exception
-                    if (!threwException) throw t;
-                } finally {
-                    context.setTransactionContext(null);
-                    transactionContext.unassociate(context.getContainerId(), id);
+                // passivate on the way out if this is a new context
+                if (newContext) {
+                    try {
+                        context.flush();
+                        context.ejbPassivate();
+                    } catch (Throwable t) {
+                        // problem passivating instance - discard it and throw the problem (will cause rollback)
+                        pool.remove(context);
+                        // throw this exception only if we are not already throwing a business exception
+                        if (!threwException) throw t;
+                    } finally {
+                        context.setTransactionContext(null);
+                        transactionContext.unassociate(context.getContainerId(), id);
+                    }
                 }
             }
         }
