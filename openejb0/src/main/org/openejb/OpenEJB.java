@@ -159,7 +159,7 @@ public final class OpenEJB {
 	} catch (java.io.IOException e) {
 	}
         if( System.getProperty( "openejb.nobanner" ) == null ) {
-            System.out.println( "OpenEJB " + versionInfo.get( "version" ) );
+            System.out.println( "OpenEJB " + versionInfo.get( "version" ) +"    build: "+versionInfo.get( "date" )+"-"+versionInfo.get( "time" ));
             System.out.println( "" + versionInfo.get( "url" ) );
         }
 
