@@ -30,21 +30,21 @@ Configuration for the Geronimo deployer
     <dependency>
         <uri>openejb/jars/openejb-core-DEV.jar</uri>
     </dependency>
-    <include>
+    <dependency>
         <uri>geronimo/jars/geronimo-connector-DEV.jar</uri>
-    </include>
-    <include>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-core-DEV.jar</uri>
-    </include>
-    <include>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-security-DEV.jar</uri>
-    </include>
-    <include>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-naming-DEV.jar</uri>
-    </include>
-    <include>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-transaction-DEV.jar</uri>
-    </include>
+    </dependency>
     <dependency>
         <uri>geronimo-spec/jars/geronimo-spec-j2eeschema-DEV.jar</uri>
     </dependency>
