@@ -210,6 +210,10 @@ public class GlobalAssembler extends AssemblerUtilities implements Assembler {
         return transaction;
     }
 
+    public Deployer getDeployer() {
+        return null;
+    }
+
     /**
      * Actually does the work of initializing OpenEJB.
      */

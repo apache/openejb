@@ -58,8 +58,7 @@ import org.openejb.EnvProps;
 import org.openejb.OpenEJBException;
 import org.openejb.core.ConnectorReference;
 import org.openejb.core.DeploymentInfo;
-import org.openejb.spi.SecurityService;
-import org.openejb.spi.ContainerSystem;
+import org.openejb.spi.*;
 import org.openejb.util.OpenEJBErrorHandler;
 import org.openejb.util.SafeToolkit;
 /**
@@ -301,5 +300,9 @@ public class Assembler extends AssemblerTool implements org.openejb.spi.Assemble
         }
         /*[6]\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
         return containerSystem;
+    }
+
+    public Deployer getDeployer() {
+        return null;
     }
 }
