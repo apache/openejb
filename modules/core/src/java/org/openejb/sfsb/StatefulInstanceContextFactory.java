@@ -76,9 +76,9 @@ public class StatefulInstanceContextFactory implements InstanceContextFactory, S
     private final UserTransactionImpl userTransaction;
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
-    private EJBProxyFactory proxyFactory;
-    private Interceptor systemChain;
-    private SystemMethodIndices systemMethodIndices;
+    private transient EJBProxyFactory proxyFactory;
+    private transient Interceptor systemChain;
+    private transient SystemMethodIndices systemMethodIndices;
 
     public StatefulInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.containerId = containerId;
