@@ -21,7 +21,7 @@ _command_help()
 {
     case $2 in
         "build")
-            cat ./bin/build.txt | sed 's/openejb /openejb.sh /'
+            ant -f src/build.xml -projecthelp
         ;;
         "test")
             cat ./bin/test.txt | sed 's/openejb /openejb.sh /'
@@ -46,7 +46,7 @@ _command_help()
 #============================================================
 _command_build()
 {
-    ./bin/build.sh $2 $3 $4 $5 $6 $7 $8                                     
+    ant -f src/build.xml $2 $3 $4 $5 $6 $7 $8                                     
 }
 #============================================================
 _command_test()

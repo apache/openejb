@@ -631,7 +631,7 @@
   
   <target name="jar"
           depends="compile"
-          description="--> generates all java archives (default)">
+          description="--> generates all java archives">
           
     <antcall target="delegate">
         <param name="target.name" value="jar"/>
