@@ -147,5 +147,11 @@
             <artifactId>concurrent</artifactId>
             <version>&concurrent-version;</version>
         </dependency>
+
+        <dependency>
+            <groupId>derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>&derby-version;</version>
+        </dependency>
     </dependencies>
 </project>

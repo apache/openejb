@@ -56,6 +56,9 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
+import org.tranql.cache.CacheRow;
+import org.tranql.cache.InTxCache;
+import org.tranql.identity.GlobalIdentity;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorException;
 import org.tranql.pkgenerator.SequenceTablePrimaryKeyGenerator;
@@ -95,8 +98,12 @@ public class SequenceTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenera
         delegate = null;
     }
 
-    public Object getNextPrimaryKey() throws PrimaryKeyGeneratorException {
-        return delegate.getNextPrimaryKey();
+    public Object getNextPrimaryKey(CacheRow cacheRow) throws PrimaryKeyGeneratorException {
+        return delegate.getNextPrimaryKey(cacheRow);
+    }
+
+    public CacheRow updateCache(InTxCache cache, GlobalIdentity id, CacheRow cacheRow) throws PrimaryKeyGeneratorException {
+        return delegate.updateCache(cache, id, cacheRow);
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -118,5 +125,4 @@ public class SequenceTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenera
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-    
 }

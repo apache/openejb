@@ -6,7 +6,10 @@
     parentId="org/apache/geronimo/Server">
 
     <dependency>
-        <uri>axion/jars/axion-${axion_version}.jar</uri>
+        <uri>derby/jars/derby-${derby_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>derby/jars/derbynet-${derby_version}.jar</uri>
     </dependency>
 
     <dependency>
@@ -29,10 +32,8 @@
                     <name>DefaultDatasource</name>
                     <config-property-setting name="UserName"></config-property-setting>
                     <config-property-setting name="Password"></config-property-setting>
-                    <config-property-setting name="Driver">org.axiondb.jdbc.AxionDriver</config-property-setting>
-                    <config-property-setting name="ConnectionURL">jdbc:axiondb:DefaultDatabase</config-property-setting>
-                    <config-property-setting name="CommitBeforeAutocommit">true</config-property-setting>
-                    <config-property-setting name="ExceptionSorterClass">org.tranql.connector.NoExceptionsAreFatalSorter</config-property-setting>
+                    <config-property-setting name="DatabaseName">DefaultDatasource</config-property-setting>
+                    <config-property-setting name="CreateDatabase">create</config-property-setting>
                     <connectionmanager>
                         <local-transaction/>
                         <single-pool>
@@ -41,7 +42,7 @@
                             <match-one/>
                         </single-pool>
                     </connectionmanager>
-                    <global-jndi-name>tranql/axion</global-jndi-name>
+                    <global-jndi-name>tranql/derby</global-jndi-name>
                     <!--credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface-->
                 </connectiondefinition-instance>
             </connection-definition>

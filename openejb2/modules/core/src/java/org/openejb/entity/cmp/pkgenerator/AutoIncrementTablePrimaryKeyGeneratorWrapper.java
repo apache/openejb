@@ -47,10 +47,6 @@
  */
 package org.openejb.entity.cmp.pkgenerator;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
@@ -64,9 +60,9 @@ import org.tranql.cache.CacheRow;
 import org.tranql.cache.InTxCache;
 import org.tranql.field.FieldAccessor;
 import org.tranql.identity.GlobalIdentity;
+import org.tranql.pkgenerator.AutoIncrementTablePrimaryKeyGenerator;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorException;
-import org.tranql.pkgenerator.SQLPrimaryKeyGenerator;
 import org.tranql.sql.jdbc.binding.BindingFactory;
 
 /**
@@ -74,41 +70,23 @@ import org.tranql.sql.jdbc.binding.BindingFactory;
  *
  * @version $Revision$ $Date$
  */
-public class SQLPrimaryKeyGeneratorWrapper implements PrimaryKeyGenerator, GBeanLifecycle {
-    private static final Log log = LogFactory.getLog(SQLPrimaryKeyGeneratorWrapper.class);
+public class AutoIncrementTablePrimaryKeyGeneratorWrapper implements PrimaryKeyGenerator, GBeanLifecycle {
+    private static final Log log = LogFactory.getLog(AutoIncrementTablePrimaryKeyGeneratorWrapper.class);
     
     private final ManagedConnectionFactoryWrapper connectionFactoryWrapper;
-    private final String initSql;
     private final String sql;
     private final Class returnType;
     private PrimaryKeyGenerator delegate;
 
-    public SQLPrimaryKeyGeneratorWrapper(ManagedConnectionFactoryWrapper connectionFactoryWrapper, String initSql, String sql, Class returnType) {
+    public AutoIncrementTablePrimaryKeyGeneratorWrapper(ManagedConnectionFactoryWrapper connectionFactoryWrapper, String sql, Class returnType) {
         this.connectionFactoryWrapper = connectionFactoryWrapper;
-        this.initSql = initSql;
         this.sql = sql;
         this.returnType = returnType;
     }
     
     public void doStart() throws WaitingException, Exception {
         DataSource dataSource = (DataSource) connectionFactoryWrapper.$getResource();
-        
-        Connection c = dataSource.getConnection();
-        try {
-            PreparedStatement updateStatement = c.prepareStatement(initSql);
-            try {
-                updateStatement.execute();
-            } catch (SQLException e) {
-                log.warn("Can not initialize SQLPrimaryKeyGeneratorWrapper with query " + initSql, e);
-                //ignore... Already existing?
-            } finally {
-                updateStatement.close();
-            }
-        } finally {
-            c.close();
-        }
-
-        delegate = new SQLPrimaryKeyGenerator(dataSource, sql, BindingFactory.getResultBinding(1, new FieldAccessor(0, returnType)));
+        delegate = new AutoIncrementTablePrimaryKeyGenerator(dataSource, sql, BindingFactory.getResultBinding(1, new FieldAccessor(0, returnType)));
     }
 
     public void doStop() throws WaitingException, Exception {
@@ -130,15 +108,14 @@ public class SQLPrimaryKeyGeneratorWrapper implements PrimaryKeyGenerator, GBean
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SQLPrimaryKeyGeneratorWrapper.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AutoIncrementTablePrimaryKeyGeneratorWrapper.class);
         infoFactory.addInterface(PrimaryKeyGenerator.class);
         
         infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class);
-        infoFactory.addAttribute("initSQL", String.class, true);
         infoFactory.addAttribute("sql", String.class, true);
         infoFactory.addAttribute("returnType", Class.class, true);
 
-        infoFactory.setConstructor(new String[]{"ManagedConnectionFactoryWrapper", "initSQL", "sql", "returnType"});
+        infoFactory.setConstructor(new String[]{"ManagedConnectionFactoryWrapper", "sql", "returnType"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -146,7 +123,4 @@ public class SQLPrimaryKeyGeneratorWrapper implements PrimaryKeyGenerator, GBean
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
-    
-    
 }
