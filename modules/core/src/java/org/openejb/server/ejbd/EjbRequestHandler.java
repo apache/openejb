@@ -49,6 +49,10 @@ import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
 import org.openejb.client.EJBRequest;
 import org.openejb.client.EJBResponse;
@@ -57,15 +61,12 @@ import org.openejb.client.ResponseCodes;
 import org.openejb.proxy.BaseEJB;
 import org.openejb.proxy.ProxyInfo;
 
-
-/**
- */
 class EjbRequestHandler implements ResponseCodes, RequestMethods {
-    private final EjbDaemon daemon;
+    private static final Log log = LogFactory.getLog(EjbRequestHandler.class);
+    private final ContainerIndex containerIndex;
 
-    EjbRequestHandler(EjbDaemon daemon) {
-        this.daemon = daemon;
-        // TODO Auto-generated constructor stub
+    EjbRequestHandler(ContainerIndex containerIndex) {
+        this.containerIndex = containerIndex;
     }
 
     public void processRequest(ObjectInputStream in, ObjectOutputStream out) {
@@ -96,17 +97,15 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
             */
 
         } catch (Throwable t) {
-            replyWithFatalError
-                    (out, t, "Error caught during request processing");
+            replyWithFatalError(out, t, "Error caught during request processing");
             return;
         }
 
         CallContext call = null;
         EJBContainer container = null;
-        ;
 
         try {
-            container = this.daemon.getContainer(req);
+            container = getContainer(req);
         } catch (RemoteException e) {
             replyWithFatalError
                     (out, e, "No such deployment");
@@ -118,8 +117,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                 return;
             */
         } catch (Throwable t) {
-            replyWithFatalError
-                    (out, t, "Unkown error occured while retrieving deployment");
+            replyWithFatalError(out, t, "Unkown error occured while retrieving deployment");
             return;
         }
 
@@ -128,8 +126,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
             call.setEJBRequest(req);
             call.setContainer(container);
         } catch (Throwable t) {
-            replyWithFatalError
-                    (out, t, "Unable to set the thread context for this request");
+            replyWithFatalError(out, t, "Unable to set the thread context for this request");
             return;
         }
 
@@ -142,7 +139,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                 doEjbObject_BUSINESS_METHOD(req, res);
                 break;
 
-                // Home interface methods
+            // Home interface methods
             case EJB_HOME_CREATE:
                 doEjbHome_CREATE(req, res);
                 break;
@@ -151,7 +148,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                 doEjbHome_FIND(req, res);
                 break;
 
-                // javax.ejb.EJBObject methods
+            // javax.ejb.EJBObject methods
             case EJB_OBJECT_GET_EJB_HOME:
                 doEjbObject_GET_EJB_HOME(req, res);
                 break;
@@ -189,29 +186,26 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                 doEjbHome_REMOVE_BY_PKEY(req, res);
                 break;
             }
-
-
         } catch (org.openejb.InvalidateReferenceException e) {
-            res.setResponse(EJB_SYS_EXCEPTION, e.getRootCause());
+            res.setResponse(EJB_SYS_EXCEPTION, e.getCause());
         } catch (org.openejb.ApplicationException e) {
-            res.setResponse(EJB_APP_EXCEPTION, e.getRootCause());
+            res.setResponse(EJB_APP_EXCEPTION, e.getCause());
         } catch (org.openejb.SystemException e) {
-            res.setResponse(EJB_ERROR, e.getRootCause());
+            res.setResponse(EJB_ERROR, e.getCause());
             // TODO:2: This means a severe error occured in OpenEJB
             // we should restart the container system or take other
             // aggressive actions to attempt recovery.
-            this.daemon.logger.fatal(req + ": OpenEJB encountered an unknown system error in container: ", e);
+            log.fatal(req + ": OpenEJB encountered an unknown system error in container: ", e);
         } catch (java.lang.Throwable t) {
             //System.out.println(req+": Unkown error in container: ");
-            replyWithFatalError
-                    (out, t, "Unknown error in container");
+            replyWithFatalError(out, t, "Unknown error in container");
             return;
         } finally {
-            this.daemon.logger.info("EJB RESPONSE: " + res);
+            log.info("EJB RESPONSE: " + res);
             try {
                 res.writeExternal(out);
             } catch (java.io.IOException ie) {
-                this.daemon.logger.fatal("Couldn't write EjbResponse to output stream", ie);
+                log.fatal("Couldn't write EjbResponse to output stream", ie);
             }
             call.reset();
         }
@@ -233,7 +227,6 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
         res.setResponse(EJB_OK, result);
     }
 
-
     // Home interface methods
     protected void doEjbHome_CREATE(EJBRequest req, EJBResponse res) throws Throwable {
         Object result = invoke(req);
@@ -247,7 +240,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
             // or and exception should be thrown.
             //TODO:3: Localize all error messages in an separate file.
             result = new RemoteException("The bean is not EJB compliant.  The should be created or and exception should be thrown.");
-            this.daemon.logger.error(req + "The bean is not EJB compliant.  The should be created or and exception should be thrown.");
+            log.error(req + "The bean is not EJB compliant.  The should be created or and exception should be thrown.");
             res.setResponse(EJB_SYS_EXCEPTION, result);
         }
     }
@@ -303,7 +296,6 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
             res.setResponse(EJB_OK_FOUND_COLLECTION, objects);
 
         } else if (result instanceof java.util.Enumeration) {
-
             java.util.Enumeration resultAsEnum = (java.util.Enumeration) result;
             java.util.List listOfPKs = new java.util.ArrayList();
             while (resultAsEnum.hasMoreElements()) {
@@ -336,56 +328,53 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                     "to return neither Collection nor the Remote Interface, " +
                     "but [" + result.getClass().getName() + "]";
             result = new RemoteException(message);
-            this.daemon.logger.error(req + " " + message);
+            log.error(req + " " + message);
             res.setResponse(EJB_SYS_EXCEPTION, result);
         }
     }
 
     // javax.ejb.EJBObject methods
-    protected void doEjbObject_GET_EJB_HOME(EJBRequest req, EJBResponse res) throws Exception {
+    private void doEjbObject_GET_EJB_HOME(EJBRequest req, EJBResponse res) throws Exception {
         checkMethodAuthorization(req, res);
     }
 
-    protected void doEjbObject_GET_HANDLE(EJBRequest req, EJBResponse res) throws Exception {
+    private void doEjbObject_GET_HANDLE(EJBRequest req, EJBResponse res) throws Exception {
         checkMethodAuthorization(req, res);
     }
 
-    protected void doEjbObject_GET_PRIMARY_KEY(EJBRequest req, EJBResponse res) throws Exception {
+    private void doEjbObject_GET_PRIMARY_KEY(EJBRequest req, EJBResponse res) throws Exception {
         checkMethodAuthorization(req, res);
     }
 
-    protected void doEjbObject_IS_IDENTICAL(EJBRequest req, EJBResponse res) throws Exception {
+    private void doEjbObject_IS_IDENTICAL(EJBRequest req, EJBResponse res) throws Exception {
         checkMethodAuthorization(req, res);
     }
 
-    protected void doEjbObject_REMOVE(EJBRequest req, EJBResponse res) throws Throwable {
+    private void doEjbObject_REMOVE(EJBRequest req, EJBResponse res) throws Throwable {
         invoke(req);
-
         res.setResponse(EJB_OK, null);
     }
 
     // javax.ejb.EJBHome methods
-    protected void doEjbHome_GET_EJB_META_DATA(EJBRequest req, EJBResponse res) throws Exception {
+    private void doEjbHome_GET_EJB_META_DATA(EJBRequest req, EJBResponse res) throws Exception {
         checkMethodAuthorization(req, res);
     }
 
-    protected void doEjbHome_GET_HOME_HANDLE(EJBRequest req, EJBResponse res) throws Exception {
+    private void doEjbHome_GET_HOME_HANDLE(EJBRequest req, EJBResponse res) throws Exception {
         checkMethodAuthorization(req, res);
     }
 
-    protected void doEjbHome_REMOVE_BY_HANDLE(EJBRequest req, EJBResponse res) throws Throwable {
+    private void doEjbHome_REMOVE_BY_HANDLE(EJBRequest req, EJBResponse res) throws Throwable {
         invoke(req);
-
         res.setResponse(EJB_OK, null);
     }
 
-    protected void doEjbHome_REMOVE_BY_PKEY(EJBRequest req, EJBResponse res) throws Throwable {
+    private void doEjbHome_REMOVE_BY_PKEY(EJBRequest req, EJBResponse res) throws Throwable {
         invoke(req);
-
         res.setResponse(EJB_OK, null);
     }
 
-    protected void checkMethodAuthorization(EJBRequest req, EJBResponse res) throws Exception {
+    private void checkMethodAuthorization(EJBRequest req, EJBResponse res) throws Exception {
         // Nothing to do here other than check to see if the client
         // is authorized to call this method
         // TODO:3: Keep a cache in the client-side handler of methods it can't access
@@ -403,16 +392,50 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 //        }
     }
 
+    private EJBContainer getContainer(EJBRequest req) throws RemoteException {
+        EJBContainer container = null;
+
+        if (req.getContainerCode() > 0 && req.getContainerCode() < containerIndex.length()) {
+            container = containerIndex.getContainer(req.getContainerCode());
+            if (container == null) {
+                throw new RemoteException("The deployement with this ID is null");
+            }
+            req.setContainerID((String) container.getContainerID());
+            return container;
+        }
+
+        if (req.getContainerID() == null) {
+            throw new RemoteException("Invalid deployment id and code: id=" + req.getContainerID() + ": code=" + req.getContainerCode());
+        }
+
+        int idCode = containerIndex.getContainerIndex(req.getContainerID());
+
+        if (idCode == -1) {
+            throw new RemoteException("No such deployment id and code: id=" + req.getContainerID() + ": code=" + req.getContainerCode());
+        }
+
+        req.setContainerCode(idCode);
+
+        if (req.getContainerCode() < 0 || req.getContainerCode() >= containerIndex.length()) {
+            throw new RemoteException("Invalid deployment id and code: id=" + req.getContainerID() + ": code=" + req.getContainerCode());
+        }
+
+        container = containerIndex.getContainer(req.getContainerCode());
+        if (container == null) {
+            throw new RemoteException("The deployement with this ID is null");
+        }
+        return container;
+    }
+
     private void replyWithFatalError(ObjectOutputStream out, Throwable error, String message) {
-        this.daemon.logger.fatal(message, error);
-        RemoteException re = new RemoteException
-                ("The server has encountered a fatal error: " + message + " " + error);
+        log.fatal(message, error);
+        RemoteException re = new RemoteException("The server has encountered a fatal error: " + message + " " + error);
         EJBResponse res = new EJBResponse();
         res.setResponse(EJB_ERROR, re);
         try {
             res.writeExternal(out);
         } catch (java.io.IOException ie) {
-            this.daemon.logger.error("Failed to write to EJBResponse", ie);
+            log.error("Failed to write to EJBResponse", ie);
         }
     }
 }

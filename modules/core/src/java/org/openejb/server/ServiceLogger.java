@@ -44,139 +44,109 @@
  */
 package org.openejb.server;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import org.openejb.*;
-import org.openejb.util.*;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.util.Properties;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.MDC;
 
 /**
  *  The Server will call the following methods.
- * 
+ *
  *    newInstance()
  *    init( port, properties)
  *    start()
  *    stop()
- * 
- * All ServerService implementations must have a no argument 
+ *
+ * All ServerService implementations must have a no argument
  * constructor.
- * 
+ *
  */
 public class ServiceLogger implements ServerService {
-    
-    Messages messages = new Messages( "org.openejb.server" );
-    Logger logger;
+    private final Log log;
+    private final ServerService next;
 
-    boolean logOnSuccess;
-    boolean logOnFailure;
-
-    ServerService next;
-
-    public ServiceLogger(ServerService next){
+    public ServiceLogger(ServerService next) {
         this.next = next;
+        log = LogFactory.getLog("OpenEJB.server.service." + getName());
     }
 
     /**
-     * Pulls out the access log information
-     * 
-     * @param props
-     * 
-     * @exception ServiceException
-     */
-    public void init(Properties props) throws Exception{
-        // Do our stuff
-        String logCategory = "OpenEJB.server.service."+getName();
-
-        logger = Logger.getInstance( logCategory, "org.openejb.server" );
-        // Then call the next guy
-        next.init(props);
-    }
-    
-    public void start() throws ServiceException{
-        // Do our stuff
-        
-        // Then call the next guy
-        next.start();
-    }
-    
-    public void stop() throws ServiceException{
-        // Do our stuff
-        
-        // Then call the next guy
-        next.stop();
-    }
-
-    /**
-     * log_on_success 
+     * log_on_success
      * -----------------
-     * Different information can be logged when a server starts: 
-     * 
-     * PID : the server's PID (if it's an internal xinetd service, the PID has then a value of 0) ; 
-     * HOST : the client address ; 
-     * USERID : the identity of the remote user, according to RFC1413 defining identification protocol; 
-     * EXIT : the process exit status; 
-     * DURATION : the session duration.  
-     * 
-     * log_on_failure 
+     * Different information can be logged when a server starts:
+     *
+     * PID : the server's PID (if it's an internal xinetd service, the PID has then a value of 0) ;
+     * HOST : the client address ;
+     * USERID : the identity of the remote user, according to RFC1413 defining identification protocol;
+     * EXIT : the process exit status;
+     * DURATION : the session duration.
+     *
+     * log_on_failure
      * ------------------
-     * Here again, xinetd can log a lot of information when a server can't start, either by lack of resources or because of access rules: 
-     * HOST, USERID : like above mentioned ; 
-     * ATTEMPT : logs an access attempt. This an automatic option as soon as another value is provided; 
-     * RECORD : logs every information available on the client. 
-     * 
+     * Here again, xinetd can log a lot of information when a server can't start, either by lack of resources or because of access rules:
+     * HOST, USERID : like above mentioned ;
+     * ATTEMPT : logs an access attempt. This an automatic option as soon as another value is provided;
+     * RECORD : logs every information available on the client.
+     *
      * @param socket
-     * 
+     *
      * @exception ServiceException
      * @exception IOException
      */
-    public void service(Socket socket) throws ServiceException, IOException{
+    public void service(Socket socket) throws ServiceException, IOException {
         // Fill this in more deeply later.
         InetAddress client = socket.getInetAddress();
-        org.apache.log4j.MDC.put("HOST", client.getHostName());
-        org.apache.log4j.MDC.put("SERVER", getName());
+        MDC.put("HOST", client.getHostName());
+        MDC.put("SERVER", getName());
 
-        try{
+        try {
             logIncoming();
             next.service(socket);
             logSuccess();
-        } catch (Exception e){
+        } catch (Exception e) {
             logFailure(e);
             e.printStackTrace();
         }
     }
 
-    private void logIncoming(){
-        logger.info("incomming request");
-    }
-    private void logSuccess(){
-        logger.info("successful request");
-    }
-    
-    private void logFailure(Exception e){
-        logger.error(e.getMessage());
+    private void logIncoming() {
+        log.info("incomming request");
     }
 
-    /**
-     * Gets the name of the service.
-     * Used for display purposes only
-     */ 
-    public String getName(){
+    private void logSuccess() {
+        log.info("successful request");
+    }
+
+    private void logFailure(Exception e) {
+        log.error(e.getMessage());
+    }
+
+
+    public void init(Properties props) throws Exception {
+        next.init(props);
+    }
+
+    public void start() throws ServiceException {
+        next.start();
+    }
+
+    public void stop() throws ServiceException {
+        next.stop();
+    }
+
+    public String getName() {
         return next.getName();
     }
 
-    /**
-     * Gets the ip number that the 
-     * daemon is listening on.
-     */
-    public String getIP(){
+    public String getIP() {
         return next.getIP();
     }
-    
-    /**
-     * Gets the port number that the 
-     * daemon is listening on.
-     */
-    public int getPort(){
+
+    public int getPort() {
         return next.getPort();
     }
 

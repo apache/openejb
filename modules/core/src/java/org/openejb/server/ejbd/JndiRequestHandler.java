@@ -46,75 +46,71 @@ package org.openejb.server.ejbd;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
-import javax.naming.Context;
-import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
+import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
-import org.openejb.OpenEJB;
-import org.openejb.assembler.DeploymentInfo;
 import org.openejb.client.EJBMetaDataImpl;
 import org.openejb.client.JNDIRequest;
 import org.openejb.client.JNDIResponse;
 import org.openejb.client.RequestMethods;
 import org.openejb.client.ResponseCodes;
-import org.openejb.proxy.BaseEJB;
-import org.openejb.proxy.EJBHomeImpl;
 import org.openejb.proxy.ProxyInfo;
 
 /**
  */
-class JndiRequestHandler  implements ResponseCodes, RequestMethods {
-    private final EjbDaemon daemon;
+class JndiRequestHandler implements ResponseCodes, RequestMethods {
+//    private final Context clientJndi;
+    private final ContainerIndex containerIndex;
 
-    javax.naming.Context clientJndi;
-
-    JndiRequestHandler(EjbDaemon daemon) throws Exception{
-        clientJndi = (javax.naming.Context)OpenEJB.getJNDIContext().lookup("openejb/ejb");
-        this.daemon = daemon;
+    JndiRequestHandler(ContainerIndex containerIndex) throws NamingException {
+//        clientJndi = (Context) OpenEJB.getJNDIContext().lookup("openejb/ejb");
+        this.containerIndex = containerIndex;
     }
 
-    public void processRequest(ObjectInputStream in, ObjectOutputStream out) throws Exception{
-        JNDIRequest  req = new JNDIRequest();
+    public void processRequest(ObjectInputStream in, ObjectOutputStream out) throws Exception {
+        JNDIRequest req = new JNDIRequest();
         JNDIResponse res = new JNDIResponse();
-        req.readExternal( in );
+        req.readExternal(in);
 
         // We are assuming that the request method is JNDI_LOOKUP
         // TODO: Implement the JNDI_LIST and JNDI_LIST_BINDINGS methods
 
         String name = req.getRequestString();
-        if ( name.startsWith("/") ) name = name.substring(1);
+        if (name.startsWith("/")) {
+            name = name.substring(1);
+        }
 
-        EJBContainer deployment = daemon.deploymentIndex.getContainer(name);
-        //TODO: this is a terrible cheat
-        ProxyInfo info = ((BaseEJB)deployment.getEJBHome()).getProxyInfo();
+        int index = containerIndex.getContainerIndexByJndiName(name);
+        if (index > 0) {
+            EJBContainer deployment = containerIndex.getContainer(index);
+            ProxyInfo info = deployment.getProxyFactory().getProxyInfo();
 
-        if (deployment == null) {
-            try {
-                Object obj = clientJndi.lookup(name);
-
-                if ( obj instanceof Context ) {
-                    res.setResponseCode( JNDI_CONTEXT );
-                } else res.setResponseCode( JNDI_NOT_FOUND );
-
-            } catch (NameNotFoundException e) {
-                res.setResponseCode(JNDI_NOT_FOUND);
-            } catch (NamingException e) {
-                res.setResponseCode(JNDI_NAMING_EXCEPTION);
-                res.setResult( e );
-            }
-        } else {
-            res.setResponseCode( JNDI_EJBHOME );
+            res.setResponseCode(JNDI_EJBHOME);
             EJBMetaDataImpl metaData = new EJBMetaDataImpl(info.getHomeInterface(),
                     info.getRemoteInterface(),
                     info.getPrimaryKeyClass(),
                     info.getComponentType(),
                     info.getContainerID().toString(),
-                    this.daemon.deploymentIndex.getContainerIndex(name));
-            res.setResult( metaData );
+                    index);
+            res.setResult(metaData);
+        } else {
+//            try {
+//                Object obj = clientJndi.lookup(name);
+//
+//                if (obj instanceof Context) {
+//                    res.setResponseCode(JNDI_CONTEXT);
+//                } else {
+//                    res.setResponseCode(JNDI_NOT_FOUND);
+//                }
+//            } catch (NameNotFoundException e) {
+                res.setResponseCode(JNDI_NOT_FOUND);
+//            } catch (NamingException e) {
+//                res.setResponseCode(JNDI_NAMING_EXCEPTION);
+//                res.setResult(e);
+//            }
         }
 
-        res.writeExternal( out );
+        res.writeExternal(out);
     }
 }

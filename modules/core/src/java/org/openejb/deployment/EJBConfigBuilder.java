@@ -368,10 +368,18 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException("Unable to create EJB jndi environment: ejbName" + ejbName, e);
         }
 
+        if (openejbSessionBean != null) {
+            builder.setJndiNames(openejbSessionBean.getJndiNameArray());
+            builder.setLocalJndiNames(openejbSessionBean.getLocalJndiNameArray());
+        } else {
+            builder.setJndiNames(new String[] {ejbName});
+            builder.setLocalJndiNames(new String[] {"local/" + ejbName});
+        }
+
         try {
             GBeanMBean gbean = builder.createConfiguration();
-            gbean.setReferencePatterns("transactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
-            gbean.setReferencePatterns("trackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));
+            gbean.setReferencePatterns("TransactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
+            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));
             return gbean;
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName" + ejbName, e);
@@ -418,10 +426,18 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException("Unable to create EJB jndi environment: ejbName=" + ejbName, e);
         }
 
+        if (openejbEntityBean != null) {
+            builder.setJndiNames(openejbEntityBean.getJndiNameArray());
+            builder.setLocalJndiNames(openejbEntityBean.getLocalJndiNameArray());
+        } else {
+            builder.setJndiNames(new String[] {ejbName});
+            builder.setLocalJndiNames(new String[] {"local/" + ejbName});
+        }
+
         try {
             GBeanMBean gbean = builder.createConfiguration();
-            gbean.setReferencePatterns("transactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
-            gbean.setReferencePatterns("trackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));
+            gbean.setReferencePatterns("TransactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
+            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));
             return gbean;
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName=" + ejbName, e);

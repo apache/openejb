@@ -55,6 +55,8 @@ import javax.ejb.EJBObject;
 
 import org.apache.geronimo.core.service.Interceptor;
 
+import org.openejb.proxy.EJBProxyFactory;
+
 /**
  * Interface exposed by server side EJB Containers to allow the interceptor
  * stack to interact with them.
@@ -118,4 +120,12 @@ public interface EJBContainer extends Interceptor {
      * @throws Throwable if a problem occurs while calling the bean
      */
     Object invoke(Method callMethod, Object[] args, Object primKey) throws Throwable;
+
+    String[] getJndiNames();
+
+    String[] getLocalJndiNames();
+
+    EJBProxyFactory getProxyFactory();
+
+    ClassLoader getClassLoader();
 }

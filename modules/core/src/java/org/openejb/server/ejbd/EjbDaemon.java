@@ -50,64 +50,56 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.rmi.RemoteException;
-import java.util.Properties;
+import javax.ejb.EJBHome;
+import javax.ejb.EJBMetaData;
+import javax.ejb.EJBObject;
+import javax.ejb.Handle;
+import javax.ejb.HomeHandle;
 
-import org.openejb.*;
-import org.openejb.assembler.DeploymentInfo;
-import org.openejb.client.EJBRequest;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.openejb.ContainerIndex;
 import org.openejb.client.RequestMethods;
 import org.openejb.client.ResponseCodes;
 import org.openejb.proxy.ProxyInfo;
-import org.openejb.util.Logger;
-import org.openejb.util.Messages;
+import org.openejb.spi.ApplicationServer;
 
 /**
  * @since 11/25/2001
  */
-public class EjbDaemon implements org.openejb.spi.ApplicationServer, ResponseCodes, RequestMethods {
+public class EjbDaemon implements ApplicationServer, ResponseCodes, RequestMethods {
+    private static final Log log = LogFactory.getLog(EjbDaemon.class);
 
-    Messages _messages = new Messages( "org.openejb.server" );
-    Logger logger = Logger.getInstance( "OpenEJB.server.remote", "org.openejb.server" );
-
-    Properties props;
-
-    ClientObjectFactory clientObjectFactory;
-    ContainerIndex deploymentIndex;
-    EjbRequestHandler ejbHandler;
-    JndiRequestHandler jndiHandler;
-    AuthRequestHandler authHandler;
-
-    boolean stop = false;
-
-    static EjbDaemon thiss;
-
-    private EjbDaemon() {
-    }
-
-    public static EjbDaemon getEjbDaemon() {
-        if ( thiss == null ) {
-            thiss = new EjbDaemon();
+    private static EjbDaemon ejbDaemon;
+    public static EjbDaemon getEjbDaemon() throws Exception {
+        if (ejbDaemon == null) {
+            ejbDaemon = new EjbDaemon();
         }
-        return thiss;
+        return ejbDaemon;
     }
 
-    public void init(Properties props) throws Exception{
-        this.props = props;
-        
-        deploymentIndex = ContainerIndex.getInstance();
+    private final ClientObjectFactory clientObjectFactory;
+    private final EjbRequestHandler ejbHandler;
+    private final JndiRequestHandler jndiHandler;
+    private final AuthRequestHandler authHandler;
 
-        clientObjectFactory = new ClientObjectFactory(this);
-        
+    private EjbDaemon() throws Exception {
+        this(ContainerIndex.getInstance());
+    }
+
+    public EjbDaemon(ContainerIndex containerIndex) throws Exception {
+        clientObjectFactory = new ClientObjectFactory(containerIndex);
+
         // Request Handlers
-        ejbHandler  = new EjbRequestHandler(this);
-        jndiHandler = new JndiRequestHandler(this);
-        authHandler = new AuthRequestHandler(this);
+        ejbHandler = new EjbRequestHandler(containerIndex);
+        jndiHandler = new JndiRequestHandler(containerIndex);
+        authHandler = new AuthRequestHandler();
     }
 
-    public void service(Socket socket) throws IOException{
-        InputStream  in  = socket.getInputStream();
-        OutputStream out = socket.getOutputStream();
+    public void service(Socket socket) throws IOException {
+        InputStream in = null;
+        OutputStream out = null;
 
         /**
          * The ObjectInputStream used to receive incoming messages from the client.
@@ -118,131 +110,130 @@ public class EjbDaemon implements org.openejb.spi.ApplicationServer, ResponseCod
          */
         ObjectOutputStream oos = null;
 
-
         try {
+            in = socket.getInputStream();
+            out = socket.getOutputStream();
 
             //TODO: Implement multiple request processing
             //while ( !stop ) {
 
             // Read the request
-            byte requestType = (byte)in.read();
+            byte requestType = (byte) in.read();
 
             //if (requestType == -1) {continue;}
             if (requestType == -1) {
                 return;
             }
 
-            ois = new ObjectInputStream( in );
-            oos = new ObjectOutputStream( out );
+            ois = new ObjectInputStream(in);
+            oos = new ObjectOutputStream(out);
 
             // Process the request
             switch (requestType) {
-            case EJB_REQUEST:  processEjbRequest(ois, oos); break;
-            case JNDI_REQUEST: processJndiRequest(ois, oos);break;
-            case AUTH_REQUEST: processAuthRequest(ois, oos);break;
-            default: logger.error("Unknown request type "+requestType);
+            case EJB_REQUEST:
+                ejbHandler.processRequest(ois, oos);
+                break;
+            case JNDI_REQUEST:
+                jndiHandler.processRequest(ois, oos);
+                break;
+            case AUTH_REQUEST:
+                authHandler.processRequest(ois, oos);
+                break;
+            default:
+                log.error("Unknown request type " + requestType);
             }
+
             try {
-                if ( oos != null ) {
+                if (oos != null) {
                     oos.flush();
                 }
-            } catch ( Throwable t ) {
-                logger.error("Encountered problem while communicating with client: "+t.getMessage());
+            } catch (Throwable t) {
+                log.error("Encountered problem while communicating with client: " + t.getMessage());
             }
             //}
 
             // Exceptions should not be thrown from these methods
             // They should handle their own exceptions and clean
             // things up with the client accordingly.
-        } catch ( SecurityException e ) {
-            logger.error( "Security error: "+ e.getMessage() );
-        } catch ( Throwable e ) {
-            logger.error( "Unexpected error", e );
+        } catch (SecurityException e) {
+            log.error("Security error: " + e.getMessage());
+        } catch (Throwable e) {
+            log.error("Unexpected error", e);
             //System.out.println("ERROR: "+clienntIP.getHostAddress()+": " +e.getMessage());
         } finally {
             try {
-                if ( oos != null ) {
-                    oos.flush();
-                    oos.close();
+                close(oos);
+                close(out);
+                close(ois);
+                close(socket);
+                if (socket != null) {
+                    socket.close();
                 }
-                if ( ois    != null ) ois.close();
-                if ( in     != null ) in.close();
-                if ( socket != null ) socket.close();
-            } catch ( Throwable t ) {
-                logger.error("Encountered problem while closing connection with client: "+t.getMessage());
+            } catch (Throwable t) {
+                log.error("Encountered problem while closing connection with client: " + t.getMessage());
             }
         }
-    }
-
-    protected EJBContainer getContainer(EJBRequest req) throws RemoteException {
-        EJBContainer container = null;
-
-        if (req.getContainerCode() > 0 && req.getContainerCode() < deploymentIndex.length()) {
-            container = deploymentIndex.getContainer( req.getContainerCode() );
-            if ( container == null ) {
-                throw new RemoteException("The deployement with this ID is null");
-            }
-            req.setContainerID((String) container.getContainerID() );
-            return container;
-        }
-
-        if ( req.getContainerID() == null ) {
-            throw new RemoteException("Invalid deployment id and code: id="+req.getContainerID()+": code="+req.getContainerCode());
-        }
-
-        int idCode = deploymentIndex.getContainerIndex( req.getContainerID() );
-
-        if ( idCode == -1 ) {
-            throw new RemoteException("No such deployment id and code: id="+req.getContainerID()+": code="+req.getContainerCode());
-        }
-
-        req.setContainerCode( idCode );
-
-        if (req.getContainerCode() < 0 || req.getContainerCode() >= deploymentIndex.length()){
-            throw new RemoteException("Invalid deployment id and code: id="+req.getContainerID()+": code="+req.getContainerCode());
-        }
-
-        container = deploymentIndex.getContainer( req.getContainerCode() );
-        if ( container == null ) {
-            throw new RemoteException("The deployement with this ID is null");
-        }
-        return container;
-    }
-
-    public void processEjbRequest (ObjectInputStream in, ObjectOutputStream out) {
-        ejbHandler.processRequest(in,out);
-    }
-
-    public void processJndiRequest(ObjectInputStream in, ObjectOutputStream out) throws Exception{
-        jndiHandler.processRequest(in,out);
-    }
-
-    public void processAuthRequest(ObjectInputStream in, ObjectOutputStream out) {
-        authHandler.processRequest(in,out);
     }
 
     //=============================================================
     //  ApplicationServer interface methods
     //=============================================================
-    public javax.ejb.EJBMetaData getEJBMetaData(ProxyInfo info) {
+    public EJBMetaData getEJBMetaData(ProxyInfo info) {
         return clientObjectFactory.getEJBMetaData(info);
     }
 
-    public javax.ejb.Handle getHandle(ProxyInfo info) {
+    public Handle getHandle(ProxyInfo info) {
         return clientObjectFactory.getHandle(info);
     }
 
-    public javax.ejb.HomeHandle getHomeHandle(ProxyInfo info) {
+    public HomeHandle getHomeHandle(ProxyInfo info) {
         return clientObjectFactory.getHomeHandle(info);
     }
 
-    public javax.ejb.EJBObject getEJBObject(ProxyInfo info) {
+    public EJBObject getEJBObject(ProxyInfo info) {
         return clientObjectFactory.getEJBObject(info);
     }
 
-    public javax.ejb.EJBHome getEJBHome(ProxyInfo info) {
+    public EJBHome getEJBHome(ProxyInfo info) {
         return clientObjectFactory.getEJBHome(info);
     }
 
+    //=============================================================
+    //  IO helper methods
+    //=============================================================
+    private static void close(Socket socket) {
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                log.error("Error closing socket", e);
+            }
+        }
+    }
+
+    private static void close(InputStream in) {
+        if (in != null) {
+            try {
+                in.close();
+            } catch (IOException e) {
+                log.error("Error closing input stream", e);
+            }
+        }
+    }
+
+    private static void close(OutputStream out) {
+        if (out != null) {
+            try {
+                out.flush();
+            } catch (IOException e) {
+                log.error("Encountered problem while communicating with client", e);
+            }
+            try {
+                out.close();
+            } catch (IOException e) {
+                log.error("Error closing output stream", e);
+            }
+        }
+    }
 }
 

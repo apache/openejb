@@ -189,7 +189,7 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
         // exception class.
         } catch ( org.openejb.SystemException se ) {
             invalidateReference();
-            throw new RemoteException("Container has suffered a SystemException",se.getRootCause());
+            throw new RemoteException("Container has suffered a SystemException",se.getCause());
         }  
         
             
