@@ -4,3 +4,5 @@
 maven.log
 junit*.properties
 target
+bin
+scout.log

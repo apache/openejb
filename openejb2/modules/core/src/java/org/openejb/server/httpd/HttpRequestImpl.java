@@ -44,15 +44,17 @@
  */
 package org.openejb.server.httpd;
 
-import java.io.*;
-import java.net.URL;
-import java.net.URLDecoder;
+import java.io.ByteArrayInputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.StringTokenizer;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * A class to take care of HTTP Requests.  It parses headers, content, form and url
@@ -96,7 +98,12 @@ public class HttpRequestImpl implements HttpRequest {
     private InputStream in;
     private int length;
     private String contentType;
+    /** the address the request came in on */
+    private final URI socketURI;
 
+    public HttpRequestImpl(URI socketURI) {
+        this.socketURI = socketURI;
+    }
 
     /**
      * Gets a header based the header name passed in.
@@ -262,7 +269,7 @@ public class HttpRequestImpl implements HttpRequest {
         }
 
         try {
-            uri = new URI(token);
+            uri = new URI(socketURI.toString()+token);
         } catch (URISyntaxException e) {
             throw new IOException("Malformed URI :" + token + " Exception: " + e.getMessage());
         }
@@ -343,7 +350,33 @@ public class HttpRequestImpl implements HttpRequest {
             value = value.trim();
             headers.put(name, value);
         }
-
+        
+        // Update the URI to be what the client sees the the server as.
+        String host = (String) headers.get("Host");
+        if( host!=null ) {
+            String hostName = uri.getHost();
+            int port = uri.getPort();
+            int idx = host.indexOf(":");
+            if( idx >= 0 ) {
+                hostName = host.substring(0, idx);
+                try {
+                    port = Integer.parseInt(host.substring(idx+1));
+                }
+                catch (NumberFormatException ignore) {
+                }
+            } else {
+                hostName = host;
+            }
+            
+            try {
+                uri = new URI(uri.getScheme(),
+                        uri.getUserInfo(), hostName, port,
+                        uri.getPath(), uri.getQuery(),
+                        uri.getFragment());                
+            } catch (URISyntaxException ignore) {
+            }            
+        }
+        
         //temp-debug-------------------------------------------
         //java.util.Iterator myKeys = headers.keySet().iterator();
         //String temp = null;

@@ -4,23 +4,22 @@ package org.openejb.deployment;
  * @version $Revision$ $Date$
  */
 
-import java.io.ObjectOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.jar.JarFile;
-import java.net.URLClassLoader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.jar.JarFile;
 
 import javax.management.ObjectName;
 
-import junit.framework.*;
-import org.openejb.deployment.AxisWebServiceContainerBuilder;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import junit.framework.TestCase;
+
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.ObjectInputStreamExt;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 public class AxisWebServiceContainerBuilderTest extends TestCase {
     AxisWebServiceContainerBuilder axisWebServiceContainerBuilder;
@@ -43,7 +42,7 @@ public class AxisWebServiceContainerBuilderTest extends TestCase {
 
         out.writeObject(attribute);
 
-        ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
+        ObjectInputStream in = new ObjectInputStreamExt(new ByteArrayInputStream(baos.toByteArray()), classLoader);
         Object object = in.readObject();
 
     }

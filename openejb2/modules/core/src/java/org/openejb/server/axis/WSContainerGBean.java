@@ -72,14 +72,14 @@ public class WSContainerGBean {
 
         infoFactory.addReference("EJBContainer", EJBContainer.class);
         infoFactory.addAttribute("location", URI.class, true);
-        infoFactory.addAttribute("wsdlURL", URL.class, true);
+        infoFactory.addAttribute("wsdlURI", URI.class, true);
         infoFactory.addReference("WebServiceContainer", SoapHandler.class);
         infoFactory.addAttribute("serviceDesc", JavaServiceDesc.class, true);
 
         infoFactory.setConstructor(new String[]{
             "EJBContainer",
             "location",
-            "wsdlURL",
+            "wsdlURI",
             "WebServiceContainer",
             "serviceDesc"
         });
@@ -91,14 +91,14 @@ public class WSContainerGBean {
         return GBEAN_INFO;
     }
 
-    public static ObjectName addGBean(Kernel kernel, String name, ObjectName ejbContainer, ObjectName listener, URI location, URL wsdlURL, JavaServiceDesc serviceDesc) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-        GBeanData gbean = createGBean(name, ejbContainer, listener, location, wsdlURL, serviceDesc);
+    public static ObjectName addGBean(Kernel kernel, String name, ObjectName ejbContainer, ObjectName listener, URI location, URI wsdlURI, JavaServiceDesc serviceDesc) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+        GBeanData gbean = createGBean(name, ejbContainer, listener, location, wsdlURI, serviceDesc);
         kernel.loadGBean(gbean, WSContainer.class.getClassLoader());
         kernel.startGBean(gbean.getName());
         return gbean.getName();
     }
 
-    public static GBeanData createGBean(String name, ObjectName ejbContainer, ObjectName listener, URI location, URL wsdlURL, JavaServiceDesc serviceDesc) {
+    public static GBeanData createGBean(String name, ObjectName ejbContainer, ObjectName listener, URI location, URI wsdlURI, JavaServiceDesc serviceDesc) {
         assert ejbContainer != null : "EJBContainer objectname is null";
 
         ObjectName gbeanName = JMXUtil.getObjectName("openejb:type=WSContainer,name=" + name);
@@ -106,7 +106,7 @@ public class WSContainerGBean {
         GBeanData gbean = new GBeanData(gbeanName, WSContainerGBean.GBEAN_INFO);
         gbean.setReferencePattern("EJBContainer", ejbContainer);
         gbean.setAttribute("location", location);
-        gbean.setAttribute("wsdlURL", wsdlURL);
+        gbean.setAttribute("wsdlURI", wsdlURI);
         gbean.setAttribute("serviceDesc", serviceDesc);
 
         gbean.setReferencePattern("WebServiceContainer", listener);

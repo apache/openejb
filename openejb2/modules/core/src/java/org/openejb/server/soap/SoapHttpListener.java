@@ -48,15 +48,12 @@ package org.openejb.server.soap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collection;
-import java.net.URL;
-import java.net.URI;
 
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.geronimo.gbean.ReferenceMap;
 import org.openejb.server.httpd.HttpListener;
 import org.openejb.server.httpd.HttpRequest;
 import org.openejb.server.httpd.HttpResponse;
@@ -82,10 +79,12 @@ public class SoapHttpListener implements HttpListener, SoapHandler {
         }
 
         res.setContentType("text/xml");
-
+        RequestAdapter request = new RequestAdapter(req);
+        ResponseAdapter response = new ResponseAdapter(res);
+        
         if (req.getQueryParameter("wsdl") != null) {
             try {
-                container.getWsdl(new RequestAdapter(req), new ResponseAdapter(res));
+                container.getWsdl(request, response);
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
@@ -93,7 +92,7 @@ public class SoapHttpListener implements HttpListener, SoapHandler {
             }
         } else {
             try {
-                container.invoke(new RequestAdapter(req), new ResponseAdapter(res));
+                container.invoke(request, response);
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
@@ -114,7 +113,6 @@ public class SoapHttpListener implements HttpListener, SoapHandler {
 
     public static class RequestAdapter implements WebServiceContainer.Request {
 
-
         private final HttpRequest request;
         private final HashMap parameters;
 
@@ -131,18 +129,6 @@ public class SoapHttpListener implements HttpListener, SoapHandler {
 
         public URI getURI() {
             return request.getURI();
-        }
-
-        public String getHost() {
-            return getURI().getHost();
-        }
-
-        public String getPath() {
-            return getURI().getPath();
-        }
-
-        public int getPort() {
-            return getURI().getPort();
         }
 
         public int getContentLength() {

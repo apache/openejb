@@ -44,7 +44,6 @@
  */
 package org.openejb.server.xfire;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -52,13 +51,21 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.Service;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
+import javax.wsdl.xml.WSDLWriter;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.webservices.MessageContextInvocationKey;
-import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.webservices.MessageContextInvocationKey;
+import org.apache.geronimo.webservices.SoapHandler;
+import org.apache.geronimo.webservices.WebServiceContainer;
 import org.codehaus.xfire.MessageContext;
 import org.codehaus.xfire.XFireRuntimeException;
 import org.codehaus.xfire.fault.Soap11FaultHandler;
@@ -80,6 +87,9 @@ public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle
     private final URL wsdlURL;
     private final DefaultJavaService service;
     private final SoapHandler soapHandler;
+    private final Object wsdlMutext = new Object();
+    private WSDLWriter wsdlWriter;
+    private Definition definition;
 
     protected WSContainer() {
         this.ejbContainer = null;
@@ -124,7 +134,7 @@ public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle
 
         try {
             thread.setContextClassLoader(getClass().getClassLoader());
-            MessageContext context = new MessageContext("not-used", null, response.getOutputStream(), null, request.getPath());
+            MessageContext context = new MessageContext("not-used", null, response.getOutputStream(), null, request.getURI().getPath());
             context.setRequestStream(request.getInputStream());
             org.codehaus.xfire.handler.SoapHandler handler = null;
             try {
@@ -148,23 +158,58 @@ public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle
         }
     }
 
-
-    public void getWsdl(Request req, Response res) throws Exception {
-        OutputStream out = res.getOutputStream();
-        InputStream in = null;
-        try {
-            in = wsdlURL.openStream();
-            byte[] buffer = new byte[1024];
-            for (int read = in.read(buffer); read > 0; read = in.read(buffer) ) {
-                System.out.write(buffer, 0, read);
-                out.write(buffer, 0 ,read);
+    public void getWsdl(Request request, Response response) throws Exception {
+        
+        // Avoid concurrent modification of the WSDL dom.
+        synchronized(wsdlMutext) {
+            
+            // Read in the the WSDL in once. 
+            if( definition == null ) {
+                initWSDLDom();
             }
-        } finally {
-            if (in != null) {
-                in.close();
+            
+            // Update all the service port soap address elements.
+            Map services = definition.getServices();
+            for (Iterator iter1 = services.values().iterator(); iter1.hasNext();) {
+                Service service = (Service) iter1.next();
+                Map ports = service.getPorts();
+                for (Iterator iter2 = ports.values().iterator(); iter2.hasNext();) {
+                    Port port = (Port) iter2.next();
+                    for (Iterator iter3 = port.getExtensibilityElements().iterator(); iter3.hasNext();) {
+                        ExtensibilityElement element = (ExtensibilityElement) iter3.next();
+                        if (element instanceof SOAPAddress ) {
+                            SOAPAddress soapAddress = (SOAPAddress)element;
+                            URI realLocation = request.getURI();                            
+                            // We replace the host and port here.
+                            URI updated = new URI(
+                                    realLocation.getScheme(),
+                                    realLocation.getUserInfo(), 
+                                    realLocation.getHost(), 
+                                    realLocation.getPort(),
+                                    realLocation.getPath(), // Humm is this right?
+                                    null,
+                                    null);
+                            soapAddress.setLocationURI(updated.toString());
+                        }
+                    }
+                }
             }
+            
+            // Dump the WSDL dom to the output stream
+            OutputStream out = response.getOutputStream();
+            wsdlWriter.writeWSDL(definition, out);
+            out.close();
         }
+    }
 
+    /**
+     * @throws Exception
+     */
+    private void initWSDLDom() throws Exception {
+        WSDLFactory wsdlFactory = WSDLFactory.newInstance();
+        wsdlWriter = wsdlFactory.newWSDLWriter();
+        WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
+        definition = wsdlReader.readWSDL(wsdlURL.toExternalForm());
     }
 
     public Object invoke(Method m, Object[] params, MessageContext context) throws XFireFault {
