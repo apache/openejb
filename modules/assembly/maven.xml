@@ -194,7 +194,8 @@
             <ant:jvmarg value="-ea"/>
             <ant:arg value="distribute"/>
             <ant:arg value="target/plan/default-database-plan.xml"/>
-            <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"/>
+            <!--ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"/-->
+            <ant:arg value="${maven.repo.local}/geronimo/rars/geronimo-derby-connector-1.0-SNAPSHOT.rar"/>
         </ant:java>
 
         <!-- building security configuration-->

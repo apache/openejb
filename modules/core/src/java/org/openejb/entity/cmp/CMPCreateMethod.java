@@ -161,7 +161,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
         GlobalIdentity globalId;
         // Is the primary key auto-generated?
         if ( null != keyGenerator ) {
-            Object opaque = keyGenerator.getNextPrimaryKey();
+            Object opaque = keyGenerator.getNextPrimaryKey(cacheRow);
             globalId = primaryKeyTransform.getGlobalIdentity(opaque);
         } else {
             // define identity (may require insert to database)
@@ -177,12 +177,14 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
         TransactionContext transactionContext = invocation.getTransactionContext();
         InTxCache cache = transactionContext.getInTxCache();
 
-        // add the row to the cache (returning a new row containing identity)
-        cacheRow = cacheTable.addRow(cache, globalId, cacheRow);
-
-        // CacheRow slots do not define the identity in this case; Inject it.
         if ( null != keyGenerator ) {
+            cacheRow = keyGenerator.updateCache(cache, globalId, cacheRow);
+
+            // CacheRow slots do not define the identity in this case; Inject it.
             identityDefiner.injectIdentity(cacheRow);
+        } else {
+            // add the row to the cache (returning a new row containing identity)
+            cacheRow = cacheTable.addRow(cache, globalId, cacheRow);
         }
         
         ctx.setCacheRow(cacheRow);

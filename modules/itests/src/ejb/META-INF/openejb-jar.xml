@@ -202,6 +202,10 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
+            <automatic-key-generation>
+                <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
+                <primary-key-class>java.lang.Integer</primary-key-class>
+            </automatic-key-generation>
             <query>
                 <query-method>
                     <method-name>findByLastName</method-name>
@@ -241,6 +245,10 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
+            <automatic-key-generation>
+                <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
+                <primary-key-class>java.lang.Integer</primary-key-class>
+            </automatic-key-generation>
             <query>
                 <query-method>
                     <method-name>findByLastName</method-name>
@@ -286,6 +294,10 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
+            <automatic-key-generation>
+                <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
+                <primary-key-class>java.lang.Integer</primary-key-class>
+            </automatic-key-generation>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
                 <application>null</application>
@@ -315,6 +327,10 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
+            <automatic-key-generation>
+                <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
+                <primary-key-class>java.lang.Integer</primary-key-class>
+            </automatic-key-generation>
         </entity>
 
         <!--
@@ -339,6 +355,10 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
+            <automatic-key-generation>
+                <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
+                <primary-key-class>java.lang.Integer</primary-key-class>
+            </automatic-key-generation>
             <query>
                 <query-method>
                     <method-name>findByLastName</method-name>
@@ -378,6 +398,10 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
+            <automatic-key-generation>
+                <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
+                <primary-key-class>java.lang.Integer</primary-key-class>
+            </automatic-key-generation>
             <query>
                 <query-method>
                     <method-name>findByLastName</method-name>
@@ -423,6 +447,10 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
+            <automatic-key-generation>
+                <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
+                <primary-key-class>java.lang.Integer</primary-key-class>
+            </automatic-key-generation>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
                 <application>null</application>
@@ -452,7 +480,17 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
+            <automatic-key-generation>
+                <generator-name>geronimo.server:role=CMPPKGenerator,name=Entity</generator-name>
+                <primary-key-class>java.lang.Integer</primary-key-class>
+            </automatic-key-generation>
         </entity>
     </enterprise-beans>
+
+    <gbean name="geronimo.server:role=CMPPKGenerator,name=Entity" class="org.openejb.entity.cmp.pkgenerator.AutoIncrementTablePrimaryKeyGeneratorWrapper">
+        <reference name="ManagedConnectionFactoryWrapper">geronimo.server:J2EEServer=geronimo,J2EEApplication=null,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</reference>
+        <attribute name="sql" type="java.lang.String">INSERT INTO entity (first_name) VALUES ('AUTO_GENERATED')</attribute>
+        <attribute name="returnType" type="java.lang.Class">java.lang.Integer</attribute>
+    </gbean>
 
 </openejb-jar>
