@@ -55,15 +55,15 @@ public class DatabaseBean implements javax.ejb.SessionBean {
     public SessionContext context;
     public InitialContext jndiContext;
     
-    public void ejbCreate( ) throws RemoteException{
+    public void ejbCreate( ) throws javax.ejb.CreateException{
         try{        
             jndiContext = new InitialContext();
         } catch (Exception e){
-            throw new RemoteException(e.getMessage());
+            throw new EJBException(e.getMessage());
         }
     }
     
-    public void executeQuery(String statement) throws RemoteException, java.sql.SQLException{
+    public void executeQuery(String statement) throws java.sql.SQLException{
         try{        
 
         DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/database");
@@ -74,11 +74,11 @@ public class DatabaseBean implements javax.ejb.SessionBean {
         
         con.close();
         } catch (Exception e){
-            throw new RemoteException("Cannot execute the statement: "+statement, e);
+            throw new EJBException("Cannot execute the statement: "+statement+ e.getMessage());
         }
     }
     
-    public boolean execute(String statement) throws RemoteException, java.sql.SQLException{
+    public boolean execute(String statement) throws java.sql.SQLException{
         boolean retval;
         Connection con = null;
         try{        
@@ -93,9 +93,11 @@ public class DatabaseBean implements javax.ejb.SessionBean {
 //        } catch (Exception e){
 //            e.printStackTrace();
             //throw new RemoteException("Cannot execute the statement: "+statement, e);
-            throw new RemoteException("Cannot lookup the Database bean.",e);
+            throw new EJBException("Cannot lookup the Database bean."+e.getMessage());
         } finally {
-            con.close();
+            if(con!=null) {
+                con.close();
+            }
         }
         return retval;
     }
