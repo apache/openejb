@@ -48,15 +48,18 @@
 package org.openejb.sfsb;
 
 import java.util.Set;
-
 import javax.ejb.SessionBean;
 import javax.ejb.SessionSynchronization;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.BeanTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
+import org.openejb.EJBInvocation;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 
@@ -66,10 +69,16 @@ import org.openejb.proxy.EJBProxyFactory;
  * @version $Revision$ $Date$
  */
 public class StatefulInstanceContext extends AbstractInstanceContext {
+    private static final Log log = LogFactory.getLog(StatefulInstanceContext.class);
     private final Object containerId;
     private final Object id;
     private final StatefulSessionContext statefulContext;
+    private final EJBInvocation afterBeginInvocation;
+    private final EJBInvocation beforeCompletionInvocation;
     private boolean dead = false;
+    private BeanTransactionContext preexistingContext;
+    private EJBOperation operation;
+    private final SystemMethodIndices systemMethodIndices;
 
     public StatefulInstanceContext(Object containerId, EJBProxyFactory proxyFactory, SessionBean instance, Object id, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources) {
         //currently stateful beans have no timer service.
@@ -77,16 +86,28 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
         this.containerId = containerId;
         this.id = id;
         statefulContext = new StatefulSessionContext(this, transactionContextManager, userTransaction);
+        this.systemMethodIndices = systemMethodIndices;
         setContextInvocation = systemMethodIndices.getSetContextInvocation(this, statefulContext);
         unsetContextInvocation = systemMethodIndices.getSetContextInvocation(this, null);
+        if (instance instanceof SessionSynchronization) {
+            afterBeginInvocation = systemMethodIndices.getAfterBeginInvocation(this);
+            beforeCompletionInvocation = systemMethodIndices.getBeforeCompletionInvocation(this);
+        } else {
+            afterBeginInvocation = null;
+            beforeCompletionInvocation = null;
+        }
     }
 
     public Object getContainerId() {
         return containerId;
     }
 
+    public EJBOperation getOperation() {
+        return operation;
+    }
     public void setOperation(EJBOperation operation) {
         statefulContext.setState(operation);
+        this.operation = operation;
     }
 
     public boolean setTimerState(EJBOperation operation) {
@@ -102,7 +123,23 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
         throw new UnsupportedOperationException();
     }
 
+    public BeanTransactionContext getPreexistingContext() {
+        return preexistingContext;
+    }
+
+    public void setPreexistingContext(BeanTransactionContext preexistingContext) {
+        this.preexistingContext = preexistingContext;
+    }
+
     public void die() {
+        if (preexistingContext != null) {
+            try {
+                preexistingContext.rollback();
+            } catch (Exception e) {
+                log.warn("Unable to roll back", e);
+            }
+            preexistingContext = null;
+        }
         dead = true;
     }
 
@@ -114,41 +151,28 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
         return statefulContext;
     }
 
-    public void afterBegin() throws Exception {
+    public void associate() throws Throwable {
         if (getInstance() instanceof SessionSynchronization) {
-            try {
-                ((SessionSynchronization) getInstance()).afterBegin();
-            } catch (Exception e) {
-                dead = true;
-                throw e;
-            } catch (Error e) {
-                dead = true;
-                throw e;
-            }
+            assert(getInstance() != null);
+            systemChain.invoke(afterBeginInvocation);
         }
     }
 
-    public void beforeCommit() throws Exception {
+    public void beforeCommit() throws Throwable {
         if (getInstance() instanceof SessionSynchronization) {
-            try {
-                ((SessionSynchronization) getInstance()).beforeCompletion();
-            } catch (Exception e) {
-                dead = true;
-                throw e;
-            } catch (Error e) {
-                dead = true;
-                throw e;
-            }
+            assert(getInstance() != null);
+            systemChain.invoke(beforeCompletionInvocation);
         }
     }
 
-    public void afterCommit(boolean committed) throws Exception {
+    public void afterCommit(boolean committed) throws Throwable {
         if (!dead) {
             // @todo fix me
 //            container.getInstanceCache().putInactive(id, this);
         }
         if (getInstance() instanceof SessionSynchronization) {
-            ((SessionSynchronization) getInstance()).afterCompletion(committed);
+            assert(getInstance() != null);
+            systemChain.invoke(systemMethodIndices.getAfterCompletionInvocation(this, committed));
         }
     }
 }

@@ -135,6 +135,7 @@ public class EntityEJBObjectHandler extends EJBObjectHandler {
             throw (Throwable)res.getResult();
         case EJB_OK:
             invalidateAllHandlers(getRegistryId());
+            invalidateReference();
             return null;
         default:
             throw new RemoteException("Received invalid response code from server: "+res.getResponseCode());

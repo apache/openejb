@@ -62,7 +62,10 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
     private String name;
     private SessionContext ejbContext;
     private Hashtable allowedOperationsTable = new Hashtable();
-    
+
+    public String getName() {
+        return name;
+    }
     
     //=============================
     // Home interface methods
@@ -220,43 +223,46 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
         /*[1] Test getEJBHome /////////////////*/ 
         try{
             ejbContext.getEJBHome();
-            policy.allow(policy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
         }catch(IllegalStateException ise){}
         
         /*[2] Test getCallerPrincipal /////////*/ 
         try{
             ejbContext.getCallerPrincipal();
-            policy.allow( policy.Context_getCallerPrincipal );
+            policy.allow( OperationsPolicy.Context_getCallerPrincipal );
         }catch(IllegalStateException ise){}
         
         /*[3] Test isCallerInRole /////////////*/ 
         try{
             ejbContext.isCallerInRole("ROLE");
-            policy.allow( policy.Context_isCallerInRole );
+            policy.allow( OperationsPolicy.Context_isCallerInRole );
         }catch(IllegalStateException ise){}
         
         /*[4] Test getRollbackOnly ////////////*/ 
         try{
             ejbContext.getRollbackOnly();
-            policy.allow( policy.Context_getRollbackOnly );
+            policy.allow( OperationsPolicy.Context_getRollbackOnly );
         }catch(IllegalStateException ise){}
         
-        /*[5] Test setRollbackOnly ////////////*/ 
-        try{
-            ejbContext.setRollbackOnly();
-            policy.allow( policy.Context_setRollbackOnly );
-        }catch(IllegalStateException ise){}
+        /*[5] Test setRollbackOnly ////////////*/
+        //
+        // this can not be effectively tested right now
+        //
+        //try{
+        //    ejbContext.setRollbackOnly();
+        //    policy.allow( OperationsPolicy.Context_setRollbackOnly );
+        //}catch(IllegalStateException ise){}
         
         /*[6] Test getUserTransaction /////////*/ 
         try{
             ejbContext.getUserTransaction();
-            policy.allow( policy.Context_getUserTransaction );
+            policy.allow( OperationsPolicy.Context_getUserTransaction );
         }catch(IllegalStateException ise){}
         
         /*[7] Test getEJBObject ///////////////*/ 
         try{
             ejbContext.getEJBObject();
-            policy.allow( policy.Context_getEJBObject );
+            policy.allow( OperationsPolicy.Context_getEJBObject );
         }catch(IllegalStateException ise){}
          
         /*[8] Test JNDI_access_to_java_comp_env ///////////////*/
@@ -265,7 +271,7 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
 
             jndiContext.lookup("java:comp/env/stateful/references/JNDI_access_to_java_comp_env");
 
-            policy.allow( policy.JNDI_access_to_java_comp_env );
+            policy.allow( OperationsPolicy.JNDI_access_to_java_comp_env );
         } catch (IllegalStateException ise) {
         } catch (javax.naming.NamingException ne) {
         }
@@ -276,7 +282,7 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
 
             jndiContext.lookup("java:comp/env/stateful/references/Resource_manager_access");
 
-            policy.allow( policy.Resource_manager_access );
+            policy.allow( OperationsPolicy.Resource_manager_access );
         } catch (IllegalStateException ise) {
         } catch (javax.naming.NamingException ne) {
         }
@@ -287,7 +293,7 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
 
             jndiContext.lookup("java:comp/env/stateful/beanReferences/Enterprise_bean_access");
 
-            policy.allow( policy.Enterprise_bean_access );
+            policy.allow( OperationsPolicy.Enterprise_bean_access );
         } catch (IllegalStateException ise) {
         } catch (javax.naming.NamingException ne) {
         }

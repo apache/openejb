@@ -71,6 +71,9 @@ public final class SystemMethodIndices implements EJBTimeoutInvocationFactory {
     private final int ejbTimeout;
     private final int setContext;
     private final int unsetContext;
+    private final int afterBegin;
+    private final int beforeCompletion;
+    private final int afterCompletion;
 
     public static SystemMethodIndices createSystemMethodIndices(InterfaceMethodSignature[] signatures, String setContextName, String setContextType, String unsetContextName) {
         int ejbActivate = -1;
@@ -82,6 +85,9 @@ public final class SystemMethodIndices implements EJBTimeoutInvocationFactory {
         int ejbRemove = -1;
         int setContext = -1;
         int unsetContext = -1;
+        int afterBegin = -1;
+        int beforeCompletion = -1;
+        int afterCompletion = -1;
         for (int i = 0; i < signatures.length; i++) {
             InterfaceMethodSignature signature = signatures[i];
             if (signature.getMethodName().equals("ejbActivate")) {
@@ -102,12 +108,18 @@ public final class SystemMethodIndices implements EJBTimeoutInvocationFactory {
                  setContext = i;
             } else if (signature.getMethodName().equals(unsetContextName) && signature.getParameterTypes().length == 0) {
                  unsetContext = i;
+            } else if (signature.getMethodName().equals("afterBegin") && signature.getParameterTypes().length == 0 && !signature.isHomeMethod() ) {
+                 afterBegin = i;
+            } else if (signature.getMethodName().equals("beforeCompletion") && signature.getParameterTypes().length == 0 && !signature.isHomeMethod() ) {
+                 beforeCompletion = i;
+            } else if (signature.getMethodName().equals("afterCompletion") && signature.getParameterTypes().length == 1 && !signature.isHomeMethod() && signature.getParameterTypes()[0].equals(boolean.class.getName())) {
+                 afterCompletion = i;
             }
         }
-        return new SystemMethodIndices(ejbActivate, ejbLoad, ejbPassivate, ejbStore, ejbTimeout, ejbCreate, ejbRemove, setContext, unsetContext);
+        return new SystemMethodIndices(ejbActivate, ejbLoad, ejbPassivate, ejbStore, ejbTimeout, ejbCreate, ejbRemove, setContext, unsetContext, afterBegin, beforeCompletion, afterCompletion);
     }
 
-    public SystemMethodIndices(int ejbActivate, int ejbLoad, int ejbPassivate, int ejbStore, int ejbTimeout, int ejbCreate, int ejbRemove, int setContext, int unsetContext) {
+    public SystemMethodIndices(int ejbActivate, int ejbLoad, int ejbPassivate, int ejbStore, int ejbTimeout, int ejbCreate, int ejbRemove, int setContext, int unsetContext, int afterBegin, int beforeCompletion, int afterCompletion) {
         this.ejbActivate = ejbActivate;
         this.ejbLoad = ejbLoad;
         this.ejbPassivate = ejbPassivate;
@@ -117,6 +129,9 @@ public final class SystemMethodIndices implements EJBTimeoutInvocationFactory {
         this.ejbRemove = ejbRemove;
         this.setContext = setContext;
         this.unsetContext = unsetContext;
+        this.afterBegin = afterBegin;
+        this.beforeCompletion = beforeCompletion;
+        this.afterCompletion = afterCompletion;
     }
 
     public EJBInvocation getEjbActivateInvocation(EJBInstanceContext instanceContext) {
@@ -156,5 +171,15 @@ public final class SystemMethodIndices implements EJBTimeoutInvocationFactory {
         return new EJBInvocationImpl(unsetContext, null, instanceContext);
     }
 
+    public EJBInvocation getAfterBeginInvocation(EJBInstanceContext instanceContext) {
+        return new EJBInvocationImpl(afterBegin, null, instanceContext);
+    }
 
+    public EJBInvocation getBeforeCompletionInvocation(EJBInstanceContext instanceContext) {
+        return new EJBInvocationImpl(beforeCompletion, null, instanceContext);
+    }
+
+    public EJBInvocation getAfterCompletionInvocation(EJBInstanceContext instanceContext, boolean comitted) {
+        return new EJBInvocationImpl(afterCompletion, new Object[]{Boolean.valueOf(comitted)}, instanceContext);
+    }
 }

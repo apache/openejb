@@ -111,7 +111,7 @@ public class StatefulEjbObjectTests extends BasicStatefulTestClient {
      */
     public void test04_getPrimaryKey() {
         try {
-            Object key = ejbObject.getPrimaryKey();
+            ejbObject.getPrimaryKey();
         } catch (java.rmi.RemoteException e) {
             assertTrue(true);
             return;

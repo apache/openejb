@@ -135,7 +135,6 @@ public class StatefulEJBObjectHandler extends EJBObjectHandler {
     }
 
     protected Object remove(Method method, Object[] args, Object proxy) throws Throwable{
-
         EJBRequest req = new EJBRequest( EJB_OBJECT_REMOVE ); 
         req.setClientIdentity( ContextManager.getThreadPrincipal() );
         req.setContainerCode( ejb.deploymentCode );
@@ -146,13 +145,20 @@ public class StatefulEJBObjectHandler extends EJBObjectHandler {
         
         EJBResponse res = request( req );
   
-        if ( res.getResponseCode() == res.EJB_ERROR ) {
+        switch (res.getResponseCode()) {
+        case EJB_ERROR:
             throw (Throwable)res.getResult();
+        case EJB_SYS_EXCEPTION:
+            throw (Throwable)res.getResult();
+        case EJB_APP_EXCEPTION:
+            throw (Throwable)res.getResult();
+        case EJB_OK:
+            invalidateAllHandlers(getRegistryId());
+            invalidateReference();
+            return null;
+        default:
+            throw new RemoteException("Received invalid response code from server: "+res.getResponseCode());
         }
-        
-        invalidateAllHandlers( this.getRegistryId() );
-        this.invalidateReference();
-        return null;
     }
 
 }

@@ -149,9 +149,7 @@ public abstract class EJBContextImpl {
         public EJBHome getEJBHome(EJBInstanceContext context) {
             if( context.getProxyFactory() !=null ) {
                 EJBHome home = context.getProxyFactory().getEJBHome();
-                if (home != null) {
-                    return home;
-                }
+                return home;
             }
             throw new IllegalStateException("getEJBHome is not allowed if no home interface is defined");
         }
@@ -159,9 +157,7 @@ public abstract class EJBContextImpl {
         public EJBLocalHome getEJBLocalHome(EJBInstanceContext context) {
             if( context.getProxyFactory() !=null ) {
                 EJBLocalHome localHome = context.getProxyFactory().getEJBLocalHome();
-                if (localHome != null) {
-                    return localHome;
-                }
+                return localHome;
             }
             throw new IllegalStateException("getEJBLocalHome is not allowed if no local localHome interface is defined");
         }
@@ -169,9 +165,7 @@ public abstract class EJBContextImpl {
         public EJBObject getEJBObject(EJBInstanceContext context) {
             if( context.getProxyFactory() !=null ) {
                 EJBObject remote = context.getProxyFactory().getEJBObject(context.getId());
-                if (remote != null) {
-                    return remote;
-                }
+                return remote;
             }
             throw new IllegalStateException("getEJBObject is not allowed if no remote interface is defined");
         }
@@ -179,9 +173,7 @@ public abstract class EJBContextImpl {
         public EJBLocalObject getEJBLocalObject(EJBInstanceContext context) {
             if( context.getProxyFactory() !=null ) {
                 EJBLocalObject local = context.getProxyFactory().getEJBLocalObject(context.getId());
-                if (local != null) {
-                    return local;
-                }
+                return local;
             }
             throw new IllegalStateException("getEJBLocalObject is not allowed if no local interface is defined");
         }

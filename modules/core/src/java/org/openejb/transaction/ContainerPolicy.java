@@ -48,8 +48,10 @@
 package org.openejb.transaction;
 
 import javax.ejb.TransactionRequiredLocalException;
+import javax.ejb.TransactionRolledbackLocalException;
 import javax.transaction.RollbackException;
 import javax.transaction.TransactionRequiredException;
+import javax.transaction.TransactionRolledbackException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -121,6 +123,13 @@ public class ContainerPolicy {
                 try {
                     ejbInvocation.setTransactionContext(clientContext);
                     return interceptor.invoke(ejbInvocation);
+                } catch (Throwable t){
+                    ((InheritableTransactionContext) clientContext).setRollbackOnly();
+                    if (ejbInvocation.getType().isLocal()) {
+                        throw new TransactionRolledbackLocalException().initCause(t);
+                    } else {
+                        throw new TransactionRolledbackException().initCause(t);
+                    }
                 } finally {
                     ejbInvocation.setTransactionContext(null);
                 }
@@ -169,6 +178,17 @@ public class ContainerPolicy {
                 try {
                     ejbInvocation.setTransactionContext(clientContext);
                     return interceptor.invoke(ejbInvocation);
+                } catch (Throwable t){
+                    if (clientContext instanceof InheritableTransactionContext) {
+                        ((InheritableTransactionContext) clientContext).setRollbackOnly();
+                        if (ejbInvocation.getType().isLocal()) {
+                            throw new TransactionRolledbackLocalException().initCause(t);
+                        } else {
+                            // can't set an initCause on a TransactionRolledbackException
+                            throw new TransactionRolledbackException(t.getMessage());
+                        }
+                    }
+                    throw t;
                 } finally {
                     ejbInvocation.setTransactionContext(null);
                 }
@@ -251,6 +271,13 @@ public class ContainerPolicy {
                 try {
                     ejbInvocation.setTransactionContext(clientContext);
                     return interceptor.invoke(ejbInvocation);
+                } catch (Throwable t){
+                    ((InheritableTransactionContext) clientContext).setRollbackOnly();
+                    if (ejbInvocation.getType().isLocal()) {
+                        throw new TransactionRolledbackLocalException().initCause(t);
+                    } else {
+                        throw new TransactionRolledbackException().initCause(t);
+                    }
                 } finally {
                     ejbInvocation.setTransactionContext(null);
                 }
@@ -317,5 +344,4 @@ public class ContainerPolicy {
             return ContainerPolicy.Never;
         }
     }
-
 }

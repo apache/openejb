@@ -61,6 +61,7 @@ import org.openejb.EJBInvocation;
 public class BeanPolicy {
     private static final Log log = LogFactory.getLog(BeanPolicy.class);
 
+    // TODO eliminate the two policies... they are exactally the same
     public static final TransactionPolicy Stateless = new TransactionPolicy() {
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
             TransactionContext clientContext = transactionContextManager.getContext();
@@ -118,8 +119,7 @@ public class BeanPolicy {
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
                     if (beanContext != transactionContextManager.getContext()) {
-//                        throw new UncommittedTransactionException("Support for transactions held between invocations is not supported");
-                        new UncommittedTransactionException("Support for transactions held between invocations is not supported").printStackTrace();
+                        throw new UncommittedTransactionException();
                     }
                     beanContext.commit();
                     return result;
@@ -151,4 +151,5 @@ public class BeanPolicy {
             return Stateful;
         }
     };
+
 }

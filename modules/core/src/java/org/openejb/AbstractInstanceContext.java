@@ -81,10 +81,10 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
     public void flush() throws Throwable {
     }
 
-    public void beforeCommit() throws Exception {
+    public void beforeCommit() throws Throwable {
     }
 
-    public void afterCommit(boolean status) throws Exception {
+    public void afterCommit(boolean status) throws Throwable {
     }
 
     public Map getConnectionManagerMap() {

@@ -162,8 +162,31 @@
 
             <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
             <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
+
+            <xs:element name="query" type="openejb:queryType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="id" type="xs:ID"/>
+    </xs:complexType>
+
+    <xs:complexType name="queryType">
+        <xs:sequence>
+            <xs:element name="query-method">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="method-name" type="xs:string"/>
+                        <xs:element name="method-params">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="method-param" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="result-type-mapping" minOccurs="0" type="xs:string"/>
+            <xs:element name="ejb-ql" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="relationshipsType">

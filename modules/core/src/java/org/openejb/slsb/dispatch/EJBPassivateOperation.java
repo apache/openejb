@@ -56,13 +56,9 @@ import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractSpecificMethodOperation;
 
 /**
- *
- *
  * @version $Revision$ $Date$
- *
- * */
+ */
 public class EJBPassivateOperation extends AbstractSpecificMethodOperation {
-
     public static final EJBPassivateOperation INSTANCE = new EJBPassivateOperation();
 
     private EJBPassivateOperation() {}

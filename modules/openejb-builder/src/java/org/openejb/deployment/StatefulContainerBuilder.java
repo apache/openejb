@@ -64,6 +64,9 @@ import org.openejb.sfsb.RemoveMethod;
 import org.openejb.sfsb.StatefulInstanceContextFactory;
 import org.openejb.sfsb.StatefulInstanceFactory;
 import org.openejb.sfsb.StatefulInterceptorBuilder;
+import org.openejb.sfsb.AfterBegin;
+import org.openejb.sfsb.BeforeCompletion;
+import org.openejb.sfsb.AfterCompletion;
 import org.openejb.slsb.dispatch.EJBActivateOperation;
 import org.openejb.slsb.dispatch.EJBPassivateOperation;
 import org.openejb.slsb.dispatch.SetSessionContextOperation;
@@ -148,16 +151,28 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
                         new RemoveMethod(beanClass, signature, isBMT));
             } else if (name.equals("ejbActivate")) {
                 vopMap.put(
-                        MethodHelper.translateToInterface(signature)
-                        , EJBActivateOperation.INSTANCE);
+                        MethodHelper.translateToInterface(signature),
+                        EJBActivateOperation.INSTANCE);
             } else if (name.equals("ejbPassivate")) {
                 vopMap.put(
-                        MethodHelper.translateToInterface(signature)
-                        , EJBPassivateOperation.INSTANCE);
+                        MethodHelper.translateToInterface(signature),
+                        EJBPassivateOperation.INSTANCE);
             } else if (setSessionContext.equals(beanMethod)) {
                 vopMap.put(
-                        MethodHelper.translateToInterface(signature)
-                        , SetSessionContextOperation.INSTANCE);
+                        MethodHelper.translateToInterface(signature),
+                        SetSessionContextOperation.INSTANCE);
+            } else if (name.equals("afterBegin") && signature.getParameterTypes().length == 0) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature),
+                        AfterBegin.INSTANCE);
+            } else if (name.equals("beforeCompletion") && signature.getParameterTypes().length == 0) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature),
+                        BeforeCompletion.INSTANCE);
+            } else if (name.equals("afterCompletion") && signature.getParameterTypes().length == 1 && signature.getParameterTypes()[0].equals(boolean.class.getName())) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature),
+                        AfterCompletion.INSTANCE);
             } else if (name.startsWith("ejb")) {
                 continue;
             } else {

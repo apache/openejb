@@ -54,8 +54,14 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.BeanTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.openejb.EJBInvocation;
+import org.openejb.transaction.UncommittedTransactionException;
 import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstanceFactory;
 
@@ -67,23 +73,94 @@ import org.openejb.cache.InstanceFactory;
  * @version $Revision$ $Date$
  */
 public final class StatefulInstanceInterceptor implements Interceptor {
+    private static final Log log = LogFactory.getLog(StatefulInstanceInterceptor.class);
     private final Interceptor next;
     private final Object containerId;
     private final InstanceFactory factory;
     private final InstanceCache cache;
+    private final TransactionContextManager transactionContextManager;
 
-    public StatefulInstanceInterceptor(Interceptor next, Object containerId, InstanceFactory factory, InstanceCache cache) {
+    public StatefulInstanceInterceptor(Interceptor next, Object containerId, InstanceFactory factory, InstanceCache cache, TransactionContextManager transactionContextManager) {
         this.next = next;
         this.containerId = containerId;
         this.factory = factory;
         this.cache = cache;
+        this.transactionContextManager = transactionContextManager;
     }
 
     public InvocationResult invoke(final Invocation invocation) throws Throwable {
         EJBInvocation ejbInvocation = (EJBInvocation) invocation;
 
-        StatefulInstanceContext ctx;
+        // initialize the context and set it into the invocation
+        StatefulInstanceContext ctx = getInstanceContext(ejbInvocation);
+        ejbInvocation.setEJBInstanceContext(ctx);
 
+        // resume the preexisting transaction context
+        TransactionContext oldContext = transactionContextManager.getContext();
+        if (ctx.getPreexistingContext() != null) {
+            BeanTransactionContext preexistingContext = ctx.getPreexistingContext();
+            ctx.setPreexistingContext(null);
+            preexistingContext.setOldContext((UnspecifiedTransactionContext) oldContext);
+
+            ejbInvocation.setTransactionContext(preexistingContext);
+            transactionContextManager.setContext(preexistingContext);
+            preexistingContext.resume();
+        }
+
+        try {
+            // invoke next
+            InvocationResult invocationResult = next.invoke(invocation);
+
+            // if we have a BMT still associated with the thread, suspend it and save it off for the next invocation
+            TransactionContext currentContext = transactionContextManager.getContext();
+            if (oldContext != currentContext) {
+                BeanTransactionContext preexistingContext = (BeanTransactionContext)currentContext;
+                if (preexistingContext.getOldContext() != oldContext) {
+                    throw new UncommittedTransactionException("Found an uncommitted bean transaction from another session bean");
+                }
+                // suspend and save off the BMT context
+                preexistingContext.suspend();
+                preexistingContext.setOldContext(null);
+                ctx.setPreexistingContext(preexistingContext);
+
+                // resume the old unsupported transaction context
+                ejbInvocation.setTransactionContext(oldContext);
+                transactionContextManager.setContext(oldContext);
+                oldContext.resume();
+            }
+
+            return invocationResult;
+        } catch(Throwable t) {
+            // we must kill the instance when a system exception is thrown
+            ctx.die();
+
+            // if we have tx context, other then our old tx context, associated with the thread roll it back
+            if (oldContext != transactionContextManager.getContext()) {
+                try {
+                    transactionContextManager.getContext().rollback();
+                } catch (Exception e) {
+                    log.warn("Unable to roll back", e);
+                }
+
+                // and resume the old transaction
+                ejbInvocation.setTransactionContext(oldContext);
+                transactionContextManager.setContext(oldContext);
+                oldContext.resume();
+            }
+
+            throw t;
+        } finally {
+            if (ctx.isDead()) {
+                cache.remove(ctx.getId());
+            }
+
+            // remove the reference to the context from the invocation
+            ejbInvocation.setEJBInstanceContext(null);
+        }
+    }
+
+    private StatefulInstanceContext getInstanceContext(EJBInvocation ejbInvocation) throws Throwable {
+        StatefulInstanceContext ctx;
         Object id = ejbInvocation.getId();
         if (id == null) {
             // we don't have an id so we are a create method
@@ -120,22 +197,6 @@ public final class StatefulInstanceInterceptor implements Interceptor {
                 }
             }
         }
-
-        // initialize the context and set it into the invocation
-        ejbInvocation.setEJBInstanceContext(ctx);
-
-        try {
-            return next.invoke(invocation);
-        } catch(Throwable t) {
-            ctx.die();
-            throw t;
-        } finally {
-            if (ctx.isDead()) {
-                cache.remove(id);
-            }
-
-            // remove the reference to the context from the invocation
-            ejbInvocation.setEJBInstanceContext(null);
-        }
+        return ctx;
     }
 }
