@@ -406,7 +406,7 @@
         <dependency>
             <groupId>bouncycastle</groupId>
             <artifactId>bcprov</artifactId>
-            <version>${bouncycastle}</version>
+            <version>${bouncycastle_version}</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
