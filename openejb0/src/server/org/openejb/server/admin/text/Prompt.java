@@ -47,23 +47,24 @@ package org.openejb.server.admin.text;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.openejb.util.Logger;
-import org.openejb.server.EjbDaemon;
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
-public class Stop extends Command {
+public class Prompt extends Command {
 
-    public static void register() {
-        Command.register("stop", Stop.class);
+    public static void _DONT_register() {
+        Command.register("prompt", Prompt.class);
     }
     
     public void exec(String[] args, DataInputStream in, DataOutputStream out) throws IOException{
-        EjbDaemon.getEjbDaemon().stop();
         try{
-            Thread.sleep(2000);
-        } catch (Throwable t){
+            if (args.length == 0) return;
+
+            TextConsole.PROMPT = args[0];
+
+        } catch (Exception e){
+            e.printStackTrace();
         }
     }
 

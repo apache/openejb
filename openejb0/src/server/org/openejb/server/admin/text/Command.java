@@ -117,7 +117,7 @@ public class Command {
     protected static void loadCommandList() {
         try{
             Command.commands = new HashMap();
-            URL dir = new URL("file:src/server/org/openejb/server/admin/text");
+            URL dir = new URL("resource:/openejb/server/commandlist.txt");
             DataInputStream in = new DataInputStream(dir.openStream());
 
 

@@ -82,6 +82,7 @@ import org.openejb.util.SafeToolkit;
 import org.openejb.util.FileUtils;
 import org.openejb.util.JarUtils;
 import org.openejb.util.Logger;
+import org.openejb.server.admin.text.*;
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
@@ -105,32 +106,34 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
     Properties props;
 
 
-    public EjbDaemon() {
+
+    private EjbDaemon() {
     }
+    
+    static EjbDaemon thiss;
 
-    public void init(Properties props) throws Exception{
-
-
-        props.putAll(System.getProperties());
-
-        SafeProperties safeProps = toolkit.getSafeProperties(props);
-
-        port = safeProps.getPropertyAsInt("openejb.server.port");
-        ip   = safeProps.getProperty("openejb.server.ip");
-
-
-        sMetaData = new ServerMetaData(ip, port);
-
-        try{
-            serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
-        } catch (Exception e){
-            System.out.println("Cannot bind to the ip: "+ip+" and port: "+port+".  Received exception: "+ e.getClass().getName()+":"+ e.getMessage());
-            System.exit(1);
+    public static EjbDaemon getEjbDaemon(){
+        if ( thiss == null ) {
+            thiss = new EjbDaemon();
         }
 
+        return thiss;
+    }
+    
+    public void init(Properties props) throws Exception{
+        
+        this.props = props;
+        printVersion();                            
+        System.out.println("----------------STARTUP----------------");
+        System.out.println("[init] OpenEJB Container System");
+        
+        props.putAll(System.getProperties());
+        props.put("openejb.nobanner", "true");
         OpenEJB.init(props, this);
-        System.out.println("\nbinding to ip: "+ip+" port: "+port+"\n");
-
+        
+        System.out.println("[init] OpenEJB Remote Server");
+        
+        
         clientJndi = (javax.naming.Context)OpenEJB.getJNDIContext().lookup("openejb/ejb");
 
         DeploymentInfo[] ds = OpenEJB.deployments();
@@ -145,8 +148,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         for (int i=1; i < deployments.length; i++){
             deploymentsMap.put( deployments[i].getDeploymentID(), new Integer(i));
         }
-
-        System.out.println("Ready!");
+        
     }
 
     // This class doesn't use its own namespace, it uses the
@@ -154,10 +156,90 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
     boolean stop = false;
 
+    public synchronized void start(){
+        try{
+            System.out.println("    ** Starting Services **");
+            System.out.println("    NAME               IP        PORT");
+                    
+            SafeProperties safeProps = toolkit.getSafeProperties(props);
+            
+            port = safeProps.getPropertyAsInt("openejb.server.port");
+            ip   = safeProps.getProperty("openejb.server.ip");
+            
+            sMetaData = new ServerMetaData(ip, port);
+            
+            System.out.print("    ejb server         ");
+            try{
+                serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
+            } catch (Exception e){
+                System.out.println("Cannot bind to the ip: "+ip+" and port: "+port+".  Received exception: "+ e.getClass().getName()+":"+ e.getMessage());
+                System.exit(1);
+            }
+            int threads = Integer.parseInt( (String)props.get("openejb.server.threads") );
+            for (int i=0; i < threads; i++){
+                Thread d = new Thread(this);
+                d.setName("EJB Daemon ["+i+"]");
+                d.setDaemon(true);
+                d.start();
+            }
+            System.out.println(ip+"  "+port);
+            
+            System.out.print("    admin console      ");
+            
+            TextConsole textConsole = new TextConsole(this);
+            textConsole.init(props);
+            textConsole.start();
+            System.out.println(ip+"  "+(port-1));
+                                                     
+            System.out.println("-----------------INFO------------------");
+            System.out.println("To log into the admin console, telnet to:");
+            System.out.print(" telnet ");
+            System.out.println(ip+" "+(port-1));
+            System.out.println("---------------------------------------");
+            System.out.println("Ready!");
+            /*
+             * This will cause the user thread (the thread that keeps the
+             *  vm alive) to go into a state of constant waiting.
+             *  Each time the thread is woken up, it checks to see if
+             *  it should continue waiting.
+             *  
+             *  To stop the thread (and the VM), just call the stop method
+             *  which will set 'stop' to true and notify the user thread.
+             */
+            try{
+                while ( !stop ) {
+                    //System.out.println("[] waiting to stop \t["+Thread.currentThread().getName()+"]");
+                    this.wait(Long.MAX_VALUE);
+                }
+            } catch (Throwable t){
+                logger.fatal("Unable to keep the server thread alive. Received exception: "+t.getClass().getName()+" : "+t.getMessage());
+            }
+            System.out.println("[] exiting vm");
+            logger.info("Stopping Remote Server");
+        }catch (Throwable t){
+            t.printStackTrace();
+
+        }
+    }
+
+    //DMB: This is temporary. A better solution
+    //     should be worked up.
+    public synchronized void stop( ) {
+        System.out.println("[] sending stop signal");
+        stop = true;
+        try{
+            this.notifyAll();
+        } catch (Throwable t){
+            logger.error("Unable to notify the server thread to stop. Received exception: "+t.getClass().getName()+" : "+t.getMessage());
+        }
+    }
+
 
     public void run( ) {
 
         Socket socket = null;
+        InputStream in = null;
+        
         /**
          * The ObjectInputStream used to receive incoming messages from the client.
          */
@@ -169,14 +251,28 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         InetAddress clientIP = null;
         while ( !stop ) {
             try {
+                //System.out.println("[] waiting for request \t["+Thread.currentThread().getName()+"]");
                 socket = serverSocket.accept();
+                //System.out.println("[] processing request \t["+Thread.currentThread().getName()+"]");
                 clientIP = socket.getInetAddress();
-                Thread.currentThread().setName(clientIP.getHostAddress());
+                //Thread.currentThread().setName(clientIP.getHostAddress());
+                in = socket.getInputStream();
+                
+                
+                byte requestType = (byte)in.read();
+                
+                switch (requestType) {
+                    case STOP_REQUEST_Quit:
+                    case STOP_REQUEST_quit:
+                    case STOP_REQUEST_Stop:
+                    case STOP_REQUEST_stop:
+                        stop();
+                        continue;
+                }
 
-                ois = new ObjectInputStream(  socket.getInputStream() );
+                ois = new ObjectInputStream( in );
                 oos = new ObjectOutputStream( socket.getOutputStream() );
 
-                byte requestType = ois.readByte();
 
                 switch (requestType) {
                     case EJB_REQUEST:  processEjbRequest(ois, oos); break;
@@ -196,7 +292,8 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 			oos.flush();
 			oos.close();
 		    }
-                    if ( ois != null ) ois.close();
+                    if ( ois    != null ) ois.close();
+                    if ( in     != null ) in.close();
                     if ( socket != null ) socket.close();
                 } catch ( Throwable t ){
                     logger.error("Encountered problem while closing connection with client: "+t.getMessage());
@@ -861,22 +958,9 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             props.setProperty("org/openejb/configuration_factory", "org.openejb.alt.config.ConfigurationFactory");
 
 
-            EjbDaemon ejbd = new EjbDaemon();
+            EjbDaemon ejbd = EjbDaemon.getEjbDaemon();
             ejbd.init(props);
-
-            int threads = Integer.parseInt( (String)props.get("openejb.server.threads") );
-            for (int i=0; i < threads; i++){
-                Thread d = new Thread(ejbd);
-                d.setName("EJB Daemon ["+i+"]");
-                d.start();
-            }
-
-            // dont allow the server to exit
-            while ( true ) {
-                try {
-                    Thread.sleep(Long.MAX_VALUE);
-                } catch ( InterruptedException e ) {}
-            }
+            ejbd.start();
 
         } catch ( Exception re ) {
             System.err.println("[EJB Server] FATAL ERROR: "+ re.getMessage());

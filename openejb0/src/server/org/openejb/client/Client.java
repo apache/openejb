@@ -58,6 +58,7 @@ public class Client {
     public static Response request(Request req, Response res, ServerMetaData server) throws RemoteException {
         if ( server == null ) throw new IllegalArgumentException("Server instance cannot be null");
         
+        OutputStream out       = null;
         ObjectOutput objectOut = null;
         ObjectInput  objectIn  = null;
         Connection   conn      = null;
@@ -79,7 +80,35 @@ public class Client {
             /*----------------------------------*/
             try{
                 
-                objectOut = new ObjectOutputStream(conn.getOuputStream());
+                out = conn.getOuputStream();
+            
+            } catch (IOException e){
+                throw new RemoteException("Cannot open output stream to server: " , e );
+            
+            } catch (Throwable e){
+                throw new RemoteException("Cannot open output stream to server: " , e );
+            } 
+            
+            /*----------------------------------*/
+            /* Write request type               */
+            /*----------------------------------*/
+            try{
+            
+                out.write( req.getRequestType() );
+
+            } catch (IOException e){
+                throw new RemoteException("Cannot write the request type to the server: " , e );
+            
+            } catch (Throwable e){
+                throw new RemoteException("Cannot write the request type to the server: " , e );
+            } 
+            
+            /*----------------------------------*/
+            /* Get output streams               */
+            /*----------------------------------*/
+            try{
+                
+                objectOut = new ObjectOutputStream( out );
             
             } catch (IOException e){
                 throw new RemoteException("Cannot open object output stream to server: " , e );
@@ -93,9 +122,6 @@ public class Client {
             /* Write request                    */
             /*----------------------------------*/
             try{
-                // Let the server know what type of client is making 
-                // a request
-                objectOut.writeByte(req.getRequestType());
             
                 // Write the request data.
                 req.writeExternal( objectOut );
