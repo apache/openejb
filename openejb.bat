@@ -38,6 +38,7 @@ REM================================================
 :HELP
    if /I %P2% EQU _BUILD    goto HELP_BUILD
    if /I %P2% EQU _TEST     goto HELP_TEST
+   if /I %P2% EQU _VALIDATE goto HELP_VALIDATE
    if /I %P2% EQU _DEPLOY   goto HELP_DEPLOY
    if /I %P2% EQU _START    goto HELP_START
    if /I %P2% EQU _STOP     goto HELP_STOP
@@ -60,6 +61,13 @@ REM================================================
 
    echo Unknown option: %2
    goto HELP_TEST                                   
+
+goto EOF
+REM================================================
+:VALIDATE 
+   .\bin\validate.bat %2 %3 %4 %5 %6 %7 %8 %9
+   echo Unknown option: %2
+   goto HELP_VALIDATE
 
 goto EOF
 REM================================================
@@ -163,6 +171,11 @@ goto EOF
 REM================================================
 :HELP_DEPLOY
    more < .\bin\deploy.txt
+
+goto EOF
+REM================================================
+:HELP_VALIDATE
+   more < .\bin\validate.txt
 
 goto EOF
 REM================================================
