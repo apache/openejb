@@ -62,9 +62,9 @@ import javax.transaction.xa.XAResource;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
@@ -87,7 +87,7 @@ import org.openejb.util.SoftLimitedInstancePool;
 /**
  * @version $Revision$ $Date$
  */
-public class MDBContainer implements MessageEndpointFactory, GBean {
+public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
     private final String ejbName;
     private final TransactionDemarcation transactionDemarcation;
     private final ReadOnlyContext componentContext;

@@ -51,9 +51,9 @@ import java.util.Hashtable;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
@@ -67,7 +67,7 @@ import org.tranql.query.ConnectionFactoryDelegate;
 /**
  * @version $Revision$ $Date$
  */
-public class EJBModuleImpl implements GBean {
+public class EJBModuleImpl implements GBeanLifecycle {
     private final Kernel kernel;
     private final String baseName;
     private final J2EEServer server;

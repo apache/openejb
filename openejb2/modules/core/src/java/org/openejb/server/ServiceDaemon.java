@@ -51,11 +51,11 @@ import java.net.Socket;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 
-public class ServiceDaemon implements GBean {
+public class ServiceDaemon implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(ServiceDaemon.class);
 
     private final SocketService socketService;
