@@ -100,6 +100,15 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-derby</artifactId>
+            <version>&geronimo-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>&geronimo-version;</version>
             <properties>
@@ -362,6 +371,24 @@
         </dependency>
 
         <dependency>
+             <groupId>derby</groupId>
+             <artifactId>derby</artifactId>
+             <version>&derby-version;</version>
+             <properties>
+                 <repository>true</repository>
+             </properties>
+         </dependency>
+
+         <dependency>
+             <groupId>derby</groupId>
+             <artifactId>derbynet</artifactId>
+             <version>&derby-version;</version>
+             <properties>
+                 <repository>true</repository>
+             </properties>
+         </dependency>
+
+ geroinimo-=derby        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>&junit-version;</version>
