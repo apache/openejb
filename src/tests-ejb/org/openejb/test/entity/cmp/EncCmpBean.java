@@ -83,32 +83,6 @@ public class EncCmpBean implements javax.ejb.EntityBean{
     //    
     
     /**
-     * Maps to EncCmpHome.findEmptyCollection
-     * 
-     * @param primaryKey
-     * @return 
-     * @exception javax.ejb.FinderException
-     * @see EncCmpHome.sum
-     */
-    public java.util.Collection ejbFindEmptyCollection()
-    throws javax.ejb.FinderException, java.rmi.RemoteException {
-        return new java.util.Vector();
-    }
-
-    /**
-     * Maps to EncCmpHome.findByPrimaryKey
-     * 
-     * @param primaryKey
-     * @return 
-     * @exception javax.ejb.FinderException
-     * @see EncCmpHome.sum
-     */
-    public Integer ejbFindByPrimaryKey(Integer primaryKey)
-    throws javax.ejb.FinderException{
-        return new Integer(-1);
-    }
-
-    /**
      * Maps to EncCmpHome.create
      * 
      * @param name
