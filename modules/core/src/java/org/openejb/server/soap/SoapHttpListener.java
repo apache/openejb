@@ -77,6 +77,7 @@ public class SoapHttpListener implements HttpListener {
         if (container == null) {
             res.setCode(404);
             res.setResponseString("No such web service");
+            return;
         }
 
         res.setContentType("text/xml");
