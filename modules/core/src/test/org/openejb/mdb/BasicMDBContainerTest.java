@@ -47,29 +47,14 @@
  */
 package org.openejb.mdb;
 
-import java.util.Collections;
-import java.util.HashSet;
-import javax.jms.MessageListener;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import junit.framework.TestCase;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.transaction.TransactionManagerProxy;
-
-import junit.framework.TestCase;
-import org.openejb.MockTransactionManager;
-import org.openejb.TransactionDemarcation;
-import org.openejb.deployment.TransactionPolicySource;
-import org.openejb.dispatch.MethodSignature;
-import org.openejb.mdb.mockra.MockActivationSpec;
-import org.openejb.mdb.mockra.MockBootstrapContext;
 import org.openejb.mdb.mockra.MockResourceAdapter;
-import org.openejb.transaction.ContainerPolicy;
-import org.openejb.transaction.TransactionPolicy;
-import org.openejb.util.ServerUtil;
 
 /**
  * @version $Revision$ $Date$
@@ -78,19 +63,19 @@ public class BasicMDBContainerTest extends TestCase {
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
     private static final ObjectName TM_NAME = JMXUtil.getObjectName("geronimo.test:role=TransactionManager");
     private static final ObjectName TCA_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
-	private Kernel kernel;
-	private GBeanMBean container;
-	private MBeanServer mbServer;
-	private org.openejb.EJBContainerConfiguration config;
+    private Kernel kernel;
+    private GBeanMBean container;
+    private MBeanServer mbServer;
+    private org.openejb.EJBContainerConfiguration config;
     private MockResourceAdapter resourceAdapter;
 
     protected void setUp() throws Exception {
-		super.setUp();
+        super.setUp();
 
 //		mbServer = ServerUtil.newLocalServer();
 //
 //        config = new org.openejb.EJBContainerConfiguration();
-		//config.uri = new URI("async", null, "localhost", 3434, "/JMX", null, CONTAINER_NAME.toString());
+        //config.uri = new URI("async", null, "localhost", 3434, "/JMX", null, CONTAINER_NAME.toString());
 //        config.beanClassName = MockEJB.class.getName();
 //        config.txnDemarcation = TransactionDemarcation.CONTAINER;
 //        config.messageEndpointInterfaceName = MessageListener.class.getName();
@@ -101,7 +86,7 @@ public class BasicMDBContainerTest extends TestCase {
 //            }
 //        };
 //
-		// Todo: Is the MockResourceAdapter something that needs to be GBeaned?s
+        // Todo: Is the MockResourceAdapter something that needs to be GBeaned?s
 //        resourceAdapter = new MockResourceAdapter();
 //        resourceAdapter.start(new MockBootstrapContext() );
 //        MockActivationSpec spec = new MockActivationSpec();
