@@ -7,7 +7,7 @@
   <xsl:variable name="group_id" select="$project/group_id"/>
   <xsl:variable name="bug_id" select="$project/bug_id"/>
   <xsl:variable name="task_id" select="$project/task_id"/>
-  <xsl:variable name="current_release" select="./ChangeLog/Version[attribute::release_id][1]"/>
+  <xsl:variable name="current_release" select="./ChangeLog/Version[attribute::release_id][position()=last()]"/>
 
   <xsl:include href="util.xsl"/>
   <xsl:include href="topNav.xsl"/>
@@ -115,9 +115,7 @@
             </span></p>
             <p><span class="bodyBlack">Current and previous releases that are available:<br/>
             <xsl:for-each select="./ChangeLog/Version">
-              <!--
-              <xsl:sort select="attribute::release_id" order="descending"/>
-              -->
+              <xsl:sort select="attribute::release_id" data-type="number" order="descending"/>
               <xsl:if test="@release_id">
                 <span class="toc">
                   <a href="#{@id}"><xsl:value-of select="@id"/> - <xsl:value-of select="@releaseDate"/></a><br/>
@@ -131,9 +129,7 @@
 
         <!-- now show the sections themselves -->
         <xsl:apply-templates select="ChangeLog/Version">
-            <!--
-            <xsl:sort select="attribute::release_id" order="descending"/>
-            -->
+            <xsl:sort select="attribute::release_id" data-type="number" order="descending"/>
         </xsl:apply-templates>
       </td>
       <td width="120" height="5" valign="top"
@@ -228,7 +224,19 @@
       </xsl:element></span>
       <table border="0" cellpadding="2" cellspacing="2">
         <tr><td colspan="2" height="5"></td></tr>
-        <span class="bodyGrey"><xsl:apply-templates select="Entry"/></span>
+        <xsl:if test="Entry[attribute::bug]">
+            <tr>
+                <td colspan="2" height="5"><span class="bodyBlack">Bugs:</span></td>
+            </tr>
+            <xsl:apply-templates select="Entry[attribute::bug]"/>
+        </xsl:if>
+        <xsl:if test="Entry[attribute::task]">
+            <tr>
+                <td colspan="2" height="5"><span class="bodyBlack">Enhancements:</span></td>
+            </tr>
+            <xsl:apply-templates select="Entry[attribute::task]"/>
+        </xsl:if>
+        <xsl:apply-templates select="Entry[not (@bug or @task)]"/>
       </table>
     </xsl:if>
   </xsl:template>

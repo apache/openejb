@@ -202,7 +202,19 @@
       <h2><xsl:value-of select="@id"/> - Target release date: <xsl:value-of select="@releaseDate"/></h2></a>
       <table border="0" cellpadding="2" cellspacing="2">
         <tr><td colspan="2" height="5"></td></tr>
-        <span class="bodyGrey"><xsl:apply-templates select="Entry"/></span>
+        <xsl:if test="Entry[attribute::bug]">
+            <tr>
+                <td colspan="2" height="5"><span class="bodyBlack">Bugs:</span></td>
+            </tr>
+            <xsl:apply-templates select="Entry[attribute::bug]"/>
+        </xsl:if>
+        <xsl:if test="Entry[attribute::task]">
+            <tr>
+                <td colspan="2" height="5"><span class="bodyBlack">Enhancements:</span></td>
+            </tr>
+            <xsl:apply-templates select="Entry[attribute::task]"/>
+        </xsl:if>
+        <xsl:apply-templates select="Entry[not (@bug or @task)]"/>
       </table>
     </xsl:if>
   </xsl:template>
