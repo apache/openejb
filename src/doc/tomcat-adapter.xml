@@ -1,8 +1,11 @@
 <?xml version="1.0"?>
 <document url="http://openejb.sf.net/tomcat-adapter.xml">
+  <properties>
+    <title>Accessing EJBs from Servlets</title>
+    <sub-title>OpenEJB embedded in Tomcat</sub-title>
+  </properties>
   <body>
-    <title>Accessing OpenEJB from Tomcat</title>
-<sideimg src="images/diagram-tomcat-adapter.gif" width="240" height="500"/>
+  <sideimg src="images/diagram-tomcat-adapter.gif" width="240" height="500"/>
 
 <section title="Accessing EJBs locally from Tomcat" ref-id="local.access">
 
