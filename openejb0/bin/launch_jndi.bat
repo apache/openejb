@@ -1,12 +1,14 @@
 @echo off
 REM $Id$
 
+if "%OPENEJB_HOME%"=="" set OPENEJB_HOME=%CD%
+
 set JAVA=%JAVA_HOME%\bin\java
 set cp=
-for %%i in (lib\*.jar) do call cp.bat %%i
-for %%i in (lib\*.zip) do call cp.bat %%i
+for %%i in (%OPENEJB_HOME%\lib\*.jar) do call cp.bat %%i
+for %%i in (%OPENEJB_HOME%\lib\*.zip) do call cp.bat %%i
 set CP=%JAVA_HOME%\lib\tools.jar;%CP%
-set CP=lib\xerces-J_1.3.1.jar;%CP%
+set CP=%OPENEJB_HOME%\lib\xerces-J_1.3.1.jar;%CP%
 
 REM   Launch the naming server
 set JAVA=%JAVA_HOME%\bin\java

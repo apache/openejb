@@ -2,15 +2,17 @@
 REM   Contributions by:
 REM     Pizer Chen  <iceant@21cn.com>
 
+if "%OPENEJB_HOME%"=="" set OPENEJB_HOME=%CD%
+
 set JAVA=%JAVA_HOME%/bin/java
 
 REM=== Setup Classpath ===
 set CP=%CLASSPATH%
-for %%i in (lib\*.jar) do call cp.bat %%i
-for %%i in (lib\*.zip) do call cp.bat %%i
-for %%i in (dist\*.jar) do call cp.bat %%i
-for %%i in (dist\*.zip) do call cp.bat %%i
-for %%i in (test\lib\*.jar) do call cp.bat %%i
+for %%i in (%OPENEJB_HOME%\lib\*.jar) do call cp.bat %%i
+for %%i in (%OPENEJB_HOME%\lib\*.zip) do call cp.bat %%i
+for %%i in (%OPENEJB_HOME%\dist\*.jar) do call cp.bat %%i
+for %%i in (%OPENEJB_HOME%\dist\*.zip) do call cp.bat %%i
+for %%i in (%OPENEJB_HOME%\test\lib\*.jar) do call cp.bat %%i
 set CP=%JAVA_HOME%\lib\tools.jar;%CP%
 
 set OPTIONS=
