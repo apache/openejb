@@ -775,7 +775,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             /* Build EJB References **********************/
             while (ejbLocalRefs.hasMoreElements()) {
             	EjbLocalRef ejb = (EjbLocalRef) ejbLocalRefs.nextElement();
-                EjbReferenceInfo info = new EjbReferenceInfo();
+            	EjbLocalReferenceInfo info = new EjbLocalReferenceInfo();
 
                 info.homeType = ejb.getLocalHome();
                 info.referenceName = ejb.getEjbRefName();
@@ -827,6 +827,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             envRef.copyInto(jndi.envEntries);
             ejbRef.copyInto(jndi.ejbReferences);
             resRef.copyInto(jndi.resourceRefs);
+            ejbLocalRef.copyInto(jndi.ejbLocalReferences);
 
             bean.jndiEnc = jndi;
 

@@ -975,8 +975,9 @@ public class AssemblerTool {
        
        for (int i=0; i< bean.jndiEnc.ejbLocalReferences.length; i++){
            reference = bean.jndiEnc.ejbLocalReferences[i];
+           
            Object ref = null;
-           if (!reference.location.remote){
+           if (reference.location != null && !reference.location.remote){
                String jndiName = "java:openejb/ejb/"+reference.location.ejbDeploymentId+"Local";
                Reference ref2 = new IntraVmJndiReference( jndiName );
                if(StatefulBeanInfo.class.isAssignableFrom(bean.getClass()))
