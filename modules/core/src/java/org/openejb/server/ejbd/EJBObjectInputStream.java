@@ -74,8 +74,13 @@ public class EJBObjectInputStream extends ObjectInputStream {
     protected Class resolveClass(ObjectStreamClass desc)
         throws IOException, ClassNotFoundException {
         if (ejbClassLoader == null) {
+            //TODO is the TCCL every going to be set at this point?
             ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-            return ClassLoading.loadClass(desc.getName(), contextClassLoader);
+            try {
+                return ClassLoading.loadClass(desc.getName(), contextClassLoader);
+            } catch (ClassNotFoundException e) {
+                return super.resolveClass(desc);
+            }
         }
         return ClassLoading.loadClass(desc.getName(), ejbClassLoader);
     }
