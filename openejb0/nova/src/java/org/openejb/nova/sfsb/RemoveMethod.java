@@ -45,49 +45,49 @@
  *
  * ====================================================================
  */
-package org.openejb.nova;
+package org.openejb.nova.sfsb;
 
+import net.sf.cglib.reflect.FastClass;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
+
+import org.openejb.nova.EJBInvocation;
+import org.openejb.nova.EJBOperation;
+import org.openejb.nova.entity.BusinessMethod;
+import org.openejb.nova.transaction.TransactionContext;
 
 /**
- *
+ * Virtual operation handling removal of an instance.
  *
  * @version $Revision$ $Date$
  */
-public final class EJBOperation {
-    public static final EJBOperation INACTIVE = new EJBOperation(0, "INACTIVE");
-    public static final EJBOperation SETCONTEXT = new EJBOperation(1, "SETCONTEXT");
-    public static final EJBOperation EJBCREATE = new EJBOperation(2, "EJBCREATE");
-    public static final EJBOperation EJBPOSTCREATE = new EJBOperation(3, "EJBPOSTCREATE");
-    public static final EJBOperation EJBREMOVE = new EJBOperation(4, "EJBREMOVE");
-    public static final EJBOperation EJBACTIVATE = new EJBOperation(5, "EJBACTIVATE");
-    public static final EJBOperation EJBLOAD = new EJBOperation(6, "EJBLOAD");
-    public static final EJBOperation BIZMETHOD = new EJBOperation(7, "BIZMETHOD");
-    public static final EJBOperation ENDPOINT = new EJBOperation(8, "ENDPOINT");
-    public static final EJBOperation TIMEOUT = new EJBOperation(9, "TIMEOUT");
-    public static final EJBOperation EJBFIND = new EJBOperation(10, "EJBFIND");
-    public static final EJBOperation EJBHOME = new EJBOperation(11, "EJBHOME");
-
-    private static final EJBOperation[] values = {
-        INACTIVE, SETCONTEXT, EJBCREATE, EJBPOSTCREATE, EJBREMOVE,
-        EJBACTIVATE, EJBLOAD, BIZMETHOD, ENDPOINT, TIMEOUT,
-        EJBFIND, EJBHOME
-    };
-
-    public static final int MAX_ORDINAL = values.length;
-
-    private final int ordinal;
-    private final String description;
-
-    private EJBOperation(int ordinal, String description) {
-        this.ordinal = ordinal;
-        this.description = description;
+public class RemoveMethod extends BusinessMethod {
+    private final StatefulContainer container;
+    public RemoveMethod(StatefulContainer container, FastClass fastClass, int methodIndex) {
+        super(fastClass, methodIndex);
+        this.container = container;
     }
 
-    public int getOrdinal() {
-        return ordinal;
-    }
+    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+        StatefulInstanceContext ctx = (StatefulInstanceContext) invocation.getEJBInstanceContext();
+        InvocationResult result = null;
+        try {
+            result = invoke(invocation, EJBOperation.EJBREMOVE);
+        } catch (Throwable t) {
+            // instance threw a system exception from a callback, so we must kill it
+            ctx.die();
+        } finally {
+            if(container.getDemarcation() == TransactionDemarcation.BEAN) {
+                // we need to update the invocation cache of the transaction context
+                // because they may have used UserTransaction to push a new context
+                invocation.setTransactionContext(TransactionContext.getContext());
+            }
+        }
 
-    public String toString() {
-        return description;
+        if (result.isNormal()) {
+            // flag the context as dead so it does not get put back in the cache
+            ctx.die();
+        }
+        return result;
     }
 }
