@@ -96,6 +96,7 @@ public class DeploymentHelper {
         GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
         Set rmpatterns = new HashSet();
         rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
+        tmGBean.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
         tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
         start(kernel, TRANSACTIONMANAGER_NAME, tmGBean);
         GBeanMBean tcmGBean = new GBeanMBean(TransactionContextManager.GBEAN_INFO);
