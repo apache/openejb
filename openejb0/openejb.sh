@@ -82,7 +82,6 @@ function test_server () {
    echo "_________________________________________________"
    echo " 1. Starting OpenEJB Server..."
    ./bin/ejbserver.sh &> ejb.server.log &
-   wait_until_server_has_started_up
    echo " 2. Starting test EJB client..."
    ./bin/ejbclient.sh
 }
@@ -101,14 +100,6 @@ function test_corba () {
    sleep 6
    echo " 3. Starting test client..."
    ./bin/launch_client.sh
-}
-
-function wait_until_server_has_started_up {
-   netstat -an | grep -q "*.4200 "
-   while [ $? -eq 1 ]; do
-      sleep 5;
-      netstat -an | grep -q "*.4200 ";
-   done
 }
 
 case     $1 in
