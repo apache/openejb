@@ -55,8 +55,6 @@ import org.openejb.dispatch.AbstractMethodOperation;
 import org.openejb.dispatch.MethodSignature;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class BusinessMethod extends AbstractMethodOperation {

@@ -47,47 +47,37 @@
  */
 package org.openejb.mdb;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Set;
-
 import javax.ejb.MessageDrivenBean;
 
+import net.sf.cglib.reflect.FastClass;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openejb.EJBInstanceFactoryImpl;
-import org.openejb.EJBOperation;
-import org.openejb.cache.InstanceFactory;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
-
-import net.sf.cglib.reflect.FastClass;
+import org.openejb.EJBOperation;
+import org.openejb.cache.InstanceFactory;
 
 /**
- *
- *
- *
  * @version $Revision$ $Date$
  */
-public class MDBInstanceFactory implements InstanceFactory {
+public class MDBInstanceFactory implements InstanceFactory, Serializable {
     private static final Log log = LogFactory.getLog(MDBInstanceFactory.class);
 
-    private final MDBContainer container;
     private final ReadOnlyContext componentContext;
     private final int createIndex;
-    private final EJBInstanceFactoryImpl factory;
+    private final MDBInstanceContextFactory factory;
     private final FastClass implClass;
-    private final Set unshareableResources;
-    private final Set applicationManagedSecurityResources;
+    private final Class beanClass;
 
-    public MDBInstanceFactory(MDBContainer container, Set unshareableResources, Set applicationManagedSecurityResources) {
-        this.container = container;
-        this.unshareableResources = unshareableResources;
-        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
-        componentContext = container.getComponentContext();
+    public MDBInstanceFactory(ReadOnlyContext componentContext, MDBInstanceContextFactory factory, Class beanClass) {
+        this.componentContext = componentContext;
+        this.factory = factory;
+        this.beanClass = beanClass;
 
-        implClass = FastClass.create(container.getBeanClass());
+        implClass = FastClass.create(beanClass);
         createIndex = implClass.getIndex("ejbCreate", new Class[0]);
-        factory = new EJBInstanceFactoryImpl(container.getBeanClass());
     }
 
     public Object createInstance() throws Exception {
@@ -97,9 +87,10 @@ public class MDBInstanceFactory implements InstanceFactory {
             // Disassociate from JNDI Component Context whilst creating instance
             RootContext.setComponentContext(null);
 
-            // create the instance and wrap in a MDBInstanceContext
-            MessageDrivenBean instance = (MessageDrivenBean) factory.newInstance();
-            MDBInstanceContext ctx = new MDBInstanceContext(container, instance, unshareableResources, applicationManagedSecurityResources);
+            // create the StatelessInstanceContext which contains the instance
+            MDBInstanceContext ctx = (MDBInstanceContext) factory.newInstance();
+            MessageDrivenBean instance = (MessageDrivenBean) ctx.getInstance();
+            assert(instance != null);
 
             // Activate this components JNDI Component Context
             RootContext.setComponentContext(componentContext);
@@ -141,10 +132,14 @@ public class MDBInstanceFactory implements InstanceFactory {
             beanInstance.ejbRemove();
         } catch (Throwable t) {
             // We're destroying this instance, so just log and continue
-            log.warn("Unexpected error removing MDB instance", t);
+            log.warn("Unexpected error removing Message Driven instance", t);
         } finally {
             ctx.setOperation(EJBOperation.INACTIVE);
             RootContext.setComponentContext(oldContext);
         }
+    }
+
+    private Object readResolve() {
+        return new MDBInstanceFactory(componentContext, factory, beanClass);
     }
 }

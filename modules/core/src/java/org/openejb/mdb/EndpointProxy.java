@@ -48,54 +48,31 @@
 package org.openejb.mdb;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import javax.ejb.MessageDrivenContext;
-
-import org.openejb.dispatch.AbstractOperationFactory;
-import org.openejb.dispatch.MethodSignature;
-import org.openejb.dispatch.VirtualOperation;
+import javax.resource.ResourceException;
+import javax.resource.spi.endpoint.MessageEndpoint;
 
 /**
- *
- *
+ * Base class for MessageEndpoint invocations. Handles operations which can
+ * be performed directly by the proxy.
+ * 
  * @version $Revision$ $Date$
  */
-public class MDBOperationFactory extends AbstractOperationFactory {
-    public static MDBOperationFactory newInstance(Class beanClass) {
+public class EndpointProxy implements MessageEndpoint {
+    private final EndpointHandler interceptor;
 
-        Method[] methods = beanClass.getMethods();
-        Method setMessageDrivenContext = null;
-        try {
-            setMessageDrivenContext = beanClass.getMethod("setMessageDrivenContext", new Class[]{MessageDrivenContext.class});
-        } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException("Bean does not implement setMessageDrivenContext(javax.ejb.MessageDrivenContext)");
-        }
-        ArrayList sigList = new ArrayList(methods.length);
-        ArrayList vopList = new ArrayList(methods.length);
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
-            if (Object.class == method.getDeclaringClass()) {
-                continue;
-            }
-            if (setMessageDrivenContext.equals(method)) {
-                continue;
-            }
-            String name = method.getName();
-            if (name.startsWith("ejb")) {
-                continue;
-            }
-            MethodSignature sig = new MethodSignature(method);
-            sigList.add(sig);
-            vopList.add(new BusinessMethod(beanClass, sig));
-        }
-        MethodSignature[] signatures = (MethodSignature[]) sigList.toArray(new MethodSignature[0]);
-        VirtualOperation[] vtable = (VirtualOperation[]) vopList.toArray(new VirtualOperation[0]);
-
-        return new MDBOperationFactory(vtable, signatures);
+    public EndpointProxy(EndpointHandler interceptor) {
+        this.interceptor = interceptor;
     }
 
-    private MDBOperationFactory(VirtualOperation[] vtable, MethodSignature[] signatures) {
-        super(vtable, signatures);
+    public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException {
+        interceptor.beforeDelivery(method);
     }
 
+    public void afterDelivery() throws ResourceException {
+        interceptor.afterDelivery();
+    }
+
+    public void release() {
+        interceptor.release();
+    }
 }
