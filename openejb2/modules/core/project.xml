@@ -257,6 +257,15 @@
                 <runtime>true</runtime>
             </properties>
         </dependency>
+        
+        <dependency>
+            <groupId>oro</groupId>
+            <artifactId>oro</artifactId>
+            <version>&oro-version;</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
 
         <dependency>
             <groupId>cglib</groupId>
