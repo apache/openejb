@@ -17,6 +17,10 @@ if [ -z "$JAVA_HOME" ] ; then
   JAVA_HOME=$JAVA_BIN/..
 fi
 
+if [ -z "$OPENEJB_HOME" ] ; then
+  OPENEJB_HOME=$PWD
+fi
+
 JAVA=$JAVA_HOME/bin/java
 
 if [ -z "$OSTYPE" ] ; then
@@ -34,7 +38,7 @@ PS=':'
 CP=
 #==================================
 # PUT *.jar file to $CP
-for i in lib/*.jar ; do 
+for i in $OPENEJB_HOME/lib/*.jar ; do 
     if [ -e $i ]; then
     	CP=$i${PS}$CP
     fi
@@ -43,7 +47,7 @@ unset i
 CP=$JAVA_HOME/lib/tools.jar${PS}${CP}
 
 
-for i in dist/*.jar ; do 
+for i in $OPENEJB_HOME/dist/*.jar ; do 
     if [ -e $i ] ; then
     	CP=$i${PS}$CP
     fi
@@ -55,7 +59,7 @@ CP=lib/xerces-J_1.3.1.jar${PS}${CP}
 #  Test suite properties
 SERVER="-Dopenejb.test.server=org.openejb.test.IvmTestServer"
 DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
-OPTIONS="$SERVER $DATABASE"
+OPTIONS="$SERVER $DATABASE -Dopenejb.home=$OPENEJB_HOME"
 
 CLASSPATH=${CP}
 #$JAVA $OPTIONS -classpath $CLASSPATH org.openejb.test.ClientTestRunner -s test/conf/IvmServer_config.properties org.openejb.test.ClientTestSuite

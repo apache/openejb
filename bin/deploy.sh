@@ -17,6 +17,10 @@ if [ -z "$JAVA_HOME" ] ; then
 fi
 JAVA=$JAVA_HOME/bin/java
 
+if [ -z "$OPENEJB_HOME" ] ; then
+  OPENEJB_HOME=$PWD
+fi
+
 if [ -z "$OSTYPE" ] ; then
   echo "OSTYPE environment variable is not set.  Cannot determine the host operating system!" 
   exit 1
@@ -34,7 +38,7 @@ PS=':'
 CP=
 #==================================
 # PUT *.jar file to $CP
-for i in lib/*.jar ; do 
+for i in $OPENEJB_HOME/lib/*.jar ; do 
     if [ -e $i ]; then
     	CP=$i${PS}$CP
     fi
@@ -42,7 +46,7 @@ done
 unset i
 #==================================
 # put *.zip file to $CP
-for i in lib/*.zip ; do 
+for i in $OPENEJB_HOME/lib/*.zip ; do 
     if [ -e $i ]; then
     	CP=$i${PS}$CP
     fi
@@ -50,7 +54,7 @@ done
 unset i
 #==================================
 # put dist/*.jar file to $CP
-for i in dist/*.jar ; do 
+for i in $OPENEJB_HOME/dist/*.jar ; do 
     if [ -e $i ]; then
     	CP=$i${PS}$CP
     fi
@@ -61,5 +65,5 @@ CP=$JAVA_HOME/lib/tools.jar${PS}${CP}
 CP=lib/xerces-J_1.3.1.jar${PS}${CP}
 CLASSPATH=$CP
 
-$JAVA -cp $CLASSPATH org.openejb.alt.config.Deploy $@
+$JAVA -cp $CLASSPATH -Dopenejb.home=$OPENEJB_HOME org.openejb.alt.config.Deploy $@
 

@@ -19,6 +19,10 @@ fi
 
 JAVA=$JAVA_HOME/bin/java
 
+if [ -z "$OPENEJB_HOME" ] ; then
+  OPENEJB_HOME=$PWD
+fi
+
 # PS stands for PATH_SEPARATOR 
 PS=':'
  if [ $OSTYPE = "cygwin32" ] || [ $OSTYPE = "cygwin" ] ; then
@@ -78,7 +82,7 @@ CP=lib/xerces-J_1.3.1.jar${PS}${CP}
 # Setup options for testsuite execution
 SERVER="-Dopenejb.test.server=org.openejb.test.OpenEjbTestServer"
 DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
-OPTIONS=" $SERVER $DATABASE"
+OPTIONS=" $SERVER $DATABASE -Dopenejb.home=$OPENEJB_HOME"
 
 CLASSPATH=${CP}
 $JAVA $OPTIONS -classpath $CLASSPATH org.openejb.test.ClientTestRunner -s src/tests-ejb/OpenEjbServer_config.properties org.openejb.test.ClientTestSuite

@@ -17,6 +17,10 @@ if [ -z "$JAVA_HOME" ] ; then
   JAVA_HOME=$JAVA_BIN/..
 fi
 
+if [ -z "$OPENEJB_HOME" ] ; then
+  OPENEJB_HOME=$PWD
+fi
+
 JAVA=$JAVA_HOME/bin/java
 TEST_HOME=test/conf
 
