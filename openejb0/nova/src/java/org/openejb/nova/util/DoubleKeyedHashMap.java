@@ -45,47 +45,47 @@
  *
  * ====================================================================
  */
-package org.openejb.nova;
+package org.openejb.nova.util;
 
-import org.openejb.nova.EJBContainer;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
- * 
+ * <b>Really</b> stupid implementation of a double keyed map.
  * 
  * @version $Revision$ $Date$
  */
-public class InstanceID {
-    protected final EJBContainer container;
-    protected Object id;
+public final class DoubleKeyedHashMap {
+    private final Map map = new HashMap();
 
-    public InstanceID(EJBContainer container) {
-        this.container = container;
+    public void put(Object key1, Object key2, Object value) {
+        map.put(new Key(key1, key2), value);
     }
 
-    public final EJBContainer getContainer() {
-        return container;
+    public Object get(Object key1, Object key2) {
+        return map.get(new Key(key1, key2));
     }
 
-    public Object getId() {
-        return id;
-    }
+    private final static class Key {
+        private final Object part1;
+        private final Object part2;
 
-    public void setId(Object id) {
-        this.id = id;
-    }
-
-    public final int hashCode() {
-        return container.hashCode() ^ id.hashCode();
-    }
-
-    public final boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
+        public Key(Object part1, Object part2) {
+            this.part1 = part1;
+            this.part2 = part2;
         }
-        if (obj instanceof InstanceID) {
-            InstanceID other = (InstanceID) obj;
-            return this.container == other.container && this.id.equals(other.id);
+
+        public int hashCode() {
+            return part1.hashCode() ^ part2.hashCode();
         }
-        return false;
+
+        public boolean equals(Object obj) {
+            if (obj instanceof Key) {
+                Key other = (Key) obj;
+                return this.part1.equals(other.part1) && this.part2.equals(other.part2);
+            } else {
+                return false;
+            }
+        }
     }
 }

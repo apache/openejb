@@ -47,8 +47,6 @@
  */
 package org.openejb.nova.transaction;
 
-import java.util.HashMap;
-import java.util.Map;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
@@ -56,9 +54,10 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 
+import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBInstanceContext;
-import org.openejb.nova.InstanceID;
 import org.openejb.nova.entity.cmp.InstanceData;
+import org.openejb.nova.util.DoubleKeyedHashMap;
 
 
 /**
@@ -77,8 +76,8 @@ public abstract class TransactionContext {
         CONTEXT.set(context);
     }
 
-    private final Map contextCache = new HashMap();
-    private final Map instanceDataCache = new HashMap();
+    private final DoubleKeyedHashMap contextCache = new DoubleKeyedHashMap();
+    private final DoubleKeyedHashMap instanceDataCache = new DoubleKeyedHashMap();
 
     public abstract void begin() throws SystemException, NotSupportedException;
 
@@ -90,19 +89,19 @@ public abstract class TransactionContext {
 
     public abstract void rollback() throws SystemException;
 
-    public final void putContext(InstanceID id, EJBInstanceContext context) {
-        contextCache.put(id, context);
+    public final void putContext(EJBContainer container, Object id, EJBInstanceContext context) {
+        contextCache.put(container, id, context);
     }
 
-    public final EJBInstanceContext getContext(InstanceID id) {
-        return (EJBInstanceContext) contextCache.get(id);
+    public final EJBInstanceContext getContext(EJBContainer container, Object id) {
+        return (EJBInstanceContext) contextCache.get(container, id);
     }
 
-    public final void putInstanceData(InstanceID id, InstanceData data) {
-        instanceDataCache.put(id, data);
+    public final void putInstanceData(EJBContainer container, Object id, InstanceData data) {
+        instanceDataCache.put(container, id, data);
     }
 
-    public final InstanceData getInstancedata(InstanceID id) {
-        return (InstanceData) instanceDataCache.get(id);
+    public final InstanceData getInstancedata(EJBContainer container, Object id) {
+        return (InstanceData) instanceDataCache.get(container, id);
     }
 }
