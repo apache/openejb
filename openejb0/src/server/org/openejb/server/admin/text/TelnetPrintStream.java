@@ -59,6 +59,12 @@ public class TelnetPrintStream extends PrintStream {
     public void println() {
         newLine();
     }
+    public void println(String x) {
+        synchronized (this) {
+            print(x);
+            newLine();
+        }
+    }
     public void println(long x) {
         synchronized (this) {
             print(x);
