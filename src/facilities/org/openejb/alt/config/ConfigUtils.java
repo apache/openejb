@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.jar.*;
+import org.apache.log4j.Category;
 import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.ValidationException;
 import org.openejb.OpenEJBException;
@@ -65,6 +66,8 @@ public class ConfigUtils  {
     public static final File OPENEJB_JAR_FILE = new File("conf/openejb.services.jar");
 
     private static Map loadedServiceJars = new HashMap();
+
+    private static Category logger = Category.getInstance("OpenEJB");
 
     public static ServiceProvider getService(String jar, String id) throws OpenEJBException{
 
@@ -642,30 +645,30 @@ public class ConfigUtils  {
     public static void logWarning(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3 ) {
         Object[] args = { arg0, arg1, arg2, arg3 };
         OpenEJBException e = new OpenEJBException(errorCode, args);
-        System.out.println("Warning: "+ e.getMessage() );
+        logger.warning("Warning: "+ e.getMessage() );
     }
 
     public static void logWarning(String errorCode, Object arg0, Object arg1, Object arg2 ) {
         Object[] args = { arg0, arg1, arg2 };
         OpenEJBException e = new OpenEJBException(errorCode, args);
-        System.out.println("Warning: "+ e.getMessage() );
+        logger.warning("Warning: "+ e.getMessage() );
     }
     
     public static void logWarning(String errorCode, Object arg0, Object arg1 ) {
         Object[] args = { arg0, arg1 };
         OpenEJBException e = new OpenEJBException(errorCode, args);
-        System.out.println("Warning: "+ e.getMessage() );
+        logger.warning("Warning: "+ e.getMessage() );
     }
 
     public static void logWarning(String errorCode, Object arg0 ) {
         Object[] args = { arg0 };
         OpenEJBException e = new OpenEJBException(errorCode, args);
-        System.out.println("Warning: "+ e.getMessage() );
+        logger.warning("Warning: "+ e.getMessage() );
     }
 
     public static void logWarning(String errorCode ) {
         OpenEJBException e = new OpenEJBException(errorCode);
-        System.out.println("Warning: "+ e.getMessage() );
+        logger.warning( "Warning: "+ e.getMessage() );
     }
 
 }
