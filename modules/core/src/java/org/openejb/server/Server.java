@@ -91,7 +91,7 @@ public class Server implements org.openejb.spi.Service {
 
         OpenEJB.init(props, new ServerFederation());
 
-        System.out.println("[init] OpenEJB Remote Server");
+//        System.out.println("[init] OpenEJB Remote Server");
         ServiceManager manager = ServiceManager.getManager();
         manager.init();
         manager.start();

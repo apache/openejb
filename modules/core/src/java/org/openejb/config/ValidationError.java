@@ -45,17 +45,18 @@
 package org.openejb.config;
 
 /**
+ * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
-public class ValidationError extends ValidationException{
+public class ValidationError extends ValidationException {
 
-    public ValidationError(String message){
-        super( message );
+    public ValidationError(String message) {
+        super(message);
     }
-    
+
     public String getPrefix() {
         return "ERROR";
     }
-    
+
     public String getCategory() {
         return "errors";
     }

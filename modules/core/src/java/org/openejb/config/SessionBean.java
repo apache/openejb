@@ -44,13 +44,10 @@
  */
 package org.openejb.config;
 
-import org.openejb.config.ejb11.EjbRef;
-import org.openejb.config.ejb11.EnvEntry;
-import org.openejb.config.ejb11.ResourceRef;
-import org.openejb.config.ejb11.SecurityRoleRef;
-import org.openejb.config.ejb11.Session;
+import org.openejb.config.ejb11.*;
 
 /**
+ * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class SessionBean implements Bean {
 
@@ -59,7 +56,7 @@ public class SessionBean implements Bean {
 
     SessionBean(Session bean) {
         this.bean = bean;
-        if ( bean.getSessionType().equals("Stateful") ) {
+        if (bean.getSessionType().equals("Stateful")) {
             type = STATEFUL;
         } else {
             type = STATELESS;
@@ -69,40 +66,52 @@ public class SessionBean implements Bean {
     public String getType() {
         return type;
     }
-    
+
     public Object getBean() {
         return bean;
     }
 
-    public String getEjbName(){
+    public String getEjbName() {
         return bean.getEjbName();
     }
 
-    public String getEjbClass(){
+    public String getEjbClass() {
         return bean.getEjbClass();
     }
 
-    public String getHome(){
+    public String getHome() {
         return bean.getHome();
     }
 
-    public String getRemote(){
+    public String getRemote() {
         return bean.getRemote();
     }
 
-    public EjbRef[] getEjbRef(){
+    public EjbLocalRef[] getEjbLocalRef() {
+        return bean.getEjbLocalRef();
+    }
+
+    public String getLocal() {
+        return bean.getLocal();
+    }
+
+    public String getLocalHome() {
+        return bean.getLocalHome();
+    }
+
+    public EjbRef[] getEjbRef() {
         return bean.getEjbRef();
     }
 
-    public EnvEntry[] getEnvEntry(){
+    public EnvEntry[] getEnvEntry() {
         return bean.getEnvEntry();
     }
 
-    public ResourceRef[] getResourceRef(){
+    public ResourceRef[] getResourceRef() {
         return bean.getResourceRef();
     }
 
-    public SecurityRoleRef[] getSecurityRoleRef(){
+    public SecurityRoleRef[] getSecurityRoleRef() {
         return bean.getSecurityRoleRef();
     }
 }

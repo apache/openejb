@@ -44,15 +44,7 @@
  */
 package org.openejb.config;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.net.UnknownHostException;
 import java.util.Vector;
 import java.util.jar.JarEntry;
@@ -70,19 +62,20 @@ import org.openejb.util.JarUtils;
 import org.openejb.util.Messages;
 
 /**
+ * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class EjbJarUtils {
 
-    static protected Messages _messages = new Messages( "org.openejb" );
-    
-    public static EjbJar readEjbJar(String jarFile) throws OpenEJBException{
+    static protected Messages _messages = new Messages("org.openejb.util.resources");
+
+    public static EjbJar readEjbJar(String jarFile) throws OpenEJBException {
         /*[1.1]  Get the jar ***************/
         JarFile jar = JarUtils.getJarFile(jarFile);
 
         /*[1.2]  Find the ejb-jar.xml from the jar ***************/
         JarEntry entry = jar.getJarEntry("META-INF/ejb-jar.xml");
         if (entry == null) entry = jar.getJarEntry("ejb-jar.xml");
-        
+
         if (entry == null) handleException("conf.3900", jarFile, "no message");
 
         /*[1.3]  Get the ejb-jar.xml from the jar ***************/
@@ -90,8 +83,8 @@ public class EjbJarUtils {
         InputStream stream = null;
         try {
             stream = jar.getInputStream(entry);
-            reader = new InputStreamReader( stream );
-        } catch ( Exception e ) {
+            reader = new InputStreamReader(stream);
+        } catch (Exception e) {
             handleException("conf.3110", jarFile, e.getLocalizedMessage());
         }
 
@@ -99,18 +92,18 @@ public class EjbJarUtils {
         EjbJar obj = null;
         try {
             obj = unmarshalEjbJar(reader);
-        } catch ( MarshalException e ) {
-            if (e.getException() instanceof UnknownHostException){
+        } catch (MarshalException e) {
+            if (e.getException() instanceof UnknownHostException) {
                 handleException("conf.3121", jarFile, e.getLocalizedMessage());
-            } else if (e.getException() instanceof org.xml.sax.SAXException){
-                handleException("conf.3140",jarFile, e.getLocalizedMessage());
-            } else if (e.getException() instanceof IOException){
+            } else if (e.getException() instanceof org.xml.sax.SAXException) {
+                handleException("conf.3140", jarFile, e.getLocalizedMessage());
+            } else if (e.getException() instanceof IOException) {
                 handleException("conf.3110", jarFile, e.getLocalizedMessage());
             } else {
                 handleException("conf.3120", jarFile, e.getLocalizedMessage());
             }
-        } catch ( ValidationException e ) {
-            handleException("conf.3130",jarFile, e.getLocalizedMessage());
+        } catch (ValidationException e) {
+            handleException("conf.3130", jarFile, e.getLocalizedMessage());
         }
         
         /*[1.5]  Clean up ***************/
@@ -118,24 +111,24 @@ public class EjbJarUtils {
             stream.close();
             reader.close();
             jar.close();
-        } catch ( Exception e ) {
+        } catch (Exception e) {
             handleException("file.0020", jarFile, e.getLocalizedMessage());
         }
-        
+
         return obj;
     }
-    
+
     private static DTDResolver resolver = new DTDResolver();
-    
-    private static EjbJar unmarshalEjbJar(java.io.Reader reader) 
-    throws MarshalException, ValidationException {
+
+    private static EjbJar unmarshalEjbJar(java.io.Reader reader)
+            throws MarshalException, ValidationException {
         Unmarshaller unmarshaller = new Unmarshaller(org.openejb.config.ejb11.EjbJar.class);
         unmarshaller.setEntityResolver(resolver);
-            
-        return (org.openejb.config.ejb11.EjbJar)unmarshaller.unmarshal(reader);
-    } 
 
-    public static void writeEjbJar(String xmlFile, EjbJar ejbJarObject) throws OpenEJBException{
+        return (org.openejb.config.ejb11.EjbJar) unmarshaller.unmarshal(reader);
+    }
+
+    public static void writeEjbJar(String xmlFile, EjbJar ejbJarObject) throws OpenEJBException {
         /* TODO:  Just to be picky, the xml file created by
         Castor is really hard to read -- it is all on one line.
         People might want to edit this in the future by hand, so if Castor can 
@@ -143,19 +136,19 @@ public class EjbJarUtils {
         just spruce the output up by adding a few new lines and tabs.
         */
         Writer writer = null;
-        try{
+        try {
             File file = new File(xmlFile);
-            writer = new FileWriter( file );
-            ejbJarObject.marshal( writer );
-        } catch ( IOException e ) {
-                handleException("conf.3040",xmlFile, e.getLocalizedMessage());
-        } catch ( MarshalException e ) {
-            if (e.getException() instanceof IOException){
-                handleException("conf.3040",xmlFile, e.getLocalizedMessage());
+            writer = new FileWriter(file);
+            ejbJarObject.marshal(writer);
+        } catch (IOException e) {
+            handleException("conf.3040", xmlFile, e.getLocalizedMessage());
+        } catch (MarshalException e) {
+            if (e.getException() instanceof IOException) {
+                handleException("conf.3040", xmlFile, e.getLocalizedMessage());
             } else {
-                handleException("conf.3050",xmlFile, e.getLocalizedMessage());
+                handleException("conf.3050", xmlFile, e.getLocalizedMessage());
             }
-        } catch ( ValidationException e ) {
+        } catch (ValidationException e) {
             /* TODO: Implement informative error handling here. 
                The exception will say "X doesn't match the regular 
                expression Y" 
@@ -167,28 +160,28 @@ public class EjbJarUtils {
              * is invalid, the MarshalException is thrown, not this one as you
              * would think.
              */
-            handleException("conf.3060",xmlFile, e.getLocalizedMessage());
+            handleException("conf.3060", xmlFile, e.getLocalizedMessage());
         }
         try {
             writer.close();
-        } catch ( Exception e ) {
+        } catch (Exception e) {
             handleException("file.0020", xmlFile, e.getLocalizedMessage());
         }
     }
 
-    public static String moveJar(String jar, boolean overwrite) throws OpenEJBException{
+    public static String moveJar(String jar, boolean overwrite) throws OpenEJBException {
         File origFile = new File(jar);
         
         // Safety checks
-        if (!origFile.exists()){
+        if (!origFile.exists()) {
             handleException("deploy.m.010", origFile.getAbsolutePath());
         }
 
-        if (origFile.isDirectory()){
+        if (origFile.isDirectory()) {
             handleException("deploy.m.020", origFile.getAbsolutePath());
         }
 
-        if (!origFile.isFile()){
+        if (!origFile.isFile()) {
             handleException("deploy.m.030", origFile.getAbsolutePath());
         }
 
@@ -196,48 +189,48 @@ public class EjbJarUtils {
         String jarName = origFile.getName();
         File beansDir = null;
         try {
-            beansDir = FileUtils.getBase().getDirectory("beans"); 
-        } catch (java.io.IOException ioe){
+            beansDir = FileUtils.getBase().getDirectory("beans");
+        } catch (java.io.IOException ioe) {
             handleException("deploy.m.040", origFile.getAbsolutePath(), ioe.getMessage());
         }
-        
+
         File newFile = new File(beansDir, jarName);
         boolean moved = false;
-        
-        try{
-	    if ( newFile.exists() ) {
-		if ( overwrite ) {
-		    newFile.delete();
-		} else {
-		    throw new OpenEJBException( _messages.format( "deploy.m.061", origFile.getAbsolutePath(), beansDir.getAbsolutePath() ) );
-		}
-	    }
-            moved = origFile.renameTo(newFile); 
-        } catch (SecurityException se){
+
+        try {
+            if (newFile.exists()) {
+                if (overwrite) {
+                    newFile.delete();
+                } else {
+                    throw new OpenEJBException(_messages.format("deploy.m.061", origFile.getAbsolutePath(), beansDir.getAbsolutePath()));
+                }
+            }
+            moved = origFile.renameTo(newFile);
+        } catch (SecurityException se) {
             handleException("deploy.m.050", origFile.getAbsolutePath(), se.getMessage());
         }
 
-        if ( !moved ){
+        if (!moved) {
             handleException("deploy.m.060", origFile.getAbsolutePath(), newFile.getAbsoluteFile());
         }
         return newFile.getAbsolutePath();
     }
 
-    public static String copyJar(String jar, boolean overwrite) throws OpenEJBException{
+    public static String copyJar(String jar, boolean overwrite) throws OpenEJBException {
         File origFile = new File(jar);
         
         // Safety checks
-        if (!origFile.exists()){
+        if (!origFile.exists()) {
             handleException("deploy.c.010", origFile.getAbsolutePath());
             return jar;
         }
 
-        if (origFile.isDirectory()){
+        if (origFile.isDirectory()) {
             handleException("deploy.c.020", origFile.getAbsolutePath());
             return jar;
         }
 
-        if (!origFile.isFile()){
+        if (!origFile.isFile()) {
             handleException("deploy.c.030", origFile.getAbsolutePath());
             return jar;
         }
@@ -246,38 +239,38 @@ public class EjbJarUtils {
         String jarName = origFile.getName();
         File beansDir = null;
         try {
-            beansDir = FileUtils.getBase().getDirectory("beans"); 
-        } catch (java.io.IOException ioe){
+            beansDir = FileUtils.getBase().getDirectory("beans");
+        } catch (java.io.IOException ioe) {
             handleException("deploy.c.040", origFile.getAbsolutePath(), ioe.getMessage());
             return jar;
         }
-        
-        File newFile = new File(beansDir, jarName);
-        
-        try{
-	    if ( newFile.exists() ) {
-		if ( overwrite ) {
-		    newFile.delete();
-		} else {
-		    throw new OpenEJBException( _messages.format( "deploy.c.061", origFile.getAbsolutePath(), beansDir.getAbsolutePath() ) );
-		}
-	    }
 
-            FileInputStream  in  = new FileInputStream(origFile);
+        File newFile = new File(beansDir, jarName);
+
+        try {
+            if (newFile.exists()) {
+                if (overwrite) {
+                    newFile.delete();
+                } else {
+                    throw new OpenEJBException(_messages.format("deploy.c.061", origFile.getAbsolutePath(), beansDir.getAbsolutePath()));
+                }
+            }
+
+            FileInputStream in = new FileInputStream(origFile);
             FileOutputStream out = new FileOutputStream(newFile);
-        
+
             int b = in.read();
-            while( b != -1 ){
-                out.write( b );
+            while (b != -1) {
+                out.write(b);
                 b = in.read();
             }
 
             in.close();
             out.close();
 
-        } catch (SecurityException e){
+        } catch (SecurityException e) {
             handleException("deploy.c.050", origFile.getAbsolutePath(), beansDir.getAbsolutePath(), e.getMessage());
-        } catch (IOException e){
+        } catch (IOException e) {
             handleException("deploy.c.060", origFile.getAbsolutePath(), newFile.getAbsolutePath(), e.getClass().getName(), e.getMessage());
         }
 
@@ -285,10 +278,10 @@ public class EjbJarUtils {
     }
 
     public static Container[] getUsableContainers(Container[] containers, Bean bean) {
-        Vector c = new Vector();        
+        Vector c = new Vector();
 
-        for ( int i=0; i < containers.length; i++ ) {
-            if ( containers[i].getCtype().equals(bean.getType()) ) {
+        for (int i = 0; i < containers.length; i++) {
+            if (containers[i].getCtype().equals(bean.getType())) {
                 c.add(containers[i]);
             }
         }
@@ -305,8 +298,8 @@ public class EjbJarUtils {
     public static Bean[] getBeans(EjbJar jar) {
         EnterpriseBeansItem[] items = jar.getEnterpriseBeans().getEnterpriseBeansItem();
         Bean[] beans = new Bean[items.length];
-        for (int i=0; i < items.length; i++){
-            if ( items[i].getEntity() == null ) {
+        for (int i = 0; i < items.length; i++) {
+            if (items[i].getEntity() == null) {
                 beans[i] = new SessionBean(items[i].getSession());
             } else {
                 beans[i] = new EntityBean(items[i].getEntity());
@@ -319,23 +312,23 @@ public class EjbJarUtils {
     /*    Methods for easy exception handling               */
     /*------------------------------------------------------*/
     public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3) throws OpenEJBException {
-        throw new OpenEJBException( _messages.format( errorCode, arg0, arg1, arg2, arg3 ) );
+        throw new OpenEJBException(_messages.format(errorCode, arg0, arg1, arg2, arg3));
     }
 
     public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2) throws OpenEJBException {
-        throw new OpenEJBException( _messages.format( errorCode, arg0, arg1, arg2 ) );
+        throw new OpenEJBException(_messages.format(errorCode, arg0, arg1, arg2));
     }
 
     public static void handleException(String errorCode, Object arg0, Object arg1) throws OpenEJBException {
-        throw new OpenEJBException( _messages.format( errorCode, arg0, arg1 ) );
+        throw new OpenEJBException(_messages.format(errorCode, arg0, arg1));
     }
 
     public static void handleException(String errorCode, Object arg0) throws OpenEJBException {
-        throw new OpenEJBException( _messages.format( errorCode, arg0 ) );
+        throw new OpenEJBException(_messages.format(errorCode, arg0));
     }
 
     public static void handleException(String errorCode) throws OpenEJBException {
-        throw new OpenEJBException( _messages.message( errorCode ) );
+        throw new OpenEJBException(_messages.message(errorCode));
     }
 
 }

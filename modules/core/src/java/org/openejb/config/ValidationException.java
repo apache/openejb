@@ -47,11 +47,12 @@ package org.openejb.config;
 import org.openejb.util.Messages;
 
 /**
+ * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
-public class ValidationException extends java.lang.Exception{
+public class ValidationException extends java.lang.Exception {
 
-    protected static Messages messages = new Messages( "org.openejb.config.rules" );
-    
+    protected static Messages messages = new Messages("org.openejb.config.rules");
+
     protected Bean bean;
     protected Object[] details;
     protected String message;
@@ -59,62 +60,62 @@ public class ValidationException extends java.lang.Exception{
     protected String prefix;
 
 
-    public ValidationException(String message){
+    public ValidationException(String message) {
         this.message = message;
     }
-    
-    public void setDetails(Object arg1){
-        this.details =  new Object[]{ arg1 };
+
+    public void setDetails(Object arg1) {
+        this.details = new Object[]{arg1};
     }
 
-    public void setDetails(Object arg1, Object arg2){
-        this.details =  new Object[]{ arg1, arg2 };
+    public void setDetails(Object arg1, Object arg2) {
+        this.details = new Object[]{arg1, arg2};
     }
 
-    public void setDetails(Object arg1, Object arg2, Object arg3){
-        this.details =  new Object[]{ arg1, arg2, arg3 };
+    public void setDetails(Object arg1, Object arg2, Object arg3) {
+        this.details = new Object[]{arg1, arg2, arg3};
     }
 
-    public void setDetails(Object arg1, Object arg2, Object arg3, Object arg4){
-        this.details =  new Object[]{ arg1, arg2, arg3, arg4 };
+    public void setDetails(Object arg1, Object arg2, Object arg3, Object arg4) {
+        this.details = new Object[]{arg1, arg2, arg3, arg4};
     }
 
-    public void setDetails(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5){
-        this.details =  new Object[]{ arg1, arg2, arg3, arg4, arg5 };
+    public void setDetails(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+        this.details = new Object[]{arg1, arg2, arg3, arg4, arg5};
     }
 
-    public void setDetails(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6){
-        this.details =  new Object[]{ arg1, arg2, arg3, arg4, arg5, arg6 };
+    public void setDetails(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) {
+        this.details = new Object[]{arg1, arg2, arg3, arg4, arg5, arg6};
     }
 
-    public Object[] getDetails(){
+    public Object[] getDetails() {
         return details;
     }
-    
-    public String getSummary(){
+
+    public String getSummary() {
         return getMessage(1);
     }
-    
-    public String getMessage(){
+
+    public String getMessage() {
         return getMessage(2);
     }
 
-    public String getMessage(int level){
-        return messages.format(level+"."+message, details);
+    public String getMessage(int level) {
+        return messages.format(level + "." + message, details);
     }
 
-    public Bean getBean(){
+    public Bean getBean() {
         return bean;
     }
-    
-    public void setBean(Bean bean){
+
+    public void setBean(Bean bean) {
         this.bean = bean;
     }
 
-    public String getPrefix(){
+    public String getPrefix() {
         return "";
     }
-    
+
     public String getCategory() {
         return "";
     }

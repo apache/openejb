@@ -51,6 +51,7 @@ import org.openejb.server.ServerService;
 import org.openejb.server.ServiceManager;
 import org.openejb.server.ServiceException;
 import org.openejb.client.RequestMethods;
+import org.openejb.ContainerIndex;
 
 /**
  * This is the base class for orcistrating the other daemons 
@@ -70,7 +71,9 @@ public class AdminDaemon implements ServerService {
     public void init(Properties props) throws Exception {
     }
 
-    
+    public AdminDaemon(ContainerIndex index) {
+    }
+
     public void service(Socket socket) throws ServiceException,IOException {
         InputStream in = null;
         InetAddress clientIP = null;
