@@ -118,7 +118,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
             // system exceptions must be throw as either EJBException or a RemoteException
             if (interfaceType.isLocal()) {
                 if (!(t instanceof EJBException)) {
-                    t = new EJBException((Exception) t);
+                    t = new EJBException().initCause(t);
                 }
             } else {
                 if (!(t instanceof RemoteException)) {

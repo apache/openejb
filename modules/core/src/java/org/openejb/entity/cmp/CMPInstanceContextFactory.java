@@ -69,6 +69,7 @@ import org.openejb.dispatch.MethodSignature;
 import org.openejb.InstanceContextFactory;
 import org.openejb.proxy.EJBProxyFactory;
 import org.tranql.identity.IdentityTransform;
+import org.tranql.cache.CacheTable;
 
 /**
  *
@@ -78,15 +79,17 @@ import org.tranql.identity.IdentityTransform;
 public class CMPInstanceContextFactory implements InstanceContextFactory, Serializable {
     private final Object containerId;
     private final EJBProxyFactory proxyFactory;
+    private final CacheTable cacheTable;
     private final IdentityTransform primaryKeyTransform;
     private final Class beanClass;
     private final Map imap;
     private final InstanceOperation[] itable;
     private transient final Enhancer enhancer;
 
-    public CMPInstanceContextFactory(Object containerId, EJBProxyFactory proxyFactory, IdentityTransform primaryKeyTransform, Class beanClass, Map imap) throws ClassNotFoundException {
+    public CMPInstanceContextFactory(Object containerId, EJBProxyFactory proxyFactory, CacheTable cacheTable, IdentityTransform primaryKeyTransform, Class beanClass, Map imap) throws ClassNotFoundException {
         this.containerId = containerId;
         this.proxyFactory = proxyFactory;
+        this.cacheTable = cacheTable;
         this.primaryKeyTransform = primaryKeyTransform;
         this.beanClass = beanClass;
         this.imap = imap;
@@ -111,7 +114,7 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
     }
 
     public synchronized InstanceContext newInstance() throws Exception {
-        return new CMPInstanceContext(containerId, proxyFactory, itable, primaryKeyTransform, this);
+        return new CMPInstanceContext(containerId, proxyFactory, itable, cacheTable, primaryKeyTransform, this);
     }
 
     public synchronized EntityBean createCMPBeanInstance(CMPInstanceContext instanceContext) {
@@ -130,7 +133,7 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
 
     private Object readResolve() throws ObjectStreamException {
         try {
-            return new CMPInstanceContextFactory(containerId, proxyFactory, primaryKeyTransform, beanClass, imap);
+            return new CMPInstanceContextFactory(containerId, proxyFactory, cacheTable, primaryKeyTransform, beanClass, imap);
         } catch (ClassNotFoundException e) {
             throw (InvalidClassException) new InvalidClassException("Cound not load method argument class").initCause(e);
         }

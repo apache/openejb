@@ -66,7 +66,7 @@ public class CMPGetter implements InstanceOperation {
     }
 
     public Object invokeInstance(CMPInstanceContext ctx, Object[] args) {
-        assert args.length != 0 : "CMPGetter must not be passed any arguments:" +
+        assert args.length == 0 : "CMPGetter must not be passed any arguments:" +
                 " fieldName=" + fieldName + ", args.length=" + args.length;
 
         CacheRow row = ctx.getCacheRow();

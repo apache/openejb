@@ -68,9 +68,11 @@ import org.openejb.dispatch.VirtualOperation;
 import org.tranql.cache.CacheRow;
 import org.tranql.cache.CacheTable;
 import org.tranql.cache.DuplicateIdentityException;
+import org.tranql.cache.InTxCache;
 import org.tranql.identity.IdentityTransform;
 import org.tranql.identity.UndefinedIdentityException;
 import org.tranql.identity.IdentityTransformException;
+import org.tranql.identity.IdentityDefiner;
 
 /**
  *
@@ -82,6 +84,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
     private final MethodSignature createSignature;
     private final MethodSignature postCreateSignature;
     private final CacheTable cacheTable;
+    private final IdentityDefiner identityDefiner;
     private final IdentityTransform localProxyTransform;
     private final IdentityTransform remoteProxyTransform;
 
@@ -94,6 +97,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             MethodSignature createSignature,
             MethodSignature postCreateSignature,
             CacheTable cacheTable,
+            IdentityDefiner identityDefiner,
             IdentityTransform localProxyTransform,
             IdentityTransform remoteProxyTransform) {
 
@@ -101,6 +105,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
         this.createSignature = createSignature;
         this.postCreateSignature = postCreateSignature;
         this.cacheTable = cacheTable;
+        this.identityDefiner = identityDefiner;
         this.localProxyTransform = localProxyTransform;
         this.remoteProxyTransform = remoteProxyTransform;
 
@@ -150,11 +155,10 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
         Object proxy;
         try {
             TransactionContext transactionContext = invocation.getTransactionContext();
-//            InTxCache cache = transactionContext.getInTxCache();
+            InTxCache cache = transactionContext.getInTxCache();
 
             // add the row to the cache (returning a new row containing identity)
-//            IdentityDefiner pkDefiner = null;
-//            cacheRow = cacheTable.addRow(cache, pkDefiner.defineIdentity(cacheRow), cacheRow);
+            cacheRow = cacheTable.addRow(cache, identityDefiner.defineIdentity(cacheRow), cacheRow);
             ctx.setCacheRow(cacheRow);
 
             // convert the global identity into a pk and assign the pk into the context
@@ -203,6 +207,6 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
     }
 
     private Object readResolve() {
-        return new CMPCreateMethod(beanClass, createSignature, postCreateSignature, cacheTable, localProxyTransform, remoteProxyTransform);
+        return new CMPCreateMethod(beanClass, createSignature, postCreateSignature, cacheTable, identityDefiner, localProxyTransform, remoteProxyTransform);
     }
 }

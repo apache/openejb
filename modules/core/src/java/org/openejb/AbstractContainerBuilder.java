@@ -47,15 +47,15 @@
  */
 package org.openejb;
 
-import java.util.LinkedHashMap;
 import java.util.Set;
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 import org.openejb.cache.InstanceFactory;
 import org.openejb.cache.InstancePool;
@@ -65,7 +65,6 @@ import org.openejb.dispatch.VirtualOperation;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.security.PermissionManager;
-import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.openejb.transaction.TransactionPolicyManager;
 import org.openejb.util.SoftLimitedInstancePool;
 
@@ -283,8 +282,6 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     protected SoftLimitedInstancePool createInstancePool(InstanceFactory instanceFactory) {
         return new SoftLimitedInstancePool(instanceFactory, 1);
     }
-
-    protected abstract LinkedHashMap buildVopMap(Class beanClass) throws Exception;
 
     private static Class loadOptionalClass(String className, ClassLoader classLoader) throws ClassNotFoundException {
         if (className == null) {

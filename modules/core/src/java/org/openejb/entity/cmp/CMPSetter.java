@@ -66,7 +66,7 @@ public class CMPSetter implements InstanceOperation {
     }
 
     public Object invokeInstance(CMPInstanceContext ctx, Object[] args) {
-        assert args.length != 1 : "CMPSetter must be passed exactally one argument:" +
+        assert args.length == 1 : "CMPSetter must be passed exactally one argument:" +
                 " fieldName=" + fieldName + ", args.length=" + args.length;
 
         CacheRow row = ctx.getCacheRow();

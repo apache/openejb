@@ -58,6 +58,8 @@ import net.sf.cglib.proxy.MethodProxy;
 import org.openejb.entity.EntityInstanceContext;
 import org.openejb.proxy.EJBProxyFactory;
 import org.tranql.cache.CacheRow;
+import org.tranql.cache.CacheTable;
+import org.tranql.cache.InTxCache;
 import org.tranql.identity.IdentityTransform;
 import org.tranql.identity.GlobalIdentity;
 
@@ -72,10 +74,12 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
     private final IdentityTransform primaryKeyTransform;
     private CacheRow cacheRow;
     private TransactionContext transactionContext;
+    private final CacheTable cacheTable;
 
-    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, InstanceOperation[] itable, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory) throws Exception {
+    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, InstanceOperation[] itable, CacheTable cacheTable, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory) throws Exception {
         super(containerId, proxyFactory);
         this.itable = itable;
+        this.cacheTable = cacheTable;
         this.primaryKeyTransform = primaryKeyTransform;
         instance = contextFactory.createCMPBeanInstance(this);
     }
@@ -108,10 +112,15 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
 
     public void associate() throws Exception {
         Object id = getId();
-        if (id != null && !isStateValid()) {
+        if (id != null) {
             // locate the cache row for this instance
             GlobalIdentity globalId = primaryKeyTransform.getGlobalIdentity(id);
-            cacheRow = transactionContext.getInTxCache().get(globalId);
+            InTxCache inTxCache = transactionContext.getInTxCache();
+            cacheRow = inTxCache.get(globalId);
+            if (cacheRow == null) {
+                cacheRow = cacheTable.newRow(globalId);
+                inTxCache.associate(cacheRow);
+            }
         }
         super.associate();
     }
