@@ -56,6 +56,7 @@ import javax.security.auth.Subject;
 
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -73,10 +74,12 @@ import org.openejb.proxy.ProxyInfo;
 public class MockEJBContainer implements EJBContainer {
     private final ProxyInfo proxyInfo;
     private final Class ejbClass;
+    private final Method[] methods;
 
     public MockEJBContainer() {
         this.proxyInfo = new ProxyInfo(EJBComponentType.STATELESS, "foo", MockHome.class, MockRemote.class, MockLocalHome.class, MockLocal.class, MockServiceEndpoint.class, null);
         ejbClass = MockEJB.class;
+        methods = ejbClass.getMethods();
     }
 
     public MockEJBContainer(URL ejbJarURL, String ejbName, String ejbClass, String home, String remote, String localHome, String local, String serviceEndpoint) {
@@ -84,9 +87,26 @@ public class MockEJBContainer implements EJBContainer {
         try {
             this.proxyInfo = new ProxyInfo(EJBComponentType.STATELESS, ejbName, cl.loadClass(home), cl.loadClass(remote), cl.loadClass(localHome), cl.loadClass(local), cl.loadClass(serviceEndpoint), null);
             this.ejbClass = cl.loadClass(ejbClass);
+            this.methods = this.ejbClass.getMethods();
         } catch (ClassNotFoundException e) {
             throw (IllegalStateException) new IllegalStateException("Could not initialize the MockEJBContainer").initCause(e);
         }
+    }
+
+    public int getMethodIndex(Method callMethod) {
+        Method ejbMethod = null;
+        try {
+            ejbMethod = ejbClass.getMethod(callMethod.getName(), callMethod.getParameterTypes());
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("Method does not exist in bean class: " + callMethod);
+        }
+
+        for (int i = 0; i < methods.length; i++) {
+            if (methods[i].equals(ejbMethod)) {
+                return i;
+            }
+        }
+        throw new IllegalArgumentException("Method does not exist in bean class: " + callMethod);
     }
 
     public Object getContainerID() {
@@ -118,6 +138,16 @@ public class MockEJBContainer implements EJBContainer {
 
         Object ejb = ejbClass.newInstance();
         return ejbMethod.invoke(ejb, args);
+    }
+
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
+        try {
+            org.openejb.EJBInvocation i = (org.openejb.EJBInvocation) invocation;
+            Object result = invoke(methods[i.getMethodIndex()], i.getArguments(), i.getId());
+            return new SimpleInvocationResult(true, result);
+        } catch (Throwable throwable) {
+            return new SimpleInvocationResult(false, throwable);
+        }
     }
 
     public String[] getJndiNames() {
@@ -152,19 +182,20 @@ public class MockEJBContainer implements EJBContainer {
         return null;
     }
 
-    public InvocationResult invoke(Invocation invocation) throws Throwable {
-        return null;
-    }
-
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MockEJBContainer.class);
 
-        infoFactory.addOperation("invoke", new Class[]{Invocation.class});
-        infoFactory.addOperation("invoke", new Class[]{Method.class, Object[].class, Object.class});
         infoFactory.addAttribute("EJBName", String.class, true);
         infoFactory.addAttribute("ProxyInfo", ProxyInfo.class, true);
+
+        infoFactory.addOperation("getMethodIndex", new Class[] {Method.class});
+        infoFactory.addOperation("getEJBObject", new Class[] {Object.class});
+        infoFactory.addOperation("getEJBLocalObject", new Class[] {Object.class});
+
+        infoFactory.addOperation("invoke", new Class[]{Invocation.class});
+        infoFactory.addOperation("invoke", new Class[]{Method.class, Object[].class, Object.class});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -71,6 +71,7 @@ public class MockEJBContainerGBean {
         infoFactory.addAttribute("localHome", String.class, true);
         infoFactory.addAttribute("local", String.class, true);
         infoFactory.addAttribute("serviceEndpoint", String.class, true);
+        infoFactory.addOperation("getMethodIndex", new Class[] {Method.class});
         infoFactory.addOperation("invoke", new Class[]{Invocation.class});
         infoFactory.addOperation("invoke", new Class[]{Method.class, Object[].class, Object.class});
         infoFactory.addAttribute("EJBName", String.class, true);

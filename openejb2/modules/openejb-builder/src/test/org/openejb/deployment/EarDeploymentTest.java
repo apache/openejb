@@ -56,6 +56,7 @@ import org.apache.geronimo.kernel.Kernel;
  * @version $Revision$ $Date$
  */
 public class EarDeploymentTest extends AbstractDeploymentTest {
+
     private static final DeploymentTestSuite SUITE =
             new DeploymentTestSuite(EarDeploymentTest.class, new File("target/test-ear.ear"));
 

@@ -65,7 +65,6 @@ public class EJBInvocationStream extends EJBRequest implements EJBInvocation {
     private final EJBInvocation invocationState = new EJBInvocationImpl();
     private EJBInterfaceType interfaceType;
 
-    private EJBProxyFactory ejbProxyFactory;
     private int methodIndex = -1;
 
     public EJBInvocationStream() {
@@ -76,17 +75,6 @@ public class EJBInvocationStream extends EJBRequest implements EJBInvocation {
         super(requestMethod);
     }
 
-    /**
-     * The EJBProxyFactory must be set before calling getMethodIndex.
-     *
-     * This method won't be needed in the long-run.  Eventually,
-     * the method index will be part of the protocol.
-     *
-     * @param EJBProxyFactory ejbProxyFactory
-     */
-    public void setProxyFactory(EJBProxyFactory ejbProxyFactory) {
-        this.ejbProxyFactory = ejbProxyFactory;
-    }
 
     public Object[] getArguments() {
         return getMethodParameters();
@@ -97,12 +85,6 @@ public class EJBInvocationStream extends EJBRequest implements EJBInvocation {
     }
 
     public int getMethodIndex() {
-        if (methodIndex < 0){
-            if (ejbProxyFactory == null){
-                throw new IllegalStateException("Must set the EJBProxyFactory before calling getMethodIndex.");
-            }
-            methodIndex = ejbProxyFactory.getMethodIndex(getMethodInstance());
-        }
         return methodIndex;
     }
 
@@ -218,5 +200,7 @@ public class EJBInvocationStream extends EJBRequest implements EJBInvocation {
         return invocationState.getTransactionContext();
     }
 
-
+    public void setMethodIndex(int methodIndex) {
+        this.methodIndex = methodIndex;
+    }
 }

@@ -50,6 +50,7 @@ import java.io.ObjectOutputStream;
 import java.io.NotSerializableException;
 import java.rmi.RemoteException;
 import java.util.Collection;
+import java.lang.reflect.Method;
 import javax.security.auth.Subject;
 import javax.ejb.Handle;
 
@@ -128,10 +129,13 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
         try {
             container = getContainer(req);
-            req.setProxyFactory(container.getProxyFactory());
             ClassLoader cl = container.getClassLoader();
             Thread.currentThread().setContextClassLoader(cl);
             in.setClassLoader(cl);
+
+            Method methodInstance = req.getMethodInstance();
+            int methodIndex = container.getMethodIndex(methodInstance);
+            req.setMethodIndex(methodIndex);
 
             /**
              * The identification principal contains the subject id.  Use this
