@@ -23,7 +23,7 @@
   </session>
   <session>
     <description>Allows the user to graphicly edit the OPENEJB_HOME/openejb.conf file</description>
-    <ejb-name>webadmin/ConfigBean</ejb-name>
+    <ejb-name>webadmin/Configuration</ejb-name>
     <home>org.openejb.admin.web.HttpHome</home>
     <remote>org.openejb.admin.web.HttpObject</remote>
     <ejb-class>org.openejb.admin.web.config.ConfigBean</ejb-class>
@@ -82,11 +82,20 @@
   </session>
   <session>
     <description>Holds the Openejb object in between HTTP requests</description>
-    <ejb-name>webadmin/ConfigurationData</ejb-name>
+    <ejb-name>config/webadmin/ConfigurationData</ejb-name>
     <home>org.openejb.admin.web.config.ConfigurationDataHome</home>
     <remote>org.openejb.admin.web.config.ConfigurationDataObject</remote>
     <ejb-class>org.openejb.admin.web.config.ConfigurationDataBean</ejb-class>
     <session-type>Stateful</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
+  <session>
+    <description>Allows the user to map CMP fields with database fields</description>
+    <ejb-name>webadmin/CMPMapping</ejb-name>
+    <home>org.openejb.admin.web.HttpHome</home>
+    <remote>org.openejb.admin.web.HttpObject</remote>
+    <ejb-class>org.openejb.admin.web.cmp.mapping.CMPMappingBean</ejb-class>
+    <session-type>Stateless</session-type>
     <transaction-type>Bean</transaction-type>
   </session>
 </enterprise-beans>

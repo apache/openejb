@@ -842,7 +842,7 @@ public class ConfigBean extends WebAdminBean {
 		//lookup the bean
 		try {
 			InitialContext ctx = new InitialContext(p);
-			Object obj = ctx.lookup("webadmin/ConfigurationData");
+			Object obj = ctx.lookup("config/webadmin/ConfigurationData");
 			//create a new instance
 			ConfigurationDataHome home =
 				(ConfigurationDataHome) PortableRemoteObject.narrow(obj, ConfigurationDataHome.class);

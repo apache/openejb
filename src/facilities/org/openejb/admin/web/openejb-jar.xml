@@ -9,7 +9,7 @@
         deployment-id="webadmin/DefaultBean"
         container-id="Default Stateless Container"/>
     <ejb-deployment 
-        ejb-name="webadmin/ConfigBean" 
+        ejb-name="webadmin/Configuration" 
         deployment-id="webadmin/Configuration"
         container-id="Default Stateless Container"/>
     <ejb-deployment 
@@ -33,7 +33,11 @@
         deployment-id="deploy/webadmin/Deployer"
         container-id="Default Stateful Container"/>
     <ejb-deployment 
-        ejb-name="webadmin/ConfigurationData" 
-        deployment-id="webadmin/ConfigurationData"
+        ejb-name="config/webadmin/ConfigurationData" 
+        deployment-id="config/webadmin/ConfigurationData"
         container-id="Default Stateful Container"/>
+    <ejb-deployment 
+        ejb-name="webadmin/CMPMapping" 
+        deployment-id="webadmin/CMPMapping"
+        container-id="Default Stateless Container"/>
 </openejb-jar>
