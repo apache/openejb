@@ -62,6 +62,10 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.Collection;
+import java.util.ArrayList;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.transaction.UserTransaction;
@@ -72,8 +76,9 @@ import org.apache.geronimo.deployment.model.ejb.CmpField;
 import org.apache.geronimo.deployment.model.ejb.Ejb;
 import org.apache.geronimo.deployment.model.ejb.RpcBean;
 import org.apache.geronimo.deployment.model.ejb.CmrField;
-import org.apache.geronimo.deployment.model.ejb.EjbRelation;
-import org.apache.geronimo.deployment.model.ejb.Relationships;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelation;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Relationships;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelationshipRole;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
@@ -218,12 +223,35 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
             plan.addTask(new StartMBeanInstance(getServer(), schemaMetadata));
         }
 
-        Relationships relationships = ejbJar.getRelationships();
+        //Construct an ejb-name to abstract-schema-name map.
+        HashMap ejbNameToAbstractSchemaNameMap = new HashMap();
+        for (int i = 0; i < enterpriseBeans.getGeronimoEntity().length; i++) {
+            Entity entity = enterpriseBeans.getGeronimoEntity()[i];
+            if (entity.getPersistenceType().equals("Container")) {
+                String ejbName = entity.getEJBName();
+                String abstractSchemaName = entity.getAbstractSchemaName();
+                ejbNameToAbstractSchemaNameMap.put(ejbName, abstractSchemaName);
+            }
+        }
+
+        //As we process the relationships, we store them in a collection.
+        //These collections are kept in a map indexed by ejb-name
+
+        HashMap ejbNameToRelationshipRoleCollectionMap = new HashMap();
+        Relationships relationships = ejbJar.getGeronimoRelationships();
         if (relationships != null) {
-            EjbRelation[] ejbRelations = relationships.getEjbRelation();
+            EjbRelation[] ejbRelations = relationships.getGeronimoEjbRelation();
             for (int i = 0; i < ejbRelations.length; i++) {
                 EjbRelation ejbRelation = ejbRelations[i];
-
+                assert ejbRelation.getEjbRelationshipRole().length == 2;
+                String leftEjbName = ejbRelation.getEjbRelationshipRole(0).getRelationshipRoleSource().getEjbName();
+                String leftAbstractSchemaName = (String)ejbNameToAbstractSchemaNameMap.get(leftEjbName);
+                String rightEjbName = ejbRelation.getEjbRelationshipRole(1).getRelationshipRoleSource().getEjbName();
+                String rightAbstractSchemaName = (String)ejbNameToAbstractSchemaNameMap.get(rightEjbName);
+                CMRelation leftCMRelation = getCMRelation(ejbRelation.getGeronimoEjbRelationshipRole(0), rightAbstractSchemaName);
+                CMRelation rightCMRelation = getCMRelation(ejbRelation.getGeronimoEjbRelationshipRole(1), leftAbstractSchemaName);
+                mapCMRelation(leftEjbName, leftCMRelation, ejbNameToRelationshipRoleCollectionMap);
+                mapCMRelation(rightEjbName, rightCMRelation, ejbNameToRelationshipRoleCollectionMap);
             }
         }
 
@@ -232,13 +260,35 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
             Entity entity = enterpriseBeans.getGeronimoEntity()[i];
             if (entity.getPersistenceType().equals("Container")) {
                 assert datasourceName != null;
-                planCMPEntity(plan, entity, schemaTask, deploymentUnitName, classSpaceMetaData, baseURI);
+                Collection rels = (Collection)ejbNameToRelationshipRoleCollectionMap.get(entity.getEJBName());
+                CMRelation[] cmRelation;
+                if (rels == null) {
+                    cmRelation = new CMRelation[0];
+                } else {
+                    cmRelation = (CMRelation[])rels.toArray(new CMRelation[rels.size()]);
+                }
+                planCMPEntity(plan, entity, cmRelation, schemaTask, deploymentUnitName, classSpaceMetaData, baseURI);
             } else {
                 planBMPEntity(plan, entity, deploymentUnitName, classSpaceMetaData, baseURI);
             }
         }
         plans.add(plan);
         return true;
+    }
+
+    private void mapCMRelation(String ejbName, CMRelation cmRelation, HashMap ejbNameToRelationshipRoleCollectionMap) {
+        Collection roles = (Collection)ejbNameToRelationshipRoleCollectionMap.get(ejbName);
+        if (roles == null) {
+            roles = new ArrayList();
+            ejbNameToRelationshipRoleCollectionMap.put(ejbName, roles);
+        }
+        roles.add(cmRelation);
+    }
+
+    private CMRelation getCMRelation(EjbRelationshipRole ejbRelationshipRole, String abstractSchemaName) {
+        String name = ejbRelationshipRole.getCmrField().getCmrFieldName();
+        boolean cascadeDelete = ejbRelationshipRole.isCascadeDelete();
+        return new CMRelation(name, abstractSchemaName, cascadeDelete);
     }
 
     private void planBMPEntity(DeploymentPlan plan, Entity entity, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
@@ -252,7 +302,13 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
         addTasks(plan, ejbMetadata);
     }
 
-    private void planCMPEntity(DeploymentPlan plan, Entity entity, DeploySchemaMBean schemaTask, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
+    private void planCMPEntity(DeploymentPlan plan,
+                               Entity entity,
+                               CMRelation[] cmRelations,
+                               DeploySchemaMBean schemaTask,
+                               ObjectName deploymentUnitName,
+                               ClassSpaceMetadata classSpaceMetaData,
+                               URI baseURI) throws DeploymentException {
         MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
         ejbMetadata.setName(getContainerName(entity));
         ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getCMPEntityGeronimoMBeanInfo());
@@ -267,16 +323,14 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
             cmpFieldNames[i] = field.getFieldName();
         }
 
-        CmrField cmrFields = null;
-
-
         plan.addTask(new DeployCMPEntityContainer(getServer(),
                 ejbMetadata,
                 schemaTask,
                 config,
                 queries,
                 updates,
-                cmpFieldNames));
+                cmpFieldNames,
+                cmRelations));
         plan.addTask(new StartMBeanInstance(getServer(), ejbMetadata));
 
     }

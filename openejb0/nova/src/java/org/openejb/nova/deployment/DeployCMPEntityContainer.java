@@ -88,6 +88,7 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
     private final Query[] queries;
     private final Query[] updates;
     private final String[] cmpFieldNames;
+    private final CMRelation[] cmRelations;
 
 
     public DeployCMPEntityContainer(MBeanServer server,
@@ -96,13 +97,15 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
                                     EntityContainerConfiguration config,
                                     Query[] queries,
                                     Query[] updates,
-                                    String[] cmpFieldNames) {
+                                    String[] cmpFieldNames,
+                                    CMRelation[] cmRelations) {
         super(server, metadata);
         this.schemaFactory = schemaFactory;
         this.config = config;
         this.queries = queries;
         this.updates = updates;
         this.cmpFieldNames = cmpFieldNames;
+        this.cmRelations = cmRelations;
     }
 
     public void perform() throws DeploymentException {
@@ -150,7 +153,7 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
                     schema,
                     cmpQueries,
                     cmpFieldNames,
-                    new CMRelation[0]);
+                    cmRelations);
             GeronimoMBeanInfo mbeanInfo = metadata.getGeronimoMBeanInfo();
             mbeanInfo.setTarget(container);
             super.perform();

@@ -66,8 +66,9 @@ public class CMRelation {
     private final boolean cascadeDelete;
     private final String schemaName;
 
+
     public CMRelation(String name, String schemaName, boolean cascadeDelete) {
-        this.name = name;
+        this.name = name;//cmr field name
         this.schemaName = schemaName;
         this.cascadeDelete = cascadeDelete;
     }
@@ -83,4 +84,5 @@ public class CMRelation {
     public String getSchemaName() {
         return schemaName;
     }
+
 }
