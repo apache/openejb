@@ -80,10 +80,6 @@ public class ThreadContext implements Cloneable {
      */
     protected byte currentOperation;
     /**
-     * TODO: Add comment
-     */
-    protected Object securityIdentity;
-    /**
      * Unspecified is any object that a customer container may want to 
      * attach to the current thread context. (e.g. CastorCMP11_EntityContainer
      * attaches a JDO Database object to the thread.
@@ -144,7 +140,6 @@ public class ThreadContext implements Cloneable {
         deploymentInfo = null;
         primaryKey = null;
         currentOperation = (byte)0;
-        securityIdentity = null;
         unspecified = null;
     }
     /**
@@ -211,14 +206,6 @@ public class ThreadContext implements Cloneable {
      * 
      * @return 
      */
-    public Object getSecurityIdentity( ) {
-        return securityIdentity;
-    }
-    /**
-     * TODO: Add comment
-     * 
-     * @return 
-     */
     public Object getUnspecified() {
         return unspecified;
     }
@@ -228,12 +215,10 @@ public class ThreadContext implements Cloneable {
      * 
      * @param di
      * @param primKey
-     * @param securityIdentity
      */
-    public void set(DeploymentInfo di, Object primKey, Object securityIdentity) {
+    public void set(DeploymentInfo di, Object primKey) {
         setDeploymentInfo(di);
         setPrimaryKey(primKey);
-        setSecurityIdentity(securityIdentity);
         valid = true;
     }
     /**
@@ -252,15 +237,6 @@ public class ThreadContext implements Cloneable {
      */
     public void setPrimaryKey(Object primKey) {
         primaryKey = primKey;
-        valid = true;
-    }
-    /**
-     * TODO: Add comment
-     * 
-     * @param identity
-     */
-    public void setSecurityIdentity(Object identity) {
-        securityIdentity = identity;
         valid = true;
     }
     /**

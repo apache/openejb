@@ -135,7 +135,7 @@ public class StatefulEjbObjectHandler extends EjbObjectProxyHandler {
     
     protected Object remove(Method method, Object[] args, Object proxy) throws Throwable{
         checkAuthorization(method);
-        Object value = container.invoke(deploymentID, method, args, primaryKey, getThreadSpecificSecurityIdentity());
+        Object value = container.invoke(deploymentID, method, args, primaryKey);
         // invalidates all the handler's associated with the same bean identity
         invalidateAllHandlers(getRegistryId());
         return value;

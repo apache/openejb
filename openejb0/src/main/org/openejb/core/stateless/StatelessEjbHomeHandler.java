@@ -100,7 +100,7 @@ public class StatelessEjbHomeHandler extends EjbHomeProxyHandler {
      * 
      * Session objects are intended to be private resources used only by the
      * client that created them. For this reason, session objects, from the
-     * client’s perspective, appear anonymous. In contrast to entity objects,
+     * clientï¿½s perspective, appear anonymous. In contrast to entity objects,
      * which expose their identity as a primary key, session objects hide their
      * identity. As a result, the EJBObject.getPrimaryKey() and
      * EJBHome.remove(Object primaryKey) methods result in a java.rmi.RemoteException
@@ -137,7 +137,7 @@ public class StatelessEjbHomeHandler extends EjbHomeProxyHandler {
             stub=null;
         }
         // invoke the remove on the container
-        container.invoke(deploymentID, method, args, primKey, ThreadContext.getThreadContext().getSecurityIdentity());
+        container.invoke(deploymentID, method, args, primKey);
         if(stub!=null) {
         stub.invalidateReference();
         }

@@ -479,24 +479,23 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      * @param callMethod the method to be called on the bean instance
      * @param args the arguments to use when invoking the specified method
      * @param primKey the primary key class of the bean or null if the bean does not need a primary key
-     * @param securityIdentity
      * @return the result of invoking the specified method on the bean instance
      * @throws org.openejb.OpenEJBException
      * @see org.openejb.RpcContainer#invoke
      * @see org.openejb.core.stateful.StatefulContainer#invoke StatefulContainer.invoke
      */
-    public Object invoke( Object deployID, Method callMethod, Object[] args, Object primKey, Object securityIdentity )
+    public Object invoke( Object deployID, Method callMethod, Object[] args, Object primKey)
     throws org.openejb.OpenEJBException {
         postInit();
         try {
             org.openejb.core.DeploymentInfo deployInfo = ( org.openejb.core.DeploymentInfo ) this.getDeploymentInfo( deployID );
 
             ThreadContext callContext = ThreadContext.getThreadContext();
-            callContext.set( deployInfo, primKey, securityIdentity );
+            callContext.set( deployInfo, primKey);
 
             // check authorization to invoke
 
-            boolean authorized = OpenEJB.getSecurityService().isCallerAuthorized( securityIdentity, deployInfo.getAuthorizedRoles( callMethod ) );
+            boolean authorized = OpenEJB.getSecurityService().isCallerAuthorized(deployInfo.getAuthorizedRoles( callMethod ) );
             if ( !authorized )
                 throw new org.openejb.ApplicationException( new RemoteException( "Unauthorized Access by Principal Denied" ) );
 

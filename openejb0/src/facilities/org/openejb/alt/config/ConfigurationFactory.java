@@ -258,7 +258,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         mthdPermInfos.copyInto(sys.containerSystem.methodPermissions);
         mthdTranInfos.copyInto(sys.containerSystem.methodTransactions);
 
-        initSecutityService(openejb, sys.facilities);
+        initSecurityService(openejb, sys.facilities);
 
         return sys;
     }
@@ -309,7 +309,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         }
     }
 
-    private void initSecutityService(Openejb openejb, FacilitiesInfo facilities)
+    private void initSecurityService(Openejb openejb, FacilitiesInfo facilities)
     throws OpenEJBException {
         SecurityService ss = openejb.getSecurityService();
 

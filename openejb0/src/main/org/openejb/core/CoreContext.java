@@ -113,8 +113,7 @@ public abstract class CoreContext implements java.io.Serializable {
      */
     public java.security.Principal getCallerPrincipal() {
         checkBeanState(SECURITY_METHOD);
-        Object securityIdentity = ThreadContext.getThreadContext().getSecurityIdentity();
-        return(java.security.Principal)OpenEJB.getSecurityService().translateTo(securityIdentity, java.security.Principal.class);
+        return OpenEJB.getSecurityService().getCalledPrincipal();
     }
     /**
      * TODO: Add comments
@@ -127,8 +126,7 @@ public abstract class CoreContext implements java.io.Serializable {
         ThreadContext threadContext = ThreadContext.getThreadContext();
         org.openejb.core.DeploymentInfo di = (org.openejb.core.DeploymentInfo)threadContext.getDeploymentInfo();
         String physicalRoles [] = di.getPhysicalRole(roleName);
-        Object caller = threadContext.getSecurityIdentity();
-        return  OpenEJB.getSecurityService().isCallerAuthorized(caller,physicalRoles);
+        return  OpenEJB.getSecurityService().isCallerAuthorized(physicalRoles);
     }
     /**
      * TODO: Add comments

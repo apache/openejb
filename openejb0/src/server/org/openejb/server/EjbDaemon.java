@@ -721,8 +721,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
-                                  req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  req.getPrimaryKey());
 
         if (result instanceof ProxyInfo) {
             ProxyInfo info = (ProxyInfo)result;
@@ -754,8 +753,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
-                                  req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  req.getPrimaryKey());
 
         if (result instanceof ProxyInfo) {
             ProxyInfo info = (ProxyInfo)result;
@@ -778,28 +776,28 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
      *
      * Some finder methods (such as ejbFindByPrimaryKey) are designed to return
      * at most one entity object. For these single-object finders, the result type
-     * of the find<METHOD>(...)method defined in the entity bean’s home interface
-     * is the entity bean’s remote interface. The result type of the corresponding
-     * ejbFind<METHOD>(...) method defined in the entity’s implementation class is
-     * the entity bean’s primary key type.
+     * of the find<METHOD>(...)method defined in the entity beanï¿½s home interface
+     * is the entity beanï¿½s remote interface. The result type of the corresponding
+     * ejbFind<METHOD>(...) method defined in the entityï¿½s implementation class is
+     * the entity beanï¿½s primary key type.
      *
      * 9.1.8.2 Multi-object finders
      *
      * Some finder methods are designed to return multiple entity objects. For
      * these multi-object finders, the result type of the find<METHOD>(...)method
-     * defined in the entity bean’s home interface is a col-lection of objects
-     * implementing the entity bean’s remote interface. The result type of the
+     * defined in the entity beanï¿½s home interface is a col-lection of objects
+     * implementing the entity beanï¿½s remote interface. The result type of the
      * corresponding ejbFind<METHOD>(...) implementation method defined in the
-     * entity bean’s implementation class is a collection of objects of the entity
-     * bean’s primary key type.
+     * entity beanï¿½s implementation class is a collection of objects of the entity
+     * beanï¿½s primary key type.
      *
      * The Bean Provider can choose two types to define a collection type for a finder:
-     * • the JDK™ 1.1 java.util.Enumeration interface
-     * • the Java™ 2 java.util.Collection interface
+     * ï¿½ the JDKï¿½ 1.1 java.util.Enumeration interface
+     * ï¿½ the Javaï¿½ 2 java.util.Collection interface
      *
      * A Bean Provider that wants to ensure that the entity bean is compatible
      * with containers and clients based on JDK TM 1.1 software must use the
-     * java.util.Enumeration interface for the finder’s result type.
+     * java.util.Enumeration interface for the finderï¿½s result type.
      * </P>
      *
      * @param req
@@ -815,8 +813,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
-                                  req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  req.getPrimaryKey());
 
 
         /* Multiple instances found */
@@ -870,8 +867,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
-                                  req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  req.getPrimaryKey());
 
         res.setResponse( EJB_OK, null);
     }
@@ -893,8 +889,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
-                                  req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  req.getPrimaryKey());
 
         res.setResponse( EJB_OK, null);
     }
@@ -907,8 +902,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
-                                  req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  req.getPrimaryKey());
 
         res.setResponse( EJB_OK, null);
     }
@@ -923,7 +917,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         DeploymentInfo di   = caller.getDeploymentInfo();
         String[] authRoles  = di.getAuthorizedRoles( req.getMethodInstance() );
 
-        if (sec.isCallerAuthorized( req.getClientIdentity(), authRoles )) {
+        if (sec.isCallerAuthorized(authRoles )) {
             res.setResponse( EJB_OK, null );
         } else {
             logger.info(req + "Unauthorized Access by Principal Denied");
