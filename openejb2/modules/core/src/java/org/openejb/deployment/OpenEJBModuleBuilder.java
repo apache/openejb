@@ -368,7 +368,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         EJBSchema ejbSchema = new EJBSchema(module.getName());
         DataSourceDelegate delegate = new DataSourceDelegate();
         SQL92Schema sqlSchema = new SQL92Schema(module.getName(), delegate);
-        GBeanMBean ejbModuleGBean = new GBeanMBean(EJBModuleImpl.GBEAN_INFO);
+        GBeanMBean ejbModuleGBean = new GBeanMBean(EJBModuleImpl.GBEAN_INFO, cl);
         try {
             ejbModuleGBean.setReferencePatterns("J2EEServer", Collections.singleton(earContext.getServerObjectName()));
             if (!earContext.getJ2EEApplicationName().equals("null")) {

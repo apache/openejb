@@ -157,7 +157,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
 
         // get the bean classes
-        Class beanClass = getClassLoader().loadClass(getBeanClassName());
+        ClassLoader classLoader = getClassLoader();
+        Class beanClass = classLoader.loadClass(getBeanClassName());
 
         EJBProxyFactory proxyFactory = (EJBProxyFactory) ejb.getProxyFactory();
 
@@ -196,7 +197,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             String[] parameterTypes = signature.getParameterTypes();
             FieldTransform[] parameterTransforms = new FieldTransform[parameterTypes.length];
             for (int i = 0; i < parameterTransforms.length; i++) {
-                parameterTransforms[i] = new FieldAccessor(i, ClassLoading.loadClass(parameterTypes[i], getClassLoader()));
+                parameterTransforms[i] = new FieldAccessor(i, ClassLoading.loadClass(parameterTypes[i], classLoader));
             }
 
             // Local Proxy Results
@@ -252,7 +253,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         if (buildContainer) {
             return createContainer(signatures, contextFactory, interceptorBuilder, pool);
         } else {
-            return createConfiguration(signatures, contextFactory, interceptorBuilder, pool);
+            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool);
         }
     }
 

@@ -89,7 +89,7 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
         if (buildContainer) {
             return createContainer(signatures, contextFactory, interceptorBuilder, pool);
         } else {
-            return createConfiguration(signatures, contextFactory, interceptorBuilder, pool);
+            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool);
         }
     }
 
