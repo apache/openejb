@@ -49,7 +49,6 @@ package org.openejb.deployment;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -104,9 +103,9 @@ import org.tranql.ejb.CMPFieldFaultTransform;
 import org.tranql.ejb.CMPFieldTransform;
 import org.tranql.ejb.CMRField;
 import org.tranql.ejb.EJB;
-import org.tranql.ejb.EJBQLQuery;
 import org.tranql.ejb.EJBQueryBuilder;
 import org.tranql.ejb.EJBSchema;
+import org.tranql.ejb.FinderEJBQLQuery;
 import org.tranql.ejb.LocalProxyTransform;
 import org.tranql.ejb.ManyToManyCMR;
 import org.tranql.ejb.ManyToOneCMR;
@@ -115,6 +114,7 @@ import org.tranql.ejb.MultiValuedCMRFaultHandler;
 import org.tranql.ejb.OneToManyCMR;
 import org.tranql.ejb.OneToOneCMR;
 import org.tranql.ejb.RemoteProxyTransform;
+import org.tranql.ejb.SelectEJBQLQuery;
 import org.tranql.ejb.SingleValuedCMRAccessor;
 import org.tranql.ejb.SingleValuedCMRFaultHandler;
 import org.tranql.ejb.TransactionManagerDelegate;
@@ -256,14 +256,16 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         QueryCommand remoteProxyLoad = mapper.transform(remoteProxyLoadView.getQueryCommand());
         remoteProxyLoadView = new QueryCommandView(remoteProxyLoad, remoteProxyLoadView.getView());
 
-        finders.put(new InterfaceMethodSignature("findByPrimaryKey",
-                new String[]{getPrimaryKeyClassName()}, true),
-                new QueryCommandView[]{localProxyLoadView, remoteProxyLoadView});
+        FinderEJBQLQuery pkFinder = new FinderEJBQLQuery("findByPrimaryKey", new Class[] {ejb.getPrimaryKeyClass()}, "UNDEFINED");
+        FinderEJBQLQuery previousPkFinder = (FinderEJBQLQuery) finders.put(pkFinder, new QueryCommandView[]{localProxyLoadView, remoteProxyLoadView});
+        if (null != previousPkFinder) {
+            pkFinder.setFlushCacheBeforeQuery(previousPkFinder.isFlushCacheBeforeQuery());
+        }
 
         // build the instance factory
         LinkedHashMap cmpFieldAccessors = createCMPFieldAccessors(faultHandler);
         LinkedHashMap cmrFieldAccessors = createCMRFieldAccessors();
-        LinkedHashMap selects = createSelects(ejb);
+        Map selects = createSelects(ejb);
         Map instanceMap = null;
         CMP1Bridge cmp1Bridge = null;
         if (cmp2) {
@@ -307,31 +309,15 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     private Map createFinders(EJB ejb) throws Exception {
         EJBQLToPhysicalQuery toPhysicalQuery = new EJBQLToPhysicalQuery(ejbSchema, sqlSchema, globalSchema);
 
-        IdentityHashMap findersMap = toPhysicalQuery.buildFinders(ejb);
-        return createEJBQLQueryMap(findersMap);
+        return toPhysicalQuery.buildFinders(ejb);
     }
     
-    private LinkedHashMap createSelects(EJB ejb) throws Exception {
+    private Map createSelects(EJB ejb) throws Exception {
         EJBQLToPhysicalQuery toPhysicalQuery = new EJBQLToPhysicalQuery(ejbSchema, sqlSchema, globalSchema);
 
-        IdentityHashMap selectsMap = toPhysicalQuery.buildSelects(ejb);
-        return createEJBQLQueryMap(selectsMap);
+        return toPhysicalQuery.buildSelects(ejb);
     }
 
-    private LinkedHashMap createEJBQLQueryMap(Map ejbQLMap) {
-        LinkedHashMap queryCommands = new LinkedHashMap();
-        
-        for (Iterator iter = ejbQLMap.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry entry = (Map.Entry) iter.next();
-            EJBQLQuery ejbQLQuery = (EJBQLQuery) entry.getKey();
-            
-            MethodSignature signature = new MethodSignature(ejbQLQuery.getMethodName(), ejbQLQuery.getParameterTypes());
-            queryCommands.put(new InterfaceMethodSignature(signature, true), entry.getValue());
-        }
-        
-        return queryCommands;
-    }
-    
     private LinkedHashMap createCMPFieldAccessors(FaultHandler faultHandler) {
         List attributes = ejb.getAttributes();
         List virtualAttributes = ejb.getVirtualCMPFields();
@@ -436,7 +422,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 new ReferenceAccessor(relatedIdentityDefiner));
     }
 
-    private Map buildInstanceMap(Class beanClass, LinkedHashMap cmpFields, LinkedHashMap cmrFields, LinkedHashMap selects) {
+    private Map buildInstanceMap(Class beanClass, LinkedHashMap cmpFields, LinkedHashMap cmrFields, Map selects) {
         Map instanceMap;
         instanceMap = new HashMap();
 
@@ -471,10 +457,12 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
-    private void addSelects(Map instanceMap, Class beanClass, LinkedHashMap selects) throws IllegalArgumentException {
+    private void addSelects(Map instanceMap, Class beanClass, Map selects) throws IllegalArgumentException {
         for (Iterator iterator = selects.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
-            InterfaceMethodSignature signature = (InterfaceMethodSignature) entry.getKey();
+            SelectEJBQLQuery query = (SelectEJBQLQuery) entry.getKey();
+            
+            InterfaceMethodSignature signature = new InterfaceMethodSignature(query.getMethodName(), query.getParameterTypes(), true);
             QueryCommandView view = (QueryCommandView) entry.getValue();
 
             Method method = signature.getMethod(beanClass);
@@ -485,11 +473,11 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             
             String returnType = method.getReturnType().getName();
             if (returnType.equals("java.util.Collection")) {
-                instanceMap.put(methodSignature, new CollectionValuedSelect(view));
+                instanceMap.put(methodSignature, new CollectionValuedSelect(view, query.isFlushCacheBeforeQuery()));
             } else if (returnType.equals("java.util.Set")) {
-                instanceMap.put(methodSignature, new SetValuedSelect(view));
+                instanceMap.put(methodSignature, new SetValuedSelect(view, query.isFlushCacheBeforeQuery()));
             } else {
-                instanceMap.put(methodSignature, new SingleValuedSelect(view));
+                instanceMap.put(methodSignature, new SingleValuedSelect(view, query.isFlushCacheBeforeQuery()));
             }
         }
     }
@@ -607,7 +595,9 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         Class localHomeInterface = proxyInfo.getLocalHomeInterface();
         for (Iterator iterator = finders.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
-            InterfaceMethodSignature signature = (InterfaceMethodSignature) entry.getKey();
+            FinderEJBQLQuery query = (FinderEJBQLQuery) entry.getKey();
+            
+            InterfaceMethodSignature signature = new InterfaceMethodSignature(query.getMethodName(), query.getParameterTypes(), true);
             QueryCommandView[] views = (QueryCommandView[]) entry.getValue();
 
             Method method = signature.getMethod(homeInterface);
@@ -620,13 +610,13 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
             String returnType = method.getReturnType().getName();
             if (returnType.equals("java.util.Collection")) {
-                vopMap.put(signature, new CollectionValuedFinder(views[0], views[1]));
+                vopMap.put(signature, new CollectionValuedFinder(views[0], views[1], query.isFlushCacheBeforeQuery()));
             } else if (returnType.equals("java.util.Set")) {
-                vopMap.put(signature, new SetValuedFinder(views[0], views[1]));
+                vopMap.put(signature, new SetValuedFinder(views[0], views[1], query.isFlushCacheBeforeQuery()));
             } else if (returnType.equals("java.util.Enumeration")) {
-                vopMap.put(signature, new EnumerationValuedFinder(views[0], views[1]));
+                vopMap.put(signature, new EnumerationValuedFinder(views[0], views[1], query.isFlushCacheBeforeQuery()));
             } else {
-                vopMap.put(signature, new SingleValuedFinder(views[0], views[1]));
+                vopMap.put(signature, new SingleValuedFinder(views[0], views[1], query.isFlushCacheBeforeQuery()));
             }
         }
         

@@ -42,61 +42,18 @@
  *
  * $Id$
  */
-package org.openejb.test.entity.bmp;
+package org.openejb.test.entity.cmp;
 
-import java.util.Properties;
-import javax.naming.Context;
-import javax.naming.InitialContext;
+import java.rmi.RemoteException;
 
-import org.openejb.test.TestManager;
+import javax.ejb.CreateException;
+
 
 /**
  * 
  */
-public class BmpTestSuite extends org.openejb.test.TestSuite {
+public interface SessionFacadeHome extends javax.ejb.EJBHome {
 
-    public BmpTestSuite() {
-        super();
-        this.addTest(new BmpJndiTests());
-        this.addTest(new BmpHomeIntfcTests());
-        this.addTest(new BmpEjbHomeTests());
-        this.addTest(new BmpEjbObjectTests());
-        this.addTest(new BmpRemoteIntfcTests());
-        this.addTest(new BmpHomeHandleTests());
-        this.addTest(new BmpHandleTests());
-        this.addTest(new BmpEjbMetaDataTests());
-        this.addTest(new BmpAllowedOperationsTests());
-        this.addTest(new BmpJndiEncTests());
-        this.addTest(new BmpRmiIiopTests());
+    public SessionFacadeObject create() throws CreateException, RemoteException;
 
-    }
-
-    public static junit.framework.Test suite() {
-        return new BmpTestSuite();
-    }
-
-    /**
-     * Sets up the fixture, for example, open a network connection.
-     * This method is called before a test is executed.
-     */
-    protected void setUp() throws Exception {
-        Properties props = TestManager.getServer().getContextEnvironment();
-        props.put(Context.SECURITY_PRINCIPAL, "ENTITY_TEST_CLIENT");
-        props.put(Context.SECURITY_CREDENTIALS, "ENTITY_TEST_CLIENT");
-        InitialContext initialContext = new InitialContext(props);
-        
-        /*[2] Create database table */
-        TestManager.getDatabase().createEntityTable();
-        TestManager.getDatabase().createEntityExplicitePKTable();
-    }
-
-    /**
-     * Tears down the fixture, for example, close a network connection.
-     * This method is called after a test is executed.
-     */
-    protected void tearDown() throws Exception {
-        /*[1] Drop database table */
-        TestManager.getDatabase().dropEntityTable();
-        TestManager.getDatabase().dropEntityExplicitePKTable();
-    }
 }

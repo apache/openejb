@@ -64,12 +64,18 @@ import org.tranql.query.QueryCommandView;
  */
 public class SetValuedSelect implements InstanceOperation {
     private final QueryCommandView commandView;
+    private final boolean flushCache;
 
-    public SetValuedSelect(QueryCommandView commandView) {
+    public SetValuedSelect(QueryCommandView commandView, boolean flushCache) {
         this.commandView = commandView;
+        this.flushCache = flushCache;
     }
     
     public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
+        if (flushCache) {
+            ctx.getTransactionContext().getInTxCache().flush();
+        }
+
         Set results = new HashSet();
         try {
             CollectionResultHandler handler = new CollectionResultHandler(commandView.getView()[0]);

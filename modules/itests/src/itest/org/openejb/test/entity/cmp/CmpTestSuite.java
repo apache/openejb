@@ -68,6 +68,7 @@ public class CmpTestSuite extends org.openejb.test.TestSuite {
         this.addTest(new CmpAllowedOperationsTests());
         this.addTest(new CmpJndiEncTests());
         this.addTest(new CmpRmiIiopTests());
+        this.addTest(new CmpTransactionTests());
 
     }
 
@@ -87,6 +88,7 @@ public class CmpTestSuite extends org.openejb.test.TestSuite {
         
         /*[2] Create database table */
         TestManager.getDatabase().createEntityTable();
+        TestManager.getDatabase().createEntityExplicitePKTable();
     }
 
     /**
@@ -96,5 +98,6 @@ public class CmpTestSuite extends org.openejb.test.TestSuite {
     protected void tearDown() throws Exception {
         /*[1] Drop database table */
         TestManager.getDatabase().dropEntityTable();
+        TestManager.getDatabase().dropEntityExplicitePKTable();
     }
 }

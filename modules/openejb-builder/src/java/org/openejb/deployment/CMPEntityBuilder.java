@@ -337,6 +337,8 @@ class CMPEntityBuilder extends EntityBuilder {
     }
 
     private void processQuery(EJB ejb, EntityBeanType entityBean, OpenejbEntityBeanType openEjbEntity, ClassLoader cl) throws DeploymentException {
+        Map queries = new HashMap();
+        
         QueryType[] queryTypes = entityBean.getQueryArray();
         if (null != queryTypes) {
             for (int i = 0; i < queryTypes.length; i++) {
@@ -358,7 +360,9 @@ class CMPEntityBuilder extends EntityBuilder {
                 }
                 String ejbQL = queryType.getEjbQl().getStringValue();
                 if (methodName.startsWith("find")) {
-                    ejb.addFinder(new FinderEJBQLQuery(methodName, parameterTypes, ejbQL));
+                    FinderEJBQLQuery query = new FinderEJBQLQuery(methodName, parameterTypes, ejbQL);
+                    ejb.addFinder(query);
+                    queries.put(query, query);
                 } else if (methodName.startsWith("ejbSelect")) {
                     boolean isLocal = true;
                     if (queryType.isSetResultTypeMapping()) {
@@ -367,13 +371,15 @@ class CMPEntityBuilder extends EntityBuilder {
                             isLocal = false;
                         }
                     }
-                    ejb.addSelect(new SelectEJBQLQuery(methodName, parameterTypes, ejbQL, isLocal));
+                    SelectEJBQLQuery query = new SelectEJBQLQuery(methodName, parameterTypes, ejbQL, isLocal); 
+                    ejb.addSelect(query);
+                    queries.put(query, query);
                 } else {
-                    throw new DeploymentException("EJB [" + ejb.getName() + "] is misconfigured: method " +
-                            methodName + " is neiher a finder nor a select.");
+                    throw new DeploymentException("Method " + methodName + " is neiher a finder nor a select.");
                 }
             }
         }
+        
         OpenejbQueryType[] openejbQueryTypes = openEjbEntity.getQueryArray();
         if (null != openejbQueryTypes) {
             for (int i = 0; i < openejbQueryTypes.length; i++) {
@@ -393,9 +399,26 @@ class CMPEntityBuilder extends EntityBuilder {
                         }
                     }
                 }
-                String ejbQL = openejbQueryType.getEjbQl();
+
+                boolean flushCacheBeforeQuery = openejbQueryType.isSetFlushCacheBeforeQuery();
+                String ejbQL = null;
+                if (openejbQueryType.isSetEjbQl()) {
+                    ejbQL = openejbQueryType.getEjbQl();
+                } else if (false == flushCacheBeforeQuery) {
+                    throw new DeploymentException("No ejb-ql defined and flush-cache-before-query not set. method " + methodName);
+                }
+                
                 if (methodName.startsWith("find")) {
-                    ejb.addFinder(new FinderEJBQLQuery(methodName, parameterTypes, ejbQL));
+                    FinderEJBQLQuery query = new FinderEJBQLQuery(methodName, parameterTypes, ejbQL);
+                    if (null == ejbQL) {
+                        query = (FinderEJBQLQuery) queries.get(query);
+                        if (null == query) {
+                            throw new DeploymentException("Method " + methodName + " does not define an ejb-ql.");
+                        }
+                    } else {
+                        ejb.addFinder(query);
+                    }
+                    query.setFlushCacheBeforeQuery(flushCacheBeforeQuery);
                 } else if (methodName.startsWith("ejbSelect")) {
                     boolean isLocal = true;
                     if (openejbQueryType.isSetResultTypeMapping()) {
@@ -404,10 +427,18 @@ class CMPEntityBuilder extends EntityBuilder {
                             isLocal = false;
                         }
                     }
-                    ejb.addSelect(new SelectEJBQLQuery(methodName, parameterTypes, ejbQL, isLocal));
+                    SelectEJBQLQuery query = new SelectEJBQLQuery(methodName, parameterTypes, ejbQL, isLocal);
+                    if (null == ejbQL) {
+                        query = (SelectEJBQLQuery) queries.get(query);
+                        if (null == query) {
+                            throw new DeploymentException("Method " + methodName + " does not define an ejb-ql.");
+                        }
+                    } else {
+                        ejb.addSelect(query);
+                    }
+                    query.setFlushCacheBeforeQuery(flushCacheBeforeQuery);
                 } else {
-                    throw new DeploymentException("EJB [" + ejb.getName() + "] is misconfigured: method " +
-                            methodName + " is neiher a finder nor a select.");
+                    throw new DeploymentException("Method " + methodName + " is neiher a finder nor a select.");
                 }
             }
         }

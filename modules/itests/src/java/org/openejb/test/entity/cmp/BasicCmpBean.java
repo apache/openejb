@@ -98,7 +98,7 @@ public class BasicCmpBean implements EntityBean {
     }
 
     /**
-     * Maps to BasicCmpHome.create
+     * Maps to BasicCmpHome.create(String name)
      */
     public Integer ejbCreate(String name) throws CreateException {
         StringTokenizer st = new StringTokenizer(name, " ");
@@ -110,7 +110,20 @@ public class BasicCmpBean implements EntityBean {
 
     public void ejbPostCreate(String name) throws CreateException {
     }
-    
+
+    /**
+     * Maps to BasicCmpHome.create(Integer primarykey, String name)
+     */
+    public Integer ejbCreate(Integer primarykey, String name) throws CreateException {
+        StringTokenizer st = new StringTokenizer(name, " ");
+        firstName = st.nextToken();
+        lastName = st.nextToken();
+        this.id = primarykey;
+        return null;
+    }
+
+    public void ejbPostCreate(Integer primarykey, String name) throws CreateException {
+    }
     //    
     // Home interface methods
     //=============================

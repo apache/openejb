@@ -65,12 +65,18 @@ import org.tranql.query.QueryCommandView;
  */
 public class CollectionValuedSelect implements InstanceOperation {
     private final QueryCommandView commandView;
+    private final boolean flushCache;
 
-    public CollectionValuedSelect(QueryCommandView commandView) {
+    public CollectionValuedSelect(QueryCommandView commandView, boolean flushCache) {
         this.commandView = commandView;
+        this.flushCache = flushCache;
     }
 
     public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
+        if (flushCache) {
+            ctx.getTransactionContext().getInTxCache().flush();
+        }
+
         Collection results = new ArrayList();
         try {
             CollectionResultHandler handler = new CollectionResultHandler(commandView.getView()[0]);
