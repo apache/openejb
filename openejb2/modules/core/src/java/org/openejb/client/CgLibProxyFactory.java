@@ -44,11 +44,9 @@
  */
 package org.openejb.client;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Properties;
-
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackFilter;
@@ -99,8 +97,7 @@ public class CgLibProxyFactory implements ProxyFactory {
         Enhancer enhancer = getEnhancer(superClass,interfaces);
         enhancer.setCallbacks(new Callback[]{NoOp.INSTANCE, interceptor});
 
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        enhancer.setClassLoader(cl);
+        enhancer.setClassLoader(superClass.getClassLoader());
         return enhancer.create(new Class[]{CgLibInvocationHandler.class}, new Object[]{interceptor});
     }
     
