@@ -33,6 +33,9 @@ OPTIONS
 
  -examples  Show examples of how to use the options.
 
+ --admin-ip A comma delimited list of hosts and IP addresses that
+            are allowed to administer this server.
+
 
 See http://openejb.sf.net/remote-server.html for more information.
 

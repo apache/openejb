@@ -60,7 +60,16 @@ public class Stop extends Command {
     }
     
     public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
-        EjbDaemon.getEjbDaemon().stop();
+        try{                    
+            String addr = Thread.currentThread().getName();
+            InetAddress client = InetAddress.getByName(addr);
+            
+            EjbDaemon.getEjbDaemon().stop( client, null );
+        } catch (SecurityException e){
+            out.println("Permission denied. "+e.getMessage());
+        } catch (Exception e){
+            out.println("Error occured. "+ e.getMessage() );
+        }
         try{
             Thread.sleep(2000);
         } catch (Throwable t){

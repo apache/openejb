@@ -19,6 +19,7 @@ function command_help () {
    "test"   ) cat ./bin/test.txt    | sed 's/openejb /openejb.sh /';;
    "deploy" ) cat ./bin/deploy.txt  | sed 's/openejb /openejb.sh /';;
    "start"  ) cat ./bin/start.txt   | sed 's/openejb /openejb.sh /';;
+   "stop"   ) cat ./bin/stop.txt    | sed 's/openejb /openejb.sh /';;
    ""       ) cat ./bin/commands.txt| sed 's/openejb /openejb.sh /';;
    esac
 }
@@ -29,8 +30,8 @@ function command_build () {
 #================================================
 function command_test () {
    case     $2 in
-   "intravm"   ) test_intravm ;;
-   "ejbserver" ) test_server  ;;
+   "local"     ) test_intravm ;;
+   "remote"    ) test_server  ;;
    "corba"     ) test_corba   ;;
    "help"      ) cat ./bin/test.txt    | sed 's/openejb /openejb.sh /';;
    ""          ) test_noargs  ;;
@@ -43,6 +44,10 @@ function command_deploy  () {
 #================================================
 function command_start  () {
    ./bin/ejbserver.sh $@
+}
+#================================================
+function command_stop  () {
+   ./bin/ejbserver-stop.sh $@
 }
 #================================================
 function start_corba () {
@@ -103,6 +108,7 @@ case     $1 in
 "test"   )  command_test   $@ ;;
 "deploy" )  command_deploy $@ ;;
 "start"  )  command_start  $@ ;;
+"stop"   )  command_stop   $@ ;;
 "corba"  )  start_corba    $@ ;;
 "help"   )  command_help   $@ ;;
 "-help"  )  command_help   $@ ;;

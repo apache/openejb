@@ -47,6 +47,7 @@ package org.openejb.server.admin.text;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import org.openejb.server.EjbDaemon;
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
@@ -78,6 +79,19 @@ public class TelnetConsole implements Console, TelnetCodes {
         
         in  = socket.getInputStream();
         out = socket.getOutputStream();
+        
+        InetAddress client = socket.getInetAddress();
+        InetAddress server = serverSocket.getInetAddress();
+
+        try{            
+            EjbDaemon.checkHostsAdminAuthorization(client, server);
+        } catch (SecurityException e){
+            String msg = "Permission denied. "+e.getMessage()+"\r\n";
+            out.write( msg.getBytes() );                
+            throw new IOException(e.getMessage());
+        }
+
+        Thread.currentThread().setName(client.getHostAddress());
 
         setupClientTerminal();
         
