@@ -58,14 +58,13 @@ import javax.rmi.CORBA.Tie;
 import javax.rmi.CORBA.Stub;
 
 import org.omg.CORBA.ORB;
-import org.openejb.corba.util.Util;
-
+import org.openejb.corba.ORBRef;
 
 /**
- *
  * @since 11/25/2001
  */
 public class EJBRequest implements Request {
+    private transient ORBRef orbRef;
 
     private transient int requestMethod;
     private transient int deploymentCode = 0;
@@ -91,7 +90,10 @@ public class EJBRequest implements Request {
 
 
     public EJBRequest() {
+    }
 
+    public EJBRequest(ORBRef orbRef) {
+        this.orbRef = orbRef;
     }
 
     public EJBRequest(int requestMethod) {
@@ -482,11 +484,11 @@ public class EJBRequest implements Request {
             case L:
                 clazz = (Class) in.readObject();
                 obj = in.readObject();
-//                if (obj instanceof Stub) {
-//                    Stub stub = (Stub)obj;
-//                    ORB orb = Util.getORB();
-//                    stub.connect(orb);
-//                }
+                if (obj instanceof Stub && orbRef != null) {
+                    Stub stub = (Stub)obj;
+                    ORB orb = orbRef.getORB();
+                    stub.connect(orb);
+                }
                 break;
             default:
                 throw new IOException("Unkown data type: " + type);

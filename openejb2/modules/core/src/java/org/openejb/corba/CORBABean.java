@@ -67,7 +67,7 @@ import org.openejb.corba.security.config.tss.TSSConfig;
 /**
  * @version $Revision$ $Date$
  */
-public class CORBABean implements GBeanLifecycle {
+public class CORBABean implements GBeanLifecycle, ORBRef {
 
     private final Log log = LogFactory.getLog(CORBABean.class);
 

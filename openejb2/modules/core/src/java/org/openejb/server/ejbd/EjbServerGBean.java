@@ -53,6 +53,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.openejb.ContainerIndex;
+import org.openejb.corba.ORBRef;
 import org.openejb.server.SocketService;
 
 public class EjbServerGBean {
@@ -64,8 +65,9 @@ public class EjbServerGBean {
 
         infoFactory.addInterface(SocketService.class);
         infoFactory.addReference("ContainerIndex", ContainerIndex.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("ORBRef", ORBRef.class, NameFactory.CORBA_SERVICE);
 
-        infoFactory.setConstructor(new String[]{"ContainerIndex"});
+        infoFactory.setConstructor(new String[]{"ContainerIndex", "ORBRef"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
