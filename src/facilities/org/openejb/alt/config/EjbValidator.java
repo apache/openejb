@@ -128,7 +128,7 @@ public class EjbValidator {
     
     public EjbSet validateJar(EjbSet set) {
         try {
-            
+            //System.out.println("[] validating "+ set.getJarPath());        
             // Run the validation rules
             ValidationRule[] rules = getValidationRules();
             for (int i=0; i < rules.length; i++){

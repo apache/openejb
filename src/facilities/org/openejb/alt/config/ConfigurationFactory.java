@@ -182,7 +182,11 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         sys.containerSystem.statelessContainers = stlsCntrs;
 
         for ( int i=0; i < jars.length; i++ ) {
+            try{
             initEnterpriseBeanInfos(jars[i]);
+            } catch (Exception e){
+                ConfigUtils.logWarning("conf.0004",jars[i].jarURI, e.getMessage());
+            }
         }
 
 
@@ -853,6 +857,9 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         else bean = new StatelessBeanInfo();
 
         EjbDeployment d = (EjbDeployment)m.get(s.getEjbName());
+        if (d == null) {
+            throw new OpenEJBException("No deployment information in openejb-jar.xml for bean "+s.getEjbName()+". Please redeploy the jar");
+        }
         bean.ejbDeploymentId = d.getDeploymentId();
 
 
@@ -875,6 +882,9 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         EntityBeanInfo bean = new EntityBeanInfo();
 
         EjbDeployment d = (EjbDeployment)m.get(e.getEjbName());
+        if (d == null) {
+            throw new OpenEJBException("No deployment information in openejb-jar.xml for bean "+e.getEjbName()+". Please redeploy the jar");
+        }
         bean.ejbDeploymentId = d.getDeploymentId();
 
 
@@ -1053,6 +1063,8 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
      */
     private DeployedJar[] loadDeployments(Openejb openejb) throws OpenEJBException{
 
+        EjbValidator validator = new EjbValidator();
+        
         Vector jarsVect = new Vector();
 
         String[] jarsToLoad = getJarLocations(openejb.getDeployments());
@@ -1071,6 +1083,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
             try {
                 EjbJar ejbJar = EjbJarUtils.readEjbJar(jarLocation);
+                
                 /* If there is no openejb-jar.xml an exception
                  * will be thrown.
                  * TODO: This shouldn't cause such a problem.  If
@@ -1078,6 +1091,9 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                  * attempt to auto deploy it. 
                  */
                 OpenejbJar openejbJar = ConfigUtils.readOpenejbJar(jarLocation);
+
+                validateJar( ejbJar, jarLocation );
+
 
                 /* Add it to the Vector ***************/
                 jarsVect.add(new DeployedJar(jarLocation, ejbJar, openejbJar));
@@ -1090,6 +1106,22 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         DeployedJar[] jars = new DeployedJar[jarsVect.size()];
         jarsVect.copyInto(jars);
         return jars;
+    }
+
+    private void validateJar( EjbJar ejbJar, String jarLocation) throws OpenEJBException{
+        ValidationTable validationTable = ValidationTable.getInstance();
+
+        if (!validationTable.isValidated(jarLocation)) {
+            //System.out.println("[] Not validated "+jarLocation);
+            EjbValidator validator = new EjbValidator();
+            EjbSet set = validator.validateJar( ejbJar, jarLocation );
+            if (set.hasErrors() || set.hasFailures()) {
+                //System.out.println("[] INVALID "+ jarLocation);
+                throw new OpenEJBException("Jar failed validation.  Use the validation tool for more details");
+            } else {
+                validationTable.setValidated(jarLocation);
+            }
+        }
     }
 
     String[] tabs = {""," ","    ","      ","        ","          "};
