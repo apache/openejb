@@ -24,8 +24,8 @@ Example:
 
 openejb build -quiet clean jar
 
-The OpenEJB EJB Container System, a local EJB API and Server.
-For OpenEJB updates and additional information, visit
+OpenEJB -- EJB Container System and EJB Server.
+For updates and additional information, visit
 http://openejb.sf.net  
 
 Bug Reports to <openejb-user@lists.sf.net>
