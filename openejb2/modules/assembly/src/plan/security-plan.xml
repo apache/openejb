@@ -58,7 +58,7 @@ Configuration for the CORBA server.
         <attribute name="loginDomainName" type="java.lang.String">public-properties-realm</attribute>
     </gbean>
 
-    <gbean name="geronimo.security:type=SecurityRealm,realm=public-properties-realm"
+    <gbean name="geronimo.security:type=SecurityRealm,name=public-properties-realm"
            class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName" type="java.lang.String">public-properties-realm</attribute>
         <attribute name="loginModuleConfiguration" type="java.util.Properties">
@@ -86,7 +86,7 @@ Configuration for the CORBA server.
         <attribute name="loginDomainName" type="java.lang.String">black-properties-realm</attribute>
     </gbean>
 
-    <gbean name="geronimo.security:type=SecurityRealm,realm=black-properties-realm"
+    <gbean name="geronimo.security:type=SecurityRealm,name=black-properties-realm"
            class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName" type="java.lang.String">black-properties-realm</attribute>
         <attribute name="loginModuleConfiguration" type="java.util.Properties">

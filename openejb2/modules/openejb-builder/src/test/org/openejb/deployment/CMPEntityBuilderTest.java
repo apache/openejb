@@ -88,6 +88,7 @@ import org.tranql.sql.sql92.SQL92Schema;
 public class CMPEntityBuilderTest extends TestCase {
     private URI defaultParentId = null;
     private SkeletonGenerator skeletonGenerator = null;
+    private Kernel kernel = null;
 
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
@@ -105,7 +106,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, defaultParentId, skeletonGenerator);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         
         GlobalSchema globalSchema = new GlobalSchema("Test");
@@ -152,7 +153,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, defaultParentId, skeletonGenerator);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         
         GlobalSchema globalSchema = new GlobalSchema("Test");
@@ -200,7 +201,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, defaultParentId, skeletonGenerator);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         
         GlobalSchema globalSchema = new GlobalSchema("Test");

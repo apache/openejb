@@ -53,10 +53,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -77,21 +78,20 @@ import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
-import org.apache.geronimo.security.SecurityService;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
-
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.EJBModuleImpl;
-import org.openejb.corba.compiler.SkeletonGenerator;
 import org.openejb.corba.compiler.CompilerException;
+import org.openejb.corba.compiler.SkeletonGenerator;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyObjectFactory;
 import org.openejb.proxy.ProxyRefAddr;
@@ -117,7 +117,6 @@ import org.tranql.sql.sql92.SQL92Schema;
  */
 public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder {
 
-    private final SecurityService securityService;
     private final URI defaultParentId;
     private final CMPEntityBuilder cmpEntityBuilder;
     private final SessionBuilder sessionBuilder;
@@ -125,9 +124,9 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final MdbBuilder mdbBuilder;
     private final ContainerSecurityBuilder containerSecurityBuilder;
     private final SkeletonGenerator skeletonGenerator;
+    private final Kernel kernel;
 
-    public OpenEJBModuleBuilder(SecurityService securityService, URI defaultParentId, SkeletonGenerator skeletonGenerator) {
-        this.securityService = securityService;
+    public OpenEJBModuleBuilder(URI defaultParentId, SkeletonGenerator skeletonGenerator, Kernel kernel) {
         this.defaultParentId = defaultParentId;
         this.skeletonGenerator = skeletonGenerator;
         this.containerSecurityBuilder = new ContainerSecurityBuilder(this);
@@ -135,6 +134,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         this.sessionBuilder = new SessionBuilder(this);
         this.entityBuilder = new EntityBuilder(this);
         this.mdbBuilder = new MdbBuilder(this);
+        this.kernel = kernel;
     }
 
     public ContainerSecurityBuilder getSecurityBuilder() {
@@ -441,9 +441,14 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         /**
          * Build the security configuration.  Attempt to auto generate role mappings.
          */
-        Security security = SecurityBuilder.buildSecurityConfig(openejbEjbJar.getSecurity(), collectRoleNames(ejbJar));
-        //todo: needs to take login domain name into account, perhaps should be an element on the security DD?
-        if (security != null) security.autoGenerate(securityService);
+        Security security = null;
+        //TODO fix this!
+        Map localSecurityRealms = new HashMap();
+        try {
+            security = SecurityBuilder.buildSecurityConfig(Collections.EMPTY_SET, openejbEjbJar.getSecurity(), collectRoleNames(ejbJar), localSecurityRealms, kernel);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Cound not automap roles", e);
+        }
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
@@ -551,13 +556,13 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class);
-        infoBuilder.addReference("SecurityService", SecurityService.class);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class);
-        infoBuilder.addInterface(ModuleBuilder.class);
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
+         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(EJBReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[] {"SecurityService", "defaultParentId", "SkeletonGenerator"});
+        infoBuilder.setConstructor(new String[] {"defaultParentId", "SkeletonGenerator", "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

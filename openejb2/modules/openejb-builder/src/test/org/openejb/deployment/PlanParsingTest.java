@@ -4,12 +4,14 @@ import java.io.File;
 
 import junit.framework.TestCase;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  */
 public class PlanParsingTest extends TestCase {
+    private Kernel kernel = null;
 
-    private OpenEJBModuleBuilder builder = new OpenEJBModuleBuilder(null, null, null);
+    private OpenEJBModuleBuilder builder = new OpenEJBModuleBuilder(null, null, kernel);
     File basedir = new File(System.getProperty("basedir", "."));
 
     public void testResourceRef() throws Exception {

@@ -175,7 +175,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
         OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator(cl);
         skeletonGenerator.doStart();
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, defaultParentId, skeletonGenerator);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, kernel);
 
         JarFile jarFile = DeploymentUtil.createJarFile(ejbJarFile);
         Module module = moduleBuilder.createModule(null, jarFile);
@@ -223,7 +223,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
         OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator(cl);
         skeletonGenerator.doStart();
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, defaultParentId, skeletonGenerator);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, kernel);
 
         File tempDir = null;
         try {
@@ -272,7 +272,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
         OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator(cl);
         skeletonGenerator.doStart();
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, defaultParentId, skeletonGenerator);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, kernel);
 
         File tempDir = null;
         try {
