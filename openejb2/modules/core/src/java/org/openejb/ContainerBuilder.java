@@ -16,8 +16,6 @@
  */
 package org.openejb;
 
-import java.util.Set;
-import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 import javax.management.ObjectName;
 
@@ -34,7 +32,7 @@ import org.openejb.deployment.TransactionPolicySource;
  *
  * @version $Revision$ $Date$
  */
-public interface ContainerBuilder extends ResourceEnvironmentBuilder {
+public interface ContainerBuilder extends ResourceEnvironmentBuilder, SecureBuilder {
     ClassLoader getClassLoader();
 
     void setClassLoader(ClassLoader classLoader);
@@ -67,13 +65,13 @@ public interface ContainerBuilder extends ResourceEnvironmentBuilder {
 
     void setLocalInterfaceName(String localInterfaceName);
 
+    String getServiceEndpointName();
+
+    void setServiceEndpointName(String localInterfaceName);
+
     String getPrimaryKeyClassName();
 
     void setPrimaryKeyClassName(String primaryKeyClassName);
-
-    Subject getRunAs();
-
-    void setRunAs(Subject runAs);
 
     ReadOnlyContext getComponentContext();
 
