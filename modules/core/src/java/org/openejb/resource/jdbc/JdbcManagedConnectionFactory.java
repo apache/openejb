@@ -149,7 +149,11 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
         java.sql.Connection physicalConn;
         String userDir = System.getProperty("user.dir");
         try{
-            System.setProperty("user.dir",System.getProperty("openejb.home"));
+            // @TODO: Why is it done?
+            String openejbHome = System.getProperty("openejb.home");
+            if (openejbHome != null) {
+                System.setProperty("user.dir", openejbHome);
+            }
             physicalConn = DriverManager.getConnection(jdbcUrl, rxInfo.getUserName(), rxInfo.getPassword());        
         }catch(java.sql.SQLException sqlE){
             EISSystemException eisse =  new EISSystemException("Could not obtain a physical JDBC connection from the DriverManager");
