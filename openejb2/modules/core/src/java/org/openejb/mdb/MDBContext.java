@@ -213,20 +213,12 @@ public class MDBContext extends EJBContextImpl implements MessageDrivenContext {
 
 
     public static final MDBContextState BIZ_WSENDPOINT = new MDBContextState() {
-        public Principal getCallerPrincipal() {
-            throw new IllegalStateException("getCallerPrincipal() cannot be called in a business method invocation from a web-service endpoint");
-        }
-
         public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called in a business method invocation from a web-service endpoint");
         }
     };
 
     public static final MDBContextState EJBTIMEOUT = new MDBContextState() {
-        public Principal getCallerPrincipal() {
-            throw new IllegalStateException("getCallerPrincipal() cannot be called from ejbTimeout");
-        }
-
         public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called from ejbTimeout");
         }

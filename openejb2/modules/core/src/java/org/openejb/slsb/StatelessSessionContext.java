@@ -214,25 +214,10 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
 
 
     public static final StatelessSessionContextState BIZ_WSENDPOINT = new StatelessSessionContextState() {
-        public Principal getCallerPrincipal() {
-            throw new IllegalStateException("getCallerPrincipal() cannot be called in a business method invocation from a web-service endpoint");
-        }
-
-        public boolean isCallerInRole(String s, EJBInstanceContext context) {
-            throw new IllegalStateException("isCallerInRole(String) cannot be called in a business method invocation from a web-service endpoint");
-        }
     };
 
     public static final StatelessSessionContextState EJBTIMEOUT = new StatelessSessionContextState() {
-        public Principal getCallerPrincipal() {
-            throw new IllegalStateException("getCallerPrincipal() cannot be called from ejbTimeout");
-        }
-
-        public boolean isCallerInRole(String s, EJBInstanceContext context) {
-            throw new IllegalStateException("isCallerInRole(String) cannot be called from ejbTimeout");
-        }
-
-        public MessageContext getMessageContext() {
+         public MessageContext getMessageContext() {
             throw new IllegalStateException("getMessageContext() cannot be called from ejbTimeout");
         }
     };
