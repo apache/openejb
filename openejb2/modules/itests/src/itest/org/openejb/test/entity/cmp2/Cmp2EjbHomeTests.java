@@ -100,6 +100,15 @@ public class Cmp2EjbHomeTests extends BasicCmp2TestClient {
             fail("Received Exception " + e.getClass() + " : " + e.getMessage());
         }
     }
+
+    public void test04_ejbHomeMethod() {
+        try {
+            assertEquals(8+9, ejbHome.sum(8, 9));
+        } catch (Throwable e) {
+            e.printStackTrace();
+            fail("Received Exception " + e.getClass() + " : " + e.getMessage());
+        }
+    }
     //
     // Test ejb home methods
     //===============================
