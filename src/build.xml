@@ -601,6 +601,7 @@
     <mkdir dir="${dest.doc.dir}"/>
     <mkdir dir="${dest.javadoc.dir}"/>
     <mkdir dir="./beans"/>
+    <mkdir dir="./logs"/>
     
     <style
         style="src/doc/style/changelog.xsl"
@@ -896,6 +897,7 @@
     <mkdir dir="${final.dir}/dist"/>
     <mkdir dir="${final.dir}/src"/>
     <mkdir dir="${final.dir}/beans"/>
+    <mkdir dir="${final.dir}/logs"/>
   
     <!-- copy required jar files -->               
     <copy todir="${final.dir}/dist">

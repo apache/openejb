@@ -147,7 +147,7 @@ public final class OpenEJB {
             // OpenEJB does.
             JarUtils.setHandlerSystemProperty();
 
-            logger = Logger.getInstance( "OpenEJB", "org.openejb.util.resources" );
+            logger = Logger.getInstance( "OpenEJB.startup", "org.openejb.util.resources" );
 
             initialized = true;
         }
@@ -186,7 +186,7 @@ public final class OpenEJB {
         props = new Properties(System.getProperties());
 
         if ( initProps == null ) {
-            logger.i18n.info( "startup.noInitializationProperties" );
+            logger.i18n.debug( "startup.noInitializationProperties" );
         } else {
             props.putAll( initProps );
         }
