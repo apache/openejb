@@ -99,12 +99,9 @@ REM================================================
    echo "_________________________________________________"
    echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
    echo " "
-   echo "Running EJB compliance tests on EJB Server"
+   echo "Running EJB compliance tests on Remote Server"
    echo "_________________________________________________"
-   echo " 1. Starting OpenEJB Server..."
-   start "OpenEJB Server" .\bin\ejbserver.bat > ejb.server.log 2>&1   
-   echo " 2. Starting test EJB client..."
-   call .\bin\test.bat src/tests-ejb/OpenEjbServer_config.properties org.openejb.test.OpenEjbTestServer
+   call .\bin\test.bat src/tests-ejb/RemoteServer_config.properties org.openejb.test.RemoteTestServer
 REM   echo "_________________________________________________"
 REM   echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
 REM   echo " "
@@ -133,12 +130,9 @@ REM================================================
    echo "_________________________________________________"
    echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
    echo " "
-   echo "Running EJB compliance tests on EJB Server"
+   echo "Running EJB compliance tests on Remote Server"
    echo "_________________________________________________"
-   echo " 1. Starting OpenEJB Server..."
-   start "OpenEJB Server" .\bin\ejbserver.bat > ejb.server.log 2>&1
-   echo " 2. Starting test EJB client..."
-   call .\bin\test.bat src/tests-ejb/OpenEjbServer_config.properties org.openejb.test.OpenEjbTestServer
+   call .\bin\test.bat src/tests-ejb/RemoteServer_config.properties org.openejb.test.RemoteTestServer
 
 goto EOF
 REM================================================
