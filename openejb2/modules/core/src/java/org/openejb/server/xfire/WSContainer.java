@@ -149,7 +149,8 @@ public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle
     }
 
 
-    public void getWsdl(OutputStream out) throws Exception {
+    public void getWsdl(Request req, Response res) throws Exception {
+        OutputStream out = res.getOutputStream();
         InputStream in = null;
         try {
             in = wsdlURL.openStream();
