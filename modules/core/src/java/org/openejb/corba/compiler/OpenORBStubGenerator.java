@@ -60,16 +60,15 @@ import org.openorb.compiler.CompilerHost;
 import org.openorb.compiler.object.IdlObject;
 import org.openorb.compiler.orb.Configurator;
 import org.openorb.compiler.rmi.RmiCompilerProperties;
-import org.openorb.compiler.rmi.generator.Javatoidl;
 import org.openorb.compiler.rmi.parser.JavaParser;
 
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.main.ToolsJarHack;
 
+import org.openejb.util.FileUtils;
 import org.openejb.util.JarUtils;
 
 
@@ -114,8 +113,9 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
         try {
             Thread.currentThread().setContextClassLoader(cl);
 
+            if (log.isDebugEnabled()) log.debug("ClassLoader: " + cl);
 
-            TEMPDIR = DeploymentUtil.createTempDir();
+            TEMPDIR = FileUtils.createTempDirectory();
             File SRCDIR = new File(TEMPDIR, "stubs");
             File CLASSESDIR = new File(TEMPDIR, "stubs");
             SRCDIR.mkdirs();
@@ -126,6 +126,7 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
             rcp.setM_portableHelper(true);
             rcp.setM_verbose(verbose);
             rcp.setM_destdir(SRCDIR);
+            rcp.setM_packageName("org.omg.stub");
             rcp.getM_includeList().add(new URL("resource:/org/openorb/idl/"));
             Configurator configurator = new Configurator(new String[0], getProps());
             JavaParser parser = new JavaParser(rcp, this, null, null, null);
@@ -141,7 +142,6 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
                 parser.parse_class(iface);
 
                 IdlObject compilationGraph = parser.getIdlTreeRoot();
-                Javatoidl toIDL = new Javatoidl(rcp, this);
 
                 org.openejb.corba.proxy.StubGenerator sg = new org.openejb.corba.proxy.StubGenerator(rcp, this);
 
@@ -149,11 +149,11 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
                 for (int i = start; i < end; i++) {
                     IdlObject object = (IdlObject) parser.getCompilationTree().get(i);
 
-                    toIDL.translateRMIStub(object);
+                    sg.translateStub(object, "org.omg.stub");
                 }
 
-                toIDL.translateRMIStub(compilationGraph);
-                sg.translateData(compilationGraph, "");
+                sg.translateStub(compilationGraph, "org.omg.stub");
+                sg.translateData(compilationGraph, "org.omg.stub");
 
                 start = end;
 
@@ -174,7 +174,6 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
             jar.setUpdate(true);
             jar.execute();
         } catch (Exception e) {
-            e.printStackTrace();
             /**
              * Convert the msg to string so that we don't try to serialize
              * anything that is unserializable in a cause exception
@@ -182,7 +181,7 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
             throw new CompilerException(e.toString());
         } finally {
             Thread.currentThread().setContextClassLoader(savedLoader);
-            DeploymentUtil.recursiveDelete(TEMPDIR);
+            FileUtils.recursiveDelete(TEMPDIR);
         }
     }
 
