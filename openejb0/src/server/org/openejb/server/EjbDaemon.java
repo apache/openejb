@@ -896,7 +896,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
         } catch (java.io.IOException e) {
         }
-        System.out.println( "OpenEJB Remote Server " + versionInfo.get( "version" ) );
+        System.out.println( "OpenEJB Remote Server " + versionInfo.get( "version" ) +"    build: "+versionInfo.get( "date" )+"-"+versionInfo.get( "time" ));
         System.out.println( "" + versionInfo.get( "url" ) );
     }
 
