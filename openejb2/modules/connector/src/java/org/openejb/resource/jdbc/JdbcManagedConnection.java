@@ -54,18 +54,18 @@ import javax.resource.spi.ManagedConnectionMetaData;
 import java.util.Set;
 
 public class JdbcManagedConnection implements ManagedConnection {
-    
+
     private JdbcManagedConnectionFactory managedFactory;
     private java.sql.Connection sqlConn;
     private JdbcConnectionRequestInfo requestInfo;
     private JdbcManagedConnectionMetaData metaData;
-    
+
     // there may be many conneciton handles active at any one time
     private java.util.Vector jdbcConnections = new java.util.Vector();
     private Set listeners;
     private java.io.PrintWriter logWriter;
-    private JdbcLocalTransaction localTransaction;    
-    
+    private JdbcLocalTransaction localTransaction;
+
     public JdbcManagedConnection(JdbcManagedConnectionFactory managedFactory, java.sql.Connection sqlConn, JdbcConnectionRequestInfo rxInfo)
     throws javax.resource.spi.ResourceAdapterInternalException {
         listeners = java.util.Collections.synchronizedSet(new HashSet());
@@ -73,26 +73,26 @@ public class JdbcManagedConnection implements ManagedConnection {
         this.requestInfo = rxInfo;
         this.sqlConn = sqlConn;
         logWriter = managedFactory.getLogWriter();
-        try{ 
+        try{
         metaData = new JdbcManagedConnectionMetaData(sqlConn.getMetaData());
         }catch(java.sql.SQLException sqlE){
-            throw new javax.resource.spi.ResourceAdapterInternalException("Problem while attempting to access meta data from physical connection", ErrorCode.JDBC_0004);  
+            throw new javax.resource.spi.ResourceAdapterInternalException("Problem while attempting to access meta data from physical connection", ErrorCode.JDBC_0004);
         }
         localTransaction = new JdbcLocalTransaction(this);
     }
-    
+
     protected java.sql.Connection getSQLConnection(){
         return sqlConn;
     }
-    
+
     protected JdbcConnectionRequestInfo getRequestInfo(){
         return requestInfo;
     }
-    
+
     public void addConnectionEventListener(ConnectionEventListener listener)  {
         listeners.add(listener);
     }
-    
+
     public void associateConnection(java.lang.Object connection)  throws javax.resource.ResourceException {
         if(connection instanceof JdbcConnection){
             JdbcConnection jdbcConn = (JdbcConnection)connection;
@@ -101,7 +101,7 @@ public class JdbcManagedConnection implements ManagedConnection {
             throw new javax.resource.ResourceException("Connection object is the wrong type. It must be an instance of JdbcConnection");
         }
     }
-    
+
     /**
     * This method will invalidate any JdbcConnection handles that have not already been invalidated (they self invalidate when they are explicitly closed).
     */
@@ -114,7 +114,7 @@ public class JdbcManagedConnection implements ManagedConnection {
         jdbcConnections.clear();
         localTransaction.cleanup();
     }
-    
+
     public void destroy()  throws javax.resource.ResourceException {
         cleanup();
         try{
@@ -125,8 +125,8 @@ public class JdbcManagedConnection implements ManagedConnection {
         managedFactory = null;
         sqlConn = null;
         listeners.clear();
-    } 
-    
+    }
+
     /*
     * Returns an application level connection handle in the form of a JdbcConnection object
     * which implements the java.sql.Connection interface and wrappers the physical JDBC connection.
@@ -137,31 +137,31 @@ public class JdbcManagedConnection implements ManagedConnection {
         jdbcConnections.add(jdbcCon);
         return jdbcCon;
     }
-    
+
     public javax.resource.spi.LocalTransaction getLocalTransaction()  throws javax.resource.ResourceException  {
         return localTransaction;
     }
-    
+
     public java.io.PrintWriter getLogWriter()  throws javax.resource.ResourceException  {
         return logWriter;
     }
-    
+
     public ManagedConnectionMetaData getMetaData()  throws javax.resource.ResourceException  {
         return metaData;
     }
-    
+
     public javax.transaction.xa.XAResource getXAResource()  throws javax.resource.ResourceException  {
         throw new javax.resource.NotSupportedException("Method not implemented");
     }
-    
+
     public void removeConnectionEventListener(ConnectionEventListener listener)    {
         listeners.remove(listener);
     }
-    
+
     public void setLogWriter(java.io.PrintWriter out)  throws javax.resource.ResourceException {
         logWriter = out;
     }
-    
+
     protected void localTransactionCommitted(){
         ConnectionEvent event = new ConnectionEvent(this, ConnectionEvent.LOCAL_TRANSACTION_COMMITTED);
         Object [] elements = listeners.toArray();
@@ -170,7 +170,7 @@ public class JdbcManagedConnection implements ManagedConnection {
             eventListener.localTransactionCommitted(event);
         }
     }
-    
+
     protected void localTransactionRolledback(){
         ConnectionEvent event = new ConnectionEvent(this, ConnectionEvent.LOCAL_TRANSACTION_ROLLEDBACK);
         Object [] elements = listeners.toArray();
@@ -179,7 +179,7 @@ public class JdbcManagedConnection implements ManagedConnection {
             eventListener.localTransactionRolledback(event);
         }
     }
-    
+
     protected void localTransactionStarted(){
         ConnectionEvent event = new ConnectionEvent(this, ConnectionEvent.LOCAL_TRANSACTION_STARTED);
         Object [] elements = listeners.toArray();
@@ -188,9 +188,9 @@ public class JdbcManagedConnection implements ManagedConnection {
             eventListener.localTransactionStarted(event);
         }
     }
-    
+
     protected void connectionErrorOccurred(JdbcConnection jdbcConn, java.sql.SQLException sqlE){
-        
+
         if(logWriter !=null){
             logWriter.print("\nJdbcConnection Error: On java.sql.Connection (");
             logWriter.print(jdbcConn);
@@ -202,7 +202,7 @@ public class JdbcManagedConnection implements ManagedConnection {
                 temp.printStackTrace(logWriter);
             }
         }
-        
+
         ConnectionEvent event = new ConnectionEvent(this, ConnectionEvent.CONNECTION_ERROR_OCCURRED , sqlE);
         Object [] elements = listeners.toArray();
         for(int i = 0; i < elements.length; i++){
@@ -210,7 +210,7 @@ public class JdbcManagedConnection implements ManagedConnection {
             eventListener.connectionErrorOccurred(event);
         }
     }
-    
+
     /**
     * Invoked by the JdbcConneciton when its close() method is called.
     * This method invalidates the JdbcConnection handle, removes it from
@@ -220,13 +220,14 @@ public class JdbcManagedConnection implements ManagedConnection {
         jdbcConn.invalidate();
         jdbcConnections.remove(jdbcConn);
         ConnectionEvent event = new ConnectionEvent(this, ConnectionEvent.CONNECTION_CLOSED);
+        event.setConnectionHandle(jdbcConn);
         Object [] elements = listeners.toArray();
         for(int i = 0; i < elements.length; i++){
             ConnectionEventListener eventListener = (ConnectionEventListener)elements[i];
             eventListener.connectionClosed(event);
         }
     }
-    
+
     public String toString( ){
         return "JdbcManagedConnection ("+sqlConn.toString()+")";
     }
