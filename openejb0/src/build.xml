@@ -658,21 +658,45 @@
           depends="prepare"
           description="--> generates documentation from XML files via XSLT">
 
-    <copy todir="${docs.dest}/html/faqs">
-        <fileset dir="${docs.src}/faqs" />
-    </copy>
-    <copy todir="${docs.dest}/html/guides">
-        <fileset dir="${docs.src}/guides" />
-    </copy>
     <copy todir="${docs.dest}/html/spec">
         <fileset dir="${docs.src}/spec" />
     </copy>
     
+    <copy todir="build/src/javadoc">
+        <fileset dir="src/main" includes="**/**.java,**/**.html" excludes="**/CVS/**"/>
+        <fileset dir="src/facilities" includes="**/**.java,**/**.html" excludes="**/modern/**,**/ui/**,**/sp/**,**/CVS/**"/>
+    </copy>
+    
+    <mkdir dir="${docs.dest}/html/javadoc"/>
+          
+    <javadoc packagenames="org.openejb.*"
+             sourcepath="build/src/javadoc"
+             destdir="${docs.dest}/html/javadoc"
+             doctitle="${name} JavaDoc"
+             windowtitle="${name} JavaDoc"
+		     package="true"
+		     author="false"
+             version="true"
+             noindex="true"
+             classpathref="project.classpath"/>
+    
+    <style basedir="${docs.src}" 
+        destdir="${docs.dest}/html" 
+        style="src/doc/style/sysdesign.xsl"
+        includes="**/design_*.xml" 
+        excludes="style/**,project.xml"
+        processor="xslp">           
+      
+        <classpath>
+            <path refid="project.classpath"/>
+        </classpath>
+           
+    </style>
     <style basedir="${docs.src}" 
         destdir="${docs.dest}/html" 
         style="src/doc/style/website.xsl"
         includes="**/**.xml" 
-        excludes="style/**,project.xml"
+        excludes="style/**,src/doc/design_**,project.xml"
         processor="xslp">           
       
         <classpath>
@@ -693,7 +717,11 @@
     <copy todir="${docs.dest}/html">
         <fileset dir="${docs.src}" includes="license.txt,document.dtd,*.pdf"/>
     </copy>
+    <copy todir="${docs.dest}/html">
+        <fileset dir="${docs.src}" includes="*.ppt"/>
+    </copy>
   </target>
+
   
   <!-- ================================================================== -->
   <!-- Cleans up the build directory                                      -->
