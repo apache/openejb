@@ -5,7 +5,7 @@
   <title>The OpenEJB Project</title>
   <logo>./images/logo_ejb2.gif</logo>
   <repository>OpenEJB</repository>
-  <href>http://openejb.sf.net</href>
+  <href>http://www.openejb.org</href>
   <group_id>44351</group_id>
   <bug_id>439274</bug_id>
   <task_id>460291</task_id>
@@ -64,12 +64,28 @@
         <display>Hello World!</display>
       </navLink>
       <navLink>
-        <url>documentation.xml</url>
-        <display>Documentation</display>
+        <url>cmp_entity_postgresql.xml</url>
+        <display>CMP Example</display>
       </navLink>
       <navLink>
-        <url>faq.xml</url>
-        <display>FAQ</display>
+        <url>struts-example.xml</url>
+        <display>Struts Example</display>
+      </navLink>
+      <navLink>
+        <url>deploy.xml</url>
+        <display>Deploy</display>
+      </navLink>
+      <navLink>
+        <url>start-command.xml</url>
+        <display>Startup</display>
+      </navLink>
+      <navLink>
+        <url>validate.xml</url>
+        <display>Validation</display>
+      </navLink>
+      <navLink>
+        <url>config_containers.xml</url>
+        <display>Configuration</display>
       </navLink>
       <navLink>
         <url>http://sourceforge.net/tracker/?group_id=44351&amp;atid=439275</url>
@@ -78,6 +94,10 @@
       <navLink>
         <url>http://sourceforge.net/tracker/index.php?group_id=44351&amp;atid=439277</url>
         <display>Request Feature</display>
+      </navLink>
+      <navLink>
+        <url>faq.xml</url>
+        <display>FAQ</display>
       </navLink>
     </section>
     
@@ -122,16 +142,16 @@
         <url>specification.xml</url>
         <display>Specification</display>
       </navLink>
-      <navLink>
-        <url>OpenEJB_presentaion.ppt</url>
-        <display>Presentation</display>
-      </navLink>
     </section>
     
     <section name="Developers">
       <navLink>
         <url>connector_service.xml</url>
         <display>Custom Services</display>
+      </navLink>
+      <navLink>
+        <url>release-plan.xml</url>
+        <display>Release Plan</display>
       </navLink>
       <navLink>
         <url>cvs.xml</url>
@@ -147,6 +167,7 @@
   </navSections>
 
   <notice>
+    OpenEJB is a trademark of the OpenEJB Group.
     Java, EJB, JDBC, JNDI, JTA, Sun, Sun Microsystems are trademarks or registered
     trademarks of Sun Microsystems, Inc. in the United States and in other
     countries. XML, XML Schema, XSLT and related standards are trademarks or registered

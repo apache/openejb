@@ -32,17 +32,24 @@
   and <a href="http://jakarta.apache.org/site/binindex.cgi" target="_blank">Struts</a>.
   You will need to complete the <a href="tomcat.html">tomcat installation</a>
   as well as installing struts.
+  <br/><br/>
+  You will also need to add the following methods to the EmployeeObject interface and
+  to the EmployeeBean class<br/><br/>
+  <code>public String getFirstname()
+public String getLastname()
+public String getEmail()</code>
+  <br/>
+  Each of these methods will return the corresponding field.
   </p>
 </section>
  
 <section title="Create Required Files and Directories">
   <p>
-  Create a new webapp 
+  Create a new webapp in your TOMCAT_HOME/webapps directory with
+  the following directory structure
   <br/><br/>
-  <command>C:\jakarta-tomcat-4.1.24\webapps>mkdir OpenEJBStrutsExample</command>
-  <command>C:\jakarta-tomcat-4.1.24\webapps\OpenEJBStrutsExample>mkdir WEB-INF</command>
-  <command>C:\jakarta-tomcat-4.1.24\webapps\OpenEJBStrutsExample\WEB-INF>mkdir classes</command>
-  <command>C:\jakarta-tomcat-4.1.24\webapps\OpenEJBStrutsExample\WEB-INF>mkdir lib</command>
+  <command>OpenEJBStrutsExample/WEB-INF/classes</command><br/>
+  <command>OpenEJBStrutsExample/WEB-INF/lib</command>
   <br/><br/>
   There are some required files that will need to be copied over to your TOMCAT_HOME 
   directory from the struts-example webapp.  These files will be found in the WEB-INF
@@ -291,13 +298,13 @@ public class EmployeeForm extends ActionForm {
 
 <section title="Comple the Action and Form Classes">
 <command>
-C:\jakarta-tomcat-4.1.24\webapps\OpenEJBStrutsExample\WEB-INF\classes>javac 
--classpath C:\jakarta-tomcat-4.1.24\webapps\OpenEJBStrutsExample\WEB-INF\lib\struts.jar 
+javac -classpath C:\jakarta-tomcat-4.1.24\webapps\OpenEJBStrutsExample\WEB-INF\lib\struts.jar;
+C:\jakarta-tomcat-4.1.24\common\lib\servlet.jar
 org.acme.action.*.java
-</command>
+</command><br/><br/>
 <command>
-C:\jakarta-tomcat-4.1.24\webapps\OpenEJBStrutsExample\WEB-INF\classes>javac 
--classpath C:\jakarta-tomcat-4.1.24\webapps\OpenEJBStrutsExample\WEB-INF\lib\struts.jar 
+javac -classpath C:\jakarta-tomcat-4.1.24\webapps\OpenEJBStrutsExample\WEB-INF\lib\struts.jar;
+C:\jakarta-tomcat-4.1.24\common\lib\servlet.jar
 org.acme.form.*.java
 </command>
 </section>
@@ -374,6 +381,16 @@ This file contains the results of the look up.
 <p>
 Start up Tomcat and browse to your webapp:
 <a href="http://localhost:8080/OpenEJBStrutsExample">http://localhost:8080/OpenEJBStrutsExample</a>
+</p>
+</section>
+
+<section title="What if it didn't work?">
+<p>
+<ol>
+<li>Make sure you have your EJB in the right location</li>
+<li>Check to see if all the tld files and jar files were copied over</li>
+<li>Make sure your OpenEJB configuration is set up properly</li>
+</ol>
 </p>
 </section>
 
