@@ -145,7 +145,7 @@
   <!-- =================== -->
 
   <build>
-    <nagEmailAddress>openejb-development@lists.sourceforge.net</nagEmailAddress>
+    <nagEmailAddress>dev@openejb.org</nagEmailAddress>
     <sourceDirectory>${basedir}/src/java</sourceDirectory>
     <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
     
