@@ -69,6 +69,9 @@ public class OpenEjbTestServer implements org.openejb.test.TestServer {
     }
     
     public void start(){
+        if (!connect()) {
+            throw new RuntimeException("Cannot connect to the server.");
+        }
     }
 
     public void stop(){
@@ -86,6 +89,31 @@ public class OpenEjbTestServer implements org.openejb.test.TestServer {
 
     public Properties getContextEnvironment(){
         return (Properties)properties.clone();
+    }
+
+    private boolean connect() {
+        return connect( 0 );
+    }
+    
+    private boolean connect(int tries) {
+        try{
+            Socket socket = new Socket("localhost", 4200);
+            OutputStream out = socket.getOutputStream();
+        } catch (Exception e){
+            
+            if ( tries > 5 ) {
+                return false;
+            } else {
+                try{
+                    Thread.sleep(5000);
+                } catch (Exception e2){
+                    e.printStackTrace();
+                }
+                return connect(++tries);
+            }
+        }
+        
+        return true;
     }
 
 }
