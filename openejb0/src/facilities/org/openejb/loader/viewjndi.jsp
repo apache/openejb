@@ -52,7 +52,7 @@ java.lang.reflect.Method
                             <br>
                             <img src="images/dotTrans.gif" hspace="0" height="7" border="0"><br>
                             <span class="pageTitle">
-                            OpenEJB Client JNDI Namespace
+                            OpenEJB JNDI Namespace Browser
                             </span>
                             <br>
                             <img src="images/dotTrans.gif" hspace="0" height="1" border="0"></td>
@@ -68,20 +68,38 @@ java.lang.reflect.Method
             selected = "";
         } 
 
-        InitialContext ctx;
-        Properties p = new Properties();
+        ctxID = request.getParameter("ctx");
+        ctx = null;
+        String title = null;
 
-        p.put(Context.INITIAL_CONTEXT_FACTORY, "org.openejb.client.LocalInitialContextFactory");
-        p.put("openejb.loader", "embed");
+        if (ctxID == null) {
+            Properties p = new Properties();
+            p.put(Context.INITIAL_CONTEXT_FACTORY, "org.openejb.client.LocalInitialContextFactory");
+            p.put("openejb.loader", "embed");
+            ctx = new InitialContext( p );
+            ctxID = null;
+            out.print("<b>OpenEJB Global JNDI Namespace</b><br><br>");
+        } else {
+            ctx = (Context)session.getAttribute(ctxID);
+            if (ctxID.startsWith("enc")) {
+%>
+<b>JNDI Environment Naming Context (ENC)</b>
+<a href="enc-help.html">[Info]</A>
+<br><BR>
+This is the private namespace of an Enterprise JavaBean. 
+<BR><BR>
+<%
+            }
+        }
 
-        ctx = new InitialContext( p );
         Node root = new RootNode();
         buildNode(root,ctx);
 
         printNodes(root, out, "",selected);
     } catch (Exception e){
         out.println("FAIL");
-        return;
+        throw e;
+        //return;
     }
 %>
 </FONT>
@@ -98,6 +116,9 @@ java.lang.reflect.Method
 
 <%!
 
+    String ctxID;
+    Context ctx;
+
     class Node {
         static final int CONTEXT = 1;
         static final int BEAN = 2;
@@ -108,7 +129,11 @@ java.lang.reflect.Method
         int type = 0;
 
         public String getID(){
-            return parent.getID()+"/"+name;
+            if (parent instanceof RootNode) {
+                return name;
+            } else {
+                return parent.getID()+"/"+name;
+            }
         }
         public String getName(){
             return name;
@@ -131,21 +156,22 @@ java.lang.reflect.Method
             return "";
         }
         public String getName() {
-            return "/";
+            return "";
         }
         public int getType() {
             return Node.CONTEXT;
         }
     }
     public void buildNode(Node parent, Context ctx) throws Exception{
+        if (false) throw new NullPointerException();
         NamingEnumeration enum = ctx.list( "" );
         while (enum.hasMoreElements()){
             NameClassPair pair = (NameClassPair)enum.next();
             Node node = new Node();
             parent.addChild(node);
             node.name = pair.getName();
-
-            Object obj = ctx.lookup(node.name);
+            
+            Object obj = ctx.lookup(node.getName());
             if ( obj instanceof Context ){
                 node.type = Node.CONTEXT;
                 buildNode(node,(Context)obj);
@@ -164,6 +190,7 @@ java.lang.reflect.Method
     String openImg = "<img src='images/TreeOpen.gif' border='0'>";
     String closedImg = "<img src='images/TreeClosed.gif' border='0'>";
     String ejbImg = "<img src='images/ejb.gif' border='0'>";
+    String javaImg = "<img src='images/JavaCup.gif' border='0'>";
     
 
     public void printNodes(Node node, javax.servlet.jsp.JspWriter out, String tabs, String selected) throws Exception {
@@ -178,22 +205,46 @@ java.lang.reflect.Method
     public void printContextNode(Node node, javax.servlet.jsp.JspWriter out, String tabs, String selected) throws Exception {
         String id = node.getID();
         if ( selected.startsWith(id) ) {
-            out.print(tabs+"<a href='viewjndi.jsp?selected="+id+"'>"+openImg+"&nbsp;&nbsp;"+node.getName()+"</a><br>");
+            if (ctxID != null) {
+                out.print(tabs+"<a href='viewjndi.jsp?ctx="+ctxID+"&selected="+id+"'>"+openImg+"&nbsp;&nbsp;"+node.getName()+"</a><br>");
+            } else {
+                out.print(tabs+"<a href='viewjndi.jsp?selected="+id+"'>"+openImg+"&nbsp;&nbsp;"+node.getName()+"</a><br>");
+            }
             for (int i=0; i < node.children.length; i++){
                 Node child = node.children[i];
                 printNodes(child,out,tabs+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",selected);
             }
         } else {
-            out.print(tabs+"<a href='viewjndi.jsp?selected="+id+"'>"+closedImg+"&nbsp;&nbsp;"+node.getName()+"</a><br>");
+            if (ctxID != null) {
+                out.print(tabs+"<a href='viewjndi.jsp?ctx="+ctxID+"&selected="+id+"'>"+closedImg+"&nbsp;&nbsp;"+node.getName()+"</a><br>");
+            } else {
+                out.print(tabs+"<a href='viewjndi.jsp?selected="+id+"'>"+closedImg+"&nbsp;&nbsp;"+node.getName()+"</a><br>");
+            }
         }
     }
 
     public void printBeanNode(Node node, javax.servlet.jsp.JspWriter out, String tabs, String selected) throws Exception {
         String id = node.getID();
-        out.print(tabs+"<a href='viewejb.jsp?selected="+id+"'>"+ejbImg+"&nbsp;&nbsp;"+node.getName()+"</a><br>");
+        if (ctxID != null && ctxID.startsWith("enc")) {
+            // HACK!
+            try{
+                Object ejb = ctx.lookup(id);
+                Object handler = org.openejb.util.proxy.ProxyManager.getInvocationHandler(ejb);
+                Object deploymentID = ((org.openejb.core.ivm.BaseEjbProxyHandler)handler).deploymentID;
+                out.print(tabs+"<a href='viewejb.jsp?ejb="+deploymentID+"'>"+ejbImg+"&nbsp;&nbsp;"+node.getName()+"</a><br>");
+            } catch (Exception e){
+                out.print(tabs+ejbImg+"&nbsp;&nbsp;"+node.getName()+"<br>");
+            }
+        } else {
+            out.print(tabs+"<a href='viewejb.jsp?ejb="+id+"'>"+ejbImg+"&nbsp;&nbsp;"+node.getName()+"</a><br>");
+        }
     }
     
     public void printOtherNode(Node node, javax.servlet.jsp.JspWriter out, String tabs, String selected) throws Exception {
+        String id = node.getID();
+        Object obj = ctx.lookup(id);
+        String clazz = obj.getClass().getName();
+        out.print(tabs+"<a href='viewclass.jsp?class="+clazz+"'>"+javaImg+"&nbsp;&nbsp;"+node.getName()+"</a><br>");
     }
 
 %>

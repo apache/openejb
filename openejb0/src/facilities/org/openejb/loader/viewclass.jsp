@@ -25,30 +25,30 @@ java.lang.reflect.Modifier
 </head>
     <body marginwidth="0" marginheight="0" leftmargin="0" bottommargin="0" topmargin="0" vlink="#6763a9" link="#6763a9" bgcolor="#ffffff">
     <a name="top"></a>
-    <table height="400" width="712" cellspacing="0" cellpadding="0" border="0">
+    <table width="712" cellspacing="0" cellpadding="0" border="0">
         <tr>
-            <td bgcolor="#5A5CB8" align="left" valign="top" width="7"><img height="1" width="1" border="0" src="images/dotTrans.gif"></td>
+            <td bgcolor="#5A5CB8" align="left" valign="top" width="7"><img height="5" width="1" border="0" src="images/dotTrans.gif"></td>
             <td bgcolor="#5A5CB8" align="left" valign="top" width="40"><img border="0" height="6" width="40" src="images/dotTrans.gif"></td>
-            <td bgcolor="#5A5CB8" align="left" valign="top" height="2" width="430"><img border="0" height="6" width="430" src="images/top_2.gif"></td>
+            <td bgcolor="#5A5CB8" align="left" valign="top" height="2" width="530"><img border="0" height="6" width="530" src="images/top_2.gif"></td>
             <td bgcolor="#E24717" align="left" valign="top" height="2" width="120"><img src="images/top_3.gif" width="120" height="6" border="0"></td>
         </tr>
         <tr>
-            <td bgcolor="#5A5CB8" align="left" valign="top" bgcolor="#ffffff" width="7"><img border="0" height="2" width="10" src="images/dotTrans.gif"></td>
+            <td bgcolor="#5A5CB8" align="left" valign="top" bgcolor="#ffffff" width="7"><img border="0" height="15" width="10" src="images/dotTrans.gif"></td>
             <td align="left" valign="top" width="40"><img border="0" height="1" width="1" src="images/dotTrans.gif"></td>
-            <td align="left" valign="middle" width="430"><a href="http://openejb.sourceforge.net"><span class="menuTopOff">OpenEJB</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://openjms.sourceforge.net"><span class="menuTopOff">OpenJMS</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://openorb.sourceforge.net"><span class="menuTopOff">OpenORB</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://castor.exolab.org"><span class="menuTopOff">Castor</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://tyrex.sourceforge.net"><span class="menuTopOff">Tyrex</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"></td>
+            <td align="left" valign="middle" width="530"><a href="http://openejb.sourceforge.net"><span class="menuTopOff">OpenEJB</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://openjms.sourceforge.net"><span class="menuTopOff">OpenJMS</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://openorb.sourceforge.net"><span class="menuTopOff">OpenORB</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://castor.exolab.org"><span class="menuTopOff">Castor</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://tyrex.sourceforge.net"><span class="menuTopOff">Tyrex</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"></td>
             <td align="left" valign="top" height="10" width="120"><img border="0" height="2" width="10" src="images/dotTrans.gif"></td>
         </tr>
         <tr>
             <td align="left" valign="top" bgcolor="#a9a5de" width="7"><img border="0" height="3" width="7" src="images/line_sm.gif"></td>
             <td align="left" valign="top" height="3" width="40"><img border="0" height="3" width="40" src="images/line_light.gif"></td>
-            <td align="left" valign="top" height="3" width="430"><img border="0" height="3" width="430" src="images/line_light.gif"></td>
+            <td align="left" valign="top" height="3" width="530"><img border="0" height="3" width="530" src="images/line_light.gif"></td>
             <td align="left" valign="top" height="3" width="120"><img height="1" width="1" border="0" src="images/dotTrans.gif"></td>
         </tr>
         <tr>
             <td align="left" valign="top" bgcolor="#a9a5de" width="7">&nbsp;</td>
             <td align="left" valign="top" width="40">&nbsp;</td>
-            <td valign="top" width="430" rowspan="4">
-                <table width="430" cellspacing="0" cellpadding="0" border="0" rows="2" cols="1">
+            <td valign="top" width="530" rowspan="4">
+                <table width="530" cellspacing="0" cellpadding="0" border="0" rows="2" cols="1">
                     <tr>
                         <td align="left" valign="top"><br>
                             <img width="200" vspace="0" src="./images/logo_ejb2.gif" hspace="0" height="55" border="0">
