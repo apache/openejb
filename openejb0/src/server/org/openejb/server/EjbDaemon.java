@@ -59,6 +59,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.InetAddress;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.StringTokenizer;
@@ -66,6 +67,8 @@ import java.util.Properties;
 import java.util.Vector;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import javax.naming.*;
 import org.openejb.client.*;
 import org.openejb.client.proxy.*;
@@ -94,7 +97,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
     private SafeToolkit toolkit = SafeToolkit.getToolkit("OpenEJB EJB Server");
 
-	Messages _messages = new Messages( "org.openejb.server.util.resources" );
+    Messages _messages = new Messages( "org.openejb.server.util.resources" );
     Logger logger = Logger.getInstance( "OpenEJB", "org.openejb.server.util.resources" );
 
     Vector           clientSockets  = new Vector();
@@ -1003,7 +1006,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             Properties props = System.getProperties();
 
             // -- Set Defaults -- //
-            props.put("openejb.home",              System.getProperty("user.dir"));
+            //props.put("openejb.home",              System.getProperty("user.dir"));
             props.put("openejb.server.ip",         "127.0.0.1");
             props.put("openejb.server.port",       "4201");
             props.put("openejb.server.threads",    "20");
@@ -1054,8 +1057,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             }
 
             props.setProperty("org/openejb/configuration_factory", "org.openejb.alt.config.ConfigurationFactory");
-
-
+            
             EjbDaemon ejbd = EjbDaemon.getEjbDaemon();
             ejbd.init(props);
             ejbd.start();
