@@ -91,14 +91,23 @@
         </properties>
     </dependency>
 
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-transaction</artifactId>
-        <version>DEV</version>
-        <properties>
-            <runtime>true</runtime>
-        </properties>
-    </dependency>
+      <dependency>
+          <groupId>geronimo</groupId>
+          <artifactId>geronimo-transaction</artifactId>
+          <version>DEV</version>
+          <properties>
+              <runtime>true</runtime>
+          </properties>
+      </dependency>
+
+      <dependency>
+          <groupId>geronimo</groupId>
+          <artifactId>geronimo-naming</artifactId>
+          <version>DEV</version>
+          <properties>
+              <runtime>true</runtime>
+          </properties>
+      </dependency>
 
     <dependency>
       <groupId>geronimo-spec</groupId>
@@ -135,7 +144,7 @@
         <runtime>true</runtime>
       </properties>
     </dependency>
-        
+
     <dependency>
         <groupId>geronimo-spec</groupId>
         <artifactId>geronimo-spec-j2ee-jacc</artifactId>
@@ -223,7 +232,7 @@
         <runtime>true</runtime>
       </properties>
     </dependency>
-    
+
     <dependency>
       <id>idb</id>
       <version>3.26</version>
