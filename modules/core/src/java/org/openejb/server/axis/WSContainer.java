@@ -65,9 +65,12 @@ public class WSContainer {
             RPCProvider provider = new EJBContainerProvider(ejbContainer);
             SOAPService service = new SOAPService(null, provider, null);
             service.setServiceDescription(serviceDesc);
-            service.setOption("className", "org.openejb.test.simple.slsb.SimpleStatelessSessionEJB");
+            Class serviceEndpointInterface = ejbContainer.getProxyInfo().getServiceEndpointInterface();
 
-            AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURL, service);
+            service.setOption("className", serviceEndpointInterface.getName());
+            serviceDesc.setImplClass(serviceEndpointInterface);
+
+            AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURL, service, ejbContainer.getClassLoader());
             if (soapHandler != null) {
                 soapHandler.addWebService(location.getPath(), axisContainer);
             }

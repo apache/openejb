@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Collection;
 import java.net.URL;
+import java.net.URI;
 
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
@@ -128,7 +129,7 @@ public class SoapHttpListener implements HttpListener, SoapHandler {
             return request.getHeader(name);
         }
 
-        public URL getURI() {
+        public URI getURI() {
             return request.getURI();
         }
 
