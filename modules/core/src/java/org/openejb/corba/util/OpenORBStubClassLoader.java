@@ -139,7 +139,7 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
     }
 
     public synchronized void doStart() throws Exception {
-        cacheDir.delete();
+        DeploymentUtil.recursiveDelete(cacheDir);
         cacheDir.mkdirs();
 
         UtilDelegateImpl.setClassLoader(this);
@@ -152,7 +152,7 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
     public synchronized void doStop() throws Exception {
         this.state = STOPPED;
         loaders.clear();
-        cacheDir.delete();
+        DeploymentUtil.recursiveDelete(cacheDir);
 
         log.info("Stopped");
     }
