@@ -103,7 +103,9 @@ public class PseudoTransactionService implements TransactionService {
         public void resume(Transaction tx)
         throws javax.transaction.SystemException, javax.transaction.InvalidTransactionException{
             Transaction ctx = (Transaction)map.get(Thread.currentThread());
-            if(ctx!= null || tx == null || tx.getStatus()!= Status.STATUS_ACTIVE )
+            int status = tx.getStatus();
+            // allow to resume a tx that has been marked for rollback.
+            if(ctx!= null || tx == null || (status != Status.STATUS_ACTIVE && status != Status.STATUS_MARKED_ROLLBACK))
                 throw new javax.transaction.InvalidTransactionException();
             map.put(Thread.currentThread(),tx);
         }
