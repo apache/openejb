@@ -54,7 +54,7 @@ import org.apache.axis.description.JavaServiceDesc;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis.builder.AxisServiceBuilder;
-import org.apache.geronimo.axis.builder.ServiceInfo;
+import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;

@@ -73,7 +73,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.axis.builder.AxisServiceBuilder;
-import org.apache.axis.description.JavaServiceDesc;
+import org.apache.geronimo.axis.server.ServiceInfo;
 import org.openejb.server.StandardServiceStackGBean;
 import org.openejb.server.soap.SoapHttpListenerGBean;
 import org.openejb.server.httpd.HttpServerGBean;
@@ -103,12 +103,12 @@ public class WSContainerTest extends TestCase {
         JarFile jarFile = new JarFile("target/test-ejb-jar.jar");
         String ejbName = "SimpleStatelessSession";
         ClassLoader classLoader = new URLClassLoader(new URL[]{new URL("file:target/test-ejb-jar.jar")}, getClass().getClassLoader());
-        
-        JavaServiceDesc serviceDesc = AxisServiceBuilder.createEJBServiceDesc(jarFile, ejbName, classLoader);
+
+        ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(jarFile, ejbName, classLoader);
 
         ObjectName ejbContainer = MockEJBContainer.addGBean(kernel, "MockEJB", classLoader);
         ObjectName listener = SoapHttpListenerGBean.addGBean(kernel, "HTTPSOAP");
-        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, listener, new URI("/test/service"), wsdlURI, serviceDesc);
+        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, listener, new URI("/test/service"), wsdlURI, serviceInfo);
         ObjectName server = HttpServerGBean.addGBean(kernel, "HTTPSOAP", listener);
         ObjectName executor = buildExecutor(kernel);
         ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTPSOAP", 0, InetAddress.getByName("localhost"), null, null, null, executor, server);
@@ -156,11 +156,11 @@ public class WSContainerTest extends TestCase {
         String ejbName = "SimpleStatelessSession";
         ClassLoader classLoader = new URLClassLoader(new URL[]{new URL("file:target/test-ejb-jar.jar")}, getClass().getClassLoader());
 
-        JavaServiceDesc serviceDesc = AxisServiceBuilder.createEJBServiceDesc(jarFile, ejbName, classLoader);
+        ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(jarFile, ejbName, classLoader);
 
         ObjectName ejbContainer = MockEJBContainerGBean.addGBean(kernel, new File("target/test-ejb-jar").toURL(), "SimpleEJB", "org.openejb.test.simple.slsb.SimpleStatelessSessionEJB", "org.openejb.test.simple.slsb.SimpleStatelessSessionHome", "org.openejb.test.simple.slsb.SimpleStatelessSession", "org.openejb.test.simple.slsb.SimpleStatelessSessionLocalHome", "org.openejb.test.simple.slsb.SimpleStatelessSessionLocal", "org.openejb.test.simple.slsb.SimpleStatelessSessionEndpoint", classLoader);
         ObjectName listener = SoapHttpListenerGBean.addGBean(kernel, "HTTPSOAP");
-        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, listener, new URI("/services/Simple"), wsdlURI, serviceDesc);
+        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, listener, new URI("/services/Simple"), wsdlURI, serviceInfo);
         ObjectName server = HttpServerGBean.addGBean(kernel, "HTTPSOAP", listener);
         ObjectName executor = buildExecutor(kernel);
         ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTPSOAP", 0, InetAddress.getByName("localhost"), null, null, null, executor, server);

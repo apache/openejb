@@ -52,7 +52,7 @@ import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.handlers.HandlerInfoChainFactory;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
-import org.apache.geronimo.axis.builder.ServiceInfo;
+import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.openejb.EJBContainer;
