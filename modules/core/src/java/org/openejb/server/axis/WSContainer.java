@@ -49,8 +49,10 @@ import java.net.URL;
 
 import org.apache.axis.description.JavaServiceDesc;
 import org.apache.axis.handlers.soap.SOAPService;
+import org.apache.axis.handlers.HandlerInfoChainFactory;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
+import org.apache.geronimo.axis.builder.ServiceInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.openejb.EJBContainer;
@@ -65,17 +67,24 @@ public class WSContainer implements GBeanLifecycle {
         location = null;
     }
 
-    public WSContainer(EJBContainer ejbContainer, URI location, URI wsdlURI, SoapHandler soapHandler, JavaServiceDesc serviceDesc) throws Exception {
+    public WSContainer(EJBContainer ejbContainer, URI location, URI wsdlURI, SoapHandler soapHandler, ServiceInfo serviceInfo) throws Exception {
         try {
+
             this.soapHandler = soapHandler;
             this.location = location;
+
             RPCProvider provider = new EJBContainerProvider(ejbContainer);
             SOAPService service = new SOAPService(null, provider, null);
+
+            JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
             service.setServiceDescription(serviceDesc);
             Class serviceEndpointInterface = ejbContainer.getProxyInfo().getServiceEndpointInterface();
 
             service.setOption("className", serviceEndpointInterface.getName());
             serviceDesc.setImplClass(serviceEndpointInterface);
+
+            HandlerInfoChainFactory handlerInfoChainFactory = new HandlerInfoChainFactory(serviceInfo.getHanlderInfos());
+            service.setOption(org.apache.axis.Constants.ATTR_HANDLERINFOCHAIN, handlerInfoChainFactory);
 
             ClassLoader classLoader = ejbContainer.getClassLoader();
             String wsdlResource = wsdlURI.toString();
