@@ -89,7 +89,11 @@ public class CORBABean implements GBeanLifecycle {
     public CORBABean(String configAdapter, ClassLoader classLoader, Executor threadPool, OpenORBNameBean namingService, SecurityService securityService) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         this.classLoader = classLoader;
         this.threadPool = threadPool;
-        this.configAdapter = (ConfigAdapter) classLoader.loadClass(configAdapter).newInstance();
+        if (configAdapter != null) {
+            this.configAdapter = (ConfigAdapter) classLoader.loadClass(configAdapter).newInstance();
+        } else {
+            this.configAdapter = null;
+        }
         //naming service included to force start order.
         //security service included to force start order.
     }
@@ -133,10 +137,14 @@ public class CORBABean implements GBeanLifecycle {
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
 
-            Properties properties = configAdapter.translateToProps(tssConfig);
-            properties.putAll(props);
+            if (configAdapter != null) {
+                Properties properties = configAdapter.translateToProps(tssConfig);
+                properties.putAll(props);
 
-            orb = ORB.init(configAdapter.translateToArgs(tssConfig, args), properties);
+                orb = ORB.init(configAdapter.translateToArgs(tssConfig, args), properties);
+            } else {
+                orb = ORB.init((String[]) args.toArray(new String[args.size()]), props);
+            }
 
             org.omg.CORBA.Object obj = orb.resolve_initial_references("RootPOA");
 
