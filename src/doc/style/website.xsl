@@ -291,12 +291,7 @@
 
       <tr height="5">
         <td width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&#160;</td>
-        <td width="95" height="5" bgcolor="#7270c2" valign="top">
-        <img src="images/dotTrans.gif" width="1" height="15" border="0"/><br/>
-        <img src="images/line_sm.gif" width="105" height="3" border="0"/>
-
-
-        </td>
+        <td width="95" height="5" bgcolor="#7270c2" valign="top">&#160;</td>
         <td width="7" height="5" bgcolor="#a9a5de" valign="top" align="left">&#160;</td>
         <td width="40" height="5" valign="top" align="left">&#160;</td>
         <td width="120" height="5" valign="top" align="left">&#160;</td>
@@ -306,12 +301,7 @@
 
       <tr>
         <td width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&#160;</td>
-        <td width="95" bgcolor="#7270c2" valign="top" align="left">
-          <A href="http://sourceforge.net"> 
-            <IMG  src="http://sourceforge.net/sflogo.php?group_id=44351"
-                  width="88" height="31" border="0" alt="SourceForge Logo"/>
-          </A>
-        </td>
+        <td width="95" bgcolor="#7270c2" valign="top" align="left">&#160;</td>
         <td width="7" bgcolor="#a9a5de" valign="top" align="left">
           <img src="images/dotTrans.gif" width="1" height="25" border="0"/>
         </td>
@@ -589,6 +579,36 @@
     </table>
   </xsl:template>
   
+  <xsl:template match="note">
+   <table border="0" cellpadding="0" cellspacing="0" width="440" bgcolor="#7270c2">
+      <tr>
+       <td bgcolor="#7270c2">
+        <span class="note-caption">
+         <xsl:choose>
+          <xsl:when test="@caption">
+           &#160;<xsl:value-of select="@caption"/>
+          </xsl:when>
+          <xsl:otherwise>&#160;NOTE</xsl:otherwise>
+         </xsl:choose>
+        </span>
+       </td>
+      </tr>
+   <tr>
+   <td bgcolor="#7270c2">
+    <table border="0" cellpadding="7" cellspacing="2" width="100%" bgcolor="#7270c2">
+    <tr>
+    <td bgcolor="#FFFFFF">
+    <span class="note">
+      <xsl:apply-templates/>
+    </span>
+    </td>
+    </tr>
+    </table>
+    </td>
+    </tr>
+    </table>
+  </xsl:template>
+  
   <xsl:template match="file">
     <table border="0" cellpadding="0" cellspacing="0" width="440">
     <tr>
@@ -605,6 +625,56 @@
   </xsl:template>
 
   <xsl:template match="code">
+    <table border="0" cellpadding="0" cellspacing="0" width="440">
+    <xsl:if test="@name">
+      <tr>
+      <td bgcolor="#c0c0c0"><i><span class="code-title"><xsl:value-of select="@name"/></span></i></td>
+      </tr>
+    </xsl:if>
+    <tr>
+    <td bgcolor="#e0e0e0">
+    <span class="code-block">
+      <pre><xsl:apply-templates/></pre>
+    </span>
+    </td>
+    </tr>
+    </table>
+  </xsl:template>
+
+  <xsl:template match="options">
+    <table border="0" cellpadding="6" cellspacing="0" width="440">
+      <xsl:apply-templates/>
+    </table>
+  </xsl:template>
+  
+  <xsl:template match="option">
+    <tr>
+    <td width="10">&#160;</td>
+    <td valign="top">
+      <span class="option-flag"><xsl:value-of select="@flag"/></span>
+    </td>
+
+    <xsl:choose>
+     <xsl:when test="@param">
+     <td valign="top">
+       <span class="option-param"><xsl:value-of select="@param"/></span>
+     </td>
+     </xsl:when>
+     <xsl:otherwise><td valign="top">&#160;</td></xsl:otherwise>
+    </xsl:choose>
+    
+    <td valign="top">
+      <span class="option"><xsl:apply-templates/></span>
+    </td>
+    
+    </tr>            
+  </xsl:template>
+
+  <xsl:template match="code/comment">
+    <span class="code-comment"><xsl:apply-templates/></span>
+  </xsl:template>
+  
+  <xsl:template match="code-old">
     <span class="bodyCode">
       <xsl:apply-templates/>
     </span>
@@ -617,12 +687,6 @@
   <xsl:template match="term">
     <span class="bodyTerm">
       <xsl:apply-templates/>
-    </span>
-  </xsl:template>
-  
-  <xsl:template match="code/comment">
-    <span class="bodyGrey">
-      <font color="red"><xsl:apply-templates/></font>
     </span>
   </xsl:template>
   
