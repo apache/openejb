@@ -44,13 +44,13 @@
  */
 package org.openejb.client;
 
-import javax.naming.*;
-import javax.naming.spi.InitialContextFactory;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Hashtable;
+import javax.naming.*;
+import javax.naming.spi.InitialContextFactory;
 /**
  * JNDI client
  * 
@@ -230,7 +230,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         else if ( name.equals("") ) return new JNDIContext(this);
         else if ( !name.startsWith("/") ) name = tail+name;
 
-        JNDIRequest req = new JNDIRequest(JNDIRequest.JNDI_LOOKUP, "", name);
+        JNDIRequest req = new JNDIRequest(JNDIRequest.JNDI_LOOKUP, name);
 
         JNDIResponse res = null;
         try{
