@@ -156,6 +156,7 @@ public class CORBABean implements GBeanLifecycle {
 
     public void doStop() throws Exception {
         orb.shutdown(true);
+        orb.destroy();
         log.info("Stopped CORBABean");
     }
 
