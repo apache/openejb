@@ -197,6 +197,10 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
         public Object getPrimaryKey(EJBInstanceContext context) {
             throw new IllegalStateException("getPrimaryKey() cannot be called from ejbHome");
         }
+
+        public TimerService getTimerService(EJBInstanceContext context) {
+            throw new IllegalStateException("getTimerService() cannot be called from set/unsetEntityContext");
+        }
     };
 
     public static EntityContextState EJBPOSTCREATE = new EntityContextState() {
@@ -234,6 +238,10 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
 
         public Object getPrimaryKey(EJBInstanceContext context) {
             throw new IllegalStateException("getPrimaryKey() cannot be called from ejbHome");
+        }
+
+        public TimerService getTimerService(EJBInstanceContext context) {
+            throw new IllegalStateException("getTimerService() cannot be called from set/unsetEntityContext");
         }
     };
 
