@@ -554,6 +554,7 @@
             <version>${xerces_version}</version>
             <properties>
                 <endorsed>true</endorsed>
+                <server>true</server>
             </properties>
         </dependency>
 
@@ -563,6 +564,7 @@
             <version>${xml_parser_apis_version}</version>
             <properties>
                 <endorsed>true</endorsed>
+                <server>true</server>
             </properties>
         </dependency>
 
@@ -629,36 +631,36 @@
         </dependency>
 
         <dependency>
-            <groupId>openorb</groupId>
-            <artifactId>openorb-ins</artifactId>
-            <version>${openorb_version}</version>
+            <groupId>tmporb</groupId>
+            <artifactId>tmporb-ins</artifactId>
+            <version>${tmporb_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
         </dependency>
 
         <dependency>
-            <groupId>openorb</groupId>
-            <artifactId>openorb-pss</artifactId>
-            <version>${openorb_version}</version>
+            <groupId>tmporb</groupId>
+            <artifactId>tmporb-pss</artifactId>
+            <version>${tmporb_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
         </dependency>
 
         <dependency>
-            <groupId>openorb</groupId>
-            <artifactId>openorb-ssl</artifactId>
-            <version>${openorb_version}</version>
+            <groupId>tmporb</groupId>
+            <artifactId>tmporb-ssl</artifactId>
+            <version>${tmporb_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
         </dependency>
 
         <dependency>
-            <groupId>openorb</groupId>
-            <artifactId>openorb-ots</artifactId>
-            <version>${openorb_version}</version>
+            <groupId>tmporb</groupId>
+            <artifactId>tmporb-ots</artifactId>
+            <version>${tmporb_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>

@@ -64,13 +64,13 @@
         <uri>tmporb/jars/tmporb-tools-${tmporb_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>openorb/jars/openorb-ins-${openorb_version}.jar</uri>
+        <uri>tmporb/jars/tmporb-ins-${tmporb_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>openorb/jars/openorb-pss-${openorb_version}.jar</uri>
+        <uri>tmporb/jars/tmporb-pss-${tmporb_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>openorb/jars/openorb-ssl-${openorb_version}.jar</uri>
+        <uri>tmporb/jars/tmporb-ssl-${tmporb_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>bouncycastle/jars/bcprov-${bouncycastle_version}.jar</uri>
