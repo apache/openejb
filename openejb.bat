@@ -66,9 +66,8 @@ REM================================================
 goto EOF
 REM================================================
 :VALIDATE 
-   .\bin\validate.bat %2 %3 %4 %5 %6 %7 %8 %9
-   echo Unknown option: %2
-   goto HELP_VALIDATE
+   shift
+   java -jar dist/openejb_validator-1.0.jar %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 goto EOF
 REM================================================
