@@ -50,6 +50,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.URL;
+import java.net.URI;
 import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -197,11 +198,11 @@ public class HttpServer implements SocketService, ServerService, GBeanLifecycle 
             throw new OpenEJBException("Could not read the request.\n" + t.getClass().getName() + ":\n" + t.getMessage(), t);
         }
 
-        URL uri = null;
+        URI uri = null;
         String location = null;
         try {
             uri = req.getURI();
-            location = uri.getFile();
+            location = uri.getPath();
             int querry = location.indexOf("?");
             if (querry != -1) {
                 location = location.substring(0, querry);
