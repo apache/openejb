@@ -349,7 +349,8 @@ public class EndpointHandler implements MethodInterceptor {
             if (beanTransaction != null) {
                 try {
                     //TODO is this delist necessary???????
-                    if (xaResource != null) {
+                    //check we are really in a transaction.
+                    if (xaResource != null && beanTransaction.getTransaction() != null) {
                         beanTransaction.getTransaction().delistResource(xaResource, XAResource.TMSUSPEND);
                     }
                     beanTransaction.commit();
