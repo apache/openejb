@@ -1086,6 +1086,15 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                     if (args.length > i+1 ) {
                         System.setProperty("openejb.server.admin-ip", args[++i]);
                     }
+                } else if (args[i].startsWith("--local-copy")){
+                    if (args[i].endsWith("false") || 
+                        args[i].endsWith("FALSE") || 
+                        args[i].endsWith("no") || 
+                        args[i].endsWith("NO") ) {
+                        System.setProperty("openejb.localcopy", "false");
+                    } else {
+                        System.setProperty("openejb.localcopy", "true");
+                    }
                 } else if (args[i].equals("-help")){
                     printHelp();
                     return;
