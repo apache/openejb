@@ -16,7 +16,8 @@
     <responsibility>Provide clients with a JNDI name space for looking up beans.</responsibility>    
     <responsibility>Delegate method invocations to the container.</responsibility>    
     <related-class>org.openejb.spi.ApplicationServer</related-class>
-    <implementation id="intravm">IntraVM Server</implementation>
-    <implementation id="corbaserver">CORBA Server</implementation>
+    <implementation id="intravm">Local Server</implementation>
+    <implementation id="remoteserver">Remote Server</implementation>
+    <implementation id="corbaserver">CORBA Adapter</implementation>
 </component>
 

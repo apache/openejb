@@ -2,9 +2,11 @@
 <implementation of="appserver" id="intravm">
     <super id="openejb">OpenEJB</super>
     <super id="appserver">Server</super>
-    <super id="intravm">IntraVM</super>
+    <super id="intravm">Local</super>
     <image src="images/figure-appserver.gif"/>
-    <name>IntraVM Server</name>
+    <name>Local Server</name>
+    <alternate-name>IntraVM</alternate-name>
+    <alternate-name>IntraVM Server</alternate-name>
     <description>Allows for optimized interaction among beans and clients in the same virtual machine.</description>
     <detail>    
         Interacts directly with the container    
