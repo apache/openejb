@@ -51,16 +51,11 @@ import java.util.Properties;
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
-import org.omg.CORBA.Policy;
-import org.omg.CORBA.SetOverrideType;
 import org.omg.CORBA.UserException;
-import org.omg.CORBA.portable.ObjectImpl;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
-import org.omg.PortableInterceptor.ClientRequestInfo;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -68,11 +63,9 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
-import org.openejb.corba.security.ClientPolicyFactory;
 import org.openejb.corba.security.config.ConfigAdapter;
 import org.openejb.corba.security.config.css.CSSConfig;
 import org.openejb.corba.transaction.ClientTransactionPolicyConfig;
-import org.openejb.corba.transaction.ClientTransactionPolicyFactory;
 import org.openejb.corba.transaction.nodistributedtransactions.NoDTxClientTransactionPolicyConfig;
 
 
@@ -187,10 +180,10 @@ public class CSSBean implements GBeanLifecycle {
             org.omg.CORBA.Object bean = ic.resolve(nameComponent);
             String beanIOR = nssORB.object_to_string(bean);
 
-            bean =  cssORB.string_to_object(beanIOR);
+            bean = cssORB.string_to_object(beanIOR);
 
             if (bean instanceof ClientContextHolder) {
-                ((ClientContextHolder)bean).setClientContext(context);
+                ((ClientContextHolder) bean).setClientContext(context);
             }
 
             return bean;
