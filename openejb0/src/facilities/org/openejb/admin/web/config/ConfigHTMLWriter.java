@@ -50,7 +50,6 @@ import java.io.Serializable;
 import java.util.Properties;
 
 import org.openejb.alt.config.Bean;
-import org.openejb.alt.config.ConfigUtils;
 import org.openejb.alt.config.sys.ConnectionManager;
 import org.openejb.alt.config.sys.Connector;
 import org.openejb.alt.config.sys.Container;
@@ -93,11 +92,21 @@ public class ConfigHTMLWriter implements Serializable {
 	public static final String FORM_FIELD_PROVIDER = "provider";
 	public static final String FORM_FIELD_CONTAINER_TYPE = "containerType";
 	public static final String FORM_FIELD_INDEX = "index";
+	public static final String FORM_FIELD_DEPLOYMENT_TYPE = "deploymentType";
+	public static final String FORM_FIELD_DEPLOYMENT_TEXT = "deploymentText";
+	public static final String FORM_FIELD_JNDI_PARAMETERS = "jndiParameters";
+	public static final String FORM_FIELD_CONTENT = "content";
+
 	public static final String FORM_FIELD_SUBMIT_OPENEJB = "submitOpenejb";
 	public static final String FORM_FIELD_SUBMIT_CONNECTOR = "submitConnector";
 	public static final String FORM_FIELD_SUBMIT_CONTAINER = "submitContainer";
+	public static final String FORM_FIELD_SUBMIT_DEPLOYMENTS = "submitDeployments";
+	public static final String FORM_FIELD_SUBMIT_JNDI_PROVIDER = "submitJndiProvider";
+	public static final String FORM_FIELD_SUBMIT_RESOURCE = "submitResource";
+	public static final String FORM_FIELD_SUBMIT_CONNECTION_MANAGER = "submitConnectionManager";
 
-	public static final String MESSAGE_BOLD_FIELDS_REQUIRED = "Fields in bold are required.";
+	public static final String DEPLOYMENT_TYPE_JAR = "jar";
+	public static final String DEPLOYMENT_TYPE_DIR = "dir";
 
 	public static void writeOpenejb(PrintWriter body, Openejb openejbConfig, String handle, String configLocation) {
 		//get all the parts of the configuration
@@ -241,11 +250,7 @@ public class ConfigHTMLWriter implements Serializable {
 			body.println(createCEDUrl(TYPE_CONNECTION_MANAGER, DELETE));
 		}
 
-		body.println(createTableHTML("Content", "Proxy Factory", false));
-
-		body.println("<textarea cols=\"30\" rows=\"5\" name=\"content\">");
-		body.println(openejbConfig.getContent());
-		body.println("</textarea>\n</td>\n<td valign=\"top\">");
+		body.println(createTableHTML("Proxy Factory", "Security Service", false));
 
 		if (proxyFactory != null) {
 			body.println(proxyFactory.getId());
@@ -253,7 +258,15 @@ public class ConfigHTMLWriter implements Serializable {
 			body.println("No Proxy Factory");
 		}
 
-		body.println("</td>\n</tr>\n<tr>\n<td>&nbsp;</td>\n<td>");
+		body.println("</td>\n<td>");
+
+		if (securityService != null) {
+			body.println(securityService.getId());
+		} else {
+			body.println("No Security Service");
+		}
+
+		body.println("</td>\n</tr>\n<tr>\n<td>");
 
 		if (proxyFactory == null) {
 			body.println(createCEDUrl(TYPE_PROXY_FACTORY, CREATE));
@@ -262,22 +275,7 @@ public class ConfigHTMLWriter implements Serializable {
 			body.println(createCEDUrl(TYPE_PROXY_FACTORY, DELETE));
 		}
 
-		body.println(createTableHTML("Security Service", "Transaction Service", false));
-
-		if (securityService != null) {
-			body.println(securityService.getId());
-		} else {
-			body.println("No Security Service");
-		}
 		body.println("</td>\n<td>");
-
-		if (transactionService != null) {
-			body.println(transactionService.getId());
-		} else {
-			body.println("No Transaction Service");
-		}
-
-		body.println("</td>\n</tr>\n<tr>\n<td>");
 		if (securityService == null) {
 			body.println(createCEDUrl(TYPE_SECURITY_SERVICE, CREATE));
 		} else {
@@ -285,7 +283,15 @@ public class ConfigHTMLWriter implements Serializable {
 			body.println(createCEDUrl(TYPE_SECURITY_SERVICE, DELETE));
 		}
 
-		body.println("</td>\n<td>");
+		body.println(createTableHTML("Transaction Service", "&nbsp;", false));
+
+		if (transactionService != null) {
+			body.println(transactionService.getId());
+		} else {
+			body.println("No Transaction Service");
+		}
+
+		body.println("</td>\n<td>&nbsp;</td>\n</tr>\n<tr>\n<td>");
 		if (transactionService == null) {
 			body.println(createCEDUrl(TYPE_TRANSACTION_SERVICE, CREATE));
 		} else {
@@ -293,7 +299,7 @@ public class ConfigHTMLWriter implements Serializable {
 			body.println(createCEDUrl(TYPE_TRANSACTION_SERVICE, DELETE));
 		}
 
-		body.println("</td>\n</tr>\n<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
+		body.println("</td><td>&nbsp;</td></tr>\n<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
 		body.println("<tr>\n<td colspan=\"2\">");
 		body.println(HtmlUtilities.createSubmitFormButton(FORM_FIELD_SUBMIT_OPENEJB, "Write Changes"));
 		body.println(HtmlUtilities.createHiddenFormField(FORM_FIELD_HANDLE_FILE, handle));
@@ -352,6 +358,10 @@ public class ConfigHTMLWriter implements Serializable {
 		Properties properties = new Properties();
 		String[] containerTypes = { Bean.CMP_ENTITY, Bean.BMP_ENTITY, Bean.STATEFUL, Bean.STATELESS };
 		String containerType = containerData.getContainerType();
+
+		//print instructions
+		body.println("Please enter the fields below for a container.  If you need help, click on the question");
+		body.println("mark beside the field.  The bold fields are required.<br>");
 
 		body.println(createTableHTMLDecleration());
 		body.println("<tr>\n<td><b>Container</b> <a href=\"javascript:void(0)\">(?)</a></td>\n<td>");
@@ -421,6 +431,134 @@ public class ConfigHTMLWriter implements Serializable {
 		body.println("</table>\n</form>");
 	}
 
+	public static void writeJNDIProvider(PrintWriter body, JndiProvider jndiProvider, String handle, int index) {
+		String id = "";
+		String jar = "";
+		String provider = "";
+		String content = "";
+
+		if (jndiProvider != null) {
+			id = StringUtilities.nullToBlankString(jndiProvider.getId());
+			jar = StringUtilities.nullToBlankString(jndiProvider.getJar());
+			provider = StringUtilities.nullToBlankString(jndiProvider.getProvider());
+			content = StringUtilities.nullToBlankString(jndiProvider.getContent());
+		}
+
+		//print instructions
+		body.println("Please enter the fields below for a JNDI provider.  If you need help, click on the question");
+		body.println("mark beside the field.  The bold fields are required.<br>");
+		body.println(createTableHTMLDecleration());
+		body.println(printFormRow("Id", FORM_FIELD_ID, id, 30, true));
+		body.println(printFormRow("Jar", FORM_FIELD_JAR, jar, 30, false));
+		body.println(printFormRow("Provider", FORM_FIELD_PROVIDER, provider, 30, false));
+		body.println(
+			"<tr>\n<td valign=\"top\"><b>JNDI Parameters</b> <a href=\"javascript:popUpHelp('help/config/help.html')\">(?)</a></td>\n<td>");
+		body.println(HtmlUtilities.createTextArea(FORM_FIELD_JNDI_PARAMETERS, content, 5, 40, null, null, null));
+		body.println("</td>\n</tr>\n<tr>\n<td colspan\"2\">&nbsp;</td>\n</tr>\n<tr>\n<td colspan=\"2\">");
+		body.println(HtmlUtilities.createSubmitFormButton(FORM_FIELD_SUBMIT_JNDI_PROVIDER, "Finished"));
+		body.println(HtmlUtilities.createHiddenFormField(FORM_FIELD_HANDLE_FILE, handle));
+		body.println(HtmlUtilities.createHiddenFormField(FORM_FIELD_INDEX, String.valueOf(index)));
+		body.println("</table>\n</form>");
+
+	}
+
+	public static void writeResource(PrintWriter body, Resource resource, String handle, int index) {
+		String id = "";
+		String jar = "";
+		String provider = "";
+		String jndi = "";
+		String content = "";
+
+		if (resource != null) {
+			id = StringUtilities.nullToBlankString(resource.getId());
+			jar = StringUtilities.nullToBlankString(resource.getJar());
+			provider = StringUtilities.nullToBlankString(resource.getProvider());
+			jndi = StringUtilities.nullToBlankString(resource.getJndi());
+			content = StringUtilities.nullToBlankString(resource.getContent());
+		}
+
+		//print instructions
+		body.println("Please enter the fields below for a resource.  If you need help, click on the question");
+		body.println("mark beside the field.  The bold fields are required.<br>");
+		body.println(createTableHTMLDecleration());
+		body.println(printFormRow("Id", FORM_FIELD_ID, id, 30, true));
+		body.println(printFormRow("Jar", FORM_FIELD_JAR, jar, 30, false));
+		body.println(printFormRow("Provider", FORM_FIELD_PROVIDER, provider, 30, false));
+		body.println(printFormRow("JNDI", FORM_FIELD_JNDI_PARAMETERS, jndi, 30, false));
+		body.println(
+			"<tr>\n<td valign=\"top\">Content <a href=\"javascript:popUpHelp('help/config/help.html')\">(?)</a></td>\n<td>");
+		body.println(HtmlUtilities.createTextArea(FORM_FIELD_CONTENT, content, 5, 40, null, null, null));
+		body.println("</td>\n</tr>\n<tr>\n<td colspan\"2\">&nbsp;</td>\n</tr>\n<tr>\n<td colspan=\"2\">");
+		body.println(HtmlUtilities.createSubmitFormButton(FORM_FIELD_SUBMIT_RESOURCE, "Finished"));
+		body.println(HtmlUtilities.createHiddenFormField(FORM_FIELD_HANDLE_FILE, handle));
+		body.println(HtmlUtilities.createHiddenFormField(FORM_FIELD_INDEX, String.valueOf(index)));
+		body.println("</table>\n</form>");
+
+	}
+
+	public static void writeDeployments(PrintWriter body, Deployments deployments, String handle, int index)
+		throws IOException {
+		String jarOrDir = null;
+		boolean isDir = true;
+
+		if (deployments != null) {
+			if (deployments.getDir() != null) {
+				jarOrDir = deployments.getDir();
+				isDir = true;
+			} else if (deployments.getJar() != null) {
+				jarOrDir = deployments.getJar();
+				isDir = false;
+			}
+		}
+
+		jarOrDir = StringUtilities.nullToBlankString(jarOrDir);
+
+		//print instructions
+		body.println("Please select a Jar or Directory below.  This field is required.<br><br>");
+		body.println(createTableHTMLDecleration());
+
+		body.println("<tr>\n<td>");
+		body.println(HtmlUtilities.createSelectFormField(FORM_FIELD_DEPLOYMENT_TYPE, null));
+		body.println(HtmlUtilities.createSelectOption(DEPLOYMENT_TYPE_JAR, "Jar File", !isDir));
+		body.println(HtmlUtilities.createSelectOption(DEPLOYMENT_TYPE_DIR, "Directory", isDir));
+		body.println("</select>\n</td>\n<td>");
+		body.println(HtmlUtilities.createTextFormField(FORM_FIELD_DEPLOYMENT_TEXT, jarOrDir, 30, 0));
+		body.println("</td>\n<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>");
+		body.println("</td>\n<tr>\n<td colspan=\"2\">");
+		body.println(HtmlUtilities.createSubmitFormButton(FORM_FIELD_SUBMIT_DEPLOYMENTS, "Finshed"));
+		body.println(HtmlUtilities.createHiddenFormField(FORM_FIELD_HANDLE_FILE, handle));
+		body.println(HtmlUtilities.createHiddenFormField(FORM_FIELD_INDEX, String.valueOf(index)));
+		body.println("</td>\n</tr>\n</table>\n</form>");
+	}
+
+	public static void writeConnectionManager(PrintWriter body, ConnectionManager connectionManager, String handle){
+		String id = "";
+		String jar = "";
+		String provider = "";
+		String content = "";
+		if(connectionManager != null) {
+			id = StringUtilities.nullToBlankString(connectionManager.getId());
+			jar = StringUtilities.nullToBlankString(connectionManager.getJar());
+			provider = StringUtilities.nullToBlankString(connectionManager.getProvider());
+			content = StringUtilities.nullToBlankString(connectionManager.getContent());
+		}
+		
+		//print instructions
+		body.println("Please enter the fields below for a connection manager.  If you need help, click on the question");
+		body.println("mark beside the field.  The bold fields are required.<br>");
+		body.println(createTableHTMLDecleration());
+		body.println(printFormRow("Id", FORM_FIELD_ID, id, 30, true));
+		body.println(printFormRow("Jar", FORM_FIELD_JAR, jar, 30, false));
+		body.println(printFormRow("Provider", FORM_FIELD_PROVIDER, provider, 30, false));
+		body.println(
+			"<tr>\n<td valign=\"top\">Content <a href=\"javascript:popUpHelp('help/config/help.html')\">(?)</a></td>\n<td>");
+		body.println(HtmlUtilities.createTextArea(FORM_FIELD_CONTENT, content, 5, 40, null, null, null));
+		body.println("</td>\n</tr>\n<tr>\n<td colspan\"2\">&nbsp;</td>\n</tr>\n<tr>\n<td colspan=\"2\">");
+		body.println(HtmlUtilities.createSubmitFormButton(FORM_FIELD_SUBMIT_CONNECTION_MANAGER, "Finished"));
+		body.println(HtmlUtilities.createHiddenFormField(FORM_FIELD_HANDLE_FILE, handle));
+		body.println("</table>\n</form>");
+	}
+
 	private static String printFormRow(String display, String name, String value, int size, boolean required) {
 		StringBuffer temp = new StringBuffer(125).append("<tr>\n<td>");
 
@@ -477,12 +615,22 @@ public class ConfigHTMLWriter implements Serializable {
 			temp.append("</td>\n</tr>\n");
 		}
 
-		temp
-			.append("<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>\n<tr>\n<td><b>")
-			.append(label1)
-			.append("</b> <a href=\"javascript:popUpHelp('help/config/help.html')\">(?)</a></td>\n<td><b>")
-			.append(label2)
-			.append("</b> <a href=\"javascript:popUpHelp('help/config/help.html')\">(?)</a></td>\n</tr>\n<tr>\n<td>");
+		temp.append("<tr>\n<td colspan=\"2\">&nbsp;</td>\n</tr>\n<tr>\n<td>");
+		if ("&nbsp;".equals(label1)) {
+			temp.append(label1);
+		} else {
+			temp.append("<b>").append(label1).append("</b>").append(
+				" <a href=\"javascript:popUpHelp('help/config/help.html')\">(?)</a>");
+		}
+
+		temp.append("</td>\n<td>");
+		if ("&nbsp;".equals(label2)) {
+			temp.append(label2);
+		} else {
+			temp.append("<b>").append(label2).append("</b>").append(
+				" <a href=\"javascript:popUpHelp('help/config/help.html')\">(?)</a>");
+		}
+		temp.append("</td>\n</tr>\n<tr>\n<td>");
 
 		return temp.toString();
 	}
