@@ -67,6 +67,7 @@
             <artifactId>geronimo-client</artifactId>
             <version>&geronimo-version;</version>
         </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
@@ -76,6 +77,13 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
+            <version>&geronimo-version;</version>
+        </dependency>
+
+    <!-- should be removed once we figure out where DConfigBeans will live -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deploy-tool</artifactId>
             <version>&geronimo-version;</version>
         </dependency>
 
@@ -117,6 +125,12 @@
                 <xmlbeans>true</xmlbeans>
             </properties>
          </dependency>
+
+        <dependency>
+             <groupId>geronimo</groupId>
+             <artifactId>geronimo-service-builder</artifactId>
+             <version>&geronimo-version;</version>
+        </dependency>
 
          <dependency>
             <groupId>geronimo</groupId>
