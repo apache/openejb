@@ -54,6 +54,7 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
+import javax.resource.ResourceException;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 
@@ -153,7 +154,11 @@ public class EJBUserTransaction implements UserTransaction {
                 throw e;
             }
             TransactionContext.setContext(newContext);
-            trackedConnectionAssociator.setConnectorTransactionContext(newContext);
+            try {
+                trackedConnectionAssociator.setConnectorTransactionContext(newContext);
+            } catch (ResourceException e) {
+                throw (SystemException)new SystemException("could not enroll existing connections in transaction").initCause(e);
+            }
         }
 
         public void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException {
@@ -167,7 +172,7 @@ public class EJBUserTransaction implements UserTransaction {
             } finally {
                 UnspecifiedTransactionContext oldContext = beanContext.getOldContext();
                 TransactionContext.setContext(oldContext);
-                trackedConnectionAssociator.setConnectorTransactionContext(oldContext);
+                trackedConnectionAssociator.resetConnectorTransactionContext(oldContext);
                 oldContext.resume();
             }
         }

@@ -81,13 +81,15 @@ public class ConnectionTrackingInterceptor implements Interceptor {
         EJBInvocation ejbInvocation = (EJBInvocation)invocation;
         ConnectorComponentContext enteringConnectorComponentContext = ejbInvocation.getEJBInstanceContext();
         ConnectorTransactionContext enteringConnectorTransactionContext = ejbInvocation.getTransactionContext();
-        ConnectorComponentContext leavingConnectorComponentContext = trackedConnectionAssociator.enter(enteringConnectorComponentContext, unshareableResources);
+        Set oldUnshareableResources = trackedConnectionAssociator.setUnshareableResources(unshareableResources);
+        ConnectorComponentContext leavingConnectorComponentContext = trackedConnectionAssociator.enter(enteringConnectorComponentContext);
         ConnectorTransactionContext leavingConnectorTransactionContext = trackedConnectionAssociator.setConnectorTransactionContext(enteringConnectorTransactionContext);
         try {
             return next.invoke(invocation);
         } finally {
             trackedConnectionAssociator.exit(leavingConnectorComponentContext, unshareableResources);
-            trackedConnectionAssociator.setConnectorTransactionContext(leavingConnectorTransactionContext);
+            trackedConnectionAssociator.resetConnectorTransactionContext(leavingConnectorTransactionContext);
+            trackedConnectionAssociator.setUnshareableResources(oldUnshareableResources);
         }
     }
 }
