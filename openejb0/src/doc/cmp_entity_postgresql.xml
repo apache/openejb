@@ -484,21 +484,7 @@ editor.
     PostgreSQL JDBC2 driver's classes have to be available to OpenEJB. Thus, 
     you need to download from <a href="http://jdbc.postgresql.org">PostgreSQL 
     JDBC2 driver home page</a> and save it in %OPENEJB_HOME%\lib directory as 
-    pgjdbc2.jar. Add the following line to %OPENEJB_HOME%\bin\ejbserver.bat file
-    
-    <p>
-    <command>set CP=%CP%;%OPENEJB_HOME%\lib\pgjdbc2.jar</command>
-    </p>
-    
-    right before 
-    <p>
-    <command>set CP=%JAVA_HOME%\lib\tools.jar;%CP%</command>
-    </p>
-    
-    You have to do this due to a temporary issue OpenEJB ran into with 
-    building classpaths in Windows.  In OpenEJB 0.9, you will be able to
-    just drop your jars in the %OPENEJB_HOME%\lib and they will be loaded
-    automatically.
+    pgjdbc2.jar. The driver will be loaded by OpenEJB at startup.
 </note>
 </p>
 </section>
@@ -518,24 +504,6 @@ Use the OpenEJB <a href="deploy.html">Deploy Tool</a> to deploy your jar.
 The tool will ask for the resource to link the bean's reference to. You 
 should type in <b>1</b> as it points to the resource declared in our 
 configuration file which is the "Default JDBC Database", i.e. PostgreSQL. 
-</p>
-
-<p>
-<note>
-Before a bean can be accessed OpenEJB needs to include the bean's classes 
-(possibly a jar file) in its CLASSPATH. Thus, add the following line to 
-%OPENEJB_HOME%\bin\ejbserver.bat file 
-<p>
-<command>set CP=%CP%;c:\my\app\employee.jar</command>
-</p>
-right before 
-<p>
-<command>set CP=%JAVA_HOME%\lib\tools.jar;%CP%</command>
-</p>
-This is also a temporary classpath problem, with Castor in fact. 
-Hopefully by OpenEJB 0.9 the problem will be resolved and you won't 
-need to put your beans in the %OPENEJB_HOME%\lib directory.
-</note>
 </p>
 
 <p>
@@ -726,18 +694,6 @@ section for more details.
 </p> 
 </li>
 
-<li>
-<p><b>Problem:</b></p>
-<code><![CDATA[
-Exception in thread "main" java.rmi.RemoteException: 
-The server has encountered a fatal error: Error caught during request processing 
-java.lang.ClassCastException: java.lang.String
-        <<no stack trace available>>
-]]></code>
-<p><b>Solution:</b> Add the Employee entity bean's jar to OpenEJB's 
-CLASSPATH. See the <a href="#deploy">Deploy the EJB jar</a> section for 
-more details.</p> 
-</li>
 </ul>
 </p>
 
