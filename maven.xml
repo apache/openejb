@@ -174,9 +174,9 @@
         <modules:reactor goals="clover.wrapper"/>
     </goal>
 
-  <goal name="modules:jar-deploy">
-      <modules:reactor goals="jar:deploy"/>
-  </goal>
+    <goal name="modules:jar:deploy">
+        <modules:reactor goals="jar:deploy"/>
+    </goal>
 
     <goal name="modules:clean">
         <!-- DMB: don't know why we are cleaning this way when we could invoke clean on the submodules -->
@@ -242,6 +242,10 @@
 
     <goal name="eclipse">
         <attainGoal name="modules:eclipse"/>
+    </goal>
+
+    <goal name="jar:deploy">
+        <attainGoal name="modules:jar:deploy"/>
     </goal>
 
     <goal name="blah">
