@@ -3,7 +3,7 @@
 <document url="http://openejb.sf.net/tomcat-object-factory.xml">
     <properties>
         <title>Setting up Tomcat with OpenEJB</title>
-        <sub-title>Leveraging J2EE JNDI principles</sub-title>
+        <sub-title>Introducing EJBs to Servlets</sub-title>
     </properties>
     <body>
         <sideimg src="images/diagram-tomcat-adapter.gif" width="240" height="500"/>
@@ -311,6 +311,45 @@ $ cp $OPENEJB_HOME/dist/openejb_loader-0.9.0.war webapps/]]></code-block>
             </p>
         </section>
 
+        <section title="Loader configuration" ref-id="webapp_config">
+			<p>
+				OpenEJB Loader is a web application and as such is configured in its deployment descriptor (/WEB-INF/web.xml file)
+				as described in the Java Servlets Specification. A part of the descriptor are &lt;init-param&gt;'s.
+				The parameters instruct how a web application behave.
+			</p>
+            <p>
+                OpenEJB Loader comes with the following &lt;init-param&gt;'s parameters. The default value is in brackets.
+                <ul>
+                    <li>
+                        <b>openejb.home</b> - (C:\openejb-VERSION) the home directory of OpenEJB<br/>
+						Set this to the exact path where OpenEJB is installed.
+        				<br/>
+				        If you are using Tomcat, setting this variable means you no 
+				        longer will need to set the CATALINA_OPTS or JAVA_OPTS system 
+				        variable to include the OPENEJB_HOME variable.
+                    </li>
+                    <li>
+                        <b>openejb.configuration</b> - (conf/openejb.conf) the name of the configuration file<br/>
+						Sets the OpenEJB configuration to the specified file.        
+						<br/>
+						This will be resolved relative to the openejb.home if 
+						it is not an absolute path.
+                    </li>
+                    <li>
+                        <b>openejb.localcopy</b> - (true) <br/>
+				        When set to true, the container system will marshall
+				        (ie, copy) all calls between beans are required by 
+				        the EJB 1.1 specification.  
+				        <br/>
+				        When set to false, the container system will pass 
+				        parameters and return values without copying or 
+				        marshalling as is required for EJB 2.0 Local 
+				        interfaces.  
+                    </li>
+                </ul>
+            </p>
+		</section>
+		
         <section title="Example application" ref-id="example">
             <p>
                 You can use the OpenEJB Hello World as an
