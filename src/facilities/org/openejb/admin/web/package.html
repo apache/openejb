@@ -2,7 +2,6 @@
 <html>
 <head>
 <!--
-
   Redistribution and use of this software and associated documentation
   ("Software"), with or without modification, are permitted provided
   that the following conditions are met:
@@ -16,24 +15,24 @@
      following disclaimer in the documentation and/or other
      materials provided with the distribution.
 
-  3. The name "Exolab" must not be used to endorse or promote
+  3. The name "OpenEJB" must not be used to endorse or promote
      products derived from this Software without prior written
-     permission of Exoffice Technologies.  For written permission,
-     please contact info@exolab.org.
+     permission of The OpenEJB Group.  For written permission,
+     please contact openejb-group@openejb.sf.net.
 
-  4. Products derived from this Software may not be called "Exolab"
-     nor may "Exolab" appear in their names without prior written
-     permission of Exoffice Technologies. Exolab is a registered
-     trademark of Exoffice Technologies.
+  4. Products derived from this Software may not be called "OpenEJB"
+     nor may "OpenEJB" appear in their names without prior written
+     permission of The OpenEJB Group. OpenEJB is a registered
+     trademark of The OpenEJB Group.
 
-  5. Due credit should be given to the Exolab Project
-     (http://www.exolab.org/).
+  5. Due credit should be given to the OpenEJB Project
+     (http://openejb.sf.net/).
 
-  THIS SOFTWARE IS PROVIDED BY EXOFFICE TECHNOLOGIES AND CONTRIBUTORS
+  THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
   ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
   NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
   FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
-  EXOFFICE TECHNOLOGIES OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+  THE OPENEJB GROUP OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
   INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
   (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
   SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
@@ -42,36 +41,39 @@
   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
   OF THE POSSIBILITY OF SUCH DAMAGE.
 
-  Copyright 1999 (C) Exoffice Technologies Inc. All Rights Reserved.
+  Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
 
-  $Id$
-
+  $Id:
 -->
 </head>
 <body bgcolor="white">
 
-The core classes of the container system implementing the interfaces defined by the OpenEJB container system architecture.
+The classes and interfaces directly under this package define the HTTP Web Administration Console.
 
 
 <h2>Package Specification</h2>
 
-The core package of OpenEJB defines the main classes that implement the core functionality
-of the container system.  In the core package are the implementations of the stateful, stateless
-and entity containers.  These Containers and the and the classes that support them are in the packages
- {@link org.openejb.core.stateful}, {@link org.openejb.core.stateless}, and {@link org.openejb.core.entity}.
+The Web Administration Console is an HTTP console to perform various administrative tasks including:
+<br><br>
+<ul>
+  <li>EJB Deployment
+  <li>EJB List
+  <li>List of Log files
+  <li>Graphical Configuration
+</ul>
+<br><br>
+...and more to come!  This Administration console will premere in the 1.0 release of OpenEJB.
 
 <h2>Related Documentation</h2>
 
 <ul>
+  <li><a href="http://127.0.0.1:4203/">Localhost Web Administration Console (OpenEJB server must be running)</a>
   <li><a href="http://www.openejb.org">OpenEJB website</a>
   <li><a href="http://www.openejb.org/datasheet.html">OpenEJB Datasheet</a>
   <li>Not subscribed to the mailing list?  <a href="http://lists.sourceforge.net/lists/listinfo/openejb-user" target="_blank">Subscribe me!</a>
 </ul>
 
 <!-- Put @see and @since tags down here. -->
-@see org.openejb.core.ContainerSystem
-@see org.openejb.core.ContainerManager
-@see org.openejb.core.Container
-@see org.openejb.core.DeploymentInfo
+@since 1.0
 </body>
 </html>
