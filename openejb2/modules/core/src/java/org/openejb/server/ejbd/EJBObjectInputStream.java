@@ -49,6 +49,8 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 
+import org.apache.geronimo.kernel.ClassLoading;
+
 public class EJBObjectInputStream extends ObjectInputStream {
 
     private ClassLoader ejbClassLoader;
@@ -73,17 +75,9 @@ public class EJBObjectInputStream extends ObjectInputStream {
         throws IOException, ClassNotFoundException {
         if (ejbClassLoader == null) {
             ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-            try {
-                return contextClassLoader.loadClass(desc.getName());
-            } catch (ClassNotFoundException e) {
-                return super.resolveClass(desc);
-            }
+            return ClassLoading.loadClass(desc.getName(), contextClassLoader);
         }
-        try {
-            return ejbClassLoader.loadClass(desc.getName());
-        } catch (ClassNotFoundException e) {
-            return super.resolveClass(desc);
-        }
+        return ClassLoading.loadClass(desc.getName(), ejbClassLoader);
     }
 
 }
