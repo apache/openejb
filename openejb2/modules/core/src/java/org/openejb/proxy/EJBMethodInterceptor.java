@@ -3,9 +3,11 @@ package org.openejb.proxy;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
+import java.rmi.NoSuchObjectException;
 import javax.ejb.EJBException;
 import javax.ejb.Handle;
 import javax.ejb.EJBObject;
+import javax.ejb.NoSuchObjectLocalException;
 
 import org.apache.geronimo.core.service.InvocationResult;
 
@@ -16,6 +18,7 @@ import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
 import org.openejb.EJBComponentType;
+import org.openejb.ContainerNotFoundException;
 
 public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, Serializable {
     /**
@@ -82,7 +85,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, 
         return proxyFactory;
     }
 
-    public ProxyInfo getProxyInfo() {
+    public ProxyInfo getProxyInfo() throws ContainerNotFoundException {
         if (proxyInfo == null) {
             loadContainerInfo();
         }
@@ -110,7 +113,15 @@ public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, 
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         // fault in the operation map if we don't have it yet
         if (operationMap == null) {
-            loadContainerInfo();
+            try {
+                loadContainerInfo();
+            } catch (ContainerNotFoundException e) {
+                if (!interfaceType.isLocal()) {
+                    throw new NoSuchObjectException(e.getMessage());
+                } else {
+                    throw new NoSuchObjectLocalException(e.getMessage());
+                }
+            }
         }
 
         // extract the primary key from home ejb remove invocations
@@ -163,7 +174,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, 
         }
     }
 
-    private void loadContainerInfo() {
+    private void loadContainerInfo() throws ContainerNotFoundException {
         container = proxyFactory.getContainer();
         operationMap = proxyFactory.getOperationMap(interfaceType);
 

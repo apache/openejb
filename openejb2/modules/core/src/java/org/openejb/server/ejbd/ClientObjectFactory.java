@@ -45,7 +45,6 @@
 package org.openejb.server.ejbd;
 
 import org.openejb.ContainerIndex;
-import org.openejb.client.ClientMetaData;
 import org.openejb.client.EJBHomeHandle;
 import org.openejb.client.EJBHomeHandler;
 import org.openejb.client.EJBMetaDataImpl;
@@ -139,7 +138,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      */
     protected javax.ejb.EJBMetaData _getEJBMetaData(CallContext call, ProxyInfo info) {
 
-        int idCode = containerIndex.getContainerIndex(info.getContainerID());
+        int idCode = getContainerId(info);
         
         EJBMetaDataImpl metaData = new EJBMetaDataImpl(info.getHomeInterface(),
                 info.getRemoteInterface(),
@@ -148,6 +147,10 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
                 info.getContainerID(),
                 idCode);
         return metaData;
+    }
+
+    private int getContainerId(ProxyInfo info) {
+        return containerIndex.getContainerIndex(info.getContainerID());
     }
 
     /**
@@ -162,7 +165,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      */
     protected javax.ejb.Handle _getHandle(CallContext call, ProxyInfo info) {
 
-        int idCode = containerIndex.getContainerIndex(info.getContainerID());
+        int idCode = getContainerId(info);
         
         EJBMetaDataImpl eMetaData = new EJBMetaDataImpl(info.getHomeInterface(),
                 info.getRemoteInterface(),
@@ -189,7 +192,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      */
     protected javax.ejb.HomeHandle _getHomeHandle(CallContext call, ProxyInfo info) {
 
-        int idCode = containerIndex.getContainerIndex(info.getContainerID());
+        int idCode = getContainerId(info);
         
         EJBMetaDataImpl eMetaData = new EJBMetaDataImpl(info.getHomeInterface(),
                 info.getRemoteInterface(),
@@ -215,7 +218,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      */
     protected javax.ejb.EJBObject _getEJBObject(CallContext call, ProxyInfo info) {
 
-        int idCode = containerIndex.getContainerIndex(info.getContainerID());
+        int idCode = getContainerId(info);
         
         EJBMetaDataImpl eMetaData = new EJBMetaDataImpl(info.getHomeInterface(),
                 info.getRemoteInterface(),
@@ -242,7 +245,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      */
     protected javax.ejb.EJBHome _getEJBHome(CallContext call, ProxyInfo info) {
 
-        int idCode = containerIndex.getContainerIndex(info.getContainerID());
+        int idCode = getContainerId(info);
 
         EJBMetaDataImpl eMetaData = new EJBMetaDataImpl(info.getHomeInterface(),
                                                         info.getRemoteInterface(),
