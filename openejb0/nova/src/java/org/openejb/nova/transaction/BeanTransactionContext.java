@@ -71,7 +71,7 @@ import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
 public class BeanTransactionContext extends InheritableTransactionContext {
     private final TransactionManager txnManager;
     private final UnspecifiedTransactionContext oldContext;
-    private Transaction tx;
+    private Transaction transaction;
 
     private Map managedConnections;
 
@@ -86,17 +86,16 @@ public class BeanTransactionContext extends InheritableTransactionContext {
 
     public void begin() throws SystemException, NotSupportedException {
         txnManager.begin();
+        transaction = txnManager.getTransaction();
     }
 
     public void suspend() throws SystemException {
-        assert (tx == null) : "Context already suspended";
-        tx = txnManager.suspend();
+        Transaction suspendedTransaction = txnManager.suspend();
+        assert (transaction == suspendedTransaction) : "suspend did not return our transaction";
     }
 
     public void resume() throws SystemException, InvalidTransactionException {
-        assert (tx != null) : "Context was not suspended";
-        txnManager.resume(tx);
-        tx = null;
+        txnManager.resume(transaction);
     }
 
     public void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException {
@@ -114,6 +113,7 @@ public class BeanTransactionContext extends InheritableTransactionContext {
             txnManager.commit();
         } finally {
             connectorAfterCommit();
+            transaction = null;
         }
     }
 
@@ -122,6 +122,7 @@ public class BeanTransactionContext extends InheritableTransactionContext {
             txnManager.rollback();
         } finally {
             connectorAfterCommit();
+            transaction = null;
         }
     }
 
@@ -133,5 +134,9 @@ public class BeanTransactionContext extends InheritableTransactionContext {
         } catch (SystemException e) {
             return false;
         }
+    }
+
+    public Transaction getTransaction() {
+        return transaction;
     }
 }

@@ -47,6 +47,8 @@
  */
 package org.openejb.nova.transaction;
 
+import javax.transaction.Transaction;
+
 import org.apache.geronimo.connector.outbound.ConnectionReleaser;
 import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
 
@@ -87,5 +89,9 @@ public class UnspecifiedTransactionContext extends TransactionContext {
 
     public boolean isActive() {
         return false;
+    }
+
+    public Transaction getTransaction() {
+        return null;
     }
 }

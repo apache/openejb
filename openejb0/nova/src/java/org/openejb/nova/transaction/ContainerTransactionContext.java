@@ -64,7 +64,7 @@ import javax.transaction.TransactionManager;
  */
 public class ContainerTransactionContext extends InheritableTransactionContext {
     private final TransactionManager txnManager;
-    private Transaction tx;
+    private Transaction transaction;
 
     public ContainerTransactionContext(TransactionManager txnManager) {
         this.txnManager = txnManager;
@@ -72,17 +72,16 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
 
     public void begin() throws SystemException, NotSupportedException {
         txnManager.begin();
+        transaction = txnManager.getTransaction();
     }
 
     public void suspend() throws SystemException {
-        assert (tx == null) : "Context already suspended";
-        tx = txnManager.suspend();
+        Transaction suspendedTransaction = txnManager.suspend();
+        assert (transaction == suspendedTransaction) : "suspend did not return our transaction";
     }
 
     public void resume() throws SystemException, InvalidTransactionException {
-        assert (tx != null) : "Context was not suspended";
-        txnManager.resume(tx);
-        tx = null;
+        txnManager.resume(transaction);
     }
 
     /**
@@ -129,6 +128,7 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
             }
         } finally {
             connectorAfterCommit();
+            transaction = null;
         }
     }
 
@@ -137,6 +137,7 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
             txnManager.rollback();
         } finally {
             connectorAfterCommit();
+            transaction = null;
         }
     }
 
@@ -148,22 +149,26 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
             return false;
         }
     }
-    
+
+    public Transaction getTransaction() {
+        return transaction;
+    }
+
     public void setRollbackOnly() throws IllegalStateException, SystemException {
-        if (tx == null) {
+        if (transaction == null) {
             throw new IllegalStateException("There is no transaction in progress.");
         }
-        tx.setRollbackOnly();
+        transaction.setRollbackOnly();
     }
 
     public boolean getRollbackOnly() throws SystemException {
-        if (tx == null) {
+        if (transaction == null) {
             throw new IllegalStateException("There is no transaction in progress.");
         }
 
-        int status = tx.getStatus();
-        return (status == Status.STATUS_MARKED_ROLLBACK || 
-                status == Status.STATUS_ROLLEDBACK || 
+        int status = transaction.getStatus();
+        return (status == Status.STATUS_MARKED_ROLLBACK ||
+                status == Status.STATUS_ROLLEDBACK ||
                 status == Status.STATUS_ROLLING_BACK );
     }
 }
