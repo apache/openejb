@@ -80,6 +80,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
     private final MethodSignature postCreateSignature;
     private final CacheTable cacheTable;
     private final IdentityDefiner identityDefiner;
+    private final IdentityTransform primaryKeyTransform;
     private final IdentityTransform localProxyTransform;
     private final IdentityTransform remoteProxyTransform;
 
@@ -93,6 +94,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             MethodSignature postCreateSignature,
             CacheTable cacheTable,
             IdentityDefiner identityDefiner,
+            IdentityTransform primaryKeyTransform,
             IdentityTransform localProxyTransform,
             IdentityTransform remoteProxyTransform) {
 
@@ -102,6 +104,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
         this.postCreateSignature = postCreateSignature;
         this.cacheTable = cacheTable;
         this.identityDefiner = identityDefiner;
+        this.primaryKeyTransform = primaryKeyTransform;
         this.localProxyTransform = localProxyTransform;
         this.remoteProxyTransform = remoteProxyTransform;
 
@@ -165,7 +168,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
         // add the row to the cache (returning a new row containing identity)
         cacheRow = cacheTable.addRow(cache, globalId, cacheRow);
         ctx.setCacheRow(cacheRow);
-        ctx.setId(globalId.getId());
+        ctx.setId(primaryKeyTransform.getDomainIdentity(globalId));
 
         // associate the new cmp instance with the tx context
         transactionContext.associate(ctx);
@@ -194,6 +197,6 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
     }
 
     private Object readResolve() {
-        return new CMPCreateMethod(beanClass, cmp1Bridge, createSignature, postCreateSignature, cacheTable, identityDefiner, localProxyTransform, remoteProxyTransform);
+         return new CMPCreateMethod(beanClass, cmp1Bridge, createSignature, postCreateSignature, cacheTable, identityDefiner, primaryKeyTransform, localProxyTransform, remoteProxyTransform);
     }
 }

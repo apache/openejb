@@ -51,22 +51,21 @@ import java.io.Serializable;
 
 import org.openejb.EJBInvocation;
 import org.openejb.dispatch.VirtualOperation;
-
-import org.tranql.query.QueryCommand;
+import org.tranql.query.QueryCommandView;
 
 /**
  * @version $Revision$ $Date$
  */
 public abstract class CMPFinder implements VirtualOperation, Serializable {
-    private final QueryCommand localQuery;
-    private final QueryCommand remoteQuery;
+    private final QueryCommandView localQueryView;
+    private final QueryCommandView remoteQueryView;
 
-    public CMPFinder(QueryCommand localQuery, QueryCommand remoteQuery) {
-        this.localQuery = localQuery;
-        this.remoteQuery = remoteQuery;
+    public CMPFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
+        this.localQueryView = localQueryView;
+        this.remoteQueryView = remoteQueryView;
     }
 
-    protected QueryCommand getCommand(EJBInvocation invocation) {
-        return invocation.getType().isLocal() ? localQuery : remoteQuery;
+    protected QueryCommandView getCommand(EJBInvocation invocation) {
+        return invocation.getType().isLocal() ? localQueryView : remoteQueryView;
     }
 }

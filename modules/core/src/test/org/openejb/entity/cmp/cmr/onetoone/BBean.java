@@ -45,43 +45,59 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.entity.cmp.cmr.onetoone;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.ejb.FinderException;
-
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
-import org.openejb.EJBInvocation;
-import org.tranql.field.Row;
-import org.tranql.ql.QueryException;
-import org.tranql.query.CollectionResultHandler;
-import org.tranql.query.QueryCommandView;
+import javax.ejb.CreateException;
+import javax.ejb.EntityBean;
+import javax.ejb.EntityContext;
+import javax.ejb.RemoveException;
 
 /**
- * 
- * 
+ *
  * @version $Revision$ $Date$
  */
-public class EnumerationValuedFinder extends CMPFinder {
+public abstract class BBean implements EntityBean {
 
-    public EnumerationValuedFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
-        super(localQueryView, remoteQueryView);
+    private EntityContext context;
+
+    // CMP
+    public abstract Integer getField1();
+    public abstract void setField1(Integer field1);
+
+    public abstract String getField2();
+    public abstract void setField2(String field2);
+    
+    // CMR
+    public abstract ALocal getA();
+    public abstract void setA(ALocal b);
+    
+    public Integer ejbCreate(Integer field1)  throws CreateException {
+        setField1(field1);
+        return null;
     }
 
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        try {
-            QueryCommandView commandView = getCommand(invocation);
-            List results = new ArrayList();
-            CollectionResultHandler handler = new CollectionResultHandler(commandView.getView()[0]);
-            commandView.getQueryCommand().execute(handler, new Row(invocation.getArguments()), results);
-            return new SimpleInvocationResult(true, Collections.enumeration(results));
-        } catch (QueryException e) {
-            return new SimpleInvocationResult(false, new FinderException(e.getMessage()).initCause(e));
-        }
+    public void ejbPostCreate(Integer field1) {
     }
 
+    public void setEntityContext(EntityContext ctx) {
+        context = ctx;
+    }
+
+    public void unsetEntityContext() {
+    }
+
+    public void ejbActivate() {
+    }
+
+    public void ejbPassivate() {
+    }
+
+    public void ejbLoad() {
+    }
+
+    public void ejbStore() {
+    }
+
+    public void ejbRemove() throws RemoveException {
+    }
 }

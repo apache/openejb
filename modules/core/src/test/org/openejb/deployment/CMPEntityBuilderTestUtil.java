@@ -45,43 +45,35 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+package org.openejb.deployment;
 
-import javax.ejb.FinderException;
+import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.xbeans.j2ee.EjbJarType;
+import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
+import org.tranql.cache.GlobalSchema;
+import org.tranql.ejb.EJBSchema;
+import org.tranql.sql.sql92.SQL92Schema;
 
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
-import org.openejb.EJBInvocation;
-import org.tranql.field.Row;
-import org.tranql.ql.QueryException;
-import org.tranql.query.CollectionResultHandler;
-import org.tranql.query.QueryCommandView;
+import junit.framework.TestCase;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
- */
-public class EnumerationValuedFinder extends CMPFinder {
+ *
+ * */
+public class CMPEntityBuilderTestUtil extends TestCase {
 
-    public EnumerationValuedFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
-        super(localQueryView, remoteQueryView);
+    private final CMPEntityBuilder delegate;
+    
+    public CMPEntityBuilderTestUtil(OpenEJBModuleBuilder builder) {
+        this.delegate = new CMPEntityBuilder(builder);
     }
-
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        try {
-            QueryCommandView commandView = getCommand(invocation);
-            List results = new ArrayList();
-            CollectionResultHandler handler = new CollectionResultHandler(commandView.getView()[0]);
-            commandView.getQueryCommand().execute(handler, new Row(invocation.getArguments()), results);
-            return new SimpleInvocationResult(true, Collections.enumeration(results));
-        } catch (QueryException e) {
-            return new SimpleInvocationResult(false, new FinderException(e.getMessage()).initCause(e));
-        }
+    
+    public void buildCMPSchema(EARContext earContext, String ejbModuleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema, GlobalSchema globalSchema) throws DeploymentException {
+        delegate.buildCMPSchema(earContext, ejbModuleName, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema, globalSchema);
     }
-
+    
 }

@@ -12,6 +12,22 @@
             <ejb-name>SimpleStatelessSession</ejb-name>
             <jndi-name>client/test/simple/SimpleStatelessSessionHome</jndi-name>
         </session>
+        <entity>
+            <ejb-name>SimpleCMPEntity</ejb-name>
+            <table-name>SimpleCMP</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>firstName</cmp-field-name>
+                <table-column>firstName</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>lastName</cmp-field-name>
+                <table-column>lastName</table-column>
+            </cmp-field-mapping>
+        </entity>
         <message-driven>
             <ejb-name>SimpleMessageDriven</ejb-name>
             <resource-adapter-name>MockRA</resource-adapter-name>

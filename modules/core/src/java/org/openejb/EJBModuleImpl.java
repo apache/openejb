@@ -50,6 +50,7 @@ package org.openejb;
 import java.util.Hashtable;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
@@ -62,6 +63,7 @@ import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.entity.cmp.ConnectionProxyFactory;
+import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.query.ConnectionFactoryDelegate;
 
 /**
@@ -75,8 +77,10 @@ public class EJBModuleImpl implements GBeanLifecycle {
     private final String deploymentDescriptor;
     private final ConnectionFactoryDelegate delegate;
     private final ConnectionProxyFactory connectionFactory;
-
-    public EJBModuleImpl(Kernel kernel, String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, ConnectionFactoryDelegate delegate, ConnectionProxyFactory connectionFactory) {
+    private final TransactionManagerDelegate tmDelegate;
+    private final TransactionManager tm;
+    
+    public EJBModuleImpl(Kernel kernel, String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, ConnectionFactoryDelegate delegate, ConnectionProxyFactory connectionFactory, TransactionManagerDelegate tmDelegate, TransactionManager tm) {
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
@@ -93,6 +97,8 @@ public class EJBModuleImpl implements GBeanLifecycle {
         this.deploymentDescriptor = deploymentDescriptor;
         this.delegate = delegate;
         this.connectionFactory = connectionFactory;
+        this.tmDelegate = tmDelegate;
+        this.tm = tm;
     }
 
     public String getDeploymentDescriptor() {
@@ -151,17 +157,26 @@ public class EJBModuleImpl implements GBeanLifecycle {
         if (delegate != null) {
             delegate.setConnectionFactory(connectionFactory.getProxy());
         }
+        if ( null != tmDelegate ) {
+            tmDelegate.setTransactionManager(tm);
+        }
     }
 
     public void doStop() throws WaitingException, Exception {
         if (delegate != null) {
             delegate.setConnectionFactory(null);
         }
+        if ( null != tmDelegate ) {
+            tmDelegate.setTransactionManager(null);
+        }
     }
 
     public void doFail() {
         if (delegate != null) {
             delegate.setConnectionFactory(null);
+        }
+        if ( null != tmDelegate ) {
+            tmDelegate.setTransactionManager(null);
         }
     }
 
@@ -175,6 +190,8 @@ public class EJBModuleImpl implements GBeanLifecycle {
         infoFactory.addAttribute("deploymentDescriptor", String.class, true);
         infoFactory.addReference("ConnectionFactory", ConnectionProxyFactory.class);
         infoFactory.addAttribute("Delegate", ConnectionFactoryDelegate.class, true);
+        infoFactory.addReference("TransactionManager", TransactionManager.class);
+        infoFactory.addAttribute("TMDelegate", TransactionManagerDelegate.class, true);
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
@@ -190,7 +207,9 @@ public class EJBModuleImpl implements GBeanLifecycle {
             "J2EEApplication",
             "deploymentDescriptor",
             "Delegate",
-            "ConnectionFactory"});
+            "ConnectionFactory",
+            "TMDelegate",
+            "TransactionManager"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

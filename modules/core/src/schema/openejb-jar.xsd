@@ -88,6 +88,7 @@
         <xs:sequence>
             <xs:element name="dependency" type="openejb:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="cmp-connection-factory" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="transaction-manager" type="xs:string" minOccurs="0"/>
 
             <xs:element name="enterprise-beans">
                 <xs:complexType>
@@ -98,6 +99,8 @@
                     </xs:choice>
                 </xs:complexType>
             </xs:element>
+
+            <xs:element name="relationships" type="openejb:relationshipsType" minOccurs="0"/>
 
             <xs:element name="gbean" type="openejb:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="security" type="openejb:securityType" minOccurs="0"/>
@@ -123,6 +126,18 @@
             <xs:element name="ejb-name" type="xs:string"/>
             <xs:element name="jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="local-jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:sequence minOccurs="0">
+                <xs:element name="table-name" type="xs:string"/>
+                <xs:element name="cmp-field-mapping" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="cmp-field-name" type="xs:string"/>
+                            <xs:element name="table-column" type="xs:string"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
 
             <xs:element name="query" type="openejb:queryType" minOccurs="0" maxOccurs="unbounded"/>
 
@@ -166,6 +181,40 @@
             <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
         </xs:sequence>
         <xs:attribute name="id" type="xs:ID"/>
+    </xs:complexType>
+
+    <xs:complexType name="relationshipsType">
+        <xs:sequence>
+            <xs:element name="ejb-relation" type="openejb:ejb-relationType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ejb-relationType">
+        <xs:sequence>
+            <xs:element name="ejb-relation-name" type="xs:string"/>
+            <xs:element name="many-to-many-table-name" type="xs:string" minOccurs="0"/>
+            <xs:element name="ejb-relationship-role" type="openejb:ejb-relationship-roleType" maxOccurs="2"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ejb-relationship-roleType">
+        <xs:sequence>
+            <xs:element name="ejb-relationship-role-name" type="xs:string"/>
+            <xs:element name="role-mapping">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="cmr-field-mapping" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="key-column" type="xs:string"/>
+                                    <xs:element name="foreign-key-column" type="xs:string"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="activation-configType">

@@ -63,6 +63,7 @@ import javax.sql.DataSource;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
+
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -70,18 +71,25 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
-import org.openejb.security.SecurityConfiguration;
 import org.openejb.DeploymentHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.entity.cmp.CMPContainerBuilder;
 import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.security.SecurityConfiguration;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
+import org.tranql.cache.CacheSlot;
+import org.tranql.cache.CacheTable;
+import org.tranql.cache.GlobalSchema;
 import org.tranql.ejb.CMPField;
 import org.tranql.ejb.EJB;
+import org.tranql.ejb.EJBQueryBuilder;
 import org.tranql.ejb.EJBSchema;
+import org.tranql.identity.IdentityDefinerBuilder;
+import org.tranql.query.SchemaMapper;
+import org.tranql.query.UpdateCommand;
 import org.tranql.sql.Column;
 import org.tranql.sql.Table;
 import org.tranql.sql.sql92.SQL92Schema;
@@ -414,8 +422,10 @@ public class BasicCMPEntityContainerTest extends TestCase {
         builder.setSecurityConfiguration(new SecurityConfiguration());
         EJBSchema ejbSchema = new EJBSchema("MOCK");
         SQL92Schema sqlSchema = new SQL92Schema("MOCK", ds);
+        GlobalSchema globalSchema = new GlobalSchema("MOCK");
         builder.setEJBSchema(ejbSchema);
         builder.setSQLSchema(sqlSchema);
+        builder.setGlobalSchema(globalSchema);
         builder.setComponentContext(new ReadOnlyContext());
         builder.setConnectionFactoryName("defaultDatasource");
 
@@ -431,8 +441,19 @@ public class BasicCMPEntityContainerTest extends TestCase {
         table.addColumn(new Column("value", "VALUE", String.class, false));
         sqlSchema.addTable(table);
 
+        SchemaMapper mapper = new SchemaMapper(sqlSchema);
+        EJBQueryBuilder queryBuilder = new EJBQueryBuilder(ejbSchema, new IdentityDefinerBuilder(globalSchema));
+        UpdateCommand createCommand = mapper.transform(queryBuilder.buildCreate("MockEJB"));
+        UpdateCommand storeCommand = mapper.transform(queryBuilder.buildStore("MockEJB"));
+        UpdateCommand removeCommand = mapper.transform(queryBuilder.buildRemove("MockEJB"));
+        CacheSlot slots[] = new CacheSlot[2];
+        slots[0] = new CacheSlot("id", Integer.class, null);
+        slots[1] = new CacheSlot("value", String.class, null);
+        CacheTable cacheTable = new CacheTable("MockEJB", slots, createCommand, storeCommand, removeCommand);
+        globalSchema.addCacheTable(cacheTable);
+        
         builder.setQueries(new HashMap());
-
+        
         container = builder.createConfiguration();
 
         GBeanMBean containerIndex = new GBeanMBean(ContainerIndex.GBEAN_INFO);
