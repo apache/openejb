@@ -48,7 +48,6 @@ import java.util.Hashtable;
 import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.spi.InitialContextFactory;
-import javax.naming.NamingException;
 import org.openejb.EnvProps;
 
 /**
@@ -67,7 +66,7 @@ import org.openejb.EnvProps;
  */
 public class InitContextFactory implements javax.naming.spi.InitialContextFactory {
     
-    public Context getInitialContext(Hashtable env) throws NamingException {
+    public Context getInitialContext(Hashtable env) throws javax.naming.NamingException {
         if (!org.openejb.OpenEJB.isInitialized()) {
             initializeOpenEJB(env);
         }
@@ -78,7 +77,7 @@ public class InitContextFactory implements javax.naming.spi.InitialContextFactor
 
     }
 
-    private void initializeOpenEJB(Hashtable env) throws NamingException{
+    private void initializeOpenEJB(Hashtable env) throws javax.naming.NamingException{
         try{ 
         Properties props = new Properties();
 
@@ -100,8 +99,12 @@ public class InitContextFactory implements javax.naming.spi.InitialContextFactor
 
         org.openejb.OpenEJB.init( props );
 
-        } catch (Exception e){
-            throw new NamingException("Cannot initailize OpenEJB: "+e.getMessage());
+        } 
+	catch( org.openejb.OpenEJBException e){
+            throw new NamingException("Cannot initailize OpenEJB", e);
+        }
+	catch( Exception e){
+            throw new NamingException("Cannot initailize OpenEJB", e);
         }
     }
 
