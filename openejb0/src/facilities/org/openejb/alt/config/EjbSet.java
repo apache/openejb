@@ -62,7 +62,7 @@ public class EjbSet {
     public EjbSet(EjbJar jar, String jarPath){
         this.jar = jar;
         this.jarPath = jarPath;
-        this.beans = ConfigUtils.getBeans( jar );
+        this.beans = EjbJarUtils.getBeans( jar );
     }
 
     public void addWarning( ValidationWarning warning ) {

@@ -213,7 +213,7 @@ public class ConfigUtils  {
     public static OpenejbJar readOpenejbJar(String jarFile) throws OpenEJBException{
 
         /*[1.1]  Get the jar ***************/
-        JarFile jar = getJarFile(jarFile);
+        JarFile jar = JarUtils.getJarFile(jarFile);
 
         /*[1.2]  Find the openejb-jar.xml from the jar ***************/
         JarEntry entry = jar.getJarEntry("META-INF/openejb-jar.xml");
@@ -315,7 +315,7 @@ public class ConfigUtils  {
     public static ServicesJar readServicesJar(String jarFile) throws OpenEJBException{
 
         /*[1.1]  Get the jar ***************/
-        JarFile jar = getJarFile(jarFile);
+        JarFile jar = JarUtils.getJarFile(jarFile);
 
         /*[1.2]  Find the service-jar.xml from the jar ***************/
         JarEntry entry = jar.getJarEntry("META-INF/service-jar.xml");
@@ -402,162 +402,6 @@ public class ConfigUtils  {
         } catch ( Exception e ) {
             handleException("file.0020", xmlFile, e.getLocalizedMessage());
         }
-    }
-
-
-
-    public static EjbJar readEjbJar(String jarFile) throws OpenEJBException{
-        /*[1.1]  Get the jar ***************/
-        JarFile jar = getJarFile(jarFile);
-
-        /*[1.2]  Find the ejb-jar.xml from the jar ***************/
-        JarEntry entry = jar.getJarEntry("META-INF/ejb-jar.xml");
-        if (entry == null) entry = jar.getJarEntry("ejb-jar.xml");
-        
-        if (entry == null) handleException("conf.3900", jarFile, "no message");
-
-        /*[1.3]  Get the ejb-jar.xml from the jar ***************/
-        Reader reader = null;
-        InputStream stream = null;
-        try {
-            stream = jar.getInputStream(entry);
-            reader = new InputStreamReader( stream );
-        } catch ( Exception e ) {
-            handleException("conf.3110", jarFile, e.getLocalizedMessage());
-        }
-
-        /*[1.4]  Get the OpenejbJar from the openejb-jar.xml ***************/
-        EjbJar obj = null;
-        try {
-            obj = unmarshalEjbJar(reader);
-        } catch ( MarshalException e ) {
-            e.printStackTrace();
-            if (e.getException() instanceof UnknownHostException){
-                handleException("conf.3121", jarFile, e.getLocalizedMessage());
-            } else if (e.getException() instanceof IOException){
-                handleException("conf.3110", jarFile, e.getLocalizedMessage());
-            } else {
-                handleException("conf.3120", jarFile, e.getLocalizedMessage());
-            }
-        } catch ( ValidationException e ) {
-            handleException("conf.3130",jarFile, e.getLocalizedMessage());
-        }
-        
-        /*[1.5]  Clean up ***************/
-        try {
-            stream.close();
-            reader.close();
-            jar.close();
-        } catch ( Exception e ) {
-            handleException("file.0020", jarFile, e.getLocalizedMessage());
-        }
-        
-        return obj;
-    }
-    
-    private static DTDResolver resolver = new DTDResolver();
-    
-    private static EjbJar unmarshalEjbJar(java.io.Reader reader) 
-    throws MarshalException, ValidationException {
-        Unmarshaller unmarshaller = new Unmarshaller(org.openejb.alt.config.ejb11.EjbJar.class);
-        unmarshaller.setEntityResolver(resolver);
-
-        return (org.openejb.alt.config.ejb11.EjbJar)unmarshaller.unmarshal(reader);
-    } 
-
-    public static void writeEjbJar(String xmlFile, EjbJar ejbJarObject) throws OpenEJBException{
-        /* TODO:  Just to be picky, the xml file created by
-        Castor is really hard to read -- it is all on one line.
-        People might want to edit this in the future by hand, so if Castor can 
-        make the output look better that would be great!  Otherwise we could
-        just spruce the output up by adding a few new lines and tabs.
-        */
-        Writer writer = null;
-        try{
-            File file = new File(xmlFile);
-            writer = new FileWriter( file );
-            ejbJarObject.marshal( writer );
-        } catch ( IOException e ) {
-                handleException("conf.3040",xmlFile, e.getLocalizedMessage());
-        } catch ( MarshalException e ) {
-            if (e.getException() instanceof IOException){
-                handleException("conf.3040",xmlFile, e.getLocalizedMessage());
-            } else {
-                handleException("conf.3050",xmlFile, e.getLocalizedMessage());
-            }
-        } catch ( ValidationException e ) {
-            /* TODO: Implement informative error handling here. 
-               The exception will say "X doesn't match the regular 
-               expression Y" 
-               This should be checked and more relevant information
-               should be given -- not everyone understands regular 
-               expressions. 
-             */
-            /* NOTE: This doesn't seem to ever happen. When the object graph
-             * is invalid, the MarshalException is thrown, not this one as you
-             * would think.
-             */
-            handleException("conf.3060",xmlFile, e.getLocalizedMessage());
-        }
-        try {
-            writer.close();
-        } catch ( Exception e ) {
-            handleException("file.0020", xmlFile, e.getLocalizedMessage());
-        }
-    }
-
-    public static JarFile getJarFile(String jarFile) throws OpenEJBException{
-        /*[1.1]  Get the jar ***************/
-        JarFile jar = null;
-        try {
-            File file = new File(jarFile);
-            jar = new JarFile(file);
-        } catch ( FileNotFoundException e ) {
-            handleException("conf.0001", jarFile, e.getLocalizedMessage());
-        } catch ( IOException e ) {
-            handleException("conf.0002", jarFile, e.getLocalizedMessage());
-        }
-        return jar;
-    }
-
-    public static void addFileToJar(String jarFile, String file ) throws OpenEJBException{
-        ByteArrayOutputStream errorBytes = new ByteArrayOutputStream();
-    
-        /* NOTE: Sadly, we have to play this little game 
-         * with temporarily switching the standard error
-         * stream to capture the errors.
-         * Although you can pass in an error stream in 
-         * the constructor of the jar tool, they are not
-         * used when an error occurs.
-         */
-        PrintStream newErr = new PrintStream(errorBytes);
-        PrintStream oldErr = System.err;
-        System.setErr(newErr);
-    
-        sun.tools.jar.Main jarTool = new sun.tools.jar.Main(newErr, newErr, "config_utils");
-    
-        String[] args = new String[]{"uf",jarFile,file};
-        jarTool.run(args);
-    
-        System.setErr(oldErr);
-    
-        try{
-        errorBytes.close();
-        newErr.close();
-        } catch (Exception e){
-            handleException("file.0020",jarFile, e.getLocalizedMessage());
-        }
-    
-        String error = new String(errorBytes.toByteArray());
-        if (error.indexOf("java.io.IOException") != -1) {
-            // an IOException was thrown!
-            // clean the error message
-            int begin = error.indexOf(':')+1;
-            int end = error.indexOf('\n');
-            String message = error.substring(begin, end);
-            handleException("conf.0003", file, jarFile, message);
-        }
-    
     }
     
     public static Properties assemblePropertiesFor(String confItem, String itemId, String itemContent, String confFile, String jar, ServiceProvider service) throws OpenEJBException{
@@ -734,23 +578,55 @@ public class ConfigUtils  {
         return config;
     }
 
-    /*------------------------------------------------------*/
-    /*    Methods for collecting beans                      */
-    /*------------------------------------------------------*/
-    public static Bean[] getBeans(EjbJar jar) {
-        Enumeration beanItemList = jar.getEnterpriseBeans().enumerateEnterpriseBeansItem();
-        Vector beanList = new Vector();
-        while ( beanItemList.hasMoreElements() ) {
-            EnterpriseBeansItem item = (EnterpriseBeansItem)beanItemList.nextElement();
-            if ( item.getEntity() == null ) {
-                beanList.add(new SessionBean(item.getSession()));
-            } else {
-                beanList.add(new EntityBean(item.getEntity()));
+    public static boolean addDeploymentEntryToConfig(String jarLocation, Openejb config){
+        Enumeration enum = config.enumerateDeployments();
+        File jar = new File(jarLocation);
+
+        /* Check to see if the entry is already listed */
+        while ( enum.hasMoreElements() ) {
+            Deployments d = (Deployments)enum.nextElement();
+            
+            if ( d.getJar() != null ) {
+                try {
+                    File target = FileUtils.getFile(d.getJar(), false);
+                    
+                    /* 
+                     * If the jar entry is already there, no need 
+                     * to add it to the config or go any futher.
+                     */
+                    if (jar.equals(target)) return false;
+                } catch (java.io.IOException e){
+                    /* No handling needed.  If there is a problem
+                     * resolving a config file path, it is better to 
+                     * just add this jars path explicitly.
+                     */
+                }
+            } else if ( d.getDir() != null ) {
+                try {
+                    File target = FileUtils.getFile(d.getDir(), false);
+                    File jarDir = jar.getAbsoluteFile().getParentFile();
+
+                    /* 
+                     * If a dir entry is already there, the jar
+                     * will be loaded automatically.  No need 
+                     * to add it explicitly to the config or go
+                     * any futher.
+                     */
+                    if (jarDir != null && jarDir.equals(target)) return false;
+                } catch (java.io.IOException e){
+                    /* No handling needed.  If there is a problem
+                     * resolving a config file path, it is better to 
+                     * just add this jars path explicitly.
+                     */
+                }
             }
         }
-        Bean[] beans = new Bean[beanList.size()];
-        beanList.copyInto(beans);
-        return beans;
+
+        /* Create a new Deployments entry */
+        Deployments dep = new Deployments();
+        dep.setJar(jarLocation);
+        config.addDeployments(dep);
+        return true;
     }
 
     /*------------------------------------------------------*/

@@ -53,6 +53,9 @@ public class ValidationException extends java.lang.Exception{
 
     protected static Messages messages = new Messages( "org.openejb.alt.config.rules" );
     
+    protected Bean bean;
+    protected String details;
+
     public ValidationException(String message){
         super(messages.format(message));
     }
@@ -75,6 +78,46 @@ public class ValidationException extends java.lang.Exception{
 
     public ValidationException(String message, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5){
         super( messages.format(message, arg1, arg2, arg3, arg4, arg5) );
+    }
+
+    public void setDetails(String message){
+        this.details = messages.format(message);
+    }
+    
+    public void setDetails(String message, Object arg1){
+        this.details =  messages.format(message, arg1) ;
+    }
+
+    public void setDetails(String message, Object arg1, Object arg2){
+        this.details =  messages.format(message, arg1, arg2) ;
+    }
+
+    public void setDetails(String message, Object arg1, Object arg2, Object arg3){
+        this.details =  messages.format(message, arg1, arg2, arg3) ;
+    }
+
+    public void setDetails(String message, Object arg1, Object arg2, Object arg3, Object arg4){
+        this.details =  messages.format(message, arg1, arg2, arg3, arg4) ;
+    }
+
+    public void setDetails(String message, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5){
+        this.details =  messages.format(message, arg1, arg2, arg3, arg4, arg5) ;
+    }
+
+    public String getDetails(){
+        return details;
+    }
+    
+    public String getSummary(){
+        return getMessage();
+    }
+
+    public Bean getBean(){
+        return bean;
+    }
+    
+    public void setBean(Bean bean){
+        this.bean = bean;
     }
 
 }

@@ -44,13 +44,18 @@
  */
 package org.openejb.alt.config;
 
-import org.openejb.alt.config.sys.*;
-import org.openejb.alt.config.ejb11.*;
+import org.openejb.alt.config.sys.Openejb;
+import org.openejb.alt.config.sys.Container;
+import org.openejb.alt.config.sys.Connector;
+import org.openejb.alt.config.ejb11.EjbDeployment;
+import org.openejb.alt.config.ejb11.EjbJar;
+import org.openejb.alt.config.ejb11.OpenejbJar;
+import org.openejb.alt.config.ejb11.ResourceLink;
+import org.openejb.alt.config.ejb11.ResourceRef;
 import org.openejb.OpenEJBException;
 import org.openejb.util.Messages;
 import org.openejb.util.FileUtils;
 import org.openejb.util.JarUtils;
-import java.util.Enumeration;
 import java.util.Vector;
 import java.util.Properties;
 import java.io.PrintStream;
@@ -243,20 +248,10 @@ public class Deploy {
             config = ConfigUtils.readConfig(configFile);
             
             /* Load container list */
-            containers = new Container[config.getContainerCount()];
-            Enumeration enum = config.enumerateContainer();
-
-            for ( int i=0; i < containers.length; i++ ) {
-                containers[i] = (Container) enum.nextElement();
-            }
+            containers = config.getContainer();
 
             /* Load resource list */
-            resources = new Connector[config.getConnectorCount()];
-            enum = config.enumerateConnector();
-
-            for ( int i=0; i < resources.length; i++ ) {
-                resources[i] = (Connector) enum.nextElement();
-            }
+            resources = config.getConnector();
 
         } catch ( Exception e ) {
             // TODO: Better exception handling.
@@ -272,7 +267,7 @@ public class Deploy {
     /*------------------------------------------------------*/
 
     private void deploy(String jarLocation) throws OpenEJBException{
-        EjbJar jar = ConfigUtils.readEjbJar(jarLocation);
+        EjbJar jar = EjbJarUtils.readEjbJar(jarLocation);
         OpenejbJar openejbJar = new OpenejbJar();
         Bean[] beans = getBeans(jar);
 
@@ -300,120 +295,6 @@ public class Deploy {
 
     }
 
-    private String moveJar(String jar) throws OpenEJBException{
-        File origFile = new File(jar);
-        
-        // Safety checks
-        if (!origFile.exists()){
-            ConfigUtils.logWarning("deploy.m.010", origFile.getAbsolutePath());
-            return jar;
-        }
-
-        if (origFile.isDirectory()){
-            ConfigUtils.logWarning("deploy.m.020", origFile.getAbsolutePath());
-            return jar;
-        }
-
-        if (!origFile.isFile()){
-            ConfigUtils.logWarning("deploy.m.030", origFile.getAbsolutePath());
-            return jar;
-        }
-
-        // Move file
-        String jarName = origFile.getName();
-        File beansDir = null;
-        try {
-            beansDir = FileUtils.getDirectory("beans"); 
-        } catch (java.io.IOException ioe){
-            ConfigUtils.logWarning("deploy.m.040", origFile.getAbsolutePath(), ioe.getMessage());
-            return jar;
-        }
-        
-        File newFile = new File(beansDir, jarName);
-        boolean moved = false;
-        
-        try{
-	    if ( newFile.exists() ) {
-		if ( FORCE_OVERWRITE_JAR ) {
-		    newFile.delete();
-		} else {
-		    throw new OpenEJBException( _messages.format( "deploy.m.061", origFile.getAbsolutePath(), beansDir.getAbsolutePath() ) );
-		}
-	    }
-            moved = origFile.renameTo(newFile); 
-        } catch (SecurityException se){
-            ConfigUtils.logWarning("deploy.m.050", origFile.getAbsolutePath(), se.getMessage());
-        }
-
-        if ( moved ){
-            return newFile.getAbsolutePath();
-        } else {
-            ConfigUtils.logWarning("deploy.m.060", origFile.getAbsolutePath(), newFile.getAbsoluteFile());
-            return origFile.getAbsolutePath();
-        }
-    }
-
-    private String copyJar(String jar) throws OpenEJBException{
-        File origFile = new File(jar);
-        
-        // Safety checks
-        if (!origFile.exists()){
-            ConfigUtils.logWarning("deploy.c.010", origFile.getAbsolutePath());
-            return jar;
-        }
-
-        if (origFile.isDirectory()){
-            ConfigUtils.logWarning("deploy.c.020", origFile.getAbsolutePath());
-            return jar;
-        }
-
-        if (!origFile.isFile()){
-            ConfigUtils.logWarning("deploy.c.030", origFile.getAbsolutePath());
-            return jar;
-        }
-
-        // Move file
-        String jarName = origFile.getName();
-        File beansDir = null;
-        try {
-            beansDir = FileUtils.getDirectory("beans"); 
-        } catch (java.io.IOException ioe){
-            ConfigUtils.logWarning("deploy.c.040", origFile.getAbsolutePath(), ioe.getMessage());
-            return jar;
-        }
-        
-        File newFile = new File(beansDir, jarName);
-        
-        try{
-	    if ( newFile.exists() ) {
-		if ( FORCE_OVERWRITE_JAR ) {
-		    newFile.delete();
-		} else {
-		    throw new OpenEJBException( _messages.format( "deploy.c.061", origFile.getAbsolutePath(), beansDir.getAbsolutePath() ) );
-		}
-	    }
-
-            FileInputStream  in  = new FileInputStream(origFile);
-            FileOutputStream out = new FileOutputStream(newFile);
-        
-            int b = in.read();
-            while( b != -1 ){
-                out.write( b );
-                b = in.read();
-            }
-
-            in.close();
-            out.close();
-
-        } catch (SecurityException e){
-            ConfigUtils.logWarning("deploy.c.050", origFile.getAbsolutePath(), beansDir.getAbsolutePath(), e.getMessage());
-        } catch (IOException e){
-            ConfigUtils.logWarning("deploy.c.060", origFile.getAbsolutePath(), newFile.getAbsolutePath(), e.getClass().getName(), e.getMessage());
-        }
-
-        return newFile.getAbsolutePath();
-    }
-
     private EjbDeployment deployBean(Bean bean) throws OpenEJBException{
         EjbDeployment deployment = new EjbDeployment();
 
@@ -433,13 +314,9 @@ public class Deploy {
         } else {
             deployment.setContainerId(  promptForContainerId(bean)  );
         }
-
-        if ( bean.getResourceRefCount() > 0 ) {
-            ResourceRef[] refs = new ResourceRef[bean.getResourceRefCount()];
-            Enumeration enum = bean.enumerateResourceRef();
-            for ( int i=0; i < refs.length; i++ ) {
-                refs[i] = (ResourceRef)enum.nextElement();
-            }
+        
+        ResourceRef[] refs = bean.getResourceRef();
+        if ( refs.length > 0 ) {
             out.println("\n==--- Step 3 ---==");
             out.println("\nThis bean contains the following references to external \nresources:");
 
@@ -601,21 +478,6 @@ public class Deploy {
         return cs[0].getId();
     }
 
-    private Container[] getUsableContainers(Bean bean) {
-        Vector c = new Vector();        
-
-        for ( int i=0; i < containers.length; i++ ) {
-            if ( containers[i].getCtype().equals(bean.getType()) ) {
-                c.add(containers[i]);
-            }
-        }
-
-        Container[] useableContainers = new Container[c.size()];
-        c.copyInto(useableContainers);
-
-        return useableContainers;
-    }
-
     private void listContainers(Container[] containers) {
         out.println("\nNum \tType     \tID\n");
 
@@ -698,58 +560,6 @@ public class Deploy {
 
 
 
-    private void addDeploymentEntryToConfig(String jarLocation){
-        Enumeration enum = config.enumerateDeployments();
-        File jar = new File(jarLocation);
-
-        /* Check to see if the entry is already listed */
-        while ( enum.hasMoreElements() ) {
-            Deployments d = (Deployments)enum.nextElement();
-            
-            if ( d.getJar() != null ) {
-                try {
-                    File target = FileUtils.getFile(d.getJar(), false);
-                    
-                    /* 
-                     * If the jar entry is already there, no need 
-                     * to add it to the config or go any futher.
-                     */
-                    if (jar.equals(target)) return;
-                } catch (java.io.IOException e){
-                    /* No handling needed.  If there is a problem
-                     * resolving a config file path, it is better to 
-                     * just add this jars path explicitly.
-                     */
-                }
-            } else if ( d.getDir() != null ) {
-                try {
-                    File target = FileUtils.getFile(d.getDir(), false);
-                    File jarDir = jar.getAbsoluteFile().getParentFile();
-
-                    /* 
-                     * If a dir entry is already there, the jar
-                     * will be loaded automatically.  No need 
-                     * to add it explicitly to the config or go
-                     * any futher.
-                     */
-                    if (jarDir != null && jarDir.equals(target)) return;
-                } catch (java.io.IOException e){
-                    /* No handling needed.  If there is a problem
-                     * resolving a config file path, it is better to 
-                     * just add this jars path explicitly.
-                     */
-                }
-            }
-        }
-
-        /* Create a new Deployments entry */
-        Deployments dep = new Deployments();
-        dep.setJar(jarLocation);
-        config.addDeployments(dep);
-        configChanged = true;
-    }
-
-
     private void saveChanges(String jarFile, OpenejbJar openejbJar) throws OpenEJBException{
         out.println("\n-----------------------------------------------------------");
         out.println("Done collecting deployment information!");
@@ -760,7 +570,7 @@ public class Deploy {
         out.println("done");
 
         out.print("Writing openejb-jar.xml to the jar...");
-        ConfigUtils.addFileToJar(jarFile, "META-INF/openejb-jar.xml");
+        JarUtils.addFileToJar(jarFile, "META-INF/openejb-jar.xml");
         
         out.println("done");
         
@@ -788,7 +598,7 @@ public class Deploy {
 
     private void logException(String m, Exception e) throws OpenEJBException{
         m += " : "+e.getMessage();
-        //System.out.println("[OpenEJB] "+m);
+        System.out.println("[OpenEJB] "+m);
         //e.printStackTrace();
         throw new OpenEJBException(m);
     }
@@ -927,103 +737,25 @@ public class Deploy {
     }
 
     /*------------------------------------------------------*/
-    /*    Methods for collecting beans                      */
+    /*    Refactored Methods                                */
     /*------------------------------------------------------*/
     private Bean[] getBeans(EjbJar jar) {
-        Enumeration beanItemList = jar.getEnterpriseBeans().enumerateEnterpriseBeansItem();
-        Vector beanList = new Vector();
-        while ( beanItemList.hasMoreElements() ) {
-            EnterpriseBeansItem item = (EnterpriseBeansItem)beanItemList.nextElement();
-            if ( item.getEntity() == null ) {
-                beanList.add(new SessionBean(item.getSession()));
-            } else {
-                beanList.add(new EntityBean(item.getEntity()));
-            }
-        }
-        Bean[] beans = new Bean[beanList.size()];
-        beanList.copyInto(beans);
-        return beans;
+        return EjbJarUtils.getBeans( jar );
     }
 
-
-
-
-    /*------------------------------------------------------*/
-    /*    Inner Classes for easy bean collections           */
-    /*------------------------------------------------------*/
-    
-    interface Bean {
-
-        public final String BMP_ENTITY = "BMP_ENTITY";
-        public final String CMP_ENTITY = "CMP_ENTITY";
-        public final String STATEFUL   = "STATEFUL";
-        public final String STATELESS  = "STATELESS";
-
-
-        public Enumeration enumerateResourceRef();
-        public String getEjbName();
-        public int getResourceRefCount();
-        public String getType();
+    private String moveJar(String jar) throws OpenEJBException{
+        return EjbJarUtils.moveJar(jar, FORCE_OVERWRITE_JAR );
     }
 
-    class EntityBean implements Bean {
-        Entity bean;
-        String type;
-        EntityBean(Entity bean) {
-            this.bean = bean;
-            if ( bean.getPersistenceType().equals("Container") ) {
-                type = CMP_ENTITY;
-            } else {
-                type = BMP_ENTITY;
-            }
-        }
-
-        public Enumeration enumerateResourceRef() {
-            return bean.enumerateResourceRef();
-        }
-
-        public String getEjbName() {
-            return bean.getEjbName();
-        }
-
-        public int getResourceRefCount() {
-            return bean.getResourceRefCount();
-        }
-
-        public String getType() {
-            return type;
-        }
+    private String copyJar(String jar) throws OpenEJBException{
+        return EjbJarUtils.copyJar(jar, FORCE_OVERWRITE_JAR );
     }
 
-    class SessionBean implements Bean {
-
-        Session bean;
-        String type;
-
-        SessionBean(Session bean) {
-            this.bean = bean;
-            if ( bean.getSessionType().equals("Stateful") ) {
-                type = STATEFUL;
-            } else {
-                type = STATELESS;
-            }
-        }
-
-        public Enumeration enumerateResourceRef() {
-            return bean.enumerateResourceRef();
-        }
-
-        public String getEjbName() {
-            return bean.getEjbName();
-        }
-
-        public int getResourceRefCount() {
-            return bean.getResourceRefCount();
-        }
-
-        public String getType() {
-            return type;
-        }
+    private Container[] getUsableContainers(Bean bean) {
+        return EjbJarUtils.getUsableContainers(containers, bean);
     }
 
+    private void addDeploymentEntryToConfig(String jarLocation){
+        configChanged = ConfigUtils.addDeploymentEntryToConfig(jarLocation, config );
+    }
 }
