@@ -18,4 +18,4 @@ OpenEJB -- EJB Container System and EJB Server.
 For updates and additional information, visit
 http://www.openejb.org
 
-Bug Reports to <openejb-user@lists.sf.net>
+Bug Reports to <user@openejb.org>

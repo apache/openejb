@@ -377,6 +377,11 @@
                 <include name="*.bat"/>
                 <include name="*.cmd"/>
             </fixcrlf>
+            
+		    <replace file="${aggregate.dir}/bin/openejb.bat" 
+		             token="@REPLACED-BY-MAVEN-XML@"
+		             value="${pom.currentVersion}"/>
+            %OPTIONS% -cp %OPENEJB_HOME%/lib/openejb-core-.jar
         </u:available>
     </goal>
 
