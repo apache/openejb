@@ -40,15 +40,6 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>DEV</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>
             <version>DEV</version>
             <properties>
@@ -183,7 +174,8 @@
         </dependency>
 
         <dependency>
-            <id>commons-logging</id>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
             <properties>
@@ -192,7 +184,8 @@
         </dependency>
 
         <dependency>
-            <id>mx4j</id>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
             <version>SNAPSHOT</version>
             <properties>
                 <runtime>false</runtime>
@@ -200,7 +193,8 @@
         </dependency>
 
         <dependency>
-            <id>concurrent</id>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
             <version>1.3.2</version>
             <properties>
                 <runtime>true</runtime>
@@ -208,7 +202,8 @@
         </dependency>
 
         <dependency>
-            <id>log4j</id>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
             <version>1.2.8</version>
             <url>http://jakarta.apache.org/log4j</url>
             <properties>
@@ -227,7 +222,8 @@
         </dependency>
 
         <dependency>
-            <id>xml-apis</id>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
             <version>1.0.b2</version>
             <properties>
                 <runtime>false</runtime>
@@ -235,7 +231,8 @@
         </dependency>
 
         <dependency>
-            <id>cglib+full</id>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-full</artifactId>
             <version>2.0-RC2a</version>
             <url>http://cglib.sourceforge.net</url>
             <properties>
@@ -244,7 +241,8 @@
         </dependency>
 
         <dependency>
-            <id>castor</id>
+            <groupId>castor</groupId>
+            <artifactId>castor</artifactId>
             <version>0.9.3.9</version>
             <url>http://www.castor.org</url>
             <properties>
@@ -253,11 +251,18 @@
         </dependency>
 
         <dependency>
-            <id>idb</id>
+            <groupId>idb</groupId>
+            <artifactId>idb</artifactId>
             <version>3.26</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql</artifactId>
+            <version>DEV</version>
         </dependency>
 
 		<dependency>
@@ -267,7 +272,6 @@
 				<runtime>true</runtime>
 			</properties>
 		</dependency>
-
     </dependencies>
 
     <!-- =================== -->
