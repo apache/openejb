@@ -276,7 +276,8 @@ public class Deploy {
             System.out.println();
             System.out.println("Jar not deployable." );
             System.out.println();
-            System.out.println("Use the validator for more details" );
+            System.out.println("Use the validator with -vvv option for more details." );
+            System.out.println("See http://openejb.sf.net/validate.html for usage." );
             return;
         }
         EjbJar jar = set.getEjbJar();

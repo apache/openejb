@@ -27,7 +27,7 @@ _command_help()
             cat ./bin/test.txt | sed 's/openejb /openejb.sh /'
         ;;
         "validate")
-            cat ./bin/deploy.txt | sed 's/openejb /openejb.sh /'
+            cat ./bin/validate.txt | sed 's/openejb /openejb.sh /'
         ;;
         "deploy")
             cat ./bin/deploy.txt | sed 's/openejb /openejb.sh /'
