@@ -8,7 +8,7 @@
 
 <section title="Introduction" ref-id="intro">
 <p>
-Servlets can access beans from OpenEJB using either the Local (IntraVM) Server 
+Servlets (and thus JSPs) can access beans from OpenEJB using either the Local (IntraVM) Server 
 or the default Remote Server
 </p> 
 
@@ -16,6 +16,13 @@ or the default Remote Server
 This document is a starting point for using OpenEJB in Tomcat and will evolve based 
 on user contributions.  If you wish to contribute to this document, please email the
 text to the <a href="lists.html#openejb-user">OpenEJB User list</a>.
+</p>
+
+<p>
+<ul>
+Tomcat Object Factory:
+<li><a href="tomcat-object-factory.html">OpenEJB and Tomcat setup</a></li>
+</ul>
 </p>
 
 <p>
