@@ -45,10 +45,7 @@
 package org.openejb.server;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
+import java.net.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -65,11 +62,13 @@ public class ServiceDaemon implements GBeanLifecycle {
 
     private SocketListener socketListener;
     private int timeout;
+    private String name;
 
     public ServiceDaemon(SocketService socketService, InetAddress address, int port) {
         this(null, socketService, address, port);
     }
     public ServiceDaemon(String name, SocketService socketService, InetAddress address, int port) {
+        this.name = name;
         if (socketService == null) {
             throw new IllegalArgumentException("socketService is null");
         }
@@ -95,7 +94,7 @@ public class ServiceDaemon implements GBeanLifecycle {
 
         socketListener = new SocketListener(socketService, serverSocket);
         Thread thread = new Thread(socketListener);
-        thread.setName("service." + getServiceName() + "@" + socketListener.hashCode());
+        thread.setName("service." + name + "@" + socketListener.hashCode());
         thread.setDaemon(true);
         thread.start();
     }
@@ -116,6 +115,11 @@ public class ServiceDaemon implements GBeanLifecycle {
         if (socketListener != null){
             socketListener.setSoTimeout(timeout);
         }
+    }
+
+    public int getSoTimeout() throws IOException {
+        if (socketListener == null) return 0;
+        return socketListener.getSoTimeout();
     }
 
     public String getServiceName() {
@@ -167,6 +171,9 @@ public class ServiceDaemon implements GBeanLifecycle {
                         // for closing the socket.
                         serverService.service(socket);
                     }
+                } catch (SocketTimeoutException e) {
+                    // we don't really care
+                    log.debug("Socket timed-out",e);
                 } catch (Throwable e) {
                     log.error("Unexpected error", e);
                 }
@@ -185,6 +192,10 @@ public class ServiceDaemon implements GBeanLifecycle {
 
         public void setSoTimeout(int timeout) throws SocketException {
             serverSocket.setSoTimeout(timeout);
+        }
+
+        public int getSoTimeout() throws IOException {
+            return serverSocket.getSoTimeout();
         }
     }
 

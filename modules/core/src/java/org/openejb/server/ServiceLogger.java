@@ -107,8 +107,8 @@ public class ServiceLogger implements ServerService {
     public void service(Socket socket) throws ServiceException, IOException {
         // Fill this in more deeply later.
         InetAddress client = socket.getInetAddress();
-        MDC.put("HOST", client.getHostName());
-        MDC.put("SERVER", getName());
+//        MDC.put("HOST", client.getHostName());
+//        MDC.put("SERVER", getName());
 
         try {
             logIncoming();
