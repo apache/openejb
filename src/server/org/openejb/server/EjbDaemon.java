@@ -1117,8 +1117,11 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             ejbd.start();
 
         } catch ( Exception re ) {
-            System.err.println("[EJB Server] FATAL ERROR: "+ re.getMessage());
-            re.printStackTrace();
+            System.err.println("FATAL ERROR: "+ re.getMessage());
+            System.err.println("");
+            System.err.println("Check logs for more details.");
+            System.err.println("");
+            //re.printStackTrace();
             System.exit(-1);
         }
     }
