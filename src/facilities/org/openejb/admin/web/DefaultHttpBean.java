@@ -45,6 +45,7 @@
 package org.openejb.admin.web;
 
 import java.io.InputStream;
+import java.io.*; //Added by Jeremy Whitlock (jcscoobyrs) 10/22/03 08:54:14 AM
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.StringTokenizer;
@@ -103,6 +104,12 @@ public class DefaultHttpBean implements HttpBean {
 					response.setContentType("text/javascript");
 				} else if (ext.equalsIgnoreCase(".txt")) {
 					response.setContentType("text/plain");
+				} else if (ext.equalsIgnoreCase(".java")) { //Added by Jeremy Whitlock (jcscoobyrs) 10/20/03 02:09:32 PM
+					response.setContentType("text/plain");  //Added by Jeremy Whitlock (jcscoobyrs) 10/20/03 02:09:32 PM
+				} else if (ext.equalsIgnoreCase(".xml")) {  //Added by Jeremy Whitlock (jcscoobyrs) 10/20/03 02:09:32 PM
+					response.setContentType("text/plain");  //Added by Jeremy Whitlock (jcscoobyrs) 10/20/03 02:09:32 PM
+				} else if (ext.equalsIgnoreCase(".zip")) {  //Added by Jeremy Whitlock (jcscoobyrs) 10/22/03 08:48:51 AM
+					response.setContentType("application/zip");  //Added by Jeremy Whitlock (jcscoobyrs) 10/22/03 08:48:51 AM
 				}
 			}
 
@@ -114,8 +121,29 @@ public class DefaultHttpBean implements HttpBean {
 				out.write(b);
 				b = in.read();
 			}
-		} catch (java.io.FileNotFoundException e) {
-			do404(request, response);
+		} catch (java.io.FileNotFoundException e1) {
+			
+			try
+			{
+				//String file = request.getURI().getFile().substring(1,request.getURI().getFile().length()); //Returns the proper file without the beginning "/"
+				String file = request.getURI().getFile();
+				//file = file.substring(file.indexOf("/"), file.length()); //Returns the file without the webadmin module name in front of it
+				String oehp = System.getProperty("openejb.home"); //OpenEJB Home to get to the proper folder
+				String psep = System.getProperty("file.separator"); //Obvious
+				InputStream in = new FileInputStream(oehp + psep + "httpd" + file); //Creates a FileInputStream to the proper location
+				OutputStream out = response.getOutputStream();
+					
+					int b = in.read();
+					while (b != -1)
+					{
+						out.write(b);
+						b = in.read();
+					}  
+			}
+			catch (java.io.FileNotFoundException e)
+			{
+				do404(request, response);
+			}
 		} catch (java.io.IOException e) {
 			do500(request, response, e.getMessage());
 		}

@@ -44,4 +44,8 @@
         ejb-name="mapping/webadmin/CMPMappingData" 
         deployment-id="mapping/webadmin/CMPMappingData"
         container-id="Default Stateful Container"/>
+    <ejb-deployment
+    	ejb-name="webadmin/EJBGenerator"
+    	deployment-id="webadmin/EJBGenerator"
+    	container-id="Default Stateless Container"/>
 </openejb-jar>
