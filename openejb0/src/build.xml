@@ -1,8 +1,8 @@
 <project name="OpenEJB" default="jar" basedir="../">
   <!-- 
-  		Contributions by:
-  			Daniel S. Haischt <sirabyss@gmx.net>
-  	-->
+        Contributions by:
+            Daniel S. Haischt <sirabyss@gmx.net>
+    -->
 
   <!-- Give user a chance to override without editing this file
        (and without typing -D each time they invoke a target) -->
@@ -324,7 +324,7 @@
       classpathref="project.classpath"
     />
     
-	<available
+    <available
       property="jdk13"
       classname="java.lang.reflect.Proxy"
       classpathref="project.classpath"
@@ -597,7 +597,7 @@
         out="${final.dir}/src/etc/CHANGELOG"
         processor="trax">
 
-    	<param name="version" expression="${version}"/>
+        <param name="version" expression="${version}"/>
            
     </style>
  
@@ -657,8 +657,8 @@
              destdir="${docs.dest}/html/apidocs"
              doctitle="${name} JavaDoc"
              windowtitle="${name} JavaDoc"
-		     package="true"
-		     author="true"
+             package="true"
+             author="true"
              version="true"
              noindex="true"
              classpathref="project.classpath">
@@ -704,17 +704,17 @@
         </classpath>
     </style>
     
-	<style basedir="${docs.src}" 
-		destdir="${docs.dest}/html" 
-		style="src/doc/style/faq.xsl"
-		includes="**/faq*.xml" 
-		excludes="style/**,project.xml,CHANGELOG.xml,download.xml,release-plan.xml"
-		processor="trax">           
+    <style basedir="${docs.src}" 
+        destdir="${docs.dest}/html" 
+        style="src/doc/style/faq.xsl"
+        includes="**/faq*.xml" 
+        excludes="style/**,project.xml,CHANGELOG.xml,download.xml,release-plan.xml"
+        processor="trax">           
 
-		<classpath>
-			<path refid="project.classpath"/>
-		</classpath>
-	</style>
+        <classpath>
+            <path refid="project.classpath"/>
+        </classpath>
+    </style>
 
     <style basedir="${docs.src}" 
         destdir="${docs.dest}/html" 
@@ -808,9 +808,9 @@
   <target name="beautify">
   
     <pretty settingsDir="${user.home}" cvs="true">
- 	  <fileset dir="${src.java.dir}">
-	    <include name="**/*.java" />
-	  </fileset>
+      <fileset dir="${src.java.dir}">
+        <include name="**/*.java" />
+      </fileset>
     </pretty>
   
   </target>
@@ -1041,19 +1041,19 @@
     <!-- create a zip file containing the whole OpenEJB dist -->
     <zip zipfile="dist/${project}-${version}.zip">
       <zipfileset dir="${final.dir}"
-      			  prefix="./${project}-${version}" />
+                  prefix="./${project}-${version}" />
     </zip>
     
     <!-- create a zip file containing just jar files -->
     <zip zipfile="dist/${project}-${version}-lib.zip">
       <zipfileset dir="${final.dir}/lib"
-      			  prefix="./${project}-${version}/lib" />
+                  prefix="./${project}-${version}/lib" />
     </zip>
     
     <!-- create a zip file containing just documentation files -->
     <zip zipfile="dist/${project}-${version}-doc.zip">
       <zipfileset dir="${final.dir}/docs"
-      			  prefix="./${project}-${version}/docs" />
+                  prefix="./${project}-${version}/docs" />
     </zip>
   
   </target>
@@ -1105,11 +1105,15 @@
         <param name="module" value="openejb-server"/>
     </antcall>    
 
+    <antcall target="pre-delegate">
+        <param name="module" value="security"/>
+    </antcall>        
+    
 <!--    
     <antcall target="pre-delegate">
         <param name="module" value="corba"/>
-    </antcall>    
-    
+    </antcall>
+
     <antcall target="pre-delegate">
         <param name="module" value="ri-client"/>
     </antcall>    
@@ -1124,6 +1128,10 @@
     
     <antcall target="pre-delegate">
         <param name="module" value="unit-tests"/>
+    </antcall>    
+
+    <antcall target="pre-delegate">
+        <param name="module" value="security-tests"/>
     </antcall>    
 
   </target>

@@ -45,8 +45,8 @@
 
 package org.openejb.alt.assembler.classic;
 
-import org.openejb.OpenEJBException;
-import org.w3c.dom.Node;
+import java.util.Map;
+
 
 /**
  * SecurityServiceInfo is part of the OpenEjbConfiguration object structure that provides
@@ -86,10 +86,10 @@ import org.w3c.dom.Node;
  * @see org.openejb.alt.assembler.classic.OpenEjbConfigurationFactory
  * @see org.openejb.xmlconf.DomOpenEjbConfigurationFactory
  */
-public class SecurityServiceInfo extends ServiceInfo{
+public class SecurityServiceInfo extends ServiceInfo {
 
 
-    public RoleMappingInfo[] roleMappings;
+    public Map roleMappings;
 
     public SecurityServiceInfo(){
         serviceType = SECURITY_SERVICE;

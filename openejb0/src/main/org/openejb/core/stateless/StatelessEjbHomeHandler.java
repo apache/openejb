@@ -148,7 +148,7 @@ public class StatelessEjbHomeHandler extends EjbHomeProxyHandler {
             stub=null;
         }
         // invoke the remove on the container
-        container.invoke(deploymentID, method, args, primKey, ThreadContext.getThreadContext().getSecurityIdentity());
+        container.invoke( deploymentID, method, args, primKey,  getThreadSpecificSecurityIdentity() );
         if(stub!=null) {
         stub.invalidateReference();
         }

@@ -48,7 +48,7 @@ public class MethodParamsDescriptor extends org.exolab.castor.xml.util.XMLClassD
 
     public MethodParamsDescriptor() {
         super();
-        nsURI = "http://www.openejb.org/ejb-jar/1.1";
+        nsURI = "http://www.openejb.org/openejb-jar/1.1";
         xmlName = "method-params";
         XMLFieldDescriptorImpl  desc           = null;
         XMLFieldHandler         handler        = null;
@@ -84,7 +84,7 @@ public class MethodParamsDescriptor extends org.exolab.castor.xml.util.XMLClassD
             }
         } );
         desc.setHandler(handler);
-        desc.setNameSpaceURI("http://www.openejb.org/ejb-jar/1.1");
+        desc.setNameSpaceURI("http://www.openejb.org/openejb-jar/1.1");
         addFieldDescriptor(desc);
         
         //-- validation code for: _id
@@ -119,7 +119,7 @@ public class MethodParamsDescriptor extends org.exolab.castor.xml.util.XMLClassD
             }
         } );
         desc.setHandler(handler);
-        desc.setNameSpaceURI("http://www.openejb.org/ejb-jar/1.1");
+        desc.setNameSpaceURI("http://www.openejb.org/openejb-jar/1.1");
         desc.setMultivalued(true);
         addFieldDescriptor(desc);
         

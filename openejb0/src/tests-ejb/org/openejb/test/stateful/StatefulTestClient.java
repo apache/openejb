@@ -53,12 +53,12 @@ import java.net.URL;
 import org.openejb.test.TestManager;
 
 /**
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
 public abstract class StatefulTestClient extends org.openejb.test.NamedTestCase{
-    
+
     protected InitialContext initialContext;
 
     protected EJBMetaData       ejbMetaData;
@@ -69,18 +69,18 @@ public abstract class StatefulTestClient extends org.openejb.test.NamedTestCase{
     public StatefulTestClient(String name){
         super("Stateful."+name);
     }
-    
+
     /**
      * Sets up the fixture, for example, open a network connection.
      * This method is called before a test is executed.
      */
     protected void setUp() throws Exception {
-        
+
         Properties properties = TestManager.getServer().getContextEnvironment();
-        properties.put(Context.SECURITY_PRINCIPAL, "STATEFUL_test00_CLIENT");
-        properties.put(Context.SECURITY_CREDENTIALS, "STATEFUL_test00_CLIENT");
-        
+        properties.put(Context.SECURITY_PRINCIPAL, "alan");
+        properties.put(Context.SECURITY_CREDENTIALS, "secret");
+
         initialContext = new InitialContext(properties);
     }
-    
+
 }

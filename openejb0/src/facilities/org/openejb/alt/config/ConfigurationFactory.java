@@ -45,12 +45,15 @@
 package org.openejb.alt.config;
 
 import java.io.*;
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Vector;
 import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
@@ -87,12 +90,12 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     String configLocation = "";
 
     Vector deploymentIds = new Vector();
-    Vector securityRoles = new Vector();
     Vector containerIds  = new Vector();
 
     Vector mthdPermInfos = new Vector();
     Vector mthdTranInfos = new Vector();
-    Vector sRoleInfos    = new Vector();
+    Map    roleMaps      = new HashMap();
+    Map    mthdPermMaps  = new HashMap();
 
     //------------------------------------------------//
     //
@@ -190,21 +193,21 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         }
 
 
+	// TODO: This really should be configured...
         // Add the defaults
         SecurityRoleInfo defaultRole = new SecurityRoleInfo();
         defaultRole.description = "The role applied to recurity references that are not linked.";
         defaultRole.roleName    = DEFAULT_SECURITY_ROLE;
-        sRoleInfos.add(defaultRole);
+//+++        sRoleInfos.add(defaultRole);
 
 
         // Collect Arrays
-        sys.containerSystem.securityRoles      = new SecurityRoleInfo[sRoleInfos.size()];
         sys.containerSystem.methodPermissions  = new MethodPermissionInfo[mthdPermInfos.size()];
         sys.containerSystem.methodTransactions = new MethodTransactionInfo[mthdTranInfos.size()];
 
-        sRoleInfos.copyInto( sys.containerSystem.securityRoles );
         mthdPermInfos.copyInto( sys.containerSystem.methodPermissions );
         mthdTranInfos.copyInto( sys.containerSystem.methodTransactions );
+	sys.containerSystem.securityMappings = roleMaps;
 
         initSecutityService(openejb, sys.facilities);
 
@@ -272,26 +275,10 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                                                                  ss.getContent(),
                                                                  configLocation,
                                                                  ssp);
-        SecurityRoleInfo[] roles = sys.containerSystem.securityRoles;
-        RoleMappingInfo[] r = new RoleMappingInfo[roles.length];
-        ssi.roleMappings    = r;
-
-        // This is really a workaround, I'm simply giving
-        // the physical role the same name as the logical 
-        // role.  No security services have been integrated
-        // with OpenEJB yet. The conecpt of having OpenEJB 
-        // do the role linking for the security service has
-        // never been put to the test, therefore, we are not 
-        // going to worry about role mapping until a valid
-        // security service is integrated.  At that time, we
-        // can take the approach that makes the most sense.
-        for ( int i=0; i < r.length; i++ ) {
-            r[i] = new RoleMappingInfo();
-            r[i].logicalRoleNames  = new String[]{ roles[i].roleName};
-            r[i].physicalRoleNames = new String[]{ roles[i].roleName};
-        }
-
-        facilities.securityService = ssi;
+	
+	ssi.roleMappings    = sys.containerSystem.securityMappings;
+       
+	facilities.securityService = ssi;
     }
 
     private void initTransactionService(Openejb openejb, FacilitiesInfo facilities) throws OpenEJBException {
@@ -721,27 +708,51 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
     private void initSecurityRoles(DeployedJar jar, Map ejbds, Map infos, Map items) throws OpenEJBException{
 
-
         SecurityRole[] sr = jar.ejbJar.getAssemblyDescriptor().getSecurityRole();
+	SecurityMap[] sm = jar.openejbJar.getSecurityMappings().getSecurityMap();
 
         if ( sr == null || sr.length < 1 ) return;
 
-        SecurityRoleInfo[] roles = new SecurityRoleInfo[sr.length];
-        for ( int i=0; i < roles.length; i++ ) {
-            roles[i] = new SecurityRoleInfo();
+        Set roleSet = new HashSet( sr.length );
+        roleMaps.put( jar.jarURI, roleSet );
+        
+	for ( int i=0; i < sr.length; i++ ) {
+	    SecurityRoleInfo role = new SecurityRoleInfo();
+            
+	    role = new SecurityRoleInfo();
 
-            roles[i].description = sr[i].getDescription();
-            roles[i].roleName    = sr[i].getRoleName();
+            role.description = sr[i].getDescription();
+            role.roleName    = sr[i].getRoleName();
 
-            // Check For Duplicate Container IDs
-            if ( securityRoles.contains(sr[i].getRoleName()) ) {
-                ConfigUtils.logWarning("conf.0102",jar.jarURI,sr[i].getRoleName());
-            } else {
-                securityRoles.add(sr[i].getRoleName());
-            }
+	    for ( int j=0; j<sm.length; j++ ) {
+		if ( sm[j].getRoleName().equals( role.roleName ) ) {
+		    SecurityRealm[] realms = sm[j].getSecurityRealm();
+
+		    for ( int k=0; k<realms.length; k++ ) {
+			SecurityRealmInfo realm = new SecurityRealmInfo();
+			org.openejb.alt.config.ejb11.Principal[] principals = realms[k].getPrincipal();
+
+			realm.realmName = realms[k].getName();
+			realm.description = realms[k].getDescription();
+
+			for ( int l=0; l<principals.length; l++ ) {
+			    PrincipalInfo p = new PrincipalInfo();
+
+    			    p.name = principals[l].getName();
+			    p.description = principals[l].getDescription();
+			    p.type = principals[l].getType();
+
+			    realm.principals.add( p );
+			}
+
+
+			role.realms.add( realm );
+		    }
+		}
+	    }
+            
+            roleSet.add( role );
         }
-
-        this.sRoleInfos.addAll(Arrays.asList(roles));
     }
 
     private void initMethodPermissions(DeployedJar jar, Map ejbds, Map infos, Map items) throws OpenEJBException{
@@ -757,6 +768,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             perms[i].description = mp[i].getDescription();
             perms[i].roleNames   = mp[i].getRoleName();
             perms[i].methods     = getMethodInfos(mp[i].getMethod(), ejbds);
+            perms[i].JarURI      = jar.jarURI;
         }
 
         this.mthdPermInfos.addAll(Arrays.asList(perms));
@@ -1206,17 +1218,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             }
         }
 
-        if ( conf.containerSystem.securityRoles != null ) {
-            out(0,"--Security Roles------------");
-            for ( int i=0; i < sys.containerSystem.securityRoles.length; i++ ) {
-                out(1,"--["+i+"]----------------------");
-                out(1,"            ", sys.containerSystem.securityRoles[i]);
-                out(1,"description ", sys.containerSystem.securityRoles[i].description);
-                out(1,"roleName    ", sys.containerSystem.securityRoles[i].roleName);
-            }
-        }
-
-        if ( conf.containerSystem.methodPermissions != null ) {
+	if ( conf.containerSystem.methodPermissions != null ) {
             out(0,"--Method Permissions--------");
             for ( int i=0; i < sys.containerSystem.methodPermissions.length; i++ ) {
                 out(1,"--["+i+"]----------------------");

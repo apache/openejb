@@ -139,9 +139,10 @@ public class ContainerSystem extends ContainerSystemInfo implements DomObject{
         System.arraycopy(statefulContainers , 0, containers, x += statelessContainers.length ,statefulContainers.length);
         
         
-        dos = DomTools.collectChildElementsByType(node, SecurityRole.class, SECURITY_ROLE);
-        securityRoles = new SecurityRole[dos.length];
-        for (int i=0; i < dos.length; i++) securityRoles[i] = (SecurityRole)dos[i];
+	// TODO: replace w/ securityMappings
+        // dos = DomTools.collectChildElementsByType(node, SecurityRole.class, SECURITY_ROLE);
+        // securityRoles = new SecurityRole[dos.length];
+        // for (int i=0; i < dos.length; i++) securityRoles[i] = (SecurityRole)dos[i];
 
         dos = DomTools.collectChildElementsByType(node, MethodPermission.class, METHOD_PERMISSION);
         methodPermissions = new MethodPermission[dos.length];

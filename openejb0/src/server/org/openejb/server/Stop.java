@@ -53,20 +53,21 @@ import org.openejb.util.JarUtils;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class Stop implements org.openejb.client.RequestMethods {
-    
+
     /**
-     * 
+     *
      * @param host The ip address the Remote Server is running on
-     * @param port The port the Remote Server is running on      
+     * @param port The port the Remote Server is running on
      */
     public static void stop(String host, int port) {
         try{
-            
-        Socket socket = new Socket(host, port);
-        OutputStream out = socket.getOutputStream();
-        
-        out.write( STOP_REQUEST_Stop );
-                
+
+	    Socket socket = new Socket(host, port);
+	    ObjectOutputStream out = new ObjectOutputStream( socket.getOutputStream() );
+    
+	    out.writeByte( STOP_REQUEST_Stop );
+	    out.flush();
+
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -78,7 +79,7 @@ public class Stop implements org.openejb.client.RequestMethods {
             // The ip address the Remote Server is running on
             String host = "localhost";
 
-            // The port the Remote Server is running on      
+            // The port the Remote Server is running on
             int port = 4201;
 
             for (int i=0; i < args.length; i++){
@@ -99,7 +100,7 @@ public class Stop implements org.openejb.client.RequestMethods {
                 }
             }
 
-            stop( host, port );           
+            stop( host, port );
         } catch ( Exception re ) {
             System.err.println("[EJB Server] FATAL ERROR: "+ re.getMessage());
             re.printStackTrace();

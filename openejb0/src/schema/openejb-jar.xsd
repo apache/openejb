@@ -49,6 +49,7 @@
 		<xsd:complexType>
 			<xsd:sequence>
 				<xsd:element ref="ejb-deployment" minOccurs="1" maxOccurs="unbounded"/>
+				<xsd:element ref="security-mappings" minOccurs="0" maxOccurs="1"/> 
 			</xsd:sequence>
 		</xsd:complexType>
     </xsd:element>
@@ -70,7 +71,70 @@
 			<xsd:attribute name="res-id" type="xsd:string"/>
 		</xsd:complexType>
     </xsd:element>
-
+    
+    <!--
+    The security-mappings element is used to hold a collection of security 
+    realms that are to be used for the role-name to principal mapping.
+    
+    Used in: ejb-deployment
+    -->
+    <xsd:element name="security-mappings">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="security-map" minOccurs="1" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+    </xsd:element>
+     
+    <!--
+    The security-realm element is used to specify a security realm that is 
+    to be used for the role-name to principal mapping.
+    
+    Used in: security-mappings
+    -->
+    <xsd:element name="security-map">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="security-realm" minOccurs="1" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="role-name" type="xsd:string"/>
+		</xsd:complexType>
+    </xsd:element>
+     
+    <!--
+    The security-map element is used to specify a set of maps a principal in a
+    particular principal real in a particular security realm to a role-name.
+    
+    Used in: security-map
+    -->
+    <xsd:element name="security-realm">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="principal" minOccurs="1" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="name" type="xsd:string"/>
+		</xsd:complexType>
+    </xsd:element>
+   
+    <!--
+    The principals element is used to specify a set of maps a principal in a
+    particular principal real in a particular security realm to a role-name.
+    
+    Used in: security-map
+    -->
+    <xsd:element name="principal">
+		<xsd:complexType mixed='true'>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0" maxOccurs="1"/>
+			</xsd:sequence>
+			<xsd:attribute name="type" type="xsd:string"/>
+			<xsd:attribute name="name" type="xsd:string"/>
+		</xsd:complexType>
+    </xsd:element>
+   
     <!--
     The query element is used to specify a CMP Entiry finder query. It 
     contains an optional description of the query; the specification of 

@@ -267,6 +267,14 @@ public class Deploy {
     /*------------------------------------------------------*/
 
     private void deploy(String jarLocation) throws OpenEJBException{
+
+        EjbJar jar = EjbJarUtils.readEjbJar(jarLocation);
+
+/*	TODO:
+//	This code loads the classes which then prohibit the modification
+//	of the jar file.  This will be fixed which is why I commented it
+//	out instead of removing it.
+
         EjbValidator validator = new EjbValidator();
 
         EjbSet set = validator.validateJar( jarLocation );
@@ -280,7 +288,8 @@ public class Deploy {
             return;
         }
         EjbJar jar = set.getEjbJar();
-        
+*/
+
         OpenejbJar openejbJar = new OpenejbJar();
         
         Bean[] beans = getBeans(jar);

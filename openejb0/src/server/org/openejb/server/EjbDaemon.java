@@ -68,8 +68,16 @@ import java.util.Vector;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 import java.security.AccessController;
+import java.security.Principal;
 import java.security.PrivilegedAction;
+
+import javax.security.auth.callback.*;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.Subject;
+
+
 import javax.naming.*;
+
 import org.openejb.client.*;
 import org.openejb.client.proxy.*;
 import org.openejb.Container;
@@ -105,6 +113,11 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
     ServerMetaData   sMetaData      = null;
     DeploymentInfo[] deployments    = null;
     HashMap          deploymentsMap = null;
+    HashMap          _sessions      = new HashMap();
+    static {
+	CallbackHandlerAdapterManager.setCallbackHandlerAdapterFactory( new EjbCallbackHandlerAdapterFactory() );
+    }
+
 
     // The EJB Server Port
     int    port = 4201;
@@ -332,7 +345,6 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
     public void run() {
 
         Socket socket = null;
-        InputStream in = null;
 
         /**
          * The ObjectInputStream used to receive incoming messages from the client.
@@ -345,33 +357,31 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         InetAddress clientIP = null;
         while ( !stop ) {
             try {
-                //System.out.println("[] waiting for request \t["+Thread.currentThread().getName()+"]");
+                // System.out.println("[] waiting for request \t["+Thread.currentThread().getName()+"]");
                 socket = serverSocket.accept();
-                //System.out.println("[] processing request \t["+Thread.currentThread().getName()+"]");
+                // System.out.println("[] processing request \t["+Thread.currentThread().getName()+"]");
                 clientIP = socket.getInetAddress();
-                //Thread.currentThread().setName(clientIP.getHostAddress());
-                in = socket.getInputStream();
+                // Thread.currentThread().setName(clientIP.getHostAddress());
 
+                ois = new ObjectInputStream( socket.getInputStream() );
+                oos = new ObjectOutputStream( socket.getOutputStream() );
 
-                byte requestType = (byte)in.read();
-                
+                byte requestType = ois.readByte();
+		
                 if (requestType == -1) {continue;}
-                
-                switch (requestType) {
+		
+		switch (requestType) {
                     case STOP_REQUEST_Quit:
                     case STOP_REQUEST_quit:
                     case STOP_REQUEST_Stop:
-                    case STOP_REQUEST_stop:
+		    case STOP_REQUEST_stop:
                         stop(clientIP, serverSocket.getInetAddress());
                         continue;
-                }
 
-                ois = new ObjectInputStream( in );
-                oos = new ObjectOutputStream( socket.getOutputStream() );
-
-
-                switch (requestType) {
-                    case EJB_REQUEST:  processEjbRequest(ois, oos); break;
+		    case HELLO_REQUEST:
+			continue;
+                    
+		    case EJB_REQUEST:  processEjbRequest(ois, oos); break;
                     case JNDI_REQUEST: processJndiRequest(ois, oos);break;
                     case AUTH_REQUEST: processAuthRequest(ois, oos);break;
                     default: logger.error("Unknown request type "+requestType);
@@ -383,6 +393,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             } catch ( SecurityException e ) {
                 logger.error( "Security error: "+ e.getMessage() );
             } catch ( Throwable e ) {
+		System.err.println("Unexpected error "+e.toString()+" ["+Thread.currentThread().getName()+"]");
                 logger.error( "Unexpected error", e );
                 //System.out.println("ERROR: "+clienntIP.getHostAddress()+": " +e.getMessage());
             } finally {
@@ -392,7 +403,6 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 			oos.close();
 		    }
                     if ( ois    != null ) ois.close();
-                    if ( in     != null ) in.close();
                     if ( socket != null ) socket.close();
                 } catch ( Throwable t ){
                     logger.error("Encountered problem while closing connection with client: "+t.getMessage());
@@ -663,27 +673,41 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         res.writeExternal( out );
     }
 
-    public void processAuthRequest(ObjectInputStream in, ObjectOutputStream out) throws Exception{
-        AuthenticationRequest req = new AuthenticationRequest();
-        AuthenticationResponse res = new AuthenticationResponse();
+    public void processAuthRequest( ObjectInputStream in, ObjectOutputStream out ) throws Exception {
+	AuthenticationResponse res = new AuthenticationResponse();
+	AuthenticationRequest req = new AuthenticationRequest();
+        LoginContext lc = null;
 
         try {
             req.readExternal( in );
 
-	    // TODO: perform some real authentication here
+	    RemoteCallbackTransport sink = new RemoteCallbackTransport( in, out );
+	    EjbCallbackHandler handler = new EjbCallbackHandler( sink );
+	    
+	    lc = new LoginContext( "Pseudo Realm", handler );
+	    lc.login();
 
-	    ClientMetaData client = new ClientMetaData();
+	    Integer sessionKey;
+	    synchronized (_sessions) {
+		sessionKey = new Integer( _sessions.size() );
 
-    	    client.setClientIdentity( new String( (String)req.getPrinciple() ) );
+		_sessions.put( sessionKey, lc.getSubject() );
+	    }
 
-	    res.setIdentity( client );
-	    res.setResponseCode( AUTH_GRANTED );
 
+            res.setResponseCode( AUTH_GRANTED );
+	    res.setIdentity( new ClientMetaData( sessionKey ) );
 	    res.writeExternal( out );
-        } catch (Throwable t) {
-	    replyWithFatalError
-		(out, t, "Error caught during request processing");
-            return;
+	} catch( javax.security.auth.login.FailedLoginException fle ) {
+	    System.err.println("FailedLoginException");
+            res.setResponseCode( AUTH_DENIED );
+	    res.writeExternal( out );
+	} catch( javax.security.auth.login.LoginException le ) {
+	    System.err.println("LoginException");
+            res.setResponseCode( AUTH_DENIED );
+	    res.writeExternal( out );
+        } catch ( Throwable t ) {
+	    replyWithFatalError( out, t, "Error caught during request processing" );
         }
     }
 
@@ -691,12 +715,13 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
         CallContext call = CallContext.getCallContext();
         RpcContainer c   = (RpcContainer)call.getDeploymentInfo().getContainer();
+	Subject subject = (Subject)_sessions.get( req.getClientIdentity() );
 
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
                                   req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  subject );
 
         if (result instanceof ProxyInfo) {
             ProxyInfo info = (ProxyInfo)result;
@@ -724,12 +749,13 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
         CallContext call = CallContext.getCallContext();
         RpcContainer c   = (RpcContainer)call.getDeploymentInfo().getContainer();
+	Subject subject = (Subject)_sessions.get( req.getClientIdentity() );
 
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
                                   req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  subject );
 
         if (result instanceof ProxyInfo) {
             ProxyInfo info = (ProxyInfo)result;
@@ -785,12 +811,13 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
         CallContext call = CallContext.getCallContext();
         RpcContainer c   = (RpcContainer)call.getDeploymentInfo().getContainer();
+	Subject subject = (Subject)_sessions.get( req.getClientIdentity() );
 
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
                                   req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  subject );
 
 
         /* Multiple instances found */
@@ -840,12 +867,13 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
         CallContext call = CallContext.getCallContext();
         RpcContainer c   = (RpcContainer)call.getDeploymentInfo().getContainer();
+	Subject subject = (Subject)_sessions.get( req.getClientIdentity() );
 
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
                                   req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  subject );
 
         res.setResponse( EJB_OK, null);
     }
@@ -863,12 +891,13 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
         CallContext call = CallContext.getCallContext();
         RpcContainer c   = (RpcContainer)call.getDeploymentInfo().getContainer();
+	Subject subject = (Subject)_sessions.get( req.getClientIdentity() );
 
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
                                   req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  subject );
 
         res.setResponse( EJB_OK, null);
     }
@@ -877,12 +906,13 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
         CallContext call = CallContext.getCallContext();
         RpcContainer c   = (RpcContainer)call.getDeploymentInfo().getContainer();
+	Subject subject = (Subject)_sessions.get( req.getClientIdentity() );
 
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
                                   req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  subject );
 
         res.setResponse( EJB_OK, null);
     }
@@ -896,8 +926,9 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         CallContext caller  = CallContext.getCallContext();
         DeploymentInfo di   = caller.getDeploymentInfo();
         String[] authRoles  = di.getAuthorizedRoles( req.getMethodInstance() );
+	Subject subject = (Subject)_sessions.get( req.getClientIdentity() );
 
-        if (sec.isCallerAuthorized( req.getClientIdentity(), authRoles )) {
+        if (sec.isCallerAuthorized( subject, authRoles )) {
             res.setResponse( EJB_OK, null );
         } else {
             logger.info(req + "Unauthorized Access by Principal Denied");

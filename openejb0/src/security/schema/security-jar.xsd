@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+		targetNamespace="http://www.openejb.org/2002/12/Service/Security">
+
+	<xsd:element name="SecurityJar">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="RealmProvider" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+    
+    <!--
+    
+    -->
+	<xsd:element name="RealmProvider">
+        <xsd:complexType mixed='true'>
+			<xsd:attribute name="id" type="xsd:string" use="required" />
+			<xsd:attribute name="class-name" type="ClassName"/>
+			<xsd:attribute name="display-name" type="xsd:string"  minOccurs="0" maxOccurs="1" />
+			<xsd:attribute name="description" type="xsd:string" minOccurs="0" maxOccurs="1" />
+        </xsd:complexType>
+	</xsd:element>
+    
+    
+    <!--
+    #############################################
+    #                                           #
+    #  Data types that validate the input       #
+    #                                           #
+    #############################################
+    -->
+
+    <!-- Class name -->
+    <xsd:simpleType name="ClassName">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="[a-zA-Z0-9_$.]+"/>
+        </xsd:restriction>
+    </xsd:simpleType> 
+    
+</xsd:schema>

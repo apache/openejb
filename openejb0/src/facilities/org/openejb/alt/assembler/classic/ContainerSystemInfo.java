@@ -45,8 +45,10 @@
 
 package org.openejb.alt.assembler.classic;
 
+import java.util.Map;
 import org.w3c.dom.Node;
 import org.openejb.OpenEJBException;
+
 
 /**
  * ContainerSystemInfo is part of the OpenEjbConfiguration object structure that provides
@@ -94,7 +96,7 @@ public class ContainerSystemInfo extends InfoObject{
     public EntityContainerInfo[] entityContainers;
     public StatelessSessionContainerInfo[] statelessContainers;
     public StatefulSessionContainerInfo[] statefulContainers;
-    public SecurityRoleInfo[] securityRoles;
     public MethodPermissionInfo[] methodPermissions;
     public MethodTransactionInfo[] methodTransactions;
+    public Map securityMappings;
 }

@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -34,6 +34,8 @@ public class OpenejbJar implements java.io.Serializable {
 
     private java.util.Vector _ejbDeploymentList;
 
+    private SecurityMappings _securityMappings;
+
 
       //----------------/
      //- Constructors -/
@@ -58,6 +60,17 @@ public class OpenejbJar implements java.io.Serializable {
     {
         _ejbDeploymentList.addElement(vEjbDeployment);
     } //-- void addEjbDeployment(EjbDeployment) 
+
+    /**
+     * 
+     * @param index
+     * @param vEjbDeployment
+    **/
+    public void addEjbDeployment(int index, EjbDeployment vEjbDeployment)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _ejbDeploymentList.insertElementAt(vEjbDeployment, index);
+    } //-- void addEjbDeployment(int, EjbDeployment) 
 
     /**
     **/
@@ -99,6 +112,15 @@ public class OpenejbJar implements java.io.Serializable {
     {
         return _ejbDeploymentList.size();
     } //-- int getEjbDeploymentCount() 
+
+    /**
+     * Returns the value of field 'securityMappings'.
+     * @return the value of field 'securityMappings'.
+    **/
+    public SecurityMappings getSecurityMappings()
+    {
+        return this._securityMappings;
+    } //-- SecurityMappings getSecurityMappings() 
 
     /**
     **/
@@ -148,7 +170,7 @@ public class OpenejbJar implements java.io.Serializable {
     **/
     public EjbDeployment removeEjbDeployment(int index)
     {
-        Object obj = _ejbDeploymentList.elementAt(index);
+        java.lang.Object obj = _ejbDeploymentList.elementAt(index);
         _ejbDeploymentList.removeElementAt(index);
         return (EjbDeployment) obj;
     } //-- EjbDeployment removeEjbDeployment(int) 
@@ -180,6 +202,15 @@ public class OpenejbJar implements java.io.Serializable {
             _ejbDeploymentList.addElement(ejbDeploymentArray[i]);
         }
     } //-- void setEjbDeployment(EjbDeployment) 
+
+    /**
+     * Sets the value of field 'securityMappings'.
+     * @param securityMappings the value of field 'securityMappings'
+    **/
+    public void setSecurityMappings(SecurityMappings securityMappings)
+    {
+        this._securityMappings = securityMappings;
+    } //-- void setSecurityMappings(SecurityMappings) 
 
     /**
      * 

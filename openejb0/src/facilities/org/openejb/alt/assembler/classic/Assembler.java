@@ -48,7 +48,9 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Vector;
 import javax.naming.CompositeName;
 import javax.naming.Context;
@@ -264,10 +266,15 @@ public class Assembler extends AssemblerTool implements org.openejb.spi.Assemble
         /*[4] Apply method permissions, role refs, and tx attributes ////////////////////////////////////*/
 
         // roleMapping used later in buildMethodPermissions
-        AssemblerTool.RoleMapping roleMapping = new AssemblerTool.RoleMapping(configInfo.facilities.securityService.roleMappings);
+        RoleMappingImpl roleMapping = new RoleMappingImpl( configInfo.facilities.securityService.roleMappings );
         org.openejb.DeploymentInfo [] deployments = containerSystem.deployments();
+
+	for(int i = 0; i < containerSystemInfo.methodPermissions.length; i++){
+	   containerSystemInfo.methodPermissions[i] = applyRoleMappings(containerSystemInfo.methodPermissions[i], roleMapping);
+	}
+
         for(int i = 0; i < deployments.length; i++){
-            applyMethodPermissions((org.openejb.core.DeploymentInfo)deployments[i], containerSystemInfo.methodPermissions, roleMapping);
+            applyMethodPermissions((org.openejb.core.DeploymentInfo)deployments[i], containerSystemInfo.methodPermissions);
             applyTransactionAttributes((org.openejb.core.DeploymentInfo)deployments[i],containerSystemInfo.methodTransactions);
         }
         
@@ -327,5 +334,69 @@ public class Assembler extends AssemblerTool implements org.openejb.spi.Assemble
         }
         /*[6]\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
         return containerSystem;
+    }
+
+   /**
+    * This class encapsulates a mapping between a collection of
+    * logical roles and each of those roles equivalent physical security roles
+    * in the target environment.
+    *
+    * Instance of this class are constructed from a RoleMappingInfo configuration
+    * class.  This class is used in the applySecurityRoleReferences( ) and
+    * applyMethodPermissions( ) Assembler methods.
+    */
+    public class RoleMappingImpl implements RoleMapping {
+         private Map map;
+
+         /**
+         * Constructs an instance from a RoleMappingInfo configuration object.
+         * @param roleMappingInfos configuration object holds collections of logical and physical roles
+         * @see org.openejb.alt.assembler.classic.RoleMappingInfo
+         */
+         public RoleMappingImpl(Map roleMappingInfos) {
+            map = roleMappingInfos;
+        }
+
+        /**
+        * Returns all the logical roles in this mapping. The logical roles
+        * act as keys to collections of equivalent physical roles
+        * @return a collection of logical roles
+        */
+        public String [] logicalRoles( ){
+            return (String [])map.keySet().toArray();
+        }
+        /**
+        * Returns a collection of physical roles that are mapped to the
+        * logical role.
+        * @param logicalRole a logical role that is mapped to physical roles
+        * @return a collection of physical roles; null if no roles are mapped.
+        */
+        public String [] getPhysicalRoles(MethodPermissionInfo methodPermission) {
+            if ( methodPermission == null ) return null;
+        
+	    org.openejb.alt.spi.SecurityService s = (org.openejb.alt.spi.SecurityService)securityService;
+	    String JarURI = methodPermission.JarURI;
+	    Set set = (Set)config.containerSystem.securityMappings.get( JarURI );
+	    HashSet physicalNames = new HashSet();
+
+            Iterator iter = set.iterator();
+            while ( iter.hasNext() ) {
+                SecurityRoleInfo sri = (SecurityRoleInfo)iter.next();
+                for ( int i=0; i<sri.realms.size(); i++ ) {
+                    SecurityRealmInfo realm = (SecurityRealmInfo)sri.realms.get(i);
+
+		    for ( int j=0;j<realm.principals.size(); j++ ) {
+			PrincipalInfo principal = (PrincipalInfo)realm.principals.get(j);
+			String name = s.mapToKey( realm.realmName, principal.type, principal.name );
+ 			physicalNames.add( name );
+		    }
+                }
+            }
+	    String[] names = new String[physicalNames.size()];
+	    physicalNames.toArray( names );
+
+            return names;
+        }
+
     }
 }

@@ -52,18 +52,18 @@ import java.util.Properties;
 import org.openejb.test.TestManager;
 
 /**
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
 public class BmpTestSuite extends org.openejb.test.TestSuite{
-       
+
     public BmpTestSuite(){
         super();
         this.addTest(new BmpJndiTests());
         this.addTest(new BmpHomeIntfcTests());
         this.addTest(new BmpEjbHomeTests());
-        this.addTest(new BmpEjbObjectTests());    
+        this.addTest(new BmpEjbObjectTests());
         this.addTest(new BmpRemoteIntfcTests());
         this.addTest(new BmpHomeHandleTests());
         this.addTest(new BmpHandleTests());
@@ -71,7 +71,7 @@ public class BmpTestSuite extends org.openejb.test.TestSuite{
         this.addTest(new BmpAllowedOperationsTests());
         this.addTest(new BmpJndiEncTests());
         this.addTest(new BmpRmiIiopTests());
-        
+
     }
 
     public static junit.framework.Test suite() {
@@ -84,14 +84,14 @@ public class BmpTestSuite extends org.openejb.test.TestSuite{
      */
     protected void setUp() throws Exception {
         Properties props = TestManager.getServer().getContextEnvironment();
-        props.put(Context.SECURITY_PRINCIPAL, "ENTITY_TEST_CLIENT");
-        props.put(Context.SECURITY_CREDENTIALS, "ENTITY_TEST_CLIENT");
+        props.put(Context.SECURITY_PRINCIPAL, "alan");
+        props.put(Context.SECURITY_CREDENTIALS, "secret");
         InitialContext initialContext = new InitialContext(props);
-        
+
         /*[2] Create database table */
         TestManager.getDatabase().createEntityTable();
     }
-    
+
     /**
      * Tears down the fixture, for example, close a network connection.
      * This method is called after a test is executed.

@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -49,6 +49,8 @@ public class ResourceLink implements java.io.Serializable {
     //-----------/
 
     /**
+     * Returns the value of field 'resId'.
+     * @return the value of field 'resId'.
     **/
     public java.lang.String getResId()
     {
@@ -56,6 +58,8 @@ public class ResourceLink implements java.io.Serializable {
     } //-- java.lang.String getResId() 
 
     /**
+     * Returns the value of field 'resRefName'.
+     * @return the value of field 'resRefName'.
     **/
     public java.lang.String getResRefName()
     {
@@ -98,21 +102,21 @@ public class ResourceLink implements java.io.Serializable {
     } //-- void marshal(org.xml.sax.DocumentHandler) 
 
     /**
-     * 
-     * @param _resId
+     * Sets the value of field 'resId'.
+     * @param resId the value of field 'resId'.
     **/
-    public void setResId(java.lang.String _resId)
+    public void setResId(java.lang.String resId)
     {
-        this._resId = _resId;
+        this._resId = resId;
     } //-- void setResId(java.lang.String) 
 
     /**
-     * 
-     * @param _resRefName
+     * Sets the value of field 'resRefName'.
+     * @param resRefName the value of field 'resRefName'.
     **/
-    public void setResRefName(java.lang.String _resRefName)
+    public void setResRefName(java.lang.String resRefName)
     {
-        this._resRefName = _resRefName;
+        this._resRefName = resRefName;
     } //-- void setResRefName(java.lang.String) 
 
     /**

@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -63,13 +63,13 @@ public class OpenejbJarDescriptor extends org.exolab.castor.xml.util.XMLClassDes
         //-- _ejbDeploymentList
         desc = new XMLFieldDescriptorImpl(EjbDeployment.class, "_ejbDeploymentList", "ejb-deployment", NodeType.Element);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 OpenejbJar target = (OpenejbJar) object;
                 return target.getEjbDeployment();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -80,7 +80,7 @@ public class OpenejbJarDescriptor extends org.exolab.castor.xml.util.XMLClassDes
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return new EjbDeployment();
             }
         } );
@@ -93,6 +93,39 @@ public class OpenejbJarDescriptor extends org.exolab.castor.xml.util.XMLClassDes
         //-- validation code for: _ejbDeploymentList
         fieldValidator = new FieldValidator();
         fieldValidator.setMinOccurs(1);
+        desc.setValidator(fieldValidator);
+        
+        //-- _securityMappings
+        desc = new XMLFieldDescriptorImpl(SecurityMappings.class, "_securityMappings", "security-mappings", NodeType.Element);
+        handler = (new XMLFieldHandler() {
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                OpenejbJar target = (OpenejbJar) object;
+                return target.getSecurityMappings();
+            }
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    OpenejbJar target = (OpenejbJar) object;
+                    target.setSecurityMappings( (SecurityMappings) value);
+                }
+                catch (Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            public java.lang.Object newInstance( java.lang.Object parent ) {
+                return new SecurityMappings();
+            }
+        } );
+        desc.setHandler(handler);
+        desc.setNameSpaceURI("http://www.openejb.org/openejb-jar/1.1");
+        desc.setMultivalued(false);
+        addFieldDescriptor(desc);
+        
+        //-- validation code for: _securityMappings
+        fieldValidator = new FieldValidator();
         desc.setValidator(fieldValidator);
         
     } //-- org.openejb.alt.config.ejb11.OpenejbJarDescriptor()

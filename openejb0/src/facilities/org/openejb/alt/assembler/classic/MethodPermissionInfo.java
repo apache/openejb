@@ -86,10 +86,11 @@ import org.w3c.dom.Node;
  * @see org.openejb.alt.assembler.classic.OpenEjbConfigurationFactory
  * @see org.openejb.xmlconf.DomOpenEjbConfigurationFactory
  */
-public class MethodPermissionInfo extends InfoObject{
+public class MethodPermissionInfo extends InfoObject {
 
     public String description;
     public String[] roleNames;
+    public String[] roleMappings;
     public MethodInfo[] methods;
-
+    public String JarURI;
 }

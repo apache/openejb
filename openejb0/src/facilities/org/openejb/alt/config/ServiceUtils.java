@@ -69,7 +69,7 @@ import org.openejb.util.Messages;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class ServiceUtils  {
-    
+
     public static String defaultProviderURL = "org.openejb";
 
     private static Map loadedServiceJars = new HashMap();
@@ -80,21 +80,22 @@ public class ServiceUtils  {
     public static ServiceProvider getServiceProvider(Service service) throws OpenEJBException{
         return getServiceProvider(service.getProvider());
     }
+    
     /**
-     * 
+     *
      * org.openejb#Default JDBC Connector
      * Default JDBC Connector
      * org.postgresql#JDBCService
-     * 
+     *
      * @param id
-     * @return 
+     * @return
      * @exception OpenEJBException
      */
     public static ServiceProvider getServiceProvider(String id) throws OpenEJBException{
 
         String providerName  = null;
         String serviceName   = null;
-        
+
         if ( id.indexOf("#") == -1 ) {
             providerName = defaultProviderURL;
             serviceName  = id;
@@ -133,20 +134,20 @@ public class ServiceUtils  {
 
         return service;
     }
-    
+
     /**
      * Opens the specified jar file, locates the  service-jar.xml file,
-     * unmarshals it to a java object and returns it. If there is no 
+     * unmarshals it to a java object and returns it. If there is no
      * service-jar.xml in the jar an exception will be thrown.
-     * 
+     *
      * @param jarFile
-     * @return 
+     * @return
      * @exception OpenEJBException
      */
     public static ServicesJar readServicesJar(String providerName) throws OpenEJBException{
         String servicejarPath = providerName.replace('.','/');
         servicejarPath = "resource:/"+servicejarPath+"/service-jar.xml";
-        
+
         Reader reader = null;
         InputStream stream = null;
         try {
@@ -171,7 +172,7 @@ public class ServiceUtils  {
         } catch ( ValidationException e ) {
             handleException("conf.4130", providerName, e.getLocalizedMessage());
         }
-        
+
         /*[1.5]  Clean up ***************/
         try {
             stream.close();
@@ -179,14 +180,14 @@ public class ServiceUtils  {
         } catch ( Exception e ) {
             handleException("file.0010", servicejarPath, e.getLocalizedMessage());
         }
-        
+
         return obj;
     }
-    
+
     public static void writeServicesJar(String xmlFile, ServicesJar servicesJarObject) throws OpenEJBException{
         /* TODO:  Just to be picky, the xml file created by
         Castor is really hard to read -- it is all on one line.
-        People might want to edit this in the future by hand, so if Castor can 
+        People might want to edit this in the future by hand, so if Castor can
         make the output look better that would be great!  Otherwise we could
         just spruce the output up by adding a few new lines and tabs.
         */
@@ -204,12 +205,12 @@ public class ServiceUtils  {
                 handleException("conf.4050",xmlFile, e.getLocalizedMessage());
             }
         } catch ( ValidationException e ) {
-            /* TODO: Implement informative error handling here. 
-               The exception will say "X doesn't match the regular 
-               expression Y" 
+            /* TODO: Implement informative error handling here.
+               The exception will say "X doesn't match the regular
+               expression Y"
                This should be checked and more relevant information
-               should be given -- not everyone understands regular 
-               expressions. 
+               should be given -- not everyone understands regular
+               expressions.
              */
             /* NOTE: This doesn't seem to ever happen. When the object graph
              * is invalid, the MarshalException is thrown, not this one as you
@@ -223,20 +224,20 @@ public class ServiceUtils  {
             handleException("file.0020", xmlFile, e.getLocalizedMessage());
         }
     }
-    
+
     public static Properties assemblePropertiesFor(String confItem, String itemId, String itemContent, String confFile, ServiceProvider service) throws OpenEJBException{
         Properties props = new Properties();
-        
+
         try {
-            /* 
+            /*
              * 1. Load properties from the properties file referenced
-             *    by the service provider 
+             *    by the service provider
              */
             if (service.getPropertiesFile() != null) {
                 props = loadProperties(service.getPropertiesFile().getFile());
             }
-            /* 
-             * 2. Load properties from the content in the service provider 
+            /*
+             * 2. Load properties from the content in the service provider
              *    element of the service-jar.xml
              */
             if ( service.getContent() != null ) {
@@ -247,7 +248,7 @@ public class ServiceUtils  {
             ConfigUtils.handleException("conf.0013", service.getId(), null, ex.getLocalizedMessage());
         }
 
-        /* 3. Load properties from the content in the Container 
+        /* 3. Load properties from the content in the Container
          *    element of the configuration file.
          */
         try {
@@ -258,10 +259,10 @@ public class ServiceUtils  {
         } catch (OpenEJBException ex){
             ConfigUtils.handleException("conf.0014", confItem, itemId , confFile, ex.getLocalizedMessage());
         }
-        
+
         return props;
     }
-    
+
 
     public static Properties loadProperties(String pFile) throws OpenEJBException{
         return loadProperties(pFile, new Properties());
@@ -280,7 +281,7 @@ public class ServiceUtils  {
         } catch (SecurityException ex){
             ConfigUtils.handleException("conf.0005", propertiesFile, ex.getLocalizedMessage());
         }
-        return defaults;    
+        return defaults;
     }
 
     public static Properties loadProperties(InputStream in, Properties defaults) throws OpenEJBException{
@@ -334,7 +335,7 @@ public class ServiceUtils  {
     public static void logWarning(String errorCode, Object arg0, Object arg1, Object arg2 ) {
         _logger.i18n.warning( errorCode, arg0, arg1, arg2 );
     }
-    
+
     public static void logWarning(String errorCode, Object arg0, Object arg1 ) {
         _logger.i18n.warning( errorCode, arg0, arg1 );
     }

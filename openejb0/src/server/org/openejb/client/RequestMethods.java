@@ -54,6 +54,7 @@ public interface RequestMethods {
     public static final byte EJB_REQUEST  = (byte)0;
     public static final byte JNDI_REQUEST = (byte)1;
     public static final byte AUTH_REQUEST = (byte)2;
+    public static final byte HELLO_REQUEST = (byte)3;
     public static final byte STOP_REQUEST_Quit = (byte)'Q';
     public static final byte STOP_REQUEST_quit = (byte)'q';
     public static final byte STOP_REQUEST_Stop = (byte)'S';

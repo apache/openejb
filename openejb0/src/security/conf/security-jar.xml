@@ -1,0 +1,28 @@
+<SecurityJar>
+
+<RealmProvider 
+    id="Pseudo Realm Provider"
+    class-name="org.openejb.security.PseudoRealmProvider"
+    description="A pseudo realm provider."/>
+
+<RealmProvider 
+    id="Properties File Realm Provider"
+    class-name="org.openejb.security.PropertiesFileRealmProvider"
+    description="A simple realm provider that uses two property files.  One for users and one for groups."/>
+
+<RealmProvider 
+    id="SQL Realm Provider"
+    class-name="org.openejb.security.SQLRealmProvider"
+    description="A simple realm provider that uses two SQL tables.  One for users and one for groups."/>
+
+<RealmProvider 
+    id="NT Realm Provider"
+    class-name="org.openejb.security.NTRealmProvider"
+    description="An NT realm provider."/>
+
+<RealmProvider 
+    id="LDAP Realm Provider"
+    class-name="org.openejb.security.LDAPRealmProvider"
+    description="An LDAP realm provider."/>
+
+</SecurityJar>

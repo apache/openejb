@@ -86,7 +86,9 @@ public class Jdk13InvocationHandler implements java.lang.reflect.InvocationHandl
                 args = new Object[0];
                 // A bug in the proxy call?
             }
-            return delegate.invoke(proxy, method, args);
+            Object returnValue = delegate.invoke(proxy, method, args);
+
+	    return returnValue;
         } else {
             throw new NullPointerException("No invocation handler for proxy "+proxy);
         }

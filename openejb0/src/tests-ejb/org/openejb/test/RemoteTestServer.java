@@ -46,8 +46,9 @@ package org.openejb.test;
 
 import java.util.Properties;
 import javax.naming.Context;
-import java.io.OutputStream;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 /**
@@ -85,12 +86,13 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
                 String openejbHome = System.getProperty("openejb.home");
                 
 
-                String[] cmd = new String[ 5 ];
+                String[] cmd = new String[ 6 ];
                 cmd[ 0 ] = java;
                 cmd[ 1 ] = "-classpath";
                 cmd[ 2 ] = classpath;
                 cmd[ 3 ] = "-Dopenejb.home="+openejbHome;
-                cmd[ 4 ] = "org.openejb.server.Main";
+                cmd[ 4 ] = "-Djava.security.auth.login.config=o:/dev/opene/conf/jaas.config";
+                cmd[ 5 ] = "org.openejb.server.Main";
                 for (int i=0; i < cmd.length; i++){
                     //System.out.println("[] "+cmd[i]);
                 }
@@ -151,11 +153,13 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
         if ( !serverHasAlreadyBeenStarted ) {
             try{
                 System.out.println("[] STOP SERVER");
-        
-                Socket socket = new Socket("localhost", 4201);
-                OutputStream out = socket.getOutputStream();
-        
-                out.write( "Stop".getBytes() );
+
+		Socket socket = new Socket("127.0.0.1", 4201);
+		ObjectOutputStream out = new ObjectOutputStream( socket.getOutputStream() );
+
+		// TODO: Should really write out using const
+		out.writeByte( (byte)'S' );
+		out.flush();
 
             } catch (Exception e){
                 e.printStackTrace();
@@ -174,8 +178,12 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
     private boolean connect(int tries) {
         //System.out.println("CONNECT "+ tries);
         try{
-            Socket socket = new Socket("localhost", 4201);
-            OutputStream out = socket.getOutputStream();
+	    Socket socket = new Socket("127.0.0.1", 4201);
+	    ObjectOutputStream out = new ObjectOutputStream( socket.getOutputStream() );
+
+	    // TODO: Should really write out using const
+	    out.writeByte( 3 );
+	    out.flush();
         } catch (Exception e){
             //System.out.println(e.getMessage());
             if ( tries < 2 ) {

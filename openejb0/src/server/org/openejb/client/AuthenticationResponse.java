@@ -48,6 +48,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Properties;
 
 /**
  *
@@ -56,39 +57,57 @@ import java.io.ObjectOutput;
  */
 public class AuthenticationResponse implements Response {
 
-    private transient int responseCode = -1;
-    private transient ClientMetaData identity;
-    private transient ServerMetaData server;
+    private transient int _responseCode = -1;
+    private transient ClientMetaData _identity;
+    private transient ServerMetaData _server;
+    private transient String _credentialName;
+    private transient Properties _credentialProperties;
 
-    public AuthenticationResponse(){
+    public AuthenticationResponse() {
     }
 
-    public AuthenticationResponse(int code){
-        responseCode = code;
+    public AuthenticationResponse( int code ) {
+        _responseCode = code;
     }
 
-    public int getResponseCode(){
-        return responseCode;
+    public int getResponseCode() {
+        return _responseCode;
     }
 
-    public ClientMetaData getIdentity(){
-        return identity;
+    public ClientMetaData getIdentity() {
+        return _identity;
     }
 
-    public ServerMetaData getServer(){
-        return server;
+    public ServerMetaData getServer() {
+        return _server;
     }
 
-    public void setResponseCode(int responseCode){
-        this.responseCode = responseCode;
+    public String getCredentialName() {
+	return _credentialName;
     }
 
-    public void setIdentity(ClientMetaData identity){
-        this.identity = identity;
+    public Properties getCredentialProperties() {
+	return _credentialProperties;
     }
 
-    public void setServer(ServerMetaData server){
-        this.server = server;
+    public void setResponseCode( int responseCode ) {
+        _responseCode = responseCode;
+    }
+
+    public void setIdentity( ClientMetaData identity ){
+        _identity = identity;
+    }
+
+    public void setServer( ServerMetaData server ) {
+        _server = server;
+    }
+
+    public void setCredentialName( String credentialName ) {
+	_credentialName = credentialName;
+    }
+
+    public void setCredentialProperties( Properties credentialProperties ) {
+	_credentialProperties = credentialProperties;
     }
 
     /**
@@ -103,19 +122,31 @@ public class AuthenticationResponse implements Response {
      * @exception ClassNotFoundException If the class for an object being
      *              restored cannot be found.
      */
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        responseCode = in.readByte();
-        switch (responseCode) {
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException {
+        _responseCode = in.readByte();
+
+        switch ( _responseCode ) {
             case AUTH_GRANTED:
-                identity = new ClientMetaData();
-                identity.readExternal(in);
+                _identity = new ClientMetaData();
+                _identity.readExternal(in);
                 break;
+
             case AUTH_REDIRECT:
-                identity = new ClientMetaData();
-                identity.readExternal(in);
-                server   = new ServerMetaData();
-                server.readExternal( in );
+                _identity = new ClientMetaData();
+                _identity.readExternal(in);
+                _server   = new ServerMetaData();
+                _server.readExternal( in );
                 break;
+
+	    case AUTH_NEEDCREDENTIAL:
+		_credentialName = (String)in.readObject();
+		break;
+
+	    case AUTH_NEEDCREDENTIALPARAMS:
+		_credentialName = (String)in.readObject();
+		_credentialProperties = (Properties)in.readObject();
+		break;
+
             case AUTH_DENIED:
                 break;
         }
@@ -136,16 +167,29 @@ public class AuthenticationResponse implements Response {
      * @param out the stream to write the object to
      * @exception IOException Includes any I/O exceptions that may occur
      */
-    public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeByte((byte)responseCode);
-        switch (responseCode) {
+    public void writeExternal( ObjectOutput out ) throws IOException {
+
+        out.writeByte( (byte)_responseCode );
+
+        switch ( _responseCode ) {
             case AUTH_GRANTED:
-                identity.writeExternal(out);
+                _identity.writeExternal(out);
                 break;
+
             case AUTH_REDIRECT:
-                identity.writeExternal(out);
-                server.writeExternal( out );
+                _identity.writeExternal(out);
+                _server.writeExternal( out );
                 break;
+
+	    case AUTH_NEEDCREDENTIAL:
+		out.writeObject( _credentialName );
+		break;
+
+	    case AUTH_NEEDCREDENTIALPARAMS:
+		out.writeObject( _credentialName );
+		out.writeObject( _credentialProperties );
+		break;
+
             case AUTH_DENIED:
                 break;
         }

@@ -125,11 +125,6 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         //System.out.print(s+'\n');
     }
 
-    //TODO:0:Write authentication module
-    protected AuthenticationResponse requestAuthorization(AuthenticationRequest req) throws java.rmi.RemoteException {
-        return (AuthenticationResponse) Client.request(req, new AuthenticationResponse(), server);
-    }
-
     //-------------------------------------------------------------//
     //  InitialContextFactory implementation                       //
     //-------------------------------------------------------------//
@@ -151,6 +146,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
       * @exception NamingException If cannot create an initial context.
       */
     public Context getInitialContext(Hashtable environment) throws NamingException{
+
         if ( environment == null )
             throw new NamingException("Invalid Argument, hashtable cannot be null.");
         else
@@ -194,28 +190,35 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
     }
     
     
-    public void authenticate(String userID, String psswrd) throws javax.naming.AuthenticationException{
+    public void authenticate(String userID, String psswrd) throws javax.naming.AuthenticationException {
         // TODO:1: Skip this if the identity hasn't been changed and
         // the user already has been authenticated.
         AuthenticationRequest  req = new AuthenticationRequest(userID, psswrd);
         AuthenticationResponse res = null;
 
 	try {
-	    res = requestAuthorization(req);
-	} catch (java.rmi.RemoteException e) {
-	    throw new javax.naming.AuthenticationException(e.getLocalizedMessage());
+
+	    // some degree of sub-negotiation may occur
+	    res = (AuthenticationResponse)Client.authRequest( req, new AuthenticationResponse(), server, env );
+
+	} catch ( java.rmi.RemoteException re ) {
+	    throw new javax.naming.AuthenticationException( re.getLocalizedMessage() );
+	} catch ( Exception e ) {
+	    throw new javax.naming.AuthenticationException( e.getLocalizedMessage() );
 	}
         
         switch (res.getResponseCode()) {
             case AUTH_GRANTED:
                 client = res.getIdentity();
                 break;
+
             case AUTH_REDIRECT:
                 client = res.getIdentity();
                 server = res.getServer();
                 break;
-            case AUTH_DENIED:
-                throw new javax.naming.AuthenticationException("This principle is not authorized.");
+
+	    case AUTH_DENIED:
+                throw new javax.naming.AuthenticationException( "This principle is not authorized." );
         }
     }
     

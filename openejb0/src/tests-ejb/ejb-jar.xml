@@ -902,38 +902,39 @@
     
     <assembly-descriptor>
         <security-role>
-            <description>The description</description>
+            <description>The Teller security-role description</description>
             <role-name>Teller</role-name>
         </security-role>
         <security-role>
-            <description>The description</description>
+            <description>The Manager security-role description</description>
             <role-name>Manager</role-name>
         </security-role>
         <security-role>
-            <description>The description</description>
+            <description>The Accountant security-role description</description>
             <role-name>Accountant</role-name>
         </security-role>
         <security-role>
-            <description>The description</description>
+            <description>The Executive security-role description</description>
             <role-name>Executive</role-name>
         </security-role>
         
         <method-permission>
-            <description>The description</description>
+            <description>The Teller method-permission description</description>
             <role-name>Teller</role-name>
             <method>
-                <description>The description</description>
+                <description>The BasicStatelessBean method-permission description</description>
                 <ejb-name>BasicStatelessBean</ejb-name>
                 <method-name>remove</method-name>
             </method>
         </method-permission>
         
         <method-permission>
-            <description>The description</description>
+            <description>The Accountant Manager Executive method-permission description</description>
             <role-name>Accountant</role-name>
             <role-name>Manager</role-name>
+            <role-name>Executive</role-name>
             <method>
-                <description>The description</description>
+                <description>The BasicStatefulBean method-permission description</description>
                 <ejb-name>BasicStatefulBean</ejb-name>
                 <method-name>*</method-name>
             </method>

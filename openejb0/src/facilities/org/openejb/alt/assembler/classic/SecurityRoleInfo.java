@@ -45,6 +45,7 @@
 
 package org.openejb.alt.assembler.classic;
 
+import java.util.Vector;
 import org.openejb.OpenEJBException;
 import org.w3c.dom.Node;
 
@@ -90,5 +91,5 @@ public class SecurityRoleInfo extends InfoObject{
 
     public String description;
     public String roleName;
-
+    public Vector realms = new Vector();
 }
