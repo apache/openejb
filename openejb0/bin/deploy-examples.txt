@@ -17,13 +17,17 @@ Example: -m
  myapp\myEjbs.jar to OPENEJB_HOME\beans\myEjbs.jar.
 
  If the jar OPENEJB_HOME\beans\myEjbs.jar already existed, it will 
- be overwritten.
+ not be overwritten.  Supply the -f to force an overwrite.
+
+ openejb deploy -m -f myapp\myEjbs.jar
 
 Example: -c
 
  openejb deploy -c myapp\myEjbs.jar
  
- Same as using -m, except the jar is copied not moved.
+ Same as using -m, except the jar is copied not moved. The -f also
+ can be used with a -c to force an overwrite if the file is already
+ present.
 
 Example: -C
 
