@@ -53,7 +53,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -68,9 +67,9 @@ import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
@@ -390,7 +389,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             ejbModuleGBeanData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
 
             if (connectionFactoryLocator != null) {
-                ObjectName connectionFactoryObjectName = getResourceContainerId(ejbModule.getModuleURI(), connectionFactoryLocator, earContext.getRefContext(), earContext.getJ2eeContext());
+                ObjectName connectionFactoryObjectName = getResourceContainerId(ejbModule.getModuleURI(), connectionFactoryLocator, earContext);
                 //TODO this uses connection factory rather than datasource for the type.
                 ejbModuleGBeanData.setReferencePattern("ConnectionFactory", connectionFactoryObjectName);
                 ejbModuleGBeanData.setAttribute("Delegate", delegate);
@@ -440,7 +439,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         Security security = null;
         //TODO fix this!
         Map localSecurityRealms = new HashMap();
-        security = SecurityBuilder.buildSecurityConfig(Collections.EMPTY_SET, openejbEjbJar.getSecurity(), collectRoleNames(ejbJar), localSecurityRealms, kernel);
+        security = SecurityBuilder.buildSecurityConfig(openejbEjbJar.getSecurity(), collectRoleNames(ejbJar));
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
@@ -468,10 +467,12 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         return roleNames;
     }
 
-    private static ObjectName getResourceContainerId(URI uri, GerResourceLocatorType resourceLocator, RefContext refContext, J2eeContext j2eeContext) throws DeploymentException {
+    private static ObjectName getResourceContainerId(URI uri, GerResourceLocatorType resourceLocator, EARContext earContext) throws DeploymentException {
+        RefContext refContext = earContext.getRefContext();
+        J2eeContext j2eeContext = earContext.getJ2eeContext();
         try {
             if (resourceLocator.isSetResourceLink()) {
-                String containerId = refContext.getConnectionFactoryContainerId(uri, resourceLocator.getResourceLink(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+                String containerId = refContext.getConnectionFactoryContainerId(uri, resourceLocator.getResourceLink(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext, earContext);
                 return ObjectName.getInstance(containerId);
             } else if (resourceLocator.isSetTargetName()) {
                 String containerId = resourceLocator.getTargetName();
