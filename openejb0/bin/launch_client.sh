@@ -53,16 +53,22 @@ for i in dist/*corba*.jar ; do
     fi
 done
 unset i
+for i in dist/openejb-*.jar ; do 
+    if [ -e $i ]; then
+    	CP=$i${PS}$CP
+    fi
+done
+unset i
 
 CP=$JAVA_HOME/lib/tools.jar${PS}${CP}
 CLASSPATH=lib/xerces-J_1.3.1.jar${PS}${CP}
 
 # Setup options for testsuite execution
-OPTIONS=" -DORBProfile=ejb -Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFactory -Dorg.omg.CORBA.ORBClass=org.openorb.CORBA.ORB -Dorg.omg.CORBA.ORBSingletonClass=org.openorb.CORBA.ORBSingleton -Djavax.rmi.CORBA.StubClass=org.openorb.rmi.system.StubDelegateImpl -Djavax.rmi.CORBA.UtilClass=org.openorb.rmi.system.UtilDelegateImpl -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl"
+ORB=" -DORBProfile=ejb -Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFactory -Dorg.omg.CORBA.ORBClass=org.openorb.CORBA.ORB -Dorg.omg.CORBA.ORBSingletonClass=org.openorb.CORBA.ORBSingleton -Djavax.rmi.CORBA.StubClass=org.openorb.rmi.system.StubDelegateImpl -Djavax.rmi.CORBA.UtilClass=org.openorb.rmi.system.UtilDelegateImpl -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl"
 #  Test suite properties
 SERVER="-Dopenejb.test.server=org.openejb.test.CorbaTestServer"
 DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
-OPTIONS="-Dlog4j.configuration=file:conf/default.logging.conf $SERVER $DATABASE"
+OPTIONS="-Dlog4j.configuration=file:conf/default.logging.conf $SERVER $DATABASE $ORB"
 
 $JAVA $OPTIONS -classpath $CLASSPATH org.openejb.test.ClientTestRunner -s src/tests-ejb/CorbaServer_config.properties org.openejb.test.ClientTestSuite
 

@@ -47,10 +47,11 @@ REM================================================
 goto EOF
 REM================================================
 :TEST
-   if /I %P2% EQU _INTRA-VM goto TEST_INTRA-VM
-   if /I %P2% EQU _CORBA    goto TEST_CORBA
-   if /I %P2% EQU _HELP     goto HELP_TEST
-   if /I %P2% EQU _         goto TEST_NOARGS
+   if /I %P2% EQU _INTRA-VM  goto TEST_INTRAVM
+   if /I %P2% EQU _EJBSERVER goto TEST_SERVER
+   if /I %P2% EQU _CORBA     goto TEST_CORBA
+   if /I %P2% EQU _HELP      goto HELP_TEST
+   if /I %P2% EQU _          goto TEST_NOARGS
 
    echo Unknown option: %2
    goto HELP_TEST                                   
@@ -65,12 +66,20 @@ REM================================================
 goto EOF
 REM================================================
 :START 
-   if /I %P2% EQU _INTRA-VM goto START_INTRA-VM
-   if /I %P2% EQU _CORBA    goto START_CORBA
-   if /I %P2% EQU _         goto START_CORBA
+   if /I %P2% EQU _INTRA-VM  goto START_INTRAVM
+   if /I %P2% EQU _INTRAVM   goto START_INTRAVM
+   if /I %P2% EQU _CORBA     goto START_CORBA
+   if /I %P2% EQU _EJBSERVER goto START_SERVER
+   if /I %P2% EQU _SERVER    goto START_SERVER
+   if /I %P2% EQU _          goto START_SERVER
    
-   echo Unknown option: %2
-   goto HELP_START                                   
+   goto START_SERVER
+
+goto EOF
+REM================================================
+:START_SERVER
+   echo "Starting OpenEJB Server..."
+   .\bin\ejbserver.bat %2 %3 %4 %5 %6 %7  
 
 goto EOF
 REM================================================
@@ -83,31 +92,80 @@ REM================================================
 
 goto EOF
 REM================================================
-:START_INTRA-VM
+:START_INTRAVM
    more .\bin\intravm.txt
 
 goto EOF
 REM================================================
 :TEST_NOARGS
-   call :TEST_INTRAVM
-   call :TEST_CORBA
-   
+   echo "_________________________________________________"
+   echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
+   echo " "
+   echo "Running EJB compliance tests on IntraVM Server"
+   echo "_________________________________________________"
+   call .\bin\test.bat
+   echo "_________________________________________________"
+   echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
+   echo " "
+   echo "Running EJB compliance tests on EJB Server"
+   echo "_________________________________________________"
+   echo " 1. Starting OpenEJB Server..."
+   start "OpenEJB Server" .\bin\ejbserver.bat > ejb.server.log 2>&1
+   sleep 4
+   echo " 2. Starting test EJB client..."
+   call .\bin\ejbclient.bat
+   echo "_________________________________________________"
+   echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
+   echo " "
+   echo "Running EJB compliance tests on CORBA Server"
+   echo "_________________________________________________"
+   echo " 1. Starting OpenORB JNDI Server..."
+   start "OpenORB JNDI Server" .\bin\launch_jndi.bat -default > corba.jndi.log 2>&1
+   sleep 2
+   echo " 2. Starting OpenEJB CORBA Server with OpenORB..."
+   start "OpenEJB CORBA Server with OpenORB" .\bin\launch_server.bat > corba.server.log 2>&1
+   sleep 15
+   echo " 3. Starting test client..."
+   call .\bin\launch_client.bat
+
 goto EOF
 REM================================================
 :TEST_INTRAVM
+   echo "_________________________________________________"
+   echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
+   echo " "
    echo "Running EJB compliance tests on IntraVM Server"
-   .\bin\test.bat
+   echo "_________________________________________________"
+   call .\bin\test.bat
          
 goto EOF
 REM================================================
+:TEST_SERVER
+   echo "_________________________________________________"
+   echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
+   echo " "
+   echo "Running EJB compliance tests on EJB Server"
+   echo "_________________________________________________"
+   echo " 1. Starting OpenEJB Server..."
+   start "OpenEJB Server" .\bin\ejbserver.bat > ejb.server.log 2>&1
+   sleep 4
+   echo " 2. Starting test EJB client..."
+   call .\bin\ejbclient.bat
+
+goto EOF
+REM================================================
 :TEST_CORBA
+   echo "_________________________________________________"
+   echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
+   echo " "
    echo "Running EJB compliance tests on CORBA Server"
+   echo "_________________________________________________"
    echo " 1. Starting OpenORB JNDI Server..."
-   start "OpenORB JNDI Server" .\bin\launch_jndi.bat -default > jndi.log 2>&1
+   start "OpenORB JNDI Server" .\bin\launch_jndi.bat -default > corba.jndi.log 2>&1
    sleep 2
    echo " 2. Starting OpenEJB CORBA Server with OpenORB..."
-   start "OpenEJB CORBA Server with OpenORB" .\bin\launch_server.bat > server.log 2>&1
-   sleep 6
+   start "OpenEJB CORBA Server with OpenORB" .\bin\launch_server.bat > corba.server.log 2>&1
+   sleep 15
    echo " 3. Starting test client..."
    .\bin\launch_client.bat
 
