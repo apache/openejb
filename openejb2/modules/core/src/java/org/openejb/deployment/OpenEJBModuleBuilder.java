@@ -327,19 +327,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             throw new DeploymentException("Unable to construct ObjectName", e);
         }
 
-        TransactionManagerDelegate tmDelegate = null;
-        ObjectName tmObjectName = null;
-        if ( null != openejbEjbJar.getTransactionManager() ) {
-            try {
-                tmObjectName = ObjectName.getInstance(openejbEjbJar.getTransactionManager());
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("transaction-manager incorrect", e);
-            }
-            tmDelegate = new TransactionManagerDelegate();
-        }
         // EJBModule GBean
         String connectionFactoryName = openejbEjbJar.getCmpConnectionFactory();
         EJBSchema ejbSchema = new EJBSchema(module.getName());
+        TransactionManagerDelegate tmDelegate = new TransactionManagerDelegate();
         DataSourceDelegate delegate = new DataSourceDelegate();
         SQL92Schema sqlSchema = new SQL92Schema(module.getName(), delegate);
         GlobalSchema globalSchema = new GlobalSchema(module.getName());
@@ -359,10 +350,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
                 ejbModuleGBean.setAttribute("Delegate", delegate);
             }
             
-            if ( null != tmObjectName ) {
-                ejbModuleGBean.setReferencePattern("TransactionManager", tmObjectName);
-                ejbModuleGBean.setAttribute("TMDelegate", tmDelegate);
-            }
+            ejbModuleGBean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
+            ejbModuleGBean.setAttribute("TMDelegate", tmDelegate);
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize EJBModule GBean", e);
         }

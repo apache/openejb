@@ -6,7 +6,6 @@
     parentId="org/apache/geronimo/Server">
 
     <cmp-connection-factory>DefaultDatasource</cmp-connection-factory>
-    <transaction-manager></transaction-manager>
 
     <enterprise-beans>
         <entity>
@@ -40,6 +39,12 @@
             <ejb-relation-name>relation</ejb-relation-name>
             <ejb-relationship-role>
                 <ejb-relationship-role-name>ASide</ejb-relationship-role-name>
+                <relationship-role-source>
+                    <ejb-name>A</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                    <cmr-field-name>b</cmr-field-name>
+                </cmr-field>
                 <role-mapping>
                     <cmr-field-mapping>
                         <key-column>a1</key-column>

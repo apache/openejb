@@ -86,8 +86,16 @@ public class CMPEntityBuilderTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
     public void testOneToOne() throws Exception {
-        File ejbJarFile = new File(basedir, "src/test-cmp/onetoone/simplepk/ejb-jar.xml");
-        File openejbJarFile = new File(basedir, "src/test-cmp/onetoone/simplepk/openejb-jar.xml");
+        executeOneToOne("src/test-cmp/onetoone/simplepk/ejb-jar.xml", "src/test-cmp/onetoone/simplepk/openejb-jar.xml");
+    }
+
+    public void testOneToOneUnidirectional() throws Exception {
+        executeOneToOne("src/test-cmp/onetoone/simplepk/ejb-jar.xml", "src/test-cmp/onetoone/simplepk/unidirectional-openejb-jar.xml");
+    }
+    
+    private void executeOneToOne(String ejbJarFileName, String openejbJarFileName) throws Exception {
+        File ejbJarFile = new File(basedir, ejbJarFileName);
+        File openejbJarFile = new File(basedir, openejbJarFileName);
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
@@ -125,8 +133,16 @@ public class CMPEntityBuilderTest extends TestCase {
     }
 
     public void testOneToMany() throws Exception {
-        File ejbJarFile = new File(basedir, "src/test-cmp/onetomany/simplepk/ejb-jar.xml");
-        File openejbJarFile = new File(basedir, "src/test-cmp/onetomany/simplepk/openejb-jar.xml");
+        executeOneToMany("src/test-cmp/onetomany/simplepk/ejb-jar.xml", "src/test-cmp/onetomany/simplepk/openejb-jar.xml");
+    }
+    
+    public void testOneToManyUnidirectional() throws Exception {
+        executeOneToMany("src/test-cmp/onetomany/simplepk/ejb-jar.xml", "src/test-cmp/onetomany/simplepk/unidirectional-openejb-jar.xml");
+    }
+    
+    public void executeOneToMany(String ejbJarFileName, String openejbJarFileName) throws Exception {
+        File ejbJarFile = new File(basedir, ejbJarFileName);
+        File openejbJarFile = new File(basedir, openejbJarFileName);
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
@@ -164,8 +180,16 @@ public class CMPEntityBuilderTest extends TestCase {
     }
 
     public void testManyToMany() throws Exception {
-        File ejbJarFile = new File(basedir, "src/test-cmp/manytomany/simplepk/ejb-jar.xml");
-        File openejbJarFile = new File(basedir, "src/test-cmp/manytomany/simplepk/openejb-jar.xml");
+        executeManyToMany("src/test-cmp/manytomany/simplepk/ejb-jar.xml", "src/test-cmp/manytomany/simplepk/openejb-jar.xml");
+    }
+    
+    public void testManyToManyUnidirectional() throws Exception {
+        executeManyToMany("src/test-cmp/manytomany/simplepk/ejb-jar.xml", "src/test-cmp/manytomany/simplepk/unidirectional-openejb-jar.xml");
+    }
+
+    public void executeManyToMany(String ejbJarFileName, String openejbJarFileName) throws Exception {
+        File ejbJarFile = new File(basedir, ejbJarFileName);
+        File openejbJarFile = new File(basedir, openejbJarFileName);
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
