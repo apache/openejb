@@ -295,12 +295,12 @@ by the server.
     <gbean name="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">
         <attribute name="props" type="java.util.Properties">
         </attribute>
-        <reference name="Compiler">openejb.CORBA:type=Compiler,vendor=Ant</reference>
+        <!-- reference name="Compiler">openejb.CORBA:type=Compiler,vendor=Ant</reference -->
     </gbean>
 
     <!-- end deployment block -->
 
-    <gbean name="openejb.CORBA:type=Server" class="org.openejb.corba.CORBABean">
+    <!-- gbean name="openejb.CORBA:type=Server" class="org.openejb.corba.CORBABean">
         <attribute name="Args" type="java.util.ArrayList">-ORBPort, 2001</attribute>
         <attribute name="Props" type="java.util.Properties">
 
@@ -317,12 +317,12 @@ by the server.
 
         </attribute>
 
-    </gbean>
+    </gbean -->
 
-    <gbean name="openejb.CORBA:type=POA,domain=org/openejb/Itests" class="org.openejb.corba.POABean">
+    <!-- gbean name="openejb.CORBA:type=POA,domain=org/openejb/Itests" class="org.openejb.corba.POABean">
         <attribute name="POAName" type="java.lang.String">org/openejb/POA</attribute>
         <reference name="Server">openejb.CORBA:type=Server</reference>
         <reference name="Containers">geronimo.server:EJBModule=org/openejb/scenario001,*</reference>
-    </gbean>
+    </gbean -->
 
 </configuration>
