@@ -180,6 +180,13 @@ public class HttpResponseImpl implements HttpResponse {
        this.responseString = responseString;
     }
 
+    /** Sets the response string to be sent to the browser
+     * @param responseString the response string
+     */    
+    public String getResponseString(){
+        return responseString;
+    }
+    
     /** resets the data to be sent to the browser */    
     public void reset(){
         initBody();

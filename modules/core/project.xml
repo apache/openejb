@@ -81,7 +81,7 @@
       <version>2.6.0</version>
       <url>http://xml.apache.org</url>
       <properties>
-        <runtime>false</runtime>
+        <runtime>true</runtime>
       </properties>
     </dependency>
 
@@ -89,7 +89,7 @@
       <id>xml-apis</id>
       <version>1.0.b2</version>
       <properties>
-        <runtime>false</runtime>
+        <runtime>true</runtime>
       </properties>
     </dependency>
 

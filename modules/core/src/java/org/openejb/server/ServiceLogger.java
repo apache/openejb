@@ -137,11 +137,13 @@ public class ServiceLogger implements ServerService {
         org.apache.log4j.MDC.put("SERVER", getName());
 
         try{
-            logIncoming();
+            //logIncoming();
+//            logger.info("[request] "+socket.getPort()+" - "+client.getHostName());
             next.service(socket);
-            logSuccess();
+//            logSuccess();
         } catch (Exception e){
-            logFailure(e);
+            logger.error("[failure] "+socket.getPort()+" - "+client.getHostName()+": "+e.getMessage());
+            //logFailure(e);
             e.printStackTrace();
         }
     }

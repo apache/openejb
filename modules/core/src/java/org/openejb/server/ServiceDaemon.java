@@ -51,20 +51,16 @@ import org.openejb.*;
 import org.openejb.util.SafeProperties;
 
 /**
- *  The Server will call the following methods.
+ * The Server will call the following methods.
  * 
- *    newInstance()
- *    init( port, properties)
- *    start()
- *    stop()
+ * newInstance() init( port, properties) start() stop()
  * 
- * All ServerService implementations must have a no argument 
- * constructor.
+ * All ServerService implementations must have a no argument constructor.
  * 
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class ServiceDaemon implements ServerService, Runnable {
-    
+
     ServerService next;
 
     Properties props;
@@ -74,135 +70,141 @@ public class ServiceDaemon implements ServerService, Runnable {
     ServerSocket serverSocket;
 
     /**
-     * We start out in a "stopped" state until someone
-     * calls the start method.
-     */
+	 * We start out in a "stopped" state until someone calls the start method.
+	 */
     boolean stop = true;
 
-    public ServiceDaemon(ServerService next){
+    public ServiceDaemon(ServerService next) {
         this.next = next;
     }
 
     /**
-     * Pulls out the access log information
-     * 
-     * @param props
-     * 
-     * @exception ServiceException
-     */
-    public void init(Properties props) throws Exception{
+	 * Pulls out the access log information
+	 * 
+	 * @param props
+	 * 
+	 * @exception ServiceException
+	 */
+    public void init(Properties props) throws Exception {
         // Do our stuff
         this.props = props;
 
         String p = props.getProperty("port");
-        ip   = props.getProperty("bind");
+        ip = props.getProperty("bind");
 
         port = Integer.parseInt(p);
         // Then call the next guy
         next.init(props);
     }
-    
-    public void start() throws ServiceException{
-        synchronized (this){
+
+    public void start() throws ServiceException {
+        synchronized (this) {
             // Don't bother if we are already started/starting
-            if (!stop) return;
+            if (!stop)
+                return;
 
             stop = false;
             // Do our stuff
-            try{
-                serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
+            try {
+//                serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
+                serverSocket = new ServerSocket(port, 20);                
                 Thread d = new Thread(this);
-                d.setName("service."+next.getName()+"@"+d.hashCode());
+                d.setName("service." + next.getName() + "@" + d.hashCode());
                 d.setDaemon(true);
                 d.start();
-            } catch (Exception e){
-                throw new ServiceException("Service failed to start.",e);
+            } catch (Exception e) {
+                throw new ServiceException("Service failed to start.", e);
                 //e.printStackTrace();
             }
-            
+
             // Then call the next guy
             next.start();
         }
     }
-    
-    public void stop() throws ServiceException{
+
+    public void stop() throws ServiceException {
         // Do our stuff
-        synchronized (this){
+        synchronized (this) {
             // Don't bother if we are already stopped/stopping
-            if (stop) return;
-            
+            if (stop)
+                return;
+
             //System.out.println("[] sending stop signal");
             stop = true;
-            try{
+            try {
                 this.notifyAll();
-            } catch (Throwable t){
+            } catch (Throwable t) {
                 t.printStackTrace();
-                //logger.error("Unable to notify the server thread to stop. Received exception: "+t.getClass().getName()+" : "+t.getMessage());
+                //logger.error("Unable to notify the server thread to stop.
+				// Received exception: "+t.getClass().getName()+" :
+				// "+t.getMessage());
             }
             // Then call the next guy
             next.stop();
         }
     }
 
-    public void service(Socket socket) throws ServiceException, IOException{
-        // Do our stuff
-        // Check authorization
+    public synchronized void service(final Socket socket)
+        throws ServiceException, IOException {
+        Thread d = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    next.service(socket);
+                } catch (SecurityException e) {
+                    //logger.error( "Security error: "+ e.getMessage() );
+                } catch (Throwable e) {
+                    //logger.error( "Unexpected error", e );
 
-        // Then call the next guy
-        next.service(socket);
+                } finally {
+                    try {
+                        if (socket != null)
+                            socket.close();
+                    } catch (Throwable t) {
+                        //logger.error("Encountered problem while closing
+						// connection with client: "+t.getMessage());
+                    }
+                }
+            }
+        });
+        d.setDaemon(true);
+        d.start();
     }
 
     /**
-     * Gets the name of the service.
-     * Used for display purposes only
-     */ 
-    public String getName(){
+	 * Gets the name of the service. Used for display purposes only
+	 */
+    public String getName() {
         return next.getName();
     }
 
     /**
-     * Gets the ip number that the 
-     * daemon is listening on.
-     */
-    public String getIP(){
+	 * Gets the ip number that the daemon is listening on.
+	 */
+    public String getIP() {
         return ip;
     }
-    
+
     /**
-     * Gets the port number that the 
-     * daemon is listening on.
-     */
-    public int getPort(){
+	 * Gets the port number that the daemon is listening on.
+	 */
+    public int getPort() {
         return port;
     }
-
 
     public void run() {
 
         Socket socket = null;
-        
-        while ( !stop ) {
+
+        while (!stop) {
             try {
-                
                 socket = serverSocket.accept();
-                
                 if (!stop) service(socket);
-            
-            } catch ( SecurityException e ) {
+            } catch (SecurityException e) {
                 //logger.error( "Security error: "+ e.getMessage() );
-            } catch ( Throwable e ) {
+            } catch (Throwable e) {
                 //logger.error( "Unexpected error", e );
 
-            } finally {
-                try {
-                    if ( socket != null ) socket.close();
-                } catch ( Throwable t ){
-                    //logger.error("Encountered problem while closing connection with client: "+t.getMessage());
-                }
-            }
+            } 
         }
-
     }
-
-
 }

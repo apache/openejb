@@ -104,7 +104,7 @@ public class ServiceAccessController implements ServerService {
     public void service(Socket socket) throws ServiceException, IOException{
         // Do our stuff
         // Check authorization
-        checkHostsAuthorization(socket.getInetAddress(), socket.getLocalAddress());
+        //checkHostsAuthorization(socket.getInetAddress(), socket.getLocalAddress());
         // Then call the next guy
         next.service(socket);
     }

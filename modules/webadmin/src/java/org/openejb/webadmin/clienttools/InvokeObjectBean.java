@@ -351,7 +351,7 @@ public class InvokeObjectBean extends WebAdminBean implements Constants {
         }
 
     }
-    String pepperImg = "<img src='images/pepper.gif' border='0'>";
+    String pepperImg = "<img src='/images/pepper.gif' border='0'>";
     public void invoke(Invocation inv) throws Exception{
 
         try{
