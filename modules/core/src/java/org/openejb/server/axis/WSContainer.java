@@ -52,16 +52,23 @@ import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.webservices.SoapHandler;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.openejb.EJBContainer;
 
-public class WSContainer {
+public class WSContainer implements GBeanLifecycle {
+
+    private final SoapHandler soapHandler;
+    private final URI location;
 
     protected WSContainer() {
+        soapHandler = null;
+        location = null;
     }
 
     public WSContainer(EJBContainer ejbContainer, URI location, URI wsdlURI, SoapHandler soapHandler, JavaServiceDesc serviceDesc) throws Exception {
         try {
-
+            this.soapHandler = soapHandler;
+            this.location = location;
             RPCProvider provider = new EJBContainerProvider(ejbContainer);
             SOAPService service = new SOAPService(null, provider, null);
             service.setServiceDescription(serviceDesc);
@@ -133,4 +140,15 @@ public class WSContainer {
 //    }
 
 
+    public void doStart() throws Exception {
+
+    }
+
+    public void doStop() throws Exception {
+        soapHandler.removeWebService(location.getPath());
+    }
+
+    public void doFail() {
+
+    }
 }
