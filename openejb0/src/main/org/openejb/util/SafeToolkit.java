@@ -235,7 +235,8 @@ public class SafeToolkit{
 		    try {
 			java.net.URL[] urlCodebase = new java.net.URL[1];
 			urlCodebase[0] = new java.net.URL("file",null,codebase);
-			cl = new java.net.URLClassLoader(urlCodebase, ClassLoader.getSystemClassLoader() );
+              // make sure everything works if we were not loaded by the system class loader
+			cl = new java.net.URLClassLoader(urlCodebase, SafeToolkit.class.getClassLoader() );
 			codebases.put(codebase, cl);
 		    } catch (java.net.MalformedURLException mue) {
 			Object[] details = {codebase, mue.getMessage()};

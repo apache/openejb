@@ -77,6 +77,7 @@ public class FileUtils{
 	    if(tmpDir.exists()) {
 		continue;
 	    } else {
+                tmpDir.mkdir();
 		return tmpDir;
 	    }
 	}

@@ -60,7 +60,8 @@ import java.util.Vector;
  * @author David Blevins
  */
 public final class ArrayEnumeration implements Enumeration, Externalizable{
-    
+    static final long serialVersionUID = -1194966576855523042L;    
+
     private Object[] elements;
     private int elementsIndex;
 
@@ -69,11 +70,30 @@ public final class ArrayEnumeration implements Enumeration, Externalizable{
         elements.copyInto(this.elements);
     }
 
+    public ArrayEnumeration(java.util.List list){
+        this.elements = new Object[list.size()];
+        list.toArray(this.elements);
+    }
+    
     // This is required for Externalization.
     public ArrayEnumeration() {
     }
 
+    // These methods are borrowed from the List interface
+    // They are needed to avoid unnecessary object creation in
+    // the finder methods
+    public java.lang.Object get(int index) {
+        return elements[index];
+    }
 
+    public void set(int index, java.lang.Object o) {
+        elements[index] = o;
+    }
+
+    public int size() {
+        return elements.length;
+    }
+    
     //=========================================
     // java.util.Enumeration interface methods
     //

@@ -66,6 +66,11 @@ public class LinkedListStack implements Stack {
     private LinkedEntry vacantEntries;
 
     /**
+     * the number of elements on the stack
+     */
+    private int size;
+    
+    /**
      * Constructs this LinkedListStack with the specified number of LinkedEntry 
      * objects all sequentially linked together.
      * 
@@ -92,6 +97,7 @@ public class LinkedListStack implements Stack {
             //  occupied entries list
             occupiedEntries = entry.set(object, occupiedEntries);
         }
+        ++size;
         return object;
     }
 
@@ -110,10 +116,13 @@ public class LinkedListStack implements Stack {
         //  vacant entries list
         Object value = entry.value;
         vacantEntries = entry.set(null ,vacantEntries);
+        --size;
         return value;
     }
 
-
+    public synchronized int size() {
+        return size;
+    }
     //======================================================
     // Inner class to represent entries in the linked list
     //
