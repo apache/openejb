@@ -58,6 +58,7 @@ import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.transaction.TransactionManager;
+import javax.security.auth.Subject;
 
 import org.apache.geronimo.cache.InstancePool;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
@@ -85,6 +86,7 @@ public abstract class AbstractEJBContainer
         implements EJBContainer, GeronimoMBeanTarget {
 
     protected final URI uri;
+    protected final String ejbName;
     protected final String ejbClassName;
     protected final String homeClassName;
     protected final String localHomeClassName;
@@ -98,6 +100,11 @@ public abstract class AbstractEJBContainer
     protected final EJBUserTransaction userTransaction;
     protected final Set unshareableResources;
     protected final TransactionPolicySource transactionPolicySource;
+    protected final String contextId;
+    protected final Subject runAs;
+    protected final boolean setSecurityInterceptor;
+    protected final boolean setPolicyContextHandlerDataEJB;
+    protected final boolean setIdentity;
 
 
     protected ClassLoader classLoader;
@@ -120,6 +127,7 @@ public abstract class AbstractEJBContainer
 
     public AbstractEJBContainer(EJBContainerConfiguration config) {
         uri = config.uri;
+        ejbName = config.ejbName;
         ejbClassName = config.beanClassName;
         homeClassName = config.homeInterfaceName;
         remoteClassName = config.remoteInterfaceName;
@@ -133,6 +141,11 @@ public abstract class AbstractEJBContainer
         trackedConnectionAssociator = config.trackedConnectionAssociator;
         unshareableResources = config.unshareableResources;
         transactionPolicySource = config.transactionPolicySource;
+        contextId = config.contextId;
+        runAs = config.runAs;
+        setSecurityInterceptor = config.setSecurityInterceptor;
+        setPolicyContextHandlerDataEJB = config.setPolicyContextHandlerDataEJB;
+        setIdentity = config.setIdentity;
     }
 
     public void setTransactionManager(TransactionManager txnManager) {

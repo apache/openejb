@@ -51,6 +51,7 @@ import java.net.URI;
 import java.util.Set;
 
 import javax.transaction.TransactionManager;
+import javax.security.auth.Subject;
 
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
@@ -67,6 +68,7 @@ import org.openejb.nova.deployment.TransactionPolicySource;
  */
 public class EJBContainerConfiguration {
     public URI uri;
+    public String ejbName;
     public String beanClassName;
     public String homeInterfaceName;
     public String remoteInterfaceName;
@@ -80,4 +82,9 @@ public class EJBContainerConfiguration {
     public TrackedConnectionAssociator trackedConnectionAssociator;
     public Set unshareableResources;
     public TransactionPolicySource transactionPolicySource;
+    public String contextId;
+    public Subject runAs;
+    public boolean setSecurityInterceptor;
+    public boolean setPolicyContextHandlerDataEJB;
+    public boolean setIdentity;
 }
