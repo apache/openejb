@@ -87,7 +87,7 @@ public abstract class Adapter implements RefGenerator {
 
             Servant servant = tieLoader.loadTieClass(container.getProxyInfo().getHomeInterface(), container.getProxyInfo());
             AdapterProxyFactory factory = new AdapterProxyFactory(container.getProxyInfo().getHomeInterface(), container.getClassLoader());
-            Remote remote = (Remote) factory.create(container.getEJBObject(null));
+            Remote remote = (Remote) factory.create(container.getEJBHome());
 
             if (servant instanceof Tie) {
                 ((Tie) servant).setTarget(remote);
