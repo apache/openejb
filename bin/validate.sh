@@ -20,17 +20,15 @@ if [ -z "$OPENEJB_HOME" ] ; then
   OPENEJB_HOME=$PWD
 fi
 
-if [ -z "$OSTYPE" ] ; then
-  echo "OSTYPE environment variable is not set.  Cannot determine the host operating system!" 
-  exit 1
+# PS stands for PATH SEPERATOR
+PS=":"
+
+if [ -z `uname -s` ]; then
+    echo "Cannot determine your host operating system."
+    exit 1
+elif [ `uname -s` = "CYGWIN_NT-5.0" -o `uname -s` = "cygwin32" -o `uname -s` = "cygwin" ]; then
+    PS=";"
 fi
-
-# PS stands for PATH_SEPARATOR 
-PS=':'
- if [ $OSTYPE = "cygwin32" ] || [ $OSTYPE = "cygwin" ] ; then
-    PS=';'
- fi
-
 
 # Setup Classpath
 
