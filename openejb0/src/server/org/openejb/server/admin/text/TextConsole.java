@@ -76,9 +76,9 @@ public class TextConsole implements Runnable {
 
     public void start(){
         try{
-            this.setConsole( new RemoteConsole() );
+            this.setConsole( new TelnetConsole() );
             Thread d = new Thread(this);
-            d.setName("Remote Text Console");
+            d.setName("Telnet Console");
             d.setDaemon(true);
             d.start();
             
@@ -210,122 +210,3 @@ public class TextConsole implements Runnable {
     }
 }
 
-
-abstract class Console {
-
-    DataInputStream  in  = null;
-    PrintStream out = null;
-
-    public abstract void open() throws IOException;
-    public abstract void close() throws IOException;
-    
-    public DataInputStream  getInputStream() throws IOException{
-        return in;
-    }
-
-    public PrintStream getOutputStream() throws IOException{
-        return out;
-    }
-}
-
-class LocalConsole extends Console{
-
-    private boolean opened = false;
-
-    public void open() throws IOException {
-        if (opened) return;
-
-        in  = new DataInputStream(  System.in );
-        out = new PrintStream( System.out );
-        
-        out.println("OpenEJB Remote Server Console");
-        out.println("type \'help\' for a list of commands");
-        
-        opened = true;
-    }
-    
-    public void close() throws IOException {
-    }
-}
-
-class RemoteConsole extends Console{
-    
-    Socket socket = null; 
-    ServerSocket serverSocket = null;
-    byte[] CRLF = new byte[]{(byte) '\r',(byte) '\n' };
-
-    public RemoteConsole(){
-        try{
-            serverSocket = new ServerSocket(4200);                                    
-        } catch(Throwable t){
-            t.printStackTrace();
-        }
-    }
-
-    public void open() throws IOException {
-        socket = serverSocket.accept();
-        out = new PrintStream( socket.getOutputStream() ){
-                public void println() {
-                        newLine();
-                }
-                public void println(long x) {
-                    synchronized (this) {
-                        print(x);
-                        newLine();
-                    }
-                }
-                public void println(char x) {
-                    synchronized (this) {
-                        print(x);
-                        newLine();
-                    }
-                }
-                public void println(boolean x) {
-                    synchronized (this) {
-                        print(x);
-                        newLine();
-                    }
-                }
-                public void println(float x) {
-                    synchronized (this) {
-                        print(x);
-                        newLine();
-                    }
-                }
-                public void println(double x) {
-                    synchronized (this) {
-                        print(x);
-                        newLine();
-                    }
-                }
-                public void println(int x) {
-                    synchronized (this) {
-                        print(x);
-                        newLine();
-                    }
-                }
-                public void println(char x[]) {
-                    synchronized (this) {
-                        print(x);
-                        newLine();
-                    }
-                }
-                private void newLine(){
-                    try{
-                        this.write(CRLF);
-                    } catch (Exception e){
-                    }
-                }
-        };
-        in  = new DataInputStream(  socket.getInputStream() );
-
-        out.println("OpenEJB Remote Server Console");
-        out.println("type \'help\' for a list of commands");
-    }                              
-    
-    public void close() throws IOException {
-        if (in != null ) in.close();
-        if (out != null ) out.close();
-        if (socket != null ) socket.close();
-    }
-}
