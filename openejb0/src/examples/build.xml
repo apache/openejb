@@ -16,8 +16,6 @@
   <property name="build.src" value="${build.dir}/src"/>
   <property name="build.dest" value="${build.dir}/classes"/>
   <property name="src.java.dir" value="${src.dir}"/>
-  <property name="final.name" value="${project}-${version}"/>
-  <property name="final.dir" value="${base.path}/dist/${final.name}/"/>
   
   <property name="build.examples.src" value="${build.src}/examples"/>
   <property name="build.examples.dest" value="${build.dest}/examples"/>
@@ -46,7 +44,6 @@
     <echo message="build.dir              = ${build.dir}"/>
     <echo message="build.src              = ${build.src}"/>
     <echo message="build.dest             = ${build.dest}"/>
-    <echo message="final.dir              = ${final.dir}"/>
 
     <echo message="ejb11.jar              = ${ejb11.jar}"/>
     <echo message="jndi.jar               = ${jndi.jar}"/>
@@ -170,14 +167,6 @@
 
     </copy>
 
-    <copy todir="${build.examples.dest}">
-
-      <fileset dir="${final.dir}/src/etc" >
-        <include name="**/CHANGELOG"/>
-      </fileset>
-
-    </copy>
-
     <copy todir="${build.examples.dest}/META-INF">
     
       <fileset dir="${src.examples.dir}/src/META-INF" >
@@ -225,13 +214,13 @@
           depends="compile, copy.manifest"
           description="--> generates all java archives (default)">
     
-    <jar jarfile="${base.path}/beans/${project}_examples_beans-${version}.jar"
+    <jar jarfile="${base.path}/beans/${project}_beans-${version}.jar"
          basedir="${build.examples.dest}"
          includes="**/*.class,META-INF/*.xml"
          excludes="**/clients/**"
          manifest="${build.examples.dest}/META-INF/MANIFEST.MF"/>
 
-    <jar jarfile="${base.path}/dist/${project}_examples_clients-${version}.jar"
+    <jar jarfile="${base.path}/dist/${project}_clients-${version}.jar"
          basedir="${build.examples.dest}"
          includes="**/*.class"
          excludes="**/*Bean*"
