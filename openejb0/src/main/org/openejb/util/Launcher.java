@@ -116,8 +116,7 @@ public final class Launcher {
             // Has anyone any clue about a possible solution?
             rt.addShutdownHook(new KillProcessShutdownHook(process));
 
-            int exitVal = process.waitFor();
-            System.out.println("Process exited: " + exitVal);
+            process.waitFor();
         } catch (Throwable t) {
             throw new RuntimeException("Could not start the executable: " + args[0], t);
         } finally {
@@ -198,9 +197,7 @@ public final class Launcher {
         }
 
         public void run() {
-            System.out.print("Destroying subprocess...");
             process.destroy();
-            System.out.println("done.");
         }
     }
 }
