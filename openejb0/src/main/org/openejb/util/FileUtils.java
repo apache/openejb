@@ -38,7 +38,7 @@ public class FileUtils{
         return dir;
     }	
 
-    public static File getFile(String path) throws java.io.IOException{
+    public static File getFile(String path) throws java.io.FileNotFoundException, java.io.IOException{
         File file = null;
         
         if ( home == null ) resolveOpenEjbHome();
