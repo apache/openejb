@@ -68,9 +68,9 @@ import org.openejb.dispatch.VirtualOperation;
 import org.tranql.cache.CacheRow;
 import org.tranql.cache.CacheTable;
 import org.tranql.cache.DuplicateIdentityException;
-import org.tranql.cache.IdentityTransform;
-import org.tranql.cache.IdentityTransformException;
-import org.tranql.cache.UndefinedIdentityException;
+import org.tranql.identity.IdentityTransform;
+import org.tranql.identity.UndefinedIdentityException;
+import org.tranql.identity.IdentityTransformException;
 
 /**
  *

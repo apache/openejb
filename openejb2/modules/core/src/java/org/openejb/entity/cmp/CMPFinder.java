@@ -56,8 +56,9 @@ import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.openejb.EJBInvocation;
 import org.openejb.dispatch.VirtualOperation;
 import org.tranql.cache.InTxCache;
-import org.tranql.cache.QueryCommand;
 import org.tranql.ql.QueryException;
+import org.tranql.query.QueryCommand;
+import org.tranql.field.Row;
 
 /**
  *
@@ -77,9 +78,9 @@ public class CMPFinder implements VirtualOperation, Serializable {
         InTxCache inTxCache = invocation.getTransactionContext().getInTxCache();
         try {
             if (invocation.getType().isLocal()) {
-                return new SimpleInvocationResult(true, localQuery.execute(inTxCache, invocation.getArguments()));
+                return new SimpleInvocationResult(true, localQuery.execute(inTxCache, new Row(invocation.getArguments())));
             } else {
-                return new SimpleInvocationResult(true, remoteQuery.execute(inTxCache, invocation.getArguments()));
+                return new SimpleInvocationResult(true, remoteQuery.execute(inTxCache, new Row(invocation.getArguments())));
             }
         } catch (QueryException e) {
             return new SimpleInvocationResult(false, new FinderException().initCause(e));

@@ -47,12 +47,9 @@
  */
 package org.openejb.entity.cmp;
 
-import javax.ejb.EJBException;
-
 import org.tranql.cache.CacheRow;
-import org.tranql.cache.FieldTransform;
-import org.tranql.cache.FieldTransformException;
 import org.tranql.cache.InTxCache;
+import org.tranql.ejb.CMPFieldTransform;
 
 /**
  *
@@ -61,9 +58,9 @@ import org.tranql.cache.InTxCache;
  */
 public class CMPSetter implements InstanceOperation {
     private final String fieldName;
-    private final FieldTransform field;
+    private final CMPFieldTransform field;
 
-    public CMPSetter(String fieldName, FieldTransform field) {
+    public CMPSetter(String fieldName, CMPFieldTransform field) {
         this.fieldName = fieldName;
         this.field = field;
     }
@@ -72,13 +69,9 @@ public class CMPSetter implements InstanceOperation {
         assert args.length != 1 : "CMPSetter must be passed exactally one argument:" +
                 " fieldName=" + fieldName + ", args.length=" + args.length;
 
-        try {
-            CacheRow row = ctx.getCacheRow();
-            InTxCache inTxCache = ctx.getTransactionContext().getInTxCache();
-            field.set(inTxCache, row, args[0]);
-        } catch (FieldTransformException e) {
-            throw new EJBException("Unable to set value for cmp-field: " + fieldName, e);
-        }
+        CacheRow row = ctx.getCacheRow();
+        InTxCache inTxCache = ctx.getTransactionContext().getInTxCache();
+        field.set(inTxCache, row, args[0]);
         return null;
     }
 }

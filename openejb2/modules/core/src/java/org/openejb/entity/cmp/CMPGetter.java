@@ -47,12 +47,9 @@
  */
 package org.openejb.entity.cmp;
 
-import javax.ejb.EJBException;
-
 import org.tranql.cache.CacheRow;
-import org.tranql.cache.FieldTransform;
-import org.tranql.cache.FieldTransformException;
 import org.tranql.cache.InTxCache;
+import org.tranql.ejb.CMPFieldTransform;
 
 /**
  *
@@ -61,9 +58,9 @@ import org.tranql.cache.InTxCache;
  */
 public class CMPGetter implements InstanceOperation {
     private final String fieldName;
-    private final FieldTransform field;
+    private final CMPFieldTransform field;
 
-    public CMPGetter(String fieldName, FieldTransform field) {
+    public CMPGetter(String fieldName, CMPFieldTransform field) {
         this.fieldName = fieldName;
         this.field = field;
     }
@@ -72,12 +69,8 @@ public class CMPGetter implements InstanceOperation {
         assert args.length != 0 : "CMPGetter must not be passed any arguments:" +
                 " fieldName=" + fieldName + ", args.length=" + args.length;
 
-        try {
-            CacheRow row = ctx.getCacheRow();
-            InTxCache inTxCache = ctx.getTransactionContext().getInTxCache();
-            return field.get(inTxCache, row);
-        } catch (FieldTransformException e) {
-            throw new EJBException("Unable to get value for cmp-field: " + fieldName, e);
-        }
+        CacheRow row = ctx.getCacheRow();
+        InTxCache inTxCache = ctx.getTransactionContext().getInTxCache();
+        return field.get(inTxCache, row);
     }
 }

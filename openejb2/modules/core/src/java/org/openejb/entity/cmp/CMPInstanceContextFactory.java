@@ -68,7 +68,7 @@ import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.InstanceContextFactory;
 import org.openejb.proxy.EJBProxyFactory;
-import org.tranql.cache.IdentityTransform;
+import org.tranql.identity.IdentityTransform;
 
 /**
  *

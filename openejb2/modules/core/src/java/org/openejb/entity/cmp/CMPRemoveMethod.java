@@ -48,14 +48,13 @@
 package org.openejb.entity.cmp;
 
 import org.apache.geronimo.core.service.InvocationResult;
-
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractMethodOperation;
 import org.openejb.dispatch.MethodSignature;
-import org.tranql.cache.GlobalIdentity;
-import org.tranql.cache.IdentityTransform;
 import org.tranql.cache.InTxCache;
+import org.tranql.identity.GlobalIdentity;
+import org.tranql.identity.IdentityTransform;
 
 /**
  * Virtual operation handling removal of an instance.

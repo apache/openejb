@@ -59,8 +59,9 @@ import javax.ejb.EJBException;
 import javax.ejb.FinderException;
 
 import org.tranql.cache.InTxCache;
-import org.tranql.cache.QueryCommand;
 import org.tranql.ql.QueryException;
+import org.tranql.query.QueryCommand;
+import org.tranql.field.Row;
 
 /**
  *
@@ -69,7 +70,7 @@ import org.tranql.ql.QueryException;
  * @version $Revision$ $Date$
  */
 public class CMPSelectMethod implements InstanceOperation {
-    private final QueryCommand query;
+    private final org.tranql.query.QueryCommand query;
 
     public CMPSelectMethod(QueryCommand query) {
         this.query = query;
@@ -78,7 +79,7 @@ public class CMPSelectMethod implements InstanceOperation {
     public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
         try {
             InTxCache inTxCache = ctx.getTransactionContext().getInTxCache();
-            return query.execute(inTxCache, args);
+            return query.execute(inTxCache, new Row(args));
         } catch (QueryException e) {
             throw (FinderException) new FinderException().initCause(e);
         } catch (RuntimeException e) {
