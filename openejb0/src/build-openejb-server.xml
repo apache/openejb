@@ -25,11 +25,11 @@
     <pathelement location="${tyrex.home}/dist/${tyrex.jar}"/>
     <pathelement location="${jaxp.home}/jaxp.jar"/>
     <pathelement location="${jaxp.home}/${jaxp.parser.jar}"/>
+    <pathelement location="${jaxp.home}/${jaxp.parserapi.jar}"/>
     <pathelement location="${jaxp.home}/${jaxp.xsltprocessor.jar}"/>
     <pathelement location="${jaxp.home}/${jaxp.xalan1compat.jar}"/>
     <pathelement location="${junit.jar}"/>
     <pathelement location="${jakarta.regexp.jar}"/>
-    <pathelement location="${xslp.jar}"/>
   </path>
   
   <!-- ================================================================== -->
