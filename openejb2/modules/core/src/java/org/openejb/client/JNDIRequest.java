@@ -99,7 +99,7 @@ public class JNDIRequest implements Request {
      */
     public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {
         requestMethod = in.readByte();
-        clientModuleID = in.readUTF();
+        clientModuleID = (String) in.readObject();
         requestString = in.readUTF();
     }
     /**
@@ -119,7 +119,7 @@ public class JNDIRequest implements Request {
      */
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeByte((byte)requestMethod);
-        out.writeUTF(clientModuleID);
+        out.writeObject(clientModuleID);
         out.writeUTF (requestString);
     }
 
