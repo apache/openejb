@@ -160,10 +160,10 @@
     <SecurityService id="Default Security Service"/>
     <TransactionService id="Default Transaction Manager"/>
     <Connector id="Default JDBC Database">
-        JdbcDriver com.newatlanta.jturbo.driver.Driver
-        JdbcUrl jdbc:JTurbo://SERVER/DATABASE
-        UserName UserName
-        Password Password
+        JdbcDriver com.ddtek.jdbc.sqlserver.SQLServerDriver
+        JdbcUrl jdbc:datadirect:sqlserver://GEORGE:1433
+        UserName toolazy
+        Password dogs
     </Connector>
     <Deployments dir="beans/" />
 </openejb>

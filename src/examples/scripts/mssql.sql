@@ -9,13 +9,6 @@ CREATE TABLE cabin (
 )
 GO
 
-CREATE TABLE customer (
-    id INT PRIMARY KEY NOT NULL, 
-    last_name CHAR(30),
-    first_name CHAR(30)
-)
-GO
-
 CREATE TABLE ship (
     id INT PRIMARY KEY NOT NULL,
     name CHAR(30),
