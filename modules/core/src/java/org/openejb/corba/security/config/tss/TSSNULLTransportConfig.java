@@ -51,10 +51,9 @@ import javax.net.ssl.SSLSession;
 import javax.security.auth.Subject;
 
 import org.omg.CORBA.ORB;
+import org.omg.CSIIOP.TAG_NULL_TAG;
 import org.omg.IOP.Codec;
-
-import org.apache.geronimo.interop.CSIIOP.TAG_NULL_TAG;
-import org.apache.geronimo.interop.IOP.TaggedComponent;
+import org.omg.IOP.TaggedComponent;
 
 import org.openejb.corba.security.SASException;
 

@@ -52,11 +52,11 @@ import javax.net.ssl.SSLSession;
 import javax.security.auth.Subject;
 
 import org.omg.CORBA.ORB;
+import org.omg.CSI.EstablishContext;
 import org.omg.IOP.Codec;
 import org.omg.IOP.TaggedComponent;
 
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.interop.CSI.EstablishContext;
 
 import org.openejb.corba.security.SASException;
 

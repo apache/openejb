@@ -49,7 +49,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Properties;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -67,12 +66,11 @@ import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.ORB;
+import org.omg.CSIIOP.Confidentiality;
+import org.omg.CSIIOP.EstablishTrustInTarget;
+import org.omg.CSIIOP.NoProtection;
+import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
 import org.omg.IOP.TaggedComponent;
-
-import org.apache.geronimo.interop.CSIIOP.Confidentiality;
-import org.apache.geronimo.interop.CSIIOP.EstablishTrustInTarget;
-import org.apache.geronimo.interop.CSIIOP.NoProtection;
-import org.apache.geronimo.interop.CSIIOP.TAG_CSI_SEC_MECH_LIST;
 
 import org.openejb.corba.MinorCodes;
 import org.openejb.corba.security.config.tss.TSSCompoundSecMechListConfig;
@@ -97,11 +95,6 @@ public class OpenEJBSocketFactory implements ORBSocketFactory {
     private final String[] cipherSuites;
     private final boolean clientAuthSupported;
     private final boolean clientAuthRequired;
-    private final static ThreadLocal properties = new ThreadLocal() {
-        protected Object initialValue() {
-            return new Properties();
-        }
-    };
 
     public OpenEJBSocketFactory() {
 
@@ -125,6 +118,8 @@ public class OpenEJBSocketFactory implements ORBSocketFactory {
             } else if ("Integrity".equals(props[i])) {
             } else if ("NoProtection".equals(props[i])) {
                 supports |= NoProtection.value;
+            } else if (props[i].trim().length() == 0) {
+                supports |= NoProtection.value;
             } else {
                 log.error("Unsupported socket property: " + props[i]);
             }
@@ -144,6 +139,8 @@ public class OpenEJBSocketFactory implements ORBSocketFactory {
                 requires |= Confidentiality.value;
             } else if ("Integrity".equals(props[i])) {
             } else if ("NoProtection".equals(props[i])) {
+                requires |= NoProtection.value;
+            } else if (props[i].trim().length() == 0) {
                 requires |= NoProtection.value;
             } else {
                 log.error("Unsupported socket property: " + props[i]);
@@ -201,7 +198,6 @@ public class OpenEJBSocketFactory implements ORBSocketFactory {
             socket.setWantClientAuth(clientAuthSupported);
             socket.setNeedClientAuth(clientAuthRequired);
             socket.setSoTimeout(10 * 1000);
-//            socket.setSoLinger(true, 10*1000);
 
             if (log.isDebugEnabled()) {
                 log.debug("Created SSL socket to " + endPointInfo.getHost() + ":" + endPointInfo.getPort());

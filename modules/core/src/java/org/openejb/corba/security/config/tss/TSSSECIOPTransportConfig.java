@@ -55,15 +55,14 @@ import javax.security.auth.Subject;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
+import org.omg.CSIIOP.SECIOP_SEC_TRANS;
+import org.omg.CSIIOP.SECIOP_SEC_TRANSHelper;
+import org.omg.CSIIOP.TAG_SECIOP_SEC_TRANS;
+import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
+import org.omg.CSIIOP.TransportAddress;
 import org.omg.IOP.Codec;
+import org.omg.IOP.TaggedComponent;
 import org.openorb.orb.csiv2.ASN1Utils;
-
-import org.apache.geronimo.interop.CSIIOP.SECIOP_SEC_TRANS;
-import org.apache.geronimo.interop.CSIIOP.SECIOP_SEC_TRANSHelper;
-import org.apache.geronimo.interop.CSIIOP.TAG_SECIOP_SEC_TRANS;
-import org.apache.geronimo.interop.CSIIOP.TLS_SEC_TRANSHelper;
-import org.apache.geronimo.interop.CSIIOP.TransportAddress;
-import org.apache.geronimo.interop.IOP.TaggedComponent;
 
 import org.openejb.corba.security.SASException;
 import org.openejb.corba.util.Util;

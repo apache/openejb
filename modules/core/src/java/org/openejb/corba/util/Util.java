@@ -62,15 +62,14 @@ import org.bouncycastle.asn1.x509.X509Name;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;
+import org.omg.GSSUP.GSSUPMechOID;
+import org.omg.GSSUP.InitialContextToken;
+import org.omg.GSSUP.InitialContextTokenHelper;
 import org.omg.IOP.Codec;
 import org.omg.IOP.CodecFactory;
 import org.omg.IOP.ENCODING_CDR_ENCAPS;
 import org.omg.IOP.Encoding;
 import org.openorb.util.HexPrintStream;
-
-import org.apache.geronimo.interop.GSSUP.GSSUPMechOID;
-import org.apache.geronimo.interop.GSSUP.InitialContextToken;
-import org.apache.geronimo.interop.GSSUP.InitialContextTokenHelper;
 
 
 /**
@@ -304,7 +303,7 @@ public final class Util {
             // create and encode a GSSUP initial context token
             InitialContextToken init_token = new InitialContextToken();
             init_token.username = user.getBytes();
-            
+
             String password = new String(pwd);
             init_token.password = password.getBytes();
 
@@ -389,8 +388,8 @@ public final class Util {
     public static String byteToString(byte[] data) {
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < data.length; i++) {
-            buffer.append(HEXCHAR[(data[i]>>>4)&0x0F]);
-            buffer.append(HEXCHAR[(data[i]    )&0x0F]);
+            buffer.append(HEXCHAR[(data[i] >>> 4) & 0x0F]);
+            buffer.append(HEXCHAR[(data[i]) & 0x0F]);
         }
         return buffer.toString();
 

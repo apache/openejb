@@ -48,12 +48,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.omg.CSIIOP.EstablishTrustInClient;
 import org.omg.Security.Confidentiality;
 import org.omg.Security.EstablishTrustInTarget;
 import org.omg.Security.NoProtection;
 
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.interop.CSIIOP.EstablishTrustInClient;
 
 import org.openejb.corba.security.config.ConfigAdapter;
 import org.openejb.corba.security.config.ConfigException;
