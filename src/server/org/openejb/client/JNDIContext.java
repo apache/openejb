@@ -126,12 +126,8 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
     }
 
     //TODO:0:Write authentication module
-    protected AuthenticationResponse requestAuthorization(AuthenticationRequest req){
-        // TODO:0: Remove this temporary Fix
-        AuthenticationResponse res = new AuthenticationResponse();
-        res.setResponseCode( AUTH_GRANTED );
-        res.setIdentity( new ClientMetaData("authenicatedUser") );
-        return res;
+    protected AuthenticationResponse requestAuthorization(AuthenticationRequest req) throws java.rmi.RemoteException {
+        return (AuthenticationResponse) Client.request(req, new AuthenticationResponse(), server);
     }
 
     //-------------------------------------------------------------//
@@ -192,7 +188,8 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         
         //TODO:1: Either aggressively initiate authentication or wait for the 
         //        server to send us an authentication challange.
-        client = new ClientMetaData("unauthenticated");
+        authenticate(userID, psswrd);
+
         return this;
     }
     
@@ -201,7 +198,13 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         // TODO:1: Skip this if the identity hasn't been changed and
         // the user already has been authenticated.
         AuthenticationRequest  req = new AuthenticationRequest(userID, psswrd);
-        AuthenticationResponse res = requestAuthorization(req);
+        AuthenticationResponse res = null;
+
+	try {
+	    res = requestAuthorization(req);
+	} catch (java.rmi.RemoteException e) {
+	    throw new javax.naming.AuthenticationException(e.getLocalizedMessage());
+	}
         
         switch (res.getResponseCode()) {
             case AUTH_GRANTED:

@@ -639,7 +639,27 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
     }
 
     public void processAuthRequest(ObjectInputStream in, ObjectOutputStream out) throws Exception{
-        //TODO
+        AuthenticationRequest req = new AuthenticationRequest();
+        AuthenticationResponse res = new AuthenticationResponse();
+
+        try {
+            req.readExternal( in );
+
+	    // TODO: perform some real authentication here
+
+	    ClientMetaData client = new ClientMetaData();
+
+    	    client.setClientIdentity( new String( (String)req.getPrinciple() ) );
+
+	    res.setIdentity( client );
+	    res.setResponseCode( AUTH_GRANTED );
+
+	    res.writeExternal( out );
+        } catch (Throwable t) {
+	    replyWithFatalError
+		(out, t, "Error caught during request processing");
+            return;
+        }
     }
 
     protected void doEjbObject_BUSINESS_METHOD( EJBRequest req, EJBResponse res ) throws Exception {
