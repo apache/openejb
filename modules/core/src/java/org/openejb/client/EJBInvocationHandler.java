@@ -55,59 +55,59 @@ import org.openejb.client.proxy.InvocationHandler;
 
 /**
  * TODO: Add comments
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public abstract class EJBInvocationHandler implements InvocationHandler, Serializable, ResponseCodes, RequestMethods  {
-    
+
     protected static final Method EQUALS    = getMethod(Object.class, "equals", null);
     protected static final Method HASHCODE  = getMethod(Object.class, "hashCode", null);
     protected static final Method TOSTRING  = getMethod(Object.class, "toString", null);
-    
+
     /**
-     * Keeps track of live EJBInvocationHandler in this VM. So that 
+     * Keeps track of live EJBInvocationHandler in this VM. So that
      * related handlers can be removed if necessary.
-     * 
-     * Currently this registry is only used to track live 
+     *
+     * Currently this registry is only used to track live
      * EJBInvocationHandlers. The EJBObjectHandlers are tracked to allow
      * remove() operations and invalidate exceptions to be propagated to
      * the proper handler instances.
-     * 
+     *
      * There are several scenarios where this is useful:
      * <ul>
      * <li>
      * If an EJBHome.remove( )method is invoked, the EJBHomeHandler will
-     * use this registry to notify the EJBObjectHandler associated with 
-     * the removed identity that the EJBObjectHandler should invalidate 
+     * use this registry to notify the EJBObjectHandler associated with
+     * the removed identity that the EJBObjectHandler should invalidate
      * itself.
      * <li>
      * When two EjbObjectProxy handlers are both associated with the same
-     * bean identity and one is  removed, the EJBObjectHandler executing 
-     * the remove will notify the other EJBObjectHandler objects 
+     * bean identity and one is  removed, the EJBObjectHandler executing
+     * the remove will notify the other EJBObjectHandler objects
      * associated with the same identity that they are to be invalidated.
      * <li>
-     * When an EjbObjectProxyHanlder performs an operation that results 
+     * When an EjbObjectProxyHanlder performs an operation that results
      * in a an InvalidateReferenceException the EJBObjectHandler will use
-     * the registry to ensure that all EJBObjectHandlers associated the 
+     * the registry to ensure that all EJBObjectHandlers associated the
      * identity are invalidated.
      */
-    protected static Hashtable liveHandleRegistry = new Hashtable();
+    protected static final Hashtable liveHandleRegistry = new Hashtable();
 
     /**
      * TODO: Add comments
      */
     protected transient boolean inProxyMap = false;
-    
+
     /**
      * TODO: Add comments
      */
     protected transient boolean isInvalidReference = false;
-    
-    
+
+
     //-------------------------------------------------------//
     // All of the following are not serialized as objects.
-    // The data in them is written to the stream in the 
-    // writeExternal method.  The raw data is read in the 
+    // The data in them is written to the stream in the
+    // writeExternal method.  The raw data is read in the
     // readExternal method, the data is used to create new
     // instances of the objects.
     //-------------------------------------------------------//
@@ -116,14 +116,14 @@ public abstract class EJBInvocationHandler implements InvocationHandler, Seriali
      * TODO: Add comments
      */
     protected transient EJBRequest request;
-    
+
     /**
-     * The EJBMetaDataImpl object of the bean deployment that this 
+     * The EJBMetaDataImpl object of the bean deployment that this
      * invocation handler represents.
      */
     protected transient EJBMetaDataImpl ejb;
     /**
-     * The ServerMetaData object containing the information needed to 
+     * The ServerMetaData object containing the information needed to
      * send invokations to the EJB Server.
      */
     protected transient ServerMetaData server;
@@ -132,7 +132,7 @@ public abstract class EJBInvocationHandler implements InvocationHandler, Seriali
      * the server after authenticating.
      */
     protected transient ClientMetaData client;
-    
+
     /**
      * The primary key of the bean deployment or null if the deployment
      * is a bean type that doesn't require a primary key
@@ -144,13 +144,13 @@ public abstract class EJBInvocationHandler implements InvocationHandler, Seriali
      */
     public EJBInvocationHandler(){
     }
-    
+
     public EJBInvocationHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client){
         this.ejb        = ejb;
         this.server     = server;
         this.client     = client;
     }
-    
+
     public EJBInvocationHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client, Object primaryKey){
         this(ejb, server, client);
         this.primaryKey = primaryKey;
@@ -165,10 +165,10 @@ public abstract class EJBInvocationHandler implements InvocationHandler, Seriali
         }
         return null;
     }
-    
+
     /**
      * TODO: Add comments
-     * 
+     *
      * @param proxy  The Proxy object that represents this bean deployment's EJBObject
      *               or EJBHome.
      * @param method The EJBHome or EJBObject method the caller is invoking.
@@ -178,17 +178,17 @@ public abstract class EJBInvocationHandler implements InvocationHandler, Seriali
      */
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable{
         if (isInvalidReference) throw new NoSuchObjectException("reference is invalid");
-        
+
         Object returnObj = null;
         returnObj = _invoke(proxy,method,args);
-        return returnObj;    
+        return returnObj;
     }
 
     /**
-     * Overridden by subclasses and called by {@link #invoke}.  
-     * Subclasses implement the main behavior of calling invoke on the 
+     * Overridden by subclasses and called by {@link #invoke}.
+     * Subclasses implement the main behavior of calling invoke on the
      * Container that the bean deployment lives in.
-     * 
+     *
      * @param proxy  The Proxy subclass that is the bean's EJBObject or EJBHome.
      * @param method The bean method that the caller is attempting to invoke.
      * @param args   The arguments to the method being invoked.
@@ -200,7 +200,7 @@ public abstract class EJBInvocationHandler implements InvocationHandler, Seriali
     public static void print(String s){
         //System.out.println();
     }
-    
+
     public static void println(String s){
         //System.out.print(s+'\n');
     }
@@ -208,12 +208,12 @@ public abstract class EJBInvocationHandler implements InvocationHandler, Seriali
     protected EJBResponse request(EJBRequest req) throws Exception {
         return (EJBResponse) Client.request(req, new EJBResponse(), server);
     }
-    
+
     /**
-     * Invalidates this reference so that it can not be used as a proxy 
-     * for the bean identity. This method may be called when an 
+     * Invalidates this reference so that it can not be used as a proxy
+     * for the bean identity. This method may be called when an
      * InvalidateReferenceException is thrown by the container or when
-     * the bean identity associated with this proxy is explicitly 
+     * the bean identity associated with this proxy is explicitly
      * removed, by calling one of the remove( ) methods.
      */
     protected void invalidateReference(){
@@ -227,14 +227,14 @@ public abstract class EJBInvocationHandler implements InvocationHandler, Seriali
 
     /**
      * TODO: Add comments
-     * 
+     *
      * @param key
      */
     protected static void invalidateAllHandlers(Object key){
-        
+
         HashSet set = (HashSet)liveHandleRegistry.remove( key );
         if ( set == null ) return;
-        
+
         synchronized ( set ) {
             Iterator handlers = set.iterator();
             while(handlers.hasNext()){
@@ -244,23 +244,23 @@ public abstract class EJBInvocationHandler implements InvocationHandler, Seriali
             set.clear();
         }
     }
-    
+
     /**
      * TODO: Add comments
-     * 
+     *
      * @param key
      * @param handler
      */
     protected static void registerHandler(Object key, EJBInvocationHandler handler){
         HashSet set = (HashSet)liveHandleRegistry.get(key);
-        
+
         if ( set == null ) {
             set = new HashSet();
             liveHandleRegistry.put( key, set );
         }
 
         synchronized (set) {
-            set.add(handler);   
+            set.add(handler);
         }
     }
 }

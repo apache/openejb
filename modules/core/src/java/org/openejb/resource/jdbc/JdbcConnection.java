@@ -55,7 +55,7 @@ public class JdbcConnection implements java.sql.Connection {
     private java.sql.Connection physicalConn;
     private JdbcManagedConnection managedConn;
     protected boolean isClosed = false;
-    
+
     protected JdbcConnection(JdbcManagedConnection managedConn, java.sql.Connection physicalConn){
         this.physicalConn = physicalConn;
         this.managedConn = managedConn;
@@ -67,9 +67,9 @@ public class JdbcConnection implements java.sql.Connection {
         return managedConn;
     }
     /**
-    * Renders this conneciton invalid; unusable.  Its called by the 
-    * JdbcManagedConnection when its connectionClose() or cleanup() 
-    * methods are invoked. 
+    * Renders this conneciton invalid; unusable.  Its called by the
+    * JdbcManagedConnection when its connectionClose() or cleanup()
+    * methods are invoked.
     */
     protected void invalidate(){
         isClosed = true;
@@ -139,12 +139,12 @@ public class JdbcConnection implements java.sql.Connection {
         throw new java.sql.SQLException("Method not supported. Rollback is managed automatically by container provider");
     }
     public void close() throws SQLException{
-        if(isClosed) 
+        if(isClosed)
             return;
         else{
-            // managed conneciton will call this object's invalidate() method which 
+            // managed conneciton will call this object's invalidate() method which
             // will set isClosed = true, and nullify references to the sqlConnection and managed connection.
-            managedConn.connectionClose(this);
+           	managedConn.connectionClose(this);
         }
     }
     public boolean isClosed() throws SQLException{
@@ -249,7 +249,7 @@ public class JdbcConnection implements java.sql.Connection {
             throw sqlE;
         }
     }
-    public Statement createStatement(int resultSetType, int resultSetConcurrency) 
+    public Statement createStatement(int resultSetType, int resultSetConcurrency)
       throws SQLException{
         if(isClosed) throw new SQLException("Connection is closed");
         try{
@@ -347,9 +347,6 @@ public class JdbcConnection implements java.sql.Connection {
 	throw new SQLException("method not implemented");
     }
 }
-
-
-
 
 
 

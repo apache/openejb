@@ -58,14 +58,14 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
 public class DomTools{
 
-    public static SafeToolkit toolkit = SafeToolkit.getToolkit("XML configuration loader");
-    
+    public static final SafeToolkit toolkit = SafeToolkit.getToolkit("XML configuration loader");
+
     /**
      * Represents the <tt>properties</tt> element in the XML config file.
      */
@@ -85,14 +85,14 @@ public class DomTools{
      * Represents the <tt>property-value</tt> element in the XML config file.
      */
     public static final String PROPERTY_VALUE = "property-value";
-    
-    
-    
+
+
+
     public static Properties readProperties(Node node)throws org.openejb.OpenEJBException{
         Node propertiesElement = getChildElement(node, PROPERTIES);
-        
+
         if(propertiesElement == null) return new Properties();
-        
+
         Node[] property = getChildElements(propertiesElement,PROPERTY);
         Properties properties = new Properties();
         String name = null, value = null;
@@ -105,9 +105,9 @@ public class DomTools{
         }
         return properties;
     }
-    
+
     /**
-     * If true debug data will be printed to the System.out containing the data in the 
+     * If true debug data will be printed to the System.out containing the data in the
      * XML config file being parsed.
      */
     public static final boolean debug = false;
@@ -118,9 +118,9 @@ public class DomTools{
     /**
      * Convenience method for obtaining all the child elements of the node passed in.
      * When a child element with a name matching the <tt>elementType</tt> is found in the <tt>node</tt>
-     * a new instance of <tt>classType</tt> is created, cast to <tt>DomObject</tt>, then <tt>initializeFromDOM</tt> is called 
+     * a new instance of <tt>classType</tt> is created, cast to <tt>DomObject</tt>, then <tt>initializeFromDOM</tt> is called
      * on the new instance and the child element is passed in as the parameter.
-     * 
+     *
      * @param node  the node in the DOM containing the child elements needed.
      * @param classType  the subclass of <tt>DomObject</tt> that will parse the data in the child elements.
      * @param elementType   the name of the child element as it appears in the DTD.
@@ -166,9 +166,9 @@ public class DomTools{
     /**
      * Convenience method for obtaining a single child element from the node passed in.
      * When a child element with a name matching the <tt>elementType</tt> is found in the <tt>node</tt>
-     * a new instance of <tt>classType</tt> is created, cast to <tt>DomObject</tt>, then <tt>initializeFromDOM</tt> is called 
+     * a new instance of <tt>classType</tt> is created, cast to <tt>DomObject</tt>, then <tt>initializeFromDOM</tt> is called
      * on the new instance and the child element is passed in as the parameter.
-     * 
+     *
      * @param node  the node in the DOM containing the child elements needed.
      * @param classType  the subclass of <tt>DomObject</tt> that will parse the data in the child elements.
      * @param elementType   the name of the child element as it appears in the DTD.
@@ -178,8 +178,8 @@ public class DomTools{
      */
     protected static DomObject collectChildElementByType(Node node, Class classType, String elementType) throws OpenEJBException{
         try{
-            
-        
+
+
         if (debug){/*--------------------------------- * Debug Block * ------*/
             debugRecursionDepth++;
             for(int i=0;i<debugRecursionDepth;i++)System.out.print("\t");
@@ -216,7 +216,7 @@ public class DomTools{
     /**
      * Returns the PCDATA of all child elements to the <tt>node</tt> passed in.
      * A child elements PCDATA will be collected if its name matches the <tt>elementType</tt> specified.
-     * 
+     *
      * @param node  the node in the DOM containing the child element.
      * @param elementType   the name of the child element as it appears in the DTD.
      * @returns an array of <tt>String</tt> containing the PCDATA of the child elements.
@@ -261,7 +261,7 @@ public class DomTools{
     /**
      * Returns the PCDATA of a child element in the <tt>node</tt> passed in.
      * A child elements PCDATA will be returned if its name matches the <tt>elementType</tt> specified.
-     * 
+     *
      * @param node  the node in the DOM containing the child element.
      * @param elementType   the name of the child element as it appears in the DTD.
      * @returns the PCDATA of the child elements.
@@ -298,7 +298,7 @@ public class DomTools{
 
     /**
      * Returns the PCDATA of the <tt>node</tt> passed in.
-     * 
+     *
      * @param node  the node in the DOM containing the PCDATA.
      * @returns the PCDATA of the node.
      */
@@ -309,15 +309,15 @@ public class DomTools{
         try{
             Text text = (Text)child;
             String pcdata = text.getData();
-            return (pcdata!=null)?pcdata.trim():null;            
+            return (pcdata!=null)?pcdata.trim():null;
         } catch (DOMException e) {
             throw e;
         }
     }
-    
+
     /**
      * Returns the named attributes of the <tt>node</tt> passed in.
-     * 
+     *
      * @param node  the node in the DOM containing the attributes.
      * @returns a Properties object containing the attributes of the node.
      */
@@ -334,7 +334,7 @@ public class DomTools{
 
     /**
      * Returns the child element of the <tt>node</tt> passed in that matches the element name passed in.
-     * 
+     *
      * @param node  the node in the DOM containing the PCDATA.
      * @param childName  the element name of the desired child element as defined in the DTD.
      * @returns the desired child element. OR null if the child element is not present
@@ -357,7 +357,7 @@ public class DomTools{
 
     /**
      * Returns the child elements of the <tt>node</tt> passed in that match the element name passed in.
-     * 
+     *
      * @param node  the node in the DOM containing the PCDATA.
      * @param childName  the element name of the desired child element as defined in the DTD.
      * @returns an array of <tt>Node</tt> containing all the desired child elements.

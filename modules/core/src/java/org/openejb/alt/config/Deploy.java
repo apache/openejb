@@ -69,23 +69,23 @@ import org.openejb.util.SafeToolkit;
 
 /**
  * This class represents a command line tool for deploying beans.
- * 
+ *
  * At the moment it contains multiple println statements
  * and statements that read input from the user.
- * 
+ *
  * These statements are really in chunks in specific times throughout
  * the class.  These chunks could be refactored into methods. Then
  * the implementation of those methods could actually be delegated
  * to another class that implements a specific interface we create.
- * 
+ *
  * The command line statements could be moved into an implementation
  * of this new interface. We could then create another implementation
  * that gathers information from a GUI.
- * 
+ *
  * This would give us a Deploy API rather than just a command line
  * tool.  Then beans could be deployed programmatically by another
  * application, by a GUI screen, or by command line.
- * 
+ *
  * Note: The command line version should be finished first!!!  We
  * don't want to start on a crusade of abstracting code that doesn't
  * yet exist.  Functionality first, neat flexible stuff later.
@@ -94,36 +94,36 @@ import org.openejb.util.SafeToolkit;
  */
 public class Deploy {
 
-    static protected Messages _messages = new Messages("org.openejb.alt.util.resources");
+    protected static final Messages _messages = new Messages("org.openejb.alt.util.resources");
 
-    private final String DEPLOYMENT_ID_HELP =
+    private static final String DEPLOYMENT_ID_HELP =
     "\nDeployment ID ----- \n\nA name for the ejb that is unique not only in this jar, but \nin all the jars in the container system.  This name will \nallow OpenEJB to place the bean in a global index and \nreference the bean quickly.  OpenEJB will also use this name \nas the global JNDI name for the Remote Server and the Local \nServer.  Clients of the Remote or Local servers can use this\nname to perform JNDI lookups.\n\nThe other EJB Server's using OpenEJB as the EJB Container \nSystem may also use this name to as part of a global JNDI \nnamespace available to remote application clients.\n\nExample: /my/acme/bugsBunnyBean\n\nSee http://openejb.sf.net/deploymentids.html for details.\n";
-    private final String CONTAINER_ID_HELP =
+    private static final String CONTAINER_ID_HELP =
     "\nContainer ID ----- \n\nThe name of the container where this ejb should run. \nContainers are declared and configured in the openejb.conf\nfile.\n";
-    private final String CONNECTOR_ID_HELP =
+    private static final String CONNECTOR_ID_HELP =
     "\nConnector ID ----- \n\nThe name of the connector or JDBC resource this resoure \nreference should be mapped to. Connectors and JDBC resources \nare declared and configured in the openejb.conf file.\n";
 
     /*=======----------TODO----------=======
-      Neat options that this Deploy tool 
+      Neat options that this Deploy tool
       could support
-     
+
       Contributions and ideas welcome!!!
      =======----------TODO----------=======*/
 
     /**
      * Idea for a command line option
-     * 
+     *
      * If there is only one container of the appropriate type
      * for a bean then the bean is automatically assigned to that
      * container.  The user is notified unless the QUIET flag is true.
-     * 
+     *
      * not implemented
      */
     private boolean AUTO_ASSIGN;
 
     /**
      * Idea for a command line option
-     * 
+     *
      * -m   Move the jar to the OPENEJB_HOME/beans directory
      *
      * not implemented
@@ -132,7 +132,7 @@ public class Deploy {
 
     /**
      * Idea for a command line option
-     * 
+     *
      * -f   Force an overwrite if the jar already exists
      *
      * not implemented
@@ -141,7 +141,7 @@ public class Deploy {
 
     /**
      * Idea for a command line option
-     * 
+     *
      * -c   Copy the jar to the OPENEJB_HOME/beans directory
      *
      * not implemented
@@ -150,30 +150,30 @@ public class Deploy {
 
     /**
      * Idea for a command line option
-     * 
+     *
      * Will automatically create an OpenEJB configuration
      * file that can accomodate the beans in the jar.
-     * 
-     * If there already is a config file, but, for example, there 
+     *
+     * If there already is a config file, but, for example, there
      * is not a container that is compatable for a bean type in the
-     * jar, then a useable container of the right type will be 
+     * jar, then a useable container of the right type will be
      * automatically created with default values.
-     * 
+     *
      * not implemented
      */
     private boolean AUTO_CONFIG;
 
     /**
      * Idea for a command line option
-     * 
+     *
      * Will generate the bean's deployment id from a particular id generation
      * strategy.
-     * 
+     *
      * -g[S#]
-     *             
-     * S# can be a number key to a generation strategy that is 
+     *
+     * S# can be a number key to a generation strategy that is
      * looked up internally.
-     * 
+     *
      * ----------------------------
      * One strategy could be:
      * id = jar_directory + ejb-name
@@ -181,31 +181,31 @@ public class Deploy {
      * DIR   path/to/a/jarfile/myBeans.jar
      * BEAN  CustomerBean
      * ID    path/to/a/jarfile/CustomerBean
-     * 
-     * ----------------------------   
+     *
+     * ----------------------------
      * Another strategy:
      * Just use the ejb-name
      * DIR   doesnt/matter/path/to/a/jarfile/myBeans.jar
      * BEAN  CustomerBean
      * ID    CustomerBean
-     * 
+     *
      * If ejb-name already looked like a JNDI name
      * then this would work great, otherwise there
      * would be a high chance of name collitions in
      * the OpenEJB IntraVM global namespace.
      * ----------------------------
-     * 
+     *
      * not implemented
      */
     private boolean GENERATE_DEPLOYMENT_ID;
 
     /**
      * Idea for a command line option
-     * 
+     *
      * Generate the CORBA stubs and ties
      * and add them to the jar so people don't
      * have to run a seperate tool to do that.
-     * 
+     *
      * not implemented
      */
     private boolean GENERATE_STUBS;
@@ -298,8 +298,8 @@ public class Deploy {
 
         /* TODO: Automatically updating the users
         config file might not be desireable for
-        some people.  We could make this a 
-        configurable option. 
+        some people.  We could make this a
+        configurable option.
         */
         addDeploymentEntryToConfig(jarLocation);
 
@@ -526,7 +526,7 @@ public class Deploy {
             /* TODO: Allow or Automatically create a useable container
              * Stopping the deployment process because there is no
              * container of the right bean type is a terrible way
-             * deal with the problem.  Instead, we should either 
+             * deal with the problem.  Instead, we should either
              * 1) Automatically create a container for them and notify them
              *    that we have done so.
              * 2) Allow them to create their own container.
@@ -545,8 +545,8 @@ public class Deploy {
             System.exit(-1);
         } else if (cs.length == 0) {
             /* TODO: Automatically assign the bean to the container
-             * Since this is the only container in the system that 
-             * can service this bean type, either 
+             * Since this is the only container in the system that
+             * can service this bean type, either
              * 1) simply assign the bean to that container and notify the user.
              * 2) allow the user to create another container.
              */
@@ -597,7 +597,7 @@ public class Deploy {
             /* TODO: Allow or Automatically create a useable container
              * Stopping the deployment process because there is no
              * container of the right bean type is a terrible way
-             * deal with the problem.  Instead, we should either 
+             * deal with the problem.  Instead, we should either
              * 1) Automatically create a container for them and notify them
              *    that we have done so.
              * 2) Allow them to create their own container.

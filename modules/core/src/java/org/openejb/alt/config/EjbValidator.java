@@ -62,7 +62,7 @@ import org.openejb.util.Messages;
  */
 public class EjbValidator {
 
-    static protected Messages _messages = new Messages( "org.openejb.util.resources" );
+    protected static final Messages _messages = new Messages( "org.openejb.util.resources" );
 
     int LEVEL = 2;
     boolean PRINT_DETAILS = false;
@@ -92,7 +92,7 @@ public class EjbValidator {
 
     public EjbSet validateJar(String jarLocation){
         EjbSet set = new EjbSet(jarLocation);
-        
+
         try {
             set.setEjbJar( EjbJarUtils.readEjbJar(jarLocation) );
             validateJar( set );
@@ -111,10 +111,10 @@ public class EjbValidator {
         set.setEjbJar(ejbJar);
         return validateJar( set );
     }
-    
+
     public EjbSet validateJar(EjbSet set) {
         try {
-            //System.out.println("[] validating "+ set.getJarPath());        
+            //System.out.println("[] validating "+ set.getJarPath());
             // Run the validation rules
             ValidationRule[] rules = getValidationRules();
             for (int i=0; i < rules.length; i++){
@@ -136,14 +136,14 @@ public class EjbValidator {
         };
         return rules;
     }
-    
+
     //Validate all classes are present
     //Validate classes are the correct type
     //Validate ejb references
     //Validate resource references
     //Validate security references
 
-    
+
     public void printResults(EjbSet set){
         if (!set.hasErrors() && !set.hasFailures() && (!PRINT_WARNINGS || !set.hasWarnings())){
             return;
@@ -185,18 +185,18 @@ public class EjbValidator {
             System.out.println(exceptions[0].getCategory() );
             System.out.println();
         }
-        
+
     }
     public void printResultsXML(EjbSet set){
         if (!set.hasErrors() && !set.hasFailures() && (!PRINT_WARNINGS || !set.hasWarnings())){
             return;
         }
-        
+
         System.out.println("<jar>");
         System.out.print("  <path>");
         System.out.print(set.getJarPath());
         System.out.println("</path>");
-        
+
         printValidationExceptionsXML( set.getErrors() );
         printValidationExceptionsXML( set.getFailures() );
 
@@ -267,11 +267,11 @@ public class EjbValidator {
             versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
         } catch (java.io.IOException e) {
         }
-        
+
         System.out.println( "OpenEJB EJB Validation Tool " + versionInfo.get( "version" )  +"    build: "+versionInfo.get( "date" )+"-"+versionInfo.get( "time" ));
         System.out.println( "" + versionInfo.get( "url" ) );
     }
-    
+
     private static void printHelp() {
         String header = "OpenEJB EJB Validation Tool ";
         try {
@@ -281,9 +281,9 @@ public class EjbValidator {
             header += versionInfo.get( "version" );
         } catch (java.io.IOException e) {
         }
-        
+
         System.out.println( header );
-        
+
         // Internationalize this
         try {
             InputStream in = new URL( "resource:/openejb/validate.txt" ).openConnection().getInputStream();
@@ -306,9 +306,9 @@ public class EjbValidator {
             header += versionInfo.get( "version" );
         } catch (java.io.IOException e) {
         }
-        
+
         System.out.println( header );
-        
+
         // Internationalize this
         try {
             InputStream in = new URL( "resource:/openejb/validate-examples.txt" ).openConnection().getInputStream();
@@ -337,7 +337,7 @@ public class EjbValidator {
                 printHelp();
                 return;
             }
-            
+
             for (int i=0; i < args.length; i++){
                 if (args[i].equals("-v")){
                     v.LEVEL = 1;
@@ -367,7 +367,7 @@ public class EjbValidator {
                     }
                 }
             }
-                        
+
             EjbSet[] sets = v.getEjbSets();
             v.displayResults(sets);
 
