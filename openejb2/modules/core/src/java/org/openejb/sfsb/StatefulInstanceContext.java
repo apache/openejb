@@ -60,6 +60,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.EJBInvocation;
+import org.openejb.EJBContextImpl;
 import org.openejb.cache.InstanceCache;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
@@ -110,6 +111,10 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
 
     public boolean setTimerState(EJBOperation operation) {
         return statefulContext.setTimerState(operation);
+    }
+
+    public EJBContextImpl getEJBContextImpl() {
+        return statefulContext;
     }
 
     public Object getId() {
