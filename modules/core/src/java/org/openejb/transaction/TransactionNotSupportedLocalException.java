@@ -47,16 +47,24 @@
  */
 package org.openejb.transaction;
 
-import java.rmi.RemoteException;
+import javax.ejb.EJBException;
 
 /**
  * @version $Revision$ $Date$
  */
-public class TransactionNotSupportedException extends RemoteException {
-    public TransactionNotSupportedException() {
+public class TransactionNotSupportedLocalException extends EJBException {
+    public TransactionNotSupportedLocalException() {
     }
 
-    public TransactionNotSupportedException(String message) {
+    public TransactionNotSupportedLocalException(Exception ex) {
+        super(ex);
+    }
+
+    public TransactionNotSupportedLocalException(String message) {
         super(message);
+    }
+
+    public TransactionNotSupportedLocalException(String message, Exception ex) {
+        super(message, ex);
     }
 }

@@ -205,9 +205,9 @@ class SessionBuilder extends BeanBuilder {
             userTransaction = new UserTransactionImpl();
             builder.setUserTransaction(userTransaction);
             if (isStateless) {
-                builder.setTransactionPolicySource(TransactionPolicyHelper.StatelessBMTPolicySource);
+                builder.setTransactionPolicySource(TransactionPolicyHelper.BMTPolicySource);
             } else {
-                builder.setTransactionPolicySource(new StatefulTransactionPolicySource(TransactionPolicyHelper.StatefulBMTPolicySource));
+                builder.setTransactionPolicySource(new StatefulTransactionPolicySource(TransactionPolicyHelper.BMTPolicySource));
             }
         } else {
             userTransaction = null;

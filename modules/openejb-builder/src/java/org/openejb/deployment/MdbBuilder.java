@@ -184,7 +184,7 @@ class MdbBuilder extends BeanBuilder {
         if ("Bean".equals(messageDrivenBean.getTransactionType().getStringValue())) {
             userTransaction = new UserTransactionImpl();
             builder.setUserTransaction(userTransaction);
-            builder.setTransactionPolicySource(TransactionPolicyHelper.StatelessBMTPolicySource);
+            builder.setTransactionPolicySource(TransactionPolicyHelper.BMTPolicySource);
         } else {
             userTransaction = null;
             TransactionPolicySource transactionPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);

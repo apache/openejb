@@ -71,15 +71,9 @@ import org.openejb.transaction.TransactionPolicySource;
  */
 public class TransactionPolicyHelper {
 
-    public final static TransactionPolicySource StatefulBMTPolicySource = new TransactionPolicySource() {
+    public final static TransactionPolicySource BMTPolicySource = new TransactionPolicySource() {
         public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-            return BeanPolicy.Stateful;
-        }
-    };
-
-    public final static TransactionPolicySource StatelessBMTPolicySource = new TransactionPolicySource() {
-        public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-            return BeanPolicy.Stateless;
+            return BeanPolicy.INSTANCE;
         }
     };
 
@@ -156,8 +150,8 @@ public class TransactionPolicyHelper {
             transactionPolicyMap.put("RequiresNew", ContainerPolicy.RequiresNew);
             transactionPolicyMap.put("Mandatory", ContainerPolicy.Mandatory);
             transactionPolicyMap.put("Never", ContainerPolicy.Never);
-            transactionPolicyMap.put("Stateless", BeanPolicy.Stateless);
-            transactionPolicyMap.put("Stateful", BeanPolicy.Stateful);
+            transactionPolicyMap.put("Stateless", BeanPolicy.INSTANCE);
+            transactionPolicyMap.put("Stateful", BeanPolicy.INSTANCE);
         }
 
         private final TransactionPolicy transactionPolicy;
