@@ -52,6 +52,7 @@ import java.util.Set;
 import javax.ejb.EntityBean;
 
 import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.entity.EntityInstanceContext;
 import org.openejb.proxy.EJBProxyFactory;
@@ -64,8 +65,8 @@ import org.openejb.timer.BasicTimerService;
  */
 public final class BMPInstanceContext extends EntityInstanceContext {
 
-    public BMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EntityBean instance, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) throws Exception {
-        super(containerId, proxyFactory, instance, lifecycleInterceptorChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, timerService);
+    public BMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EntityBean instance, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, TransactionContextManager transactionContextManager, BasicTimerService timerService) throws Exception {
+        super(containerId, proxyFactory, instance, lifecycleInterceptorChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, transactionContextManager, timerService);
     }
 
 }

@@ -62,6 +62,7 @@ import javax.transaction.UserTransaction;
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  *
@@ -69,8 +70,8 @@ import org.openejb.EJBOperation;
  * @version $Revision$ $Date$
  */
 public class EntityContextImpl extends EJBContextImpl implements EntityContext {
-    public EntityContextImpl(EntityInstanceContext context) {
-        super(context, null);
+    public EntityContextImpl(EntityInstanceContext context, TransactionContextManager transactionContextManager) {
+        super(context, transactionContextManager, null);
     }
 
     public void setState(EJBOperation operation) {

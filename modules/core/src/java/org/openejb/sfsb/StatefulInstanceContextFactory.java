@@ -55,6 +55,7 @@ import javax.ejb.SessionContext;
 
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.core.service.Interceptor;
 
 import org.openejb.EJBInstanceFactory;
@@ -79,6 +80,7 @@ public class StatefulInstanceContextFactory implements InstanceContextFactory, S
     private transient EJBProxyFactory proxyFactory;
     private transient Interceptor systemChain;
     private transient SystemMethodIndices systemMethodIndices;
+    private transient TransactionContextManager transactionContextManager;
 
     public StatefulInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.containerId = containerId;
@@ -102,6 +104,10 @@ public class StatefulInstanceContextFactory implements InstanceContextFactory, S
         return systemMethodIndices;
     }
 
+    public void setTransactionContextManager(TransactionContextManager transactionContextManager) {
+        this.transactionContextManager = transactionContextManager;
+    }
+
     public void setTimerService(BasicTimerService timerService) {
         //stateful beans have no timers.
     }
@@ -115,7 +121,7 @@ public class StatefulInstanceContextFactory implements InstanceContextFactory, S
                 proxyFactory,
                 (SessionBean) factory.newInstance(),
                 createInstanceId(),
-                userTransaction,
+                transactionContextManager, userTransaction,
                 systemMethodIndices, systemChain, unshareableResources,
                 applicationManagedSecurityResources);
     }

@@ -127,6 +127,8 @@ public class InvocationTest extends TestCase {
                 "containerID",
                 instance,
                 null,
+//                transactionContextManager,
+                null,
                 null,
                 SystemMethodIndices.createSystemMethodIndices(new InterfaceMethodSignature[] {}, null, null, null),
                 null, new HashSet(),

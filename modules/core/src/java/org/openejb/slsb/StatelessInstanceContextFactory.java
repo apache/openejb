@@ -63,6 +63,7 @@ import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.core.service.Interceptor;
 
 /**
@@ -74,9 +75,10 @@ public class StatelessInstanceContextFactory implements InstanceContextFactory, 
     private final UserTransactionImpl userTransaction;
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
-    private EJBProxyFactory proxyFactory;
+    private transient EJBProxyFactory proxyFactory;
     private transient SystemMethodIndices systemMethodIndices;
-    private Interceptor systemChain;
+    private transient Interceptor systemChain;
+    private transient TransactionContextManager transactionContextManager;
     private transient BasicTimerService timerService;
 
     public StatelessInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
@@ -100,6 +102,10 @@ public class StatelessInstanceContextFactory implements InstanceContextFactory, 
         return systemMethodIndices;
     }
 
+    public void setTransactionContextManager(TransactionContextManager transactionContextManager) {
+        this.transactionContextManager = transactionContextManager;
+    }
+
     public void setTimerService(BasicTimerService timerService) {
         this.timerService = timerService;
     }
@@ -112,7 +118,7 @@ public class StatelessInstanceContextFactory implements InstanceContextFactory, 
                 containerId,
                 (SessionBean) factory.newInstance(),
                 proxyFactory,
-                userTransaction,
+                transactionContextManager, userTransaction,
                 systemMethodIndices, systemChain, unshareableResources,
                 applicationManagedSecurityResources, timerService);
     }

@@ -47,7 +47,6 @@
  */
 package org.openejb.entity.cmp;
 
-import java.io.InvalidClassException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -55,12 +54,8 @@ import java.lang.reflect.Modifier;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
-
-import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.core.service.Interceptor;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackFilter;
@@ -68,19 +63,20 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.NoOp;
 import net.sf.cglib.reflect.FastClass;
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.InstanceContextFactory;
-import org.openejb.timer.BasicTimerService;
+import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
-import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.timer.BasicTimerService;
 import org.tranql.cache.FaultHandler;
 import org.tranql.identity.IdentityTransform;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class CMPInstanceContextFactory implements InstanceContextFactory, Serializable {
@@ -96,9 +92,10 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
     private transient EJBProxyFactory proxyFactory;
     private transient Interceptor systemChain;
     private transient SystemMethodIndices systemMethodIndices;
+    private transient TransactionContextManager transactionContextManager;
     private transient BasicTimerService timerService;
 
-    public CMPInstanceContextFactory(Object containerId, IdentityTransform primaryKeyTransform, FaultHandler loadFault, Class beanClass, Map imap, Set unshareableResources, Set applicationManagedSecurityResources) throws ClassNotFoundException {
+    public CMPInstanceContextFactory(Object containerId, IdentityTransform primaryKeyTransform, FaultHandler loadFault, Class beanClass, Map imap, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.containerId = containerId;
         this.primaryKeyTransform = primaryKeyTransform;
         this.loadFault = loadFault;
@@ -139,6 +136,10 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
         return systemMethodIndices;
     }
 
+    public void setTransactionContextManager(TransactionContextManager transactionContextManager) {
+        this.transactionContextManager = transactionContextManager;
+    }
+
     public void setTimerService(BasicTimerService timerService) {
         this.timerService = timerService;
     }
@@ -147,7 +148,7 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
         if (proxyFactory == null) {
             throw new IllegalStateException("ProxyFactory has not been set");
         }
-        return new CMPInstanceContext(containerId, proxyFactory, itable, loadFault, primaryKeyTransform, this, systemChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, timerService);
+        return new CMPInstanceContext(containerId, proxyFactory, itable, loadFault, primaryKeyTransform, this, systemChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, transactionContextManager, timerService);
     }
 
     public synchronized EntityBean createCMPBeanInstance(CMPInstanceContext instanceContext) {
@@ -165,10 +166,6 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
     };
 
     private Object readResolve() throws ObjectStreamException {
-        try {
-            return new CMPInstanceContextFactory(containerId, primaryKeyTransform, loadFault, beanClass, imap, unshareableResources, applicationManagedSecurityResources);
-        } catch (ClassNotFoundException e) {
-            throw (InvalidClassException) new InvalidClassException("Cound not load method argument class").initCause(e);
-        }
+        return new CMPInstanceContextFactory(containerId, primaryKeyTransform, loadFault, beanClass, imap, unshareableResources, applicationManagedSecurityResources);
     }
 }

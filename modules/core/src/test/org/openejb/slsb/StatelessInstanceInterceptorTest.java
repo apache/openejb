@@ -122,6 +122,8 @@ public class StatelessInstanceInterceptorTest extends TestCase {
             ctx = new StatelessInstanceContext("containerId",
                     mockEJB,
                     null,
+//                    transactionContextManager,
+                    null,
                     null,
                     SystemMethodIndices.createSystemMethodIndices(new InterfaceMethodSignature[] {}, null, null, null),
                     null,

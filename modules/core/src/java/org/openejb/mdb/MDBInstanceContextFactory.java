@@ -54,6 +54,7 @@ import javax.ejb.MessageDrivenContext;
 
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.core.service.Interceptor;
 import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
@@ -70,8 +71,9 @@ public class MDBInstanceContextFactory implements Serializable {
     private final UserTransactionImpl userTransaction;
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
-    private SystemMethodIndices systemMethodIndices;
-    private Interceptor systemChain;
+    private transient SystemMethodIndices systemMethodIndices;
+    private transient Interceptor systemChain;
+    private transient TransactionContextManager transactionContextManager;
     private transient BasicTimerService timerService;
 
     public MDBInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
@@ -91,6 +93,10 @@ public class MDBInstanceContextFactory implements Serializable {
         return systemMethodIndices;
     }
 
+    public void setTransactionContextManager(TransactionContextManager transactionContextManager) {
+        this.transactionContextManager = transactionContextManager;
+    }
+
     public void setTimerService(BasicTimerService timerService) {
         this.timerService = timerService;
     }
@@ -99,7 +105,7 @@ public class MDBInstanceContextFactory implements Serializable {
     public InstanceContext newInstance() throws Exception {
         return new MDBInstanceContext(containerId,
                 (MessageDrivenBean) factory.newInstance(),
-                userTransaction,
+                transactionContextManager, userTransaction,
                 systemMethodIndices, systemChain, unshareableResources,
                 applicationManagedSecurityResources, timerService);
     }
