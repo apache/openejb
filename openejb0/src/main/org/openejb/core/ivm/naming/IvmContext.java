@@ -84,6 +84,13 @@ public class IvmContext implements Context, java.io.Serializable{
     HashMap fastCache = new HashMap();
     public NameNode mynode;
 
+    /**
+     * Creates and returns a IvmContext object that is a root context.
+     */
+    public static IvmContext createRootContext() {
+	return new IvmContext(new NameNode(null,new ParsedName(""),null));
+    }
+
     public IvmContext(){
         this(new NameNode(null, new ParsedName("root"), null));
     }
@@ -124,10 +131,7 @@ public class IvmContext implements Context, java.io.Serializable{
               component of the name is a context of a peer node or the same node, so we have
               to prepend the current context name to the relative lookup path.
             */
-            if(compositName.startsWith(mynode.atomicName+'/'))
-                compoundName = compositName;
-            else
-                compoundName = mynode.atomicName+'/'+compositName;
+	    compoundName = mynode.atomicName+'/'+compositName;
         }
 
         /*
@@ -188,6 +192,9 @@ public class IvmContext implements Context, java.io.Serializable{
             Set factories = new HashSet();
             Hashtable jndiProps = ResourceManager.getInitialEnvironment(null);
             String pkgs = (String)jndiProps.get(Context.URL_PKG_PREFIXES);
+	    if( pkgs == null) {
+		return new ObjectFactory[0];
+	    }
             StringTokenizer parser = new StringTokenizer(pkgs, ":");
 
             while (parser.hasMoreTokens()) {
@@ -218,6 +225,9 @@ public class IvmContext implements Context, java.io.Serializable{
     public Object lookup(Name compositName) throws NamingException {
         return lookup(compositName.toString());
     }
+    /**
+     * WARNING: this function does not provide support for relative names.
+     */
     public void bind(String name, Object obj) throws NamingException {
         checkReadOnly();
         int indx = name.indexOf(":");
@@ -233,6 +243,9 @@ public class IvmContext implements Context, java.io.Serializable{
         else
             mynode.bind(new ParsedName(name), obj);
     }
+    /**
+     * WARNING: this function does not provide support for relative names.
+     */
     public void bind(Name name, Object obj) throws NamingException {
         bind(name.toString(), obj);
     }
@@ -288,10 +301,27 @@ public class IvmContext implements Context, java.io.Serializable{
     public void destroySubcontext(Name name) throws NamingException {
         destroySubcontext(name.toString());
     }
-    public Context createSubcontext(String name)
-    throws NamingException {
-        throw new javax.naming.OperationNotSupportedException();
+    /**
+     * WARNING: this function does not provide support for relative names.
+     */
+    public Context createSubcontext(String name) throws NamingException {
+        checkReadOnly();
+        int indx = name.indexOf(":");
+        if(indx>-1){
+            /*
+	      The ':' character will be in the path if its an absolute path name starting with the schema
+	      'java:'.  We strip the schema off the path before passing it to the node.resolve method.
+            */
+            name = name.substring(indx+1);
+        }
+        if(fastCache.containsKey(name))
+            throw new javax.naming.NameAlreadyBoundException();
+        else
+            return mynode.createSubcontext(new ParsedName(name));
     }
+    /**
+     * WARNING: this function does not provide support for relative names.
+     */
     public Context createSubcontext(Name name) throws NamingException {
         return createSubcontext(name.toString());
     }

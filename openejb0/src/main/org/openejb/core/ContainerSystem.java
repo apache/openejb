@@ -63,7 +63,15 @@ public class ContainerSystem implements org.openejb.spi.ContainerSystem{
 
     public ContainerSystem( ){
         // create OpenEJB JNDI Name Space
-        jndiRootContext = new IvmContext(new NameNode(null,new ParsedName("openejb"),null));
+	try {
+	    // Create the root context.
+	    jndiRootContext = IvmContext.createRootContext();
+	    // Create a subcontext to house the EJBs.
+	    jndiRootContext.createSubcontext("java:openejb/ejb");
+	}
+	catch( javax.naming.NamingException exception) {
+	    throw new RuntimeException();
+	}
     }
 
     /**

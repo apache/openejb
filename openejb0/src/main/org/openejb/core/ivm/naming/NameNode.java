@@ -107,16 +107,24 @@ public class NameNode implements java.io.Serializable {
         }
     }
     
-    public void bind(ParsedName name, Object obj){
+    public void bind(ParsedName name, Object obj) throws javax.naming.NameAlreadyBoundException {
         int compareResult = name.compareTo(atomicHash);
         if(compareResult == ParsedName.IS_EQUAL && name.getComponent().equals(atomicName)){
             if(name.next()){
+		if( myObject != null) {
+		    throw new javax.naming.NameAlreadyBoundException();
+		}
                 if(subTree==null)
                     subTree = new NameNode(this, name,obj);
                 else
                     subTree.bind(name,obj);
-            }else
+            }
+	    else {
+		if( subTree != null) {
+		    throw new javax.naming.NameAlreadyBoundException();
+		}
                 myObject = obj;// bind the object to this node
+	    }
         }else if(compareResult == ParsedName.IS_LESS){
             if(lessTree == null)
                 lessTree = new NameNode(this.parent, name, obj);
@@ -130,45 +138,16 @@ public class NameNode implements java.io.Serializable {
                 grtrTree.bind(name,obj);
         }
     }
-    // for testing only
-    public static void main(String [] args){
-        String str1 = "comp/env/rate/work/doc/lot/pop";
-        String str2 = "comp/env/rate/work/doc/lot/price";
-        ParsedName name1 = new ParsedName(str1);
-        ParsedName name2 = new ParsedName(str2);
-        NameNode node = new NameNode(null, name1,new Integer(2));
-        node.bind(name2, new Integer(7));
-        
-        name1.reset();
-        name2.reset();
-        try{
-        Object obj = node.resolve(name1);
-        obj = node.resolve(name2);
-        
-        ParsedName name3 = new ParsedName("comp/env");
-        obj = node.resolve(name3);
-        
-        System.out.println("SPEED TEST");
-        
-        HashMap map = new HashMap();
-        
-        map.put(str2, new Integer(1));
-        map.put(str1, new Integer(7));
-        long start = System.currentTimeMillis();
-        for(int i = 0; i < 100000; i++){
-            Object o = map.get(str2);
-        }
-        long end = System.currentTimeMillis();
-        System.out.println("HashMap 100,000 x = "+(end-start));
-        Object q = null;
-        start = System.currentTimeMillis();
-        for(int i = 0; i < 100000; i++){
-           name2.reset();
-           q = node.resolve(name2);
-        }
-        end = System.currentTimeMillis();
-        System.out.println("NameNode 100,000 x = "+(end-start));
-        }catch(Exception e){e.printStackTrace();}
-        
+
+    public IvmContext createSubcontext( ParsedName name) throws javax.naming.NameAlreadyBoundException {
+	try {
+	    bind( name, null);
+	    name.reset();
+	    return (IvmContext)resolve( name);
+	}
+	catch( javax.naming.NameNotFoundException exception) {
+	    exception.printStackTrace();
+	    throw new RuntimeException();
+	}
     }
 }

@@ -165,6 +165,7 @@ public class SafeToolkit{
         }
 	// mjb - Exceptions thrown here can lead to some hard to find bugs, so I've added some rigorous error handling.
         catch(Throwable exception) {
+	    exception.printStackTrace();
 	    ClassLoader classLoader = clazz.getClassLoader();
 	    if( classLoader instanceof java.net.URLClassLoader) {
 		OpenEJBErrorHandler.classNotIntantiateableFromCodebaseForUnknownReason(systemLocation, clazz.getName(), getCodebase( (java.net.URLClassLoader)classLoader), 

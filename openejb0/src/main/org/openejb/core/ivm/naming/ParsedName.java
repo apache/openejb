@@ -61,11 +61,19 @@ public class ParsedName implements java.io.Serializable{
     int hashcode;
     
     public ParsedName(String path){
-        java.util.StringTokenizer st = new java.util.StringTokenizer(path, "/");
-        components = new String[st.countTokens()];
-        for(int i = 0; st.hasMoreTokens() && i < components.length; i++)
-            components[i] = st.nextToken();
-        hashcode = components[0].hashCode();
+	if( path.length() > 0) {
+	    java.util.StringTokenizer st = new java.util.StringTokenizer(path, "/");
+	    components = new String[st.countTokens()];
+	    for(int i = 0; st.hasMoreTokens() && i < components.length; i++)
+		components[i] = st.nextToken();
+	    hashcode = components[0].hashCode();
+	}
+	else {
+	    // A blank string is a legal name and refers to the current/root context.
+	    components = new String[1];
+	    components[0] = "";
+	    hashcode = 0;
+	}
     }
     public String getComponent( ){
         return components[pos];
@@ -104,5 +112,15 @@ public class ParsedName implements java.io.Serializable{
         while(name.next())
             System.out.println(name.getComponent());
     }
+    public String toString() {
+	if( components.length == 0) {
+	    return "";
+	}
+	StringBuffer buffer = new StringBuffer( components[0]);
+	for( int i = 1; i < components.length; ++i) {
+	    buffer.append('/');
+	    buffer.append( components[i]);
+	}
+	return buffer.toString();
+    }
 }
-    
