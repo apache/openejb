@@ -16,16 +16,12 @@
  */
 package org.openejb.test.security;
 
+import java.util.Properties;
 import javax.naming.InitialContext;
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
-import java.io.IOException;
-import java.util.Properties;
+
+import org.apache.geronimo.security.jaas.UsernamePasswordCallback;
 
 import org.openejb.test.NamedTestCase;
 import org.openejb.test.TestManager;
@@ -115,26 +111,5 @@ public class BaseSecurityTestClient extends NamedTestCase {
         public_gracie_login_context.logout();
         black_david_login_context.logout();
         black_dain_login_context.logout();
-    }
-
-    public static class UsernamePasswordCallback implements CallbackHandler {
-
-        private final String username;
-        private final String password;
-
-        public UsernamePasswordCallback(String username, String password) {
-            this.username = username;
-            this.password = password;
-        }
-
-        public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            for (int i = 0; i < callbacks.length; i++) {
-                if (callbacks[i] instanceof PasswordCallback) {
-                    ((PasswordCallback) callbacks[i]).setPassword(password.toCharArray());
-                } else if (callbacks[i] instanceof NameCallback) {
-                    ((NameCallback) callbacks[i]).setName(username);
-                }
-            }
-        }
     }
 }
