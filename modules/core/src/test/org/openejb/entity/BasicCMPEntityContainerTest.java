@@ -139,7 +139,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         MockLocalHome localHome = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
         MockLocal local = localHome.create(new Integer(1), null);
         local.startTimer();
-        Thread.currentThread().sleep(400L);
+        Thread.sleep(400L);
         int timeoutCount = local.getTimeoutCount();
         assertEquals(1, timeoutCount);
     }
@@ -419,11 +419,10 @@ public class BasicCMPEntityContainerTest extends TestCase {
         builder.setConnectionFactoryName("defaultDatasource");
 
         EJBProxyFactory proxyFactory = new EJBProxyFactory(CONTAINER_NAME.getCanonicalName(), false, MockRemote.class, MockHome.class, MockLocal.class, MockLocalHome.class);
-        EJB ejb = new EJB("MockEJB", "MOCK", proxyFactory);
+        EJB ejb = new EJB("MockEJB", "MOCK", Integer.class, proxyFactory);
         CMPField pkField = new CMPField("id", Integer.class, true);
         ejb.addCMPField(pkField);
         ejb.addCMPField(new CMPField("value", String.class, false));
-        ejb.setPrimaryKeyField(pkField);
         ejbSchema.addEJB(ejb);
 
         Table table = new Table("MockEJB", "MOCK");

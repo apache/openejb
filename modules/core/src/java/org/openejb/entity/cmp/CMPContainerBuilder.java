@@ -47,18 +47,17 @@
  */
 package org.openejb.entity.cmp;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
-
-import javax.management.ObjectName;
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
@@ -67,21 +66,21 @@ import org.openejb.EJBComponentType;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
 import org.openejb.cache.InstancePool;
+import org.openejb.dispatch.EJBTimeoutOperation;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
-import org.openejb.dispatch.EJBTimeoutOperation;
 import org.openejb.entity.BusinessMethod;
-import org.openejb.entity.dispatch.EJBLoadOperation;
-import org.openejb.entity.dispatch.EJBStoreOperation;
-import org.openejb.entity.dispatch.SetEntityContextOperation;
-import org.openejb.entity.dispatch.UnsetEntityContextOperation;
-import org.openejb.entity.dispatch.EJBPassivateOperation;
-import org.openejb.entity.dispatch.EJBActivateOperation;
 import org.openejb.entity.EntityInstanceFactory;
 import org.openejb.entity.EntityInterceptorBuilder;
 import org.openejb.entity.HomeMethod;
+import org.openejb.entity.dispatch.EJBActivateOperation;
+import org.openejb.entity.dispatch.EJBLoadOperation;
+import org.openejb.entity.dispatch.EJBPassivateOperation;
+import org.openejb.entity.dispatch.EJBStoreOperation;
+import org.openejb.entity.dispatch.SetEntityContextOperation;
+import org.openejb.entity.dispatch.UnsetEntityContextOperation;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
 import org.tranql.cache.CacheRowAccessor;
@@ -93,6 +92,7 @@ import org.tranql.cache.QueryFaultHandler;
 import org.tranql.ejb.CMPFieldAccessor;
 import org.tranql.ejb.CMPFieldFaultTransform;
 import org.tranql.ejb.CMPFieldTransform;
+import org.tranql.ejb.CompoundPKTransform;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBQueryBuilder;
 import org.tranql.ejb.EJBSchema;
@@ -101,14 +101,12 @@ import org.tranql.ejb.IdAsEJBObjectTransform;
 import org.tranql.ejb.LocalProxyTransform;
 import org.tranql.ejb.RemoteProxyTransform;
 import org.tranql.ejb.SimplePKTransform;
-import org.tranql.ejb.CMPField;
-import org.tranql.ejb.CompoundPKTransform;
 import org.tranql.field.FieldAccessor;
 import org.tranql.field.FieldTransform;
+import org.tranql.identity.DerivedIdentity;
 import org.tranql.identity.IdentityDefiner;
 import org.tranql.identity.IdentityTransform;
 import org.tranql.identity.UserDefinedIdentity;
-import org.tranql.identity.DerivedIdentity;
 import org.tranql.ql.QueryException;
 import org.tranql.query.CommandTransform;
 import org.tranql.query.QueryCommand;
@@ -274,15 +272,14 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     }
 
     private IdentityTransform getPrimaryKeyTransform(CacheTable cacheTable) {
-        CMPField pkField = ejb.getPrimaryKeyField();
-        if (pkField != null) {
+        List pkFields = ejb.getPrimaryKeyFields();
+        if (pkFields.size() == 1) {
             // single field primary key
             return new SimplePKTransform(cacheTable);
         } else {
             // compound primary key
             Class pkClass = ejb.getPrimaryKeyClass();
-            Field[] fields = pkClass.getFields();
-            return new CompoundPKTransform(cacheTable, pkClass, fields);
+            return new CompoundPKTransform(cacheTable, pkClass);
         }
     }
 
