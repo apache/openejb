@@ -47,14 +47,72 @@ package org.openejb.core.ivm;
 import org.openejb.util.FastThreadLocal;
 
 /**
- * This class is used to demarcate intra-VM copy operations so 
- * that intra-VM artifacts such as IntraVmHandle, IntraVmMetaData, 
- * and BaseEjbProxyHandlers (EjbHomeProxyHandler and EjbObjectProxyHandler) 
+ * This class is used to demarcate intra-VM copy operations so
+ * that intra-VM artifacts such as IntraVmHandle, IntraVmMetaData,
+ * and BaseEjbProxyHandlers (EjbHomeProxyHandler and EjbObjectProxyHandler)
  * can know when they should replace themselves during serialization
  * with an IntraVmArtifact or a application server specific artifact.
+ * <P>
+ * Basically, we mark all local serialization operations the same
+ * way you would mark a transaction.
+ * <p>
+ * <h2><b>LOCAL to LOCAL SERIALIZATION</b></h2> <p>
  * 
- * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
+ * <i>Definition:</i><p>
+ *     This is a full serialization/deserialization takes place in
+ *     the local vm inside the marked scope of the IntraVM server.
+ * <p>
+ * <i>Circumstances:</i><p>
+ *     When an IntraVM implementation of a javax.ejb.* interface is
+ *     serialized in the scope of a local IntraVM serialization.
+ * <p>
+ *     These serializations happen when objects are passed as
+ *     parameters or return values from one client/ejb to another
+ *     client/ejb running inside the same VM.
+ * <p>
+ * <i>Action:</i><p>
+ *     Temporarily cache the instance in memory during
+ *     serialization, retrieve again during deserialization.
+ * <p>
+ * <i>Example Scenario:</i><p>
+ *     BEFORE SERIALIZATION<br>
+ * <br>1.  Call IntraVmCopyMonitor.preCopyOperation().
+ * <br>2.  Method parameters are sent to ObjectOutputStream.
+ * 
+ * <p>SERIALIZATION<br>
+ * <br>3.  ObjectOutputStream encounters an IntraVmMetaData instance
+ *         in the object graph and calls its writeReplace method.
+ * <br>4.  The IntraVmMetaData instance determines it is being
+ *         serialized in the scope of an IntraVM serialization by
+ *         calling IntraVmCopyMonitor.isIntraVmCopyOperation().
+ * <br>5.  The IntraVmMetaData instance creates an IntraVmArtifact
+ *         that caches it in a static hashtable keyed on a
+ *         combination of the thread id and instance hashCode.
+ * <br>6.  The IntraVmMetaData instance returns the IntraVmArtifact
+ *         instance from the writeReplace method.
+ * <br>7.  The ObjectOutputStream serializes the IntraVmArtifact
+ *         instance in place of the IntraVmMetaData instance.
+ * <P> DESERIALIZATION<br>
+ * <br>8.  ObjectInputStream encounters and deserializes an
+ *         IntraVmArtifact instance and calls its readResolve method.
+ * <br>9.  The IntraVmArtifact instance uses the key it created in
+ *         step 5 to retrieve the IntraVmMetaData instance from the
+ *         static hashtable.
+ * <br>10. The IntraVmArtifact instance returns the IntraVmMetaData
+ *         instance from the readResolve method.
+ * <br>11. ObjectInputStream places the IntraVmMetaData instance in
+ *         the object graph in place of the IntraVmArtifact
+ *         instance.
+ * <P>AFTER<br>
+ * <br>12. Method parameters are now de-referenced as mandated by the
+ *         spec and can be passed into the bean's method.
+ * <br>13. IntraVmCopyMonitor.postCopyOperation() is called, ending
+ *         the local IntraVm serialization scope.
+ * <p>
+ * 
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
+ * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
+ * @version $Revision$ $Date$
  */
 public class IntraVmCopyMonitor {
     
