@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <faqs>
     <super id="faq">FAQ</super>
-    <super id="faq_support">Configuration Files</super>
-    <name>Configuration Files</name>
+    <super id="faq_cmp">CMP EntityBeans</super>
+    <name>CMP EntityBeans</name>
 <faq>
 <question>What engine does OpenEJB use for CMP persistence?</question>
 <answer id="jdo">
