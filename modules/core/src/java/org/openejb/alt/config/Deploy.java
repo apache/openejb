@@ -402,7 +402,7 @@ public class Deploy {
                         + "which is the String lName.\n"
                         + "\n"
                         + "For more information on OQL see:\n"
-                        + "http://openejb.sourceforge.net/cmp_guide.html\n"
+                        + "http://www.openejb.org/cmp_guide.html\n"
                         );
 
                     instructionsPrinted = true;
