@@ -39,6 +39,7 @@
     <pathelement location="${junit.jar}"/>
     <pathelement location="${jakarta.regexp.jar}"/>
     <pathelement location="${xslp.jar}"/>
+    <pathelement location="${JDBC3Fake.jar}"/>
   </path>
   
   
