@@ -47,46 +47,52 @@
  */
 package org.openejb.mdb;
 
-import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
-import java.util.Set;
-import java.util.Map;
-import java.util.HashMap;
-
-import javax.management.ObjectName;
-import javax.security.auth.Subject;
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
+import javax.management.ObjectName;
+import javax.security.auth.Subject;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.apache.geronimo.timer.ThreadPooledTimer;
+
 import org.openejb.ResourceEnvironmentBuilder;
-import org.openejb.timer.BasicTimerService;
-import org.openejb.mdb.dispatch.SetMessageDrivenContextOperation;
-import org.openejb.dispatch.EJBTimeoutOperation;
+import org.openejb.SecureBuilder;
 import org.openejb.cache.InstancePool;
 import org.openejb.deployment.TransactionPolicySource;
+import org.openejb.dispatch.EJBTimeoutOperation;
 import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
-import org.openejb.dispatch.MethodHelper;
+import org.openejb.mdb.dispatch.SetMessageDrivenContextOperation;
+import org.openejb.security.SecurityConfiguration;
 import org.openejb.slsb.CreateMethod;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
 import org.openejb.util.SoftLimitedInstancePool;
 
+
 /**
  * @version $Revision$ $Date$
  */
-public class MDBContainerBuilder implements ResourceEnvironmentBuilder {
+public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
+
     private String containerId;
     private String ejbName;
     private ObjectName activationSpecName;
     private String beanClassName;
     private String endpointInterfaceName;
     private Subject runAs;
+    private boolean doAsCurrentCaller = false;
+    private boolean securityEnabled = false;
+    private boolean useContextHandler = false;
+    private SecurityConfiguration securityConfiguration;
     private ReadOnlyContext componentContext;
     private Set unshareableResources;
     private Set applicationManagedSecurityResources;
@@ -143,6 +149,38 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder {
 
     public void setRunAs(Subject runAs) {
         this.runAs = runAs;
+    }
+
+    public boolean isDoAsCurrentCaller() {
+        return doAsCurrentCaller;
+    }
+
+    public void setDoAsCurrentCaller(boolean doAsCurrentCaller) {
+        this.doAsCurrentCaller = doAsCurrentCaller;
+    }
+
+    public boolean isSecurityEnabled() {
+        return securityEnabled;
+    }
+
+    public void setSecurityEnabled(boolean securityEnabled) {
+        this.securityEnabled = securityEnabled;
+    }
+
+    public boolean isUseContextHandler() {
+        return useContextHandler;
+    }
+
+    public void setUseContextHandler(boolean useContextHandler) {
+        this.useContextHandler = useContextHandler;
+    }
+
+    public SecurityConfiguration getSecurityConfiguration() {
+        return securityConfiguration;
+    }
+
+    public void setSecurityConfiguration(SecurityConfiguration securityConfiguration) {
+        this.securityConfiguration = securityConfiguration;
     }
 
     public ReadOnlyContext getComponentContext() {
@@ -285,9 +323,8 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder {
         }
         if (TimedObject.class.isAssignableFrom(beanClass)) {
             MethodSignature signature = new MethodSignature("ejbTimeout", new Class[]{Timer.class});
-            vopMap.put(
-                    MethodHelper.translateToInterface(signature)
-                    , EJBTimeoutOperation.INSTANCE);
+            vopMap.put(MethodHelper.translateToInterface(signature)
+                       , EJBTimeoutOperation.INSTANCE);
         }
         // add the create method
         vopMap.put(new InterfaceMethodSignature("create", true), new CreateMethod());
@@ -302,17 +339,15 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder {
             String name = beanMethod.getName();
             MethodSignature signature = new MethodSignature(beanMethod);
             if (setMessageDrivenContext.equals(beanMethod)) {
-                vopMap.put(
-                        MethodHelper.translateToInterface(signature)
-                        , SetMessageDrivenContextOperation.INSTANCE);
+                vopMap.put(MethodHelper.translateToInterface(signature)
+                           , SetMessageDrivenContextOperation.INSTANCE);
                 continue;
             }
             if (name.startsWith("ejb")) {
                 continue;
             }
-            vopMap.put(
-                    new InterfaceMethodSignature(signature, false),
-                    new BusinessMethod(beanClass, signature));
+            vopMap.put(new InterfaceMethodSignature(signature, false),
+                       new BusinessMethod(beanClass, signature));
         }
 
         return vopMap;

@@ -70,6 +70,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
+import org.openejb.security.SecurityConfiguration;
 import org.openejb.DeploymentHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.TransactionPolicySource;
@@ -409,6 +410,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
                 return ContainerPolicy.Required;
             }
         });
+        builder.setSecurityConfiguration(new SecurityConfiguration());
         EJBSchema ejbSchema = new EJBSchema("MOCK");
         SQL92Schema sqlSchema = new SQL92Schema("MOCK", ds);
         builder.setEJBSchema(ejbSchema);

@@ -45,65 +45,49 @@
  *
  * ====================================================================
  */
+
 package org.openejb.security;
 
-import java.rmi.AccessException;
-import java.security.AccessControlContext;
-import java.security.AccessControlException;
-import java.security.Permission;
-import javax.ejb.AccessLocalException;
-import javax.security.auth.Subject;
-import javax.security.jacc.PolicyContext;
-
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.security.ContextManager;
-
-import org.openejb.EJBInvocation;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.security.Permissions;
 
 
 /**
- * An interceptor that performs the JACC EJB security check before continuing
- * on w/ the interceptor stack call.
  * @version $Revision$ $Date$
  */
-public class EJBSecurityInterceptor implements Interceptor {
-    private final Interceptor next;
-    private final Object contextId;
-    private final PermissionManager permissionManager;
+public class SecurityConfiguration implements Serializable {
 
-    public EJBSecurityInterceptor(Interceptor next, Object contextId, PermissionManager permissionManager) {
-        this.next = next;
-        this.contextId = contextId;
-        this.permissionManager = permissionManager;
+    private String policyContextId;
+    private Permissions excludedPolicy = new Permissions();
+    private Permissions uncheckedPolicy = new Permissions();
+    private Map rolePolicies = new HashMap();
+    private Map roleReferences = new HashMap();
+
+    public String getPolicyContextId() {
+        return policyContextId;
     }
 
-    public InvocationResult invoke(Invocation invocation) throws Throwable {
-        EJBInvocation ejbInvocation = ((EJBInvocation) invocation);
+    public void setPolicyContextId(String policyContextId) {
+        this.policyContextId = policyContextId;
+    }
 
-        Subject subject = ContextManager.getCurrentCaller();
-        String oldPolicyContextID = PolicyContext.getContextID();
-        try {
-            ContextManager.setCurrentCaller(ContextManager.getNextCaller());
-            // @todo should setContainerId take an object?
-            PolicyContext.setContextID(contextId.toString());
-            AccessControlContext accessContext = ContextManager.getCurrentContext();
-            if (accessContext != null) {
-                Permission permission = permissionManager.getPermission(ejbInvocation.getType(), ejbInvocation.getMethodIndex());
-                accessContext.checkPermission(permission);
-            }
+    public Permissions getExcludedPolicy() {
+        return excludedPolicy;
+    }
 
-            return next.invoke(invocation);
-        } catch (AccessControlException e) {
-            if (ejbInvocation.getType().isLocal()) {
-                throw new AccessLocalException(e.getMessage());
-            } else {
-                throw new AccessException(e.getMessage());
-            }
-        } finally {
-            PolicyContext.setContextID(oldPolicyContextID);
-            ContextManager.setCurrentCaller(subject);
-        }
+    public Permissions getUncheckedPolicy() {
+        return uncheckedPolicy;
+    }
+
+    public Map getRolePolicies() {
+        return rolePolicies;
+    }
+
+    public Map getRoleReferences() {
+        return roleReferences;
     }
 }

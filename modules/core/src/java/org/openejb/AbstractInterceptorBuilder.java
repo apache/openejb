@@ -72,8 +72,9 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
     protected ReadOnlyContext componentContext;
     protected TransactionPolicyManager transactionPolicyManager;
     protected PermissionManager permissionManager;
-    protected boolean setIdentityEnabled = false;
+    protected boolean doAsCurrentCaller = false;
     protected boolean securityEnabled = false;
+    protected boolean useContextHandler = false;
     protected transient TransactionContextManager transactionContextManager;
     protected transient TrackedConnectionAssociator trackedConnectionAssociator;
     protected transient InstancePool instancePool;
@@ -115,12 +116,16 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
         this.permissionManager = permissionManager;
     }
 
-    public void setSetIdentityEnabled(boolean setIdentityEnabled) {
-        this.setIdentityEnabled = setIdentityEnabled;
+    public void setDoAsCurrentCaller(boolean doAsCurrentCaller) {
+        this.doAsCurrentCaller = doAsCurrentCaller;
     }
 
     public void setSecurityEnabled(boolean securityEnabled) {
         this.securityEnabled = securityEnabled;
+    }
+
+    public void setUseContextHandler(boolean useContextHandler) {
+        this.useContextHandler = useContextHandler;
     }
 
     public void setTransactionContextManager(TransactionContextManager transactionContextManager) {

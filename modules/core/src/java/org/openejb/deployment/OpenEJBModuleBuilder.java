@@ -48,6 +48,16 @@
 
 package org.openejb.deployment;
 
+import javax.management.AttributeNotFoundException;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.security.auth.Subject;
+import javax.security.jacc.EJBMethodPermission;
+import javax.security.jacc.EJBRoleRefPermission;
+import javax.transaction.UserTransaction;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -57,9 +67,13 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.Permission;
+import java.security.Permissions;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -67,13 +81,18 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import javax.management.AttributeNotFoundException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.transaction.UserTransaction;
+import org.tranql.ejb.CMPField;
+import org.tranql.ejb.EJB;
+import org.tranql.ejb.EJBSchema;
+import org.tranql.schema.Schema;
+import org.tranql.sql.Column;
+import org.tranql.sql.DataSourceDelegate;
+import org.tranql.sql.Table;
+import org.tranql.sql.sql92.SQL92Schema;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.connector.ActivationSpecInfo;
@@ -92,8 +111,16 @@ import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.deploy.Realm;
+import org.apache.geronimo.security.deploy.Role;
+import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.xbeans.j2ee.ActivationConfigPropertyType;
+import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
 import org.apache.geronimo.xbeans.j2ee.CmpFieldType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
@@ -102,18 +129,22 @@ import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
+import org.apache.geronimo.xbeans.j2ee.ExcludeListType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
+import org.apache.geronimo.xbeans.j2ee.MethodPermissionType;
+import org.apache.geronimo.xbeans.j2ee.MethodType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
+import org.apache.geronimo.xbeans.j2ee.RoleNameType;
+import org.apache.geronimo.xbeans.j2ee.SecurityIdentityType;
+import org.apache.geronimo.xbeans.j2ee.SecurityRoleRefType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
+
 import org.openejb.ContainerBuilder;
 import org.openejb.EJBModuleImpl;
 import org.openejb.ResourceEnvironmentBuilder;
+import org.openejb.SecureBuilder;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.entity.bmp.BMPContainerBuilder;
 import org.openejb.entity.cmp.CMPContainerBuilder;
@@ -121,8 +152,10 @@ import org.openejb.mdb.MDBContainerBuilder;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyObjectFactory;
 import org.openejb.proxy.ProxyRefAddr;
+import org.openejb.security.SecurityConfiguration;
 import org.openejb.sfsb.StatefulContainerBuilder;
 import org.openejb.slsb.StatelessContainerBuilder;
+import org.openejb.xbeans.ejbjar.OpenejbDefaultPrincipalType;
 import org.openejb.xbeans.ejbjar.OpenejbDependencyType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbGbeanType;
@@ -130,22 +163,21 @@ import org.openejb.xbeans.ejbjar.OpenejbLocalRefType;
 import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
+import org.openejb.xbeans.ejbjar.OpenejbPrincipalType;
 import org.openejb.xbeans.ejbjar.OpenejbQueryType;
+import org.openejb.xbeans.ejbjar.OpenejbRealmType;
+import org.openejb.xbeans.ejbjar.OpenejbRoleMappingsType;
+import org.openejb.xbeans.ejbjar.OpenejbRoleType;
+import org.openejb.xbeans.ejbjar.OpenejbSecurityType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
-import org.tranql.ejb.CMPField;
-import org.tranql.ejb.EJB;
-import org.tranql.ejb.EJBSchema;
-import org.tranql.schema.Schema;
-import org.tranql.sql.Column;
-import org.tranql.sql.DataSourceDelegate;
-import org.tranql.sql.Table;
-import org.tranql.sql.sql92.SQL92Schema;
+
 
 /**
  * @version $Revision$ $Date$
  */
 public class OpenEJBModuleBuilder implements ModuleBuilder {
-    private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
+
+    private static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
         XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
         XmlBeans.typeLoaderForClassLoader(OpenejbOpenejbJarDocument.class.getClassLoader())
     });
@@ -216,13 +248,13 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("wrong kind of plan");
         }
         EJBModule module = new EJBModule(name, URI.create("/"));
-        OpenejbOpenejbJarType vendorDD = ((OpenejbOpenejbJarDocument)plan).getOpenejbJar();
+        OpenejbOpenejbJarType vendorDD = ((OpenejbOpenejbJarDocument) plan).getOpenejbJar();
         module.setVendorDD(vendorDD);
         return module;
     }
 
     public URI getParentId(XmlObject plan) throws DeploymentException {
-        OpenejbOpenejbJarType openejbEjbJar = ((OpenejbOpenejbJarDocument)plan).getOpenejbJar();
+        OpenejbOpenejbJarType openejbEjbJar = ((OpenejbOpenejbJarDocument) plan).getOpenejbJar();
         URI parentID;
         if (openejbEjbJar.isSetParentId()) {
             try {
@@ -237,7 +269,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
     }
 
     public URI getConfigId(XmlObject plan) throws DeploymentException {
-        OpenejbOpenejbJarType openejbEjbJar = ((OpenejbOpenejbJarDocument)plan).getOpenejbJar();
+        OpenejbOpenejbJarType openejbEjbJar = ((OpenejbOpenejbJarDocument) plan).getOpenejbJar();
         URI configID;
         try {
             configID = new URI(openejbEjbJar.getConfigId());
@@ -461,6 +493,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         TransactionPolicyHelper transactionPolicyHelper = new TransactionPolicyHelper(ejbJar.getAssemblyDescriptor().getContainerTransactionArray());
 
+        Security security = buildSecurityConfig(openejbEjbJar);
+
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
         // Session Beans
@@ -471,7 +505,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             OpenejbSessionBeanType openejbSessionBean = (OpenejbSessionBeanType) openejbBeans.get(sessionBean.getEjbName().getStringValue());
             ObjectName sessionObjectName = createEJBObjectName(earContext, module.getName(), sessionBean);
 
-            GBeanMBean sessionGBean = createSessionBean(earContext, ejbModule, sessionObjectName.getCanonicalName(), sessionBean, openejbSessionBean, transactionPolicyHelper, cl);
+            GBeanMBean sessionGBean = createSessionBean(earContext, ejbModule, sessionObjectName.getCanonicalName(), sessionBean, openejbSessionBean, transactionPolicyHelper, security, cl);
             earContext.addGBean(sessionObjectName, sessionGBean);
         }
 
@@ -486,9 +520,9 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
             GBeanMBean entityGBean = null;
             if ("Container".equals(entityBean.getPersistenceType().getStringValue())) {
-                entityGBean = createCMPBean(earContext, ejbModule, entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, ejbSchema, sqlSchema, connectionFactoryName, transactionPolicyHelper, cl);
+                entityGBean = createCMPBean(earContext, ejbModule, entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, ejbSchema, sqlSchema, connectionFactoryName, transactionPolicyHelper, security, cl);
             } else {
-                entityGBean = createBMPBean(earContext, ejbModule, entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, transactionPolicyHelper, cl);
+                entityGBean = createBMPBean(earContext, ejbModule, entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, transactionPolicyHelper, security, cl);
             }
             earContext.addGBean(entityObjectName, entityGBean);
         }
@@ -507,12 +541,12 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
             String containerId = messageDrivenObjectName.getCanonicalName();
             GBeanMBean activationSpecGBean = createActivationSpecWrapperGBean(earContext,
-                    messageDrivenBean.isSetActivationConfig()? messageDrivenBean.getActivationConfig().getActivationConfigPropertyArray(): new ActivationConfigPropertyType[] {},
-                    openejbMessageDrivenBean.getResourceAdapterName(),
-                    openejbMessageDrivenBean.getActivationSpecClass(),
-                    containerId,
-                    cl);
-            GBeanMBean messageDrivenGBean = createMessageDrivenBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, cl);
+                                                                              messageDrivenBean.isSetActivationConfig() ? messageDrivenBean.getActivationConfig().getActivationConfigPropertyArray() : new ActivationConfigPropertyType[]{},
+                                                                              openejbMessageDrivenBean.getResourceAdapterName(),
+                                                                              openejbMessageDrivenBean.getActivationSpecClass(),
+                                                                              containerId,
+                                                                              cl);
+            GBeanMBean messageDrivenGBean = createMessageDrivenBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, security, cl);
             earContext.addGBean(activationSpecName, activationSpecGBean);
             earContext.addGBean(messageDrivenObjectName, messageDrivenGBean);
         }
@@ -535,12 +569,12 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
                 ObjectName entityObjectName = createEJBObjectName(earContext, ejbModuleName, entityBean);
 
                 EJBProxyFactory proxyFactory = (EJBProxyFactory) createEJBProxyFactory(entityObjectName.getCanonicalName(),
-                        false,
-                        getJ2eeStringValue(entityBean.getRemote()),
-                        getJ2eeStringValue(entityBean.getHome()),
-                        getJ2eeStringValue(entityBean.getLocal()),
-                        getJ2eeStringValue(entityBean.getLocalHome()),
-                        cl);
+                                                                                       false,
+                                                                                       getJ2eeStringValue(entityBean.getRemote()),
+                                                                                       getJ2eeStringValue(entityBean.getHome()),
+                                                                                       getJ2eeStringValue(entityBean.getLocal()),
+                                                                                       getJ2eeStringValue(entityBean.getLocalHome()),
+                                                                                       cl);
 
                 Class ejbClass = null;
                 try {
@@ -585,15 +619,18 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
     }
 
-    public GBeanMBean createSessionBean(EARContext earContext, EJBModule ejbModule, String containerId, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl) throws DeploymentException {
+    public GBeanMBean createSessionBean(EARContext earContext, EJBModule ejbModule, String containerId, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, Security security, ClassLoader cl) throws DeploymentException {
         String ejbName = sessionBean.getEjbName().getStringValue();
 
         ContainerBuilder builder = null;
+        Permissions toBeChecked = new Permissions();
         boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue());
         if (isStateless) {
             builder = new StatelessContainerBuilder();
             builder.setTransactedTimerName(earContext.getTransactedTimerName());
             builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
+            builder.setServiceEndpointName(getJ2eeStringValue(sessionBean.getServiceEndpoint()));
+            addToPermissions(toBeChecked, ejbName, "ServiceEndpoint", builder.getServiceEndpointName(), cl);
         } else {
             builder = new StatefulContainerBuilder();
         }
@@ -605,6 +642,19 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         builder.setRemoteInterfaceName(getJ2eeStringValue(sessionBean.getRemote()));
         builder.setLocalHomeInterfaceName(getJ2eeStringValue(sessionBean.getLocalHome()));
         builder.setLocalInterfaceName(getJ2eeStringValue(sessionBean.getLocal()));
+
+        addToPermissions(toBeChecked, ejbName, "Home", builder.getHomeInterfaceName(), cl);
+        addToPermissions(toBeChecked, ejbName, "LocalHome", builder.getLocalHomeInterfaceName(), cl);
+        addToPermissions(toBeChecked, ejbName, "Remote", builder.getRemoteInterfaceName(), cl);
+        addToPermissions(toBeChecked, ejbName, "Local", builder.getLocalInterfaceName(), cl);
+
+        fillContainerBuilderSecurity(builder,
+                                     toBeChecked,
+                                     security,
+                                     ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
+                                     sessionBean.getEjbName().getStringValue(),
+                                     sessionBean.getSecurityIdentity(),
+                                     sessionBean.getSecurityRoleRefArray());
 
         UserTransactionImpl userTransaction;
         if ("Bean".equals(sessionBean.getTransactionType().getStringValue())) {
@@ -647,7 +697,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
     }
 
-    public GBeanMBean createBMPBean(EARContext earContext, EJBModule ejbModule, String containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl) throws DeploymentException {
+    public GBeanMBean createBMPBean(EARContext earContext, EJBModule ejbModule, String containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, TransactionPolicyHelper transactionPolicyHelper, Security security, ClassLoader cl) throws DeploymentException {
         String ejbName = entityBean.getEjbName().getStringValue();
 
         BMPContainerBuilder builder = new BMPContainerBuilder();
@@ -664,6 +714,19 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         builder.setTransactionPolicySource(transactionPolicySource);
         builder.setTransactedTimerName(earContext.getTransactedTimerName());
         builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
+
+        Permissions toBeChecked = new Permissions();
+        addToPermissions(toBeChecked, ejbName, "Home", builder.getHomeInterfaceName(), cl);
+        addToPermissions(toBeChecked, ejbName, "LocalHome", builder.getLocalHomeInterfaceName(), cl);
+        addToPermissions(toBeChecked, ejbName, "Remote", builder.getRemoteInterfaceName(), cl);
+        addToPermissions(toBeChecked, ejbName, "Local", builder.getLocalInterfaceName(), cl);
+        fillContainerBuilderSecurity(builder,
+                                     toBeChecked,
+                                     security,
+                                     ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
+                                     entityBean.getEjbName().getStringValue(),
+                                     entityBean.getSecurityIdentity(),
+                                     entityBean.getSecurityRoleRefArray());
 
         try {
             ReadOnlyContext compContext = buildComponentContext(earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
@@ -691,7 +754,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
     }
 
-    public GBeanMBean createCMPBean(EARContext earContext, EJBModule ejbModule, String containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, EJBSchema ejbSchema, Schema sqlSchema, String connectionFactoryName, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl) throws DeploymentException {
+    public GBeanMBean createCMPBean(EARContext earContext, EJBModule ejbModule, String containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, EJBSchema ejbSchema, Schema sqlSchema, String connectionFactoryName, TransactionPolicyHelper transactionPolicyHelper, Security security, ClassLoader cl) throws DeploymentException {
         String ejbName = entityBean.getEjbName().getStringValue();
 
         CMPContainerBuilder builder = new CMPContainerBuilder();
@@ -708,6 +771,19 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         builder.setTransactionPolicySource(transactionPolicySource);
         builder.setTransactedTimerName(earContext.getTransactedTimerName());
         builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
+
+        Permissions toBeChecked = new Permissions();
+        addToPermissions(toBeChecked, ejbName, "Home", builder.getHomeInterfaceName(), cl);
+        addToPermissions(toBeChecked, ejbName, "LocalHome", builder.getLocalHomeInterfaceName(), cl);
+        addToPermissions(toBeChecked, ejbName, "Remote", builder.getRemoteInterfaceName(), cl);
+        addToPermissions(toBeChecked, ejbName, "Local", builder.getLocalInterfaceName(), cl);
+        fillContainerBuilderSecurity(builder,
+                                     toBeChecked,
+                                     security,
+                                     ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
+                                     entityBean.getEjbName().getStringValue(),
+                                     entityBean.getSecurityIdentity(),
+                                     entityBean.getSecurityRoleRefArray());
 
         try {
             ReadOnlyContext compContext = buildComponentContext(earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
@@ -735,7 +811,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             for (int i = 0; i < queryTypes.length; i++) {
                 OpenejbQueryType queryType = queryTypes[i];
                 MethodSignature signature = new MethodSignature(queryType.getQueryMethod().getMethodName(),
-                        queryType.getQueryMethod().getMethodParams().getMethodParamArray());
+                                                                queryType.getQueryMethod().getMethodParams().getMethodParamArray());
                 String sql = queryType.getSql();
                 queries.put(signature, sql);
             }
@@ -759,6 +835,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
                                               OpenejbMessageDrivenBeanType openejbMessageDrivenBean,
                                               ObjectName activationSpecWrapperName,
                                               TransactionPolicyHelper transactionPolicyHelper,
+                                              Security security,
                                               ClassLoader cl) throws DeploymentException {
 
         if (openejbMessageDrivenBean == null) {
@@ -776,8 +853,18 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         builder.setTransactedTimerName(earContext.getTransactedTimerName());
         builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
 
+        Permissions toBeChecked = new Permissions();
+        fillContainerBuilderSecurity(builder,
+                                     toBeChecked,
+                                     security,
+                                     ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
+                                     messageDrivenBean.getEjbName().getStringValue(),
+                                     messageDrivenBean.getSecurityIdentity(),
+                                     null);
+
         UserTransactionImpl userTransaction;
         //TODO this is probably wrong???
+
         if ("Bean".equals(messageDrivenBean.getTransactionType().getStringValue())) {
             userTransaction = new UserTransactionImpl();
             builder.setUserTransaction(userTransaction);
@@ -828,7 +915,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             resourceAdapterObjectName = (ObjectName) names.iterator().next();
             Map activationSpecInfos = null;
             try {
-                activationSpecInfos = (Map)kernel.getAttribute(resourceAdapterObjectName, "activationSpecInfoMap");
+                activationSpecInfos = (Map) kernel.getAttribute(resourceAdapterObjectName, "activationSpecInfoMap");
             } catch (Exception e) {
                 throw new DeploymentException("Could not get activation spec infos for resource adapter named: " + resourceAdapterObjectName, e);
             }
@@ -849,7 +936,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         for (int i = 0; i < activationConfigProperties.length; i++) {
             ActivationConfigPropertyType activationConfigProperty = activationConfigProperties[i];
             String propertyName = activationConfigProperty.getActivationConfigPropertyName().getStringValue();
-            String propertyValue = activationConfigProperty.getActivationConfigPropertyValue().isNil()? null: activationConfigProperty.getActivationConfigPropertyValue().getStringValue();
+            String propertyValue = activationConfigProperty.getActivationConfigPropertyValue().isNil() ? null : activationConfigProperty.getActivationConfigPropertyValue().getStringValue();
             try {
                 activationSpecGBean.setAttribute(propertyName, propertyValue);
             } catch (Exception e) {
@@ -1238,6 +1325,319 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         if (clazz.isAssignableFrom(superInterface)) {
             throw new DeploymentException(interfactType + " interface does not extend " + superInterfaceName + ": " + interfaceName);
         }
+    }
+
+    public static Security buildSecurityConfig(OpenejbOpenejbJarType openejbEjbJar) {
+        Security security = null;
+
+        OpenejbSecurityType securityType = openejbEjbJar.getSecurity();
+        if (securityType != null) {
+            security = new Security();
+
+            security.setUseContextHandler(securityType.getUseContextHandler());
+            security.setDefaultRole(securityType.getDefaultRole());
+
+            OpenejbDefaultPrincipalType defaultPrincipalType = securityType.getDefaultPrincipal();
+            DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
+
+            defaultPrincipal.setRealmName(defaultPrincipalType.getRealmName());
+            defaultPrincipal.setPrincipal(buildPrincipal(defaultPrincipalType.getPrincipal()));
+
+            security.setDefaultPrincipal(defaultPrincipal);
+
+            OpenejbRoleMappingsType roleMappingsType = securityType.getRoleMappings();
+            if (roleMappingsType != null) {
+                for (int i = 0; i < roleMappingsType.sizeOfRoleArray(); i++) {
+                    OpenejbRoleType roleType = roleMappingsType.getRoleArray(i);
+                    Role role = new Role();
+
+                    role.setRoleName(roleType.getRoleName());
+
+                    for (int j = 0; j < roleType.sizeOfRealmArray(); j++) {
+                        OpenejbRealmType realmType = roleType.getRealmArray(j);
+                        Realm realm = new Realm();
+
+                        realm.setRealmName(realmType.getRealmName());
+
+                        for (int k = 0; k < realmType.sizeOfPrincipalArray(); k++) {
+                            realm.getPrincipals().add(buildPrincipal(realmType.getPrincipalArray(k)));
+                        }
+
+                        role.getRealms().add(realm);
+                    }
+
+                    security.getRoleMappings().add(role);
+                }
+            }
+        }
+
+        return security;
+    }
+
+    private static Principal buildPrincipal(OpenejbPrincipalType principalType) {
+        Principal principal = new Principal();
+
+        principal.setClassName(principalType.getClass1());
+        principal.setPrincipalName(principalType.getName());
+        principal.setDesignatedRunAs(principalType.isSetDesignatedRunAs());
+
+        return principal;
+    }
+
+    /**
+     * Fill the container builder with the security information that it needs
+     * to create the proper interceptors.  A <code>SecurityConfiguration</code>
+     * is also filled with permissions that need to be used to fill the JACC
+     * policy configuration.
+     *
+     * @param builder            the container builder that is to be filled
+     * @param notAssigned        the set of all possible permissions.  These will be
+     *                           culled so that all that are left are those that have
+     *                           not been assigned roles.
+     * @param security           the OpenEJB security information already parsed
+     *                           from XML descriptor into a POJO
+     * @param assemblyDescriptor the assembly descriptor
+     * @param EJBName            the name of the EJB
+     * @param securityIdentity   the EJB's security identity
+     * @param roleReferences     the EJB's role references
+     * @throws DeploymentException if any constraints are violated
+     */
+    private static void fillContainerBuilderSecurity(SecureBuilder builder,
+                                                     Permissions notAssigned,
+                                                     Security security,
+                                                     AssemblyDescriptorType assemblyDescriptor,
+                                                     String EJBName,
+                                                     SecurityIdentityType securityIdentity,
+                                                     SecurityRoleRefType[] roleReferences)
+            throws DeploymentException {
+
+        if (security == null) return;
+
+        SecurityConfiguration securityConfiguration = new SecurityConfiguration();
+
+        builder.setSecurityConfiguration(securityConfiguration);
+        builder.setDoAsCurrentCaller(security.isDoAsCurrentCaller());
+        builder.setUseContextHandler(security.isUseContextHandler());
+
+        /**
+         * JACC v1.0 section 3.1.5.1
+         */
+        MethodPermissionType[] methodPermissions = assemblyDescriptor.getMethodPermissionArray();
+        if (methodPermissions != null) {
+            for (int i = 0; i < methodPermissions.length; i++) {
+                MethodPermissionType mpt = methodPermissions[i];
+                MethodType[] methods = mpt.getMethodArray();
+                RoleNameType[] roles = mpt.getRoleNameArray();
+                boolean unchecked = (mpt.getUnchecked() != null);
+
+                Map rolePermissions = securityConfiguration.getRolePolicies();
+
+                for (int j = 0; j < roles.length; j++) {
+                    String rolename = roles[j].getStringValue();
+
+                    Permissions permissions = (Permissions) rolePermissions.get(rolename);
+                    if (permissions == null) {
+                        permissions = new Permissions();
+                        rolePermissions.put(rolename, permissions);
+                    }
+
+                    for (int k = 0; k < methods.length; k++) {
+                        MethodType method = methods[k];
+
+                        if (!EJBName.equals(method.getEjbName().getStringValue())) continue;
+
+                        String methodName = getJ2eeStringValue(method.getMethodName());
+                        String methodIntf = getJ2eeStringValue(method.getMethodIntf());
+                        String[] methodPara = (method.getMethodParams() != null ? ConfigurationUtil.toStringArray(method.getMethodParams().getMethodParamArray()) : null);
+
+                        // map EJB semantics to JACC semantics for method names
+                        if ("*".equals(methodName)) methodName = null;
+
+                        EJBMethodPermission permission = new EJBMethodPermission(EJBName, methodName, methodIntf, methodPara);
+                        notAssigned = cullPermissions(notAssigned, permission);
+                        if (unchecked) {
+                            securityConfiguration.getUncheckedPolicy().add(permission);
+                        } else {
+                            permissions.add(permission);
+                        }
+                    }
+                }
+
+            }
+        }
+
+        /**
+         * JACC v1.0 section 3.1.5.2
+         */
+        ExcludeListType excludeList = assemblyDescriptor.getExcludeList();
+        if (excludeList != null) {
+            MethodType[] methods = excludeList.getMethodArray();
+            for (int i = 0; i < methods.length; i++) {
+                MethodType method = methods[i];
+
+                if (!EJBName.equals(method.getEjbName().getStringValue())) continue;
+
+                String methodName = getJ2eeStringValue(method.getMethodName());
+                String methodIntf = getJ2eeStringValue(method.getMethodIntf());
+                String[] methodPara = (method.getMethodParams() != null ? ConfigurationUtil.toStringArray(method.getMethodParams().getMethodParamArray()) : null);
+
+                EJBMethodPermission permission = new EJBMethodPermission(EJBName, methodName, methodIntf, methodPara);
+
+                securityConfiguration.getExcludedPolicy().add(permission);
+                notAssigned = cullPermissions(notAssigned, permission);
+            }
+        }
+
+        /**
+         * JACC v1.0 section 3.1.5.3
+         */
+        if (roleReferences != null) {
+            for (int i = 0; i < roleReferences.length; i++) {
+                if (roleReferences[i].getRoleLink() == null) throw new DeploymentException("Missing role-link");
+
+                String roleName = roleReferences[i].getRoleName().getStringValue();
+                String roleLink = roleReferences[i].getRoleLink().getStringValue();
+
+                Map roleRefPermissions = securityConfiguration.getRoleReferences();
+                Set roleLinks = (Set) roleRefPermissions.get(roleLink);
+                if (roleLinks == null) {
+                    roleLinks = new HashSet();
+                    roleRefPermissions.put(roleLink, roleLinks);
+
+                }
+                roleLinks.add(new EJBRoleRefPermission(EJBName, roleName));
+            }
+        }
+
+        /**
+         * Set the security interceptor's run-as subject, if one has been defined.
+         */
+        if (securityIdentity != null && securityIdentity.getRunAs() != null) {
+            String roleName = securityIdentity.getRunAs().getRoleName().getStringValue();
+            boolean found = false;
+
+            Iterator rollMappings = security.getRoleMappings().iterator();
+            while (rollMappings.hasNext()) {
+                Role role = (Role) rollMappings.next();
+
+                if (!roleName.equals(role.getRoleName())) continue;
+
+                Subject roleDesignate = new Subject();
+
+                Iterator realms = role.getRealms().iterator();
+                while (realms.hasNext()) {
+                    Set principalSet = new HashSet();
+                    Realm realm = (Realm) realms.next();
+
+                    Iterator principals = realm.getPrincipals().iterator();
+                    while (principals.hasNext()) {
+                        Principal principal = (Principal) principals.next();
+
+                        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
+
+                        if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
+
+                        principalSet.add(realmPrincipal);
+                        if (principal.isDesignatedRunAs()) roleDesignate.getPrincipals().add(realmPrincipal);
+                    }
+                }
+
+                if (roleDesignate.getPrincipals().size() > 0) {
+                    builder.setRunAs(roleDesignate);
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) throw new DeploymentException("Role designate not found for role: " + roleName);
+        }
+
+        /**
+         * EJB v2.1 section 21.3.2
+         *
+         * It is possible that some methods are not assigned to any security
+         * roles nor contained in the <code>exclude-list</code> element. In
+         * this case, it is the responsibility of the Deployer to assign method
+         * permissions for all of the unspecified methods, either by assigning
+         * them to security roles, or by marking them as <code>unchecked</code>.
+         */
+        Permissions permissions;
+        if (security.getDefaultRole() == null || security.getDefaultRole().length() == 0) {
+            permissions = securityConfiguration.getUncheckedPolicy();
+        } else {
+            Map rolePermissions = securityConfiguration.getRolePolicies();
+            permissions = (Permissions) rolePermissions.get(security.getDefaultRole());
+            if (permissions == null) {
+                permissions = new Permissions();
+                rolePermissions.put(security.getDefaultRole(), permissions);
+            }
+        }
+
+        Enumeration enum = notAssigned.elements();
+        while (enum.hasMoreElements()) {
+            permissions.add((Permission) enum.nextElement());
+        }
+    }
+
+    /**
+     * Gernate all the possible permissions for a bean's interface.
+     * <p/>
+     * Method permissions are defined in the deployment descriptor as a binary
+     * relation from the set of security roles to the set of methods of the
+     * home, component, and/or web service endpoint interfaces of session and
+     * entity beans, including all their superinterfaces (including the methods
+     * of the <code>EJBHome</code> and <code>EJBObject</code> interfaces and/or
+     * <code>EJBLocalHome</code> and <code>EJBLocalObject</code> interfaces).
+     *
+     * @param permissions     the permission set to be extended
+     * @param EJBName         the name of the EJB
+     * @param methodInterface the EJB method interface
+     * @param interfaceClass  the class name of the interface to be used to
+     *                        generate the permissions
+     * @param cl              the class loader to be used in obtaining the interface class
+     * @throws DeploymentException
+     */
+    private static void addToPermissions(Permissions permissions,
+                                         String EJBName, String methodInterface, String interfaceClass,
+                                         ClassLoader cl)
+            throws DeploymentException {
+
+        if (interfaceClass == null) return;
+
+        try {
+            Class clazz = Class.forName(interfaceClass, false, cl);
+            Method[] methods = clazz.getMethods();
+            for (int i = 0; i < methods.length; i++) {
+                permissions.add(new EJBMethodPermission(EJBName, methodInterface, methods[i]));
+            }
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException(e);
+        }
+
+    }
+
+    /**
+     * Removes permissions from <code>toBeChecked</code> that are implied by
+     * <code>permission</code>.
+     *
+     * @param toBeChecked the permissions that are to be checked and possibly
+     *                    culled
+     * @param permission  the permission that is to be used for culling
+     * @return the culled set of permissions that are not implied by
+     *         <code>permission</code>
+     */
+    private static Permissions cullPermissions(Permissions toBeChecked, Permission permission) {
+        Permissions result = new Permissions();
+
+        Enumeration enum = toBeChecked.elements();
+        while (enum.hasMoreElements()) {
+            Permission test = (Permission) enum.nextElement();
+            if (!permission.implies(test)) {
+                result.add(test);
+            }
+        }
+
+        return result;
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -49,22 +49,20 @@ package org.openejb.entity;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
 import javax.ejb.EJBObject;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.entity.bmp.BMPContainerBuilder;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
+import org.openejb.security.SecurityConfiguration;
 import org.openejb.DeploymentHelper;
 
 /**
@@ -157,6 +155,7 @@ public class BasicBMPEntityContainerTest extends TestCase {
                 return ContainerPolicy.Required;
             }
         });
+        builder.setSecurityConfiguration(new SecurityConfiguration());
         builder.setComponentContext(new ReadOnlyContext());
         container = builder.createConfiguration();
 

@@ -47,15 +47,31 @@
  */
 package org.openejb;
 
-import java.lang.reflect.Method;
-import java.rmi.RemoteException;
-
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.management.ObjectName;
+import javax.security.jacc.PolicyConfiguration;
+import javax.security.jacc.PolicyConfigurationFactory;
+import javax.security.jacc.PolicyContextException;
+import java.lang.reflect.Method;
+import java.rmi.RemoteException;
+import java.security.Permissions;
+import java.util.Iterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openejb.cache.InstancePool;
+import org.openejb.client.EJBObjectHandler;
+import org.openejb.client.EJBObjectProxy;
+import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.dispatch.SystemMethodIndices;
+import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.proxy.ProxyInfo;
+import org.openejb.security.SecurityConfiguration;
+import org.openejb.timer.BasicTimerService;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
@@ -64,25 +80,20 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.timer.ThreadPooledTimer;
-import org.apache.geronimo.timer.PersistenceException;
-import org.apache.geronimo.kernel.Kernel;
-import org.openejb.cache.InstancePool;
-import org.openejb.client.EJBObjectHandler;
-import org.openejb.client.EJBObjectProxy;
-import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.dispatch.SystemMethodIndices;
-import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.proxy.ProxyInfo;
-import org.openejb.timer.BasicTimerService;
+
 
 /**
  * @version $Revision$ $Date$
  */
 public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
+    private static Log log = LogFactory.getLog(GenericEJBContainer.class);
+
     private final ClassLoader classLoader;
     private final Object containerId;
     private final String ejbName;
@@ -94,25 +105,28 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
     private final String[] jndiNames;
     private final String[] localJndiNames;
+
+    private final SecurityConfiguration securityConfiguration;
+    private transient PolicyConfiguration policyConfiguration;
     private final BasicTimerService timerService;
 
 
-    public GenericEJBContainer(
-            Object containerId,
-            String ejbName,
-            ProxyInfo proxyInfo,
-            InterfaceMethodSignature[] signatures,
-            InstanceContextFactory contextFactory,
-            InterceptorBuilder interceptorBuilder,
-            InstancePool pool,
-            UserTransactionImpl userTransaction,
-            String[] jndiNames,
-            String[] localJndiNames,
-            TransactionContextManager transactionContextManager,
-            TrackedConnectionAssociator trackedConnectionAssociator,
-            ThreadPooledTimer timer,
-            String objectName,
-            Kernel kernel) throws Exception {
+    public GenericEJBContainer(Object containerId,
+                               String ejbName,
+                               ProxyInfo proxyInfo,
+                               InterfaceMethodSignature[] signatures,
+                               InstanceContextFactory contextFactory,
+                               InterceptorBuilder interceptorBuilder,
+                               InstancePool pool,
+                               UserTransactionImpl userTransaction,
+                               String[] jndiNames,
+                               String[] localJndiNames,
+                               TransactionContextManager transactionContextManager,
+                               TrackedConnectionAssociator trackedConnectionAssociator,
+                               ThreadPooledTimer timer,
+                               String objectName,
+                               Kernel kernel,
+                               SecurityConfiguration securityConfiguration) throws Exception {
 
         assert (containerId != null);
         assert (ejbName != null && ejbName.length() > 0);
@@ -159,6 +173,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         if (userTransaction != null) {
             userTransaction.setUp(transactionContextManager, trackedConnectionAssociator);
         }
+
+        this.securityConfiguration = securityConfiguration;
 
         // TODO maybe there is a more suitable place to do this.  Maybe not.
 
@@ -271,27 +287,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         return this;
     }
 
-    public void doStart() throws WaitingException, Exception {
-        if (timerService != null) {
-            timerService.doStart();
-        }
-    }
-
-    public void doStop() throws PersistenceException {
-        if (timerService != null) {
-            timerService.doStop();
-        }
-    }
-
-    public void doFail() {
-        try {
-            doStop();
-        } catch (PersistenceException e) {
-            //todo fix this
-            throw new RuntimeException(e);
-        }
-    }
-
     private static String[] copyNames(String[] names) {
         if (names == null) {
             return null;
@@ -300,6 +295,10 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         String[] copy = new String[length];
         System.arraycopy(names, 0, copy, 0, length);
         return copy;
+    }
+
+    public SecurityConfiguration getSecurityConfiguration() {
+        return securityConfiguration;
     }
 
     private void setupJndi() {
@@ -312,21 +311,94 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
     }
 
+    public void doStart() throws WaitingException, Exception {
+
+        if (timerService != null) {
+            timerService.doStart();
+        }
+
+        if (this.securityConfiguration != null) {
+            /**
+             * Get the JACC policy configuration that's associated with this
+             * EJB container and configure it with the geronimo security
+             * configuration.  The work for this is done by the class
+             * JettyXMLConfiguration.
+             */
+            try {
+                PolicyConfigurationFactory factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
+
+                policyConfiguration = factory.getPolicyConfiguration(securityConfiguration.getPolicyContextId(), true);
+
+                policyConfiguration.addToExcludedPolicy(securityConfiguration.getExcludedPolicy());
+                policyConfiguration.addToUncheckedPolicy(securityConfiguration.getUncheckedPolicy());
+                Iterator roles = securityConfiguration.getRolePolicies().keySet().iterator();
+                while (roles.hasNext()) {
+                    String role = (String) roles.next();
+
+                    policyConfiguration.addToRole(role, (Permissions) securityConfiguration.getRolePolicies().get(role));
+                }
+
+                //            ((JettyXMLConfiguration) this.getConfiguration()).configure(policyConfiguration, securityConfig);
+                policyConfiguration.commit();
+            } catch (ClassNotFoundException e) {
+                // do nothing
+            } catch (PolicyContextException e) {
+                // do nothing
+            } catch (GeronimoSecurityException e) {
+                // do nothing
+            }
+            log.debug("Using JACC policy '" + securityConfiguration.getPolicyContextId() + "'");
+        }
+        log.info("GenericEJBContainer '" + containerId + "'started");
+    }
+
+    public void doStop() throws WaitingException, Exception {
+        if (timerService != null) {
+            timerService.doStop();
+        }
+
+        if (this.securityConfiguration != null) {
+            /**
+             * Delete the policy configuration for this web application
+             */
+            if (policyConfiguration != null) policyConfiguration.delete();
+
+        }
+        log.info("GenericEJBContainer '" + containerId + "' stopped");
+    }
+
+    public void doFail() {
+        try {
+            doStop();
+        } catch (Exception e) {
+            //todo fix this
+            throw new RuntimeException(e);
+        }
+
+        try {
+            if (policyConfiguration != null) policyConfiguration.delete();
+        } catch (PolicyContextException e) {
+            // do nothing
+        }
+
+        log.info("GenericEJBContainer '" + containerId + "'failed");
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(GenericEJBContainer.class);
 
-        infoFactory.addAttribute("containerID", Object.class, true);
-        infoFactory.addAttribute("ejbName", String.class, true);
-        infoFactory.addAttribute("proxyInfo", ProxyInfo.class, true);
-        infoFactory.addAttribute("signatures", InterfaceMethodSignature[].class, true);
-        infoFactory.addAttribute("contextFactory", InstanceContextFactory.class, true);
-        infoFactory.addAttribute("interceptorBuilder", InterceptorBuilder.class, true);
-        infoFactory.addAttribute("pool", InstancePool.class, true);
-        infoFactory.addAttribute("userTransaction", UserTransactionImpl.class, true);
-        infoFactory.addAttribute("jndiNames", String[].class, true);
-        infoFactory.addAttribute("localJndiNames", String[].class, true);
+        infoFactory.addAttribute("ContainerID", Object.class, true);
+        infoFactory.addAttribute("EJBName", String.class, true);
+        infoFactory.addAttribute("ProxyInfo", ProxyInfo.class, true);
+        infoFactory.addAttribute("Signatures", InterfaceMethodSignature[].class, true);
+        infoFactory.addAttribute("ContextFactory", InstanceContextFactory.class, true);
+        infoFactory.addAttribute("InterceptorBuilder", InterceptorBuilder.class, true);
+        infoFactory.addAttribute("Pool", InstancePool.class, true);
+        infoFactory.addAttribute("UserTransaction", UserTransactionImpl.class, true);
+        infoFactory.addAttribute("JndiNames", String[].class, true);
+        infoFactory.addAttribute("LocalJndiNames", String[].class, true);
 
         infoFactory.addReference("TransactionContextManager", TransactionContextManager.class);
         infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
@@ -341,22 +413,25 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addAttribute("ejbLocalHome", EJBLocalHome.class, false);
         infoFactory.addAttribute("unmanagedReference", EJBContainer.class, false);
 
+        infoFactory.addAttribute("SecurityConfiguration", SecurityConfiguration.class, true);
+
         infoFactory.setConstructor(new String[]{
-            "containerID",
-            "ejbName",
-            "proxyInfo",
-            "signatures",
-            "contextFactory",
-            "interceptorBuilder",
-            "pool",
-            "userTransaction",
-            "jndiNames",
-            "localJndiNames",
+            "ContainerID",
+            "EJBName",
+            "ProxyInfo",
+            "Signatures",
+            "ContextFactory",
+            "InterceptorBuilder",
+            "Pool",
+            "UserTransaction",
+            "JndiNames",
+            "LocalJndiNames",
             "TransactionContextManager",
             "TrackedConnectionAssociator",
             "Timer",
             "objectName",
-            "kernel"});
+            "kernel",
+            "SecurityConfiguration"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
