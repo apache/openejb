@@ -142,6 +142,9 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
         
         case EJB_OK_FOUND:
             primKey = res.getResult();
+            if (null == primKey) {
+                return null;
+            }
             handler = EJBObjectHandler.createEJBObjectHandler(ejb,server,primKey);
             handler.setEJBHomeProxy((EJBHomeProxy)proxy);
             registerHandler(ejb.deploymentID+":"+primKey, handler);
@@ -156,6 +159,9 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
 
             for (int i=0; i < primaryKeys.length; i++){
                 primKey = primaryKeys[i];
+                if (null == primKey) {
+                    continue;
+                }
                 handler = EJBObjectHandler.createEJBObjectHandler(ejb,server,primKey);
                 handler.setEJBHomeProxy((EJBHomeProxy)proxy);
                 registerHandler(ejb.deploymentID+":"+primKey, handler);
@@ -168,6 +174,9 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
 
             for (int i=0; i < primaryKeys.length; i++){
                 primKey = primaryKeys[i];
+                if (null == primKey) {
+                    continue;
+                }
                 handler = EJBObjectHandler.createEJBObjectHandler(ejb,server,primKey);
                 handler.setEJBHomeProxy((EJBHomeProxy)proxy);
                 registerHandler(ejb.deploymentID+":"+primKey, handler);
