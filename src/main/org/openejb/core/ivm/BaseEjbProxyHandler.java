@@ -161,7 +161,14 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
        this.primaryKey = pk;
        this.deploymentID = depID;
        this.deploymentInfo = (org.openejb.core.DeploymentInfo)container.getDeploymentInfo(depID);
-       String value = org.openejb.OpenEJB.getInitProps().getProperty(org.openejb.core.EnvProps.INTRA_VM_COPY);
+       
+       String value = org.openejb.OpenEJB.getInitProps().getProperty("openejb.localcopy");
+       if ( value == null ) {
+           value = org.openejb.OpenEJB.getInitProps().getProperty(org.openejb.core.EnvProps.INTRA_VM_COPY);
+       }
+       if(value == null){
+           value = System.getProperty("openejb.localcopy");
+       }
        if(value == null){
            value = System.getProperty(org.openejb.core.EnvProps.INTRA_VM_COPY);
        }
