@@ -311,6 +311,12 @@ public final class OpenEJB {
         initialized = true;
 
         logger.i18n.info( "startup.ready" );
+        
+        // TODO: Figure out how to print out OpenEJB startup final message to Tomcat log
+        if (initProps.getProperty("openejb.nobanner") == null
+                && "tomcat-webapp".equals(initProps.getProperty("openejb.loader"))) {
+            System.out.println(messages.message("startup.ready"));
+        }
     }
 
     /**
