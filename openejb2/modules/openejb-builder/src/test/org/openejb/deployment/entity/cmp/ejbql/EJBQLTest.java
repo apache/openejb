@@ -125,16 +125,22 @@ public class EJBQLTest extends TestCase {
     private EJBSchema ejbSchema;
     private SQL92Schema sqlSchema;
     private GlobalSchema cacheSchema;
-    private ALocalHome ahome;
+    private AHome aHome;
+    private ALocalHome aLocalHome;
     private TransactionManager tm;
 
-    public void testFindTest() throws Exception {
-        ALocal a = ahome.findTest("test");
+    public void testHomeFindTest() throws Exception {
+        ARemote a = aHome.findTest("test");
+        assertEquals(new Integer(1), a.getField1());
+    }
+
+    public void testLocalHomeFindTest() throws Exception {
+        ALocal a = aLocalHome.findTest("test");
         assertEquals(new Integer(1), a.getField1());
     }
 
     public void testSelectTest() throws Exception {
-        ALocal a = ahome.selectTest("test");
+        ALocal a = aLocalHome.selectTest("test");
         assertEquals(new Integer(1), a.getField1());
     }
     
@@ -214,25 +220,26 @@ public class EJBQLTest extends TestCase {
             kernel.loadGBean(connectionProxyFactoryGBean, this.getClass().getClassLoader());
             kernel.startGBean(connectionProxyFactoryObjectName);
 
-            setUpContainer(ejbSchema.getEJB("A"), ABean.class, ALocalHome.class, ALocal.class, C_NAME_A, tmDelegate);
+            setUpContainer(ejbSchema.getEJB("A"), ABean.class, AHome.class, ARemote.class, ALocalHome.class, ALocal.class, C_NAME_A, tmDelegate);
 
-            ahome = (ALocalHome) kernel.getAttribute(C_NAME_A, "ejbLocalHome");
+            aLocalHome = (ALocalHome) kernel.getAttribute(C_NAME_A, "ejbLocalHome");
+            aHome = (AHome) kernel.getAttribute(C_NAME_A, "ejbHome");
         } finally {
             DeploymentUtil.recursiveDelete(tempDir);
         }
     }
 
 
-    private void setUpContainer(EJB ejb, Class beanClass, Class homeClass, Class localClass, ObjectName containerName, TransactionManagerDelegate tmDelegate) throws Exception {
+    private void setUpContainer(EJB ejb, Class beanClass, Class homeClass, Class remoteClass, Class localHomeClass, Class localClass, ObjectName containerName, TransactionManagerDelegate tmDelegate) throws Exception {
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(this.getClass().getClassLoader());
         builder.setContainerId(containerName.getCanonicalName());
         builder.setEJBName(ejb.getName());
         builder.setBeanClassName(beanClass.getName());
-        builder.setHomeInterfaceName(null);
-        builder.setLocalHomeInterfaceName(homeClass.getName());
-        builder.setRemoteInterfaceName(null);
-        builder.setLocalInterfaceName(localClass.getName());
+        builder.setHomeInterfaceName(homeClass.getName());
+        builder.setLocalHomeInterfaceName(localHomeClass.getName());
+        builder.setRemoteInterfaceName(remoteClass.getName());
+        builder.setLocalInterfaceName(localHomeClass.getName());
         builder.setPrimaryKeyClassName(ejb.getPrimaryKeyClass().getName());
 
         builder.setJndiNames(new String[0]);

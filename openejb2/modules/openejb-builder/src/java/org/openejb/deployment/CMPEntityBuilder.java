@@ -722,7 +722,7 @@ class CMPEntityBuilder extends EntityBuilder {
                 toBeChecked,
                 security,
                 ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
-                getString(entityBean.getEjbName()),
+                ejbName,
                 entityBean.getSecurityIdentity(),
                 entityBean.getSecurityRoleRefArray());
 
