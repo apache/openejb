@@ -1,0 +1,158 @@
+/**
+ * Redistribution and use of this software and associated documentation
+ * ("Software"), with or without modification, are permitted provided
+ * that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain copyright
+ *    statements and notices.  Redistributions must also contain a
+ *    copy of this document.
+ *
+ * 2. Redistributions in binary form must reproduce the
+ *    above copyright notice, this list of conditions and the
+ *    following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
+ *
+ * 3. The name "OpenEJB" must not be used to endorse or promote
+ *    products derived from this Software without prior written
+ *    permission of The OpenEJB Group.  For written permission,
+ *    please contact openejb@openejb.org.
+ *
+ * 4. Products derived from this Software may not be called "OpenEJB"
+ *    nor may "OpenEJB" appear in their names without prior written
+ *    permission of The OpenEJB Group. OpenEJB is a registered
+ *    trademark of The OpenEJB Group.
+ *
+ * 5. Due credit should be given to the OpenEJB Project
+ *    (http://openejb.org/).
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
+ * THE OPENEJB GROUP OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ *
+ * $Id$
+ */
+package org.openejb.server.axis;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URL;
+import java.util.jar.JarFile;
+import javax.servlet.http.HttpServletResponse;
+import javax.wsdl.Definition;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
+import javax.management.ObjectName;
+
+import org.apache.axis.*;
+import org.apache.axis.constants.Style;
+import org.apache.axis.constants.Use;
+import org.apache.axis.description.JavaServiceDesc;
+import org.apache.axis.description.OperationDesc;
+import org.apache.axis.description.ParameterDesc;
+import org.apache.axis.encoding.DeserializerFactory;
+import org.apache.axis.encoding.SerializerFactory;
+import org.apache.axis.encoding.TypeMappingRegistryImpl;
+import org.apache.axis.encoding.ser.BaseDeserializerFactory;
+import org.apache.axis.encoding.ser.BaseSerializerFactory;
+import org.apache.axis.encoding.ser.SimpleDeserializerFactory;
+import org.apache.axis.encoding.ser.SimpleSerializerFactory;
+import org.apache.axis.handlers.soap.SOAPService;
+import org.apache.axis.message.SOAPEnvelope;
+import org.apache.axis.providers.java.RPCProvider;
+import org.apache.axis.soap.SOAPConstants;
+import org.apache.axis.transport.http.HTTPConstants;
+import org.apache.axis.utils.Messages;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.axis.builder.AxisServiceBuilder;
+import org.apache.geronimo.axis.server.AxisWebServiceContainer;
+import org.apache.geronimo.webservices.SoapHandler;
+import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.openejb.EJBContainer;
+import org.w3c.dom.Element;
+
+public class WSContainer {
+
+    protected WSContainer() {
+    }
+
+    public WSContainer(EJBContainer ejbContainer, URI location, URL wsdlURL, SoapHandler soapHandler, JavaServiceDesc serviceDesc) throws Exception {
+        try {
+
+            RPCProvider provider = new EJBContainerProvider(ejbContainer);
+            SOAPService service = new SOAPService(null, provider, null);
+            service.setServiceDescription(serviceDesc);
+            service.setOption("className", "org.openejb.test.simple.slsb.SimpleStatelessSessionEJB");
+
+            AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURL, service);
+            if (soapHandler != null) {
+                soapHandler.addWebService(location.getPath(), axisContainer);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+
+//    public WSContainer(final EJBContainer ejbContainer, Definition definition, URI location, URL wsdlURL, String namespace, String encoding, String style, WebServiceContainer webServiceContainer) throws Exception {
+//        this.webServiceContainer = webServiceContainer;
+//        this.ejbContainer = ejbContainer;
+//        this.location = location;
+//        this.wsdlURL = wsdlURL;
+//
+//        JavaServiceDesc serviceDesc = createServiceDesc();
+//
+//        RPCProvider provider = new EJBContainerProvider(ejbContainer);
+//        service = new SOAPService(null, provider, null);
+//        service.setServiceDescription(serviceDesc);
+//        service.setOption("className", "org.openejb.test.simple.slsb.SimpleStatelessSessionEJB");
+//
+//        if (webServiceContainer != null) {
+//            webServiceContainer.addWebService(location.getPath(), this);
+//        }
+//    }
+//
+//    private JavaServiceDesc createServiceDesc() {
+//        JavaServiceDesc serviceDesc = new JavaServiceDesc();
+//        serviceDesc.setName("SimpleService");
+//        serviceDesc.setStyle(Style.RPC);
+//        serviceDesc.setUse(Use.ENCODED);
+//
+//        ParameterDesc parameterDesc = new ParameterDesc();
+//        parameterDesc.setName("String_1");
+//        parameterDesc.setTypeQName(new QName(XSD_NS, "string"));
+//
+//        OperationDesc operation = new OperationDesc("echo", new ParameterDesc[]{parameterDesc}, new QName("result"));
+//        operation.setReturnType(new QName(XSD_NS, "string"));
+//        serviceDesc.addOperationDesc(operation);
+//
+//        TypeMappingRegistryImpl typeMappingRegistry = new TypeMappingRegistryImpl();
+//        typeMappingRegistry.doRegisterFromVersion("1.3");
+//        org.apache.axis.encoding.TypeMapping typeMapping = typeMappingRegistry.getOrMakeTypeMapping(Use.ENCODED_STR);
+//
+//        serviceDesc.setTypeMappingRegistry(typeMappingRegistry);
+//        serviceDesc.setTypeMapping(typeMapping);
+//
+//        SerializerFactory ser = BaseSerializerFactory.createFactory(SimpleSerializerFactory.class, String.class, new QName(XSD_NS, "string"));
+//        DeserializerFactory deser = BaseDeserializerFactory.createFactory(SimpleDeserializerFactory.class, String.class, new QName(XSD_NS, "string"));
+//        typeMapping.register(String.class, new QName(XSD_NS, "string"), ser, deser);
+//        return serviceDesc;
+//    }
+
+
+}

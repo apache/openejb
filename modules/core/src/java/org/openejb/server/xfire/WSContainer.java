@@ -56,14 +56,13 @@ import javax.wsdl.Definition;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.webservices.MessageContextInvocationKey;
-import org.apache.geronimo.webservices.WebServiceInvoker;
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.codehaus.xfire.MessageContext;
 import org.codehaus.xfire.XFireRuntimeException;
 import org.codehaus.xfire.fault.Soap11FaultHandler;
 import org.codehaus.xfire.fault.XFireFault;
-import org.codehaus.xfire.handler.SoapHandler;
 import org.codehaus.xfire.java.DefaultJavaService;
 import org.codehaus.xfire.java.Invoker;
 import org.codehaus.xfire.java.JavaServiceHandler;
@@ -74,23 +73,23 @@ import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
 import org.openejb.proxy.ProxyInfo;
 
-public class WSContainer implements Invoker, WebServiceInvoker, GBeanLifecycle {
+public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle {
 
     private final EJBContainer ejbContainer;
     private final URI location;
     private final URL wsdlURL;
     private final DefaultJavaService service;
-    private final WebServiceContainer webServiceContainer;
+    private final SoapHandler soapHandler;
 
     protected WSContainer() {
         this.ejbContainer = null;
         this.location = null;
         this.wsdlURL = null;
         this.service = null;
-        this.webServiceContainer = null;
+        this.soapHandler = null;
     }
 
-    public WSContainer(EJBContainer ejbContainer, Definition definition, URI location, URL wsdlURL, String namespace, String encoding, String style, WebServiceContainer webServiceContainer) throws Exception {
+    public WSContainer(EJBContainer ejbContainer, Definition definition, URI location, URL wsdlURL, String namespace, String encoding, String style, SoapHandler soapHandler) throws Exception {
         this.ejbContainer = ejbContainer;
         this.location = location;
         this.wsdlURL = wsdlURL;
@@ -106,18 +105,18 @@ public class WSContainer implements Invoker, WebServiceInvoker, GBeanLifecycle {
         service.setStyle(style);
         service.setUse(encoding);
         service.setWSDLURL(wsdlURL);
-        service.setServiceHandler(new SoapHandler(new JavaServiceHandler(this)));
+        service.setServiceHandler(new org.codehaus.xfire.handler.SoapHandler(new JavaServiceHandler(this)));
         service.setFaultHandler(new Soap11FaultHandler());
 
         LightWeightServiceConfigurator configurator = new LightWeightServiceConfigurator(definition, service);
         configurator.configure();
-        this.webServiceContainer = webServiceContainer;
-        if (webServiceContainer != null) {
-            webServiceContainer.addWebService(location.getPath(), this);
+        this.soapHandler = soapHandler;
+        if (soapHandler != null) {
+            soapHandler.addWebService(location.getPath(), this);
         }
     }
 
-    public void invoke(InputStream in, OutputStream out, String uri) throws Exception {
+    public void invoke(Request request, Response response) throws Exception {
         //  We have to set the context classloader or the StAX API
         //  won't be able to find it's implementation.
         Thread thread = Thread.currentThread();
@@ -125,14 +124,30 @@ public class WSContainer implements Invoker, WebServiceInvoker, GBeanLifecycle {
 
         try {
             thread.setContextClassLoader(getClass().getClassLoader());
-            MessageContext context = new MessageContext("not-used", null, out, null, uri);
-            context.setRequestStream(in);
-            invoke(context);
+            MessageContext context = new MessageContext("not-used", null, response.getOutputStream(), null, request.getPath());
+            context.setRequestStream(request.getInputStream());
+            org.codehaus.xfire.handler.SoapHandler handler = null;
+            try {
+                context.setService(service);
+
+                handler = (org.codehaus.xfire.handler.SoapHandler) service.getServiceHandler();
+                handler.invoke(context);
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (e instanceof XFireRuntimeException) {
+                    throw (XFireRuntimeException) e;
+                } else if (handler != null) {
+                    XFireFault fault = XFireFault.createFault(e);
+                    handler.handleFault(fault, context);
+                } else {
+                    throw new XFireRuntimeException("Couldn't process message.", e);
+                }
+            }
         } finally {
             thread.setContextClassLoader(originalClassLoader);
         }
-
     }
+
 
     public void getWsdl(OutputStream out) throws Exception {
         InputStream in = null;
@@ -149,26 +164,6 @@ public class WSContainer implements Invoker, WebServiceInvoker, GBeanLifecycle {
             }
         }
 
-    }
-
-    public void invoke(MessageContext context) {
-        SoapHandler handler = null;
-        try {
-            context.setService(service);
-
-            handler = (SoapHandler) service.getServiceHandler();
-            handler.invoke(context);
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (e instanceof XFireRuntimeException) {
-                throw (XFireRuntimeException) e;
-            } else if (handler != null) {
-                XFireFault fault = XFireFault.createFault(e);
-                handler.handleFault(fault, context);
-            } else {
-                throw new XFireRuntimeException("Couldn't process message.", e);
-            }
-        }
     }
 
     public Object invoke(Method m, Object[] params, MessageContext context) throws XFireFault {
@@ -201,17 +196,18 @@ public class WSContainer implements Invoker, WebServiceInvoker, GBeanLifecycle {
     }
 
     public void doStop() throws Exception {
-        if (webServiceContainer != null) {
-            webServiceContainer.removeWebService(location.getPath());
+        if (soapHandler != null) {
+            soapHandler.removeWebService(location.getPath());
         }
     }
 
     public void doFail() {
-        if (webServiceContainer != null) {
-            webServiceContainer.removeWebService(location.getPath());
+        if (soapHandler != null) {
+            soapHandler.removeWebService(location.getPath());
         }
     }
 
+    // TODO Move this into org.openejb.server.soap and delete duplicate from Axis WSContainer
     private static class SimpleMessageContext implements javax.xml.rpc.handler.MessageContext {
 
         private final Map properties;

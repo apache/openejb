@@ -271,7 +271,7 @@ by the server.
     <gbean gbeanName="openejb:type=Server,name=HTTPSOAP" class="org.openejb.server.httpd.HttpServerGBean">
         <reference name="Listener"><gbean-name>openejb:type=SoapHttpListener</gbean-name></reference>
     </gbean>
-    <gbean gbeanName="openejb:type=SoapHttpListener" class="org.openejb.server.xfire.SoapHttpListenerGBean">
+    <gbean gbeanName="openejb:type=SoapHttpListener" class="org.openejb.server.soap.SoapHttpListenerGBean">
     </gbean>
 
     <!-- JSR77 Management Objects -->
