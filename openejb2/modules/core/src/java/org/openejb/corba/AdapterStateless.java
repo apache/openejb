@@ -89,14 +89,17 @@ public final class AdapterStateless extends Adapter {
             poa.the_POAManager().activate();
 
             Servant servant = tieLoader.loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getProxyInfo());
-            Remote obj = container.getEJBObject(null);
+            AdapterProxyFactory factory = new AdapterProxyFactory(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
+            Remote remote = (Remote) factory.create(container.getEJBObject(null));
+
             if (servant instanceof Tie) {
-                ((Tie) servant).setTarget(obj);
+                ((Tie) servant).setTarget(remote);
             }
 
             poa.activate_object_with_id(object_id = container.getContainerID().toString().getBytes(), servant);
             objectReference = poa.servant_to_reference(servant);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new CORBAException(e);
         }
     }
