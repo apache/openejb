@@ -108,29 +108,27 @@ Configuration for the Geronimo deployer
 
 
     <gbean namePart="Deployer" type="Deployer" class="org.apache.geronimo.deployment.Deployer">
-        <reference name="Builders">geronimo.server:j2eeType=ConfigBuilder,J2EEModule=org/apache/geronimo/J2EEDeployer,*</reference>
-        <reference name="Store">geronimo.server:j2eeType=ConfigurationStore,*</reference>
+        <reference name="Builders">openejb.deployer:j2eeType=ConfigBuilder,J2EEModule=org/apache/geronimo/J2EEDeployer,*</reference>
+        <reference name="Store">openejb.deployer:j2eeType=ConfigurationStore,*</reference>
     </gbean>
 
     <gbean namePart="ServiceBuilder" type="ConfigBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <attribute name="j2eeServer" type="javax.management.ObjectName">geronimo.server:j2eeType=J2EEServer,name=geronimo</attribute>
         <reference name="Repository">*:name=Repository,*</reference>
     </gbean>
 
     <gbean namePart="EARBuilder" type="ConfigBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <attribute name="j2eeServer">geronimo.server:j2eeType=J2EEServer,name=geronimo</attribute>
-        <attribute name="transactionContextManagerObjectName">geronimo.server:name=TransactionContextManager,*</attribute>
-        <attribute name="connectionTrackerObjectName">geronimo.server:name=ConnectionTracker,*</attribute>
-        <attribute name="transactionalTimerObjectName">geronimo.server:name=TransactionalThreadPooledTimer,*</attribute>
-        <attribute name="nonTransactionalTimerObjectName">geronimo.server:name=NonTransactionalThreadPooledTimer,*</attribute>
+        <attribute name="transactionContextManagerObjectName">openejb.server:name=TransactionContextManager,*</attribute>
+        <attribute name="connectionTrackerObjectName">openejb.server:name=ConnectionTracker,*</attribute>
+        <attribute name="transactionalTimerObjectName">openejb.server:name=TransactionalThreadPooledTimer,*</attribute>
+        <attribute name="nonTransactionalTimerObjectName">openejb.server:name=NonTransactionalThreadPooledTimer,*</attribute>
         <reference name="Repository">*:name=Repository,*</reference>
-        <reference name="EJBConfigBuilder">geronimo.server:name=EJBBuilder,J2EEModule=org/apache/geronimo/J2EEDeployer,*</reference>
-        <reference name="EJBReferenceBuilder">geronimo.server:name=EJBBuilder,J2EEModule=org/apache/geronimo/J2EEDeployer,*</reference>
-        <reference name="ConnectorConfigBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=ConnectorBuilder</reference>
-        <reference name="ResourceReferenceBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=ConnectorBuilder</reference>
-        <reference name="ServiceReferenceBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=WebServiceBuilder</reference>
+        <reference name="EJBConfigBuilder">openejb.deployer:name=EJBBuilder,J2EEModule=org/apache/geronimo/J2EEDeployer,*</reference>
+        <reference name="EJBReferenceBuilder">openejb.deployer:name=EJBBuilder,J2EEModule=org/apache/geronimo/J2EEDeployer,*</reference>
+        <reference name="ConnectorConfigBuilder">openejb.deployer:J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,J2EEServer=openejb,j2eeType=ModuleBuilder,name=ConnectorBuilder</reference>
+        <reference name="ResourceReferenceBuilder">openejb.deployer:J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,J2EEServer=openejb,j2eeType=ModuleBuilder,name=ConnectorBuilder</reference>
+        <reference name="ServiceReferenceBuilder">openejb.deployer:J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,J2EEServer=openejb,j2eeType=ModuleBuilder,name=WebServiceBuilder</reference>
     </gbean>
 
     <gbean namePart="EJBBuilder" type="ModuleBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">

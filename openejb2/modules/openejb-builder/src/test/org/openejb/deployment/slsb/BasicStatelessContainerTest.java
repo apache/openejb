@@ -147,7 +147,7 @@ public class BasicStatelessContainerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager("statelessSessionTest");
+        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
         DeploymentHelper.setUpTimer(kernel);
 
         StatelessContainerBuilder builder = new StatelessContainerBuilder();

@@ -35,7 +35,7 @@ Configuration for the CORBA server.
 
     <gbean name="geronimo.remoting:target=JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">
         <attribute name="bindURI" type="java.net.URI">tcp://0.0.0.0:4242</attribute>
-        <reference name="loginService">geronimo.server:name=JaasLoginService,*</reference>
+        <reference name="loginService">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JaasLoginService</reference>
     </gbean>
 
     <!-- public security realm -->
@@ -54,9 +54,9 @@ Configuration for the CORBA server.
            class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName" type="java.lang.String">public-properties-realm</attribute>
         <attribute name="loginModuleConfiguration" type="java.util.Properties">
-            LoginModule.1.REQUIRED=geronimo.server:j2eeType=LoginModule,J2EEServer=geronimo,J2EEApplication=null,J2EEModule=org/openejb/Security,name=public-login
+            LoginModule.1.REQUIRED=openejb.server:j2eeType=LoginModule,J2EEServer=openejb,J2EEApplication=null,J2EEModule=org/openejb/Security,name=public-login
         </attribute>
-        <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
+        <reference name="ServerInfo">openejb.server:name=ServerInfo,*</reference>
     </gbean>
 
     <gbean namePart="public" type="ConfigurationEntry"
@@ -81,9 +81,9 @@ Configuration for the CORBA server.
            class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName" type="java.lang.String">black-properties-realm</attribute>
         <attribute name="loginModuleConfiguration" type="java.util.Properties">
-            LoginModule.1.REQUIRED=geronimo.server:j2eeType=LoginModule,J2EEServer=geronimo,J2EEApplication=null,J2EEModule=org/openejb/Security,name=black-login
+            LoginModule.1.REQUIRED=openejb.server:j2eeType=LoginModule,J2EEServer=openejb,J2EEApplication=null,J2EEModule=org/openejb/Security,name=black-login
         </attribute>
-        <reference name="ServerInfo">geronimo.server:name=ServerInfo,*</reference>
+        <reference name="ServerInfo">openejb.server:name=ServerInfo,*</reference>
     </gbean>
 
     <gbean namePart="black" type="ConfigurationEntry"

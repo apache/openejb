@@ -82,6 +82,7 @@ import org.openejb.deployment.CMPEntityBuilderTestUtil;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.OpenEJBModuleBuilder;
+import org.openejb.deployment.KernelHelper;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.security.SecurityConfiguration;
 import org.openejb.transaction.ContainerPolicy;
@@ -153,7 +154,7 @@ public abstract class AbstractCMRTest extends TestCase {
         Connection c = ds.getConnection("root", null);
         buildDBSchema(c);
 
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager("ContainerManagedPersistenceTest");
+        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
         DeploymentHelper.setUpTimer(kernel);
 
         tm = (TransactionManager) kernel.getProxyManager().createProxy(DeploymentHelper.TRANSACTIONMANAGER_NAME, TransactionManager.class);
@@ -178,10 +179,8 @@ public abstract class AbstractCMRTest extends TestCase {
             EARContext earContext = new EARContext(tempDir,
                     new URI("test"),
                     ConfigurationModuleType.EJB,
-                    null,
-                    null,
-                    j2eeDomainName,
-                    j2eeServerName,
+                    KernelHelper.DEFAULT_PARENTID,
+                    kernel,
                     NameFactory.NULL,
                     null,
                     null,

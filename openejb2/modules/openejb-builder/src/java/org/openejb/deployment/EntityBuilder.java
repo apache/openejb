@@ -51,11 +51,12 @@ import java.net.URI;
 import java.security.Permissions;
 import java.util.Map;
 import java.util.Set;
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
@@ -77,7 +78,6 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
-import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 
@@ -101,7 +101,7 @@ class EntityBuilder extends BeanBuilder {
             ObjectName entityObjectName = createEJBObjectName(moduleJ2eeContext, entityBean);
 
             GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, transactionPolicyHelper, security, cl);
-            earContext.addGBean( entityGBean);
+            earContext.addGBean(entityGBean);
         }
     }
 
@@ -192,8 +192,8 @@ class EntityBuilder extends BeanBuilder {
 
         MessageDestinationRefType[] messageDestinationRefs = entityBean.getMessageDestinationRefArray();
         ServiceRefType[] serviceRefs = entityBean.getServiceRefArray();
-        
-        ReadOnlyContext context = ENCConfigBuilder.buildComponentContext(earContext, ejbModule.getModuleURI(), userTransaction, envEntries, ejbRefs, openejbEjbRefs, ejbLocalRefs, openejbEjbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, serviceRefs, cl);
+
+        ReadOnlyContext context = ENCConfigBuilder.buildComponentContext(earContext, ejbModule, userTransaction, envEntries, ejbRefs, openejbEjbRefs, ejbLocalRefs, openejbEjbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, serviceRefs, cl);
         builder.setComponentContext(context);
         ENCConfigBuilder.setResourceEnvironment(earContext, ejbModule.getModuleURI(), builder, resourceRefs, openejbResourceRefs);
 

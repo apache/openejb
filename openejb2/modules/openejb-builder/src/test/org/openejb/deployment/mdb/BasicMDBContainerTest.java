@@ -66,7 +66,7 @@ public class BasicMDBContainerTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager("MDBTest");
+        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
         DeploymentHelper.setUpTimer(kernel);
         DeploymentHelper.setUpResourceAdapter(kernel);
 

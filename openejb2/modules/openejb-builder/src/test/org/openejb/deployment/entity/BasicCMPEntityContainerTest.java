@@ -400,7 +400,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
 //        cmpConfig.relations = new CMRelation[]{};
 //        cmpConfig.schema = "Mock";
 
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager("ContainerManagedPersistenceTest");
+        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
         DeploymentHelper.setUpTimer(kernel);
 
 

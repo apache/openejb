@@ -134,7 +134,7 @@ public class BasicBMPEntityContainerTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        kernel = DeploymentHelper.setUpKernelWithTransactionManager("BeanManagedPersistenceTest");
+        kernel = DeploymentHelper.setUpKernelWithTransactionManager();
         DeploymentHelper.setUpTimer(kernel);
 
         BMPContainerBuilder builder = new BMPContainerBuilder();

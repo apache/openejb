@@ -113,9 +113,8 @@ public class DeploymentHelper {
         }
     }
 
-    public static Kernel setUpKernelWithTransactionManager(String kernelName) throws Exception {
-        Kernel kernel = new Kernel(kernelName);
-        kernel.boot();
+    public static Kernel setUpKernelWithTransactionManager() throws Exception {
+        Kernel kernel = KernelHelper.getPreparedKernel();
 
         GBeanData tmGBean = new GBeanData(TRANSACTIONMANAGER_NAME, TransactionManagerImpl.GBEAN_INFO);
         Set rmpatterns = new HashSet();

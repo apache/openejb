@@ -87,12 +87,19 @@ import org.tranql.sql.sql92.SQL92Schema;
  *
  * */
 public class CMPEntityBuilderTest extends TestCase {
-    private URI defaultParentId = null;
     private SkeletonGenerator skeletonGenerator = null;
     private Repository repository = null;
     private Kernel kernel = null;
 
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
+
+    protected void setUp() throws Exception {
+        kernel = KernelHelper.getPreparedKernel();
+    }
+
+    protected void tearDown() throws Exception {
+        kernel.shutdown();
+    }
 
     public void testOneToOne() throws Exception {
         executeOneToOne("src/test-cmp/onetoone/simplepk/ejb-jar.xml", "src/test-cmp/onetoone/simplepk/openejb-jar.xml");
@@ -108,7 +115,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, repository, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, skeletonGenerator, repository, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         
         GlobalSchema globalSchema = new GlobalSchema("Test");
@@ -120,10 +127,8 @@ public class CMPEntityBuilderTest extends TestCase {
             EARContext earContext = new EARContext(tempDir,
                     new URI("test"),
                     ConfigurationModuleType.EJB,
-                    null,
-                    null,
-                    "geronimo.server",
-                    "TestGeronimoServer",
+                    KernelHelper.DEFAULT_PARENTID,
+                    kernel,
                     "null",
                     null,
                     null,
@@ -155,7 +160,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, repository, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, skeletonGenerator, repository, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         
         GlobalSchema globalSchema = new GlobalSchema("Test");
@@ -167,10 +172,8 @@ public class CMPEntityBuilderTest extends TestCase {
             EARContext earContext = new EARContext(tempDir,
                     new URI("test"),
                     ConfigurationModuleType.EJB,
-                    null,
-                    null,
-                    "geronimo.server",
-                    "TestGeronimoServer",
+                    KernelHelper.DEFAULT_PARENTID,
+                    kernel,
                     "null",
                     null,
                     null,
@@ -203,7 +206,7 @@ public class CMPEntityBuilderTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
         
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator, repository, kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, skeletonGenerator, repository, kernel);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
         
         GlobalSchema globalSchema = new GlobalSchema("Test");
@@ -215,10 +218,8 @@ public class CMPEntityBuilderTest extends TestCase {
             EARContext earContext = new EARContext(tempDir,
                     new URI("test"),
                     ConfigurationModuleType.EJB,
-                    null,
-                    null,
-                    "geronimo.server",
-                    "TestGeronimoServer",
+                    KernelHelper.DEFAULT_PARENTID,
+                    kernel,
                     "null",
                     null,
                     null,
