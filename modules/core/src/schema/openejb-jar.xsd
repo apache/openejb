@@ -158,11 +158,38 @@
 
             <xs:element name="resource-adapter-name" type="xs:string"/>
             <xs:element name="activation-spec-class" type="xs:string"/>
+            <xs:element name="activation-config"
+                type="openejb:activation-configType"
+                minOccurs="0"/>
 
             <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
             <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
         </xs:sequence>
         <xs:attribute name="id" type="xs:ID"/>
     </xs:complexType>
+
+    <xs:complexType name="activation-configType">
+        <xs:sequence>
+            <xs:element name="description"
+                type="xs:string"
+                minOccurs="0"
+                maxOccurs="unbounded"/>
+            <xs:element name="activation-config-property"
+                type="openejb:activation-config-propertyType"
+                maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="activation-config-propertyType">
+        <xs:sequence>
+            <xs:element name="activation-config-property-name"
+                type="xs:string">
+            </xs:element>
+            <xs:element name="activation-config-property-value"
+                type="xs:string">
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
 
 </xs:schema>
