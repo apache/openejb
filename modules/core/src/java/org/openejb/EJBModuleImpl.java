@@ -56,11 +56,12 @@ import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.jmx.GBeanMBeanContext;
 import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.j2ee.management.impl.Util;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.entity.cmp.ConnectionProxyFactory;
 import org.tranql.query.ConnectionFactoryDelegate;
 
@@ -68,15 +69,26 @@ import org.tranql.query.ConnectionFactoryDelegate;
  * @version $Revision$ $Date$
  */
 public class EJBModuleImpl implements GBean {
+    private final Kernel kernel;
+    private final String baseName;
     private final J2EEServer server;
     private final J2EEApplication application;
     private final String deploymentDescriptor;
     private final ConnectionFactoryDelegate delegate;
     private final ConnectionProxyFactory connectionFactory;
-    private GBeanContext context;
-    private String baseName;
 
-    public EJBModuleImpl(J2EEServer server, J2EEApplication application, String deploymentDescriptor, ConnectionFactoryDelegate delegate, ConnectionProxyFactory connectionFactory) {
+    public EJBModuleImpl(Kernel kernel, String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, ConnectionFactoryDelegate delegate, ConnectionProxyFactory connectionFactory) {
+        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+        verifyObjectName(myObjectName);
+
+        // build the base name used to query the server for child modules
+        Hashtable keyPropertyList = myObjectName.getKeyPropertyList();
+        String name = (String) keyPropertyList.get("name");
+        String j2eeServerName = (String) keyPropertyList.get("J2EEServer");
+        String j2eeApplicationName = (String) keyPropertyList.get("J2EEServer");
+        baseName = myObjectName.getDomain() + ":J2EEServer=" + j2eeServerName + ",J2EEApplication=" + j2eeApplicationName + ",EJBModule=" + name + ",";
+
+        this.kernel = kernel;
         this.server = server;
         this.application = application;
         this.deploymentDescriptor = deploymentDescriptor;
@@ -104,26 +116,9 @@ public class EJBModuleImpl implements GBean {
     }
 
     public String[] getEJBs() throws MalformedObjectNameException {
-        return Util.getObjectNames(((GBeanMBeanContext) context).getServer(),
+        return Util.getObjectNames(kernel,
                 baseName,
                 new String[]{"EntityBean", "StatelessSessionBean", "StatefulSessionBean", "MessageDrivenBean"});
-    }
-
-    public void setGBeanContext(GBeanContext context) {
-        this.context = context;
-        if (context != null) {
-            ObjectName objectName = context.getObjectName();
-            verifyObjectName(objectName);
-
-            // build the base name used to query the server for child modules
-            Hashtable keyPropertyList = objectName.getKeyPropertyList();
-            String name = (String) keyPropertyList.get("name");
-            String j2eeServerName = (String) keyPropertyList.get("J2EEServer");
-            String j2eeApplicationName = (String) keyPropertyList.get("J2EEServer");
-            baseName = objectName.getDomain() + ":J2EEServer=" + j2eeServerName + ",J2EEApplication=" + j2eeApplicationName + ",EJBModule=" + name + ",";
-        } else {
-            baseName = null;
-        }
     }
 
     /**
@@ -151,6 +146,9 @@ public class EJBModuleImpl implements GBean {
         if (keyPropertyList.size() != 4) {
             throw new InvalidObjectNameException("EJBModule object name can only have j2eeType, name, J2EEApplication, and J2EEServer properties", objectName);
         }
+    }
+
+    public void setGBeanContext(GBeanContext context) {
     }
 
     public void doStart() throws WaitingException, Exception {
@@ -182,12 +180,21 @@ public class EJBModuleImpl implements GBean {
         infoFactory.addReference("ConnectionFactory", ConnectionProxyFactory.class);
         infoFactory.addAttribute("Delegate", ConnectionFactoryDelegate.class, true);
 
+        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("server", String.class, false);
         infoFactory.addAttribute("application", String.class, false);
         infoFactory.addAttribute("javaVMs", String[].class, false);
         infoFactory.addAttribute("ejbs", String[].class, false);
 
-        infoFactory.setConstructor(new String[]{"J2EEServer", "J2EEApplication", "deploymentDescriptor", "Delegate", "ConnectionFactory"});
+        infoFactory.setConstructor(new String[]{
+            "kernel",
+            "objectName",
+            "J2EEServer",
+            "J2EEApplication",
+            "deploymentDescriptor",
+            "Delegate",
+            "ConnectionFactory"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
