@@ -244,6 +244,9 @@ public class GenericEJBContainer implements EJBContainer {
         infoFactory.addReference("transactionManager", TransactionManager.class);
         infoFactory.addReference("trackedConnectionAssociator", TrackedConnectionAssociator.class);
 
+        infoFactory.addAttribute("EJBHome", false);
+        infoFactory.addAttribute("EJBLocalHome", false);
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

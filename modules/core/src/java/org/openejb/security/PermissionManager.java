@@ -48,6 +48,7 @@
 package org.openejb.security;
 
 import java.security.Permission;
+import java.io.Serializable;
 import javax.security.jacc.EJBMethodPermission;
 
 import org.openejb.EJBInterfaceType;
@@ -56,7 +57,7 @@ import org.openejb.dispatch.InterfaceMethodSignature;
 /**
  * @version $Revision$ $Date$
  */
-public final class PermissionManager {
+public final class PermissionManager implements Serializable {
     private final Permission[][] permissions = new Permission[EJBInterfaceType.MAX_ORDINAL][];
 
     public PermissionManager(String ejbName, InterfaceMethodSignature[] signatures) {

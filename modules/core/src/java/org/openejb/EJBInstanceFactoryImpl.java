@@ -48,24 +48,24 @@
 package org.openejb;
 
 import java.lang.reflect.InvocationTargetException;
+import java.io.Serializable;
 import javax.ejb.EnterpriseBean;
 
 import net.sf.cglib.reflect.FastClass;
+import org.openejb.transaction.ContainerPolicy;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public class EJBInstanceFactoryImpl implements EJBInstanceFactory {
-    private final FastClass implClass;
+public class EJBInstanceFactoryImpl implements EJBInstanceFactory, Serializable {
+    private final Class beanClass;
+    private transient final FastClass implClass;
 
     public EJBInstanceFactoryImpl(Class beanClass) {
+        this.beanClass = beanClass;
         implClass = FastClass.create(beanClass);
-    }
-
-    public EJBInstanceFactoryImpl(FastClass implClass) {
-        this.implClass = implClass;
     }
 
     public FastClass getImplClass() {
@@ -85,5 +85,9 @@ public class EJBInstanceFactoryImpl implements EJBInstanceFactory {
                 throw e;
             }
         }
+    }
+
+    private Object readResolve() {
+        return new EJBInstanceFactoryImpl(beanClass);
     }
 }

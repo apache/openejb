@@ -48,10 +48,7 @@
 
 package org.openejb.deployment;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -65,9 +62,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
-import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.transaction.UserTransaction;
@@ -93,19 +88,18 @@ import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 import org.openejb.EJBModule;
 import org.openejb.slsb.StatelessContainerBuilder;
 import org.openejb.transaction.EJBUserTransaction;
+import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbGbeanType;
 import org.openejb.xbeans.ejbjar.OpenejbLocalRefType;
+import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
-import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
-import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 
 /**
  *
@@ -159,7 +153,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         }
         FileInputStream is = new FileInputStream(module);
         try {
-            buildConfiguration(outfile, new JarInputStream(new BufferedInputStream(is)), plan);
+            buildConfiguration(outfile, is, plan);
             return;
         } finally {
             try {
@@ -170,8 +164,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public void buildConfiguration(File outfile, JarInputStream module, XmlObject plan) throws IOException, DeploymentException {
-        EjbJarType ejbJar = null;
+    public void buildConfiguration(File outfile, InputStream module, XmlObject plan) throws IOException, DeploymentException {
         OpenejbOpenejbJarType openejbEjbJar = ((OpenejbOpenejbJarDocument) plan).getOpenejbJar();
         URI configID = getConfigID(openejbEjbJar);
         URI parentID = getParentID(openejbEjbJar);
@@ -185,31 +178,9 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException(e);
             }
+            context.addStreamInclude(URI.create("ejb.jar"), module);
 
-            // add the jarfile's content to the configuration
-            ZipEntry src;
-            while ((src = module.getNextEntry()) != null) {
-                URI target = URI.create(src.getName());
-                if ("META-INF/ejb-jar.xml".equals(src.getName())) {
-                    byte[] buffer = getBytes(module);
-                    context.addFile(target, new ByteArrayInputStream(buffer));
-                    try {
-                        EjbJarDocument doc = (EjbJarDocument) XmlBeansUtil.parse(new ByteArrayInputStream(buffer), EjbJarDocument.type);
-                        ejbJar = doc.getEjbJar();
-                    } catch (XmlException e) {
-                        throw new DeploymentException("Unable to parse ejb-jar.xml");
-                    }
-                } else {
-                    context.addFile(target, module);
-                }
-            }
-
-            if (ejbJar == null) {
-                throw new DeploymentException("Did not find META-INF/ejb-jar.xml in module");
-            }
-
-            buildGBeanConfiguration(context, openejbEjbJar, ejbJar);
-
+            buildGBeanConfiguration(context, openejbEjbJar);
 
             context.close();
             os.flush();
@@ -218,14 +189,24 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    private void buildGBeanConfiguration(DeploymentContext context, OpenejbOpenejbJarType openejbEjbJar, EjbJarType ejbJar) throws DeploymentException {
+    private void buildGBeanConfiguration(DeploymentContext context, OpenejbOpenejbJarType openejbEjbJar) throws DeploymentException {
         ClassLoader cl = context.getClassLoader(repository);
+
+        // load the ejb-jar.xml deployement descriptor
+        URL ejbJarXml = cl.getResource("META-INF/ejb-jar.xml");
+        if (ejbJarXml == null) {
+            throw new DeploymentException("Module does not contain the ejb-jar.xml deployment descriptor");
+        }
+        EjbJarDocument doc = (EjbJarDocument) XmlBeansUtil.getXmlObject(ejbJarXml, EjbJarDocument.type);
+        if (doc == null) {
+            throw new DeploymentException("The ejb-jar.xml deployment descriptor is not valid");
+        }
+        EjbJarType ejbJar = doc.getEjbJar();
 
         OpenejbGbeanType[] gbeans = openejbEjbJar.getGbeanArray();
         for (int i = 0; i < gbeans.length; i++) {
             GBeanHelper.addGbean(new OpenEJBGBeanAdapter(gbeans[i]), cl, context);
         }
-
 
         // add the GBean
         addGBeans(context, ejbJar, openejbEjbJar, cl);
@@ -361,10 +342,10 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
 
         Properties nameProps = new Properties();
         nameProps.put("j2eeType", type);
-        nameProps.put("name", ejbName);
         nameProps.put("J2EEServer", serverName);
         nameProps.put("J2EEApplication", applicationName);
         nameProps.put("J2EEModule", moduleName);
+        nameProps.put("name", ejbName);
 
         try {
             return new ObjectName(domainName, nameProps);
@@ -439,15 +420,15 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         return configID;
     }
 
-    private byte[] getBytes(InputStream is) throws IOException {
-        byte[] buffer = new byte[4096];
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        int count;
-        while ((count = is.read(buffer)) > 0) {
-            baos.write(buffer, 0, count);
-        }
-        return baos.toByteArray();
-    }
+//    private byte[] getBytes(InputStream is) throws IOException {
+//        byte[] buffer = new byte[4096];
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        int count;
+//        while ((count = is.read(buffer)) > 0) {
+//            baos.write(buffer, 0, count);
+//        }
+//        return baos.toByteArray();
+//    }
 
     private String getJ2eeStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
         if (string == null) {

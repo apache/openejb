@@ -47,22 +47,36 @@
  */
 package org.openejb.deployment;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import javax.ejb.EJBHome;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.common.xml.XmlBeansUtil;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.system.configuration.LocalConfigStore;
+import org.apache.geronimo.transaction.TransactionManagerProxy;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 
 import junit.framework.TestCase;
+import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public class EJBConfigBuilderTest extends TestCase {
@@ -93,6 +107,89 @@ public class EJBConfigBuilderTest extends TestCase {
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }
+    }
 
+    public void testBuildConfiguration() throws Exception {
+        EJBConfigBuilder configBuilder = new EJBConfigBuilder(null, null);
+        File ejbJarFile = new File("target/test-ejb-jar.jar");
+
+        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+        ClassLoader cl = new URLClassLoader(new URL[] {ejbJarFile.toURL()}, oldCl);
+        URL ejbJarXml = cl.getResource("META-INF/openejb-jar.xml");
+
+        OpenejbOpenejbJarDocument plan = (OpenejbOpenejbJarDocument) XmlBeansUtil.getXmlObject(ejbJarXml, OpenejbOpenejbJarDocument.type);
+
+        File carFile = File.createTempFile("OpenEJBTest", ".car");
+        Kernel kernel  = null;
+        try {
+            configBuilder.buildConfiguration(carFile, ejbJarFile, plan);
+
+            File tempdir = new File(System.getProperty("java.io.tmpdir"));
+            File unpackedDir = new File(tempdir, "OpenEJBTest-Unpacked");
+            LocalConfigStore.unpack(unpackedDir, new FileInputStream(carFile));
+
+            GBeanMBean config = loadConfig(unpackedDir);
+
+            kernel = new Kernel("blah");
+            kernel.boot();
+
+            GBeanMBean tmGBean = new GBeanMBean(TransactionManagerProxy.GBEAN_INFO);
+            ObjectName tmObjectName = ObjectName.getInstance("openejb:type=TransactionManager");
+            kernel.loadGBean(tmObjectName, tmGBean);
+            kernel.startGBean(tmObjectName);
+            assertRunning(kernel, tmObjectName);
+
+            GBeanMBean connectionTrackerGBean = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
+            ObjectName connectionTrackerObjectName = ObjectName.getInstance("openejb:type=ConnectionTracker");
+            kernel.loadGBean(connectionTrackerObjectName, connectionTrackerGBean);
+            kernel.startGBean(connectionTrackerObjectName);
+            assertRunning(kernel, connectionTrackerObjectName);
+
+            ObjectName objectName = ObjectName.getInstance("test:configuration=test-ejb-jar");
+            kernel.loadGBean(objectName, config);
+            config.setAttribute("BaseURL", unpackedDir.toURL());
+
+            kernel.startRecursiveGBean(objectName);
+            assertRunning(kernel, objectName);
+
+            ObjectName moduleName = ObjectName.getInstance("openejb:j2eeType=EJBModule,J2EEServer=null,J2EEApplication=null,name=org/openejb/itests");
+            assertRunning(kernel, moduleName);
+
+            ObjectName sessionBeanName = ObjectName.getInstance("openejb:j2eeType=StatelessSessionBean,J2EEServer=null,J2EEApplication=null,J2EEModule=org/openejb/itests,name=SimpleStatelessSession");
+            assertRunning(kernel, sessionBeanName);
+
+            // use reflection to invoke a method on the session bean, becuase we don't have access to the classes here
+            Object home = kernel.getAttribute(sessionBeanName, "EJBHome");
+            assertTrue("Home is not an instance of EJBHome", home instanceof EJBHome);
+            Object session = home.getClass().getMethod("create", null).invoke(home, null);
+            assertEquals("TestResult", session.getClass().getMethod("echo", new Class[] {String.class}).invoke(session, new Object[] {"TestResult"}));
+
+            kernel.stopGBean(objectName);
+            kernel.stopGBean(connectionTrackerObjectName);
+            kernel.stopGBean(tmObjectName);
+        } finally {
+            if (kernel != null) {
+                kernel.shutdown();
+            }
+            carFile.delete();
+        }
+    }
+
+    private void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
+        int state = ((Integer)kernel.getAttribute(objectName, "state")).intValue();
+        assertEquals(State.RUNNING_INDEX, state);
+    }
+
+    private GBeanMBean loadConfig(File unpackedCar) throws Exception {
+        InputStream in = new FileInputStream(new File(unpackedCar, "META-INF/config.ser"));
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(in));
+            GBeanInfo gbeanInfo = Configuration.GBEAN_INFO;
+            GBeanMBean config = new GBeanMBean(gbeanInfo);
+            Configuration.loadGMBeanState(config, ois);
+            return config;
+        } finally {
+            in.close();
+        }
     }
 }

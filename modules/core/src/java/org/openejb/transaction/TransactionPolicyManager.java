@@ -47,6 +47,8 @@
  */
 package org.openejb.transaction;
 
+import java.io.Serializable;
+
 import org.openejb.EJBInterfaceType;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -54,7 +56,7 @@ import org.openejb.dispatch.InterfaceMethodSignature;
 /**
  * @version $Revision$ $Date$
  */
-public final class TransactionPolicyManager {
+public final class TransactionPolicyManager implements Serializable {
     private final TransactionPolicy[][] transactionPolicy = new TransactionPolicy[EJBInterfaceType.MAX_ORDINAL][];
 
     public TransactionPolicyManager(TransactionPolicySource transactionPolicySource, InterfaceMethodSignature[] signatures) {

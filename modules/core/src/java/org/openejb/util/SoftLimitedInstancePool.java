@@ -48,6 +48,7 @@
 package org.openejb.util;
 
 import java.util.LinkedList;
+import java.io.Serializable;
 
 import org.openejb.cache.InstanceFactory;
 import org.openejb.cache.InstancePool;
@@ -57,10 +58,10 @@ import org.openejb.cache.InstancePool;
  *
  * @version $Revision$ $Date$
  */
-public final class SoftLimitedInstancePool implements InstancePool {
+public final class SoftLimitedInstancePool implements InstancePool, Serializable {
     private final InstanceFactory factory;
     private final int maxSize;
-    private final LinkedList pool;
+    private transient final LinkedList pool;
 
     public SoftLimitedInstancePool(final InstanceFactory factory, final int maxSize) {
         this.factory = factory;
@@ -116,6 +117,10 @@ public final class SoftLimitedInstancePool implements InstancePool {
             // we prefer other users get older instances first
             pool.addLast(instance);
         }
+    }
+
+    private Object readResolve() {
+        return new SoftLimitedInstancePool(factory, maxSize);
     }
 }
 

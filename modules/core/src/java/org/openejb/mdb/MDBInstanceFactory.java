@@ -81,7 +81,7 @@ public class MDBInstanceFactory implements InstanceFactory {
 
         implClass = FastClass.create(container.getBeanClass());
         createIndex = implClass.getIndex("ejbCreate", new Class[0]);
-        factory = new EJBInstanceFactoryImpl(implClass);
+        factory = new EJBInstanceFactoryImpl(container.getBeanClass());
     }
 
     public Object createInstance() throws Exception {

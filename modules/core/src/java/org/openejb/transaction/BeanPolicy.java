@@ -107,11 +107,17 @@ public class BeanPolicy {
                 }
             }
         }
+        private Object readResolve() {
+            return Stateless;
+        }
     };
 
     public static final TransactionPolicy Stateful = new TransactionPolicy() {
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
             throw new IllegalStateException("Not yet implemented");
+        }
+        private Object readResolve() {
+            return Stateful;
         }
     };
 }
