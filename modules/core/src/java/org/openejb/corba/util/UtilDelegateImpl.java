@@ -133,14 +133,13 @@ public final class UtilDelegateImpl implements UtilDelegate {
 
     public void writeRemoteObject(OutputStream out, Object obj) {
         try {
-            if (obj != null && obj instanceof java.rmi.Remote)
-                out.write_Object(handleRemoteObject(out, (Remote) obj));
-            else if (obj == null || obj instanceof org.omg.CORBA.Object)
-                out.write_Object((org.omg.CORBA.Object) obj);
-            else {
-                log.error("Encountered unknown object reference of type " + obj.getClass() + ":" + obj);
-                throw new MARSHAL("Internal server error while marshaling the reply", 0, CompletionStatus.COMPLETED_YES);
+            if (obj instanceof Tie && ((Tie) obj).getTarget() instanceof BaseEJB) {
+                obj = ((Tie) obj).getTarget();
             }
+            if (obj instanceof BaseEJB) {
+                obj = convertEJBToCORBAObject((BaseEJB) obj);
+            }
+            delegate.writeRemoteObject(out, obj);
         } catch (Throwable e) {
             log.error("Received unexpected exception while marshaling an object reference:", e);
             throw new MARSHAL("Internal server error while marshaling the reply", 0, CompletionStatus.COMPLETED_YES);
@@ -161,25 +160,25 @@ public final class UtilDelegateImpl implements UtilDelegate {
 
     public RemoteException mapSystemException(SystemException ex) {
         if (ex instanceof TRANSACTION_ROLLEDBACK) {
-            return new TransactionRolledbackException(((TRANSACTION_ROLLEDBACK) ex).getMessage());
+            return new TransactionRolledbackException(ex.getMessage());
         }
         if (ex instanceof TRANSACTION_REQUIRED) {
-            return new TransactionRequiredException(((TRANSACTION_REQUIRED) ex).getMessage());
+            return new TransactionRequiredException(ex.getMessage());
         }
         if (ex instanceof INVALID_TRANSACTION) {
-            return new InvalidTransactionException(((INVALID_TRANSACTION) ex).getMessage());
+            return new InvalidTransactionException(ex.getMessage());
         }
         if (ex instanceof OBJECT_NOT_EXIST) {
-            return new NoSuchObjectException(((OBJECT_NOT_EXIST) ex).getMessage());
+            return new NoSuchObjectException(ex.getMessage());
         }
         if (ex instanceof NO_PERMISSION) {
-            return new AccessException(((NO_PERMISSION) ex).getMessage());
+            return new AccessException(ex.getMessage());
         }
         if (ex instanceof MARSHAL) {
-            return new MarshalException(((MARSHAL) ex).getMessage());
+            return new MarshalException(ex.getMessage());
         }
         if (ex instanceof UNKNOWN) {
-            return new RemoteException(((UNKNOWN) ex).getMessage());
+            return new RemoteException(ex.getMessage());
         }
         return delegate.mapSystemException(ex);
     }
@@ -224,19 +223,7 @@ public final class UtilDelegateImpl implements UtilDelegate {
     /**
      * handle activation
      */
-    protected org.omg.CORBA.Object handleRemoteObject(org.omg.CORBA.portable.OutputStream out, Remote remote) {
-        BaseEJB proxy;
-        if (remote instanceof Tie) {
-            proxy = (BaseEJB) ((Tie) remote).getTarget();
-        } else if (remote instanceof Stub) {
-            return (Stub) remote;
-        } else if (BaseEJB.class.isAssignableFrom(remote.getClass())) {
-            proxy = (BaseEJB) remote;
-        } else {
-            log.error("Encountered unknown object reference of type " + remote);
-            throw new MARSHAL("Internal server error while marshaling the reply", 0, CompletionStatus.COMPLETED_YES);
-        }
-
+    private org.omg.CORBA.Object convertEJBToCORBAObject(BaseEJB proxy) {
         ProxyInfo pi = proxy.getProxyInfo();
         try {
             RefGenerator refGenerator = AdapterWrapper.getRefGenerator(pi.getContainerID());
