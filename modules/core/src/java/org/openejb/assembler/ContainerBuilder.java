@@ -50,23 +50,20 @@ import java.util.Properties;
 import javax.ejb.EJBHome;
 import javax.naming.Context;
 import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.NamingEnumeration;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-
+import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.openejb.ContainerIndex;
 import org.openejb.EJBComponentType;
 import org.openejb.EJBContainer;
 import org.openejb.GenericEJBContainer;
-import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.entity.bmp.BMPContainerBuilder;
 import org.openejb.sfsb.StatefulContainerBuilder;
 import org.openejb.slsb.StatelessContainerBuilder;
-
-import org.apache.geronimo.transaction.UserTransactionImpl;
 
 public class ContainerBuilder implements RpcContainer {
 
@@ -330,7 +327,6 @@ public class ContainerBuilder implements RpcContainer {
         }
         builder.setComponentContext(new ReadOnlyContextWrapper(deploymentInfo.getJndiEnc(), userTransaction));
         builder.setJndiNames(new String[]{deploymentInfo.getDeploymentID().toString()});
-
         return (GenericEJBContainer) builder.createContainer();
     }
 
@@ -353,10 +349,10 @@ public class ContainerBuilder implements RpcContainer {
     static class ReadOnlyContextWrapper extends ReadOnlyContext {
         public ReadOnlyContextWrapper(Context ctx, UserTransaction userTransaction) throws NamingException {
             super();
-            NamingEnumeration enum = ctx.list("");
+            NamingEnumeration e = ctx.list("");
 
-            while (enum.hasMoreElements()) {
-                NameClassPair pair = (NameClassPair) enum.next();
+            while (e.hasMoreElements()) {
+                NameClassPair pair = (NameClassPair) e.next();
 
                 String name = pair.getName();
                 Object value = ctx.lookup(name);
@@ -370,5 +366,3 @@ public class ContainerBuilder implements RpcContainer {
         }
     }
 }
-
-

@@ -588,10 +588,10 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
     private Map getDeployments(OpenejbJar j) throws OpenEJBException {
         HashMap map = new HashMap(j.getEjbDeploymentCount());
-        Enumeration enum = j.enumerateEjbDeployment();
+        Enumeration e = j.enumerateEjbDeployment();
 
-        while (enum.hasMoreElements()) {
-            EjbDeployment d = (EjbDeployment) enum.nextElement();
+        while (e.hasMoreElements()) {
+            EjbDeployment d = (EjbDeployment) e.nextElement();
             map.put(d.getEjbName(), d);
         }
 

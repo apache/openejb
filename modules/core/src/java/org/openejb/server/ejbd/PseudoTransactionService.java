@@ -47,14 +47,14 @@ package org.openejb.server.ejbd;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import javax.transaction.RollbackException;
 import javax.transaction.Status;
-import javax.transaction.Synchronization;
 import javax.transaction.Synchronization;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import javax.transaction.RollbackException;
 import javax.transaction.UserTransaction;
 import javax.transaction.xa.XAResource;
+
 import org.openejb.spi.TransactionService;
 
 public class PseudoTransactionService implements TransactionService {
@@ -163,10 +163,10 @@ public class PseudoTransactionService implements TransactionService {
         
         // the transaciton must be NOT be rolleback for this method to execute.
         private void doBeforeCompletion(){
-            Enumeration enum = registeredSynchronizations.elements();
-            while(enum.hasMoreElements()){
+            Enumeration e = registeredSynchronizations.elements();
+            while(e.hasMoreElements()){
                 try{
-                Synchronization sync = (Synchronization)enum.nextElement();
+                Synchronization sync = (Synchronization)e.nextElement();
                 sync.beforeCompletion();
                 }catch(RuntimeException re){
                     re.printStackTrace();
@@ -174,10 +174,10 @@ public class PseudoTransactionService implements TransactionService {
             }
         }
         private void doAfterCompletion(int status){
-            Enumeration enum = registeredSynchronizations.elements();
-            while(enum.hasMoreElements()){
+            Enumeration e = registeredSynchronizations.elements();
+            while(e.hasMoreElements()){
                 try{
-                Synchronization sync = (Synchronization)enum.nextElement();
+                Synchronization sync = (Synchronization)e.nextElement();
                 sync.afterCompletion(status);
                 }catch(RuntimeException re){
                     re.printStackTrace();

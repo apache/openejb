@@ -355,15 +355,15 @@ public abstract class WebAdminBean implements HttpBean {
         try{
             Context ctx = org.openejb.OpenEJB.getJNDIContext();
             ctx = (Context) ctx.lookup("openejb/ejb");
-            NamingEnumeration enum = ctx.list("");
-            //System.out.println("\n\nENUM "+enum);
+            NamingEnumeration ne = ctx.list("");
+            //System.out.println("\n\nENUM "+ne);
             
-            if ( enum == null){
+            if ( ne == null){
                 return sections;
             }
 
-            while (enum.hasMore()) {
-                NameClassPair entry = (NameClassPair)enum.next();
+            while (ne.hasMore()) {
+                NameClassPair entry = (NameClassPair)ne.next();
                 //System.out.println("ITEM NAME  "+entry.getName());
                 //System.out.println("ITEM CLASS "+entry.getClassName());
                 if ( !entry.getClassName().equals("org.openejb.core.ivm.naming.IvmContext") ) {
@@ -385,14 +385,14 @@ public abstract class WebAdminBean implements HttpBean {
     private String[] getSubsections(Context ctx){
         ArrayList sections = new ArrayList();
         try{
-            NamingEnumeration enum = ctx.list("");
+            NamingEnumeration ne = ctx.list("");
             
-            if ( enum == null){
+            if ( ne == null){
                 return new String[0];
             }
 
-            while (enum.hasMore()) {
-                NameClassPair entry = (NameClassPair)enum.next();
+            while (ne.hasMore()) {
+                NameClassPair entry = (NameClassPair)ne.next();
                 //System.out.println("ITEM NAME  "+entry.getName());
                 //System.out.println("ITEM CLASS "+entry.getClassName());
                 if ( !entry.getClassName().equals("org.openejb.core.stateless.EncReference") ) {
