@@ -90,17 +90,12 @@ public class ContainerPolicy {
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
-                    beanContext.commit();
                     return result;
-                } catch (RollbackException re) {
-                    throw re;
                 } catch (Throwable t) {
-                    try {
-                        beanContext.rollback();
-                    } catch (Exception e) {
-                        log.warn("Unable to roll back", e);
-                    }
+                    beanContext.setRollbackOnly();
                     throw t;
+                } finally {
+                    beanContext.commit();
                 }
             } finally {
                 ejbInvocation.setTransactionContext(null);
@@ -126,7 +121,7 @@ public class ContainerPolicy {
                     ejbInvocation.setTransactionContext(callerContext);
                     return interceptor.invoke(ejbInvocation);
                 } catch (Throwable t){
-                    ((InheritableTransactionContext) callerContext).setRollbackOnly();
+                    callerContext.setRollbackOnly();
                     if (ejbInvocation.getType().isLocal()) {
                         throw new TransactionRolledbackLocalException().initCause(t);
                     } else {
@@ -146,17 +141,18 @@ public class ContainerPolicy {
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
-                    beanContext.commit();
                     return result;
                 } catch (RollbackException re) {
                     throw re;
                 } catch (Throwable t) {
                     try {
-                        beanContext.rollback();
+                        beanContext.setRollbackOnly();
                     } catch (Exception e) {
                         log.warn("Unable to roll back", e);
                     }
                     throw t;
+                } finally {
+                    beanContext.commit();
                 }
             } finally {
                 ejbInvocation.setTransactionContext(null);
@@ -183,7 +179,7 @@ public class ContainerPolicy {
                     ejbInvocation.setTransactionContext(callerContext);
                     return interceptor.invoke(ejbInvocation);
                 } catch (Throwable t){
-                    ((InheritableTransactionContext) callerContext).setRollbackOnly();
+                    callerContext.setRollbackOnly();
                     if (ejbInvocation.getType().isLocal()) {
                         throw new TransactionRolledbackLocalException().initCause(t);
                     } else {
@@ -203,17 +199,12 @@ public class ContainerPolicy {
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
-                    beanContext.commit();
                     return result;
-                } catch (RollbackException re) {
-                    throw re;
                 } catch (Throwable t) {
-                    try {
-                        beanContext.rollback();
-                    } catch (Exception e) {
-                        log.warn("Unable to roll back", e);
-                    }
+                    beanContext.setRollbackOnly();
                     throw t;
+                } finally {
+                    beanContext.commit();
                 }
             } finally {
                 ejbInvocation.setTransactionContext(null);
@@ -244,17 +235,18 @@ public class ContainerPolicy {
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
-                    beanContext.commit();
                     return result;
                 } catch (RollbackException re) {
                     throw re;
                 } catch (Throwable t) {
                     try {
-                        beanContext.rollback();
+                        beanContext.setRollbackOnly();
                     } catch (Exception e) {
                         log.warn("Unable to roll back", e);
                     }
                     throw t;
+                } finally {
+                    beanContext.commit();
                 }
             } finally {
                 ejbInvocation.setTransactionContext(null);
@@ -290,7 +282,7 @@ public class ContainerPolicy {
                 ejbInvocation.setTransactionContext(callerContext);
                 return interceptor.invoke(ejbInvocation);
             } catch (Throwable t) {
-                ((InheritableTransactionContext) callerContext).setRollbackOnly();
+                callerContext.setRollbackOnly();
                 if (ejbInvocation.getType().isLocal()) {
                     throw new TransactionRolledbackLocalException().initCause(t);
                 } else {
@@ -331,17 +323,12 @@ public class ContainerPolicy {
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
-                    beanContext.commit();
                     return result;
-                } catch (RollbackException re) {
-                    throw re;
                 } catch (Throwable t) {
-                    try {
-                        beanContext.rollback();
-                    } catch (Exception e) {
-                        log.warn("Unable to roll back", e);
-                    }
+                    beanContext.setRollbackOnly();
                     throw t;
+                } finally {
+                    beanContext.commit();
                 }
             } finally {
                 ejbInvocation.setTransactionContext(null);

@@ -87,11 +87,13 @@ public class EntityInstanceFactory implements InstanceFactory, Serializable {
             try {
                 ctx.setContext();
             } catch (Throwable t) {
-                //TODO check this error handling
+                ctx.die();
                 if (t instanceof Exception) {
                     throw (Exception) t;
-                } else {
+                } else if (t instanceof Error) {
                     throw (Error) t;
+                } else {
+                    throw new Error(t);
                 }
             }
 

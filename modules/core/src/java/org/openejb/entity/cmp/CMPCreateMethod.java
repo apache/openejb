@@ -202,6 +202,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
         ctx.setId(primaryKeyTransform.getDomainIdentity(globalId));
 
         // associate the new cmp instance with the tx context
+        ctx.setLoaded(true);
         transactionContext.associate(ctx);
 
         // call the post create method

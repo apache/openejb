@@ -48,7 +48,6 @@
 package org.openejb.slsb;
 
 import java.util.Set;
-
 import javax.ejb.SessionBean;
 import javax.xml.rpc.handler.MessageContext;
 
@@ -56,11 +55,12 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.AbstractInstanceContext;
-import org.openejb.EJBOperation;
 import org.openejb.EJBInvocation;
-import org.openejb.timer.BasicTimerService;
+import org.openejb.EJBOperation;
+import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.timer.BasicTimerService;
 
 /**
  * Wrapper for a Stateless SessionBean.
@@ -68,25 +68,22 @@ import org.openejb.proxy.EJBProxyFactory;
  * @version $Revision$ $Date$
  */
 public final class StatelessInstanceContext extends AbstractInstanceContext {
-    private final Object containerId;
     private final StatelessSessionContext sessionContext;
+    private final EJBInvocation setContextInvocation;
+    private final EJBInvocation unsetContextInvocation;
     private final EJBInvocation ejbCreateInvocation;
     private final EJBInvocation ejbRemoveInvocation;
 
+    private InstancePool pool;
     private MessageContext messageContext;
 
     public StatelessInstanceContext(Object containerId, SessionBean instance, EJBProxyFactory proxyFactory, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) {
-        super(systemChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, timerService);
-        this.containerId = containerId;
+        super(containerId, instance, systemChain, proxyFactory, timerService, unshareableResources, applicationManagedSecurityResources);
         this.sessionContext = new StatelessSessionContext(this, transactionContextManager, userTransaction);
         ejbCreateInvocation = systemMethodIndices.getEJBCreateInvocation(this);
         ejbRemoveInvocation = systemMethodIndices.getEJBRemoveInvocation(this);
         setContextInvocation = systemMethodIndices.getSetContextInvocation(this, sessionContext);
         unsetContextInvocation = systemMethodIndices.getSetContextInvocation(this, null);
-    }
-
-    public Object getContainerId() {
-        return containerId;
     }
 
     public Object getId() {
@@ -95,6 +92,29 @@ public final class StatelessInstanceContext extends AbstractInstanceContext {
 
     public void setId(Object id) {
         throw new AssertionError("Cannot set identity for a Stateless Context");
+    }
+
+    public InstancePool getPool() {
+        return pool;
+    }
+
+    public void setPool(InstancePool pool) {
+        this.pool = pool;
+    }
+
+    public void die() {
+        if (pool != null) {
+            pool.remove(this);
+            pool = null;
+        }
+        super.die();
+    }
+
+    public void exit() {
+        if (pool != null) {
+            pool.release(this);
+        }
+        super.exit();
     }
 
     public MessageContext getMessageContext() {
@@ -121,12 +141,32 @@ public final class StatelessInstanceContext extends AbstractInstanceContext {
         return sessionContext.setTimerState(operation);
     }
 
+    public void setContext() throws Throwable {
+        if (isDead()) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
+        systemChain.invoke(setContextInvocation);
+    }
+
+    public void unsetContext() throws Throwable {
+        if (isDead()) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
+        systemChain.invoke(unsetContextInvocation);
+    }
+
     public void ejbCreate() throws Throwable {
+        if (isDead()) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
         assert(getInstance() != null);
         systemChain.invoke(ejbCreateInvocation);
     }
 
     public void ejbRemove() throws Throwable {
+        if (isDead()) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
         assert(getInstance() != null);
         systemChain.invoke(ejbRemoveInvocation);
     }

@@ -44,6 +44,8 @@
  */
 package org.openejb.test.entity.bmp;
 
+import java.rmi.RemoteException;
+
 import org.openejb.test.object.OperationsPolicy;
 
 /**

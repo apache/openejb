@@ -37,55 +37,65 @@ import org.openejb.timer.UnavailableTimerService;
  *
  * */
 public abstract class AbstractInstanceContext implements EJBInstanceContext {
-
-    private final Map connectionManagerMap = new HashMap();
+    private final Object containerId;
+    private final EnterpriseBean instance;
+    protected final Interceptor systemChain;
+    private final EJBProxyFactory proxyFactory;
+    private final BasicTimerService activeTimer;
+    private final TimerService timerService;
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
 
-    //this not being final sucks, but the CMP instance is not available until after the superclass constructor executes.
-    protected EnterpriseBean instance;
-
-    private final EJBProxyFactory proxyFactory;
-    //initialized in subclass, can't be final :-((
-    protected EJBInvocation setContextInvocation;
-    protected EJBInvocation unsetContextInvocation;
-    protected final Interceptor systemChain;
-    private final BasicTimerService activeTimer;
-    private final TimerService timerService;
+    private final Map connectionManagerMap = new HashMap();
 
     private BasicTimerService timerState = UnavailableTimerService.INSTANCE;
+    private boolean dead = false;
+    private int callDepth;
 
-    public AbstractInstanceContext(Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, EnterpriseBean instance, EJBProxyFactory proxyFactory, BasicTimerService basicTimerService) {
-        this.unshareableResources = unshareableResources;
-        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
+    public AbstractInstanceContext(Object containerId, EnterpriseBean instance, Interceptor systemChain, EJBProxyFactory proxyFactory, BasicTimerService basicTimerService, Set unshareableResources, Set applicationManagedSecurityResources) {
+        this.containerId = containerId;
         this.instance = instance;
-        this.proxyFactory = proxyFactory;
         this.systemChain = systemChain;
+        this.proxyFactory = proxyFactory;
         this.activeTimer = basicTimerService;
         this.timerService = basicTimerService == null? null: new TimerServiceImpl(this);
+        this.unshareableResources = unshareableResources;
+        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
     }
 
     public Object getId() {
         return null;
     }
 
-    public void setId(Object id) {
-    }
-
     public Object getContainerId() {
-        return null;
+        return containerId;
     }
 
     public void associate() throws Throwable {
+        if (dead) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
     }
 
     public void flush() throws Throwable {
+        if (dead) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
     }
 
     public void beforeCommit() throws Throwable {
+        if (dead) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
     }
 
     public void afterCommit(boolean status) throws Throwable {
+        if (dead) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
+    }
+
+    public void unassociate() throws Throwable {
     }
 
     public Map getConnectionManagerMap() {
@@ -108,14 +118,6 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
         return proxyFactory;
     }
 
-    public void setContext() throws Throwable {
-        systemChain.invoke(setContextInvocation);
-    }
-
-    public void unsetContext() throws Throwable {
-        systemChain.invoke(unsetContextInvocation);
-    }
-
     public TimerService getTimerService() {
         return timerService;
     }
@@ -130,6 +132,31 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
         } else {
             timerState = UnavailableTimerService.INSTANCE;
         }
+    }
+
+    public void die() {
+        this.dead = true;
+    }
+
+    public final boolean isDead() {
+        return dead;
+    }
+
+    public boolean isInCall() {
+        return callDepth > 0;
+    }
+
+    public void enter() {
+        callDepth++;
+    }
+
+    public void exit() {
+        assert isInCall();
+        callDepth--;
+    }
+
+    public String toString() {
+        return "[InstanceContext: container=" + getContainerId() + ", id=" + getId() + "]";
     }
 
 }

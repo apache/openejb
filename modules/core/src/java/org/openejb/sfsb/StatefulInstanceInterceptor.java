@@ -57,10 +57,13 @@ import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.BeanTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
+import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openejb.EJBInvocation;
+import org.openejb.NotReentrantLocalException;
+import org.openejb.NotReentrantException;
 import org.openejb.transaction.UncommittedTransactionException;
 import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstanceFactory;
@@ -96,26 +99,36 @@ public final class StatefulInstanceInterceptor implements Interceptor {
         ejbInvocation.setEJBInstanceContext(ctx);
 
         // resume the preexisting transaction context
-        TransactionContext oldContext = transactionContextManager.getContext();
+        TransactionContext oldTransactionContext = transactionContextManager.getContext();
         if (ctx.getPreexistingContext() != null) {
             BeanTransactionContext preexistingContext = ctx.getPreexistingContext();
             ctx.setPreexistingContext(null);
-            preexistingContext.setOldContext((UnspecifiedTransactionContext) oldContext);
+            preexistingContext.setOldContext((UnspecifiedTransactionContext) oldTransactionContext);
 
             ejbInvocation.setTransactionContext(preexistingContext);
             transactionContextManager.setContext(preexistingContext);
             preexistingContext.resume();
         }
 
+        // check reentrancy
+        if (ctx.isInCall()) {
+            if (ejbInvocation.getType().isLocal()) {
+                throw new NotReentrantLocalException("Stateful session beans do not support reentrancy: " + containerId);
+            } else {
+                throw new NotReentrantException("Stateful session beans do not support reentrancy: " + containerId);
+            }
+        }
+
+        InstanceContext oldInstanceContext = ejbInvocation.getTransactionContext().beginInvocation(ctx);
         try {
             // invoke next
             InvocationResult invocationResult = next.invoke(invocation);
 
             // if we have a BMT still associated with the thread, suspend it and save it off for the next invocation
             TransactionContext currentContext = transactionContextManager.getContext();
-            if (oldContext != currentContext) {
+            if (oldTransactionContext != currentContext) {
                 BeanTransactionContext preexistingContext = (BeanTransactionContext)currentContext;
-                if (preexistingContext.getOldContext() != oldContext) {
+                if (preexistingContext.getOldContext() != oldTransactionContext) {
                     throw new UncommittedTransactionException("Found an uncommitted bean transaction from another session bean");
                 }
                 // suspend and save off the BMT context
@@ -124,9 +137,9 @@ public final class StatefulInstanceInterceptor implements Interceptor {
                 ctx.setPreexistingContext(preexistingContext);
 
                 // resume the old unsupported transaction context
-                ejbInvocation.setTransactionContext(oldContext);
-                transactionContextManager.setContext(oldContext);
-                oldContext.resume();
+                ejbInvocation.setTransactionContext(oldTransactionContext);
+                transactionContextManager.setContext(oldTransactionContext);
+                oldTransactionContext.resume();
             }
 
             return invocationResult;
@@ -135,7 +148,7 @@ public final class StatefulInstanceInterceptor implements Interceptor {
             ctx.die();
 
             // if we have tx context, other then our old tx context, associated with the thread roll it back
-            if (oldContext != transactionContextManager.getContext()) {
+            if (oldTransactionContext != transactionContextManager.getContext()) {
                 try {
                     transactionContextManager.getContext().rollback();
                 } catch (Exception e) {
@@ -143,18 +156,14 @@ public final class StatefulInstanceInterceptor implements Interceptor {
                 }
 
                 // and resume the old transaction
-                ejbInvocation.setTransactionContext(oldContext);
-                transactionContextManager.setContext(oldContext);
-                oldContext.resume();
+                ejbInvocation.setTransactionContext(oldTransactionContext);
+                transactionContextManager.setContext(oldTransactionContext);
+                oldTransactionContext.resume();
             }
 
             throw t;
         } finally {
-            if (ctx.isDead()) {
-                cache.remove(ctx.getId());
-            }
-
-            // remove the reference to the context from the invocation
+            ejbInvocation.getTransactionContext().endInvocation(oldInstanceContext);
             ejbInvocation.setEJBInstanceContext(null);
         }
     }
@@ -167,10 +176,8 @@ public final class StatefulInstanceInterceptor implements Interceptor {
             ctx = (StatefulInstanceContext) factory.createInstance();
             assert ctx.getInstance() != null: "Got a context with no instance assigned";
             id = ctx.getId();
+            ctx.setCache(cache);
             cache.putActive(id, ctx);
-
-            TransactionContext transactionContext = ejbInvocation.getTransactionContext();
-            transactionContext.associate(ctx);
         } else {
             // first check the transaction cache
             TransactionContext transactionContext = ejbInvocation.getTransactionContext();
@@ -186,7 +193,6 @@ public final class StatefulInstanceInterceptor implements Interceptor {
                         throw new NoSuchObjectException(id.toString());
                     }
                 }
-                transactionContext.associate(ctx);
             }
 
             if (ctx.isDead()) {

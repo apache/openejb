@@ -45,77 +45,33 @@
  *
  * ====================================================================
  */
-package org.openejb.transaction;
+package org.openejb.entity.cmp;
 
-import java.util.Map;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.InvalidTransactionException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
+import java.lang.reflect.Method;
 
-import org.apache.geronimo.transaction.ExtendedTransactionManager;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 
 /**
  * @version $Revision$ $Date$
  */
-public class MockTransactionManager implements ExtendedTransactionManager {
-    private MockTransaction transaction = new MockTransaction();
+final class CMPMethodInterceptor implements MethodInterceptor {
+    private final InstanceOperation[] itable;
+    private CMPInstanceContext instanceContext;
 
-    public boolean isCommitted() {
-        return transaction.committed;
+    public CMPMethodInterceptor(InstanceOperation[] itable) {
+        this.itable = itable;
     }
 
-    public boolean isRolledBack() {
-        return transaction.rolledBack;
+    public void setInstanceContext(CMPInstanceContext instanceContext) {
+        assert this.instanceContext == null: "instanceContext already set";
+        assert instanceContext != null: "instance context is null";
+        this.instanceContext = instanceContext;
     }
 
-    public void clear() {
-        transaction.clear();
-    }
-
-    public Transaction begin(long transactionTimeoutMilliseconds) throws NotSupportedException, SystemException {
-        transaction.clear();
-        return transaction;
-    }
-
-    public void begin() throws NotSupportedException, SystemException {
-        transaction.clear();
-    }
-
-    public void commit() throws HeuristicMixedException, HeuristicRollbackException, IllegalStateException, RollbackException, SecurityException, SystemException {
-        transaction.commit();
-    }
-
-    public int getStatus() throws SystemException {
-        return transaction.getStatus();
-    }
-
-    public Transaction getTransaction() throws SystemException {
-        return transaction;
-    }
-
-    public void resume(Transaction tobj) throws IllegalStateException, InvalidTransactionException, SystemException {
-    }
-
-    public void rollback() throws IllegalStateException, SecurityException, SystemException {
-        transaction.rollback();
-    }
-
-    public void setRollbackOnly() throws IllegalStateException, SystemException {
-        transaction.setRollbackOnly();
-    }
-
-    public void setTransactionTimeout(int seconds) throws SystemException {
-    }
-
-    public Transaction suspend() throws SystemException {
-        return transaction;
-    }
-
-    public Map getExternalXids() {
-        return null;
+    public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+        int index = methodProxy.getSuperIndex();
+        InstanceOperation iop = itable[index];
+        return iop.invokeInstance(instanceContext, objects);
     }
 }

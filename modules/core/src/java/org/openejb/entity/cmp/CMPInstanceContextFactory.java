@@ -158,13 +158,28 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
         if (proxyFactory == null) {
             throw new IllegalStateException("ProxyFactory has not been set");
         }
-        return new CMPInstanceContext(containerId, proxyFactory, cmp1Bridge, itable, loadFault, primaryKeyTransform, this, systemChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, transactionContextManager, timerService);
+        CMPMethodInterceptor cmpMethodInterceptor = new CMPMethodInterceptor(itable);
+        EntityBean instance = createCMPBeanInstance(cmpMethodInterceptor);
+        CMPInstanceContext context = new CMPInstanceContext(containerId,
+                        proxyFactory,
+                        instance,
+                        cmp1Bridge,
+                        loadFault,
+                        primaryKeyTransform,
+                        systemChain,
+                        systemMethodIndices,
+                        unshareableResources,
+                        applicationManagedSecurityResources,
+                        transactionContextManager,
+                        timerService);
+        cmpMethodInterceptor.setInstanceContext(context);
+        return context;
     }
 
-    public EntityBean createCMPBeanInstance(CMPInstanceContext instanceContext) {
+    private EntityBean createCMPBeanInstance(CMPMethodInterceptor cmpMethodInterceptor) {
         if (cmp1Bridge == null) {
             synchronized (this) {
-                enhancer.setCallbacks(new Callback[]{NoOp.INSTANCE, instanceContext});
+                enhancer.setCallbacks(new Callback[]{NoOp.INSTANCE, cmpMethodInterceptor});
                 return (EntityBean) enhancer.create();
             }
         } else {

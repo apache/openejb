@@ -117,8 +117,6 @@ public class CreateMethod implements VirtualOperation, Serializable {
                 invocation.setTransactionContext(TransactionContext.getContext());
             }
         }
-        // associate the new sfsb with the tx cache
-        invocation.getTransactionContext().associate(ctx);
 
         // return a ref
         EJBInterfaceType type = invocation.getType();

@@ -62,8 +62,6 @@ import org.openejb.EJBInvocationImpl;
 import org.openejb.EJBInterfaceType;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class ContainerPolicyTest extends TestCase {
@@ -94,18 +92,18 @@ public class ContainerPolicyTest extends TestCase {
         TransactionContext.setContext(null);
         ContainerPolicy.Required.invoke(interceptor, invocation, transactionContextManager);
         assertTrue(interceptor.context instanceof ContainerTransactionContext);
-        assertTrue(txnManager.committed);
-        assertFalse(txnManager.rolledBack);
+        assertTrue(txnManager.isCommitted());
+        assertFalse(txnManager.isRolledBack());
 
-        txnManager.committed = false;
+        txnManager.clear();
         interceptor.throwException = true;
         try {
             ContainerPolicy.Required.invoke(interceptor, invocation, transactionContextManager);
         } catch (MockSystemException e) {
         }
         assertTrue(interceptor.context instanceof ContainerTransactionContext);
-        assertFalse(txnManager.committed);
-        assertTrue(txnManager.rolledBack);
+        assertFalse(txnManager.isCommitted());
+        assertTrue(txnManager.isRolledBack());
     }
 
     protected void setUp() throws Exception {

@@ -62,7 +62,18 @@ import javax.transaction.xa.XAResource;
  * @version $Revision$ $Date$
  */
 public class MockTransaction implements Transaction {
+    public boolean committed;
+    public boolean rolledBack;
+    public boolean rollbackOnly;
+
+    public void clear() {
+        committed = false;
+        rolledBack = false;
+        rollbackOnly = false;
+    }
+
     public void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SecurityException, SystemException {
+        committed = true;
     }
 
     public boolean delistResource(XAResource xaResource, int i) throws IllegalStateException, SystemException {
@@ -74,15 +85,23 @@ public class MockTransaction implements Transaction {
     }
 
     public int getStatus() throws SystemException {
-        return Status.STATUS_NO_TRANSACTION;
+        if (rollbackOnly) {
+            return Status.STATUS_MARKED_ROLLBACK;
+        } else if (committed || rolledBack) {
+            return Status.STATUS_NO_TRANSACTION;
+        } else {
+            return Status.STATUS_ACTIVE;
+        }
     }
 
     public void registerSynchronization(Synchronization synchronization) throws IllegalStateException, RollbackException, SystemException {
     }
 
     public void rollback() throws IllegalStateException, SystemException {
+        rolledBack = true;
     }
 
     public void setRollbackOnly() throws IllegalStateException, SystemException {
+        rollbackOnly = true;
     }
 }

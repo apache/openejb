@@ -56,6 +56,7 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationKey;
 import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 import junit.framework.TestCase;
 
 import org.openejb.cache.InstancePool;
@@ -97,6 +98,7 @@ public class StatelessInstanceInterceptorTest extends TestCase {
 
     public void testNormalInvocation() throws Throwable {
         EJBInvocationImpl invocation = new EJBInvocationImpl(EJBInterfaceType.REMOTE, 0, null);
+        invocation.setTransactionContext(new UnspecifiedTransactionContext());
         invocation.put(KEY, Boolean.FALSE);
         assertNull(interceptor.invoke(invocation));
         assertNull(invocation.getEJBInstanceContext());
@@ -107,6 +109,7 @@ public class StatelessInstanceInterceptorTest extends TestCase {
 
     public void testSystemException() throws Throwable {
         EJBInvocationImpl invocation = new EJBInvocationImpl(EJBInterfaceType.REMOTE, 0, null);
+        invocation.setTransactionContext(new UnspecifiedTransactionContext());
         invocation.put(KEY, Boolean.TRUE);
         try {
             interceptor.invoke(invocation);

@@ -73,5 +73,4 @@ public interface EJBInstanceContext extends InstanceContext {
 
     //sets timer method availability based on operation, returns old availability
     boolean setTimerState(EJBOperation operation);
-
 }

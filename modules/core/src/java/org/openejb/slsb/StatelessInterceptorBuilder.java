@@ -94,8 +94,8 @@ public class StatelessInterceptorBuilder extends AbstractInterceptorBuilder {
         if (useContextHandler) {
             firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
         }
-        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
         firstInterceptor = new StatelessInstanceInterceptor(firstInterceptor, instancePool);
+        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
         return new TwoChains(firstInterceptor, systemChain);
     }
