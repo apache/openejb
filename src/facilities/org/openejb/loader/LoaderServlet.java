@@ -60,6 +60,7 @@ public class LoaderServlet extends HttpServlet {
         
         String home = config.getInitParameter("openejb.home");
         String conf = config.getInitParameter("openejb.configuration");
+        String copy = config.getInitParameter("openejb.localcopy");
 
         Properties p = new Properties();
         
@@ -67,10 +68,16 @@ public class LoaderServlet extends HttpServlet {
         p.put("openejb.loader", "embed");
         
         if (home != null) {
+            System.setProperty("openejb.home",home);
             p.put("openejb.home",home);
         }
         if (conf != null) {
+            System.setProperty("openejb.configuration",conf);
             p.put("openejb.configuration",conf);
+        }
+        if (copy != null) {
+            System.setProperty("openejb.localcopy", copy);
+            p.put("openejb.localcopy", copy);
         }
         InitialContext ctx = new InitialContext( p );
 
