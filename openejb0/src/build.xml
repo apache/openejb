@@ -1106,7 +1106,19 @@
     </antcall>    
     
     <antcall target="pre-delegate">
+        <param name="module" value="httpbean-api"/>
+    </antcall>    
+    
+    <antcall target="pre-delegate">
         <param name="module" value="webadmin"/>
+    </antcall>    
+    
+    <antcall target="pre-delegate">
+        <param name="module" value="webconsole-clienttools"/>
+    </antcall>    
+    
+    <antcall target="pre-delegate">
+        <param name="module" value="webconsole-ejbgen"/>
     </antcall>    
     
     <antcall target="pre-delegate">
