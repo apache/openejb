@@ -44,12 +44,12 @@
  */
 package org.openejb.client;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.NamingException;
+
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
  * @version $Revision$ $Date$
@@ -79,9 +79,12 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
             context = (Context) res.getResult();
         } catch (Exception e) {
             NamingException namingException = new NamingException("Unable to retrieve J2EE AppClient's JNDI Context");
-            e.initCause(namingException);
+            namingException.initCause(e);
             throw namingException;
         }
+
+        System.setProperty("java.naming.factory.initial", "com.sun.jndi.rmi.registry.RegistryContextFactory");
+        System.setProperty("java.naming.factory.url.pkgs", "org.openejb.client.naming");
     }
 
     public void stopClient(ObjectName appClientModuleName) throws Exception {
