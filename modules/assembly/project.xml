@@ -127,6 +127,15 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee-builder</artifactId>
+            <version>&geronimo-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-jmxremoting</artifactId>
             <version>&geronimo-version;</version>
             <properties>
@@ -149,6 +158,15 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
+            <version>&geronimo-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-naming-builder</artifactId>
             <version>&geronimo-version;</version>
             <properties>
                 <repository>true</repository>

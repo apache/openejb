@@ -29,6 +29,28 @@ by the server.
     parentId="org/apache/geronimo/System"
     >
 
+    <!-- needed for online deployment -->
+     <!-- should be removed once openejb gets a separate builder module-->
+     <dependency>
+         <uri>geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar</uri>
+     </dependency>
+     <dependency>
+         <uri>geronimo/jars/geronimo-deployment-${geronimo_version}.jar</uri>
+     </dependency>
+     <dependency>
+         <uri>geronimo/jars/geronimo-connector-builder-${geronimo_version}.jar</uri>
+     </dependency>
+     <dependency>
+         <uri>geronimo/jars/geronimo-j2ee-builder-${geronimo_version}.jar</uri>
+     </dependency>
+     <dependency>
+         <uri>geronimo/jars/geronimo-naming-builder-${geronimo_version}.jar</uri>
+     </dependency>
+     <dependency>
+         <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
+     </dependency>
+
+    <!--runtime dependencies-->
     <dependency>
         <uri>geronimo-spec/jars/geronimo-spec-j2ee-${geronimo_spec_j2ee_version}.jar</uri>
     </dependency>
@@ -40,9 +62,6 @@ by the server.
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-connector-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-connector-builder-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>concurrent/jars/concurrent-${concurrent_version}.jar</uri>
@@ -87,16 +106,7 @@ by the server.
 
     <!-- needed for online deployment -->
     <dependency>
-        <uri>geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-deployment-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
         <uri>geronimo/jars/geronimo-common-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
     </dependency>
 
     <!-- CORBA -->
