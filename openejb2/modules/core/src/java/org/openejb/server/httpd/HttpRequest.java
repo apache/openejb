@@ -179,7 +179,7 @@ public interface HttpRequest extends java.io.Serializable{
     /** Gets the URI for the current URL page.
      * @return The URI
      */ 
-    public java.net.URL getURI();
+    public java.net.URI getURI();
 
     int getContentLength();
 

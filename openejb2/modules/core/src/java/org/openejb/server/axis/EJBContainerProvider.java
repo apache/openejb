@@ -12,6 +12,8 @@ import javax.xml.rpc.holders.IntHolder;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.axis.MessageContext;
 import org.apache.axis.Handler;
+import org.apache.axis.AxisFault;
+import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.geronimo.webservices.MessageContextInvocationKey;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.openejb.EJBContainer;

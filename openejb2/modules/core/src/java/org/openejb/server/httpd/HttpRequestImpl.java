@@ -47,6 +47,8 @@ package org.openejb.server.httpd;
 import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
@@ -74,7 +76,7 @@ public class HttpRequestImpl implements HttpRequest {
     /**
      * 5.1.2    Request-URI
      */
-    private URL uri;
+    private URI uri;
     /**
      * the headers for this page
      */
@@ -158,7 +160,7 @@ public class HttpRequestImpl implements HttpRequest {
      *
      * @return The URI
      */
-    public URL getURI() {
+    public URI getURI() {
         return uri;
     }
 
@@ -260,9 +262,9 @@ public class HttpRequestImpl implements HttpRequest {
         }
 
         try {
-            uri = new URL("http", "localhost", token);
-        } catch (java.net.MalformedURLException e) {
-            throw new IOException("Malformed URL :" + token + " Exception: " + e.getMessage());
+            uri = new URI(token);
+        } catch (URISyntaxException e) {
+            throw new IOException("Malformed URI :" + token + " Exception: " + e.getMessage());
         }
 
         parseQueryParams(uri.getQuery());
