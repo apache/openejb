@@ -664,12 +664,26 @@
              doctitle="${name} JavaDoc"
              windowtitle="${name} JavaDoc"
 		     package="true"
-		     author="false"
+		     author="true"
              version="true"
              noindex="true"
-             classpathref="project.classpath"/>
+             classpathref="project.classpath">
           
-          
+    <bottom><![CDATA[
+        <table width="100%" cellspacing="0" cellpadding="1" border="0">
+          <tr>
+            <td><img src="http://openejb.sourceforge.net/images/logo_ejb.gif"></td>
+            <td align="right"><img src="http://sourceforge.net/sflogo.php?group_id=44351&amp;type=2" width="125" height="37" border="0"></td>
+          </tr>
+          <tr bgcolor="#7270c2">
+            <td><font face="Arial" color="#FFFFFF">Copyright &#169; 2002 OpenEJB Group. All Rights Reserved.</font></td>
+            <td align="right"><font face="Arial" color="#FFFFFF"><a href="http://openejb.sourceforge.net">http://openejb.sourceforge.net</a></font></td>
+          </tr>
+        </table> 
+    ]]></bottom>
+
+    </javadoc>
+           
   </target>
   
   <!-- ================================================================== -->
