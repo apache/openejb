@@ -47,6 +47,12 @@ package org.openejb.client;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.rmi.CORBA.Stub;
+
+import org.omg.CORBA.ORB;
 
 /**
  * 
@@ -136,6 +142,17 @@ public class EJBResponse implements Response {
         // so we can take an active part in reading it in
         // as we do with the other reponse objects
         result = in.readObject();
+        if (result instanceof Stub) {
+            Stub stub = (Stub)result;
+            ORB orb = null;
+            try {
+                Context initialContext = new InitialContext();
+                orb = (ORB) initialContext.lookup("java:comp/ORB");
+            } catch (NamingException e) {
+                throw new IOException("Unable to connect PortableRemoteObject stub to an ORB, no ORB bound to java:comp/ORB");
+            }
+            stub.connect(orb);
+        }
     }
     
     /**
