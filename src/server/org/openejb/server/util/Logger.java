@@ -43,7 +43,7 @@
  * $Id$
  */
 
-package org.openejb.util;
+package org.openejb.server.util;
 
 /**
  * This is a wrapper class to the log4j facility.  In addition to the

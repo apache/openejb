@@ -51,8 +51,12 @@ import java.io.ObjectOutput;
 import java.io.Externalizable;
 import java.io.Serializable;
 import java.io.IOException;
+import org.openejb.alt.util.Messages;
+
 
 public class RPCMessage implements java.io.Externalizable {
+
+    static protected Messages _messages = new Messages();
 
     public Class[] paramTypes;
     public Serializable[] args;
@@ -75,13 +79,13 @@ public class RPCMessage implements java.io.Externalizable {
         try{
             this.primaryKey = (Serializable)pk;
         } catch (ClassCastException e){
-            throw new IllegalArgumentException("The primaryKey argument is not a legal type for RMI/IIOP: "+pk.getClass());
+            throw new IllegalArgumentException( _messages.format( "rpcMessage.illegalPrimaryKey", pk.getClass() ) );
         }
         
         try{
             this.deploymentID = (Serializable)depID;
         } catch (ClassCastException e){
-            throw new IllegalArgumentException("The deploymentID argument is not a legal type for RMI/IIOP: "+depID.getClass());
+            throw new IllegalArgumentException( _messages.format( "rpcMessage.illegalDeploymentID", depID.getClass() ) );
         }
         
         for ( int i = 0; i < paramTypes.length; i++ ) {
@@ -92,7 +96,7 @@ public class RPCMessage implements java.io.Externalizable {
                 try{
                     this.args[i] = (Serializable)args[i];
                 } catch (ClassCastException e){
-                    throw new IllegalArgumentException("The argument passed into the method "+methodName+" is not a legal type for RMI/IIOP:\n\tinvalid argument="+depID.getClass()+"\n\tinterface="+interfaceName+"\n\tmethod="+method+"\n\targument number="+i);
+                    throw new IllegalArgumentException( _messages.format( "rpcMessage.illegalArgument", methodName, depID.getClass(), interfaceName, method, new Integer(i) ) );
                 }
             }
         }
@@ -299,8 +303,8 @@ public class RPCMessage implements java.io.Externalizable {
         }
 
         if (e instanceof ClassNotFoundException) {
-            throw new ClassNotFoundException("Unable to deserialize the RPCMessage: "+e.getMessage()+buf.toString());
-        } else throw new IOException("Unable to deserialize the RPCMessage: "+e.getMessage()+buf.toString());
+            throw new ClassNotFoundException( _messages.format( "rpcMessage.unableToDeserializeRpcMessage", e.getMessage(), buf.toString() ) );
+        } else throw new IOException( _messages.format( "rpcMessage.unableToDeserializeRpcMessage", e.getMessage(), buf.toString() ) );
         
     }
 

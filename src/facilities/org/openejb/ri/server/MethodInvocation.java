@@ -50,6 +50,8 @@ package org.openejb.ri.server;
 import java.lang.reflect.*;
 import java.security.Principal;
 import org.openejb.DeploymentInfo;
+import org.openejb.alt.util.Messages;
+
 /**
  * This object is used to uniqly identify a method invocation within  
  * on an EJBObject or EJBHome reference is created.  The method invocation
@@ -60,6 +62,8 @@ import org.openejb.DeploymentInfo;
  * @since JDK 1.2
  */
 public class MethodInvocation implements java.io.Serializable {
+
+    static protected Messages _messages = new Messages();
 
     /**
     * The unique identity of the bean servicing the request.
@@ -156,7 +160,7 @@ public class MethodInvocation implements java.io.Serializable {
         try {
             StringBuffer sb = new StringBuffer(""+deploymentInfo+primaryKey+":");
             sb.append(method.toString());
-            sb.append(" ARGUMENTS: ");
+            sb.append( _messages.message( "methodInvocation.arguments" ) );
             for ( int k = 0; k < arguments.length; k++ ) {
                 sb.append(" ("+k+") "+arguments[k].toString());
                 if ( k < (arguments.length - 1) )

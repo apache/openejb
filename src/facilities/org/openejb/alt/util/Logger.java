@@ -43,7 +43,7 @@
  * $Id$
  */
 
-package org.openejb.util;
+package org.openejb.alt.util;
 
 /**
  * This is a wrapper class to the log4j facility.  In addition to the
@@ -63,15 +63,15 @@ public class Logger extends org.openejb.util.LoggerBase {
     /**
      * Protected constructor.  Users must invoke getInstance() to
      * an instance of Logger.
-     * 
+     *
      * @param name   the name of the log4j category to use
-     * 
+     *
      * @see getInstance()
      */
     protected Logger( String name ) {
 	super( name );
     }
-        
+
     protected org.openejb.util.MessagesBase createMessagesBase() {
 	return new Messages();
     }

@@ -42,37 +42,22 @@
  *
  * $Id$
  */
+package org.openejb.alt.util;
 
-package org.openejb.util;
+
+import java.text.*;
+import java.util.*;
 
 /**
- * This is a wrapper class to the log4j facility.  In addition to the
- * internationalization of messages, it sets a default log4j configuration,
- * if one is not already set in the system properties.
- * <p>
- * If the log4j system complains that there is no configuration set, then it's
- * probably one of two things.  First, the config file does not exist.  Second,
- * and more likely, the OpenEJB URL handler has not been registered.  (Note
- * that the log4j.configuration default setting uses the protocol resource.)
- * <p>
- * @author <a href="mailto:adc@toolazydogs.com">Alan Cabrera</a>
+ *
+ *
+ * @author <a href="arkin@exoffice.com">Assaf Arkin</a>
  * @version $Revision$ $Date$
  */
-public class Logger extends org.openejb.util.LoggerBase {
+public class Messages extends org.openejb.util.MessagesBase
+{
+    public Messages() {
+	super();
 
-    /**
-     * Protected constructor.  Users must invoke getInstance() to
-     * an instance of Logger.
-     * 
-     * @param name   the name of the log4j category to use
-     * 
-     * @see getInstance()
-     */
-    protected Logger( String name ) {
-	super( name );
-    }
-        
-    protected org.openejb.util.MessagesBase createMessagesBase() {
-	return new Messages();
     }
 }

@@ -69,6 +69,7 @@ import org.openejb.ProxyInfo;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.proxy.ProxyManager;
+import org.openejb.alt.util.Messages;
 
  /**
   * Represents the EJB Server's responsibility in handling methods that are
@@ -77,6 +78,8 @@ import org.openejb.util.proxy.ProxyManager;
   * @see javax.ejb.EJBHome
   */
 public class EjbHomeProcessor {
+
+    static protected Messages _messages = new Messages();
 
     /**
      * Internally processes the getEJBMetaData, getHomeHandle and remove methods 
@@ -169,7 +172,7 @@ public class EjbHomeProcessor {
                 mi.setPrimaryKey(mi.getArguments()[0]);
                 server.invokeMethod(mi);
             } else {
-                return new RemoteException("Invalid operation");
+                return new RemoteException( _messages.message( "ejbHomeProcessor.invalidOperation" ) );
             }
         }
         return null;

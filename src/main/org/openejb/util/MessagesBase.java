@@ -66,12 +66,12 @@ public class MessagesBase
     private Hashtable        _formats;
     private Locale           _locale;
     private String           _resourceName = getResourceName();
-    
+
 
     protected MessagesBase() {
 	synchronized (MessagesBase.class) {
 	    _locale = _globalLocale;
-	    
+
 	    ResourceBundle rb = (ResourceBundle)_rbBundles.get( _resourceName );
 	    if ( rb == null ) {
 		init();
@@ -103,7 +103,7 @@ public class MessagesBase
 	String className = getClass().getName();
 
 	int idxDot = className.lastIndexOf('.');
-	
+
 	return className.substring(0, idxDot) + ".resources" + className.substring(idxDot);
     }
 
@@ -122,6 +122,18 @@ public class MessagesBase
     public String format( String message, Object arg1, Object arg2, Object arg3 )
     {
         return format( message, new Object[] { arg1, arg2, arg3 } );
+    }
+
+
+    public String format( String message, Object arg1, Object arg2, Object arg3, Object arg4 )
+    {
+        return format( message, new Object[] { arg1, arg2, arg3, arg4 } );
+    }
+
+
+    public String format( String message, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 )
+    {
+        return format( message, new Object[] { arg1, arg2, arg3, arg4, arg5 } );
     }
 
 
@@ -161,7 +173,7 @@ public class MessagesBase
 		init();
 	    }
 	}
-        
+
 	try {
             return _messages.getString( message );
         } catch ( MissingResourceException except ) {

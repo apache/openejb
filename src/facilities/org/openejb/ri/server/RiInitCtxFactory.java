@@ -51,6 +51,7 @@ import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.NamingException;
+import org.openejb.alt.util.Messages;
 
 
 /**
@@ -61,11 +62,14 @@ import javax.naming.NamingException;
  */
 public class RiInitCtxFactory implements InitialContextFactory {
 
+    static protected Messages _messages = new Messages();
+
+
     // The ClassLoader could be implemented as static.
     //static RiClassLoader loader;
     
     public Context getInitialContext(Hashtable env) throws NamingException {
-        String CURRENT_OPPERATION = "Instantiating initial context...";
+        String CURRENT_OPPERATION = _messages.message( "riInitCtxFactory.instantiatingInitialContext" );
         try{
         // The ClassLoader could be implemented as static.
         //if (loader == null) loader =  new RiClassLoader(env);
@@ -77,16 +81,16 @@ public class RiInitCtxFactory implements InitialContextFactory {
         return context;
         
         } catch (ClassNotFoundException cnfe){
-            System.out.println("[Context Factory] "+CURRENT_OPPERATION+"ERROR...OPERATION TERMINATED.  Class not found. "+cnfe.getMessage());
+            System.out.println( _messages.format( "riInitCtxFactory.classNoFound", CURRENT_OPPERATION, cnfe.getMessage() ) );
             throw new NamingException(cnfe.getMessage());
         } catch (IllegalAccessException iae){
-            System.out.println("[Context Factory] "+CURRENT_OPPERATION+"ERROR...OPERATION TERMINATED.  Inadequate access to constructor of class. "+iae.getMessage());
+            System.out.println( _messages.format( "riInitCtxFactory.inadequateAccess", CURRENT_OPPERATION, iae.getMessage() ) );
             //iae.printStackTrace();
             throw new NamingException(iae.getMessage());
         } catch (InstantiationException ie){
-            System.out.println("[Context Factory] "+CURRENT_OPPERATION+"ERROR...OPERATION TERMINATED.  Class cannot be instantiated. Check for no-arg constructor. "+ie.getMessage());
+            System.out.println( _messages.format( "riInitCtxFactory.classCannotBeInstantiated", CURRENT_OPPERATION, ie.getMessage() ) );
             //ie.printStackTrace();
-            throw new NamingException("Cannot instantiate context: " + ie.getMessage());
+            throw new NamingException( _messages.format( "riInitCtxFactory.cannotInstantiateContext", CURRENT_OPPERATION, ie.getMessage() ) );
         }
 
     }

@@ -111,18 +111,18 @@ public class CastorCMP11_EntityContainer
             this.db=db+": ";
         }
         public void loading(java.lang.Object objClass, java.lang.Object identity) {
-            logger.info(db+"Loading an instance of "+objClass+" with identity \""+identity+"\"");
+            logger.debug(db+"Loading an instance of "+objClass+" with identity \""+identity+"\"");
         }
         public void creating(java.lang.Object objClass, java.lang.Object identity) {
-            logger.info(db+"Creating an instance of "+objClass+" with identity \""+identity+"\"");
+            logger.debug(db+"Creating an instance of "+objClass+" with identity \""+identity+"\"");
         }
 
         public void removing(java.lang.Object objClass, java.lang.Object identity) {
-            logger.info(db+"Removing an instance of "+objClass+" with identity \""+identity+"\"");
+            logger.debug(db+"Removing an instance of "+objClass+" with identity \""+identity+"\"");
         }
 
         public void storing(java.lang.Object objClass, java.lang.Object identity) {
-            logger.info(db+"Storing an instance of "+objClass+" with identity \""+identity+"\"");
+            logger.debug(db+"Storing an instance of "+objClass+" with identity \""+identity+"\"");
         }
 
         public void storeStatement(java.lang.String statement)  {

@@ -68,6 +68,7 @@ import org.openejb.OpenEJBException;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.proxy.ProxyManager;
+import org.openejb.alt.util.Messages;
 
 /**
  * Represents the EJB Server's responsibility in handling methods that are
@@ -76,7 +77,8 @@ import org.openejb.util.proxy.ProxyManager;
  * @see javax.ejb.EJBObject
  */
 public class EjbObjectProcessor {
-    
+
+    static protected Messages _messages = new Messages();
 
     /**
      * Internally processes the getHandle, getPrimaryKey, isIdentical, remove
@@ -129,7 +131,7 @@ public class EjbObjectProcessor {
         if ( type == DeploymentInfo.BMP_ENTITY || type == DeploymentInfo.CMP_ENTITY ) 
             return mi.getPrimaryKey();
         else 
-            return new RemoteException("Invalid operation");
+            return new RemoteException( _messages.message( "ejbObjectProcessor.invalidOperation" ) );
     }
 
     /**
@@ -171,7 +173,7 @@ public class EjbObjectProcessor {
         try{
         proxy = ProxyManager.newProxyInstance(di.getHomeInterface(), handler);
         }catch(IllegalAccessException iae){
-            throw new RuntimeException("Could not create IVM proxy for "+di.getHomeInterface()+" interface");
+            throw new RuntimeException( _messages.format( "ejbObjectProcessor.couldNotCreateIVMProxy", di.getHomeInterface() ) );
         }
         return proxy;
     }
