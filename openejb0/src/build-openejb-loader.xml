@@ -120,7 +120,10 @@
          basedir="${build.openejb.dest}"
          excludes="**/*Servlet.class"
          manifest="${build.openejb.dest}/MANIFEST.MF"/>
-          
+         
+    <dirname property="foo.dirname" file="${base.path}/dist"/>
+    <replace file="${build.openejb.src}/org/openejb/loader/web.xml" token="$$OPENEJB_HOME$$" value="${foo.dirname}"/>
+
     <war warfile="dist/${project}_loader-${version}.war"
          webxml="${build.openejb.src}/org/openejb/loader/web.xml">
         <fileset dir="${build.openejb.src}/org/openejb/loader/">
