@@ -3,37 +3,48 @@
 
   <xsl:template match="$project/navSections">
     <xsl:for-each select="section">
-      <table border="0" cellpadding="0" cellspacing="0">
+      <!--
+      ## Section ###########################################################
+      -->
+      <table bgcolor="#A771A9" width="105" border="0" cellpadding="0" cellspacing="0">
+        <!-- Menu -->
         <tr>
-          <td valign="top" align="left">
+          <td width="20">
+            <img src="./images/dotTrans.gif" width="20" height="2"/>
+          </td>
+          <td width="80">
             <xsl:choose>
               <xsl:when test="@url">
                 <xsl:variable name="url">
                   <xsl:call-template name="link-convertor">
                     <xsl:with-param name="href" select="@url"/>
-                    </xsl:call-template>
-                  </xsl:variable>
-                  <a href="{$url}"><span class="subMenuOn"><xsl:value-of select="@name"/></span></a>
-                </xsl:when>
-                <xsl:otherwise>
-                  <span class="subMenuOn"><xsl:value-of select="@name"/></span>
-                </xsl:otherwise>
-              </xsl:choose>
+                  </xsl:call-template>
+                </xsl:variable>
+                <a href="{$url}"><span class="subMenuOn"><xsl:value-of select="@name"/></span></a>
+              </xsl:when>
+              <xsl:otherwise>
+                <span class="subMenuOn"><xsl:value-of select="@name"/></span>
+              </xsl:otherwise>
+            </xsl:choose>
           </td>
         </tr>
         <xsl:for-each select="navLink">
           <xsl:variable name="url">
             <xsl:call-template name="link-convertor">
               <xsl:with-param name="href" select="url"/>
-              </xsl:call-template>
-            </xsl:variable>
-            <tr>
-              <td valign="top" align="left">
-                <a href="{$url}"><span class="subMenuOff">&#160;&#160;&#160;
-                <xsl:value-of select="display"/></span></a>
-              </td>
-            </tr>
-          </xsl:for-each>
+            </xsl:call-template>
+          </xsl:variable>
+          <!-- Menu Item -->
+          <tr>
+            <td width="20">
+              <img src="./images/dotTrans.gif" width="20" height="2"/>
+            </td>
+            <td width="80" valign="top" align="left">
+              <a href="{$url}"><span class="subMenuOff">&#160;&#160;&#160;
+              <xsl:value-of select="display"/></span></a>
+            </td>
+          </tr>
+        </xsl:for-each>
       </table>
       <br/>
     </xsl:for-each>
