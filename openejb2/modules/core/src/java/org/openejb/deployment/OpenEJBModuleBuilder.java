@@ -109,14 +109,18 @@ import org.tranql.sql.sql92.SQL92Schema;
  * @version $Revision$ $Date$
  */
 public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder {
+
+    private final URI defaultParentId;
     private final CMPEntityBuilder cmpEntityBuilder;
     private final SessionBuilder sessionBuilder;
     private final EntityBuilder entityBuilder;
     private final MdbBuilder mdbBuilder;
     private final SecurityBuilder securityBuilder;
-    private SkeletonGenerator skeletonGenerator;
+    private final SkeletonGenerator skeletonGenerator;
 
-    public OpenEJBModuleBuilder() {
+    public OpenEJBModuleBuilder(URI defaultParentId, SkeletonGenerator skeletonGenerator) {
+        this.defaultParentId = defaultParentId;
+        this.skeletonGenerator = skeletonGenerator;
         this.securityBuilder = new SecurityBuilder(this);
         this.cmpEntityBuilder = new CMPEntityBuilder(this);
         this.sessionBuilder = new SessionBuilder(this);
@@ -126,14 +130,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
     public SecurityBuilder getSecurityBuilder() {
         return securityBuilder;
-    }
-
-    public SkeletonGenerator getSkeletonGenerator() {
-        return skeletonGenerator;
-    }
-
-    public void setSkeletonGenerator(SkeletonGenerator skeletonGenerator) {
-        this.skeletonGenerator = skeletonGenerator;
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
@@ -184,6 +180,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Invalid parentId " + openejbJar.getParentId(), e);
             }
+        } else {
+            parentId = defaultParentId;
         }
 
         return new EJBModule(standAlone, configId, parentId, moduleFile, targetPath, ejbJar, openejbJar, specDD);
@@ -498,12 +496,14 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenEJBModuleBuilder.class);
-        infoFactory.addInterface(ModuleBuilder.class);
-        infoFactory.addInterface(EJBReferenceBuilder.class);
-        infoFactory.addReference("SkeletonGenerator", SkeletonGenerator.class);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class);
+        infoBuilder.addAttribute("defaultParentId", URI.class, true);
+        infoBuilder.addInterface(ModuleBuilder.class);
+        infoBuilder.addInterface(EJBReferenceBuilder.class);
+        infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class);
 
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        infoBuilder.setConstructor(new String[] {"defaultParentId", "SkeletonGenerator"});
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {

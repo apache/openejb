@@ -61,6 +61,8 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -114,6 +116,7 @@ public class NovaAssembler implements Assembler {
     private static Log log;
     private String configLocation;
     private Openejb openejb;
+    private static URI defaultParentId;
 
     static {
         // This MUST be done before the first log is acquired
@@ -130,6 +133,11 @@ public class NovaAssembler implements Assembler {
         }
         // Install the lame tools jar hack
         ToolsJarHack.install();
+        try {
+            defaultParentId = new URI("org/apache/geronimo/Server");
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -288,8 +296,8 @@ public class NovaAssembler implements Assembler {
 
 
     private static GBeanMBean setUpEarModule(File earFile, File tempDir, ClassLoader classLoader) throws MalformedObjectNameException, IOException, DeploymentException, AttributeNotFoundException, ReflectionException, ClassNotFoundException, OpenEJBException {
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
-        EARConfigBuilder earConfigBuilder = new EARConfigBuilder(new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, null);
+        EARConfigBuilder earConfigBuilder = new EARConfigBuilder(defaultParentId, new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
                 getObjectName("TransactionContextManager"),
                 getObjectName("ConnectionTracker"),
                 getObjectName("TransactionalTimer"),
