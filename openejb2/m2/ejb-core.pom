@@ -367,5 +367,17 @@
         <includes>*.xsd,*.dtd</includes>
       </resource>
     </resources>
+    <!-- current m2 bug - this shouldn't be required here -->
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <configuration>
+          <source>1.4</source>
+          <target>1.4</target>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 </project>
+
