@@ -1,4 +1,4 @@
-@echo off
+REM @echo off
 REM $Id$
 
 REM   Contributions by:
@@ -19,7 +19,9 @@ for %%i in (dist\*client*.jar) do call cp.bat %%i
 for %%i in (dist\*testsuite*.jar) do call cp.bat %%i
 set test_cp=%CLASSPATH%;%CP%
 
-set OPTIONS="-Dlog4j.configuration=file:conf/default.logging.conf"
+set SERVER=-Dopenejb.test.server=org.openejb.test.IvmTestServer
+set DATABASE=-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase
+set OPTIONS=-Dlog4j.configuration=file:conf/default.logging.conf %SERVER% %DATABASE%
 
 %JAVA% %OPTIONS% -classpath %ri_cp% org.openejb.test.ClientTestRunner -s src\tests-ejb\IvmServer_config.properties org.openejb.test.ClientTestSuite
 
