@@ -60,6 +60,8 @@ import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
+import org.apache.geronimo.security.util.ContextManager;
+
 import org.openejb.nova.transaction.ContainerTransactionContext;
 import org.openejb.nova.transaction.TransactionContext;
 
@@ -98,7 +100,7 @@ public abstract class EJBContextImpl {
     }
 
     public boolean isCallerInRole(String s) {
-        return state.isCallerInRole(s);
+        return state.isCallerInRole(s, context);
     }
 
     public UserTransaction getUserTransaction() {
@@ -163,11 +165,11 @@ public abstract class EJBContextImpl {
         }
 
         public Principal getCallerPrincipal() {
-            return null;
+            return ContextManager.getCurrentPrincipal();
         }
 
-        public boolean isCallerInRole(String s) {
-            return false;
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
+            return ContextManager.isCallerInRole(context.getContainer().getEJBName(), s);
         }
 
         public UserTransaction getUserTransaction(EJBInstanceContext context) {

@@ -221,6 +221,10 @@ public abstract class AbstractEJBContainer
     public void doFail() {
     }
 
+    public String getEJBName() {
+        return ejbName;
+    }
+    
     public Class getBeanClass() {
         return beanClass;
     }

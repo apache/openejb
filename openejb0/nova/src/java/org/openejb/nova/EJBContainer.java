@@ -65,6 +65,13 @@ import org.openejb.nova.transaction.EJBUserTransaction;
  * @version $Revision$ $Date$
  */
 public interface EJBContainer {
+
+    /**
+     * Return the name of the EJB
+     * @return the name of the EJB
+     */
+    String getEJBName();
+
     /**
      * Return the implementation class
      * @return the EJB's implementation class
