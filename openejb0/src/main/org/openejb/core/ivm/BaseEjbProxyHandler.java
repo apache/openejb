@@ -268,12 +268,14 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
         Object prmryKey = null;
         byte crrntOperation = (byte)0;
         Object scrtyIdentity = null;
+	boolean cntextValid = false;
         cntext = ThreadContext.getThreadContext();
         if(cntext.valid()){
              depInfo = cntext.getDeploymentInfo();
              prmryKey = cntext.getPrimaryKey();
              crrntOperation = cntext.getCurrentOperation();
              scrtyIdentity = cntext.getSecurityIdentity();
+	     cntextValid = true;
         }
 
         // the four operations on IntraVmCopyMonitor are quite expensive, because
@@ -311,7 +313,7 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
             }
         } finally {
             // restore the context
-            if(cntext!=null){
+            if(cntextValid){
                 cntext.set(depInfo, prmryKey, scrtyIdentity);
                 cntext.setCurrentOperation(crrntOperation);
             }
