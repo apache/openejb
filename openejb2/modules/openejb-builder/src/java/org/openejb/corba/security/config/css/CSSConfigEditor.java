@@ -44,8 +44,21 @@
  */
 package org.openejb.corba.security.config.css;
 
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
+
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.omg.CSIIOP.CompositeDelegation;
+import org.omg.CSIIOP.Confidentiality;
+import org.omg.CSIIOP.DetectMisordering;
+import org.omg.CSIIOP.DetectReplay;
+import org.omg.CSIIOP.EstablishTrustInClient;
+import org.omg.CSIIOP.EstablishTrustInTarget;
+import org.omg.CSIIOP.Integrity;
+import org.omg.CSIIOP.NoDelegation;
+import org.omg.CSIIOP.NoProtection;
+import org.omg.CSIIOP.SimpleDelegation;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
@@ -53,28 +66,13 @@ import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
-import org.omg.CSIIOP.NoProtection;
-import org.omg.CSIIOP.Integrity;
-import org.omg.CSIIOP.Confidentiality;
-import org.omg.CSIIOP.DetectReplay;
-import org.omg.CSIIOP.DetectMisordering;
-import org.omg.CSIIOP.EstablishTrustInTarget;
-import org.omg.CSIIOP.EstablishTrustInClient;
-import org.omg.CSIIOP.NoDelegation;
-import org.omg.CSIIOP.SimpleDelegation;
-import org.omg.CSIIOP.CompositeDelegation;
 
-import org.openejb.xbeans.csiv2.css.CSSCssType;
 import org.openejb.xbeans.csiv2.css.CSSCompoundSecMechType;
+import org.openejb.xbeans.csiv2.css.CSSCssType;
 import org.openejb.xbeans.csiv2.css.CSSSSLType;
-import org.openejb.xbeans.csiv2.tss.TSSCompoundSecMechType;
+import org.openejb.xbeans.csiv2.css.CSSGSSUPStaticType;
+import org.openejb.xbeans.csiv2.css.CSSGSSUPDynamicType;
 import org.openejb.xbeans.csiv2.tss.TSSAssociationOption;
-import org.openejb.corba.security.config.tss.TSSNULLTransportConfig;
-import org.openejb.corba.security.config.tss.TSSCompoundSecMechListConfig;
-import org.openejb.corba.security.config.tss.TSSCompoundSecMechConfig;
-import org.openejb.corba.security.config.tss.TSSNULLASMechConfig;
 
 
 /**
@@ -91,7 +89,7 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
 
         CSSCssType css;
         if (xmlObject instanceof CSSCssType) {
-            css =  (CSSCssType) xmlObject;
+            css = (CSSCssType) xmlObject;
         }
         css = (CSSCssType) xmlObject.copy().changeType(CSSCssType.type);
         try {
@@ -127,7 +125,13 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
             result.setTransport_mech(new CSSSSLTransportConfig());
         }
 
-        result.setAs_mech(new CSSNULLASMechConfig());
+        if (mechType.isSetGSSUPStatic()) {
+            result.setAs_mech(extractGSSUPStatic(mechType.getGSSUPStatic()));
+        } else if (mechType.isSetGSSUPDynamic()) {
+            result.setAs_mech(extractGSSUPDynamic(mechType.getGSSUPDynamic()));
+        } else {
+            result.setAs_mech(new CSSNULLASMechConfig());
+        }
         result.setSas_mech(new CSSSASMechConfig());
 
         return result;
@@ -140,6 +144,14 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
         result.setRequires(extractAssociationOptions(sslType.getRequires()));
 
         return result;
+    }
+
+    protected static CSSASMechConfig extractGSSUPStatic(CSSGSSUPStaticType gssupType) {
+        return new CSSGSSUPMechConfigStatic(gssupType.getUsername(), gssupType.getPassword(), gssupType.getDomain());
+    }
+
+    protected static CSSASMechConfig extractGSSUPDynamic(CSSGSSUPDynamicType gssupType) {
+        return new CSSGSSUPMechConfigDynamic(gssupType.getDomain());
     }
 
     protected static short extractAssociationOptions(List list) {

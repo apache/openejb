@@ -1,4 +1,4 @@
-/* ====================================================================
+/**
  * Redistribution and use of this software and associated documentation
  * ("Software"), with or without modification, are permitted provided
  * that the following conditions are met:
@@ -7,9 +7,10 @@
  *    statements and notices.  Redistributions must also contain a
  *    copy of this document.
  *
- * 2. Redistributions in binary form must reproduce this list of
- *    conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the
+ *    above copyright notice, this list of conditions and the
+ *    following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
  *
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
@@ -22,7 +23,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://openejb.org/).
+ *    (http://openejb.sf.net/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -37,35 +38,54 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * ====================================================================
+ * Copyright 2005 (C) The OpenEJB Group. All Rights Reserved.
  *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the OpenEJB Project.  For more information
- * please see <http://openejb.org/>.
- *
- * ====================================================================
+ * $Id$
  */
 package org.openejb.corba.security.config.css;
 
-import java.io.Serializable;
-
 import org.openejb.corba.security.config.tss.TSSASMechConfig;
+import org.openejb.corba.security.config.tss.TSSGSSUPMechConfig;
+import org.openejb.corba.util.Util;
 
 
 /**
- * @version $Rev: $ $Date$
+ * @version $Revision$ $Date$
  */
-public interface CSSASMechConfig extends Serializable {
+public class CSSGSSUPMechConfigStatic implements CSSASMechConfig {
 
-    public short getSupports();
+    private final String username;
+    private final String password;
+    private final String domain;
+    private transient byte[] encoding;
 
-    public short getRequires();
+    public CSSGSSUPMechConfigStatic(String username, String password, String domain) {
+        this.username = username;
+        this.password = password;
+        this.domain = domain;
+    }
 
-    public boolean canHandle(TSSASMechConfig asMech);
+    public short getSupports() {
+        return 0;
+    }
 
-    /**
-     * Encode the client authentication token
-     * @return the encoded client authentication token
-     */
-    public byte[] encode();
+    public short getRequires() {
+        return 0;
+    }
+
+    public boolean canHandle(TSSASMechConfig asMech) {
+        if (asMech instanceof TSSGSSUPMechConfig) return true;
+        if (asMech.getRequires() == 0) return true;
+
+        return false;
+    }
+
+    public byte[] encode() {
+        if (encoding == null) {
+            encoding = Util.encodeGSSUPToken(Util.getORB(), Util.getCodec(), username, password, domain);
+
+            if (encoding == null) encoding = new byte[0];
+        }
+        return encoding;
+    }
 }

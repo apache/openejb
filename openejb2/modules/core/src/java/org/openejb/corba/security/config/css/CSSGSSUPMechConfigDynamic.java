@@ -44,24 +44,32 @@
  */
 package org.openejb.corba.security.config.css;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Iterator;
+import java.util.Set;
+import javax.security.auth.Subject;
+
+import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
+
 import org.openejb.corba.security.config.tss.TSSASMechConfig;
 import org.openejb.corba.security.config.tss.TSSGSSUPMechConfig;
 import org.openejb.corba.util.Util;
 
 
 /**
+ * This GSSUP mechanism obtains its username and password from a named username
+ * password credential that is stored in the subject associated w/ the call
+ * stack.
+ *
  * @version $Revision$ $Date$
  */
-public class CSSGSSUPMechConfig implements CSSASMechConfig {
+public class CSSGSSUPMechConfigDynamic implements CSSASMechConfig {
 
-    private final String username;
-    private final String password;
     private final String domain;
     private transient byte[] encoding;
 
-    public CSSGSSUPMechConfig(String username, String password, String domain) {
-        this.username = username;
-        this.password = password;
+    public CSSGSSUPMechConfigDynamic(String domain) {
         this.domain = domain;
     }
 
@@ -82,13 +90,25 @@ public class CSSGSSUPMechConfig implements CSSASMechConfig {
 
     public byte[] encode() {
         if (encoding == null) {
-            encoding = Util.encodeGSSUPToken(Util.getORB(), Util.getCodec(), username, password.toCharArray(), domain);
+            NamedUsernamePasswordCredential credential = null;
+
+            Set creds = (Set) AccessController.doPrivileged(new PrivilegedAction() {
+                public Object run() {
+                    Subject subject = Subject.getSubject(AccessController.getContext());
+                    return subject.getPrivateCredentials(NamedUsernamePasswordCredential.class);
+                }
+            });
+
+            if (creds.size() != 0) {
+                for (Iterator iter = creds.iterator(); iter.hasNext();) {
+                    credential = (NamedUsernamePasswordCredential) iter.next();
+                    if (credential.getName().equals(domain)) break;
+                }
+                encoding = Util.encodeGSSUPToken(Util.getORB(), Util.getCodec(), credential.getName(), new String(credential.getPassword()), domain);
+            }
 
             if (encoding == null) encoding = new byte[0];
         }
-
-        byte[] junk = new byte[10];
-        System.arraycopy(encoding, 0, junk, 0, junk.length);
         return encoding;
     }
 }
