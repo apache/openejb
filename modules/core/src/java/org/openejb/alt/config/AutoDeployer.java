@@ -44,27 +44,17 @@
  */
 package org.openejb.alt.config;
 
-import java.io.DataInputStream;
-import java.io.InputStream;
-import java.io.PrintStream;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.Properties;
-import java.util.StringTokenizer;
 
 import org.openejb.OpenEJBException;
 import org.openejb.alt.config.ejb11.EjbDeployment;
 import org.openejb.alt.config.ejb11.EjbJar;
-import org.openejb.alt.config.ejb11.MethodParams;
 import org.openejb.alt.config.ejb11.OpenejbJar;
-import org.openejb.alt.config.ejb11.QueryMethod;
 import org.openejb.alt.config.ejb11.ResourceLink;
 import org.openejb.alt.config.ejb11.ResourceRef;
 import org.openejb.alt.config.sys.Connector;
 import org.openejb.alt.config.sys.Container;
 import org.openejb.alt.config.sys.Openejb;
-import org.openejb.util.JarUtils;
-import org.openejb.util.Messages;
 import org.openejb.util.SafeToolkit;
 
 /**
@@ -111,6 +101,7 @@ public class AutoDeployer {
         
         /* Load resource list */
         this.resources = config.getConnector();
+        System.out.println("resources "+resources.length);
     }
     
     public void init() throws OpenEJBException {
@@ -149,7 +140,7 @@ public class AutoDeployer {
         }
         
         for (int i = 0; i < refs.length; i++) {
-            deployment.addResourceLink(resolveResourceRef(refs[i]));
+            deployment.addResourceLink(autoAssingResourceRef(refs[i]));
         }
 
         if (bean.getType().equals("CMP_ENTITY")){
@@ -170,7 +161,7 @@ public class AutoDeployer {
         return deployment;
     }
 
-    private boolean hasFinderMethods(Class bean)
+	private boolean hasFinderMethods(Class bean)
     throws OpenEJBException {
 
         Method[] methods = bean.getMethods();
@@ -200,7 +191,7 @@ public class AutoDeployer {
         return cs[0].getId();
     }
 
-    private ResourceLink resolveResourceRef(ResourceRef ref) throws OpenEJBException {
+	private ResourceLink autoAssingResourceRef(ResourceRef ref) throws OpenEJBException {
         if (resources.length == 0) {
             throw new OpenEJBException("A Connector must be declared in the configuration file to satisfy the resource-ref "+ref.getResRefName());
         } 
@@ -209,7 +200,7 @@ public class AutoDeployer {
         link.setResRefName(ref.getResRefName());
         link.setResId(resources[0].getId());
         return link;
-    }
+	}
 
     /*------------------------------------------------------*/
     /*    Refactored Methods                                */
