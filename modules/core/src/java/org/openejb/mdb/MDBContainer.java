@@ -70,6 +70,7 @@ import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
 import org.openejb.ConnectionTrackingInterceptor;
 import org.openejb.EJBContainerConfiguration;
 import org.openejb.SystemExceptionInterceptor;
@@ -103,6 +104,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
 
     private final TransactionManager transactionManager;
     private final ActivationSpec activationSpec;
+    private final String xaResourceName;
 
     private final ClassLoader classLoader;
     private final Class beanClass;
@@ -115,7 +117,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
 
     private final Interceptor interceptor;
 
-    public MDBContainer(EJBContainerConfiguration config, TransactionManager transactionManager, TrackedConnectionAssociator trackedConnectionAssociator, ActivationSpec activationSpec) throws Exception {
+    public MDBContainer(EJBContainerConfiguration config, TransactionManager transactionManager, TrackedConnectionAssociator trackedConnectionAssociator, ActivationSpec activationSpec, String xaResourceName) throws Exception {
         ejbName = config.ejbName;
         transactionDemarcation = config.txnDemarcation;
         userTransaction = config.userTransaction;
@@ -132,6 +134,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
 
         this.transactionManager = transactionManager;
         this.activationSpec = activationSpec;
+        this.xaResourceName = xaResourceName;
 
         classLoader = Thread.currentThread().getContextClassLoader();
         beanClass = classLoader.loadClass(config.beanClassName);
@@ -227,7 +230,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
     }
 
     public MessageEndpoint createEndpoint(XAResource adapterXAResource) throws UnavailableException {
-        return messageClientContainer.getMessageEndpoint(adapterXAResource);
+        return messageClientContainer.getMessageEndpoint(new WrapperNamedXAResource(adapterXAResource, xaResourceName));
     }
 
     public boolean isDeliveryTransacted(Method method) throws NoSuchMethodException {
