@@ -152,12 +152,20 @@ public class StatelessLocalClientContainer implements EJBLocalClientContainer {
         return fastLocalProxy;
     }
 
+    /**
+     * Base class for EJBLocalHome invocations. Handles operations which can
+     * be performed directly by the proxy.
+     */
     public static abstract class StatelessLocalHomeImpl implements EJBLocalHome {
         public void remove(Object primaryKey) throws RemoveException, EJBException {
             throw new RemoveException("Cannot use remove(Object) on a Stateless SessionBean");
         }
     }
 
+    /**
+     * Callback handler for EJBLocalHome invocations that cannot be handled
+     * directly by the proxy.
+     */
     private class StatelessLocalHomeCallback implements MethodInterceptor {
         public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
             if (methodProxy.getIndex() == createIndex) {
@@ -167,6 +175,10 @@ public class StatelessLocalClientContainer implements EJBLocalClientContainer {
         }
     }
 
+    /**
+     * Base class for EJBLocal invocations. Handles operations which can
+     * be performed directly by the proxy.
+     */
     public static abstract class StatelessLocalObjectImpl implements EJBLocalObject {
         private final EJBLocalHome localHomeProxy;
 
@@ -190,6 +202,10 @@ public class StatelessLocalClientContainer implements EJBLocalClientContainer {
         }
     }
 
+    /**
+     * Callback handler for EJBLocal invocations that cannot be handled
+     * directly by the proxy.
+     */
     private class StatelessLocalObjectCallback implements MethodInterceptor {
         public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
             InvocationResult result;
