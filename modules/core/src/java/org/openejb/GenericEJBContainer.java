@@ -131,9 +131,10 @@ public class GenericEJBContainer implements EJBContainer {
         interceptorBuilder.setTransactionManager(transactionManager);
         interceptorBuilder.setTrackedConnectionAssociator(trackedConnectionAssociator);
         interceptorBuilder.setInstancePool(pool);
-        interceptor = interceptorBuilder.buildInterceptorChain();
+        TwoChains chains = interceptorBuilder.buildInterceptorChains();
+        interceptor = chains.getUserChain();
 
-        contextFactory.setLifecycleInterceptorChain(interceptorBuilder.getLifecycleInterceptorChain());
+        contextFactory.setSystemChain(chains.getSystemChain());
 
         // initialize the user transaction
         if (userTransaction != null) {
@@ -174,7 +175,7 @@ public class GenericEJBContainer implements EJBContainer {
             }
         }
 
-        EJBInvocationImpl invocation = new EJBInvocationImpl(invocationType, primKey, index, args);
+        EJBInvocation invocation = new EJBInvocationImpl(invocationType, primKey, index, args);
 
         InvocationResult result = null;
         try {

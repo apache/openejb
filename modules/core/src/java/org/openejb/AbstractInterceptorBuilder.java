@@ -144,7 +144,4 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
         this.instanceFactory = instanceFactory;
     }
 
-    public Interceptor getLifecycleInterceptorChain() {
-        return null;
-    }
 }

@@ -63,7 +63,12 @@ import org.openejb.entity.BusinessMethod;
 import org.openejb.entity.EntityInstanceFactory;
 import org.openejb.entity.EntityInterceptorBuilder;
 import org.openejb.entity.HomeMethod;
-import org.openejb.entity.EJBLoadOperation;
+import org.openejb.entity.dispatch.EJBActivateOperation;
+import org.openejb.entity.dispatch.EJBLoadOperation;
+import org.openejb.entity.dispatch.EJBPassivateOperation;
+import org.openejb.entity.dispatch.EJBStoreOperation;
+import org.openejb.entity.dispatch.SetEntityContextOperation;
+import org.openejb.entity.dispatch.UnsetEntityContextOperation;
 
 /**
  *
@@ -90,7 +95,7 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
 
         // build the context factory
         InstanceContextFactory contextFactory = new BMPInstanceContextFactory(getContainerId(), beanClass, getUnshareableResources(), getApplicationManagedSecurityResources());
-        EntityInstanceFactory instanceFactory = new EntityInstanceFactory(getComponentContext(), contextFactory);
+        EntityInstanceFactory instanceFactory = new EntityInstanceFactory(contextFactory);
 
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
@@ -102,7 +107,7 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
-    protected LinkedHashMap buildVopMap(final Class beanClass) throws Exception{
+   protected LinkedHashMap buildVopMap(final Class beanClass) throws Exception{
         LinkedHashMap vopMap = new LinkedHashMap();
 
         // get the context set unset method objects
@@ -123,12 +128,6 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
 
             // skip the rejects
             if (Object.class == beanMethod.getDeclaringClass()) {
-                continue;
-            }
-            if (setEntityContext.equals(beanMethod)) {
-                continue;
-            }
-            if (unsetEntityContext.equals(beanMethod)) {
                 continue;
             }
 
@@ -170,11 +169,32 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
                 vopMap.put(
                         MethodHelper.translateToInterface(signature),
                         new BMPFinderMethod(beanClass, signature));
-            } else if (name.equals("ejbLoad") || name.equals("ejbStore")) {
+            } else if (name.equals("ejbActivate")) {
                 vopMap.put(
                         MethodHelper.translateToInterface(signature)
-                        , new EJBLoadOperation(beanClass, signature));
+                        , EJBActivateOperation.INSTANCE);
+            } else if (name.equals("ejbLoad")) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , EJBLoadOperation.INSTANCE);
+            } else if (name.equals("ejbPassivate")) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , EJBPassivateOperation.INSTANCE);
+            } else if (name.equals("ejbStore")) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , EJBStoreOperation.INSTANCE);
+            } else if (setEntityContext.equals(beanMethod)) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , SetEntityContextOperation.INSTANCE);
+            } else if (unsetEntityContext.equals(beanMethod)) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , UnsetEntityContextOperation.INSTANCE);
             } else if (name.startsWith("ejb")) {
+                //TODO this shouldn't happen?
                 continue;
             } else {
                 vopMap.put(

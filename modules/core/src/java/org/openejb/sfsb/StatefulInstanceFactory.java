@@ -48,14 +48,11 @@
 package org.openejb.sfsb;
 
 import java.io.Serializable;
-import javax.ejb.SessionBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
-
-import org.openejb.EJBOperation;
 import org.openejb.InstanceContextFactory;
 import org.openejb.cache.InstanceFactory;
 
@@ -71,11 +68,9 @@ import org.openejb.cache.InstanceFactory;
 public class StatefulInstanceFactory implements InstanceFactory, Serializable {
     private static final Log log = LogFactory.getLog(StatefulInstanceFactory.class);
 
-    private final ReadOnlyContext componentContext;
     private final InstanceContextFactory factory;
 
-    public StatefulInstanceFactory(ReadOnlyContext componentContext, InstanceContextFactory factory) {
-        this.componentContext = componentContext;
+    public StatefulInstanceFactory(InstanceContextFactory factory) {
         this.factory = factory;
     }
 
@@ -88,19 +83,16 @@ public class StatefulInstanceFactory implements InstanceFactory, Serializable {
 
             // create an EJBInstanceContext wrapping the raw instance
             StatefulInstanceContext ctx = (StatefulInstanceContext) factory.newInstance();
-            SessionBean instance = (SessionBean) ctx.getInstance();
-
-            // Activate this components JNDI Component Context
-            RootContext.setComponentContext(componentContext);
-
-            // initialize the instance
-            ctx.setOperation(EJBOperation.SETCONTEXT);
             try {
-                instance.setSessionContext(ctx.getSessionContext());
-            } finally {
-                ctx.setOperation(EJBOperation.INACTIVE);
+                ctx.setContext();
+            } catch (Throwable t) {
+                //TODO check this error handling
+                if (t instanceof Exception) {
+                    throw (Exception) t;
+                } else {
+                    throw (Error) t;
+                }
             }
-
             return ctx;
         } finally {
             RootContext.setComponentContext(oldContext);
@@ -109,21 +101,11 @@ public class StatefulInstanceFactory implements InstanceFactory, Serializable {
 
     public void destroyInstance(Object instance) {
         StatefulInstanceContext ctx = (StatefulInstanceContext) instance;
-        SessionBean beanInstance = (SessionBean) ctx.getInstance();
-
-        ctx.setOperation(EJBOperation.SETCONTEXT);
-
-        // Activate this components JNDI Component Context
-        ReadOnlyContext oldContext = RootContext.getComponentContext();
-        RootContext.setComponentContext(componentContext);
         try {
-            beanInstance.setSessionContext(null);
+            ctx.unsetContext();
         } catch (Throwable t) {
             // We're destroying this instance, so just log and continue
             log.warn("Unexpected error destroying Session instance", t);
-        } finally {
-            ctx.setOperation(EJBOperation.INACTIVE);
-            RootContext.setComponentContext(oldContext);
         }
     }
 }

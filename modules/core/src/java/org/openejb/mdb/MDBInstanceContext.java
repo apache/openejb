@@ -48,11 +48,14 @@
 package org.openejb.mdb;
 
 import java.util.Set;
+
 import javax.ejb.MessageDrivenBean;
 
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
+import org.openejb.dispatch.SystemMethodIndices;
 
 /**
  * Wrapper for a MDB.
@@ -63,10 +66,12 @@ public final class MDBInstanceContext extends AbstractInstanceContext {
     private final Object containerId;
     private final MDBContext mdbContext;
 
-    public MDBInstanceContext(Object containerId, MessageDrivenBean instance, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
-        super(unshareableResources, applicationManagedSecurityResources, instance, null);
+    public MDBInstanceContext(Object containerId, MessageDrivenBean instance, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources) {
+        super(systemMethodIndices, systemChain, unshareableResources, applicationManagedSecurityResources, instance, null);
         this.containerId = containerId;
         this.mdbContext = new MDBContext(this, userTransaction);
+        setContextInvocation = systemMethodIndices.getSetContextInvocation(this, mdbContext);
+        unsetContextInvocation = systemMethodIndices.getSetContextInvocation(this, null);
     }
 
     public Object getContainerId() {

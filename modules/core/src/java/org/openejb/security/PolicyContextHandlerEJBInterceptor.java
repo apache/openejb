@@ -47,13 +47,12 @@
  */
 package org.openejb.security;
 
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.Invocation;
-
 import javax.security.jacc.PolicyContext;
 
-import org.openejb.EJBInvocationImpl;
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.openejb.EJBInvocation;
 
 
 /**
@@ -78,7 +77,7 @@ public class PolicyContextHandlerEJBInterceptor implements Interceptor {
     public InvocationResult invoke(final Invocation invocation) throws Throwable {
         PolicyContextHandlerDataEJB data = new PolicyContextHandlerDataEJB();
 
-        EJBInvocationImpl ejbInvocation = (EJBInvocationImpl) invocation;
+        EJBInvocation ejbInvocation = (EJBInvocation) invocation;
 
         data.arguments = ejbInvocation.getArguments();
         data.bean = ejbInvocation.getEJBInstanceContext().getInstance();

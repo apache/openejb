@@ -92,16 +92,23 @@ public class StatelessInstanceFactory implements InstanceFactory, Serializable {
 
             // create the StatelessInstanceContext which contains the instance
             StatelessInstanceContext ctx = (StatelessInstanceContext) factory.newInstance();
+            try {
+                ctx.setContext();
+            } catch (Throwable t) {
+                //TODO check this error handling
+                if (t instanceof Exception) {
+                    throw (Exception) t;
+                } else {
+                    throw (Error) t;
+                }
+            }
             SessionBean instance = (SessionBean) ctx.getInstance();
             assert(instance != null);
 
             // Activate this components JNDI Component Context
             RootContext.setComponentContext(componentContext);
 
-            // initialize the instance
-            ctx.setOperation(EJBOperation.SETCONTEXT);
-            instance.setSessionContext(ctx.getSessionContext());
-
+            //TODO make ejbCreate go through the stack also
             ctx.setOperation(EJBOperation.EJBCREATE);
             try {
                 implClass.invoke(createIndex, instance, null);

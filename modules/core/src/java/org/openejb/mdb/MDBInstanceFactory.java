@@ -90,16 +90,24 @@ public class MDBInstanceFactory implements InstanceFactory, Serializable {
 
             // create the StatelessInstanceContext which contains the instance
             MDBInstanceContext ctx = (MDBInstanceContext) factory.newInstance();
+
+            try {
+                ctx.setContext();
+            } catch (Throwable t) {
+                //TODO check this error handling
+                if (t instanceof Exception) {
+                    throw (Exception) t;
+                } else {
+                    throw (Error) t;
+                }
+            }
             MessageDrivenBean instance = (MessageDrivenBean) ctx.getInstance();
             assert(instance != null);
 
             // Activate this components JNDI Component Context
             RootContext.setComponentContext(componentContext);
 
-            // initialize the instance
-            ctx.setOperation(EJBOperation.SETCONTEXT);
-            instance.setMessageDrivenContext(ctx.getMessageDrivenContext());
-
+            //TODO make ejbcreate go through the stack also!
             ctx.setOperation(EJBOperation.EJBCREATE);
             try {
                 implClass.invoke(createIndex, instance, null);
@@ -138,6 +146,7 @@ public class MDBInstanceFactory implements InstanceFactory, Serializable {
             ctx.setOperation(EJBOperation.INACTIVE);
             RootContext.setComponentContext(oldContext);
         }
+        //TODO shouldn't we call setMessageDrivenContext(null);
     }
 
     private Object readResolve() {

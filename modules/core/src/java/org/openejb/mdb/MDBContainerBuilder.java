@@ -58,11 +58,13 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.openejb.ResourceEnvironmentBuilder;
+import org.openejb.mdb.dispatch.SetMessageDrivenContextOperation;
 import org.openejb.cache.InstancePool;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
+import org.openejb.dispatch.MethodHelper;
 import org.openejb.slsb.CreateMethod;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
@@ -220,13 +222,14 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder {
         gbean.setAttribute("endpointInterfaceName", endpointInterfaceName);
         gbean.setAttribute("signatures", signatures);
         gbean.setAttribute("deliveryTransacted", deliveryTransacted);
+        gbean.setAttribute("contextFactory", contextFactory);
         gbean.setAttribute("interceptorBuilder", interceptorBuilder);
         gbean.setAttribute("instancePool", pool);
         gbean.setAttribute("userTransaction", userTransaction);
         return gbean;
     }
 
-    private LinkedHashMap buildVopMap(Class beanClass) throws Exception {
+    protected LinkedHashMap buildVopMap(Class beanClass) throws Exception {
         LinkedHashMap vopMap = new LinkedHashMap();
 
         Method setMessageDrivenContext = null;
@@ -247,14 +250,17 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder {
             if (Object.class == beanMethod.getDeclaringClass()) {
                 continue;
             }
+            String name = beanMethod.getName();
+            MethodSignature signature = new MethodSignature(beanMethod);
             if (setMessageDrivenContext.equals(beanMethod)) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , SetMessageDrivenContextOperation.INSTANCE);
                 continue;
             }
-            String name = beanMethod.getName();
             if (name.startsWith("ejb")) {
                 continue;
             }
-            MethodSignature signature = new MethodSignature(beanMethod);
             vopMap.put(
                     new InterfaceMethodSignature(signature, false),
                     new BusinessMethod(beanClass, signature));

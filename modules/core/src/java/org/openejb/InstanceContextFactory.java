@@ -64,7 +64,7 @@ public interface InstanceContextFactory {
 
     void setProxyFactory(EJBProxyFactory proxyFactory);
 
-    void setLifecycleInterceptorChain(Interceptor lifecycleInterceptorChain);
+    void setSystemChain(Interceptor lifecycleInterceptorChain);
 
     void setSignatures(InterfaceMethodSignature[] signatures);
 }

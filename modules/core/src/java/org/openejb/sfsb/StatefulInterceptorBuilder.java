@@ -53,6 +53,7 @@ import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 import org.openejb.AbstractInterceptorBuilder;
 import org.openejb.ConnectionTrackingInterceptor;
 import org.openejb.SystemExceptionInterceptor;
+import org.openejb.TwoChains;
 import org.openejb.dispatch.DispatchInterceptor;
 import org.openejb.security.EJBIdentityInterceptor;
 import org.openejb.security.EJBRunAsInterceptor;
@@ -64,7 +65,8 @@ import org.openejb.transaction.TransactionContextInterceptor;
  * @version $Revision$ $Date$
  */
 public class StatefulInterceptorBuilder extends AbstractInterceptorBuilder {
-    public Interceptor buildInterceptorChain() {
+
+    public TwoChains buildInterceptorChains() {
         if (transactionManager == null) {
             throw new IllegalStateException("Transaction manager must be set before building the interceptor chain");
         }
@@ -74,12 +76,14 @@ public class StatefulInterceptorBuilder extends AbstractInterceptorBuilder {
 
         Interceptor firstInterceptor;
         firstInterceptor = new DispatchInterceptor(vtable);
-        if (trackedConnectionAssociator != null) {
-            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
-        }
         if (setIdentityEnabled) {
             firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
         }
+        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
+        if (trackedConnectionAssociator != null) {
+            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
+        }
+        Interceptor systemChain = firstInterceptor;
         if (securityEnabled) {
             firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, containerId, permissionManager);
         }
@@ -91,8 +95,7 @@ public class StatefulInterceptorBuilder extends AbstractInterceptorBuilder {
         }
         firstInterceptor = new StatefulInstanceInterceptor(firstInterceptor, containerId, instanceFactory, instanceCache);
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, transactionPolicyManager);
-        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
-        return firstInterceptor;
+        return new TwoChains(firstInterceptor, systemChain);
     }
 }

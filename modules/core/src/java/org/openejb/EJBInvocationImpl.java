@@ -93,6 +93,14 @@ public class EJBInvocationImpl extends SimpleInvocation implements EJBInvocation
         this.id = id;
     }
 
+    public EJBInvocationImpl(int index, Object[] arguments, EJBInstanceContext instanceContext) {
+        this.type = EJBInterfaceType.LIFECYCLE;
+        this.index = index;
+        this.arguments = arguments;
+        this.id = null;
+        this.instanceContext = instanceContext;
+    }
+
     public int getMethodIndex() {
         return index;
     }

@@ -45,55 +45,52 @@
  *
  * ====================================================================
  */
-package org.openejb.mdb;
+package org.openejb.dispatch;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.Set;
-import javax.ejb.MessageDrivenBean;
-import javax.ejb.MessageDrivenContext;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.apache.geronimo.core.service.Interceptor;
-import org.openejb.EJBInstanceFactory;
-import org.openejb.EJBInstanceFactoryImpl;
-import org.openejb.dispatch.SystemMethodIndices;
-import org.openejb.dispatch.InterfaceMethodSignature;
+import javax.ejb.EnterpriseBean;
+
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
+
+import net.sf.cglib.reflect.FastClass;
+
+import org.openejb.EJBInstanceContext;
+import org.openejb.EJBInvocation;
+import org.openejb.EJBOperation;
 
 /**
+ *
+ *
  * @version $Revision$ $Date$
  */
-public class MDBInstanceContextFactory implements Serializable {
-    private final Object containerId;
-    private final EJBInstanceFactory factory;
-    private final UserTransactionImpl userTransaction;
-    private final Set unshareableResources;
-    private final Set applicationManagedSecurityResources;
-    private SystemMethodIndices systemMethodIndices;
-    private Interceptor systemChain;
+public abstract class AbstractSpecificMethodOperation implements VirtualOperation, Serializable {
 
-    public MDBInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
-        this.containerId = containerId;
-        this.userTransaction = userTransaction;
-        this.factory = new EJBInstanceFactoryImpl(beanClass);
-        this.unshareableResources = unshareableResources;
-        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
+    protected InvocationResult invoke(EJBInvocation invocation, EJBOperation operation) throws Throwable {
+        EJBInstanceContext ctx = invocation.getEJBInstanceContext();
+        try {
+            ctx.setOperation(operation);
+            try {
+                return new SimpleInvocationResult(true, doOperation(ctx.getInstance(), invocation.getArguments()));
+            } catch (Throwable t) {
+                if (t instanceof Exception && t instanceof RuntimeException == false) {
+                    // checked exception - which we simply include in the result
+                    return new SimpleInvocationResult(false, t);
+                } else {
+                    // unchecked Exception - just throw it to indicate an abnormal completion
+                    throw t;
+                }
+            }
+        } finally {
+            ctx.setOperation(EJBOperation.INACTIVE);
+        }
     }
 
-    public void setSystemChain(Interceptor systemChain) {
-        this.systemChain = systemChain;
-    }
+    protected abstract Object doOperation(EnterpriseBean instance, Object[] arguments) throws Throwable;
 
-    public void setSignatures(InterfaceMethodSignature[] signatures) {
-        systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setMessageDrivenContext", MessageDrivenContext.class.getName(), null);
-    }
-
-
-    public InstanceContext newInstance() throws Exception {
-        return new MDBInstanceContext(containerId,
-                (MessageDrivenBean) factory.newInstance(),
-                userTransaction,
-                systemMethodIndices, systemChain, unshareableResources,
-                applicationManagedSecurityResources);
-    }
 }
