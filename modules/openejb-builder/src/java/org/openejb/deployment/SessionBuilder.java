@@ -141,7 +141,7 @@ class SessionBuilder extends BeanBuilder {
 
     }
 
-    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, Security security, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
+    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, Security security, EnterpriseBeansType enterpriseBeans, ObjectName listener) throws DeploymentException {
         // Session Beans
         SessionBeanType[] sessionBeans = enterpriseBeans.getSessionArray();
         for (int i = 0; i < sessionBeans.length; i++) {
@@ -151,14 +151,14 @@ class SessionBuilder extends BeanBuilder {
             ObjectName sessionObjectName = createEJBObjectName(moduleJ2eeContext, sessionBean);
             assert sessionObjectName != null: "StatelesSessionBean object name is null";
             addEJBContainerGBean(earContext, ejbModule, cl, sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper, security);
-            addWSContainerGBean(earContext, ejbModule, cl, sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper, security);
+            addWSContainerGBean(earContext, ejbModule, cl, sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper, security, listener);
 
         }
     }
 
-    private void addWSContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, Security security) throws DeploymentException {
+    private void addWSContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, Security security, ObjectName listener) throws DeploymentException {
         WSContainerBuilder wsBuilder = new WSContainerBuilder();
-        wsBuilder.addGbean(earContext, ejbModule, cl, sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper, security);
+        wsBuilder.addGbean(earContext, ejbModule, cl, sessionObjectName, listener, sessionBean, openejbSessionBean, transactionPolicyHelper, security);
     }
 
     private void addEJBContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, Security security) throws DeploymentException {

@@ -44,6 +44,8 @@
  */
 package org.openejb.server.xfire;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
@@ -54,6 +56,9 @@ import javax.wsdl.Definition;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.webservices.MessageContextInvocationKey;
+import org.apache.geronimo.webservices.WebServiceInvoker;
+import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.codehaus.xfire.MessageContext;
 import org.codehaus.xfire.XFireRuntimeException;
 import org.codehaus.xfire.fault.Soap11FaultHandler;
@@ -69,21 +74,23 @@ import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
 import org.openejb.proxy.ProxyInfo;
 
-public class WSContainer implements Invoker {
+public class WSContainer implements Invoker, WebServiceInvoker, GBeanLifecycle {
 
     private final EJBContainer ejbContainer;
     private final URI location;
     private final URL wsdlURL;
     private final DefaultJavaService service;
+    private final WebServiceContainer webServiceContainer;
 
     protected WSContainer() {
         this.ejbContainer = null;
         this.location = null;
         this.wsdlURL = null;
         this.service = null;
+        this.webServiceContainer = null;
     }
 
-    public WSContainer(EJBContainer ejbContainer, Definition definition, URI location, URL wsdlURL, String namespace, String encoding, String style) {
+    public WSContainer(EJBContainer ejbContainer, Definition definition, URI location, URL wsdlURL, String namespace, String encoding, String style, WebServiceContainer webServiceContainer) throws Exception {
         this.ejbContainer = ejbContainer;
         this.location = location;
         this.wsdlURL = wsdlURL;
@@ -104,6 +111,44 @@ public class WSContainer implements Invoker {
 
         LightWeightServiceConfigurator configurator = new LightWeightServiceConfigurator(definition, service);
         configurator.configure();
+        this.webServiceContainer = webServiceContainer;
+        if (webServiceContainer != null) {
+            webServiceContainer.addWebService(location.getPath(), this);
+        }
+    }
+
+    public void invoke(InputStream in, OutputStream out, String uri) throws Exception {
+        //  We have to set the context classloader or the StAX API
+        //  won't be able to find it's implementation.
+        Thread thread = Thread.currentThread();
+        ClassLoader originalClassLoader = thread.getContextClassLoader();
+
+        try {
+            thread.setContextClassLoader(getClass().getClassLoader());
+            MessageContext context = new MessageContext("not-used", null, out, null, uri);
+            context.setRequestStream(in);
+            invoke(context);
+        } finally {
+            thread.setContextClassLoader(originalClassLoader);
+        }
+
+    }
+
+    public void getWsdl(OutputStream out) throws Exception {
+        InputStream in = null;
+        try {
+            in = wsdlURL.openStream();
+            byte[] buffer = new byte[1024];
+            for (int read = in.read(buffer); read > 0; read = in.read(buffer) ) {
+                System.out.write(buffer, 0, read);
+                out.write(buffer, 0 ,read);
+            }
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+        }
+
     }
 
     public void invoke(MessageContext context) {
@@ -149,6 +194,22 @@ public class WSContainer implements Invoker {
 
     public URL getWsdlURL() {
         return wsdlURL;
+    }
+
+    public void doStart() throws Exception {
+
+    }
+
+    public void doStop() throws Exception {
+        if (webServiceContainer != null) {
+            webServiceContainer.removeWebService(location.getPath());
+        }
+    }
+
+    public void doFail() {
+        if (webServiceContainer != null) {
+            webServiceContainer.removeWebService(location.getPath());
+        }
     }
 
     private static class SimpleMessageContext implements javax.xml.rpc.handler.MessageContext {

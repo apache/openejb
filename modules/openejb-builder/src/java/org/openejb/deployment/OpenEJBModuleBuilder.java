@@ -123,6 +123,7 @@ import org.tranql.sql.SQLSchema;
 public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder {
 
     private final URI defaultParentId;
+    private final ObjectName listener;
     private final CMPEntityBuilder cmpEntityBuilder;
     private final SessionBuilder sessionBuilder;
     private final EntityBuilder entityBuilder;
@@ -131,8 +132,9 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final SkeletonGenerator skeletonGenerator;
     private final Repository repository;
 
-    public OpenEJBModuleBuilder(URI defaultParentId, SkeletonGenerator skeletonGenerator, Repository repository) {
+    public OpenEJBModuleBuilder(URI defaultParentId, ObjectName listener, SkeletonGenerator skeletonGenerator, Repository repository) {
         this.defaultParentId = defaultParentId;
+        this.listener = listener;
         this.skeletonGenerator = skeletonGenerator;
         this.containerSecurityBuilder = new ContainerSecurityBuilder(this);
         this.cmpEntityBuilder = new CMPEntityBuilder(this);
@@ -484,7 +486,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
-        sessionBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, security, enterpriseBeans);
+        sessionBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, security, enterpriseBeans, listener);
 
         entityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, security, enterpriseBeans);
 
@@ -571,12 +573,13 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
+        infoBuilder.addAttribute("listener", ObjectName.class, true);
         infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class);
         infoBuilder.addReference("Repository", Repository.class);
          infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(EJBReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[] {"defaultParentId", "SkeletonGenerator", "Repository"});
+        infoBuilder.setConstructor(new String[] {"defaultParentId", "listener", "SkeletonGenerator", "Repository"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

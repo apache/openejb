@@ -59,7 +59,8 @@ public class WSContainerBuilderTest extends TestCase {
         JarFile jarFile = new JarFile("target/test-ejb-jar.jar");
         String serviceEndpointName = "org.openejb.test.simple.slsb.SimpleStatelessSessionEndpoint";
         ObjectName sessionObjectName = JMXUtil.getObjectName("openejb:type=StatelessSessionBean,name=MockSession");
-        GBeanData gBeanData = wsContainerBuilder.buildGBeanData(sessionObjectName, "MockSession", serviceEndpointName, jarFile);
+        ObjectName listener = null;
+        GBeanData gBeanData = wsContainerBuilder.buildGBeanData(sessionObjectName, listener, "MockSession", serviceEndpointName, jarFile);
         assertEquals("encoded", gBeanData.getAttribute("encoding"));
         assertEquals("rpc", gBeanData.getAttribute("style"));
     }

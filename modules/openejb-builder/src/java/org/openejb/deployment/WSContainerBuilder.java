@@ -90,7 +90,7 @@ public class WSContainerBuilder {
      * The ultimate goal of this method is to create an XFireService GBean that wraps the EJBContainer with
      * the corresponding sessionObjectname and is capable of being indexed by its WSDL address location.
      */
-    public void addGbean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, Security security) throws DeploymentException {
+    public void addGbean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, ObjectName listener, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, Security security) throws DeploymentException {
 
         boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue());
         String serviceEndpointName = OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getServiceEndpoint());
@@ -102,12 +102,12 @@ public class WSContainerBuilder {
 
         serviceEndpointName = serviceEndpointName.trim();
 
-        GBeanData gBean = buildGBeanData(sessionObjectName, ejbName, serviceEndpointName, ejbModule.getModuleFile());
+        GBeanData gBean = buildGBeanData(sessionObjectName, listener, ejbName, serviceEndpointName, ejbModule.getModuleFile());
 
         earContext.addGBean(gBean);
     }
 
-    public GBeanData buildGBeanData(ObjectName sessionObjectName, String ejbName, String serviceEndpointName, JarFile jarFile) throws DeploymentException {
+    public GBeanData buildGBeanData(ObjectName sessionObjectName, ObjectName listener, String ejbName, String serviceEndpointName, JarFile jarFile) throws DeploymentException {
         WebServices webservice;
         try {
             URL webservicesURL = DeploymentUtil.createJarURL(jarFile, "META-INF/webservices.xml");
@@ -246,7 +246,7 @@ public class WSContainerBuilder {
             throw new DeploymentException("Cannot determine the encoding of the binding: "+port.getBinding().getQName());
         }
 
-        GBeanData gBean = WSContainerGBean.createGBean(ejbName, sessionObjectName, definition, location, wsdlURL, definition.getTargetNamespace(), encoding, style);
+        GBeanData gBean = WSContainerGBean.createGBean(ejbName, sessionObjectName, listener, definition, location, wsdlURL, definition.getTargetNamespace(), encoding, style);
         return gBean;
     }
 
