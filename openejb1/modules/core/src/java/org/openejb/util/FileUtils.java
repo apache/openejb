@@ -78,12 +78,12 @@ public class FileUtils {
             }
             
             if (homePath == null) {
-                homePath = (String) env.get("user.dir");
+                homePath = System.getProperty("user.dir");
             }
                 
             home = new File(homePath);
             if (!home.exists() || (home.exists() && !home.isDirectory())) {
-                homePath = (String) env.get("user.dir");
+                homePath = System.getProperty("user.dir");
                 home = new File(homePath);
             }
 
