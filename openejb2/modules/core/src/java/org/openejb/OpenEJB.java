@@ -388,7 +388,10 @@ public final class OpenEJB {
         return applicationServer;
     }
 
-
+    public static void setApplicationServer(ApplicationServer appServer) {
+        applicationServer = appServer;
+    }
+    
     /**
 	 * Gets all the <code>Container</code> s in this container system.
 	 * 
