@@ -1,194 +1,98 @@
-<?xml version="1.0" ?>
-<document url="http://openejb.sf.net/template.xml">
+<?xml version="1.0"?>
+<document url="http://openejb.sf.net/tomcat-adapter.xml">
+  <properties>
+    <title>OpenEJB Documentation Base</title>
+  </properties>
   <body>
-    <td align="center" width="30">Documentation</td>
 
-    <header>
-      <p> 
-      <span class="pageTitle">Documentation</span>
-      </p>
-    </header>
+<section title="">
 
- 
-    <section title="FAQs">
-
-      <p>
-      
-      <table border="0" width="400">
-      <tr bgcolor="#E2E0F2">
-        <td width="250">Title</td>
-        <td align="center" width="30">HTML </td>
-        <td align="center" width="30">txt  </td>
-        <td align="center" width="30">PDF  </td>
-        <td align="center" width="30">ps   </td>
-      </tr>  
-      <tr>
-        <td width="250">What can I contribute?</td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30"><a href="./faqs/FAQ_What_Can_I_Contribute.txt">3k</a></td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-      </tr>
-      </table>
-     </p>
-
-    </section>
-
-    <section title="Guides">
-
-      <p>
-      
-      <table border="0" width="400">
-      <tr bgcolor="#E2E0F2">
-        <td width="250">Title</td>
-        <td align="center" width="30">HTML</td>
-        <td align="center" width="30">TXT</td>
-        <td align="center" width="30">PDF</td>
-        <td align="center" width="30">PS</td>
-      </tr>  
-      <tr>
-        <td width="250">Getting Started Guide - Join the Mailing List</td>
-        <td align="center" width="30"><a href="GSG-1.html">X</a></td>
-        <td align="center" width="30"><a href="guides/GSG-1.txt">X</a></td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-      </tr>
-      <tr>
-        <td width="250">Getting Started Guide - Get the Source: CVS</td>
-        <td align="center" width="30"><a href="GSG-2.html">X</a></td>
-        <td align="center" width="30"><a href="guides/GSG-2.txt">X</a></td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-      </tr>
-      <tr>
-        <td width="250">Getting Started Guide - Get the Source: WinCVS</td>
-        <td align="center" width="30"><a href="GSG-2-2.html">X</a></td>
-        <td align="center" width="30"><a href="guides/GSG-2-2.txt">X</a></td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-      </tr>
-      <tr>
-        <td width="250">Getting Started Guide - Build the Binaries</td>
-        <td align="center" width="30">soon</td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-      </tr>
-      <tr>
-        <td width="250">Getting Started Guide - Run the Test Suite</td>
-        <td align="center" width="30"><a href="GSG-4.html">X</a></td>
-        <td align="center" width="30"><a href="guides/GSG-4.txt">X</a></td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-      </tr>
-      <tr>
-        <td width="250">Contributor's Guide -- Unit Tests</td>
-        <td align="center" width="30"><a href="CG-1.html">X</a></td>
-        <td align="center" width="30"><a href="guides/CG-1.txt">X</a></td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-      </tr>
-      </table>
-     </p>
-
-    </section>
-
-    <section title="Specifications">
-      <p>
-      
-      <table border="0" width="400">
-      <tr bgcolor="#E2E0F2">
-        <td width="250">Title</td>
-        <td align="center" width="30">HTML</td>
-        <td align="center" width="30">TXT</td>
-        <td align="center" width="30">PDF</td>
-        <td align="center" width="30">PS</td>
-      </tr>  
-      <tr>
-        <td width="250">OpenEJB Specification - Jalapeño Version</td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30"><a href="spec/OpenEJB_Specification.pdf">X</a></td>
-        <td align="center" width="30"><a href="spec/OpenEJB_Specification.ps">X</a></td>
-      </tr>
-      </table>
-      
-      </p>
-      
-    </section>
-
-    <section title="JavaDoc">
-      <p>
-      
-      <table border="0" width="400">
-      <tr bgcolor="#E2E0F2">
-        <td width="250">Title</td>
-        <td align="center" width="30">HTML</td>
-        <td align="center" width="30">TXT</td>
-        <td align="center" width="30">PDF</td>
-        <td align="center" width="30">PS</td>
-      </tr>  
-      <tr>
-        <td width="250">-</td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-      </tr>
-      </table>
-      
-      </p>
-      
-    </section>
-
-    <section title="UML">
-      <p>
-      
-      <table border="0" width="400">
-      <tr bgcolor="#E2E0F2">
-        <td width="250">Title</td>
-        <td align="center" width="30">HTML</td>
-        <td align="center" width="30">TXT</td>
-        <td align="center" width="30">PDF</td>
-        <td align="center" width="30">PS</td>
-      </tr>  
-      <tr>
-        <td width="250">-</td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-      </tr>
-      </table>
-      
-      </p>
-      
-    </section>
-
-    
-    <section title="Presentations">
-      <p>
-      
-      <table border="0" width="400">
-      <tr bgcolor="#E2E0F2">
-        <td width="250">Title</td>
-        <td align="center" width="30">HTML</td>
-        <td align="center" width="30">TXT</td>
-        <td align="center" width="30">PDF</td>
-        <td align="center" width="30">PS</td>
-      </tr>  
-      <tr>
-        <td width="250">soon</td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-        <td align="center" width="30">-</td>
-      </tr>
-      </table>
-      
-      </p>
-      
-    </section>
+<!--<section title="Examples" ref-id="examples">-->
+<ul><b>Examples</b>
+<li><a href="hello-world.html">Hello World</a></li>
+<li><a href="cmp_entity_postgresql.html">Hello World CMP</a></li>
+<li><a href="http://www.onjava.com/pub/a/onjava/2003/02/12/ejb_tomcat.html">Hello World with Tomcat</a></li>
+</ul>
+<!--</section>-->
   
-  </body>
+<br/>
+<!--<section title="Configuration" ref-id="config">-->
+<ul><b>Configuration</b>
+<li><a href="config_basics.html">The basic openejb.conf file layout</a></li>
+<li><a href="config_containers.html">Configuring Containers</a></li>
+<li><a href="stateful_containers.html">Stateful SessionBean Containers</a></li>
+<li><a href="stateless_containers.html">Stateless SessionBean Containers</a></li>
+<li><a href="config_containers.html#BMP_ENTITY.properties">BMP EntityBean Container properties</a></li>
+<li><a href="config_containers.html#CMP_ENTITY.properties">CMP EntityBean Container properties</a></li>
+</ul>
+<!--</section>-->
+
+<br/>
+<!--<section title="Deployment" ref-id="deploy">-->
+<ul><b>Deployment</b>
+<li><a href="deploy.html">The command-line deploy tool</a></li>
+<li><a href="faq_openejb-jar.html">The openejb-jar.xml file</a></li>
+<li><a href="deploymentids.html">Deployment ID info</a></li>
+</ul>
+<br/>
+<!--<section title="Deployment" ref-id="deploy">-->
+<ul><b>OpenEJB commands</b>
+<li><a href="deploy.html">openejb deploy</a></li>
+<li><a href="start-command.html">openejb start</a></li>
+<li><a href="validate.html">openejb validate</a></li>
+</ul>
+<br/>
+<ul><b>Servers/Integrations</b>
+<li><a href="embedded.html">Local Server</a></li>
+<li><a href="remote-server.html">Remote Server</a></li>
+<li><a href="tomcat.html">Tomcat</a></li>
+</ul>
+
+</section>
+
+
+<!--
+<ul><b>CMP EntityBean Container</b>
+<li><a href="config_cmp_container.html">CMP Container Config</a></li>
+<li><a href="cmp_entity_postgresql.html">Multiple CMP Containers</a></li>
+<li><a href="cmp_entity_postgresql.html">Mapping file syntax</a></li>
+<li><a href="cmp_entity_postgresql.html">Object Query Language (OQL) syntax</a></li>
+</ul>
+<ul><b>BMP EntityBean Container</b>
+<li><a href="cmp_entity_postgresql.html">CMP Container Config</a></li>
+<li><a href="cmp_entity_postgresql.html">Multiple CMP Containers</a></li>
+<li><a href="cmp_entity_postgresql.html">Mapping file syntax</a></li>
+<li><a href="cmp_entity_postgresql.html">Object Query Language (OQL) syntax</a></li>
+</ul>
+<ul><b>Stateless SessionBean Container</b>
+<li><a href="cmp_entity_postgresql.html">CMP Container Config</a></li>
+<li><a href="cmp_entity_postgresql.html">Multiple CMP Containers</a></li>
+<li><a href="cmp_entity_postgresql.html">Mapping file syntax</a></li>
+<li><a href="cmp_entity_postgresql.html">Object Query Language (OQL) syntax</a></li>
+</ul>
+<ul><b>Stateful SessionBean Container</b>
+<li><a href="cmp_entity_postgresql.html">CMP Container Config</a></li>
+<li><a href="cmp_entity_postgresql.html">Multiple CMP Containers</a></li>
+<li><a href="cmp_entity_postgresql.html">Mapping file syntax</a></li>
+<li><a href="cmp_entity_postgresql.html">Object Query Language (OQL) syntax</a></li>
+</ul>
+</section>
+
+<section title="Deployment" ref-id="castor-cmp">
+<ul><b>General EJB Deployment</b>
+<li><a href="cmp_entity_postgresql.html">CMP Container Config</a></li>
+<li><a href="cmp_entity_postgresql.html">Multiple CMPs in one Container</a></li>
+<li><a href="cmp_entity_postgresql.html">Multiple CMP Containers</a></li>
+<li><a href="cmp_entity_postgresql.html">Mapping file syntax</a></li>
+<li><a href="cmp_entity_postgresql.html">Object Query Language (OQL) syntax</a></li>
+</ul>
+<ul><b>CMP EntityBean Deployment</b>
+<li><a href="cmp_entity_postgresql.html">Multiple CMPs in one Container</a></li>
+<li><a href="cmp_entity_postgresql.html">Mapping file syntax</a></li>
+<li><a href="cmp_entity_postgresql.html">Object Query Language (OQL) syntax</a></li>
+</ul>
+-->
+
+
+</body>
 </document>
