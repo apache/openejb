@@ -57,11 +57,11 @@ public class Prompt extends Command {
         Command.register("prompt", Prompt.class);
     }
 
-    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
+    public void exec(Arguments args, DataInputStream in, PrintStream out) throws IOException{
         try{
-            if (args.length == 0) return;
+            if (args.count() == 0) return;
 
-            TextConsole.PROMPT = args[0];
+            TextConsole.PROMPT = args.get(0);
 
         } catch (Exception e){
             e.printStackTrace();

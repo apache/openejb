@@ -57,7 +57,8 @@ import org.openejb.util.Logger;
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
-public class TextConsole implements Runnable {
+public class TextConsole implements Runnable
+{
 
     Logger logger = Logger.getInstance( "OpenEJB.admin", "org.openejb.server.util.resources" );
 
@@ -65,25 +66,29 @@ public class TextConsole implements Runnable {
     Properties props;
     EjbDaemon ejbd;
 
-    public TextConsole(EjbDaemon ejbd) {
+    public TextConsole( EjbDaemon ejbd )
+    {
         this.ejbd = ejbd;
     }
 
-    public void init(Properties props) throws Exception{
+    public void init( Properties props ) throws Exception
+    {
         this.props = props;
     }
 
     boolean stop = false;
 
-    DataInputStream  in  = null;
+    DataInputStream in = null;
     PrintStream out = null;
 
-    public void start(){
-        try{
+    public void start()
+    {
+        try
+        {
             this.setConsole( new TelnetConsole() );
-            Thread d = new Thread(this);
-            d.setName("Telnet Console");
-            d.setDaemon(true);
+            Thread d = new Thread( this );
+            d.setName( "Telnet Console" );
+            d.setDaemon( true );
             d.start();
 
             /* In the future we can create other types
@@ -96,121 +101,143 @@ public class TextConsole implements Runnable {
             d.setDaemon(true);
             d.start();
             */
-        }catch (Throwable t){
+        }
+        catch ( Throwable t )
+        {
             t.printStackTrace();
         }
     }
 
     Console console;
 
-    private Console getConsole(){
+    private Console getConsole()
+    {
         return console;
     }
 
-    private void setConsole(Console c){
+    private void setConsole( Console c )
+    {
         this.console = c;
     }
 
-    public static final char ESC = (char)27;
+    public static final char ESC = ( char ) 27;
 
-    public static final String TTY_Reset      = ESC+"[0m";
-    public static final String TTY_Bright     = ESC+"[1m";
-    public static final String TTY_Dim        = ESC+"[2m";
-    public static final String TTY_Underscore = ESC+"[4m";
-    public static final String TTY_Blink      = ESC+"[5m";
-    public static final String TTY_Reverse    = ESC+"[7m";
-    public static final String TTY_Hidden     = ESC+"[8m";
+    public static final String TTY_Reset = ESC + "[0m";
+    public static final String TTY_Bright = ESC + "[1m";
+    public static final String TTY_Dim = ESC + "[2m";
+    public static final String TTY_Underscore = ESC + "[4m";
+    public static final String TTY_Blink = ESC + "[5m";
+    public static final String TTY_Reverse = ESC + "[7m";
+    public static final String TTY_Hidden = ESC + "[8m";
 
     /* Foreground Colors */
-    public static final String TTY_FG_Black   = ESC+"[30m";
-    public static final String TTY_FG_Red     = ESC+"[31m";
-    public static final String TTY_FG_Green   = ESC+"[32m";
-    public static final String TTY_FG_Yellow  = ESC+"[33m";
-    public static final String TTY_FG_Blue    = ESC+"[34m";
-    public static final String TTY_FG_Magenta = ESC+"[35m";
-    public static final String TTY_FG_Cyan    = ESC+"[36m";
-    public static final String TTY_FG_White   = ESC+"[37m";
+    public static final String TTY_FG_Black = ESC + "[30m";
+    public static final String TTY_FG_Red = ESC + "[31m";
+    public static final String TTY_FG_Green = ESC + "[32m";
+    public static final String TTY_FG_Yellow = ESC + "[33m";
+    public static final String TTY_FG_Blue = ESC + "[34m";
+    public static final String TTY_FG_Magenta = ESC + "[35m";
+    public static final String TTY_FG_Cyan = ESC + "[36m";
+    public static final String TTY_FG_White = ESC + "[37m";
 
     /* Background Colors */
-    public static final String TTY_BG_Black   = ESC+"[40m";
-    public static final String TTY_BG_Red     = ESC+"[41m";
-    public static final String TTY_BG_Green   = ESC+"[42m";
-    public static final String TTY_BG_Yellow  = ESC+"[43m";
-    public static final String TTY_BG_Blue    = ESC+"[44m";
-    public static final String TTY_BG_Magenta = ESC+"[45m";
-    public static final String TTY_BG_Cyan    = ESC+"[46m";
-    public static final String TTY_BG_White   = ESC+"[47m";
+    public static final String TTY_BG_Black = ESC + "[40m";
+    public static final String TTY_BG_Red = ESC + "[41m";
+    public static final String TTY_BG_Green = ESC + "[42m";
+    public static final String TTY_BG_Yellow = ESC + "[43m";
+    public static final String TTY_BG_Blue = ESC + "[44m";
+    public static final String TTY_BG_Magenta = ESC + "[45m";
+    public static final String TTY_BG_Cyan = ESC + "[46m";
+    public static final String TTY_BG_White = ESC + "[47m";
 
-    public static String PROMPT = TTY_Reset+TTY_Bright+"[openejb]$ "+TTY_Reset;
+    public static String PROMPT = TTY_Reset + TTY_Bright + "[openejb]$ " + TTY_Reset;
 
-    public void run( ) {
+    public void run()
+    {
 
         Console console = getConsole();
 
         // can't ever truely close the console
-        while ( true ) {
-            try {
+        while ( true )
+        {
+            try
+            {
                 console.open();
                 stop = false;
 
                 // TODO:1: Login
                 //...need a security service first
 
-                DataInputStream  in  = console.getInputStream();
+                DataInputStream in = console.getInputStream();
                 PrintStream out = console.getOutputStream();
 
-                while ( !stop ) {
-                    exec(in, out);
+                while ( !stop )
+                {
+                    exec( in, out );
                 }
 
                 console.close();
-            } catch (Throwable t){
-                logger.error(t.getMessage() );
+            }
+            catch ( Throwable t )
+            {
+                logger.error( t.getMessage() );
                 //t.printStackTrace();
                 break;
             }
         }
     }
 
-    protected void exec(DataInputStream in, PrintStream out){
-        try {
-            out.print(PROMPT);
+    protected void exec( DataInputStream in, PrintStream out )
+    {
+        try
+        {
+            out.print( PROMPT );
             out.flush();
 
-            String command = in.readLine();
-            command = command.trim();
+            String commandline = in.readLine();
+            logger.debug( "command: " + commandline );
+            commandline = commandline.trim();
 
-            if (command.length() < 1) return;
+            if ( commandline.length() < 1 ) return;
 
-            StringTokenizer cmdstr = new StringTokenizer(command);
-            command = cmdstr.nextToken();
+            String command = commandline;
+            Command.Arguments args = null;
 
-            // Get parameters
-            Vector p = new Vector();
-            while ( cmdstr.hasMoreTokens() ) {
-                p.add(cmdstr.nextToken());
+            int spacePosition = commandline.indexOf( ' ' );
+            int tabPosition = commandline.indexOf( '\t' );
+            if ( spacePosition != -1 || tabPosition != -1 )
+            {
+                int cutPosition = ( spacePosition > tabPosition ? spacePosition : tabPosition );
+                command = commandline.substring( 0, cutPosition );
+                args = new Command.Arguments( commandline.substring( cutPosition + 1 ) );
             }
-            String[] args = new String[p.size()];
-            p.copyInto(args);
 
-            Command cmd = Command.getCommand(command);
+            Command cmd = Command.getCommand( command );
 
-            if (cmd == null) {
-                out.print(command);
-                out.println(": command not found");
-            } else {
+            if ( cmd == null )
+            {
+                out.print( command );
+                out.println( ": command not found" );
+            }
+            else
+            {
                 cmd.exec( args, in, out );
             }
-        } catch (UnsupportedOperationException e){
+        }
+        catch ( UnsupportedOperationException e )
+        {
             this.stop = true;
-        } catch (Throwable e){
-            e.printStackTrace( new PrintStream(out) );
+        }
+        catch ( Throwable e )
+        {
+            e.printStackTrace( new PrintStream( out ) );
             //e.printStackTrace( );
             this.stop = true;
         }
     }
 
-    protected void badCommand(DataInputStream in, PrintStream out) throws IOException{
+    protected void badCommand( DataInputStream in, PrintStream out ) throws IOException
+    {
         //asdf: command not found
     }
 }

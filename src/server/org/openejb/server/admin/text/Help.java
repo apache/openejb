@@ -60,7 +60,7 @@ public class Help extends Command {
         Command.register("help", Help.class);
     }
 
-    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
+    public void exec(Arguments args, DataInputStream in, PrintStream out) throws IOException{
         HashMap hash = Command.commands;
         Set set = hash.keySet();
         Iterator cmds = set.iterator();

@@ -60,7 +60,7 @@ public class Stop extends Command {
         Command.register("stop", Stop.class);
     }
 
-    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
+    public void exec(Arguments args, DataInputStream in, PrintStream out) throws IOException{
         try{
             String addr = Thread.currentThread().getName();
             InetAddress client = InetAddress.getByName(addr);

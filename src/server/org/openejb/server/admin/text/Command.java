@@ -47,54 +47,68 @@ package org.openejb.server.admin.text;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.StringTokenizer;
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
-public class Command {
+public class Command
+{
 
 
     protected static HashMap commands = new HashMap();
 
-    static{
+    static
+    {
         loadCommandList();
     }
 
     protected static Command unknownCommand = new Command();
 
-    protected static void register(String name, Command cmd){
-        commands.put(name, cmd);
+    protected static void register( String name, Command cmd )
+    {
+        commands.put( name, cmd );
     }
 
-    protected static void register(String name, Class cmd){
-        commands.put(name, cmd);
+    protected static void register( String name, Class cmd )
+    {
+        commands.put( name, cmd );
     }
 
-    public static Command getCommand(String name){
-        Object cmd = commands.get(name);
+    public static Command getCommand( String name )
+    {
+        Object cmd = commands.get( name );
 
-        if ( cmd instanceof Class ) {
-            cmd = loadCommand((Class)cmd);
-            register(name, (Command)cmd);
+        if ( cmd instanceof Class )
+        {
+            cmd = loadCommand( ( Class ) cmd );
+            register( name, ( Command ) cmd );
         }
 
-        return (Command) cmd;
+        return ( Command ) cmd;
     }
 
     // - Public methods - //
 
-    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
-        out.println("not implemented");
+    public void exec( Arguments args, DataInputStream in, PrintStream out ) throws IOException
+    {
+        out.println( "not implemented" );
     }
 
 
     // - Protected methods - //
-    protected static Command loadCommand(Class commandClass) {
+    protected static Command loadCommand( Class commandClass )
+    {
         Command cmd = null;
-        try{
-            cmd = (Command)commandClass.newInstance();
-        } catch(Exception e){
+        try
+        {
+            cmd = ( Command ) commandClass.newInstance();
+        }
+        catch ( Exception e )
+        {
             //throw new IOException("Cannot instantiate command class "+commandClass+"\n"+e.getClass().getName()+":\n"+e.getMessage());
         }
 
@@ -110,13 +124,88 @@ public class Command {
       made in the ant script
 
     */
-    protected static void loadCommandList() {
+    protected static void loadCommandList()
+    {
         Exit.register();
         Help.register();
         Lookup.register();
         Ls.register();
         Stop.register();
         Version.register();
+    }
+
+    public static class Arguments
+    {
+        // holds the whole string representing what's been typed by a user after a command name
+        private String args;
+
+        private String[] argsArray = new String[0];
+
+        private boolean alreadyParsed = false;
+
+        Arguments( String args )
+        {
+            this.args = args;
+        }
+
+        String get()
+        {
+            return args;
+        }
+
+        /**
+         * @param i
+         * @return i-th argument
+         */
+        String get( int i )
+        {
+            parseArgs();
+            return ( argsArray != null ? argsArray[i] : null );
+        }
+
+        int count()
+        {
+            parseArgs();
+            return ( argsArray != null ? argsArray.length : 0 );
+        }
+
+        Iterator iterator()
+        {
+            return new Iterator()
+            {
+                StringTokenizer st = new StringTokenizer( args );
+
+                public boolean hasNext()
+                {
+                    return st.hasMoreTokens();
+                }
+
+                public Object next()
+                {
+                    return st.nextToken();
+                }
+
+                public void remove()
+                {
+                    // not supported
+                }
+            };
+        }
+
+        private void parseArgs()
+        {
+            if ( !alreadyParsed )
+            {
+                ArrayList arrayList = new ArrayList();
+                Iterator it = iterator();
+                while ( it.hasNext() )
+                {
+                    arrayList.add( it.next() );
+                }
+                argsArray = ( String[] ) arrayList.toArray( argsArray );
+                alreadyParsed = true;
+            }
+        }
     }
 }
 

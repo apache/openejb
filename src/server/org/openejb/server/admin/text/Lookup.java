@@ -60,123 +60,149 @@ import org.openejb.core.ivm.naming.IvmContext;
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
-public class Lookup extends Command {
+public class Lookup extends Command
+{
 
     javax.naming.Context ctx = OpenEJB.getJNDIContext();
 
-    public static void register() {
+    public static void register()
+    {
         Lookup cmd = new Lookup();
-        Command.register("lookup", cmd);
+        Command.register( "lookup", cmd );
         //Command.register("list", cmd);
     }
 
-
-    //DMB: Temp-current dir support will be added later
     static String PWD = "";
 
     // execute jndi lookups
-    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
-        try{
+    public void exec( Arguments args, DataInputStream in, PrintStream out ) throws IOException
+    {
+        try
+        {
             String name = "";
-
-            if (args.length == 0) {
+            if ( args == null || args.count() == 0 )
+            {
                 name = PWD;
-            } else {
-                name = args[0];
+            }
+            else
+            {
+                name = args.get();
             }
 
             Object obj = null;
-            try{
-               obj = ctx.lookup(name);
-            } catch (NameNotFoundException e){
-                out.print("lookup: ");
-                out.print(name);
-                out.println(": No such object or subcontext" );
+            try
+            {
+                obj = ctx.lookup( name );
+            }
+            catch ( NameNotFoundException e )
+            {
+                out.print( "lookup: " );
+                out.print( name );
+                out.println( ": No such object or subcontext" );
                 return;
-            } catch (Throwable e){
-                out.print("lookup: error: ");
-                e.printStackTrace(new PrintStream(out));
+            }
+            catch ( Throwable e )
+            {
+                out.print( "lookup: error: " );
+                e.printStackTrace( new PrintStream( out ) );
                 return;
             }
 
-            if ( obj instanceof Context ){
-                list(args, in, out);
+            if ( obj instanceof Context )
+            {
+                list( name, in, out );
                 return;
             }
 
-            // TODO:1: Output the differnt data types differently
-            out.println(""+obj);
-        } catch (Exception e){
-            e.printStackTrace(new PrintStream(out));
+            // TODO:1: Output the different data types differently
+            out.println( "" + obj );
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace( new PrintStream( out ) );
         }
     }
 
-    public void list(String[] args, DataInputStream in, PrintStream out) throws IOException{
-        try{
-        String name = "";
+    public void list( String name, DataInputStream in, PrintStream out ) throws IOException
+    {
+        try
+        {
+            NamingEnumeration enum = null;
+            try
+            {
 
-        if (args.length == 0) {
-            name = PWD;
-        } else {
-            name = args[0];
-        }
+                enum = ctx.list( name );
+            }
+            catch ( NameNotFoundException e )
+            {
+                out.print( "lookup: " );
+                out.print( name );
+                out.println( ": No such object or subcontext" );
+                return;
+            }
+            catch ( Throwable e )
+            {
+                out.print( "lookup: error: " );
+                e.printStackTrace( new PrintStream( out ) );
+                return;
+            }
 
-        NamingEnumeration enum = null;
-        try{
+            if ( enum == null )
+            {
+                return;
+            }
 
-           enum = ctx.list(name);
-        } catch (NameNotFoundException e){
-            out.print("lookup: ");
-            out.print(name);
-            out.println(": No such object or subcontext" );
-            return;
-        } catch (Throwable e){
-            out.print("lookup: error: ");
-            e.printStackTrace(new PrintStream(out));
-            return;
-        }
+            while ( enum.hasMore() )
+            {
 
-        if ( enum == null){
-            return;
-        }
+                NameClassPair entry = ( NameClassPair ) enum.next();
+                String eName = entry.getName();
+                Class eClass = null;
 
-        while (enum.hasMore()) {
-
-            NameClassPair entry = (NameClassPair)enum.next();
-            String eName  = entry.getName();
-            Class  eClass = null;
-
-            if ( IvmContext.class.getName().equals(entry.getClassName()) ) {
-                eClass = IvmContext.class;
-            } else {
-                try{
-                    ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
-                    eClass = Class.forName(entry.getClassName(), true, cl);
-                } catch (Throwable t){
-                    eClass = java.lang.Object.class;
+                if ( IvmContext.class.getName().equals( entry.getClassName() ) )
+                {
+                    eClass = IvmContext.class;
                 }
-            }
+                else
+                {
+                    try
+                    {
+                        ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+                        eClass = Class.forName( entry.getClassName(), true, cl );
+                    }
+                    catch ( Throwable t )
+                    {
+                        eClass = java.lang.Object.class;
+                    }
+                }
 
-            if ( Context.class.isAssignableFrom( eClass ) ) {
-                //out.print("-c- ");
-                out.print(TextConsole.TTY_Bright);
-                out.print(TextConsole.TTY_FG_Blue);
-                out.print(entry.getName());
-                out.print(TextConsole.TTY_Reset);
-            } else if (EJBHome.class.isAssignableFrom( eClass)) {
-                //out.print("-b- ");
-                out.print(TextConsole.TTY_Bright);
-                out.print(TextConsole.TTY_FG_Green);
-                out.print(entry.getName());
-                out.print(TextConsole.TTY_Reset);
-            } else {
-                //out.print("-o- ");
-                out.print(entry.getName());
+                if ( Context.class.isAssignableFrom( eClass ) )
+                {
+                    //out.print("-c- ");
+                    out.print( TextConsole.TTY_Bright );
+                    out.print( TextConsole.TTY_FG_Blue );
+                    out.print( entry.getName() );
+                    out.print( TextConsole.TTY_Reset );
+                }
+                else if ( EJBHome.class.isAssignableFrom( eClass ) )
+                {
+                    //out.print("-b- ");
+                    out.print( TextConsole.TTY_Bright );
+                    out.print( TextConsole.TTY_FG_Green );
+                    out.print( entry.getName() );
+                    out.print( TextConsole.TTY_Reset );
+                }
+                else
+                {
+                    //out.print("-o- ");
+                    out.print( entry.getName() );
+                }
+                out.println();
             }
-            out.println();
         }
-        } catch (Exception e){
-            e.printStackTrace(new PrintStream(out));
+        catch ( Exception e )
+        {
+            e.printStackTrace( new PrintStream( out ) );
         }
     }
 }
