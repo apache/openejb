@@ -18,8 +18,6 @@
   <siteDirectory>/www/openejb.org/core</siteDirectory>
   <distributionDirectory>/www/openejb.org//builds/core</distributionDirectory>
 
-  <currentVersion>DEV</currentVersion>
-
   <!-- ============ -->
   <!-- Dependencies -->
   <!-- ============ -->
