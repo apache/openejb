@@ -21,8 +21,8 @@ REM  Classic Assembler w/ new Configuration Factory
 REM -----------------------------------------------------------
 REM  The location of an OpenEJB .conf configuration file.
 REM 
-set OPENEJB_OPTION_1= -Dorg/openejb/configuration_source=conf\default.openejb.conf
-set OPENEJB_OPTION_X= -Dorg/openejb/configuration_factory=org.openejb.alt.config.ConfigurationFactory
+REM set OPENEJB_OPTION_1= -Dorg/openejb/configuration_source=conf\default.openejb.conf
+REM set OPENEJB_OPTION_X= -Dorg/openejb/configuration_factory=org.openejb.alt.config.ConfigurationFactory
 
 REM -----------------------------------------------------------
 REM  Classic Assembler w/ XML Configuration Factory 
@@ -64,7 +64,7 @@ REM #####################################
 REM  startup options      
 REM         
 REM set OPTIONS=%OPENEJB_OPTION_X% %OPENEJB_OPTION_1% %OPENEJB_OPTION_2% %OPENORB_OPTIONS%
-set OPTIONS=%OPENEJB_OPTION_X%  %OPENEJB_OPTION_1% %OPENEJB_OPTION_2% %OPENEJB_OPTION_3% %OPENORB_OPTIONS%
+set OPTIONS=%OPENEJB_OPTION_2% %OPENEJB_OPTION_3% %OPENORB_OPTIONS%
 REM echo %JAVA% %OPENEJB_OPTION_X% %OPENEJB_OPTION_1% %OPENEJB_OPTION_2% %OPENORB_OPTIONS% -classpath %CP% org.openejb.corba.Server conf\xopenejb_startup.props -ORBProfile=ejb -domain conf\tyrex_resources.xml
 REM %JAVA% %OPENEJB_OPTION_X% %OPENEJB_OPTION_1% %OPENEJB_OPTION_2% %OPENORB_OPTIONS% -classpath %CP% org.openejb.corba.Server conf\xopenejb_startup.props -ORBProfile=ejb -domain conf\tyrex_resources.xml
 %JAVA% %OPTIONS% -classpath %CP% org.openejb.corba.Server -ORBProfile=ejb -domain conf\tyrex_resources.xml

@@ -50,8 +50,8 @@ OPENORB_OPTIONS=" -Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFactory 
 #-----------------------------------------------------------
 # The location of an OpenEJB .conf configuration file.
 #
-OPENEJB_OPTION_1="-Dorg/openejb/configuration_source=conf/default.openejb.conf"
-OPENEJB_OPTION_X="-Dorg/openejb/configuration_factory=org.openejb.alt.config.ConfigurationFactory"
+#OPENEJB_OPTION_1="-Dorg/openejb/configuration_source=conf/default.openejb.conf"
+#OPENEJB_OPTION_X="-Dorg/openejb/configuration_factory=org.openejb.alt.config.ConfigurationFactory"
 
 #-----------------------------------------------------------
 # Classic Assembler w/ XML Configuration Factory 
