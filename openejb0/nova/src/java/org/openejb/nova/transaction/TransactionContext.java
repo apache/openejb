@@ -130,6 +130,24 @@ public abstract class TransactionContext {
         }
     }
 
+    protected void beforeCommit() throws Exception {
+        // @todo allow for enrollment during pre-commit
+        ArrayList toFlush = new ArrayList(associatedContexts.values());
+        for (Iterator i = toFlush.iterator(); i.hasNext();) {
+            EJBInstanceContext context = (EJBInstanceContext) i.next();
+            context.beforeCommit();
+        }
+    }
+
+    protected void afterCommit(boolean status) throws Exception {
+        // @todo allow for enrollment during pre-commit
+        ArrayList toFlush = new ArrayList(associatedContexts.values());
+        for (Iterator i = toFlush.iterator(); i.hasNext();) {
+            EJBInstanceContext context = (EJBInstanceContext) i.next();
+            context.afterCommit(status);
+        }
+    }
+
     public final EJBInstanceContext getContext(EJBContainer container, Object id) {
         return (EJBInstanceContext) associatedContexts.get(container, id);
     }

@@ -142,6 +142,7 @@ public abstract class AbstractEJBContainer
     public void doStart() {
         //super.doStart();
         classLoader = Thread.currentThread().getContextClassLoader();
+        System.out.println("classloader="+classLoader);
         try {
             if (userTransaction != null) {
                 userTransaction.setTransactionManager(txnManager);

@@ -56,63 +56,59 @@
 
 package org.openejb.nova.deployment;
 
-import java.util.Set;
-import java.net.URL;
-import java.net.URI;
-import java.io.InputStreamReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
-import javax.management.ObjectName;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
+import java.util.Set;
 import javax.management.MalformedObjectNameException;
-import javax.transaction.TransactionManager;
+import javax.management.ObjectName;
 import javax.transaction.UserTransaction;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.deployment.model.ejb.CmpField;
+import org.apache.geronimo.deployment.model.ejb.Ejb;
+import org.apache.geronimo.deployment.model.ejb.RpcBean;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
+import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
+import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Query;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
+import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.kernel.deployment.AbstractDeploymentPlanner;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.kernel.deployment.DeploymentPlan;
-import org.apache.geronimo.kernel.deployment.DeploymentInfo;
 import org.apache.geronimo.kernel.deployment.DeploymentHelper;
-import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
-import org.apache.geronimo.kernel.deployment.service.ClassSpaceMetadata;
-import org.apache.geronimo.kernel.deployment.task.RegisterMBeanInstance;
-import org.apache.geronimo.kernel.deployment.task.StartMBeanInstance;
-import org.apache.geronimo.kernel.deployment.task.CreateClassSpace;
-import org.apache.geronimo.kernel.deployment.task.DeployGeronimoMBean;
+import org.apache.geronimo.kernel.deployment.DeploymentInfo;
+import org.apache.geronimo.kernel.deployment.DeploymentPlan;
 import org.apache.geronimo.kernel.deployment.goal.DeployURL;
 import org.apache.geronimo.kernel.deployment.goal.RedeployURL;
 import org.apache.geronimo.kernel.deployment.goal.UndeployURL;
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
+import org.apache.geronimo.kernel.deployment.service.ClassSpaceMetadata;
+import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
+import org.apache.geronimo.kernel.deployment.task.CreateClassSpace;
+import org.apache.geronimo.kernel.deployment.task.DeployGeronimoMBean;
+import org.apache.geronimo.kernel.deployment.task.RegisterMBeanInstance;
+import org.apache.geronimo.kernel.deployment.task.StartMBeanInstance;
 import org.apache.geronimo.kernel.jmx.JMXKernel;
-import org.apache.geronimo.xml.deployment.LoaderUtil;
-import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
-import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
-import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
-import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
-import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
-import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
-import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
-import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
-import org.apache.geronimo.deployment.model.ejb.RpcBean;
-import org.apache.geronimo.deployment.model.ejb.Ejb;
-import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
+import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.ReferenceFactory;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-import org.openejb.nova.slsb.StatelessContainer;
+import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
+import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.openejb.nova.EJBContainerConfiguration;
-import org.openejb.nova.entity.bmp.BMPEntityContainer;
 import org.openejb.nova.entity.EntityContainerConfiguration;
 import org.openejb.nova.sfsb.StatefulContainer;
+import org.openejb.nova.slsb.StatelessContainer;
 import org.openejb.nova.transaction.EJBUserTransaction;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -138,7 +134,6 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
         URL geronimoURL = dHelper.locateGeronimoDD();
         // Is the specific URL deployable?
         if (null == geronimoURL) {
-            log.info("Looking at and rejecting url " + url);
             return false;
         }
         URI baseURI = URI.create(url.toString()).normalize();
@@ -209,7 +204,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
             ObjectName datasourceObjectName;
             try {
                 schemaMetadata.setName(ObjectName.getInstance("geronimo.j2ee:J2eeType=AbstractSchema,name=" + moduleName));
-                datasourceObjectName = ObjectName.getInstance("geronimo.j2ee:J2eeType=ConnectionFactory,name=" + datasourceName);
+                datasourceObjectName = ObjectName.getInstance("geronimo.management:j2eeType=JCAManagedConnectionFactory,name=" + datasourceName);
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("Bad object name", e);
             }
@@ -247,12 +242,21 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
     private void planCMPEntity(DeploymentPlan plan, Entity entity, DeploySchemaMBean schemaTask, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
         MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
         ejbMetadata.setName(getContainerName(entity));
-        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getBMPEntityGeronimoMBeanInfo());
-        EJBContainerConfiguration config = getEntityConfig(entity);
+        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getCMPEntityGeronimoMBeanInfo());
+        EntityContainerConfiguration config = getEntityConfig(entity);
 
-        ejbMetadata.setConstructorArgs(new Object[] {config},
-                new String[] {EJBContainerConfiguration.class.getName()});
-        addTasks(plan, ejbMetadata);
+        Query[] queries = entity.getGeronimoQuery();
+        CmpField[] fields = entity.getCmpField();
+        String[] cmpFieldNames = new String[fields.length];
+        for (int i = 0; i < fields.length; i++) {
+            CmpField field = fields[i];
+            cmpFieldNames[i] = field.getFieldName();
+        }
+
+
+        plan.addTask(new DeployCMPEntityContainer(getServer(), ejbMetadata, schemaTask, config, queries, cmpFieldNames));
+        plan.addTask(new StartMBeanInstance(getServer(), ejbMetadata));
+
     }
 
     void planSession(DeploymentPlan plan, Session session, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {

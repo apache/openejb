@@ -124,14 +124,16 @@ public class StatefulInstanceContext implements EJBInstanceContext {
     }
 
     public void beforeCommit() throws Exception {
-        try {
-            ((SessionSynchronization) instance).beforeCompletion();
-        } catch (Exception e) {
-            dead = true;
-            throw e;
-        } catch (Error e) {
-            dead = true;
-            throw e;
+        if (instance instanceof SessionSynchronization) {
+            try {
+                ((SessionSynchronization) instance).beforeCompletion();
+            } catch (Exception e) {
+                dead = true;
+                throw e;
+            } catch (Error e) {
+                dead = true;
+                throw e;
+            }
         }
     }
 
@@ -139,6 +141,8 @@ public class StatefulInstanceContext implements EJBInstanceContext {
         if (!dead) {
             container.getInstanceCache().putInactive(id, this);
         }
-        ((SessionSynchronization) instance).afterCompletion(committed);
+        if (instance instanceof SessionSynchronization) {
+            ((SessionSynchronization) instance).afterCompletion(committed);
+        }
     }
 }

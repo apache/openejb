@@ -102,6 +102,7 @@ public final class StatefulInstanceInterceptor extends AbstractInterceptor {
                         throw new NoSuchObjectException(id.toString());
                     }
                 }
+                transactionContext.associate(ctx);
             }
         }
 

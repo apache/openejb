@@ -60,6 +60,8 @@ import java.lang.reflect.Constructor;
 
 import javax.management.MBeanServer;
 
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.classspace.ClassSpaceUtil;
 import org.apache.geronimo.kernel.deployment.task.DeployGeronimoMBean;
 import org.apache.geronimo.kernel.deployment.service.MBeanMetadata;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
@@ -100,7 +102,10 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
     }
 
     public void perform() throws DeploymentException {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            ClassSpaceUtil.setContextClassLoader(server, JMXUtil.getObjectName("geronimo.system:role=ClassSpace,name=System"));
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
         SimpleCommandFactory schema = schemaFactory.getSchema();
         CMPQuery[] cmpQueries = new CMPQuery[queries.length];
         for (int i = 0; i < queries.length; i++) {
@@ -116,7 +121,13 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
             }
             Binding[] outputBindings = new Binding[1];
             outputBindings[0] = getBinding(cl, query.getOutputBinding().getType(), 0, query.getOutputBinding().getParam());
+            if (methodSignature.getMethodName().startsWith("ejbCreate")) {
+                schema.defineUpdate(methodSignature, query.getSql(), inputBindings);
+            } else if (methodSignature.getMethodName().startsWith("ejbStore")) {
+                schema.defineUpdate(methodSignature, query.getSql(), inputBindings);
+            } else {
             schema.defineQuery(methodSignature, query.getSql(), inputBindings, outputBindings);
+            }
             //if method name begins with "find", local is ignored.  Set to false.
             //otherwise,
             //if abstract schema name is specified, then you must specify local
@@ -135,14 +146,19 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
         GeronimoMBeanInfo mbeanInfo = metadata.getGeronimoMBeanInfo();
         mbeanInfo.setTarget(container);
         super.perform();
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
 
     private Binding getBinding(ClassLoader cl, String bindingClassName, int j, int slot) throws DeploymentException {
         try {
+            System.out.println("cl = " + cl);
             Class bindingClass = cl.loadClass(bindingClassName);
             Constructor constructor = bindingClass.getConstructor( new Class[] {Integer.TYPE, Integer.TYPE});
 
-            return (Binding)constructor.newInstance(new Object[] {new Integer(j), new Integer(slot)});
+            // j+1 because ResultSet and PS use 1-based numbering
+            return (Binding)constructor.newInstance(new Object[] {new Integer(j+1), new Integer(slot)});
         } catch (Exception e) {
             throw new DeploymentException("Could not load binding class or create binding", e);
         }

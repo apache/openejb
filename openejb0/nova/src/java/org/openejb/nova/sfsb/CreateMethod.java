@@ -107,6 +107,8 @@ public class CreateMethod implements VirtualOperation {
                 invocation.setTransactionContext(TransactionContext.getContext());
             }
         }
+        TransactionContext transactionContext = TransactionContext.getContext();
+        transactionContext.associate(ctx);
 
         // return a ref
         EJBInvocationType type = invocation.getType();

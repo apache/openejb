@@ -143,6 +143,9 @@ public class CMPOperationFactory extends AbstractOperationFactory {
         for (int i = 0; i < queries.length; i++) {
             CMPQuery query = queries[i];
             MethodSignature signature = query.getSignature();
+            if (!(signature.getMethodName().startsWith("ejbFind") || signature.getMethodName().startsWith("ejbSelect"))) {
+                continue;
+            }
             QueryCommand queryCommand = persistenceFactory.getQueryCommand(signature);
             boolean multiValue = query.isMultiValue();
 

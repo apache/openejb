@@ -100,7 +100,7 @@ public class DeploySchemaMBean extends DeployGeronimoMBean{
             return false;
         }
         try {
-            return new Integer(State.RUNNING_INDEX).equals(server.getAttribute(datasourceName, "State"));
+            return new Integer(State.RUNNING_INDEX).equals(server.getAttribute(datasourceName, "state"));
         } catch (Exception e) {
             return false;
         }

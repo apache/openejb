@@ -86,8 +86,8 @@ public class StatefulContainer extends AbstractEJBContainer {
         // set up server side interceptors
         Interceptor firstInterceptor = new ComponentContextInterceptor(componentContext);
         addInterceptor(firstInterceptor);
-        addInterceptor(new StatefulInstanceInterceptor(this, instanceFactory, instanceCache));
         addInterceptor(new TransactionContextInterceptor(txnManager));
+        addInterceptor(new StatefulInstanceInterceptor(this, instanceFactory, instanceCache));
         addInterceptor(new DispatchInterceptor(vtable));
 
         URI target;

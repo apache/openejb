@@ -71,7 +71,7 @@ public final class MethodSignature implements Serializable {
 
     public MethodSignature(String methodName, String[] parameterTypes) {
         this.methodName = methodName;
-        this.parameterTypes = parameterTypes;
+        this.parameterTypes = parameterTypes != null ? parameterTypes : new String[] {};
     }
 
     public MethodSignature(String methodName, Class[] params) {
