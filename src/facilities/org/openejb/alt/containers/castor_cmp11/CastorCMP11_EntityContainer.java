@@ -83,10 +83,10 @@ import org.openejb.core.transaction.TransactionContainer;
 import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionPolicy;
 import org.openejb.util.LinkedListStack;
-import org.openejb.util.Logger;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.Stack;
+import org.openejb.alt.util.Logger;
 
 /**
  * Container-Managed Persistence EntityBean container

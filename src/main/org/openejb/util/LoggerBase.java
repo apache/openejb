@@ -66,8 +66,6 @@ import java.util.HashMap;
  */
 public abstract class LoggerBase {
 
-    protected Category _logger;
-
     static {
 	// Set log4j's configuration (Note the URL's form)
 	// It assumes that the OpenEJB URL handler has already been registered
@@ -77,24 +75,33 @@ public abstract class LoggerBase {
     }
 
     static protected HashMap _loggers  = new HashMap();
-    protected MessagesBase   _messages = null;;
+    protected Category       _logger   = null;
+    protected MessagesBase   _messages = null;
+
 
     /**
      * Returns a shared instance of Logger.
      * 
-     * @param name   the name log4j category to use
+     * @param class   the class whose name log4j category will use
+     * @param name    the name log4j category will use
      * 
      * @return Instance of logger.
      */
-    static public Logger getInstance( String name ) {
-	Logger l = (Logger)_loggers.get( name );
+    static protected LoggerBase getInstanceProtected( Class cls, String name ) {
+	LoggerBase l = (LoggerBase)_loggers.get( cls );
 
 	if ( l == null ) {
-	    synchronized (Logger.class) {
-		l = (Logger)_loggers.get( name );
+	    synchronized (LoggerBase.class) {
+		l = (LoggerBase)_loggers.get( cls );
 		if ( l == null ) {
-		    l = new Logger( name );
-		    _loggers.put( name, l );
+		    try {
+			l = (LoggerBase)cls.newInstance();
+			l._logger = Category.getInstance( name );
+
+			_loggers.put( cls, l );
+		    } catch( java.lang.InstantiationException ie ) {
+		    } catch( java.lang.IllegalAccessException iae ) {
+		    }
 		}
 	    }
 	}
@@ -109,8 +116,7 @@ public abstract class LoggerBase {
      * 
      * @see getInstance()
      */
-    protected LoggerBase( String name ) {
-	_logger = Category.getInstance( name );
+    protected LoggerBase() {
 	_messages = createMessagesBase();
     }
     

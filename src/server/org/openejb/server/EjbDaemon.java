@@ -82,7 +82,7 @@ import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.FileUtils;
 import org.openejb.util.JarUtils;
-import org.openejb.util.Logger;
+import org.openejb.server.util.Logger;
 import org.openejb.server.util.Messages;
 import org.openejb.server.admin.text.*;
 

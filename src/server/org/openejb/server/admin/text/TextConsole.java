@@ -47,7 +47,7 @@ package org.openejb.server.admin.text;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.openejb.util.Logger;
+import org.openejb.server.util.Logger;
 import org.openejb.server.EjbDaemon;
 
 /**
