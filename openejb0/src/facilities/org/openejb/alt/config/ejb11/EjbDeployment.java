@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -40,6 +40,8 @@ public class EjbDeployment implements java.io.Serializable {
 
     private java.util.Vector _resourceLinkList;
 
+    private java.util.Vector _queryList;
+
 
       //----------------/
      //- Constructors -/
@@ -48,12 +50,34 @@ public class EjbDeployment implements java.io.Serializable {
     public EjbDeployment() {
         super();
         _resourceLinkList = new Vector();
+        _queryList = new Vector();
     } //-- org.openejb.alt.config.ejb11.EjbDeployment()
 
 
       //-----------/
      //- Methods -/
     //-----------/
+
+    /**
+     * 
+     * @param vQuery
+    **/
+    public void addQuery(Query vQuery)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _queryList.addElement(vQuery);
+    } //-- void addQuery(Query) 
+
+    /**
+     * 
+     * @param index
+     * @param vQuery
+    **/
+    public void addQuery(int index, Query vQuery)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _queryList.insertElementAt(vQuery, index);
+    } //-- void addQuery(int, Query) 
 
     /**
      * 
@@ -66,6 +90,24 @@ public class EjbDeployment implements java.io.Serializable {
     } //-- void addResourceLink(ResourceLink) 
 
     /**
+     * 
+     * @param index
+     * @param vResourceLink
+    **/
+    public void addResourceLink(int index, ResourceLink vResourceLink)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _resourceLinkList.insertElementAt(vResourceLink, index);
+    } //-- void addResourceLink(int, ResourceLink) 
+
+    /**
+    **/
+    public java.util.Enumeration enumerateQuery()
+    {
+        return _queryList.elements();
+    } //-- java.util.Enumeration enumerateQuery() 
+
+    /**
     **/
     public java.util.Enumeration enumerateResourceLink()
     {
@@ -73,6 +115,8 @@ public class EjbDeployment implements java.io.Serializable {
     } //-- java.util.Enumeration enumerateResourceLink() 
 
     /**
+     * Returns the value of field 'containerId'.
+     * @return the value of field 'containerId'.
     **/
     public java.lang.String getContainerId()
     {
@@ -80,6 +124,8 @@ public class EjbDeployment implements java.io.Serializable {
     } //-- java.lang.String getContainerId() 
 
     /**
+     * Returns the value of field 'deploymentId'.
+     * @return the value of field 'deploymentId'.
     **/
     public java.lang.String getDeploymentId()
     {
@@ -87,11 +133,47 @@ public class EjbDeployment implements java.io.Serializable {
     } //-- java.lang.String getDeploymentId() 
 
     /**
+     * Returns the value of field 'ejbName'.
+     * @return the value of field 'ejbName'.
     **/
     public java.lang.String getEjbName()
     {
         return this._ejbName;
     } //-- java.lang.String getEjbName() 
+
+    /**
+     * 
+     * @param index
+    **/
+    public Query getQuery(int index)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        //-- check bounds for index
+        if ((index < 0) || (index > _queryList.size())) {
+            throw new IndexOutOfBoundsException();
+        }
+        
+        return (Query) _queryList.elementAt(index);
+    } //-- Query getQuery(int) 
+
+    /**
+    **/
+    public Query[] getQuery()
+    {
+        int size = _queryList.size();
+        Query[] mArray = new Query[size];
+        for (int index = 0; index < size; index++) {
+            mArray[index] = (Query) _queryList.elementAt(index);
+        }
+        return mArray;
+    } //-- Query[] getQuery() 
+
+    /**
+    **/
+    public int getQueryCount()
+    {
+        return _queryList.size();
+    } //-- int getQueryCount() 
 
     /**
      * 
@@ -164,6 +246,13 @@ public class EjbDeployment implements java.io.Serializable {
 
     /**
     **/
+    public void removeAllQuery()
+    {
+        _queryList.removeAllElements();
+    } //-- void removeAllQuery() 
+
+    /**
+    **/
     public void removeAllResourceLink()
     {
         _resourceLinkList.removeAllElements();
@@ -173,39 +262,78 @@ public class EjbDeployment implements java.io.Serializable {
      * 
      * @param index
     **/
+    public Query removeQuery(int index)
+    {
+        java.lang.Object obj = _queryList.elementAt(index);
+        _queryList.removeElementAt(index);
+        return (Query) obj;
+    } //-- Query removeQuery(int) 
+
+    /**
+     * 
+     * @param index
+    **/
     public ResourceLink removeResourceLink(int index)
     {
-        Object obj = _resourceLinkList.elementAt(index);
+        java.lang.Object obj = _resourceLinkList.elementAt(index);
         _resourceLinkList.removeElementAt(index);
         return (ResourceLink) obj;
     } //-- ResourceLink removeResourceLink(int) 
 
     /**
-     * 
-     * @param _containerId
+     * Sets the value of field 'containerId'.
+     * @param containerId the value of field 'containerId'.
     **/
-    public void setContainerId(java.lang.String _containerId)
+    public void setContainerId(java.lang.String containerId)
     {
-        this._containerId = _containerId;
+        this._containerId = containerId;
     } //-- void setContainerId(java.lang.String) 
 
     /**
-     * 
-     * @param _deploymentId
+     * Sets the value of field 'deploymentId'.
+     * @param deploymentId the value of field 'deploymentId'.
     **/
-    public void setDeploymentId(java.lang.String _deploymentId)
+    public void setDeploymentId(java.lang.String deploymentId)
     {
-        this._deploymentId = _deploymentId;
+        this._deploymentId = deploymentId;
     } //-- void setDeploymentId(java.lang.String) 
 
     /**
-     * 
-     * @param _ejbName
+     * Sets the value of field 'ejbName'.
+     * @param ejbName the value of field 'ejbName'.
     **/
-    public void setEjbName(java.lang.String _ejbName)
+    public void setEjbName(java.lang.String ejbName)
     {
-        this._ejbName = _ejbName;
+        this._ejbName = ejbName;
     } //-- void setEjbName(java.lang.String) 
+
+    /**
+     * 
+     * @param index
+     * @param vQuery
+    **/
+    public void setQuery(int index, Query vQuery)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        //-- check bounds for index
+        if ((index < 0) || (index > _queryList.size())) {
+            throw new IndexOutOfBoundsException();
+        }
+        _queryList.setElementAt(vQuery, index);
+    } //-- void setQuery(int, Query) 
+
+    /**
+     * 
+     * @param queryArray
+    **/
+    public void setQuery(Query[] queryArray)
+    {
+        //-- copy array
+        _queryList.removeAllElements();
+        for (int i = 0; i < queryArray.length; i++) {
+            _queryList.addElement(queryArray[i]);
+        }
+    } //-- void setQuery(Query) 
 
     /**
      * 

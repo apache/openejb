@@ -3,14 +3,25 @@
 <openejb-jar xmlns="http://www.openejb.org/openejb-jar/1.1">
 	<ejb-deployment ejb-name="BasicCmpBean" deployment-id="client/tests/entity/cmp/BasicCmpHome" container-id="Default CMP Container">
 		<resource-link res-ref-name="jdbc/basic/entityDatabase" res-id="Default JDBC Database"/>
-	</ejb-deployment>
+        <query>
+            <query-method>
+                <method-name>findByLastName</method-name>
+                <method-params>
+                    <method-param>java.lang.String</method-param>
+                </method-params>
+            </query-method>
+            <object-ql>
+                SELECT o FROM org.openejb.test.entity.cmp.BasicCmpBean o WHERE o.lastName = $1 
+            </object-ql>
+        </query> 
+    </ejb-deployment>
 	<ejb-deployment ejb-name="AOBasicCmpBean" deployment-id="client/tests/entity/cmp/allowed_operations/EntityHome" container-id="Default CMP Container">
 		<resource-link res-ref-name="jdbc/basic/entityDatabase" res-id="Default JDBC Database"/>
 	</ejb-deployment>
 	<ejb-deployment ejb-name="EncCmpBean" deployment-id="client/tests/entity/cmp/EncBean" container-id="Default CMP Container">
 		<resource-link res-ref-name="datasource" res-id="Default JDBC Database"/>
 		<resource-link res-ref-name="jdbc/basic/entityDatabase" res-id="Default JDBC Database"/>
-	</ejb-deployment>
+    </ejb-deployment>
 	<ejb-deployment ejb-name="Cmp RMI-IIOP Bean" deployment-id="client/tests/entity/cmp/RMI-over-IIOP/EJBHome" container-id="Default CMP Container"/>
 	<ejb-deployment ejb-name="BasicStatefulBean" deployment-id="client/tests/stateful/BasicStatefulHome" container-id="Default Stateful Container"/>
 	<ejb-deployment ejb-name="Basic BMT StatefulBean" deployment-id="client/tests/stateful/BeanManagedBasicStatefulHome" container-id="Default Stateful Container"/>

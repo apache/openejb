@@ -401,6 +401,10 @@ public class EntityInstanceManager {
     */
     public void poolInstance(ThreadContext callContext,EntityBean bean)
     throws OpenEJBException{
+        if(bean==null) {
+            // this happens when ejbLoad fails
+            return;
+        }
         Object primaryKey = callContext.getPrimaryKey();// null if servicing a home ejbFind or ejbHome method.
         Transaction currentTx = null;
         try{
@@ -612,6 +616,9 @@ public class EntityInstanceManager {
         private final Transaction transaction;
         
         public Key(Transaction tx, Object depID, Object prKey){
+            if(tx==null || depID==null || prKey==null) {
+                throw new IllegalArgumentException();
+            }
             transaction = tx;
             deploymentID = depID;
             primaryKey = prKey;
@@ -654,6 +661,9 @@ public class EntityInstanceManager {
          private final Key myIndex;
          
          public SyncronizationWrapper(EntityBean ebean, Key key, boolean available, ThreadContext ctx) throws OpenEJBException{
+             if(ebean==null || ctx==null || key==null) {
+                 throw new IllegalArgumentException();
+             }
             bean = ebean;
             isAvailable = available;
             myIndex =key;

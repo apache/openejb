@@ -189,6 +189,7 @@ public class Assembler extends AssemblerTool implements org.openejb.spi.Assemble
              * where it is most relevant.
              */
             OpenEJBErrorHandler.handleUnknownError(e, "Assembler");
+            throw new OpenEJBException(e);
         }
     }
     

@@ -101,6 +101,10 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
         return new java.util.Vector();
     }
        
+    public java.util.Collection ejbFindByLastName(String lastName)
+    throws javax.ejb.FinderException{
+        return new java.util.Vector();
+    }
 
     /**
      * Maps to BasicBmpHome.findByPrimaryKey

@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
+ * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
  * XML Schema.
  * $Id$
  */
@@ -62,13 +62,13 @@ public class MethodParamsDescriptor extends org.exolab.castor.xml.util.XMLClassD
         desc = new XMLFieldDescriptorImpl(java.lang.String.class, "_id", "id", NodeType.Attribute);
         this.identity = desc;
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 MethodParams target = (MethodParams) object;
                 return target.getId();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -79,7 +79,7 @@ public class MethodParamsDescriptor extends org.exolab.castor.xml.util.XMLClassD
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return new java.lang.String();
             }
         } );
@@ -97,13 +97,13 @@ public class MethodParamsDescriptor extends org.exolab.castor.xml.util.XMLClassD
         desc = new XMLFieldDescriptorImpl(java.lang.String.class, "_methodParamList", "method-param", NodeType.Element);
         desc.setImmutable(true);
         handler = (new XMLFieldHandler() {
-            public Object getValue( Object object ) 
+            public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 MethodParams target = (MethodParams) object;
                 return target.getMethodParam();
             }
-            public void setValue( Object object, Object value) 
+            public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
@@ -114,7 +114,7 @@ public class MethodParamsDescriptor extends org.exolab.castor.xml.util.XMLClassD
                     throw new IllegalStateException(ex.toString());
                 }
             }
-            public Object newInstance( Object parent ) {
+            public java.lang.Object newInstance( java.lang.Object parent ) {
                 return null;
             }
         } );
@@ -125,7 +125,11 @@ public class MethodParamsDescriptor extends org.exolab.castor.xml.util.XMLClassD
         
         //-- validation code for: _methodParamList
         fieldValidator = new FieldValidator();
-        fieldValidator.setMinOccurs(0);
+        { //-- local scope
+            StringValidator sv = new StringValidator();
+            sv.setWhiteSpace("preserve");
+            fieldValidator.setValidator(sv);
+        }
         desc.setValidator(fieldValidator);
         
     } //-- org.openejb.alt.config.ejb11.MethodParamsDescriptor()
