@@ -63,24 +63,12 @@
         <display>Hello World!</display>
       </navLink>
       <navLink>
-        <url>cmp_entity_postgresql.xml</url>
-        <display>Hello World CMP</display>
+        <url>documentation.xml</url>
+        <display>Documentation</display>
       </navLink>
       <navLink>
-        <url>deploy.xml</url>
-        <display>Deploy</display>
-      </navLink>
-      <navLink>
-        <url>start-command.xml</url>
-        <display>Startup</display>
-      </navLink>
-      <navLink>
-        <url>validate.xml</url>
-        <display>Validation</display>
-      </navLink>
-      <navLink>
-        <url>config_containers.xml</url>
-        <display>Configuration</display>
+        <url>faq.xml</url>
+        <display>FAQ</display>
       </navLink>
       <navLink>
         <url>http://sourceforge.net/tracker/?group_id=44351&amp;atid=439275</url>
@@ -89,10 +77,6 @@
       <navLink>
         <url>http://sourceforge.net/tracker/index.php?group_id=44351&amp;atid=439277</url>
         <display>Request Feature</display>
-      </navLink>
-      <navLink>
-        <url>faq.xml</url>
-        <display>FAQ</display>
       </navLink>
     </section>
     
@@ -147,10 +131,6 @@
       <navLink>
         <url>connector_service.xml</url>
         <display>Custom Services</display>
-      </navLink>
-      <navLink>
-        <url>release-plan.xml</url>
-        <display>Release Plan</display>
       </navLink>
       <navLink>
         <url>cvs.xml</url>
