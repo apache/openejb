@@ -88,6 +88,9 @@ public class TelnetConsole implements Console, TelnetCodes {
         } catch (SecurityException e){
             String msg = "Permission denied. "+e.getMessage()+"\r\n";
             out.write( msg.getBytes() );                
+            try{
+                close();
+            } catch (Exception dontCare){}
             throw new IOException(e.getMessage());
         }
 
