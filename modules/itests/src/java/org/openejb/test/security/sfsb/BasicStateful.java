@@ -14,16 +14,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.openejb.test.security.slsb;
+package org.openejb.test.security.sfsb;
 
-import javax.ejb.EJBObject;
 import java.rmi.RemoteException;
+import javax.ejb.EJBObject;
 
 
 /**
  * @version $Revision$ $Date$
  */
-public interface BasicStateless extends javax.ejb.EJBObject {
+public interface BasicStateful extends EJBObject {
 
     public String noAccessMethod(String argument1) throws RemoteException;
 

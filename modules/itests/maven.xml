@@ -123,6 +123,28 @@
         <echo message="server has stopped"/>
     </preGoal>
     
+    <goal name="svr:start">
+        <deploy:startRemoteServer
+            geronimoTarget="${maven.build.dir}/openejb"
+            vmArgs="-Xmx512m -XX:MaxPermSize=128m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl"
+            configs="org/openejb/Security"/>
+        <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
+        <deploy:waitForStarted
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/Security"/>
+        <echo message="server has started"/>
+    </goal>
+    
+    <goal name="svr:stop">
+        <deploy:stopRemoteServer
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"/>
+        <echo message="server has stopped"/>
+    </goal>
+    
     <goal name="sec:start">
         <ant:jar destfile="${basedir}/target/openejb-security-001.jar">
             <fileset dir="${basedir}/target/classes" includes="**/security/**/*.class"/>
