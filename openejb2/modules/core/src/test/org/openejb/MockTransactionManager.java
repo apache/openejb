@@ -80,7 +80,7 @@ public class MockTransactionManager implements TransactionManager {
     }
 
     public int getStatus() throws SystemException {
-        return Status.STATUS_NO_TRANSACTION;
+        return Status.STATUS_ACTIVE;
     }
 
     public Transaction getTransaction() throws SystemException {
