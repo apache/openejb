@@ -231,30 +231,55 @@ public class EJBRequest implements Externalizable, RequestMethods {
      * @exception ClassNotFoundException If the class for an object being
      *              restored cannot be found.
      */
-    public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {
-        requestMethod    = in.readByte();
-        deploymentId     = (String)in.readObject();
-        deploymentCode   = in.readShort();
-        clientIdentity   = in.readObject();
-        primaryKey       = in.readObject(); 
-        
-        // TODO:1: This could break whenever a parameter type
-        // is a class that is not present in the server's classpath
-        // and only in the bean's jar.  The only solution is to 
-        // load each class one by one using the class loader
-        // of the bean's class.  Verify that this is not the case
-        // or fix the problem.
-        methodClass      = (Class) in.readObject();
-        methodName       = in.readUTF();
-        
-        readMethodParameters( in );
+    public void readExternal(ObjectInput in) 
+	throws IOException, ClassNotFoundException 
+    {
+	ClassNotFoundException result = null;
 
-        try{
-            methodInstance = methodClass.getDeclaredMethod(methodName, methodParamTypes);
-        } catch (NoSuchMethodException e){
-            throw new IOException("No such method: "+ e.getMessage());
-        }
+        requestMethod    = -1;
+        deploymentId     = null;
+        deploymentCode   = -1;
+        clientIdentity   = null;
+        primaryKey       = null;
+	methodClass	 = null;
+        methodName       = null;
+	methodInstance   = null;
+
+        requestMethod    = in.readByte();
+	try {
+	    deploymentId     	= (String)in.readObject();
+	} catch (ClassNotFoundException cnfe) { result = cnfe; }
+        deploymentCode   = in.readShort();
+	try {
+	    clientIdentity   	= in.readObject();
+	    primaryKey       	= in.readObject(); 
+	    methodClass	 	= (Class)in.readObject();
+	} catch (ClassNotFoundException cnfe) { 
+	    if (result == null) result = cnfe; 
+	}
+        methodName       = in.readUTF();
+
+	try {
+	    readMethodParameters(in);
+	} catch (ClassNotFoundException cnfe) { 
+	    if (result == null) result = cnfe; 
+	}
+
+	if (methodClass != null)
+	{
+	    try
+	    {
+		methodInstance = methodClass
+		    .getDeclaredMethod(methodName, methodParamTypes);
+	    } catch (NoSuchMethodException nsme) { 
+		//if (result == null) result = nsme;
+	    }
+	}
+
+	if (result != null)
+	    throw result;
     }
+
     /**
      * The object implements the writeExternal method to save its contents
      * by calling the methods of DataOutput for its primitive values or

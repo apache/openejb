@@ -131,7 +131,7 @@ public class EJBResponse implements Externalizable, ResponseCodes {
      */
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         responseCode = in.readByte();
-        // TODO: We should try and guess the content type comming in
+        // TODO: We should try and guess the content type coming in
         // so we can take an active part in reading it in
         // as we do with the other reponse objects
         result = in.readObject();
@@ -153,7 +153,8 @@ public class EJBResponse implements Externalizable, ResponseCodes {
      * @exception IOException Includes any I/O exceptions that may occur
      */
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeByte((byte)responseCode);
+        //out.writeByte((byte)responseCode);
+        out.writeByte(responseCode);
         out.writeObject(result);
     }
 }
