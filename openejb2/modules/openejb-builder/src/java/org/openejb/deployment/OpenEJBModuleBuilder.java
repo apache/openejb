@@ -314,7 +314,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             } catch (CompilerException e) {
                 throw new DeploymentException("Unable to generate CORBA skels for: " + moduleUri, e);
             } finally {
-                tempJar.delete();
+                DeploymentUtil.recursiveDelete(tempJar);
             }
         }
     }
