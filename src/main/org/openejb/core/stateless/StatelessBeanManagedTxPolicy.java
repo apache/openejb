@@ -25,6 +25,11 @@ public class StatelessBeanManagedTxPolicy extends TransactionPolicy {
     
     public StatelessBeanManagedTxPolicy(TransactionContainer container){
         this();
+        if(container instanceof org.openejb.Container &&
+           ((org.openejb.Container)container).getContainerType()!=org.openejb.Container.STATELESS) {
+            throw new IllegalArgumentException();
+        }
+           
         this.container = container;
     }
 
@@ -32,6 +37,9 @@ public class StatelessBeanManagedTxPolicy extends TransactionPolicy {
         policyType = BeanManaged;
     }
     
+    public String policyToString() {
+        return "TX_BeanManaged: ";
+    }
     /**
      * When a client invokes a business method via the enterprise bean’s home
      * or component interface, the Container suspends any transaction that may be 
@@ -43,14 +51,8 @@ public class StatelessBeanManagedTxPolicy extends TransactionPolicy {
      * @exception org.openejb.ApplicationException
      */
     public void beforeInvoke(EnterpriseBean instance, TransactionContext context) throws org.openejb.SystemException, org.openejb.ApplicationException{
-        try {
-        
             // if no transaction ---> suspend returns null
-            context.clientTx = getTxMngr().suspend();
-        
-        } catch ( javax.transaction.SystemException se ) {
-            throw new org.openejb.SystemException(se);
-        }
+        context.clientTx = suspendTransaction();
     }
 
     /**
@@ -102,17 +104,7 @@ public class StatelessBeanManagedTxPolicy extends TransactionPolicy {
         } catch (javax.transaction.SystemException e){
             throw new org.openejb.SystemException( e );
         } finally {
-            if ( context.clientTx != null ) {
-                try{
-                    getTxMngr( ).resume( context.clientTx );
-                }catch(javax.transaction.InvalidTransactionException ite){
-                    logger.error("Could not resume the client's transaction, the transaction is no longer valid: "+ite.getMessage());
-                }catch(IllegalStateException e){
-                    logger.error("Could not resume the client's transaction: "+e.getMessage());
-                }catch(javax.transaction.SystemException e){
-                    logger.error("Could not resume the client's transaction: The transaction reported a system exception: "+e.getMessage());
-                }
-            }
+            resumeTransaction( context.clientTx );
         }
     }
 
