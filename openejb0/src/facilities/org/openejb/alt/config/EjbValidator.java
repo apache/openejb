@@ -57,6 +57,21 @@ import java.io.PrintStream;
 import java.io.DataInputStream;
 import java.io.File;
 
+//import org.openejb.util.Messages;
+//import org.openejb.util.FileUtils;
+import org.openejb.util.JarUtils;
+//import java.util.Vector;
+import java.util.Properties;
+//import java.io.PrintStream;
+//import java.io.DataInputStream;
+//import java.io.File;
+//import java.io.FileInputStream;
+//import java.io.FileNotFoundException;
+//import java.io.FileOutputStream;
+import java.io.InputStream;
+//import java.io.IOException;
+import java.net.URL;
+
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
@@ -65,48 +80,69 @@ public class EjbValidator {
 
     static protected Messages _messages = new Messages( "org.openejb.util.resources" );
 
+    int LEVEL = 2;
+    boolean PRINT_DETAILS = false;
+    boolean PRINT_XML = false;
+    boolean PRINT_WARNINGS = true;
+    boolean PRINT_COUNT = false;
+
+    private Vector sets = new Vector();
+
     /*------------------------------------------------------*/
     /*    Constructors                                      */
     /*------------------------------------------------------*/
     public EjbValidator() throws OpenEJBException {
     }
 
-    public static EjbSet validateJar(String jarLocation) throws OpenEJBException{
-        EjbJar ejbJar = null;
-        try {
-            ejbJar = EjbJarUtils.readEjbJar(jarLocation);
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            throw new OpenEJBException(e.getMessage());
-        }
-        
-        try {
-            return validateJar( ejbJar, jarLocation);
-        } catch ( Exception e ) {
-            throw new OpenEJBException(e.getMessage());
-        }
+    public void addEjbSet(EjbSet set){
+        sets.add( set );
     }
 
-    public static EjbSet validateJar(EjbJar ejbJar, String jarLocation) throws OpenEJBException{
+    public EjbSet[] getEjbSets(){
+        EjbSet[] ejbSets = new EjbSet[sets.size()];
+        sets.copyInto(ejbSets);
+        return ejbSets;
+    }
+
+
+    public EjbSet validateJar(String jarLocation){
+        EjbSet set = new EjbSet(jarLocation);
+        
         try {
-            // Create the EjbSet
-            EjbSet set = new EjbSet(ejbJar, jarLocation);
+            set.setEjbJar( EjbJarUtils.readEjbJar(jarLocation) );
+            validateJar( set );
+        } catch ( Throwable e ) {
+            ValidationError err = new ValidationError( "cannot.validate" );
+            err.setDetails( e.getMessage() );
+            set.addError( err );
+        }
+        return set;
+    }
+
+    public EjbSet validateJar(EjbJar ejbJar, String jarLocation) {
+        // Create the EjbSet
+        EjbSet set = new EjbSet(jarLocation);
+        set.setEjbJar(ejbJar);
+        return validateJar( set );
+    }
+    
+    public EjbSet validateJar(EjbSet set) {
+        try {
             
             // Run the validation rules
             ValidationRule[] rules = getValidationRules();
             for (int i=0; i < rules.length; i++){
                 rules[i].validate( set );
             }
-            // Report the failures
-            return set;
-        } catch ( Exception e ) {
-            // TODO: Better exception handling.
-            e.printStackTrace();
-            throw new OpenEJBException(e.getMessage());
+        } catch ( Throwable e ) {
+            ValidationError err = new ValidationError( "cannot.validate" );
+            err.setDetails( e.getMessage() );
+            set.addError( err );
         }
+        return set;
     }
 
-    protected static ValidationRule[] getValidationRules(){
+    protected ValidationRule[] getValidationRules(){
         ValidationRule[] rules = new ValidationRule[]{
             new CheckClasses(),
             new CheckMethods()
@@ -121,9 +157,179 @@ public class EjbValidator {
     //Validate security references
 
     
+    public void printResults(EjbSet set){
+        if (!set.hasErrors() && !set.hasFailures() && (!PRINT_WARNINGS || !set.hasWarnings())){
+            return;
+        }
+        System.out.println("------------------------------------------");
+        System.out.println("JAR "+ set.getJarPath() );
+        System.out.println("                                          ");
+
+        printValidationExceptions( set.getErrors() );
+        printValidationExceptions( set.getFailures() );
+
+        if (PRINT_WARNINGS) {
+            printValidationExceptions( set.getWarnings() );
+        }
+    }
+
+    protected void printValidationExceptions(ValidationException[] exceptions ) {
+        for (int i=0; i < exceptions.length; i++){
+            System.out.print(" ");
+            System.out.print(exceptions[i].getPrefix() );
+            System.out.print(" ... ");
+            if (!(exceptions[i] instanceof ValidationError)) {
+                System.out.print(exceptions[i].getBean().getEjbName());
+                System.out.print(": ");
+            }
+            if (LEVEL > 2) {
+                System.out.println(exceptions[i].getMessage(1));
+                System.out.println();
+                System.out.print('\t');
+                System.out.println(exceptions[i].getMessage(LEVEL));
+                System.out.println();
+            } else {
+                System.out.println(exceptions[i].getMessage(LEVEL));
+            }
+        }
+        if (PRINT_COUNT && exceptions.length > 0) {
+            System.out.println();
+            System.out.print(" "+exceptions.length+" ");
+            System.out.println(exceptions[0].getCategory() );
+            System.out.println();
+        }
+        
+    }
+    public void printResultsXML(EjbSet set){
+        if (!set.hasErrors() && !set.hasFailures() && (!PRINT_WARNINGS || !set.hasWarnings())){
+            return;
+        }
+        
+        System.out.println("<jar>");
+        System.out.print("  <path>");
+        System.out.print(set.getJarPath());
+        System.out.println("</path>");
+        
+        printValidationExceptionsXML( set.getErrors() );
+        printValidationExceptionsXML( set.getFailures() );
+
+        if (PRINT_WARNINGS) {
+            printValidationExceptionsXML( set.getWarnings() );
+        }
+        System.out.println("</jar>");
+    }
+
+    protected void printValidationExceptionsXML(ValidationException[] exceptions ) {
+        for (int i=0; i < exceptions.length; i++){
+            System.out.print("    <");
+            System.out.print(exceptions[i].getPrefix() );
+            System.out.println(">");
+            if (!(exceptions[i] instanceof ValidationError)) {
+                System.out.print("      <ejb-name>");
+                System.out.print(exceptions[i].getBean().getEjbName());
+                System.out.println("</ejb-name>");
+            }
+            System.out.print("      <summary>");
+            System.out.print(exceptions[i].getMessage(1));
+            System.out.println("</summary>");
+            System.out.println("      <description><![CDATA[");
+            System.out.println( exceptions[i].getMessage(3) );
+            System.out.println("]]></description>");
+            System.out.print("    </");
+            System.out.print(exceptions[i].getPrefix() );
+            System.out.println(">");
+        }
+    }
+
+    public void displayResults(EjbSet[] sets){
+        if (PRINT_XML) {
+            System.out.println("<results>");
+            for (int i=0; i < sets.length; i++){
+                printResultsXML( sets[i] );
+            }
+            System.out.println("</results>");
+        } else {
+            for (int i=0; i < sets.length; i++){
+                printResults( sets[i] );
+            }
+            if (LEVEL < 3) {
+                System.out.println();
+                System.out.println("For more details, use the -vvv option");
+            }
+        }
+
+    }
+
     /*------------------------------------------------------*/
     /*    Static methods                                    */
     /*------------------------------------------------------*/
+
+    private static void printVersion() {
+        /*
+         * Output startup message
+         */
+        Properties versionInfo = new Properties();
+
+        try {
+            JarUtils.setHandlerSystemProperty();
+            versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
+        } catch (java.io.IOException e) {
+        }
+        
+        System.out.println( "OpenEJB EJB Validation Tool " + versionInfo.get( "version" )  +"    build: "+versionInfo.get( "date" )+"-"+versionInfo.get( "time" ));
+        System.out.println( "" + versionInfo.get( "url" ) );
+    }
+    
+    private static void printHelp() {
+        String header = "OpenEJB EJB Validation Tool ";
+        try {
+            JarUtils.setHandlerSystemProperty();
+            Properties versionInfo = new Properties();
+            versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
+            header += versionInfo.get( "version" );
+        } catch (java.io.IOException e) {
+        }
+        
+        System.out.println( header );
+        
+        // Internationalize this
+        try {
+            InputStream in = new URL( "resource:/openejb/validate.txt" ).openConnection().getInputStream();
+
+            int b = in.read();
+            while (b != -1) {
+                System.out.write( b );
+                b = in.read();
+            }
+        } catch (java.io.IOException e) {
+        }
+    }
+
+    private static void printExamples() {
+        String header = "OpenEJB EJB Validation Tool ";
+        try {
+            JarUtils.setHandlerSystemProperty();
+            Properties versionInfo = new Properties();
+            versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
+            header += versionInfo.get( "version" );
+        } catch (java.io.IOException e) {
+        }
+        
+        System.out.println( header );
+        
+        // Internationalize this
+        try {
+            InputStream in = new URL( "resource:/openejb/validate-examples.txt" ).openConnection().getInputStream();
+
+            int b = in.read();
+            while (b != -1) {
+                System.out.write( b );
+                b = in.read();
+            }
+        } catch (java.io.IOException e) {
+        }
+    }
+
 
     public static void main(String args[]) {
         try{
@@ -132,52 +338,49 @@ public class EjbValidator {
         } catch (Exception e){
             e.printStackTrace();
         }
+        try {
+            EjbValidator v = new EjbValidator();
 
-        for (int i=0; i < args.length; i++){
-            try{
-                EjbSet set = validateJar( args[i] );
-                printResults( set );                
-            } catch (Exception e){
-                e.printStackTrace();
+            if (args.length == 0) {
+                printHelp();
+                return;
             }
+            
+            for (int i=0; i < args.length; i++){
+                if (args[i].equals("-v")){
+                    v.LEVEL = 1;
+                } else if (args[i].equals("-vv")){
+                    v.LEVEL = 2;
+                } else if (args[i].equals("-vvv")){
+                    v.LEVEL = 3;
+                } else if (args[i].equals("-nowarn")){
+                    v.PRINT_WARNINGS = false;
+                } else if (args[i].equals("-xml")){
+                    v.PRINT_XML = true;
+                } else if (args[i].equals("-help")){
+                    printHelp();
+                } else if (args[i].equals("-examples")){
+                    printExamples();
+                } else if (args[i].equals("-version")){
+                    printVersion();
+                } else {
+                    // We must have reached the jar list
+                    for (; i < args.length; i++){
+                        try{
+                           EjbSet set = v.validateJar( args[i] );
+                           v.addEjbSet( set );
+                       } catch (Exception e){
+                           e.printStackTrace();
+                       }
+                    }
+                }
+            }
+                        
+            v.displayResults(v.getEjbSets());
+        } catch ( Exception e ) {
+            System.out.println(e.getMessage());
+            //e.printStackTrace();
         }
     }
 
-    public static void printResults(EjbSet set){
-        System.out.println("------------------------------------------");
-        System.out.println(" "+ set.getJarPath() );
-        System.out.println("------------------------------------------");
-        
-        ValidationFailure[] failures = set.getFailures();
-        for (int i=0; i < failures.length; i++){
-            System.out.print((i+1)+". ");
-            System.out.print(failures[i].getBean().getEjbName());
-            System.out.print(": ");
-            System.out.println(failures[i].getMessage());
-            System.out.println();
-            System.out.print('\t');
-            System.out.println(failures[i].getDetails());
-            System.out.println();
-        }
-        if (failures.length > 0) {
-            System.out.println(" "+failures.length+" failures");
-        }
-        System.out.println();
-        System.out.println();
-        
-        ValidationWarning[] warnings = set.getWarnings();
-        for (int i=0; i < warnings.length; i++){
-            System.out.print((i+1)+". ");
-            System.out.print(warnings[i].getBean().getEjbName());
-            System.out.print(": ");
-            System.out.println(warnings[i].getMessage());
-            System.out.println();
-            System.out.print('\t');
-            System.out.println(warnings[i].getDetails());
-            System.out.println();
-        }
-        if (warnings.length > 0) {
-            System.out.println(" "+warnings.length+" warnings");
-        }
-    }
 }
