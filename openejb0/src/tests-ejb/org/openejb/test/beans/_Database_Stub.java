@@ -85,6 +85,69 @@ public class _Database_Stub extends javax.rmi.CORBA.Stub
 	}
 
 	//
+	// Operation execute
+	//
+	public boolean execute(java.lang.String arg0)
+		throws java.rmi.RemoteException
+	{
+		while( true )
+		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
+				org.omg.CORBA_2_3.portable.InputStream _input = null;
+				try
+				{
+					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("execute",true);
+					javax.rmi.CORBA.Util.writeRemoteObject( _output, arg0 );
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
+					boolean _arg_ret = _input.read_boolean();
+					return _arg_ret;
+				}
+				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				{
+					continue;
+				}
+				catch( org.omg.CORBA.portable.ApplicationException _exception )
+				{
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
+					java.lang.String _exception_id = _exception.getId();
+					throw new java.rmi.UnexpectedException(_exception_id);
+				}
+				catch( org.omg.CORBA.SystemException _exception )
+				{
+					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+				}
+				finally
+				{
+					this._releaseReply(_input);
+				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("execute",_opsClass);
+				if ( _so == null )
+				   return execute( arg0);
+				try
+				{
+					java.lang.String arg0Copy = (java.lang.String)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					boolean _arg_ret = ((org.openejb.test.beans.Database)_so.servant).execute( arg0Copy);
+					return _arg_ret;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
+		}
+	}
+
+
+	//
 	// Attribute getEJBHome
 	//
 	public javax.ejb.EJBHome getEJBHome()

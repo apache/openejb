@@ -162,10 +162,14 @@ public class BasicBmpBean implements javax.ejb.EntityBean {
             Connection con = ds.getConnection();
 
             // Support for Oracle because Oracle doesn't do auto increment
-            PreparedStatement stmt = con.prepareStatement("insert into entity (id, first_name, last_name) values (?,?,?)");
-            stmt.setInt(1, keys++);
-            stmt.setString(2, firstName);
-            stmt.setString(3, lastName);
+//          PreparedStatement stmt = con.prepareStatement("insert into entity (id, first_name, last_name) values (?,?,?)");
+//          stmt.setInt(1, keys++);
+//          stmt.setString(2, firstName);
+//          stmt.setString(3, lastName);
+//          stmt.executeUpdate();
+            PreparedStatement stmt = con.prepareStatement("insert into entity (first_name, last_name) values (?,?)");
+            stmt.setString(1, firstName);
+            stmt.setString(2, lastName);
             stmt.executeUpdate();
 
             stmt = con.prepareStatement("select id from entity where first_name = ? AND last_name = ?");
