@@ -134,6 +134,7 @@ public class BMPCreateMethod implements VirtualOperation, Serializable {
         ctx.setId(id);
 
         // associate the new BMP instance with the tx cache
+        ctx.setLoaded(true);
         invocation.getTransactionContext().associate(ctx);
 
         // call the post create method

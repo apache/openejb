@@ -57,6 +57,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.EJBInvocation;
+import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.timer.BasicTimerService;
 
@@ -66,14 +67,15 @@ import org.openejb.timer.BasicTimerService;
  * @version $Revision$ $Date$
  */
 public final class MDBInstanceContext extends AbstractInstanceContext {
-    private final Object containerId;
     private final MDBContext mdbContext;
+    private final EJBInvocation setContextInvocation;
+    private final EJBInvocation unsetContextInvocation;
     private final EJBInvocation ejbCreateInvocation;
     private final EJBInvocation ejbRemoveInvocation;
+    private InstancePool pool;
 
     public MDBInstanceContext(Object containerId, MessageDrivenBean instance, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) {
-        super(systemChain, unshareableResources, applicationManagedSecurityResources, instance, null, timerService);
-        this.containerId = containerId;
+        super(containerId, instance, systemChain, null, timerService, unshareableResources, applicationManagedSecurityResources);
         this.mdbContext = new MDBContext(this, transactionContextManager, userTransaction);
         ejbCreateInvocation = systemMethodIndices.getEJBCreateInvocation(this);
         ejbRemoveInvocation = systemMethodIndices.getEJBRemoveInvocation(this);
@@ -81,20 +83,35 @@ public final class MDBInstanceContext extends AbstractInstanceContext {
         unsetContextInvocation = systemMethodIndices.getSetContextInvocation(this, null);
     }
 
-    public Object getContainerId() {
-        return containerId;
-    }
-
     public Object getId() {
         return null;
     }
 
-    public void setId(Object id) {
-        throw new AssertionError("Cannot set identity for a MDB Context");
-    }
-
     public void flush() {
         throw new AssertionError("Cannot flush a MDB Context");
+    }
+
+    public InstancePool getPool() {
+        return pool;
+    }
+
+    public void setPool(InstancePool pool) {
+        this.pool = pool;
+    }
+
+    public void die() {
+        if (pool != null) {
+            pool.remove(this);
+            pool = null;
+        }
+        super.die();
+    }
+
+    public void exit() {
+        if (pool != null) {
+            pool.release(this);
+        }
+        super.exit();
     }
 
     public MDBContext getMessageDrivenContext() {
@@ -109,12 +126,32 @@ public final class MDBInstanceContext extends AbstractInstanceContext {
         return mdbContext.setTimerState(operation);
     }
 
+    public void setContext() throws Throwable {
+        if (isDead()) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
+        systemChain.invoke(setContextInvocation);
+    }
+
+    public void unsetContext() throws Throwable {
+        if (isDead()) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
+        systemChain.invoke(unsetContextInvocation);
+    }
+
     public void ejbCreate() throws Throwable {
+        if (isDead()) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
         assert(getInstance() != null);
         systemChain.invoke(ejbCreateInvocation);
     }
 
     public void ejbRemove() throws Throwable {
+        if (isDead()) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
         assert(getInstance() != null);
         systemChain.invoke(ejbRemoveInvocation);
     }

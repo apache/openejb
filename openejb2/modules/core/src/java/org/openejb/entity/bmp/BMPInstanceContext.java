@@ -64,9 +64,7 @@ import org.openejb.timer.BasicTimerService;
  * @version $Revision$ $Date$
  */
 public final class BMPInstanceContext extends EntityInstanceContext {
-
     public BMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EntityBean instance, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, TransactionContextManager transactionContextManager, BasicTimerService timerService) throws Exception {
         super(containerId, proxyFactory, instance, lifecycleInterceptorChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, transactionContextManager, timerService);
     }
-
 }

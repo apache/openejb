@@ -95,6 +95,7 @@ public class BmpEjbHomeTests extends BasicBmpTestClient {
                 return;
             }
         } catch (Exception e) {
+            e.printStackTrace();
             fail("Received Exception " + e.getClass() + " : " + e.getMessage());
         }
     }

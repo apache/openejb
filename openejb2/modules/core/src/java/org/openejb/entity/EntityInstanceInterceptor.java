@@ -82,87 +82,67 @@ public final class EntityInstanceInterceptor implements Interceptor {
 
     public InvocationResult invoke(final Invocation invocation) throws Throwable {
         EJBInvocation ejbInvocation = (EJBInvocation) invocation;
-        TransactionContext transactionContext = ejbInvocation.getTransactionContext();
-        Object id = ejbInvocation.getId();
 
-        boolean newContext = false;
-        EntityInstanceContext context = null;
-        // if we have an id then check if there is already a context associated with the transaction
-        if ( id != null) {
-            context = (EntityInstanceContext) transactionContext.getContext(containerId, id);
-        }
+        // initialize the context and set it into the invocation
+        EntityInstanceContext ctx = getInstanceContext(ejbInvocation);
+        ejbInvocation.setEJBInstanceContext(ctx);
 
-        // if we didn't find an existing context, create a new one.
-        if (context == null) {
-            context = (EntityInstanceContext) pool.acquire();
-            newContext = true;
-
-            context.setTransactionContext(transactionContext);
-            if (id != null) {
-                // always activate on the way in....
-                context.setId(id);
-                try {
-                    context.ejbActivate();
-                } catch (Throwable t) {
-                    // problem activating instance - discard it and throw the problem (will cause rollback)
-                    pool.remove(context);
-                    throw t;
-                }
-
-                // associate this instance with the TransactionContext
-                try {
-                    transactionContext.associate(context);
-                } catch (NoSuchEntityException e) {
-                    if (ejbInvocation.getType().isLocal()) {
-                        throw new NoSuchObjectLocalException().initCause(e);
-                    } else {
-                        throw new NoSuchObjectException(e.getMessage());
-                    }
-                }
-            }
-        }
-
-        ejbInvocation.setEJBInstanceContext(context);
-        if (!reentrant && context.isInCall()) {
+        // check reentrancy
+        if (!reentrant && ctx.isInCall()) {
             if (ejbInvocation.getType().isLocal()) {
                 throw new NotReentrantLocalException("" + containerId);
             } else {
                 throw new NotReentrantException("" + containerId);
             }
         }
-        InstanceContext oldContext = transactionContext.beginInvocation(context);
-        context.enter();
-        boolean threwException = false;
+
+        TransactionContext transactionContext = ejbInvocation.getTransactionContext();
+        InstanceContext oldContext = null;
+        try {
+            oldContext = transactionContext.beginInvocation(ctx);
+        } catch (NoSuchEntityException e) {
+            if (ejbInvocation.getType().isLocal()) {
+                throw new NoSuchObjectLocalException().initCause(e);
+            } else {
+                throw new NoSuchObjectException(e.getMessage());
+            }
+        }
         try {
             InvocationResult result = next.invoke(invocation);
             return result;
-        } catch (Throwable t) {
-            threwException = true;
+        } catch(Throwable t) {
+            // we must kill the instance when a system exception is thrown
+            ctx.die();
+            transactionContext.unassociate(ctx);
             throw t;
         } finally {
-            context.exit();
-            transactionContext.endInvocation(oldContext);
+            ejbInvocation.getTransactionContext().endInvocation(oldContext);
             ejbInvocation.setEJBInstanceContext(null);
+        }
+    }
 
-            if (id == null) id = context.getId();
+    private EntityInstanceContext getInstanceContext(EJBInvocation ejbInvocation) throws Throwable {
+        TransactionContext transactionContext = ejbInvocation.getTransactionContext();
+        Object id = ejbInvocation.getId();
+        EntityInstanceContext ctx = null;
 
-            if (id != null) {
-                // passivate on the way out if this is a new context
-                if (newContext) {
-                    try {
-                        context.flush();
-                        context.ejbPassivate();
-                    } catch (Throwable t) {
-                        // problem passivating instance - discard it and throw the problem (will cause rollback)
-                        pool.remove(context);
-                        // throw this exception only if we are not already throwing a business exception
-                        if (!threwException) throw t;
-                    } finally {
-                        context.setTransactionContext(null);
-                        transactionContext.unassociate(context.getContainerId(), id);
-                    }
-                }
+        // if we have an id then check if there is already a context associated with the transaction
+        if ( id != null) {
+            ctx = (EntityInstanceContext) transactionContext.getContext(containerId, id);
+            // if we have a dead context, the cached context was discarded, so we need clean it up and get a new one
+            if (ctx != null && ctx.isDead()) {
+                transactionContext.unassociate(ctx);
+                ctx = null;
             }
         }
+
+        // if we didn't find an existing context, create a new one.
+        if (ctx == null) {
+            ctx = (EntityInstanceContext) pool.acquire();
+            ctx.setId(id);
+            ctx.setPool(pool);
+            ctx.setTransactionContext(transactionContext);
+        }
+        return ctx;
     }
 }

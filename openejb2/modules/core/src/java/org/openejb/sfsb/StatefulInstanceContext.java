@@ -60,6 +60,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.EJBInvocation;
+import org.openejb.cache.InstanceCache;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 
@@ -70,20 +71,20 @@ import org.openejb.proxy.EJBProxyFactory;
  */
 public class StatefulInstanceContext extends AbstractInstanceContext {
     private static final Log log = LogFactory.getLog(StatefulInstanceContext.class);
-    private final Object containerId;
     private final Object id;
     private final StatefulSessionContext statefulContext;
+    private final EJBInvocation setContextInvocation;
+    private final EJBInvocation unsetContextInvocation;
     private final EJBInvocation afterBeginInvocation;
     private final EJBInvocation beforeCompletionInvocation;
-    private boolean dead = false;
+    private final SystemMethodIndices systemMethodIndices;
     private BeanTransactionContext preexistingContext;
     private EJBOperation operation;
-    private final SystemMethodIndices systemMethodIndices;
+    private InstanceCache cache;
 
     public StatefulInstanceContext(Object containerId, EJBProxyFactory proxyFactory, SessionBean instance, Object id, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources) {
         //currently stateful beans have no timer service.
-        super(systemChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, null);
-        this.containerId = containerId;
+        super(containerId, instance, systemChain, proxyFactory, null, unshareableResources, applicationManagedSecurityResources);
         this.id = id;
         statefulContext = new StatefulSessionContext(this, transactionContextManager, userTransaction);
         this.systemMethodIndices = systemMethodIndices;
@@ -98,13 +99,10 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
         }
     }
 
-    public Object getContainerId() {
-        return containerId;
-    }
-
     public EJBOperation getOperation() {
         return operation;
     }
+
     public void setOperation(EJBOperation operation) {
         statefulContext.setState(operation);
         this.operation = operation;
@@ -118,17 +116,20 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
         return id;
     }
 
-    public void setId(Object id) {
-        // @todo remove setId from the EJBInstanceContext interface
-        throw new UnsupportedOperationException();
-    }
-
     public BeanTransactionContext getPreexistingContext() {
         return preexistingContext;
     }
 
     public void setPreexistingContext(BeanTransactionContext preexistingContext) {
         this.preexistingContext = preexistingContext;
+    }
+
+    public InstanceCache getCache() {
+        return cache;
+    }
+
+    public void setCache(InstanceCache cache) {
+        this.cache = cache;
     }
 
     public void die() {
@@ -140,18 +141,33 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
             }
             preexistingContext = null;
         }
-        dead = true;
-    }
-
-    public boolean isDead() {
-        return dead;
+        if (cache != null) {
+            cache.remove(id);
+            cache = null;
+        }
+        super.die();
     }
 
     public StatefulSessionContext getSessionContext() {
         return statefulContext;
     }
 
+    public void setContext() throws Throwable {
+        if (isDead()) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
+        systemChain.invoke(setContextInvocation);
+    }
+
+    public void unsetContext() throws Throwable {
+        if (isDead()) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
+        systemChain.invoke(unsetContextInvocation);
+    }
+
     public void associate() throws Throwable {
+        super.associate();
         if (getInstance() instanceof SessionSynchronization) {
             assert(getInstance() != null);
             systemChain.invoke(afterBeginInvocation);
@@ -159,6 +175,7 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
     }
 
     public void beforeCommit() throws Throwable {
+        super.beforeCommit();
         if (getInstance() instanceof SessionSynchronization) {
             assert(getInstance() != null);
             systemChain.invoke(beforeCompletionInvocation);
@@ -166,13 +183,17 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
     }
 
     public void afterCommit(boolean committed) throws Throwable {
-        if (!dead) {
-            // @todo fix me
-//            container.getInstanceCache().putInactive(id, this);
-        }
+        super.beforeCommit();
         if (getInstance() instanceof SessionSynchronization) {
             assert(getInstance() != null);
             systemChain.invoke(systemMethodIndices.getAfterCompletionInvocation(this, committed));
+        }
+    }
+
+    public void unassociate() throws Throwable {
+        super.unassociate();
+        if (!isDead() && cache != null) {
+            cache.putInactive(id, this);
         }
     }
 }

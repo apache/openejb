@@ -76,7 +76,6 @@ public class BeanPolicy implements TransactionPolicy {
                 if (beanContext != transactionContextManager.getContext()) {
                     throw new UncommittedTransactionException();
                 }
-                beanContext.commit();
                 return result;
             } catch (Throwable t) {
                 try {
@@ -86,12 +85,10 @@ public class BeanPolicy implements TransactionPolicy {
                 } catch (Exception e) {
                     log.warn("Unable to roll back", e);
                 }
-                try {
-                    beanContext.rollback();
-                } catch (Exception e) {
-                    log.warn("Unable to roll back", e);
-                }
+                beanContext.setRollbackOnly();
                 throw t;
+            } finally {
+                beanContext.commit();
             }
         } finally {
             ejbInvocation.setTransactionContext(clientContext);

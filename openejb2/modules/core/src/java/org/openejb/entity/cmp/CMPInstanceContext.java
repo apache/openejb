@@ -47,13 +47,10 @@
  */
 package org.openejb.entity.cmp;
 
-import java.lang.reflect.Method;
 import java.util.Set;
-
+import javax.ejb.EntityBean;
 import javax.ejb.NoSuchEntityException;
 
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
@@ -73,22 +70,39 @@ import org.tranql.identity.IdentityTransform;
  *
  * @version $Revision$ $Date$
  */
-public final class CMPInstanceContext extends EntityInstanceContext implements MethodInterceptor {
+public final class CMPInstanceContext extends EntityInstanceContext {
     private final CMP1Bridge cmp1Bridge;
-    private final InstanceOperation[] itable;
     private final FaultHandler loadFault;
     private final IdentityTransform primaryKeyTransform;
     private CacheRow cacheRow;
     private TransactionContext transactionContext;
 
-    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, CMP1Bridge cmp1Bridge, InstanceOperation[] itable, FaultHandler loadFault, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, TransactionContextManager transactionContextManager, BasicTimerService timerService) throws Exception {
-        super(containerId, proxyFactory, null, lifecycleInterceptorChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, transactionContextManager, timerService);
+    public CMPInstanceContext(Object containerId,
+            EJBProxyFactory proxyFactory,
+            EntityBean entityBean,
+            CMP1Bridge cmp1Bridge,
+            FaultHandler loadFault,
+            IdentityTransform primaryKeyTransform,
+            Interceptor lifecycleInterceptorChain,
+            SystemMethodIndices systemMethodIndices,
+            Set unshareableResources,
+            Set applicationManagedSecurityResources,
+            TransactionContextManager transactionContextManager,
+            BasicTimerService timerService) throws Exception {
+
+        super(containerId,
+                proxyFactory,
+                entityBean,
+                lifecycleInterceptorChain,
+                systemMethodIndices,
+                unshareableResources,
+                applicationManagedSecurityResources,
+                transactionContextManager,
+                timerService);
+
         this.cmp1Bridge = cmp1Bridge;
-        this.itable = itable;
         this.loadFault = loadFault;
         this.primaryKeyTransform = primaryKeyTransform;
-        //too bad we can't call this from the constructor
-        instance = contextFactory.createCMPBeanInstance(this);
     }
 
     public CacheRow getCacheRow() {
@@ -107,15 +121,21 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
         this.transactionContext = transactionContext;
     }
 
-    public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-        int index = methodProxy.getSuperIndex();
-        InstanceOperation iop = itable[index];
-        return iop.invokeInstance(this, objects);
-    }
-
     public void associate() throws Throwable {
+        //
+        // don't call super because it activates and
+        // loads the ejb and we want to controll that
+        //
+
+        if (isDead()) {
+            throw new IllegalStateException("Context is dead: container=" + getContainerId() + ", id=" + getId());
+        }
+
         Object id = getId();
-        if (id != null) {
+        if (id != null && !isLoaded()) {
+            // acitvate the instance
+            ejbActivate();
+
             // locate the cache row for this instance
             GlobalIdentity globalId = primaryKeyTransform.getGlobalIdentity(id);
             InTxCache inTxCache = transactionContext.getInTxCache();
@@ -141,11 +161,15 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
             if (cmp1Bridge != null) {
                 cmp1Bridge.loadEntityBean(cacheRow, this);
             }
+
+            // call ejbLoad
+            ejbLoad();
+            setLoaded(true);
         }
-        super.associate();
     }
 
     public void flush() throws Throwable {
+        // calls ejbStore
         super.flush();
 
         // copy data from instance into tranql
@@ -154,9 +178,9 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
         }
     }
 
-    public void afterCommit(boolean status) {
-        transactionContext = null;
+    public void afterCommit(boolean status) throws Throwable {
         super.afterCommit(status);
+        transactionContext = null;
     }
 
     public void addRelation(int slot, Object primaryKey) {

@@ -37,7 +37,6 @@ public class MockEJBInstanceContext implements EJBInstanceContext {
     }
 
     public void setOperation(EJBOperation operation) {
-
     }
 
     public EJBProxyFactory getProxyFactory() {
@@ -53,7 +52,6 @@ public class MockEJBInstanceContext implements EJBInstanceContext {
     }
 
     public void setTimerServiceAvailable(boolean available) {
-
     }
 
     public boolean setTimerState(EJBOperation operation) {
@@ -64,28 +62,23 @@ public class MockEJBInstanceContext implements EJBInstanceContext {
         return null;
     }
 
-    public void setId(Object id) {
-
-    }
-
     public Object getContainerId() {
         return null;
     }
 
     public void associate() throws Throwable {
+    }
 
+    public void unassociate() throws Throwable {
     }
 
     public void flush() throws Throwable {
-
     }
 
     public void beforeCommit() throws Exception {
-
     }
 
     public void afterCommit(boolean status) throws Exception {
-
     }
 
     public Map getConnectionManagerMap() {
@@ -98,5 +91,22 @@ public class MockEJBInstanceContext implements EJBInstanceContext {
 
     public Set getApplicationManagedSecurityResources() {
         return null;
+    }
+
+    public void die() {
+    }
+
+    public boolean isDead() {
+        return false;
+    }
+
+    public boolean isInCall() {
+        return false;
+    }
+
+    public void enter() {
+    }
+
+    public void exit() {
     }
 }

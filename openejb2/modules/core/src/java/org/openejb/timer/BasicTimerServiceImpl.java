@@ -52,15 +52,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collections;
-
 import javax.ejb.EJBException;
-import javax.ejb.Timer;
 import javax.ejb.NoSuchObjectLocalException;
+import javax.ejb.Timer;
 import javax.management.ObjectName;
 import javax.transaction.RollbackException;
 import javax.transaction.Status;
@@ -75,6 +69,7 @@ import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.timer.UserTaskFactory;
 import org.apache.geronimo.timer.WorkInfo;
+import org.apache.geronimo.transaction.context.InheritableTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBInvocation;
@@ -99,7 +94,7 @@ public class BasicTimerServiceImpl implements BasicTimerService {
     private final TransactionContextManager transactionContextManager;
 //    private final Map idToTimersMap = new HashMap();
 
-    public BasicTimerServiceImpl(EJBTimeoutInvocationFactory invocationFactory, Interceptor stack, ThreadPooledTimer timer, String key, String kernelName, ObjectName timerSourceName, TransactionContextManager transactionContextManager, ClassLoader classLoader) throws PersistenceException {
+    public BasicTimerServiceImpl(EJBTimeoutInvocationFactory invocationFactory, Interceptor stack, ThreadPooledTimer timer, String key, String kernelName, ObjectName timerSourceName, TransactionContextManager transactionContextManager, ClassLoader classLoader) {
         this.invocationFactory = invocationFactory;
         this.stack = stack;
         this.persistentTimer = timer;
@@ -213,11 +208,14 @@ public class BasicTimerServiceImpl implements BasicTimerService {
 
     void registerCancelSynchronization(Synchronization cancelSynchronization) throws RollbackException, SystemException {
         TransactionContext transactionContext = transactionContextManager.getContext();
-        if (transactionContext != null && transactionContext.isActive()) {
-            transactionContext.getTransaction().registerSynchronization(cancelSynchronization);
-        } else {
-            cancelSynchronization.afterCompletion(Status.STATUS_COMMITTED);
+        if ((transactionContext instanceof InheritableTransactionContext)) {
+            InheritableTransactionContext inheritableTransactionContext = ((InheritableTransactionContext) transactionContext);
+            if (inheritableTransactionContext.isActive()) {
+                inheritableTransactionContext.getTransaction().registerSynchronization(cancelSynchronization);
+                return;
+            }
         }
+        cancelSynchronization.afterCompletion(Status.STATUS_COMMITTED);
     }
 
     private Timer newTimer(WorkInfo workInfo) {
@@ -253,8 +251,14 @@ public class BasicTimerServiceImpl implements BasicTimerService {
 
         public void run() {
             TimerImpl timerImpl = timerService.getTimerById(new Long(timerId));
-            Object id = timerImpl.getUserId();
-            EJBInvocation invocation = timerService.invocationFactory.getEJBTimeoutInvocation(id, timerImpl);
+            EJBInvocation invocation = timerService.invocationFactory.getEJBTimeoutInvocation(timerImpl.getUserId(), timerImpl);
+
+            // set the transaction context into the invocation object
+            TransactionContext transactionContext = TransactionContext.getContext();
+            if (transactionContext == null) {
+                throw new IllegalStateException("Transaction context has not been set");
+            }
+            invocation.setTransactionContext(transactionContext);
 
             Thread currentThread = Thread.currentThread();
             ClassLoader oldClassLoader = currentThread.getContextClassLoader();

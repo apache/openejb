@@ -48,14 +48,18 @@
 package org.openejb.slsb;
 
 import javax.xml.rpc.handler.MessageContext;
+import javax.ejb.EJBException;
 
 import org.openejb.EJBInvocation;
+import org.openejb.NotReentrantLocalException;
+import org.openejb.NotReentrantException;
 import org.openejb.cache.InstancePool;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocation;
 import org.apache.geronimo.webservices.MessageContextInvocationKey;
+import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 
 
 /**
@@ -79,25 +83,26 @@ public final class StatelessInstanceInterceptor implements Interceptor {
         // get the context
         StatelessInstanceContext ctx = (StatelessInstanceContext) pool.acquire();
         assert ctx.getInstance() != null: "Got a context with no instance assigned";
+        assert !ctx.isInCall() : "Acquired a context already in an invocation";
+        ctx.setPool(pool);
 
         // initialize the context and set it into the invocation
         ejbInvocation.setEJBInstanceContext(ctx);
 
+        // set the webservice message context if we got one
         ctx.setMessageContext((MessageContext)invocation.get(MessageContextInvocationKey.INSTANCE));
 
+        TransactionContext transactionContext = ejbInvocation.getTransactionContext();
+        InstanceContext oldContext = transactionContext.beginInvocation(ctx);
         try {
             InvocationResult result = next.invoke(invocation);
-
-            // we are done with this instance, return it to the pool
-            pool.release(ctx);
-
             return result;
         } catch (Throwable t) {
-            // invocation threw a system Exception, discard the instance
-            pool.remove(ctx);
+            // we must kill the instance when a system exception is thrown
+            ctx.die();
             throw t;
         } finally {
-            // remove the reference to the context from the invocation
+            transactionContext.endInvocation(oldContext);
             ejbInvocation.setEJBInstanceContext(null);
             ctx.setMessageContext(null);
         }
