@@ -5,7 +5,7 @@
   </properties>
   <body>
 
-<section title="Plug-in, not a bundle" ref-id="intro">
+        <section title="Plug-in, not a bundle" ref-id="plug-in-not-a-bundle">
   <p>
 Typically ejb servers have embedded Tomcat into their platforms,
 requiring you to switch platforms and use the Tomcat version they ship.
@@ -15,7 +15,7 @@ embeds OpenEJB into your existing Tomcat setup.  This gives you several
   </p>
 </section>
 
-<section title="Advantages for you" ref-id="advantage">
+<section title="Advantages for you" ref-id="advantages">
 <ul>
 <li>You can keep your working Tomcat installation.</li>
 <li>No need to port webapps over to a platform where Tomcat has been embedded.</li>
@@ -29,16 +29,16 @@ embeds OpenEJB into your existing Tomcat setup.  This gives you several
 
 <section title="On the technical side" ref-id="tech">
   <p>
-The integration consists of a servlet in this webapp that is configured 
-to load on startup.  When loaded, it locates the OpenEJB installation
-via the openejb.home init-param you set in the web.xml file. Once it finds
-the OpenEJB installation, it walks up the classloader tree to the Tomcat 
-common classloader and loads OpenEJB and your EJBs into the VM.
+The integration consists of a module (servlet or JNDI factories) that is configured 
+to load on startup. When loaded, it locates the OpenEJB installation
+via the openejb.home environment property. Once it finds
+the OpenEJB installation, it instructs a classloader of Tomcat 
+to load OpenEJB and your EJBs into the VM.
 After all the classes are loaded, OpenEJB is automatically started in Tomcat's VM.
 </p>
 <p>
 When the entire process completes, you will magically have access to all
-you EJB class definitions from your webapp.  No need to put them in the WEB-INF directories
+your EJB class definitions from your webapp.  No need to put them in the WEB-INF directories
 at all!.  All your servlets and JSPs will have fast, network-free access to all the EJBs in OpenEJB.
 </p>
 </section>
