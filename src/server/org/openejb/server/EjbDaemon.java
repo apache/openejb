@@ -83,6 +83,7 @@ import org.openejb.util.SafeToolkit;
 import org.openejb.util.FileUtils;
 import org.openejb.util.JarUtils;
 import org.openejb.util.Logger;
+import org.openejb.server.util.Messages;
 import org.openejb.server.admin.text.*;
 
 /**
@@ -93,7 +94,8 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
     private SafeToolkit toolkit = SafeToolkit.getToolkit("OpenEJB EJB Server");
 
-    Logger logger = new Logger( "OpenEJB" );
+	Messages _messages = new Messages();
+    Logger logger = Logger.getInstance( "OpenEJB" );
 
     Vector           clientSockets  = new Vector();
     ServerSocket     serverSocket   = null;
@@ -119,21 +121,21 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
         return thiss;
     }
-    
+
     public void init(Properties props) throws Exception{
-        
+
         this.props = props;
-        printVersion();                            
-        System.out.println("----------------STARTUP----------------");
-        System.out.println("[init] OpenEJB Container System");
-        
+        printVersion();
+
+        System.out.println( _messages.message( "ejbdaemon.startup" ) );
+
         props.putAll(System.getProperties());
         props.put("openejb.nobanner", "true");
         OpenEJB.init(props, this);
-        
+
         System.out.println("[init] OpenEJB Remote Server");
-        
-        
+
+
         clientJndi = (javax.naming.Context)OpenEJB.getJNDIContext().lookup("openejb/ejb");
 
         DeploymentInfo[] ds = OpenEJB.deployments();
@@ -148,24 +150,24 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         for (int i=1; i < deployments.length; i++){
             deploymentsMap.put( deployments[i].getDeploymentID(), new Integer(i));
         }
-        
+
         parseAdminIPs();
     }
 
 
-    
+
     public synchronized void start(){
         try{
             System.out.println("  ** Starting Services **");
             System.out.println("  NAME             IP              PORT");
-            
+
             SafeProperties safeProps = toolkit.getSafeProperties(props);
-            
+
             port = safeProps.getPropertyAsInt("openejb.server.port");
             ip   = safeProps.getProperty("openejb.server.ip");
-            
+
             sMetaData = new ServerMetaData(ip, port);
-            
+
             System.out.print("  ejb server       ");
             try{
                 serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
@@ -184,17 +186,17 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             String serverIP = serverSocket.getInetAddress().getHostAddress();
             serverIP += "         ";
             serverIP = serverIP.substring(0,15);
-                         
+
             System.out.println(serverIP +" "+port);
-            
+
             System.out.print("  admin console    ");
-            
+
             TextConsole textConsole = new TextConsole(this);
             textConsole.init(props);
             textConsole.start();
-            
+
             System.out.println(serverIP +" "+(port-1));
-                                                     
+
             serverIP = serverIP.trim();
 
             System.out.println("-----------------INFO------------------");
@@ -208,7 +210,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
              *  vm alive) to go into a state of constant waiting.
              *  Each time the thread is woken up, it checks to see if
              *  it should continue waiting.
-             *  
+             *
              *  To stop the thread (and the VM), just call the stop method
              *  which will set 'stop' to true and notify the user thread.
              */
@@ -230,16 +232,16 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
     public static void checkHostsAdminAuthorization(InetAddress client, InetAddress server) throws SecurityException {
         // Authorization flag.  This starts out as unauthorized
-        // and will stay that way unless a matching admin ip is 
+        // and will stay that way unless a matching admin ip is
         // found.
         boolean authorized = false;
 
         // Check the client ip agains the server ip. Hosts are
-        // allowed to administer themselves, so if these ips 
+        // allowed to administer themselves, so if these ips
         // match, the following for loop will be skipped.
         authorized = client.equals( server );
 
-        for (int i=0; i < admins.length && !authorized; i++){    
+        for (int i=0; i < admins.length && !authorized; i++){
             authorized = admins[i].equals( client );
         }
 
@@ -253,7 +255,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         System.out.println("[] stop request from "+client.getHostAddress() );
         stop();
     }
-    
+
     public void stop( InetAddress client ) throws SecurityException {
         System.out.println("[] stop request from "+client.getHostAddress() );
         stop();
@@ -270,9 +272,9 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
     private void parseAdminIPs(){
         try{
-            
+
             Vector addresses = new Vector();
-            
+
             InetAddress[] localIps = InetAddress.getAllByName("localhost");
             for (int i=0; i < localIps.length; i++){
                 addresses.add( localIps[i] );
@@ -306,7 +308,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
         Socket socket = null;
         InputStream in = null;
-        
+
         /**
          * The ObjectInputStream used to receive incoming messages from the client.
          */
@@ -324,10 +326,10 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                 clientIP = socket.getInetAddress();
                 //Thread.currentThread().setName(clientIP.getHostAddress());
                 in = socket.getInputStream();
-                
-                
+
+
                 byte requestType = (byte)in.read();
-                
+
                 switch (requestType) {
                     case STOP_REQUEST_Quit:
                     case STOP_REQUEST_quit:

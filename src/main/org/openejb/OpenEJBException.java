@@ -86,6 +86,8 @@ import org.openejb.util.Messages;
  */
 public class OpenEJBException extends Exception {
 
+    static protected Messages _messages = new Messages();
+
     /** Error code for unknown errors */
     private String message = "error.unknown";
 
@@ -111,7 +113,7 @@ public class OpenEJBException extends Exception {
      * @param message <code>String</code> identifying the cause of the problem.
      */
     public OpenEJBException(String message) {
-        super(Messages.message(message));
+        super(_messages.message(message));
         this.message = message;
     }
 
@@ -154,7 +156,7 @@ public class OpenEJBException extends Exception {
      * @param arg1 <code>Object</code> argument for messaging use.
      */
     public OpenEJBException(String message, Object arg1) {
-        super(Messages.format(message, arg1));
+        super(_messages.format(message, arg1));
         this.message = message;
     }
 
@@ -175,7 +177,7 @@ public class OpenEJBException extends Exception {
      * @param args <code>Object[]</code> argument for messaging use.
      */
     public OpenEJBException(String message, Object arg1, Object arg2) {
-        super(Messages.format(message, arg1, arg2));
+        super(_messages.format(message, arg1, arg2));
         this.message = message;
     }
 
@@ -192,7 +194,7 @@ public class OpenEJBException extends Exception {
      * @param args <code>Object[]</code> argument for messaging use.
      */
     public OpenEJBException(String message, Object[] args) {
-        super(Messages.format(message, args));
+        super(_messages.format(message, args));
         this.message = message;
     }
 

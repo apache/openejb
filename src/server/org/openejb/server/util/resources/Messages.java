@@ -42,22 +42,17 @@
  *
  * $Id$
  */
-package org.openejb.util;
+package org.openejb.server.util.resources;
 
+import java.util.ListResourceBundle;
 
-import java.text.*;
-import java.util.*;
+public class Messages extends ListResourceBundle {
 
-/**
- *
- *
- * @author <a href="arkin@exoffice.com">Assaf Arkin</a>
- * @version $Revision$ $Date$
- */
-public class Messages extends MessagesBase
-{
-    public Messages() {
-	super();
+ 	static final Object[][] contents = {
+{"ejbdaemon.startup", "----------------STARTUP----------------\n[init] OpenEJB Container System"}
+ 	};
 
-    }
+ 	public Object[][] getContents() {
+ 		return contents;
+ 	}
 }

@@ -48,6 +48,7 @@ package org.openejb.util;
 import org.apache.log4j.Category;
 import org.apache.log4j.Level;
 import java.lang.Throwable;
+import java.util.HashMap;
 
 
 /**
@@ -75,6 +76,31 @@ public class Logger {
 	}
     }
 
+    static protected HashMap _loggers = new HashMap();
+    static protected Messages _messages = new Messages();
+
+    /**
+     * Returns a shared instance of Logger.
+     * 
+     * @param name   the name log4j category to use
+     * 
+     * @return Instance of logger.
+     */
+    static public Logger getInstance( String name ) {
+	Logger l = (Logger)_loggers.get( name );
+
+	if ( l == null ) {
+	    synchronized (Logger.class) {
+		l = (Logger)_loggers.get( name );
+		if ( l == null ) {
+		    l = new Logger( name );
+		    _loggers.put( name, l );
+		}
+	    }
+	}
+	return l;
+    }
+
     /**
      * Protected constructor.  Users must invoke getInstance() to
      * an instance of Logger.
@@ -83,7 +109,7 @@ public class Logger {
      * 
      * @see getInstance()
      */
-    public Logger( String name ) {
+    protected Logger( String name ) {
 	_logger = Category.getInstance( name );
     }
     
@@ -141,7 +167,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code ) {
-	if ( isInfoEnabled() ) _logger.info( Messages.message( code ) );
+	if ( isInfoEnabled() ) _logger.info( _messages.message( code ) );
     }
 
     /**
@@ -153,7 +179,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Throwable t ) {
-	if ( isInfoEnabled() ) _logger.info( Messages.message( code ), t );
+	if ( isInfoEnabled() ) _logger.info( _messages.message( code ), t );
     }
 
 
@@ -382,7 +408,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Object[] args ) {
-	_logger.info( Messages.format( code, args ) );
+	_logger.info( _messages.format( code, args ) );
     }
 
     /**
@@ -395,7 +421,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void info( String code, Throwable t,  Object[] args ) {
-	    _logger.info( Messages.format( code, args ), t );
+	    _logger.info( _messages.format( code, args ), t );
     }
 
     /**
@@ -406,7 +432,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code ) {
-	if ( isWarningEnabled() ) _logger.warn( Messages.message( code ) );
+	if ( isWarningEnabled() ) _logger.warn( _messages.message( code ) );
     }
 
     /**
@@ -418,7 +444,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Throwable t ) {
-	if ( isWarningEnabled() ) _logger.warn( Messages.message( code ), t );
+	if ( isWarningEnabled() ) _logger.warn( _messages.message( code ), t );
     }
 
     /**
@@ -646,7 +672,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Object[] args ) {
-	_logger.warn( Messages.format( code, args ) );
+	_logger.warn( _messages.format( code, args ) );
     }
 
     /**
@@ -659,7 +685,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void warning( String code, Throwable t, Object[] args ) {
-	_logger.warn( Messages.format( code, args ), t );
+	_logger.warn( _messages.format( code, args ), t );
     }
 
 
@@ -671,7 +697,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code ) {
-	if ( isErrorEnabled() ) _logger.error( Messages.message( code ) );
+	if ( isErrorEnabled() ) _logger.error( _messages.message( code ) );
     }
 
     /**
@@ -683,7 +709,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Throwable t ) {
-	if ( isErrorEnabled() ) _logger.error( Messages.message( code ), t );
+	if ( isErrorEnabled() ) _logger.error( _messages.message( code ), t );
     }
 
     /**
@@ -911,7 +937,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Object[] args ) {
-	_logger.error( Messages.format( code, args ) );
+	_logger.error( _messages.format( code, args ) );
     }
 
     /**
@@ -924,7 +950,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void error( String code, Throwable t, Object[] args ) {
-	_logger.error( Messages.format( code, args ), t );
+	_logger.error( _messages.format( code, args ), t );
     }
 
     /**
@@ -935,7 +961,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void fatal( String code ) {
-	_logger.fatal( Messages.message( code ) );
+	_logger.fatal( _messages.message( code ) );
     }
 
     /**
@@ -947,7 +973,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void fatal( String code, Throwable t ) {
-	_logger.fatal( Messages.message( code ), t );
+	_logger.fatal( _messages.message( code ), t );
     }
 
     /**
@@ -1151,7 +1177,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void fatal( String code, Object[] args ) {
-	_logger.fatal( Messages.format( code, args ) );
+	_logger.fatal( _messages.format( code, args ) );
     }
 
     /**
@@ -1164,7 +1190,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void fatal( String code, Throwable t, Object[] args ) {
-	_logger.fatal( Messages.format( code, args ), t );
+	_logger.fatal( _messages.format( code, args ), t );
     }
 
 
@@ -1176,7 +1202,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code ) {
-	if ( isDebugEnabled() ) _logger.debug( Messages.message( code ) );
+	if ( isDebugEnabled() ) _logger.debug( _messages.message( code ) );
     }
 
     /**
@@ -1188,7 +1214,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Throwable t ) {
-	if ( isDebugEnabled() ) _logger.debug( Messages.message( code ), t );
+	if ( isDebugEnabled() ) _logger.debug( _messages.message( code ), t );
     }
 
     /**
@@ -1416,7 +1442,7 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Object[] args ) {
-	_logger.debug( Messages.format( code, args ) );
+	_logger.debug( _messages.format( code, args ) );
     }
 
     /**
@@ -1429,6 +1455,6 @@ public class Logger {
      * @see org.openejb.util.Messages
      */
     public void debug( String code, Throwable t, Object[] args ) {
-	_logger.debug( Messages.format( code, args ), t );
+	_logger.debug( _messages.format( code, args ), t );
     }
 }

@@ -133,6 +133,7 @@ package org.openejb.util;
 // extends java.lang.ThreadLocal // Removed for 1.1 compatibility
 public class FastThreadLocal implements Runnable {
 
+    protected Messages _messages = new Messages();
 
     /**
      * Underneath a hashtable there is always an array. The array
@@ -178,7 +179,7 @@ public class FastThreadLocal implements Runnable {
         // entries to stale (dead) threads.
         Thread thread;
 
-        thread = new Thread( this, Messages.message( "misc.threadLocalDaemonName" ) );
+        thread = new Thread( this, _messages.message( "misc.threadLocalDaemonName" ) );
         thread.setPriority( Thread.MIN_PRIORITY );
         thread.setDaemon( true );
         thread.start();

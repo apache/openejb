@@ -110,7 +110,7 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
 
     // manages the transactional scope according to the bean's transaction attributes
     //EntityTransactionScopeHandler txScopeHandle;
-    public Logger logger = new Logger( "OpenEJB" );
+    public Logger logger = Logger.getInstance( "OpenEJB" );
 
 
     /**

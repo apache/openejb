@@ -92,7 +92,7 @@ public class HttpDaemon implements Runnable{
 
     private SafeToolkit toolkit = SafeToolkit.getToolkit("OpenEJB EJB Server");
 
-    Logger logger = new Logger( "OpenEJB" );
+    Logger logger = Logger.getInstance( "OpenEJB" );
 
     Vector           clientSockets  = new Vector();
     ServerSocket     serverSocket   = null;
@@ -115,7 +115,7 @@ public class HttpDaemon implements Runnable{
 
         //port = safeProps.getPropertyAsInt("openejb.server.port");
         //ip   = safeProps.getProperty("openejb.server.ip");
-        
+
         try{
             serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
         } catch (Exception e){
@@ -140,7 +140,7 @@ public class HttpDaemon implements Runnable{
          * The ObjectOutputStream used to send outgoing response messages to the client.
          */
         OutputStream out = null;
-        
+
         InetAddress clientIP = null;
         while ( !stop ) {
             try {
@@ -151,7 +151,7 @@ public class HttpDaemon implements Runnable{
                 in  = socket.getInputStream();
                 out = socket.getOutputStream();
 
-                processRequest(in, out); 
+                processRequest(in, out);
 
                 // Exceptions should not be thrown from these methods
                 // They should handle their own exceptions and clean
@@ -174,7 +174,7 @@ public class HttpDaemon implements Runnable{
         }
 
     }
-    
+
     private void replyWithFatalError(OutputStream out, Throwable error, String message){
 //      logger.fatal(message, error);
 //      RemoteException re = new RemoteException
@@ -203,7 +203,7 @@ public class HttpDaemon implements Runnable{
             t.printStackTrace();
             return;
         }
-        
+
         java.io.PrintWriter body = res.getPrintWriter();
 
         body.println("<html>");
@@ -212,7 +212,7 @@ public class HttpDaemon implements Runnable{
         body.println("<h1>Hello World</h1>");
         body.println("</body>");
         body.println("</html>");
-        
+
         try {
             res.writeExternal( out );
         } catch (Throwable t) {

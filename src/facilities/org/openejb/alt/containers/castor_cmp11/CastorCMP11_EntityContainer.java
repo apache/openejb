@@ -104,7 +104,7 @@ public class CastorCMP11_EntityContainer
 
 
     protected static class CMPLogger implements org.exolab.castor.persist.spi.LogInterceptor {
-        protected final Logger logger = new Logger("CastorCMP");
+        protected final Logger logger = Logger.getInstance( "CastorCMP" );
         protected final String db;
 
         public CMPLogger(String db) {
@@ -222,7 +222,7 @@ public class CastorCMP11_EntityContainer
     }
 
 
-    public Logger logger = new Logger( "OpenEJB" );
+    public Logger logger = Logger.getInstance( "OpenEJB" );
     
     // contains deployment information for each by deployed to this container
     HashMap deploymentRegistry;

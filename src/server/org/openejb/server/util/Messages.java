@@ -42,9 +42,10 @@
  *
  * $Id$
  */
-package org.openejb.util;
+package org.openejb.server.util;
 
 
+import org.openejb.util.MessagesBase;
 import java.text.*;
 import java.util.*;
 
