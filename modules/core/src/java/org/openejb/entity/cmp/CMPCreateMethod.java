@@ -50,6 +50,8 @@ package org.openejb.entity.cmp;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import javax.ejb.DuplicateKeyException;
 import javax.ejb.EntityBean;
 
 import org.apache.geronimo.core.service.InvocationResult;
@@ -64,6 +66,7 @@ import org.openejb.dispatch.VirtualOperation;
 import net.sf.cglib.reflect.FastClass;
 import org.tranql.cache.CacheRow;
 import org.tranql.cache.CacheTable;
+import org.tranql.cache.DuplicateIdentityException;
 import org.tranql.cache.InTxCache;
 import org.tranql.identity.GlobalIdentity;
 import org.tranql.identity.IdentityDefiner;
@@ -180,14 +183,19 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
         TransactionContext transactionContext = invocation.getTransactionContext();
         InTxCache cache = transactionContext.getInTxCache();
 
-        if ( null != keyGenerator ) {
-            cacheRow = keyGenerator.updateCache(cache, globalId, cacheRow);
+        try {
+            if ( null != keyGenerator ) {
+                cacheRow = keyGenerator.updateCache(cache, globalId, cacheRow);
 
-            // CacheRow slots do not define the identity in this case; Inject it.
-            identityDefiner.injectIdentity(cacheRow);
-        } else {
-            // add the row to the cache (returning a new row containing identity)
-            cacheRow = cacheTable.addRow(cache, globalId, cacheRow);
+                // CacheRow slots do not define the identity in this case; Inject it.
+                identityDefiner.injectIdentity(cacheRow);
+            } else {
+                // add the row to the cache (returning a new row containing identity)
+                cacheRow = cacheTable.addRow(cache, globalId, cacheRow);
+            }
+        } catch (DuplicateIdentityException e) {
+            Object pk = primaryKeyTransform.getDomainIdentity(globalId);
+            return new SimpleInvocationResult(false, new DuplicateKeyException("ID=" + pk));
         }
         
         ctx.setCacheRow(cacheRow);

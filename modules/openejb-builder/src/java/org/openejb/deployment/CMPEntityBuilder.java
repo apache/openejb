@@ -106,7 +106,6 @@ import org.tranql.sql.SQLSchema;
 import org.tranql.sql.Table;
 import org.tranql.sql.TypeConverter;
 import org.tranql.sql.jdbc.SQLTypeLoader;
-import org.tranql.sql.sql92.SQL92Schema;
 
 
 /**
@@ -117,7 +116,7 @@ class CMPEntityBuilder extends EntityBuilder {
         super(builder);
     }
 
-    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, EJBSchema ejbSchema, SQL92Schema sqlSchema, GlobalSchema globalSchema, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, Security security, EnterpriseBeansType enterpriseBeans, TransactionManagerDelegate tmDelegate) throws DeploymentException {
+    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, Security security, EnterpriseBeansType enterpriseBeans, TransactionManagerDelegate tmDelegate) throws DeploymentException {
         // CMP Entity Beans
         EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
         for (int i = 0; i < entityBeans.length; i++) {
@@ -137,7 +136,7 @@ class CMPEntityBuilder extends EntityBuilder {
     }
     
 
-    public void buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema, GlobalSchema globalSchema) throws DeploymentException {
+    public void buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema) throws DeploymentException {
         try {
             processEnterpriseBeans(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema);
             processRelationships(ejbJar, openejbEjbJar, ejbSchema, sqlSchema);
@@ -147,7 +146,7 @@ class CMPEntityBuilder extends EntityBuilder {
         }
     }
 
-    private void processEnterpriseBeans(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema) throws DeploymentException {
+    private void processEnterpriseBeans(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQLSchema sqlSchema) throws DeploymentException {
         Map openEjbEntities = new HashMap();
         OpenejbEntityBeanType[] openEJBEntities = openejbEjbJar.getEnterpriseBeans().getEntityArray();
         for (int i = 0; i < openEJBEntities.length; i++) {
@@ -413,7 +412,7 @@ class CMPEntityBuilder extends EntityBuilder {
         }
     }
     
-    private void processRelationships(EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, EJBSchema ejbSchema, SQL92Schema sqlSchema) throws DeploymentException {
+    private void processRelationships(EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, EJBSchema ejbSchema, SQLSchema sqlSchema) throws DeploymentException {
         if ( !ejbJar.isSetRelationships() ) {
             return;
         } else if ( !openejbEjbJar.isSetRelationships() ) {
@@ -488,7 +487,7 @@ class CMPEntityBuilder extends EntityBuilder {
         return roleInfo;
     }
 
-    private void extractJoinInfo(RoleInfo[] roleInfo, String mtmEntityName, EJBSchema ejbSchema, SQL92Schema sqlSchema, OpenejbEjbRelationshipRoleType role) throws DeploymentException {
+    private void extractJoinInfo(RoleInfo[] roleInfo, String mtmEntityName, EJBSchema ejbSchema, SQLSchema sqlSchema, OpenejbEjbRelationshipRoleType role) throws DeploymentException {
         String ejbName = role.getRelationshipRoleSource().getEjbName();
         String cmrFieldName = null;
         if ( role.isSetCmrField() ) {
@@ -557,7 +556,7 @@ class CMPEntityBuilder extends EntityBuilder {
         mappedRoleInfo[0].tableJDef = new JoinDefinition(mappedRoleInfo[0].table, fkTable, pkToFkMapTable);
     }
 
-    private void buildSchemaForJoin(RoleInfo[] roleInfo, String mtmEntityName, EJBSchema ejbSchema, SQL92Schema sqlSchema, int id) {
+    private void buildSchemaForJoin(RoleInfo[] roleInfo, String mtmEntityName, EJBSchema ejbSchema, SQLSchema sqlSchema, int id) {
         Relationship relationship;
         JoinTable joinTable;
         if (null == mtmEntityName) {

@@ -56,6 +56,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.tranql.cache.CacheRow;
+import org.tranql.cache.DuplicateIdentityException;
 import org.tranql.cache.InTxCache;
 import org.tranql.identity.GlobalIdentity;
 import org.tranql.pkgenerator.AutoIncrementTablePrimaryKeyGenerator;
@@ -100,7 +101,7 @@ public class AutoIncrementTablePrimaryKeyGeneratorWrapper implements PrimaryKeyG
         return delegate.getNextPrimaryKey(cacheRow);
     }
 
-    public CacheRow updateCache(InTxCache cache, GlobalIdentity id, CacheRow cacheRow) throws PrimaryKeyGeneratorException {
+    public CacheRow updateCache(InTxCache cache, GlobalIdentity id, CacheRow cacheRow) throws DuplicateIdentityException {
         return delegate.updateCache(cache, id, cacheRow);
     }
 
