@@ -14,9 +14,9 @@ import org.openejb.OpenEJBException;
 import org.openejb.alt.assembler.classic.*;
 import org.openejb.alt.config.ejb11.*;
 import org.openejb.alt.config.sys.*;
+import org.openejb.alt.util.Logger;
 import org.openejb.util.FileUtils;
 import org.openejb.util.JarUtils;
-import org.openejb.util.Logger;
 
 /*------------------------------------------------------*/
 /* Utility method for reading and writing config files  */

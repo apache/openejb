@@ -51,9 +51,9 @@ import org.openejb.OpenEJBException;
 import org.openejb.util.Logger;
 
 
-public class OpenEJBErrorHandler{
+public class OpenEJBErrorHandler {
 
-    private static Logger _logger = new Logger( "OpenEJB" );
+    private static Logger _logger = Logger.getInstance( "OpenEJB" );
 
     /**
      * This method is only intended for situations where an unknown error

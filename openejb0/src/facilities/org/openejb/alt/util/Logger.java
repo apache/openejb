@@ -61,17 +61,26 @@ package org.openejb.alt.util;
 public class Logger extends org.openejb.util.LoggerBase {
 
     /**
-     * Protected constructor.  Users must invoke getInstance() to
-     * an instance of Logger.
-     *
+     * Returns a shared instance of Logger.
+     * 
      * @param name   the name of the log4j category to use
-     *
-     * @see getInstance()
+     * 
+     * @return Instance of logger.
      */
-    protected Logger( String name ) {
-	super( name );
+    static public Logger getInstance( String name ) {
+	return (Logger)org.openejb.util.LoggerBase.getInstanceProtected( Logger.class, name );
     }
 
+    /**
+     * Constructor.  Users must invoke getInstance() to
+     * an instance of Logger.
+     * 
+     * @see getInstance()
+     */
+    public Logger() {
+	super();
+    }
+        
     protected org.openejb.util.MessagesBase createMessagesBase() {
 	return new Messages();
     }
