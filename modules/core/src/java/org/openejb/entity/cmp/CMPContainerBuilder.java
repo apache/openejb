@@ -58,6 +58,8 @@ import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.sql.DataSource;
 
+import org.apache.geronimo.deployment.DeploymentException;
+
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
 import org.openejb.InstanceContextFactory;
@@ -149,7 +151,17 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         CacheTable cacheTable = createCacheTable(ejb, queryTransformer, dataSource);
 
         // identity definer
-        IdentityDefiner identityDefiner = new UserDefinedIdentity(cacheTable, 0);
+        int pkSlot = -1;
+        for (int index = 0; index < ejb.getAttributes().size(); index++) {
+            Attribute attribute = (Attribute) ejb.getAttributes().get(index);
+            if(attribute.isIdentity()) {
+                if (pkSlot > 0) {
+                    throw new DeploymentException("User defined pks are not currently supported");
+                }
+                pkSlot = index;
+            }
+        }
+        IdentityDefiner identityDefiner = new UserDefinedIdentity(cacheTable, pkSlot);
 
         // the load all by primary key command
         QueryCommand loadCommand = createLoadAllCommand(ejb, queryTransformer, identityDefiner, dataSource);
@@ -246,28 +258,40 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         SQLQuery updateSQLQuery = (SQLQuery) queryTransformer.transform(updateQuery);
         InputBinding[] updateBindings = BindingFactory.getInputBindings(updateSQLQuery.getParamTypes());
         UpdateCommand updateCommand = new JDBCUpdateCommand(ds, updateSQLQuery.getSQLText(), updateBindings);
+
         // todo shouldn't query builder do this transform?
         List attributes = ejb.getAttributes();
-        List updateTransformList = new ArrayList(attributes.size() * 2 + 1);
+        List updateParamsList = new ArrayList(attributes.size() * 2);
+        List pkParamsList = new ArrayList(1);
         for (int i = 0; i < attributes.size(); i++) {
             Attribute attribute = (Attribute) attributes.get(i);
-            if(!attribute.isIdentity()) {
-                updateTransformList.add(new ModifiedSlotDetector(i));
-                updateTransformList.add(new ModifiedSlotAccessor(i));
+            if(attribute.isIdentity()) {
+                pkParamsList.add(new FieldAccessor(i));
+            } else {
+                updateParamsList.add(new ModifiedSlotDetector(i));
+                updateParamsList.add(new ModifiedSlotAccessor(i));
             }
         }
-
-        // todo I'd bet this is wrong
-        updateTransformList.add(new FieldAccessor(0));
-        FieldTransform[] updateTransforms = (FieldTransform[]) updateTransformList.toArray(new FieldTransform[updateTransformList.size()]);
+        updateParamsList.addAll(pkParamsList);
+        FieldTransform[] updateTransforms = (FieldTransform[]) updateParamsList.toArray(new FieldTransform[updateParamsList.size()]);
         updateCommand = new ParamRemapper(updateCommand, updateTransforms);
-
 
         // DELETE
         Query removeQuery = QueryBuilder.buildDelete(ejb).getQuery();
         SQLQuery removeSQLQuery = (SQLQuery) queryTransformer.transform(removeQuery);
         InputBinding[] removeBindings = BindingFactory.getInputBindings(removeSQLQuery.getParamTypes());
         UpdateCommand removeCommand = new JDBCUpdateCommand(ds, removeSQLQuery.getSQLText(), removeBindings);
+
+        // todo shouldn't query builder do this transform?
+        List removeParamsList = new ArrayList(1);
+        for (int i = 0; i < attributes.size(); i++) {
+            Attribute attribute = (Attribute) attributes.get(i);
+            if(attribute.isIdentity()) {
+                removeParamsList.add(new FieldAccessor(i));
+            }
+        }
+        FieldTransform[] removeTransforms = (FieldTransform[]) removeParamsList.toArray(new FieldTransform[removeParamsList.size()]);
+        removeCommand = new ParamRemapper(removeCommand, removeTransforms);
 
         // defaults
         Object[] defaults = createDefaults(ejb);
@@ -451,7 +475,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             Map.Entry entry = (Map.Entry) iterator.next();
             InterfaceMethodSignature signature = (InterfaceMethodSignature)entry.getKey();
             QueryCommand[] queryCommands = (QueryCommand[])entry.getValue();
-            vopMap.put(signature, new CMPFinder(queryCommands[0], queryCommands[1]));
+            vopMap.put(signature, new CMPFinder(queryCommands[0], queryCommands[1], new SingleValuedQueryResultsFactory()));
         }
         return vopMap;
     }

@@ -52,6 +52,8 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.HashSet;
+import java.rmi.NoSuchObjectException;
+import java.rmi.RemoteException;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 import javax.ejb.NoSuchObjectLocalException;
@@ -75,6 +77,7 @@ import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
 import org.tranql.ejb.CMPField;
 import org.tranql.ejb.EJB;
+import org.tranql.ejb.NotLoadedException;
 
 /**
  * @version $Revision$ $Date$
@@ -107,6 +110,25 @@ public class BasicCMPEntityContainerTest extends TestCase {
         assertEquals(value, local.getValue());
     }
 
+    public void testRemoteInvoke() throws Exception {
+        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "EJBHome");
+        assertEquals(2, home.intMethod(1));
+
+        Integer pk = new Integer(33);
+        String value = "Thirty-Three";
+        int number = 44;
+
+        MockRemote remote = home.create(pk, value);
+        assertEquals(1 + number + pk.intValue(), remote.intMethod(number));
+        assertEquals(pk, remote.getPrimaryKey());
+        assertEquals(value, remote.getValue());
+
+        remote = home.findByPrimaryKey(pk);
+        assertEquals(1 + number + pk.intValue(), remote.intMethod(number));
+        assertEquals(pk, remote.getPrimaryKey());
+        assertEquals(value, remote.getValue());
+    }
+
     public void testFields() throws Exception {
         MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
         MockLocal local = home.findByPrimaryKey(new Integer(1));
@@ -125,7 +147,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         assertEquals("World", local.getValue());
     }
 
-    public void testLifeCycle() throws Exception {
+    public void testLocalLifeCycle() throws Exception {
         Connection c = ds.getConnection();
         Statement s = c.createStatement();
         ResultSet rs;
@@ -173,18 +195,93 @@ public class BasicCMPEntityContainerTest extends TestCase {
 
         try {
             local.getValue();
-            fail("Expected NoSuchObjectLocalException, but no exception was thrown");
+            // we don't have a load query so this is not an ObjectNotFoundException
+            fail("Expected NotLoadedException, but no exception was thrown");
         } catch(AssertionFailedError e) {
             throw e;
-        } catch(NoSuchObjectLocalException e) {
+        } catch(NotLoadedException e) {
             // expected
         } catch(Throwable e) {
             e.printStackTrace();
-            fail("Expected NoSuchObjectLocalException, but got " + e.getClass().getName());
+            fail("Expected NotLoadedException, but got " + e.getClass().getName());
         }
 
         try {
             local = home.findByPrimaryKey(new Integer(2));
+            fail("Expected ObjectNotFoundException, but no exception was thrown");
+        } catch(AssertionFailedError e) {
+            throw e;
+        } catch(ObjectNotFoundException e) {
+            // expected
+        } catch(Throwable e) {
+            fail("Expected ObjectNotFoundException, but got " + e.getClass().getName());
+        }
+
+        rs.close();
+        s.close();
+        c.close();
+    }
+
+    public void testRemoteLifeCycle() throws Exception {
+        Connection c = ds.getConnection();
+        Statement s = c.createStatement();
+        ResultSet rs;
+
+        // check that it is not there
+        rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
+        assertFalse(rs.next());
+        rs.close();
+
+        // add new
+        MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "EJBHome");
+        MockRemote remote = home.create(new Integer(2), "Hello");
+        rs = s.executeQuery("SELECT VALUE FROM MOCK WHERE ID=2");
+        assertTrue(rs.next());
+        assertEquals("Hello", rs.getString(1));
+        rs.close();
+
+        // find it
+        remote = home.findByPrimaryKey(new Integer(2));
+        assertEquals("Hello", remote.getValue());
+
+        // check that it is actually in the database
+        rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
+        assertTrue(rs.next());
+        rs.close();
+
+        // remove it
+        remote.remove();
+
+        // verify it is really gone
+        rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
+        assertFalse(rs.next());
+
+        try {
+            remote.intMethod(33);
+            // todo this does not throw an exception because we are not verifying that the row exists in ejbLoad and intMethod does not access any persistent data
+//            fail("Expected NoSuchObjectException, but no exception was thrown");
+        } catch(AssertionFailedError e) {
+            throw e;
+        } catch(NoSuchObjectException e) {
+            // expected
+        } catch(Throwable e) {
+            fail("Expected NoSuchObjectException, but got " + e.getClass().getName());
+        }
+
+        try {
+            remote.getValue();
+            fail("Expected RemoteException, but no exception was thrown");
+        } catch(AssertionFailedError e) {
+            throw e;
+        } catch(RemoteException e) {
+            // expected
+        } catch(Throwable e) {
+            e.printStackTrace();
+            fail("Expected RemoteException, but got " + e.getClass().getName());
+        }
+
+        try {
+            remote = home.findByPrimaryKey(new Integer(2));
             fail("Expected ObjectNotFoundException, but no exception was thrown");
         } catch(AssertionFailedError e) {
             throw e;
@@ -293,8 +390,8 @@ public class BasicCMPEntityContainerTest extends TestCase {
         builder.setComponentContext(new ReadOnlyContext());
 
         EJB ejb = new EJB("MockEJB", "MOCK");
-        ejb.addCMPField(new CMPField("id", Integer.class, true));
         ejb.addCMPField(new CMPField("value", String.class, false));
+        ejb.addCMPField(new CMPField("id", Integer.class, true));
         builder.setEJB(ejb);
         builder.setDataSource(ds);
         container = builder.createConfiguration();

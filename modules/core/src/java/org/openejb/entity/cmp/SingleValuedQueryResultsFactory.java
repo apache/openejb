@@ -47,54 +47,19 @@
  */
 package org.openejb.entity.cmp;
 
-import java.io.Serializable;
-import java.util.LinkedList;
-import javax.ejb.FinderException;
-import javax.ejb.ObjectNotFoundException;
-
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
-
-import org.openejb.EJBInvocation;
-import org.openejb.dispatch.VirtualOperation;
-import org.tranql.cache.InTxCache;
 import org.tranql.ql.QueryException;
-import org.tranql.query.QueryCommand;
 import org.tranql.query.QueryResult;
-import org.tranql.field.Row;
 
 /**
+ * 
+ * 
  * @version $Revision$ $Date$
  */
-public class CMPFinder implements VirtualOperation, Serializable {
-    private final QueryCommand localQuery;
-    private final QueryCommand remoteQuery;
-    private final QueryResultsFactory resultsFactory;
-
-    public CMPFinder(QueryCommand localQuery, QueryCommand remoteQuery, QueryResultsFactory resultsFactory) {
-        this.localQuery = localQuery;
-        this.remoteQuery = remoteQuery;
-        this.resultsFactory = resultsFactory;
-    }
-
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        InTxCache inTxCache = invocation.getTransactionContext().getInTxCache();
-        try {
-            QueryResult result;
-            if (invocation.getType().isLocal()) {
-                result = localQuery.execute(inTxCache, new Row(invocation.getArguments()));
-            } else {
-                result = remoteQuery.execute(inTxCache, new Row(invocation.getArguments()));
-            }
-
-            Object returnValue = resultsFactory.createQueryResults(result);
-            if (returnValue != null) {
-                return new SimpleInvocationResult(true, result.getValues().get(0));
-            } else {
-                return new SimpleInvocationResult(false, new ObjectNotFoundException());
-            }
-        } catch (QueryException e) {
-            return new SimpleInvocationResult(false, new FinderException().initCause(e));
+public class SingleValuedQueryResultsFactory implements QueryResultsFactory {
+    public Object createQueryResults(QueryResult result) throws QueryException {
+        if(result.next()) {
+            return result.getValues().get(0);
         }
+        return null;
     }
 }
