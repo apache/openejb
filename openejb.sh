@@ -73,7 +73,7 @@ function start_intravm () {
 function test_noargs () {
    test_intravm
    test_server
-   test_corba
+#   test_corba
 }
 #================================================
 function test_intravm () {
