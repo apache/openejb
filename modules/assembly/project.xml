@@ -118,6 +118,17 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-deploy-tool</artifactId>
+            <version>&geronimo-version;</version>
+            <properties>
+                <lib>true</lib>
+                <deploy>true</deploy>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-derby</artifactId>
             <version>&geronimo-version;</version>
             <properties>
@@ -222,6 +233,15 @@
             </properties>
         </dependency>
     
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>&geronimo-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>

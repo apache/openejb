@@ -85,6 +85,9 @@ by the server.
         <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>geronimo/jars/geronimo-service-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>tranql/jars/tranql-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
