@@ -4,7 +4,7 @@
 <!ENTITY % locator SYSTEM "file:locator.ent">
 %locator;
 %versions;
- ]>
+]>
 
 <!-- $Revision$ $Date$ -->
 
@@ -148,6 +148,7 @@
             <version>&geronimo-version;</version>
             <properties>
                 <runtime>true</runtime>
+                <xmlbeans>true</xmlbeans>
             </properties>
         </dependency>
 

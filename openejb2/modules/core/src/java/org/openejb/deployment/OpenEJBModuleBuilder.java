@@ -140,6 +140,40 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             return null;
         }
 
+        OpenejbOpenejbJarType openejbJar = getOpenejbJar(plan, moduleFile, name, ejbJar);
+
+        // get the ids from either the application plan or for a stand alone module from the specific deployer
+        URI configId = null;
+        try {
+            configId = new URI(openejbJar.getConfigId());
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Invalid configId " + openejbJar.getConfigId(), e);
+        }
+
+        URI parentId = null;
+        if (openejbJar.isSetParentId()) {
+            try {
+                parentId = new URI(openejbJar.getParentId());
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid parentId " + openejbJar.getParentId(), e);
+            }
+        }
+
+        URI moduleURI;
+        if (targetPath != null) {
+            moduleURI = URI.create(targetPath);
+            if (targetPath.endsWith("/")) {
+                throw new DeploymentException("targetPath must not end with a '/'");
+            }
+        } else {
+            targetPath = "ejb.jar";
+            moduleURI = URI.create("");
+        }
+
+        return new EJBModule(name, configId, parentId, moduleURI, moduleFile, targetPath, ejbJar, openejbJar, specDD);
+    }
+
+    OpenejbOpenejbJarType getOpenejbJar(Object plan, JarFile moduleFile, String name, EjbJarType ejbJar) throws DeploymentException {
         OpenejbOpenejbJarType openejbJar = null;
         try {
             // load the openejb-jar.xml from either the supplied plan or from the earFile
@@ -174,36 +208,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         } catch (XmlException e) {
             throw new DeploymentException(e);
         }
-
-        // get the ids from either the application plan or for a stand alone module from the specific deployer
-        URI configId = null;
-        try {
-            configId = new URI(openejbJar.getConfigId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + openejbJar.getConfigId(), e);
-        }
-
-        URI parentId = null;
-        if (openejbJar.isSetParentId()) {
-            try {
-                parentId = new URI(openejbJar.getParentId());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + openejbJar.getParentId(), e);
-            }
-        }
-
-        URI moduleURI;
-        if (targetPath != null) {
-            moduleURI = URI.create(targetPath);
-            if (targetPath.endsWith("/")) {
-                throw new DeploymentException("targetPath must not end with a '/'");
-            }
-        } else {
-            targetPath = "ejb.jar";
-            moduleURI = URI.create("");
-        }
-
-        return new EJBModule(name, configId, parentId, moduleURI, moduleFile, targetPath, ejbJar, openejbJar, specDD);
+        return openejbJar;
     }
 
     private OpenejbOpenejbJarType createDefaultPlan(String name, EjbJarType ejbJar) {
