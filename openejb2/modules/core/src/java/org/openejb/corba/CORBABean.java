@@ -58,6 +58,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.pool.ThreadPool;
+import EDU.oswego.cs.dl.util.concurrent.Executor;
 
 
 /**
@@ -68,7 +69,7 @@ public class CORBABean implements GBeanLifecycle {
     private final Log log = LogFactory.getLog(CORBABean.class);
 
     private final ClassLoader classLoader;
-    private final ThreadPool threadPool;
+    private final Executor threadPool;
     private ORB orb;
     private POA rootPOA;
     private ArrayList args = new ArrayList();
@@ -79,7 +80,7 @@ public class CORBABean implements GBeanLifecycle {
         this.threadPool = null;
     }
 
-    public CORBABean(ClassLoader classLoader, ThreadPool threadPool) {
+    public CORBABean(ClassLoader classLoader, Executor threadPool) {
         this.classLoader = classLoader;
         this.threadPool = threadPool;
     }
@@ -147,7 +148,7 @@ public class CORBABean implements GBeanLifecycle {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(CORBABean.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addReference("ThreadPool", ThreadPool.class);
+        infoFactory.addReference("ThreadPool", Executor.class);
         infoFactory.addAttribute("ORB", ORB.class, false);
         infoFactory.addAttribute("rootPOA", POA.class, false);
         infoFactory.addAttribute("args", ArrayList.class, true);
