@@ -272,9 +272,10 @@ class MdbBuilder extends BeanBuilder {
         }
         //construct name from components
         try {
-            return NameFactory.getResourceComponentName(resourceLocator.getDomain(),
+            return NameFactory.getComponentName(resourceLocator.getDomain(),
                     resourceLocator.getServer(),
                     resourceLocator.getApplication(),
+                    NameFactory.JCA_RESOURCE,
                     resourceLocator.getModule(),
                     resourceLocator.getName(),
                     NameFactory.JCA_RESOURCE_ADAPTER,
