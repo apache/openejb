@@ -154,6 +154,15 @@ public class SoapHttpListener implements HttpListener, SoapHandler {
         public Map getParameters() {
             return (Map)parameters.clone();
         }
+
+        public Object getAttribute(String name) {
+            return request.getAttribute(name);
+        }
+
+        public void setAttribute(String name, Object value){
+            request.setAttribute(name, value);
+        }
+
     }
 
     public static class ResponseAdapter implements WebServiceContainer.Response {
