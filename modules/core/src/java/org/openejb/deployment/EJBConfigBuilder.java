@@ -87,6 +87,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.xbeans.j2ee.CmpFieldType;
+import org.apache.geronimo.xbeans.j2ee.ContainerTransactionType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
@@ -327,8 +328,12 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
             openejbBeans.put(mdbObjectName, messageDrivenBean);
         }
 
-
-        TransactionPolicyHelper transactionPolicyHelper = new TransactionPolicyHelper(ejbJar.getAssemblyDescriptor().getContainerTransactionArray());
+        TransactionPolicyHelper transactionPolicyHelper;
+        if (ejbJar.getAssemblyDescriptor() == null || ejbJar.getAssemblyDescriptor().getContainerTransactionArray() == null){
+            transactionPolicyHelper = new TransactionPolicyHelper(new ContainerTransactionType[0]);
+        } else {
+            transactionPolicyHelper = new TransactionPolicyHelper(ejbJar.getAssemblyDescriptor().getContainerTransactionArray());
+        }
 
         // Session Beans
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
