@@ -47,6 +47,7 @@ package org.openejb.core.ivm;
 import java.io.ObjectStreamException;
 import javax.ejb.EJBHome;
 import org.openejb.util.proxy.ProxyManager;
+import org.openejb.DeploymentInfo;
 
 /**
  * IntraVM server implementation of the javax.ejb.EJBMetaData interface.
@@ -58,30 +59,30 @@ public class IntraVmMetaData implements javax.ejb.EJBMetaData, java.io.Serializa
     
     /**
      * Constant held by the {@link #type} member variable to
-     * specify that this MeatData implementation represents 
+     * specify that this MetaData implementation represents 
      * an EntityBean.
      * 
      * @see #type
      */
-    final public static byte ENTITY = (byte)1;
+    final public static byte ENTITY = DeploymentInfo.BMP_ENTITY;
     
     /**
      * Constant held by the {@link #type} member variable to
-     * specify that this MeatData implementation represents 
+     * specify that this MetaData implementation represents 
      * a stateful SessionBean.
      * 
      * @see #type
      */
-    final public static byte STATEFUL = (byte)2;
+    final public static byte STATEFUL = DeploymentInfo.STATEFUL;
     
     /**
      * Constant held by the {@link #type} member variable to
-     * specify that this MeatData implementation represents
+     * specify that this MetaData implementation represents
      * a stateless SessionBean.
      * 
      * @see #type
      */
-    final public static byte STATELESS = (byte)3;
+    final public static byte STATELESS = DeploymentInfo.STATELESS;
 
     /**
      * The Class of the bean's home interface.
@@ -125,9 +126,7 @@ public class IntraVmMetaData implements javax.ejb.EJBMetaData, java.io.Serializa
      * @param typeOfBean One of the {@link #ENTITY}, {@link #STATEFUL} or {@link #STATELESS} constants that specify the type of bean this MetaData will represent.
      */
     public IntraVmMetaData(Class homeInterface, Class remoteInterface, byte typeOfBean) {
-        type = typeOfBean;
-        homeClass = homeInterface;
-        remoteClass = remoteInterface;
+        this(homeInterface,remoteInterface, null, typeOfBean);
     }
     
     /**
@@ -145,11 +144,24 @@ public class IntraVmMetaData implements javax.ejb.EJBMetaData, java.io.Serializa
      * @param typeOfBean One of the {@link #ENTITY}, {@link #STATEFUL} or {@link #STATELESS} constants that specify the type of bean this MetaData will represent.
      */
     public IntraVmMetaData(Class homeInterface, Class remoteInterface, Class primaryKeyClass, byte typeOfBean) {
-        this(homeInterface,remoteInterface,typeOfBean);
-        if ( type==ENTITY ) {
+        if(typeOfBean!=ENTITY && typeOfBean!=STATEFUL && typeOfBean!=STATELESS) {
+            if(typeOfBean==DeploymentInfo.CMP_ENTITY) {
+                typeOfBean=ENTITY;
+            }else {
+                throw new IllegalArgumentException("typeOfBean parameter not in range: "+typeOfBean);
+            }
+        }
+        if(homeInterface==null || remoteInterface==null) {
+            throw new IllegalArgumentException();
+        }
+        if(typeOfBean==ENTITY && primaryKeyClass==null) {
+            throw new IllegalArgumentException();
+        }
+        type = typeOfBean;
+        homeClass = homeInterface;
+        remoteClass = remoteInterface;
             keyClass = primaryKeyClass;
         }
-    }
     
     /**
      * Returns the Class of the bean's home interface.
@@ -170,8 +182,14 @@ public class IntraVmMetaData implements javax.ejb.EJBMetaData, java.io.Serializa
     }
     
     /**
-     * Returns the Class of the bean's primary key or null 
+     * Returns the Class of the bean's primary key or null
      * if the bean is of a type that does not require a primary key.
+     * 
+     * EJB 1.1, section 5.5:
+     * If the EJBMetaData.getPrimaryKeyClass() method is invoked on a
+     * EJBMetaData object for a Session bean, the method throws the
+     * java.lang.RuntimeException.  
+     * UnsupportedOperationException is a java.lang.RuntimeException
      * 
      * @return 
      */

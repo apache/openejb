@@ -106,17 +106,17 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
     * The EjbObjectProxyHandler will use the registry to ensure that all EjbObjectProxyHandlers associated
     * the identity are invalidated.
     */
-    protected static Hashtable liveHandleRegistry = new Hashtable();
+    protected static final Hashtable liveHandleRegistry = new Hashtable();
 
     /**
      * The unique id of the bean deployment that this stub handler represents.
      */
-    public Object deploymentID;
+    public final Object deploymentID;
 
     /**
      * The primary key of the bean deployment or null if the deployment is a bean type that doesn't require a primary key
      */
-    public Object primaryKey;
+    public final Object primaryKey;
 
     /**
      */
@@ -132,7 +132,7 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
      */
     public transient RpcContainer container;
 
-    boolean isInvalidReference = false;
+    protected boolean isInvalidReference = false;
     
     /*
     * The EJB 1.1 specification requires that arguments and return values between beans adhere to the
@@ -147,17 +147,7 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
     * or a property of the Property argument when invoking OpenEJB.init(props).  This variable is set to that
     * property in the static block for this class.
     */
-    static boolean doIntraVmCopy = true;
-    
-    static{
-        String value = org.openejb.OpenEJB.getInitProps().getProperty(org.openejb.core.EnvProps.INTRA_VM_COPY);
-        if(value == null){
-            value = System.getProperty(org.openejb.core.EnvProps.INTRA_VM_COPY);
-        }
-        if(value !=null && value.equalsIgnoreCase("FALSE")){
-            doIntraVmCopy = false;
-        }
-    }
+    protected boolean doIntraVmCopy;
 
     /**
      * Constructs a BaseEjbProxyHandler representing the specifed bean deployment.
@@ -171,6 +161,11 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
        this.primaryKey = pk;
        this.deploymentID = depID;
        this.deploymentInfo = (org.openejb.core.DeploymentInfo)container.getDeploymentInfo(depID);
+       String value = org.openejb.OpenEJB.getInitProps().getProperty(org.openejb.core.EnvProps.INTRA_VM_COPY);
+       if(value == null){
+           value = System.getProperty(org.openejb.core.EnvProps.INTRA_VM_COPY);
+       }
+       doIntraVmCopy = value==null || !value.equalsIgnoreCase("FALSE");
     }
     /**
      * Invoked by the ObjectInputStream during desrialization of this stub handler.  In this method the stub handler resets the deploymentInfo and container member variables.
@@ -207,23 +202,23 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
     }
 
     protected Object getThreadSpecificSecurityIdentity(){
-        if(ThreadContext.isValid()){
-            return ThreadContext.getThreadContext().getSecurityIdentity();
+        ThreadContext context = ThreadContext.getThreadContext();
+        if(context.valid()){
+            return context.getSecurityIdentity();
         }else{
             return OpenEJB.getSecurityService().getSecurityIdentity();
         }
     }
 
-    protected void log(InvalidateReferenceException ire){
-        System.out.println("InvalidateReferenceException: Nested exception is = ");
-        Throwable t = ire.getRootCause();
-        if(t!=null) t.printStackTrace();
-        else System.out.println("No nested exception");
-
+    /**
+      * This method enables/disables the copy process of the arguments and return value to and from
+     * a regular EJB invocation. In some cases it is desireable to skip the copy, e.g. when the
+     * invocation comes from an RMI or CORBA remote layer, where the arguemnts are already copies.
+     */
+    public void setIntraVmCopyMode(boolean on) {
+        doIntraVmCopy=on;
     }
-    
-    protected static boolean debug = false;
-    
+        
     /**
      * Preserves the context of the current thread and passes the invoke on to the BaseEjbProxyHandler subclass where the Container will be asked to invoke the method on the bean.
      *
@@ -241,14 +236,17 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable{
         if (isInvalidReference) throw new NoSuchObjectException("reference is invalid");
 
-        String methodName = method.getName();
 
         if (method.getDeclaringClass() == Object.class ) {
-            if ( methodName.equals( "toString" ))       return "proxy="+getProxyInfo().getInterface().getName()+";deployment="+this.deploymentID+";pk="+this.primaryKey;
-            else if (methodName.equals( "equals" ))     return Boolean.FALSE;
-            else if (methodName.equals("hashCode"))     return new Integer(this.hashCode());
+            final String methodName = method.getName();
+
+            if ( methodName.equals( "toString" ))       return toString();
+            else if (methodName.equals( "equals" ))     return equals(args[0])?Boolean.TRUE: Boolean.FALSE;
+            else if (methodName.equals("hashCode"))     return new Integer(hashCode());
             else throw new UnsupportedOperationException("Unkown method: "+method);
         } else if (method.getDeclaringClass() == IntraVmProxy.class ) {
+            final String methodName = method.getName();
+
             if (methodName.equals("writeReplace"))      return _writeReplace( proxy );
             else throw new UnsupportedOperationException("Unkown method: "+method);
         } 
@@ -264,46 +262,37 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
             context is null. Getting the context values and resetting them reduces object creation.
             It's ugly but performant.
         */
-        if ( debug ) {
-            System.out.println("\n--------------------------------------------------------");
-            System.out.println(""+method);
-            System.out.println(""+proxy);
-            System.out.println("");
-        }
         
         ThreadContext cntext = null;
         DeploymentInfo depInfo = null;
         Object prmryKey = null;
         byte crrntOperation = (byte)0;
         Object scrtyIdentity = null;
-        
-        if(ThreadContext.isValid()){
-             cntext = ThreadContext.getThreadContext();
+        cntext = ThreadContext.getThreadContext();
+        if(cntext.valid()){
              depInfo = cntext.getDeploymentInfo();
              prmryKey = cntext.getPrimaryKey();
              crrntOperation = cntext.getCurrentOperation();
              scrtyIdentity = cntext.getSecurityIdentity();
         }
 
+        // the four operations on IntraVmCopyMonitor are quite expensive, because
+        // all of them require a Thread.currentThread() operation, which is native code
         try{
             if(doIntraVmCopy==true){// copy arguments as required by the specification
                 // demarcate the begining of the copy operation.
-                IntraVmCopyMonitor.preCopyOperation();
-                args = copyArgs(args);
-                // demarcate end of copy operation
-                IntraVmCopyMonitor.postCopyOperation();
-                Object returnObj = _invoke(proxy,method,args);
-                if ( debug ) {
-                    System.out.println(""+returnObj);
+                if(args!=null) {
+                    // methods w/o arguments pass in a null value
+                    IntraVmCopyMonitor.preCopyOperation();
+                    args = copyArgs(args);
+                    // demarcate end of copy operation
+                    IntraVmCopyMonitor.postCopyOperation();
                 }
+                Object returnObj = _invoke(proxy,method,args);
                 
                 // demarcate the begining of the copy operation.
                 IntraVmCopyMonitor.preCopyOperation();
                 returnObj = copyObj(returnObj);
-                if ( debug ) {
-                    System.out.println(""+returnObj);
-                }
-//                return copyObj(returnObj);
                 return returnObj;                
                 // postCopyOperation() is handled in try/finally clause.
             } else {
@@ -331,6 +320,33 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
                 // postCopyOperation() is executed here in case of an exception
                 IntraVmCopyMonitor.postCopyOperation();
             }
+        }
+    }
+
+    public String toString() {
+        return "proxy="+getProxyInfo().getInterface().getName()+";deployment="+this.deploymentID+";pk="+this.primaryKey;
+    }
+    
+    public int hashCode() {
+        if(primaryKey==null) {
+            //stateless bean or home object
+            return deploymentID.hashCode();
+        }else {
+            return primaryKey.hashCode();
+        }
+    }
+    
+    public boolean equals(Object obj) {
+        try{
+            obj = ProxyManager.getInvocationHandler(obj);
+        }catch(IllegalArgumentException e) {
+            return false;
+        }
+        BaseEjbProxyHandler other = (BaseEjbProxyHandler) obj;
+        if(primaryKey==null) {
+            return other.primaryKey==null && deploymentID.equals(other.deploymentID);
+        } else {
+            return primaryKey.equals(other.primaryKey) && deploymentID.equals(other.deploymentID);
         }
     }
 
@@ -386,11 +402,8 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
     */
     public void invalidateReference(){
         this.container = null;
-        this.deploymentID = null;
         this.deploymentInfo = null;
-        this.inProxyMap = false;
         this.isInvalidReference = true;
-        this.primaryKey = null;
     }
 
     protected static void invalidateAllHandlers(Object key){
@@ -402,7 +415,6 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
                 BaseEjbProxyHandler aHandler = (BaseEjbProxyHandler)handlers.next();
                 aHandler.invalidateReference();
             }
-            set.clear();
         }
     }
     

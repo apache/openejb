@@ -62,7 +62,7 @@ public class IntraVmHandle implements java.io.Serializable, javax.ejb.HomeHandle
      * 
      * @see org.openejb.util.proxy.Proxy
      */
-    public Object theProxy;
+    protected Object theProxy;
 
     /**
      * Constructs an IntraVmHandle that has no refernce to
@@ -110,6 +110,10 @@ public class IntraVmHandle implements java.io.Serializable, javax.ejb.HomeHandle
         return(EJBObject)theProxy;
     }       
 
+    public Object getPrimaryKey() {
+        return ((BaseEjbProxyHandler) org.openejb.util.proxy.ProxyManager.getInvocationHandler(theProxy)).primaryKey;
+    }
+    
     /**
      * If the handle is being  copied between bean instances in a RPC
      * call we use the IntraVmArtifact
@@ -142,12 +146,13 @@ public class IntraVmHandle implements java.io.Serializable, javax.ejb.HomeHandle
          */
         }else{
             BaseEjbProxyHandler handler = (BaseEjbProxyHandler)ProxyManager.getInvocationHandler(theProxy);
-            if(theProxy instanceof javax.ejb.EJBObject)
+            if(theProxy instanceof javax.ejb.EJBObject) {
                 return org.openejb.OpenEJB.getApplicationServer().getHandle(handler.getProxyInfo());
-            else
+            } else if(theProxy instanceof javax.ejb.EJBHome) {
+                return org.openejb.OpenEJB.getApplicationServer().getHomeHandle(handler.getProxyInfo());
+            }else {
                 throw new RuntimeException("Invalid proxy type. Handles are only supported by EJBObject types in EJB 1.1");
-                // Home handle support to be added in OpenEJB 2.0
-                //return org.openejb.OpenEJB.getApplicationServer().getHomeHandle(handler.getProxyInfo());
+            }
         }
     }
 

@@ -50,7 +50,8 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.ObjectStreamException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import org.openejb.util.FastThreadLocal;
 
 /**
@@ -134,7 +135,7 @@ public class IntraVmArtifact implements Externalizable {
      * A handle created using information about the object
      * instance for which this IntraVMArtifact was created.
      */
-    private String instanceHandle;
+    private int instanceHandle;
     
     /**
      * Holds a list of threads.  Each thread gets a HashMap to store 
@@ -142,17 +143,17 @@ public class IntraVmArtifact implements Externalizable {
      * instead, a key for the object is serialized to the stream.
      * 
      * At deserialization, the key is used to get the original object
-     * instance from the HashMap
+     * instance from the List
      */
-    public static FastThreadLocal thread = new FastThreadLocal();
+    private static FastThreadLocal thread = new FastThreadLocal();
     
     /**
-     * Error detailing that the HashMap for this Thread can not be found.
+     * Error detailing that the List for this Thread can not be found.
      */
     private static final String NO_MAP_ERROR = "There is no HashMap stored in the thread.  This object may have been moved outside the Virtual Machine.";
     
     /**
-     * Error detailing that the object instance can not be found in the thread's HashMap.
+     * Error detailing that the object instance can not be found in the thread's List.
      */
     private static final String NO_ARTIFACT_ERROR = "The artifact this object represents could not be found.";
 
@@ -163,19 +164,16 @@ public class IntraVmArtifact implements Externalizable {
      * @param obj    The object instance this class should represent in the stream.
      */
     public IntraVmArtifact(Object obj) {
-        try {
-            instanceHandle = ""+obj.getClass()+obj.hashCode();
-            HashMap map = (HashMap)thread.get();
-            if (map == null) {
-                map = new HashMap();
-                thread.set(map);
-            }
-
-            map.put(instanceHandle, obj);
-        } catch (Exception e) {
-            e.printStackTrace();
+        // the prev implementation used a hash map and removed the handle in the readResolve method
+        // which would prevent marshaling of objects with the same hashcode in one request.
+        List list = (List)thread.get();
+        if (list == null) {
+            list = new ArrayList();
+            thread.set(list);
         }
-    }
+        instanceHandle = list.size();
+        list.add(obj);
+            }
 
     /**
      * This class is Externalizable and this public, no-arg, constructor is required.
@@ -192,7 +190,7 @@ public class IntraVmArtifact implements Externalizable {
      * @exception IOException
      */
     public void writeExternal(ObjectOutput out) throws IOException{
-        out.writeUTF(instanceHandle);                                            
+        out.write(instanceHandle);                                            
     }
 
     /**
@@ -202,29 +200,25 @@ public class IntraVmArtifact implements Externalizable {
      * @exception IOException
      */
     public void readExternal(ObjectInput in) throws IOException{
-        instanceHandle = in.readUTF();
+        instanceHandle = in.read();
     }
 
     /**
      * During deserialization, it is this object that is deserialized.
      * This class implements the readResolve method of the serialization API.
      * In the readResolve method, the original object instance is retrieved
-     * from the HashMap and returned instead.
+     * from the List and returned instead.
      * 
      * @return 
      * @exception ObjectStreamException
      */
     private Object readResolve() throws ObjectStreamException{
-        Object artifact = null;
-        try {
-            HashMap map = (HashMap)thread.get();
-            if (map == null) throw new InvalidObjectException(NO_MAP_ERROR);
-
-            artifact = map.remove(instanceHandle);
-            if (artifact == null) throw new InvalidObjectException(NO_ARTIFACT_ERROR);
-
-        } catch (Exception e) {
-            throw new InvalidObjectException(NO_ARTIFACT_ERROR);
+        List list = (List) thread.get();
+        if (list == null) throw new InvalidObjectException(NO_MAP_ERROR);
+        Object artifact = list.get(instanceHandle);
+        if (artifact == null) throw new InvalidObjectException(NO_ARTIFACT_ERROR+instanceHandle);
+        if(list.size()==instanceHandle+1) {
+            list.clear();
         }
         return artifact;
     }

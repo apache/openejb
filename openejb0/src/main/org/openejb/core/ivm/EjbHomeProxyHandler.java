@@ -84,6 +84,18 @@ import org.openejb.util.proxy.ProxyManager;
  * @see org.openejb.core.stateful.StatefulContainer
  */
 public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
+    protected final static org.apache.log4j.Category logger = org.apache.log4j.Category.getInstance("OpenEJB");
+
+    static final java.util.HashMap dispatchTable;
+
+    // this table helps dispatching in constant time, instead of many expensive equals() calls
+    static {
+        dispatchTable = new java.util.HashMap();
+        dispatchTable.put("create", new Integer(1));
+        dispatchTable.put("getEJBMetaData", new Integer(2));
+        dispatchTable.put("getHomeHandle", new Integer(3));
+        dispatchTable.put("remove", new Integer(4));
+    }
     
     /**
      * Constructs an EjbHomeProxyHandler to handle invocations from an EJBHome stub/proxy.  
@@ -121,62 +133,64 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
     
     protected Object _invoke(Object proxy, Method method, Object[] args) throws Throwable{
 
+        if (logger.isInfoEnabled()) {
+            logger.info("invoking method "+method.getName()+" on "+deploymentID);
+        }
+        
         String methodName = method.getName();
         
         try{
+            java.lang.Object retValue;
+            Integer operation = (Integer)dispatchTable.get(methodName);
 
-        /*-------------------------------------------------------*/
-        //         Process the specific method invoked           //
-
-                
+            if(operation==null) {
+                if ( methodName.startsWith("find") ){
+                    retValue = findX(method, args, proxy);
+                } else {
+                    // Cannot return null.  Must throw and exception instead.
+                    throw new UnsupportedOperationException("Unkown method: "+method);
+                }
+            }else {
+                switch(operation.intValue()) {
         /*-- CREATE ------------- <HomeInterface>.create(<x>) ---*/
-            if ( methodName.equals("create") ) {
-                return create(method, args, proxy);
-                
-        /*-- FIND X --------------- <HomeInterface>.find<x>() ---*/
-            } else if ( methodName.startsWith("find") ){
-                return findX(method, args, proxy);
-                
-                    
+                    case 1: retValue = create(method, args, proxy); break;
         /*-- GET EJB METADATA ------ EJBHome.getEJBMetaData() ---*/
-
-            } else if ( methodName.equals("getEJBMetaData") ) {
-                return getEJBMetaData(method, args, proxy);
-
-
+                    case 2: retValue = getEJBMetaData(method, args, proxy); break;
         /*-- GET HOME HANDLE -------- EJBHome.getHomeHandle() ---*/
-
-            } else if ( methodName.equals("getHomeHandle") ) {
-                return getHomeHandle(method, args, proxy);
-
-
+                    case 3: retValue = getHomeHandle(method, args, proxy); break;
         /*-- REMOVE ------------------------ EJBHome.remove() ---*/
-
-            } else if ( methodName.equals("remove") ) {
-
-                Class [] types = method.getParameterTypes();
+                    case 4: {
+                        Class type = method.getParameterTypes()[0];
 
             /*-- HANDLE ------- EJBHome.remove(Handle handle) ---*/
-                if ( types[0] == javax.ejb.Handle.class ) 
-                        return removeWithHandle(method, args, proxy);
-
-            /*-- PRIMARY KEY ----- EJBHome.remove(Object key) ---*/
-                else return removeByPrimaryKey(method, args, proxy);
-
-        /*-- UNKOWN ---------------------------------------------*/
+                        if (javax.ejb.Handle.class.isAssignableFrom(type)) {
+                            retValue = removeWithHandle(method, args, proxy);
             } else {
-
-                // Cannot return null.  Must throw and exception instead.
-                throw new UnsupportedOperationException("Unkown method: "+method);
-
+                        /*-- PRIMARY KEY ----- EJBHome.remove(Object key) ---*/
+                            retValue = removeByPrimaryKey(method, args, proxy);
+                        }
+                        break;
+                    }
+                    default:
+                        throw new RuntimeException("Inconsistent internal state: value "+operation.intValue()+" for operation "+methodName);
+                }
             }
+
+            if(logger.isDebugEnabled()) {
+                logger.debug("finished invoking method "+method.getName()+". Return value:"+retValue);
+            } else if (logger.isInfoEnabled()) {
+                logger.info("finished invoking method "+method.getName());
+            }
+            
+            return retValue;
+
         /*
          * The ire is thrown by the container system and propagated by
          * the server to the stub.
          */
         }catch ( org.openejb.InvalidateReferenceException ire ) {
             invalidateReference();
-            return ire.getRootCause();
+            throw ire.getRootCause();
         /*
          * Application exceptions must be reported dirctly to the client. They
          * do not impact the viability of the proxy.
@@ -192,9 +206,10 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
             throw new RemoteException("Container has suffered a SystemException",se.getRootCause());
         } catch ( org.openejb.OpenEJBException oe ) {
             throw new RemoteException("Unknown Container Exception",oe.getRootCause());
-        }  
-        
-            
+        } catch(Throwable t) {
+            logger.info("finished invoking method "+method.getName()+" with exception:"+t, t);
+            throw t;
+        }
     }
 
     /*-------------------------------------------------*/
@@ -282,7 +297,12 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
      * @see javax.ejb.EJBHome
      * @see javax.ejb.EJBHome#getEJBMetaData
      */
-    protected abstract Object getEJBMetaData(Method method, Object[] args, Object proxy) throws Throwable;
+    protected Object getEJBMetaData(Method method, Object[] args, Object proxy) throws Throwable {
+        checkAuthorization(method);
+        IntraVmMetaData metaData = new IntraVmMetaData(deploymentInfo.getHomeInterface(), deploymentInfo.getRemoteInterface(),deploymentInfo.getPrimaryKeyClass(), deploymentInfo.getComponentType());
+        metaData.setEJBHome((EJBHome)proxy);
+        return metaData;
+    }
     
 
     /**
@@ -383,6 +403,10 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
      * deployment.
      * </P>
      * 
+     * TODO: this method relies on the fact that the handle implementation is a subclass
+     * of IntraVM handle, which isn't neccessarily the case for arbitrary remote protocols.
+     * Also, for all other but IntraVM handles, the stub invalidation doesn't currently work.
+     *
      * @param method
      * @param args
      * @return Returns null
@@ -390,8 +414,31 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
      * @see javax.ejb.EJBHome
      * @see javax.ejb.EJBHome#remove
      */
-    protected abstract Object removeWithHandle(Method method, Object[] args, Object proxy) throws Throwable;
+    protected Object removeWithHandle(Method method, Object[] args, Object proxy) throws Throwable{
 
+        // Extract the primary key from the handle
+        IntraVmHandle handle = (IntraVmHandle)args[0];
+        Object primKey = handle.getPrimaryKey();
+        EjbObjectProxyHandler stub;
+        try{
+            stub = (EjbObjectProxyHandler)ProxyManager.getInvocationHandler(handle.getEJBObject());
+        }catch(IllegalArgumentException e) {
+            // a remote proxy, see comment above
+            stub=null;
+        }
+        // invoke remove() on the container
+        container.invoke(deploymentID, method, args, primKey, ThreadContext.getThreadContext().getSecurityIdentity());
+
+        /*
+         * This operation takes care of invalidating all the EjbObjectProxyHanders associated with
+         * the same RegistryId. See this.createProxy().
+         */
+        if(stub!=null) {
+            invalidateAllHandlers(stub.getRegistryId());
+        }
+        return null;
+    }
+    
     /**
      * <P>
      * Attempts to remove an EJBObject from the
