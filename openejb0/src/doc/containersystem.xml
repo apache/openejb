@@ -29,9 +29,9 @@ OpenEJB is a pre-built, self-contained, portable EJB container system that can
 be plugged into any application server environment. OpenEJB provides a clear 
 separation of responsibilities between the EJB container and the EJB server. 
 The application server and OpenEJB container system interact through an open 
-programming interface, which forms the container-server contact. This contract 
-is defined by the Container Provider Interface (CPI), which is a small and 
-simple set of classes and interfaces.
+programming interface, which forms the container-server contract. This 
+contract is defined by the Container Provider Interface (CPI), which is a 
+small and simple set of classes and interfaces.
      </p>
 
     </section>
