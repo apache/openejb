@@ -45,6 +45,7 @@
 package org.openejb.corba;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.rmi.AccessException;
 import java.rmi.MarshalException;
 import java.rmi.NoSuchObjectException;
@@ -58,6 +59,8 @@ import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import net.sf.cglib.proxy.CallbackFilter;
+import net.sf.cglib.proxy.NoOp;
 import org.omg.CORBA.INVALID_TRANSACTION;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.NO_PERMISSION;
@@ -92,7 +95,8 @@ public class AdapterProxyFactory {
         enhancer.setClassLoader(classLoader);
         enhancer.setSuperclass(AdapterDelegate.class);
         enhancer.setInterfaces(clientInterfaces);
-        enhancer.setCallbackType(MethodInterceptor.class);
+        enhancer.setCallbackTypes(new Class[]{NoOp.class, MethodInterceptor.class});
+        enhancer.setCallbackFilter(FILTER);
         enhancer.setUseFactory(false);
     }
 
@@ -110,7 +114,7 @@ public class AdapterProxyFactory {
     }
 
     public synchronized Object create(Class[] types, Object[] arguments) {
-        enhancer.setCallbacks(new Callback[]{interceptor});
+        enhancer.setCallbacks(new Callback[]{NoOp.INSTANCE, interceptor});
         return enhancer.create(types, arguments);
     }
 
@@ -139,5 +143,16 @@ public class AdapterProxyFactory {
             }
         }
     }
+
+    private static final CallbackFilter FILTER = new CallbackFilter() {
+        public int accept(Method method) {
+            if (method.getName().equals("finalize") &&
+                    method.getParameterTypes().length == 0 &&
+                    method.getReturnType() == Void.TYPE) {
+                return 0;
+            }
+            return 1;
+        }
+    };
 }
 
