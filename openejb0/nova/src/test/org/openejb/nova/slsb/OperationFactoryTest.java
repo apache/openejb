@@ -68,12 +68,8 @@ public class OperationFactoryTest extends TestCase {
     private StatelessOperationFactory factory;
 
     public void testSignatures() throws Exception {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
         MethodSignature[] signatures = factory.getSignatures();
         assertEquals(5, signatures.length);
-        for (int i = 0; i < signatures.length; i++) {
-            MethodSignature signature = signatures[i];
-        }
         assertEquals(new HashSet(Arrays.asList(EJB1.sigs)), new HashSet(Arrays.asList(signatures)));
     }
 
