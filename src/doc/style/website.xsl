@@ -489,8 +489,8 @@
 
   <xsl:template match="ul/li">
     <tr>
-      <td align="left" valign="top" width="10">-</td>
-      <td align="left" valign="top"><span class="bodyGrey"><xsl:apply-templates/></span></td>
+      <td align="left" valign="top" width="10"><img src="images/grayDot.gif"/></td>
+      <td align="left" valign="top"><span class="bodyBlack"><xsl:apply-templates/></span></td>
     </tr>
   </xsl:template>
 
