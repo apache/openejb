@@ -240,4 +240,30 @@ public class FileUtils {
             source.delete();
         }
     }
+
+    /**
+     * Recursively delete a file and all its contents.
+     *
+     * @param root the root to delete
+     */
+    public static void recursiveDelete(File root) {
+        if (root == null) {
+            return;
+        }
+
+        if (root.isDirectory()) {
+            File[] files = root.listFiles();
+            if (files != null) {
+                for (int i = 0; i < files.length; i++) {
+                    File file = files[i];
+                    if (file.isDirectory()) {
+                        recursiveDelete(file);
+                    } else {
+                        file.delete();
+                    }
+                }
+            }
+        }
+        root.delete();
+    }
 }
