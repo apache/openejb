@@ -1147,6 +1147,10 @@
         <param name="module" value="unit-tests"/>
     </antcall>    
 
+    <antcall target="pre-delegate">
+        <param name="module" value="validator"/>
+    </antcall>    
+
   </target>
   
   <target name="pre-delegate">

@@ -1,0 +1,117 @@
+<project name="OpenEJB-Validator" default="jar" basedir="../">
+  <!-- $Revision$ $Date$ -->
+
+  <property name="build.openejb.src" value="${build.src}/validator"/>
+  <property name="build.openejb.dest" value="${build.dest}/validator"/>
+  
+  <!-- Build classpath -->
+  <path id="project.classpath">
+    <pathelement location="${jrefactory.jar}"/>
+    <pathelement location="${castor.home}/${castor.jar}"/>
+    <pathelement location="${castor.home}/${castor.xml.jar}"/>
+    <pathelement location="${ejb11.jar}"/>
+    <pathelement location="${ejb20.jar}"/>
+    <pathelement location="${jaas.home}/${jaas.jar}"/>
+    <pathelement location="${jca.jar}"/>
+    <pathelement location="${jdbcext.jar}"/>
+    <pathelement location="${jdk12proxy.jar}"/>
+    <pathelement location="${jedi.home}/lib/${jedi.jar}"/>
+    <pathelement location="${jedi.home}/lib/${jediplugin.jar}"/>
+    <pathelement location="${jms.jar}"/>
+    <pathelement location="${jndi.jar}"/>
+    <pathelement location="${jta.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+    <pathelement location="${minerva.jar}"/>
+    <pathelement location="${openorb.home}/${openorb.jar}"/>
+    <pathelement location="${openorb.home}/${openorb.rmi.jar}"/>
+    <pathelement location="${openorb.home}/${openorb.tools.jar}"/>
+    <pathelement location="${servlet.jar}"/>
+    <pathelement location="${jts.jar}"/>
+    <pathelement location="${tyrex.home}/${tyrex.jar}"/>
+    <pathelement location="${tyrex.home}/${tyrex.iiop.jar}"/>
+    <pathelement location="${jaxp.home}/jaxp.jar"/>
+    <pathelement location="${jaxp.home}/${jaxp.parser.jar}"/>
+    <pathelement location="${jaxp.home}/${jaxp.parserapi.jar}"/>
+    <pathelement location="${jaxp.home}/${jaxp.xsltprocessor.jar}"/>
+    <pathelement location="${jaxp.home}/${jaxp.xalan1compat.jar}"/>
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${jakarta.regexp.jar}"/>
+    <pathelement location="${JDBC3Fake.jar}"/>
+    <pathelement location="${build.dest}/openejb"/>
+  </path>
+  
+  
+  <!-- ================================================================== -->
+  <!-- Prepares the build directory                                       -->
+  <!-- ================================================================== -->
+
+  <target name="prepare">
+    <mkdir dir="${build.openejb.src}"/>
+    <mkdir dir="${build.openejb.dest}"/>
+    <copy todir="${build.openejb.src}">
+      <fileset dir="${src.java.dir}/facilities" 
+        includes="org/openejb/alt/config/*"
+        excludes="**/CVS/**,**/*.class" /> 
+    </copy>
+  </target>
+  
+  <target name="copy.manifest">
+  
+    <copy todir="${build.openejb.dest}">
+    
+      <fileset dir="${src.java.dir}/etc" >
+        <include name="**/LICENSE"/>
+        <include name="**/MANIFEST.MF"/>
+        <include name="**/README"/>
+      </fileset>
+    
+    </copy>
+
+    <replace file="${build.openejb.dest}/MANIFEST.MF" token="$$VERSION$$" value="${version}"/>
+    <replace file="${build.openejb.dest}/MANIFEST.MF" 
+             token="$$MAIN-CLASS$$" 
+             value="org.openejb.alt.config.EjbValidator"/>
+  
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Compiles the source directory                                      -->
+  <!-- ================================================================== -->
+  
+  <target name="compile"
+          depends="prepare"
+          description="--> compiles the java source files">
+    <javac srcdir="${build.openejb.src}"
+           destdir="${build.openejb.dest}"
+           classpathref="project.classpath"
+           debug="${debug}"
+           deprecation="${deprecation}">
+    </javac>          
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Compiles the source directory and creates a .jar file              -->
+  <!-- ================================================================== -->
+  
+  <target name="jar"
+          depends="compile, copy.manifest"
+          description="--> generates java archive (default)">
+          
+    <jar jarfile="dist/${project}_validator-${version}.jar"
+         basedir="${build.openejb.dest}"
+         includes="**/*.class"
+         manifest="${build.openejb.dest}/MANIFEST.MF"/>
+
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Creates the API documentation                                      -->
+  <!-- ================================================================== -->
+  
+  <target name="javadocs"
+          depends="compile"
+          description="--> generates the API documentation">
+          
+  </target>
+  
+</project>
