@@ -46,7 +46,6 @@ package org.openejb.corba.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-//import org.openorb.orb.rmi.DefaultORB;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
