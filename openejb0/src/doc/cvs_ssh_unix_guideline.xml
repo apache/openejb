@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document url="http://openejb.sf.net/cvs_ssh_unix_guideline.xml">
+  <body>
+    <title>Working CVS and SSH under a UNIX like operationg system</title>
+    
+    <section title="Abstract">
+    </section>
+    
+    <section title="Installing the OpenSSH program">
+      <p>
+      </p>
+      
+      <section title="Including your OpenSSH binaries in your default PATH">
+      </section>
+      
+      <section title="How to generate your public/private RAS key">
+        <p>
+        </p>
+        
+        <section title="A word from the wise (security note)">
+        </section>
+        
+        <section title="How to install the public key on the SF system">
+        </section>
+        
+        <section title="How to start and configure the SSH agent">
+        </section>
+      </section>
+    </section>
+    
+    <section title="Configuring CVS to work with SSH">
+      <p>
+      </p>
+      
+      <section title="Making changes to the CVSROOT variable">
+      </section>
+      
+      <section title="Additional but important WinCVS options">
+      </section>
+    </section>
+  </body>
+</document>
