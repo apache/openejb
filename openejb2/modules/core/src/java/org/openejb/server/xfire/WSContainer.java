@@ -88,8 +88,9 @@ public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle
     private final DefaultJavaService service;
     private final SoapHandler soapHandler;
     private final Object wsdlMutext = new Object();
-    private WSDLWriter wsdlWriter;
-    private Definition definition;
+    
+    private transient WSDLWriter wsdlWriter;
+    private transient Definition definition;
 
     protected WSContainer() {
         this.ejbContainer = null;
