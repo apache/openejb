@@ -172,6 +172,8 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
             } else if (method.equals(REMOVE_W_KEY)) {
                 return removeByPrimaryKey(method, args, proxy);
 
+            } else if (method.getDeclaringClass() == ejb.homeClass) {
+                return homeMethod(method, args, proxy);
 
                 /*-- UNKOWN ---------------------------------------------*/
             } else {
@@ -406,6 +408,30 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
     public void writeExternal(ObjectOutput out) throws IOException {
     }
 
+    protected Object homeMethod(Method method, Object[] args, Object proxy) throws Throwable {
+        EJBRequest req = new EJBRequest(EJB_HOME_METHOD);
+
+        req.setClientIdentity(ContextManager.getThreadPrincipal());
+        req.setContainerCode(ejb.deploymentCode);
+        req.setContainerID(ejb.deploymentID);
+        req.setMethodInstance(method);
+        req.setMethodParameters(args);
+
+        EJBResponse res = request(req);
+
+        switch (res.getResponseCode()) {
+            case EJB_ERROR:
+                throw (Throwable) res.getResult();
+            case EJB_SYS_EXCEPTION:
+                throw (Throwable) res.getResult();
+            case EJB_APP_EXCEPTION:
+                throw (Throwable) res.getResult();
+            case EJB_OK:
+                return res.getResult();
+            default:
+                throw new RemoteException("Received invalid response code from server: " + res.getResponseCode());
+        }
+    }
 }
 
 

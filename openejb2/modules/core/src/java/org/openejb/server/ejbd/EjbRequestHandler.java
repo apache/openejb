@@ -181,6 +181,10 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                     break;
 
                 // Home interface methods
+                case EJB_HOME_METHOD:
+                    doEjbHome_METHOD(req, res);
+                    break;
+
                 case EJB_HOME_CREATE:
                     doEjbHome_CREATE(req, res);
                     break;
@@ -258,6 +262,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
     }
 
 
+
     private Object invoke(EJBRequest req) throws Throwable {
 
         CallContext call = CallContext.getCallContext();
@@ -305,6 +310,12 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
 
     // Home interface methods
+
+    protected void doEjbHome_METHOD(EJBRequest req, EJBResponse res) throws Throwable {
+        Object result = invoke(req);
+
+        res.setResponse(EJB_OK, result);
+    }
 
     protected void doEjbHome_CREATE(EJBRequest req, EJBResponse res) throws Throwable {
 

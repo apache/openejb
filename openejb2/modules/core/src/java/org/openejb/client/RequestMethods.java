@@ -65,28 +65,29 @@ public interface RequestMethods {
     public static final int EJB_HOME_GET_HOME_HANDLE    =  2;
     public static final int EJB_HOME_REMOVE_BY_HANDLE   =  3;
     public static final int EJB_HOME_REMOVE_BY_PKEY     =  4;
-    //---------------------------------------------------- 5-//
-    // Methods from the user defined EJBHome subinterface  6 //
-    // a.k.a.  The Home Interface                          7 //
-    //---------------------------------------------------- 8-//
+    //-------------------------------------------------------//
+    // Methods from the user defined EJBHome subinterface    //
+    // a.k.a.  The Home Interface                            //
+    //-------------------------------------------------------//
+    public static final int EJB_HOME_METHOD             =  8;
     public static final int EJB_HOME_FIND               =  9;
     public static final int EJB_HOME_CREATE             = 10;
-    //----------------------------------------------------11-//
-    // Methods from the javax.ejb.EJBObject interface     12 //
-    //----------------------------------------------------13-//
+    //-------------------------------------------------------//
+    // Methods from the javax.ejb.EJBObject interface        //
+    //-------------------------------------------------------//
     public static final int EJB_OBJECT_GET_EJB_HOME     = 14;
     public static final int EJB_OBJECT_GET_HANDLE       = 15;
     public static final int EJB_OBJECT_GET_PRIMARY_KEY  = 16;
     public static final int EJB_OBJECT_IS_IDENTICAL     = 17;
     public static final int EJB_OBJECT_REMOVE           = 18;
-    //----------------------------------------------------19-//
-    // Methods from the user defined EJBObject subinterfac20 //
-    // a.k.a.  The Remote Interface                       21 //
-    //----------------------------------------------------22-//
+    //-------------------------------------------------------//
+    // Methods from the user defined EJBObject subinterfac   //
+    // a.k.a.  The Remote Interface                          //
+    //-------------------------------------------------------//
     public static final int EJB_OBJECT_BUSINESS_METHOD  = 23;
-    //----------------------------------------------------24-//
-    // Methods from the javax.naming.Context              25 //
-    //----------------------------------------------------26-//
+    //-------------------------------------------------------//
+    // Methods from the javax.naming.Context                 //
+    //-------------------------------------------------------//
     public static final int JNDI_LOOKUP                 = 27;
     public static final int JNDI_LIST                   = 28;
     public static final int JNDI_LIST_BINDINGS          = 29;
