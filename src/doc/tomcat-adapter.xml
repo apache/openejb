@@ -141,13 +141,12 @@ of patching you need to do when they are activated.
     </section>
 
     
-    <section title="What Security Service to I get?" ref-id="security">
+    <section title="What Security Service do I get?" ref-id="security">
     <p>
     A special adapter needs to be written so that OpenEJB can use the Security capabilities 
-    of Tomcat and get the security credintials from calls by servlets.  If yo are interesting 
-    in writing this, send mail to the OpenEJB development list.
-    </p>
-    </section>
+    of Tomcat and get the security credintials from calls by servlets.  If 
+    you are interested in writing this, send mail to the OpenEJB 
+    development list. </p> </section>
 </section>
 
 </body>
