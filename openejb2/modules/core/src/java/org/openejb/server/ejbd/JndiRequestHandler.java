@@ -87,13 +87,16 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
         Thread thread = Thread.currentThread();
         ClassLoader contextClassLoader = thread.getContextClassLoader();
 
-        try {
-            ObjectName objectName = new ObjectName(req.getClientModuleID());
-            ClassLoader classLoader = (ClassLoader)Kernel.getSingleKernel().getAttribute(objectName, "classLoader");
-            thread.setContextClassLoader(classLoader);
-        } catch (Throwable e) {
-            replyWithFatalError(out, e, "Failed to set the correct classloader");
-            return;
+        if (req.getClientModuleID() != null) {
+            contextClassLoader = thread.getContextClassLoader();
+            try {
+                ObjectName objectName = new ObjectName(req.getClientModuleID());
+                ClassLoader classLoader = (ClassLoader)Kernel.getSingleKernel().getAttribute(objectName, "classLoader");
+                thread.setContextClassLoader(classLoader);
+            } catch (Throwable e) {
+                replyWithFatalError(out, e, "Failed to set the correct classloader");
+                return;
+            }
         }
 
         try {
@@ -119,7 +122,9 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
             } catch (Throwable t) {
                 log.error("Failed to write to JNDIResponse", t);
             }
-            thread.setContextClassLoader(contextClassLoader);
+            if (req.getClientModuleID() != null) {
+                thread.setContextClassLoader(contextClassLoader);
+            }
         }
 
     }
@@ -155,6 +160,10 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
             }
         } else {
             int index = containerIndex.getContainerIndexByJndiName(name);
+            if (index <= 0) {
+                // name not found... check if an object name was sent directly
+                index = containerIndex.getContainerIndex(name);
+            }
             if (index > 0) {
                 EJBContainer deployment = containerIndex.getContainer(index);
                 ProxyInfo info = deployment.getProxyInfo();

@@ -74,6 +74,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.EJBRefContext;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -97,7 +98,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
     public void testCreateResourceAdapterNameQuery() throws Exception {
         OpenEJBModuleBuilder builder = new OpenEJBModuleBuilder(null);
-        EARContext earContext = new EARContext(null, null, ConfigurationModuleType.EJB, null, null, "geronimo.server", "geronimo", null, null, null, null, null, builder);
+        EARContext earContext = new EARContext(null, null, ConfigurationModuleType.EJB, null, null, "geronimo.server", "geronimo", null, null, null, null, null, new EJBRefContext(builder));
         ObjectName testName = builder.createResourceAdapterQueryName(earContext, "TestResourceAdapterName");
         assertEquals(ObjectName.getInstance("geronimo.server:j2eeType=ResourceAdapter,name=TestResourceAdapterName,J2EEServer=geronimo,*"), testName);
     }
@@ -204,7 +205,7 @@ public class EJBConfigBuilderTest extends TestCase {
                     DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
                     DeploymentHelper.TRANSACTIONALTIMER_NAME,
                     DeploymentHelper.NONTRANSACTIONALTIMER_NAME,
-                    moduleBuilder);
+                    new EJBRefContext(moduleBuilder));
 
             action.install(moduleBuilder, earContext, module);
             earContext.getClassLoader(null);

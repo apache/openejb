@@ -50,7 +50,6 @@ package org.openejb.deployment;
 import java.security.Permissions;
 import java.util.Map;
 import javax.management.ObjectName;
-import javax.naming.Reference;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.deployment.DeploymentException;
@@ -62,6 +61,8 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbRefType;
@@ -71,8 +72,6 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 import org.openejb.ContainerBuilder;
 import org.openejb.sfsb.StatefulContainerBuilder;
 import org.openejb.slsb.StatelessContainerBuilder;
@@ -238,10 +237,7 @@ class SessionBuilder extends BeanBuilder {
                 ENCConfigBuilder.assureEJBHomeInterface(home, cl);
 
                 String objectName = sessionObjectName.getCanonicalName();
-
-                boolean isSession = true;
-                Reference reference = getModuleBuilder().createEJBRemoteReference(objectName, isSession, remote, home);
-                earContext.addEJBRef(module.getModuleURI(), ejbName, reference);
+                earContext.getEJBRefContext().addEJBRemoteId(module.getModuleURI(), ejbName, objectName);
             }
 
             // ejb-local-ref
@@ -253,9 +249,7 @@ class SessionBuilder extends BeanBuilder {
                 ENCConfigBuilder.assureEJBLocalHomeInterface(localHome, cl);
 
                 String objectName = sessionObjectName.getCanonicalName();
-                boolean isSession = true;
-                Reference reference = getModuleBuilder().createEJBLocalReference(objectName, isSession, local, localHome);
-                earContext.addEJBLocalRef(module.getModuleURI(), ejbName, reference);
+                earContext.getEJBRefContext().addEJBLocalId(module.getModuleURI(), ejbName, objectName);
             }
         }
     }
