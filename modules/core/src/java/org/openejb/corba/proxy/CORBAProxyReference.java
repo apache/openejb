@@ -48,8 +48,10 @@
 package org.openejb.corba.proxy;
 
 import java.net.URI;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.reference.SimpleAwareReference;
@@ -59,6 +61,8 @@ import org.apache.geronimo.naming.reference.SimpleAwareReference;
  * @version $Revision$ $Date$
  */
 public final class CORBAProxyReference extends SimpleAwareReference {
+
+    private final Log log = LogFactory.getLog(CORBAProxyReference.class);
 
     private final URI nsCorbaloc;
     private final String objectName;
@@ -70,6 +74,8 @@ public final class CORBAProxyReference extends SimpleAwareReference {
         this.objectName = objectName;
         this.containerName = containerName;
         this.home = home;
+
+        if (log.isDebugEnabled()) log.debug("<init> " + corbaURL.toString() + ", " + objectName + ", " + containerName + ", " + home);
     }
 
     public String getClassName() {
@@ -77,18 +83,23 @@ public final class CORBAProxyReference extends SimpleAwareReference {
     }
 
     public Object getContent() {
-        Kernel kernel = getKernel();
 
+        if (log.isDebugEnabled()) log.debug("Obtaining home from " + nsCorbaloc.toString() + ", " + objectName + ", " + containerName + ", " + home);
+
+        Kernel kernel = getKernel();
         Object proxy = null;
         try {
             proxy = kernel.invoke(containerName, "getHome", new Object[]{nsCorbaloc, objectName}, new String[]{URI.class.getName(), String.class.getName()});
         } catch (Exception e) {
+            log.error("Could not get proxy from " + containerName);
             throw (IllegalStateException) new IllegalStateException("Could not get proxy").initCause(e);
         }
         if (proxy == null) {
+            log.error("Proxy not returned from " + containerName);
             throw new IllegalStateException("Proxy not returned. Target " + containerName + " not started");
         }
         if (!org.omg.CORBA.Object.class.isAssignableFrom(proxy.getClass())) {
+            log.error("Proxy not an instance of expected class org.omg.CORBA.Object from " + containerName);
             throw new ClassCastException("Proxy not an instance of expected class org.omg.CORBA.Object");
         }
         return proxy;
