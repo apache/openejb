@@ -49,6 +49,7 @@ package org.openejb.timer;
 
 import java.util.Date;
 import java.util.Collection;
+import java.util.Collections;
 import java.io.Serializable;
 
 import javax.ejb.TimerService;
@@ -91,6 +92,8 @@ public class TimerServiceImpl implements TimerService {
     }
 
     public Collection getTimers() throws IllegalStateException, EJBException {
-        return timerService.getTimers(context.getId());
+        //TODO this check is here because entity bean remove calls this to get the list of timers to cancel.
+        //Possibly there is a better place to check that the entity bean is a timed object.
+        return timerService == null? Collections.EMPTY_SET: timerService.getTimers(context.getId());
     }
 }
