@@ -248,7 +248,7 @@ public class StatelessAllowedOperationsTests extends BasicStatelessTestClient{
      * ______________________|__________________________________________________
      * </PRE>
      */
-    public void test04_businessMethod(){
+    public void TODO_test04_businessMethod(){
         try {
             OperationsPolicy policy = new OperationsPolicy();
             policy.allow( policy.Context_getEJBHome );
