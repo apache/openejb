@@ -888,7 +888,9 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             openejbResourceEnvRefs = openejbSessionBean.getResourceEnvRefArray();
         }
 
-        return buildComponentContext(earContext, ejbModule, envEntries, ejbRefs, ejbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, userTransaction, cl);
+        MessageDestinationRefType[] messageDestinationRefs = sessionBean.getMessageDestinationRefArray();
+
+        return buildComponentContext(earContext, ejbModule, envEntries, ejbRefs, ejbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, userTransaction, cl);
 
     }
 
@@ -914,7 +916,9 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             openejbResourceEnvRefs = openejbEntityBean.getResourceEnvRefArray();
         }
 
-        return buildComponentContext(earContext, ejbModule, envEntries, ejbRefs, ejbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, userTransaction, cl);
+        MessageDestinationRefType[] messageDestinationRefs = entityBean.getMessageDestinationRefArray();
+
+        return buildComponentContext(earContext, ejbModule, envEntries, ejbRefs, ejbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, userTransaction, cl);
 
     }
 
@@ -941,7 +945,9 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             openejbResourceEnvRefs = openejbMessageDrivenBean.getResourceEnvRefArray();
         }
 
-        return buildComponentContext(earContext, ejbModule, envEntries, ejbRefs, ejbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, userTransaction, cl);
+        MessageDestinationRefType[] messageDestinationRefs = messageDrivenBean.getMessageDestinationRefArray();
+
+        return buildComponentContext(earContext, ejbModule, envEntries, ejbRefs, ejbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, userTransaction, cl);
 
     }
 
@@ -954,7 +960,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
                                                          OpenejbLocalRefType[] openejbResourceRefs,
                                                          ResourceEnvRefType[] resourceEnvRefs,
                                                          OpenejbLocalRefType[] openejbResourceEnvRefs,
-                                                         UserTransaction userTransaction,
+                                                         MessageDestinationRefType[] messageDestinationRefs, UserTransaction userTransaction,
                                                          ClassLoader cl) throws NamingException, DeploymentException {
         ComponentContextBuilder builder = new ComponentContextBuilder(new JMXReferenceFactory());
 
@@ -980,7 +986,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             addResourceEnvRefs(resourceEnvRefs, openejbResourceEnvRefs, cl, builder);
         }
 
-        // todo message-destination-ref
+        addMessageDestinationRefs(messageDestinationRefs, cl, builder);
 
         return builder.getContext();
     }
