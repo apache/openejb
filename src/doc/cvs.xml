@@ -1,85 +1,39 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<document url="http://openejb.exolab.org/cvs.xml">
+<document url="http://openejb.sf.net/cvs.xml">
   <body>
     <title>CVS Access</title>
 
 
-    <section title="What is CVS?">
+    <section title="Getting the Source">
+    <p>
+    Getting involved in any Open Source project requires the source.  The 
+    standard tool for managing source code in open source projects is CVS. 
+    If you are not familiar with CVS, take a moment to read our 
+    <a href="cvs-faq.html">CVS FAQ</a>.
+    </p>
 
-<p>The Concurrent Versions System (CVS) provides network-transparent source control for groups of developers. 
-CVS has four basic functions: </p>
-	<ul>
-	<li>Maintains a history of all changes made to each directory tree it manages </li>
-             <li>Provides hooks to support process control and change control </li>
-             <li>Provides reliable access to its directory trees from remote hosts using Internet protocols </li> 
-               <li>Supports parallel development allowing more than one developer to work on the same sources at the same time </li>
-	</ul>
+    
+    <p>    
+    If you have cvs already installed and are ready to go, the following two commands
+    are all you need to get the source. The first command logs you into the system, when 
+    it prompts you for the CVS password, simply hit the Enter key.
+    </p>    
+    <p>    
+    <command>cvs -d:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb login</command>
+    </p>    
+    <p>    
+    <command>cvs -z3 -d:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb co openejb</command>
+    </p>    
+      
+    <p>    
+    NOTE: The 'cvs ....' commands above should be on one line and executed as one command. 
+    </p>    
 
-
-    </section>
-
-
-    <section title="How do I get started?">
-
-<p>To download source code and other files from a cvs server you need a cvs client. </p>
-<p>CVS client for Windows 95/98/2000/NT:
-<a href="ftp://download.cyclic.com/pub/cvs-1.10.5/windows/">ftp://download.cyclic.com/pub/cvs-1.10.5/windows/ </a> 
-</p>
-<p>CVS client for Unix:
-<a href ="ftp://download.cyclic.com/pub/unix/"> ftp://download.cyclic.com/pub/unix/  </a>
-</p>
-
-<p>CVS client for OS/2:
-<a href ="ftp://download.cyclic.com/pub/os2/">ftp://download.cyclic.com/pub/os2/ </a>
-</p>
-
-<p>CVS client for Macintosh:
-<a href ="ftp://download.cyclic.com/pub/macintosh/">ftp://download.cyclic.com/pub/macintosh/ </a>
-</p>
-
-<p>There is no "Install Shield" for cvs. You just put the cvs executable it in any directory and then include that directory in your PATH system variable. Then you can execute cvs commands from anywhere in your command shell. </p>
-
-<p>Here's and good list of all the commands.
-<a href="http://www.sourcegear.com/CVS/Docs/ref">http://www.sourcegear.com/CVS/Docs/ref</a>
-</p>
-
-    </section>
-
-    <section title="WebCVS, Snapshots, Bugzilla">
-
-      <p><a href="http://virtuals.intalio.com/cgi-bin/cvsweb.cgi/openejb/?cvsroot=openejb">WebCVS access to the repository.</a></p>
-
-      <p>Or, <a href="download.xml">download the full source distribution</a>
-         containing the latest snapshot of the CVS.</p>
-
-      <p><a href="http://bugzilla.exolab.org">Use Bugzilla for bug tracking.</a></p>
-
-    </section>
-
-    <section title="Anonymous Access">
-
-      <p>The source code, documentation and libraries are available for anonymous access
-         from the Exolab CVS server.</p>
-
-      <p>The CVS is updated regularly and may contain an unstable version when you
-         check it out. We commit working code to the CVS immediately prior to putting
-         out a release.</p>
-
-      <p>The CVS root is <tt>:pserver:anoncvs@openejb.exolab.org:/cvs/openejb</tt>
-         and the password <tt>anoncvs</tt>.</p>
-
-      <p>To login to CVS from the command line and checkout a version of XSL:P
-         use the following commands:</p>
-
-      <pre>
-  $ cvs -d :pserver:anoncvs@openejb.exolab.org:/cvs/openejb login
-  password: anoncvs
-  $ cvs -d :pserver:anoncvs@openejb.exolab.org:/cvs/openejb checkout openejb
-      </pre>
-
-      <p><b>Note:</b> There have been reports of problems using jCVS with ours CVS servers.
-         Please use an alternative CVS client until this problem is resolved.</p>
-
+    <p>    
+    If you are a new user to cvs, the above steps may seem overly simplistic to you.
+    For a more detailed explanation of the login/checkout process, <a href="quickstart-cvs.html">click here</a>.
+    </p>    
+      
     </section>
 
     <section title="Guidelines For Code Contribution">
@@ -111,50 +65,76 @@ or
     </section>
 
     <section title="Guidelines For Committers">
-
-      <p><i>Familiarize yourself.</i> Take some time to understand the directory
-         structure, build environment, interaction between components, coding and commenting
-         style. Nothing out of the ordinary, but still not all projects are identical.</p>
-
-      <p><i>Before starting to work please advertise.</i> It's pointless to have two people
-         working on the same feature. Send an e-mail to the developer mailing list and
-         announce what and how. If you don't get a reply within a day, you can assume the
-         coast is clear.</p>
-
-      <p><i>Test before you commit.</i> Before committing any changes run a <tt>cvs update</tt>
-         to make sure you have the latest code base. Run the test cases to make sure nothing
-         is broken.</p>
-
-      <p><i>Commit all at once.</i> If the change involves more than a single file, make sure
-         to commit all the changes together. A partially committed CVS tree is not a pretty
-         sight. No lunch breaks, meetings or sleep during commits.</p>
-
-      <p><i>Be ready to receive complaints.</i> Hopefully all works fine, but if changes
-         to break existing code, people will complain. Be ready to answer their e-mails
-         and apply the proper fixes. No going on vacation five minutes after a commit.</p>
-
-      <p><i>Put your name so people know who to credit.</i> (Also who to blame). Initials
-         work just fine, your full name and e-mail address are already on the main page.
-         If you've added a new file, feel free to put your name and e-mail address as the
-         author. If you're fixing a file, put your initials on the comment.</p>
-
-      <p><i>Observe release time.</i> We're going to announce a new release five hours prior
-         to making it. That gives you four hours to commit any changes, make sure nothing
-         breaks. Don't leave the computer before the release is done. If you can't make
-         it, there's alway the next release.</p>
-
-      <p><i>Document what you've done.</i> In-code documentation, CVS commit messages,
-         and the changelog. Major changes should always be recorded in the changelog.</p>
-
-      <p><i>Use the document DTD.</i> When adding new documentation use the document DTD.
-         Specify the proper document URL, properties, body and section. Everything
-         inside the body/header/section is XHTML. That means well formed HTML.
-         If it's not, you won't be able to build the docs.</p>
-
-      <p>We don't have a particular style for documentation, and we do appreciate
-         a sense of humor, sarcasm and literary expression. Just don't overdue it,
-         and please, no cliche.</p>
-
+        
+        <section title="Familiarize yourself" ref-id="rule1">
+        
+        <p><i>Familiarize yourself.</i> Take some time to understand the directory
+        structure, build environment, interaction between components, coding and commenting
+        style. Nothing out of the ordinary, but still not all projects are identical.</p>
+        </section>
+        
+        <section title="Let is know" ref-id="rule2">
+        
+        <p><i>Before starting to work please advertise.</i> It's pointless to have two people
+        working on the same feature. Send an e-mail to the developer mailing list and
+        announce what and how. If you don't get a reply within a day, you can assume the
+        coast is clear.</p>
+        </section>
+        
+        <section title="Test, test, test" ref-id="rule3">
+        
+        <p><i>Test before you commit.</i> Before committing any changes run a <tt>cvs update</tt>
+        to make sure you have the latest code base. Run the test cases to make sure nothing
+        is broken.</p>
+        </section>
+        
+        <section title="Commit all at once" ref-id="rule4">
+        
+        <p><i>Commit all at once.</i> If the change involves more than a single file, make sure
+        to commit all the changes together. A partially committed CVS tree is not a pretty
+        sight. No lunch breaks, meetings or sleep during commits.</p>
+        </section>
+        
+        <section title="Be ready to receive complaints" ref-id="rule5">
+        
+        <p><i>Be ready to receive complaints.</i> Hopefully all works fine, but if changes
+        to break existing code, people will complain. Be ready to answer their e-mails
+        and apply the proper fixes. No going on vacation five minutes after a commit.</p>
+        </section>
+        
+        <section title="Give yourself some credit" ref-id="rule6">
+        
+        <p><i>Put your name so people know who to credit.</i> (Also who to blame). Initials
+        work just fine, your full name and e-mail address are already on the main page.
+        If you've added a new file, feel free to put your name and e-mail address as the
+        author. If you're fixing a file, put your initials on the comment.</p>
+        </section>
+        
+        <section title="Observe release time" ref-id="rule7">
+        
+        <p><i>Observe release time.</i> We're going to announce a new release five hours prior
+        to making it. That gives you four hours to commit any changes, make sure nothing
+        breaks. Don't leave the computer before the release is done. If you can't make
+        it, there's alway the next release.</p>
+        </section>
+        
+        <section title="Document what you've done" ref-id="rule8">
+        
+        <p><i>Document what you've done.</i> In-code documentation, CVS commit messages,
+        and the changelog. Major changes should always be recorded in the changelog.</p>
+        </section>
+        
+        <section title="Use the document DTD" ref-id="rule9">
+        
+        <p><i>Use the document DTD.</i> When adding new documentation use the document DTD.
+        Specify the proper document URL, properties, body and section. Everything
+        inside the body/header/section is XHTML. That means well formed HTML.
+        If it's not, you won't be able to build the docs.</p>
+        
+        <p>We don't have a particular style for documentation, and we do appreciate
+        a sense of humor, sarcasm and literary expression. Just don't overdue it,
+        and please, no cliche.</p>
+        </section>
     </section>
 
     <section title="Licensing Policy">
