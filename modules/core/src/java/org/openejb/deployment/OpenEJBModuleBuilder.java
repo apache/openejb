@@ -304,7 +304,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             try {
                 JarEntry ejbJarEntry = ejbJarFile.getJarEntry("META-INF/ejb-jar.xml");
                 if (ejbJarEntry == null) {
-                    throw new DeploymentException("Did not find META-INF/ejb-jar.xml in module");
+                    throw new DeploymentException("No META-INF/ejb-jar.xml in module [" + ejbModule.getName() + "]");
                 }
                 XmlObject dd = SchemaConversionUtils.parse(ejbJarFile.getInputStream(ejbJarEntry));
                 EjbJarDocument doc = SchemaConversionUtils.convertToEJBSchema(dd);
@@ -320,7 +320,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
                 try {
                     JarEntry openEjbJarEntry = ejbJarFile.getJarEntry("META-INF/openejb-jar.xml");
                     if (openEjbJarEntry == null) {
-                        throw new DeploymentException("Did not find META-INF/openejb-jar.xml in module");
+                        throw new DeploymentException("No META-INF/openejb-jar.xml in module [" + ejbModule.getName() + "]");
                     }
                     OpenejbOpenejbJarDocument doc = (OpenejbOpenejbJarDocument) XmlBeansUtil.parse(ejbJarFile.getInputStream(openEjbJarEntry), OpenejbOpenejbJarDocument.type);
                     openEjbJar = doc.getOpenejbJar();
@@ -339,7 +339,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
                 earContext.addDependency(getDependencyURI(dependencies[i]));
             }
         } catch (IOException e) {
-            throw new DeploymentException("Problem deploying ejb jar", e);
+            throw new DeploymentException("Unable to deploy ejb module [" + ejbModule.getName() + "]", e);
         }
     }
 
