@@ -76,20 +76,18 @@ public final class UtilDelegateImpl implements UtilDelegate {
 
     private final Log log = LogFactory.getLog(UtilDelegateImpl.class);
     private final UtilDelegate delegate;
-    private static TieLoader tieLoader;
 
     private final static String DELEGATE_NAME = "org.openejb.corba.UtilDelegateClass";
 
     public UtilDelegateImpl() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         String value = System.getProperty(DELEGATE_NAME);
         if (value == null) {
+            log.error("No delegate specfied via " + DELEGATE_NAME);
             throw new IllegalStateException("The property " + DELEGATE_NAME + " must be defined!");
         }
-        delegate = (UtilDelegate) Class.forName(value).newInstance();
-    }
 
-    public static void setTieLoader(TieLoader tieLoader) {
-        UtilDelegateImpl.tieLoader = tieLoader;
+        if (log.isDebugEnabled()) log.debug("Set delegate " + value);
+        delegate = (UtilDelegate) Class.forName(value).newInstance();
     }
 
     public void unexportObject(Remote target) throws NoSuchObjectException {
@@ -161,7 +159,14 @@ public final class UtilDelegateImpl implements UtilDelegate {
     }
 
     public Class loadClass(String className, String remoteCodebase, ClassLoader loader) throws ClassNotFoundException {
-        return delegate.loadClass(className, remoteCodebase, loader);
+        if (log.isDebugEnabled()) log.debug("loadClass: " + className + ", " + remoteCodebase + ", " + loader);
+
+        Class result = delegate.loadClass(className, remoteCodebase, loader);
+        if (result == null) {
+            
+        }
+
+        return result;
     }
 
     /**

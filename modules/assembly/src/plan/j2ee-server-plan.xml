@@ -127,6 +127,9 @@ by the server.
     <dependency>
         <uri>openorb/jars/openorb-ots-${openorb_version}.jar</uri>
     </dependency>
+    <dependency>
+        <uri>bouncycastle/jars/bcprov-${bouncycastle_version}.jar</uri>
+    </dependency>
 
     <!-- required for rar 1.5 to load realms -->
     <dependency>
@@ -150,12 +153,6 @@ by the server.
     </dependency>
     <dependency>
          <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-         <uri>xfire/jars/xfire-${xfire_version}.jar</uri>
-    </dependency>
-    <dependency>
-         <uri>xfire/jars/xfire-java-${xfire_version}.jar</uri>
     </dependency>
 
 
@@ -200,6 +197,10 @@ by the server.
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
         <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
+        <attribute name="keyStore">var/certstores/keystore</attribute>
+        <attribute name="keyStorePassword">password</attribute>
+        <attribute name="trustStore">var/certstores/truststore</attribute>
+        <attribute name="trustStorePassword">trustword</attribute>
     </gbean>
     
     <gbean gbeanName="geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JaasLoginService" class="org.apache.geronimo.security.jaas.JaasLoginService">
@@ -369,44 +370,52 @@ by the server.
     <!-- end deployment block -->
 
     <gbean gbeanName="openejb.CORBA:type=Server" class="org.openejb.corba.CORBABean">
-        <reference name="ThreadPool"><name>DefaultThreadPool</name></reference>
-        <attribute name="args">-ORBPort, 2001, -ORBInitRef, NameService=corbaloc::localhost:1050/NameService, -ORBCSIv2, -ORBGSSClientUser, "user1,a"</attribute>
-        <attribute name="args">-ORBPort, 2001, -ORBInitRef, NameService=corbaloc::localhost:1050/NameService</attribute>
+        <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
+        <attribute name="args">-ORBPort, 683, -ORBInitRef, NameService=corbaloc::localhost:2809/NameService</attribute>
+        <attribute name="configAdapter">org.openejb.corba.openorb.OpenORBConfigAdapter</attribute>
         <attribute name="props">
 
             org.omg.CORBA.ORBClass=org.openorb.orb.core.ORB
             org.omg.CORBA.ORBSingletonClass=org.openorb.orb.core.ORBSingleton
 
+            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.util.UtilInitializer
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer
+            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.openorb.OpenORBInitializer
 
-            org.omg.CORBA.ORBClass=org.openorb.orb.core.ORB
-            org.omg.CORBA.ORBSingletonClass=org.openorb.orb.core.ORBSingleton
             Xopenorb.debug.level=HIGH
             Xopenorb.debug.trace=DEBUG
-            javax.net.debug=all
-            javax.net.ssl.keyStore=var/certstores/keystore
-            javax.net.ssl.keyStorePassword=password
-            javax.net.ssl.trustStore=var/certstores/truststore
-            javax.net.ssl.trustStorePassword=trustword
-            ssliop.SSLContextFinderClass=org.openorb.orb.ssl.JSSEContextFinder
-            Xiiop.TransportServerInitializerClass=org.openorb.orb.ssl.SSLTransportServerInitializer
-            secure.server.allowUnsecure=false
-            ssliop.iiopport.disable=false
-            ssliop.port=1684
-            ssliop.server.allowBiDir=true
-            ssliop.server.authClient=true
-            ssliop.server.auth.require=true
-            ssliop.server.auth.support=true
-            ssliop.server.encrypt.require=true
-            ssliop.server.encrypt.support=true
 
+            iiop.TransportServerInitializerClass=org.openorb.orb.ssl.SSLTransportServerInitializer
+
+            secure.server.allowUnsecure=false
+
+        </attribute>
+        <attribute name="tssConfig">
+            <![CDATA[
+
+            <tss xmlns="http://www.openejb.org/xml/ns/corba-tss-config_1_0">
+                <SSL port="684" hostname="localhost" SSLContextFinderClass="org.openorb.orb.ssl.JSSEContextFinder">
+                    <supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</supports>
+                    <requires>Integrity Confidentiality EstablishTrustInClient</requires>
+                </SSL>
+                <compoundSecMechTypeList>
+                    <compoundSecMech>
+                        <GSSUP targetName="geronimo-properties-realm"/>
+                        <sasMech>
+                            <identityTokenTypes>ITTAbsent ITTAnonymous ITTPrincipalName</identityTokenTypes>
+                        </sasMech>
+                    </compoundSecMech>
+                </compoundSecMechTypeList>
+            </tss>
+
+            ]]>
         </attribute>
     </gbean>
 
     <gbean gbeanName="openejb.CORBA:type=NameServer" class="org.openejb.corba.OpenORBNameBean">
-        <reference name="ThreadPool"><name>DefaultThreadPool</name></reference>
-        <attribute name="args">-ORBPort, 1050</attribute>
+        <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
+        <attribute name="args">-ORBPort, 2809</attribute>
         <attribute name="props">
             openorb.home=resource:org/openorb/
         </attribute>
@@ -418,6 +427,45 @@ by the server.
         <reference name="Server"><gbean-name>openejb.CORBA:type=Server</gbean-name></reference>
         <reference name="Containers"><gbean-name>openejb.server:EJBModule=org/openejb/scenario001,*</gbean-name></reference>
         <reference name="TieLoader"><gbean-name>openejb.CORBA:type=TieLoader,name=ClasspathTieLoader</gbean-name></reference>
+        <attribute name="tssConfig">
+            <![CDATA[
+
+            <tss inherit="true" xmlns="http://www.openejb.org/xml/ns/corba-tss-config_1_0"/>
+
+            ]]>
+        </attribute>
+    </gbean>
+
+    <gbean gbeanName="openejb.CORBA:type=CSS,domain=IOR7" class="org.openejb.corba.CSSBean">
+        <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
+        <attribute name="configAdapter">org.openejb.corba.openorb.OpenORBConfigAdapter</attribute>
+        <attribute name="description">IOR7</attribute>
+        <attribute name="cssArgs"></attribute>
+        <attribute name="cssProps">
+
+            org.omg.CORBA.ORBClass=org.openorb.orb.core.ORB
+            org.omg.CORBA.ORBSingletonClass=org.openorb.orb.core.ORBSingleton
+
+            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.util.UtilInitializer
+            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer
+            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer
+            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.openorb.OpenORBInitializer
+
+            Xopenorb.debug.level=HIGH
+            Xopenorb.debug.trace=DEBUG
+
+            iiop.TransportClientInitializerClass=org.openorb.orb.ssl.SSLTransportClientInitializer
+
+            secure.server.allowUnsecure=false
+
+        </attribute>
+        <attribute name="cssConfig">
+            <![CDATA[
+
+            <css xmlns="http://www.openejb.org/xml/ns/corba-css-config_1_0"/>
+
+            ]]>
+        </attribute>
     </gbean>
 
     <gbean gbeanName="openejb.CORBA:type=OpenORBUtil" class="org.openejb.corba.util.OpenORBUtil">

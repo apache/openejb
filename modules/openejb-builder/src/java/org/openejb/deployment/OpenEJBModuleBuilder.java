@@ -59,10 +59,25 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
+
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.tranql.cache.CacheFlushStrategyFactory;
+import org.tranql.cache.EnforceRelationshipsFlushStrategyFactory;
+import org.tranql.cache.GlobalSchema;
+import org.tranql.cache.SimpleFlushStrategyFactory;
+import org.tranql.ejb.EJBSchema;
+import org.tranql.ejb.TransactionManagerDelegate;
+import org.tranql.ejbqlcompiler.DerbyDBSyntaxtFactory;
+import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
+import org.tranql.sql.BaseSQLSchema;
+import org.tranql.sql.DBSyntaxFactory;
+import org.tranql.sql.DataSourceDelegate;
+import org.tranql.sql.EJBQLCompilerFactory;
+import org.tranql.sql.SQLSchema;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
@@ -90,12 +105,12 @@ import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
+
 import org.openejb.EJBModuleImpl;
+import org.openejb.corba.CORBAHandleDelegate;
 import org.openejb.corba.compiler.CompilerException;
 import org.openejb.corba.compiler.SkeletonGenerator;
-import org.openejb.corba.CORBAHandleDelegate;
+import org.openejb.corba.proxy.CORBAProxyReference;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.EJBProxyReference;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
@@ -103,19 +118,6 @@ import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
-import org.tranql.cache.CacheFlushStrategyFactory;
-import org.tranql.cache.EnforceRelationshipsFlushStrategyFactory;
-import org.tranql.cache.GlobalSchema;
-import org.tranql.cache.SimpleFlushStrategyFactory;
-import org.tranql.ejb.EJBSchema;
-import org.tranql.ejb.TransactionManagerDelegate;
-import org.tranql.ejbqlcompiler.DerbyDBSyntaxtFactory;
-import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
-import org.tranql.sql.BaseSQLSchema;
-import org.tranql.sql.DBSyntaxFactory;
-import org.tranql.sql.DataSourceDelegate;
-import org.tranql.sql.EJBQLCompilerFactory;
-import org.tranql.sql.SQLSchema;
 
 
 /**
@@ -219,8 +221,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             try {
                 if (plan instanceof XmlObject) {
                     openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
-                            "openejb-jar",
-                            OpenejbOpenejbJarType.type);
+                                                                                                     "openejb-jar",
+                                                                                                     OpenejbOpenejbJarType.type);
                 } else {
                     OpenejbOpenejbJarDocument openejbJarDoc = null;
                     if (plan != null) {
@@ -340,6 +342,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
     public Reference createEJBRemoteReference(String objectName, boolean session, String home, String remote) {
         return EJBProxyReference.createRemote(objectName, session, remote, home);
+    }
+
+    public Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException {
+        return new CORBAProxyReference(corbaURL, objectName, containerName, home);
     }
 
     public Object createHandleDelegateReference() {
@@ -532,15 +538,15 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         //construct name from components
         try {
             return NameFactory.getComponentName(resourceLocator.getDomain(),
-                    resourceLocator.getServer(),
-                    resourceLocator.getApplication(),
-                    NameFactory.JCA_RESOURCE,
-                    resourceLocator.getModule(),
-                    resourceLocator.getName(),
-                    //todo determine type from iface class
+                                                resourceLocator.getServer(),
+                                                resourceLocator.getApplication(),
+                                                NameFactory.JCA_RESOURCE,
+                                                resourceLocator.getModule(),
+                                                resourceLocator.getName(),
+                                                //todo determine type from iface class
 //                        resourceLocator.getType(),
-                    NameFactory.JCA_MANAGED_CONNECTION_FACTORY,
-                    j2eeContext);
+                                                NameFactory.JCA_MANAGED_CONNECTION_FACTORY,
+                                                j2eeContext);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct cmp datasource object name", e);
         }

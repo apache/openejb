@@ -15,5 +15,13 @@
         <xb:package>org.apache.geronimo.xbeans.geronimo.security</xb:package>
         <xb:prefix>Ger</xb:prefix>
     </xb:namespace>
+    <xb:namespace uri="http://www.openejb.org/xml/ns/corba-tss-config_1_0">
+        <xb:package>org.openejb.xbeans.csiv2.tss</xb:package>
+        <xb:prefix>TSS</xb:prefix>
+    </xb:namespace>
+    <xb:namespace uri="http://www.openejb.org/xml/ns/corba-css-config_1_0">
+        <xb:package>org.openejb.xbeans.csiv2.css</xb:package>
+        <xb:prefix>CSS</xb:prefix>
+    </xb:namespace>
 
 </xb:config>

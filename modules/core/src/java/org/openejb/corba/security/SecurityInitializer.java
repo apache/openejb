@@ -56,9 +56,8 @@ import org.omg.PortableInterceptor.ORBInitializer;
  * @version $Revision$ $Date$
  */
 public class SecurityInitializer extends LocalObject implements ORBInitializer {
-    private final Log log = LogFactory.getLog(SecurityInitializer.class);
 
-    private static int slotId;
+    private final Log log = LogFactory.getLog(SecurityInitializer.class);
 
     /**
      * Called during ORB initialization.  If it is expected that initial
@@ -71,15 +70,6 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
      *             which Interceptors can be registered.
      */
     public void pre_init(ORBInitInfo info) {
-        slotId = info.allocate_slot_id();
-
-        try {
-            info.add_client_request_interceptor(new ClientSecurityInterceptor(slotId));
-            info.add_server_request_interceptor(new ServerSecurityInterceptor(slotId));
-            info.add_ior_interceptor(new IORSecurityInterceptor(slotId));
-        } catch (DuplicateName duplicateName) {
-            duplicateName.printStackTrace();
-        }
     }
 
     /**
@@ -101,5 +91,14 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
      *             operations by which Interceptors can be registered.
      */
     public void post_init(ORBInitInfo info) {
+        try {
+            info.add_client_request_interceptor(new ClientSecurityInterceptor());
+            info.add_server_request_interceptor(new ServerSecurityInterceptor());
+            info.add_ior_interceptor(new IORSecurityInterceptor());
+        } catch (DuplicateName dn) {
+            log.error("Error registering interceptor", dn);
+        }
+        info.register_policy_factory(ClientPolicyFactory.POLICY_TYPE, new ClientPolicyFactory());
+        info.register_policy_factory(ServerPolicyFactory.POLICY_TYPE, new ServerPolicyFactory());
     }
 }

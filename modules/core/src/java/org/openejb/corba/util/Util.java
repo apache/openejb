@@ -50,6 +50,9 @@ package org.openejb.corba.util;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import javax.ejb.spi.HandleDelegate;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.bouncycastle.asn1.DERInputStream;
 import org.bouncycastle.asn1.DERObjectIdentifier;
@@ -71,8 +74,9 @@ import org.openorb.util.HexPrintStream;
 
 /**
  * Various utility functions.
- *
+ * <p/>
  * Note: #getORB() and #getCodec() rely on UtilInitializer to initialze the ORB and codec.
+ *
  * @version $Rev: $ $Date$
  * @see UtilInitializer
  */
@@ -84,6 +88,7 @@ public final class Util {
     private static final byte ASN_TAG_GSS = 0x60;
     private static ORB orb;
     private static Codec codec;
+    private static HandleDelegate handleDelegate;
 
     public static ORB getORB() {
         assert orb != null;
@@ -101,6 +106,13 @@ public final class Util {
         return codec;
     }
 
+    public static HandleDelegate getHandleDelegate() throws NamingException {
+        if (handleDelegate == null) {
+            InitialContext ic = new InitialContext();
+            handleDelegate = (HandleDelegate) ic.lookup("java:comp/HandleDelegate");
+        }
+        return handleDelegate;
+    }
 
     public static byte[] encodeOID(String oid) throws IOException {
         oid = (oid.startsWith("oid:") ? oid.substring(4) : oid);

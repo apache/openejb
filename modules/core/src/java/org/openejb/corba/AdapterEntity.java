@@ -100,7 +100,7 @@ public final class AdapterEntity extends Adapter {
 
             poa.the_POAManager().activate();
 
-            Servant servant = getTieLoader().loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getProxyInfo());
+            Servant servant = getTieLoader().loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
             referenceInterface = servant._all_interfaces(null, null)[0];
 
             factory = new AdapterProxyFactory(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
@@ -148,7 +148,7 @@ public final class AdapterEntity extends Adapter {
                 is.close();
 
                 EJBContainer container = getContainer();
-                Servant servant = getTieLoader().loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getProxyInfo());
+                Servant servant = getTieLoader().loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
                 Remote remote = (Remote) factory.create(container.getEJBObject(pk));
 
                 if (servant instanceof Tie) {
