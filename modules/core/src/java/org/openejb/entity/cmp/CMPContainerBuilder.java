@@ -47,8 +47,10 @@
  */
 package org.openejb.entity.cmp;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -56,9 +58,12 @@ import java.util.List;
 import java.util.Map;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
+import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
@@ -74,6 +79,7 @@ import org.openejb.entity.EntityInstanceFactory;
 import org.openejb.entity.EntityInterceptorBuilder;
 import org.openejb.entity.HomeMethod;
 import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.proxy.ProxyInfo;
 import org.tranql.cache.CacheLoadCommand;
 import org.tranql.cache.CacheRowAccessor;
 import org.tranql.cache.CacheTable;
@@ -86,9 +92,9 @@ import org.tranql.ejb.CMPFieldFaultTransform;
 import org.tranql.ejb.CMPFieldTransform;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.LocalProxyTransform;
+import org.tranql.ejb.ProxyQueryCommand;
 import org.tranql.ejb.RemoteProxyTransform;
 import org.tranql.ejb.SimplePKTransform;
-import org.tranql.ejb.ProxyQueryCommand;
 import org.tranql.field.FieldAccessor;
 import org.tranql.field.FieldTransform;
 import org.tranql.identity.IdentityDefiner;
@@ -101,6 +107,7 @@ import org.tranql.ql.QueryTransformer;
 import org.tranql.query.QueryCommand;
 import org.tranql.query.UpdateCommand;
 import org.tranql.schema.Attribute;
+import org.tranql.sql.DataSourceDelegate;
 import org.tranql.sql.SQL92Generator;
 import org.tranql.sql.SQLQuery;
 import org.tranql.sql.SQLTransform;
@@ -117,6 +124,9 @@ import org.tranql.sql.jdbc.binding.BindingFactory;
  */
 public class CMPContainerBuilder extends AbstractContainerBuilder {
     private EJB ejb;
+    private String connectionFactoryName;
+
+    // todo delete this
     private DataSource dataSource;
 
     protected int getEJBComponentType() {
@@ -131,7 +141,15 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         this.ejb = ejb;
     }
 
-    // todo this is broken but will work for createContainer
+    public String getConnectionFactoryName() {
+        return connectionFactoryName;
+    }
+
+    public void setConnectionFactoryName(String connectionFactoryName) {
+        this.connectionFactoryName = connectionFactoryName;
+    }
+
+    // todo delete this
     public DataSource getDataSource() {
         return dataSource;
     }
@@ -141,19 +159,21 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     }
 
     protected Object buildIt(boolean buildContainer) throws Exception {
+        DataSourceDelegate dataSourceDelegate = new DataSourceDelegate();
+
         // this should be more configurable
         QueryTransformer queryTransformer = new SQLTransform(SQL92Generator.class);
 
         // get the bean class
         Class beanClass = getClassLoader().loadClass(getBeanClassName());
 
-        CacheTable cacheTable = createCacheTable(ejb, queryTransformer, dataSource);
+        CacheTable cacheTable = createCacheTable(ejb, queryTransformer, dataSourceDelegate);
 
         // identity definer
         int pkSlot = -1;
         for (int index = 0; index < ejb.getAttributes().size(); index++) {
             Attribute attribute = (Attribute) ejb.getAttributes().get(index);
-            if(attribute.isIdentity()) {
+            if (attribute.isIdentity()) {
                 if (pkSlot > 0) {
                     throw new DeploymentException("User defined pks are not currently supported");
                 }
@@ -163,7 +183,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         IdentityDefiner identityDefiner = new UserDefinedIdentity(cacheTable, pkSlot);
 
         // the load all by primary key command
-        QueryCommand loadCommand = createLoadAllCommand(ejb, queryTransformer, identityDefiner, dataSource);
+        QueryCommand loadCommand = createLoadAllCommand(ejb, queryTransformer, dataSourceDelegate, identityDefiner);
 
         // load all fault handler
         FaultHandler faultHandler = new QueryFaultHandler(loadCommand, identityDefiner);
@@ -172,6 +192,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         LinkedHashMap cmpFieldAccessors = createCMPFieldAccessors(ejb, faultHandler);
 
         // Identity Transforms
+        ProxyInfo proxyInfo = createProxyInfo();
         TranqlEJBProxyFactory tranqlEJBProxyFactory = new TranqlEJBProxyFactory();
         IdentityTransform primaryKeyTransform = new SimplePKTransform(cacheTable);
         IdentityTransform localProxyTransform = new LocalProxyTransform(primaryKeyTransform, tranqlEJBProxyFactory);
@@ -182,16 +203,13 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         QueryCommand localProxyLoad = new ProxyQueryCommand(loadCommand, identityDefiner, localProxyTransform);
         QueryCommand remoteProxyLoad = new ProxyQueryCommand(loadCommand, identityDefiner, remoteProxyTransform);
         queries.put(
-                new InterfaceMethodSignature("findByPrimaryKey", new String[] {getPrimaryKeyClassName()}, true),
-                new QueryCommand[] {localProxyLoad, remoteProxyLoad});
+                new InterfaceMethodSignature("findByPrimaryKey", new String[]{getPrimaryKeyClassName()}, true),
+                new QueryCommand[]{localProxyLoad, remoteProxyLoad});
 
         // build the vop table
         LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, identityDefiner, primaryKeyTransform, localProxyTransform, remoteProxyTransform, queries);
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
-
-        // todo this is a terrible hack... the vop build code needs the identity transforms and we need the vop signatures to build the transforms
-        tranqlEJBProxyFactory.ejbProxyFactory = new EJBProxyFactory(createProxyInfo());
 
         // create and intitalize the interceptor builder
         InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new EntityInterceptorBuilder(), signatures, vtable);
@@ -204,10 +222,44 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
 
+        CMPEngine cmpEngine = new CMPEngine(dataSourceDelegate, tranqlEJBProxyFactory);
+
         if (buildContainer) {
-            return createContainer(signatures, contextFactory, interceptorBuilder, pool);
+
+            return new CMPContainer(
+                    getContainerId(),
+                    getEJBName(),
+                    createProxyInfo(),
+                    signatures,
+                    contextFactory,
+                    interceptorBuilder,
+                    pool,
+                    getUserTransaction(),
+                    getJndiNames(),
+                    getLocalJndiNames(),
+                    getTransactionManager(),
+                    getTrackedConnectionAssociator(),
+                    cmpEngine,
+                    new DataSourceProxyFactory(dataSource));
         } else {
-            return createConfiguration(signatures, contextFactory, interceptorBuilder, pool);
+
+            GBeanMBean gbean = new GBeanMBean(CMPContainer.GBEAN_INFO);
+            gbean.setAttribute("ContainerID", getContainerId());
+            gbean.setAttribute("EJBName", getEJBName());
+            gbean.setAttribute("ProxyInfo", createProxyInfo());
+            gbean.setAttribute("Signatures", signatures);
+            gbean.setAttribute("ContextFactory", contextFactory);
+            gbean.setAttribute("InterceptorBuilder", interceptorBuilder);
+            gbean.setAttribute("Pool", pool);
+            gbean.setAttribute("UserTransaction", getUserTransaction());
+            gbean.setAttribute("JndiNames", getJndiNames());
+            gbean.setAttribute("LocalJndiNames", getLocalJndiNames());
+
+            gbean.setAttribute("CMPEngine", cmpEngine);
+            ObjectName connectionFactoryObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + connectionFactoryName);
+            gbean.setReferencePatterns("ConnectionProxyFactory", Collections.singleton(connectionFactoryObjectName));
+
+            return gbean;
         }
     }
 
@@ -224,7 +276,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return cmpFieldAccessors;
     }
 
-    private static QueryCommand createLoadAllCommand(EJB ejb, QueryTransformer queryTransformer, IdentityDefiner idDefiner, DataSource ds) throws QueryException {
+    private static QueryCommand createLoadAllCommand(EJB ejb, QueryTransformer queryTransformer, DataSourceDelegate dataSourceDelegate, IdentityDefiner idDefiner) throws QueryException {
         // READ
         Query loadQuery = QueryBuilder.buildSelectById(ejb, false).getQuery();
         SQLQuery loadSQLQuery = (SQLQuery) queryTransformer.transform(loadQuery);
@@ -232,12 +284,12 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
         // todo this should come from the query transform
         FieldTransform[] loadTransforms = new FieldTransform[loadBindings.length];
-        for (int i=0; i < loadTransforms.length; i++) {
+        for (int i = 0; i < loadTransforms.length; i++) {
             loadTransforms[i] = new FieldAccessor(i);
         }
         // todo there should be an easier way to create the results bindings
         ResultBinding[] resultBindings = createResultsBindings(ejb);
-        QueryCommand loadCommand = new JDBCQueryCommand(ds, loadSQLQuery.getSQLText(), loadBindings, loadTransforms, resultBindings);
+        QueryCommand loadCommand = new JDBCQueryCommand(dataSourceDelegate, loadSQLQuery.getSQLText(), loadBindings, loadTransforms, resultBindings);
         // todo this is lame... should be the default slot mapping
         int[] slotMap = new int[resultBindings.length];
         for (int i = 0; i < slotMap.length; i++) {
@@ -247,7 +299,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return loadCommand;
     }
 
-    private static CacheTable createCacheTable(EJB ejb, QueryTransformer queryTransformer, DataSource ds) throws QueryException {
+    private static CacheTable createCacheTable(EJB ejb, QueryTransformer queryTransformer, DataSourceDelegate dataSourceDelegate) throws QueryException {
         CacheTable cacheTable;
         // CREATE
         Query createQuery = QueryBuilder.buildInsert(ejb).getQuery();
@@ -260,7 +312,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         for (int i = 0; i < createTransforms.length; i++) {
             createTransforms[i] = new FieldAccessor(i);
         }
-        UpdateCommand createCommand = new JDBCUpdateCommand(ds, createSQLQuery.getSQLText(), createBindings, createTransforms);
+        UpdateCommand createCommand = new JDBCUpdateCommand(dataSourceDelegate, createSQLQuery.getSQLText(), createBindings, createTransforms);
 
         // UPDATE
         Query updateQuery = QueryBuilder.buildUpdate(ejb).getQuery();
@@ -273,7 +325,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         List pkParamsList = new ArrayList(1);
         for (int i = 0; i < attributes.size(); i++) {
             Attribute attribute = (Attribute) attributes.get(i);
-            if(attribute.isIdentity()) {
+            if (attribute.isIdentity()) {
                 pkParamsList.add(new FieldAccessor(i));
             } else {
                 updateParamsList.add(new ModifiedSlotDetector(i));
@@ -282,7 +334,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
         updateParamsList.addAll(pkParamsList);
         FieldTransform[] updateTransforms = (FieldTransform[]) updateParamsList.toArray(new FieldTransform[updateParamsList.size()]);
-        UpdateCommand updateCommand = new JDBCUpdateCommand(ds, updateSQLQuery.getSQLText(), updateBindings, updateTransforms);
+        UpdateCommand updateCommand = new JDBCUpdateCommand(dataSourceDelegate, updateSQLQuery.getSQLText(), updateBindings, updateTransforms);
 
         // DELETE
         Query removeQuery = QueryBuilder.buildDelete(ejb).getQuery();
@@ -293,12 +345,12 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         List removeParamsList = new ArrayList(1);
         for (int i = 0; i < attributes.size(); i++) {
             Attribute attribute = (Attribute) attributes.get(i);
-            if(attribute.isIdentity()) {
+            if (attribute.isIdentity()) {
                 removeParamsList.add(new FieldAccessor(i));
             }
         }
         FieldTransform[] removeTransforms = (FieldTransform[]) removeParamsList.toArray(new FieldTransform[removeParamsList.size()]);
-        UpdateCommand removeCommand = new JDBCUpdateCommand(ds, removeSQLQuery.getSQLText(), removeBindings, removeTransforms);
+        UpdateCommand removeCommand = new JDBCUpdateCommand(dataSourceDelegate, removeSQLQuery.getSQLText(), removeBindings, removeTransforms);
 
         // defaults
         Object[] defaults = createDefaults(ejb);
@@ -313,7 +365,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         ResultBinding[] resultBindings = new ResultBinding[attributes.size()];
         for (int i = 0; i < attributes.size(); i++) {
             Attribute attribute = (Attribute) attributes.get(i);
-            resultBindings[i] = BindingFactory.getResultBinding(attribute.getType(), i+1);
+            resultBindings[i] = BindingFactory.getResultBinding(attribute.getType(), i + 1);
         }
         return resultBindings;
     }
@@ -480,25 +532,22 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
         for (Iterator iterator = queries.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
-            InterfaceMethodSignature signature = (InterfaceMethodSignature)entry.getKey();
-            QueryCommand[] queryCommands = (QueryCommand[])entry.getValue();
+            InterfaceMethodSignature signature = (InterfaceMethodSignature) entry.getKey();
+            QueryCommand[] queryCommands = (QueryCommand[]) entry.getValue();
             vopMap.put(signature, new CMPFinder(queryCommands[0], queryCommands[1], new SingleValuedQueryResultsFactory()));
         }
         return vopMap;
     }
 
-    private static final class TranqlEJBProxyFactory implements org.tranql.ejb.EJBProxyFactory {
-        private EJBProxyFactory ejbProxyFactory;
+    private static class DataSourceProxyFactory implements ConnectionProxyFactory {
+        private final DataSource dataSource;
 
-        private TranqlEJBProxyFactory() {
+        public DataSourceProxyFactory(DataSource dataSource) {
+            this.dataSource = dataSource;
         }
 
-        public EJBLocalObject getLocalProxy(Object pk) {
-            return ejbProxyFactory.getEJBLocalObject(pk);
-        }
-
-        public EJBObject getRemoteProxy(Object pk) {
-            return ejbProxyFactory.getEJBObject(pk);
+        public Object getProxy() {
+            return dataSource;
         }
     }
 }

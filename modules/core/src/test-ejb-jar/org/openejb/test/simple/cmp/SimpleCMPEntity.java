@@ -14,18 +14,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.openejb.entity.cmp;
+package org.openejb.test.simple.cmp;
 
-import java.io.Serializable;
-
-import org.tranql.query.QueryResult;
-import org.tranql.ql.QueryException;
+import java.rmi.RemoteException;
+import javax.ejb.EJBObject;
 
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public interface QueryResultsFactory extends Serializable {
-    public Object createQueryResults(QueryResult result) throws QueryException;
+public interface SimpleCMPEntity extends EJBObject {
+    Integer getId() throws RemoteException;
+
+    String getFirstName() throws RemoteException;
+
+    void setFirstName(String firstName) throws RemoteException;
+
+    String getLastName() throws RemoteException;
+
+    void setLastName(String lastName) throws RemoteException;
 }

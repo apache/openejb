@@ -135,8 +135,15 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
             if(cacheRow.getState() == CacheRowState.REMOVED) {
                 throw new NoSuchEntityException("Entity has been reomved");
             }
+
+            // copy data from tranql into instance
         }
         super.associate();
+    }
+
+    public void flush() throws Exception {
+        super.flush();
+        // copy data from instance into tranql
     }
 
     public void afterCommit(boolean status) {

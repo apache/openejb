@@ -54,9 +54,14 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
+import javax.sql.DataSource;
 
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
@@ -65,6 +70,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.transaction.TransactionManagerProxy;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
@@ -74,6 +80,8 @@ import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import junit.framework.TestCase;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
+import org.openejb.ContainerIndex;
+import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
  *
@@ -149,6 +157,35 @@ public class EJBConfigBuilderTest extends TestCase {
             kernel.startGBean(connectionTrackerObjectName);
             assertRunning(kernel, connectionTrackerObjectName);
 
+            GBeanMBean containerIndexGBean = new GBeanMBean(ContainerIndex.GBEAN_INFO);
+            ObjectName containerIndexObjectName = ObjectName.getInstance("openejb:type=ContainerIndex");
+            Set ejbContainerNames = new HashSet();
+            ejbContainerNames.add(ObjectName.getInstance("openejb:j2eeType=StatelessSessionBean,*"));
+            ejbContainerNames.add(ObjectName.getInstance("openejb:j2eeType=StatefulSessionBean,*"));
+            ejbContainerNames.add(ObjectName.getInstance("openejb:j2eeType=EntityBean,*"));
+            containerIndexGBean.setReferencePatterns("EJBContainers", ejbContainerNames);
+            kernel.loadGBean(containerIndexObjectName, containerIndexGBean);
+            kernel.startGBean(containerIndexObjectName);
+            assertRunning(kernel, containerIndexObjectName);
+
+            GBeanMBean connectionProxyFactoryGBean = new GBeanMBean(MockConnectionProxyFactory.GBEAN_INFO);
+            ObjectName connectionProxyFactoryObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + "DefaultDatasource");
+            kernel.loadGBean(connectionProxyFactoryObjectName, connectionProxyFactoryGBean);
+            kernel.startGBean(connectionProxyFactoryObjectName);
+            assertRunning(kernel, connectionProxyFactoryObjectName);
+
+            DataSource ds = (DataSource) kernel.getAttribute(connectionProxyFactoryObjectName, "Proxy");
+            Connection connection = null;
+            Statement statement = null;
+            try {
+                connection = ds.getConnection();
+                statement = connection.createStatement();
+                statement.execute("CREATE TABLE SIMPLECMP(ID INTEGER, FIRSTNAME VARCHAR(50), LASTNAME VARCHAR(50))");
+            } finally {
+                JDBCUtil.close(statement);
+                JDBCUtil.close(connection);
+            }
+
             ObjectName objectName = ObjectName.getInstance("test:configuration=test-ejb-jar");
             kernel.loadGBean(objectName, config);
             config.setAttribute("BaseURL", unpackedDir.toURL());
@@ -180,7 +217,7 @@ public class EJBConfigBuilderTest extends TestCase {
             stateful.getClass().getMethod("setValue", new Class[] {String.class}).invoke(stateful, new Object[] {"SomeValue"});
             assertEquals("SomeValue", stateful.getClass().getMethod("getValue", null).invoke(stateful, null));
 
-            // ENTITY
+            // BMP
             ObjectName bmpBeanName = ObjectName.getInstance("openejb:j2eeType=EntityBean,J2EEServer=null,J2EEApplication=null,J2EEModule=org/openejb/itests,name=SimpleBMPEntity");
             assertRunning(kernel, bmpBeanName);
 
@@ -190,8 +227,18 @@ public class EJBConfigBuilderTest extends TestCase {
             bmp.getClass().getMethod("setName", new Class[] {String.class}).invoke(bmp, new Object[] {"MyNameValue"});
             assertEquals("MyNameValue", bmp.getClass().getMethod("getName", null).invoke(bmp, null));
 
+            // CMP
+            ObjectName cmpBeanName = ObjectName.getInstance("openejb:j2eeType=EntityBean,J2EEServer=null,J2EEApplication=null,J2EEModule=org/openejb/itests,name=SimpleCMPEntity");
+            assertRunning(kernel, cmpBeanName);
+
+            Object cmpHome = kernel.getAttribute(cmpBeanName, "EJBHome");
+            assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
+            Object cmp = cmpHome.getClass().getMethod("create", new Class[] {Integer.class}).invoke(cmpHome, new Object[] {new Integer(42)});
+            cmp.getClass().getMethod("setFirstName", new Class[] {String.class}).invoke(cmp, new Object[] {"MyFistName"});
+            assertEquals("MyFistName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
+
             kernel.stopGBean(objectName);
-            kernel.stopGBean(connectionTrackerObjectName);
+            kernel.stopGBean(connectionProxyFactoryObjectName);
             kernel.stopGBean(tmObjectName);
         } finally {
             if (kernel != null) {
@@ -218,5 +265,15 @@ public class EJBConfigBuilderTest extends TestCase {
         } finally {
             in.close();
         }
+    }
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        String str = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
+        if (str == null)
+            str = ":org.apache.geronimo.naming";
+        else
+            str = str + ":org.apache.geronimo.naming";
+        System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
     }
 }

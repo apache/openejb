@@ -14,18 +14,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.openejb.entity.cmp;
+package org.openejb.test.simple.cmp;
 
-import java.io.Serializable;
-
-import org.tranql.query.QueryResult;
-import org.tranql.ql.QueryException;
+import java.rmi.RemoteException;
+import javax.ejb.EJBHome;
+import javax.ejb.FinderException;
+import javax.ejb.CreateException;
 
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public interface QueryResultsFactory extends Serializable {
-    public Object createQueryResults(QueryResult result) throws QueryException;
+public interface SimpleCMPEntityHome extends EJBHome {
+    SimpleCMPEntity create(Integer key) throws CreateException, RemoteException;
+    SimpleCMPEntity findByPrimaryKey(Integer key) throws FinderException, RemoteException;
 }

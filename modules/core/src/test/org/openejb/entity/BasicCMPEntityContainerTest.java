@@ -63,6 +63,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.transaction.TransactionManagerProxy;
 
 import junit.framework.AssertionFailedError;
@@ -71,6 +72,7 @@ import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.MockTransactionManager;
 import org.openejb.ContainerIndex;
 import org.openejb.deployment.TransactionPolicySource;
+import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.entity.cmp.CMPContainerBuilder;
 import org.openejb.transaction.ContainerPolicy;
@@ -386,12 +388,13 @@ public class BasicCMPEntityContainerTest extends TestCase {
             }
         });
         builder.setComponentContext(new ReadOnlyContext());
+        builder.setConnectionFactoryName("DefaultDatasource");
 
         EJB ejb = new EJB("MockEJB", "MOCK");
         ejb.addCMPField(new CMPField("value", String.class, false));
         ejb.addCMPField(new CMPField("id", Integer.class, true));
         builder.setEJB(ejb);
-        builder.setDataSource(ds);
+
         container = builder.createConfiguration();
 
         kernel = new Kernel("BeanManagedPersistenceTest");
@@ -411,6 +414,11 @@ public class BasicCMPEntityContainerTest extends TestCase {
         GBeanMBean containerIndex = new GBeanMBean(ContainerIndex.GBEAN_INFO);
         containerIndex.setReferencePatterns("EJBContainers", Collections.singleton(CONTAINER_NAME));
         start(CI_NAME, containerIndex);
+
+        GBeanMBean connectionProxyFactoryGBean = new GBeanMBean(MockConnectionProxyFactory.GBEAN_INFO);
+        ObjectName connectionProxyFactoryObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + "DefaultDatasource");
+        kernel.loadGBean(connectionProxyFactoryObjectName, connectionProxyFactoryGBean);
+        kernel.startGBean(connectionProxyFactoryObjectName);
 
         //start the ejb container
         container.setReferencePatterns("TransactionManager", Collections.singleton(TM_NAME));
