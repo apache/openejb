@@ -12,10 +12,10 @@ for %%i in (%OPENEJB_HOME%\lib\*.jar) do call cp.bat %%i
 for %%i in (%OPENEJB_HOME%\lib\*.zip) do call cp.bat %%i
 for %%i in (%OPENEJB_HOME%\beans\*.jar) do call cp.bat %%i
 for %%i in (%OPENEJB_HOME%\dist\*.jar) do call cp.bat %%i
-set CLASSPATH=%JAVA_HOME%\lib\tools.jar;%CP%
+set CP=%JAVA_HOME%\lib\tools.jar;%OPENEJB_HOME%\lib\xerces-J_1.3.1.jar;%CP%
 
 set OPTIONS=-Dopenejb.home=%OPENEJB_HOME%
 
-%JAVA% %OPTIONS% -classpath %CLASSPATH% org.openejb.server.EjbDaemon  %1 %2 %3 %4
+%JAVA% %OPTIONS% -classpath %CP% org.openejb.server.EjbDaemon  %1 %2 %3 %4
 
 
