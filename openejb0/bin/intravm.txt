@@ -8,7 +8,7 @@ to include the core library and dependent libraries in your
 classpath.  
 
 For more information on using OpenEJB as an embedded library, 
-see http://openejb.sf.net/embedded.html
+see http://www.openejb.org/embedded.html
 
 Bug reports to <openejb-user@lists.sf.net>
 
