@@ -48,12 +48,12 @@
 package org.openejb.entity.cmp;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.management.ObjectName;
@@ -92,7 +92,6 @@ import org.tranql.ejb.CMPFieldAccessor;
 import org.tranql.ejb.CMPFieldFaultTransform;
 import org.tranql.ejb.CMPFieldTransform;
 import org.tranql.ejb.CMRField;
-import org.tranql.ejb.CompoundPKTransform;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBQueryBuilder;
 import org.tranql.ejb.EJBSchema;
@@ -106,7 +105,6 @@ import org.tranql.ejb.MultiValuedCMRFaultHandler;
 import org.tranql.ejb.OneToManyCMR;
 import org.tranql.ejb.OneToOneCMR;
 import org.tranql.ejb.RemoteProxyTransform;
-import org.tranql.ejb.SimplePKTransform;
 import org.tranql.ejb.SingleValuedCMRAccessor;
 import org.tranql.ejb.SingleValuedCMRFaultHandler;
 import org.tranql.ejb.TransactionManagerDelegate;
@@ -117,7 +115,9 @@ import org.tranql.identity.DerivedIdentity;
 import org.tranql.identity.IdentityDefiner;
 import org.tranql.identity.IdentityDefinerBuilder;
 import org.tranql.identity.IdentityTransform;
+import org.tranql.identity.UndefinedIdentityException;
 import org.tranql.identity.UserDefinedIdentity;
+import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
 import org.tranql.ql.QueryException;
 import org.tranql.query.AssociationEndFaultHandlerBuilder;
 import org.tranql.query.CommandTransform;
@@ -220,7 +220,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
         // Identity Transforms
         IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(ejb);
-        IdentityTransform primaryKeyTransform = getPrimaryKeyTransform(cacheTable);
+        IdentityTransform primaryKeyTransform = identityDefinerBuilder.getPrimaryKeyTransform(ejb);
         IdentityTransform localProxyTransform = new LocalProxyTransform(primaryKeyTransform, proxyFactory);
         IdentityTransform remoteProxyTransform = new RemoteProxyTransform(primaryKeyTransform, proxyFactory);
 
@@ -301,7 +301,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
 
         // build the vop table
-        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmp1Bridge, identityDefiner, primaryKeyTransform, localProxyTransform, remoteProxyTransform, queryCommands);
+        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGeneratorDelegate(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, queryCommands);
+
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
 
@@ -322,28 +323,15 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
-    private IdentityTransform getPrimaryKeyTransform(CacheTable cacheTable) {
-        List pkFields = ejb.getPrimaryKeyFields();
-        if (pkFields.size() == 1) {
-            // single field primary key
-            return new SimplePKTransform(cacheTable);
-        } else {
-            List fieldNames = new ArrayList();
-            for (Iterator iter = pkFields.iterator(); iter.hasNext();) {
-                Attribute attribute = (Attribute) iter.next();
-                fieldNames.add(attribute.getName());
-            }
-            // compound primary key
-            Class pkClass = ejb.getPrimaryKeyClass();
-            return new CompoundPKTransform(cacheTable, pkClass, fieldNames);
-        }
-    }
-
     private LinkedHashMap createCMPFieldAccessors(FaultHandler faultHandler) {
         List attributes = ejb.getAttributes();
+        List virtualAttributes = ejb.getVirtualCMPFields();
         LinkedHashMap cmpFieldAccessors = new LinkedHashMap(attributes.size());
         for (int i = 0; i < attributes.size(); i++) {
             Attribute attribute = (Attribute) attributes.get(i);
+            if ( virtualAttributes.contains(attribute) ) {
+                continue;
+            }
             String name = attribute.getName();
             CMPFieldTransform accessor = new CMPFieldAccessor(new CacheRowAccessor(i, attribute.getType()), name);
             accessor = new CMPFieldFaultTransform(accessor, faultHandler, new int[]{i});
@@ -355,7 +343,6 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     private LinkedHashMap createCMRFieldAccessors() throws Exception {
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(globalSchema);
         IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(ejb);
-//        CacheTable cacheTbl = (CacheTable) globalSchema.getEntity(ejb.getName());
 
         SchemaMapper mapper = new SchemaMapper(sqlSchema);
         AssociationEndFaultHandlerBuilder handlerBuilder = new AssociationEndFaultHandlerBuilder(mapper);
@@ -365,16 +352,14 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         int offset = ejb.getAttributes().size();
         for (int i = offset; i < offset + associationEnds.size(); i++) {
             CMRField field = (CMRField) associationEnds.get(i - offset);
-            if (field.isVirtual()) {
+            if ( field.isVirtual() ) {
                 continue;
             }
             String name = field.getName();
-            Association association = field.getAssociation();
+            Association association = field.getAssociation(); 
             CMRField relatedField = (CMRField) association.getOtherEnd(field);
             EJB relatedEJB = (EJB) field.getEntity();
-//            CacheTable relatedCacheTbl = (CacheTable) globalSchema.getEntity(relatedEJB.getName());
             IdentityDefiner relatedIdentityDefiner = identityDefinerBuilder.getIdentityDefiner(relatedEJB);
-//            Class relatedType = relatedEJB.getProxyFactory().getLocalInterfaceClass();
 
             CMPFieldTransform accessor = new CMPFieldAccessor(new CacheRowAccessor(i, null), name);
 
@@ -385,11 +370,11 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             FaultHandler relatedFaultHandler = buildFaultHandler(handlerBuilder, relatedField, relatedIndex);
             CMPFieldTransform relatedAccessor = new CMPFieldAccessor(new CacheRowAccessor(relatedIndex, null), name);
             relatedAccessor = new CMPFieldFaultTransform(relatedAccessor, relatedFaultHandler, new int[]{relatedIndex});
-            if (association.isOneToOne()) {
+            if ( association.isOneToOne() ) {
                 accessor = new OneToOneCMR(accessor, identityDefiner, relatedAccessor, relatedIdentityDefiner);
-            } else if (association.isOneToMany(field)) {
+            } else if ( association.isOneToMany(field) ) {
                 accessor = new ManyToOneCMR(accessor, identityDefiner, relatedAccessor, relatedIdentityDefiner);
-            } else if (association.isManyToOne(field)) {
+            } else if ( association.isManyToOne(field) ) {
                 accessor = new OneToManyCMR(accessor, relatedAccessor, relatedIdentityDefiner);
             } else {
                 CacheTable mtm = (CacheTable) getGlobalSchema().getEntity(association.getManyToManyEntity().getName());
@@ -398,7 +383,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             }
 
             IdentityTransform relatedIdentityTransform = identityDefinerBuilder.getPrimaryKeyTransform(relatedEJB);
-            if (association.isOneToOne() || association.isManyToOne(field)) {
+            if ( association.isOneToOne() || association.isManyToOne(field) ) {
                 accessor = new SingleValuedCMRAccessor(accessor,
                         new LocalProxyTransform(relatedIdentityTransform, relatedEJB.getProxyFactory()));
             } else {
@@ -412,7 +397,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return cmrFieldAccessors;
     }
 
-    private FaultHandler buildFaultHandler(AssociationEndFaultHandlerBuilder handlerBuilder, CMRField field, int slot) throws /*UndefinedIdentityException,*/ QueryException {
+    private FaultHandler buildFaultHandler(AssociationEndFaultHandlerBuilder handlerBuilder, CMRField field, int slot) throws UndefinedIdentityException, QueryException {
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(globalSchema);
         Association association = field.getAssociation();
         CMRField relatedField = (CMRField) association.getOtherEnd(field);
@@ -422,7 +407,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
         List pkFields = relatedEJB.getPrimaryKeyFields();
         IdentityDefiner relatedIdentityDefiner;
-        if (1 == pkFields.size()) {
+        if ( 1 == pkFields.size() ) {
             relatedIdentityDefiner = new UserDefinedIdentity(relatedCacheTbl, 0);
         } else {
             int slots[] = new int[pkFields.size()];
@@ -433,7 +418,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
 
         QueryCommand faultCommand = handlerBuilder.buildCMRFaultHandler(field);
-        if (association.isOneToOne() || association.isManyToOne(field)) {
+        if ( association.isOneToOne() || association.isManyToOne(field) ) {
             return new SingleValuedCMRFaultHandler(faultCommand,
                     identityDefiner,
                     new EmptySlotLoader[]{new EmptySlotLoader(slot, new ReferenceAccessor(relatedIdentityDefiner))});
@@ -500,6 +485,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             CacheTable cacheTable,
             CMP1Bridge cmp1Bridge,
             IdentityDefiner identityDefiner,
+            PrimaryKeyGeneratorDelegate keyGenerator,
             IdentityTransform primaryKeyTransform,
             IdentityTransform localProxyTransform,
             IdentityTransform remoteProxyTransform,
@@ -552,6 +538,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                                 postCreateSignature,
                                 cacheTable,
                                 identityDefiner,
+                                keyGenerator,
                                 primaryKeyTransform,
                                 localProxyTransform,
                                 remoteProxyTransform));
@@ -617,11 +604,14 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
             String returnType = method.getReturnType().getName();
             if (returnType.equals("java.util.Collection")) {
-                vopMap.put(signature, new CollectionValuedFinder(queryCommandViews[0], queryCommandViews[1]));
+                vopMap.put(signature, new CollectionValuedFinder(cacheTable, identityDefiner,
+                        localProxyTransform, remoteProxyTransform, queryCommandViews[0], queryCommandViews[1]));
             } else if (returnType.equals("java.util.Enumeration")) {
-                vopMap.put(signature, new EnumerationValuedFinder(queryCommandViews[0], queryCommandViews[1]));
+                vopMap.put(signature, new EnumerationValuedFinder(cacheTable, identityDefiner,
+                        localProxyTransform, remoteProxyTransform, queryCommandViews[0], queryCommandViews[1]));
             } else {
-                vopMap.put(signature, new SingleValuedFinder(queryCommandViews[0], queryCommandViews[1]));
+                vopMap.put(signature, new SingleValuedFinder(cacheTable, identityDefiner,
+                        localProxyTransform, remoteProxyTransform, queryCommandViews[0], queryCommandViews[1]));
             }
         }
         return vopMap;

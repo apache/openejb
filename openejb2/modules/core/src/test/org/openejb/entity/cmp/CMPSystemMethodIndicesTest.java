@@ -68,7 +68,7 @@ public class CMPSystemMethodIndicesTest extends TestCase {
     public void testSystemMethodIndices() throws Exception {
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(MockCMPEJB.class.getClassLoader());
-        Map vopMap = builder.buildVopMap(MockCMPEJB.class, null, null, null, null, null, null, new LinkedHashMap());
+        Map vopMap = builder.buildVopMap(MockCMPEJB.class, null, null, null, null, null, null, null, new LinkedHashMap());
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         SystemMethodIndices systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setEntityContext", new String(EntityContext.class.getName()), "unsetEntityContext");
         assertFalse(systemMethodIndices.getEjbActivateInvocation(null).getMethodIndex() == -1);

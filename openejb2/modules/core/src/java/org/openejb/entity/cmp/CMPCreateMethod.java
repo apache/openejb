@@ -67,6 +67,7 @@ import org.tranql.cache.InTxCache;
 import org.tranql.identity.GlobalIdentity;
 import org.tranql.identity.IdentityDefiner;
 import org.tranql.identity.IdentityTransform;
+import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
 
 /**
  *
@@ -80,6 +81,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
     private final MethodSignature postCreateSignature;
     private final CacheTable cacheTable;
     private final IdentityDefiner identityDefiner;
+    private final PrimaryKeyGeneratorDelegate keyGenerator;
     private final IdentityTransform primaryKeyTransform;
     private final IdentityTransform localProxyTransform;
     private final IdentityTransform remoteProxyTransform;
@@ -94,6 +96,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             MethodSignature postCreateSignature,
             CacheTable cacheTable,
             IdentityDefiner identityDefiner,
+            PrimaryKeyGeneratorDelegate keyGenerator,
             IdentityTransform primaryKeyTransform,
             IdentityTransform localProxyTransform,
             IdentityTransform remoteProxyTransform) {
@@ -104,6 +107,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
         this.postCreateSignature = postCreateSignature;
         this.cacheTable = cacheTable;
         this.identityDefiner = identityDefiner;
+        this.keyGenerator = keyGenerator;
         this.primaryKeyTransform = primaryKeyTransform;
         this.localProxyTransform = localProxyTransform;
         this.remoteProxyTransform = remoteProxyTransform;
@@ -154,8 +158,16 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             cmp1Bridge.loadCacheRow(ctx, cacheRow);
         }
 
-        // define identity (may require insert to database)
-        GlobalIdentity globalId = identityDefiner.defineIdentity(cacheRow);
+        GlobalIdentity globalId;
+        // Is the primary key auto-generated?
+        if ( null != keyGenerator ) {
+            Object opaque = keyGenerator.getNextPrimaryKey();
+            globalId = primaryKeyTransform.getGlobalIdentity(opaque);
+        } else {
+            // define identity (may require insert to database)
+            globalId = identityDefiner.defineIdentity(cacheRow);
+        }
+
 
         // ============================================================================
         // FROM HERE ON WE MAY HAVE MODIFIED THE DATABASE SO ERRORS MUST CAUSE ROLLBACK
@@ -167,6 +179,12 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
 
         // add the row to the cache (returning a new row containing identity)
         cacheRow = cacheTable.addRow(cache, globalId, cacheRow);
+
+        // CacheRow slots do not define the identity in this case; Inject it.
+        if ( null != keyGenerator ) {
+            identityDefiner.injectIdentity(cacheRow);
+        }
+        
         ctx.setCacheRow(cacheRow);
         ctx.setId(primaryKeyTransform.getDomainIdentity(globalId));
 
@@ -197,6 +215,6 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
     }
 
     private Object readResolve() {
-         return new CMPCreateMethod(beanClass, cmp1Bridge, createSignature, postCreateSignature, cacheTable, identityDefiner, primaryKeyTransform, localProxyTransform, remoteProxyTransform);
+        return new CMPCreateMethod(beanClass, cmp1Bridge, createSignature, postCreateSignature, cacheTable, identityDefiner, keyGenerator, primaryKeyTransform, localProxyTransform, remoteProxyTransform);
     }
 }

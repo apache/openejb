@@ -133,10 +133,22 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="cmp-field-name" type="xs:string"/>
+                            <xs:element name="cmp-field-class" type="xs:string" minOccurs="0"/>
                             <xs:element name="table-column" type="xs:string"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="primkey-field" type="xs:string" minOccurs="0"/>
+                <xs:sequence minOccurs="0">
+                    <xs:element name="automatic-key-generation">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="generator-name" type="xs:string"/>
+                                <xs:element name="primary-key-class" type="xs:string"/>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
             </xs:sequence>
 
             <xs:element name="query" type="openejb:queryType" minOccurs="0" maxOccurs="unbounded"/>
@@ -239,6 +251,5 @@
             </xs:element>
         </xs:sequence>
     </xs:complexType>
-
 
 </xs:schema>

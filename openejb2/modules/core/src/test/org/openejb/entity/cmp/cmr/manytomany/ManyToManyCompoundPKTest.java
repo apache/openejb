@@ -120,13 +120,10 @@ public class ManyToManyCompoundPKTest extends AbstractCMRTest {
     public void testASetBDropExisting() throws Exception {
         ContainerTransactionContext ctx = newTransactionContext();
         ALocal a = ahome.findByPrimaryKey(new CompoundPK(new Integer(1), "value1"));
-        a.getB();
         a.setB(new HashSet());
         a = ahome.findByPrimaryKey(new CompoundPK(new Integer(2), "value2"));
-        a.getB();
         a.setB(new HashSet());
         a = ahome.findByPrimaryKey(new CompoundPK(new Integer(3), "value3"));
-        a.getB();
         a.setB(new HashSet());
         ctx.commit();
 
@@ -136,10 +133,8 @@ public class ManyToManyCompoundPKTest extends AbstractCMRTest {
     public void testBSetADropExisting() throws Exception {
         ContainerTransactionContext ctx = newTransactionContext();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
-        b.getA();
         b.setA(new HashSet());
         b = bhome.findByPrimaryKey(new Integer(22));
-        b.getA();
         b.setA(new HashSet());
         ctx.commit();
 
@@ -200,8 +195,6 @@ public class ManyToManyCompoundPKTest extends AbstractCMRTest {
         ContainerTransactionContext ctx = newTransactionContext();
         a = ahome.create(pkA);
         b = bhome.findByPrimaryKey(new Integer(11));
-        // TODO findByPrimaryKey does not load the InTxCache; retrieve a field to force this loading. 
-        b.getA();
         return ctx;
     }
 
@@ -244,8 +237,6 @@ public class ManyToManyCompoundPKTest extends AbstractCMRTest {
         
         ContainerTransactionContext ctx = newTransactionContext();
         a = ahome.findByPrimaryKey(pkA);
-        // TODO findByPrimaryKey does not load the InTxCache; retrieve a field to force this loading. 
-        a.getB();
         b = bhome.create(new Integer(33));
         b.setField2("value33");
         return ctx;
