@@ -123,7 +123,12 @@ public class ContainerPolicy {
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
             TransactionContext clientContext = TransactionContext.getContext();
             if (clientContext instanceof InheritableTransactionContext) {
-                return interceptor.invoke(ejbInvocation);
+                try {
+                    ejbInvocation.setTransactionContext(clientContext);
+                    return interceptor.invoke(ejbInvocation);
+                } finally {
+                    ejbInvocation.setTransactionContext(null);
+                }
             }
 
             if (clientContext != null) {
@@ -166,7 +171,12 @@ public class ContainerPolicy {
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
             TransactionContext clientContext = TransactionContext.getContext();
             if (clientContext != null) {
-                return interceptor.invoke(ejbInvocation);
+                try {
+                    ejbInvocation.setTransactionContext(clientContext);
+                    return interceptor.invoke(ejbInvocation);
+                } finally {
+                    ejbInvocation.setTransactionContext(null);
+                }
             }
 
             try {
@@ -243,7 +253,12 @@ public class ContainerPolicy {
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
             TransactionContext clientContext = TransactionContext.getContext();
             if (clientContext instanceof InheritableTransactionContext) {
-                return interceptor.invoke(ejbInvocation);
+                try {
+                    ejbInvocation.setTransactionContext(clientContext);
+                    return interceptor.invoke(ejbInvocation);
+                } finally {
+                    ejbInvocation.setTransactionContext(null);
+                }
             }
 
             if (ejbInvocation.getType().isLocal()) {
@@ -269,7 +284,12 @@ public class ContainerPolicy {
             }
 
             if (clientContext != null) {
-                return interceptor.invoke(ejbInvocation);
+                try {
+                    ejbInvocation.setTransactionContext(clientContext);
+                    return interceptor.invoke(ejbInvocation);
+                } finally {
+                    ejbInvocation.setTransactionContext(null);
+                }
             }
 
             try {
@@ -307,7 +327,12 @@ public class ContainerPolicy {
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionManager txnManager) throws Throwable {
             TransactionContext clientContext = TransactionContext.getContext();
             if (clientContext instanceof InheritableTransactionContext) {
-                return interceptor.invoke(ejbInvocation);
+                try {
+                    ejbInvocation.setTransactionContext(clientContext);
+                    return interceptor.invoke(ejbInvocation);
+                } finally {
+                    ejbInvocation.setTransactionContext(null);
+                }
             }
 
             if (clientContext != null) {
