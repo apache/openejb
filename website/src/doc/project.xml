@@ -55,6 +55,10 @@
         <url>contributors.xml</url>
         <display>The Team</display>
       </navLink>
+      <navLink>
+        <url>status.xml</url>
+        <display>Status</display>
+      </navLink>
     </section>
 
     <section name="Users">
