@@ -48,7 +48,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
-            <version>DEV</version>
+            <version>1.0M1</version>
             <properties>
                 <module>true</module>
             </properties>
