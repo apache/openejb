@@ -18,6 +18,14 @@
         </p>
     </introduction>
     <faq>
+        <question>MySQL FAQ</question>
+        <answer id="mysql">
+            <p>
+            <a href="faq_mysql.html">MySQL FAQ.</a>
+            </p>
+        </answer>
+    </faq>
+    <faq>
         <question>What is CVS?</question>
         <answer id="cvs">
             <p>
