@@ -104,6 +104,7 @@ import org.apache.geronimo.naming.java.ReferenceFactory;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
+import org.apache.geronimo.security.EJBModuleConfiguration;
 import org.openejb.nova.EJBContainerConfiguration;
 import org.openejb.nova.entity.EntityContainerConfiguration;
 import org.openejb.nova.entity.bmp.BMPEntityContainer;
@@ -192,6 +193,23 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         TransactionPolicyHelper transactionPolicyHelper = new TransactionPolicyHelper(containerTransactions);
         //All ejbs deployed in one plan
         DeploymentPlan plan = new DeploymentPlan();
+        //Deploy the security module configuration
+        MBeanMetadata securityConfigMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
+        try {
+            securityConfigMetadata.setName(ObjectName.getInstance(EJBModuleConfiguration.BASE_OBJECT_NAME + ",contextID=" + moduleName));
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct securityConfig ObjectName", e);
+        }
+        try {
+            securityConfigMetadata.setGeronimoMBeanInfo(EJBModuleConfiguration.getGeronimoMBeanInfo());
+        } catch (Exception e) {
+            throw new DeploymentException("Could not get EJBModuleConfiguration mbean info", e);
+        }
+
+        securityConfigMetadata.setConstructorArgs(new Object[]{ejbJar},
+                new String[]{EjbJar.class.getName()});
+        addTasks(plan, securityConfigMetadata);
+
         for (int i = 0; i < enterpriseBeans.getGeronimoSession().length; i++) {
             Session session = enterpriseBeans.getGeronimoSession(i);
             planSession(plan, session, deploymentUnitName, classSpaceMetaData, baseURI, transactionPolicyHelper.getTransactionPolicySource(session.getEJBName()));
