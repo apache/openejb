@@ -45,8 +45,8 @@
 package org.openejb.corba.openorb;
 
 import java.util.ArrayList;
-import java.util.Properties;
 import java.util.List;
+import java.util.Properties;
 
 import org.omg.Security.Confidentiality;
 import org.omg.Security.EstablishTrustInClient;
@@ -77,54 +77,76 @@ public class OpenORBConfigAdapter implements ConfigAdapter {
 
         DefaultPrincipal principal = config.getDefaultPrincipal();
         if (principal != null) {
-            list.add("default-principal::" + principal.getRealmName()+":"+principal.getPrincipal().getClassName()+":"+principal.getPrincipal().getPrincipalName());
+            list.add("default-principal::" + principal.getRealmName() + ":" + principal.getPrincipal().getClassName() + ":" + principal.getPrincipal().getPrincipalName());
         }
-        
+
         return (String[]) list.toArray(new String[list.size()]);
     }
 
     public Properties translateToProps(TSSConfig config) throws ConfigException {
         Properties props = new Properties();
 
-        TSSTransportMechConfig transportMech = config.getTransport_mech();
-        if (transportMech != null) {
-            if (transportMech instanceof TSSSSLTransportConfig) {
-                TSSSSLTransportConfig sslConfig = (TSSSSLTransportConfig) transportMech;
-                short supports = sslConfig.getSupports();
-                short requires = sslConfig.getRequires();
+        if (config != null) {
+            TSSTransportMechConfig transportMech = config.getTransport_mech();
+            if (transportMech != null) {
+                if (transportMech instanceof TSSSSLTransportConfig) {
+                    TSSSSLTransportConfig sslConfig = (TSSSSLTransportConfig) transportMech;
+                    short supports = sslConfig.getSupports();
+                    short requires = sslConfig.getRequires();
+                    String supProp = "Integrity";
+                    String reqProp = "Integrity";
 
-                props.put("ssliop.port", Short.toString(sslConfig.getPort()));
+                    props.put("ssliop.port", Short.toString(sslConfig.getPort()));
 
-                if (sslConfig.getHandshakeTimeout() > 0) {
-                    props.put("ssliop.server.handshake.timeout", Short.toString(sslConfig.getHandshakeTimeout()));
-                }
-
-                if ((supports & Confidentiality.value) != 0) {
-                    props.put("ssliop.server.encrypt.support", "true");
-                    if ((requires & Confidentiality.value) != 0) {
-                        props.put("ssliop.server.encrypt.requires", "true");
+                    if (sslConfig.getHandshakeTimeout() > 0) {
+                        props.put("ssliop.server.handshake.timeout", Short.toString(sslConfig.getHandshakeTimeout()));
                     }
-                }
-                if ((supports & EstablishTrustInTarget.value) != 0) {
-                    props.put("ssliop.server.auth.support", "true");
 
-                    if ((requires & EstablishTrustInTarget.value) != 0) {
-                        props.put("ssliop.server.auth", "true");
+                    if ((supports & Confidentiality.value) != 0) {
+                        props.put("ssliop.server.encrypt.support", "true");
+                        supProp += ",Confidentiality";
+
+                        if ((requires & Confidentiality.value) != 0) {
+                            props.put("ssliop.server.encrypt.requires", "true");
+                            reqProp += ",Confidentiality";
+                        }
                     }
-                }
-                if ((supports & EstablishTrustInClient.value) != 0) {
-                    props.put("ssliop.server.auth.support", "true");
+                    if ((supports & EstablishTrustInTarget.value) != 0) {
+                        props.put("ssliop.server.auth.support", "true");
+                        supProp += ",EstablishTrustInTarget";
 
-                    if ((requires & EstablishTrustInClient.value) != 0) {
-                        props.put("ssliop.server.authClient", "true");
+                        if ((requires & EstablishTrustInTarget.value) != 0) {
+                            props.put("ssliop.server.auth", "true");
+                            reqProp += ",EstablishTrustInTarget";
+                        }
                     }
-                }
+                    if ((supports & EstablishTrustInClient.value) != 0) {
+                        props.put("ssliop.server.auth.support", "true");
+                        supProp += ",EstablishTrustInClient";
 
-                props.put("ssliop.server.AllowBiDir", "true");
-                props.put("ssliop.iiopport.disable", "true");
-                props.put("ssliop.SSLContextFinderClass", "org.openorb.orb.ssl.JSSEContextFinder");
+                        if ((requires & EstablishTrustInClient.value) != 0) {
+                            props.put("ssliop.server.authClient", "true");
+                            reqProp += ",EstablishTrustInClient";
+                        }
+                    }
+
+                    props.put("csiv2.tss.trans.tls.supports", supProp);
+                    props.put("csiv2.tss.trans.tls.requires", reqProp);
+
+                }
             }
         }
+
+        props.put("org.omg.CORBA.ORBClass", "org.openorb.orb.core.ORB");
+        props.put("org.omg.CORBA.ORBSingletonClass", "org.openorb.orb.core.ORBSingleton");
+        props.put("ssliop.server.AllowBiDir", "true");
+        props.put("ssliop.iiopport.disable", "true");
+        props.put("ssliop.SSLContextFinderClass", "org.openorb.orb.ssl.JSSEContextFinder");
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.openorb.OpenORBInitializer", "");
+        props.put("iiop.TransportServerInitializerClass", "org.openorb.orb.ssl.SSLTransportServerInitializer");
+
         return props;
     }
 
@@ -135,37 +157,60 @@ public class OpenORBConfigAdapter implements ConfigAdapter {
     public Properties translateToProps(CSSConfig config) throws ConfigException {
         Properties props = new Properties();
 
-        short supports = 0;
-        short requires = 0;
-        CSSCompoundSecMechListConfig mechList = config.getMechList();
-        for (int i = 0; i < mechList.size(); i++) {
-            CSSCompoundSecMechConfig mech = mechList.mechAt(i);
+        if (config != null) {
+            short supports = 0;
+            short requires = 0;
+            CSSCompoundSecMechListConfig mechList = config.getMechList();
+            for (int i = 0; i < mechList.size(); i++) {
+                CSSCompoundSecMechConfig mech = mechList.mechAt(i);
 
-            supports |= mech.getTransport_mech().getSupports();
-            requires |= mech.getTransport_mech().getRequires();
-        }
-
-        if ((supports & NoProtection.value) != 0) {
-            props.put("secure.client.allowUnsecure", "true");
-        }
-        if ((supports & Confidentiality.value) != 0) {
-            props.put("ssliop.client.encrypt.support", "true");
-            if ((requires & Confidentiality.value) != 0) {
-                props.put("ssliop.client.encrypt.requires", "true");
+                supports |= mech.getTransport_mech().getSupports();
+                requires |= mech.getTransport_mech().getRequires();
             }
-        }
-        if ((supports & EstablishTrustInTarget.value) != 0) {
-            props.put("ssliop.client.auth.support", "true");
 
-            if ((requires & EstablishTrustInTarget.value) != 0) {
-                props.put("ssliop.client.auth.requires", "true");
+            String supProp = "Integrity";
+            String reqProp = "Integrity";
+            if ((supports & NoProtection.value) != 0) {
+                props.put("secure.client.allowUnsecure", "true");
+                supProp += ",NoProtection";
+            } else {
+                props.put("secure.client.allowUnsecure", "false");
             }
-        }
-        if ((supports & EstablishTrustInClient.value) != 0) {
-            props.put("ssliop.client.auth.support", "true");
+            if ((supports & Confidentiality.value) != 0) {
+                props.put("ssliop.client.encrypt.support", "true");
+                supProp += ",Confidentiality";
+
+                if ((requires & Confidentiality.value) != 0) {
+                    props.put("ssliop.client.encrypt.requires", "true");
+                    reqProp += ",Confidentiality";
+                }
+            }
+            if ((supports & EstablishTrustInTarget.value) != 0) {
+                props.put("ssliop.client.auth.support", "true");
+                supProp += ",EstablishTrustInTarget";
+
+                if ((requires & EstablishTrustInTarget.value) != 0) {
+                    props.put("ssliop.client.auth.requires", "true");
+                    reqProp += ",EstablishTrustInTarget";
+                }
+            }
+            if ((supports & EstablishTrustInClient.value) != 0) {
+                props.put("ssliop.client.auth.support", "true");
+                supProp += ",EstablishTrustInClient";
+            }
+
+            props.put("csiv2.css.trans.tls.supports", supProp);
+            props.put("csiv2.css.trans.tls.requires", reqProp);
+
         }
 
+        props.put("org.omg.CORBA.ORBClass", "org.openorb.orb.core.ORB");
+        props.put("org.omg.CORBA.ORBSingletonClass", "org.openorb.orb.core.ORBSingleton");
         props.put("ssliop.SSLContextFinderClass", "org.openorb.orb.ssl.JSSEContextFinder");
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
+        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.openorb.OpenORBInitializer", "");
+        props.put("iiop.TransportClientInitializerClass", "org.openorb.orb.ssl.SSLTransportClientInitializer");
 
         return props;
     }
