@@ -100,9 +100,10 @@ public class EjbJarUtils {
         try {
             obj = unmarshalEjbJar(reader);
         } catch ( MarshalException e ) {
-            e.printStackTrace();
             if (e.getException() instanceof UnknownHostException){
                 handleException("conf.3121", jarFile, e.getLocalizedMessage());
+            } else if (e.getException() instanceof org.xml.sax.SAXException){
+                handleException("conf.3140",jarFile, e.getLocalizedMessage());
             } else if (e.getException() instanceof IOException){
                 handleException("conf.3110", jarFile, e.getLocalizedMessage());
             } else {
@@ -130,7 +131,7 @@ public class EjbJarUtils {
     throws MarshalException, ValidationException {
         Unmarshaller unmarshaller = new Unmarshaller(org.openejb.alt.config.ejb11.EjbJar.class);
         unmarshaller.setEntityResolver(resolver);
-
+            
         return (org.openejb.alt.config.ejb11.EjbJar)unmarshaller.unmarshal(reader);
     } 
 
