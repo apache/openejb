@@ -49,7 +49,6 @@ package org.openejb.slsb;
 
 import java.net.URI;
 import java.rmi.RemoteException;
-
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -61,13 +60,13 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
-import junit.framework.TestCase;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
-import org.openejb.TransactionDemarcation;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.naming.java.ComponentContextBuilder;
-import org.openejb.EJBContainerConfiguration;
+
+import junit.framework.TestCase;
 import org.openejb.MockTransactionManager;
+import org.openejb.TransactionDemarcation;
+import org.openejb.EJBContainerConfiguration;
 import org.openejb.deployment.TransactionPolicyHelper;
 import org.openejb.transaction.EJBUserTransaction;
 
@@ -80,57 +79,58 @@ import org.openejb.transaction.EJBUserTransaction;
 public class StatelessContextTest extends TestCase {
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=MockEJB");
     private URI uri;
-    private StatelessContainer container;
-    private org.openejb.EJBContainerConfiguration config;
+//    private StatelessContainer container;
+    private EJBContainerConfiguration config;
     private static boolean cmt;
     private static boolean setSessionCalled;
     private static boolean ejbCreateCalled;
     private static boolean ejbRemoveCalled;
 
     public void XtestSessionContextCMT() throws Exception {
-        config.txnDemarcation = TransactionDemarcation.CONTAINER;
+        // todo enable
+//        config.txnDemarcation = TransactionDemarcation.CONTAINER;
         // needs fixing
 		//config.componentContext = new ComponentContextBuilder();
-        cmt = true;
-        container = new StatelessContainer(config, new MockTransactionManager(), new ConnectionTrackingCoordinator());
-        container.doStart();
-
-        StatelessInstanceFactory factory = new StatelessInstanceFactory(container);
-
-        resetFlags();
-        StatelessInstanceContext ctx = (StatelessInstanceContext) factory.createInstance();
-        assertTrue(setSessionCalled);
-        assertTrue(ejbCreateCalled);
-        assertFalse(ejbRemoveCalled);
-
-        resetFlags();
-        factory.destroyInstance(ctx);
-        assertFalse(setSessionCalled);
-        assertFalse(ejbCreateCalled);
-        assertTrue(ejbRemoveCalled);
+//        cmt = true;
+//        container = new StatelessContainer(config, new MockTransactionManager(), new ConnectionTrackingCoordinator());
+//        container.doStart();
+//
+//        StatelessInstanceFactory factory = new StatelessInstanceFactory(container);
+//
+//        resetFlags();
+//        StatelessInstanceContext ctx = (StatelessInstanceContext) factory.createInstance();
+//        assertTrue(setSessionCalled);
+//        assertTrue(ejbCreateCalled);
+//        assertFalse(ejbRemoveCalled);
+//
+//        resetFlags();
+//        factory.destroyInstance(ctx);
+//        assertFalse(setSessionCalled);
+//        assertFalse(ejbCreateCalled);
+//        assertTrue(ejbRemoveCalled);
     }
 
     public void XtestSessionContextBMT() throws Exception {
-        config.txnDemarcation = TransactionDemarcation.BEAN;
-        config.userTransaction = new EJBUserTransaction();
+//        config.txnDemarcation = TransactionDemarcation.BEAN;
+//        config.userTransaction = new EJBUserTransaction();
         //config.componentContext = new ComponentContextBuilder();
-        cmt = false;
-        container = new StatelessContainer(config, new MockTransactionManager(), new ConnectionTrackingCoordinator());
-        container.doStart();
-
-        StatelessInstanceFactory factory = new StatelessInstanceFactory(container);
-
-        resetFlags();
-        StatelessInstanceContext ctx = (StatelessInstanceContext) factory.createInstance();
-        assertTrue(setSessionCalled);
-        assertTrue(ejbCreateCalled);
-        assertFalse(ejbRemoveCalled);
-
-        resetFlags();
-        factory.destroyInstance(ctx);
-        assertFalse(setSessionCalled);
-        assertFalse(ejbCreateCalled);
-        assertTrue(ejbRemoveCalled);
+//        cmt = false;
+//        container = new StatelessContainer(config, new MockTransactionManager(), new ConnectionTrackingCoordinator());
+//        container.doStart();
+//
+//        StatelessInstanceFactory factory = new StatelessInstanceFactory(container);
+//
+//        resetFlags();
+//        StatelessInstanceContext ctx = (StatelessInstanceContext) factory.createInstance();
+//        assertTrue(setSessionCalled);
+//        assertTrue(ejbCreateCalled);
+//        assertFalse(ejbRemoveCalled);
+//
+//        resetFlags();
+//        factory.destroyInstance(ctx);
+//        assertFalse(setSessionCalled);
+//        assertFalse(ejbCreateCalled);
+//        assertTrue(ejbRemoveCalled);
     }
 
     public void testDummy() {
