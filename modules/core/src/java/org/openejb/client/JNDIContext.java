@@ -230,16 +230,13 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         else if ( name.equals("") ) return new JNDIContext(this);
         else if ( !name.startsWith("/") ) name = tail+name;
 
-        JNDIRequest req = new JNDIRequest();
-        req.setRequestMethod( JNDIRequest.JNDI_LOOKUP );
-        req.setRequestString( name );
+        JNDIRequest req = new JNDIRequest(JNDIRequest.JNDI_LOOKUP, "", name);
 
         JNDIResponse res = null;
         try{
             res = request(req);
         } catch (Exception e){
-            // TODO:1: Better exception handling
-            throw new javax.naming.NamingException("Cannot lookup "+name+": Received error: "+e.getMessage());
+            throw (NamingException)new NamingException("Cannot lookup " + name).initCause(e);
         }
 
         switch ( res.getResponseCode() ) {

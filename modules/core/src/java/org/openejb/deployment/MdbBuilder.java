@@ -80,10 +80,10 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.MessageDrivenBeanType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 import org.openejb.mdb.MDBContainerBuilder;
-import org.openejb.xbeans.ejbjar.OpenejbLocalRefType;
 import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
-import org.openejb.xbeans.ejbjar.OpenejbRemoteRefType;
 
 
 class MdbBuilder extends BeanBuilder {
@@ -228,27 +228,27 @@ class MdbBuilder extends BeanBuilder {
 
         // ejb refs
         EjbRefType[] ejbRefs = messageDrivenBean.getEjbRefArray();
-        OpenejbRemoteRefType[] openejbEjbRefs = null;
+        GerRemoteRefType[] openejbEjbRefs = null;
         if (openejbMessageDrivenBean != null) {
             openejbEjbRefs = openejbMessageDrivenBean.getEjbRefArray();
         }
 
         EjbLocalRefType[] ejbLocalRefs = messageDrivenBean.getEjbLocalRefArray();
-        OpenejbLocalRefType[] openejbEjbLocalRefs = null;
+        GerLocalRefType[] openejbEjbLocalRefs = null;
         if (openejbMessageDrivenBean != null) {
             openejbEjbLocalRefs = openejbMessageDrivenBean.getEjbLocalRefArray();
         }
 
         // resource refs
         ResourceRefType[] resourceRefs = messageDrivenBean.getResourceRefArray();
-        OpenejbLocalRefType[] openejbResourceRefs = null;
+        GerLocalRefType[] openejbResourceRefs = null;
         if (openejbMessageDrivenBean != null) {
             openejbResourceRefs = openejbMessageDrivenBean.getResourceRefArray();
         }
 
         // resource env refs
         ResourceEnvRefType[] resourceEnvRefs = messageDrivenBean.getResourceEnvRefArray();
-        OpenejbLocalRefType[] openejbResourceEnvRefs = null;
+        GerLocalRefType[] openejbResourceEnvRefs = null;
         if (openejbMessageDrivenBean != null) {
             openejbResourceEnvRefs = openejbMessageDrivenBean.getResourceEnvRefArray();
         }

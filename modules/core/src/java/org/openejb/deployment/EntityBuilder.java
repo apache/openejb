@@ -70,10 +70,10 @@ import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerRemoteRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerLocalRefType;
 import org.openejb.entity.bmp.BMPContainerBuilder;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
-import org.openejb.xbeans.ejbjar.OpenejbLocalRefType;
-import org.openejb.xbeans.ejbjar.OpenejbRemoteRefType;
 
 
 class EntityBuilder extends BeanBuilder {
@@ -168,27 +168,27 @@ class EntityBuilder extends BeanBuilder {
 
         // ejb refs
         EjbRefType[] ejbRefs = entityBean.getEjbRefArray();
-        OpenejbRemoteRefType[] openejbEjbRefs = null;
+        GerRemoteRefType[] openejbEjbRefs = null;
         if (openejbEntityBean != null) {
             openejbEjbRefs = openejbEntityBean.getEjbRefArray();
         }
 
         EjbLocalRefType[] ejbLocalRefs = entityBean.getEjbLocalRefArray();
-        OpenejbLocalRefType[] openejbEjbLocalRefs = null;
+        GerLocalRefType[] openejbEjbLocalRefs = null;
         if (openejbEntityBean != null) {
             openejbEjbLocalRefs = openejbEntityBean.getEjbLocalRefArray();
         }
 
         // resource refs
         ResourceRefType[] resourceRefs = entityBean.getResourceRefArray();
-        OpenejbLocalRefType[] openejbResourceRefs = null;
+        GerLocalRefType[] openejbResourceRefs = null;
         if (openejbEntityBean != null) {
             openejbResourceRefs = openejbEntityBean.getResourceRefArray();
         }
 
         // resource env refs
         ResourceEnvRefType[] resourceEnvRefs = entityBean.getResourceEnvRefArray();
-        OpenejbLocalRefType[] openejbResourceEnvRefs = null;
+        GerLocalRefType[] openejbResourceEnvRefs = null;
         if (openejbEntityBean != null) {
             openejbResourceEnvRefs = openejbEntityBean.getResourceEnvRefArray();
         }
