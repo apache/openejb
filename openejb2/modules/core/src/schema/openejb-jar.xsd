@@ -82,6 +82,7 @@
     <xs:complexType name="openejb-jarType">
         <xs:sequence>
             <xs:element name="dependency" type="openejb:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="cmp-connection-factory" type="xs:string" minOccurs="0" maxOccurs="1"/>
 
             <xs:element name="enterprise-beans">
                 <xs:complexType>

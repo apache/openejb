@@ -54,6 +54,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -84,6 +85,7 @@ import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.xbeans.j2ee.CmpFieldType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
@@ -96,8 +98,8 @@ import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 import org.openejb.ContainerBuilder;
 import org.openejb.EJBModule;
@@ -116,6 +118,8 @@ import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 import org.openejb.xbeans.ejbjar.impl.OpenejbOpenejbJarDocumentImpl;
+import org.tranql.ejb.CMPField;
+import org.tranql.ejb.EJB;
 
 /**
  *
@@ -139,7 +143,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         return new SchemaTypeLoader[]{XmlBeans.getContextTypeLoader()};
     }
 
-    public XmlObject getDeploymentPlan(URL module)  throws XmlException {
+    public XmlObject getDeploymentPlan(URL module) throws XmlException {
         try {
             URL moduleBase;
             if (module.toString().endsWith("/")) {
@@ -158,7 +162,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    private OpenejbOpenejbJarDocument createDefaultPlan(URL module) throws XmlException {
+    private OpenejbOpenejbJarDocument createDefaultPlan(URL module) {
         EjbJarDocument ejbJarDoc = (EjbJarDocument) XmlBeansUtil.getXmlObject(module, EjbJarDocument.type);
         if (ejbJarDoc == null) {
             return null;
@@ -233,12 +237,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         if (ejbJarXml == null) {
             throw new DeploymentException("Module does not contain the ejb-jar.xml deployment descriptor");
         }
-        EjbJarDocument doc = null;
-        try {
-            doc = (EjbJarDocument) XmlBeansUtil.getXmlObject(ejbJarXml, EjbJarDocument.type);
-        } catch (XmlException e) {
-            throw new DeploymentException(e);
-        }
+        EjbJarDocument doc = (EjbJarDocument) XmlBeansUtil.getXmlObject(ejbJarXml, EjbJarDocument.type);
         if (doc == null) {
             throw new DeploymentException("The ejb-jar.xml deployment descriptor is not valid");
         }
@@ -279,6 +278,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         context.addGBean(ejbModuleObjectName, ejbModuleGBean);
 
         Map objectNameByEJBName = buildObjectNameByEJBNameMap(ejbJar.getEnterpriseBeans(), ejbModuleName);
+        Map schema = buildCMPSchema(ejbJar, openejbEjbJar, cl);
 
         // create an index of the openejb ejb configurations by ejb-name
         Map openejbBeans = new HashMap();
@@ -326,8 +326,57 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
             ObjectName entityObjectName = (ObjectName) objectNameByEJBName.get(entityBean.getEjbName().getStringValue());
             OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(entityObjectName);
 
-            GBeanMBean entityGBean = createEntityBean(entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, objectNameByEJBName, transactionPolicyHelper, cl);
+            GBeanMBean entityGBean = null;
+            if ("Container".equals(entityBean.getPersistenceType().getStringValue())) {
+                String connectionFactoryName = openejbEjbJar.getCmpConnectionFactory();
+                entityGBean = createCMPBean(entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, schema, connectionFactoryName,objectNameByEJBName, transactionPolicyHelper, cl);
+            } else {
+                entityGBean = createBMPBean(entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, objectNameByEJBName, transactionPolicyHelper, cl);
+            }
             context.addGBean(entityObjectName, entityGBean);
+        }
+    }
+
+    private Map buildCMPSchema(EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl) throws DeploymentException {
+        Map schema = new HashMap();
+        EntityBeanType[] entityBeans = ejbJar.getEnterpriseBeans().getEntityArray();
+
+        for (int i = 0; i < entityBeans.length; i++) {
+            EntityBeanType entityBean = entityBeans[i];
+            if ("Container".equals(entityBean.getPersistenceType().getStringValue())) {
+                String ejbName = entityBean.getEjbName().getStringValue();
+                String abstractSchemaName = entityBean.getAbstractSchemaName().getStringValue();
+                EJB ejb = new EJB(ejbName, abstractSchemaName);
+
+                Class ejbClass = null;
+                try {
+                    ejbClass = cl.loadClass(entityBean.getEjbClass().getStringValue());
+                } catch (ClassNotFoundException e) {
+                    throw new DeploymentException("Could not load cmp bean class: ejbName=" + ejbName + " ejbClass=" + entityBean.getEjbClass().getStringValue());
+                }
+                String primkeyField = entityBean.getPrimkeyField().getStringValue();
+                CmpFieldType[] cmpFieldTypes = entityBean.getCmpFieldArray();
+                for (int cmpFieldIndex = 0; cmpFieldIndex < cmpFieldTypes.length; cmpFieldIndex++) {
+                    CmpFieldType cmpFieldType = cmpFieldTypes[cmpFieldIndex];
+                    String fieldName = cmpFieldType.getFieldName().getStringValue();
+                    Class fieldType = getCMPFieldType(fieldName, ejbClass);
+                    CMPField cmpField = new CMPField(fieldName, fieldType, fieldName.equals(primkeyField));
+                    ejb.addCMPField(cmpField);
+                }
+                schema.put(ejbName, ejb);
+            }
+        }
+
+        return schema;
+    }
+
+    private static Class getCMPFieldType(String fieldName, Class beanClass) throws DeploymentException {
+        try {
+            String getterName = "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+            Method getter = beanClass.getMethod(getterName, null);
+            return getter.getReturnType();
+        } catch (Exception e) {
+            throw new DeploymentException("Getter for CMP field not found: fieldName=" + fieldName + " beanClass=" + beanClass.getName());
         }
     }
 
@@ -423,7 +472,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
             gbean.setReferencePatterns("TransactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
             gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));
             return gbean;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName" + ejbName, e);
         }
     }
@@ -441,15 +490,10 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         return createEJBObjectName(type, domainName, serverName, applicationName, moduleName, ejbName);
     }
 
-    public GBeanMBean createEntityBean(String containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, Map objectNameByEJBName, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl) throws DeploymentException {
+    public GBeanMBean createBMPBean(String containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, Map objectNameByEJBName, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl) throws DeploymentException {
         String ejbName = entityBean.getEjbName().getStringValue();
 
-        ContainerBuilder builder = null;
-        if ("Container".equals(entityBean.getPersistenceType().getStringValue())) {
-            builder = new CMPContainerBuilder();
-        } else {
-            builder = new BMPContainerBuilder();
-        }
+        BMPContainerBuilder builder = new BMPContainerBuilder();
         builder.setClassLoader(cl);
         builder.setContainerId(containerId);
         builder.setEJBName(ejbName);
@@ -482,7 +526,55 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
             gbean.setReferencePatterns("TransactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
             gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));
             return gbean;
+        } catch (Throwable e) {
+            throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName=" + ejbName, e);
+        }
+    }
+
+    public GBeanMBean createCMPBean(String containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, Map schema, String connectionFactoryName, Map objectNameByEJBName, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl) throws DeploymentException {
+        String ejbName = entityBean.getEjbName().getStringValue();
+
+        CMPContainerBuilder builder = new CMPContainerBuilder();
+        builder.setClassLoader(cl);
+        builder.setContainerId(containerId);
+        builder.setEJBName(ejbName);
+        builder.setBeanClassName(entityBean.getEjbClass().getStringValue());
+        builder.setHomeInterfaceName(getJ2eeStringValue(entityBean.getHome()));
+        builder.setRemoteInterfaceName(getJ2eeStringValue(entityBean.getRemote()));
+        builder.setLocalHomeInterfaceName(getJ2eeStringValue(entityBean.getLocalHome()));
+        builder.setLocalInterfaceName(getJ2eeStringValue(entityBean.getLocal()));
+        builder.setPrimaryKeyClassName(getJ2eeStringValue(entityBean.getPrimKeyClass()));
+        TransactionPolicySource transactionPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);
+        builder.setTransactionPolicySource(transactionPolicySource);
+
+        try {
+            ReadOnlyContext compContext = buildComponentContext(entityBean, openejbEntityBean, objectNameByEJBName, null, cl);
+            builder.setComponentContext(compContext);
         } catch (Exception e) {
+            throw new DeploymentException("Unable to create EJB jndi environment: ejbName=" + ejbName, e);
+        }
+
+        if (openejbEntityBean != null) {
+            builder.setJndiNames(openejbEntityBean.getJndiNameArray());
+            builder.setLocalJndiNames(openejbEntityBean.getLocalJndiNameArray());
+        } else {
+            builder.setJndiNames(new String[]{ejbName});
+            builder.setLocalJndiNames(new String[]{"local/" + ejbName});
+        }
+
+        EJB ejb = (EJB) schema.get(ejbName);
+        if (ejb == null) {
+            throw new DeploymentException("Internal error; could not locate schema for cmp entity: " + ejbName);
+        }
+        builder.setEJB(ejb);
+        builder.setConnectionFactoryName(connectionFactoryName);
+
+        try {
+            GBeanMBean gbean = builder.createConfiguration();
+            gbean.setReferencePatterns("TransactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
+            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));
+            return gbean;
+        } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName=" + ejbName, e);
         }
     }

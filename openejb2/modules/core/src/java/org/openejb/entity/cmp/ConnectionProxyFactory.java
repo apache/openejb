@@ -16,16 +16,11 @@
  */
 package org.openejb.entity.cmp;
 
-import java.io.Serializable;
-
-import org.tranql.query.QueryResult;
-import org.tranql.ql.QueryException;
-
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public interface QueryResultsFactory extends Serializable {
-    public Object createQueryResults(QueryResult result) throws QueryException;
+public interface ConnectionProxyFactory {
+    Object getProxy();
 }
