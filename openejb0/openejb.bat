@@ -108,13 +108,27 @@ REM================================================
    echo " "
    echo "Running EJB compliance tests on IntraVM Server"
    echo "_________________________________________________"
-   call .\bin\test.bat src/tests-ejb/IvmServer_config.properties org.openejb.test.IvmTestServer
+
+   set PROPERTIES="-Dopenejb.testsuite.properties=src/tests-ejb/IvmServer_config.properties"
+   set SERVER="-Dopenejb.test.server=org.openejb.test.IvmTestServer"
+   set DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
+   set SUITE="org.openejb.test.ClientTestSuite"
+   
+   java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% -jar dist/openejb_ejb_tests-1.0.jar %SUITE%
+
    echo "_________________________________________________"
    echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
    echo " "
    echo "Running EJB compliance tests on Remote Server"
    echo "_________________________________________________"
-   call .\bin\test.bat src/tests-ejb/RemoteServer_config.properties org.openejb.test.RemoteTestServer
+
+   set PROPERTIES="-Dopenejb.testsuite.properties=src/tests-ejb/RemoteServer_config.properties"
+   set SERVER="-Dopenejb.test.server=org.openejb.test.RemoteTestServer"
+   set DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
+   set SUITE="org.openejb.test.ClientTestSuite"
+   
+   java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% -jar dist/openejb_ejb_tests-1.0.jar %SUITE%
+
 REM   echo "_________________________________________________"
 REM   echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
 REM   echo " "
@@ -135,7 +149,13 @@ REM================================================
    echo " "
    echo "Running EJB compliance tests on IntraVM Server"
    echo "_________________________________________________"
-   call .\bin\test.bat src/tests-ejb/IvmServer_config.properties org.openejb.test.IvmTestServer
+
+   set PROPERTIES="-Dopenejb.testsuite.properties=src/tests-ejb/IvmServer_config.properties"
+   set SERVER="-Dopenejb.test.server=org.openejb.test.IvmTestServer"
+   set DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
+   set SUITE="org.openejb.test.ClientTestSuite"
+   
+   java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% -jar dist/openejb_ejb_tests-1.0.jar %SUITE%
          
 goto EOF
 REM================================================
@@ -145,7 +165,13 @@ REM================================================
    echo " "
    echo "Running EJB compliance tests on Remote Server"
    echo "_________________________________________________"
-   call .\bin\test.bat src/tests-ejb/RemoteServer_config.properties org.openejb.test.RemoteTestServer
+
+   set PROPERTIES="-Dopenejb.testsuite.properties=src/tests-ejb/RemoteServer_config.properties"
+   set SERVER="-Dopenejb.test.server=org.openejb.test.RemoteTestServer"
+   set DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
+   set SUITE="org.openejb.test.ClientTestSuite"
+   
+   java %PROPERTIES% %SERVER% %DATABASE% %OPTIONS% -jar dist/openejb_ejb_tests-1.0.jar %SUITE%
 
 goto EOF
 REM================================================
