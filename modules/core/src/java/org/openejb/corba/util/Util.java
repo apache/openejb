@@ -96,7 +96,7 @@ public final class Util {
     }
 
     public static void setORB(ORB orb) throws UserException {
-        if (orb == null) {
+        if (Util.orb == null) {
             Util.orb = orb;
             CodecFactory factory = (CodecFactory) Util.orb.resolve_initial_references("CodecFactory");
             codec = factory.create_codec(new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 2));
