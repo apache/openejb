@@ -48,16 +48,19 @@
 package org.openejb.nova.entity.cmp;
 
 import java.net.URI;
+import java.util.List;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
-
 import org.openejb.nova.AbstractEJBContainer;
 import org.openejb.nova.dispatch.DispatchInterceptor;
+import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.entity.EntityClientContainerFactory;
 import org.openejb.nova.entity.EntityContainerConfiguration;
 import org.openejb.nova.entity.EntityInstanceFactory;
 import org.openejb.nova.entity.EntityInstanceInterceptor;
+import org.openejb.nova.persistence.QueryCommand;
+import org.openejb.nova.persistence.Tuple;
 import org.openejb.nova.transaction.TransactionContextInterceptor;
 import org.openejb.nova.util.SoftLimitedInstancePool;
 
@@ -65,7 +68,7 @@ import org.openejb.nova.util.SoftLimitedInstancePool;
  *
  * @version $Revision$ $Date$
  */
-public class CMPEntityContainer extends AbstractEJBContainer implements CMPEntityContainerMBean {
+public class CMPEntityContainer extends AbstractEJBContainer {
     private final String pkClassName;
     private final CMPCommandFactory persistenceFactory;
     private final CMPQuery[] queries;
@@ -93,6 +96,8 @@ public class CMPEntityContainer extends AbstractEJBContainer implements CMPEntit
         CMPOperationFactory vopFactory = CMPOperationFactory.newInstance(this, queries, persistenceFactory, cmpFieldNames);
         vtable = vopFactory.getVTable();
         itable = vopFactory.getITable();
+
+        ejbLoadCommand = persistenceFactory.getQueryCommand(new MethodSignature(ejbClassName, "ejbLoad", new String[0])); //todo remove ejbClassName and make this a constant
 
         pool = new SoftLimitedInstancePool(new EntityInstanceFactory(componentContext, vopFactory.getInstanceContextFactory()), 1);
 
@@ -127,5 +132,16 @@ public class CMPEntityContainer extends AbstractEJBContainer implements CMPEntit
 
     InstanceOperation[] getITable() {
         return itable;
+    }
+
+    private QueryCommand ejbLoadCommand;
+
+    InstanceData getInstanceData(Object id) throws Exception {
+        List result = ejbLoadCommand.executeQuery(new Object[] {id});
+        Tuple tuple = (Tuple) result.get(0);
+        Object[] values = tuple.getValues();
+        InstanceData data = new InstanceData(values.length);
+        data.load(values);
+        return data;
     }
 }

@@ -51,13 +51,11 @@ import java.net.URI;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import junit.framework.TestCase;
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import junit.framework.TestCase;
-
 import org.openejb.nova.MockTransactionManager;
 import org.openejb.nova.entity.bmp.BMPEntityContainer;
-import org.openejb.nova.util.ServerUtil;
 
 /**
  *
@@ -67,7 +65,6 @@ import org.openejb.nova.util.ServerUtil;
  */
 public class BasicBMPEntityContainerTest extends TestCase {
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
-    private MBeanServer mbServer;
     private EntityContainerConfiguration config;
     private BMPEntityContainer container;
 
@@ -125,7 +122,6 @@ public class BasicBMPEntityContainerTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        mbServer = ServerUtil.newRemoteServer();
 
         config = new EntityContainerConfiguration();
         config.uri = new URI("async", null, "localhost", 3434, "/JMX", null, CONTAINER_NAME.toString());
@@ -139,13 +135,11 @@ public class BasicBMPEntityContainerTest extends TestCase {
         config.pkClassName = Integer.class.getName();
 
         container = new BMPEntityContainer(config);
-        mbServer.registerMBean(container, CONTAINER_NAME);
-        container.start();
+        container.doStart();
     }
 
     protected void tearDown() throws Exception {
-        container.stop();
-        ServerUtil.stopRemoteServer(mbServer);
+        container.doStop();
         super.tearDown();
     }
 }

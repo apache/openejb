@@ -62,7 +62,7 @@ import org.openejb.nova.util.SoftLimitedInstancePool;
  *
  * @version $Revision$ $Date$
  */
-public class StatelessContainer extends AbstractEJBContainer implements StatelessContainerMBean {
+public class StatelessContainer extends AbstractEJBContainer {
     public StatelessContainer(EJBContainerConfiguration config) {
         super(config);
     }

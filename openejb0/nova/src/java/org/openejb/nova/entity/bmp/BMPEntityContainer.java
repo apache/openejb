@@ -66,7 +66,7 @@ import org.openejb.nova.util.SoftLimitedInstancePool;
  *
  * @version $Revision$ $Date$
  */
-public class BMPEntityContainer extends AbstractEJBContainer implements BMPEntityContainerMBean {
+public class BMPEntityContainer extends AbstractEJBContainer {
     private final String pkClassName;
 
     public BMPEntityContainer(EntityContainerConfiguration config) {

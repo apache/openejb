@@ -90,4 +90,11 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
         InstanceOperation iop = ((CMPEntityContainer) container).getITable()[index];
         return iop.invokeInstance(this, objects);
     }
+
+    public void associate() throws Exception {
+        if (id != null && !isStateValid()) {
+            ((CMPEntityContainer) container).getInstanceData(id);
+        }
+        super.associate();
+    }
 }

@@ -119,6 +119,7 @@ public class BasicStatelessContainerTest extends TestCase {
         System.out.println("Local: " + (end - start) / 10);
     }
 
+/*
     public void XtestLocalSpeed2() throws Throwable {
         int index = 0;
         EJBInvocationImpl invocation = new EJBInvocationImpl(EJBInvocationType.REMOTE, index, new Object[]{new Integer(1)});
@@ -136,10 +137,10 @@ public class BasicStatelessContainerTest extends TestCase {
         long end = System.currentTimeMillis();
         System.out.println("Local Direct: " + (end - start));
     }
+*/
 
     protected void setUp() throws Exception {
         super.setUp();
-        mbServer = ServerUtil.newRemoteServer();
 
         config = new EJBContainerConfiguration();
         config.uri = new URI("async", null, "localhost", 3434, "/JMX", null, CONTAINER_NAME.toString());
@@ -152,14 +153,12 @@ public class BasicStatelessContainerTest extends TestCase {
         config.txnManager = new MockTransactionManager();
 
         container = new StatelessContainer(config);
-        mbServer.registerMBean(container, CONTAINER_NAME);
-        container.start();
+        container.doStart();
 
     }
 
     protected void tearDown() throws Exception {
-        container.stop();
-        ServerUtil.stopRemoteServer(mbServer);
+        container.doStop();
         super.tearDown();
     }
 }

@@ -48,24 +48,21 @@
 package org.openejb.nova;
 
 import java.net.URI;
-
+import java.util.LinkedList;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.core.service.AbstractRPCContainer;
+import org.apache.geronimo.cache.InstancePool;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.cache.InstancePool;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
 import org.apache.geronimo.remoting.InterceptorRegistry;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
-import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
-
 import org.openejb.nova.dispatch.VirtualOperation;
 import org.openejb.nova.transaction.EJBUserTransaction;
 
@@ -74,7 +71,7 @@ import org.openejb.nova.transaction.EJBUserTransaction;
  *
  * @version $Revision$ $Date$
  */
-public abstract class AbstractEJBContainer extends AbstractRPCContainer
+public abstract class AbstractEJBContainer
         implements EJBContainer, GeronimoMBeanTarget {
 
     private GeronimoMBeanContext context;
@@ -272,4 +269,25 @@ public abstract class AbstractEJBContainer extends AbstractRPCContainer
     protected void stopServerRemoting() {
         InterceptorRegistry.instance.unregister(remoteId);
     }
+
+    private Interceptor firstInterceptor;
+    private LinkedList interceptors = new LinkedList();
+
+    public final void addInterceptor(Interceptor interceptor) {
+        if (firstInterceptor == null) {
+            firstInterceptor = interceptor;
+            interceptors.addLast(interceptor);
+        } else {
+            Interceptor lastInterceptor = (Interceptor) interceptors.getLast();
+            lastInterceptor.setNext(interceptor);
+            interceptors.addLast(interceptor);
+        }
+    }
+
+
+    public void clearInterceptors() {
+        interceptors.clear();
+        firstInterceptor = null;
+    }
+
 }

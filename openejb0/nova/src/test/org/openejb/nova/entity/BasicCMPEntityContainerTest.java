@@ -69,6 +69,7 @@ import org.openejb.nova.entity.cmp.CMPQuery;
 import org.openejb.nova.entity.cmp.SimpleCommandFactory;
 import org.openejb.nova.persistence.jdbc.Binding;
 import org.openejb.nova.persistence.jdbc.binding.IntBinding;
+import org.openejb.nova.persistence.jdbc.binding.StringBinding;
 import org.openejb.nova.util.ServerUtil;
 
 /**
@@ -138,8 +139,6 @@ public class BasicCMPEntityContainerTest extends TestCase {
         ds.setUser("sa");
         ds.setPassword("");
 
-        mbServer = ServerUtil.newRemoteServer();
-
         config = new EntityContainerConfiguration();
         config.uri = new URI("async", null, "localhost", 3434, "/JMX", null, CONTAINER_NAME.toString());
         config.beanClassName = MockCMPEJB.class.getName();
@@ -158,21 +157,24 @@ public class BasicCMPEntityContainerTest extends TestCase {
         signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbFindByPrimaryKey", new String[]{"java.lang.Object"});
         persistenceFactory.defineQuery(signature, "SELECT ID FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)}, new Binding[]{new IntBinding(1, 0)});
         queries.add(new CMPQuery(signature, false, null));
+        signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbLoad", new String[]{});
+        persistenceFactory.defineQuery(signature, "SELECT ID,VALUE FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)}, new Binding[]{new IntBinding(1, 0), new StringBinding(2, 1)});
+        queries.add(new CMPQuery(signature, false, null));
 
         signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbCreate", new String[]{"java.lang.Integer"});
         persistenceFactory.defineUpdate(signature, "INSERT INTO MOCK(ID) VALUES(?)", new Binding[]{new IntBinding(1, 0)});
         signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbRemove", new String[0]);
         persistenceFactory.defineUpdate(signature, "DELETE FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)});
+        signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbStore", new String[0]);
+        persistenceFactory.defineUpdate(signature, "UPDATE MOCK SET VALUE = ? WHERE ID=?", new Binding[]{new IntBinding(1,0), new IntBinding(2, 1)});
 
         String[] cmpFieldNames = { "value" };
         container = new CMPEntityContainer(config, persistenceFactory, (CMPQuery[]) queries.toArray(new CMPQuery[0]), cmpFieldNames);
-        mbServer.registerMBean(container, CONTAINER_NAME);
-        container.start();
+        container.doStart();
     }
 
     protected void tearDown() throws Exception {
-        container.stop();
-        ServerUtil.stopRemoteServer(mbServer);
+        container.doStop();
 
         super.tearDown();
     }

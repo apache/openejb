@@ -95,7 +95,7 @@ public class StatelessContextTest extends TestCase {
         cmt = true;
         container = new StatelessContainer(config);
         mbServer.registerMBean(container, CONTAINER_NAME);
-        container.start();
+        container.doStart();
 
         StatelessInstanceFactory factory = new StatelessInstanceFactory(container);
 
@@ -119,7 +119,7 @@ public class StatelessContextTest extends TestCase {
         cmt = false;
         container = new StatelessContainer(config);
         mbServer.registerMBean(container, CONTAINER_NAME);
-        container.start();
+        container.doStart();
 
         StatelessInstanceFactory factory = new StatelessInstanceFactory(container);
 
