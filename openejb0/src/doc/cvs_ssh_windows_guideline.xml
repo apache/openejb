@@ -114,6 +114,31 @@
             </p>
           
             <p>
+            If you want to install your public key manually on one of the SF
+            servers, you have to perform a few steps.
+            <ul>
+              <li>copy your key onto the SF server using secure copy</li>
+              <li>logon the SF server using plink</li>
+              <li>creating a .ssh directory.
+              </li>
+              <li>moving your public key in this newly created directory</li>
+            </ul>
+            </p>
+            
+            <p>
+            The two figures below illustrate the processes described above.
+            </p>
+            
+            <p>
+            <img src="images/using_pscp.gif" alt="using PuTTY secure copy" border="0"/>
+    
+            <body-note>Figure 3: The PuTTYgen secure copy program to copy files in a secure manner.</body-note>
+            </p>
+            
+            <p>
+            <img src="images/installing_key.gif" alt="installing the public key on a SF server" border="0"/>
+    
+            <body-note>Figure 4: A few steps to a fully working SSH enabled SF account.</body-note>
             </p>
           </section>
         
@@ -133,14 +158,67 @@
               <li>The OpenEJB CVS server at SF (cvs.openejb.sf.net)</li>
             </ul>
             </p>
+            
+            <p>
+            <img src="images/sf_key_upload.gif" alt="installing the public key using the SF upload page" border="0"/>
+    
+            <body-note>Figure 5: Here we go - The allready mentioned SF upload page for public keys.</body-note>
+            </p>
           </section>
         </section>
         
         <section title="How to start and configure the PuTTY SSH agent">
           <p>
+          The PuTTY SSH agent manages all your private RSA/DSA keys.
+          </p>
+          <p>
+          Launching the PuTTY SSH agent is very easy - just execute the
+          program 'PAGEANT.exe'. After starting the agent a new icon should
+          reside in your system tray.
           </p>
           
           <section title="How to add a private key to the PuTTY SSH agent">
+            <p>
+            By openeing the PuTTY SSH agent you are able to add your private
+            RSA/DSA key. Be carefull you have to use your private key (identity)!
+            </p>
+            
+            <p>
+            From now on the PuTTY SSH agent will log you in to any remote
+            system which has your public key installed on it. No need to ^_NO_ type passwords
+            any more.
+            </p>
+            
+            <p>
+            <img src="images/pageant.gif" alt="adding privat keys to the PuTTY SSH agent" border="0"/>
+    
+            <body-note>Figure 6: The PuTTY SSH agent with a allready installed private key.</body-note>
+            </p>
+            
+            <p>
+            <img src="images/pageant_tray.gif" alt="pageant residing in your system tray" border="0"/>
+    
+            <body-note>Figure 7: The PuTTY SSH agent is allways accessable due to this system tray icon.</body-note>
+            </p>
+          </section>
+          
+          <section title="Testing your private/public keys">
+            <p>
+            </p>
+            
+            <p>
+            <img src="images/plink_two.gif" alt="Using plink in conjunction with pageant" border="0"/>
+    
+            <body-note>Figure 8: Using Plink without the need of providing a password.</body-note>
+            </p>
+          </section>
+          
+          <section title="A word from the wise (security note)">
+            <p>
+            Never leave your computer alone while running the PuTTY SSH agent!
+            With the use of this agent, everybody might login to the SF servers
+            without even having to know your password.
+            </p>
           </section>
         </section>
       </section>
@@ -148,12 +226,40 @@
     
     <section title="Configuring WinCVS to work with SSH (PuTTY)">
       <p>
+      There are just a few steps left until you will have a fully working CVS/SSH couple ;-)
       </p>
       
       <section title="Making changes to the CVSROOT variable">
+        <p>
+        If you want to use WinCVS in conjunction with SSH you have to use
+        the SSH authentication method (aka :ext)
+        
+        The figure below shows my basic WinCVS settings.
+        </p>
+        
+        <p>
+        <img src="images/cvs_basic.gif" alt="basic changes to WinCVS" border="0"/>
+
+        <body-note>Figure 9: These are the basic settings wich have to be set inside WinCVS.</body-note>
+        </p>
       </section>
       
       <section title="Additional but important WinCVS options">
+      <p>
+      Finally you have to provide the SSH binary which should be used by
+      WinCVS. In our case this is PLINK.exe.
+      </p>
+      
+      <p>
+      <img src="images/cvs_advanced.gif" alt="advanced WinCVS settings" border="0"/>
+
+      <body-note>Figure 10: Providing the SSH binary to WinCVS.</body-note>
+      </p>
+      
+      <p>
+      From now on you should be able to work with CVS using SSH as you
+      did earlier without SSH.
+      </p>
       </section>
     </section>
   </body>
