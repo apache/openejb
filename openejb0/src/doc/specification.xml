@@ -24,9 +24,9 @@
         <p>
         Download the OpenEJB 1.1 Specification Draft 0.7
         <UL>
-        <LI><a href="ftp://ftp.exolab.org/pub/openejb/spec/OpenEJB_Specification.doc">OpenEJB_Specification.doc</a></LI>
-        <LI><a href="ftp://ftp.exolab.org/pub/openejb/spec/OpenEJB_Specification.pdf">OpenEJB_Specification.pdf</a></LI>
-        <LI><a href="ftp://ftp.exolab.org/pub/openejb/spec/OpenEJB_Specification.ps"> OpenEJB_Specification.ps</a></LI>
+        <LI><a href="spec/OpenEJB_Specification.doc">OpenEJB_Specification.doc</a></LI>
+        <LI><a href="spec/OpenEJB_Specification.pdf">OpenEJB_Specification.pdf</a></LI>
+        <LI><a href="spec/OpenEJB_Specification.ps"> OpenEJB_Specification.ps</a></LI>
         </UL>
         </p>
 
