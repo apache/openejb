@@ -153,7 +153,7 @@ class EntityBuilder extends BeanBuilder {
     public ObjectName createEJBObjectName(J2eeContext moduleJ2eeContext, EntityBeanType entityBean) throws DeploymentException {
         String ejbName = entityBean.getEjbName().getStringValue();
         try {
-            return NameFactory.getEjbComponentName(null, null, null, null, ejbName, NameFactory.ENTITY_BEAN, moduleJ2eeContext);
+            return NameFactory.getComponentName(null, null, null, null, null, ejbName, NameFactory.ENTITY_BEAN, moduleJ2eeContext);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct ejb object name: " + ejbName, e);
         }
