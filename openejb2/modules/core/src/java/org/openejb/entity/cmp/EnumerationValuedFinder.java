@@ -47,17 +47,18 @@
  */
 package org.openejb.entity.cmp;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import javax.ejb.FinderException;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.openejb.EJBInvocation;
-
-import org.tranql.field.Row;
 import org.tranql.field.FieldAccessor;
+import org.tranql.field.Row;
 import org.tranql.ql.QueryException;
-import org.tranql.query.ArrayListResultHandler;
+import org.tranql.query.CollectionResultHandler;
 import org.tranql.query.QueryCommand;
 
 /**
@@ -66,16 +67,19 @@ import org.tranql.query.QueryCommand;
  * @version $Revision$ $Date$
  */
 public class EnumerationValuedFinder extends CMPFinder {
+    private final CollectionResultHandler handler;
+
     public EnumerationValuedFinder(QueryCommand localQuery, QueryCommand remoteQuery) {
         super(localQuery, remoteQuery);
+        handler = new CollectionResultHandler(new FieldAccessor(0, null));
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         try {
             QueryCommand command = getCommand(invocation);
-            ArrayListResultHandler handler = new ArrayListResultHandler(new FieldAccessor(0, null));
-            command.execute(handler, new Row(invocation.getArguments()));
-            return new SimpleInvocationResult(true, Collections.enumeration(handler.getResults()));
+            List results = new ArrayList();
+            command.execute(handler, new Row(invocation.getArguments()), results);
+            return new SimpleInvocationResult(true, Collections.enumeration(results));
         } catch (QueryException e) {
             return new SimpleInvocationResult(false, new FinderException(e.getMessage()).initCause(e));
         }
