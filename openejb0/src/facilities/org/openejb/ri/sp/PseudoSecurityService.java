@@ -45,15 +45,23 @@
 package org.openejb.ri.sp;
 
 import java.security.Principal;
-import org.openejb.spi.SecurityService;
+import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
+import java.util.Properties;
+
 import org.openejb.util.FastThreadLocal;
 
-public class PseudoSecurityService implements SecurityService {
+public class PseudoSecurityService 
+    extends javax.security.auth.login.Configuration 
+    implements org.openejb.spi.SecurityService, org.openejb.alt.spi.SecurityService
+{
     
     private FastThreadLocal threadStorage = new FastThreadLocal( );
     
     public void init(java.util.Properties props ) {
         props = props;
+        
+	javax.security.auth.login.Configuration.setConfiguration( this );
     }
     
     public Object getSecurityIdentity(){
@@ -79,4 +87,25 @@ public class PseudoSecurityService implements SecurityService {
             return null;
         }
     }
+
+    public String mapToKey( String realm, String type, String name ) {
+	return "";
+    }
+
+    public String registerPrincipal( String realm, Principal principal ) {
+	return "";
+    }
+    
+    public void refresh() {
+    }
+    
+    public AppConfigurationEntry[] getAppConfigurationEntry(String applicationName) {
+        AppConfigurationEntry entries[] = new AppConfigurationEntry[1];
+        Properties props = new Properties();
+
+        entries[0] = new AppConfigurationEntry( "org.openejb.ri.sp.PseudoLoginModule",
+                                                LoginModuleControlFlag.REQUIRED,
+                                                props );
+        return entries;
+    }    
 }
