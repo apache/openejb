@@ -57,6 +57,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.ObjectName;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -81,10 +82,10 @@ import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbEjbRelationType;
 import org.openejb.xbeans.ejbjar.OpenejbEjbRelationshipRoleType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
-import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.AutomaticKeyGeneration;
-import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.CmpFieldMapping;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbQueryType;
+import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.AutomaticKeyGeneration;
+import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.CmpFieldMapping;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.cache.GlobalSchemaLoader;
 import org.tranql.ejb.CMPField;
@@ -497,15 +498,19 @@ class CMPEntityBuilder extends EntityBuilder {
         RoleInfo[] mappedRoleInfo = new RoleInfo[2];
         if (roleInfo[0].equals(sourceRoleInfo)) {
             mappedRoleInfo = roleInfo;
+            roleInfo[0].isOnPKSide |= true;
         } else {
             mappedRoleInfo[0] = roleInfo[1];
             mappedRoleInfo[1] = roleInfo[0];
+            roleInfo[1].isOnPKSide |= true;
         }
 
         if ( role.isSetForeignKeyColumnOnSource() ) {
             RoleInfo tmp = mappedRoleInfo[0];
             mappedRoleInfo[0] = mappedRoleInfo[1];
             mappedRoleInfo[1] = tmp;
+            roleInfo[0].isOnPKSide = !roleInfo[0].isOnPKSide;
+            roleInfo[1].isOnPKSide = !roleInfo[1].isOnPKSide;
         }
 
         Map pkToFkMap = new HashMap();
@@ -576,31 +581,31 @@ class CMPEntityBuilder extends EntityBuilder {
 
         boolean isVirtual = null == roleInfo[0].cmrFieldName;
         String endName0 = isVirtual ? "$VirtualEnd" + id : roleInfo[0].cmrFieldName;
-        roleInfo[0].ejb.addCMRField(new CMRField(endName0, roleInfo[1].ejb, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, relationship, isVirtual));
-        roleInfo[0].table.addEndTable(new EndTable(endName0, roleInfo[1].table, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, joinTable, isVirtual));
+        roleInfo[0].ejb.addCMRField(new CMRField(endName0, roleInfo[1].ejb, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, relationship, isVirtual, roleInfo[0].isOnPKSide));
+        roleInfo[0].table.addEndTable(new EndTable(endName0, roleInfo[1].table, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, joinTable, isVirtual, roleInfo[0].isOnPKSide));
         
         isVirtual = null == roleInfo[1].cmrFieldName;
         String endName1 = isVirtual ? "$VirtualEnd" + id : roleInfo[1].cmrFieldName;
-        roleInfo[1].ejb.addCMRField(new CMRField(endName1, roleInfo[0].ejb, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, relationship, isVirtual));
-        roleInfo[1].table.addEndTable(new EndTable(endName1, roleInfo[0].table, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, joinTable, isVirtual));
+        roleInfo[1].ejb.addCMRField(new CMRField(endName1, roleInfo[0].ejb, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, relationship, isVirtual, roleInfo[1].isOnPKSide));
+        roleInfo[1].table.addEndTable(new EndTable(endName1, roleInfo[0].table, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, joinTable, isVirtual, roleInfo[1].isOnPKSide));
         
         if (null != mtmEntityName) {
             EJB mtmEJB = ejbSchema.getEJB(mtmEntityName);
             Relationship mtmRelationship = new Relationship(relationship.getLeftJoinDefinition());
-            mtmEJB.addCMRField(new CMRField(endName0, roleInfo[0].ejb, true, false, mtmRelationship, true));
+            mtmEJB.addCMRField(new CMRField(endName0, roleInfo[0].ejb, true, false, mtmRelationship, true, false));
             mtmRelationship.addAssociationEnd(roleInfo[0].ejb.getAssociationEnd(endName0));
             
             mtmRelationship = new Relationship(relationship.getRightJoinDefinition());
-            mtmEJB.addCMRField(new CMRField(endName1, roleInfo[1].ejb, true, false, mtmRelationship, true));
+            mtmEJB.addCMRField(new CMRField(endName1, roleInfo[1].ejb, true, false, mtmRelationship, true, false));
             mtmRelationship.addAssociationEnd(roleInfo[1].ejb.getAssociationEnd(endName1));
             
             Table mtmTable = sqlSchema.getTable(mtmEntityName);
             JoinTable mtmJoinTable = new JoinTable(joinTable.getLeftJoinDefinition());
-            mtmTable.addEndTable(new EndTable(endName0, roleInfo[0].table, true, false, mtmJoinTable, true));
+            mtmTable.addEndTable(new EndTable(endName0, roleInfo[0].table, true, false, mtmJoinTable, true, false));
             mtmJoinTable.addAssociationEnd(roleInfo[0].table.getAssociationEnd(endName0));
             
             mtmJoinTable = new JoinTable(joinTable.getRightJoinDefinition());
-            mtmTable.addEndTable(new EndTable(endName1, roleInfo[1].table, true, false, mtmJoinTable, true));
+            mtmTable.addEndTable(new EndTable(endName1, roleInfo[1].table, true, false, mtmJoinTable, true, false));
             mtmJoinTable.addAssociationEnd(roleInfo[1].table.getAssociationEnd(endName1));
         }
     }
@@ -716,6 +721,7 @@ class CMPEntityBuilder extends EntityBuilder {
         private Table table;
         private boolean isOne;
         private boolean isCascadeDelete;
+        private boolean isOnPKSide;
         private JoinDefinition ejbJDef;
         private JoinDefinition tableJDef;
         private RoleInfo(String entityName, String cmrFieldName) {
