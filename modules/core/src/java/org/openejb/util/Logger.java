@@ -1605,7 +1605,7 @@ public class Logger {
             String config = props.getProperty( "log4j.configuration" );
             try{
                 // resolve the config file location
-                config = FileUtils.getAbsolutePath(config, "default.logging.conf", props, false);
+                config = FileUtils.getAbsolutePath(config, "conf/default.logging.conf", props, false);
 
                 // load the config
                 Properties log4jProps = loadProperties(config);
