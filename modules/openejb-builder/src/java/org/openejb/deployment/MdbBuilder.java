@@ -47,6 +47,7 @@
  */
 package org.openejb.deployment;
 
+import java.beans.Introspector;
 import java.net.URI;
 import java.security.Permissions;
 import java.util.Map;
@@ -270,7 +271,7 @@ class MdbBuilder extends BeanBuilder {
                 String propertyName = activationConfigProperty.getActivationConfigPropertyName().getStringValue();
                 String propertyValue = activationConfigProperty.getActivationConfigPropertyValue().isNil() ? null : activationConfigProperty.getActivationConfigPropertyValue().getStringValue();
                 try {
-                    activationSpecGBean.setAttribute(propertyName, propertyValue);
+                    activationSpecGBean.setAttribute(Introspector.decapitalize(propertyName), propertyValue);
                 } catch (Exception e) {
                     throw new DeploymentException("Could not set property: " + propertyName + " to value: " + propertyValue + " on activationSpec: " + activationSpecInfo.getActivationSpecClass(), e);
                 }
