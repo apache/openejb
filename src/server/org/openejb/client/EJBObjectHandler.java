@@ -279,13 +279,13 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
 //        }
         switch (res.getResponseCode()) {
         case EJB_ERROR:
-            System.out.println("ERROR "+res.getResult());
+//            System.out.println("ERROR "+res.getResult());
             throw (Throwable)res.getResult();
         case EJB_SYS_EXCEPTION:
-            System.out.println("SYS EXEPTION "+res.getResult());
+//            System.out.println("SYS EXEPTION "+res.getResult());
             throw (Throwable)res.getResult();
         case EJB_APP_EXCEPTION:
-            System.out.println("APP EXEPTION "+res.getResult());
+//            System.out.println("APP EXEPTION "+res.getResult());
             throw (Throwable)res.getResult();
         case EJB_OK:
             return res.getResult();
