@@ -10,35 +10,10 @@
   
   <!-- Build classpath -->
   <path id="project.classpath">
-    <pathelement location="${jrefactory.jar}"/>
-    <pathelement location="${castor.home}/${castor.jar}"/>
-    <pathelement location="${castor.home}/${castor.xml.jar}"/>
-    <pathelement location="${ejb11.jar}"/>
     <pathelement location="${ejb20.jar}"/>
-    <pathelement location="${jaas.home}/${jaas.jar}"/>
-    <pathelement location="${jca.jar}"/>
-    <pathelement location="${jdbcext.jar}"/>
-    <pathelement location="${jdk12proxy.jar}"/>
-    <pathelement location="${jedi.home}/lib/${jedi.jar}"/>
-    <pathelement location="${jedi.home}/lib/${jediplugin.jar}"/>
-    <pathelement location="${jms.jar}"/>
-    <pathelement location="${jndi.jar}"/>
-    <pathelement location="${jta.jar}"/>
     <pathelement location="${log4j.jar}"/>
-    <pathelement location="${minerva.jar}"/>
     <pathelement location="${openorb.home}/${openorb.jar}"/>
-    <pathelement location="${openorb.home}/${openorb.rmi.jar}"/>
-    <pathelement location="${openorb.home}/${openorb.tools.jar}"/>
-    <pathelement location="${jts.jar}"/>
     <pathelement location="${tyrex.home}/${tyrex.jar}"/>
-    <pathelement location="${tyrex.home}/${tyrex.iiop.jar}"/>
-    <pathelement location="${jaxp.home}/jaxp.jar"/>
-    <pathelement location="${jaxp.home}/${jaxp.parser.jar}"/>
-    <pathelement location="${jaxp.home}/${jaxp.xsltprocessor.jar}"/>
-    <pathelement location="${jaxp.home}/${jaxp.xalan1compat.jar}"/>
-    <pathelement location="${junit.jar}"/>
-    <pathelement location="${jakarta.regexp.jar}"/>
-    <pathelement location="${xslp.jar}"/>
   </path>
   
   
@@ -54,9 +29,9 @@
     
     <copy todir="${build.corba.src}">
           
-      <fileset dir="${src.java.dir}/facilities" >
+      <fileset dir="${src.java.dir}/corba" >
         <include name="**/corba/**"/>
-        <include name="javax/**"/>
+        <include name="**/javax/**"/>
         <exclude name="**/CVS/**"/>
         <exclude name="**/*.class"/>
       </fileset>
@@ -93,7 +68,7 @@
     
       <copy todir="${build.corba.dest}">
       
-        <fileset dir="${src.java.dir}/facilities" >
+        <fileset dir="${src.java.dir}/corba" >
           <include name="**/resources/*.properties"/>
         </fileset>
       
