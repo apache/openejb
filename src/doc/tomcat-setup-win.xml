@@ -104,55 +104,6 @@ For our examples, we'll unpack it into c:\openejb-0.9.0
 </p>
 
 <p>
-Pass the OPENEJB_HOME dir into Tomcat
-using the CATALINA_OPTS environment variable
-</p>    
-
-<p>
-In order to do this, we'll need to add CATALINA_OPTS to our environment variables.
-To do this, go to your desk top and right-click on my computer and choose Properties.
-Click on the Advanced tab and click Environment Variables.
-
-</p>
-
-<p>
-<img src="images/tomcat_windows_env_variables.jpg" width="410" height="461" border="0" alt=""/>
-</p>
-
-<p>
-Now, we'll want to add a <b>system variable</b> called <code-block>CATALINA_OPTS</code-block>
-and add the following line as the value:<br/>
-<code-block>-Dopenejb.home=C:\openejb-0.9.0</code-block>
-</p>
-
-<p>
-<img src="images/tomcat_windows_env_variables2.jpg" width="384" height="423" border="0" alt=""/>
-</p>
-
-<p>
-Then add the information:
-</p>
-
-<p>
-<img src="images/tomcat_windows_env_variables3.jpg" width="347" height="140" border="0" alt=""/>
-</p>
-
-<p>
-Click Ok, Ok, and Ok.
-</p>
-
-<p>
-<note>
-If you look in web.xml, in webapps\openejb_loader-0.9.0\WEB-INF, there is an init-param node called 
-openejb.home.  You may set this value to your OpenEJB home directory instead of setting CATALINA_OPTS
-in the environment variables.  This node is commented out and contains instructions on how to set it.
-<br/><br/>
-Some versions of Tomcat use JAVA_OPTS instead of CATALINA_OPTS for setting environment variables.  
-Check the documentation in your version of Tomcat for more details.
-</note>
-</p>
-
-<p>
 Add the OpenEJB Loader to Tomcat
 </p>    
 
@@ -161,17 +112,29 @@ We'll want to copy <b>openejb_loader-0.9.0.war</b> from the OpenEJB dist directo
 to the Tomcat webapps directory.
 </p>
 
-<p>
-<note>
-If you add openejb_loader-0.9.0.war to the webapps directory while Tomcat is running, it
-may automatically unpack the file and create a openejb_loader-0.9.0 folder.  You won't need
-to restart Tomcat for it to be installed.  This may or may not be turned on in the
-server.xml file that comes with Tomcat.
-</note>
-</p>
-
 <img src="images/tomcat_windows_dist_dir.jpg" width="552" height="381" border="0" alt=""/>
 <img src="images/tomcat_windows_webapps_dir.jpg" width="552" height="381" border="0" alt=""/>
+
+<p>
+If you add openejb_loader-0.9.0.war to the webapps directory while Tomcat is running, it
+should automatically unpack the file and create a openejb_loader-0.9.0 
+folder. If it doesn't automatically extract, check the server.xml file 
+that comes with Tomcat.
+</p>
+
+
+<p>
+Now, let the OpenEJB Loader webapp know where to find your OpenEJB 
+distribution by setting the openejb.home init-param.
+</p>
+<p>
+Open the web.xml file in the directory 
+webapps\openejb_loader-0.9.0\WEB-INF.  Uncomment the openejb.home 
+init-param then change the value from the default value to the actual 
+path of your OpenEJB home directory.
+</p>
+
+<img src="images/tomcat_windows_webxml.gif" width="567" height="402" border="0" alt=""/>
 
 <p>
 Now, stop Tomcat and then start it again.
@@ -182,6 +145,9 @@ Now, stop Tomcat and then start it again.
 <p>
  At this point, you're actually finished.
  All the libraries you need are in place.
+ </p>
+
+ <p>
  Your servlets should use the following
  InitialContextFactory when creating
  an InitialContext to lookup beans
@@ -194,8 +160,8 @@ Now, stop Tomcat and then start it again.
 
 <p>
 The openejb.home is taken care of for us 
-with the CATALINA_OPTS variable, so no other
-JNDI options are needed to get an
+with the OpenEJB Loader webapp , so no other
+JNDI options are needed by your servlets to get an
 InitialContext from OpenEJB
 </p>
 </section>
@@ -319,8 +285,8 @@ Should say "Hello World!!!" on the screen
 <p>
 1. Try re-starting Tomcat. The war file that was copied or the environment
 variable that we set may not have gotten picked up by Tomcat.<br/>
-2. Make sure the CATALINA_OPTS variable is properly set or the openejb.home
-parameter in the web.xml file.<br/>
+2. Make sure the openejb.home init-param in the web.xml file points 
+to where you installed OpenEJB.<br/>
 3. Check C:\Program Files\Apache Group\Tomcat 4.1 to see if there is
 an openejb.log file.<br/>
 4. Send an email to the email list <a href="mailto:openejb-user@lists.sourceforge.net">
