@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Specification-Title: Enterprise Java Beans
+Specification-Vendor: Sun Microsystems Corp
+Specification-Version: 2.0
+Implementation-Title: OpenEJB-Example
+Implementation-Version: $VERSION$
+Class-path: jndi_1.2.1.jar
+
+
