@@ -52,10 +52,7 @@ import java.util.*;
 
 import javax.transaction.TransactionManager;
 
-import org.openejb.spi.ApplicationServer;
-import org.openejb.spi.Assembler;
-import org.openejb.spi.ContainerSystem;
-import org.openejb.spi.SecurityService;
+import org.openejb.spi.*;
 import org.openejb.util.JarUtils;
 import org.openejb.util.Logger;
 import org.openejb.util.Messages;
@@ -108,16 +105,15 @@ import org.openejb.util.SafeToolkit;
  * @version 0.1, 3/21/2000
  * @since JDK 1.2
  * @see org.openejb.EnvProps
- * @see org.openejb.core.conf.Assembler
  * @see org.openejb.spi.Assembler
  */
 
 public final class OpenEJB {
 
     private static Map                containerSystems;
-//    private static SecurityService    securityService;
     private static ApplicationServer  applicationServer;
     private static TransactionManager transactionManager;
+    private static Deployer           deployer;
     private static Properties         props;
     private static boolean            initialized;
     private static Logger             logger;
@@ -212,7 +208,7 @@ public final class OpenEJB {
         logger.i18n.debug( "startup.instantiatingAssemberClass", className );
         Assembler assembler = null;
 
-	try {
+        try {
             assembler = (Assembler)toolkit.newInstance(className);
         } catch ( OpenEJBException oe ){
             logger.i18n.fatal( "startup.assemblerCannotBeInstanitated", oe );
@@ -320,6 +316,11 @@ public final class OpenEJB {
             logger.i18n.debug( "startup.transactionManager", transactionManager.getClass().getName() );
         }
 
+        deployer = assembler.getDeployer();
+        if(deployer != null) {
+            deployer.startDeploying();
+        }
+
         logger.i18n.info( "startup.ready" );
     }
 
@@ -336,6 +337,14 @@ public final class OpenEJB {
 
     public static ApplicationServer getApplicationServer(){
         return applicationServer;
+    }
+
+    /**
+     * Gets the current deployer implementation.  This may be null of the
+     * current configuration does not support deployment at runtime.
+     */
+    public static Deployer getDeployer() {
+        return deployer;
     }
 
     /**
@@ -381,6 +390,23 @@ public final class OpenEJB {
      */
     public static ContainerSystem[] getContainerSystems() {
         return (ContainerSystem [])containerSystems.values().toArray(new ContainerSystem [containerSystems.size()]);
+    }
+
+    /**
+     * Updates the <code>ContainerSystem</code> with the specified id (for
+     * example, in the case of a redeployment).
+     */
+    public static void setContainerSystem(String id, ContainerSystem system) {
+        containerSystems.put(id, system);
+    }
+
+    /**
+     * Removes the <code>ContainerSystem</code> with the specified id (for
+     * example, in the case of an undeployment).  If this was the default
+     * ContainerSystem, you may want to set a new default.
+     */
+    public static void removeContainerSystem(String id) {
+        containerSystems.remove(id);
     }
 
     /**

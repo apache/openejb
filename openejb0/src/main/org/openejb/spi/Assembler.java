@@ -68,7 +68,7 @@ public interface Assembler {
      * configured at startup.
      */
     public ContainerSystem[] getContainerSystems();
-    
+
     /**
      * Gets the <code>TransactionManager</code> that this container manager exposes to the <code>Container</code>s it manages.
      *
@@ -77,4 +77,11 @@ public interface Assembler {
      * @see org.openejb.spi.TransactionService#getTransactionManager() TransactionService.getTransactionManager()
      */
     public TransactionManager getTransactionManager( );
+
+    /**
+     * Gets the <code>Deployer</code> that OpenEJB should use to manage ongoing
+     * deployment activity.  This may be null if this configuration does not
+     * support deployment activity at runtime.
+     */
+    public Deployer getDeployer();
 }
