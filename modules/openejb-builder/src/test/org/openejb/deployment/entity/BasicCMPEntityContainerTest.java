@@ -53,8 +53,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
 import javax.management.ObjectName;
@@ -62,11 +62,10 @@ import javax.sql.DataSource;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
+
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -456,8 +455,6 @@ public class BasicCMPEntityContainerTest extends TestCase {
         slots[1] = new CacheSlot("value", String.class, null);
         CacheTable cacheTable = new CacheTable("MockEJB", slots, null, createCommand, storeCommand, removeCommand);
         globalSchema.addCacheTable(cacheTable);
-        
-        builder.setQueries(new HashMap());
         
         container = builder.createConfiguration();
 

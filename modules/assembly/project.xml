@@ -319,6 +319,15 @@
         </dependency>
 
         <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>&antlr-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
             <version>&ant-version;</version>
