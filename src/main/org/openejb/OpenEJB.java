@@ -116,7 +116,7 @@ public final class OpenEJB {
     private static SecurityService    securityService;
     private static ApplicationServer  applicationServer;
     private static TransactionManager transactionManager;
-    private static Properties         initProps;
+    private static Properties         props;
     private static boolean            initialized;
     private static Category           logger = Category.getInstance("OpenEJB");
 
@@ -131,7 +131,13 @@ public final class OpenEJB {
      * @exception org.openejb.OpenEJBException Thrown if a problem occurs building the ContainerSystem
      * @since JDK 1.2
      */
-    public static void init(Properties props, ApplicationServer appServer) throws OpenEJBException{
+    public static void init(Properties initProps, ApplicationServer appServer) throws OpenEJBException{
+        
+//      try{
+//          System.getProperties().list(new java.io.PrintStream(new java.io.FileOutputStream("sys.properties")));
+//      }catch (Exception e){
+//      }
+        
         if ( initialized ) {
             logger.error("Cannot initialize OpenEJB a second time in the same VM.");
             throw new OpenEJBException("OpenEJB has already been initialized.");
@@ -154,19 +160,20 @@ public final class OpenEJB {
                 logger.warn("Could not install default SecurityManager: "+e.getClass().getName()+": "+e.getMessage());
             }
         }
-        initProps = props;
+        
+        props = new Properties(System.getProperties());
+
+        if ( initProps == null ) {
+            logger.info("No initialization properties were passed in, using system properties instead.");
+        } else {
+            props.putAll( initProps );            
+        }
+        
         if ( appServer == null ) logger.warn("No ApplicationServer was specified!  The container system will only be accessible by same-vm clients via the IntraVm Server.");
         applicationServer = appServer;
             
 
         SafeToolkit toolkit = SafeToolkit.getToolkit("OpenEJB");
-        Enumeration enum = System.getProperties().propertyNames();
-        while(enum.hasMoreElements()){
-            String name = (String)enum.nextElement();
-            if(!props.containsKey(name)){
-                props.setProperty(name, System.getProperties().getProperty(name));
-            }
-        }
 
         /* Uses the EnvProps.ASSEMBLER property to obtain the Assembler impl.
            Default is org.openejb.core.conf.Assembler*/
@@ -216,16 +223,51 @@ public final class OpenEJB {
             throw new OpenEJBException("The Assembler returned a null container system.");
         }
 
+        if (logger.isDebugEnabled()){
+            logger.debug("Containers        : "+containerSystem.containers().length);
+            
+            if (containerSystem.containers().length > 0) {
+                Container[] c = containerSystem.containers();
+                logger.debug("   Type        Container ID");
+                for (int i=0; i < c.length; i++){
+                    String entry = "   ";
+                    switch ( c[i].getContainerType() ) {
+                    case Container.ENTITY:    entry += "ENTITY      "; break;
+                    case Container.STATEFUL:  entry += "STATEFUL    "; break;
+                    case Container.STATELESS: entry += "STATELESS   "; break;
+                    }
+                    entry += c[i].getContainerID();
+                    logger.debug(entry);
+                }
+            }
+    
+            logger.debug("Deployments       : "+containerSystem.deployments().length);
+            if (containerSystem.deployments().length > 0) {
+                logger.debug("   Type        Deployment ID");
+                DeploymentInfo[] d = containerSystem.deployments();
+                for (int i=0; i < d.length; i++){
+                    String entry = "   ";
+                    switch ( d[i].getComponentType() ) {
+                    case DeploymentInfo.BMP_ENTITY: entry += "BMP_ENTITY  "; break;
+                    case DeploymentInfo.CMP_ENTITY: entry += "CMP_ENTITY  "; break;
+                    case DeploymentInfo.STATEFUL:   entry += "STATEFUL    "; break;
+                    case DeploymentInfo.STATELESS:  entry += "STATELESS   "; break;
+                    }
+                    entry += d[i].getDeploymentID();
+                    logger.debug(entry);
+                }
+            }
+        }
         
-        logger.debug("There are "+containerSystem.containers().length+" containers.");
-        logger.debug("There are "+containerSystem.deployments().length+" ejb deployments.");
+      //logger.debug("There are "+containerSystem.containers().length+" containers.");
+      //logger.debug("There are "+containerSystem.deployments().length+" ejb deployments.");
 
         securityService    = assembler.getSecurityService();
         if (securityService == null) {
             logger.fatal("OpenEJB has encountered a fatal error and cannot be started: The Assembler returned a null security service.");
             throw new OpenEJBException("The Assembler returned a null security service.");
         } else {
-            logger.debug("SecurityService implementation: "+securityService.getClass().getName());
+            logger.debug("SecurityService   : "+securityService.getClass().getName());
         }
         
         transactionManager = assembler.getTransactionManager();
@@ -233,7 +275,7 @@ public final class OpenEJB {
             logger.fatal("OpenEJB has encountered a fatal error and cannot be started: The Assembler returned a null transaction manager.");
             throw new OpenEJBException("The Assembler returned a null transaction service.");
         } else {
-            logger.debug("TransactionManager implementation: "+transactionManager.getClass().getName());
+            logger.debug("TransactionManager: "+transactionManager.getClass().getName());
         }
         
         logger.info("OpenEJB ready.");
@@ -337,7 +379,7 @@ public final class OpenEJB {
     * container system.
     */
     public static Properties getInitProps( ){
-        return (Properties)initProps.clone();
+        return (Properties)props.clone();
     }
 
     public static boolean isInitialized(){
