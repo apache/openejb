@@ -121,30 +121,31 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
     private final String[] localJndiNames;
 
     private final SecurityConfiguration securityConfiguration;
-    private transient PolicyConfiguration policyConfiguration;
-    private transient Subject defaultSubject;
+    private PolicyConfiguration policyConfiguration;
+    private final Subject defaultSubject;
+    private final Subject runAsSubject;
     private final BasicTimerServiceImpl timerService;
 
 
     public GenericEJBContainer(Object containerId,
-                               String ejbName,
-                               ProxyInfo proxyInfo,
-                               InterfaceMethodSignature[] signatures,
-                               InstanceContextFactory contextFactory,
-                               InterceptorBuilder interceptorBuilder,
-                               InstancePool pool,
-                               Map componentContext,
-                               UserTransactionImpl userTransaction,
-                               String[] jndiNames,
-                               String[] localJndiNames,
-                               TransactionContextManager transactionContextManager,
-                               TrackedConnectionAssociator trackedConnectionAssociator,
-                               ThreadPooledTimer timer,
-                               String objectName,
-                               Kernel kernel,
-                               SecurityConfiguration securityConfiguration,
-                               Subject defaultSubject,
-                               ClassLoader classLoader) throws Exception {
+            String ejbName,
+            ProxyInfo proxyInfo,
+            InterfaceMethodSignature[] signatures,
+            InstanceContextFactory contextFactory,
+            InterceptorBuilder interceptorBuilder,
+            InstancePool pool,
+            Map componentContext,
+            UserTransactionImpl userTransaction,
+            String[] jndiNames,
+            String[] localJndiNames,
+            TransactionContextManager transactionContextManager,
+            TrackedConnectionAssociator trackedConnectionAssociator,
+            ThreadPooledTimer timer,
+            String objectName,
+            Kernel kernel,
+            SecurityConfiguration securityConfiguration,
+            Subject defaultSubject,
+            Subject runAsSubject, ClassLoader classLoader) throws Exception {
 
         assert (containerId != null);
         assert (ejbName != null && ejbName.length() > 0);
@@ -216,6 +217,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
         this.securityConfiguration = securityConfiguration;
         this.defaultSubject = defaultSubject;
+        this.runAsSubject = runAsSubject;
 
         // TODO maybe there is a more suitable place to do this.  Maybe not.
 
@@ -374,6 +376,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         }
 
         if (defaultSubject != null) ContextManager.registerSubject(defaultSubject);
+        if (runAsSubject != null) ContextManager.registerSubject(runAsSubject);
 
         if (securityConfiguration != null) {
             /**
@@ -432,6 +435,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         }
 
         if (defaultSubject != null) ContextManager.unregisterSubject(defaultSubject);
+        if (runAsSubject != null) ContextManager.unregisterSubject(runAsSubject);
 
         if (this.securityConfiguration != null) {
             /**
@@ -491,6 +495,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
         infoFactory.addAttribute("SecurityConfiguration", SecurityConfiguration.class, true);
         infoFactory.addAttribute("DefaultSubject", Subject.class, true);
+        infoFactory.addAttribute("RunAsSubject", Subject.class, true);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
@@ -522,6 +527,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
             "kernel",
             "SecurityConfiguration",
             "DefaultSubject",
+            "RunAsSubject",
             "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
