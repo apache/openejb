@@ -120,9 +120,6 @@ public class SunORBConfigAdapter implements ConfigAdapter {
 
                 }
             }
-        } else {
-            supProp = "NoProtection";
-            reqProp = "NoProtection";
         }
         System.setProperty("org.openejb.corba.ssl.SocketProperties.supports", supProp);
         System.setProperty("org.openejb.corba.ssl.SocketProperties.requires", reqProp);

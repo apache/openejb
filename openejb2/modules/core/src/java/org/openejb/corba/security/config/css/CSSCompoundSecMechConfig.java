@@ -49,6 +49,8 @@ package org.openejb.corba.security.config.css;
 
 import java.io.Serializable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.UserException;
 import org.omg.CSI.EstablishContext;
@@ -58,6 +60,7 @@ import org.omg.IOP.SecurityAttributeService;
 import org.omg.IOP.ServiceContext;
 
 import org.openejb.corba.security.config.tss.TSSCompoundSecMechConfig;
+import org.openejb.corba.security.config.ConfigUtil;
 import org.openejb.corba.util.Util;
 
 
@@ -65,6 +68,8 @@ import org.openejb.corba.util.Util;
  * @version $Rev: $ $Date$
  */
 public class CSSCompoundSecMechConfig implements Serializable {
+
+    private final static Log log = LogFactory.getLog(CSSCompoundSecMechConfig.class);
 
     private short supports;
     private short requires;
@@ -103,6 +108,15 @@ public class CSSCompoundSecMechConfig implements Serializable {
     }
 
     public boolean canHandle(TSSCompoundSecMechConfig requirement) {
+
+        if (log.isDebugEnabled()) {
+            log.debug("canHandle()");
+            log.debug("    CSS SUPPORTS: " + ConfigUtil.flags(supports));
+            log.debug("    CSS REQUIRES: " + ConfigUtil.flags(requires));
+            log.debug("    TSS SUPPORTS: " + ConfigUtil.flags(requirement.getSupports()));
+            log.debug("    TSS REQUIRES: " + ConfigUtil.flags(requirement.getRequires()));
+        }
+
         if ((supports & requirement.getRequires()) != requirement.getRequires()) return false;
         if ((requires & requirement.getSupports()) != requires) return false;
 

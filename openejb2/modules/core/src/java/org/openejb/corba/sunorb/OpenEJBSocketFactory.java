@@ -73,6 +73,7 @@ import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
 import org.omg.IOP.TaggedComponent;
 
 import org.openejb.corba.MinorCodes;
+import org.openejb.corba.security.config.ConfigUtil;
 import org.openejb.corba.security.config.tss.TSSCompoundSecMechListConfig;
 import org.openejb.corba.security.config.tss.TSSSSLTransportConfig;
 import org.openejb.corba.security.config.tss.TSSTransportMechConfig;
@@ -140,13 +141,15 @@ public class OpenEJBSocketFactory implements ORBSocketFactory {
             } else if ("Integrity".equals(props[i])) {
             } else if ("NoProtection".equals(props[i])) {
                 requires |= NoProtection.value;
-            } else if (props[i].trim().length() == 0) {
-                requires |= NoProtection.value;
             } else {
                 log.error("Unsupported socket property: " + props[i]);
             }
         }
-        if (requires == 0) requires = NoProtection.value;
+
+        if (log.isDebugEnabled()) {
+            log.debug("   SUPPORTS: " + ConfigUtil.flags(supports));
+            log.debug("   REQUIRES: " + ConfigUtil.flags(requires));
+        }
 
         clientAuthSupported = caSupported;
         clientAuthRequired = caRequired;
@@ -165,7 +168,7 @@ public class OpenEJBSocketFactory implements ORBSocketFactory {
             serverSocket.setEnabledCipherSuites(cipherSuites);
             serverSocket.setWantClientAuth(clientAuthSupported);
             serverSocket.setNeedClientAuth(clientAuthRequired);
-            serverSocket.setSoTimeout(10 * 1000);
+            serverSocket.setSoTimeout(60 * 1000);
 
             if (log.isDebugEnabled()) {
                 log.debug("Created SSL server socket on port " + port);
@@ -197,7 +200,7 @@ public class OpenEJBSocketFactory implements ORBSocketFactory {
             socket.setEnabledCipherSuites(cipherSuites);
             socket.setWantClientAuth(clientAuthSupported);
             socket.setNeedClientAuth(clientAuthRequired);
-            socket.setSoTimeout(10 * 1000);
+            socket.setSoTimeout(60 * 1000);
 
             if (log.isDebugEnabled()) {
                 log.debug("Created SSL socket to " + endPointInfo.getHost() + ":" + endPointInfo.getPort());
@@ -227,11 +230,22 @@ public class OpenEJBSocketFactory implements ORBSocketFactory {
                 for (int j = 0; j < config.size(); j++) {
                     TSSTransportMechConfig transport_mech = config.mechAt(j).getTransport_mech();
                     if (transport_mech instanceof TSSSSLTransportConfig) {
-                        TSSSSLTransportConfig sslConig = (TSSSSLTransportConfig) transport_mech;
+                        TSSSSLTransportConfig sslConfig = (TSSSSLTransportConfig) transport_mech;
+
+                        if (log.isDebugEnabled()) {
+                            int supports = sslConfig.getSupports();
+                            int requires = sslConfig.getRequires();
+
+                            log.debug("IOR from target " + sslConfig.getHostname().toLowerCase() + ":" + sslConfig.getPort());
+                            log.debug("   SUPPORTS: " + ConfigUtil.flags(supports));
+                            log.debug("   REQUIRES: " + ConfigUtil.flags(requires));
+                        }
+
+                        if ((NoProtection.value & sslConfig.getRequires()) == NoProtection.value) break;
 
                         return new EndPointImpl(IIOP_SSL,
-                                                sslConig.getPort(),
-                                                sslConig.getHostname().toLowerCase());
+                                                sslConfig.getPort(),
+                                                sslConfig.getHostname().toLowerCase());
 
                     }
                 }
