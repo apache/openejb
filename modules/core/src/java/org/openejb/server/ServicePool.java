@@ -63,10 +63,49 @@ import org.openejb.*;
  */
 public class ServicePool implements ServerService {
     
-    ServerService next;
+    private final ServerService next;
+    private final int threads;
+    private final int priority;
 
-    public ServicePool(ServerService next){
+    public ServicePool(String name, ServerService next, int threads, int priority){
         this.next = next;
+        this.threads = threads;
+        this.priority = priority;
+    }
+
+
+    public void service(final Socket socket) throws ServiceException, IOException{
+        // This isn't a pool now, but will be someday
+        Thread d = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    next.service(socket);
+                } catch (SecurityException e) {
+                    //logger.error( "Security error: "+ e.getMessage() );
+                } catch (Throwable e) {
+                    //logger.error( "Unexpected error", e );
+
+                } finally {
+                    try {
+                        if (socket != null)
+                            socket.close();
+                    } catch (Throwable t) {
+                        //logger.error("Encountered problem while closing
+                        // connection with client: "+t.getMessage());
+                    }
+                }
+            }
+        });
+        d.setDaemon(true);
+        d.start();
+    }
+
+    public int getThreads() {
+        return threads;
+    }
+
+    public int getPriority() {
+        return priority;
     }
 
     /**
@@ -95,32 +134,6 @@ public class ServicePool implements ServerService {
         
         // Then call the next guy
         next.stop();
-    }
-
-    public void service(final Socket socket) throws ServiceException, IOException{
-        // This isn't a pool now, but will be someday
-        Thread d = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    next.service(socket);
-                } catch (SecurityException e) {
-                    //logger.error( "Security error: "+ e.getMessage() );
-                } catch (Throwable e) {
-                    //logger.error( "Unexpected error", e );
-
-                } finally {
-                    try {
-                        if (socket != null)
-                            socket.close();
-                    } catch (Throwable t) {
-                        //logger.error("Encountered problem while closing
-                        // connection with client: "+t.getMessage());
-                    }
-                }
-            }
-        });
-        d.setDaemon(true);
-        d.start();
     }
 
 
