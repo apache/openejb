@@ -24,7 +24,7 @@ set CP=%OPENEJB_HOME%\lib\log4j-1.2.1.jar;%CP%
 set CP=%OPENEJB_HOME%\lib\xercesImpl-2.0.2.jar;%CP%
 set CP=%OPENEJB_HOME%\lib\xmlParserAPIs-2.0.2.jar;%CP%
 
-set CP=%JAVA_HOME%\lib\tools.jar;%CP%
+set CP="%JAVA_HOME%\lib\tools.jar";%CP%
 
 set OPTIONS=
 if "%1"=="" (goto Usage) else goto gen
