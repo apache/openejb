@@ -53,6 +53,7 @@ import net.sf.cglib.reflect.FastClass;
 import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.EJBOperation;
 import org.openejb.nova.entity.BusinessMethod;
+import org.openejb.nova.entity.EntityInstanceContext;
 
 /**
  * Virtual operation handling removal of an instance.
@@ -65,12 +66,13 @@ public class BMPRemoveMethod extends BusinessMethod {
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        ensureLoaded(invocation);
+        EntityInstanceContext ctx = (EntityInstanceContext) invocation.getEJBInstanceContext();
+        ensureLoaded(invocation, ctx);
         InvocationResult result = invoke(invocation, EJBOperation.EJBREMOVE);
 
         if (result.isNormal()) {
             // clear id as we are no longer associated
-            invocation.getEJBInstanceContext().setId(null);
+            ctx.setId(null);
         }
         return result;
     }
