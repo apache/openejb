@@ -51,8 +51,6 @@ import org.omg.PortableInterceptor.ForwardRequest;
 
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 class ClientTransactionInterceptor extends LocalObject implements ClientRequestInterceptor {

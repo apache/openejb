@@ -45,14 +45,12 @@
 package org.openejb.corba.transaction;
 
 import org.omg.CORBA.LocalObject;
-import org.omg.PortableInterceptor.ServerRequestInterceptor;
-import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ForwardRequest;
+import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.omg.PortableInterceptor.ServerRequestInterceptor;
 
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 class ServerTransactionInterceptor extends LocalObject implements ServerRequestInterceptor {

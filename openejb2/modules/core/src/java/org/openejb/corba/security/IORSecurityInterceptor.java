@@ -44,14 +44,12 @@
  */
 package org.openejb.corba.security;
 
-import org.omg.PortableInterceptor.IORInterceptor;
-import org.omg.PortableInterceptor.IORInfo;
 import org.omg.CORBA.LocalObject;
+import org.omg.PortableInterceptor.IORInfo;
+import org.omg.PortableInterceptor.IORInterceptor;
 
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 class IORSecurityInterceptor extends LocalObject implements IORInterceptor {

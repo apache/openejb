@@ -53,8 +53,6 @@ import org.omg.PortableInterceptor.ORBInitializer;
 
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class TransactionInitializer extends LocalObject implements ORBInitializer {
@@ -74,7 +72,7 @@ public class TransactionInitializer extends LocalObject implements ORBInitialize
      */
     public void pre_init(ORBInitInfo info) {
         slotId = info.allocate_slot_id();
-        
+
         try {
             info.add_client_request_interceptor(new ClientTransactionInterceptor(slotId));
             info.add_server_request_interceptor(new ServerTransactionInterceptor(slotId));

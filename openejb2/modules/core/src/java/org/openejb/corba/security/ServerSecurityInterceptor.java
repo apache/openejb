@@ -51,8 +51,6 @@ import org.omg.PortableInterceptor.ServerRequestInterceptor;
 
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 class ServerSecurityInterceptor extends LocalObject implements ServerRequestInterceptor {
@@ -64,26 +62,32 @@ class ServerSecurityInterceptor extends LocalObject implements ServerRequestInte
     }
 
     public void receive_request(ServerRequestInfo ri) throws ForwardRequest {
+        int i = 0;
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void receive_request_service_contexts(ServerRequestInfo ri) throws ForwardRequest {
+        int i = 0;
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void send_exception(ServerRequestInfo ri) throws ForwardRequest {
+        int i = 0;
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void send_other(ServerRequestInfo ri) throws ForwardRequest {
+        int i = 0;
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void send_reply(ServerRequestInfo ri) {
+        int i = 0;
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void destroy() {
+        int i = 0;
         //To change body of implemented methods use File | Settings | File Templates.
     }
 

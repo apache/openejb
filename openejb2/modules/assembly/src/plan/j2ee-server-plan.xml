@@ -103,6 +103,22 @@ by the server.
         <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
     </dependency>
 
+    <dependency>
+        <uri>openorb/jars/openorb-orb-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>openorb/jars/openorb-ins-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>openorb/jars/openorb-pss-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>openorb/jars/openorb-orb-omg-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>openorb/jars/openorb-ots-${openorb_version}.jar</uri>
+    </dependency>
+
     <!-- required for rar 1.5 to load realms -->
     <dependency>
         <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
@@ -330,20 +346,24 @@ by the server.
     <!-- end deployment block -->
 
     <gbean name="openejb.CORBA:type=Server" class="org.openejb.corba.CORBABean">
-        <attribute name="Args" type="java.util.ArrayList">-ORBPort, 2001</attribute>
-        <attribute name="Props" type="java.util.Properties">
+        <reference name="ThreadPool">geronimo.server:name=DefaultThreadPool,*</reference>
+        <attribute name="args" type="java.util.ArrayList">-ORBPort, 2001, -ORBInitRef, NameService=corbaloc::localhost:1050/NameService</attribute>
+        <attribute name="props" type="java.util.Properties">
 
             org.omg.CORBA.ORBClass=org.openorb.orb.core.ORB
             org.omg.CORBA.ORBSingletonClass=org.openorb.orb.core.ORBSingleton
 
-            Zorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB
-            Zorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton
-
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer
 
-            Zopenorb.home=resource:org/openorb/
+        </attribute>
+    </gbean>
 
+    <gbean name="openejb.CORBA:type=NameServer" class="org.openejb.corba.OpenORBNameBean">
+        <reference name="ThreadPool">geronimo.server:name=DefaultThreadPool,*</reference>
+        <attribute name="args" type="java.util.ArrayList">-ORBPort, 1050</attribute>
+        <attribute name="props" type="java.util.Properties">
+            openorb.home=resource:org/openorb/
         </attribute>
 
     </gbean>
@@ -352,6 +372,13 @@ by the server.
         <attribute name="POAName" type="java.lang.String">org/openejb/POA</attribute>
         <reference name="Server">openejb.CORBA:type=Server</reference>
         <reference name="Containers">geronimo.server:EJBModule=org/openejb/scenario001,*</reference>
+        <reference name="TieLoader">openejb.CORBA:type=TieLoader,name=ClasspathTieLoader</reference>
     </gbean>
+
+    <gbean name="openejb.CORBA:type=OpenORBUtil" class="org.openejb.corba.util.OpenORBUtil">
+        <reference name="Server">openejb.CORBA:type=Server</reference>
+    </gbean>
+
+    <gbean name="openejb.CORBA:type=TieLoader,name=ClasspathTieLoader" class="org.openejb.corba.util.ClasspathTieLoader"/>
 
 </configuration>

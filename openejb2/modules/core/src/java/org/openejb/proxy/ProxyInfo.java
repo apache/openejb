@@ -104,6 +104,26 @@ public class ProxyInfo implements Serializable {
         return componentType == EJBComponentType.STATELESS || componentType == EJBComponentType.STATEFUL;
     }
 
+    public boolean isStatefulSessionBean() {
+        return componentType == EJBComponentType.STATEFUL;
+    }
+
+    public boolean isStatelessSessionBean() {
+        return componentType == EJBComponentType.STATELESS;
+    }
+
+    public boolean isBMPEntityBean() {
+        return componentType == EJBComponentType.BMP_ENTITY;
+    }
+
+    public boolean isCMPEntityBean() {
+        return componentType == EJBComponentType.CMP_ENTITY;
+    }
+
+    public boolean isMessageBean() {
+        return componentType == EJBComponentType.MESSAGE_DRIVEN;
+    }
+
     public int getComponentType() {
         return componentType;
     }

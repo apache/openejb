@@ -38,66 +38,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2004-2005 (C) The OpenEJB Group. All Rights Reserved.
  *
  * $Id$
  */
-package org.openejb.corba.security;
-
-import org.omg.CORBA.LocalObject;
-import org.omg.PortableInterceptor.ClientRequestInfo;
-import org.omg.PortableInterceptor.ClientRequestInterceptor;
-import org.omg.PortableInterceptor.ForwardRequest;
+package org.openejb.corba;
 
 
 /**
  * @version $Revision$ $Date$
  */
-class ClientSecurityInterceptor extends LocalObject implements ClientRequestInterceptor {
-
-    private final int slotId;
-
-    public ClientSecurityInterceptor(int slotId) {
-        this.slotId = slotId;
+public class CORBAException extends Exception {
+    public CORBAException() {
+        super();
     }
 
-    public void receive_exception(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public CORBAException(String message) {
+        super(message);
     }
 
-    public void receive_other(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public CORBAException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public void receive_reply(ClientRequestInfo ri) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void send_poll(ClientRequestInfo ri) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void send_request(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void destroy() {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    /**
-     * Returns the name of the interceptor.
-     * <p/>
-     * Each Interceptor may have a name that may be used administratively
-     * to order the lists of Interceptors. Only one Interceptor of a given
-     * name can be registered with the ORB for each Interceptor type. An
-     * Interceptor may be anonymous, i.e., have an empty string as the name
-     * attribute. Any number of anonymous Interceptors may be registered with
-     * the ORB.
-     *
-     * @return the name of the interceptor.
-     */
-    public String name() {
-        return "ClientSecurityInterceptor";
+    public CORBAException(Throwable cause) {
+        super(cause);
     }
 }

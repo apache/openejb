@@ -481,7 +481,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         return GBEAN_INFO;
     }
 
-    private class DefaultSubjectInterceptor implements Interceptor {
+    private final class DefaultSubjectInterceptor implements Interceptor {
 
         private final Interceptor interceptor;
 

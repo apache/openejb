@@ -46,8 +46,6 @@ package org.openejb.corba.compiler;
 
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class CompilerException extends Exception {

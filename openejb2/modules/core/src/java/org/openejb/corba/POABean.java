@@ -38,7 +38,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2004-2005 (C) The OpenEJB Group. All Rights Reserved.
  *
  * $Id$
  */
@@ -53,6 +53,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.Policy;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
@@ -69,6 +71,8 @@ import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.WaitingException;
 
 import org.openejb.EJBContainer;
+import org.openejb.corba.util.TieLoader;
+import org.openejb.corba.util.UtilDelegateImpl;
 
 
 /**
@@ -78,27 +82,32 @@ public class POABean implements GBeanLifecycle, ReferenceCollectionListener {
 
     private final Log log = LogFactory.getLog(POABean.class);
 
-    private CORBABean server;
+    private final ClassLoader classLoader;
+    private final String POAName;
+    private final CORBABean server;
+    private final TieLoader tieLoader;
     private POA localPOA;
-    private String POAName;
+    private NamingContextExt initialContext;
     private Collection containers = Collections.EMPTY_SET;
     private Map adapters = new HashMap();
+    private static final Map containerMap = new HashMap();
 
+
+    public POABean(ClassLoader classLoader, String POAName, CORBABean server, TieLoader tieLoader) {
+        this.classLoader = classLoader;
+        this.POAName = POAName;
+        this.server = server;
+        this.tieLoader = tieLoader;
+
+        UtilDelegateImpl.setTieLoader(tieLoader);
+    }
 
     public CORBABean getServer() {
         return server;
     }
 
-    public void setServer(CORBABean server) {
-        this.server = server;
-    }
-
     public String getPOAName() {
         return POAName;
-    }
-
-    public void setPOAName(String POAName) {
-        this.POAName = POAName;
     }
 
     public Collection getContainers() {
@@ -112,25 +121,47 @@ public class POABean implements GBeanLifecycle, ReferenceCollectionListener {
         this.containers = containers;
     }
 
+    public TieLoader getTieLoader() {
+        return tieLoader;
+    }
+
+    public static EJBContainer getContainer(String containerId) {
+        return (EJBContainer) containerMap.get(containerId);
+    }
+
     public void doStart() throws WaitingException, Exception {
-        POA rootPOA = server.getRootPOA();
+        ClassLoader savedLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(classLoader);
 
-        Policy[] policies = new Policy[]{
-            rootPOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT),
-            rootPOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_ACTIVE_OBJECT_MAP_ONLY),
-            rootPOA.create_servant_retention_policy(ServantRetentionPolicyValue.RETAIN),
-            rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
-            rootPOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
-        };
-        localPOA = rootPOA.create_POA(POAName, rootPOA.the_POAManager(), policies);
+            POA rootPOA = server.getRootPOA();
 
-        localPOA.the_POAManager().activate();
+            Policy[] policies = new Policy[]{
+                rootPOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
+                rootPOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_ACTIVE_OBJECT_MAP_ONLY),
+                rootPOA.create_servant_retention_policy(ServantRetentionPolicyValue.RETAIN),
+                rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
+                rootPOA.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
+            };
+            localPOA = rootPOA.create_POA(POAName, rootPOA.the_POAManager(), policies);
 
-        Iterator iter = containers.iterator();
-        while (iter.hasNext()) {
-            EJBContainer container = (EJBContainer) iter.next();
+            localPOA.the_POAManager().activate();
 
-            adapters.put(container.getContainerID(), new Adapter(server.getORB(), localPOA, container));
+            org.omg.CORBA.Object obj = server.getORB().resolve_initial_references("NameService");
+            initialContext = NamingContextExtHelper.narrow(obj);
+
+            for (Iterator iter = adapters.keySet().iterator(); iter.hasNext();) {
+                AdapterWrapper adapterWrapper = (AdapterWrapper) adapters.get(iter.next());
+                try {
+                    adapterWrapper.start(server.getORB(), localPOA, initialContext, tieLoader);
+                    log.info("Linked container " + adapterWrapper.getContainer().getContainerID());
+                } catch (CORBAException e) {
+                    log.error("Unable to link container " + adapterWrapper.getContainer().getContainerID());
+                    log.error(e);
+                }
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(savedLoader);
         }
 
         log.info("Started POABean");
@@ -138,10 +169,17 @@ public class POABean implements GBeanLifecycle, ReferenceCollectionListener {
 
     public void doStop() throws WaitingException, Exception {
         if (localPOA != null) {
-            Iterator iter = adapters.keySet().iterator();
-            while (iter.hasNext()) {
-                ((Adapter) adapters.remove(iter.next())).stop();
+            for (Iterator iter = adapters.keySet().iterator(); iter.hasNext();) {
+                AdapterWrapper adapterWrapper = (AdapterWrapper) adapters.get(iter.next());
+                try {
+                    adapterWrapper.stop();
+                    log.info("Unlinked container " + adapterWrapper.getContainer().getContainerID());
+                } catch (CORBAException e) {
+                    log.error("Error unlinking container " + adapterWrapper.getContainer().getContainerID());
+                    log.error(e);
+                }
             }
+            adapters.clear();
             localPOA.the_POAManager().deactivate(true, true);
             localPOA = null;
         }
@@ -157,9 +195,12 @@ public class POABean implements GBeanLifecycle, ReferenceCollectionListener {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(POABean.class);
 
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("POAName", String.class, true);
         infoFactory.addReference("Server", CORBABean.class);
         infoFactory.addReference("Containers", EJBContainer.class);
+        infoFactory.addReference("TieLoader", TieLoader.class);
+        infoFactory.setConstructor(new String[]{"classLoader", "POAName", "Server", "TieLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -170,19 +211,38 @@ public class POABean implements GBeanLifecycle, ReferenceCollectionListener {
 
     public void memberAdded(ReferenceCollectionEvent event) {
         EJBContainer container = (EJBContainer) event.getMember();
+
+        containerMap.put(container.getContainerID(), container);
+
         if (localPOA != null) {
-            adapters.put(container.getContainerID(), new Adapter(server.getORB(), localPOA, container));
+            try {
+                AdapterWrapper adapterWrapper = new AdapterWrapper(container);
+
+                adapterWrapper.start(server.getORB(), localPOA, initialContext, tieLoader);
+                adapters.put(container.getContainerID(), adapterWrapper);
+
+                log.info("Linked container " + container.getContainerID());
+            } catch (CORBAException e) {
+                log.error("Unable to link container " + container.getContainerID());
+                log.error(e);
+            }
         }
-        log.info("Linked container " + container.getContainerID());
     }
 
     public void memberRemoved(ReferenceCollectionEvent event) {
         EJBContainer container = (EJBContainer) event.getMember();
 
-        Adapter adapter = (Adapter) adapters.remove(container.getContainerID());
-        if (adapter != null) {
-            adapter.stop();
+        containerMap.remove(container.getContainerID());
+
+        AdapterWrapper adapterWrapper = (AdapterWrapper) adapters.remove(container.getContainerID());
+        if (adapterWrapper != null) {
+            try {
+                adapterWrapper.stop();
+                log.info("Unlinked container " + container.getContainerID());
+            } catch (CORBAException e) {
+                log.error("Error unlinking container " + container.getContainerID());
+                log.error(e);
+            }
         }
-        log.info("Unlinked container " + container.getContainerID());
     }
 }

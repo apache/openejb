@@ -38,66 +38,69 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2004-2005 (C) The OpenEJB Group. All Rights Reserved.
  *
  * $Id$
  */
-package org.openejb.corba.security;
+package org.openejb.corba.util;
 
-import org.omg.CORBA.LocalObject;
-import org.omg.PortableInterceptor.ClientRequestInfo;
-import org.omg.PortableInterceptor.ClientRequestInterceptor;
-import org.omg.PortableInterceptor.ForwardRequest;
+import org.omg.PortableServer.Servant;
+
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+
+import org.openejb.EJBContainer;
+import org.openejb.corba.CORBAException;
+import org.openejb.corba.POABean;
+import org.openejb.proxy.ProxyInfo;
 
 
 /**
+ * This TIE loader will load the TIE from a deployment.  It is assumed that the
+ * container's class loader will be able to find this class.
+ *
  * @version $Revision$ $Date$
  */
-class ClientSecurityInterceptor extends LocalObject implements ClientRequestInterceptor {
+public class ClasspathTieLoader implements TieLoader {
 
-    private final int slotId;
+    public Servant loadTieClass(Class itf, ProxyInfo pi) throws CORBAException {
+        EJBContainer container = POABean.getContainer(pi.getContainerID());
 
-    public ClientSecurityInterceptor(int slotId) {
-        this.slotId = slotId;
+        String name = itf.getName();
+        try {
+            int namepos = name.lastIndexOf('.');
+            String packagename, classname;
+
+            if (namepos == -1) {
+                packagename = "";
+                classname = name;
+            } else {
+                packagename = name.substring(0, namepos + 1);
+                classname = name.substring(namepos + 1);
+            }
+            String stubName = packagename + "_" + classname + "_Tie";
+
+            return (Servant) container.getClassLoader().loadClass(stubName).newInstance();
+        } catch (InstantiationException e) {
+            throw new CORBAException(e);
+        } catch (IllegalAccessException e) {
+            throw new CORBAException(e);
+        } catch (ClassNotFoundException e) {
+            throw new CORBAException(e);
+        }
     }
 
-    public void receive_exception(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ClasspathTieLoader.class);
+
+        infoFactory.addOperation("loadTieClass", new Class[]{Class.class, ProxyInfo.class});
+
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-    public void receive_other(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void receive_reply(ClientRequestInfo ri) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void send_poll(ClientRequestInfo ri) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void send_request(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void destroy() {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    /**
-     * Returns the name of the interceptor.
-     * <p/>
-     * Each Interceptor may have a name that may be used administratively
-     * to order the lists of Interceptors. Only one Interceptor of a given
-     * name can be registered with the ORB for each Interceptor type. An
-     * Interceptor may be anonymous, i.e., have an empty string as the name
-     * attribute. Any number of anonymous Interceptors may be registered with
-     * the ORB.
-     *
-     * @return the name of the interceptor.
-     */
-    public String name() {
-        return "ClientSecurityInterceptor";
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 }

@@ -68,7 +68,7 @@ import org.openejb.EJBInvocation;
  * on w/ the interceptor stack call.
  * @version $Revision$ $Date$
  */
-public class EJBSecurityInterceptor implements Interceptor {
+public final class EJBSecurityInterceptor implements Interceptor {
     private final Interceptor next;
     private final Object contextId;
     private final PermissionManager permissionManager;
