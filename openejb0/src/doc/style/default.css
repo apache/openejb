@@ -92,27 +92,35 @@ A:active {
 
 
 h1 { 
-	font-size: 17px; 
+	font-size: 19px; 
 	font-family: arial, helvetica, sans-serif;
 	line-height: 20px; color: #000000;
 }
 
 h2 { 
-	font-size: 15px; 
+	font-size: 17px; 
 	font-family: arial, helvetica, sans-serif;
 	line-height: 20px; color: #000000;
 }
 
 h3 { 
-	font-size: 13px; 
+	font-size: 15px; 
 	font-family: arial, helvetica, sans-serif;
 	line-height: 17px; color: #000000;
+	font-weight: bold; 
 }
 
 h4 { 
-	font-size: 11px; 
+	font-size: 13px; 
 	font-family: arial, helvetica, sans-serif;
 	line-height: 15px; color: #000000;
+	font-weight: bold; 
+}
+
+h5 { 
+	font-size: 12px; 
+	font-family: arial, helvetica, sans-serif;
+	line-height: 15px; color: #444444;
 }
 
 .bodyCode { 
