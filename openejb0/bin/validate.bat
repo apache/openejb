@@ -14,10 +14,10 @@ set CP=%JAVA_HOME%\lib\tools.jar;%CP%
 
 set OPTIONS=-Dopenejb.home=%OPENEJB_HOME%
 
-echo --------------SUPPORT INFO-------------
-echo %OS%
-echo Using JAVA_HOME:     %JAVA_HOME%
-echo Using OPENEJB_HOME:  %OPENEJB_HOME%
-echo .
+REM echo --------------SUPPORT INFO-------------
+REM echo %OS%
+REM echo Using JAVA_HOME:     %JAVA_HOME%
+REM echo Using OPENEJB_HOME:  %OPENEJB_HOME%
+REM echo .
 
 %JAVA% %OPTIONS% -classpath %CP% -Dopenejb.home=$OPENEJB_HOME org.openejb.alt.config.EjbValidator  %1 %2 %3 %4 %5 %6 %7 %8 %9
