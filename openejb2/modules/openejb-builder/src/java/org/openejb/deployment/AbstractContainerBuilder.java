@@ -53,12 +53,12 @@ import javax.ejb.Timer;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.EJBContainer;
 import org.openejb.GenericEJBContainer;
 import org.openejb.InstanceContextFactory;
