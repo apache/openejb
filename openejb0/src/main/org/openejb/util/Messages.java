@@ -49,6 +49,7 @@ package org.openejb.util;
 
 import java.text.*;
 import java.util.*;
+import org.apache.log4j.Category;
 
 
 /**
@@ -68,6 +69,9 @@ public class Messages
 
 
     private static Hashtable        _formats;
+
+    private static Category         _logger = Category.getInstance( "OpenEJB" );
+
 
 
     public static String format( String message, Object arg1 )
@@ -131,8 +135,7 @@ public class Messages
                 _messages = ResourceBundle.getBundle( ResourceName, locale );
         } catch ( Exception except ) {
             _messages = new EmptyResourceBundle();
-            Logger.getSystemLogger().println( "Failed to locate messages resource " +
-                                              ResourceName );
+            _logger.error( "Failed to locate messages resource " + ResourceName );
         }
     }
 
