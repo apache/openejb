@@ -60,6 +60,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.exolab.castor.xml.MarshalException;
+import org.exolab.castor.xml.Unmarshaller;
 import org.exolab.castor.xml.ValidationException;
 import org.openejb.OpenEJBException;
 import org.openejb.alt.config.sys.ServiceProvider;
@@ -72,6 +73,7 @@ import org.openejb.util.Messages;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class ServiceUtils {
+    
     public static String defaultProviderURL = "org.openejb";
     private static Map loadedServiceJars = new HashMap();
     private static Messages messages = new Messages("org.openejb.util.resources");
@@ -145,7 +147,9 @@ public class ServiceUtils {
         /*[1.4]  Get the ServicesJar from the service-jar.xml ***************/
         ServicesJar obj = null;
         try {
-            obj = ServicesJar.unmarshal(reader);
+            Unmarshaller unmarshaller = new Unmarshaller(ServicesJar.class);
+            unmarshaller.setWhitespacePreserve(true);
+            obj = (ServicesJar) unmarshaller.unmarshal(reader);
         } catch (MarshalException e) {
             if (e.getException() instanceof IOException) {
                 handleException("conf.4110", servicejarPath, e.getLocalizedMessage());
@@ -216,6 +220,7 @@ public class ServiceUtils {
         String confFile,
         ServiceProvider service)
         throws OpenEJBException {
+
         Properties props = new Properties();
         try {
             /* 
@@ -354,3 +359,4 @@ public class ServiceUtils {
         _logger.i18n.warning(errorCode);
     }
 }
+

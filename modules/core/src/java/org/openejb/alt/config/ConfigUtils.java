@@ -61,6 +61,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.exolab.castor.xml.MarshalException;
+import org.exolab.castor.xml.Unmarshaller;
 import org.exolab.castor.xml.ValidationException;
 import org.openejb.OpenEJBException;
 import org.openejb.alt.config.ejb11.OpenejbJar;
@@ -90,7 +91,7 @@ public class ConfigUtils  {
         Reader reader = null;
         try {
             reader = new FileReader(confFile);
-            obj = Openejb.unmarshal(reader);
+            obj = (Openejb)Openejb.unmarshal(reader);
         } catch ( FileNotFoundException e ) {
             handleException("conf.1900", confFile, e.getLocalizedMessage());
         } catch ( MarshalException e ) {
@@ -196,7 +197,9 @@ public class ConfigUtils  {
         /*[1.4]  Get the OpenejbJar from the openejb-jar.xml ***************/
         OpenejbJar obj = null;
         try {
-            obj = OpenejbJar.unmarshal(reader);
+            Unmarshaller unmarshaller = new Unmarshaller(OpenejbJar.class);
+            unmarshaller.setWhitespacePreserve(true);
+            obj = (OpenejbJar) unmarshaller.unmarshal(reader);
         } catch ( MarshalException e ) {
             if (e.getException() instanceof IOException){
                 handleException("conf.2110", jarFile, e.getLocalizedMessage());
