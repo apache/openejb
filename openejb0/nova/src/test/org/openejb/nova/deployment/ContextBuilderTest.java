@@ -182,7 +182,7 @@ public class ContextBuilderTest extends TestCase {
             // OK
         }
 
-        UserTransaction userTransaction = new UserTransactionImpl(null);
+        UserTransaction userTransaction = new UserTransactionImpl();
         compCtx = new ComponentContextBuilder(referenceFactory, userTransaction).buildContext(client);
         assertEquals(userTransaction, compCtx.lookup("UserTransaction"));
     }
