@@ -62,10 +62,11 @@ public class JarUtils{
             if ( url != null  ) {
                 jarPath = url.getPath();
                 jarPath = jarPath.substring( 0, jarPath.indexOf('!') );
-                jarPath = jarPath.substring( "file:/".length() );
+                jarPath = jarPath.substring( "file:".length() );
             }
 
             jarFile = new File(jarPath);
+            jarFile = jarFile.getAbsoluteFile();
         } catch (Exception e){
             throw new OpenEJBException("Could not locate a jar containing the path "+path, e);
         }
