@@ -528,7 +528,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
             gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));
             return gbean;
         } catch (Throwable e) {
-            throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName" + ejbName, e);
+            throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName " + ejbName, e);
         }
     }
 
