@@ -63,6 +63,10 @@
         <display>Hello World!</display>
       </navLink>
       <navLink>
+        <url>cmp_entity_postgresql.xml</url>
+        <display>Hello World CMP</display>
+      </navLink>
+      <navLink>
         <url>deploy.xml</url>
         <display>Deploy</display>
       </navLink>
