@@ -126,7 +126,11 @@ public class CMPOperationFactory extends AbstractOperationFactory {
             if (name.startsWith("ejbCreate")) {
                 // ejbCreate vop needs a reference to the ejbPostCreate method
                 int postCreateIndex = fastClass.getIndex("ejbPostCreate" + name.substring(9), beanMethod.getParameterTypes());
-                vop = new CMPCreateMethod(container, fastClass, index, postCreateIndex, persistenceFactory.getUpdateCommand(signature), slots);
+                if (Object.class.equals(beanMethod.getReturnType())) {
+                    vop = new UnknownPKCreateMethod(container, fastClass, index, postCreateIndex, persistenceFactory.getUpdateCommand(signature), slots);
+                } else {
+                    vop = new CMPCreateMethod(container, fastClass, index, postCreateIndex, persistenceFactory.getUpdateCommand(signature), slots);
+                }
             } else if (name.startsWith("ejbHome")) {
                 vop = new HomeMethod(fastClass, index);
             } else if (name.equals("ejbRemove")) {
@@ -157,7 +161,7 @@ public class CMPOperationFactory extends AbstractOperationFactory {
                 try {
                     index = MethodHelper.getSuperIndex(fastClass, signature);
                 } catch (ClassNotFoundException e) {
-                    throw new IllegalStateException("Cannot load classes for "+signature);
+                    throw new IllegalStateException("Cannot load classes for " + signature);
                 }
                 CMPEntityContainer queryContainer = (returnSchemaName == null) ? null : persistenceFactory.getContainer(returnSchemaName);
                 itable[index] = new CMPSelectMethod(queryContainer, queryCommand, multiValue, query.isLocal());
@@ -177,13 +181,13 @@ public class CMPOperationFactory extends AbstractOperationFactory {
             String fieldName = fieldNames[i];
             try {
                 String baseName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-                Method getter = beanClass.getMethod("get"+baseName, null);
-                Method setter = beanClass.getMethod("set"+baseName, new Class[] {getter.getReturnType()});
+                Method getter = beanClass.getMethod("get" + baseName, null);
+                Method setter = beanClass.getMethod("set" + baseName, new Class[]{getter.getReturnType()});
 
                 itable[MethodHelper.getSuperIndex(fastClass, getter)] = new CMPFieldGetter(i);
                 itable[MethodHelper.getSuperIndex(fastClass, setter)] = new CMPFieldSetter(i);
             } catch (NoSuchMethodException e) {
-                throw new IllegalArgumentException("Missing accessor for field "+fieldName);
+                throw new IllegalArgumentException("Missing accessor for field " + fieldName);
             }
         }
 
@@ -191,12 +195,12 @@ public class CMPOperationFactory extends AbstractOperationFactory {
         for (int i = 0; i < relations.length; i++) {
             CMRelation relation = relations[i];
             String fieldName = relation.getName();
-            String schemaName = relation.getSchemaName();
+            CMPEntityContainer relatedContainer = persistenceFactory.getContainer(relation.getSchemaName());
 
             try {
                 String baseName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-                Method getter = beanClass.getMethod("get"+baseName, null);
-                Method setter = beanClass.getMethod("set"+baseName, new Class[] {getter.getReturnType()});
+                Method getter = beanClass.getMethod("get" + baseName, null);
+                Method setter = beanClass.getMethod("set" + baseName, new Class[]{getter.getReturnType()});
                 boolean multiValued = Collection.class.isAssignableFrom(getter.getReturnType());
 
                 InstanceOperation getOperation;
@@ -205,14 +209,15 @@ public class CMPOperationFactory extends AbstractOperationFactory {
                 if (multiValued) {
                     throw new UnsupportedOperationException();
                 } else {
-                    getOperation = new SingleValuedCMRGetter(slot++, persistenceFactory.getContainer(schemaName));
-                    setOperation = new SingleValuedCMRSetter(slot++, persistenceFactory.getContainer(schemaName));
+                    QueryCommand queryCommand = persistenceFactory.getQueryCommand(new MethodSignature(getter));
+                    getOperation = new SingleValuedCMRGetter(relatedContainer, queryCommand);
+                    setOperation = new SingleValuedCMRSetter(relatedContainer, queryCommand, persistenceFactory.getUpdateCommand(new MethodSignature(setter)));
                 }
 
                 itable[MethodHelper.getSuperIndex(fastClass, getter)] = getOperation;
                 itable[MethodHelper.getSuperIndex(fastClass, setter)] = setOperation;
             } catch (NoSuchMethodException e) {
-                throw new IllegalArgumentException("Missing accessor for cmr-field "+fieldName);
+                throw new IllegalArgumentException("Missing accessor for cmr-field " + fieldName);
             }
         }
 

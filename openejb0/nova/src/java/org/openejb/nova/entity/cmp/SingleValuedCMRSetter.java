@@ -55,10 +55,14 @@
  */
 package org.openejb.nova.entity.cmp;
 
+import java.util.List;
 import javax.ejb.EJBLocalObject;
 
 import org.openejb.nova.transaction.TransactionContext;
 import org.openejb.nova.EJBContainer;
+import org.openejb.nova.persistence.QueryCommand;
+import org.openejb.nova.persistence.UpdateCommand;
+import org.openejb.nova.persistence.Tuple;
 
 /**
  *
@@ -68,31 +72,27 @@ import org.openejb.nova.EJBContainer;
  */
 public class SingleValuedCMRSetter implements InstanceOperation {
     private final EJBContainer container;
-    private final int slot;
+    private final QueryCommand query;
+    private final UpdateCommand update;
 
-    public SingleValuedCMRSetter(int slot, EJBContainer container) {
-        this.slot = slot;
+    public SingleValuedCMRSetter(EJBContainer container, QueryCommand query, UpdateCommand update) {
         this.container = container;
+        this.query = query;
+        this.update = update;
     }
 
     public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
-        EJBLocalObject newValue = (EJBLocalObject) args[0];
-        Object newId = (newValue == null) ? null : newValue.getPrimaryKey();
-        InstanceData data = ctx.getInstanceData();
-
-        Object oldId = data.get(slot);
-        if (oldId != null) {
-            if (newId != null && oldId.equals(newId)) {
-                // resetting old value - ignore
-                return null;
-            }
-
-            // disassociate old value
-//            TransactionContext txCtx = TransactionContext.getContext();
-//            CMPInstanceContext otherCtx = (CMPInstanceContext) txCtx.getContext(container, oldId);
+        List result = query.executeQuery(new Object[]{ctx.getId()});
+        if (result.size() > 0) {
+            Object oldId = ((Tuple) result.get(0)).getValue(0);
+            TransactionContext txCtx = TransactionContext.getContext();
+            CMPInstanceContext otherCtx = (CMPInstanceContext) txCtx.getContext(container, oldId);
+//            otherCtx.removeRelation();
         }
 
-        data.set(slot, newId);
+        EJBLocalObject newValue = (EJBLocalObject) args[0];
+        Object newId = (newValue == null) ? null : newValue.getPrimaryKey();
+        update.executeUpdate(new Object[] { newId });
         return null;
     }
 }

@@ -125,7 +125,7 @@ import org.xml.sax.SAXException;
  * @version $Revision$ $Date$
  *
  * */
-public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
+public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
 
     private static final Log log = LogFactory.getLog(EJBModuleDeploymentPlanner.class);
 
@@ -245,13 +245,17 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
                 EjbRelation ejbRelation = ejbRelations[i];
                 assert ejbRelation.getEjbRelationshipRole().length == 2;
                 String leftEjbName = ejbRelation.getEjbRelationshipRole(0).getRelationshipRoleSource().getEjbName();
-                String leftAbstractSchemaName = (String)ejbNameToAbstractSchemaNameMap.get(leftEjbName);
+                String leftAbstractSchemaName = (String) ejbNameToAbstractSchemaNameMap.get(leftEjbName);
                 String rightEjbName = ejbRelation.getEjbRelationshipRole(1).getRelationshipRoleSource().getEjbName();
-                String rightAbstractSchemaName = (String)ejbNameToAbstractSchemaNameMap.get(rightEjbName);
+                String rightAbstractSchemaName = (String) ejbNameToAbstractSchemaNameMap.get(rightEjbName);
                 CMRelation leftCMRelation = getCMRelation(ejbRelation.getGeronimoEjbRelationshipRole(0), rightAbstractSchemaName);
                 CMRelation rightCMRelation = getCMRelation(ejbRelation.getGeronimoEjbRelationshipRole(1), leftAbstractSchemaName);
-                mapCMRelation(leftEjbName, leftCMRelation, ejbNameToRelationshipRoleCollectionMap);
-                mapCMRelation(rightEjbName, rightCMRelation, ejbNameToRelationshipRoleCollectionMap);
+                if (leftCMRelation != null) {
+                    mapCMRelation(leftEjbName, leftCMRelation, ejbNameToRelationshipRoleCollectionMap);
+                }
+                if (rightCMRelation != null) {
+                    mapCMRelation(rightEjbName, rightCMRelation, ejbNameToRelationshipRoleCollectionMap);
+                }
             }
         }
 
@@ -260,12 +264,12 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
             Entity entity = enterpriseBeans.getGeronimoEntity()[i];
             if (entity.getPersistenceType().equals("Container")) {
                 assert datasourceName != null;
-                Collection rels = (Collection)ejbNameToRelationshipRoleCollectionMap.get(entity.getEJBName());
+                Collection rels = (Collection) ejbNameToRelationshipRoleCollectionMap.get(entity.getEJBName());
                 CMRelation[] cmRelation;
                 if (rels == null) {
                     cmRelation = new CMRelation[0];
                 } else {
-                    cmRelation = (CMRelation[])rels.toArray(new CMRelation[rels.size()]);
+                    cmRelation = (CMRelation[]) rels.toArray(new CMRelation[rels.size()]);
                 }
                 planCMPEntity(plan, entity, cmRelation, schemaTask, deploymentUnitName, classSpaceMetaData, baseURI);
             } else {
@@ -277,7 +281,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
     }
 
     private void mapCMRelation(String ejbName, CMRelation cmRelation, HashMap ejbNameToRelationshipRoleCollectionMap) {
-        Collection roles = (Collection)ejbNameToRelationshipRoleCollectionMap.get(ejbName);
+        Collection roles = (Collection) ejbNameToRelationshipRoleCollectionMap.get(ejbName);
         if (roles == null) {
             roles = new ArrayList();
             ejbNameToRelationshipRoleCollectionMap.put(ejbName, roles);
@@ -286,6 +290,9 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
     }
 
     private CMRelation getCMRelation(EjbRelationshipRole ejbRelationshipRole, String abstractSchemaName) {
+        if (ejbRelationshipRole.getCmrField() == null) {
+            return null;
+        }
         String name = ejbRelationshipRole.getCmrField().getCmrFieldName();
         boolean cascadeDelete = ejbRelationshipRole.isCascadeDelete();
         return new CMRelation(name, abstractSchemaName, cascadeDelete);
@@ -297,8 +304,8 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
         ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getBMPEntityGeronimoMBeanInfo());
         EJBContainerConfiguration config = getEntityConfig(entity);
 
-        ejbMetadata.setConstructorArgs(new Object[] {config},
-                new String[] {EntityContainerConfiguration.class.getName()});
+        ejbMetadata.setConstructorArgs(new Object[]{config},
+                new String[]{EntityContainerConfiguration.class.getName()});
         addTasks(plan, ejbMetadata);
     }
 
@@ -340,12 +347,12 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
     void planSession(DeploymentPlan plan, Session session, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI) throws DeploymentException {
         MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
         ejbMetadata.setName(getContainerName(session));
-        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getSessionGeronimoMBeanInfo(session.getSessionType().equals("Stateless")?
-                StatelessContainer.class.getName():StatefulContainer.class.getName()));
+        ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getSessionGeronimoMBeanInfo(session.getSessionType().equals("Stateless") ?
+                StatelessContainer.class.getName() : StatefulContainer.class.getName()));
         EJBContainerConfiguration config = getSessionConfig(session);
 
-        ejbMetadata.setConstructorArgs(new Object[] {config},
-                new String[] {EJBContainerConfiguration.class.getName()});
+        ejbMetadata.setConstructorArgs(new Object[]{config},
+                new String[]{EJBContainerConfiguration.class.getName()});
         addTasks(plan, ejbMetadata);
     }
 
@@ -356,8 +363,8 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
 //        MessageDrivenContainer.class.getName()));
         EJBContainerConfiguration config = getMessageDrivenConfig(messageDriven);
 
-        ejbMetadata.setConstructorArgs(new Object[] {config},
-                new String[] {EJBContainerConfiguration.class.getName()});
+        ejbMetadata.setConstructorArgs(new Object[]{config},
+                new String[]{EJBContainerConfiguration.class.getName()});
         addTasks(plan, ejbMetadata);
     }
 
@@ -373,7 +380,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
 
         genericConfig(session, config);
         config.txnDemarcation = TransactionDemarcation.valueOf(session.getTransactionType());
-        config.userTransaction = config.txnDemarcation.isContainer()? null: new EJBUserTransaction();
+        config.userTransaction = config.txnDemarcation.isContainer() ? null : new EJBUserTransaction();
 
         //config.txnManager = txManager;   // needs to be endpoint
         return config;
@@ -394,10 +401,10 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
         config.remoteInterfaceName = rpcBean.getRemote();
         config.localHomeInterfaceName = rpcBean.getLocalHome();
         config.localInterfaceName = rpcBean.getLocal();
-        config.componentContext = getComponentContext((JNDIEnvironmentRefs)rpcBean, config.userTransaction);
+        config.componentContext = getComponentContext((JNDIEnvironmentRefs) rpcBean, config.userTransaction);
     }
 
-    private  ReadOnlyContext getComponentContext(JNDIEnvironmentRefs refs, UserTransaction userTransaction) throws DeploymentException {
+    private ReadOnlyContext getComponentContext(JNDIEnvironmentRefs refs, UserTransaction userTransaction) throws DeploymentException {
         ReferenceFactory referenceFactory = new JMXReferenceFactory(getMBeanServerId());
         ComponentContextBuilder builder = new ComponentContextBuilder(referenceFactory, userTransaction);
         ReadOnlyContext context = builder.buildContext(refs);

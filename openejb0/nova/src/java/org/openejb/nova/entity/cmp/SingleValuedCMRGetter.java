@@ -55,7 +55,11 @@
  */
 package org.openejb.nova.entity.cmp;
 
+import java.util.List;
+
 import org.openejb.nova.EJBContainer;
+import org.openejb.nova.persistence.QueryCommand;
+import org.openejb.nova.persistence.Tuple;
 
 /**
  *
@@ -65,15 +69,20 @@ import org.openejb.nova.EJBContainer;
  */
 public class SingleValuedCMRGetter implements InstanceOperation {
     private EJBContainer container;
-    private final int slot;
+    private final QueryCommand query;
 
-    public SingleValuedCMRGetter(int slot, EJBContainer container) {
+    public SingleValuedCMRGetter(EJBContainer container, QueryCommand query) {
         this.container = container;
-        this.slot = slot;
+        this.query = query;
     }
 
     public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception{
-        Object id = ctx.getInstanceData().get(slot);
+        List result = query.executeQuery(new Object[]{ctx.getId()});
+        if (result.size() == 0) {
+            return null;
+        }
+        Tuple tuple = (Tuple) result.get(0);
+        Object id = tuple.getValue(0);
         return id == null ? null : container.getEJBLocalObject(id);
     }
 }
