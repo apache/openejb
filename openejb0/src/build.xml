@@ -63,8 +63,10 @@
   <!-- Build classpath for test cases -->     
   <path id="project.test.classpath">
     <path refid="project.classpath"/>
+<!--
     <pathelement path="${build.dest}/testsuite"/>
     <pathelement path="${build.dest}/openejb"/>
+-->
     <pathelement location="${proxy.factory.jar}"/>
     <pathelement location="${client.testrunner.jar}"/>
     <fileset dir="dist">
