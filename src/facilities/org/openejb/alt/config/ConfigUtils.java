@@ -17,6 +17,7 @@ import org.openejb.alt.config.sys.*;
 import org.openejb.util.Logger;
 import org.openejb.util.FileUtils;
 import org.openejb.util.JarUtils;
+import org.openejb.util.Messages;
 
 /*------------------------------------------------------*/
 /* Utility method for reading and writing config files  */
@@ -30,6 +31,7 @@ public class ConfigUtils  {
 
     private static Map loadedServiceJars = new HashMap();
 
+    private static Messages messages = new Messages( "org.openejb.alt.util.resources" );
     private static Logger _logger = Logger.getInstance( "OpenEJB", "org.openejb.alt.util.resources" );
 
     public static File getDefaultServiceJar() throws OpenEJBException{
@@ -690,30 +692,25 @@ public class ConfigUtils  {
     /*------------------------------------------------------*/
     /*    Methods for easy exception handling               */
     /*------------------------------------------------------*/
-    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3 ) throws OpenEJBException{
-        Object[] args = { arg0, arg1, arg2, arg3 };
-        throw new OpenEJBException(errorCode, args);
+    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3) throws OpenEJBException {
+        throw new OpenEJBException( messages.format( errorCode, arg0, arg1, arg2, arg3 ) );
     }
 
-    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2 ) throws OpenEJBException{
-        Object[] args = { arg0, arg1, arg2 };
-        throw new OpenEJBException(errorCode, args);
-    }
-    
-    public static void handleException(String errorCode, Object arg0, Object arg1 ) throws OpenEJBException{
-        Object[] args = { arg0, arg1 };
-        throw new OpenEJBException(errorCode, args);
+    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2) throws OpenEJBException {
+        throw new OpenEJBException( messages.format( errorCode, arg0, arg1, arg2 ) );
     }
 
-    public static void handleException(String errorCode, Object arg0 ) throws OpenEJBException{
-        Object[] args = { arg0 };
-        throw new OpenEJBException(errorCode, args);
-    }
-    
-    public static void handleException(String errorCode ) throws OpenEJBException{
-        throw new OpenEJBException(errorCode);
+    public static void handleException(String errorCode, Object arg0, Object arg1) throws OpenEJBException {
+        throw new OpenEJBException( messages.format( errorCode, arg0, arg1 ) );
     }
 
+    public static void handleException(String errorCode, Object arg0) throws OpenEJBException {
+        throw new OpenEJBException( messages.format( errorCode, arg0 ) );
+    }
+
+    public static void handleException(String errorCode) throws OpenEJBException {
+        throw new OpenEJBException( messages.message( errorCode ) );
+    }
 
     /*------------------------------------------------------*/
     /*  Methods for logging exceptions that are noteworthy  */

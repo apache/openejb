@@ -14,6 +14,7 @@ import org.openejb.alt.assembler.classic.*;
 import org.openejb.alt.config.ejb11.*;
 import org.openejb.alt.config.sys.*;
 import org.openejb.util.FileUtils;
+import org.openejb.util.Messages;
 
 /**
  * An implementation of the Classic Assembler's OpenEjbConfigurationFactory
@@ -28,6 +29,7 @@ import org.openejb.util.FileUtils;
 public class ConfigurationFactory implements OpenEjbConfigurationFactory, ProviderDefaults {
 
     public static final String DEFAULT_SECURITY_ROLE = "openejb.default.security.role";
+    protected static Messages messages = new Messages( "org.openejb.alt.util.resources" );
 
     Openejb openejb;
     DeployedJar[] jars;
@@ -1161,27 +1163,23 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     /*    Methods for easy exception handling               */
     /*------------------------------------------------------*/
     public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3) throws OpenEJBException {
-        Object[] args = { arg0, arg1, arg2, arg3};
-        throw new OpenEJBException(errorCode, args);
+        throw new OpenEJBException( messages.format( errorCode, arg0, arg1, arg2, arg3 ) );
     }
 
     public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2) throws OpenEJBException {
-        Object[] args = { arg0, arg1, arg2};
-        throw new OpenEJBException(errorCode, args);
+        throw new OpenEJBException( messages.format( errorCode, arg0, arg1, arg2 ) );
     }
 
     public static void handleException(String errorCode, Object arg0, Object arg1) throws OpenEJBException {
-        Object[] args = { arg0, arg1};
-        throw new OpenEJBException(errorCode, args);
+        throw new OpenEJBException( messages.format( errorCode, arg0, arg1 ) );
     }
 
     public static void handleException(String errorCode, Object arg0) throws OpenEJBException {
-        Object[] args = { arg0};
-        throw new OpenEJBException(errorCode, args);
+        throw new OpenEJBException( messages.format( errorCode, arg0 ) );
     }
 
     public static void handleException(String errorCode) throws OpenEJBException {
-        throw new OpenEJBException(errorCode);
+        throw new OpenEJBException( messages.message( errorCode ) );
     }
 }
 
