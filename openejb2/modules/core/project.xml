@@ -200,7 +200,7 @@
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
-            <version>SNAPSHOT</version>
+            <version>1.0M1</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
