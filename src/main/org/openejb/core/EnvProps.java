@@ -133,6 +133,28 @@ public class EnvProps {
     public final static String IM_TIME_OUT = "TimeOut";
 
     /**
+     * Property name that specifies the path prefix for directories created by bean passivation
+     * 
+     * <p>
+     * NAME:<br>&nbsp;&nbsp;
+     * <code>org/openejb/core/InstanceManager/PASSIVATOR_PATH_PREFIX</code>
+     * </p>
+     * 
+     * <p>
+     * EXAMPLE VALUE:<br>&nbsp;&nbsp;
+     * <code>/tmp/openejb</code>
+     * </p>
+     * 
+     * <p>
+     * USED BY:
+     * <UL>
+     * <LI>{@link org.openejb.core.stateful.StatefulInstanceManager}
+     * </UL>
+     * </p>
+     */
+    public final static String IM_PASSIVATOR_PATH_PREFIX = "org/openejb/core/InstanceManager/PASSIVATOR_PATH_PREFIX";
+
+    /**
      * Property name that specifies the size of the bean pools
      * 
      * <p>

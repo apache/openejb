@@ -57,8 +57,6 @@ import org.openejb.spi.AssemblerFactory;
 import org.openejb.spi.ContainerSystem;
 import org.openejb.spi.SecurityService;
 import org.openejb.util.SafeToolkit;
-import org.apache.log4j.Category;
-import org.apache.log4j.BasicConfigurator;
 
 /**
  * OpenEJB is the main factory for bootstrapping and obtaining a references to
@@ -118,7 +116,7 @@ public class OpenEJB {
     protected static ApplicationServer applicationServer;
     protected static TransactionManager transactionManager;
     protected static Properties initProps;
-    private static boolean initialized;
+    protected static boolean initialized;
 
     public static void init(Properties props)
     throws OpenEJBException{
@@ -132,11 +130,7 @@ public class OpenEJB {
      * @since JDK 1.2
      */
     public static void init(Properties props, ApplicationServer appServer) throws OpenEJBException{
-        if (initialized) throw new OpenEJBException("OpenEJB has already been initialized.");
-        
-        initProps         = props;
-        applicationServer = appServer;
-        
+        if ( initialized ) throw new OpenEJBException("OpenEJB has already been initialized.");
         
         SecurityManager sm = System.getSecurityManager();
         if (sm == null) {
@@ -148,8 +142,9 @@ public class OpenEJB {
                 });
             } catch (Exception e){}
         }
-        if(containerSystem != null)
-            throw new OpenEJBException("OpenEJB already initiated");
+        initProps = props;
+        applicationServer = appServer;
+            
 
         SafeToolkit.getToolkit("OpenEJB").getSafeProperties(props);
         Enumeration enum = System.getProperties().propertyNames();
@@ -164,7 +159,6 @@ public class OpenEJB {
            Default is org.openejb.core.conf.Assembler*/
         Assembler assembler = AssemblerFactory.getAssembler(props);
         assembler.build();
-        
         containerSystem    = assembler.getContainerSystem();
         securityService    = assembler.getSecurityService();
         transactionManager = assembler.getTransactionManager();
@@ -243,7 +237,11 @@ public class OpenEJB {
      * @see ContainerManager#containers() ContainerManager.containers()
      */
     public static Container [] containers( ){
-        return containerSystem.containers();
+        //TODO:2: In the event there are no containers, we should log a warning or error.
+        if(containerSystem==null) // Something went wrong in the configuration.
+            return null;   
+        else
+            return containerSystem.containers();
     }
 
     /**
@@ -272,4 +270,5 @@ public class OpenEJB {
     public static boolean isInitialized(){
         return initialized;
     }
+
 }

@@ -93,6 +93,7 @@ public class LocalTyrex extends java.lang.Thread
     * Creates the transaction factory
     */
    private TransactionFactory createTransactionFactory(org.omg.CORBA.ORB orb ) 
+     throws org.openejb.OpenEJBException 
    {
      org.omg.CORBA.BOA boa = org.omg.CORBA.BOA.init( orb, new String[0] );
              
@@ -106,6 +107,15 @@ public class LocalTyrex extends java.lang.Thread
       
        System.out.println("LocalTyrex - Unable to create domain, domain path = " + domain ); 
      }       
+
+     //
+     // Added this test for bugzilla #1033. If txDomain is null, then that's
+     // probably because of a bad host/port setting for the database.
+     // Throw an exception here.
+     //
+     if(txDomain==null) 
+      throw new org.openejb.OpenEJBException("The transaction domain couldn't be created. Make sure the settings such as host/port for the database are correctly set in the Transaction Manager configuration file."); 
+
      //
      // Identifies the ORB
      //
@@ -149,6 +159,8 @@ public class LocalTyrex extends java.lang.Thread
       //
       // Create transaction factory
       //
+      try
+      { 
       TransactionFactory ots = createTransactionFactory(orb);
            
       
@@ -162,10 +174,13 @@ public class LocalTyrex extends java.lang.Thread
       //
       // Run the application
       //
-      try
-      {         
          orb.run();
       }
+      catch( org.openejb.OpenEJBException configEx )
+      {
+        System.err.println("Unable to start the server. Exception received:");
+        System.err.println(configEx.getMessage());
+      } 
       catch ( java.lang.Exception ex )
       {
          ex.printStackTrace();

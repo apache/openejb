@@ -56,7 +56,7 @@ public class TransactionService implements org.openejb.spi.TransactionService
 	/**
 	 * Reference to the transaction manager
 	 */
-	private org.openejb.corba.services.transaction.TransactionManager manager;
+	private javax.transaction.TransactionManager manager;
 	
 	/**
 	 * Return the transaction manager 
@@ -71,10 +71,23 @@ public class TransactionService implements org.openejb.spi.TransactionService
 	 */
 	public void init( java.util.Properties props ) throws java.lang.Exception
 	{
-		org.omg.CORBA.ORB orb = org.openejb.corba.Server.getORB();
-		
-		org.omg.PortableServer.POA poa = org.openejb.corba.Server.getPOA();
-		
-		manager = new org.openejb.corba.services.transaction.TransactionManager( orb, poa );
+        String domainName;
+        tyrex.tm.TransactionDomain domain;
+
+        domainName = props.getProperty("domain");
+
+        if (null == domainName) {
+	  domainName = "default";
+        }
+
+        domainName = domainName.trim();
+
+	domain = tyrex.tm.TransactionDomain.getDomain(domainName);
+
+        if (null == domain) {
+            throw new RuntimeException("Transaction domain <" + domainName + "> does not exist.");    
+        }
+
+        manager = domain.getTransactionManager();
 	}
 }

@@ -140,6 +140,8 @@ public class StatelessInstanceManager {
                     createMethod.invoke(bean, null);
                     
                 }catch(Exception e){
+                    //TODO:1: Should be logged instead of printed to System.out
+		    System.out.println("StatelessInstanceManager----->");
                     throw new org.openejb.ApplicationException(new RemoteException("Can not obtain a free instance."));
                 }
                 pool.addToBeanCount(1);

@@ -178,7 +178,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
             set(did, Class.forName(homeClassName), Class.forName(remoteClassName), Class.forName(beanClassName), null, componentType);
             pkClass = (pkClassName == null)? null : Class.forName(pkClassName);
         }catch(java.lang.ClassNotFoundException cnfe){
-            throw new org.openejb.SystemException(cnfe);
+            throw new org.openejb.SystemException("Could not find class " + cnfe);
         }
     }
 
@@ -743,7 +743,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
             }
             byteValue = new Byte(TX_NEVER);
         } else{
-            throw new IllegalArgumentException("Invalid Transaction Attribute");
+            throw new IllegalArgumentException("Invalid transaction attribute \""+transAttribute+"\" declared for method "+method.getName()+". Please check your configuration.");
         }
         
         // If this is a Statful SessionBean that implements the 

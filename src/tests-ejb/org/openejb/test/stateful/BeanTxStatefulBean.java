@@ -134,7 +134,7 @@ public class BeanTxStatefulBean implements javax.ejb.SessionBean{
         
         try{
             
-            DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/datasource");
+            DataSource ds = (DataSource)javax.rmi.PortableRemoteObject.narrow( jndiContext.lookup("java:comp/env/datasource"), DataSource.class);
             Connection con = ds.getConnection();
             
             UserTransaction ut = ejbContext.getUserTransaction();
@@ -171,7 +171,7 @@ public class BeanTxStatefulBean implements javax.ejb.SessionBean{
     public Account retreiveAccount(String ssn) throws RemoteException {
         Account acct = new Account();
         try{
-            DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/datasource");
+            DataSource ds = (DataSource)javax.rmi.PortableRemoteObject.narrow( jndiContext.lookup("java:comp/env/datasource"), DataSource.class);
             Connection con = ds.getConnection();
 
             PreparedStatement stmt = con.prepareStatement("select * from Account where SSN = ?");

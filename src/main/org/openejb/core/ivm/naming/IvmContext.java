@@ -71,6 +71,7 @@ import javax.naming.NotContextException;
 import javax.naming.OperationNotSupportedException;
 import javax.naming.spi.ObjectFactory;
 import java.io.ObjectStreamException;
+import org.openejb.core.ThreadContext;
 
 /*
 * This class wrappers a specific NameNode which is the data model for the JNDI
@@ -101,6 +102,14 @@ public class IvmContext implements Context, java.io.Serializable{
         if (compositName.equals("")) {
             return this;
         }
+        
+        // Special case for UserTransaction
+        // This is to give transaction support for non-bean ejb clients using the IntraVm Server
+        if ( compositName.equals("java:comp/UserTransaction") && ThreadContext.getThreadContext().getDeploymentInfo() == null ) {
+            return new org.openejb.core.CoreUserTransaction();
+        }
+
+
         String compoundName = null;
         int indx = compositName.indexOf(":");
         if(indx>-1){

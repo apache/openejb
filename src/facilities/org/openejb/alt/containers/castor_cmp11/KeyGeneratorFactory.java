@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.Properties;
 import java.util.Vector;
 import org.openejb.util.proxy.ProxyClassLoader;
+import org.openejb.util.FileUtils;
 
 public abstract class KeyGeneratorFactory {
 
@@ -17,20 +18,14 @@ public abstract class KeyGeneratorFactory {
     private static String  defaultDirectory           = "keys";
 
     protected static void setKeyOutputDirectory(String path) throws IOException{
-        try {
-            if ( path == null ) {
-                path = "keys";
-            }
-            File dir = new File(path);
+        if ( path == null ) {
+            path = defaultDirectory;
+        }
 
-            if ( !dir.exists() ) {
-                dir.mkdirs();
-            } else if ( dir.exists() && !dir.isDirectory() ) {
-                throw new IOException("The path specified is not a valid directory: "+dir.getAbsolutePath());
-            }
-            KEY_OUTPUT_DIRECTORY = dir;
-        } catch ( Exception e ) {
-            throw new IOException("Cannot create the output directory for generated keys"+e.getMessage());
+        try{
+            KEY_OUTPUT_DIRECTORY = FileUtils.getDirectory(path);
+        }catch(java.io.IOException e) {
+            throw new IOException(KeyGeneratorFactory.class.getName()+".init(): can't use directory for generated keys "+path+" : "+e);
         }
     }
 

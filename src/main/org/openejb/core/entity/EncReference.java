@@ -99,6 +99,8 @@ public class EncReference extends org.openejb.core.ivm.naming.ENCReference{
     * class can return the requested reference object.
     */
     public void checkOperation(byte operation) throws NameNotFoundException{
+       if ( ( jndiName != null ) && jndiName.startsWith("java:openejb") )
+	   return;
         if( operation == Operations.OP_SET_CONTEXT || 
             operation == Operations.OP_UNSET_CONTEXT || 
             operation == Operations.OP_PASSIVATE ||

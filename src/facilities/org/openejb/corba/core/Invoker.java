@@ -64,13 +64,15 @@ public class Invoker
 										   java.lang.Object primaryKey, 
 										   java.security.Principal principal  ) throws Throwable
 	{		
-		Verbose.print("Invoker", "Receive an invocation for " + method.getName() );
+		Verbose.print("Invoker", "Receive an invocation for " + method.getName() + " ( " + deployID + " ) ");
 		
 		try
 		{
 			// -- Invoke the container --
 			
 			java.lang.Object result = adapter.container().invoke( deployID, method, args, primaryKey, principal );
+	
+			Verbose.print("Invoker", "Invocation completed for " + method.getName() );
 		 
 			// -- Check the result --
 		
@@ -130,11 +132,11 @@ public class Invoker
 		}
 		catch ( org.openejb.OpenEJBException ex )
 		{
-			Verbose.exception( "Invoker", "Unexepected exception", ex );
-			
-			// -- Check exception --
-			
-			throw ex.getRootCause();			
+			Throwable t = ex.getRootCause();			
+			if ( t != null )
+			   throw t;
+			else 
+			   throw new java.rmi.RemoteException( ex.toString() );
 		}
 	}
 	
@@ -142,7 +144,7 @@ public class Invoker
 	 * This operation creates a CORBA ID for a new object reference. The rules are :
 	 *
 	 * Home :  'deployment id' under a multiple bytes format
-	 * Stateless bean : 'deployment id #' under a multiple bytes format
+	 * Stateless bean : 'deployment id # proxy info hashcode' under a multiple bytes format
 	 * Stateful bean + entity : "deployment id # primary key' under a multiple bytes format
 	 */
 	private static byte [] createId( org.openejb.ProxyInfo pinfo )
@@ -156,7 +158,9 @@ public class Invoker
 			String id = pinfo.getDeploymentInfo().getDeploymentID().toString() + "#";
 			
 			if ( pinfo.getPrimaryKey() != null )			
-				id = id + pinfo.getPrimaryKey().toString();
+				id = id + pinfo.getPrimaryKey().hashCode();
+			else
+				id = id + pinfo.hashCode();
 			
 			return id.getBytes();
 		}
