@@ -252,9 +252,14 @@ public class EjbValidator {
             for (int i=0; i < sets.length; i++){
                 printResults( sets[i] );
             }
-            if (LEVEL < 3) {
-                System.out.println();
-                System.out.println("For more details, use the -vvv option");
+            for (int i=0; i < sets.length; i++){
+                if (sets[i].hasErrors() || sets[i].hasFailures()){
+                    if (LEVEL < 3) {
+                        System.out.println();
+                        System.out.println("For more details, use the -vvv option");
+                    }
+                    i = sets.length;
+                }
             }
         }
 
