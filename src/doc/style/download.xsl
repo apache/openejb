@@ -22,7 +22,7 @@
   <html>
 
   <head>
-    <title>Download</title>    
+    <title>Download OpenEJB</title>    
     
     <link rel="stylesheet" href="default.css"/>
   </head>
@@ -90,7 +90,7 @@
         <td rowspan="4" width="430" valign="top">
           <table cols="1" rows="2" border="0" cellpadding="0" cellspacing="0" width="430">
             <tr>
-              <td valign="top" align="left"><br/><img border="0" height="50" hspace="0"
+              <td valign="top" align="left"><br/><img border="0" height="55" hspace="0"
                   src="{$project/logo}" vspace="0" width="200"/><br/>
                   <img border="0" height="7" hspace="0" src="images/dotTrans.gif"/><br/>
                         <span class="pageTitle">Download</span><br/>
