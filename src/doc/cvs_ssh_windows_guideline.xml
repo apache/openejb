@@ -97,6 +97,17 @@
         for submiting public RSA keys. This form can be found at your
         account options page of your SF personal page.
         </p>
+        
+        <p>
+        If you are using this web based form your public key gets distributed
+        within six hours to the following systems.
+        
+        <ul>
+          <li>The OpenEJB SF server (openejb.sf.net)</li>
+          <li>The SF shell server (shell.sf.net)</li>
+          <li>The OpenEJB CVS server at SF (cvs.openejb.sf.net)</li>
+        </ul>
+        </p>
         </section>
         
         <section title="How to start and configure the PuTTY SSH agent">
