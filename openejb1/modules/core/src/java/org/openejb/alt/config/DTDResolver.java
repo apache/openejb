@@ -74,6 +74,10 @@ public class DTDResolver implements EntityResolver {
             dtds.put("ejb-jar.dtd",     bytes);
             dtds.put("ejb-jar_1_1.dtd", bytes);
         }
+        bytes = getDtd("ejb-jar_2_0.dtd");
+        if(bytes != null) {
+            dtds.put("ejb-jar_2_0.dtd", bytes);
+        }
     }
 
     public static byte[] getDtd(String dtdName) {
