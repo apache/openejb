@@ -215,10 +215,11 @@ class MdbBuilder extends BeanBuilder {
             String containerId) throws DeploymentException {
         RefContext refContext = earContext.getRefContext();
         ObjectName resourceAdapterObjectName = getResourceAdapterId(uri, resourceAdapter, refContext, moduleJ2eeContext);
-        J2eeContext resourceAdapterJ2eeContext = J2eeContextImpl.newContext(resourceAdapterObjectName, NameFactory.RESOURCE_ADAPTER_MODULE);
+        J2eeContext resourceAdapterJ2eeContext = J2eeContextImpl.newContext(resourceAdapterObjectName, NameFactory.JCA_RESOURCE);
         ObjectName resourceModuleObjectName = null;
         try {
-            resourceModuleObjectName = NameFactory.getModuleName(null, null, null, null, null, resourceAdapterJ2eeContext);
+            //N.B. the resource adapter name has module type "JCAResource" but the resource adapter module has module type "ResourceAdapterModule"
+            resourceModuleObjectName = NameFactory.getModuleName(null, null, null, NameFactory.RESOURCE_ADAPTER_MODULE, null, resourceAdapterJ2eeContext);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct resource module name", e);
         }

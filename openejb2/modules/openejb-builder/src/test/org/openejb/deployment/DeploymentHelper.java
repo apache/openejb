@@ -107,8 +107,8 @@ public class DeploymentHelper {
     static {
         try {
             RESOURCE_ADAPTER_MODULE_NAME = NameFactory.getModuleName(null, null, null, null, null, raContext);
-            RESOURCE_ADAPTER_NAME = NameFactory.getComponentName(null, null, null, null, null, "MockRA", NameFactory.JCA_RESOURCE_ADAPTER, raContext);
-            ACTIVATIONSPEC_NAME = NameFactory.getComponentName(null, null, null, null, null, "MockRA", NameFactory.JCA_ACTIVATION_SPEC, raContext);
+            RESOURCE_ADAPTER_NAME = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, null, "MockRA", NameFactory.JCA_RESOURCE_ADAPTER, raContext);
+            ACTIVATIONSPEC_NAME = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, null, "MockRA", NameFactory.JCA_ACTIVATION_SPEC, raContext);
         } catch (MalformedObjectNameException e) {
             throw new RuntimeException(e);
         }
