@@ -139,7 +139,18 @@ public class StatefulInstanceManager {
 
         SafeProperties safeProps = toolkit.getSafeProperties(props);
 
-        String passivatorClass = safeProps.getProperty(EnvProps.IM_PASSIVATOR);
+        String passivatorClass=null;
+        try{
+            passivatorClass = safeProps.getProperty(EnvProps.IM_PASSIVATOR);
+        }catch(org.openejb.OpenEJBException e) {
+            // try old property name for backward compat
+            try{
+                passivatorClass = safeProps.getProperty("org/openejb/core/InstanceManager/PASSIVATOR");
+            }catch(org.openejb.OpenEJBException e1) {
+                //throw old exception
+                throw e;
+            }
+        }            
 
         try{
             passivator = (PassivationStrategy)toolkit.newInstance(passivatorClass);
