@@ -131,7 +131,7 @@ public class Messages extends ListResourceBundle{
    2... = openejb-jar
    3... = ejb-jar
    4... = service-jar
-   
+
    Third Digit in Code
    .1.. = During input
    .0.. = During output
@@ -215,6 +215,7 @@ public class Messages extends ListResourceBundle{
 {"deploy.m.040" , "Deploy option -m.  Could not move jar {0}. An error occurred while resolving the default beans directory: {1}"},
 {"deploy.m.050" , "Deploy option -m.  Could not move jar {0}. A security exception occurred while attempting to move the jar to the default beans directory: {1}"},
 {"deploy.m.060" , "Deploy option -m.  Could not move jar {0} to {1}.  Make sure the jar is not open in another program."},
+{"deploy.m.061" , "Deploy option -m.  Could not move jar {0} to {1}. Jar already exists.  Use -f option to force an overwrite."},
 
 {"deploy.c.010" , "Deploy option -c.  Could not copy jar {0}, file does not exist."},
 {"deploy.c.020" , "Deploy option -c.  Could not copy jar {0}, the specified path is a directory not a valid file."},
@@ -222,6 +223,7 @@ public class Messages extends ListResourceBundle{
 {"deploy.c.040" , "Deploy option -c.  Could not copy jar {0}. An error occurred while resolving the default beans directory: {1}"},
 {"deploy.c.050" , "Deploy option -c.  Could not copy jar {0}. A security exception occurred while attempting to copy the jar to the default beans directory {1}. Exception message: {2}"},
 {"deploy.c.060" , "Deploy option -c.  Could not copy jar {0} to {1}. Received exception: {2}: {3}"},
+{"deploy.c.061" , "Deploy option -c.  Could not copy jar {0} to {1}. Jar already exists.  Use -f option to force an overwrite."},
 
 
 // END OF MATERIAL TO LOCALIZE
