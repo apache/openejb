@@ -174,7 +174,7 @@ public class EJBMetaDataImpl implements javax.ejb.EJBMetaData, java.io.Externali
         return ( type == EJBComponentType.STATEFUL || type == EJBComponentType.STATELESS );
     }
     
-    protected void setEJBHomeProxy(EJBHomeProxy home) {
+    public void setEJBHomeProxy(EJBHomeProxy home) {
         ejbHomeProxy = home;
     }
 
