@@ -106,6 +106,10 @@ public final class StatelessInstanceContext extends AbstractInstanceContext {
         sessionContext.setState(operation);
     }
 
+    public boolean setTimerState(EJBOperation operation) {
+        return sessionContext.setTimerState(operation);
+    }
+
     public void ejbCreate() throws Throwable {
         assert(getInstance() != null);
         systemChain.invoke(ejbCreateInvocation);

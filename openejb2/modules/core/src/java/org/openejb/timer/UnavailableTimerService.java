@@ -45,33 +45,46 @@
  *
  * ====================================================================
  */
-package org.openejb;
 
-import javax.ejb.EnterpriseBean;
-import javax.ejb.TimerService;
+package org.openejb.timer;
 
-import org.apache.geronimo.transaction.InstanceContext;
-import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.timer.BasicTimerService;
+import java.util.Date;
+import java.util.Collection;
+import java.io.Serializable;
+import javax.ejb.Timer;
+import javax.ejb.EJBException;
 
 /**
- * @version $Revision$ $Date$
+ * @version $Rev:  $ $Date$
  */
-public interface EJBInstanceContext extends InstanceContext {
+public final class UnavailableTimerService implements BasicTimerService {
 
-    EnterpriseBean getInstance();
+    public static final BasicTimerService INSTANCE = new UnavailableTimerService();
 
-    void setOperation(EJBOperation operation);
+    private UnavailableTimerService() {
+    }
 
-    EJBProxyFactory getProxyFactory();
+    public Timer createTimer(Object id, Date initialExpiration, long intervalDuration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException {
+        throw new IllegalStateException("Timer service is not available");
+    }
 
-    TimerService getTimerService();
+    public Timer createTimer(Object id, Date expiration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException {
+        throw new IllegalStateException("Timer service is not available");
+    }
 
-    BasicTimerService getBasicTimerService();
+    public Timer createTimer(Object id, long initialDuration, long intervalDuration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException {
+        throw new IllegalStateException("Timer service is not available");
+    }
 
-    void setTimerServiceAvailable(boolean available);
+    public Timer createTimer(Object id, long duration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException {
+        throw new IllegalStateException("Timer service is not available");
+    }
 
-    //sets timer method availability based on operation, returns old availability
-    boolean setTimerState(EJBOperation operation);
+    public Collection getTimers(Object id) throws IllegalStateException, EJBException {
+        throw new IllegalStateException("Timer service is not available");
+    }
 
+    public TimerImpl getTimerById(Long id) {
+        throw new IllegalStateException("Timer service is not available");
+    }
 }

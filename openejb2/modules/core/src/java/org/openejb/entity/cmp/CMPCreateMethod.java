@@ -57,6 +57,7 @@ import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
+import org.openejb.timer.TimerState;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
 
@@ -138,6 +139,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
         // call the create method
         EntityBean instance = (EntityBean) ctx.getInstance();
         Object[] args = invocation.getArguments();
+        boolean oldTimerMethodAvailable = ctx.setTimerState(EJBOperation.EJBCREATE);
         try {
             ctx.setOperation(EJBOperation.EJBCREATE);
             fastBeanClass.invoke(createIndex, instance, args);
@@ -152,6 +154,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             }
         } finally {
             ctx.setOperation(EJBOperation.INACTIVE);
+            TimerState.setTimerState(oldTimerMethodAvailable);
         }
 
         if (cmp1Bridge != null) {
@@ -196,6 +199,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
         // call the post create method
         try {
             ctx.setOperation(EJBOperation.EJBPOSTCREATE);
+            ctx.setTimerState(EJBOperation.EJBPOSTCREATE);
             fastBeanClass.invoke(postCreateIndex, instance, args);
         } catch (InvocationTargetException ite) {
             Throwable t = ite.getTargetException();
@@ -209,6 +213,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             }
         } finally {
             ctx.setOperation(EJBOperation.INACTIVE);
+            TimerState.setTimerState(oldTimerMethodAvailable);
         }
 
         // return a new proxy

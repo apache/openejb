@@ -63,6 +63,7 @@ import org.apache.geronimo.core.service.SimpleInvocationResult;
 import net.sf.cglib.reflect.FastClass;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
+import org.openejb.timer.TimerState;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
 import org.openejb.entity.EntityInstanceContext;
@@ -100,6 +101,7 @@ public class BMPFinderMethod implements VirtualOperation, Serializable  {
         EntityBean instance = (EntityBean) ctx.getInstance();
         Object[] args = invocation.getArguments();
         Object finderResult;
+        boolean oldTimerMethodAvailable = ctx.setTimerState(EJBOperation.EJBFIND);
         try {
             ctx.setOperation(EJBOperation.EJBFIND);
             finderResult = fastClass.invoke(finderIndex, instance, args);
@@ -112,6 +114,9 @@ public class BMPFinderMethod implements VirtualOperation, Serializable  {
                 // unchecked Exception - just throw it to indicate an abnormal completion
                 throw t;
             }
+        } finally {
+            ctx.setOperation(EJBOperation.INACTIVE);
+            TimerState.setTimerState(oldTimerMethodAvailable);
         }
 
         boolean local = invocation.getType().isLocal();

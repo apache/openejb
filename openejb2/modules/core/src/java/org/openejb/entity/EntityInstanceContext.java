@@ -105,6 +105,10 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
         entityContext.setState(operation);
     }
 
+    public boolean setTimerState(EJBOperation operation) {
+        return entityContext.setTimerState(operation);
+    }
+
     public EntityContext getEntityContext() {
         return entityContext;
     }

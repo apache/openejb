@@ -89,6 +89,10 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
         statefulContext.setState(operation);
     }
 
+    public boolean setTimerState(EJBOperation operation) {
+        return statefulContext.setTimerState(operation);
+    }
+
     public Object getId() {
         return id;
     }

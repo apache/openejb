@@ -93,7 +93,7 @@ import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.security.SecurityConfiguration;
-import org.openejb.timer.BasicTimerService;
+import org.openejb.timer.BasicTimerServiceImpl;
 
 
 /**
@@ -118,7 +118,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
     private final SecurityConfiguration securityConfiguration;
     private transient PolicyConfiguration policyConfiguration;
     private transient Subject defaultSubject;
-    private final BasicTimerService timerService;
+    private final BasicTimerServiceImpl timerService;
 
 
     public GenericEJBContainer(Object containerId,
@@ -198,7 +198,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         contextFactory.setSystemChain(chains.getSystemChain());
         contextFactory.setTransactionContextManager(transactionContextManager);
         if (timer != null) {
-            timerService = new BasicTimerService(systemMethodIndices, interceptor, timer, objectName, kernel.getKernelName(), ObjectName.getInstance(objectName), transactionContextManager, classLoader);
+            timerService = new BasicTimerServiceImpl(systemMethodIndices, interceptor, timer, objectName, kernel.getKernelName(), ObjectName.getInstance(objectName), transactionContextManager, classLoader);
             contextFactory.setTimerService(timerService);
         } else {
             timerService = null;

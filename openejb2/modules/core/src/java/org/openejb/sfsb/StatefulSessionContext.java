@@ -60,6 +60,7 @@ import javax.xml.rpc.handler.MessageContext;
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
+import org.openejb.timer.TimerState;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
@@ -89,6 +90,13 @@ public class StatefulSessionContext extends EJBContextImpl implements SessionCon
                 userTransaction.setOnline(false);
             }
         }
+        context.setTimerServiceAvailable(timerServiceAvailable[operation.getOrdinal()]);
+    }
+
+    public boolean setTimerState(EJBOperation operation) {
+        boolean oldTimerState = TimerState.getTimerState();
+        TimerState.setTimerState(timerMethodsAvailable[operation.getOrdinal()]);
+        return oldTimerState;
     }
 
     public MessageContext getMessageContext() throws IllegalStateException {
@@ -222,5 +230,15 @@ public class StatefulSessionContext extends EJBContextImpl implements SessionCon
         states[EJBOperation.EJBREMOVE.getOrdinal()] = EJBCREATEREMOVEACTIVATE;
         states[EJBOperation.EJBACTIVATE.getOrdinal()] = EJBCREATEREMOVEACTIVATE;
         states[EJBOperation.BIZMETHOD.getOrdinal()] = BIZ_INTERFACE;
+    }
+
+    private static final boolean timerServiceAvailable[] = new boolean[EJBOperation.MAX_ORDINAL];
+    //timer service is never available in sfsb
+
+    private static final boolean timerMethodsAvailable[] = new boolean[EJBOperation.MAX_ORDINAL];
+
+    static {
+        timerMethodsAvailable[EJBOperation.BIZMETHOD.getOrdinal()] = true;
+        //TODO INCOMPLETE, for session synchronization allowed for afterBegin and beforeCompletion, disallowed afterCompletion.
     }
 }

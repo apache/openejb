@@ -63,6 +63,7 @@ import net.sf.cglib.reflect.FastClass;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
+import org.openejb.timer.TimerState;
 
 /**
  *
@@ -73,6 +74,7 @@ public abstract class AbstractSpecificMethodOperation implements VirtualOperatio
 
     protected InvocationResult invoke(EJBInvocation invocation, EJBOperation operation) throws Throwable {
         EJBInstanceContext ctx = invocation.getEJBInstanceContext();
+        boolean oldTimerMethodAvailable = ctx.setTimerState(operation);
         try {
             ctx.setOperation(operation);
             try {
@@ -88,6 +90,7 @@ public abstract class AbstractSpecificMethodOperation implements VirtualOperatio
             }
         } finally {
             ctx.setOperation(EJBOperation.INACTIVE);
+            TimerState.setTimerState(oldTimerMethodAvailable);
         }
     }
 
