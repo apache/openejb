@@ -114,12 +114,9 @@ _test_server()
    echo "_________________________________________________"
    echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
    echo " "
-   echo "Running EJB compliance tests on EJB Server"
+   echo "Running EJB compliance tests on Remote Server"
    echo "_________________________________________________"
-   echo " 1. Starting OpenEJB Server..."
-   sh ./bin/ejbserver.sh > ejb.server.log &
-   echo " 2. Starting test EJB client..."
-   ./bin/test.sh src/tests-ejb/OpenEjbServer_config.properties org.openejb.test.OpenEjbTestServer
+   ./bin/test.sh src/tests-ejb/RemoteServer_config.properties org.openejb.test.RemoteTestServer
 }
 #============================================================
 _test_corba()

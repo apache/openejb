@@ -53,11 +53,16 @@ import java.net.Socket;
  * 
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
-public class OpenEjbTestServer implements org.openejb.test.TestServer {
+public class RemoteTestServer implements org.openejb.test.TestServer {
     
     static{
         System.setProperty("noBanner", "true");
     }
+    
+    /**
+     * Has the remote server's instance been already running ?
+     */
+    private boolean serverHasAlreadyBeenStarted = true;
     
     private Properties properties;
     
@@ -70,20 +75,67 @@ public class OpenEjbTestServer implements org.openejb.test.TestServer {
     
     public void start(){
         if (!connect()) {
-            throw new RuntimeException("Cannot connect to the server.");
+            try{
+                System.out.println("[] START SERVER");
+                serverHasAlreadyBeenStarted = false;
+                String s = java.io.File.separator;
+                String java = System.getProperty("java.home")+s+"bin"+s+"java";
+                String classpath = System.getProperty("java.class.path");
+                String openejbHome = System.getProperty("openejb.home");
+                
+
+                String[] cmd = new String[ 5 ];
+                cmd[ 0 ] = java;
+                cmd[ 1 ] = "-classpath";
+                cmd[ 2 ] = classpath;
+                cmd[ 3 ] = "-Dopenejb.home="+openejbHome;
+                cmd[ 4 ] = "org.openejb.server.Main";
+                for (int i=0; i < cmd.length; i++){
+                    //System.out.println("[] "+cmd[i]);
+                }
+                
+                Process remoteServerProcess = Runtime.getRuntime().exec( cmd );
+                
+                // it seems as if OpenEJB wouldn't start up till the output stream was read
+                final java.io.InputStream is = remoteServerProcess.getInputStream();
+                Thread server = new Thread(new Runnable(){
+                        public void run() {
+                            try{
+                                //while ( is.read() != -1 );
+                                int i = is.read();
+                                while ( i != -1 ){
+                                    //System.out.write( i );
+                                    i = is.read();
+                                }
+                            } catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        }
+                });
+                server.setDaemon(true);
+                server.start();
+            } catch (Exception e){
+                throw new RuntimeException("Cannot start the server.");
+            }
+            connect(10);
+        } else {
+            //System.out.println("[] SERVER STARTED");
         }
     }
 
     public void stop(){
-        try{
-            
-        Socket socket = new Socket("localhost", 4201);
-        OutputStream out = socket.getOutputStream();
+        if ( !serverHasAlreadyBeenStarted ) {
+            try{
+                System.out.println("[] STOP SERVER");
         
-        out.write( "Stop".getBytes() );
-                
-        } catch (Exception e){
-            e.printStackTrace();
+                Socket socket = new Socket("localhost", 4201);
+                OutputStream out = socket.getOutputStream();
+        
+                out.write( "Stop".getBytes() );
+
+            } catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 
@@ -92,24 +144,25 @@ public class OpenEjbTestServer implements org.openejb.test.TestServer {
     }
 
     private boolean connect() {
-        return connect( 0 );
+        return connect( 1 );
     }
     
     private boolean connect(int tries) {
+        //System.out.println("CONNECT "+ tries);
         try{
-            Socket socket = new Socket("localhost", 4200);
+            Socket socket = new Socket("localhost", 4201);
             OutputStream out = socket.getOutputStream();
         } catch (Exception e){
-            
-            if ( tries > 5 ) {
+            //System.out.println(e.getMessage());
+            if ( tries < 2 ) {
                 return false;
             } else {
                 try{
-                    Thread.sleep(5000);
+                    Thread.sleep(2000);
                 } catch (Exception e2){
                     e.printStackTrace();
                 }
-                return connect(++tries);
+                return connect(--tries);
             }
         }
         

@@ -83,7 +83,7 @@ BASIC_OPTIONS="-Dopenejb.test.nowarn=true $LOGGING"
 
 #--------------------------------------
 
-function test_architecture_01 () {
+test_architecture_01 () {
    echo ""
    echo ""
    echo "------------------------------------------"
@@ -99,11 +99,11 @@ function test_architecture_01 () {
    DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
    CONFIG="-Dopenejb.configuration=conf/example1.openejb.conf"
    
-   $JAVA $BASIC_OPTIONS $SERVER $DATABASE $CONFIG -classpath $CLASSPATH org.openejb.test.ClientTestRunner org.openejb.test.ClientTestSuite
+   $JAVA $BASIC_OPTIONS $SERVER $DATABASE $CONFIG -classpath $CLASSPATH org.openejb.test.TestRunner org.openejb.test.ClientTestSuite
 }
 
 
-function test_architecture_02 () {
+test_architecture_02 () {
    echo ""
    echo ""
    echo "------------------------------------------"
@@ -119,7 +119,7 @@ function test_architecture_02 () {
    DATABASE="-Dopenejb.test.database=org.openejb.test.PostgreSqlTestDatabase"
    CONFIG="-Dopenejb.configuration=conf/example2.openejb.conf"
    
-   $JAVA $BASIC_OPTIONS $SERVER $DATABASE $CONFIG -classpath $CLASSPATH org.openejb.test.ClientTestRunner org.openejb.test.ClientTestSuite
+   $JAVA $BASIC_OPTIONS $SERVER $DATABASE $CONFIG -classpath $CLASSPATH org.openejb.test.TestRunner org.openejb.test.ClientTestSuite
 }
 
 

@@ -23,7 +23,5 @@ echo --------------SUPPORT INFO-------------
 echo %OS%
 echo Using JAVA_HOME:     %JAVA_HOME%
 echo Using OPENEJB_HOME:  %OPENEJB_HOME%
-echo OPTIONS:             %OPTIONS%
-echo --------------SUPPORT INFO-------------
 
 %JAVA% %OPTIONS% -classpath %CP% org.openejb.test.TestRunner org.openejb.test.ClientTestSuite
