@@ -60,7 +60,7 @@ public class JarUtils{
             }
             
             if ( url != null  ) {
-                jarPath = url.getPath();
+                jarPath = url.getFile();
                 jarPath = jarPath.substring( 0, jarPath.indexOf('!') );
                 jarPath = jarPath.substring( "file:".length() );
             }

@@ -1,4 +1,4 @@
-package org.openejb.util.proxy.jdk12;
+package org.openejb.util.proxy;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

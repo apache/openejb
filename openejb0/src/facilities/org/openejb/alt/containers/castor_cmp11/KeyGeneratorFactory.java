@@ -356,11 +356,13 @@ public abstract class KeyGeneratorFactory {
         } catch ( IOException io ) {
             //io.printStackTrace();
             throw new IllegalAccessException("Cant write generated key: "+io.getMessage());
+        } catch ( InstantiationException ie ) {
+            throw new IllegalAccessException("Cant instatiate compiler: "+ie.getMessage());
         }
         return byteCode;
     }
 
-    protected static File compileSourceCode(String sourceCode, String className) throws IllegalAccessException{
+    protected static File compileSourceCode(String sourceCode, String className) throws IllegalAccessException, InstantiationException {
         File classFile = null;
         File outputDir = null;
         File javaFile  = null;
@@ -410,7 +412,7 @@ public abstract class KeyGeneratorFactory {
             String[] args = new String[cargs.size()];
             cargs.copyInto(args);
 
-            sun.tools.javac.Main compiler = new sun.tools.javac.Main(System.err, "javac");
+	    org.openejb.util.compiler.Compiler compiler = org.openejb.util.compiler.CompilerFactory.newCompilerInstance();
             compiler.compile(args);
 
             //=====================

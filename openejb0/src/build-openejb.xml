@@ -110,6 +110,10 @@ time=${TSTAMP}</echo>
          
   <target name="compile.jdk12" unless="jdk13">
           
+	<delete>
+		<fileset dir="${build.openejb.src}" includes="**/Jdk13*.java"/>
+	</delete>
+
     <javac srcdir="${build.openejb.src}"
            destdir="${build.openejb.dest}"
            excludes="**/jdk13/**/"
