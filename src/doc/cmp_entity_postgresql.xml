@@ -249,7 +249,7 @@ In your favorite editor, create the file below.
         <ejb-name>EmployeeBean</ejb-name>
         <method-name>*</method-name>
       </method>
-      <trans-attribute>Required</trans-attribute>
+      <trans-attribute>Supports</trans-attribute>
     </container-transaction>
   </assembly-descriptor>
 </ejb-jar>
