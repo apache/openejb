@@ -44,17 +44,17 @@
  */
 package org.openejb.server.ejbd;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.NamingException;
+
 import org.apache.geronimo.kernel.Kernel;
 import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
 import org.openejb.client.*;
 import org.openejb.proxy.ProxyInfo;
-
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import javax.naming.NamingException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 /**
  */
@@ -105,7 +105,7 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
             name = name.substring(1);
         }
 
-        if (!req.getClientModuleID().equals("")) {
+        if (!req.getClientModuleID() != null) {
             try {
                 ObjectName objectName = new ObjectName(req.getClientModuleID());
                 Kernel.getSingleKernel().getAttribute(objectName, "componentContext");
