@@ -1,6 +1,7 @@
 package org.openejb.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.SecurityException;
 
@@ -10,12 +11,14 @@ public class FileUtils{
 
     private static File home;
 
-    /** Creates a string for a temporary directory
-	@param pathPrefix the path prefix to for the directory, e.g. /tmp/openejb
-	@returns the file object associated with the unique name
-	@throws java.io.IOException if it can't find a unique directory name after many iterations
-    */
     
+    /**
+     * Resolves the specifed path reletive to the openejb.home variable
+     * 
+     * @param path
+     * @return 
+     * @exception java.io.IOException
+     */
     public static File getDirectory(String path) throws java.io.IOException{
         File dir = null;
         
@@ -39,6 +42,10 @@ public class FileUtils{
     }	
 
     public static File getFile(String path) throws java.io.FileNotFoundException, java.io.IOException{
+        return FileUtils.getFile(path, true);
+    }	
+
+    public static File getFile(String path, boolean validate) throws java.io.FileNotFoundException, java.io.IOException{
         File file = null;
         
         if ( home == null ) resolveOpenEjbHome();
@@ -47,15 +54,20 @@ public class FileUtils{
         file = file.getCanonicalFile();
 
 
-        if( !file.exists() ) {
-            throw new IOException("The path specified is not a valid file: "+file.getPath());
-        } else if ( file.isDirectory() ) {
-            throw new IOException("The path specified is a directory, not a file: "+file.getPath());
+        if( validate && !file.exists() ) {
+            throw new FileNotFoundException("The path specified is not a valid file: "+file.getPath());
+        } else if ( validate && file.isDirectory() ) {
+            throw new FileNotFoundException("The path specified is a directory, not a file: "+file.getPath());
         }
 
         return file;
     }	
 
+    /** Creates a string for a temporary directory
+	@param pathPrefix the path prefix to for the directory, e.g. /tmp/openejb
+	@returns the file object associated with the unique name
+	@throws java.io.IOException if it can't find a unique directory name after many iterations
+    */
     public static File createTempDirectory(String pathPrefix) throws java.io.IOException{
 	for(int maxAttempts=100; maxAttempts>0; --maxAttempts){
 	    String path=pathPrefix+_random.nextLong();
