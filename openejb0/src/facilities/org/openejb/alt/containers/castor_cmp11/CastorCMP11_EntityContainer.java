@@ -399,6 +399,25 @@ org.exolab.castor.persist.spi.InstanceFactory {
         resetMap.put(float.class, new Float(0));
         resetMap.put(double.class, new Double(0.0));        
     }
+    
+    boolean initialized;
+    protected void postInit() {
+        if (initialized) return;
+
+        String userDir = System.getProperty("user.dir");
+        try{
+            System.setProperty("user.dir",System.getProperty("openejb.home"));
+            jdo_ForLocalTransaction.getDatabase();
+            jdo_ForGlobalTransaction.getDatabase();
+
+        } catch (Throwable e){
+            //e.printStackTrace();
+            //throw new org.openejb.SystemException("DB thing failed",e);
+        } finally {
+            initialized = true;
+            System.setProperty("user.dir",userDir);
+        }
+    }
     //===============================
     // begin Container Implementation
     //
@@ -478,6 +497,7 @@ org.exolab.castor.persist.spi.InstanceFactory {
     public Object invoke(Object deployID, Method callMethod,Object [] args,Object primKey, Object securityIdentity)
     throws org.openejb.OpenEJBException
     {
+        postInit();
         try {
             org.openejb.core.DeploymentInfo deployInfo = (org.openejb.core.DeploymentInfo)this.getDeploymentInfo(deployID);
 
