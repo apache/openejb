@@ -13,6 +13,14 @@ public class TestManager {
     private static TestDatabase database;
     private static boolean warn = true;
 
+    static {
+        try {
+            init(null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     protected static void init(String propertiesFileName) throws Exception{
         Properties props = null;
 
