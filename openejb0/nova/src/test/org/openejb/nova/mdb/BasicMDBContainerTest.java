@@ -47,8 +47,10 @@
  */
 package org.openejb.nova.mdb;
 
+import javax.jms.MessageListener;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.resource.spi.ResourceAdapterInternalException;
 
 import junit.framework.TestCase;
 
@@ -56,6 +58,9 @@ import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.nova.EJBContainerConfiguration;
 import org.openejb.nova.MockTransactionManager;
+import org.openejb.nova.mdb.mockra.MockActivationSpec;
+import org.openejb.nova.mdb.mockra.MockBootstrapContext;
+import org.openejb.nova.mdb.mockra.MockResourceAdapter;
 
 /**
  *
@@ -71,25 +76,34 @@ public class BasicMDBContainerTest extends TestCase {
     private MockResourceAdapter resourceAdapter;
 
     protected void setUp() throws Exception {
-/*
+
+        
+    }
+    
+    public void testNothing() throws InterruptedException, ResourceAdapterInternalException {
+
         config = new EJBContainerConfiguration();
         config.beanClassName = MockEJB.class.getName();
         config.txnDemarcation = TransactionDemarcation.CONTAINER;
         config.txnManager = new MockTransactionManager();
 
-        resourceAdapter = new MockResourceAdapter();
-        container = new MDBContainer(config, new MockActivationSpec(resourceAdapter), "javax.jms.MessageListner");
+        MockActivationSpec spec = new MockActivationSpec();
+        spec.getResourceAdapter().start(new MockBootstrapContext() );
+        container = new MDBContainer(config, spec, MessageListener.class.getName() );
         container.doStart();
-*/        
-    }
-    
-    public void testNothing() {
+
+        // Wait for 3 messages to arrive..
+        System.out.println("Waiting for message 1");
+        MockEJB.messageCounter.acquire();
+        System.out.println("Waiting for message 2");
+        MockEJB.messageCounter.acquire();
+        System.out.println("Waiting for message 3");
+        MockEJB.messageCounter.acquire();
         
+        System.out.println("Done.");
+        container.doStop();        
     }
 
-    protected void tearDown() throws Exception {
-/*        
-        container.doStop();
-*/        
+    protected void tearDown() throws Exception {        
     }
 }

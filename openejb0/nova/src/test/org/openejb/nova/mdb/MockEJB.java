@@ -53,6 +53,8 @@ import javax.ejb.MessageDrivenContext;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
+
 /**
  *
  *
@@ -60,11 +62,12 @@ import javax.jms.MessageListener;
  * @version $Revision$ $Date$
  */
 public class MockEJB implements MessageDrivenBean, MessageListener {
-    
+
+    public static final Semaphore messageCounter = new Semaphore(0);
     private boolean ejbCreateCalled;
     private boolean ejbRemoveCalled;
     private MessageDrivenContext messageDrivenContext;
-    private Message message;
+    public static Message lastMessage;
 
     public void ejbCreate() throws EJBException {
         ejbCreateCalled = true;
@@ -88,7 +91,8 @@ public class MockEJB implements MessageDrivenBean, MessageListener {
      * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
      */
     public void onMessage(Message message) {
-        this.message = message;        
+        lastMessage = message;
+        messageCounter.release();
     }
 
 }

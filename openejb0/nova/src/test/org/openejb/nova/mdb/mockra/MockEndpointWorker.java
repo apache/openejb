@@ -53,54 +53,95 @@
  *
  * ====================================================================
  */
-package org.openejb.nova.mdb;
+package org.openejb.nova.mdb.mockra;
 
-import javax.resource.ResourceException;
-import javax.resource.spi.ActivationSpec;
-import javax.resource.spi.BootstrapContext;
-import javax.resource.spi.ResourceAdapter;
-import javax.resource.spi.ResourceAdapterInternalException;
+import java.lang.reflect.Method;
+
+import javax.jms.MessageListener;
+import javax.resource.spi.endpoint.MessageEndpoint;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
-import javax.transaction.xa.XAResource;
+import javax.resource.spi.work.Work;
+import javax.resource.spi.work.WorkException;
+
+import org.apache.geronimo.common.Classes;
+
+import EDU.oswego.cs.dl.util.concurrent.Latch;
 
 /**
  * @version $Revision$ $Date$
  */
-public class MockResourceAdapter implements ResourceAdapter {
-    
-    private boolean endpointActivated;
+public class MockEndpointWorker implements Work {
+
+    private static final Method ON_MESSAGE_METHOD = Classes.getMethod(MessageListener.class, "onMessage");
+
+    private MockResourceAdapter adapter;
+    private MockEndpointActivationKey endpointActivationKey;
+    Latch stopLatch = new Latch();
+    boolean stopping = false;
+    private MessageEndpointFactory messageEndpointFactory;
+    private MockActivationSpec activationSpec;
 
     /**
-     * @see javax.resource.spi.ResourceAdapter#start(javax.resource.spi.BootstrapContext)
+     * @param key
      */
-    public void start(BootstrapContext arg0) throws ResourceAdapterInternalException {
+    public MockEndpointWorker(MockResourceAdapter adapter, MockEndpointActivationKey key) {
+        this.endpointActivationKey = key;
+        this.adapter = adapter;
     }
 
     /**
-     * @see javax.resource.spi.ResourceAdapter#stop()
+     * 
      */
-    public void stop() {
+    public void start() throws WorkException {
+
+        messageEndpointFactory = endpointActivationKey.getMessageEndpointFactory();
+        activationSpec = endpointActivationKey.getActivationSpec();
+        adapter.getBootstrapContext().getWorkManager().doWork(this);
     }
 
     /**
-     * @see javax.resource.spi.ResourceAdapter#endpointActivation(javax.resource.spi.endpoint.MessageEndpointFactory, javax.resource.spi.ActivationSpec)
+     * 
      */
-    public void endpointActivation(MessageEndpointFactory arg0, ActivationSpec arg1) throws ResourceException {
-        endpointActivated = true;
+    public void stop() throws InterruptedException {
+        release();
+        stopLatch.acquire();
     }
 
     /**
-     * @see javax.resource.spi.ResourceAdapter#endpointDeactivation(javax.resource.spi.endpoint.MessageEndpointFactory, javax.resource.spi.ActivationSpec)
+     * @see javax.resource.spi.work.Work#release()
      */
-    public void endpointDeactivation(MessageEndpointFactory arg0, ActivationSpec arg1) {
+    public void release() {
+        stopping = true;
     }
 
     /**
-     * @see javax.resource.spi.ResourceAdapter#getXAResources(javax.resource.spi.ActivationSpec[])
+     * @see java.lang.Runnable#run()
      */
-    public XAResource[] getXAResources(ActivationSpec[] arg0) throws ResourceException {
-        // TODO Auto-generated method stub
-        return null;
+    public void run() {
+        try {
+
+            MessageEndpoint endpoint = null;
+            boolean transacted;
+            transacted = messageEndpointFactory.isDeliveryTransacted(ON_MESSAGE_METHOD);
+            endpoint = messageEndpointFactory.createEndpoint(null);
+
+            for(int i=0; !stopping; i++) {
+
+                // Delay message delivery a little.
+                Thread.sleep(1000);
+                
+                MockTextMessage message = new MockTextMessage("Message:"+i);                
+                endpoint.beforeDelivery(ON_MESSAGE_METHOD);
+                ((MessageListener) endpoint).onMessage(message);
+                endpoint.afterDelivery();
+            }
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+        } finally {
+            stopLatch.release();
+            stopping = false;
+        }
     }
 
 }

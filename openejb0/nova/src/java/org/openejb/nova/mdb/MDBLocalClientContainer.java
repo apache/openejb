@@ -110,6 +110,8 @@ public class MDBLocalClientContainer {
         enhancer.setInterfaces(new Class[]{mdbInterface, MessageEndpoint.class});
         enhancer.setCallbackFilter(new EJBCallbackFilter(MDBMessageEndpointImpl.class));
         enhancer.setCallbacks(callbacks);
+        enhancer.setSuperclass(MDBMessageEndpointImpl.class);
+        enhancer.setClassLoader(mdbInterface.getClassLoader());
         proxyFactory = enhancer.create(CONSTRUCTOR, new Object[]{this, null});
         
         objectMap = MethodHelper.getObjectMap(signatures, FastClass.create(proxyFactory.getClass()));
@@ -137,7 +139,7 @@ public class MDBLocalClientContainer {
     }
 
     public MessageEndpoint getMessageEndpoint(XAResource resource) {
-        return (MessageEndpoint)proxyFactory.newInstance(CONSTRUCTOR, new Object[] { resource }, PROXY_CALLBACK);
+        return (MessageEndpoint)proxyFactory.newInstance(CONSTRUCTOR, new Object[] {this, resource }, PROXY_CALLBACK);
     }
 
     /**

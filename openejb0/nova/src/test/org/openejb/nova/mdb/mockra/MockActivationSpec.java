@@ -53,7 +53,7 @@
  *
  * ====================================================================
  */
-package org.openejb.nova.mdb;
+package org.openejb.nova.mdb.mockra;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
@@ -66,32 +66,25 @@ import javax.resource.spi.ResourceAdapter;
 public class MockActivationSpec implements ActivationSpec {
 
     private ResourceAdapter resourceAdapter = new MockResourceAdapter();
-
-    /**
-     * @param resourceAdapter
-     */
-    public MockActivationSpec(ResourceAdapter resourceAdapter) {
-        this.resourceAdapter = resourceAdapter;
-    }
     
+
     /**
      * @see javax.resource.spi.ActivationSpec#validate()
      */
     public void validate() throws InvalidPropertyException {
     }
-
+    
     /**
      * @see javax.resource.spi.ResourceAdapterAssociation#getResourceAdapter()
      */
     public ResourceAdapter getResourceAdapter() {
         return resourceAdapter;
     }
-
+    
     /**
      * @see javax.resource.spi.ResourceAdapterAssociation#setResourceAdapter(javax.resource.spi.ResourceAdapter)
      */
     public void setResourceAdapter(ResourceAdapter resourceAdapter) throws ResourceException {
         this.resourceAdapter = resourceAdapter;
     }
-
 }
