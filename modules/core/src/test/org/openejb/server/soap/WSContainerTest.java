@@ -104,7 +104,6 @@ public class WSContainerTest extends TestCase {
         context.setRequestStream(in);
         container.invoke(context);
         String response = new String(baos.toByteArray());
-        System.out.write(baos.toByteArray());
         assertTrue(response.indexOf(("<out>127</out>")) > 0);
     }
 
@@ -149,17 +148,13 @@ public class WSContainerTest extends TestCase {
             out.flush();
             out.close();
 
-            System.out.println("request written");
-            int responseCode = connection.getResponseCode();
-            System.out.println("responseCode = " + responseCode);
             byte[] bytes = new byte[connection.getContentLength()];
             DataInputStream in = new DataInputStream(connection.getInputStream());
             in.readFully(bytes);
             String response = new String(bytes);
-            System.out.write(bytes);
             assertTrue(response.indexOf(("<out>127</out>")) > 0);
         } catch (Exception e) {
-            System.out.println("exception " + e.getMessage());
+            fail(e.getMessage());
         } finally {
             connection.disconnect();
             kernel.stopGBean(stack);
@@ -181,15 +176,8 @@ public class WSContainerTest extends TestCase {
         }
 
         public void onMessage(HttpRequest req, HttpResponse res) throws IOException {
-            System.out.println("WSContainerTest$TestSoapHttpListener.onMessage");
             try {
-//                MessageContext context = new MessageContext("not-used", null, res.getOutputStream(), null, req.getURI().toString());
                 MessageContext context = new MessageContext("not-used", null, res.getOutputStream(), null, req.getURI().toString());
-//                byte[] bytes = new byte[req.getContentLength()];
-//                DataInputStream in = new DataInputStream(req.getInputStream());
-//                in.readFully(bytes);
-//                System.out.write(bytes);
-//                context.setRequestStream(new ByteArrayInputStream(bytes));
                 context.setRequestStream(req.getInputStream());
                 res.setContentType("text/xml");
                 container.invoke(context);
