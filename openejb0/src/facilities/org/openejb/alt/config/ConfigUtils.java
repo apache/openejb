@@ -221,6 +221,18 @@ public class ConfigUtils  {
         return obj;
     }
     
+    public static boolean checkForOpenejbJar(String jarFile) throws OpenEJBException {
+		/*[1.1]  Get the jar ***************/
+		JarFile jar = JarUtils.getJarFile(jarFile);
+
+		/*[1.2]  Find the openejb-jar.xml from the jar ***************/
+		JarEntry entry = jar.getJarEntry("META-INF/openejb-jar.xml");
+		if (entry == null) entry = jar.getJarEntry("openejb-jar.xml");
+		if (entry == null) return false;
+		
+		return true;
+    }
+    
     public static void writeOpenejbJar(String xmlFile, OpenejbJar openejbJarObject) throws OpenEJBException{
         /* TODO:  Just to be picky, the xml file created by
         Castor is really hard to read -- it is all on one line.

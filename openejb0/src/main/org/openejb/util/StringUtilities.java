@@ -130,4 +130,16 @@ public class StringUtilities {
 
 		return methodString.toString();
 	}
+	
+	public static String stringArrayToCommaDelimitedStringList(String[] stringArray) {
+		StringBuffer stringList = new StringBuffer();
+		for (int i = 0; i < stringArray.length; i++) {
+			stringList.append(stringArray[i]);
+			if(i != (stringArray.length-1)) {
+				stringList.append(",");
+			}
+		}
+		
+		return stringList.toString();
+	}
 }
