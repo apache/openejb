@@ -75,6 +75,7 @@ import org.tranql.identity.IdentityTransform;
  */
 public class CMPCreateMethod implements VirtualOperation, Serializable {
     private final Class beanClass;
+    private final CMP1Bridge cmp1Bridge;
     private final MethodSignature createSignature;
     private final MethodSignature postCreateSignature;
     private final CacheTable cacheTable;
@@ -86,8 +87,8 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
     private final transient int createIndex;
     private final transient int postCreateIndex;
 
-    public CMPCreateMethod(
-            Class beanClass,
+    public CMPCreateMethod(Class beanClass,
+            CMP1Bridge cmp1Bridge,
             MethodSignature createSignature,
             MethodSignature postCreateSignature,
             CacheTable cacheTable,
@@ -96,6 +97,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             IdentityTransform remoteProxyTransform) {
 
         this.beanClass = beanClass;
+        this.cmp1Bridge = cmp1Bridge;
         this.createSignature = createSignature;
         this.postCreateSignature = postCreateSignature;
         this.cacheTable = cacheTable;
@@ -145,6 +147,10 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             ctx.setOperation(EJBOperation.INACTIVE);
         }
 
+        if (cmp1Bridge != null) {
+            cmp1Bridge.loadCacheRow(ctx, cacheRow);
+        }
+
         // define identity (may require insert to database)
         GlobalIdentity globalId = identityDefiner.defineIdentity(cacheRow);
 
@@ -188,6 +194,6 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
     }
 
     private Object readResolve() {
-        return new CMPCreateMethod(beanClass, createSignature, postCreateSignature, cacheTable, identityDefiner, localProxyTransform, remoteProxyTransform);
+        return new CMPCreateMethod(beanClass, cmp1Bridge, createSignature, postCreateSignature, cacheTable, identityDefiner, localProxyTransform, remoteProxyTransform);
     }
 }

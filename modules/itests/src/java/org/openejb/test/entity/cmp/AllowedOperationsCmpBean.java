@@ -48,21 +48,26 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import javax.ejb.CreateException;
-import javax.ejb.EJBException;
 import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
+import javax.naming.InitialContext;
 
 import org.openejb.test.ApplicationException;
 import org.openejb.test.object.OperationsPolicy;
 
+/**
+ *
+ */
 public class AllowedOperationsCmpBean implements EntityBean {
     public static int key = 20;
+    public EntityContext ejbContext;
+    public static final Hashtable allowedOperationsTable = new Hashtable();
 
     public Integer id;
+
     public String firstName;
+
     public String lastName;
-    public EntityContext ejbContext;
-    public Hashtable allowedOperationsTable = new Hashtable();
 
     public String getFirstName() {
         return firstName;
@@ -82,11 +87,11 @@ public class AllowedOperationsCmpBean implements EntityBean {
 
     //=============================
     // Home interface methods
-    //    
-    
+    //
+
     /**
      * Maps to BasicCmpHome.sum
-     * <p/>
+     *
      * Adds x and y and returns the result.
      */
     public int ejbHomeSum(int x, int y) {
@@ -102,22 +107,22 @@ public class AllowedOperationsCmpBean implements EntityBean {
         StringTokenizer st = new StringTokenizer(name, " ");
         firstName = st.nextToken();
         lastName = st.nextToken();
-        this.id = new Integer(key++);
+        id = new Integer(key++);
         return null;
     }
 
-    public void ejbPostCreate(String name) throws CreateException {
+    public void ejbPostCreate(String name) {
     }
 
-    //    
+    //
     // Home interface methods
     //=============================
-    
+
 
     //=============================
     // Remote interface methods
-    //    
-    
+    //
+
     /**
      * Maps to BasicCmpObject.businessMethod
      */
@@ -139,6 +144,7 @@ public class AllowedOperationsCmpBean implements EntityBean {
      * This is a system exception and should result in the
      * destruction of the instance and invalidation of the
      * remote reference.
+     *
      */
     public void throwSystemException_NullPointer() {
         throw new NullPointerException("Panic");
@@ -147,7 +153,7 @@ public class AllowedOperationsCmpBean implements EntityBean {
 
     /**
      * Maps to BasicCmpObject.getPermissionsReport
-     * <p/>
+     *
      * Returns a report of the bean's
      * runtime permissions
      */
@@ -158,7 +164,7 @@ public class AllowedOperationsCmpBean implements EntityBean {
 
     /**
      * Maps to BasicCmpObject.getAllowedOperationsReport
-     * <p/>
+     *
      * Returns a report of the allowed opperations
      * for one of the bean's methods.
      *
@@ -167,16 +173,16 @@ public class AllowedOperationsCmpBean implements EntityBean {
     public OperationsPolicy getAllowedOperationsReport(String methodName) {
         return (OperationsPolicy) allowedOperationsTable.get(methodName);
     }
-    
-    //    
+
+    //
     // Remote interface methods
     //=============================
 
 
     //================================
     // EntityBean interface methods
-    //    
-    
+    //
+
     /**
      * A container invokes this method to instruct the
      * instance to synchronize its state by loading it state from the
@@ -199,7 +205,7 @@ public class AllowedOperationsCmpBean implements EntityBean {
      * Unset the associated entity context. The container calls this method
      * before removing the instance.
      */
-    public void unsetEntityContext() throws EJBException {
+    public void unsetEntityContext() {
         testAllowedOperations("unsetEntityContext");
     }
 
@@ -208,7 +214,7 @@ public class AllowedOperationsCmpBean implements EntityBean {
      * instance to synchronize its state by storing it to the underlying
      * database.
      */
-    public void ejbStore() throws EJBException {
+    public void ejbStore() {
         testAllowedOperations("ejbStore");
     }
 
@@ -243,75 +249,109 @@ public class AllowedOperationsCmpBean implements EntityBean {
     public void ejbPassivate() {
         testAllowedOperations("ejbPassivate");
     }
-
     //
     // EntityBean interface methods
     //================================
-    
+
     protected void testAllowedOperations(String methodName) {
         OperationsPolicy policy = new OperationsPolicy();
-        
-        /*[1] Test getEJBHome /////////////////*/ 
+
+        /*[1] Test getEJBHome /////////////////*/
         try {
             ejbContext.getEJBHome();
             policy.allow(OperationsPolicy.Context_getEJBHome);
         } catch (IllegalStateException ise) {
         }
-        
-        /*[2] Test getCallerPrincipal /////////*/ 
+
+        /*[2] Test getCallerPrincipal /////////*/
         try {
             ejbContext.getCallerPrincipal();
             policy.allow(OperationsPolicy.Context_getCallerPrincipal);
         } catch (IllegalStateException ise) {
         }
-        
-        /*[3] Test isCallerInRole /////////////*/ 
+
+        /*[3] Test isCallerInRole /////////////*/
         try {
             ejbContext.isCallerInRole("ROLE");
             policy.allow(OperationsPolicy.Context_isCallerInRole);
         } catch (IllegalStateException ise) {
         }
-        
-        /*[4] Test getRollbackOnly ////////////*/ 
+
+        /*[4] Test getRollbackOnly ////////////*/
         try {
             ejbContext.getRollbackOnly();
             policy.allow(OperationsPolicy.Context_getRollbackOnly);
         } catch (IllegalStateException ise) {
         }
-        
-        /*[5] Test setRollbackOnly ////////////*/ 
-        try {
-            ejbContext.setRollbackOnly();
-            policy.allow(OperationsPolicy.Context_setRollbackOnly);
-        } catch (IllegalStateException ise) {
-        }
-        
-        /*[6] Test getUserTransaction /////////*/ 
+
+        /*[5] Test setRollbackOnly ////////////*/
+        // This is way to difficult to test as it rolls back all work
+//        try {
+//            ejbContext.setRollbackOnly();
+//            policy.allow(OperationsPolicy.Context_setRollbackOnly);
+//        } catch (IllegalStateException ise) {
+//        }
+
+        /*[6] Test getUserTransaction /////////*/
         try {
             ejbContext.getUserTransaction();
             policy.allow(OperationsPolicy.Context_getUserTransaction);
         } catch (Exception e) {
         }
-        
-        /*[7] Test getEJBObject ///////////////*/ 
+
+        /*[7] Test getEJBObject ///////////////*/
         try {
             ejbContext.getEJBObject();
             policy.allow(OperationsPolicy.Context_getEJBObject);
         } catch (IllegalStateException ise) {
         }
 
-        /*[8] Test getPrimaryKey //////////////*/ 
+        /*[8] Test getPrimaryKey //////////////*/
         try {
             ejbContext.getPrimaryKey();
             policy.allow(OperationsPolicy.Context_getPrimaryKey);
         } catch (IllegalStateException ise) {
         }
-         
-        /* TO DO:  
-         * Check for policy.Enterprise_bean_access       
-         * Check for policy.JNDI_access_to_java_comp_env 
-         * Check for policy.Resource_manager_access      
+
+        /* TO DO:
+         * Check for policy.Enterprise_bean_access
+         * Check for policy.JNDI_access_to_java_comp_env
+         * Check for policy.Resource_manager_access
          */
+
+        /*[9] Test JNDI_access_to_java_comp_env ///////////////*/
+        try {
+            InitialContext jndiContext = new InitialContext();
+
+            jndiContext.lookup("java:comp/env/entity/references/JNDI_access_to_java_comp_env");
+
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
+        } catch (IllegalStateException ise) {
+        } catch (javax.naming.NamingException ne) {
+        }
+
+        /*[9] Test Resource_manager_access ///////////////*/
+//        try {
+//            InitialContext jndiContext = new InitialContext();
+//
+//            jndiContext.lookup("java:comp/env/stateless/references/Resource_manager_access");
+//
+//            policy.allow(OperationsPolicy.Resource_manager_access);
+//        } catch (IllegalStateException ise) {
+//        } catch (javax.naming.NamingException ne) {
+//        }
+
+        /*[10] Test Enterprise_bean_access ///////////////*/
+//        try {
+//            InitialContext jndiContext = new InitialContext();
+//
+//            jndiContext.lookup("java:comp/env/stateless/beanReferences/Enterprise_bean_access");
+//
+//            policy.allow(OperationsPolicy.Enterprise_bean_access);
+//        } catch (IllegalStateException ise) {
+//        } catch (javax.naming.NamingException ne) {
+//        }
+
         allowedOperationsTable.put(methodName, policy);
     }
 }

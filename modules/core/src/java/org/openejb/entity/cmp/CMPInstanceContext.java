@@ -74,14 +74,16 @@ import org.tranql.identity.IdentityTransform;
  * @version $Revision$ $Date$
  */
 public final class CMPInstanceContext extends EntityInstanceContext implements MethodInterceptor {
+    private final CMP1Bridge cmp1Bridge;
     private final InstanceOperation[] itable;
     private final FaultHandler loadFault;
     private final IdentityTransform primaryKeyTransform;
     private CacheRow cacheRow;
     private TransactionContext transactionContext;
 
-    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, InstanceOperation[] itable, FaultHandler loadFault, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, TransactionContextManager transactionContextManager, BasicTimerService timerService) throws Exception {
+    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, CMP1Bridge cmp1Bridge, InstanceOperation[] itable, FaultHandler loadFault, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources, TransactionContextManager transactionContextManager, BasicTimerService timerService) throws Exception {
         super(containerId, proxyFactory, null, lifecycleInterceptorChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources, transactionContextManager, timerService);
+        this.cmp1Bridge = cmp1Bridge;
         this.itable = itable;
         this.loadFault = loadFault;
         this.primaryKeyTransform = primaryKeyTransform;
@@ -136,13 +138,20 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
             }
 
             // copy data from tranql into instance
+            if (cmp1Bridge != null) {
+                cmp1Bridge.loadEntityBean(cacheRow, this);
+            }
         }
         super.associate();
     }
 
     public void flush() throws Throwable {
         super.flush();
+
         // copy data from instance into tranql
+        if (cmp1Bridge != null && cacheRow != null) {
+            cmp1Bridge.loadCacheRow(this, cacheRow);
+        }
     }
 
     public void afterCommit(boolean status) {

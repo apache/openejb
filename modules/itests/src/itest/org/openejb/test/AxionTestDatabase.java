@@ -33,6 +33,18 @@ public class AxionTestDatabase implements TestDatabase {
     private static final String CREATE_CMPRMIIIOP = "CREATE TABLE CMP2RMIIIOP ( id integer default entity_seq.nextval, firstname string, lastname string )";
     private static final String DROP_CMPRMIIIOP = "DROP TABLE CMP2RMIIIOP";
 
+    private static final String CREATE_BASICCMP2 = "CREATE TABLE BASICCMPBEAN ( id integer default entity_seq.nextval, firstname string, lastname string )";
+    private static final String DROP_BASICCMP2 = "DROP TABLE BASICCMPBEAN";
+
+    private static final String CREATE_AOBASICCMP2 = "CREATE TABLE AOBASICCMPBEAN ( id integer default entity_seq.nextval, firstname string, lastname string )";
+    private static final String DROP_AOBASICCMP2 = "DROP TABLE AOBASICCMPBEAN";
+
+    private static final String CREATE_ENCCMP2 = "CREATE TABLE ENCCMPBEAN ( id integer default entity_seq.nextval, firstname string, lastname string )";
+    private static final String DROP_ENCCMP2 = "DROP TABLE ENCCMPBEAN";
+
+    private static final String CREATE_CMPRMIIIOP2 = "CREATE TABLE CMPRMIIIOPBEAN ( id integer default entity_seq.nextval, firstname string, lastname string )";
+    private static final String DROP_CMPRMIIIOP2 = "DROP TABLE CMPRMIIIOPBEAN";
+
     private static final String CREATE_ENTITY_SEQ = "CREATE SEQUENCE entity_seq";
     private static final String DROP_ENTITY_SEQ = "DROP SEQUENCE entity_seq";
 
@@ -46,10 +58,18 @@ public class AxionTestDatabase implements TestDatabase {
         executeStatementIgnoreErrors(DROP_ENCCMP);
         executeStatementIgnoreErrors(DROP_BASICCMP);
         executeStatementIgnoreErrors(DROP_AOBASICCMP);
+        executeStatementIgnoreErrors(DROP_CMPRMIIIOP2);
+        executeStatementIgnoreErrors(DROP_ENCCMP2);
+        executeStatementIgnoreErrors(DROP_BASICCMP2);
+        executeStatementIgnoreErrors(DROP_AOBASICCMP2);
         executeStatementIgnoreErrors(DROP_ENTITY);
         executeStatementIgnoreErrors(DROP_ENTITY_SEQ);
         executeStatement(CREATE_ENTITY_SEQ);
         executeStatement(CREATE_ENTITY);
+        executeStatement(CREATE_BASICCMP2);
+        executeStatement(CREATE_AOBASICCMP2);
+        executeStatement(CREATE_ENCCMP2);
+        executeStatement(CREATE_CMPRMIIIOP2);
         executeStatement(CREATE_BASICCMP);
         executeStatement(CREATE_AOBASICCMP);
         executeStatement(CREATE_ENCCMP);
@@ -61,6 +81,10 @@ public class AxionTestDatabase implements TestDatabase {
         executeStatement(DROP_ENCCMP);
         executeStatement(DROP_BASICCMP);
         executeStatement(DROP_AOBASICCMP);
+        executeStatement(DROP_CMPRMIIIOP2);
+        executeStatement(DROP_ENCCMP2);
+        executeStatement(DROP_BASICCMP2);
+        executeStatement(DROP_AOBASICCMP2);
         executeStatement(DROP_ENTITY);
         executeStatement(DROP_ENTITY_SEQ);
     }

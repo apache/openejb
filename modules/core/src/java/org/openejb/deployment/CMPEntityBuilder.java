@@ -116,9 +116,14 @@ class CMPEntityBuilder extends EntityBuilder {
             EntityBeanType entityBean = entityBeans[i];
             if ("Container".equals(getString(entityBean.getPersistenceType()))) {
                 String ejbName = getString(entityBean.getEjbName());
-                String abstractSchemaName = getString(entityBean.getAbstractSchemaName());
 
                 boolean cmp2 = isCMP2(entityBean);
+                String abstractSchemaName;
+                if (cmp2) {
+                    abstractSchemaName = getString(entityBean.getAbstractSchemaName());
+                } else {
+                    abstractSchemaName = ejbName;
+                }
 
                 ObjectName entityObjectName = super.createEJBObjectName(earContext, ejbModuleName, entityBean);
 
