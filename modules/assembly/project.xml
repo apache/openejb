@@ -716,6 +716,79 @@
             </properties>
         </dependency>
 
+        <!-- service-ref builder -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-axis</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <repository>true</repository>
+             </properties>
+         </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-axis-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <repository>true</repository>
+             </properties>
+         </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>${axis_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis-jaxrpc</artifactId>
+            <version>${axis_jaxrpc_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis-saaj</artifactId>
+            <version>${axis_saaj_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis-wsdl4j</artifactId>
+            <version>${axis_wsdl4j_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>${axis_commons_discovery_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>ews</groupId>
+            <artifactId>ews</artifactId>
+            <version>${ews_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
     </dependencies>
 
 </project>

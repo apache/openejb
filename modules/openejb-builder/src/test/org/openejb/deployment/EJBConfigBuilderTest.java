@@ -60,14 +60,18 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Map;
+import java.util.List;
 import java.util.jar.JarFile;
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
 import javax.naming.Reference;
 import javax.sql.DataSource;
+import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
@@ -75,6 +79,7 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -124,6 +129,13 @@ public class EJBConfigBuilderTest extends TestCase {
         }
 
         public GBeanData locateConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) throws DeploymentException {
+            return null;
+        }
+    };
+
+    private final ServiceReferenceBuilder serviceReferenceBuilder = new ServiceReferenceBuilder() {
+        //it could return a Service or a Reference, we don't care
+        public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlers, DeploymentContext deploymentContext, ClassLoader classLoader) throws DeploymentException {
             return null;
         }
     };
@@ -196,7 +208,7 @@ public class EJBConfigBuilderTest extends TestCase {
                     DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
                     DeploymentHelper.TRANSACTIONALTIMER_NAME,
                     DeploymentHelper.NONTRANSACTIONALTIMER_NAME,
-                    new RefContext(moduleBuilder, resourceReferenceBuilder));
+                    new RefContext(moduleBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
 
             moduleBuilder.installModule(DeploymentUtil.createJarFile(ejbJarFile), earContext, module);
             earContext.getClassLoader(null);
@@ -240,7 +252,7 @@ public class EJBConfigBuilderTest extends TestCase {
                     null, null, resourceReferenceBuilder, // web
                     // connector
                     null, // app client
-                    null // kernel
+                    serviceReferenceBuilder, null // kernel
             );
 
             JarFile jarFile = null;
@@ -289,7 +301,7 @@ public class EJBConfigBuilderTest extends TestCase {
                     null, null, resourceReferenceBuilder, // web
                     // connector
                     null, // app client
-                    null // kernel
+                    serviceReferenceBuilder, null // kernel
             );
 
             JarFile jarFile = DeploymentUtil.createJarFile(earFile);

@@ -136,6 +136,12 @@ by the server.
     <dependency>
         <uri>geronimo/jars/geronimo-common-${geronimo_version}.jar</uri>
     </dependency>
+    <dependency>
+         <uri>geronimo/jars/geronimo-axis-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+         <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
+    </dependency>
 
 
 
@@ -198,7 +204,7 @@ by the server.
         <attribute name="syncMaximumPoolSize" type="int">10</attribute>
         <attribute name="startMaximumPoolSize" type="int">10</attribute>
         <attribute name="scheduledMaximumPoolSize" type="int">10</attribute>
-        <reference name="TransactionContextManager">geronimo.server:type=TransactionContextManager</reference>
+        <reference name="TransactionContextManager">geronimo.server:name=TransactionContextManager,*</reference>
     </gbean>
 
     <gbean namePart="HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLog">
@@ -315,6 +321,7 @@ by the server.
         <reference name="EJBReferenceBuilder">geronimo.server:name=EJBBuilder,J2EEModule=org/apache/geronimo/Server,*</reference>
         <reference name="ConnectorConfigBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=ConnectorBuilder</reference>
         <reference name="ResourceReferenceBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=ConnectorBuilder</reference>
+        <reference name="ServiceReferenceBuilder">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=WebServiceBuilder</reference>
     </gbean>
 
     <gbean namePart="EJBBuilder" type="ModuleBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
@@ -332,6 +339,9 @@ by the server.
         <attribute name="defaultXATransactionCaching" type="boolean">true</attribute>
         <attribute name="defaultXAThreadCaching" type="boolean">false</attribute>
         <reference name="Repository">*:name=Repository,*</reference>
+    </gbean>
+
+    <gbean namePart="WebServiceBuilder" type="ModuleBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
     </gbean>
 
     <!-- these need names that include the parent id so they don't conflict with the deployer namens-->
