@@ -44,11 +44,18 @@
  */
 package org.openejb.corba.security.config.tss;
 
+import java.util.ArrayList;
+import java.util.Properties;
+import java.io.ByteArrayInputStream;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.pool.ThreadPool;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.openejb.corba.CORBABean;
 
 
 /**
@@ -117,4 +124,70 @@ public class TSSConfigEditorTest extends TestCase {
         }
 
     }
+
+
+    private static final String propString = " org.omg.CORBA.ORBClass=org.openorb.orb.core.ORB\n" +
+            "            org.omg.CORBA.ORBSingletonClass=org.openorb.orb.core.ORBSingleton\n" +
+            "\n" +
+            "            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.util.UtilInitializer\n" +
+            "            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer\n" +
+            "            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer\n" +
+            "            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.openorb.OpenORBInitializer\n" +
+            "\n" +
+            "            Xopenorb.debug.level=HIGH\n" +
+            "            Xopenorb.debug.trace=DEBUG\n" +
+            "\n" +
+            "            iiop.TransportServerInitializerClass=org.openorb.orb.ssl.SSLTransportServerInitializer\n" +
+            "\n" +
+            "            secure.server.allowUnsecure=false";
+    private static final String TEST_XML4 = "            <tss:tss xmlns:tss=\"http://www.openejb.org/xml/ns/corba-tss-config_1_0\" xmlns:sec=\"http://geronimo.apache.org/xml/ns/security\">\n" +
+            "                <tss:default-principal realm-name=\"public-properties-realm\">\n" +
+            "                    <sec:principal class=\"org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal\" name=\"guest\"/>\n" +
+            "                </tss:default-principal>\n" +
+            "                <tss:SSL port=\"6685\" hostname=\"localhost\">\n" +
+            "                    <tss:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</tss:supports>\n" +
+            "                    <tss:requires>Integrity Confidentiality EstablishTrustInClient</tss:requires>\n" +
+            "                </tss:SSL>\n" +
+            "                <tss:compoundSecMechTypeList>\n" +
+            "                    <tss:compoundSecMech>\n" +
+            "                        <tss:GSSUP targetName=\"geronimo-properties-realm\"/>\n" +
+            "                        <tss:sasMech>\n" +
+            "                            <tss:identityTokenTypes>ITTAbsent ITTAnonymous ITTPrincipalName</tss:identityTokenTypes>\n" +
+            "                        </tss:sasMech>\n" +
+            "                    </tss:compoundSecMech>\n" +
+            "                </tss:compoundSecMechTypeList>\n" +
+            "            </tss:tss>";
+
+    public void testCORBABean() throws Exception {
+        ClassLoader classLoader = getClass().getClassLoader();
+        ThreadPool threadPool = new ThreadPool(10, "foo", 1000, classLoader);
+        String configAdapter = "org.openejb.corba.openorb.OpenORBConfigAdapter";
+        CORBABean corbaBean = new CORBABean(configAdapter, classLoader, threadPool, null);
+        ArrayList args = new ArrayList();
+        args.add("-ORBPort");
+        args.add("6683");
+        args.add("-ORBInitRef");
+        args.add("NameService=corbaloc::localhost:2809/NameService");
+        corbaBean.setArgs(args);
+        Properties properties = new Properties();
+        properties.load(new ByteArrayInputStream(propString.getBytes()));
+        corbaBean.setProps(properties);
+        XmlObject xmlObject = getXmlObject(TEST_XML4);
+        TSSConfigEditor editor = new TSSConfigEditor();
+        Object o = editor.getValue(xmlObject, null, null);
+        TSSConfig tss = (TSSConfig) o;
+
+        corbaBean.setTssConfig(tss);
+
+        try {
+            corbaBean.doStart();
+        } finally {
+            try {
+                corbaBean.doStop();
+            } catch (Throwable e) {
+
+            }
+        }
+    }
+
 }
