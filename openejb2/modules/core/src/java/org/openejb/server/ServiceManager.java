@@ -54,7 +54,6 @@ import javax.management.ObjectName;
 
 import org.openejb.util.Logger;
 import org.openejb.util.Messages;
-import org.openejb.nassembler.NovaAssembler;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -380,19 +379,19 @@ public class ServiceManager {
     }
 
     public static void setUpServerService(Kernel kernel, String type, String host, int port, Class serviceClass) throws Exception {
-        ObjectName SOCKETSERVICE_NAME = JMXUtil.getObjectName("openejb:type=SocketService,name="+type);
-        ObjectName SERVICEDAEMON_NAME = JMXUtil.getObjectName("openejb:type=ServiceDaemon,name="+type);
-
-        GBeanMBean gBeanMBean = new GBeanMBean(SimpleSocketService.GBEAN_INFO);
-        gBeanMBean.setAttribute("serviceClassName", serviceClass.getName());
-        gBeanMBean.setAttribute("onlyFrom", new InetAddress[]{InetAddress.getByName(host)});
-        gBeanMBean.setReferencePattern("ContainerIndex",NovaAssembler.CONTAINERINDEX_NAME);
-        NovaAssembler.start(kernel, SOCKETSERVICE_NAME, gBeanMBean);
-
-        GBeanMBean gBeanMBean1 = new GBeanMBean(ServiceDaemon.GBEAN_INFO);
-        gBeanMBean1.setAttribute("port", new Integer(port));
-        gBeanMBean1.setAttribute("inetAddress", InetAddress.getByName(host));
-        gBeanMBean1.setReferencePattern("SocketService",SOCKETSERVICE_NAME);
-        NovaAssembler.start(kernel, SERVICEDAEMON_NAME, gBeanMBean1);
+//        ObjectName SOCKETSERVICE_NAME = JMXUtil.getObjectName("openejb:type=SocketService,name="+type);
+//        ObjectName SERVICEDAEMON_NAME = JMXUtil.getObjectName("openejb:type=ServiceDaemon,name="+type);
+//
+//        GBeanMBean gBeanMBean = new GBeanMBean(SimpleSocketService.GBEAN_INFO);
+//        gBeanMBean.setAttribute("serviceClassName", serviceClass.getName());
+//        gBeanMBean.setAttribute("onlyFrom", new InetAddress[]{InetAddress.getByName(host)});
+//        gBeanMBean.setReferencePattern("ContainerIndex",NovaAssembler.CONTAINERINDEX_NAME);
+//        NovaAssembler.start(kernel, SOCKETSERVICE_NAME, gBeanMBean);
+//
+//        GBeanMBean gBeanMBean1 = new GBeanMBean(ServiceDaemon.GBEAN_INFO);
+//        gBeanMBean1.setAttribute("port", new Integer(port));
+//        gBeanMBean1.setAttribute("inetAddress", InetAddress.getByName(host));
+//        gBeanMBean1.setReferencePattern("SocketService",SOCKETSERVICE_NAME);
+//        NovaAssembler.start(kernel, SERVICEDAEMON_NAME, gBeanMBean1);
     }
 }
