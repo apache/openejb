@@ -59,44 +59,47 @@ public class ServiceDaemon implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(ServiceDaemon.class);
 
     private final SocketService socketService;
-    private final InetAddress inetAddress;
+    private final InetAddress address;
     private final int port;
 
-    private SocketDaemon socketDaemon;
+    private SocketListener socketListener;
 
-    public ServiceDaemon(SocketService socketService, InetAddress inetAddress, int port) {
+    public ServiceDaemon(SocketService socketService, InetAddress address, int port) {
+        this(null, socketService, address, port);
+    }
+    public ServiceDaemon(String name, SocketService socketService, InetAddress address, int port) {
         if (socketService == null) {
             throw new IllegalArgumentException("socketService is null");
         }
         this.socketService = socketService;
-        this.inetAddress = inetAddress;
+        this.address = address;
         this.port = port;
     }
 
     public synchronized void doStart() throws ServiceException {
         // Don't bother if we are already started/starting
-        if (socketDaemon != null) {
+        if (socketListener != null) {
             return;
         }
 
         ServerSocket serverSocket;
         try {
-            serverSocket = new ServerSocket(port, 20, inetAddress);
+            serverSocket = new ServerSocket(port, 20, address);
         } catch (Exception e) {
             throw new ServiceException("Service failed to open socket", e);
         }
 
-        socketDaemon = new SocketDaemon(socketService, serverSocket);
-        Thread thread = new Thread(socketDaemon);
-        thread.setName("service." + getServiceName() + "@" + socketDaemon.hashCode());
+        socketListener = new SocketListener(socketService, serverSocket);
+        Thread thread = new Thread(socketListener);
+        thread.setName("service." + getServiceName() + "@" + socketListener.hashCode());
         thread.setDaemon(true);
         thread.start();
     }
 
     public synchronized void doStop() {
-        if (socketDaemon != null) {
-            socketDaemon.stop();
-            socketDaemon = null;
+        if (socketListener != null) {
+            socketListener.stop();
+            socketListener = null;
         }
     }
 
@@ -112,8 +115,8 @@ public class ServiceDaemon implements GBeanLifecycle {
      * Gets the inetAddress number that the
      * daemon is listening on.
      */
-    public InetAddress getInetAddress() {
-        return inetAddress;
+    public InetAddress getAddress() {
+        return address;
     }
 
     /**
@@ -124,12 +127,12 @@ public class ServiceDaemon implements GBeanLifecycle {
         return port;
     }
 
-    private static class SocketDaemon implements Runnable {
+    private static class SocketListener implements Runnable {
         private SocketService serverService;
         private ServerSocket serverSocket;
         private boolean stopped;
 
-        public SocketDaemon(SocketService serverService, ServerSocket serverSocket) {
+        public SocketListener(SocketService serverService, ServerSocket serverSocket) {
             this.serverService = serverService;
             this.serverSocket = serverSocket;
             stopped = false;
