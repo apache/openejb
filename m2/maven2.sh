@@ -32,6 +32,11 @@ cp $poms/ejb-test-jar.pom $modules_dir/test-ejb-jar/pom.xml
   mv META-INF src/main/resources
 )
 
+echo ... builder
+cp -r $src/modules/openejb-builder $modules_dir
+cp $poms/ejb-builder.pom $modules_dir/openejb-builder/pom.xml
+rm -rf $modules_dir/openejb-builder/src/test-ejb-jar
+
 # ---------------------------------------------------
 
 find $dir -name 'CVS*' -exec rm -rf {} \; > /dev/null 2>&1

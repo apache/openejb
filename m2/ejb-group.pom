@@ -13,6 +13,7 @@
 
   <modules>
     <module>modules/core</module>
+    <module>modules/openejb-builder</module>
     <module>modules/test-ejb-jar</module>
   </modules>
 
@@ -64,23 +65,7 @@
     </mailingList>
   </mailingLists>
 
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>1.0-SNAPSHOT</version>
-          <configuration>
-            <source>1.4</source>
-            <target>1.4</target>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
-
   <developers>
-
     <developer>
       <name>Dain Sundstrom</name>
       <id>dain</id>
@@ -548,5 +533,22 @@
   <ciManagement>
     <nagEmailAddress>openejb-development@lists.sourceforge.net</nagEmailAddress>
   </ciManagement>
+
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <testSourceDirectory>src/test</testSourceDirectory>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>1.0-SNAPSHOT</version>
+          <configuration>
+            <source>1.4</source>
+            <target>1.4</target>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 
 </project>
