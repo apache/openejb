@@ -881,7 +881,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         for (int i = 0; i < resourceRefArray.length; i++) {
             ResourceRefType resourceRefType = resourceRefArray[i];
             String name = (String)openejbNames.get(resourceRefType.getResRefName().getStringValue());
-            if ("Unshareable".equals(resourceRefType.getResSharingScope().getStringValue())) {
+            if ("Unshareable".equals(getJ2eeStringValue(resourceRefType.getResSharingScope()))) {
                 unshareableResources.add(name);
             }
             if ("Application".equals(resourceRefType.getResAuth().getStringValue())) {
