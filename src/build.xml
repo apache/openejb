@@ -659,9 +659,6 @@
           depends="prepare"
           description="--> generates documentation from XML files via XSLT">
 
-    <copy todir="${docs.dest}/html/ann">
-        <fileset dir="${docs.src}/ann" />
-    </copy>
     <copy todir="${docs.dest}/html/faqs">
         <fileset dir="${docs.src}/faqs" />
     </copy>
@@ -674,7 +671,7 @@
     
     <style basedir="${docs.src}" 
         destdir="${docs.dest}/html" 
-        style="src/doc/style/exolab.xsl"
+        style="src/doc/style/website.xsl"
         includes="**/**.xml" 
         excludes="style/**,project.xml"
         processor="xslp">           
