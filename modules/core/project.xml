@@ -76,6 +76,15 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>1.0-SNAPSHOT</version>
             <properties>

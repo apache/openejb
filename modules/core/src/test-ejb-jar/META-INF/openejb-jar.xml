@@ -2,7 +2,7 @@
 
 <openejb-jar
     xmlns="http://www.openejb.org/xml/ns/openejb-jar"
-    configId="org/openejb/itests"
+    configId="org/openejb/deployment/test"
     parentId="org/apache/geronimo/Server">
 
     <cmp-connection-factory>DefaultDatasource</cmp-connection-factory>
