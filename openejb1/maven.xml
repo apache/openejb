@@ -272,7 +272,7 @@
         <define:tag name="warfiles">
             <aggregate:copy
                 source="${module.root}/target"
-                target="${aggregate.dir}/lib"
+                target="${aggregate.dir}/war"
                 include="*.war"/>
         </define:tag>
 
