@@ -62,7 +62,7 @@ import org.apache.geronimo.naming.reference.SimpleAwareReference;
  */
 public final class CORBAProxyReference extends SimpleAwareReference {
 
-    private final Log log = LogFactory.getLog(CORBAProxyReference.class);
+    private final static Log log = LogFactory.getLog(CORBAProxyReference.class);
 
     private final URI nsCorbaloc;
     private final String objectName;
