@@ -15,6 +15,7 @@ import org.openejb.alt.assembler.classic.*;
 import org.openejb.alt.config.ejb11.*;
 import org.openejb.alt.config.sys.*;
 import org.openejb.util.FileUtils;
+import org.openejb.util.JarUtils;
 
 /*------------------------------------------------------*/
 /* Utility method for reading and writing config files  */
@@ -23,9 +24,20 @@ import org.openejb.util.FileUtils;
 
 public class ConfigUtils  {
     
+    public static File defaultServicesJar = null;
+    public static String defaultServicesJarName = "default.service-jar.xml";
+
     private static Map loadedServiceJars = new HashMap();
 
     private static Category logger = Category.getInstance("OpenEJB");
+
+    public static File getDefaultServiceJar() throws OpenEJBException{
+
+        if (defaultServicesJar == null) {
+            defaultServicesJar = JarUtils.getJarContaining(defaultServicesJarName);
+        }
+        return defaultServicesJar;
+    }
 
     public static ServiceProvider getService(String jar, String id) throws OpenEJBException{
 
@@ -59,118 +71,25 @@ public class ConfigUtils  {
         return provider;
     }
 
-    public static Openejb readConfig(String confFileURL) throws OpenEJBException {
+    /*
+        TODO: Use the java.net.URL instead of java.io.File so configs
+        and jars can be located remotely in the network
+     */
+    public static Openejb readConfig(String confFile) throws OpenEJBException{
         Openejb obj = null;
-        URL url = null;
-        InputStream strm = null;
+        Reader reader = null;
         try {
-            url = new URL(confFileURL);
-            strm = url.openConnection().getInputStream();
-            obj = Openejb.unmarshal(new InputStreamReader(strm));
-
-            /*
-             * If we loaded the configuration from a jar, either from a jar:
-             * URL or a resource: URL, we must strip off the config file location
-             * from the URL.
-             */
-            String jarURL = null;
-            URL realURL = null;
-            if ( url.getProtocol().compareTo("jar") == 0 ) {
-                realURL = url;
-            } else if ( url.getProtocol().compareTo("resource") == 0 ) {
-                realURL = ClassLoader.getSystemResource( url.getFile().substring( 1 ) );
-            }
-            if ( realURL != null  ) {
-                jarURL = realURL.getPath();
-                jarURL = jarURL.substring( 0, jarURL.indexOf('!') );
-                jarURL = jarURL.substring( 6 );
-            }
-
-	    // Need to fill in the default Jars
-	    Enumeration enum = obj.enumerateConnector();
-            Connector connector;
-	    while (enum.hasMoreElements()) {
-                connector = (Connector)enum.nextElement();
-                if ( connector.getJar() == null ) {
-                    if ( jarURL != null ) {
-                        connector.setJar(jarURL);
-                    } else {
-                        handleException( "conf.1411", confFileURL, "Connector", connector.getId() );
-                    }
-                }
-	    }
-
-	    enum = obj.enumerateContainer();
-            Container container;
-	    while (enum.hasMoreElements()) {
-                container = (Container)enum.nextElement();
-                if ( container.getJar() == null ) {
-                    if ( jarURL != null ) {
-                        container.setJar(jarURL);
-                    } else {
-                        handleException( "conf.1411", confFileURL, "Container", container.getId() );
-                    }
-                }
-	    }
-
-	    enum = obj.enumerateJndiProvider();
-            JndiProvider provider;
-	    while (enum.hasMoreElements()) {
-                provider = (JndiProvider)enum.nextElement();
-                if ( provider.getJar() == null ) {
-                    if ( jarURL != null ) {
-                        provider.setJar(jarURL);
-                    } else {
-                        handleException( "conf.1411", confFileURL, "JndiProvider", provider.getId() );
-                    }
-                }
-	    }
-
-            ProxyFactory factory = obj.getProxyFactory();
-	    if ( factory != null && factory.getJar() == null ) {
-                if ( jarURL != null ) {
-                    factory.setJar(jarURL);
-                } else {
-                    handleException( "conf.1411", confFileURL, "ProxyFactory", factory.getId() );
-                }
- 	    }
-
-            SecurityService security = obj.getSecurityService();
-	    if ( security != null && security.getJar() == null ) {
-                if ( jarURL != null ) {
-                    security.setJar(jarURL);
-                } else {
-                    handleException( "conf.1411", confFileURL, "SecurityService", security.getId() );
-                }
- 	    }
-
-            TransactionService transaction = obj.getTransactionService();
-	    if ( transaction != null && transaction.getJar() == null ) {
-                if ( jarURL != null ) {
-                    transaction.setJar(jarURL);
-                } else {
-                    handleException( "conf.1411", confFileURL, "TransactionService", transaction.getId() );
-                }
- 	    }
-
-            ConnectionManager manager = obj.getConnectionManager();
-	    if ( manager != null && manager.getJar() == null ) {
-                if ( jarURL != null ) {
-                    manager.setJar(jarURL);
-                } else {
-                    handleException( "conf.1411", confFileURL, "ConnectionManager", manager.getId() );
-                }
- 	    }
-
-        } catch ( IOException e ) {
-            handleException("conf.1900", confFileURL, e.getLocalizedMessage());
+            reader = new FileReader(confFile);
+            obj = Openejb.unmarshal(reader);
+        } catch ( FileNotFoundException e ) {
+            handleException("conf.1900", confFile, e.getLocalizedMessage());
         } catch ( MarshalException e ) {
             if (e.getException() instanceof IOException){
-                handleException("conf.1110", confFileURL, e.getLocalizedMessage());
+                handleException("conf.1110", confFile, e.getLocalizedMessage());
             } else if (e.getException() instanceof UnknownHostException){
-                handleException("conf.1121", confFileURL, e.getLocalizedMessage());
+                handleException("conf.1121", confFile, e.getLocalizedMessage());
             } else {
-                handleException("conf.1120", confFileURL, e.getLocalizedMessage());
+                handleException("conf.1120", confFile, e.getLocalizedMessage());
             }
         } catch ( ValidationException e ) {
             /* TODO: Implement informative error handling here. 
@@ -183,37 +102,36 @@ public class ConfigUtils  {
             /*
             NOTE: This doesn't seem to ever happen, anyone know why?
             */
-            handleException("conf.1130", confFileURL, e.getLocalizedMessage());
+            handleException("conf.1130",confFile, e.getLocalizedMessage());
         }
         try {
-            strm.close();
+            reader.close();
         } catch ( Exception e ) {
-            handleException("file.0020", confFileURL, e.getLocalizedMessage());
+            handleException("file.0020", confFile, e.getLocalizedMessage());
         }
         return obj;
     }
     
     
-    public static void writeConfig(String confFileURL, Openejb confObject) throws OpenEJBException{
+    public static void writeConfig(String confFile, Openejb confObject) throws OpenEJBException{
         /* TODO:  Just to be picky, the xml file created by
         Castor is really hard to read -- it is all on one line.
         People might want to edit this in the future by hand, so if Castor can 
         make the output look better that would be great!  Otherwise we could
         just spruce the output up by adding a few new lines and tabs.
         */
-        URL url = null;
-        OutputStream strm = null;
-        try {
-            url = new URL(confFileURL);
-            strm = url.openConnection().getOutputStream();
-            confObject.marshal(new OutputStreamWriter(strm));
+        Writer writer = null;
+        try{
+            File file = new File(confFile);
+            writer = new FileWriter( file );
+            confObject.marshal( writer );
         } catch ( IOException e ) {
-                handleException("conf.1040", confFileURL, e.getLocalizedMessage());
+                handleException("conf.1040",confFile, e.getLocalizedMessage());
         } catch ( MarshalException e ) {
             if (e.getException() instanceof IOException){
-                handleException("conf.1040", confFileURL, e.getLocalizedMessage());
+                handleException("conf.1040",confFile, e.getLocalizedMessage());
             } else {
-                handleException("conf.1050", confFileURL, e.getLocalizedMessage());
+                handleException("conf.1050",confFile, e.getLocalizedMessage());
             }
         } catch ( ValidationException e ) {
             /* TODO: Implement informative error handling here. 
@@ -227,12 +145,12 @@ public class ConfigUtils  {
              * is invalid, the MarshalException is thrown, not this one as you
              * would think.
              */
-            handleException("conf.1060", confFileURL, e.getLocalizedMessage());
+            handleException("conf.1060",confFile, e.getLocalizedMessage());
         }
         try {
-            strm.close();
+            writer.close();
         } catch ( Exception e ) {
-            handleException("file.0020", confFileURL, e.getLocalizedMessage());
+            handleException("file.0020", confFile, e.getLocalizedMessage());
         }
     }
     
@@ -604,7 +522,7 @@ public class ConfigUtils  {
                 props = loadProperties(in, props);
             }
         } catch (OpenEJBException ex){
-            handleException("conf.0013", service.getId(), jar, ex.getLocalizedMessage());
+            ConfigUtils.handleException("conf.0013", service.getId(), jar, ex.getLocalizedMessage());
         }
 
         /* 3. Load properties from the content in the Container 
@@ -663,246 +581,61 @@ public class ConfigUtils  {
     /**
      * Search for the config file.
      * 
-     * @return URL, in string form, of the config file if it is found
+     * OPENJB_HOME/conf/openejb.conf
+     * OPENJB_HOME/conf/default.openejb.conf
+     * 
+     * @return 
      */
-    private static String searchForConfiguration( String configURL ) throws OpenEJBException {
-	InputStream strm = null;
-	URL url = null;
-
-	try {
-	    url = new URL( configURL );
-	    strm = url.openConnection().getInputStream();
-	} catch (java.io.IOException e) {
-	}
+    public static String searchForConfiguration() throws OpenEJBException{
+        File file = null;
+        try{
+            try{
+                file = FileUtils.getFile("conf/openejb.conf");
+            } catch (java.io.FileNotFoundException e){
+            }
+            if (file == null) {
+                try{
+                    file = FileUtils.getFile("conf/default.openejb.conf");
+                } catch (java.io.FileNotFoundException e){
+                }
+            }
+        } catch (java.io.IOException e){
+            throw new OpenEJBException("Could not locate config file: ", e);
+        }
         
-	return  (strm == null)? null: url.toExternalForm();
-    }
-
-    public static Openejb loadAndResolveConfigFiles(String configURL) throws OpenEJBException {
-	String configLocation = configURL;
-	String defaultConfigLocation = "";
-
-	if (configLocation == null) {
-	    try{
-		configLocation = System.getProperty("openejb.configuration");
-	    } catch (Exception e){}
-	}
-
-        if ( configLocation == null ) {
-            configLocation = searchForConfiguration( "file://conf/openejb.conf" );
-        }
-        if ( configLocation == null ) {
-            configLocation = searchForConfiguration( "file://conf/default.openejb.conf" );
-        }
-        if ( configLocation == null ) {
-            configLocation = searchForConfiguration( "resource:/openejb.conf" );
-        }
-	
-        defaultConfigLocation = searchForConfiguration( "resource:/default.openejb.conf" );
-	if ( defaultConfigLocation == null ) {
-	    handleException( "config.noDefaultConfig" );
-	}
-	
-	Openejb openejb = null;
-	Openejb defaultOpenejb = null;
-
-	if ( configLocation != null ) {
-	    logInfo( "config.usingConfigWithDefault", configLocation, defaultConfigLocation );
-
-	    openejb = readConfig( configLocation );
-	    defaultOpenejb = readConfig( defaultConfigLocation );
-
-	    // resolve defaults
-	    Enumeration enum =null;
-	    HashMap map;
-
-	    Container container;
-	    map = new HashMap();
-	    enum = openejb.enumerateContainer();
-	    while ( enum.hasMoreElements() ) {
-		container = (Container)enum.nextElement();
-
-		map.put( container.getId(), container );
-	    }
-	    enum = defaultOpenejb.enumerateContainer();
-	    while ( enum.hasMoreElements() ) {
-		container = (Container)enum.nextElement();
-
-		if ( !map.containsKey( container.getId() ) ) {
-		    logInfo( "config.addingFromDefault", container.getId(), "Container" );
-		    openejb.addContainer( container );
-		}
-	    }
-
-	    JndiProvider provider;
-	    map = new HashMap();
-	    enum = openejb.enumerateJndiProvider();
-	    while ( enum.hasMoreElements() ) {
-		provider = (JndiProvider)enum.nextElement();
-
-		map.put( provider.getId(), provider );
-	    }
-	    enum = defaultOpenejb.enumerateJndiProvider();
-	    while ( enum.hasMoreElements() ) {
-		provider = (JndiProvider)enum.nextElement();
-
-		if ( !map.containsKey( provider.getId() ) ) {
-		    logInfo( "config.addingFromDefault", provider.getId(), "JndiProvider" );
-		    openejb.addJndiProvider( provider );
-		}
-
-	    }
-
-	    if ( openejb.getSecurityService() == null ) {
-		if ( defaultOpenejb.getSecurityService() == null ) {
-		    handleException( "config.defaultServiceMissing", "SecurityService" );
-		}
-		logInfo( "config.gettingFromDefault", "SecurityService" );
-		openejb.setSecurityService( defaultOpenejb.getSecurityService() );
-	    }
-
-	    if ( openejb.getTransactionService() == null ) {
-		if ( defaultOpenejb.getTransactionService() == null ) {
-		    handleException( "config.defaultServiceMissing", "TransactionService" );
-		}
-		logInfo( "config.gettingFromDefault", "TransactionService" );
-		openejb.setTransactionService( defaultOpenejb.getTransactionService() );
-	    }
-
-	    if ( openejb.getConnectionManager() == null ) {
-		if ( defaultOpenejb.getConnectionManager() == null ) {
-		    handleException( "config.defaultServiceMissing", "ConnectionManager" );
-		}
-		logInfo( "config.gettingFromDefault", "ConnectionManager" );
-		openejb.setConnectionManager( defaultOpenejb.getConnectionManager() );
-	    }
-
-	    if ( openejb.getProxyFactory() == null ) {
-		if ( defaultOpenejb.getProxyFactory() == null ) {
-		    handleException( "config.defaultServiceMissing", "ProxyFactory" );
-		}
-		logInfo( "config.gettingFromDefault", "ProxyFactory" );
-		openejb.setProxyFactory( defaultOpenejb.getProxyFactory() );
-	    }
-
-	    Connector connector;
-	    map = new HashMap();
-	    enum = openejb.enumerateConnector();
-	    while ( enum.hasMoreElements() ) {
-		connector = (Connector)enum.nextElement();
-
-		map.put( connector.getId(), connector );
-	    }
-	    enum = defaultOpenejb.enumerateConnector();
-	    while ( enum.hasMoreElements() ) {
-		connector = (Connector)enum.nextElement();
-
-		if ( !map.containsKey( connector.getId() ) ) {
-		    logInfo( "config.addingFromDefault", connector.getId(), "Connector" );
-		    openejb.addConnector( connector );
-		}
-
-	    }
-
-	    Resource resource;
-	    map = new HashMap();
-	    enum = openejb.enumerateResource();
-	    while ( enum.hasMoreElements() ) {
-		resource = (Resource)enum.nextElement();
-
-		map.put( resource.getId(), resource );
-	    }
-	    enum = defaultOpenejb.enumerateResource();
-	    while ( enum.hasMoreElements() ) {
-		resource = (Resource)enum.nextElement();
-
-		if ( !map.containsKey( resource.getId() ) ) {
-		    logInfo( "config.addingFromDefault", resource.getId(), "Resource" );
-		    openejb.addResource( resource );
-		}
-
-	    }
-
-	    Deployments deployments;
-	    map = new HashMap();
-	    enum = openejb.enumerateDeployments();
-	    while ( enum.hasMoreElements() ) {
-		deployments = (Deployments)enum.nextElement();
-
-		map.put( deployments.getDir(), deployments );
-	    }
-	    enum = defaultOpenejb.enumerateDeployments();
-	    while ( enum.hasMoreElements() ) {
-		deployments = (Deployments)enum.nextElement();
-
-		if ( !map.containsKey( deployments.getDir() ) ) {
-		    logInfo( "config.addingFromDefault", deployments.getDir(), "Deployments" );
-		    openejb.addDeployments( deployments );
-		}
-
-	    }
-
-	} else {
-	    logInfo( "config.usingDefault" );
-	    openejb = ConfigUtils.readConfig( defaultConfigLocation );
-
-	    if ( openejb.getSecurityService() == null ) {
-		handleException( "config.defaultServiceMissing", "SecurityService" );
-	    }
-
-	    if ( openejb.getTransactionService() == null ) {
-		handleException( "config.defaultServiceMissing", "TransactionService" );
-	    }
-
-	    if ( openejb.getConnectionManager() == null ) {
-		handleException( "config.defaultServiceMissing", "ConnectionManager" );
-	    }
-
-	    if ( openejb.getProxyFactory() == null ) {
-		handleException( "config.defaultServiceMissing", "ProxyFactory" );
-	    }
-	}
-
-	return openejb;
-
+        /*TODO:2: Check these too.
+        * OPENJB_HOME/lib/openejb-x.x.x.jar
+        * OPENJB_HOME/dist/openejb-x.x.x.jar
+        */
+        return (file == null)? null: file.getAbsolutePath() ;
     }
 
 
     /*------------------------------------------------------*/
     /*    Methods for easy exception handling               */
     /*------------------------------------------------------*/
-    public static void handleException( String errorCode, Object arg0, Object arg1, Object arg2, Object arg3 ) throws OpenEJBException {
+    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3 ) throws OpenEJBException{
         Object[] args = { arg0, arg1, arg2, arg3 };
-        OpenEJBException e =  new OpenEJBException( errorCode, args );
-        logger.error( e.getMessage() );
-	throw e;
+        throw new OpenEJBException(errorCode, args);
     }
 
-    public static void handleException( String errorCode, Object arg0, Object arg1, Object arg2 ) throws OpenEJBException {
+    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2 ) throws OpenEJBException{
         Object[] args = { arg0, arg1, arg2 };
-        OpenEJBException e =  new OpenEJBException( errorCode, args );
-        logger.error( e.getMessage() );
-	throw e;
+        throw new OpenEJBException(errorCode, args);
     }
     
-    public static void handleException( String errorCode, Object arg0, Object arg1 ) throws OpenEJBException {
+    public static void handleException(String errorCode, Object arg0, Object arg1 ) throws OpenEJBException{
         Object[] args = { arg0, arg1 };
-        OpenEJBException e =  new OpenEJBException( errorCode, args );
-        logger.error( e.getMessage() );
-	throw e;
+        throw new OpenEJBException(errorCode, args);
     }
 
-    public static void handleException( String errorCode, Object arg0 ) throws OpenEJBException {
+    public static void handleException(String errorCode, Object arg0 ) throws OpenEJBException{
         Object[] args = { arg0 };
-        OpenEJBException e =  new OpenEJBException( errorCode, args );
-        logger.error( e.getMessage() );
-	throw e;
+        throw new OpenEJBException(errorCode, args);
     }
     
-    public static void handleException( String errorCode ) throws OpenEJBException {
-        OpenEJBException e =  new OpenEJBException( errorCode );
-        logger.error( e.getMessage() );
-	throw e;
+    public static void handleException(String errorCode ) throws OpenEJBException{
+        throw new OpenEJBException(errorCode);
     }
 
 
@@ -937,35 +670,6 @@ public class ConfigUtils  {
     public static void logWarning(String errorCode ) {
         OpenEJBException e = new OpenEJBException(errorCode);
         logger.warn( e.getMessage() );
-    }
-
-    public static void logInfo(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3 ) {
-        Object[] args = { arg0, arg1, arg2, arg3 };
-        OpenEJBException e = new OpenEJBException( errorCode, args );
-        logger.info( e.getMessage() );
-    }
-
-    public static void logInfo(String errorCode, Object arg0, Object arg1, Object arg2 ) {
-        Object[] args = { arg0, arg1, arg2 };
-        OpenEJBException e = new OpenEJBException( errorCode, args );
-        logger.info( e.getMessage() );
-    }
-    
-    public static void logInfo(String errorCode, Object arg0, Object arg1 ) {
-        Object[] args = { arg0, arg1 };
-        OpenEJBException e = new OpenEJBException( errorCode, args );
-        logger.info( e.getMessage() );
-    }
-
-    public static void logInfo(String errorCode, Object arg0 ) {
-        Object[] args = { arg0 };
-        OpenEJBException e = new OpenEJBException( errorCode, args );
-        logger.info( e.getMessage() );
-    }
-
-    public static void logInfo(String errorCode ) {
-        OpenEJBException e = new OpenEJBException( errorCode );
-        logger.info( e.getMessage() );
     }
 
 

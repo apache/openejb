@@ -34,6 +34,8 @@ import java.io.File;
  * Note: The command line version should be finished first!!!  We
  * don't want to start on a crusade of abstracting code that doesn't
  * yet exist.  Functionality first, neat flexible stuff later.
+ *
+ * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class Deploy {
 
@@ -146,14 +148,21 @@ public class Deploy {
     public Deploy() throws OpenEJBException {
     }
 
-    public void init(String openejbConfigFile) throws OpenEJBException {
+    public void init(String openejbConfigFile) throws OpenEJBException{
         try {
             in  = new DataInputStream(System.in); 
             out = System.out;
 
             configFile = openejbConfigFile;
-	    
-	    config = ConfigUtils.loadAndResolveConfigFiles( configFile );
+            if (configFile == null) {
+                try{
+                    configFile = System.getProperty("openejb.configuration");
+                } catch (Exception e){}
+            }
+            if (configFile == null) {
+                configFile = ConfigUtils.searchForConfiguration();
+            }
+            config = ConfigUtils.readConfig(configFile);
             
             /* Load container list */
             containers = new Container[config.getContainerCount()];
@@ -264,8 +273,18 @@ public class Deploy {
         out.println("Deploying bean: "+bean.getEjbName());
         out.println("-----------------------------------------------------------");
         deployment.setEjbName( bean.getEjbName() );
-        deployment.setDeploymentId( promptForDeploymentId() );
-        deployment.setContainerId(  promptForContainerId(bean)  );
+        
+        if (GENERATE_DEPLOYMENT_ID) {
+            deployment.setDeploymentId( autoAssignDeploymentId( bean ) );
+        } else {
+            deployment.setDeploymentId( promptForDeploymentId() );
+        }
+
+        if (AUTO_ASSIGN) {
+            deployment.setContainerId(  autoAssignContainerId(bean)  );
+        } else {
+            deployment.setContainerId(  promptForContainerId(bean)  );
+        }
 
         if ( bean.getResourceRefCount() > 0 ) {
             ResourceRef[] refs = new ResourceRef[bean.getResourceRefCount()];
@@ -327,6 +346,15 @@ public class Deploy {
         } catch ( Exception e ) {
             throw new OpenEJBException(e.getMessage());
         }
+        return answer;
+    }
+
+    private String autoAssignDeploymentId(Bean bean) throws OpenEJBException{
+        String answer = bean.getEjbName();
+        out.println("\n==--- Step 1 ---==");
+        out.println("\nAuto assigning the ejb-name as the deployment id for this bean.");
+        out.print("\nDeployment ID: "+answer);
+
         return answer;
     }
 
@@ -398,6 +426,32 @@ public class Deploy {
         return cs[choice-1].getId();
     }
 
+    private String autoAssignContainerId(Bean bean) throws OpenEJBException{
+        String answer = null;
+        boolean replied = false;
+        out.println("\n==--- Step 2 ---==");
+        out.println("\nAuto assigning the container the bean will run in.");
+
+        Container[] cs = getUsableContainers(bean);
+
+        if ( cs.length == 0 ) {
+            /* TODO: Allow or Automatically create a useable container
+             * Stopping the deployment process because there is no
+             * container of the right bean type is a terrible way
+             * deal with the problem.  Instead, we should either 
+             * 1) Automatically create a container for them and notify them
+             *    that we have done so.
+             * 2) Allow them to create their own container.
+             * 3) Some combination of 1 and 2.
+             */
+            out.println("!! There are no "+bean.getType()+" containers declared in "+configFile+" !!");
+            out.println("A "+bean.getType()+" container must be declared and \nconfigured in your configuration file before this jar can\nbe deployed.");
+            System.exit(-1);
+        }
+        
+        out.print("\nContainer: "+cs[0].getId());
+        return cs[0].getId();
+    }
 
     private Container[] getUsableContainers(Bean bean) {
         Vector c = new Vector();        
