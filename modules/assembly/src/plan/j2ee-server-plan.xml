@@ -449,6 +449,9 @@ by the server.
         <reference name="NamingService">
             <name>NameServer</name>
         </reference>
+        <reference name="SecurityService">
+            <name>SecurityService</name>
+        </reference>
         <attribute name="args">-ORBPort, 683, -ORBInitRef, NameService=corbaloc::localhost:2809/NameService</attribute>
         <attribute name="configAdapter">org.openejb.corba.openorb.OpenORBConfigAdapter</attribute>
         <attribute name="props">
@@ -460,7 +463,8 @@ by the server.
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.openorb.OpenORBInitializer
-
+            
+            Xjava.net.debug=all
             Xopenorb.debug.level=HIGH
             Xopenorb.debug.trace=DEBUG
 
