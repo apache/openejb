@@ -51,11 +51,6 @@ import java.util.Properties;
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
@@ -66,6 +61,13 @@ import org.omg.CORBA.UserException;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
+
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+
 import org.openejb.corba.security.ClientPolicyFactory;
 import org.openejb.corba.security.config.ConfigAdapter;
 import org.openejb.corba.security.config.css.CSSConfig;
@@ -79,7 +81,7 @@ import org.openejb.corba.transaction.nodistributedtransactions.NoDTxClientTransa
  */
 public class CSSBean implements GBeanLifecycle {
 
-    private final Log log = LogFactory.getLog(CSSBean.class);
+    private final static Log log = LogFactory.getLog(CSSBean.class);
 
     private final ClassLoader classLoader;
     private final Executor threadPool;
@@ -175,6 +177,8 @@ public class CSSBean implements GBeanLifecycle {
     }
 
     public org.omg.CORBA.Object getHome(URI nsURI, String name) {
+
+        if (log.isDebugEnabled()) log.debug("Looking up home from " + nsURI.toString() + " at " + name);
         try {
             org.omg.CORBA.Object ref = nssORB.string_to_object(nsURI.toString());
             NamingContextExt ic = NamingContextExtHelper.narrow(ref);
@@ -188,7 +192,6 @@ public class CSSBean implements GBeanLifecycle {
             // do nothing
             throw new RuntimeException(ue);
         }
-//        return null;
     }
 
     public void doStart() throws Exception {
