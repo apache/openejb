@@ -37,6 +37,14 @@
     <ant:mkdir dir="${basedir}/target/classes"/>
   </preGoal>
 
+  <preGoal name="jar:jar">
+    <ant:war destfile="${basedir}/target/openejb-loader-${pom.currentVersion}.war" webxml="${basedir}/src/webapp/WEB-INF/web.xml">
+      <fileset dir="${basedir}/src/webapp"/>
+      <lib dir="${basedir}/../core/target/">
+        <include name="openejb-loader-${pom.currentVersion}.jar"/>
+      </lib>
+    </ant:war>
+  </preGoal>
 <!--
   <postGoal name="jar:jar">
     <ant:delete file="${basedir}/target/openejb-webadmin-${pom.currentVersion}.jar"/>
