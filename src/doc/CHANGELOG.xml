@@ -115,6 +115,18 @@
         <Entry task="603778">Fixed session loss during passivation</Entry>
         <Entry task="599761">A basic (connector) service example doc</Entry>
 	</Version>
+	<Version id="0.8.3" releaseDate="October 2nd, 2002" cvsTag="v0_8_3" released="true" release_id="114057">
+        <Entry bug="612648">Missing XML files in the distribution</Entry>
+        <Entry bug="606364">openejb.sh: syntax error at line 16: `('</Entry>
+        <Entry bug="612676">[openejb]$ help: help: command not found</Entry>
+        <Entry bug="612674">WARN:  config.0004</Entry>
+        <Entry bug="615973">Use of i18n in OpenEJBException</Entry>
+        <Entry task="611638">Cleanup Exception Handling in commits</Entry>
+        <Entry task="616815">JDK 1.4 assert warnings: upgrade JUnit</Entry>
+        <Entry task="592101">Messages should be printed to the screen</Entry>
+        <Entry task="612686">Test scripts shouldn't start server</Entry>
+        <Entry task="612688">Cannot bind to the ip: 127.0.0.1 and port</Entry>
+	</Version>
 	<Version id="0.9" releaseDate="TBD" cvsTag="TBD" released="false">
 		<Entry task="578360">Complete web administration</Entry>
 		<Entry>Full task details to be determined</Entry>
