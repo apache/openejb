@@ -47,6 +47,7 @@ package org.openejb.admin.web.ejbgen;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.StringTokenizer;
 
 import org.openejb.admin.web.HttpRequest;
 import org.openejb.admin.web.HttpResponse;
@@ -425,13 +426,20 @@ public class EJBGenBean extends WebAdminBean
 	 */
 	public String getBeanDir()
 	{
-		String[] dirs = request.getFormParameter("ejbpack").split("\\.");
+		//String[] dirs = request.getFormParameter("ejbpack").split("\\.");
+		StringTokenizer dirs = new StringTokenizer(request.getFormParameter("ejbpack"),"\\.");
 		String beandir = request.getFormParameter("ejbsloc") + psep + request.getFormParameter("ejbname");
 		
-		for(int i = 0; i < dirs.length; i++)
+		//for(int i = 0; i < dirs.length; i++)
+		//{
+		//	beandir = beandir + psep + dirs[i];	
+		//}
+		
+		while (dirs.hasMoreTokens())
 		{
-			beandir = beandir + psep + dirs[i];	
+			beandir = beandir + psep + dirs.nextToken();
 		}
+
 		
 		//System.out.println(beandir);
 		return beandir;
@@ -445,12 +453,18 @@ public class EJBGenBean extends WebAdminBean
 	 */
 	public String getBeanURL()
 	{
-		String[] dirs = request.getFormParameter("ejbpack").split("\\.");
+		//String[] dirs = request.getFormParameter("ejbpack").split("\\.");
+		StringTokenizer dirs = new StringTokenizer(request.getFormParameter("ejbpack"),"\\.");
 		String beanurl = request.getFormParameter("ejbname");
 		
-		for(int i = 0; i < dirs.length; i++)
+		//for(int i = 0; i < dirs.length; i++)
+		//{
+		//	beanurl = beanurl + "/" + dirs[i];	
+		//}
+		
+		while (dirs.hasMoreTokens())
 		{
-			beanurl = beanurl + "/" + dirs[i];	
+			beanurl = beanurl + "/" + dirs.nextToken();
 		}
 
 		//System.out.println(beanurl);
