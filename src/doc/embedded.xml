@@ -360,7 +360,7 @@ naming the jar directly.
     
     <section title="What Security Service to I get?" ref-id="security">
     <p>
-    OpenEJB doesn't not come with a valid SecurityService, this has been considered the
+    OpenEJB doesn't come with a valid SecurityService, this has been considered the
     role of the application server vendor since the beginning of the project.  However, 
     no app servers have yet created a SecurityService as we had hoped.  Months down the 
     road, we will create a simple SecurityService provider if one is not contributed.
