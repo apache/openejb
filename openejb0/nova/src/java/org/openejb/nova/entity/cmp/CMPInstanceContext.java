@@ -105,4 +105,10 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
             ((CMPEntityContainer) container).setInstanceData(id, instanceData);
         }
     }
+
+    public void addRelation(int slot, Object primaryKey) {
+    }
+
+    public void removeRelation(int slot, Object primaryKey) {
+    }
 }

@@ -194,6 +194,22 @@ public abstract class AbstractEJBContainer
         return beanClass;
     }
 
+    public Class getHomeInterface() {
+        return homeInterface;
+    }
+
+    public Class getRemoteInterface() {
+        return remoteInterface;
+    }
+
+    public Class getLocalHomeInterface() {
+        return localHomeInterface;
+    }
+
+    public Class getLocalInterface() {
+        return localInterface;
+    }
+
     public EJBHome getEJBHome() {
         return remoteClientContainer.getEJBHome();
     }
