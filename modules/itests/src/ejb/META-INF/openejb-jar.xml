@@ -383,6 +383,18 @@
             </cmp-field-mapping>
             <query>
                 <query-method>
+                    <method-name>findByPrimaryKey</method-name>
+                    <method-params>
+                        <method-param>java.lang.Integer</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>
+                <![CDATA[SELECT OBJECT(a) FROM BasicCmpBeanExplicitPK AS a]]>
+                </ejb-ql>
+                <no-cache-flush/>
+            </query>
+            <query>
+                <query-method>
                     <method-name>findByLastName</method-name>
                     <method-params>
                         <method-param>java.lang.String</method-param>
@@ -391,7 +403,6 @@
                 <ejb-ql>
                 <![CDATA[SELECT OBJECT(a) FROM BasicCmpBeanExplicitPK AS a WHERE a.lastName = ?1]]>
                 </ejb-ql>
-                <flush-cache-before-query/>
             </query>
         </entity>
         <entity>
