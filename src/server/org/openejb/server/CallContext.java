@@ -44,9 +44,9 @@
  */
 package org.openejb.server;
 
-import org.openejb.util.FastThreadLocal;
 import org.openejb.DeploymentInfo;
 import org.openejb.client.EJBRequest;
+import org.openejb.util.FastThreadLocal;
 
 /**
  * TODO: Add comment

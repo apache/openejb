@@ -45,14 +45,12 @@
 package org.openejb.core;
 
 import java.util.HashMap;
+
 import org.openejb.Container;
 import org.openejb.DeploymentInfo;
-import javax.ejb.EJBContext;
 import org.openejb.core.ivm.naming.IvmContext;
-import org.openejb.core.ivm.naming.NameNode;
-import org.openejb.core.ivm.naming.ParsedName;
-import org.openejb.core.ivm.naming.Reference;
 import org.openejb.core.ivm.naming.ObjectReference;
+import org.openejb.core.ivm.naming.Reference;
 
 public class ContainerSystem implements org.openejb.spi.ContainerSystem{
 

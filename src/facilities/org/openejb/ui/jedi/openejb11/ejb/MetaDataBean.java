@@ -44,8 +44,8 @@
  */
 package org.openejb.ui.jedi.openejb11.ejb;
 
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The metadata for an EJB.  Metadata is loaded by the XMLReader,

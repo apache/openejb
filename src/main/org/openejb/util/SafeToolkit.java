@@ -46,8 +46,8 @@ package org.openejb.util;
 
 import java.util.HashMap;
 import java.util.Properties;
+
 import org.openejb.OpenEJBException;
-import org.openejb.util.Messages;
 
 public class SafeToolkit{
 

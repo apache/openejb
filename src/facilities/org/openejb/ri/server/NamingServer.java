@@ -47,29 +47,25 @@
 package org.openejb.ri.server;
 
 
-import java.io.FileInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OptionalDataException;
-import java.io.ByteArrayOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Vector;
+
 import javax.naming.NameClassPair;
-import org.openejb.Container;
+
 import org.openejb.DeploymentInfo;
-import org.openejb.ProxyInfo;
-import org.openejb.util.proxy.DynamicProxyFactory;
-import org.openejb.util.proxy.ProxyManager;
 import org.openejb.OpenEJB;
 import org.openejb.util.Messages;
+import org.openejb.util.proxy.DynamicProxyFactory;
+import org.openejb.util.proxy.ProxyManager;
 
 
 public class NamingServer implements Runnable {

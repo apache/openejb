@@ -46,7 +46,10 @@
 package org.openejb.test.validator;
 
 import java.rmi.RemoteException;
-import javax.ejb.*;
+
+import javax.ejb.CreateException;
+import javax.ejb.EJBException;
+import javax.ejb.SessionContext;
 
 /**
  * Used to test the ejb validation functionality

@@ -44,10 +44,6 @@
  */
 package org.openejb.test.entity.cmp;
 
-import junit.framework.*;
-import javax.ejb.*;
-import java.util.Properties;
-import javax.naming.InitialContext;
 import org.openejb.test.object.OperationsPolicy;
 
 /**

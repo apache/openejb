@@ -44,7 +44,6 @@
  */
 package org.openejb.spi;
 
-import java.security.Principal;
 
 public interface SecurityService extends Service{
     

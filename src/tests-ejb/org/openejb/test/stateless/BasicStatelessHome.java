@@ -44,8 +44,6 @@
  */
 package org.openejb.test.stateless;
 
-import javax.ejb.*;
-import java.rmi.RemoteException;
 
 /**
  * 

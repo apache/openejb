@@ -45,23 +45,13 @@
 package org.openejb.client;
 
 import java.io.Serializable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.StreamCorruptedException;
-import java.io.OutputStream;
-import java.net.Socket;
 import java.lang.reflect.Method;
 import java.rmi.NoSuchObjectException;
-import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import org.openejb.client.proxy.*;
-import javax.ejb.EJBHome;
+
+import org.openejb.client.proxy.InvocationHandler;
 
 /**
  * TODO: Add comments

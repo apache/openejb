@@ -45,24 +45,19 @@
 package org.openejb.test.stateless;
 
 import java.rmi.RemoteException;
-import java.sql.*;
-import java.util.Hashtable;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import javax.ejb.*;
+
+import javax.ejb.EJBException;
+import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.*;
+
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
+
 import org.openejb.test.TestFailureException;
 import org.openejb.test.entity.bmp.BasicBmpHome;
 import org.openejb.test.entity.bmp.BasicBmpObject;
-import org.openejb.test.object.OperationsPolicy;
 import org.openejb.test.stateful.BasicStatefulHome;
 import org.openejb.test.stateful.BasicStatefulObject;
-import org.openejb.test.stateless.BasicStatelessHome;
-import org.openejb.test.stateless.BasicStatelessObject;
 
 /**
  * 

@@ -45,7 +45,7 @@
 package org.openejb.resource.jdbc;
 
 import javax.resource.spi.LocalTransaction;
-import java.sql.Connection;
+
 import org.openejb.util.Logger;
 import org.openejb.util.Messages;
 

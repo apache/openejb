@@ -44,18 +44,24 @@
  */
 package org.openejb.alt.assembler.modern.global;
 
-import java.io.*;
-import java.util.*;
-import javax.xml.parsers.*;
-import org.xml.sax.InputSource;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-import org.w3c.dom.Document;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.openejb.alt.assembler.modern.ContainerMetaData;
 import org.openejb.alt.assembler.modern.LoadException;
-import org.openejb.alt.assembler.modern.MetaData;
 import org.openejb.alt.assembler.modern.xml.DTDResolver;
+import org.w3c.dom.Document;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /**
  * The main metadata structure for the global OpenEJB configuration.  This

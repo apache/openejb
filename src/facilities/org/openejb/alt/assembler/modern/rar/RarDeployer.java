@@ -44,19 +44,19 @@
  */
 package org.openejb.alt.assembler.modern.rar;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLClassLoader;
+
 import javax.resource.spi.ManagedConnectionFactory;
-import org.openejb.Container;
-import org.openejb.OpenEJB;
+
 import org.openejb.OpenEJBException;
-import org.openejb.core.ContainerSystem;
-import org.openejb.core.DeploymentInfo;
 import org.openejb.alt.assembler.modern.AssemblerUtilities;
 import org.openejb.alt.assembler.modern.DeployerService;
 import org.openejb.alt.assembler.modern.GlobalContainerSystem;
-import org.openejb.alt.assembler.modern.rar.jca10.*;
+import org.openejb.alt.assembler.modern.rar.jca10.ConnectorMetaData;
 
 /**
  * Deploys J2EE Connector RARs into a running OpenEJB server.

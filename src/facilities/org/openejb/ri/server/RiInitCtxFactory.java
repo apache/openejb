@@ -48,9 +48,11 @@ package org.openejb.ri.server;
 
 
 import java.util.Hashtable;
+
 import javax.naming.Context;
-import javax.naming.spi.InitialContextFactory;
 import javax.naming.NamingException;
+import javax.naming.spi.InitialContextFactory;
+
 import org.openejb.util.Messages;
 
 

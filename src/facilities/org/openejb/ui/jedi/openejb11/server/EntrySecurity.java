@@ -46,7 +46,6 @@ package org.openejb.ui.jedi.openejb11.server;
 
 import org.opentools.deployer.plugins.AbstractEntry;
 import org.opentools.deployer.plugins.Category;
-import org.openejb.ui.jedi.openejb11.ejb.MetaDataContainer;
 
 /**
  * The tree entry for the Security Service.  An Entry represents a specific

@@ -44,16 +44,10 @@
  */
 package org.openejb.core.transaction;
 
-import java.rmi.RemoteException;
 import javax.ejb.EnterpriseBean;
 import javax.transaction.Status;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-import javax.transaction.TransactionRolledbackException;
+
 import org.openejb.ApplicationException;
-import org.openejb.OpenEJB;
-import org.openejb.SystemException;
-import org.openejb.core.ThreadContext;
 
 /**
  * 17.6.2.4 RequiresNew

@@ -45,8 +45,9 @@
 
 package org.openejb.alt.assembler.classic;
 
-import org.openejb.OpenEJBException;
 import java.util.Properties;
+
+import org.openejb.OpenEJBException;
 
 /**
  * Factory for creating an instance of the OpenEjbConfiguration

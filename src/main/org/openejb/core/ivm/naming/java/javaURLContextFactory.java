@@ -48,13 +48,15 @@ package org.openejb.core.ivm.naming.java;
 
 
 import java.util.Hashtable;
-import javax.naming.NamingException;
+
 import javax.naming.Context;
 import javax.naming.Name;
+import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.ObjectFactory;
-import org.openejb.core.ThreadContext;
+
 import org.openejb.core.DeploymentInfo;
+import org.openejb.core.ThreadContext;
 /**
  * Implements a URL context factory for the <tt>java:</tt> URL. Exposes
  * the environment naming context (<tt>java:/comp</tt>) as a read-only

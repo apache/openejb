@@ -44,8 +44,8 @@
  */
 package org.openejb.ui.jedi.openejb11.server;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The metadata for a Connection Manager.  Metadata is loaded by the XMLReader,

@@ -44,12 +44,11 @@
  */
 package org.openejb.test.entity.bmp;
 
-import javax.ejb.*;
-import java.util.Properties;
-import org.openejb.test.object.OperationsPolicy;
 import java.rmi.RemoteException;
-import org.openejb.test.TestFailureException;
+import java.util.Properties;
+
 import org.openejb.test.ApplicationException;
+import org.openejb.test.object.OperationsPolicy;
 
 /**
  * 

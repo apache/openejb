@@ -44,7 +44,7 @@
  */
 package org.openejb.test.validator;
 
-import javax.ejb.*;
+
 
 /**
  * Used to test the ejb validation functionality

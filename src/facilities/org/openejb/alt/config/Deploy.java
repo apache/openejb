@@ -44,29 +44,23 @@
  */
 package org.openejb.alt.config;
 
-import org.openejb.alt.config.sys.Openejb;
-import org.openejb.alt.config.sys.Container;
-import org.openejb.alt.config.sys.Connector;
+import java.io.DataInputStream;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.net.URL;
+import java.util.Properties;
+
+import org.openejb.OpenEJBException;
 import org.openejb.alt.config.ejb11.EjbDeployment;
 import org.openejb.alt.config.ejb11.EjbJar;
 import org.openejb.alt.config.ejb11.OpenejbJar;
 import org.openejb.alt.config.ejb11.ResourceLink;
 import org.openejb.alt.config.ejb11.ResourceRef;
-import org.openejb.OpenEJBException;
-import org.openejb.util.Messages;
-import org.openejb.util.FileUtils;
+import org.openejb.alt.config.sys.Connector;
+import org.openejb.alt.config.sys.Container;
+import org.openejb.alt.config.sys.Openejb;
 import org.openejb.util.JarUtils;
-import java.util.Vector;
-import java.util.Properties;
-import java.io.PrintStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.net.URL;
+import org.openejb.util.Messages;
 
 
 /**

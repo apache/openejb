@@ -44,8 +44,8 @@
  */
 package org.openejb.ui.jedi.openejb11.server;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The metadata for a J2EE Connector deployment.  Metadata is loaded by the

@@ -46,17 +46,16 @@
 
 package org.openejb.core.stateful;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Properties;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.SessionBean;
-import javax.transaction.Status;
-import javax.transaction.Transaction;
+
 import org.openejb.Container;
 import org.openejb.DeploymentInfo;
 import org.openejb.OpenEJB;

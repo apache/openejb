@@ -44,9 +44,15 @@
  */
 package org.openejb.server.admin.text;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 import org.openejb.server.EjbDaemon;
 import org.openejb.util.SafeProperties;
 

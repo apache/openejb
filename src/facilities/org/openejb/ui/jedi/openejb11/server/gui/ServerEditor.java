@@ -44,11 +44,18 @@
  */
 package org.openejb.ui.jedi.openejb11.server.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Map;
-import javax.swing.*;
-import javax.swing.event.*;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+
 import org.openejb.ui.jedi.openejb11.ejb.gui.MapEditor;
 
 /**

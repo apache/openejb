@@ -45,9 +45,8 @@
 package org.openejb.alt.assembler.modern;
 
 
-import java.util.Map;
 import java.util.HashMap;
-import org.openejb.alt.assembler.modern.MetaData;
+import java.util.Map;
 
 /**
  * A common metadata structure used by both the global and JAR-based assembly

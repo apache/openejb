@@ -1,21 +1,12 @@
 package org.openejb.alt.containers.castor_cmp11;
 
 import java.rmi.RemoteException;
-import java.util.Hashtable;
+
 import javax.ejb.EnterpriseBean;
-import javax.ejb.SessionSynchronization;
-import javax.transaction.Status;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-import javax.transaction.TransactionRolledbackException;
+
 import org.exolab.castor.jdo.Database;
 import org.exolab.castor.jdo.JDO;
 import org.openejb.ApplicationException;
-import org.openejb.InvalidateReferenceException;
-import org.openejb.OpenEJB;
-import org.openejb.SystemException;
-import org.openejb.core.ThreadContext;
-import org.openejb.core.transaction.TransactionContainer;
 import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionPolicy;
 

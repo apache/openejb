@@ -45,16 +45,23 @@
 
 package org.openejb.tyrex;
 
-import org.openejb.alt.assembler.classic.*;
-import org.openejb.core.ivm.naming.*;
-import tyrex.tm.TransactionDomain;
-import tyrex.resource.Resources;
-import tyrex.resource.Resource;
 import java.util.Properties;
-import org.openejb.core.EnvProps;
+
 import org.openejb.OpenEJBException;
-import org.openejb.util.SafeProperties;
+import org.openejb.alt.assembler.classic.EnterpriseBeanInfo;
+import org.openejb.alt.assembler.classic.EntityBeanInfo;
+import org.openejb.alt.assembler.classic.ResourceReferenceInfo;
+import org.openejb.alt.assembler.classic.StatefulBeanInfo;
+import org.openejb.alt.assembler.classic.StatelessBeanInfo;
+import org.openejb.core.ivm.naming.ENCReference;
+import org.openejb.core.ivm.naming.IvmContext;
+import org.openejb.core.ivm.naming.ObjectReference;
+import org.openejb.core.ivm.naming.Reference;
 import org.openejb.util.SafeToolkit;
+
+import tyrex.resource.Resource;
+import tyrex.resource.Resources;
+import tyrex.tm.TransactionDomain;
 
 
 public class TyrexClassicAssembler extends org.openejb.alt.assembler.classic.Assembler {

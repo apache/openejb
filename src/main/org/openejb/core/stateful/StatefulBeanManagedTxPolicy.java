@@ -1,16 +1,13 @@
 package org.openejb.core.stateful;
 
 import java.rmi.RemoteException;
+
 import javax.ejb.EnterpriseBean;
 import javax.transaction.Status;
 import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-import javax.transaction.TransactionRolledbackException;
+
 import org.openejb.ApplicationException;
-import org.openejb.OpenEJB;
-import org.openejb.SystemException;
 import org.openejb.InvalidateReferenceException;
-import org.openejb.core.ThreadContext;
 import org.openejb.core.transaction.TransactionContainer;
 import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionPolicy;

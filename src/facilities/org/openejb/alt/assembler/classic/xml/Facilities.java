@@ -48,7 +48,6 @@ package org.openejb.alt.assembler.classic.xml;
 
 import org.openejb.OpenEJBException;
 import org.openejb.alt.assembler.classic.FacilitiesInfo;
-import org.openejb.alt.assembler.classic.ServiceInfo;
 import org.w3c.dom.Node;
 
 /**

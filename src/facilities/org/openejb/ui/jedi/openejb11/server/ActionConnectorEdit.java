@@ -46,11 +46,12 @@ package org.openejb.ui.jedi.openejb11.server;
 
 import java.awt.Component;
 import java.util.LinkedList;
+
+import org.openejb.ui.jedi.openejb11.server.gui.ConnectorEditor;
 import org.opentools.deployer.plugins.EditAction;
 import org.opentools.deployer.plugins.Editor;
 import org.opentools.deployer.plugins.Entry;
 import org.opentools.deployer.plugins.Plugin;
-import org.openejb.ui.jedi.openejb11.server.gui.ConnectorEditor;
 
 /**
  * Handles transferring data from metadata to GUI and back again for editing

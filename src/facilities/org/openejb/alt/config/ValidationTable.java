@@ -44,32 +44,18 @@
  */
 package org.openejb.alt.config;
 
-import java.io.*;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Vector;
-import org.openejb.OpenEJB;
-import org.openejb.OpenEJBException;
-import org.openejb.alt.assembler.classic.*;
-import org.openejb.alt.config.ejb11.*;
-import org.openejb.alt.config.ejb11.Query;
-import org.openejb.alt.config.sys.*;
-import org.openejb.util.JarUtils;
-import org.openejb.util.FileUtils;
-import org.openejb.util.Messages;
+import java.io.File;
+import java.net.URL;
 import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.net.URL;
-import java.net.MalformedURLException;
+import java.util.Properties;
+
+import org.openejb.util.FileUtils;
+import org.openejb.util.JarUtils;
 
 /**
  * Beans should be validated, but only when:

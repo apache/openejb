@@ -44,12 +44,12 @@
  */
 package org.openejb.ui.jedi.openejb11.ejb;
 
+import org.opentools.deployer.plugins.AbstractEntry;
 import org.opentools.deployer.plugins.CannotCreateException;
 import org.opentools.deployer.plugins.CannotRemoveException;
-import org.opentools.deployer.plugins.AbstractEntry;
+import org.opentools.deployer.plugins.Category;
 import org.opentools.deployer.plugins.EditAction;
 import org.opentools.deployer.plugins.Entry;
-import org.opentools.deployer.plugins.Category;
 
 /**
  * The tree entry for top-level configuration of the EJB JAR.  An Entry

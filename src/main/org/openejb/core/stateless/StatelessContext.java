@@ -44,11 +44,11 @@
  */
 package org.openejb.core.stateless;
 
+import org.openejb.RpcContainer;
 import org.openejb.core.DeploymentInfo;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
 import org.openejb.core.ivm.EjbObjectProxyHandler;
-import org.openejb.RpcContainer;
 
 /**
  * This class imposes restrictions on what stateless SessionBean methods can access which SessionContext

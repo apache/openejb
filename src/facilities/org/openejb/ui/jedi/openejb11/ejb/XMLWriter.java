@@ -44,9 +44,13 @@
  */
 package org.openejb.ui.jedi.openejb11.ejb;
 
-import java.util.*;
-import org.w3c.dom.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+
 import org.opentools.deployer.plugins.XMLUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Saves data to an XML file using DOM.  The actual mechanism used to save

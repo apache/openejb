@@ -44,7 +44,6 @@
  */
 package org.openejb.alt.containers.castor_cmp11;
 
-import junit.framework.Test;
 import junit.framework.TestSuite;
 
 /**

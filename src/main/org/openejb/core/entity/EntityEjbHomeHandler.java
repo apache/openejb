@@ -44,28 +44,13 @@
  */
 package org.openejb.core.entity;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.rmi.RemoteException;
-import java.security.Principal;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
-import javax.ejb.EJBHome;
-import org.openejb.DeploymentInfo;
-import org.openejb.InvalidateReferenceException;
-import org.openejb.OpenEJB;
-import org.openejb.OpenEJBException;
+
 import org.openejb.ProxyInfo;
 import org.openejb.RpcContainer;
-import org.openejb.core.ThreadContext;
 import org.openejb.core.ivm.EjbHomeProxyHandler;
 import org.openejb.core.ivm.EjbObjectProxyHandler;
-import org.openejb.core.ivm.IntraVmHandle;
-import org.openejb.core.ivm.IntraVmMetaData;
-import org.openejb.util.proxy.InvalidatedReferenceHandler;
-import org.openejb.util.proxy.InvocationHandler;
-import org.openejb.util.proxy.InvocationHandler;
 import org.openejb.util.proxy.ProxyManager;
 
 

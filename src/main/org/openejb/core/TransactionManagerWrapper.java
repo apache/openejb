@@ -44,15 +44,13 @@
  */
 package org.openejb.core;
 
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+
 import javax.transaction.Status;
-import javax.transaction.Synchronization;
 import javax.transaction.Synchronization;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
 import javax.transaction.xa.XAResource;
 
 /**

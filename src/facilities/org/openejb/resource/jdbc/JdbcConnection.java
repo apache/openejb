@@ -44,7 +44,12 @@
  */
 package org.openejb.resource.jdbc;
 
-import java.sql.*;
+import java.sql.CallableStatement;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Statement;
 
 public class JdbcConnection implements java.sql.Connection {
     private java.sql.Connection physicalConn;

@@ -51,28 +51,28 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.SocketException;
 import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Vector;
-import javax.ejb.EJBHome;
+
 import javax.ejb.EJBObject;
+
 import org.openejb.Container;
-import org.openejb.RpcContainer;
+import org.openejb.DeploymentInfo;
 import org.openejb.EnvProps;
 import org.openejb.InvalidateReferenceException;
 import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.ProxyInfo;
-import org.openejb.ProxyInfo;
+import org.openejb.RpcContainer;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.proxy.ProxyManager;
-import org.openejb.DeploymentInfo;
 
 public class Server implements Runnable, org.openejb.spi.ApplicationServer {
     

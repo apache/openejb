@@ -48,8 +48,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.util.Properties;
+
 import org.openejb.OpenEJBException;
-import org.openejb.util.proxy.ProxyFactory;
 
 /**
  * Implementation of ProxyFactory for JDK 1.3 Proxies.  This only

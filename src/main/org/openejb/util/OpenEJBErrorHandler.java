@@ -48,8 +48,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 
 import org.openejb.OpenEJBException;
-import org.openejb.util.Logger;
-import org.openejb.util.Messages;
 
 
 public class OpenEJBErrorHandler {

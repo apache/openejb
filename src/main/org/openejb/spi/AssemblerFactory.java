@@ -45,9 +45,9 @@
 package org.openejb.spi;
 
 import java.util.Properties;
+
 import org.openejb.EnvProps;
 import org.openejb.OpenEJBException;
-import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 
 

@@ -46,7 +46,6 @@
 package org.openejb.alt.assembler.classic.xml;
 
 
-import java.util.Properties;
 import org.openejb.OpenEJBException;
 import org.openejb.alt.assembler.classic.ResourceReferenceLocationInfo;
 import org.w3c.dom.Node;

@@ -45,12 +45,12 @@
 package org.openejb.resource.jdbc;
 
 import java.sql.DriverManager;
-import javax.resource.spi.EISSystemException;
+
 import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ConnectionRequestInfo;
+import javax.resource.spi.EISSystemException;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ResourceAdapterInternalException;
-import javax.resource.ResourceException;
 
 
 public class JdbcManagedConnectionFactory 

@@ -47,7 +47,6 @@ package org.openejb.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.SecurityException;
 
 public class FileUtils{
 

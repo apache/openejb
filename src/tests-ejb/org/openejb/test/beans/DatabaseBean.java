@@ -44,11 +44,15 @@
  */
 package org.openejb.test.beans;
 
-import javax.ejb.*;
-import javax.naming.*;
-import java.sql.*;
-import javax.sql.*;
-import java.rmi.RemoteException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+import javax.ejb.EJBException;
+import javax.ejb.SessionContext;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
 
 public class DatabaseBean implements javax.ejb.SessionBean {
     

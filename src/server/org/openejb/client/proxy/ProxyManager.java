@@ -44,10 +44,7 @@
  */
 package org.openejb.client.proxy;
 
-import java.lang.IllegalStateException;
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
+import java.util.Properties;
 
 
 /**

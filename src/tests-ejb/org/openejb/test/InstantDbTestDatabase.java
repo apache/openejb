@@ -1,9 +1,10 @@
 package org.openejb.test;
 
-import java.util.Properties;
-import java.util.Hashtable;
 import java.rmi.RemoteException;
+import java.util.Properties;
+
 import javax.naming.InitialContext;
+
 import org.openejb.test.beans.Database;
 import org.openejb.test.beans.DatabaseHome;
 

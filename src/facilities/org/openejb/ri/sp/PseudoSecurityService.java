@@ -44,7 +44,6 @@
  */
 package org.openejb.ri.sp;
 
-import java.security.Principal;
 import org.openejb.spi.SecurityService;
 import org.openejb.util.FastThreadLocal;
 

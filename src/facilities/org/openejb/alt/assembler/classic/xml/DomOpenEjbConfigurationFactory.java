@@ -46,6 +46,7 @@ package org.openejb.alt.assembler.classic.xml;
 
 import java.io.IOException;
 import java.util.Properties;
+
 import org.apache.xerces.parsers.DOMParser;
 import org.openejb.EnvProps;
 import org.openejb.OpenEJBException;
@@ -55,7 +56,6 @@ import org.openejb.util.OpenEJBErrorHandler;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;

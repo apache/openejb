@@ -46,8 +46,9 @@ package org.openejb.core.ivm.naming;
 
 import java.util.Hashtable;
 import java.util.Properties;
+
 import javax.naming.Context;
-import javax.naming.spi.InitialContextFactory;
+
 import org.openejb.EnvProps;
 
 /**

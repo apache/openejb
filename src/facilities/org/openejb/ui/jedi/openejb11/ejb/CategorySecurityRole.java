@@ -44,11 +44,11 @@
  */
 package org.openejb.ui.jedi.openejb11.ejb;
 
-import org.opentools.deployer.plugins.Category;
-import org.opentools.deployer.plugins.Entry;
-import org.opentools.deployer.plugins.EditAction;
 import org.opentools.deployer.plugins.CannotCreateException;
 import org.opentools.deployer.plugins.CannotRemoveException;
+import org.opentools.deployer.plugins.Category;
+import org.opentools.deployer.plugins.EditAction;
+import org.opentools.deployer.plugins.Entry;
 
 /**
  * The tree category for Security Roles.  A Category represents a group of

@@ -47,9 +47,11 @@
 package org.openejb.core.stateful;
 
 
-import java.io.*;
-import java.util.*;
+import java.io.RandomAccessFile;
+import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Properties;
+
 import org.openejb.spi.Serializer;
 
 

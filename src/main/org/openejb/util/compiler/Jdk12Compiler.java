@@ -44,7 +44,6 @@
  */
 package org.openejb.util.compiler;
 
-import org.openejb.util.compiler.Compiler;
 
 public class Jdk12Compiler implements Compiler {
     public void compile( String[] args ) {

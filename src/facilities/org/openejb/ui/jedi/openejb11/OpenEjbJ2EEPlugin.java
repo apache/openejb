@@ -44,14 +44,14 @@
  */
 package org.openejb.ui.jedi.openejb11;
 
+import org.openejb.ui.jedi.openejb11.ejb.OpenEjbPlugin;
+import org.openejb.ui.jedi.openejb11.jca.JcaPlugin;
+import org.openejb.ui.jedi.openejb11.server.ServerPlugin;
 import org.opentools.deployer.plugins.J2EEPlugin;
 import org.opentools.deployer.plugins.Plugin;
 import org.opentools.deployer.plugins.PluginManager;
 import org.opentools.deployer.plugins.ServerInterface;
 import org.opentools.deployer.plugins.j2ee12.J2ee12Plugin;
-import org.openejb.ui.jedi.openejb11.ejb.OpenEjbPlugin;
-import org.openejb.ui.jedi.openejb11.jca.JcaPlugin;
-import org.openejb.ui.jedi.openejb11.server.ServerPlugin;
 
 /**
  * Top-level plugin for JEDI.  This defines the name that shows up on the

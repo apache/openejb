@@ -43,10 +43,13 @@
  */
 package org.openejb.test.stateless;
 
-import javax.ejb.*;
-import javax.naming.InitialContext;
-import org.openejb.test.object.ObjectGraph;
+import javax.ejb.EJBHome;
+import javax.ejb.EJBMetaData;
+import javax.ejb.EJBObject;
+import javax.ejb.Handle;
 import javax.rmi.PortableRemoteObject;
+
+import org.openejb.test.object.ObjectGraph;
 
 /**
  *

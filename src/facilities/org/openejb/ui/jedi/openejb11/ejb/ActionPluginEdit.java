@@ -45,12 +45,12 @@
 package org.openejb.ui.jedi.openejb11.ejb;
 
 import java.awt.Component;
-import org.opentools.deployer.common.StoreManager;
+
+import org.openejb.ui.jedi.openejb11.ejb.gui.PluginEditor;
 import org.opentools.deployer.plugins.EditAction;
 import org.opentools.deployer.plugins.Editor;
 import org.opentools.deployer.plugins.Entry;
 import org.opentools.deployer.plugins.Plugin;
-import org.openejb.ui.jedi.openejb11.ejb.gui.PluginEditor;
 
 /**
  * Handles transferring data from metadata to GUI and back again for editing

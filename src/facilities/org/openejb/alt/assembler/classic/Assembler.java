@@ -44,53 +44,23 @@
  */
 package org.openejb.alt.assembler.classic;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Properties;
-import java.util.Vector;
-import javax.naming.CompositeName;
-import javax.naming.Context;
-import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NamingException;
+
 import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ManagedConnectionFactory;
-
-import org.apache.xerces.parsers.DOMParser;
+import javax.transaction.TransactionManager;
 
 import org.openejb.EnvProps;
 import org.openejb.OpenEJBException;
-import org.openejb.core.ContainerSystem;
-import org.openejb.core.DeploymentInfo;
-import org.openejb.core.entity.EntityContainer;
-import org.openejb.core.stateful.StatefulContainer;
-import org.openejb.core.stateful.StatefulInstanceManager;
-import org.openejb.core.stateless.StatelessContainer;
-import org.openejb.spi.SecurityService;
-import org.openejb.spi.TransactionService;
-import org.openejb.util.OpenEJBErrorHandler;
-import org.openejb.util.SafeProperties;
-import org.openejb.util.SafeToolkit;
-import javax.transaction.TransactionManager;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.SAXParseException;
-import org.openejb.core.ivm.naming.IvmContext;
-import org.openejb.core.ivm.naming.NameNode;
-import org.openejb.core.ivm.naming.ParsedName;
-import org.openejb.util.proxy.ProxyFactory;
-import org.openejb.util.proxy.ProxyManager;
 import org.openejb.core.ConnectorReference;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import javax.transaction.TransactionManager;
+import org.openejb.core.DeploymentInfo;
+import org.openejb.spi.SecurityService;
+import org.openejb.util.OpenEJBErrorHandler;
+import org.openejb.util.SafeToolkit;
 /**
  * <pre>
  * This method performs the following actions(in order):

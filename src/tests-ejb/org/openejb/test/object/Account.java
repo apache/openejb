@@ -44,12 +44,6 @@
  */
 package org.openejb.test.object;
 
-import java.io.Serializable;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.io.Externalizable;
-import java.io.IOException;
-import javax.transaction.UserTransaction;
 /**
  * 
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>

@@ -44,25 +44,20 @@
  */
 package org.openejb.server.admin;
 
-import java.io.Externalizable;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.*;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.StringTokenizer;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+
 import org.openejb.util.JarUtils;
-import javax.naming.*;
 
 /**
  * 

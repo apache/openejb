@@ -44,8 +44,9 @@
  */
 package org.openejb.alt.containers.castor_cmp11;
 
-import org.openejb.core.ivm.naming.Reference;
 import javax.naming.NamingException;
+
+import org.openejb.core.ivm.naming.Reference;
 /*
   This Reference type is used only by the Castor JDO CMP 1.1 container.
   It allows the TransactionManager to be discovered at runtime, which is 

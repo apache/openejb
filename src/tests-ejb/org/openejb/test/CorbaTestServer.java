@@ -45,13 +45,6 @@
 package org.openejb.test;
 
 import java.util.Properties;
-import java.util.Hashtable;
-import org.openejb.OpenEJB;
-import org.openejb.Container;
-import org.openejb.DeploymentInfo;
-import javax.naming.Context;
-import java.sql.*;
-import javax.sql.*;
 
 /**
  * 

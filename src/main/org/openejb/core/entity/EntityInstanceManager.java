@@ -44,28 +44,25 @@
  */
 package org.openejb.core.entity;
 
-import java.lang.reflect.Method;
-import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Properties;
-import javax.ejb.EJBException;
+
 import javax.ejb.EntityBean;
 import javax.transaction.Transaction;
+
+import org.openejb.ApplicationException;
 import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.core.DeploymentInfo;
 import org.openejb.core.EnvProps;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
-import org.openejb.core.TransactionManagerWrapper;
-import org.openejb.util.Logger;
 import org.openejb.util.LinkedListStack;
+import org.openejb.util.Logger;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.Stack;
-import org.openejb.ApplicationException;
-import org.openejb.SystemException;
 /**
  * One instance of this class is used with each EntityContainer. It is responsible for managing
  * the Method Ready and Transaction Ready pools where bean instances are stored between client

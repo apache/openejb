@@ -44,7 +44,9 @@
  */
 package org.openejb.alt.assembler.modern;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * The base class for metadata classes.  It has some utility functions for

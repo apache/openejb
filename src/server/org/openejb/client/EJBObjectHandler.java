@@ -44,15 +44,12 @@
  */
 package org.openejb.client;
 
-import java.io.ObjectStreamException;
-import java.io.Externalizable;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.security.Principal;
-import java.util.Hashtable;
-import javax.ejb.EJBHome;
+
 import javax.ejb.EJBObject;
-import org.openejb.client.proxy.*;
+
+import org.openejb.client.proxy.ProxyManager;
 
 /**
  * 

@@ -44,17 +44,20 @@
  */
 package org.openejb.alt.assembler.modern.jar;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLClassLoader;
+
 import org.openejb.Container;
-import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
-import org.openejb.core.ContainerSystem;
-import org.openejb.core.DeploymentInfo;
 import org.openejb.alt.assembler.modern.AssemblerUtilities;
 import org.openejb.alt.assembler.modern.DeployerService;
 import org.openejb.alt.assembler.modern.GlobalContainerSystem;
-import org.openejb.alt.assembler.modern.jar.ejb11.*;
+import org.openejb.alt.assembler.modern.jar.ejb11.BeanMetaData;
+import org.openejb.alt.assembler.modern.jar.ejb11.EJB11MetaData;
+import org.openejb.core.DeploymentInfo;
 
 /**
  * Deploys EJB JARs into a running OpenEJB server.

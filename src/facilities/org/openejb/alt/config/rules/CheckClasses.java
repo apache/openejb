@@ -44,11 +44,12 @@
  */
 package org.openejb.alt.config.rules;
 
-import org.openejb.alt.config.*;
-import org.openejb.alt.config.ejb11.*;
-import org.openejb.util.Messages;
-import org.openejb.util.SafeToolkit;
 import org.openejb.OpenEJBException;
+import org.openejb.alt.config.Bean;
+import org.openejb.alt.config.EjbSet;
+import org.openejb.alt.config.ValidationFailure;
+import org.openejb.alt.config.ValidationRule;
+import org.openejb.util.SafeToolkit;
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>

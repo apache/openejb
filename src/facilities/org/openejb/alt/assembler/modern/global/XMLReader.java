@@ -44,10 +44,10 @@
  */
 package org.openejb.alt.assembler.modern.global;
 
-import java.util.*;
-import org.w3c.dom.*;
 import org.openejb.alt.assembler.modern.ContainerMetaData;
 import org.openejb.alt.assembler.modern.xml.XMLUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Constructs metadata classes from a DOM tree.

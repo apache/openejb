@@ -44,10 +44,10 @@
  */
 package org.openejb.util;
 
+import java.util.HashMap;
+
 import org.apache.log4j.Category;
 import org.apache.log4j.Level;
-import java.lang.Throwable;
-import java.util.HashMap;
 
 
 /**

@@ -1,7 +1,6 @@
 package org.openejb.test;
 
 import java.util.Properties;
-import java.util.Hashtable;
 
 /**
  * 

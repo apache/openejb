@@ -53,10 +53,10 @@ import java.io.ObjectOutput;
 import java.io.ObjectStreamConstants;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.io.UTFDataFormatException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import org.openejb.util.ArrayStack;
 
 /**

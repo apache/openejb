@@ -44,8 +44,8 @@
  */
 package org.openejb.alt.assembler.modern.jar;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * OpenEJB-specific settings for a bean's EJB references.  This is only used

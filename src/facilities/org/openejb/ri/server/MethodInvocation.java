@@ -47,8 +47,9 @@
 package org.openejb.ri.server;
 
 
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
 import java.security.Principal;
+
 import org.openejb.DeploymentInfo;
 import org.openejb.util.Messages;
 

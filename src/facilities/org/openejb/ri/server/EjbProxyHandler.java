@@ -46,8 +46,6 @@
 
 package org.openejb.ri.server;
 
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -55,14 +53,13 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.rmi.NoSuchObjectException;
-import java.util.Hashtable;
+
 import javax.ejb.EJBHome;
+
 import org.openejb.InvalidateReferenceException;
-import org.openejb.spi.Serializer;
-import org.openejb.util.proxy.InvalidatedReferenceHandler;
+import org.openejb.util.Messages;
 import org.openejb.util.proxy.InvocationHandler;
 import org.openejb.util.proxy.ProxyManager;
-import org.openejb.util.Messages;
 
 /**
  * This InvocationHandler and its proxy are serializable and can be used by

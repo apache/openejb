@@ -46,12 +46,15 @@
 
 package org.openejb.util.proxy;
 
-import java.io.*;
-import java.lang.reflect.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Properties;
 import java.util.Vector;
-import org.openejb.util.proxy.ProxyManager;
+
 import org.openejb.OpenEJBException;
 
 /**
