@@ -599,7 +599,7 @@
     <mkdir dir="${final.dir}/docs"/>
     <mkdir dir="${final.dir}/lib"/>
     <mkdir dir="${final.dir}/src"/>
-    <mkdir dir="${final.dir}/test"/>
+    <mkdir dir="${final.dir}/beans"/>
     
     <antcall target="delegate">
         <param name="target.name" value="prepare"/>
@@ -645,9 +645,23 @@
           depends="compile"
           description="--> generates the API documentation">
           
-    <antcall target="delegate">
-        <param name="target.name" value="javadocs"/>
-    </antcall>    
+    <copy todir="build/src/javadoc">
+        <fileset dir="src/main" includes="**/**.java,**/**.html" excludes="**/CVS/**"/>
+        <fileset dir="src/facilities" includes="**/**.java,**/**.html" excludes="**/modern/**,**/ui/**,**/sp/**,**/CVS/**"/>
+    </copy>
+    
+    <mkdir dir="${docs.dest}/html/apidocs"/>
+          
+    <javadoc packagenames="org.openejb.*"
+             sourcepath="build/src/javadoc"
+             destdir="${docs.dest}/html/apidocs"
+             doctitle="${name} JavaDoc"
+             windowtitle="${name} JavaDoc"
+		     package="true"
+		     author="false"
+             version="true"
+             noindex="true"
+             classpathref="project.classpath"/>
           
           
   </target>
@@ -664,23 +678,6 @@
         <fileset dir="${docs.src}/spec" />
     </copy>
     
-    <copy todir="build/src/javadoc">
-        <fileset dir="src/main" includes="**/**.java,**/**.html" excludes="**/CVS/**"/>
-        <fileset dir="src/facilities" includes="**/**.java,**/**.html" excludes="**/modern/**,**/ui/**,**/sp/**,**/CVS/**"/>
-    </copy>
-    
-    <mkdir dir="${docs.dest}/html/javadoc"/>
-          
-    <javadoc packagenames="org.openejb.*"
-             sourcepath="build/src/javadoc"
-             destdir="${docs.dest}/html/javadoc"
-             doctitle="${name} JavaDoc"
-             windowtitle="${name} JavaDoc"
-		     package="true"
-		     author="false"
-             version="true"
-             noindex="true"
-             classpathref="project.classpath"/>
     
     <style basedir="${docs.src}" 
         destdir="${docs.dest}/html" 
@@ -817,7 +814,9 @@
     <copy todir="${final.dir}/lib">
     
       <fileset dir="dist" >
-        <include name="*.jar"/>
+        <include name="openejb-${version}.jar"/>
+        <include name="openejb_corba-${version}.jar"/>
+        <include name="openejb_ejb_tests-${version}.jar"/>
       </fileset>
     
     </copy>
@@ -834,7 +833,7 @@
     <!-- copy documentation files -->               
     <copy todir="${final.dir}/docs">
     
-      <fileset dir="docs" >
+      <fileset dir="docs/html" >
         <include name="**/**"/>
       </fileset>
     
@@ -849,20 +848,14 @@
     
     </copy>
     
-    <!-- copy source files -->               
-    <copy todir="${final.dir}/test">
-    
-      <fileset dir="test/src" >
-        <include name="**/*.java"/>
-      </fileset>
-    
-    </copy>
-    
     <!-- copy configuration files -->
     <copy todir="${final.dir}/conf">
     
       <fileset dir="conf" >
         <include name="**/*.properties"/>
+        <include name="**/*.xml"/>
+        <include name="**/*.conf"/>
+        <include name="**/*.jar"/>
       </fileset>
     
     </copy>
@@ -870,9 +863,29 @@
     <!-- copy shel/batch files -->
     <copy todir="${final.dir}/bin">
     
-      <fileset dir="./" >
+      <fileset dir="bin/" >
         <include name="*.sh"/>
         <include name="*.bat"/>
+        <include name="*.txt"/>
+      </fileset>
+    
+    </copy>
+  
+    <!-- copy shel/batch files -->
+    <copy todir="${final.dir}">
+    
+      <fileset dir="./" >
+        <include name="openejb.sh"/>
+        <include name="openejb.bat"/>
+      </fileset>
+    
+    </copy>
+  
+    <copy todir="${final.dir}">
+    
+      <fileset dir="src/etc" >
+        <include name="README"/>
+        <include name="INSTALL"/>
       </fileset>
     
     </copy>

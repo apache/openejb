@@ -60,10 +60,16 @@
     </copy>
     <copy todir="${build.openejb.src}" >
       <fileset dir="${src.java.dir}/facilities" 
-               includes="**/alt/**,**/resource/**,**/tyrex/**,**/ui/**" 
-               excludes="**/CVS/**,**/*.class"
+               includes="**/alt/**,**/resource/**,**/tyrex/**" 
+               excludes="**/CVS/**,**/modern/**,**/minerva/**,**/*.class"
       />
     </copy>
+    
+    <copy todir="${build.openejb.dest}">
+      <fileset dir="conf"
+               includes="default*.*" />
+    </copy>
+    
     
   </target>
   
@@ -129,11 +135,14 @@
       <fileset dir="src/schema"
                includes="openejb-*.dtd" />
     </copy>
-    
+
+          
+    <!--    
     <jar jarfile="dist/${project}-plugin-${version}.jar"
          basedir="${build.openejb.dest}"
-         includes="*.dtd,*.properties,**/jedi/**"
+         includes="*.dtd,*.properties,default*.*"
          manifest="${build.openejb.dest}/MANIFEST.MF"/>
+    -->
           
   </target>
   
