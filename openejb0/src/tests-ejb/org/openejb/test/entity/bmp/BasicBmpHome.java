@@ -54,7 +54,6 @@ import java.rmi.RemoteException;
  */
 public interface BasicBmpHome extends javax.ejb.EJBHome {
 
-
     public BasicBmpObject create(String name)
     throws javax.ejb.CreateException, java.rmi.RemoteException;
     
@@ -62,6 +61,9 @@ public interface BasicBmpHome extends javax.ejb.EJBHome {
     throws javax.ejb.FinderException, java.rmi.RemoteException;
     
     public java.util.Collection findEmptyCollection()
+    throws javax.ejb.FinderException, java.rmi.RemoteException;
+    
+    public java.util.Collection findByLastName(String lastName)
     throws javax.ejb.FinderException, java.rmi.RemoteException;
     
     public int sum(int x, int y) throws java.rmi.RemoteException;

@@ -64,5 +64,8 @@ public interface BasicCmpHome extends javax.ejb.EJBHome {
     public java.util.Collection findEmptyCollection()
     throws javax.ejb.FinderException, java.rmi.RemoteException;
     
+    public java.util.Collection findByLastName(String lastName)
+    throws javax.ejb.FinderException, java.rmi.RemoteException;
+    
     public int sum(int x, int y) throws java.rmi.RemoteException;
 }

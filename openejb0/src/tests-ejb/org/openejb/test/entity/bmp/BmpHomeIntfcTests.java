@@ -88,6 +88,36 @@ public class BmpHomeIntfcTests extends BasicBmpTestClient{
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
     }
+    
+    public void test03_findByLastName(){
+        Integer[] keys = new Integer[3];
+        try{
+            ejbObject = ejbHome.create("David Blevins");
+            keys[0] = (Integer)ejbObject.getPrimaryKey();
+            
+            ejbObject = ejbHome.create("Dennis Blevins");
+            keys[1] = (Integer)ejbObject.getPrimaryKey();
+            
+            ejbObject = ejbHome.create("Claude Blevins");
+            keys[2] = (Integer)ejbObject.getPrimaryKey();
+        } catch (Exception e){
+            fail("Received exception while preparing the test: "+e.getClass()+ " : "+e.getMessage());
+        }
+        
+        try{
+            java.util.Collection objects = ejbHome.findByLastName("Blevins");
+            assertNotNull("The Collection is null", objects);
+            assertEquals("The Collection is not the right size.", keys.length, objects.size() );
+            Object[] objs = objects.toArray();
+            for (int i=0; i < objs.length; i++){
+                ejbObject = (BasicBmpObject)objs[i];
+                // This could be problematic, it assumes the order of the collection.
+                assertEquals("The primary keys are not equal.", keys[i], ejbObject.getPrimaryKey());
+            }
+        } catch (Exception e){
+            fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
+        }
+    }
     //
     // Test home interface methods
     //===============================
