@@ -103,7 +103,8 @@ public class TSSConfigEditorTest extends TestCase {
         TSSConfigEditor editor = new TSSConfigEditor();
         TSSConfig tss = (TSSConfig) editor.getValue(xmlObject, null, null);
         assertTrue(tss.isInherit());
-        assertNull(tss.getTransport_mech());
+        assertNotNull(tss.getTransport_mech());
+        assertTrue(tss.getTransport_mech() instanceof TSSNULLTransportConfig);
     }
 
     public void testSimple3() throws Exception {

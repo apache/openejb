@@ -72,14 +72,14 @@ public class CSSSSLTransportConfig implements CSSTransportMechConfig {
         return requires;
     }
 
+    public void setRequires(short requires) {
+        this.requires = requires;
+    }
+
     public boolean canHandle(TSSTransportMechConfig transMech) {
         if ((supports & transMech.getRequires()) != transMech.getRequires()) return false;
         if ((requires & transMech.getSupports()) != requires) return false;
 
         return true;
-    }
-
-    public void setRequires(short requires) {
-        this.requires = requires;
     }
 }

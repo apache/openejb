@@ -50,8 +50,11 @@ package org.openejb.corba.security.config.tss;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.net.ssl.SSLSession;
+import javax.security.auth.Subject;
 
 import org.omg.CORBA.Any;
+import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.ORB;
 import org.omg.CSIIOP.SECIOP_SEC_TRANS;
 import org.omg.CSIIOP.SECIOP_SEC_TRANSHelper;
@@ -157,6 +160,10 @@ public class TSSSECIOPTransportConfig extends TSSTransportMechConfig {
         result.component_data = codec.encode_value(any);
 
         return result;
+    }
+
+    public Subject check(SSLSession session) throws NO_PERMISSION {
+        return new Subject();
     }
 
 }

@@ -84,11 +84,12 @@ public class AdapterStateful extends Adapter {
     private final String referenceInterface;
     private final AdapterProxyFactory factory;
 
-    public AdapterStateful(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader) throws CORBAException {
+    public AdapterStateful(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader, Policy securityPolicy) throws CORBAException {
         super(container, orb, parentPOA, tieLoader);
 
         try {
             Policy[] policies = new Policy[]{
+                securityPolicy,
                 parentPOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
                 parentPOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_SERVANT_MANAGER),
                 parentPOA.create_servant_retention_policy(ServantRetentionPolicyValue.NON_RETAIN),

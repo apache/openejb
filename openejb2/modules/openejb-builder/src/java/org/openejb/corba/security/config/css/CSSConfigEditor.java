@@ -44,14 +44,37 @@
  */
 package org.openejb.corba.security.config.css;
 
+import java.util.List;
+import java.util.Iterator;
+
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
 import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
+import org.omg.CSIIOP.NoProtection;
+import org.omg.CSIIOP.Integrity;
+import org.omg.CSIIOP.Confidentiality;
+import org.omg.CSIIOP.DetectReplay;
+import org.omg.CSIIOP.DetectMisordering;
+import org.omg.CSIIOP.EstablishTrustInTarget;
+import org.omg.CSIIOP.EstablishTrustInClient;
+import org.omg.CSIIOP.NoDelegation;
+import org.omg.CSIIOP.SimpleDelegation;
+import org.omg.CSIIOP.CompositeDelegation;
+
 import org.openejb.xbeans.csiv2.css.CSSCssType;
+import org.openejb.xbeans.csiv2.css.CSSCompoundSecMechType;
+import org.openejb.xbeans.csiv2.css.CSSSSLType;
+import org.openejb.xbeans.csiv2.tss.TSSCompoundSecMechType;
+import org.openejb.xbeans.csiv2.tss.TSSAssociationOption;
+import org.openejb.corba.security.config.tss.TSSNULLTransportConfig;
+import org.openejb.corba.security.config.tss.TSSCompoundSecMechListConfig;
+import org.openejb.corba.security.config.tss.TSSCompoundSecMechConfig;
+import org.openejb.corba.security.config.tss.TSSNULLASMechConfig;
 
 
 /**
@@ -65,7 +88,6 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
     }
 
     public Object getValue(XmlObject xmlObject, String type, ClassLoader cl) throws DeploymentException {
-        CSSConfig cssConfig = new CSSConfig();
 
         CSSCssType css;
         if (xmlObject instanceof CSSCssType) {
@@ -78,7 +100,77 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
             throw new DeploymentException(e);
         }
 
+        CSSConfig cssConfig = new CSSConfig();
+
+        if (css.isSetCompoundSecMechTypeList()) {
+            CSSCompoundSecMechListConfig mechListConfig = cssConfig.getMechList();
+            mechListConfig.setStateful(css.getCompoundSecMechTypeList().getStateful());
+
+            CSSCompoundSecMechType[] mechList = css.getCompoundSecMechTypeList().getCompoundSecMechArray();
+            for (int i = 0; i < mechList.length; i++) {
+                mechListConfig.add(extractCompoundSecMech(mechList[i]));
+            }
+        }
+
         return cssConfig;
+    }
+
+    protected static CSSCompoundSecMechConfig extractCompoundSecMech(CSSCompoundSecMechType mechType) {
+
+        CSSCompoundSecMechConfig result = new CSSCompoundSecMechConfig();
+
+        if (mechType.isSetSSL()) {
+            result.setTransport_mech(extractSSLTransport(mechType.getSSL()));
+        } else if (mechType.isSetSECIOP()) {
+            throw new PropertyEditorException("SECIOP processing not implemented");
+        } else {
+            result.setTransport_mech(new CSSSSLTransportConfig());
+        }
+
+        result.setAs_mech(new CSSNULLASMechConfig());
+        result.setSas_mech(new CSSSASMechConfig());
+
+        return result;
+    }
+
+    protected static CSSTransportMechConfig extractSSLTransport(CSSSSLType sslType) {
+        CSSSSLTransportConfig result = new CSSSSLTransportConfig();
+
+        result.setSupports(extractAssociationOptions(sslType.getSupports()));
+        result.setRequires(extractAssociationOptions(sslType.getRequires()));
+
+        return result;
+    }
+
+    protected static short extractAssociationOptions(List list) {
+        short result = 0;
+
+        for (Iterator iter = list.iterator(); iter.hasNext();) {
+            TSSAssociationOption.Enum obj = TSSAssociationOption.Enum.forString((String) iter.next());
+
+            if (TSSAssociationOption.NO_PROTECTION.equals(obj)) {
+                result |= NoProtection.value;
+            } else if (TSSAssociationOption.INTEGRITY.equals(obj)) {
+                result |= Integrity.value;
+            } else if (TSSAssociationOption.CONFIDENTIALITY.equals(obj)) {
+                result |= Confidentiality.value;
+            } else if (TSSAssociationOption.DETECT_REPLAY.equals(obj)) {
+                result |= DetectReplay.value;
+            } else if (TSSAssociationOption.DETECT_MISORDERING.equals(obj)) {
+                result |= DetectMisordering.value;
+            } else if (TSSAssociationOption.ESTABLISH_TRUST_IN_TARGET.equals(obj)) {
+                result |= EstablishTrustInTarget.value;
+            } else if (TSSAssociationOption.ESTABLISH_TRUST_IN_CLIENT.equals(obj)) {
+                result |= EstablishTrustInClient.value;
+            } else if (TSSAssociationOption.NO_DELEGATION.equals(obj)) {
+                result |= NoDelegation.value;
+            } else if (TSSAssociationOption.SIMPLE_DELEGATION.equals(obj)) {
+                result |= SimpleDelegation.value;
+            } else if (TSSAssociationOption.COMPOSITE_DELEGATION.equals(obj)) {
+                result |= CompositeDelegation.value;
+            }
+        }
+        return result;
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -133,7 +133,7 @@ public class CORBABean implements GBeanLifecycle {
             Properties properties = configAdapter.translateToProps(tssConfig);
             properties.putAll(props);
 
-            orb = ORB.init((String[]) args.toArray(new String[args.size()]), properties);
+            orb = ORB.init(configAdapter.translateToArgs(tssConfig,  args), properties);
 
             org.omg.CORBA.Object obj = orb.resolve_initial_references("RootPOA");
 

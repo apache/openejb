@@ -80,14 +80,9 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
 
     private static Log log = LogFactory.getLog(OpenORBStubGenerator.class);
 
-    private final ClassLoader classLoader;
     private boolean verbose;
     private Properties props = new Properties();
     private Compiler compiler;
-
-    public OpenORBStubGenerator(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
 
     public boolean isVerbose() {
         return verbose;
@@ -224,8 +219,6 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
         infoFactory.addAttribute("verbose", Boolean.TYPE, true);
         infoFactory.addAttribute("props", Properties.class, true);
         infoFactory.addReference("Compiler", Compiler.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.setConstructor(new String[]{"classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

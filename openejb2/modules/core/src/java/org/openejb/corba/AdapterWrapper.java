@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.PortableServer.POA;
 
@@ -73,17 +74,17 @@ public final class AdapterWrapper {
         return container;
     }
 
-    public void start(ORB orb, POA poa, NamingContextExt initialContext, TieLoader tieLoader) throws CORBAException {
+    public void start(ORB orb, POA poa, NamingContextExt initialContext, TieLoader tieLoader, Policy securityPolicy) throws CORBAException {
         switch (container.getProxyInfo().getComponentType()) {
             case EJBComponentType.STATELESS:
-                generator = new AdapterStateless(container, orb, poa, tieLoader);
+                generator = new AdapterStateless(container, orb, poa, tieLoader, securityPolicy);
                 break;
             case EJBComponentType.STATEFUL:
-                generator = new AdapterStateful(container, orb, poa, tieLoader);
+                generator = new AdapterStateful(container, orb, poa, tieLoader, securityPolicy);
                 break;
             case EJBComponentType.BMP_ENTITY:
             case EJBComponentType.CMP_ENTITY:
-                generator = new AdapterEntity(container, orb, poa, tieLoader);
+                generator = new AdapterEntity(container, orb, poa, tieLoader, securityPolicy);
                 break;
             default:
                 throw new CORBAException("CORBA Adapter does not handle MDB containers");

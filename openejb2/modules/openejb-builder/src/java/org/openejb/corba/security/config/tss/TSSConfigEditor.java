@@ -47,12 +47,6 @@ package org.openejb.corba.security.config.tss;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
-import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.omg.CSI.ITTAbsent;
@@ -70,6 +64,17 @@ import org.omg.CSIIOP.Integrity;
 import org.omg.CSIIOP.NoDelegation;
 import org.omg.CSIIOP.NoProtection;
 import org.omg.CSIIOP.SimpleDelegation;
+
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
+import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deployment.SecurityBuilder;
+import org.apache.geronimo.xbeans.geronimo.security.GerDefaultPrincipalType;
+
 import org.openejb.xbeans.csiv2.tss.TSSAssociationOption;
 import org.openejb.xbeans.csiv2.tss.TSSCompoundSecMechType;
 import org.openejb.xbeans.csiv2.tss.TSSGSSUPType;
@@ -118,13 +123,24 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
 
         TSSConfig tssConfig = new TSSConfig();
 
-
         tssConfig.setInherit(tss.getInherit());
+
+        if (tss.isSetDefaultPrincipal()) {
+            DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
+            GerDefaultPrincipalType defaultPrincipalType = tss.getDefaultPrincipal();
+
+            defaultPrincipal.setRealmName(defaultPrincipalType.getRealmName().trim());
+            defaultPrincipal.setPrincipal(SecurityBuilder.buildPrincipal(defaultPrincipalType.getPrincipal()));
+
+            tssConfig.setDefaultPrincipal(defaultPrincipal);
+        }
 
         if (tss.isSetSSL()) {
             tssConfig.setTransport_mech(extractSSL(tss.getSSL()));
         } else if (tss.isSetSECIOP()) {
             throw new PropertyEditorException("SECIOP processing not implemented");
+        } else {
+            tssConfig.setTransport_mech(new TSSNULLTransportConfig());
         }
 
         if (tss.isSetCompoundSecMechTypeList()) {

@@ -48,10 +48,17 @@
 package org.openejb.corba.security.config.tss;
 
 import java.io.Serializable;
+import java.security.Principal;
+import javax.net.ssl.SSLSession;
+import javax.security.auth.Subject;
 
+import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.ORB;
+import org.omg.CSI.EstablishContext;
 import org.omg.IOP.Codec;
 import org.omg.IOP.TaggedComponent;
+
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
 
 
 /**
@@ -60,6 +67,7 @@ import org.omg.IOP.TaggedComponent;
 public class TSSConfig implements Serializable {
 
     private boolean inherit;
+    private DefaultPrincipal defaultPrincipal;
     private TSSTransportMechConfig transport_mech;
     private final TSSCompoundSecMechListConfig mechListConfig = new TSSCompoundSecMechListConfig();
 
@@ -69,6 +77,14 @@ public class TSSConfig implements Serializable {
 
     public void setInherit(boolean inherit) {
         this.inherit = inherit;
+    }
+
+    public DefaultPrincipal getDefaultPrincipal() {
+        return defaultPrincipal;
+    }
+
+    public void setDefaultPrincipal(DefaultPrincipal defaultPrincipal) {
+        this.defaultPrincipal = defaultPrincipal;
     }
 
     public TSSTransportMechConfig getTransport_mech() {
@@ -85,5 +101,12 @@ public class TSSConfig implements Serializable {
 
     public TaggedComponent generateIOR(ORB orb, Codec codec) throws Exception {
         return mechListConfig.encodeIOR(orb, codec);
+    }
+
+    public Subject check(SSLSession session, EstablishContext msg) throws NO_PERMISSION {
+
+        Subject result = transport_mech.check(session);
+
+        return result;
     }
 }

@@ -63,7 +63,6 @@ import org.openejb.test.security.slsb.BasicStatelessHome;
 public class InteropBean implements SessionBean {
 
     private SessionContext sessionContext;
-    public static final String STUB_PACKAGE_PREFIX = "org.omg.stub.";
 
     public String callRemote(String argument1) throws RemoteException {
         try {

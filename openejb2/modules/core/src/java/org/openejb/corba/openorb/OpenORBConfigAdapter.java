@@ -46,11 +46,14 @@ package org.openejb.corba.openorb;
 
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.List;
 
 import org.omg.Security.Confidentiality;
 import org.omg.Security.EstablishTrustInClient;
 import org.omg.Security.EstablishTrustInTarget;
 import org.omg.Security.NoProtection;
+
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
 
 import org.openejb.corba.security.config.ConfigAdapter;
 import org.openejb.corba.security.config.ConfigException;
@@ -67,8 +70,16 @@ import org.openejb.corba.security.config.tss.TSSTransportMechConfig;
  */
 public class OpenORBConfigAdapter implements ConfigAdapter {
 
-    public String[] translateToArgs(TSSConfig config) throws ConfigException {
+    public String[] translateToArgs(TSSConfig config, List args) throws ConfigException {
         ArrayList list = new ArrayList();
+
+        list.addAll(args);
+
+        DefaultPrincipal principal = config.getDefaultPrincipal();
+        if (principal != null) {
+            list.add("default-principal::" + principal.getRealmName()+":"+principal.getPrincipal().getClassName()+":"+principal.getPrincipal().getPrincipalName());
+        }
+        
         return (String[]) list.toArray(new String[list.size()]);
     }
 
@@ -117,9 +128,8 @@ public class OpenORBConfigAdapter implements ConfigAdapter {
         return props;
     }
 
-    public String[] translateToArgs(CSSConfig config) throws ConfigException {
-        ArrayList list = new ArrayList();
-        return (String[]) list.toArray(new String[list.size()]);
+    public String[] translateToArgs(CSSConfig config, List args) throws ConfigException {
+        return (String[]) args.toArray(new String[args.size()]);
     }
 
     public Properties translateToProps(CSSConfig config) throws ConfigException {

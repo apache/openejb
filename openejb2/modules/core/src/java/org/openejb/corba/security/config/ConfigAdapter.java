@@ -45,6 +45,7 @@
 package org.openejb.corba.security.config;
 
 import java.util.Properties;
+import java.util.List;
 
 import org.openejb.corba.security.config.css.CSSConfig;
 import org.openejb.corba.security.config.tss.TSSConfig;
@@ -56,11 +57,11 @@ import org.openejb.corba.security.config.tss.TSSConfig;
  */
 public interface ConfigAdapter {
 
-    public String[] translateToArgs(TSSConfig config) throws ConfigException;
+    public String[] translateToArgs(TSSConfig config, List args) throws ConfigException;
 
     public Properties translateToProps(TSSConfig config) throws ConfigException;
 
-    public String[] translateToArgs(CSSConfig config) throws ConfigException;
+    public String[] translateToArgs(CSSConfig config, List args) throws ConfigException;
 
     public Properties translateToProps(CSSConfig config) throws ConfigException;
 }

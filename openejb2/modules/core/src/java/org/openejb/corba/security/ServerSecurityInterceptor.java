@@ -44,9 +44,7 @@
  */
 package org.openejb.corba.security;
 
-import javax.security.cert.X509Certificate;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,22 +52,24 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.INV_POLICY;
 import org.omg.CORBA.LocalObject;
-import org.omg.CORBA.UserException;
 import org.omg.CSI.MTCompleteEstablishContext;
 import org.omg.CSI.MTContextError;
 import org.omg.CSI.MTEstablishContext;
 import org.omg.CSI.MTMessageInContext;
 import org.omg.CSI.SASContextBody;
 import org.omg.CSI.SASContextBodyHelper;
-import org.omg.IOP.Codec;
+import org.omg.IOP.CodecPackage.FormatMismatch;
+import org.omg.IOP.CodecPackage.TypeMismatch;
 import org.omg.IOP.SecurityAttributeService;
 import org.omg.IOP.ServiceContext;
-import org.omg.PortableInterceptor.ForwardRequest;
+import org.omg.PortableInterceptor.InvalidSlot;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
 import org.openorb.orb.net.AbstractServerRequest;
 
-import org.openejb.corba.security.wrappers.EstablishContextWrapper;
+import org.apache.geronimo.security.ContextManager;
+
+import org.openejb.corba.security.config.tss.TSSConfig;
 import org.openejb.corba.util.Util;
 
 
@@ -80,31 +80,38 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 
     private final Log log = LogFactory.getLog(ServerSecurityInterceptor.class);
 
-    public ServerSecurityInterceptor() {
+    private final int slotId;
+    private final Subject defaultSubject;
+
+    public ServerSecurityInterceptor(int slotId, Subject defaultSubject) {
+        this.slotId = slotId;
+        this.defaultSubject = defaultSubject;
+
+        if (defaultSubject != null) ContextManager.registerSubject(defaultSubject);
         AbstractServerRequest.disableServiceContextExceptions();
     }
 
-    public void receive_request(ServerRequestInfo ri) throws ForwardRequest {
-        try {
-            SSLSession session = SSLSessionManager.getSSLSession(ri.request_id());
-            X509Certificate[] chain = session.getPeerCertificateChain();
-            String host = session.getPeerHost();
+    public void receive_request(ServerRequestInfo ri) {
 
-            ServerPolicy policy = (ServerPolicy) ri.get_server_policy(ServerPolicyFactory.POLICY_TYPE);
-            if (policy.getConfig() == null) return;
-            ri.toString();
+        Subject identity = null;
+
+        try {
+            ServerPolicy serverPolicy = (ServerPolicy) ri.get_server_policy(ServerPolicyFactory.POLICY_TYPE);
+            TSSConfig tssPolicy = serverPolicy.getConfig();
+            if (tssPolicy == null) return;
 
             ServiceContext serviceContext = ri.get_request_service_context(SecurityAttributeService.value);
             if (serviceContext == null) return;
 
-            Codec codec = Util.getCodec();
-            Any any = codec.decode_value(serviceContext.context_data, SASContextBodyHelper.type());
+            Any any = Util.getCodec().decode_value(serviceContext.context_data, SASContextBodyHelper.type());
             SASContextBody contextBody = SASContextBodyHelper.extract(any);
 
             short msgType = contextBody.discriminator();
             switch (msgType) {
                 case MTEstablishContext.value:
-                    EstablishContextWrapper establishMsg = new EstablishContextWrapper(contextBody.establish_msg());
+                    identity = tssPolicy.check(SSLSessionManager.getSSLSession(ri.request_id()), contextBody.establish_msg());
+
+                    ContextManager.registerSubject(identity);
 
                     break;
 
@@ -122,12 +129,29 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
             }
 
         } catch (INV_POLICY e) {
-            // do nothing
-        } catch (UserException ue) {
-            log.error("UserException thrown", ue);
-            throw new INTERNAL("UserException thrown: " + ue);
-        } catch (SSLPeerUnverifiedException e) {
-            // do nothing
+            identity = defaultSubject;
+        } catch (TypeMismatch tm) {
+            log.error("TypeMismatch thrown", tm);
+            throw new INTERNAL("TypeMismatch thrown: " + tm);
+        } catch (FormatMismatch fm) {
+            log.error("FormatMismatch thrown", fm);
+            throw new INTERNAL("FormatMismatch thrown: " + fm);
+        }
+
+        if (identity != null) {
+            try {
+                ContextManager.setCurrentCaller(identity);
+                ContextManager.setNextCaller(identity);
+
+                Any subjectAny = ri.get_slot(slotId);
+                subjectAny.insert_Value(identity);
+                ri.set_slot(slotId, subjectAny);
+
+                SubjectManager.setSubject(ri.request_id(), identity);
+            } catch (InvalidSlot is) {
+                log.error("InvalidSlot thrown", is);
+                throw new INTERNAL("InvalidSlot thrown: " + is);
+            }
         }
     }
 
@@ -141,9 +165,20 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
     }
 
     public void send_reply(ServerRequestInfo ri) {
+        try {
+            Any subjectAny = ri.get_slot(slotId);
+//            Subject identity = (Subject) subjectAny.extract_Value();
+            Subject identity = SubjectManager.clearSubject(ri.request_id());
+
+            if (identity != null) ContextManager.unregisterSubject(identity);
+        } catch (InvalidSlot is) {
+            log.error("InvalidSlot thrown", is);
+            throw new INTERNAL("InvalidSlot thrown: " + is);
+        }
     }
 
     public void destroy() {
+        if (defaultSubject != null) ContextManager.unregisterSubject(defaultSubject);
     }
 
     public String name() {

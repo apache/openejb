@@ -47,9 +47,16 @@
  */
 package org.openejb.corba.security.config.tss;
 
+import java.security.Principal;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import javax.security.auth.Subject;
+import javax.security.cert.X509Certificate;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;
 import org.omg.CSIIOP.TAG_NULL_TAG;
@@ -59,6 +66,8 @@ import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
 import org.omg.CSIIOP.TransportAddress;
 import org.omg.IOP.Codec;
 import org.omg.IOP.TaggedComponent;
+
+import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
@@ -153,6 +162,23 @@ public class TSSSSLTransportConfig extends TSSTransportMechConfig {
         }
 
         return result;
+    }
+
+    public Subject check(SSLSession session) throws NO_PERMISSION {
+        if (session == null && requires != 0) throw new NO_PERMISSION("Missing required SSL session");
+
+        try {
+            X509Certificate link = session.getPeerCertificateChain()[0];
+            Subject subject = new Subject();
+            Principal p = link.getSubjectDN();
+
+            subject.getPrincipals().add(p);
+            subject.getPrincipals().add(new RealmPrincipal(link.getIssuerDN().toString(), p));
+
+            return subject;
+        } catch (SSLPeerUnverifiedException e) {
+            return new Subject();
+        }
     }
 
 }

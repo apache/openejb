@@ -50,7 +50,10 @@ package org.openejb.corba.security.config.tss;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.net.ssl.SSLSession;
+import javax.security.auth.Subject;
 
+import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.ORB;
 import org.omg.CSIIOP.TAG_NULL_TAG;
 import org.omg.CSIIOP.TAG_SECIOP_SEC_TRANS;
@@ -107,4 +110,7 @@ public abstract class TSSTransportMechConfig implements Serializable {
 
         return result;
     }
+
+    public abstract Subject check(SSLSession session) throws NO_PERMISSION;
+
 }
