@@ -75,9 +75,7 @@ import org.openejb.OpenEJB;
  * @author <a href="richard@monson-haefel.com">Richard Monson-Haefel</a>
  * @version $ $
  */
-public class SharedLocalConnectionManager 
-implements 
-javax.resource.spi.ConnectionManager, 
+public class SharedLocalConnectionManager implements javax.resource.spi.ConnectionManager, 
 javax.resource.spi.ConnectionEventListener,
 java.io.Serializable {
     
@@ -123,11 +121,11 @@ java.io.Serializable {
                 if(tx!=null)
                 tx.registerSynchronization(new Synchronizer(conn.getLocalTransaction()));
             }catch(javax.transaction.SystemException se){
-                throw new javax.resource.spi.ApplicationServerInternalException("Can not obtain a Transaction object from TransactionManager");
+                throw new javax.resource.spi.ApplicationServerInternalException("Can not obtain a Transaction object from TransactionManager. "+se.getMessage());
             }catch(javax.transaction.RollbackException re){
-                throw new javax.resource.spi.ApplicationServerInternalException("Can not register org.openejb.resource.LocalTransacton with transaciton manager. Transaction has already been rolled back");
+                throw new javax.resource.spi.ApplicationServerInternalException("Can not register org.openejb.resource.LocalTransacton with transaciton manager. Transaction has already been rolled back"+re.getMessage());
             }
-            
+
             threadLocal.put(factory,conn);
         }
         // FIXME: Where do I get the javax.security.auth.Subject for the first parameter
@@ -149,6 +147,7 @@ java.io.Serializable {
             // this exception is thrown bby the event.getSource() no processing required.
         }
     }
+    
     public void connectionErrorOccurred(ConnectionEvent event){
         ManagedConnection conn = (ManagedConnection)event.getSource();
         // fetching the factory before doing clean up is important: The equals() value of the 
@@ -156,19 +155,20 @@ java.io.Serializable {
         ManagedConnectionFactory mcf = (ManagedConnectionFactory)threadLocal.getKey(conn);
         try{
         conn.destroy();
-        if(threadLocal.get(mcf)==conn)
-            threadLocal.put(mcf,null);
+            if ( threadLocal.get(mcf)==conn ) threadLocal.put(mcf,null);
         }catch(javax.resource.ResourceException re){
             // do nothing. Allow conneciton to be garbage collected
         }
-        
     }
+    
     public void localTransactionCommitted(ConnectionEvent event){
         cleanup((ManagedConnection)event.getSource());
     } 
+    
     public void localTransactionRolledback(ConnectionEvent event){
         cleanup((ManagedConnection)event.getSource());
     }
+    
     private void cleanup(ManagedConnection conn){
         if(conn!=null){
             // fetching the factory before doing clean up is important: The equals() value of the 
@@ -204,17 +204,22 @@ java.io.Serializable {
         }
 
         public void afterCompletion(int status){
-            if(status == javax.transaction.Status.STATUS_COMMITTED)
+            if ( status == javax.transaction.Status.STATUS_COMMITTED ){
                 try{
                 localTx.commit();
-                }catch(javax.resource.ResourceException re){re.printStackTrace(); throw new RuntimeException("JDBC driver failed to commit transaction");}
-            else
+                } catch ( javax.resource.ResourceException re ) {
+                    throw new RuntimeException("JDBC driver failed to commit transaction. "+ re.getMessage());
+                }
+            } else {
                 try{
                 localTx.rollback();
-                }catch(javax.resource.ResourceException re){re.printStackTrace(); throw new RuntimeException("JDBC driver failed to rollback transaction");}
+                } catch ( javax.resource.ResourceException re ) {
+                    throw new RuntimeException("JDBC driver failed to rollback transaction. "+ re.getMessage());
+                }
+            }
         }
-        
     }
+    
     /*
     * This class allows the ConnectionManager to determine the key used for 
     * any object stored in this type of HashThreadLocal.  Its needed when handling

@@ -59,6 +59,7 @@ public class JdbcManagedConnection implements ManagedConnection {
     private java.sql.Connection sqlConn;
     private JdbcConnectionRequestInfo requestInfo;
     private JdbcManagedConnectionMetaData metaData;
+    
     // there may be many conneciton handles active at any one time
     private java.util.Vector jdbcConnections = new java.util.Vector();
     private Set listeners;
@@ -79,15 +80,19 @@ public class JdbcManagedConnection implements ManagedConnection {
         }
         localTransaction = new JdbcLocalTransaction(this);
     }
+    
     protected java.sql.Connection getSQLConnection(){
         return sqlConn;
     }
+    
     protected JdbcConnectionRequestInfo getRequestInfo(){
         return requestInfo;
     }
+    
     public void addConnectionEventListener(ConnectionEventListener listener)  {
         listeners.add(listener);
     }
+    
     public void associateConnection(java.lang.Object connection)  throws javax.resource.ResourceException {
         if(connection instanceof JdbcConnection){
             JdbcConnection jdbcConn = (JdbcConnection)connection;
@@ -96,6 +101,7 @@ public class JdbcManagedConnection implements ManagedConnection {
             throw new javax.resource.ResourceException("Connection object is the wrong type. It must be an instance of JdbcConnection");
         }
     }
+    
     /**
     * This method will invalidate any JdbcConnection handles that have not already been invalidated (they self invalidate when they are explicitly closed).
     */
@@ -108,6 +114,7 @@ public class JdbcManagedConnection implements ManagedConnection {
         jdbcConnections.clear();
         localTransaction.cleanup();
     }
+    
     public void destroy()  throws javax.resource.ResourceException {
         cleanup();
         try{
@@ -119,6 +126,7 @@ public class JdbcManagedConnection implements ManagedConnection {
         sqlConn = null;
         listeners.clear();
     } 
+    
     /*
     * Returns an application level connection handle in the form of a JdbcConnection object
     * which implements the java.sql.Connection interface and wrappers the physical JDBC connection.
@@ -129,21 +137,27 @@ public class JdbcManagedConnection implements ManagedConnection {
         jdbcConnections.add(jdbcCon);
         return jdbcCon;
     }
+    
     public javax.resource.spi.LocalTransaction getLocalTransaction()  throws javax.resource.ResourceException  {
         return localTransaction;
     }
+    
     public java.io.PrintWriter getLogWriter()  throws javax.resource.ResourceException  {
         return logWriter;
     }
+    
     public ManagedConnectionMetaData getMetaData()  throws javax.resource.ResourceException  {
         return metaData;
     }
+    
     public javax.transaction.xa.XAResource getXAResource()  throws javax.resource.ResourceException  {
         throw new javax.resource.NotSupportedException("Method not implemented");
     }
+    
     public void removeConnectionEventListener(ConnectionEventListener listener)    {
         listeners.remove(listener);
     }
+    
     public void setLogWriter(java.io.PrintWriter out)  throws javax.resource.ResourceException {
         logWriter = out;
     }
@@ -156,6 +170,7 @@ public class JdbcManagedConnection implements ManagedConnection {
             eventListener.localTransactionCommitted(event);
         }
     }
+    
     protected void localTransactionRolledback(){
         ConnectionEvent event = new ConnectionEvent(this, ConnectionEvent.LOCAL_TRANSACTION_ROLLEDBACK);
         Object [] elements = listeners.toArray();
@@ -164,6 +179,7 @@ public class JdbcManagedConnection implements ManagedConnection {
             eventListener.localTransactionRolledback(event);
         }
     }
+    
     protected void localTransactionStarted(){
         ConnectionEvent event = new ConnectionEvent(this, ConnectionEvent.LOCAL_TRANSACTION_STARTED);
         Object [] elements = listeners.toArray();
@@ -172,6 +188,7 @@ public class JdbcManagedConnection implements ManagedConnection {
             eventListener.localTransactionStarted(event);
         }
     }
+    
     protected void connectionErrorOccurred(JdbcConnection jdbcConn, java.sql.SQLException sqlE){
         
         if(logWriter !=null){
@@ -193,6 +210,7 @@ public class JdbcManagedConnection implements ManagedConnection {
             eventListener.connectionErrorOccurred(event);
         }
     }
+    
     /**
     * Invoked by the JdbcConneciton when its close() method is called.
     * This method invalidates the JdbcConnection handle, removes it from
@@ -208,10 +226,8 @@ public class JdbcManagedConnection implements ManagedConnection {
             eventListener.connectionClosed(event);
         }
     }
+    
     public String toString( ){
         return "JdbcManagedConnection ("+sqlConn.toString()+")";
     }
-    
-    
-
 }
