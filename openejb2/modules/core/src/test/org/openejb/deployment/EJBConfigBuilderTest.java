@@ -330,7 +330,7 @@ public class EJBConfigBuilderTest extends TestCase {
             ObjectName statelessBeanName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=StatelessSessionBean,J2EEServer=" + j2eeServerName + ",J2EEApplication=" + j2eeApplicationName + ",J2EEModule=" + j2eeModuleName + ",name=SimpleStatelessSession");
             assertRunning(kernel, statelessBeanName);
 
-            // use reflection to invoke a method on the stateless bean, becuase we don't have access to the classes here
+            // use reflection to invoke a method on the stateless bean, because we don't have access to the classes here
             Object statelessHome = kernel.getAttribute(statelessBeanName, "ejbHome");
             assertTrue("Home is not an instance of EJBHome", statelessHome instanceof EJBHome);
             Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
