@@ -83,6 +83,10 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.openejb.ContainerIndex;
+import org.openejb.corba.compiler.SkeletonGenerator;
+import org.openejb.corba.compiler.OpenORBSkeletonGenerator;
+import org.openejb.corba.compiler.AntCompiler;
+
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
@@ -154,6 +158,9 @@ public class EJBConfigBuilderTest extends TestCase {
         String j2eeModuleName = "org/openejb/deployment/test";
 
         OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
+        OpenORBSkeletonGenerator generator = new OpenORBSkeletonGenerator();
+        generator.setCompiler(new AntCompiler());
+        moduleBuilder.setSkeletonGenerator(generator);
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         ClassLoader cl = new URLClassLoader(new URL[]{ejbJarFile.toURL()}, oldCl);
@@ -198,6 +205,10 @@ public class EJBConfigBuilderTest extends TestCase {
         String j2eeModuleName = "org/openejb/deployment/test";
 
         OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
+        OpenORBSkeletonGenerator generator = new OpenORBSkeletonGenerator();
+        generator.setCompiler(new AntCompiler());
+        moduleBuilder.setSkeletonGenerator(generator);
+
         File earFile = new File("target/test-ejb-jar.jar");
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -245,6 +256,10 @@ public class EJBConfigBuilderTest extends TestCase {
         String j2eeModuleName = "test-ejb-jar.jar";
 
         OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
+        OpenORBSkeletonGenerator generator = new OpenORBSkeletonGenerator();
+        generator.setCompiler(new AntCompiler());
+        moduleBuilder.setSkeletonGenerator(generator);
+
         File earFile = new File("target/test-ear.ear");
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();

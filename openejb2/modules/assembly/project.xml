@@ -484,6 +484,72 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb</artifactId>
+            <version>&openorb-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb-omg</artifactId>
+            <version>&openorb-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb-tools</artifactId>
+            <version>&openorb-version;</version>
+            <properties>
+                <lib>true</lib>
+                <deploy>true</deploy>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-tools</artifactId>
+            <version>&openorb-version;</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>avalon</groupId>
+            <artifactId>avalon-framework</artifactId>
+            <version>&avalon-framework-version;</version>
+            <properties>
+               <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>avalon</groupId>
+            <artifactId>avalon-logkit</artifactId>
+            <version>&avalon-logkit-version;</version>
+            <properties>
+               <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>&xml-apis-version;</version>
+            <properties>
+                <lib>true</lib>
+                <server>true</server>
+            </properties>
+        </dependency>
+
     </dependencies>
 
 </project>
