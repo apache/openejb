@@ -217,7 +217,7 @@ public class HttpDaemon implements Runnable{
             t.printStackTrace();
             res =
                 HttpResponseImpl.createError(
-                    "Could read the request.\n" + t.getClass().getName() + ":\n" + t.getMessage(),
+                    "Could not read the request.\n" + t.getClass().getName() + ":\n" + t.getMessage(),
                     t);
             try {
                 res.writeMessage(out);
