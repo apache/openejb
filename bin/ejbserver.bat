@@ -17,3 +17,4 @@ set OPTIONS=-Dopenejb.home=%OPENEJB_HOME%
 %JAVA% %OPTIONS% -classpath %CP% org.openejb.server.Main  %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 
+exit
