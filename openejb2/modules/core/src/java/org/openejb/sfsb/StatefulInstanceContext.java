@@ -52,9 +52,9 @@ import javax.ejb.SessionBean;
 import javax.ejb.SessionSynchronization;
 
 import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.apache.geronimo.transaction.context.BeanTransactionContext;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openejb.AbstractInstanceContext;
@@ -78,7 +78,7 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
     private final EJBInvocation afterBeginInvocation;
     private final EJBInvocation beforeCompletionInvocation;
     private final SystemMethodIndices systemMethodIndices;
-    private BeanTransactionContext preexistingContext;
+    private TransactionContext preexistingContext;
     private EJBOperation operation;
     private InstanceCache cache;
 
@@ -116,11 +116,11 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
         return id;
     }
 
-    public BeanTransactionContext getPreexistingContext() {
+    public TransactionContext getPreexistingContext() {
         return preexistingContext;
     }
 
-    public void setPreexistingContext(BeanTransactionContext preexistingContext) {
+    public void setPreexistingContext(TransactionContext preexistingContext) {
         this.preexistingContext = preexistingContext;
     }
 
@@ -134,10 +134,12 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
 
     public void die() {
         if (preexistingContext != null) {
-            try {
-                preexistingContext.rollback();
-            } catch (Exception e) {
-                log.warn("Unable to roll back", e);
+            if (preexistingContext.isActive()) {
+                try {
+                    preexistingContext.rollback();
+                } catch (Exception e) {
+                    log.warn("Unable to roll back", e);
+                }
             }
             preexistingContext = null;
         }

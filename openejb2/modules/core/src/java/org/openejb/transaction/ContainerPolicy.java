@@ -57,11 +57,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.transaction.context.InheritableTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.ContainerTransactionContext;
-import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 import org.openejb.EJBInvocation;
 
 /**
@@ -86,7 +83,7 @@ public class ContainerPolicy {
                 callerContext.suspend();
             }
             try {
-                UnspecifiedTransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
+                TransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
@@ -116,7 +113,7 @@ public class ContainerPolicy {
     private static final class TxRequired implements TransactionPolicy {
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
             TransactionContext callerContext = transactionContextManager.getContext();
-            if (callerContext instanceof InheritableTransactionContext) {
+            if (callerContext != null && callerContext.isInheritable()) {
                 try {
                     ejbInvocation.setTransactionContext(callerContext);
                     return interceptor.invoke(ejbInvocation);
@@ -137,7 +134,7 @@ public class ContainerPolicy {
                 callerContext.suspend();
             }
             try {
-                ContainerTransactionContext beanContext = transactionContextManager.newContainerTransactionContext();
+                TransactionContext beanContext = transactionContextManager.newContainerTransactionContext();
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
@@ -174,7 +171,7 @@ public class ContainerPolicy {
     private static final class TxSupports implements TransactionPolicy {
         public InvocationResult invoke(Interceptor interceptor, EJBInvocation ejbInvocation, TransactionContextManager transactionContextManager) throws Throwable {
             TransactionContext callerContext = transactionContextManager.getContext();
-            if (callerContext instanceof InheritableTransactionContext) {
+            if (callerContext != null && callerContext.isInheritable()) {
                 try {
                     ejbInvocation.setTransactionContext(callerContext);
                     return interceptor.invoke(ejbInvocation);
@@ -195,7 +192,7 @@ public class ContainerPolicy {
                 callerContext.suspend();
             }
             try {
-                UnspecifiedTransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
+                TransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
@@ -231,7 +228,7 @@ public class ContainerPolicy {
                 callerContext.suspend();
             }
             try {
-                ContainerTransactionContext beanContext = transactionContextManager.newContainerTransactionContext();
+                TransactionContext beanContext = transactionContextManager.newContainerTransactionContext();
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);
@@ -270,7 +267,7 @@ public class ContainerPolicy {
             TransactionContext callerContext = transactionContextManager.getContext();
 
             // If we don't have a transaction, throw an exception
-            if (!(callerContext instanceof InheritableTransactionContext)) {
+            if (callerContext == null || !callerContext.isInheritable()) {
                 if (ejbInvocation.getType().isLocal()) {
                     throw new TransactionRequiredLocalException();
                 } else {
@@ -307,7 +304,7 @@ public class ContainerPolicy {
             TransactionContext callerContext = transactionContextManager.getContext();
 
             // If we have a transaction, throw an exception
-            if (callerContext instanceof InheritableTransactionContext) {
+            if (callerContext != null && callerContext.isInheritable()) {
                 if (ejbInvocation.getType().isLocal()) {
                     throw new TransactionNotSupportedLocalException();
                 } else {
@@ -319,7 +316,7 @@ public class ContainerPolicy {
                 callerContext.suspend();
             }
             try {
-                UnspecifiedTransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
+                TransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
                 ejbInvocation.setTransactionContext(beanContext);
                 try {
                     InvocationResult result = interceptor.invoke(ejbInvocation);

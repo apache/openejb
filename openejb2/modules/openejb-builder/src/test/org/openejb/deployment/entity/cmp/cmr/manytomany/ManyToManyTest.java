@@ -55,7 +55,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.geronimo.transaction.context.ContainerTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.deployment.entity.cmp.cmr.AbstractCMRTest;
 
 /**
@@ -69,7 +69,7 @@ public class ManyToManyTest extends AbstractCMRTest {
     private BLocal b;
 
     public void testAGetBExistingAB() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         a = ahome.findByPrimaryKey(new Integer(1));
         Set bSet = a.getB();
         assertEquals(2, bSet.size());
@@ -83,10 +83,11 @@ public class ManyToManyTest extends AbstractCMRTest {
                 fail();
             }
         }
+        ctx.commit();
     }
     
     public void testBGetAExistingAB() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         BLocal b = bhome.findByPrimaryKey(new Integer(22));
         Set aSet = b.getA();
         assertEquals(3, aSet.size());
@@ -117,7 +118,7 @@ public class ManyToManyTest extends AbstractCMRTest {
     }
 
     public void testASetBDropExisting() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         ALocal a = ahome.findByPrimaryKey(new Integer(1));
         a.setB(new HashSet());
         a = ahome.findByPrimaryKey(new Integer(2));
@@ -130,7 +131,7 @@ public class ManyToManyTest extends AbstractCMRTest {
     }
 
     public void testBSetADropExisting() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
         b.setA(new HashSet());
         b = bhome.findByPrimaryKey(new Integer(22));
@@ -140,8 +141,8 @@ public class ManyToManyTest extends AbstractCMRTest {
         assertStateDropExisting();
     }
 
-    private ContainerTransactionContext prepareNewAB() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+    private TransactionContext prepareNewAB() throws Exception {
+        TransactionContext ctx = newTransactionContext();
         a = ahome.create(new Integer(4));
         a.setField2("value4");
         b = bhome.create(new Integer(33));
@@ -170,7 +171,7 @@ public class ManyToManyTest extends AbstractCMRTest {
     }
     
     public void testASetBNewAB() throws Exception {
-        ContainerTransactionContext ctx = prepareNewAB();
+        TransactionContext ctx = prepareNewAB();
         Set bSet = a.getB();
         bSet.add(b);
         ctx.commit();
@@ -179,7 +180,7 @@ public class ManyToManyTest extends AbstractCMRTest {
     }
 
     public void testBSetANewAB() throws Exception {
-        ContainerTransactionContext ctx = prepareNewAB();
+        TransactionContext ctx = prepareNewAB();
         Set aSet = b.getA();
         aSet.add(a);
         ctx.commit();
@@ -187,8 +188,8 @@ public class ManyToManyTest extends AbstractCMRTest {
         assertStateNewAB();
     }
 
-    private ContainerTransactionContext prepareExistingBNewA() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+    private TransactionContext prepareExistingBNewA() throws Exception {
+        TransactionContext ctx = newTransactionContext();
         a = ahome.create(new Integer(4));
         a.setField2("value4");
         b = bhome.findByPrimaryKey(new Integer(11));
@@ -212,7 +213,7 @@ public class ManyToManyTest extends AbstractCMRTest {
     }
     
     public void testASetBExistingBNewA() throws Exception {
-        ContainerTransactionContext ctx = prepareExistingBNewA();
+        TransactionContext ctx = prepareExistingBNewA();
         Set bSet = a.getB();
         bSet.add(b);
         ctx.commit();
@@ -221,7 +222,7 @@ public class ManyToManyTest extends AbstractCMRTest {
     }
 
     public void testBSetAExistingBNewA() throws Exception {
-        ContainerTransactionContext ctx = prepareExistingBNewA();
+        TransactionContext ctx = prepareExistingBNewA();
         Set aSet = b.getA();
         aSet.add(a);
         ctx.commit();
@@ -229,8 +230,8 @@ public class ManyToManyTest extends AbstractCMRTest {
         assertStateExistingBNewA();
     }
 
-    private ContainerTransactionContext prepareExistingANewB() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+    private TransactionContext prepareExistingANewB() throws Exception {
+        TransactionContext ctx = newTransactionContext();
         a = ahome.findByPrimaryKey(new Integer(1));
         b = bhome.create(new Integer(33));
         b.setField2("value33");
@@ -254,7 +255,7 @@ public class ManyToManyTest extends AbstractCMRTest {
     }
     
     public void testASetBExistingANewB() throws Exception {
-        ContainerTransactionContext ctx = prepareExistingANewB();
+        TransactionContext ctx = prepareExistingANewB();
         Set bSet = a.getB();
         bSet.add(b);
         ctx.commit();
@@ -263,7 +264,7 @@ public class ManyToManyTest extends AbstractCMRTest {
     }
 
     public void testBSetAExistingANewB() throws Exception {
-        ContainerTransactionContext ctx = prepareExistingANewB();
+        TransactionContext ctx = prepareExistingANewB();
         Set aSet = b.getA();
         aSet.add(a);
         ctx.commit();
@@ -272,7 +273,7 @@ public class ManyToManyTest extends AbstractCMRTest {
     }
 
     public void testRemoveRelationships() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         ALocal a = ahome.findByPrimaryKey(new Integer(1));
         a.remove();
         ctx.commit();

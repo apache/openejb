@@ -49,21 +49,17 @@ package org.openejb.mdb;
 
 import java.lang.reflect.Method;
 import java.util.Map;
-
 import javax.ejb.EJBException;
 import javax.resource.ResourceException;
 import javax.transaction.xa.XAResource;
-import javax.transaction.Transaction;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.transaction.context.InheritableTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.ContainerTransactionContext;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
@@ -174,7 +170,7 @@ public class EndpointHandler implements MethodInterceptor {
         EJBInvocation invocation = new EJBInvocationImpl(EJBInterfaceType.LOCAL, null, methodIndex, args);
 
         // set the transaction context
-        TransactionContext transactionContext = TransactionContext.getContext();
+        TransactionContext transactionContext = transactionContextManager.getContext();
         if (transactionContext == null) {
             throw new IllegalStateException("Transaction context has not been set");
         }
@@ -287,7 +283,7 @@ public class EndpointHandler implements MethodInterceptor {
             }
 
             // restore the adapter transaction is possible
-            TransactionContext.setContext(adapterTransaction);
+            transactionContextManager.setContext(adapterTransaction);
         }
         adapterClassLoader = null;
         beanTransaction = null;
@@ -309,7 +305,7 @@ public class EndpointHandler implements MethodInterceptor {
             boolean transactionRequired = container.isDeliveryTransacted(methodIndex);
 
             // if the adapter gave us a transaction and we are required, just move on
-            if (transactionRequired && adapterTransaction instanceof InheritableTransactionContext) {
+            if (transactionRequired && adapterTransaction != null && adapterTransaction.isInheritable()) {
                 return;
             }
 
@@ -323,7 +319,7 @@ public class EndpointHandler implements MethodInterceptor {
                 // start a new container transaction
                 beanTransaction = transactionContextManager.newContainerTransactionContext();
                 if (xaResource != null) {
-                    ((ContainerTransactionContext) beanTransaction).getTransaction().enlistResource(xaResource);
+                    beanTransaction.enlistResource(xaResource);
                 }
             } else {
                 // enter an unspecified transaction context
@@ -360,11 +356,8 @@ public class EndpointHandler implements MethodInterceptor {
                 try {
                     //TODO is this delist necessary???????
                     //check we are really in a transaction.
-                    if (xaResource != null && beanTransaction instanceof ContainerTransactionContext) {
-                        Transaction transaction = ((ContainerTransactionContext) beanTransaction).getTransaction();
-                        if (transaction != null) {
-                            transaction.delistResource(xaResource, XAResource.TMSUSPEND);
-                        }
+                    if (xaResource != null && beanTransaction.isInheritable() && beanTransaction.isActive()) {
+                        beanTransaction.delistResource(xaResource, XAResource.TMSUSPEND);
                     }
                 } catch (Throwable t) {
                     beanTransaction.setRollbackOnly();

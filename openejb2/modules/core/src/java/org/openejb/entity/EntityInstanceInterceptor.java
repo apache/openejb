@@ -148,7 +148,7 @@ public final class EntityInstanceInterceptor implements Interceptor {
             }
             throw t;
         } finally {
-            ejbInvocation.getTransactionContext().endInvocation(oldContext);
+            transactionContext.endInvocation(oldContext);
             ejbInvocation.setEJBInstanceContext(null);
         }
     }

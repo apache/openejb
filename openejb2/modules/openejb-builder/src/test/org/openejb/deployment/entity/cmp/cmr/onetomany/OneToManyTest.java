@@ -55,7 +55,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.geronimo.transaction.context.ContainerTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.deployment.entity.cmp.cmr.AbstractCMRTest;
 
 /**
@@ -69,7 +69,7 @@ public class OneToManyTest extends AbstractCMRTest {
     private BLocal b;
 
     public void testAGetBExistingAB() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         ALocal a = ahome.findByPrimaryKey(new Integer(1));
         Set bSet = a.getB();
         assertEquals(2, bSet.size());
@@ -87,7 +87,7 @@ public class OneToManyTest extends AbstractCMRTest {
     }
     
     public void testBGetAExistingAB() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
         ALocal a = b.getA();
         assertNotNull(a);
@@ -118,7 +118,7 @@ public class OneToManyTest extends AbstractCMRTest {
      * DB DataSource successfully.
      */
     public void XtestASetBDropExisting() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         ALocal a = ahome.findByPrimaryKey(new Integer(1));
         a.setB(new HashSet());
         ctx.commit();
@@ -131,7 +131,7 @@ public class OneToManyTest extends AbstractCMRTest {
      * DB DataSource successfully.
      */
     public void XtestBSetADropExisting() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
         b.setA(null);
         b = bhome.findByPrimaryKey(new Integer(22));
@@ -141,8 +141,8 @@ public class OneToManyTest extends AbstractCMRTest {
         assertStateDropExisting();
     }
     
-    private ContainerTransactionContext prepareNewAB() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+    private TransactionContext prepareNewAB() throws Exception {
+        TransactionContext ctx = newTransactionContext();
         a = ahome.create(new Integer(2));
         a.setField2("value2");
         b = bhome.create(new Integer(22));
@@ -168,7 +168,7 @@ public class OneToManyTest extends AbstractCMRTest {
     }
     
     public void testASetBNewAB() throws Exception {
-        ContainerTransactionContext ctx = prepareNewAB();
+        TransactionContext ctx = prepareNewAB();
         Set bSet = new HashSet();
         bSet.add(b);
         a.setB(bSet);
@@ -178,15 +178,15 @@ public class OneToManyTest extends AbstractCMRTest {
     }
 
     public void testBSetANewAB() throws Exception {
-        ContainerTransactionContext ctx = prepareNewAB();
+        TransactionContext ctx = prepareNewAB();
         b.setA(a);
         ctx.commit();
         
         assertStateNewAB();
     }
     
-    private ContainerTransactionContext prepareExistingBNewA() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+    private TransactionContext prepareExistingBNewA() throws Exception {
+        TransactionContext ctx = newTransactionContext();
         a = ahome.create(new Integer(2));
         a.setField2("value2");
         b = bhome.findByPrimaryKey(new Integer(11));
@@ -211,7 +211,7 @@ public class OneToManyTest extends AbstractCMRTest {
     }
     
     public void testASetBExistingBNewA() throws Exception {
-        ContainerTransactionContext ctx = prepareExistingBNewA();
+        TransactionContext ctx = prepareExistingBNewA();
         Set bSet = a.getB();
         bSet.add(b);
         ctx.commit();
@@ -220,15 +220,15 @@ public class OneToManyTest extends AbstractCMRTest {
     }
 
     public void testBSetAExistingBNewA() throws Exception {
-        ContainerTransactionContext ctx = prepareExistingBNewA();
+        TransactionContext ctx = prepareExistingBNewA();
         b.setA(a);
         ctx.commit();
         
         assertStateExistingBNewA();
     }
     
-    private ContainerTransactionContext prepareExistingANewB() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+    private TransactionContext prepareExistingANewB() throws Exception {
+        TransactionContext ctx = newTransactionContext();
         a = ahome.findByPrimaryKey(new Integer(1));
         b = bhome.create(new Integer(33));
         b.setField2("value33");
@@ -251,7 +251,7 @@ public class OneToManyTest extends AbstractCMRTest {
     }
     
     public void testASetBExistingANewB() throws Exception {
-        ContainerTransactionContext ctx = prepareExistingANewB();
+        TransactionContext ctx = prepareExistingANewB();
         Set bSet = a.getB();
         bSet.add(b);
         ctx.commit();
@@ -260,7 +260,7 @@ public class OneToManyTest extends AbstractCMRTest {
     }
 
     public void testBSetAExistingANewB() throws Exception {
-        ContainerTransactionContext ctx = prepareExistingANewB();
+        TransactionContext ctx = prepareExistingANewB();
         b.setA(a);
         ctx.commit();
         
@@ -272,7 +272,7 @@ public class OneToManyTest extends AbstractCMRTest {
      * DB DataSource successfully.
      */
     public void XtestRemoveRelationships() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         ALocal a = ahome.findByPrimaryKey(new Integer(1));
         a.remove();
         ctx.commit();

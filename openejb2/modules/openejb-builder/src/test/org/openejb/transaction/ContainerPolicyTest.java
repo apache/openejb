@@ -47,19 +47,27 @@
  */
 package org.openejb.transaction;
 
+import javax.transaction.xa.XAResource;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.Synchronization;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
-import org.apache.geronimo.transaction.context.ContainerTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.ConnectionReleaser;
 import junit.framework.TestCase;
 
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
 import org.openejb.EJBInterfaceType;
+import org.tranql.cache.InTxCache;
 
 /**
  * @version $Revision$ $Date$
@@ -71,9 +79,9 @@ public class ContainerPolicyTest extends TestCase {
     private TransactionContextManager transactionContextManager;
 
     public void testNotSupportedNoContext() throws Throwable {
-        TransactionContext.setContext(null);
+        transactionContextManager.setContext(null);
         ContainerPolicy.NotSupported.invoke(interceptor, invocation, transactionContextManager);
-        assertTrue(interceptor.context instanceof UnspecifiedTransactionContext);
+        assertFalse(interceptor.context.isInheritable());
     }
 
     public void testNotSupportedInContext() throws Throwable {
@@ -82,16 +90,16 @@ public class ContainerPolicyTest extends TestCase {
 
         ContainerPolicy.NotSupported.invoke(interceptor, invocation, transactionContextManager);
         assertTrue(transactionContextManager.getContext() == outer);
-        assertTrue(interceptor.context instanceof UnspecifiedTransactionContext);
+        assertFalse(interceptor.context.isInheritable());
         assertTrue(interceptor.context != outer);
         assertTrue(outer.suspended);
         assertTrue(outer.resumed);
     }
 
     public void testRequiredNoContext() throws Throwable {
-        TransactionContext.setContext(null);
+        transactionContextManager.setContext(null);
         ContainerPolicy.Required.invoke(interceptor, invocation, transactionContextManager);
-        assertTrue(interceptor.context instanceof ContainerTransactionContext);
+        assertTrue(interceptor.context instanceof TransactionContext);
         assertTrue(txnManager.isCommitted());
         assertFalse(txnManager.isRolledBack());
 
@@ -101,7 +109,7 @@ public class ContainerPolicyTest extends TestCase {
             ContainerPolicy.Required.invoke(interceptor, invocation, transactionContextManager);
         } catch (MockSystemException e) {
         }
-        assertTrue(interceptor.context instanceof ContainerTransactionContext);
+        assertTrue(interceptor.context instanceof TransactionContext);
         assertFalse(txnManager.isCommitted());
         assertTrue(txnManager.isRolledBack());
     }
@@ -134,7 +142,7 @@ public class ContainerPolicyTest extends TestCase {
 
     }
 
-    private static class MockUnspecifiedTransactionContext extends UnspecifiedTransactionContext {
+    private static class MockUnspecifiedTransactionContext implements TransactionContext {
         MockInterceptor interceptor;
         boolean suspended;
         boolean resumed;
@@ -147,7 +155,6 @@ public class ContainerPolicyTest extends TestCase {
             assertTrue(interceptor.context == null);
             assertFalse(suspended);
             assertFalse(resumed);
-            super.suspend();
             suspended = true;
         }
 
@@ -155,8 +162,77 @@ public class ContainerPolicyTest extends TestCase {
             assertTrue(interceptor.context != null);
             assertTrue(suspended);
             assertFalse(resumed);
-            super.resume();
             resumed = true;
+        }
+
+        public boolean isInheritable() {
+            return false;
+        }
+
+        public boolean isActive() {
+            return true;
+        }
+
+        public boolean enlistResource(XAResource xaResource) throws RollbackException, SystemException {
+            return false;
+        }
+
+        public boolean delistResource(XAResource xaResource, int flag) throws SystemException {
+            return false;
+        }
+
+        public void registerSynchronization(Synchronization synchronization) throws RollbackException, SystemException {
+        }
+
+        public boolean getRollbackOnly() throws SystemException {
+            return false;
+        }
+
+        public void setRollbackOnly() throws SystemException {
+        }
+
+        public boolean commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException {
+            return false;
+        }
+
+        public void rollback() throws SystemException {
+        }
+
+        public void associate(InstanceContext context) throws Throwable {
+        }
+
+        public void unassociate(InstanceContext context) throws Throwable {
+        }
+
+        public void unassociate(Object containerId, Object id) throws Throwable {
+        }
+
+        public InstanceContext getContext(Object containerId, Object id) {
+            return null;
+        }
+
+        public InstanceContext beginInvocation(InstanceContext context) throws Throwable {
+            return null;
+        }
+
+        public void endInvocation(InstanceContext caller) {
+        }
+
+        public void flushState() throws Throwable {
+        }
+
+        public void setInTxCache(InTxCache inTxCache) {
+        }
+
+        public InTxCache getInTxCache() {
+            return null;
+        }
+
+        public void setManagedConnectionInfo(ConnectionReleaser key, Object info) {
+        }
+
+        public Object getManagedConnectionInfo(ConnectionReleaser key) {
+            return null;
         }
     }
 

@@ -112,13 +112,12 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
     protected LinkedHashMap buildVopMap(Class beanClass) throws Exception {
         LinkedHashMap vopMap = new LinkedHashMap();
 
-        boolean isBMT = (getUserTransaction() != null);
         // ejbCreate... this is the method called by the pool to create a new instance
-        vopMap.put(new InterfaceMethodSignature("ejbCreate", false), new EJBCreateMethod(beanClass, isBMT));
+        vopMap.put(new InterfaceMethodSignature("ejbCreate", false), new EJBCreateMethod(beanClass));
         // create... this is the method that is called by the user
         vopMap.put(new InterfaceMethodSignature("create", true), new CreateMethod());
         // ejbRemove... this is the method called by the pool to destroy an instance
-        vopMap.put(new InterfaceMethodSignature("ejbRemove", false), new RemoveMethod(beanClass, isBMT));
+        vopMap.put(new InterfaceMethodSignature("ejbRemove", false), new RemoveMethod(beanClass));
         // ejbTimeout
         if (TimedObject.class.isAssignableFrom(beanClass)) {
             vopMap.put(new InterfaceMethodSignature("ejbTimeout", new String[]{Timer.class.getName()}, false),

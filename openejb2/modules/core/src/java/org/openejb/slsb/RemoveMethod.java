@@ -48,35 +48,24 @@
 package org.openejb.slsb;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.transaction.context.TransactionContext;
-
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.MethodSignature;
+import org.openejb.dispatch.AbstractMethodOperation;
 
 /**
  * Virtual operation handling removal of an instance.
  *
  * @version $Revision$ $Date$
  */
-public class RemoveMethod extends org.openejb.sfsb.BusinessMethod {
+public class RemoveMethod extends AbstractMethodOperation {
     private static final MethodSignature REMOVE_SIG = new MethodSignature("ejbRemove");
 
-    public RemoveMethod(Class beanClass, boolean isBMT) {
-        super(beanClass, REMOVE_SIG, isBMT);
+    public RemoveMethod(Class beanClass) {
+        super(beanClass, REMOVE_SIG);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        InvocationResult result = null;
-        try {
-            result = invoke(invocation, EJBOperation.EJBREMOVE);
-        } finally {
-            if(isBMT) {
-                // we need to update the invocation cache of the transaction context
-                // because they may have used UserTransaction to push a new context
-                invocation.setTransactionContext(TransactionContext.getContext());
-            }
-        }
-        return result;
+        return invoke(invocation, EJBOperation.EJBREMOVE);
     }
 }

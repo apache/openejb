@@ -53,20 +53,15 @@ import javax.ejb.NoSuchObjectLocalException;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.BeanTransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBInvocation;
-import org.openejb.NotReentrantLocalException;
 import org.openejb.NotReentrantException;
-import org.openejb.transaction.UncommittedTransactionException;
+import org.openejb.NotReentrantLocalException;
 import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstanceFactory;
+import org.openejb.transaction.UncommittedTransactionException;
 
 /**
  * Interceptor for Stateful Session EJBs that acquires an instance for execution.
@@ -76,7 +71,6 @@ import org.openejb.cache.InstanceFactory;
  * @version $Revision$ $Date$
  */
 public final class StatefulInstanceInterceptor implements Interceptor {
-    private static final Log log = LogFactory.getLog(StatefulInstanceInterceptor.class);
     private final Interceptor next;
     private final Object containerId;
     private final InstanceFactory factory;
@@ -99,15 +93,10 @@ public final class StatefulInstanceInterceptor implements Interceptor {
         ejbInvocation.setEJBInstanceContext(ctx);
 
         // resume the preexisting transaction context
-        TransactionContext oldTransactionContext = transactionContextManager.getContext();
         if (ctx.getPreexistingContext() != null) {
-            BeanTransactionContext preexistingContext = ctx.getPreexistingContext();
+            TransactionContext preexistingContext = ctx.getPreexistingContext();
+            transactionContextManager.resumeBeanTransactionContext(preexistingContext);
             ctx.setPreexistingContext(null);
-            preexistingContext.setOldContext((UnspecifiedTransactionContext) oldTransactionContext);
-
-            ejbInvocation.setTransactionContext(preexistingContext);
-            transactionContextManager.setContext(preexistingContext);
-            preexistingContext.resume();
         }
 
         // check reentrancy
@@ -119,7 +108,8 @@ public final class StatefulInstanceInterceptor implements Interceptor {
             }
         }
 
-        InstanceContext oldInstanceContext = ejbInvocation.getTransactionContext().beginInvocation(ctx);
+        TransactionContext oldTransactionContext = ejbInvocation.getTransactionContext();
+        InstanceContext oldInstanceContext = oldTransactionContext.beginInvocation(ctx);
         try {
             // invoke next
             InvocationResult invocationResult = next.invoke(invocation);
@@ -127,19 +117,11 @@ public final class StatefulInstanceInterceptor implements Interceptor {
             // if we have a BMT still associated with the thread, suspend it and save it off for the next invocation
             TransactionContext currentContext = transactionContextManager.getContext();
             if (oldTransactionContext != currentContext) {
-                BeanTransactionContext preexistingContext = (BeanTransactionContext)currentContext;
-                if (preexistingContext.getOldContext() != oldTransactionContext) {
+                TransactionContext preexistingContext = transactionContextManager.suspendBeanTransactionContext();
+                ctx.setPreexistingContext(preexistingContext);
+                if (transactionContextManager.getContext() != oldTransactionContext) {
                     throw new UncommittedTransactionException("Found an uncommitted bean transaction from another session bean");
                 }
-                // suspend and save off the BMT context
-                preexistingContext.suspend();
-                preexistingContext.setOldContext(null);
-                ctx.setPreexistingContext(preexistingContext);
-
-                // resume the old unsupported transaction context
-                ejbInvocation.setTransactionContext(oldTransactionContext);
-                transactionContextManager.setContext(oldTransactionContext);
-                oldTransactionContext.resume();
             }
 
             return invocationResult;
@@ -147,23 +129,9 @@ public final class StatefulInstanceInterceptor implements Interceptor {
             // we must kill the instance when a system exception is thrown
             ctx.die();
 
-            // if we have tx context, other then our old tx context, associated with the thread roll it back
-            if (oldTransactionContext != transactionContextManager.getContext()) {
-                try {
-                    transactionContextManager.getContext().rollback();
-                } catch (Exception e) {
-                    log.warn("Unable to roll back", e);
-                }
-
-                // and resume the old transaction
-                ejbInvocation.setTransactionContext(oldTransactionContext);
-                transactionContextManager.setContext(oldTransactionContext);
-                oldTransactionContext.resume();
-            }
-
             throw t;
         } finally {
-            ejbInvocation.getTransactionContext().endInvocation(oldInstanceContext);
+            oldTransactionContext.endInvocation(oldInstanceContext);
             ejbInvocation.setEJBInstanceContext(null);
         }
     }

@@ -121,7 +121,6 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
         }
 
         // add the business methods
-        boolean isBMT = (getUserTransaction() != null);
         Method[] beanMethods = beanClass.getMethods();
         for (int i = 0; i < beanMethods.length; i++) {
             Method beanMethod = beanMethods[i];
@@ -135,20 +134,20 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
             if (name.startsWith("ejbCreate")) {
                 vopMap.put(
                         MethodHelper.translateToInterface(signature),
-                        new CreateMethod(beanClass, signature, isBMT));
+                        new CreateMethod(beanClass, signature));
             } else if (name.equals("ejbRemove")) {
                 // there are two valid ways to invoke remove on a stateful session bean
 
                 // ejbObject.remove()
                 vopMap.put(
                         new InterfaceMethodSignature("remove", false),
-                        new RemoveMethod(beanClass, signature, isBMT));
+                        new RemoveMethod(beanClass, signature));
 
                 // ejbHome.remove(handle)
                 Class handleClass = getClassLoader().loadClass("javax.ejb.Handle");
                 vopMap.put(
                         new InterfaceMethodSignature("remove", new Class[]{handleClass}, true),
-                        new RemoveMethod(beanClass, signature, isBMT));
+                        new RemoveMethod(beanClass, signature));
             } else if (name.equals("ejbActivate")) {
                 vopMap.put(
                         MethodHelper.translateToInterface(signature),
@@ -178,7 +177,7 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
             } else {
                 vopMap.put(
                         new InterfaceMethodSignature(signature, false),
-                        new BusinessMethod(beanClass, signature, isBMT));
+                        new BusinessMethod(beanClass, signature));
             }
 
         }

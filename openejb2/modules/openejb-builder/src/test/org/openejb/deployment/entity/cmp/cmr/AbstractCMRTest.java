@@ -52,9 +52,9 @@ import java.io.File;
 import java.net.URI;
 import java.sql.Connection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.HashMap;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
@@ -62,27 +62,27 @@ import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.transaction.context.ContainerTransactionContext;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.xmlbeans.XmlObject;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
 import org.openejb.deployment.CMPContainerBuilder;
 import org.openejb.deployment.CMPEntityBuilderTestUtil;
 import org.openejb.deployment.DeploymentHelper;
+import org.openejb.deployment.KernelHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.OpenEJBModuleBuilder;
-import org.openejb.deployment.KernelHelper;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.security.SecurityConfiguration;
 import org.openejb.transaction.ContainerPolicy;
@@ -128,8 +128,8 @@ public abstract class AbstractCMRTest extends TestCase {
     protected Object bhome;
     private TransactionManager tm;
 
-    protected ContainerTransactionContext newTransactionContext() throws Exception {
-        return (ContainerTransactionContext) kernel.invoke(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, "newContainerTransactionContext", null, null);
+    protected TransactionContext newTransactionContext() throws Exception {
+        return (TransactionContext) kernel.invoke(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, "newContainerTransactionContext", null, null);
     }
 
 

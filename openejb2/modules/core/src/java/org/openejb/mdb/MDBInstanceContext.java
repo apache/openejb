@@ -52,8 +52,8 @@ import java.util.Set;
 import javax.ejb.MessageDrivenBean;
 
 import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.EJBInvocation;

@@ -69,7 +69,6 @@ import org.apache.geronimo.timer.PersistentTimer;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.timer.UserTaskFactory;
 import org.apache.geronimo.timer.WorkInfo;
-import org.apache.geronimo.transaction.context.InheritableTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBInvocation;
@@ -102,7 +101,7 @@ public class BasicTimerServiceImpl implements BasicTimerService {
         this.kernelName = kernelName;
         this.timerSourceName = timerSourceName;
         this.transactionContextManager = transactionContextManager;
-        userTaskFactory = new EJBInvokeTaskFactory(this, classLoader);
+        userTaskFactory = new EJBInvokeTaskFactory(this, classLoader, transactionContextManager);
     }
 
     public void doStart() throws PersistenceException {
@@ -208,12 +207,9 @@ public class BasicTimerServiceImpl implements BasicTimerService {
 
     void registerCancelSynchronization(Synchronization cancelSynchronization) throws RollbackException, SystemException {
         TransactionContext transactionContext = transactionContextManager.getContext();
-        if ((transactionContext instanceof InheritableTransactionContext)) {
-            InheritableTransactionContext inheritableTransactionContext = ((InheritableTransactionContext) transactionContext);
-            if (inheritableTransactionContext.isActive()) {
-                inheritableTransactionContext.getTransaction().registerSynchronization(cancelSynchronization);
-                return;
-            }
+        if (transactionContext != null && transactionContext.isInheritable() && transactionContext.isActive()) {
+            transactionContext.registerSynchronization(cancelSynchronization);
+            return;
         }
         cancelSynchronization.afterCompletion(Status.STATUS_COMMITTED);
     }
@@ -238,15 +234,16 @@ public class BasicTimerServiceImpl implements BasicTimerService {
     }
 
     private static class EJBInvokeTask implements Runnable {
-
         private final BasicTimerServiceImpl timerService;
         private final long timerId;
         private final ClassLoader classLoader;
+        private final TransactionContextManager transactionContextManager;
 
-        public EJBInvokeTask(BasicTimerServiceImpl timerService, long id, ClassLoader classLoader) {
+        public EJBInvokeTask(BasicTimerServiceImpl timerService, long id, ClassLoader classLoader, TransactionContextManager transactionContextManager) {
             this.timerService = timerService;
             this.timerId = id;
             this.classLoader = classLoader;
+            this.transactionContextManager = transactionContextManager;
         }
 
         public void run() {
@@ -254,7 +251,7 @@ public class BasicTimerServiceImpl implements BasicTimerService {
             EJBInvocation invocation = timerService.invocationFactory.getEJBTimeoutInvocation(timerImpl.getUserId(), timerImpl);
 
             // set the transaction context into the invocation object
-            TransactionContext transactionContext = TransactionContext.getContext();
+            TransactionContext transactionContext = transactionContextManager.getContext();
             if (transactionContext == null) {
                 throw new IllegalStateException("Transaction context has not been set");
             }
@@ -275,17 +272,18 @@ public class BasicTimerServiceImpl implements BasicTimerService {
     }
 
     private static class EJBInvokeTaskFactory implements UserTaskFactory {
-
         private final BasicTimerServiceImpl timerService;
         private final ClassLoader classLoader;
+        private final TransactionContextManager transactionContextManager;
 
-        public EJBInvokeTaskFactory(BasicTimerServiceImpl timerService, ClassLoader classLoader) {
+        public EJBInvokeTaskFactory(BasicTimerServiceImpl timerService, ClassLoader classLoader, TransactionContextManager transactionContextManager) {
             this.timerService = timerService;
             this.classLoader = classLoader;
+            this.transactionContextManager = transactionContextManager;
         }
 
         public Runnable newTask(long id) {
-            return new EJBInvokeTask(timerService, id, classLoader);
+            return new EJBInvokeTask(timerService, id, classLoader, transactionContextManager);
         }
 
     }

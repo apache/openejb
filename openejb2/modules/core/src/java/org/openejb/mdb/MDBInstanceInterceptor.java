@@ -54,6 +54,7 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.InstanceContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 
 
 /**
@@ -85,7 +86,8 @@ public final class MDBInstanceInterceptor implements Interceptor {
         // initialize the context and set it into the invocation
         ejbInvocation.setEJBInstanceContext(ctx);
 
-        InstanceContext oldContext = ejbInvocation.getTransactionContext().beginInvocation(ctx);
+        TransactionContext transactionContext = ejbInvocation.getTransactionContext();
+        InstanceContext oldContext = transactionContext.beginInvocation(ctx);
         try {
             InvocationResult result = next.invoke(invocation);
             return result;
@@ -94,7 +96,7 @@ public final class MDBInstanceInterceptor implements Interceptor {
             ctx.die();
             throw t;
         } finally {
-            ejbInvocation.getTransactionContext().endInvocation(oldContext);
+            transactionContext.endInvocation(oldContext);
 
             // remove the reference to the context from the invocation
             ejbInvocation.setEJBInstanceContext(null);

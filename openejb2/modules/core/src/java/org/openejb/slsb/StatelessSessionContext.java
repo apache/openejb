@@ -61,7 +61,7 @@ import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.timer.TimerState;
-import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**

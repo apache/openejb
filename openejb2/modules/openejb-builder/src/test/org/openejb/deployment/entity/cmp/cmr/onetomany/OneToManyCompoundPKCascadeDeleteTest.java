@@ -52,7 +52,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.apache.geronimo.transaction.context.ContainerTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.deployment.entity.cmp.cmr.AbstractCMRTest;
 import org.openejb.deployment.entity.cmp.cmr.CompoundPK;
 
@@ -67,7 +67,7 @@ public class OneToManyCompoundPKCascadeDeleteTest extends AbstractCMRTest {
     private BLocal b;
 
     public void testCascadeDelete() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         ALocal a = ahome.findByPrimaryKey(new CompoundPK(new Integer(1), "value1"));
         a.remove();
         ctx.commit();

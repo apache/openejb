@@ -112,7 +112,7 @@ public class TimerServiceImplTest extends TestCase {
         threadPooledTimer = new ThreadPooledTimer(executableWorkFactory, workerPersistence, threadPool, transactionContextManager);
         threadPooledTimer.doStart();
 
-        TransactionContext.setContext(null);
+        transactionContextManager.setContext(null);
 
         interceptor = new MockInterceptor();
         timerService = new BasicTimerServiceImpl(new InvocationFactory(), interceptor, threadPooledTimer, key, kernelName, timerSourceName, transactionContextManager, classLoader);

@@ -53,7 +53,6 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
 import org.openejb.EJBInvocation;
 
 /**
@@ -69,7 +68,7 @@ public class BeanPolicy implements TransactionPolicy {
             clientContext.suspend();
         }
         try {
-            UnspecifiedTransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
+            TransactionContext beanContext = transactionContextManager.newUnspecifiedTransactionContext();
             ejbInvocation.setTransactionContext(beanContext);
             try {
                 InvocationResult result = interceptor.invoke(ejbInvocation);
@@ -78,12 +77,15 @@ public class BeanPolicy implements TransactionPolicy {
                 }
                 return result;
             } catch (Throwable t) {
-                try {
-                    if (beanContext != transactionContextManager.getContext()) {
-                        transactionContextManager.getContext().rollback();
+                TransactionContext currentContext = transactionContextManager.getContext();
+                if (currentContext.isActive()) {
+                    try {
+                        if (beanContext != currentContext) {
+                            currentContext.rollback();
+                        }
+                    } catch (Exception e) {
+                        log.warn("Unable to roll back", e);
                     }
-                } catch (Exception e) {
-                    log.warn("Unable to roll back", e);
                 }
                 beanContext.setRollbackOnly();
                 throw t;
@@ -93,7 +95,7 @@ public class BeanPolicy implements TransactionPolicy {
         } finally {
             ejbInvocation.setTransactionContext(clientContext);
             transactionContextManager.setContext(clientContext);
-            if (clientContext != null) {
+            if (clientContext != null) {  
                 clientContext.resume();
             }
         }

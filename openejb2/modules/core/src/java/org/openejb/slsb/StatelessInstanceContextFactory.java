@@ -62,7 +62,7 @@ import org.openejb.timer.BasicTimerService;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
-import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.core.service.Interceptor;
 
