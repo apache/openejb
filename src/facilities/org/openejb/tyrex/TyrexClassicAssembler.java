@@ -81,6 +81,8 @@ import org.openejb.core.ivm.naming.IvmContext;
 import org.openejb.core.ivm.naming.NameNode;
 import org.openejb.core.ivm.naming.ParsedName;
 import org.openejb.core.ivm.naming.ENCReference;
+import org.openejb.core.ivm.naming.Reference;
+import org.openejb.core.ivm.naming.ObjectReference;
 import tyrex.tm.TransactionDomain;
 import tyrex.resource.Resources;
 import tyrex.resource.Resource;
@@ -387,14 +389,15 @@ public class TyrexClassicAssembler extends org.openejb.alt.assembler.classic.Ass
             if(resource==null) {
               throw new org.openejb.OpenEJBException("The reference with resource id "+reference.resourceID+" defined in the OpenEJB deployment file is not present in the Tyrex configuration file.");
             }
-            ENCReference ref = null;
+            Reference ref = new ObjectReference( resource );
             if(EntityBeanInfo.class.isAssignableFrom(bean.getClass()))
-                ref = new org.openejb.core.entity.EncReference(resource);
+                ref = new org.openejb.core.entity.EncReference( ref );
             else if(StatefulBeanInfo.class.isAssignableFrom(bean.getClass()))
-                ref = new org.openejb.core.stateful.EncReference(resource);
+                ref = new org.openejb.core.stateful.EncReference( ref );
             else if(StatelessBeanInfo.class.isAssignableFrom(bean.getClass()))
-                ref = new org.openejb.core.stateless.EncReference(resource);
-            TyrexReference tyrexRef = new TyrexReference(ref);    
+                ref = new org.openejb.core.stateless.EncReference( ref );
+            
+            TyrexReference tyrexRef = new TyrexReference((ENCReference)ref);    
                      root.bind(prefixForBinding(reference.referenceName), tyrexRef);
             
             }catch(javax.naming.NamingException ne){
