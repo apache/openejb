@@ -48,10 +48,10 @@ package org.openejb;
 import java.net.URL;
 import java.util.Date;
 import java.util.Properties;
-
 import javax.transaction.TransactionManager;
 
-import org.openejb.assembler.*;
+import org.openejb.assembler.Container;
+import org.openejb.assembler.DeploymentInfo;
 import org.openejb.spi.ApplicationServer;
 import org.openejb.spi.Assembler;
 import org.openejb.spi.ContainerSystem;
@@ -258,8 +258,9 @@ public final class OpenEJB {
         /*
          * Uses the EnvProps.ASSEMBLER property to obtain the Assembler impl.
          */
-        //String className = props.getProperty("openejb.assembler", "org.openejb.assembler.Assembler");
-        String className = org.openejb.config.NovaAssembler.class.getName();
+        String className = props.getProperty("openejb.assembler", "org.openejb.assembler.Assembler");
+        //String className = org.openejb.config.NovaAssembler.class.getName();
+
 
         logger.i18n.debug("startup.instantiatingAssemberClass", className);
 
