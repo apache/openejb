@@ -93,6 +93,7 @@ public class MockResourceAdapter implements ResourceAdapter {
      * @see javax.resource.spi.ResourceAdapter#stop()
      */
     public void stop() {
+        this.bootstrapContext = null;
     }
 
     /**
@@ -100,9 +101,13 @@ public class MockResourceAdapter implements ResourceAdapter {
      */
     synchronized public void endpointActivation(MessageEndpointFactory messageEndpointFactory, ActivationSpec activationSpec)
         throws ResourceException {
+        //spec section 5.3.3
+        if (activationSpec.getResourceAdapter() != this) {
+            throw new ResourceException("Activation spec not initialized with this ResourceAdapter instance");
+        }
 
         if (activationSpec.getClass().equals(MockActivationSpec.class)) {
-            
+
             MockEndpointActivationKey key = new MockEndpointActivationKey(messageEndpointFactory, (MockActivationSpec)activationSpec);
             // This is weird.. the same endpoint activated twice.. must be a container error.
             if (endpointWorkers.containsKey(key)) {
@@ -120,7 +125,7 @@ public class MockResourceAdapter implements ResourceAdapter {
     /**
      * @see javax.resource.spi.ResourceAdapter#endpointDeactivation(javax.resource.spi.endpoint.MessageEndpointFactory, javax.resource.spi.ActivationSpec)
      */
-    synchronized public void endpointDeactivation(MessageEndpointFactory messageEndpointFactory, ActivationSpec activationSpec) {
+    synchronized public void endpointDeactivation(MessageEndpointFactory messageEndpointFactory, ActivationSpec activationSpec){
         if (activationSpec.getClass().equals(MockActivationSpec.class)) {
             MockEndpointActivationKey key = new MockEndpointActivationKey(messageEndpointFactory, (MockActivationSpec)activationSpec);
             MockEndpointWorker worker = (MockEndpointWorker) endpointWorkers.get(key);
@@ -136,6 +141,7 @@ public class MockResourceAdapter implements ResourceAdapter {
                 // to stop..  we tried our best.  Keep trying to interrupt the thread.
                 Thread.currentThread().interrupt();
             }
+
         }
     }
 

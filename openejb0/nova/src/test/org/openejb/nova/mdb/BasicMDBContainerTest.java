@@ -77,18 +77,20 @@ public class BasicMDBContainerTest extends TestCase {
 
     protected void setUp() throws Exception {
 
-        
+
     }
-    
-    public void testNothing() throws InterruptedException, ResourceAdapterInternalException {
+
+    public void testNothing() throws Exception {
 
         config = new EJBContainerConfiguration();
         config.beanClassName = MockEJB.class.getName();
         config.txnDemarcation = TransactionDemarcation.CONTAINER;
         config.txnManager = new MockTransactionManager();
 
+        resourceAdapter = new MockResourceAdapter();
+        resourceAdapter.start(new MockBootstrapContext() );
         MockActivationSpec spec = new MockActivationSpec();
-        spec.getResourceAdapter().start(new MockBootstrapContext() );
+        spec.setResourceAdapter(resourceAdapter);
         container = new MDBContainer(config, spec, MessageListener.class.getName() );
         container.doStart();
 
@@ -99,11 +101,11 @@ public class BasicMDBContainerTest extends TestCase {
         MockEJB.messageCounter.acquire();
         System.out.println("Waiting for message 3");
         MockEJB.messageCounter.acquire();
-        
+
         System.out.println("Done.");
-        container.doStop();        
+        container.doStop();
     }
 
-    protected void tearDown() throws Exception {        
+    protected void tearDown() throws Exception {
     }
 }

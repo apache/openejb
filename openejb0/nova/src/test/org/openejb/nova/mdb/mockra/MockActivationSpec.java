@@ -65,26 +65,33 @@ import javax.resource.spi.ResourceAdapter;
  */
 public class MockActivationSpec implements ActivationSpec {
 
-    private ResourceAdapter resourceAdapter = new MockResourceAdapter();
-    
+    private ResourceAdapter resourceAdapter;
+
+    private boolean raSet = false;
+
 
     /**
      * @see javax.resource.spi.ActivationSpec#validate()
      */
     public void validate() throws InvalidPropertyException {
     }
-    
+
     /**
      * @see javax.resource.spi.ResourceAdapterAssociation#getResourceAdapter()
      */
     public ResourceAdapter getResourceAdapter() {
         return resourceAdapter;
     }
-    
+
     /**
      * @see javax.resource.spi.ResourceAdapterAssociation#setResourceAdapter(javax.resource.spi.ResourceAdapter)
      */
     public void setResourceAdapter(ResourceAdapter resourceAdapter) throws ResourceException {
+        //spec section 5.3.3
+        if (raSet) {
+            throw new ResourceException("ResourceAdapter already set");
+        }
         this.resourceAdapter = resourceAdapter;
+        raSet = true;
     }
 }
