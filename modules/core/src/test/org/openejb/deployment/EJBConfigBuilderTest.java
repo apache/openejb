@@ -80,6 +80,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
@@ -103,7 +104,7 @@ public class EJBConfigBuilderTest extends TestCase {
     private Kernel kernel;
 
     public void testCreateResourceAdapterNameQuery() throws Exception {
-        EARContext earContext = new EARContext(null, null, null, null, "geronimo.server", "geronimo", null, null, null, null, null);
+        EARContext earContext = new EARContext(null, null, ConfigurationModuleType.EJB, null, null, "geronimo.server", "geronimo", null, null, null, null, null);
         OpenEJBModuleBuilder builder = new OpenEJBModuleBuilder(null);
         ObjectName testName = builder.createResourceAdapterQueryName(earContext, "TestResourceAdapterName");
         assertEquals(ObjectName.getInstance("geronimo.server:j2eeType=ResourceAdapter,name=TestResourceAdapterName,J2EEServer=geronimo,*"), testName);
@@ -134,6 +135,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
         EARContext earContext = new EARContext(null,
                 null,
+                ConfigurationModuleType.EJB,
                 null,
                 null,
                 j2eeDomainName,
@@ -173,6 +175,7 @@ public class EJBConfigBuilderTest extends TestCase {
         try {
             EARContext earContext = new EARContext(new JarOutputStream(new FileOutputStream(carFile)),
                     configId,
+                    ConfigurationModuleType.EJB,
                     parentId,
                     null,
                     j2eeDomainName,
