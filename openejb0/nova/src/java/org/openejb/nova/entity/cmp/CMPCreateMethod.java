@@ -58,6 +58,7 @@ import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.EJBInvocationType;
 import org.openejb.nova.EJBOperation;
+import org.openejb.nova.persistence.UpdateCommand;
 import org.openejb.nova.dispatch.VirtualOperation;
 import org.openejb.nova.entity.EntityInstanceContext;
 
@@ -67,12 +68,16 @@ import org.openejb.nova.entity.EntityInstanceContext;
  * @version $Revision$ $Date$
  */
 public class CMPCreateMethod implements VirtualOperation {
+    private final EJBContainer container;
     private final Method createMethod;
     private final Method postCreateMethod;
+    private final UpdateCommand updateCommand;
 
-    public CMPCreateMethod(Method createMethod, Method postCreateMethod) {
+    public CMPCreateMethod(EJBContainer container, Method createMethod, Method postCreateMethod, UpdateCommand updateCommand) {
         this.createMethod = createMethod;
         this.postCreateMethod = postCreateMethod;
+        this.container = container;
+        this.updateCommand = updateCommand;
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
@@ -99,6 +104,7 @@ public class CMPCreateMethod implements VirtualOperation {
         }
 
         ctx.setId(id);
+        updateCommand.executeUpdate(new Object[] { id });
 
         try {
             ctx.setOperation(EJBOperation.EJBPOSTCREATE);
@@ -118,7 +124,6 @@ public class CMPCreateMethod implements VirtualOperation {
         }
 
         EJBInvocationType type = invocation.getType();
-        EJBContainer container = ctx.getContainer();
         return new SimpleInvocationResult(true, getReference(type.isRemoteInvocation(), container, id));
     }
 

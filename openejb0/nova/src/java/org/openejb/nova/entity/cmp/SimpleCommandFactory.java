@@ -53,12 +53,14 @@ import javax.sql.DataSource;
 
 import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.persistence.QueryCommand;
+import org.openejb.nova.persistence.UpdateCommand;
 import org.openejb.nova.persistence.jdbc.Binding;
 import org.openejb.nova.persistence.jdbc.JDBCQueryCommand;
+import org.openejb.nova.persistence.jdbc.JDBCUpdateCommand;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public class SimpleCommandFactory implements CMPCommandFactory {
@@ -73,7 +75,15 @@ public class SimpleCommandFactory implements CMPCommandFactory {
         commandMap.put(signature, new JDBCQueryCommand(ds, sql, inputBindings, outputBindings));
     }
 
-    public QueryCommand getFinder(MethodSignature signature) {
+    public void defineUpdate(MethodSignature signature, String sql, Binding[] inputBindings) {
+        commandMap.put(signature, new JDBCUpdateCommand(ds, sql, inputBindings));
+    }
+
+    public QueryCommand getQueryCommand(MethodSignature signature) {
         return (JDBCQueryCommand) commandMap.get(signature);
+    }
+
+    public UpdateCommand getUpdateCommand(MethodSignature signature) {
+        return (JDBCUpdateCommand) commandMap.get(signature);
     }
 }

@@ -59,4 +59,6 @@ public interface MockLocal extends EJBLocalObject {
     int intMethod(int i);
 
     int getIntField();
+
+    String getString();
 }

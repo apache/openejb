@@ -110,14 +110,14 @@ public class CMPOperationFactory extends AbstractOperationFactory {
                 try {
                     // ejbCreate vop needs a reference to the ejbPostCreate method
                     Method postCreate = beanClass.getMethod("ejbPostCreate" + name.substring(9), beanMethod.getParameterTypes());
-                    vop = new CMPCreateMethod(beanMethod, postCreate);
+                    vop = new CMPCreateMethod(container, beanMethod, postCreate, persistenceFactory.getUpdateCommand(signature));
                 } catch (NoSuchMethodException e) {
                     throw new IllegalStateException("No ejbPostCreate method found matching " + beanMethod);
                 }
             } else if (name.startsWith("ejbHome")) {
                 vop = new HomeMethod(fastClass, index);
             } else if (name.equals("ejbRemove")) {
-                vop = new CMPRemoveMethod(fastClass, index);
+                vop = new CMPRemoveMethod(fastClass, index, persistenceFactory.getUpdateCommand(signature));
                 remove = new Integer(sigList.size());
             } else if (name.startsWith("ejb")) {
                 continue;
@@ -132,7 +132,7 @@ public class CMPOperationFactory extends AbstractOperationFactory {
         for (int i = 0; i < queries.length; i++) {
             CMPQuery query = queries[i];
             MethodSignature signature = query.getSignature();
-            VirtualOperation vop = new CMPFinder(container, persistenceFactory.getFinder(signature), query.isMultiValue());
+            VirtualOperation vop = new CMPFinder(container, persistenceFactory.getQueryCommand(signature), query.isMultiValue());
             sigList.add(signature);
             vopList.add(vop);
         }

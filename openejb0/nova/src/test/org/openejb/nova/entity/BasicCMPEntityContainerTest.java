@@ -50,6 +50,8 @@ package org.openejb.nova.entity;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
@@ -61,8 +63,8 @@ import org.hsqldb.jdbcDataSource;
 import org.openejb.nova.MockTransactionManager;
 import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.entity.cmp.CMPEntityContainer;
-import org.openejb.nova.entity.cmp.SimpleCommandFactory;
 import org.openejb.nova.entity.cmp.CMPQuery;
+import org.openejb.nova.entity.cmp.SimpleCommandFactory;
 import org.openejb.nova.persistence.jdbc.Binding;
 import org.openejb.nova.persistence.jdbc.binding.IntBinding;
 import org.openejb.nova.util.ServerUtil;
@@ -77,27 +79,53 @@ public class BasicCMPEntityContainerTest extends TestCase {
     private MBeanServer mbServer;
     private EntityContainerConfiguration config;
     private CMPEntityContainer container;
+    private final jdbcDataSource ds = new jdbcDataSource();
+    private Connection c;
 
     public void testLocalInvoke() throws Exception {
         MockLocalHome home = (MockLocalHome) container.getEJBLocalHome();
         assertEquals(2, home.intMethod(1));
 
         MockLocal local = home.findByPrimaryKey(new Integer(1));
-//        assertEquals(3, local.intMethod(1));
-//        assertEquals(1, local.getIntField());
+        assertEquals(3, local.intMethod(1));
+        assertEquals(1, local.getIntField());
+    }
+
+    public void testLifeCycle() throws Exception {
+        MockLocalHome home = (MockLocalHome) container.getEJBLocalHome();
+
+        Statement s = c.createStatement();
+        ResultSet rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
+        assertFalse(rs.next());
+
+        MockLocal local = home.create(new Integer(2));
+        rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
+        assertTrue(rs.next());
+
+        local = home.findByPrimaryKey(new Integer(2));
+
+        local.remove();
+        rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
+        assertFalse(rs.next());
+    }
+
+    public void XtestFields() throws Exception {
+        MockLocalHome home = (MockLocalHome) container.getEJBLocalHome();
+        MockLocal local = home.findByPrimaryKey(new Integer(1));
+        assertEquals("Hello", local.getString());
     }
 
     protected void setUp() throws Exception {
         super.setUp();
 
-        jdbcDataSource ds = new jdbcDataSource();
         ds.setDatabase(".");
         ds.setUser("sa");
         ds.setPassword("");
-        Connection c = ds.getConnection();
+        c = ds.getConnection();
         Statement s = c.createStatement();
-        s.execute("CREATE TABLE MOCK(ID INTEGER)");
-        s.execute("INSERT INTO MOCK(ID) VALUES(1)");
+        s.execute("CREATE TABLE MOCK(ID INTEGER, VALUE VARCHAR(50))");
+        s.execute("INSERT INTO MOCK(ID, VALUE) VALUES(1, 'Hello')");
+        s.close();
 
         mbServer = ServerUtil.newRemoteServer();
 
@@ -113,19 +141,26 @@ public class BasicCMPEntityContainerTest extends TestCase {
         config.pkClassName = Integer.class.getName();
 
         SimpleCommandFactory persistenceFactory = new SimpleCommandFactory(ds);
-        MethodSignature signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbFindByPrimaryKey", new String[] {"java.lang.Object"});
-        persistenceFactory.defineQuery(signature, "SELECT ID FROM Mock WHERE ID=?", new Binding[] { new IntBinding(1, 0)}, new Binding[] {new IntBinding(1, 0)});
+        ArrayList queries = new ArrayList();
+        MethodSignature signature;
 
-        CMPQuery[] queries = {
-            new CMPQuery(signature, false, null)
-        };
-        
-        container = new CMPEntityContainer(config, persistenceFactory, queries);
+        signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbFindByPrimaryKey", new String[]{"java.lang.Object"});
+        persistenceFactory.defineQuery(signature, "SELECT ID FROM Mock WHERE ID=?", new Binding[]{new IntBinding(1, 0)}, new Binding[]{new IntBinding(1, 0)});
+        queries.add(new CMPQuery(signature, false, null));
+
+        signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbCreate", new String[]{"java.lang.Integer"});
+        persistenceFactory.defineUpdate(signature, "INSERT INTO MOCK(ID) VALUES(?)", new Binding[]{new IntBinding(1, 0)});
+        signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbRemove", new String[0]);
+        persistenceFactory.defineUpdate(signature, "DELETE FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)});
+
+        container = new CMPEntityContainer(config, persistenceFactory, (CMPQuery[]) queries.toArray(new CMPQuery[0]));
         mbServer.registerMBean(container, CONTAINER_NAME);
         container.start();
     }
 
     protected void tearDown() throws Exception {
+        c.close();
+
         container.stop();
         ServerUtil.stopRemoteServer(mbServer);
         super.tearDown();

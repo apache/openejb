@@ -45,73 +45,13 @@
  *
  * ====================================================================
  */
-package org.openejb.nova.entity;
-
-import javax.ejb.CreateException;
-import javax.ejb.EntityBean;
-import javax.ejb.EntityContext;
-import javax.ejb.FinderException;
-import javax.ejb.RemoveException;
+package org.openejb.nova.persistence;
 
 /**
- *
- *
+ * 
+ * 
  * @version $Revision$ $Date$
  */
-public class MockBMPEJB implements EntityBean {
-    private int field;
-
-    public Object ejbCreate(Integer id) throws CreateException {
-        return id;
-    }
-
-    public void ejbPostCreate(Integer id) {
-    }
-
-    public Object ejbFindByPrimaryKey(Object pk) throws FinderException {
-        return pk;
-    }
-
-    public int ejbHomeIntMethod(int i) {
-        return i + 1;
-    }
-
-    public int intMethod(int i) {
-        return 1 + i + ((Integer) context.getPrimaryKey()).intValue();
-    }
-
-    public int getIntField() {
-        return field;
-    }
-
-    public String getString() {
-        return "Hello";
-    }
-
-    private EntityContext context;
-
-    public void setEntityContext(EntityContext ctx) {
-        context = ctx;
-    }
-
-    public void unsetEntityContext() {
-    }
-
-    public void ejbActivate() {
-        field = 0;
-    }
-
-    public void ejbPassivate() {
-        field = 0;
-    }
-
-    public void ejbLoad() {
-        field = ((Integer) context.getPrimaryKey()).intValue();
-    }
-
-    public void ejbStore() {
-    }
-
-    public void ejbRemove() throws RemoveException {
-    }
+public interface UpdateCommand {
+    int executeUpdate(Object[] args) throws Exception;
 }

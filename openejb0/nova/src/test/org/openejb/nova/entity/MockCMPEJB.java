@@ -50,7 +50,6 @@ package org.openejb.nova.entity;
 import javax.ejb.CreateException;
 import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
-import javax.ejb.FinderException;
 import javax.ejb.RemoveException;
 
 /**
@@ -79,6 +78,9 @@ public abstract class MockCMPEJB implements EntityBean {
     public int getIntField() {
         return field;
     }
+
+    public abstract String getString();
+    public abstract void setString(String string);
 
     private EntityContext context;
 

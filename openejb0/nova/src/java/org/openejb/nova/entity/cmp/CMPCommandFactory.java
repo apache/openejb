@@ -49,6 +49,7 @@ package org.openejb.nova.entity.cmp;
 
 import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.persistence.QueryCommand;
+import org.openejb.nova.persistence.UpdateCommand;
 
 /**
  *
@@ -56,5 +57,7 @@ import org.openejb.nova.persistence.QueryCommand;
  * @version $Revision$ $Date$
  */
 public interface CMPCommandFactory {
-    QueryCommand getFinder(MethodSignature signature);
+    QueryCommand getQueryCommand(MethodSignature signature);
+
+    UpdateCommand getUpdateCommand(MethodSignature signature);
 }
