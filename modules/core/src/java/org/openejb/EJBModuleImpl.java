@@ -100,18 +100,18 @@ public class EJBModuleImpl implements GBeanLifecycle {
     }
 
     public String getServer() {
-        return server.getobjectName();
+        return server.getObjectName();
     }
 
     public String getApplication() {
         if (application == null) {
             return null;
         }
-        return application.getobjectName();
+        return application.getObjectName();
     }
 
     public String[] getJavaVMs() {
-        return server.getjavaVMs();
+        return server.getJavaVMs();
     }
 
     public String[] getEJBs() throws MalformedObjectNameException {
