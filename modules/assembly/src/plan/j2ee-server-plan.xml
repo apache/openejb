@@ -125,10 +125,10 @@ by the server.
         <uri>geronimo/jars/geronimo-common-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-         <uri>geronimo/jars/geronimo-axis-${geronimo_version}.jar</uri>
+        <uri>geronimo/jars/geronimo-axis-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-         <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
+        <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
     </dependency>
 
 
@@ -147,16 +147,19 @@ by the server.
     </gbean>
 
     <gbean name="geronimo-properties-realm"
-           class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+        class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">geronimo-properties-realm</attribute>
         <attribute name="loginModuleConfiguration">
             LoginModule.1.REQUIRED=openejb.server:j2eeType=LoginModule,name=properties-login,J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=openejb
         </attribute>
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
     </gbean>
 
     <gbean name="JMX"
-           class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
+        class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
         <attribute name="applicationConfigName">JMX</attribute>
         <attribute name="realmName">geronimo-properties-realm</attribute>
     </gbean>
@@ -164,13 +167,20 @@ by the server.
     <!-- Register GeronimoLoginConfiguration as the LoginConfiguration handler -->
     <gbean name="LoginConfiguration" class="org.apache.geronimo.security.jaas.GeronimoLoginConfiguration">
         <references name="Configurations">
-            <pattern><gbean-name>openejb.server:j2eeType=SecurityRealm,*</gbean-name></pattern>
-            <pattern><gbean-name>openejb.server:j2eeType=ConfigurationEntry,*</gbean-name></pattern>
+            <pattern>
+                <gbean-name>openejb.server:j2eeType=SecurityRealm,*</gbean-name>
+            </pattern>
+            <pattern>
+                <gbean-name>openejb.server:j2eeType=ConfigurationEntry,*</gbean-name>
+            </pattern>
         </references>
     </gbean>
 
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
         <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
         <attribute name="keyStore">var/certstores/keystore</attribute>
@@ -178,9 +188,13 @@ by the server.
         <attribute name="trustStore">var/certstores/truststore</attribute>
         <attribute name="trustStorePassword">trustword</attribute>
     </gbean>
-    
+
     <gbean gbeanName="geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JaasLoginService" class="org.apache.geronimo.security.jaas.JaasLoginService">
-        <reference name="Realms"><application>*</application><module>*</module><name>*</name></reference>
+        <reference name="Realms">
+            <application>*</application>
+            <module>*</module>
+            <name>*</name>
+        </reference>
         <attribute name="algorithm">HmacSHA1</attribute>
         <attribute name="password">secret</attribute>
     </gbean>
@@ -198,7 +212,9 @@ by the server.
         <attribute name="syncMaximumPoolSize">10</attribute>
         <attribute name="startMaximumPoolSize">10</attribute>
         <attribute name="scheduledMaximumPoolSize">10</attribute>
-        <reference name="TransactionContextManager"><name>TransactionContextManager</name></reference>
+        <reference name="TransactionContextManager">
+            <name>TransactionContextManager</name>
+        </reference>
     </gbean>
 
     <gbean name="HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLog">
@@ -214,21 +230,34 @@ by the server.
         <attribute name="maxLogFiles">2</attribute>
         <attribute name="minBuffers">4</attribute>
         <attribute name="threadsWaitingForceThreshold">-1</attribute>
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
     </gbean>
 
     <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
         <attribute name="defaultTransactionTimeoutSeconds">300</attribute>
-        <reference name="TransactionLog"><name>HOWLTransactionLog</name></reference>
+        <reference name="TransactionLog">
+            <name>HOWLTransactionLog</name>
+        </reference>
         <references name="ResourceManagers">
-            <pattern><gbean-name>openejb.server:j2eeType=JCAManagedConnectionFactory,*</gbean-name></pattern>
-            <pattern><gbean-name>openejb.server:j2eeType=ActivationSpec,*</gbean-name></pattern>
+            <pattern>
+                <gbean-name>openejb.server:j2eeType=JCAManagedConnectionFactory,*</gbean-name>
+            </pattern>
+            <pattern>
+                <gbean-name>openejb.server:j2eeType=ActivationSpec,*</gbean-name>
+            </pattern>
         </references>
     </gbean>
 
     <gbean name="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
-        <reference name="TransactionManager"><name>TransactionManager</name></reference>
-        <reference name="XidImporter"><name>TransactionManager</name></reference>
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
+        </reference>
+        <reference name="XidImporter">
+            <name>TransactionManager</name>
+        </reference>
     </gbean>
 
     <!-- EJB Protocol -->
@@ -241,18 +270,28 @@ by the server.
         <attribute name="threads">20</attribute>
         <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
         <attribute name="logOnFailure">HOST,NAME</attribute>
-        <reference name="Server"><gbean-name>openejb.server:name=EJBServer,*</gbean-name></reference>
+        <reference name="Server">
+            <gbean-name>openejb.server:name=EJBServer,*</gbean-name>
+        </reference>
     </gbean>
 
     <gbean name="EJBServer" class="org.openejb.server.ejbd.EjbServerGBean">
-        <reference name="ContainerIndex"><gbean-name>openejb.server:name=ContainerIndex,*</gbean-name></reference>
+        <reference name="ContainerIndex">
+            <gbean-name>openejb.server:name=ContainerIndex,*</gbean-name>
+        </reference>
     </gbean>
 
     <gbean name="ContainerIndex" class="org.openejb.ContainerIndex">
         <references name="EJBContainers">
-            <pattern><gbean-name>openejb.server:j2eeType=StatelessSessionBean,*</gbean-name></pattern>
-            <pattern><gbean-name>openejb.server:j2eeType=StatefulSessionBean,*</gbean-name></pattern>
-            <pattern><gbean-name>openejb.server:j2eeType=EntityBean,*</gbean-name></pattern>
+            <pattern>
+                <gbean-name>openejb.server:j2eeType=StatelessSessionBean,*</gbean-name>
+            </pattern>
+            <pattern>
+                <gbean-name>openejb.server:j2eeType=StatefulSessionBean,*</gbean-name>
+            </pattern>
+            <pattern>
+                <gbean-name>openejb.server:j2eeType=EntityBean,*</gbean-name>
+            </pattern>
         </references>
     </gbean>
 
@@ -266,18 +305,27 @@ by the server.
         <attribute name="threads">5</attribute>
         <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
         <attribute name="logOnFailure">HOST,NAME</attribute>
-        <reference name="Server"><gbean-name>openejb:type=Server,name=HTTPSOAP</gbean-name></reference>
+        <reference name="Server">
+            <gbean-name>openejb:type=Server,name=HTTPSOAP</gbean-name>
+        </reference>
     </gbean>
+
     <gbean gbeanName="openejb:type=Server,name=HTTPSOAP" class="org.openejb.server.httpd.HttpServerGBean">
-        <reference name="Listener"><gbean-name>openejb:type=SoapHttpListener</gbean-name></reference>
+        <reference name="Listener">
+            <gbean-name>openejb:type=SoapHttpListener</gbean-name>
+        </reference>
     </gbean>
+
     <gbean gbeanName="openejb:type=SoapHttpListener" class="org.openejb.server.soap.SoapHttpListenerGBean">
     </gbean>
 
     <!-- JSR77 Management Objects -->
     <gbean gbeanName="openejb.server:j2eeType=J2EEDomain,name=openejb.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
     <gbean gbeanName="openejb.server:j2eeType=J2EEServer,name=openejb" class="org.apache.geronimo.j2ee.management.impl.J2EEServerImpl">
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
     </gbean>
     <gbean gbeanName="openejb.server:j2eeType=JVM,J2EEServer=openejb" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
 
@@ -289,14 +337,23 @@ by the server.
 
     <!-- todo move to child config once we sort out the packaging -->
     <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
-        <reference name="Builders"><name>*</name></reference>
-        <reference name="Store"><module>org/apache/geronimo/System</module><name>*</name></reference>
+        <reference name="Builders">
+            <name>*</name>
+        </reference>
+        <reference name="Store">
+            <module>org/apache/geronimo/System</module>
+            <name>*</name>
+        </reference>
     </gbean>
 
     <gbean name="ServiceBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
-        <reference name="XmlAttributeBuilders"><name>*</name></reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+        <reference name="XmlAttributeBuilders">
+            <name>*</name>
+        </reference>
     </gbean>
 
     <gbean name="CSSAttributeBuilder" class="org.openejb.corba.security.config.css.CSSConfigEditor"/>
@@ -309,19 +366,35 @@ by the server.
         <attribute name="transactionalTimerObjectName">openejb.server:name=TransactionalThreadPooledTimer,*</attribute>
         <attribute name="nonTransactionalTimerObjectName">openejb.server:name=NonTransactionalThreadPooledTimer,*</attribute>
         <attribute name="corbaGBeanObjectName">openejb.CORBA:type=Server,*</attribute>
-        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
-        <reference name="EJBConfigBuilder"><name>EJBBuilder</name></reference>
-        <reference name="EJBReferenceBuilder"><name>EJBBuilder</name></reference>
-        <reference name="ConnectorConfigBuilder"><name>ConnectorBuilder</name></reference>
-        <reference name="ResourceReferenceBuilder"><name>ConnectorBuilder</name></reference>
-        <reference name="ServiceReferenceBuilder"><name>WebServiceBuilder</name></reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+        <reference name="EJBConfigBuilder">
+            <name>EJBBuilder</name>
+        </reference>
+        <reference name="EJBReferenceBuilder">
+            <name>EJBBuilder</name>
+        </reference>
+        <reference name="ConnectorConfigBuilder">
+            <name>ConnectorBuilder</name>
+        </reference>
+        <reference name="ResourceReferenceBuilder">
+            <name>ConnectorBuilder</name>
+        </reference>
+        <reference name="ServiceReferenceBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
     </gbean>
 
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="listener">openejb:type=SoapHttpListener</attribute>
-        <reference name="SkeletonGenerator"><name>OpenORBSkeletonGenerator</name></reference>
-        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
+        <reference name="SkeletonGenerator">
+            <name>OpenORBSkeletonGenerator</name>
+        </reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
     </gbean>
 
     <gbean name="ConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
@@ -332,35 +405,50 @@ by the server.
         <attribute name="defaultIdleTimeoutMinutes">15</attribute>
         <attribute name="defaultXATransactionCaching">true</attribute>
         <attribute name="defaultXAThreadCaching">false</attribute>
-        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
     </gbean>
 
     <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
     </gbean>
 
-    <!-- these need names that include the parent id so they don't conflict with the deployer namens-->
     <gbean name="AntCompiler" class="org.openejb.corba.compiler.AntCompiler"/>
 
     <gbean name="OpenORBSkeletonGenerator" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">
         <attribute name="props">
         </attribute>
-        <reference name="Compiler"><name>AntCompiler</name></reference>
+        <reference name="Compiler">
+            <name>AntCompiler</name>
+        </reference>
     </gbean>
 
     <gbean name="OpenORBStubGenerator" class="org.openejb.corba.compiler.OpenORBStubGenerator">
-        <reference name="Compiler"><name>AntCompiler</name></reference>
+        <reference name="Compiler">
+            <name>AntCompiler</name>
+        </reference>
     </gbean>
 
     <gbean name="OpenORBStubClassLoader" class="org.openejb.corba.util.OpenORBStubClassLoader">
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
-        <reference name="StubGenerator"><name>OpenORBStubGenerator</name></reference>
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
+        <reference name="StubGenerator">
+            <name>OpenORBStubGenerator</name>
+        </reference>
         <attribute name="cacheDir">var/caches</attribute>
     </gbean>
 
     <!-- end deployment block -->
 
     <gbean name="Server" class="org.openejb.corba.CORBABean">
-        <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
+        <reference name="ThreadPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="NamingService">
+            <name>NameServer</name>
+        </reference>
         <attribute name="args">-ORBPort, 683, -ORBInitRef, NameService=corbaloc::localhost:2809/NameService</attribute>
         <attribute name="configAdapter">org.openejb.corba.openorb.OpenORBConfigAdapter</attribute>
         <attribute name="props">
@@ -403,7 +491,9 @@ by the server.
     </gbean>
 
     <gbean name="NameServer" class="org.openejb.corba.OpenORBNameBean">
-        <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
+        <reference name="ThreadPool">
+            <name>DefaultThreadPool</name>
+        </reference>
         <attribute name="args">-ORBPort, 2809</attribute>
         <attribute name="props">
             openorb.home=resource:org/openorb/
@@ -413,17 +503,27 @@ by the server.
 
     <gbean name="org/openejb/Itests" class="org.openejb.corba.TSSBean">
         <attribute name="POAName">org/openejb/POA</attribute>
-        <reference name="Server"><name>Server</name></reference>
-        <reference name="Containers"><gbean-name>openejb.server:EJBModule=org/openejb/scenario001,*</gbean-name></reference>
-        <reference name="TieLoader"><name>ClasspathTieLoader</name></reference>
+        <reference name="Server">
+            <name>Server</name>
+        </reference>
+        <reference name="Containers">
+            <gbean-name>openejb.server:EJBModule=org/openejb/scenario001,*</gbean-name>
+        </reference>
+        <reference name="TieLoader">
+            <name>ClasspathTieLoader</name>
+        </reference>
         <xml-attribute name="tssConfig">
             <tss:tss inherit="true" xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config_1_0"/>
         </xml-attribute>
     </gbean>
 
     <gbean name="IOR7" class="org.openejb.corba.CSSBean">
-        <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
-        <reference name="TransactionContextManager"><name>TransactionContextManager</name></reference>
+        <reference name="ThreadPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="TransactionContextManager">
+            <name>TransactionContextManager</name>
+        </reference>
         <attribute name="configAdapter">org.openejb.corba.openorb.OpenORBConfigAdapter</attribute>
         <attribute name="description">IOR7</attribute>
         <attribute name="cssArgs"></attribute>
@@ -453,13 +553,15 @@ by the server.
                             <css:requires>Integrity Confidentiality EstablishTrustInClient</css:requires>
                         </css:SSL>
                     </css:compoundSecMech>
-                </css:compoundSecMechTypeList>                
+                </css:compoundSecMechTypeList>
             </css:css>
         </xml-attribute>
     </gbean>
 
     <gbean name="OpenORBUtil" class="org.openejb.corba.util.OpenORBUtil">
-        <reference name="Server"><name>Server</name></reference>
+        <reference name="Server">
+            <name>Server</name>
+        </reference>
     </gbean>
 
     <gbean name="ClasspathTieLoader" class="org.openejb.corba.util.ClasspathTieLoader"/>
