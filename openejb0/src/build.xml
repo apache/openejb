@@ -941,7 +941,6 @@
     
       <fileset dir="src" >
         <include name="**/**"/>
-        <exclude name="**/build-corba.xml"/>
         <exclude name="**/ObjectAA"/>
         <exclude name="**/ObjectBB"/>
         <exclude name="**/ObjectCC"/>
