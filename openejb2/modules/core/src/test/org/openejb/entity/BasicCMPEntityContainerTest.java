@@ -47,44 +47,61 @@
  */
 package org.openejb.entity;
 
+import java.sql.Connection;
+import java.sql.Statement;
+import java.util.Collections;
+import java.util.HashSet;
 import javax.management.ObjectName;
+import javax.sql.DataSource;
+
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.transaction.TransactionManagerProxy;
 
 import junit.framework.TestCase;
+import org.axiondb.jdbc.AxionDataSource;
+import org.openejb.MockTransactionManager;
+import org.openejb.deployment.TransactionPolicySource;
+import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.entity.cmp.CMPContainerBuilder;
+import org.openejb.transaction.ContainerPolicy;
+import org.openejb.transaction.TransactionPolicy;
+import org.tranql.ejb.CMPField;
+import org.tranql.ejb.EJB;
 
 /**
  * @version $Revision$ $Date$
  */
 public class BasicCMPEntityContainerTest extends TestCase {
-//    private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
-//    private static final ObjectName TM_NAME = JMXUtil.getObjectName("geronimo.test:role=TransactionManager");
-//    private static final ObjectName TCA_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
-//    private org.openejb.EJBContainerConfiguration config;
-//    private Kernel kernel;
-//    private GBeanMBean container;
-//    private MBeanServer mbServer;
-//
-//    static {
-//        new org.hsqldb.jdbcDriver();
-//    }
-//
-//    private final jdbcDataSource ds = new jdbcDataSource();
+    private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
+    private static final ObjectName TM_NAME = JMXUtil.getObjectName("geronimo.test:role=TransactionManager");
+    private static final ObjectName TCA_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
+    private Kernel kernel;
+    private GBeanMBean container;
+
+    private DataSource ds;
 
     public void testLocalInvoke() throws Exception {
-//        Connection c = initDatabase();
-//
-//        MockLocalHome home = (MockLocalHome) mbServer.invoke(CONTAINER_NAME, "getEJBLocalHome", null, null);
-//        assertEquals(2, home.intMethod(1));
-//
+        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
+        assertEquals(2, home.intMethod(1));
+
 //        MockLocal local = home.findByPrimaryKey(new Integer(1));
-//        assertEquals(3, local.intMethod(1));
-//        assertEquals(1, local.getIntField());
-//        c.close();
+        Integer pk = new Integer(33);
+        String value = "Thirty-Three";
+        MockLocal local = home.create(pk, value);
+        int number = 44;
+        assertEquals(1 + number + pk.intValue(), local.intMethod(number));
+        assertEquals(pk, local.getPrimaryKey());
+        assertEquals(value, local.getValue());
     }
 
     public void testFields() throws Exception {
 //        Connection c = initDatabase();
 //        Statement s = c.createStatement();
-//        MockLocalHome home = (MockLocalHome) mbServer.invoke(CONTAINER_NAME, "getEJBLocalHome", null, null);
+//        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
 //        MockLocal local = home.findByPrimaryKey(new Integer(1));
 //        assertEquals("Hello", local.getValue());
 //        local.setValue("World");
@@ -153,31 +170,16 @@ public class BasicCMPEntityContainerTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-//
-//        ds.setDatabase(".");
-//        ds.setUser("sa");
-//        ds.setPassword("");
-//
-//        config = new org.openejb.EJBContainerConfiguration();
-        //config.uri = new URI("async", null, "localhost", 3434, "/JMX", null, CONTAINER_NAME.toString());
-//        config.beanClassName = MockCMPEJB.class.getName();
-//        config.homeInterfaceName = MockHome.class.getName();
-//        config.localHomeInterfaceName = MockLocalHome.class.getName();
-//        config.remoteInterfaceName = MockRemote.class.getName();
-//        config.localInterfaceName = MockLocal.class.getName();
-//        config.txnDemarcation = TransactionDemarcation.CONTAINER;
-//        config.pkClassName = Integer.class.getName();
-//        config.unshareableResources = new HashSet();
-//        config.transactionPolicySource = new TransactionPolicySource() {
-//            public TransactionPolicy getTransactionPolicy(String methodIntf, MethodSignature signature) {
-//                return ContainerPolicy.Required;
-//            }
-//
-//            public TransactionPolicy getTransactionPolicy(String methodIntf, String methodName, String[] parameterTypes) {
-//                return ContainerPolicy.Required;
-//            }
-//        };
-//
+
+        // initialize the database
+        ds = new AxionDataSource("jdbc:axiondb:testdb");
+        Connection c = ds.getConnection();
+        Statement s = c.createStatement();
+        s.execute("CREATE TABLE MOCK(ID INTEGER, VALUE VARCHAR(50))");
+        s.execute("INSERT INTO MOCK(ID, VALUE) VALUES(1, 'Hello')");
+        s.close();
+        c.close();
+
 //        SimpleCommandFactory persistenceFactory = new SimpleCommandFactory(ds);
 //        ArrayList queries = new ArrayList();
 //        MethodSignature signature;
@@ -211,52 +213,70 @@ public class BasicCMPEntityContainerTest extends TestCase {
 //        cmpConfig.cmpFieldNames = new String[]{"id", "value"};
 //        cmpConfig.relations = new CMRelation[]{};
 //        cmpConfig.schema = "Mock";
-//
-//        kernel = new Kernel("ContainerManagedPersistenceTest");
-//        kernel.boot();
-//        mbServer = kernel.getMBeanServer();
-//
-//        GBeanMBean transactionManager = new GBeanMBean(TransactionManagerProxy.GBEAN_INFO);
-//        transactionManager.setAttribute("Delegate", new MockTransactionManager());
-//        start(TM_NAME, transactionManager);
-//
-//        GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
-//        start(TCA_NAME, trackedConnectionAssociator);
-//
-//        container = new GBeanMBean(CMPEntityContainer.GBEAN_INFO);
-//        container.setAttribute("EJBContainerConfiguration", config);
-//        container.setAttribute("CMPConfiguration", cmpConfig);
-//        container.setReferencePatterns("TransactionManager", Collections.singleton(TM_NAME));
-//        container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(TCA_NAME));
-//        start(CONTAINER_NAME, container);
-//
+
+        CMPContainerBuilder builder = new CMPContainerBuilder();
+        builder.setClassLoader(this.getClass().getClassLoader());
+        builder.setContainerId(CONTAINER_NAME);
+        builder.setEJBName("MockEJB");
+        builder.setBeanClassName(MockCMPEJB.class.getName());
+        builder.setHomeInterfaceName(MockHome.class.getName());
+        builder.setLocalHomeInterfaceName(MockLocalHome.class.getName());
+        builder.setRemoteInterfaceName(MockRemote.class.getName());
+        builder.setLocalInterfaceName(MockLocal.class.getName());
+        builder.setPrimaryKeyClassName(Integer.class.getName());
+        builder.setJndiNames(new String[0]);
+        builder.setLocalJndiNames(new String[0]);
+        builder.setUnshareableResources(new HashSet());
+        builder.setTransactionPolicySource(new TransactionPolicySource() {
+            public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
+                return ContainerPolicy.Required;
+            }
+        });
+        builder.setComponentContext(new ReadOnlyContext());
+
+        EJB ejb = new EJB("MockEJB", "MOCK");
+        ejb.addCMPField(new CMPField("id", Integer.class, true));
+        ejb.addCMPField(new CMPField("value", String.class, false));
+        builder.setEJB(ejb);
+        builder.setDataSource(ds);
+        container = builder.createConfiguration();
+
+        kernel = new Kernel("BeanManagedPersistenceTest");
+        kernel.boot();
+
+
+        kernel = new Kernel("ContainerManagedPersistenceTest");
+        kernel.boot();
+
+        GBeanMBean transactionManager = new GBeanMBean(TransactionManagerProxy.GBEAN_INFO);
+        transactionManager.setAttribute("Delegate", new MockTransactionManager());
+        start(TM_NAME, transactionManager);
+
+        GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
+        start(TCA_NAME, trackedConnectionAssociator);
+
+        //start the ejb container
+        container.setReferencePatterns("TransactionManager", Collections.singleton(TM_NAME));
+        container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(TCA_NAME));
+        start(CONTAINER_NAME, container);
     }
 
-    private void start(ObjectName name, Object instance) throws Exception {
-//        mbServer.registerMBean(instance, name);
-//        mbServer.invoke(name, "start", null, null);
+    protected void tearDown() throws Exception {
+        stop(TM_NAME);
+        stop(TCA_NAME);
+        stop(CONTAINER_NAME);
+        kernel.shutdown();
+        java.sql.Connection c = ds.getConnection();
+        c.createStatement().execute("SHUTDOWN");
+    }
+
+    private void start(ObjectName name, GBeanMBean instance) throws Exception {
+        kernel.loadGBean(name, instance);
+        kernel.startGBean(name);
     }
 
     private void stop(ObjectName name) throws Exception {
-//        mbServer.invoke(name, "stop", null, null);
-//        mbServer.unregisterMBean(name);
+        kernel.stopGBean(name);
+        kernel.unloadGBean(name);
     }
-
-
-    protected void tearDown() throws Exception {
-//        stop(TM_NAME);
-//        stop(TCA_NAME);
-//        stop(CONTAINER_NAME);
-//        kernel.shutdown();
-    }
-
-//    private Connection initDatabase() throws SQLException {
-//        Connection c = ds.getConnection();
-//        Statement s = c.createStatement();
-//        s.execute("CREATE TABLE MOCK(ID INTEGER, VALUE VARCHAR(50))");
-//        s.execute("INSERT INTO MOCK(ID, VALUE) VALUES(1, 'Hello')");
-//        s.close();
-//        return c;
-//    }
-
 }

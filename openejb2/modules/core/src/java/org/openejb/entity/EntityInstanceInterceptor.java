@@ -49,14 +49,15 @@ package org.openejb.entity;
 
 import javax.ejb.EntityBean;
 
-import org.openejb.EJBInvocation;
-import org.openejb.EJBOperation;
-import org.openejb.cache.InstancePool;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TransactionContext;
+
+import org.openejb.EJBInvocation;
+import org.openejb.EJBOperation;
+import org.openejb.cache.InstancePool;
 
 /**
  * Simple Instance Interceptor that does not cache instances in the ready state
@@ -81,6 +82,7 @@ public final class EntityInstanceInterceptor implements Interceptor {
         EntityInstanceContext context = (EntityInstanceContext) pool.acquire();
 
         EntityBean instance = (EntityBean) context.getInstance();
+        context.setTransactionContext(transactionContext);
         if (id != null) {
             // always activate on the way in....
             context.setId(id);
@@ -96,7 +98,6 @@ public final class EntityInstanceInterceptor implements Interceptor {
             }
 
             // associate this instance with the TransactionContext
-            context.setTransactionContext(transactionContext);
             transactionContext.associate(context);
         }
 
