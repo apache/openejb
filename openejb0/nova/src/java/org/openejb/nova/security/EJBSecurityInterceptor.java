@@ -62,8 +62,8 @@ import org.apache.geronimo.security.util.ContextManager;
 import org.openejb.nova.EJBInvocation;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public class EJBSecurityInterceptor implements Interceptor {
@@ -83,7 +83,7 @@ public class EJBSecurityInterceptor implements Interceptor {
         String oldContextId = PolicyContext.getContextID();
         try {
             PolicyContext.setContextID(contextId);
-            AccessControlContext accessContext = ContextManager.peekContext();
+            AccessControlContext accessContext = ContextManager.getCurrentContext();
             if (accessContext != null) {
                 int index = ejbInvocation.getMethodIndex();
                 accessContext.checkPermission(permissions[index]);
