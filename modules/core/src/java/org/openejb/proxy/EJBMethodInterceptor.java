@@ -62,6 +62,11 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
     private transient ClassLoader sourceClassLoader;
 
     /**
+     * The classloader of the target ejb container
+     */
+    private transient ClassLoader targetClassLoader;
+
+    /**
      * Does this proxy target a container in a differenct classloader?
      */
     private transient boolean crossClassLoader;
@@ -79,7 +84,8 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
 
         if (container != null) {
             sourceClassLoader = proxyFactory.getClassLoader();
-            crossClassLoader = isCrossClassLoader(sourceClassLoader, container.getClassLoader());
+            targetClassLoader = container.getClassLoader();
+            crossClassLoader = isCrossClassLoader(sourceClassLoader, targetClassLoader);
 
             // @todo REMOVE: this is a dirty dirty dirty hack to make the old openejb code work
             // this lets really stupid clients get access to the primary key of the proxy, which is readily
@@ -114,7 +120,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         // copy the arguments into the target classloader
         if (shouldCopy) {
             args = invocation.getArguments();
-            copyArgs(args);
+            copyArgsToTargetCL(args);
         }
 
         // invoke the EJB container
@@ -145,7 +151,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         }
 
         if (shouldCopy && returnObj != null) {
-            returnObj = copyObject(returnObj);
+            returnObj = copyReturnToSourceCL(returnObj);
         }
 
         if (normal) {
@@ -197,14 +203,14 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         return new EJBInvocationImpl(interfaceType, id, methodIndex, args);
     }
 
-    private void copyArgs(Object[] args) throws IOException, ClassNotFoundException {
+    private void copyArgsToTargetCL(Object[] args) throws IOException, ClassNotFoundException {
         if (args != null && args.length > 0) {
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
             try {
-                Thread.currentThread().setContextClassLoader(sourceClassLoader);
+                Thread.currentThread().setContextClassLoader(targetClassLoader);
                 if (crossClassLoader) {
                     SerializationHanlder.setStrategy(ReplacementStrategy.IN_VM_REPLACE);
-                    SerializationHanlder.copyArgs(sourceClassLoader, args);
+                    SerializationHanlder.copyArgs(targetClassLoader, args);
                 } else {
                     SerializationHanlder.setStrategy(ReplacementStrategy.COPY);
                     SerializationHanlder.copyArgs(args);
@@ -216,7 +222,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         }
     }
 
-    private Object copyObject(Object returnObj) throws IOException, ClassNotFoundException {
+    private Object copyReturnToSourceCL(Object returnObj) throws IOException, ClassNotFoundException {
         if (returnObj == null) {
             return null;
         }
@@ -243,7 +249,8 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         operationMap = proxyFactory.getOperationMap(interfaceType);
 
         sourceClassLoader = proxyFactory.getClassLoader();
-        crossClassLoader = isCrossClassLoader(sourceClassLoader, container.getClassLoader());
+        targetClassLoader = container.getClassLoader();
+        crossClassLoader = isCrossClassLoader(sourceClassLoader, targetClassLoader);
 
         // @todo REMOVE: this is a dirty dirty dirty hack to make the old openejb code work
         // this lets really stupid clients get access to the primary key of the proxy, which is readily
