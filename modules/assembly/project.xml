@@ -683,6 +683,15 @@
         </dependency>
 
         <dependency>
+            <groupId>bouncycastle</groupId>
+            <artifactId>bcprov</artifactId>
+            <version>${bouncycastle_version}</version>
+            <properties>
+               <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>xfire</groupId>
             <artifactId>xfire</artifactId>
             <version>${xfire_version}</version>
