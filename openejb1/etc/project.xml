@@ -33,25 +33,35 @@
   <distributionDirectory>/www/openejb.org/builds</distributionDirectory>
 
   <repository>
-    <connection>scm:cvs:pserver:anoncvs@cvs.openejb.org:/home/cvspublic:openejb</connection>
-    <developerConnection>scm:cvs:ext:${openejb.username}@cvs.openejb.org/home/cvs:openejb</developerConnection>
-    <url>http://cvs.openejb.org/viewcvs/openejb/</url>
+    <connection>scm:cvs:pserver:anon@cvs.openejb.codehaus.org:/scm/openejb:openejb1</connection>
+    <developerConnection>scm:cvs:ext:${openejb.username}@cvs.openejb.codehaus.org/scm/openejb:openejb1</developerConnection>
+    <url>http://cvs.openejb.org/openejb1/</url>
   </repository>
 
   <mailingLists>
-    <!--
     <mailingList>
-      <name>Geronimo User List</name>
-      <subscribe>geronimo-users-subscribe@incubator.apache.org</subscribe>
-      <unsubscribe>geronimo-users-unsubscribe@incubator.apache.org</unsubscribe>
-      <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listName=geronimo-user@jakarta.apache.org</archive>
+      <name>OpenEJB Announce List</name>
+      <subscribe>announce-subscribe@openejb.org</subscribe>
+      <unsubscribe>announce-unsubscribe@openejb.org</unsubscribe>
+      <archive>http://archive.openejb.codehaus.org/announce/</archive>
     </mailingList>
-    -->
     <mailingList>
       <name>OpenEJB Developer List</name>
-      <subscribe>openejb-dev-subscribe@incubator.apache.org</subscribe>
-      <unsubscribe>openejb-dev-unsubscribe@incubator.apache.org</unsubscribe>
-      <archive>http://nagoya.apache.org/eyebrowse/SummarizeList?listId=140</archive>
+      <subscribe>dev-subscribe@openejb.org</subscribe>
+      <unsubscribe>dev-unsubscribe@openejb.org</unsubscribe>
+      <archive>http://archive.openejb.codehaus.org/dev/</archive>
+    </mailingList>
+    <mailingList>
+      <name>OpenEJB SCM List</name>
+      <subscribe>scm-subscribe@openejb.org</subscribe>
+      <unsubscribe>scm-unsubscribe@openejb.org</unsubscribe>
+      <archive>http://archive.openejb.codehaus.org/scm/</archive>
+    </mailingList>
+    <mailingList>
+      <name>OpenEJB User List</name>
+      <subscribe>user-subscribe@openejb.org</subscribe>
+      <unsubscribe>user-unsubscribe@openejb.org</unsubscribe>
+      <archive>http://archive.openejb.codehaus.org/user/</archive>
     </mailingList>
   </mailingLists>
 
@@ -135,6 +145,13 @@
       <name>Alan D. Cabrera</name>
       <id>adc</id>
       <email>adc@apache.org</email>
+      <organization></organization>
+    </developer>
+
+    <developer>
+      <name>Jacek Laskowski</name>
+      <id>jlaskowski</id>
+      <email>jlaskowski@codehaus.org</email>
       <organization></organization>
     </developer>
   </developers>
