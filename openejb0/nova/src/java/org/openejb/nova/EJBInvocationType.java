@@ -67,6 +67,9 @@ public final class EJBInvocationType implements Serializable {
         this.transactionPolicyKey = transactionPolicyKey;
     }
 
+    /**
+     * Keep these in the same order since MethodHelper relies in the ordinal number of the enum.
+     */
     public static final EJBInvocationType REMOTE = new EJBInvocationType("Remote", false, 0);
     public static final EJBInvocationType HOME = new EJBInvocationType("Home", false, 0);
     public static final EJBInvocationType LOCAL = new EJBInvocationType("Local", true, 1);
@@ -91,6 +94,10 @@ public final class EJBInvocationType implements Serializable {
 
     public int getTransactionPolicyKey() {
         return transactionPolicyKey;
+    }
+
+    public int getOrdinal() {
+        return ordinal;
     }
 
     public static int getMaxTransactionPolicyKey() {
