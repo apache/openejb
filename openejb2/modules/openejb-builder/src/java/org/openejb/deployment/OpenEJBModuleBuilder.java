@@ -301,19 +301,21 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         entityBuilder.initContext(earContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans, interfaces);
         mdbBuilder.initContext(cl, enterpriseBeans);
 
-        File tempJar = null;
-        try {
-            tempJar = DeploymentUtil.createTempFile();
-
-            skeletonGenerator.generateSkeletons(interfaces, tempJar, cl);
-
-            earContext.addIncludeAsPackedJar(URI.create("corba.jar"), new JarFile(tempJar));
-        } catch (IOException e) {
-            throw new DeploymentException("Unable to generate CORBA skels for: " + moduleUri, e);
-        } catch (CompilerException e) {
-            throw new DeploymentException("Unable to generate CORBA skels for: " + moduleUri, e);
-        } finally {
-            tempJar.delete();
+        if( skeletonGenerator!=null ) {
+	        File tempJar = null;
+	        try {
+	            tempJar = DeploymentUtil.createTempFile();
+	
+	            skeletonGenerator.generateSkeletons(interfaces, tempJar, cl);
+	
+	            earContext.addIncludeAsPackedJar(URI.create("corba.jar"), new JarFile(tempJar));
+	        } catch (IOException e) {
+	            throw new DeploymentException("Unable to generate CORBA skels for: " + moduleUri, e);
+	        } catch (CompilerException e) {
+	            throw new DeploymentException("Unable to generate CORBA skels for: " + moduleUri, e);
+	        } finally {
+	            tempJar.delete();
+	        }
         }
     }
 
