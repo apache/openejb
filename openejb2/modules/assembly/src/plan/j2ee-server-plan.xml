@@ -113,6 +113,9 @@ by the server.
         <uri>openorb/jars/openorb-pss-${openorb_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>openorb/jars/openorb-ssl-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>openorb/jars/openorb-orb-omg-${openorb_version}.jar</uri>
     </dependency>
     <dependency>
@@ -354,8 +357,8 @@ by the server.
     <!-- end deployment block -->
 
     <gbean name="openejb.CORBA:type=Server" class="org.openejb.corba.CORBABean">
-        <reference name="ThreadPool">openejb.server:name=DefaultThreadPool,*</reference>
-        <attribute name="args" type="java.util.ArrayList">-ORBPort, 2001, -ORBInitRef, NameService=corbaloc::localhost:1050/NameService</attribute>
+        <reference name="ThreadPool">geronimo.server:name=DefaultThreadPool,*</reference>
+        <attribute name="args" type="java.util.ArrayList">-ORBPort, 2001, -ORBInitRef, NameService=corbaloc::localhost:1050/NameService, -ORBCSIv2, -ORBGSSClientUser, "user1,a"</attribute>
         <attribute name="props" type="java.util.Properties">
 
             org.omg.CORBA.ORBClass=org.openorb.orb.core.ORB
@@ -363,6 +366,27 @@ by the server.
 
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer
+
+            org.omg.CORBA.ORBClass=org.openorb.orb.core.ORB
+            org.omg.CORBA.ORBSingletonClass=org.openorb.orb.core.ORBSingleton
+            openorb.debug.level=HIGH
+            openorb.debug.trace=DEBUG
+            javax.net.debug=all
+            javax.net.ssl.keyStore=var/certstores/keystore
+            javax.net.ssl.keyStorePassword=password
+            javax.net.ssl.trustStore=var/certstores/truststore
+            javax.net.ssl.trustStorePassword=trustword
+            ssliop.SSLContextFinderClass=org.openorb.orb.ssl.JSSEContextFinder
+            Xiiop.TransportServerInitializerClass=org.openorb.orb.ssl.SSLTransportServerInitializer
+            secure.server.allowUnsecure=false
+            ssliop.iiopport.disable=false
+            ssliop.port=1684
+            ssliop.server.allowBiDir=true
+            ssliop.server.authClient=true
+            ssliop.server.auth.require=true
+            ssliop.server.auth.support=true
+            ssliop.server.encrypt.require=true
+            ssliop.server.encrypt.support=true
 
         </attribute>
     </gbean>

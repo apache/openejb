@@ -390,6 +390,15 @@
 
         <dependency>
             <groupId>openorb</groupId>
+            <artifactId>openorb-ssl</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openorb</groupId>
             <artifactId>openorb-orb-tools</artifactId>
             <version>${openorb_version}</version>
             <properties>
