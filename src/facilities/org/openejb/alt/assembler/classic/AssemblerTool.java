@@ -153,7 +153,7 @@ public class AssemblerTool {
      * @see org.openejb.core.ContainerSystem
      * @see ContainerManagerInfo
      */
-    public static void assembleContainers (ContainerSystem containerSystem, ContainerSystemInfo containerSystemInfo) throws Exception{
+    public void assembleContainers (ContainerSystem containerSystem, ContainerSystemInfo containerSystemInfo) throws Exception{
         /*TODO: Add better exception handling, this method throws java.lang.Exception,
          which is not very specific. Only a very specific OpenEJBException should be 
          thrown.
@@ -193,7 +193,7 @@ public class AssemblerTool {
      * @see org.openejb.alt.assembler.classic.ContainerInfo
      * @see org.openejb.alt.assembler.classic.Assembler.assembleDeploymentInfo();
     */
-    public static org.openejb.Container assembleContainer(ContainerInfo containerInfo)
+    public  org.openejb.Container assembleContainer(ContainerInfo containerInfo)
     throws org.openejb.OpenEJBException{
         HashMap deployments = new HashMap();
         for(int z = 0; z < containerInfo.ejbeans.length; z++){
@@ -201,8 +201,14 @@ public class AssemblerTool {
             deployments.put(containerInfo.ejbeans[z].ejbDeploymentId, deployment);
         }
         org.openejb.Container container = null;
-        
-        if(containerInfo.className != null){
+
+        // This trick retains backward compatibility with version 0.7.3. Otherwise CMP
+        // beans will be deployed in the default BMP container, and everything goes wrong
+        if(containerInfo.className != null ||
+           "org.openejb.alt.containers.castor_cmp11.CastorCMP11_EntityContainer".equals(containerInfo.codebase)){
+            if(containerInfo.className==null) {
+                containerInfo.className=containerInfo.codebase;
+            }
            // create the custom container
            try{
                 //container = (org.openejb.Container)Class.forName(containerInfo.codebase).newInstance();
@@ -251,7 +257,7 @@ public class AssemblerTool {
     use a message number. Message numbers allow the message text to 
     be internationalized.
     */
-    public static InitialContext assembleRemoteJndiContext(JndiContextInfo context)
+    public  InitialContext assembleRemoteJndiContext(JndiContextInfo context)
      throws org.openejb.OpenEJBException{
         try{
             InitialContext ic = new InitialContext(context.properties);
@@ -274,7 +280,7 @@ public class AssemblerTool {
     * @param beanInfo describes the enterprise bean deployment to be assembled.
     * @param the DeploymentInfo object that was assembled from the beanInfo configuration.
     */
-    public static DeploymentInfo assembleDeploymentInfo(EnterpriseBeanInfo beanInfo)
+    public  DeploymentInfo assembleDeploymentInfo(EnterpriseBeanInfo beanInfo)
     throws org.openejb.SystemException, org.openejb.OpenEJBException {
   
         boolean isEntity = false;
@@ -335,7 +341,8 @@ public class AssemblerTool {
         }
 
         /*[3] Populate a new DeploymentInfo object  */
-        org.openejb.core.DeploymentInfo deployment = new org.openejb.core.DeploymentInfo(beanInfo.ejbDeploymentId, home, remote, ejbClass, ejbPk ,componentType);
+        IvmContext root = new IvmContext(new NameNode(null, new ParsedName("comp"), null));
+        org.openejb.core.DeploymentInfo deployment = createDeploymentInfoObject(root, beanInfo.ejbDeploymentId, home, remote, ejbClass, ejbPk, componentType);
         
         /*[3.1] Add Entity bean specific values */
         if ( isEntity ) {
@@ -361,7 +368,6 @@ public class AssemblerTool {
                         for(int j =0; j<finderMethods.size(); j++){
                             deployment.addQuery((Method)finderMethods.elementAt(j), ebi.queries[i].queryStatement);       
                         }
-                        finderMethods.clear();
                     }
                 }
                 
@@ -380,8 +386,7 @@ public class AssemblerTool {
 	} 
 
         /*[4] Fill bean's JNDI namespace */
-        IvmContext root = new IvmContext(new NameNode(null, new ParsedName("comp"),null));
-        deployment.setJndiEnc(root);
+        // setting of the JNDI root context has been merged with step 3
         
         /**
         * Enterprise beans deployed with transaction-type = "Bean" must have access to a javax.transaction.UserTransaction
@@ -412,6 +417,19 @@ public class AssemblerTool {
         
         return deployment;
     }
+
+    /**
+     * This method creates the DeploymentInfo class and sets the JNDI context
+     * at the same time. This is done to enable the TyrexAssembler to override
+     * this method to hook in its own DeploymentInfo subclass without duplicating
+     * code.
+     */
+    protected org.openejb.core.DeploymentInfo createDeploymentInfoObject(javax.naming.Context root, Object did, Class homeClass, Class remoteClass, Class beanClass, Class pkClass, byte componentType) throws org.openejb.SystemException {
+        org.openejb.core.DeploymentInfo info = new org.openejb.core.DeploymentInfo(did, homeClass, remoteClass, beanClass, pkClass, componentType);
+        info.setJndiEnc(root);
+        return info;
+    }
+
     /**
     * This class will assemble a ConnectionManager instace from a ConnectionManagerInfo
     * configuration object.
@@ -419,7 +437,7 @@ public class AssemblerTool {
     * @return the ConnectionManager instance assembled.
     * @see org.openejb.alt.assembler.classic.ConnectionManagerInfo
     */
-    public static ConnectionManager assembleConnectionManager(ConnectionManagerInfo cmInfo)
+    public  ConnectionManager assembleConnectionManager(ConnectionManagerInfo cmInfo)
     throws OpenEJBException, java.lang.Exception{
         /*TODO: Add better exception handling, this method throws java.lang.Exception,
          which is not very specific. Only a very specific OpenEJBException should be 
@@ -444,7 +462,7 @@ public class AssemblerTool {
     * @return the ManagedConnecitonFactory assembled.
     * @see org.openejb.alt.assembler.classic.ManagedConnectionFactoryInfo
     */
-    public static ManagedConnectionFactory assembleManagedConnectionFactory(ManagedConnectionFactoryInfo mngedConFactInfo)
+    public  ManagedConnectionFactory assembleManagedConnectionFactory(ManagedConnectionFactoryInfo mngedConFactInfo)
     throws org.openejb.OpenEJBException, java.lang.Exception {
         /*TODO: Add better exception handling, this method throws java.lang.Exception,
          which is not very specific. Only a very specific OpenEJBException should be 
@@ -468,7 +486,7 @@ public class AssemblerTool {
     * @return the SecurityService object that was assembled.
     * @see org.openejb.alt.assembler.classic.SecurityServiceInfo
     */
-    public static SecurityService assembleSecurityService(SecurityServiceInfo securityInfo)
+    public  SecurityService assembleSecurityService(SecurityServiceInfo securityInfo)
     throws org.openejb.OpenEJBException, java.lang.Exception{
         /*TODO: Add better exception handling, this method throws java.lang.Exception,
          which is not very specific. Only a very specific OpenEJBException should be 
@@ -494,7 +512,7 @@ public class AssemblerTool {
     * @return the TranactionManager instance that was obtained from the assembled TransactionService
     * @see org.openejb.alt.assembler.classic.TransactionServiceInfo
     */
-    public static javax.transaction.TransactionManager assembleTransactionManager(TransactionServiceInfo txInfo)
+    public  javax.transaction.TransactionManager assembleTransactionManager(TransactionServiceInfo txInfo)
     throws org.openejb.OpenEJBException, java.lang.Exception{
         /*TODO: Add better exception handling, this method throw java.lang.Exception,
          which is not very specific.  If something is wrong, we should at least say
@@ -527,7 +545,7 @@ public class AssemblerTool {
     * @return void
     * @see org.openejb.alt.assembler.classic.IntraVmServerInfo
     */
-    public static void applyProxyFactory(IntraVmServerInfo ivmInfo) throws OpenEJBException{
+    public  void applyProxyFactory(IntraVmServerInfo ivmInfo) throws OpenEJBException{
         Class factoryClass = toolkit.loadClass(ivmInfo.proxyFactoryClassName, ivmInfo.codebase);
         
         checkImplementation(PROXY_FACTORY, factoryClass, "ProxyFactory", ivmInfo.factoryName);
@@ -546,7 +564,7 @@ public class AssemblerTool {
     * @param target the object that will have its init(Properties) method invoked
     * @param the properties argument for the init(Properties) method.
     */
-    public static void applyProperties(Object target, Properties props)
+    public  void applyProperties(Object target, Properties props)
     throws java.lang.reflect.InvocationTargetException, 
            java.lang.IllegalAccessException,java.lang.NoSuchMethodException  {
         if(props != null /*&& props.size()>0*/){
@@ -567,7 +585,7 @@ public class AssemblerTool {
     * @see org.openejb.alt.assembler.classic.MethodTransactionInfo
     * @see org.openejb.core.DeploymentInfo.setMethodTransactionAttribute()
     */
-    public static void applyTransactionAttributes(DeploymentInfo deploymentInfo, MethodTransactionInfo [] mtis){
+    public  void applyTransactionAttributes(DeploymentInfo deploymentInfo, MethodTransactionInfo [] mtis){
         /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!
          there is a lot of complex code here, I'm sure something could go wrong the user
          might want to know about.
@@ -625,7 +643,7 @@ public class AssemblerTool {
     * @see org.openejb.alt.assembler.classic.AssemblerTool.RoleMapping
     * @see org.openejb.core.DepoymentInfo.addSecurityRoleReference()
     */
-    public static void applySecurityRoleReference(DeploymentInfo deployment, EnterpriseBeanInfo beanInfo, AssemblerTool.RoleMapping roleMapping){
+    public  void applySecurityRoleReference(DeploymentInfo deployment, EnterpriseBeanInfo beanInfo, AssemblerTool.RoleMapping roleMapping){
         if(beanInfo.securityRoleReferences != null){
             for(int l = 0; l < beanInfo.securityRoleReferences.length; l++){
                 SecurityRoleReferenceInfo roleRef = beanInfo.securityRoleReferences[l];
@@ -649,7 +667,7 @@ public class AssemblerTool {
     * @see org.openejb.alt.assembler.classic.MethodPermissionInfo
     * @see org.openejb.core.DeploymentInfo.appendMethodPermissions()
     */
-    public static void applyMethodPermissions(DeploymentInfo deployment, MethodPermissionInfo [] permissions){
+    public  void applyMethodPermissions(DeploymentInfo deployment, MethodPermissionInfo [] permissions){
         /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!
          there is a lot of complex code here, I'm sure something could go wrong the user
          might want to know about.
@@ -691,7 +709,7 @@ public class AssemblerTool {
     * @see org.openejb.alt.assembler.classic.AssemblerTool.RoleMapping
     * @see org.openejb.core.DeploymentInfo.appendMethodPermissions()
     */
-    public static void applyMethodPermissions(DeploymentInfo deployment, MethodPermissionInfo [] permissions, AssemblerTool.RoleMapping roleMapping){
+    public  void applyMethodPermissions(DeploymentInfo deployment, MethodPermissionInfo [] permissions, AssemblerTool.RoleMapping roleMapping){
         /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!
          there is a lot of complex code here, I'm sure something could go wrong the user
          might want to know about.
@@ -713,7 +731,7 @@ public class AssemblerTool {
     * @see org.openejb.alt.assembler.classic.MethodPermissionInfo
     * @see org.openejb.alt.assembler.classic.AssemblerTool.RoleMapping
     */
-    public static MethodPermissionInfo applyRoleMappings(MethodPermissionInfo methodPermission, 
+    public  MethodPermissionInfo applyRoleMappings(MethodPermissionInfo methodPermission, 
                                                      AssemblerTool.RoleMapping roleMapping){
         /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!
          there is a lot of complex code here, I'm sure something could go wrong the user
@@ -803,7 +821,7 @@ public class AssemblerTool {
      * @see org.openejb.core.DeploymentInfo
      * @see MethodInfo
      */
-    protected static java.lang.reflect.Method [] resolveMethodInfo(MethodInfo methodInfo, org.openejb.core.DeploymentInfo di){
+    protected  java.lang.reflect.Method [] resolveMethodInfo(MethodInfo methodInfo, org.openejb.core.DeploymentInfo di){
         /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!
          there is a lot of complex code here, I'm sure something could go wrong the user
          might want to know about.
@@ -830,7 +848,7 @@ public class AssemblerTool {
      * @see MethodInfo
      * @exeption SecurityException if 
      */
-    protected static void resolveMethods(Vector methods, Class intrface, MethodInfo mi)
+    protected  void resolveMethods(Vector methods, Class intrface, MethodInfo mi)
     throws SecurityException{
         /*TODO: Add better exception handling. There is a lot of complex code here, I'm sure something could go wrong the user
          might want to know about.
@@ -872,7 +890,7 @@ public class AssemblerTool {
         }
 
     }
-    protected static void bindJndiResourceRefs(EnterpriseBeanInfo bean, IvmContext root) 
+    protected void bindJndiResourceRefs(EnterpriseBeanInfo bean, IvmContext root) 
     throws org.openejb.OpenEJBException {
         /*TODO: Add better exception handling.  
          There is a lot of complex code here, I'm sure something could go wrong the user
@@ -897,14 +915,11 @@ public class AssemblerTool {
                     ref = new org.openejb.core.stateful.EncReference( ref2 );
                 else if(StatelessBeanInfo.class.isAssignableFrom(bean.getClass()))
                     ref = new org.openejb.core.stateless.EncReference( ref2 );
-                    
+                else
+                    throw new org.openejb.SystemException("This can't happen");
                 }catch(Exception e){ 
-                    // TODO: Better excption handling so we don't need this
-                    // stack trace.
-                    e.printStackTrace();
-
                     // TODO: What, no message?
-                    throw new RuntimeException();
+                    throw new org.openejb.OpenEJBException("Something went wrong here"+e);
                 }
             }else{
                 String openEjbSubContextName = "java:openejb/remote_jndi_contexts/"+reference.location.jndiContextId;
@@ -915,8 +930,10 @@ public class AssemblerTool {
                     ref = new org.openejb.core.stateful.EncReference( ref2 );
                 else if(StatelessBeanInfo.class.isAssignableFrom(bean.getClass()))
                     ref = new org.openejb.core.stateless.EncReference( ref2 );
-                else
+                else if(EntityBeanInfo.class.isAssignableFrom(bean.getClass()))
                     ref = new org.openejb.core.entity.EncReference( ref2 );
+                else
+                    throw new org.openejb.SystemException("This can't happen");
             }
         
             if(ref!=null){
@@ -930,7 +947,7 @@ public class AssemblerTool {
         }   
     }
     
-    protected static void bindJndiBeanRefs(EnterpriseBeanInfo bean, IvmContext root){
+    protected  void bindJndiBeanRefs(EnterpriseBeanInfo bean, IvmContext root){
         /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!
          there is a lot of complex code here, I'm sure something could go wrong the user
          might want to know about.
@@ -978,7 +995,7 @@ public class AssemblerTool {
         }     
     }
     
-    protected static void bindJndiEnvEntries(EnterpriseBeanInfo bean, IvmContext root){
+    protected  void bindJndiEnvEntries(EnterpriseBeanInfo bean, IvmContext root){
         /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!
          there is a lot of complex code here, I'm sure something could go wrong the user
          might want to know about.
@@ -1033,7 +1050,7 @@ public class AssemblerTool {
             
         }     
     }
-    protected static  String prefixForBinding(String name){
+    protected   String prefixForBinding(String name){
         if(name.charAt(0)== '/')
             name = name.substring(1);
         if( !(name.startsWith("java:comp/env")  || name.startsWith("comp/env"))){
@@ -1045,7 +1062,7 @@ public class AssemblerTool {
         return name;
     }
     
-    protected static void checkImplementation(Class intrfce, Class factory, String serviceType, String serviceName) throws OpenEJBException{
+    protected  void checkImplementation(Class intrfce, Class factory, String serviceType, String serviceName) throws OpenEJBException{
         if ( !intrfce.isAssignableFrom(factory) ){
             handleException("init.0100", serviceType, serviceName, factory.getName(), intrfce.getName());
         }
@@ -1055,7 +1072,7 @@ public class AssemblerTool {
      * Return the correct Class object. Either use forName or
      * return a primitive TYPE Class. 
      */
-    private static java.lang.Class getClassForParam(java.lang.String className, ClassLoader cl)throws ClassNotFoundException {
+    private  java.lang.Class getClassForParam(java.lang.String className, ClassLoader cl)throws ClassNotFoundException {
         if (cl == null) {
             cl = ClassLoader.getSystemClassLoader();
         }
@@ -1085,27 +1102,27 @@ public class AssemblerTool {
     /*------------------------------------------------------*/
     /*    Methods for easy exception handling               */
     /*------------------------------------------------------*/
-    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3 ) throws OpenEJBException{
+    public  void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3 ) throws OpenEJBException{
         Object[] args = { arg0, arg1, arg2, arg3 };
         throw new OpenEJBException(errorCode, args);
     }
 
-    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2 ) throws OpenEJBException{
+    public  void handleException(String errorCode, Object arg0, Object arg1, Object arg2 ) throws OpenEJBException{
         Object[] args = { arg0, arg1, arg2 };
         throw new OpenEJBException(errorCode, args);
     }
     
-    public static void handleException(String errorCode, Object arg0, Object arg1 ) throws OpenEJBException{
+    public  void handleException(String errorCode, Object arg0, Object arg1 ) throws OpenEJBException{
         Object[] args = { arg0, arg1 };
         throw new OpenEJBException(errorCode, args);
     }
 
-    public static void handleException(String errorCode, Object arg0 ) throws OpenEJBException{
+    public  void handleException(String errorCode, Object arg0 ) throws OpenEJBException{
         Object[] args = { arg0 };
         throw new OpenEJBException(errorCode, args);
     }
     
-    public static void handleException(String errorCode ) throws OpenEJBException{
+    public  void handleException(String errorCode ) throws OpenEJBException{
         throw new OpenEJBException(errorCode);
     }
 
@@ -1114,31 +1131,31 @@ public class AssemblerTool {
     /*  Methods for logging exceptions that are noteworthy  */
     /*  but not bad enough to stop the container system.    */
     /*------------------------------------------------------*/
-    public static void logWarning(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3 ) {
+    public  void logWarning(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3 ) {
         Object[] args = { arg0, arg1, arg2, arg3 };
         OpenEJBException e = new OpenEJBException(errorCode, args);
         System.out.println("Warning: "+ e.getMessage() );
     }
 
-    public static void logWarning(String errorCode, Object arg0, Object arg1, Object arg2 ) {
+    public  void logWarning(String errorCode, Object arg0, Object arg1, Object arg2 ) {
         Object[] args = { arg0, arg1, arg2 };
         OpenEJBException e = new OpenEJBException(errorCode, args);
         System.out.println("Warning: "+ e.getMessage() );
     }
     
-    public static void logWarning(String errorCode, Object arg0, Object arg1 ) {
+    public  void logWarning(String errorCode, Object arg0, Object arg1 ) {
         Object[] args = { arg0, arg1 };
         OpenEJBException e = new OpenEJBException(errorCode, args);
         System.out.println("Warning: "+ e.getMessage() );
     }
 
-    public static void logWarning(String errorCode, Object arg0 ) {
+    public  void logWarning(String errorCode, Object arg0 ) {
         Object[] args = { arg0 };
         OpenEJBException e = new OpenEJBException(errorCode, args);
         System.out.println("Warning: "+ e.getMessage() );
     }
 
-    public static void logWarning(String errorCode ) {
+    public  void logWarning(String errorCode ) {
         OpenEJBException e = new OpenEJBException(errorCode);
         System.out.println("Warning: "+ e.getMessage() );
     }
