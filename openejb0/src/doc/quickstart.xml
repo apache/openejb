@@ -3,6 +3,17 @@
   <body>
     <title>OpenEJB QuickStart Guide</title>
 
+    <section title="Abstract" ref-id="abstract">
+        
+    <p>
+    This document is a slightly verbose quickstart, if you are not interested in all
+    the chat and simply want the bare minimum, we offer a 
+    <a href="commands-only-windows.html">Commands-Only Guide for Windows Users</a> and a 
+    <a href="commands-only-linux.html">Commands-Only Guide for Linux/Unix/Mac OS X Users</a>
+    </p>
+            
+    </section>
+    
     <section title="Join the mailing list" ref-id="joinlist">
         
     <p>
@@ -37,7 +48,7 @@
 
     
     <p>    
-    If you have cvs already installed and are ready to go, the following two commands
+    If you have cvs already installed and are ready to go, the following commands
     are all you need to get the source. The first command logs you into the system, when 
     it prompts you for the CVS password, simply hit the Enter key.
     </p>    
@@ -67,15 +78,14 @@
     
     <p>
     Windows:<br></br>
-    <command>[prompt] build.bat jar</command>
+    <command>[prompt] cd openejb</command>
+    <command>[prompt] openejb build</command>
     </p>
     <p>  
-    Unix/Linux:<br></br>
-    <command>[prompt] ./build.sh jar</command>
-    </p>
-    <p>    
-    NOTE: You must execute the build script in the same directory
-    where it is located.
+    Unix/Linux/Mac OS X:<br></br>
+    <command>[prompt] cd openejb</command>
+    <command>[prompt] chmod 755 openejb.sh bin/*</command>
+    <command>[prompt] ./openejb.sh build</command>
     </p>
     </section>
     
@@ -88,17 +98,13 @@
     
     <p>
     Windows:<br></br>
-    <command>[prompt] test.bat</command>
+    <command>[prompt] openejb test</command>
     </p>
     <p>  
-    Unix/Linux:<br></br>
-    <command>[prompt] ./test.sh</command>
+    Unix/Linux/Mac OS X:<br></br>
+    <command>[prompt] ./openejb.sh test</command>
     </p>
     
-    <p>    
-    NOTE: You must execute the build and test scripts in the same directory
-    where they are located.
-    </p>
     </section>
     
     <section title="Deploy your ejb-jar" ref-id="deployjar">
@@ -109,11 +115,11 @@
     
     <p>
     Windows:<br></br>
-    <command>[prompt] deploy.bat <i>config-file</i> <i>jar-file</i></command>
+    <command>[prompt] deploy <i>config-file</i> <i>jar-file</i></command>
     </p>
     <p>  
-    Unix/Linux:<br></br>
-    <command>[prompt] ./deploy.sh <i>config-file</i> <i>jar-file</i></command>
+    Unix/Linux/Mac OS X:<br></br>
+    <command>[prompt] ./openejb.sh deploy <i>config-file</i> <i>jar-file</i></command>
     </p>
     
     <p>    
@@ -124,11 +130,11 @@
     </p>
     <p>
     Windows Example:<br></br>
-    <command>[prompt] deploy.bat conf\default.openejb.conf dist\beans\undeployedBeans.jar</command>
+    <command>[prompt] openejb deploy conf\default.openejb.conf dist\beans\undeployedBeans.jar</command>
     </p>
     <p>  
-    Unix/Linux Example:<br></br>
-    <command>[prompt] ./deploy.sh conf/default.openejb.conf dist/beans/undeployedBeans.jar</command>
+    Unix/Linux/Mac OS X Example:<br></br>
+    <command>[prompt] ./openejb.sh deploy conf/default.openejb.conf dist/beans/undeployedBeans.jar</command>
     </p>
     <p>    
     NOTE: The text above should be on one line and executed as one command. 
