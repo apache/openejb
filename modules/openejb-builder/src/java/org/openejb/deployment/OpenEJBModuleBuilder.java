@@ -79,6 +79,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
@@ -121,14 +122,14 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final SessionBuilder sessionBuilder;
     private final EntityBuilder entityBuilder;
     private final MdbBuilder mdbBuilder;
-    private final SecurityBuilder securityBuilder;
+    private final ContainerSecurityBuilder containerSecurityBuilder;
     private final SkeletonGenerator skeletonGenerator;
 
     public OpenEJBModuleBuilder(Kernel kernel, URI defaultParentId, SkeletonGenerator skeletonGenerator) {
         this.kernel = kernel;
         this.defaultParentId = defaultParentId;
         this.skeletonGenerator = skeletonGenerator;
-        this.securityBuilder = new SecurityBuilder(this);
+        this.containerSecurityBuilder = new ContainerSecurityBuilder(this);
         this.cmpEntityBuilder = new CMPEntityBuilder(this);
         this.sessionBuilder = new SessionBuilder(this);
         this.entityBuilder = new EntityBuilder(this);
@@ -139,8 +140,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         return kernel;
     }
 
-    public SecurityBuilder getSecurityBuilder() {
-        return securityBuilder;
+    public ContainerSecurityBuilder getSecurityBuilder() {
+        return containerSecurityBuilder;
     }
 
     public SkeletonGenerator getSkeletonGenerator() {
@@ -314,7 +315,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 	        } catch (CompilerException e) {
 	            throw new DeploymentException("Unable to generate CORBA skels for: " + moduleUri, e);
 	        } finally {
-	            tempJar.delete();
+                DeploymentUtil.recursiveDelete(tempJar);
 	        }
         }
     }
@@ -435,7 +436,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             transactionPolicyHelper = new TransactionPolicyHelper();
         }
 
-        Security security = org.apache.geronimo.security.deployment.SecurityBuilder.buildSecurityConfig(openejbEjbJar.getSecurity());
+        Security security = SecurityBuilder.buildSecurityConfig(openejbEjbJar.getSecurity());
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 

@@ -95,14 +95,14 @@ class SessionBuilder extends BeanBuilder {
 
         ContainerBuilder builder = null;
         Permissions toBeChecked = new Permissions();
-        SecurityBuilder securityBuilder = getModuleBuilder().getSecurityBuilder();
+        ContainerSecurityBuilder containerSecurityBuilder = getModuleBuilder().getSecurityBuilder();
         boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue());
         if (isStateless) {
             builder = new StatelessContainerBuilder();
             builder.setTransactedTimerName(earContext.getTransactedTimerName());
             builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
             builder.setServiceEndpointName(OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getServiceEndpoint()));
-            securityBuilder.addToPermissions(toBeChecked, ejbName, "ServiceEndpoint", builder.getServiceEndpointName(), cl);
+            containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "ServiceEndpoint", builder.getServiceEndpointName(), cl);
         } else {
             builder = new StatefulContainerBuilder();
         }
@@ -115,12 +115,12 @@ class SessionBuilder extends BeanBuilder {
         builder.setLocalHomeInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getLocalHome()));
         builder.setLocalInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getLocal()));
 
-        securityBuilder.addToPermissions(toBeChecked, ejbName, "Home", builder.getHomeInterfaceName(), cl);
-        securityBuilder.addToPermissions(toBeChecked, ejbName, "LocalHome", builder.getLocalHomeInterfaceName(), cl);
-        securityBuilder.addToPermissions(toBeChecked, ejbName, "Remote", builder.getRemoteInterfaceName(), cl);
-        securityBuilder.addToPermissions(toBeChecked, ejbName, "Local", builder.getLocalInterfaceName(), cl);
+        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Home", builder.getHomeInterfaceName(), cl);
+        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "LocalHome", builder.getLocalHomeInterfaceName(), cl);
+        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Remote", builder.getRemoteInterfaceName(), cl);
+        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Local", builder.getLocalInterfaceName(), cl);
 
-        securityBuilder.fillContainerBuilderSecurity(builder,
+        containerSecurityBuilder.fillContainerBuilderSecurity(builder,
                 toBeChecked,
                 security,
                 ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),

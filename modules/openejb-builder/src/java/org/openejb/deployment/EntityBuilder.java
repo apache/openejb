@@ -123,12 +123,12 @@ class EntityBuilder extends BeanBuilder {
         builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
 
         Permissions toBeChecked = new Permissions();
-        SecurityBuilder securityBuilder = getModuleBuilder().getSecurityBuilder();
-        securityBuilder.addToPermissions(toBeChecked, ejbName, "Home", builder.getHomeInterfaceName(), cl);
-        securityBuilder.addToPermissions(toBeChecked, ejbName, "LocalHome", builder.getLocalHomeInterfaceName(), cl);
-        securityBuilder.addToPermissions(toBeChecked, ejbName, "Remote", builder.getRemoteInterfaceName(), cl);
-        securityBuilder.addToPermissions(toBeChecked, ejbName, "Local", builder.getLocalInterfaceName(), cl);
-        securityBuilder.fillContainerBuilderSecurity(builder,
+        ContainerSecurityBuilder containerSecurityBuilder = getModuleBuilder().getSecurityBuilder();
+        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Home", builder.getHomeInterfaceName(), cl);
+        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "LocalHome", builder.getLocalHomeInterfaceName(), cl);
+        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Remote", builder.getRemoteInterfaceName(), cl);
+        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Local", builder.getLocalInterfaceName(), cl);
+        containerSecurityBuilder.fillContainerBuilderSecurity(builder,
                 toBeChecked,
                 security,
                 ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
