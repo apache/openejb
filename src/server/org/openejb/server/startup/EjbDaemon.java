@@ -752,9 +752,9 @@ public class EjbDaemon implements Runnable,
 
       System.out.print("  admin console    ");
 
-      TextConsole textConsole = new TextConsole(this);
-      textConsole.init(props);
-      textConsole.start();
+      //TextConsole textConsole = new TextConsole(this);
+      //textConsole.init(props);
+      //textConsole.start();
 
       System.out.println(serverIP +" "+(port-1));
 
