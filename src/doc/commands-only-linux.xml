@@ -44,12 +44,10 @@
         <command>[user@host openejb]# ./openejb.sh test intravm</command> 
         <br/>
         <command>[user@host openejb]# ./openejb.sh test ejbserver</command> 
-        <br/>
-        <command>[user@host openejb]# ./openejb.sh test corba</command> 
     </section>
     
     <section title="Deploy" ref-id="delpoy">
-        <command>[user@host openejb]# ./openejb.sh deploy <i>conf/default.openejb.conf</i> <i>/tmp/myApp/myFooEjb.jar</i></command> 
+        <command>[user@host openejb]# ./openejb.sh deploy <i>/tmp/myApp/myFooEjb.jar</i></command> 
     </section>
     
     <section title="Start" ref-id="Start">

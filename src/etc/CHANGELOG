@@ -33,9 +33,9 @@ RMI-IIOP Tests added
 CMP container fixes
 Docs added
 
-Version 0.8  Release Date: TBD
--------------------------------
-CVS-TAG: v0_8
+Version 0.8beta1  Release Date: May 9th, 2002
+----------------------------------------------
+CVS-TAG: v0_8beta1
 
 - We actually have a deploy tool
 - Beans are deployed from their jars
@@ -66,3 +66,20 @@ CVS-TAG: v0_8
 - Rewrite of Exception Handling, now much more spec compliant
 - Added logging
 
+
+Version 0.8beta2  Release Date: May 23th, 2002
+----------------------------------------------
+CVS-TAG: v0_8beta2
+
+- Fixed fatal file path bug affecting UNIX/Linux/Mac OS X Users
+- Fixed bug that prevented the Remote Server from starting unless
+  additional command line options were used.
+- Improved scripts
+- Optimized logging
+- Added '-help' and '-example' options to the 'openejb deploy' command
+- Added '-help' and '-example' options to the 'openejb start' command
+- Revised all documentation 
+- Added several new docs, including a complete "Hello World" example, Deploy
+  Tool docs, Remote server starup docs, and a doc explaining the use of 
+  Deployment IDs.
+  

@@ -46,6 +46,18 @@
         <display>Quickstart</display>
       </navLink>
       <navLink>
+        <url>hello-world.xml</url>
+        <display>Hello World!</display>
+      </navLink>
+      <navLink>
+        <url>deploy.xml</url>
+        <display>Deploy</display>
+      </navLink>
+      <navLink>
+        <url>start-command.xml</url>
+        <display>Startup</display>
+      </navLink>
+      <navLink>
         <url>http://sourceforge.net/tracker/?group_id=44351&amp;atid=439275</url>
         <display>Support</display>
       </navLink>

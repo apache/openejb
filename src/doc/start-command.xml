@@ -2,7 +2,7 @@
 <document url="http://openejb.sf.net/embedded.xml" toc="none">
   <properties>
     <title>OpenEJB Remote Server</title>
-    <title>Command-line HOW-TO</title>
+    <sub-title>Command-line Guide</sub-title>
   </properties>
   <body>
 
