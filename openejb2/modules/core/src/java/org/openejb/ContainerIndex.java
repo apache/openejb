@@ -65,7 +65,7 @@ import org.apache.geronimo.gbean.WaitingException;
  */
 public class ContainerIndex implements ReferenceCollectionListener, GBean {
     // todo delete me
-    private static final ContainerIndex containerIndex = new ContainerIndex();
+    private static ContainerIndex containerIndex = new ContainerIndex();
     public static ContainerIndex getInstance() {
         return containerIndex;
     }
@@ -94,6 +94,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
     }
 
     public ContainerIndex(Collection ejbContainers) {
+        ContainerIndex.containerIndex = this;
         this.ejbContainers = (ReferenceCollection) ejbContainers;
         this.ejbContainers.addReferenceCollectionListener(this);
     }
