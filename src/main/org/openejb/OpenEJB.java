@@ -111,6 +111,17 @@ import org.apache.log4j.Category;
 
 public final class OpenEJB {
 
+    static {
+	// This system property must be set before the org.apache.log4j.Category object is created.
+        /* DMB: We should get the defaults from the functionality 
+         *      Alan is working on.  This is temporary.
+         *      When that logic is finished, this block should
+         *      probably just be deleted.
+         */
+	if( System.getProperty("log4j.configuration") == null) {
+	    System.setProperty("log4j.configuration", "file:conf/default.logging.conf");
+	}
+    }
 
     private static ContainerSystem    containerSystem;
     private static SecurityService    securityService;
