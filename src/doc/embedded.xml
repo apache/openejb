@@ -16,24 +16,26 @@ server or other middleware, you can do so by embedding
 OpenEJB as a library and accessing ejbs through OpenEJB's 
 built-in IntraVM (Local) Server.
 </p>
-
+<p>
+<note>
+OpenEJB can be <a href="spec.html#openejb.api">initialized</a>
+and <a href="spec.html#rpc.invoke.policy">invoked directly</a> as 
+an API.  You would do this if you need closer integration with OpenEJB, you
+wish to distribute beans using your own distributed object protocol, 
+or if you need very advanced control over transaction
+and security context propogation. See the <a href="spec.html">OpenEJB
+Specification</a> for more information.
+</note>
+</p> 
 
 <p>In this case, your application, server, or other middleware 
-accesses beans as you would from any other server.  The server 
+accesses beans as you would from any other EJB Server.  The EJB Server 
 just happens to be running in the same virtual machine as
-your application.  The server is thusly called the IntraVM Server, 
+your application.  This EJB Server is thusly called the IntraVM Server, 
 and, for all intense purposes, your application or server is an 
 IntraVM Client.
 </p>
 
-<p>
-You may have read in the OpenEJB specification that you need to 
-call OpenEJB's init method and the invoke method for all ejb 
-calls thereafter.  If you need to propagate a Transaction or 
-Security context from your application to OpenEJB, this is true, 
-otherwise none of this is necessary and you can simply access the 
-IntraVM Server directly as an ordinary non-J2EE client does.
-</p> 
 <p>
 Try something like this for a simple IntraVM (Local) Client:
 </p>
@@ -152,16 +154,10 @@ public static void main( String args[]) {
     p.put(Context.INITIAL_CONTEXT_FACTORY, 
           "org.openejb.core.ivm.naming.InitContextFactory");
     
-    p.put("openejb.home", "c:\dir\openejb");
-    
-    p.put("openejb.assembler", 
-          "org.openejb.alt.assembler.classic.Assembler");
-    
-    p.put("openejb.configurator", 
-          "org.openejb.alt.config.ConfigurationFactory");
+    p.put("openejb.home", "c:\\dir\\openejb");
     
     p.put("openejb.configuration", 
-          "c:\my\app\conf\openejb.conf");
+          "c:\\my\\app\\conf\\openejb.conf");
     
     InitialContext ctx = new InitialContext( p );
     
@@ -181,49 +177,103 @@ public static void main( String args[]) {
     
 </section>
 
-<section title="The conf directory gotcha" ref-id="config">
+<section title="Set the openejb.home variable" ref-id="openejb.home">
 <p>
-We are working on functionality that will allow you to set a openejb.home 
-system variable, then you can execute clients anywhere you want.  This is partially 
-implemented now and is used to resolve relative paths using the openejb.home to create 
-absolute paths.  This, unfortunately, has not been implemented to work for configuration 
-files yet.
+If you use OpenEJB Local Server, you are actually using OpenEJB as an embedded library.
+This means when your application starts, OpenEJB will be starting too, in your virtual 
+machine.  Odds are you will not want to execute your application in the directory where
+OpenEJB was installed, but will want to execute your application where you are developing 
+it. This is fine, but you will need to tell OpenEJB where it was installed.  To do this,
+set the "openejb.home" system variable.  
 </p>
 <p>
-
-For now, you have to move *all* the files to your conf directory. Yes, this bites. 
-Eventually all the default.* files will be packed in the jar and retrieved from there.  
-If you want to help out with this functionality, great!  Email the development list and we'll 
-have you coding in no-time.
+For example, if OpenEJB was unpacked in the directory in c:\dir\openejb, you can 
+set the openejb.home variable as a java vm flag as follows.
 </p>
 <p>
-Here is an example of how to workaround this.
+<command>c:\my\app> java -Dopenejb.home=c:\dir\openejb MyEjbApplication</command>
 </p>
 <p>
-OpenEJB was unpacked in the directory in c:\dir\openejb, but, your app is executed from the
-directory c:\my\app.  You need to copy the c:\dir\openejb\conf directory to c:\my\app\, giving 
-you the new directory c:\my\app\conf.  Then you can execute your app from the command line 
-like this:
-</p>
-<p>
-<command>c:\my\app> java MyEjbApplication</command>
-</p>
-<p>
-You must also include the c:\dir\openejb\lib directory in your classpath.
-</p>
-<p>
-Also, if the beans in your app are the directory c:\my\app\my\beans, then you must add this
-line near the bottom of your OpenEJB configuration file:
-
+You can also set the openejb.home variable by calling System.setProperty(...) in your 
+application before any calls to the OpenEJB Local Server are made.
 </p>
 
 <p>
-<file name="c:\my\app\conf\openejb.conf">
+<code name="c:\my\app\MyEjbApplication.java">
+...
+public static void main(String args[]) {
+    
+  System.setProperty("openejb.home", "c:\\dir\\openejb");
+  ...
+  
+}
+...
+</code>
+</p>
+
+<p>
+As mentioned above, you can pass OpenEJB parameters on your first call to 
+the Local Server.
+</p>
+
+<p>
+<code name="c:\my\app\MyEjbApplication.java">
+...
+public static void main( String args[]) {
+    
+  Properties p = new Properties();
+  
+  p.put(Context.INITIAL_CONTEXT_FACTORY, 
+        "org.openejb.core.ivm.naming.InitContextFactory");
+  
+  p.put("openejb.home", "c:\\dir\\openejb");
+      
+  InitialContext ctx = new InitialContext( p );
+  ...
+}
+...
+</code>
+</p>
+
+<p>
+When OpenEJB is started, it will look for its configuration files
+in the OPENJB_HOME/conf directory.  The paths to beans in your openejb.conf
+file are also resolved relative to the openejb.home variable.
+</p>
+<p>
+Here is an example of this.  The openejb.home variable, which we will refer to as 
+OPENEJB_HOME, is set to "c:\dir\openejb".  The following relative path in your 
+openejb.conf file will be resolved assuming OPENEJB_HOME as the base path.
+</p>
+
+<p>
+<file name="openejb.conf">
 
 &lt;openejb&gt;
 ...
 
-&lt;Deployments dir="dist\beans\" /&gt;
+&lt;Deployments dir="beans\" /&gt;
+&lt;/openejb&gt;
+
+</file>
+</p>
+
+<p>
+The above deployment path, "beans\", would automatically be expanded to 
+"c:\dir\openejb\beans".
+</p>
+
+<p>
+If you want tell OpenEJB to look outside the OPENEJB_HOME, then use an absolute
+file path as shown below.
+</p>
+
+<p>
+<file name="openejb.conf">
+
+&lt;openejb&gt;
+...
+
 &lt;Deployments dir="beans\" /&gt;
 <b>&lt;Deployments dir="c:\my\app\my\beans\" /&gt;</b>
 &lt;/openejb&gt;
@@ -231,6 +281,48 @@ line near the bottom of your OpenEJB configuration file:
 </file>
 </p>
 
+<p>
+OpenEJB can look in any number of directories for beans, just add those
+directories to your openejb.conf file as such.
+</p>
+
+<p>
+<file name="openejb.conf">
+
+&lt;openejb&gt;
+...
+
+&lt;Deployments dir="beans\" /&gt;
+&lt;Deployments dir="c:\my\app\my\beans\" /&gt;
+<b>&lt;Deployments dir="c:\my\special\beans\" /&gt;</b>
+<b>&lt;Deployments dir="c:\foo\ejbs\" /&gt;</b>
+<b>&lt;Deployments dir="d:\files\ejbjars\" /&gt;</b>
+&lt;/openejb&gt;
+
+</file>
+</p>
+
+<p>
+Furthermore, you can add jars individually to OpenEJB's deployment path by 
+naming the jar directly.
+</p>
+
+<p>
+<file name="openejb.conf">
+
+&lt;openejb&gt;
+...
+
+&lt;Deployments dir="beans\" /&gt;
+&lt;Deployments dir="c:\my\app\my\beans\" /&gt;
+&lt;Deployments dir="c:\my\special\beans\" /&gt;
+&lt;Deployments dir="c:\foo\ejbs\" /&gt;
+&lt;Deployments dir="d:\files\ejbjars\" /&gt;
+<b>&lt;Deployments jar="c:\the\very\special.jar" /&gt;</b>
+&lt;/openejb&gt;
+
+</file>
+</p>
 </section>
 
 <section title="Embedded OpenEJB FAQ" ref-id="faq">
