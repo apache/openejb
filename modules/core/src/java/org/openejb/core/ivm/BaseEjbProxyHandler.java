@@ -140,6 +140,7 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
     * property in the static block for this class.
     */
     protected boolean doIntraVmCopy;
+    private boolean isLocal;
 
     /**
      * Constructs a BaseEjbProxyHandler representing the specifed bean deployment.
@@ -314,6 +315,7 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
                 	
 					return _invoke(proxy,method,args);
 				} catch (Throwable t) {
+					t.printStackTrace();
 					Class[] etypes = method.getExceptionTypes();
 					for (int i = 0; i < etypes.length; i++) {
 						if (t.getClass().isAssignableFrom(etypes[i])){
@@ -456,4 +458,11 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
     
     public abstract org.openejb.ProxyInfo getProxyInfo();
     
+	public boolean isLocal() {
+		return isLocal;
+	}
+	public void setLocal(boolean isLocal) {
+		this.isLocal = isLocal;
+		this.doIntraVmCopy = !isLocal;
+	}
 }

@@ -110,6 +110,14 @@
   <build>
     <resources>
       <resource>
+        <directory>${basedir}/src/schema</directory>
+        <targetPath>openejb/dtds</targetPath>
+        <includes>
+          <include>*.xsd</include>
+          <include>*.dtd</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>${basedir}/src/java</directory>
         <includes>
           <include>**/*.xml</include>

@@ -52,6 +52,8 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.SessionBean;
@@ -235,15 +237,17 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
                 throw new org.openejb.ApplicationException(new RemoteException("Unauthorized Access by Principal Denied"));
 
             // use special methods for remove and create requests
-            if ( EJBHome.class.isAssignableFrom(callMethod.getDeclaringClass()) ) {
-                if ( callMethod.getName().equals("create") ) {
+            Class declaringClass = callMethod.getDeclaringClass();
+			String methodName = callMethod.getName();
+			
+			if(EJBHome.class.isAssignableFrom(declaringClass) || EJBLocalHome.class.isAssignableFrom(declaringClass) ){
+                if ( methodName.equals("create") ) {
                     return createEJBObject(callMethod, args, callContext);
-                } else if ( callMethod.getName().equals("remove") ) {
+                } else if ( methodName.equals("remove") ) {
                     removeEJBObject(callMethod,args,callContext);
                     return null;
                 }
-            } else if ( EJBObject.class == callMethod.getDeclaringClass()
-                        && callMethod.getName().equals("remove") ) {
+            } else if((EJBObject.class == declaringClass || EJBLocalObject.class == declaringClass) && methodName.equals("remove") ) {
                 removeEJBObject(callMethod,args,callContext);
                 return null;
             }
@@ -388,7 +392,9 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
 
         instanceManager.poolInstance(primaryKey, bean);
 
-        return new ProxyInfo(deploymentInfo, primaryKey, deploymentInfo.getRemoteInterface(), this);
+        Class callingClass = callMethod.getDeclaringClass();
+		boolean isLocalInterface = EJBLocalHome.class.isAssignableFrom(callingClass);
+        return new ProxyInfo(deploymentInfo, primaryKey, isLocalInterface, this);
     }
 
 

@@ -53,6 +53,8 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.SessionBean;
@@ -230,12 +232,13 @@ public class StatelessContainer implements org.openejb.RpcContainer, Transaction
             throw new org.openejb.ApplicationException(new RemoteException("Unauthorized Access by Principal Denied"));
 
         // use special methods for remove and create requests
-        if(EJBHome.class.isAssignableFrom(callMethod.getDeclaringClass())){
+        Class declaringClass = callMethod.getDeclaringClass();
+		if(EJBHome.class.isAssignableFrom(declaringClass) || EJBLocalHome.class.isAssignableFrom(declaringClass) ){
             if(callMethod.getName().equals("create")){
-                return createEJBObject(deployInfo);
+                return createEJBObject(deployInfo, callMethod);
             }else
                 return null;// EJBHome.remove( ) and other EJBHome methods are not process by the container
-        }else if(EJBObject.class == callMethod.getDeclaringClass() ){
+        } else if(EJBObject.class == declaringClass || EJBLocalObject.class == declaringClass) {
             return null;// EJBObject.remove( ) and other EJBObject methods are not process by the container
         }
 
@@ -337,9 +340,12 @@ public class StatelessContainer implements org.openejb.RpcContainer, Transaction
     * because instances are shared and pooled and only delegated to service a request when a call is
     * received from the client.  The ProxyInfo object will allow the server to construct an
     * appropriate remote reference that the client can use to make calls.
+     * @param callingMethod TODO
     */
-    protected ProxyInfo createEJBObject(org.openejb.core.DeploymentInfo deploymentInfo) {
-        return new ProxyInfo(deploymentInfo, null, deploymentInfo.getRemoteInterface(), this);
+    protected ProxyInfo createEJBObject(org.openejb.core.DeploymentInfo deploymentInfo, Method callMethod) {
+        Class callingClass = callMethod.getDeclaringClass();
+		boolean isLocalInterface = EJBLocalHome.class.isAssignableFrom(callingClass);
+        return new ProxyInfo(deploymentInfo, null, isLocalInterface, this);
     }
 
     //

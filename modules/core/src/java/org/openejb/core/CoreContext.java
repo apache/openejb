@@ -171,10 +171,26 @@ public abstract class CoreContext implements java.io.Serializable {
     }
 
     public EJBLocalObject getEJBLocalObject() {
-        return null; //TODO: implement this
+        ThreadContext threadContext = ThreadContext.getThreadContext();
+        org.openejb.DeploymentInfo di = threadContext.getDeploymentInfo();
+
+        EjbObjectProxyHandler handler = newEjbObjectHandler((RpcContainer)di.getContainer(), threadContext.getPrimaryKey(), di.getDeploymentID());
+        handler.setLocal(true);
+        Object newProxy = null;
+        try {
+            Class[] interfaces = new Class[]{ di.getLocalInterface(), org.openejb.core.ivm.IntraVmProxy.class };
+            newProxy = ProxyManager.newProxyInstance( interfaces , handler );
+        } catch ( IllegalAccessException iae ) {
+            throw new RuntimeException("Could not create IVM proxy for "+di.getLocalInterface()+" interface");
+        }
+        return(EJBLocalObject)newProxy;
     }
+    
     public EJBLocalHome getEJBLocalHome() {
-        return null; //TODO: implement this
+        ThreadContext threadContext = ThreadContext.getThreadContext();
+        org.openejb.core.DeploymentInfo di = (org.openejb.core.DeploymentInfo)threadContext.getDeploymentInfo();
+
+        return di.getEJBLocalHome();
     }
     public TimerService getTimerService() {
         return null; //TODO: implement this
