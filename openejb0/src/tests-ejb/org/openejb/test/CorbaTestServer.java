@@ -59,7 +59,9 @@ import javax.sql.*;
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
 public class CorbaTestServer implements TestServer {
-    
+        
+    Properties props;
+
     static{
         System.setProperty("noBanner", "true");
     }
@@ -70,17 +72,18 @@ public class CorbaTestServer implements TestServer {
          * is started.  If not, display the followding message
          * and exit.
          */
-        log("OpenEJB Test Suite with the OpenEJB CORBA Server");
-        log("");
-        log("Before running the OpenEJB test suite on the ");
-        log("OpenEJB CORBA Server, the MapNamingContext");
-        log("and CORBA Server must each be started in ");
-        log("seperate processes.");
-        log("");
-        log("1) Execute corba_naming_server.sh or .bat in a process.");
-        log("2) Execute corba_server.sh or .bat in another process.");
-        log("");
+//      log("OpenEJB Test Suite with the OpenEJB CORBA Server");
+//      log("");
+//      log("Before running the OpenEJB test suite on the ");
+//      log("OpenEJB CORBA Server, the MapNamingContext");
+//      log("and CORBA Server must each be started in ");
+//      log("seperate processes.");
+//      log("");
+//      log("1) Execute corba_naming_server.sh or .bat in a process.");
+//      log("2) Execute corba_server.sh or .bat in another process.");
+//      log("");
 
+        this.props = props;
     }
     
     public void log(String s){
@@ -97,10 +100,7 @@ public class CorbaTestServer implements TestServer {
     }
 
     public Properties getContextEnvironment(){
-        Properties properties = new Properties();
-        properties.put(Context.INITIAL_CONTEXT_FACTORY, "org.openorb.rmi.jndi.CtxFactory");
-        properties.put( "InitialNameService", "corbaloc::1.2@localhost:2001/NameService");
-        return properties;
+        return (Properties)props.clone();
     }
 
 }
