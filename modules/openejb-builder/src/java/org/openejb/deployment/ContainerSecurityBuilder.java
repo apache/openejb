@@ -123,7 +123,9 @@ class ContainerSecurityBuilder {
 
         SecurityConfiguration securityConfiguration = new SecurityConfiguration();
 
-        securityConfiguration.setPolicyContextId(builder.getContainerId());
+        //TODO go back to the commented version when possible
+//        securityConfiguration.setPolicyContextId(builder.getContainerId());
+        securityConfiguration.setPolicyContextId(builder.getContainerId().replaceAll("[, ]", "_"));
         builder.setSecurityEnabled(true);
         builder.setSecurityConfiguration(securityConfiguration);
         builder.setDoAsCurrentCaller(security.isDoAsCurrentCaller());
