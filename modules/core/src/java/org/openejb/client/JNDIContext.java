@@ -164,6 +164,8 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
         Object serverURL = env.get(Context.PROVIDER_URL);
 
         if (serverURL == null) serverURL = "localhost:4201";
+        if (userID == null) userID = "anonymous";
+        if (psswrd == null) psswrd = "anon";
         //if (userID == null) throw new ConfigurationException("Context property cannot be null: "+Context.SECURITY_PRINCIPAL);
         //if (psswrd == null) throw new ConfigurationException("Context property cannot be null: "+Context.SECURITY_CREDENTIALS);
         //if (serverURL == null) throw new ConfigurationException("Context property cannot be null: "+Context.PROVIDER_URL);
