@@ -491,6 +491,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         builder.setRemoteInterfaceName(getJ2eeStringValue(entityBean.getRemote()));
         builder.setLocalHomeInterfaceName(getJ2eeStringValue(entityBean.getLocalHome()));
         builder.setLocalInterfaceName(getJ2eeStringValue(entityBean.getLocal()));
+        builder.setPrimaryKeyClassName(getJ2eeStringValue(entityBean.getPrimKeyClass()));
         TransactionPolicySource transactionPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);
         builder.setTransactionPolicySource(transactionPolicySource);
 
