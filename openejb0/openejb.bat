@@ -59,7 +59,7 @@ REM================================================
 goto EOF
 REM================================================
 :DEPLOY 
-   .\bin\deploy.bat
+   .\bin\deploy.bat %2 %3 %4 %5 %6 %7 %8 %9
    echo Unknown option: %2
    goto HELP_DEPLOY
 
@@ -79,7 +79,7 @@ goto EOF
 REM================================================
 :START_SERVER
    echo "Starting OpenEJB Server..."
-   .\bin\ejbserver.bat %2 %3 %4 %5 %6 %7  
+   .\bin\ejbserver.bat %2 %3 %4 %5 %6 %7 %8 %9
 
 goto EOF
 REM================================================
