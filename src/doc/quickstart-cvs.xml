@@ -7,12 +7,12 @@
     <p>
     In the CVS world, downloading is referred to as checking out. Before you
     can checkout the OpenEJB source from the repository, you need to login.
-    To log into the cvs server at SourceForge where the OpenEJB project source
+    To log into the cvs server at Codehaus where the OpenEJB project source
     lives.  Execute the following command in your shell:
     </p>    
     
     <p>    
-    <command>cvs -d:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb login</command>
+    <command>cvs -d:pserver:anon@cvs.openejb.codehaus.org:/scm/openejb login</command>
     </p>    
       
     <p>    
@@ -29,8 +29,7 @@
     </p>    
       
     <p>    
-    <command>cvs -z3 -d:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb
-    co openejb</command>
+    <command>cvs -z3 -d:pserver:anon@cvs.openejb.codehaus.org:/scm/openejb co openejb</command>
     </p>    
       
     <p>    

@@ -94,7 +94,7 @@
 
     <TR BGCOLOR="#dababa">
       <TD NOWRAP=""><span class="bodyBlack"><xsl:value-of select="@id"/></span></TD>
-      <TD><A HREF="http://www.sourceforge.net{url}"><xsl:apply-templates select="summary"/></A></TD>
+      <TD><A HREF="http://jira.codehaus.org/{url}"><xsl:apply-templates select="summary"/></A></TD>
       <TD><xsl:apply-templates select="date"/></TD>
       <TD><xsl:apply-templates select="assigned-to"/></TD>
       <TD><xsl:apply-templates select="submitted-by"/></TD>
@@ -112,7 +112,7 @@
   
   <xsl:template match="summary">
     <span class="bodyBlack">
-      <A HREF="http://www.sourceforge.net{../url}"><xsl:apply-templates select="text()"/></A>
+      <A HREF="http://jira.codehaus.org/secure/BrowseProject.jspa?id=10401{../url}"><xsl:apply-templates select="text()"/></A>
     </span>
   </xsl:template>
 

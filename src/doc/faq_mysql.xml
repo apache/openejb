@@ -5,12 +5,12 @@
     <name>MySQL FAQ</name>
     <faq>
         <question>How do I setup OpenEJB to use MySQL?</question>
-        <answer id="configigure">
+        <answer id="configure">
             <p>
         Here are my config files for getting the CMP entity example to 
 work.  Note that the mm driver is no longer available from sourceforge and 
 must now be directly downloaded from www.mysql.com and that the driver 
-name has changed.  The config files below use the new driver pacakge/name 
+name has changed.  The config files below use the new driver package/name 
 and work with MySQL 4.0.3 beta on Windows2000.
 </p>
 <p>

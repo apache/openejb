@@ -11,7 +11,7 @@
             get that help.  Why would you want to submit a help request
             directly to the OpenEJB team as opposed to using the 
             <a href="lists.html">mail list groups</a> and how is this different
-            than submitting a <a href="http://sourceforge.net/tracker/?group_id=44351&amp;atid=439274">bug</a>?
+            than submitting a <a href="http://jira.codehaus.org/secure/BrowseProject.jspa?id=10401">bug</a>?
         </p>
         <p>
             While using the mail list groups is a great way to bounce ideas
@@ -34,7 +34,7 @@
         <answer id="submit">
             <p>
                 It's very easy!  Go to the
-                <a href="http://sourceforge.net/tracker/?func=add&amp;group_id=44351&amp;atid=439275">SourceForge.net: Submit New Issue/Request</a>
+                <a href="http://jira.codehaus.org/secure/BrowseProject.jspa?id=10401">Codehaus.org: Submit New Issue/Request</a>
                 page.  You'll see that you are prompted to fill in several fields.
                 The more fields that you fill in, the faster and more accurate the
                 answers will be from the support group.  Let's review these fields.
@@ -135,13 +135,13 @@ http://openejb.sf.net
             </p>
             <p>
                 If you don't know the URL to your request, you can go to the
-                <a href="http://sourceforge.net/tracker/?group_id=44351&amp;atid=439275">
+                <a href="http://jira.codehaus.org/secure/BrowseProject.jspa?id=10401">
                     OpenEJB: Browse Support Requests
                 </a> page.  Once you've selected the issue that you wish to monitor
-                you will see an email field, if you're not logged into SourceForge;
-                enter your email address.  If you are logged into SourceForge, you 
+                you will see an email field, if you're not logged into OpenEJB JIRA;
+                enter your email address.  If you are logged into OpenEJB JIRA, you 
                 will not see this field; you will not have to enter your email account
-                since the notification will be sent to your SourceForge account.  Click
+                since the notification will be sent to your account.  Click
                 the Monitor button to begin monitoring that Support Request.
             </p>
         </answer>
