@@ -334,7 +334,7 @@ public class ConfigUtils  {
              *     the openejb-x.x.x.jar
              */
             //Gets the conf directory, creating it if needed.
-            File confDir = FileUtils.getBase().getDirectory("conf");
+            File confDir = FileUtils.getBase().getDirectory("conf", true);
             
             //TODO:1: We cannot find the user's conf file and
             // are taking the liberty of creating one for them.

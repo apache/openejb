@@ -325,7 +325,7 @@ public class EjbValidator {
             org.openejb.util.ClasspathUtils.addJarsToPath("lib");
             org.openejb.util.ClasspathUtils.addJarsToPath("dist");
         } catch (Exception e){
-            e.printStackTrace();
+            // ignore it
         }
         try {
             EjbValidator v = new EjbValidator();
