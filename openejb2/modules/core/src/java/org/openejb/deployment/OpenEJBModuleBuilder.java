@@ -66,6 +66,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
@@ -86,6 +87,7 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.xbeans.j2ee.CmpFieldType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
@@ -244,7 +246,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
                 if (ejbJarEntry == null) {
                     throw new DeploymentException("Did not find META-INF/ejb-jar.xml in module");
                 }
-                EjbJarDocument doc = (EjbJarDocument) XmlBeansUtil.parse(ejbJarFile.getInputStream(ejbJarEntry), EjbJarDocument.type);
+                XmlObject dd = SchemaConversionUtils.parse(ejbJarFile.getInputStream(ejbJarEntry));
+                EjbJarDocument doc = SchemaConversionUtils.convertToEJBSchema(dd);
                 ejbJar = doc.getEjbJar();
                 ejbModule.setSpecDD(ejbJar);
             } catch (XmlException e) {
