@@ -53,7 +53,6 @@ import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 import org.apache.geronimo.core.service.Interceptor;
 
 import org.openejb.nova.AbstractEJBContainer;
-import org.openejb.nova.EJBInstanceFactoryImpl;
 import org.openejb.nova.dispatch.DispatchInterceptor;
 import org.openejb.nova.dispatch.VirtualOperationFactory;
 import org.openejb.nova.entity.EntityClientContainerFactory;
@@ -64,8 +63,6 @@ import org.openejb.nova.transaction.TransactionContextInterceptor;
 import org.openejb.nova.util.SoftLimitedInstancePool;
 
 /**
- * @jmx.mbean
- *      extends="org.apache.geronimo.core.service.Container,org.apache.geronimo.kernel.management.StateManageable"
  *
  * @version $Revision$ $Date$
  */
@@ -77,10 +74,15 @@ public class BMPEntityContainer extends AbstractEJBContainer implements BMPEntit
         pkClassName = config.pkClassName;
     }
 
-    protected void doStart() throws Exception {
+    public void doStart() {
         super.doStart();
 
-        Class pkClass = classLoader.loadClass(pkClassName);
+        Class pkClass = null;
+        try {
+            pkClass = classLoader.loadClass(pkClassName);
+        } catch (ClassNotFoundException e) {
+            throw new AssertionError(e);
+        }
 
         VirtualOperationFactory vopFactory = BMPOperationFactory.newInstance(beanClass);
         vtable = vopFactory.getVTable();
@@ -107,7 +109,7 @@ public class BMPEntityContainer extends AbstractEJBContainer implements BMPEntit
         localClientContainer = clientFactory.getLocalClient();
     }
 
-    protected void doStop() throws Exception {
+    public void doStop() {
         stopServerRemoting();
         clearInterceptors();
         remoteClientContainer = null;

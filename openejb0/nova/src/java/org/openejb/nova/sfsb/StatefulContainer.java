@@ -47,7 +47,6 @@
  */
 package org.openejb.nova.sfsb;
 
-import java.io.Serializable;
 import java.net.URI;
 
 import org.apache.geronimo.cache.InstanceCache;
@@ -61,19 +60,19 @@ import org.openejb.nova.dispatch.DispatchInterceptor;
 import org.openejb.nova.transaction.TransactionContextInterceptor;
 
 /**
- * @jmx.mbean
- *      extends="org.apache.geronimo.core.service.Container,org.apache.geronimo.kernel.management.StateManageable"
  *
  * @version $Revision$ $Date$
  */
-public class StatefulContainer extends AbstractEJBContainer implements StatefulContainerMBean {
+public class StatefulContainer extends AbstractEJBContainer {
+
     private StatefulInstanceFactory instanceFactory;
     private InstanceCache instanceCache;
+
     public StatefulContainer(EJBContainerConfiguration config) {
         super(config);
     }
 
-    protected void doStart() throws Exception {
+    public void doStart() {
         super.doStart();
 
         // build the ops
@@ -105,7 +104,7 @@ public class StatefulContainer extends AbstractEJBContainer implements StatefulC
         localClientContainer = clientFactory.getLocalClient();
     }
 
-    protected void doStop() throws Exception {
+    public void doStop() {
         stopServerRemoting();
         remoteClientContainer = null;
         localClientContainer = null;

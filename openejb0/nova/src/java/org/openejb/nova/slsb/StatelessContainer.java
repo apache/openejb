@@ -59,8 +59,6 @@ import org.openejb.nova.transaction.TransactionContextInterceptor;
 import org.openejb.nova.util.SoftLimitedInstancePool;
 
 /**
- * @jmx.mbean
- *      extends="org.apache.geronimo.core.service.Container,org.apache.geronimo.kernel.management.StateManageable"
  *
  * @version $Revision$ $Date$
  */
@@ -69,7 +67,7 @@ public class StatelessContainer extends AbstractEJBContainer implements Stateles
         super(config);
     }
 
-    protected void doStart() throws Exception {
+    public void doStart() {
         super.doStart();
 
         StatelessOperationFactory vopFactory = StatelessOperationFactory.newInstance(beanClass);
@@ -98,7 +96,7 @@ public class StatelessContainer extends AbstractEJBContainer implements Stateles
         localClientContainer = clientFactory.getLocalClient();
     }
 
-    protected void doStop() throws Exception {
+    public void doStop() {
         stopServerRemoting();
         remoteClientContainer = null;
         localClientContainer = null;

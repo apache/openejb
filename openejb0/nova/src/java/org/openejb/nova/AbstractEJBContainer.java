@@ -48,6 +48,7 @@
 package org.openejb.nova;
 
 import java.net.URI;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -61,6 +62,9 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.cache.InstancePool;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
 import org.apache.geronimo.remoting.InterceptorRegistry;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
+import org.apache.geronimo.kernel.service.GeronimoMBeanContext;
 
 import org.openejb.nova.dispatch.VirtualOperation;
 import org.openejb.nova.transaction.EJBUserTransaction;
@@ -70,7 +74,11 @@ import org.openejb.nova.transaction.EJBUserTransaction;
  *
  * @version $Revision$ $Date$
  */
-public abstract class AbstractEJBContainer extends AbstractRPCContainer implements EJBContainer {
+public abstract class AbstractEJBContainer extends AbstractRPCContainer
+        implements EJBContainer, GeronimoMBeanTarget {
+
+    private GeronimoMBeanContext context;
+
     protected final URI uri;
     protected final String ejbClassName;
     protected final String homeClassName;
@@ -78,7 +86,7 @@ public abstract class AbstractEJBContainer extends AbstractRPCContainer implemen
     protected final String remoteClassName;
     protected final String localClassName;
     protected final TransactionDemarcation txnDemarcation;
-    protected final TransactionManager txnManager;
+    protected TransactionManager txnManager;         //not final until Endpoints can be Constructor args.
     protected final ReadOnlyContext componentContext;
     protected final EJBUserTransaction userTransaction;
 
@@ -110,40 +118,69 @@ public abstract class AbstractEJBContainer extends AbstractRPCContainer implemen
         componentContext = config.componentContext;
     }
 
+    protected void setTransactionManager(TransactionManager txnManager) {
+        this.txnManager = txnManager;
+    }
+
+    public void setMBeanContext(GeronimoMBeanContext context) {
+        this.context = context;
+    }
+
+    public boolean canStart() {
+        return true;
+    }
+
     /* Start the Component
      * @see org.apache.geronimo.core.service.AbstractManagedObject#doStart()
      */
-    protected void doStart() throws Exception {
-        super.doStart();
+    public void doStart() {
+        //super.doStart();
         classLoader = Thread.currentThread().getContextClassLoader();
-        beanClass = classLoader.loadClass(ejbClassName);
+        try {
+            if (userTransaction != null) {
+                userTransaction.setTransactionManager(txnManager);
+            }
+            beanClass = classLoader.loadClass(ejbClassName);
 
-        if (homeClassName != null) {
-            homeInterface = classLoader.loadClass(homeClassName);
-            remoteInterface = classLoader.loadClass(remoteClassName);
-        } else {
-            homeInterface = null;
-            remoteInterface = null;
+            if (homeClassName != null) {
+                homeInterface = classLoader.loadClass(homeClassName);
+                remoteInterface = classLoader.loadClass(remoteClassName);
+            } else {
+                homeInterface = null;
+                remoteInterface = null;
+            }
+            if (localHomeClassName != null) {
+                localHomeInterface = classLoader.loadClass(localHomeClassName);
+                localInterface = classLoader.loadClass(localClassName);
+            } else {
+                localHomeInterface = null;
+                localInterface = null;
+            }
+        } catch (ClassNotFoundException e) {
+            throw new AssertionError();
         }
-        if (localHomeClassName != null) {
-            localHomeInterface = classLoader.loadClass(localHomeClassName);
-            localInterface = classLoader.loadClass(localClassName);
-        } else {
-            localHomeInterface = null;
-            localInterface = null;
-        }
+    }
+
+    public boolean canStop() {
+        return true;
     }
 
     /* Stop the Component
      * @see org.apache.geronimo.core.service.AbstractManagedObject#doStop()
      */
-    protected void doStop() throws Exception {
+    public void doStop() {
         homeInterface = null;
         remoteInterface = null;
         localHomeInterface = null;
         localInterface = null;
         beanClass = null;
-        super.doStop();
+        if (userTransaction != null) {
+            userTransaction.setTransactionManager(null);
+        }
+        //super.doStop();
+    }
+
+    public void doFail() {
     }
 
     public Class getBeanClass() {

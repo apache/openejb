@@ -114,7 +114,7 @@ public class StatelessContextTest extends TestCase {
 
     public void XtestSessionContextBMT() throws Exception {
         config.txnDemarcation = TransactionDemarcation.BEAN;
-        config.userTransaction = new EJBUserTransaction(null);
+        config.userTransaction = new EJBUserTransaction();
         config.componentContext = new ComponentContextBuilder(null, config.userTransaction).buildContext(session);
         cmt = false;
         container = new StatelessContainer(config);

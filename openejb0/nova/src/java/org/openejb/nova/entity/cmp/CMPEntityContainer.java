@@ -62,8 +62,6 @@ import org.openejb.nova.transaction.TransactionContextInterceptor;
 import org.openejb.nova.util.SoftLimitedInstancePool;
 
 /**
- * @jmx.mbean
- *      extends="org.apache.geronimo.core.service.Container,org.apache.geronimo.kernel.management.StateManageable"
  *
  * @version $Revision$ $Date$
  */
@@ -82,10 +80,15 @@ public class CMPEntityContainer extends AbstractEJBContainer implements CMPEntit
         this.cmpFieldNames = cmpFieldNames;
     }
 
-    protected void doStart() throws Exception {
+    public void doStart() {
         super.doStart();
 
-        Class pkClass = classLoader.loadClass(pkClassName);
+        Class pkClass = null;
+        try {
+            pkClass = classLoader.loadClass(pkClassName);
+        } catch (ClassNotFoundException e) {
+            throw new AssertionError(e);
+        }
 
         CMPOperationFactory vopFactory = CMPOperationFactory.newInstance(this, queries, persistenceFactory, cmpFieldNames);
         vtable = vopFactory.getVTable();
@@ -113,7 +116,7 @@ public class CMPEntityContainer extends AbstractEJBContainer implements CMPEntit
         localClientContainer = clientFactory.getLocalClient();
     }
 
-    protected void doStop() throws Exception {
+    public void doStop() {
         stopServerRemoting();
         clearInterceptors();
         remoteClientContainer = null;

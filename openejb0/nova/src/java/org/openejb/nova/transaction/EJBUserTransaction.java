@@ -63,16 +63,20 @@ import javax.transaction.UserTransaction;
  * @version $Revision$ $Date$
  */
 public class EJBUserTransaction implements UserTransaction {
-    private final TransactionManager txnManager;
+    private TransactionManager txnManager;
     private final ThreadLocal state = new ThreadLocal() {
         protected Object initialValue() {
             return OFFLINE;
         }
     };
 
-    public EJBUserTransaction(TransactionManager manager) {
-        this.txnManager = manager;
+    public EJBUserTransaction() {
         state.set(OFFLINE);
+    }
+
+    public void setTransactionManager(TransactionManager txnManager) {
+        assert !isOnline() : "Only set the tx manager when UserTransaction is offline";
+        this.txnManager = txnManager;
     }
 
     public boolean isOnline() {
@@ -80,6 +84,9 @@ public class EJBUserTransaction implements UserTransaction {
     }
 
     public void setOnline(boolean online) {
+        //too bad there's no implies operation
+        // online implies txnManager != null
+        assert !online & txnManager != null : "online requires a tx manager";
         state.set(online ? ONLINE : OFFLINE);
     }
 
