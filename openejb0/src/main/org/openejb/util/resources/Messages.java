@@ -77,6 +77,8 @@ public class Messages extends ListResourceBundle{
 {"ge0008", "The {0} cannot instaniate the class {1}, the class or initializer is not accessible."},//param 0 is the part of the system that needs the class, param 1 is the class that cannot be accessed.
 {"ge0009", "The {0} cannot instaniate the class {1}, the class may be abstract or an interface."},//param 0 is the part of the system that needs the class, param 1 is the class that cannot be accessed.
 {"ge0010", "The {0} cannot locate the class {1}, the codebase {2} cannot be accessed. Received message: {3}"},
+{"ge0011", "The {0} cannot instaniate the class {1}:  Recieved exception {3}: {4}"},
+{"ge0012", "The {0} cannot instaniate the class {1} loaded from codebase {2}:  Recieved exception {3}: {4}"},
 {"cl0001", "Invalid codebase URI [{0}]. Received message: {1}"},
 {"cl0002", "Cannot access codebase [{0}]. Received message: {1}"},
 {"cl0003", "Error while loading remote interface {0} for bean {1}. Received message: {2}"},

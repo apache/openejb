@@ -230,6 +230,49 @@ public class OpenEJBErrorHandler{
     }
 
     /**
+     * Creates and throws an OpenEJBException with the following message:
+     *
+     * "The {0} cannot instaniate the class {1}:  Recieved exception {2}: {3}"
+     *      {0} part of the system that needs the class
+     *      {1} class that cannot be accessed.
+     *      {2} name of caught exception
+     *      {3} message from caught exception
+     *
+     * @param systemLocation        replaces {0} in the error message.
+     * @param className             replaces {1} in the error message.
+     * @param exceptionClassName    replaces {2} in the error message.
+     * @param message               replaces {3} in the error message.
+     */
+    public static void classNotIntantiateableForUnknownReason(String systemLocation, String className, String exceptionClassName, String message) throws OpenEJBException{
+
+        Object[] errorMessageParams = {systemLocation, className, exceptionClassName, message};
+        throw new OpenEJBException("ge0011", errorMessageParams);
+    }
+
+    /**
+     * Creates and throws an OpenEJBException with the following message:
+     *
+     * "The {0} cannot instaniate the class {1} loaded from codebase {2}:  Recieved exception {3}: {4}"
+     *      {0} part of the system that needs the class
+     *      {1} class that cannot be accessed.
+     *      {2} codebase the class was loaded from
+     *      {3} name of caught exception
+     *      {4} message from caught exception
+     *
+     * @param systemLocation        replaces {0} in the error message.
+     * @param className             replaces {1} in the error message.
+     * @param codeBase              replaces {2} in the error message.
+     * @param exceptionClassName    replaces {3} in the error message.
+     * @param message               replaces {4} in the error message.
+     */
+    public static void classNotIntantiateableFromCodebaseForUnknownReason(String systemLocation, String className, String codebase, String exceptionClassName, String message) 
+	throws OpenEJBException
+    {
+        Object[] errorMessageParams = {systemLocation, className, codebase, exceptionClassName, message};
+        throw new OpenEJBException("ge0012", errorMessageParams);
+    }
+
+    /**
      * The {0} cannot locate the class {1}, the codebase '{2}' cannot
      * be accessed. Received message: {3}"
      * 
