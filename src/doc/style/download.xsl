@@ -110,9 +110,8 @@
             </span></p>
             
             <p><span class="bodyBlack">
-            We are cycling through a series of beta releases based on user-feedback.  Be sure to check 
-            OpenEJB's <a href="http://sourceforge.net/project/showfiles.php?group_id=44351">download 
-            page</a> at SourceForge for new releases.
+            Be sure to check OpenEJB's <a href="http://sourceforge.net/project/showfiles.php?group_id=44351">download 
+            page</a> at SourceForge for new releases. Or <a href="http://sourceforge.net/project/filemodule_monitor.php?filemodule_id=36829">sign up to be notified of new releases</a>.
             </span></p>
             <p><span class="bodyBlack">Current and previous releases that are available:<br/>
             <xsl:for-each select="./ChangeLog/Version">
