@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!-- $Id& -->
+<document url="http://www.openejb.org/struts-example.xml">
+  <properties>
+    <title>OpenEJB/Tomcat/Struts Example</title>
+    <sub-title>A basic example using OpenEJB, Tomcat and Struts</sub-title>
+  </properties>
+  <body>    
+    <section title="Section 1">
+      <p>Section one text.</p>
+    </section>
+
+    <section title="Section 2">
+      <p>
+        Section two text.
+     </p>
+    </section>
+
+  </body>
+</document>

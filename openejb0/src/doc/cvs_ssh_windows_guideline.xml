@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- $Id$ -->
 <document url="http://openejb.sf.net/cvs_ssh_windows_guideline.xml">
   <body>
     <title>Working CVS and SSH under Windows</title>

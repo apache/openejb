@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!-- $Id$ -->
 <document url="http://openejb.sf.net/tomcat-setup.xml">
   <properties>
     <title>David's notes on setting up Tomcat with OpenEJB</title>

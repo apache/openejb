@@ -5,7 +5,8 @@
      to use HTTP URLs to the on-line copy of the documentation. There
      is no need to keep a version number in there, we use CVS. Drafts
      and revisions should be marked in the document properties.
-
+     
+     $Id$
  -->
 <!ELEMENT document ( properties?, body )>
 <!ATTLIST document
