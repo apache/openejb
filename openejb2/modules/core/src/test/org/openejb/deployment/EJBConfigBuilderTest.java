@@ -63,7 +63,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
-
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
@@ -77,7 +76,6 @@ import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -89,7 +87,6 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
-
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.ContainerIndex;
 import org.openejb.DeploymentHelper;
@@ -106,8 +103,8 @@ public class EJBConfigBuilderTest extends TestCase {
     private Kernel kernel;
 
     public void testCreateResourceAdapterNameQuery() throws Exception {
-        EARContext earContext = new EARContext(null, null, ConfigurationModuleType.EJB, null, null, "geronimo.server", "geronimo", null, null, null, null, null);
         OpenEJBModuleBuilder builder = new OpenEJBModuleBuilder(null);
+        EARContext earContext = new EARContext(null, null, ConfigurationModuleType.EJB, null, null, "geronimo.server", "geronimo", null, null, null, null, null, builder);
         ObjectName testName = builder.createResourceAdapterQueryName(earContext, "TestResourceAdapterName");
         assertEquals(ObjectName.getInstance("geronimo.server:j2eeType=ResourceAdapter,name=TestResourceAdapterName,J2EEServer=geronimo,*"), testName);
     }
@@ -146,8 +143,8 @@ public class EJBConfigBuilderTest extends TestCase {
                 DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
                 DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
                 DeploymentHelper.TRANSACTIONALTIMER_NAME,
-                DeploymentHelper.NONTRANSACTIONALTIMER_NAME
-        );
+                DeploymentHelper.NONTRANSACTIONALTIMER_NAME,
+                configBuilder);
         try {
             Thread.currentThread().setContextClassLoader(cl);
             //     ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor().getMethodPermissionArray(),
@@ -216,8 +213,8 @@ public class EJBConfigBuilderTest extends TestCase {
                     DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
                     DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
                     DeploymentHelper.TRANSACTIONALTIMER_NAME,
-                    DeploymentHelper.NONTRANSACTIONALTIMER_NAME
-            );
+                    DeploymentHelper.NONTRANSACTIONALTIMER_NAME,
+                    moduleBuilder);
 
             action.install(moduleBuilder, earContext, module);
             earContext.getClassLoader(null);
@@ -240,7 +237,7 @@ public class EJBConfigBuilderTest extends TestCase {
         String j2eeApplicationName = "null";
         String j2eeModuleName = "org/openejb/deployment/test";
 
-        ModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
         File earFile = new File("target/test-ejb-jar.jar");
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -250,7 +247,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
         File carFile = File.createTempFile("OpenEJBTest", ".car");
         try {
-            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName), DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, DeploymentHelper.TRANSACTIONALTIMER_NAME, DeploymentHelper.NONTRANSACTIONALTIMER_NAME, null, moduleBuilder, null, null, null
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName), DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, DeploymentHelper.TRANSACTIONALTIMER_NAME, DeploymentHelper.NONTRANSACTIONALTIMER_NAME, null, moduleBuilder, moduleBuilder, null, null, null
                     // web
                     //connector
             );
@@ -272,7 +269,7 @@ public class EJBConfigBuilderTest extends TestCase {
         String j2eeApplicationName = "org/apache/geronimo/j2ee/deployment/test";
         String j2eeModuleName = "test-ejb-jar.jar";
 
-        ModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
         File earFile = new File("target/test-ear.ear");
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -282,7 +279,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
         File carFile = File.createTempFile("OpenEJBTest", ".car");
         try {
-            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName), DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, DeploymentHelper.TRANSACTIONALTIMER_NAME, DeploymentHelper.NONTRANSACTIONALTIMER_NAME, null, moduleBuilder, null, null, null
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName), DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, DeploymentHelper.TRANSACTIONALTIMER_NAME, DeploymentHelper.NONTRANSACTIONALTIMER_NAME, null, moduleBuilder, moduleBuilder, null, null, null
                     // web
                     //connector
             );
