@@ -51,13 +51,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.sql.CallableStatement;
 
 import org.openejb.nova.persistence.jdbc.Binding;
 import org.openejb.nova.persistence.Tuple;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public final class ShortBinding implements Binding {
@@ -82,6 +83,16 @@ public final class ShortBinding implements Binding {
         short value = rs.getShort(index);
         Object[] values = tuple.getValues();
         if (rs.wasNull()) {
+            values[slot] = null;
+        } else {
+            values[slot] = new Short(value);
+        }
+    }
+
+    public void unbind(CallableStatement cs, Tuple tuple) throws SQLException {
+        short value = cs.getShort(index);
+        Object[] values = tuple.getValues();
+        if (cs.wasNull()) {
             values[slot] = null;
         } else {
             values[slot] = new Short(value);

@@ -316,6 +316,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
 
         Query[] queries = entity.getGeronimoQuery();
         Query[] updates = entity.getUpdate();
+        Query[] call = entity.getCall();
         CmpField[] fields = entity.getCmpField();
         String[] cmpFieldNames = new String[fields.length];
         for (int i = 0; i < fields.length; i++) {
@@ -329,6 +330,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner{
                 config,
                 queries,
                 updates,
+                call,
                 cmpFieldNames,
                 cmRelations));
         plan.addTask(new StartMBeanInstance(getServer(), ejbMetadata));

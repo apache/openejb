@@ -51,6 +51,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.sql.CallableStatement;
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -58,8 +59,8 @@ import org.openejb.nova.persistence.jdbc.Binding;
 import org.openejb.nova.persistence.Tuple;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public final class ObjectBinding implements Binding {
@@ -84,6 +85,11 @@ public final class ObjectBinding implements Binding {
     public void unbind(ResultSet rs, Tuple tuple) throws SQLException {
         Object[] values = tuple.getValues();
         values[slot] = typeMap == null ? rs.getObject(index) : rs.getObject(index, typeMap);
+    }
+
+    public void unbind(CallableStatement cs, Tuple tuple) throws SQLException {
+        Object[] values = tuple.getValues();
+        values[slot] = typeMap == null ? cs.getObject(index) : cs.getObject(index, typeMap);
     }
 
     public int getLength() {

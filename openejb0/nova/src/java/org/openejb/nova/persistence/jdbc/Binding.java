@@ -50,6 +50,7 @@ package org.openejb.nova.persistence.jdbc;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.CallableStatement;
 
 import org.openejb.nova.persistence.Tuple;
 
@@ -60,8 +61,10 @@ import org.openejb.nova.persistence.Tuple;
  */
 public interface Binding {
     int getLength();
-    
+
     void bind(PreparedStatement ps, Object[] args) throws SQLException;
 
     void unbind(ResultSet rs, Tuple tuple) throws SQLException;
+
+    void unbind(CallableStatement cs, Tuple tuple) throws SQLException;
 }

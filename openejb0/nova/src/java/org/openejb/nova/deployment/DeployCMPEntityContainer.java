@@ -87,6 +87,7 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
     private final EntityContainerConfiguration config;
     private final Query[] queries;
     private final Query[] updates;
+    private final Query[] calls;
     private final String[] cmpFieldNames;
     private final CMRelation[] cmRelations;
 
@@ -97,6 +98,7 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
                                     EntityContainerConfiguration config,
                                     Query[] queries,
                                     Query[] updates,
+                                    Query[] calls,
                                     String[] cmpFieldNames,
                                     CMRelation[] cmRelations) {
         super(server, metadata);
@@ -104,6 +106,7 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
         this.config = config;
         this.queries = queries;
         this.updates = updates;
+        this.calls = calls;
         this.cmpFieldNames = cmpFieldNames;
         this.cmRelations = cmRelations;
     }
@@ -148,6 +151,17 @@ public class DeployCMPEntityContainer extends DeployGeronimoMBean {
                 //Binding[] outputBindings = translateBindings(query.getOutputBinding(), cl);
 
                 schema.defineUpdate(methodSignature, query.getSql(), inputBindings);
+            }
+            for (int i = 0; i < calls.length; i++) {
+                Query query = calls[i];
+                MethodSignature methodSignature = new MethodSignature(query.getQueryMethod().getMethodName(),
+                        query.getQueryMethod().getMethodParam());
+
+                Binding[] inputBindings = translateBindings(query.getInputBinding(), cl);
+
+                Binding[] outputBindings = translateBindings(query.getOutputBinding(), cl);
+
+                schema.defineCall(methodSignature, query.getSql(), inputBindings, outputBindings);
             }
             CMPEntityContainer container = new CMPEntityContainer(config,
                     schema,

@@ -51,13 +51,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.sql.CallableStatement;
 
 import org.openejb.nova.persistence.jdbc.Binding;
 import org.openejb.nova.persistence.Tuple;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public final class CharacterBinding implements Binding {
@@ -76,6 +77,12 @@ public final class CharacterBinding implements Binding {
     public void unbind(ResultSet rs, Tuple tuple) throws SQLException {
         Object[] values = tuple.getValues();
         String value = rs.getString(index);
+        values[slot] = value == null ? null : new Character(value.charAt(0));
+    }
+
+    public void unbind(CallableStatement cs, Tuple tuple) throws SQLException {
+        Object[] values = tuple.getValues();
+        String value = cs.getString(index);
         values[slot] = value == null ? null : new Character(value.charAt(0));
     }
 

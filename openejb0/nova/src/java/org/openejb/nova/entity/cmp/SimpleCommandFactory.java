@@ -57,6 +57,7 @@ import org.openejb.nova.persistence.UpdateCommand;
 import org.openejb.nova.persistence.jdbc.Binding;
 import org.openejb.nova.persistence.jdbc.JDBCQueryCommand;
 import org.openejb.nova.persistence.jdbc.JDBCUpdateCommand;
+import org.openejb.nova.persistence.jdbc.JDBCCallCommand;
 
 /**
  *
@@ -78,6 +79,10 @@ public class SimpleCommandFactory implements CMPCommandFactory {
 
     public void defineUpdate(MethodSignature signature, String sql, Binding[] inputBindings) {
         commandMap.put(signature, new JDBCUpdateCommand(ds, sql, inputBindings));
+    }
+
+    public void defineCall(MethodSignature signature, String sql, Binding[] inputBindings, Binding[] outputBindings) {
+        commandMap.put(signature, new JDBCCallCommand(ds, sql, inputBindings, outputBindings));
     }
 
     public void defineContainer(String abstractSchemaName, CMPEntityContainer container) {

@@ -51,14 +51,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.sql.CallableStatement;
 import java.math.BigDecimal;
 
 import org.openejb.nova.persistence.jdbc.Binding;
 import org.openejb.nova.persistence.Tuple;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public final class BigDecimalBinding implements Binding {
@@ -78,6 +79,12 @@ public final class BigDecimalBinding implements Binding {
         Object[] values = tuple.getValues();
         values[slot] = rs.getBigDecimal(index);
     }
+
+    public void unbind(CallableStatement cs, Tuple tuple) throws SQLException {
+        Object[] values = tuple.getValues();
+        values[slot] = cs.getBigDecimal(index);
+    }
+
 
     public int getLength() {
         return 1;

@@ -51,6 +51,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.sql.CallableStatement;
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
@@ -114,6 +115,11 @@ public final class CharacterStreamBinding implements Binding {
                 }
             }
         }
+    }
+
+    public void unbind(CallableStatement cs, Tuple tuple) throws SQLException {
+        //TODO implement this
+        throw new RuntimeException("NOT YET IMPLEMENTED");
     }
 
     public int getLength() {
