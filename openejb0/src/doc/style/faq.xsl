@@ -363,6 +363,18 @@
     </table>
   </xsl:template>
 
+  <xsl:template match="code-block">
+    <table border="0" cellpadding="0" cellspacing="0" width="440">
+    <tr>
+    <td bgcolor="#e0e0e0">
+    <span class="code-block">
+      <pre><xsl:apply-templates/></pre>
+    </span>
+    </td>
+    </tr>
+    </table>
+  </xsl:template>
+  
   <xsl:template match="code">
     <span class="code-block">
       <xsl:apply-templates/>
