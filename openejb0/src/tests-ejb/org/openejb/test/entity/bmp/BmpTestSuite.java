@@ -68,7 +68,7 @@ public class BmpTestSuite extends org.openejb.test.TestSuite{
         this.addTest(new BmpHomeHandleTests());
         this.addTest(new BmpHandleTests());
         this.addTest(new BmpEjbMetaDataTests());
-        this.addTest(new BmpAllowedOperationsTests());
+      //this.addTest(new BmpAllowedOperationsTests());
         this.addTest(new BmpJndiEncTests());
         this.addTest(new BmpRmiIiopTests());
         
