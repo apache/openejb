@@ -63,7 +63,22 @@
     <section name="Servers">
       <navLink>
         <url>embedded.xml</url>
-        <display>IntraVM Server</display>
+        <display>Local Server</display>
+      </navLink>
+      <navLink>
+        <url>remote-server.xml</url>
+        <display>Remote Server</display>
+      </navLink>
+    </section>
+
+    <section name="Adapters">
+      <navLink>
+        <url>corba-adapter.xml</url>
+        <display>OpenORB</display>
+      </navLink>
+      <navLink>
+        <url>tomcat-adapter.xml</url>
+        <display>Tomcat</display>
       </navLink>
     </section>
 
