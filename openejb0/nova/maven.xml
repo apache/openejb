@@ -6,8 +6,7 @@
     xmlns:j="jelly:core"
     xmlns:ant="jelly:ant"
     xmlns:maven="jelly:maven"
-    xmlns:define="jelly:define"
-    xmlns:xdoclet="common:xdoclet">
+    xmlns:define="jelly:define">
 
     <goal name="default">
         <attainGoal name="jar:install"/>
@@ -25,83 +24,5 @@
     <preGoal name="xdoc:jelly-transform">
         <attainGoal name="html2xdoc"/>
     </preGoal>
-
-    <preGoal name="java:compile">
-        <attainGoal name="xdoclet:jmxdoclet:compile"/>
-    </preGoal>
-
-    <!--
-        <preGoal name="test:compile">
-            <attainGoal name="xdoclet:jmxdoclet:test-compile"/>
-        </preGoal>
-    -->
-
-    <define:taglib uri="common:xdoclet">
-
-        <define:tag name="jmxdoclet" xmlns="jelly:ant">
-            <j:if test="${srcdir == null}">
-                <fail>Missing required attribute: srcdir</fail>
-            </j:if>
-            <j:if test="${destdir == null}">
-                <fail>Missing required attribute: destdir</fail>
-            </j:if>
-
-            <!-- Inlcude the generated sources in the Javac compile -->
-            <j:if test="${appendSet != null}">
-                <path id="xdoclet.jmx.compile.src.set" location="${destdir}"/>
-                <maven:addPath id="${appendSet}" refid="xdoclet.jmx.compile.src.set"/>
-            </j:if>
-
-            <j:set var="uptodatePropName" value="xdoclet.jmx.uptodate"/>
-            <j:expr value="${context.setVariable(uptodatePropName, null)}"/>
-            <j:set var="uptodateFile" value="${destdir}/tstamp"/>
-
-            <uptodate property="${uptodatePropName}"
-                targetfile="${uptodateFile}">
-                <srcfiles dir="${srcdir}" includes="**/*.java"/>
-            </uptodate>
-
-            <j:if test="${context.getVariable(uptodatePropName) == null}">
-                <echo>Generating MBean interfaces...</echo>
-
-                <!-- Load the jmxdoclet task -->
-                <taskdef name="jmxdoclet" classname="xdoclet.modules.jmx.JMXDocletTask">
-                    <classpath>
-                        <path refid="maven.dependency.classpath"/>
-                    </classpath>
-                </taskdef>
-
-                <!-- Where sources will be generated -->
-                <mkdir dir="${destdir}"/>
-
-                <!-- Generate MBean interfaces -->
-                <jmxdoclet destDir="${destdir}" verbose="false">
-
-                    <fileset dir="${srcdir}">
-                        <include name="**/*.java"/>
-                    </fileset>
-
-                    <mbeaninterface templateFile="${basedir}/etc/xdoclet/template/jmx/mbean.xdt"/>
-                </jmxdoclet>
-
-                <touch file="${uptodateFile}"/>
-            </j:if>
-
-        </define:tag>
-    </define:taglib>
-
-    <goal name="xdoclet:jmxdoclet:compile">
-        <xdoclet:jmxdoclet
-            srcdir="${basedir}/src/java"
-            destdir="${basedir}/target/xdoclet/jmx"
-            appendSet="maven.compile.src.set"/>
-    </goal>
-
-    <goal name="xdoclet:jmxdoclet:test-compile">
-        <xdoclet:jmxdoclet
-            srcdir="${basedir}/src/test"
-            destdir="${basedir}/target/test-xdoclet/jmx"
-            appendSet="maven.test.compile.src.set"/>
-    </goal>
 
 </project>
