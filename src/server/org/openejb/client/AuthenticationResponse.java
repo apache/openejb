@@ -140,11 +140,11 @@ public class AuthenticationResponse implements Response {
         out.writeByte((byte)responseCode);
         switch (responseCode) {
             case AUTH_GRANTED:
-                out.writeObject(identity);
+                identity.writeExternal(out);
                 break;
             case AUTH_REDIRECT:
-                out.writeObject(identity);
-                out.writeObject(server);
+                identity.writeExternal(out);
+                server.writeExternal( out );
                 break;
             case AUTH_DENIED:
                 break;
