@@ -48,7 +48,7 @@
 package org.openejb.nova.mdb;
 
 import org.apache.geronimo.cache.InstancePool;
-import org.apache.geronimo.core.service.AbstractInterceptor;
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 
@@ -61,10 +61,12 @@ import org.openejb.nova.EJBInvocationType;
  *
  * @version $Revision$ $Date$
  */
-public final class MDBInstanceInterceptor extends AbstractInterceptor {
+public final class MDBInstanceInterceptor implements Interceptor {
+    private final Interceptor next;
     private final InstancePool pool;
 
-    public MDBInstanceInterceptor(InstancePool pool) {
+    public MDBInstanceInterceptor(Interceptor next, InstancePool pool) {
+        this.next = next;
         this.pool = pool;
     }
 
@@ -81,7 +83,7 @@ public final class MDBInstanceInterceptor extends AbstractInterceptor {
         ejbInvocation.setEJBInstanceContext(ctx);
 
         try {
-            InvocationResult result = getNext().invoke(invocation);
+            InvocationResult result = next.invoke(invocation);
 
             // we are done with this instance, return it to the pool
             pool.release(ctx);

@@ -73,8 +73,7 @@ public class EntityClientContainerFactory implements ClientContainerFactory {
 
     public EntityClientContainerFactory(Class pkClass, VirtualOperationFactory vopFactory, URI uri, Class home, Class remote, Interceptor localEndpoint, Class localHome, Class local) {
         if (localHome != null) {
-            localContainer = new EntityLocalClientContainer(vopFactory.getSignatures(), localHome, local);
-            localContainer.addInterceptor(localEndpoint);
+            localContainer = new EntityLocalClientContainer(localEndpoint, vopFactory.getSignatures(), localHome, local);
         } else {
             localContainer = null;
         }
@@ -82,16 +81,12 @@ public class EntityClientContainerFactory implements ClientContainerFactory {
         if (home != null) {
             Long remoteId = Long.valueOf(uri.getFragment());
             RemoteTransportInterceptor transport = new RemoteTransportInterceptor(uri);
-            IntraVMRoutingInterceptor localRouter = new IntraVMRoutingInterceptor(remoteId, true);
-            InterVMRoutingInterceptor remoteRouter = new InterVMRoutingInterceptor(transport, localRouter);
-            Interceptor demarshaller = InterceptorRegistry.instance.lookup(remoteId);
-
-            remoteContainer = new EntityRemoteClientContainer(vopFactory.getSignatures(), home, remote, pkClass);
-            remoteContainer.addInterceptor(remoteRouter);
-            remoteContainer.addInterceptor(localRouter);
-            remoteContainer.addInterceptor(new MarshalingInterceptor());
-            remoteContainer.addInterceptor(new NullTransportInterceptor());
-            remoteContainer.addInterceptor(demarshaller);
+            Interceptor clientStack = InterceptorRegistry.instance.lookup(remoteId);
+            clientStack = new NullTransportInterceptor(clientStack);
+            clientStack = new MarshalingInterceptor(clientStack);
+            clientStack = new IntraVMRoutingInterceptor(clientStack, remoteId, true);
+            clientStack = new InterVMRoutingInterceptor(transport, clientStack);
+            remoteContainer = new EntityRemoteClientContainer(clientStack, vopFactory.getSignatures(), home, remote, pkClass);
         } else {
             remoteContainer = null;
         }

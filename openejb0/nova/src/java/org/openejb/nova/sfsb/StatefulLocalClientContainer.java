@@ -91,7 +91,7 @@ public class StatefulLocalClientContainer implements EJBLocalClientContainer {
         PROXY_CALLBACK.setCallback(Callbacks.INTERCEPT, new StatefulLocalObjectCallback());
     }
 
-    private Interceptor firstInterceptor;
+    private final Interceptor firstInterceptor;
 
     private final int[] homeMap;
     private final EJBLocalHome homeProxy;
@@ -100,7 +100,8 @@ public class StatefulLocalClientContainer implements EJBLocalClientContainer {
     private final int[] objectMap;
     private final Factory proxyFactory;
 
-    public StatefulLocalClientContainer(MethodSignature[] signatures, Class localHome, Class local) {
+    public StatefulLocalClientContainer(Interceptor firstInterceptor, MethodSignature[] signatures, Class localHome, Class local) {
+        this.firstInterceptor = firstInterceptor;
         SimpleCallbacks callbacks;
         Enhancer enhancer;
         Factory factory;
@@ -139,18 +140,6 @@ public class StatefulLocalClientContainer implements EJBLocalClientContainer {
         enhancer.setCallbacks(callbacks);
         enhancer.setClassLoader(local.getClassLoader());
         return enhancer;
-    }
-
-    public void addInterceptor(Interceptor interceptor) {
-        if (firstInterceptor == null) {
-            firstInterceptor = interceptor;
-            return;
-        }
-        Interceptor parent = firstInterceptor;
-        while (parent.getNext() != null) {
-            parent = parent.getNext();
-        }
-        parent.setNext(interceptor);
     }
 
     public EJBLocalHome getEJBLocalHome() {

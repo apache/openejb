@@ -59,8 +59,7 @@ public class MDBClientContainerFactory {
     private final MDBLocalClientContainer localContainer;
 
     public MDBClientContainerFactory(VirtualOperationFactory vopFactory, Interceptor localEndpoint, Class mdbInterface) {
-        localContainer = new MDBLocalClientContainer(vopFactory.getSignatures(), mdbInterface);
-        localContainer.addInterceptor(localEndpoint);
+        localContainer = new MDBLocalClientContainer(localEndpoint, vopFactory.getSignatures(), mdbInterface);
     }
 
     public MDBLocalClientContainer getMessageClientContainer() {

@@ -85,12 +85,12 @@ public class StatefulContainer extends AbstractEJBContainer {
         instanceCache = new SimpleInstanceCache();
 
         // set up server side interceptors
-        Interceptor firstInterceptor = new SystemExceptionInterceptor(getBeanClassName());
-        addInterceptor(firstInterceptor);
-        addInterceptor(new ComponentContextInterceptor(componentContext));
-        addInterceptor(new TransactionContextInterceptor(txnManager));
-        addInterceptor(new StatefulInstanceInterceptor(this, instanceFactory, instanceCache));
-        addInterceptor(new DispatchInterceptor(vtable));
+        Interceptor firstInterceptor;
+        firstInterceptor = new DispatchInterceptor(vtable);
+        firstInterceptor = new StatefulInstanceInterceptor(firstInterceptor, this, instanceFactory, instanceCache);
+        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, txnManager);
+        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
+        firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, getBeanClassName());
 
         URI target;
         if (homeClassName != null) {
@@ -112,7 +112,6 @@ public class StatefulContainer extends AbstractEJBContainer {
         stopServerRemoting();
         remoteClientContainer = null;
         localClientContainer = null;
-        clearInterceptors();
         pool = null;
         super.doStop();
     }

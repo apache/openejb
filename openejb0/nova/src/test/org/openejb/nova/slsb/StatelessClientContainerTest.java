@@ -190,20 +190,16 @@ public class StatelessClientContainerTest extends TestCase {
     }
 
     public void XtestProxySpeed() throws Exception {
-        MethodSignature[] signatures = {new MethodSignature("intMethod", new Class[]{Integer.TYPE})};
-        StatelessLocalClientContainer localContainer = new StatelessLocalClientContainer(signatures, MockLocalHome.class, MockLocal.class);
-        localContainer.addInterceptor(new Interceptor() {
-            public Interceptor getNext() {
-                return null;
-            }
+        Interceptor localEndpoint = new Interceptor() {
 
             public InvocationResult invoke(Invocation invocation) throws Throwable {
                 return new SimpleInvocationResult(true, new Integer(1));
             }
 
-            public void setNext(Interceptor interceptor) throws IllegalStateException {
-            }
-        });
+        };
+
+        MethodSignature[] signatures = {new MethodSignature("intMethod", new Class[]{Integer.TYPE})};
+        StatelessLocalClientContainer localContainer = new StatelessLocalClientContainer(localEndpoint, signatures, MockLocalHome.class, MockLocal.class);
         MockLocalHome localHome = (MockLocalHome) localContainer.getEJBLocalHome();
         MockLocal local = localHome.create();
         assertEquals(1, local.intMethod(1));

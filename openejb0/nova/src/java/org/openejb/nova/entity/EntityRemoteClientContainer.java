@@ -108,7 +108,8 @@ public class EntityRemoteClientContainer implements EJBRemoteClientContainer {
     private final EJBMetaData ejbMetadata;
     private final HomeHandle homeHandle;
 
-    public EntityRemoteClientContainer(MethodSignature[] signatures, Class home, Class remote, Class pkClass) {
+    public EntityRemoteClientContainer(Interceptor firstInterceptor, MethodSignature[] signatures, Class home, Class remote, Class pkClass) {
+        this.firstInterceptor = firstInterceptor;
         this.pkClass = pkClass;
         this.home = home;
         this.remote = remote;
@@ -153,18 +154,6 @@ public class EntityRemoteClientContainer implements EJBRemoteClientContainer {
         enhancer.setCallbackFilter(new EJBCallbackFilter(baseClass));
         enhancer.setCallbacks(callbacks);
         return enhancer;
-    }
-
-    public void addInterceptor(Interceptor interceptor) {
-        if (firstInterceptor == null) {
-            firstInterceptor = interceptor;
-            return;
-        }
-        Interceptor parent = firstInterceptor;
-        while (parent.getNext() != null) {
-            parent = parent.getNext();
-        }
-        parent.setNext(interceptor);
     }
 
     public EJBHome getEJBHome() {

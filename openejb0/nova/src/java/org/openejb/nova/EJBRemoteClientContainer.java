@@ -62,6 +62,4 @@ public interface EJBRemoteClientContainer {
     EJBHome getEJBHome();
 
     EJBObject getEJBObject(Object primaryKey);
-
-    void addInterceptor(Interceptor interceptor);
 }

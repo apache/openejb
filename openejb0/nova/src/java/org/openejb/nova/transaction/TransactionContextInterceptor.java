@@ -49,7 +49,7 @@ package org.openejb.nova.transaction;
 
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.core.service.AbstractInterceptor;
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 
@@ -60,12 +60,14 @@ import org.openejb.nova.EJBInvocation;
  *
  * @version $Revision$ $Date$
  */
-public class TransactionContextInterceptor extends AbstractInterceptor {
+public class TransactionContextInterceptor implements Interceptor {
+    private final Interceptor next;
     private final TransactionManager txnManager;
     private TxnPolicy remotePolicies[];
     private TxnPolicy localPolicies[];
 
-    public TransactionContextInterceptor(TransactionManager txnManager) {
+    public TransactionContextInterceptor(Interceptor next, TransactionManager txnManager) {
+        this.next = next;
         this.txnManager = txnManager;
     }
 
@@ -74,6 +76,6 @@ public class TransactionContextInterceptor extends AbstractInterceptor {
         int index = ejbInvocation.getMethodIndex();
         TxnPolicy policy = ContainerPolicy.Required; //@todo get this from metadata
 
-        return policy.invoke(getNext(), ejbInvocation, txnManager);
+        return policy.invoke(next, ejbInvocation, txnManager);
     }
 }

@@ -52,7 +52,7 @@ import javax.ejb.NoSuchObjectLocalException;
 
 import org.apache.geronimo.cache.InstanceCache;
 import org.apache.geronimo.cache.InstanceFactory;
-import org.apache.geronimo.core.service.AbstractInterceptor;
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 
@@ -66,12 +66,14 @@ import org.openejb.nova.transaction.TransactionContext;
  *
  * @version $Revision$ $Date$
  */
-public final class StatefulInstanceInterceptor extends AbstractInterceptor {
+public final class StatefulInstanceInterceptor implements Interceptor {
+    private final Interceptor next;
     private final StatefulContainer container;
     private final InstanceFactory factory;
     private final InstanceCache cache;
 
-    public StatefulInstanceInterceptor(StatefulContainer container, InstanceFactory factory, InstanceCache cache) {
+    public StatefulInstanceInterceptor(Interceptor next, StatefulContainer container, InstanceFactory factory, InstanceCache cache) {
+        this.next = next;
         this.container = container;
         this.factory = factory;
         this.cache = cache;
@@ -110,7 +112,7 @@ public final class StatefulInstanceInterceptor extends AbstractInterceptor {
         ejbInvocation.setEJBInstanceContext(ctx);
 
         try {
-            return getNext().invoke(invocation);
+            return next.invoke(invocation);
         } finally {
             // remove the reference to the context from the invocation
             ejbInvocation.setEJBInstanceContext(null);

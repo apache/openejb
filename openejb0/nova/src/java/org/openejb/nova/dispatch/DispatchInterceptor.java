@@ -47,7 +47,7 @@
  */
 package org.openejb.nova.dispatch;
 
-import org.apache.geronimo.core.service.AbstractInterceptor;
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 
@@ -58,7 +58,7 @@ import org.openejb.nova.EJBInvocation;
  *
  * @version $Revision$ $Date$
  */
-public final class DispatchInterceptor extends AbstractInterceptor {
+public final class DispatchInterceptor implements Interceptor {
     private final VirtualOperation[] vtable;
 
     public DispatchInterceptor(VirtualOperation[] vtable) {

@@ -90,7 +90,7 @@ public class EntityLocalClientContainer implements EJBLocalClientContainer {
         PROXY_CALLBACK.setCallback(Callbacks.INTERCEPT, new EntityLocalObjectCallback());
     }
 
-    private Interceptor firstInterceptor;
+    private final Interceptor firstInterceptor;
 
     private final int[] homeMap;
     private final EJBLocalHome homeProxy;
@@ -99,7 +99,8 @@ public class EntityLocalClientContainer implements EJBLocalClientContainer {
     private final int[] objectMap;
     private final Factory proxyFactory;
 
-    public EntityLocalClientContainer(MethodSignature[] signatures, Class localHome, Class local) {
+    public EntityLocalClientContainer(Interceptor firstInterceptor, MethodSignature[] signatures, Class localHome, Class local) {
+        this.firstInterceptor = firstInterceptor;
         SimpleCallbacks callbacks;
         Enhancer enhancer;
         Factory factory;
@@ -137,18 +138,6 @@ public class EntityLocalClientContainer implements EJBLocalClientContainer {
         enhancer.setCallbackFilter(new EJBCallbackFilter(baseClass));
         enhancer.setCallbacks(callbacks);
         return enhancer;
-    }
-
-    public void addInterceptor(Interceptor interceptor) {
-        if (firstInterceptor == null) {
-            firstInterceptor = interceptor;
-            return;
-        }
-        Interceptor parent = firstInterceptor;
-        while (parent.getNext() != null) {
-            parent = parent.getNext();
-        }
-        parent.setNext(interceptor);
     }
 
     public EJBLocalHome getEJBLocalHome() {

@@ -62,6 +62,4 @@ public interface EJBLocalClientContainer {
     EJBLocalHome getEJBLocalHome();
 
     EJBLocalObject getEJBLocalObject(Object primaryKey);
-
-    void addInterceptor(Interceptor interceptor);
 }

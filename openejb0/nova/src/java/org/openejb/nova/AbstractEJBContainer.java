@@ -291,34 +291,13 @@ public abstract class AbstractEJBContainer
 
     protected URI startServerRemoting(Interceptor firstInterceptor) {
         // set up server side remoting endpoint
-        DeMarshalingInterceptor demarshaller = new DeMarshalingInterceptor();
-        demarshaller.setClassloader(classLoader);
-        demarshaller.setNext(firstInterceptor);
+        DeMarshalingInterceptor demarshaller = new DeMarshalingInterceptor(firstInterceptor, classLoader);
         remoteId = InterceptorRegistry.instance.register(demarshaller);
         return uri.resolve("#" + remoteId);
     }
 
     protected void stopServerRemoting() {
         InterceptorRegistry.instance.unregister(remoteId);
-    }
-
-    private Interceptor firstInterceptor;
-    private LinkedList interceptors = new LinkedList();
-
-    public final void addInterceptor(Interceptor interceptor) {
-        if (firstInterceptor == null) {
-            firstInterceptor = interceptor;
-            interceptors.addLast(interceptor);
-        } else {
-            Interceptor lastInterceptor = (Interceptor) interceptors.getLast();
-            lastInterceptor.setNext(interceptor);
-            interceptors.addLast(interceptor);
-        }
-    }
-
-    public void clearInterceptors() {
-        interceptors.clear();
-        firstInterceptor = null;
     }
 
     protected void buildMethodMap(MethodSignature[] signatures) {

@@ -90,7 +90,7 @@ public class MDBLocalClientContainer {
     }
     
     
-    private Interceptor firstInterceptor; // @todo make this final
+    private final Interceptor firstInterceptor;
     private final int[] objectMap;
     private Factory proxyFactory;
 
@@ -99,7 +99,8 @@ public class MDBLocalClientContainer {
      * @param signatures the signatures of the virtual methods
      * @param mdbInterface the class of the MDB's messaging interface (e.g. javax.jmx.MessageListner)
      */
-    public MDBLocalClientContainer(MethodSignature[] signatures, Class mdbInterface) {
+    public MDBLocalClientContainer(Interceptor firstInterceptor, MethodSignature[] signatures, Class mdbInterface) {
+        this.firstInterceptor = firstInterceptor;
         SimpleCallbacks callbacks;
         Enhancer enhancer;
 
@@ -115,27 +116,6 @@ public class MDBLocalClientContainer {
         proxyFactory = enhancer.create(CONSTRUCTOR, new Object[]{this, null});
         
         objectMap = MethodHelper.getObjectMap(signatures, FastClass.create(proxyFactory.getClass()));
-    }
-
-    private static Enhancer getEnhancer(Class local, Class baseClass, SimpleCallbacks callbacks) {
-        Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(baseClass);
-        enhancer.setInterfaces(new Class[]{local});
-        enhancer.setCallbackFilter(new EJBCallbackFilter(baseClass));
-        enhancer.setCallbacks(callbacks);
-        return enhancer;
-    }
-
-    public void addInterceptor(Interceptor interceptor) {
-        if (firstInterceptor == null) {
-            firstInterceptor = interceptor;
-            return;
-        }
-        Interceptor parent = firstInterceptor;
-        while (parent.getNext() != null) {
-            parent = parent.getNext();
-        }
-        parent.setNext(interceptor);
     }
 
     public MessageEndpoint getMessageEndpoint(XAResource resource) {

@@ -73,8 +73,7 @@ public class StatefulClientContainerFactory implements ClientContainerFactory {
 
     public StatefulClientContainerFactory(VirtualOperationFactory vopFactory, URI uri, Class home, Class remote, Interceptor localEndpoint, Class localHome, Class local) {
         if (localHome != null) {
-            localContainer = new StatefulLocalClientContainer(vopFactory.getSignatures(), localHome, local);
-            localContainer.addInterceptor(localEndpoint);
+            localContainer = new StatefulLocalClientContainer(localEndpoint, vopFactory.getSignatures(), localHome, local);
         } else {
             localContainer = null;
         }
@@ -82,16 +81,12 @@ public class StatefulClientContainerFactory implements ClientContainerFactory {
         if (home != null) {
             Long remoteId = Long.valueOf(uri.getFragment());
             RemoteTransportInterceptor transport = new RemoteTransportInterceptor(uri);
-            IntraVMRoutingInterceptor localRouter = new IntraVMRoutingInterceptor(remoteId, true);
-            InterVMRoutingInterceptor remoteRouter = new InterVMRoutingInterceptor(transport, localRouter);
-            Interceptor demarshaller = InterceptorRegistry.instance.lookup(remoteId);
-
-            remoteContainer = new StatefulRemoteClientContainer(vopFactory.getSignatures(), home, remote);
-            remoteContainer.addInterceptor(remoteRouter);
-            remoteContainer.addInterceptor(localRouter);
-            remoteContainer.addInterceptor(new MarshalingInterceptor());
-            remoteContainer.addInterceptor(new NullTransportInterceptor());
-            remoteContainer.addInterceptor(demarshaller);
+            Interceptor clientStack = InterceptorRegistry.instance.lookup(remoteId);
+            clientStack = new NullTransportInterceptor(clientStack);
+            clientStack = new MarshalingInterceptor(clientStack);
+            clientStack = new IntraVMRoutingInterceptor(clientStack, remoteId, true);
+            clientStack = new InterVMRoutingInterceptor(transport, clientStack);
+            remoteContainer = new StatefulRemoteClientContainer(clientStack, vopFactory.getSignatures(), home, remote);
         } else {
             remoteContainer = null;
         }

@@ -48,7 +48,7 @@
 package org.openejb.nova.slsb;
 
 import org.apache.geronimo.cache.InstancePool;
-import org.apache.geronimo.core.service.AbstractInterceptor;
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationKey;
 import org.apache.geronimo.core.service.InvocationResult;
@@ -106,8 +106,7 @@ public class StatelessInstanceInterceptorTest extends TestCase {
 
         mockEJB = new MockEJB();
         pool = new MockPool(mockEJB);
-        interceptor = new StatelessInstanceInterceptor(pool);
-        interceptor.setNext(new MockInterceptor());
+        interceptor = new StatelessInstanceInterceptor(new MockInterceptor(), pool);
     }
 
     private static class MockPool implements InstancePool {
@@ -133,7 +132,7 @@ public class StatelessInstanceInterceptorTest extends TestCase {
         }
     }
 
-    private class MockInterceptor extends AbstractInterceptor {
+    private class MockInterceptor implements Interceptor {
         public InvocationResult invoke(Invocation invocation) throws Throwable {
             ctx = ((EJBInvocation) invocation).getEJBInstanceContext();
             if (invocation.get(KEY) == Boolean.FALSE) {

@@ -62,6 +62,7 @@ import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 import org.openejb.nova.AbstractEJBContainer;
 import org.openejb.nova.EJBContainerConfiguration;
+import org.openejb.nova.SystemExceptionInterceptor;
 import org.openejb.nova.dispatch.DispatchInterceptor;
 import org.openejb.nova.transaction.TransactionContextInterceptor;
 import org.openejb.nova.util.SoftLimitedInstancePool;
@@ -97,11 +98,12 @@ public class MDBContainer extends AbstractEJBContainer implements MessageEndpoin
         pool = new SoftLimitedInstancePool(new MDBInstanceFactory(this), 1);
 
         // set up server side interceptors
-        Interceptor firstInterceptor = new ComponentContextInterceptor(componentContext);
-        addInterceptor(firstInterceptor);
-        addInterceptor(new MDBInstanceInterceptor(pool));
-        addInterceptor(new TransactionContextInterceptor(txnManager));
-        addInterceptor(new DispatchInterceptor(vtable));
+        Interceptor firstInterceptor;
+        firstInterceptor = new DispatchInterceptor(vtable);
+        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, txnManager);
+        firstInterceptor = new MDBInstanceInterceptor(firstInterceptor, pool);
+        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
+        firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, getBeanClassName());
 
         // set up client containers
         MDBClientContainerFactory clientFactory = new MDBClientContainerFactory(vopFactory, firstInterceptor, mdbInterface);
@@ -121,7 +123,6 @@ public class MDBContainer extends AbstractEJBContainer implements MessageEndpoin
         getAdapter().endpointDeactivation(this, activationSpec);
 
         localClientContainer = null;
-        clearInterceptors();
         pool = null;
         super.doStop();
     }

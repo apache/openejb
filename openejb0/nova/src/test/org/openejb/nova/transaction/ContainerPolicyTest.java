@@ -115,10 +115,6 @@ public class ContainerPolicyTest extends TestCase {
         private boolean throwException;
         private TransactionContext context;
 
-        public Interceptor getNext() {
-            throw new UnsupportedOperationException();
-        }
-
         public InvocationResult invoke(Invocation invocation) throws Throwable {
             context = TransactionContext.getContext();
             if (throwException) {
@@ -128,9 +124,6 @@ public class ContainerPolicyTest extends TestCase {
             }
         }
 
-        public void setNext(Interceptor interceptor) throws IllegalStateException {
-            throw new UnsupportedOperationException();
-        }
     }
 
     private static class MockUnspecifiedTransactionContext extends UnspecifiedTransactionContext {

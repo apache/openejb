@@ -106,12 +106,12 @@ public class CMPEntityContainer extends AbstractEJBContainer {
 
         pool = new SoftLimitedInstancePool(new EntityInstanceFactory(componentContext, vopFactory.getInstanceContextFactory()), 1);
 
-        Interceptor firstInterceptor = new SystemExceptionInterceptor(getBeanClassName());
-        addInterceptor(firstInterceptor);
-        addInterceptor(new TransactionContextInterceptor(txnManager));
-        addInterceptor(new ComponentContextInterceptor(componentContext));
-        addInterceptor(new EntityInstanceInterceptor(pool));
-        addInterceptor(new DispatchInterceptor(vtable));
+        Interceptor firstInterceptor;
+        firstInterceptor = new DispatchInterceptor(vtable);
+        firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, pool);
+        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
+        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, txnManager);
+        firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, getBeanClassName());
 
         URI target;
         if (homeClassName != null) {
@@ -131,7 +131,6 @@ public class CMPEntityContainer extends AbstractEJBContainer {
 
     public void doStop() {
         stopServerRemoting();
-        clearInterceptors();
         remoteClientContainer = null;
         localClientContainer = null;
         pool = null;

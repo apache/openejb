@@ -82,7 +82,7 @@ import org.openejb.nova.method.EJBCallbackFilter;
  * @version $Revision$ $Date$
  */
 public class StatelessLocalClientContainer implements EJBLocalClientContainer {
-    private Interceptor firstInterceptor; // @todo make this final
+    private final Interceptor firstInterceptor;
     private final int createIndex;
     private final int[] objectMap;
     private final EJBLocalHome homeProxy;
@@ -94,7 +94,8 @@ public class StatelessLocalClientContainer implements EJBLocalClientContainer {
      * @param localHome the class of the EJB's LocalHome interface
      * @param local the class of the EJB's LocalObject interface
      */
-    public StatelessLocalClientContainer(MethodSignature[] signatures, Class localHome, Class local) {
+    public StatelessLocalClientContainer(Interceptor firstInterceptor, MethodSignature[] signatures, Class localHome, Class local) {
+        this.firstInterceptor = firstInterceptor;
         SimpleCallbacks callbacks;
         Enhancer enhancer;
         Factory factory;
@@ -122,18 +123,6 @@ public class StatelessLocalClientContainer implements EJBLocalClientContainer {
         enhancer.setCallbackFilter(new EJBCallbackFilter(baseClass));
         enhancer.setCallbacks(callbacks);
         return enhancer;
-    }
-
-    public void addInterceptor(Interceptor interceptor) {
-        if (firstInterceptor == null) {
-            firstInterceptor = interceptor;
-            return;
-        }
-        Interceptor parent = firstInterceptor;
-        while (parent.getNext() != null) {
-            parent = parent.getNext();
-        }
-        parent.setNext(interceptor);
     }
 
     public EJBLocalHome getEJBLocalHome() {

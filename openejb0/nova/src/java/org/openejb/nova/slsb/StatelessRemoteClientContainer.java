@@ -93,7 +93,8 @@ public class StatelessRemoteClientContainer implements EJBRemoteClientContainer 
     private final HomeHandle homeHandle;
     private final Handle handle;
 
-    public StatelessRemoteClientContainer(MethodSignature[] signatures, Class home, Class remote) {
+    public StatelessRemoteClientContainer(Interceptor firstInterceptor, MethodSignature[] signatures, Class home, Class remote) {
+        this.firstInterceptor = firstInterceptor;
         SimpleCallbacks callbacks;
         Enhancer enhancer;
         Factory factory;
@@ -128,18 +129,6 @@ public class StatelessRemoteClientContainer implements EJBRemoteClientContainer 
         enhancer.setCallbackFilter(new EJBCallbackFilter(baseClass));
         enhancer.setCallbacks(callbacks);
         return enhancer;
-    }
-
-    public void addInterceptor(Interceptor interceptor) {
-        if (firstInterceptor == null) {
-            firstInterceptor = interceptor;
-            return;
-        }
-        Interceptor parent = firstInterceptor;
-        while (parent.getNext() != null) {
-            parent = parent.getNext();
-        }
-        parent.setNext(interceptor);
     }
 
     public EJBHome getEJBHome() {

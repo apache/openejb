@@ -106,7 +106,8 @@ public class StatefulRemoteClientContainer implements EJBRemoteClientContainer {
 
     private final EJBMetaData ejbMetadata;
 
-    public StatefulRemoteClientContainer(MethodSignature[] signatures, Class home, Class remote) {
+    public StatefulRemoteClientContainer(Interceptor firstInterceptor, MethodSignature[] signatures, Class home, Class remote) {
+        this.firstInterceptor = firstInterceptor;
         this.home = home;
         this.remote = remote;
 
@@ -150,18 +151,6 @@ public class StatefulRemoteClientContainer implements EJBRemoteClientContainer {
         enhancer.setCallbacks(callbacks);
         enhancer.setClassLoader(local.getClassLoader());
         return enhancer;
-    }
-
-    public void addInterceptor(Interceptor interceptor) {
-        if (firstInterceptor == null) {
-            firstInterceptor = interceptor;
-            return;
-        }
-        Interceptor parent = firstInterceptor;
-        while (parent.getNext() != null) {
-            parent = parent.getNext();
-        }
-        parent.setNext(interceptor);
     }
 
     public EJBHome getEJBHome() {
