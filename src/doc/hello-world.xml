@@ -45,21 +45,19 @@ import javax.ejb.SessionContext;
 public class HelloBean implements SessionBean {
     private SessionContext sessionContext;
 
-    public void ejbCreate() throws EJBException, RemoteException {}
+    public void ejbCreate() {}
 
-    public void ejbActivate() throws EJBException, RemoteException {}
+    public void ejbActivate() {}
 
-    public void ejbPassivate() throws EJBException, RemoteException {}
+    public void ejbPassivate() {}
 
-    public void ejbRemove() throws EJBException, RemoteException {}
+    public void ejbRemove() {}
 
-    public void setSessionContext(SessionContext sessionContext)
-        throws EJBException, RemoteException {
-
+    public void setSessionContext(SessionContext sessionContext {
         this.sessionContext = sessionContext;
     }
 
-    public String sayHello() throws EJBException, RemoteException {
+    public String sayHello() {
         return "Hello World!";
     }
 }
