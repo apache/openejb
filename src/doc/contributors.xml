@@ -92,17 +92,6 @@
     </description>
   </contributor>
 
-  <contributor type="Feedback">
-    <name surname="Gangadhar" given="Mukesh"/>
-    <email>opensrc_inf@yahoo.com</email>
-    <company id=""/>
-    <description>
-    One of our friends from the testing team that was learning the container 
-    system this summer. Mukesh has been on the dev list for quite some time and
-    is great for asking questions that most are too shy to ask.
-    </description>
-  </contributor>
-  
   <contributor type="Committer">
     <name surname="Chen" given="Pizer"/>
     <email>pizerc@utstar.com</email>
