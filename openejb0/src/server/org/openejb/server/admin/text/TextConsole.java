@@ -54,8 +54,8 @@ import org.openejb.server.EjbDaemon;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class TextConsole implements Runnable {
-    
-    Logger logger = new Logger( "OpenEJB.admin" );
+
+    Logger logger = Logger.getInstance( "OpenEJB.admin" );
 
     // The EJB Server Port
     Properties props;
@@ -81,7 +81,7 @@ public class TextConsole implements Runnable {
             d.setName("Telnet Console");
             d.setDaemon(true);
             d.start();
-            
+
             /* In the future we can create other types
              * of consoles (Terminals).
             TextConsole remote = new TextConsole(ejbd);
@@ -108,7 +108,7 @@ public class TextConsole implements Runnable {
     }
 
     public static final char ESC = (char)27;
-    
+
     public static final String TTY_Reset      = ESC+"[0m";
     public static final String TTY_Bright     = ESC+"[1m";
     public static final String TTY_Dim        = ESC+"[2m";
@@ -116,7 +116,7 @@ public class TextConsole implements Runnable {
     public static final String TTY_Blink      = ESC+"[5m";
     public static final String TTY_Reverse    = ESC+"[7m";
     public static final String TTY_Hidden     = ESC+"[8m";
-    
+
     /* Foreground Colors */
     public static final String TTY_FG_Black   = ESC+"[30m";
     public static final String TTY_FG_Red     = ESC+"[31m";
@@ -126,7 +126,7 @@ public class TextConsole implements Runnable {
     public static final String TTY_FG_Magenta = ESC+"[35m";
     public static final String TTY_FG_Cyan    = ESC+"[36m";
     public static final String TTY_FG_White   = ESC+"[37m";
-        
+
     /* Background Colors */
     public static final String TTY_BG_Black   = ESC+"[40m";
     public static final String TTY_BG_Red     = ESC+"[41m";
@@ -136,13 +136,13 @@ public class TextConsole implements Runnable {
     public static final String TTY_BG_Magenta = ESC+"[45m";
     public static final String TTY_BG_Cyan    = ESC+"[46m";
     public static final String TTY_BG_White   = ESC+"[47m";
-        
+
     public static String PROMPT = TTY_Reset+TTY_Bright+"[openejb]$ "+TTY_Reset;
-    
+
     public void run( ) {
-        
+
         Console console = getConsole();
-        
+
         // can't ever truely close the console
         while ( true ) {
             try {
@@ -151,14 +151,14 @@ public class TextConsole implements Runnable {
 
                 // TODO:1: Login
                 //...need a security service first
-                
+
                 DataInputStream  in  = console.getInputStream();
                 PrintStream out = console.getOutputStream();
 
                 while ( !stop ) {
                     exec(in, out);
                 }
-                   
+
                 console.close();
             } catch (Throwable t){
                 logger.error(t.getMessage() );
@@ -175,7 +175,7 @@ public class TextConsole implements Runnable {
 
             String command = in.readLine();
             command = command.trim();
-                        
+
             if (command.length() < 1) return;
 
             StringTokenizer cmdstr = new StringTokenizer(command);

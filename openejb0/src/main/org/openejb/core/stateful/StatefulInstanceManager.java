@@ -748,7 +748,7 @@ public class StatefulInstanceManager {
         }
     }
 
-    public Logger logger = new Logger( "OpenEJB" );
+    public Logger logger = Logger.getInstance( "OpenEJB" );
 
 
     protected void handleCallbackException(Throwable e, EnterpriseBean instance, ThreadContext callContext, String callBack) throws ApplicationException, org.openejb.SystemException{

@@ -30,7 +30,7 @@ public class ConfigUtils  {
 
     private static Map loadedServiceJars = new HashMap();
 
-    private static Logger logger = new Logger( "OpenEJB" );
+    private static Logger logger = Logger.getInstance( "OpenEJB" );
 
     public static File getDefaultServiceJar() throws OpenEJBException{
 

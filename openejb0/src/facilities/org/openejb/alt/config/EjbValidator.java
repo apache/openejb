@@ -18,6 +18,8 @@ import java.io.File;
  */
 public class EjbValidator {
 
+    static protected Messages _messages = new Messages();
+
     private DataInputStream in;
     private PrintStream out;
     private Openejb config;
@@ -245,7 +247,7 @@ public class EjbValidator {
 
     class ValidationException extends Exception{
         public ValidationException( String message, Object[] args){
-            super(org.openejb.util.Messages.format(message, args));
+            super(_messages.format(message, args));
         }
     }
     

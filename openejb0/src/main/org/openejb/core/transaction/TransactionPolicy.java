@@ -46,7 +46,7 @@ public abstract class TransactionPolicy {
         return container;
     }
     
-    public Logger logger = new Logger( "OpenEJB" );
+    public Logger logger = Logger.getInstance( "OpenEJB" );
 
     public abstract void handleApplicationException( Throwable appException, TransactionContext context ) throws org.openejb.ApplicationException;
     public abstract void handleSystemException( Throwable sysException, EnterpriseBean instance, TransactionContext context ) throws org.openejb.ApplicationException, org.openejb.SystemException;
