@@ -1,10 +1,11 @@
 package org.openejb.test.entity.bmp;
 
-//
-// Interface definition : BasicBmp2DataSourcesObject
-//
-// @author OpenORB Compiler
-//
+/**
+ * Interface definition : BasicBmp2DataSourcesObject
+ * 
+ * @author OpenORB Compiler
+ */
+
 public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 		implements BasicBmp2DataSourcesObject
 {
@@ -30,6 +31,8 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -45,7 +48,7 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					java.lang.String _exception_id = _exception.getId();
-					throw new org.omg.CORBA.UNKNOWN("Unexcepected User Exception: "+ _exception_id);
+					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
 				{
@@ -55,6 +58,27 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("_get_permissionsReport",_opsClass);
+				if ( _so == null )
+				   return getPermissionsReport();
+				try
+				{
+					java.util.Properties _arg_ret = ((org.openejb.test.entity.bmp.BasicBmp2DataSourcesObject)_so.servant).getPermissionsReport();
+					return (java.util.Properties)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -66,6 +90,8 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -82,7 +108,7 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
+					java.lang.String _exception_id = _exception.getId();
 					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
@@ -93,6 +119,28 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("businessMethod",_opsClass);
+				if ( _so == null )
+				   return businessMethod( arg0);
+				try
+				{
+					String arg0Copy = (String)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					String _arg_ret = ((org.openejb.test.entity.bmp.BasicBmp2DataSourcesObject)_so.servant).businessMethod( arg0Copy);
+					return (String)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -104,6 +152,8 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -120,7 +170,7 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
+					java.lang.String _exception_id = _exception.getId();
 					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
@@ -131,6 +181,28 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("getAllowedOperationsReport",_opsClass);
+				if ( _so == null )
+				   return getAllowedOperationsReport( arg0);
+				try
+				{
+					String arg0Copy = (String)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					org.openejb.test.object.OperationsPolicy _arg_ret = ((org.openejb.test.entity.bmp.BasicBmp2DataSourcesObject)_so.servant).getAllowedOperationsReport( arg0Copy);
+					return (org.openejb.test.object.OperationsPolicy)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -142,6 +214,8 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -157,7 +231,7 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					java.lang.String _exception_id = _exception.getId();
-					throw new org.omg.CORBA.UNKNOWN("Unexcepected User Exception: "+ _exception_id);
+					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
 				{
@@ -167,6 +241,27 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("_get_EJBHome",_opsClass);
+				if ( _so == null )
+				   return getEJBHome();
+				try
+				{
+					javax.ejb.EJBHome _arg_ret = ((org.openejb.test.entity.bmp.BasicBmp2DataSourcesObject)_so.servant).getEJBHome();
+					return (javax.ejb.EJBHome)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -178,6 +273,8 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -193,7 +290,7 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					java.lang.String _exception_id = _exception.getId();
-					throw new org.omg.CORBA.UNKNOWN("Unexcepected User Exception: "+ _exception_id);
+					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
 				{
@@ -203,6 +300,27 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("_get_handle",_opsClass);
+				if ( _so == null )
+				   return getHandle();
+				try
+				{
+					javax.ejb.Handle _arg_ret = ((org.openejb.test.entity.bmp.BasicBmp2DataSourcesObject)_so.servant).getHandle();
+					return (javax.ejb.Handle)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -214,6 +332,8 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -229,7 +349,7 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					java.lang.String _exception_id = _exception.getId();
-					throw new org.omg.CORBA.UNKNOWN("Unexcepected User Exception: "+ _exception_id);
+					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
 				{
@@ -239,6 +359,27 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("_get_primaryKey",_opsClass);
+				if ( _so == null )
+				   return getPrimaryKey();
+				try
+				{
+					java.lang.Object _arg_ret = ((org.openejb.test.entity.bmp.BasicBmp2DataSourcesObject)_so.servant).getPrimaryKey();
+					return (java.lang.Object)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -250,6 +391,8 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -264,10 +407,11 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
+					java.lang.String _exception_id = _exception.getId();
 					if ( _exception_id.equals("IDL:javax/ejb/RemoveEx:1.0") )
 					{
-						throw ( javax.ejb.RemoveException ) _input.read_value();
+						_input.read_string();
+						throw ( javax.ejb.RemoveException ) _input.read_value(javax.ejb.RemoveException.class);
 					}
 
 					throw new java.rmi.UnexpectedException(_exception_id);
@@ -280,6 +424,30 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("remove",_opsClass);
+				if ( _so == null )
+				   remove();
+				try
+				{
+					((org.openejb.test.entity.bmp.BasicBmp2DataSourcesObject)_so.servant).remove();
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof javax.ejb.RemoveException )
+						throw ( javax.ejb.RemoveException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -291,6 +459,8 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -307,7 +477,7 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
+					java.lang.String _exception_id = _exception.getId();
 					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
@@ -318,6 +488,28 @@ public class _BasicBmp2DataSourcesObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("isIdentical",_opsClass);
+				if ( _so == null )
+				   return isIdentical( arg0);
+				try
+				{
+					javax.ejb.EJBObject arg0Copy = (javax.ejb.EJBObject)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					boolean _arg_ret = ((org.openejb.test.entity.bmp.BasicBmp2DataSourcesObject)_so.servant).isIdentical( arg0Copy);
+					return _arg_ret;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 

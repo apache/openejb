@@ -1,10 +1,11 @@
 package org.openejb.test.stateful;
 
-//
-// Interface definition : EncStatefulHome
-//
-// @author OpenORB Compiler
-//
+/**
+ * Interface definition : EncStatefulHome
+ * 
+ * @author OpenORB Compiler
+ */
+
 public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 		implements EncStatefulHome
 {
@@ -25,16 +26,18 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 	//
 	// Operation create
 	//
-	public org.openejb.test.stateful.EncStatefulObject create(java.lang.String arg0)
+	public org.openejb.test.stateful.EncStatefulObject create(String arg0)
 		throws javax.ejb.CreateException, java.rmi.RemoteException
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
 					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("create",true);
-					_output.write_value((java.io.Serializable)arg0,java.lang.String.class);
+					_output.write_value((java.io.Serializable)arg0,String.class);
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
 					org.openejb.test.stateful.EncStatefulObject _arg_ret = ( org.openejb.test.stateful.EncStatefulObject ) javax.rmi.PortableRemoteObject.narrow(_input.read_Object(), org.openejb.test.stateful.EncStatefulObject.class);
 					return _arg_ret;
@@ -46,10 +49,11 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:javax.ejb.CreateException:0000000000348197:0000000000000000") )
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:javax/ejb/CreateEx:1.0") )
 					{
-						throw ( javax.ejb.CreateException ) _input.read_value();
+						_input.read_string();
+						throw ( javax.ejb.CreateException ) _input.read_value(javax.ejb.CreateException.class);
 					}
 
 					throw new java.rmi.UnexpectedException(_exception_id);
@@ -62,6 +66,31 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("create",_opsClass);
+				if ( _so == null )
+				   return create( arg0);
+				try
+				{
+					String arg0Copy = (String)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					org.openejb.test.stateful.EncStatefulObject _arg_ret = ((org.openejb.test.stateful.EncStatefulHome)_so.servant).create( arg0Copy);
+					return (org.openejb.test.stateful.EncStatefulObject)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof javax.ejb.CreateException )
+						throw ( javax.ejb.CreateException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -73,6 +102,8 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -88,7 +119,7 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					java.lang.String _exception_id = _exception.getId();
-					throw new org.omg.CORBA.UNKNOWN("Unexcepected User Exception: "+ _exception_id);
+					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
 				{
@@ -98,6 +129,27 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("_get_EJBMetaData",_opsClass);
+				if ( _so == null )
+				   return getEJBMetaData();
+				try
+				{
+					javax.ejb.EJBMetaData _arg_ret = ((org.openejb.test.stateful.EncStatefulHome)_so.servant).getEJBMetaData();
+					return (javax.ejb.EJBMetaData)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -109,6 +161,8 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -124,7 +178,7 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					java.lang.String _exception_id = _exception.getId();
-					throw new org.omg.CORBA.UNKNOWN("Unexcepected User Exception: "+ _exception_id);
+					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
 				{
@@ -134,6 +188,27 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("_get_homeHandle",_opsClass);
+				if ( _so == null )
+				   return getHomeHandle();
+				try
+				{
+					javax.ejb.HomeHandle _arg_ret = ((org.openejb.test.stateful.EncStatefulHome)_so.servant).getHomeHandle();
+					return (javax.ejb.HomeHandle)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -145,6 +220,8 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -160,10 +237,11 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:javax.ejb.RemoveException:000000000064C34E:0000000000000000") )
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:javax/ejb/RemoveEx:1.0") )
 					{
-						throw ( javax.ejb.RemoveException ) _input.read_value();
+						_input.read_string();
+						throw ( javax.ejb.RemoveException ) _input.read_value(javax.ejb.RemoveException.class);
 					}
 
 					throw new java.rmi.UnexpectedException(_exception_id);
@@ -176,6 +254,31 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("remove__javax_ejb_Handle",_opsClass);
+				if ( _so == null )
+				   remove( arg0);
+				try
+				{
+					javax.ejb.Handle arg0Copy = (javax.ejb.Handle)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					((org.openejb.test.stateful.EncStatefulHome)_so.servant).remove( arg0Copy);
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof javax.ejb.RemoveException )
+						throw ( javax.ejb.RemoveException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -187,6 +290,8 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -202,10 +307,11 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:javax.ejb.RemoveException:000000000064C34E:0000000000000000") )
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:javax/ejb/RemoveEx:1.0") )
 					{
-						throw ( javax.ejb.RemoveException ) _input.read_value();
+						_input.read_string();
+						throw ( javax.ejb.RemoveException ) _input.read_value(javax.ejb.RemoveException.class);
 					}
 
 					throw new java.rmi.UnexpectedException(_exception_id);
@@ -218,6 +324,31 @@ public class _EncStatefulHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("remove__java_lang_Object",_opsClass);
+				if ( _so == null )
+				   remove( arg0);
+				try
+				{
+					java.lang.Object arg0Copy = (java.lang.Object)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					((org.openejb.test.stateful.EncStatefulHome)_so.servant).remove( arg0Copy);
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof javax.ejb.RemoveException )
+						throw ( javax.ejb.RemoveException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 

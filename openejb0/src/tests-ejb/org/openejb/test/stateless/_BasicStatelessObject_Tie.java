@@ -1,10 +1,11 @@
 package org.openejb.test.stateless;
 
-//
-// Interface definition : BasicStatelessObject
-//
-// @author OpenORB Compiler
-//
+/**
+ * Interface definition : BasicStatelessObject
+ * 
+ * @author OpenORB Compiler
+ */
+
 public class _BasicStatelessObject_Tie extends org.omg.PortableServer.Servant
 		implements javax.rmi.CORBA.Tie
 {
@@ -97,8 +98,9 @@ public class _BasicStatelessObject_Tie extends org.omg.PortableServer.Servant
 	//
 	// Invoke method ( for remote call )
 	//
-	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream _is, org.omg.CORBA.portable.ResponseHandler handler)
+	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream is, org.omg.CORBA.portable.ResponseHandler handler)
 	{
+		org.omg.CORBA_2_3.portable.InputStream _is = (org.omg.CORBA_2_3.portable.InputStream)is;
 		org.omg.CORBA_2_3.portable.OutputStream _output = null;
 		try
 		{
@@ -112,19 +114,19 @@ public class _BasicStatelessObject_Tie extends org.omg.PortableServer.Servant
 			else
 			if ( opName.equals("businessMethod") )
 			{
-				java.lang.String arg0_in = ( java.lang.String )((org.omg.CORBA_2_3.portable.InputStream)_is).read_value(java.lang.String.class);
+				String arg0_in = ( String )((org.omg.CORBA_2_3.portable.InputStream)_is).read_value(String.class);
 
-				java.lang.String _arg_result = target.businessMethod(arg0_in);
+				String _arg_result = target.businessMethod(arg0_in);
 
 				_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-				_output.write_value((java.io.Serializable)_arg_result,java.lang.String.class);
+				_output.write_value((java.io.Serializable)_arg_result,String.class);
 
 				return _output;
 			}
 			else
 			if ( opName.equals("getAllowedOperationsReport") )
 			{
-				java.lang.String arg0_in = ( java.lang.String )((org.omg.CORBA_2_3.portable.InputStream)_is).read_value(java.lang.String.class);
+				String arg0_in = ( String )((org.omg.CORBA_2_3.portable.InputStream)_is).read_value(String.class);
 
 				org.openejb.test.object.OperationsPolicy _arg_result = target.getAllowedOperationsReport(arg0_in);
 
@@ -170,7 +172,7 @@ public class _BasicStatelessObject_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.RemoveException _exception )
 				{
-					String exid = "RMI:javax.ejb.RemoveException:000000000064C34E:0000000000000000";
+					String exid = "IDL:javax/ejb/RemoveEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);

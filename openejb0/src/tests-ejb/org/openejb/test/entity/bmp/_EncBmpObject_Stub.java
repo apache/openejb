@@ -1,10 +1,11 @@
 package org.openejb.test.entity.bmp;
 
-//
-// Interface definition : EncBmpObject
-//
-// @author OpenORB Compiler
-//
+/**
+ * Interface definition : EncBmpObject
+ * 
+ * @author OpenORB Compiler
+ */
+
 public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 		implements EncBmpObject
 {
@@ -23,129 +24,6 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 	final public static java.lang.Class _opsClass = EncBmpObject.class;
 
 	//
-	// Operation lookupBooleanEntry
-	//
-	public void lookupBooleanEntry()
-		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
-	{
-		while( true )
-		{
-				org.omg.CORBA_2_3.portable.InputStream _input = null;
-				try
-				{
-					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupBooleanEntry",true);
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
-					return;
-				}
-				catch( org.omg.CORBA.portable.RemarshalException _exception )
-				{
-					continue;
-				}
-				catch( org.omg.CORBA.portable.ApplicationException _exception )
-				{
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000") )
-					{
-						throw ( org.openejb.test.TestFailureException ) _input.read_value();
-					}
-
-					throw new java.rmi.UnexpectedException(_exception_id);
-				}
-				catch( org.omg.CORBA.SystemException _exception )
-				{
-					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
-				}
-				finally
-				{
-					this._releaseReply(_input);
-				}
-		}
-	}
-
-	//
-	// Operation lookupByteEntry
-	//
-	public void lookupByteEntry()
-		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
-	{
-		while( true )
-		{
-				org.omg.CORBA_2_3.portable.InputStream _input = null;
-				try
-				{
-					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupByteEntry",true);
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
-					return;
-				}
-				catch( org.omg.CORBA.portable.RemarshalException _exception )
-				{
-					continue;
-				}
-				catch( org.omg.CORBA.portable.ApplicationException _exception )
-				{
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000") )
-					{
-						throw ( org.openejb.test.TestFailureException ) _input.read_value();
-					}
-
-					throw new java.rmi.UnexpectedException(_exception_id);
-				}
-				catch( org.omg.CORBA.SystemException _exception )
-				{
-					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
-				}
-				finally
-				{
-					this._releaseReply(_input);
-				}
-		}
-	}
-
-	//
-	// Operation lookupDoubleEntry
-	//
-	public void lookupDoubleEntry()
-		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
-	{
-		while( true )
-		{
-				org.omg.CORBA_2_3.portable.InputStream _input = null;
-				try
-				{
-					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupDoubleEntry",true);
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
-					return;
-				}
-				catch( org.omg.CORBA.portable.RemarshalException _exception )
-				{
-					continue;
-				}
-				catch( org.omg.CORBA.portable.ApplicationException _exception )
-				{
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000") )
-					{
-						throw ( org.openejb.test.TestFailureException ) _input.read_value();
-					}
-
-					throw new java.rmi.UnexpectedException(_exception_id);
-				}
-				catch( org.omg.CORBA.SystemException _exception )
-				{
-					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
-				}
-				finally
-				{
-					this._releaseReply(_input);
-				}
-		}
-	}
-
-	//
 	// Operation lookupEntityBean
 	//
 	public void lookupEntityBean()
@@ -153,6 +31,8 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -167,10 +47,11 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000") )
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:org/openejb/test/TestFailureEx:1.0") )
 					{
-						throw ( org.openejb.test.TestFailureException ) _input.read_value();
+						_input.read_string();
+						throw ( org.openejb.test.TestFailureException ) _input.read_value(org.openejb.test.TestFailureException.class);
 					}
 
 					throw new java.rmi.UnexpectedException(_exception_id);
@@ -183,211 +64,30 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
-		}
-	}
-
-	//
-	// Operation lookupFloatEntry
-	//
-	public void lookupFloatEntry()
-		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
-	{
-		while( true )
-		{
-				org.omg.CORBA_2_3.portable.InputStream _input = null;
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("lookupEntityBean",_opsClass);
+				if ( _so == null )
+				   lookupEntityBean();
 				try
 				{
-					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupFloatEntry",true);
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
+					((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).lookupEntityBean();
 					return;
 				}
-				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				catch ( Throwable ex )
 				{
-					continue;
-				}
-				catch( org.omg.CORBA.portable.ApplicationException _exception )
-				{
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000") )
-					{
-						throw ( org.openejb.test.TestFailureException ) _input.read_value();
-					}
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof org.openejb.test.TestFailureException )
+						throw ( org.openejb.test.TestFailureException ) ex2;
 
-					throw new java.rmi.UnexpectedException(_exception_id);
-				}
-				catch( org.omg.CORBA.SystemException _exception )
-				{
-					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
 				}
 				finally
 				{
-					this._releaseReply(_input);
+					_servant_postinvoke(_so);
 				}
-		}
-	}
-
-	//
-	// Operation lookupIntegerEntry
-	//
-	public void lookupIntegerEntry()
-		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
-	{
-		while( true )
-		{
-				org.omg.CORBA_2_3.portable.InputStream _input = null;
-				try
-				{
-					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupIntegerEntry",true);
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
-					return;
-				}
-				catch( org.omg.CORBA.portable.RemarshalException _exception )
-				{
-					continue;
-				}
-				catch( org.omg.CORBA.portable.ApplicationException _exception )
-				{
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000") )
-					{
-						throw ( org.openejb.test.TestFailureException ) _input.read_value();
-					}
-
-					throw new java.rmi.UnexpectedException(_exception_id);
-				}
-				catch( org.omg.CORBA.SystemException _exception )
-				{
-					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
-				}
-				finally
-				{
-					this._releaseReply(_input);
-				}
-		}
-	}
-
-	//
-	// Operation lookupLongEntry
-	//
-	public void lookupLongEntry()
-		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
-	{
-		while( true )
-		{
-				org.omg.CORBA_2_3.portable.InputStream _input = null;
-				try
-				{
-					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupLongEntry",true);
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
-					return;
-				}
-				catch( org.omg.CORBA.portable.RemarshalException _exception )
-				{
-					continue;
-				}
-				catch( org.omg.CORBA.portable.ApplicationException _exception )
-				{
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000") )
-					{
-						throw ( org.openejb.test.TestFailureException ) _input.read_value();
-					}
-
-					throw new java.rmi.UnexpectedException(_exception_id);
-				}
-				catch( org.omg.CORBA.SystemException _exception )
-				{
-					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
-				}
-				finally
-				{
-					this._releaseReply(_input);
-				}
-		}
-	}
-
-	//
-	// Operation lookupResource
-	//
-	public void lookupResource()
-		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
-	{
-		while( true )
-		{
-				org.omg.CORBA_2_3.portable.InputStream _input = null;
-				try
-				{
-					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupResource",true);
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
-					return;
-				}
-				catch( org.omg.CORBA.portable.RemarshalException _exception )
-				{
-					continue;
-				}
-				catch( org.omg.CORBA.portable.ApplicationException _exception )
-				{
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000") )
-					{
-						throw ( org.openejb.test.TestFailureException ) _input.read_value();
-					}
-
-					throw new java.rmi.UnexpectedException(_exception_id);
-				}
-				catch( org.omg.CORBA.SystemException _exception )
-				{
-					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
-				}
-				finally
-				{
-					this._releaseReply(_input);
-				}
-		}
-	}
-
-	//
-	// Operation lookupShortEntry
-	//
-	public void lookupShortEntry()
-		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
-	{
-		while( true )
-		{
-				org.omg.CORBA_2_3.portable.InputStream _input = null;
-				try
-				{
-					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupShortEntry",true);
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
-					return;
-				}
-				catch( org.omg.CORBA.portable.RemarshalException _exception )
-				{
-					continue;
-				}
-				catch( org.omg.CORBA.portable.ApplicationException _exception )
-				{
-					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000") )
-					{
-						throw ( org.openejb.test.TestFailureException ) _input.read_value();
-					}
-
-					throw new java.rmi.UnexpectedException(_exception_id);
-				}
-				catch( org.omg.CORBA.SystemException _exception )
-				{
-					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
-				}
-				finally
-				{
-					this._releaseReply(_input);
-				}
+			}
 		}
 	}
 
@@ -399,6 +99,8 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -413,10 +115,11 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000") )
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:org/openejb/test/TestFailureEx:1.0") )
 					{
-						throw ( org.openejb.test.TestFailureException ) _input.read_value();
+						_input.read_string();
+						throw ( org.openejb.test.TestFailureException ) _input.read_value(org.openejb.test.TestFailureException.class);
 					}
 
 					throw new java.rmi.UnexpectedException(_exception_id);
@@ -429,6 +132,30 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("lookupStatefulBean",_opsClass);
+				if ( _so == null )
+				   lookupStatefulBean();
+				try
+				{
+					((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).lookupStatefulBean();
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof org.openejb.test.TestFailureException )
+						throw ( org.openejb.test.TestFailureException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -440,6 +167,8 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -454,10 +183,11 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000") )
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:org/openejb/test/TestFailureEx:1.0") )
 					{
-						throw ( org.openejb.test.TestFailureException ) _input.read_value();
+						_input.read_string();
+						throw ( org.openejb.test.TestFailureException ) _input.read_value(org.openejb.test.TestFailureException.class);
 					}
 
 					throw new java.rmi.UnexpectedException(_exception_id);
@@ -470,6 +200,98 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("lookupStatelessBean",_opsClass);
+				if ( _so == null )
+				   lookupStatelessBean();
+				try
+				{
+					((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).lookupStatelessBean();
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof org.openejb.test.TestFailureException )
+						throw ( org.openejb.test.TestFailureException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
+		}
+	}
+
+	//
+	// Operation lookupResource
+	//
+	public void lookupResource()
+		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
+	{
+		while( true )
+		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
+				org.omg.CORBA_2_3.portable.InputStream _input = null;
+				try
+				{
+					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupResource",true);
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
+					return;
+				}
+				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				{
+					continue;
+				}
+				catch( org.omg.CORBA.portable.ApplicationException _exception )
+				{
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:org/openejb/test/TestFailureEx:1.0") )
+					{
+						_input.read_string();
+						throw ( org.openejb.test.TestFailureException ) _input.read_value(org.openejb.test.TestFailureException.class);
+					}
+
+					throw new java.rmi.UnexpectedException(_exception_id);
+				}
+				catch( org.omg.CORBA.SystemException _exception )
+				{
+					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+				}
+				finally
+				{
+					this._releaseReply(_input);
+				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("lookupResource",_opsClass);
+				if ( _so == null )
+				   lookupResource();
+				try
+				{
+					((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).lookupResource();
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof org.openejb.test.TestFailureException )
+						throw ( org.openejb.test.TestFailureException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -481,6 +303,8 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -495,10 +319,11 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000") )
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:org/openejb/test/TestFailureEx:1.0") )
 					{
-						throw ( org.openejb.test.TestFailureException ) _input.read_value();
+						_input.read_string();
+						throw ( org.openejb.test.TestFailureException ) _input.read_value(org.openejb.test.TestFailureException.class);
 					}
 
 					throw new java.rmi.UnexpectedException(_exception_id);
@@ -511,6 +336,506 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("lookupStringEntry",_opsClass);
+				if ( _so == null )
+				   lookupStringEntry();
+				try
+				{
+					((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).lookupStringEntry();
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof org.openejb.test.TestFailureException )
+						throw ( org.openejb.test.TestFailureException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
+		}
+	}
+
+	//
+	// Operation lookupDoubleEntry
+	//
+	public void lookupDoubleEntry()
+		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
+	{
+		while( true )
+		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
+				org.omg.CORBA_2_3.portable.InputStream _input = null;
+				try
+				{
+					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupDoubleEntry",true);
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
+					return;
+				}
+				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				{
+					continue;
+				}
+				catch( org.omg.CORBA.portable.ApplicationException _exception )
+				{
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:org/openejb/test/TestFailureEx:1.0") )
+					{
+						_input.read_string();
+						throw ( org.openejb.test.TestFailureException ) _input.read_value(org.openejb.test.TestFailureException.class);
+					}
+
+					throw new java.rmi.UnexpectedException(_exception_id);
+				}
+				catch( org.omg.CORBA.SystemException _exception )
+				{
+					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+				}
+				finally
+				{
+					this._releaseReply(_input);
+				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("lookupDoubleEntry",_opsClass);
+				if ( _so == null )
+				   lookupDoubleEntry();
+				try
+				{
+					((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).lookupDoubleEntry();
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof org.openejb.test.TestFailureException )
+						throw ( org.openejb.test.TestFailureException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
+		}
+	}
+
+	//
+	// Operation lookupLongEntry
+	//
+	public void lookupLongEntry()
+		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
+	{
+		while( true )
+		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
+				org.omg.CORBA_2_3.portable.InputStream _input = null;
+				try
+				{
+					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupLongEntry",true);
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
+					return;
+				}
+				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				{
+					continue;
+				}
+				catch( org.omg.CORBA.portable.ApplicationException _exception )
+				{
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:org/openejb/test/TestFailureEx:1.0") )
+					{
+						_input.read_string();
+						throw ( org.openejb.test.TestFailureException ) _input.read_value(org.openejb.test.TestFailureException.class);
+					}
+
+					throw new java.rmi.UnexpectedException(_exception_id);
+				}
+				catch( org.omg.CORBA.SystemException _exception )
+				{
+					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+				}
+				finally
+				{
+					this._releaseReply(_input);
+				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("lookupLongEntry",_opsClass);
+				if ( _so == null )
+				   lookupLongEntry();
+				try
+				{
+					((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).lookupLongEntry();
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof org.openejb.test.TestFailureException )
+						throw ( org.openejb.test.TestFailureException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
+		}
+	}
+
+	//
+	// Operation lookupFloatEntry
+	//
+	public void lookupFloatEntry()
+		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
+	{
+		while( true )
+		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
+				org.omg.CORBA_2_3.portable.InputStream _input = null;
+				try
+				{
+					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupFloatEntry",true);
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
+					return;
+				}
+				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				{
+					continue;
+				}
+				catch( org.omg.CORBA.portable.ApplicationException _exception )
+				{
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:org/openejb/test/TestFailureEx:1.0") )
+					{
+						_input.read_string();
+						throw ( org.openejb.test.TestFailureException ) _input.read_value(org.openejb.test.TestFailureException.class);
+					}
+
+					throw new java.rmi.UnexpectedException(_exception_id);
+				}
+				catch( org.omg.CORBA.SystemException _exception )
+				{
+					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+				}
+				finally
+				{
+					this._releaseReply(_input);
+				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("lookupFloatEntry",_opsClass);
+				if ( _so == null )
+				   lookupFloatEntry();
+				try
+				{
+					((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).lookupFloatEntry();
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof org.openejb.test.TestFailureException )
+						throw ( org.openejb.test.TestFailureException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
+		}
+	}
+
+	//
+	// Operation lookupIntegerEntry
+	//
+	public void lookupIntegerEntry()
+		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
+	{
+		while( true )
+		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
+				org.omg.CORBA_2_3.portable.InputStream _input = null;
+				try
+				{
+					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupIntegerEntry",true);
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
+					return;
+				}
+				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				{
+					continue;
+				}
+				catch( org.omg.CORBA.portable.ApplicationException _exception )
+				{
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:org/openejb/test/TestFailureEx:1.0") )
+					{
+						_input.read_string();
+						throw ( org.openejb.test.TestFailureException ) _input.read_value(org.openejb.test.TestFailureException.class);
+					}
+
+					throw new java.rmi.UnexpectedException(_exception_id);
+				}
+				catch( org.omg.CORBA.SystemException _exception )
+				{
+					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+				}
+				finally
+				{
+					this._releaseReply(_input);
+				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("lookupIntegerEntry",_opsClass);
+				if ( _so == null )
+				   lookupIntegerEntry();
+				try
+				{
+					((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).lookupIntegerEntry();
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof org.openejb.test.TestFailureException )
+						throw ( org.openejb.test.TestFailureException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
+		}
+	}
+
+	//
+	// Operation lookupShortEntry
+	//
+	public void lookupShortEntry()
+		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
+	{
+		while( true )
+		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
+				org.omg.CORBA_2_3.portable.InputStream _input = null;
+				try
+				{
+					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupShortEntry",true);
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
+					return;
+				}
+				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				{
+					continue;
+				}
+				catch( org.omg.CORBA.portable.ApplicationException _exception )
+				{
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:org/openejb/test/TestFailureEx:1.0") )
+					{
+						_input.read_string();
+						throw ( org.openejb.test.TestFailureException ) _input.read_value(org.openejb.test.TestFailureException.class);
+					}
+
+					throw new java.rmi.UnexpectedException(_exception_id);
+				}
+				catch( org.omg.CORBA.SystemException _exception )
+				{
+					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+				}
+				finally
+				{
+					this._releaseReply(_input);
+				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("lookupShortEntry",_opsClass);
+				if ( _so == null )
+				   lookupShortEntry();
+				try
+				{
+					((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).lookupShortEntry();
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof org.openejb.test.TestFailureException )
+						throw ( org.openejb.test.TestFailureException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
+		}
+	}
+
+	//
+	// Operation lookupBooleanEntry
+	//
+	public void lookupBooleanEntry()
+		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
+	{
+		while( true )
+		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
+				org.omg.CORBA_2_3.portable.InputStream _input = null;
+				try
+				{
+					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupBooleanEntry",true);
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
+					return;
+				}
+				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				{
+					continue;
+				}
+				catch( org.omg.CORBA.portable.ApplicationException _exception )
+				{
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:org/openejb/test/TestFailureEx:1.0") )
+					{
+						_input.read_string();
+						throw ( org.openejb.test.TestFailureException ) _input.read_value(org.openejb.test.TestFailureException.class);
+					}
+
+					throw new java.rmi.UnexpectedException(_exception_id);
+				}
+				catch( org.omg.CORBA.SystemException _exception )
+				{
+					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+				}
+				finally
+				{
+					this._releaseReply(_input);
+				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("lookupBooleanEntry",_opsClass);
+				if ( _so == null )
+				   lookupBooleanEntry();
+				try
+				{
+					((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).lookupBooleanEntry();
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof org.openejb.test.TestFailureException )
+						throw ( org.openejb.test.TestFailureException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
+		}
+	}
+
+	//
+	// Operation lookupByteEntry
+	//
+	public void lookupByteEntry()
+		throws org.openejb.test.TestFailureException, java.rmi.RemoteException
+	{
+		while( true )
+		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
+				org.omg.CORBA_2_3.portable.InputStream _input = null;
+				try
+				{
+					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("lookupByteEntry",true);
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
+					return;
+				}
+				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				{
+					continue;
+				}
+				catch( org.omg.CORBA.portable.ApplicationException _exception )
+				{
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:org/openejb/test/TestFailureEx:1.0") )
+					{
+						_input.read_string();
+						throw ( org.openejb.test.TestFailureException ) _input.read_value(org.openejb.test.TestFailureException.class);
+					}
+
+					throw new java.rmi.UnexpectedException(_exception_id);
+				}
+				catch( org.omg.CORBA.SystemException _exception )
+				{
+					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+				}
+				finally
+				{
+					this._releaseReply(_input);
+				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("lookupByteEntry",_opsClass);
+				if ( _so == null )
+				   lookupByteEntry();
+				try
+				{
+					((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).lookupByteEntry();
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof org.openejb.test.TestFailureException )
+						throw ( org.openejb.test.TestFailureException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -522,6 +847,8 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -537,7 +864,7 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					java.lang.String _exception_id = _exception.getId();
-					throw new org.omg.CORBA.UNKNOWN("Unexcepected User Exception: "+ _exception_id);
+					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
 				{
@@ -547,6 +874,27 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("_get_EJBHome",_opsClass);
+				if ( _so == null )
+				   return getEJBHome();
+				try
+				{
+					javax.ejb.EJBHome _arg_ret = ((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).getEJBHome();
+					return (javax.ejb.EJBHome)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -558,6 +906,8 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -573,7 +923,7 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					java.lang.String _exception_id = _exception.getId();
-					throw new org.omg.CORBA.UNKNOWN("Unexcepected User Exception: "+ _exception_id);
+					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
 				{
@@ -583,6 +933,27 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("_get_handle",_opsClass);
+				if ( _so == null )
+				   return getHandle();
+				try
+				{
+					javax.ejb.Handle _arg_ret = ((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).getHandle();
+					return (javax.ejb.Handle)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -594,6 +965,8 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -609,7 +982,7 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					java.lang.String _exception_id = _exception.getId();
-					throw new org.omg.CORBA.UNKNOWN("Unexcepected User Exception: "+ _exception_id);
+					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
 				{
@@ -619,6 +992,27 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("_get_primaryKey",_opsClass);
+				if ( _so == null )
+				   return getPrimaryKey();
+				try
+				{
+					java.lang.Object _arg_ret = ((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).getPrimaryKey();
+					return (java.lang.Object)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -630,6 +1024,8 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -644,10 +1040,11 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:javax.ejb.RemoveException:000000000064C34E:0000000000000000") )
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:javax/ejb/RemoveEx:1.0") )
 					{
-						throw ( javax.ejb.RemoveException ) _input.read_value();
+						_input.read_string();
+						throw ( javax.ejb.RemoveException ) _input.read_value(javax.ejb.RemoveException.class);
 					}
 
 					throw new java.rmi.UnexpectedException(_exception_id);
@@ -660,6 +1057,30 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("remove",_opsClass);
+				if ( _so == null )
+				   remove();
+				try
+				{
+					((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).remove();
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof javax.ejb.RemoveException )
+						throw ( javax.ejb.RemoveException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -671,6 +1092,8 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -687,7 +1110,7 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
+					java.lang.String _exception_id = _exception.getId();
 					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
@@ -698,6 +1121,28 @@ public class _EncBmpObject_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("isIdentical",_opsClass);
+				if ( _so == null )
+				   return isIdentical( arg0);
+				try
+				{
+					javax.ejb.EJBObject arg0Copy = (javax.ejb.EJBObject)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					boolean _arg_ret = ((org.openejb.test.entity.bmp.EncBmpObject)_so.servant).isIdentical( arg0Copy);
+					return _arg_ret;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 

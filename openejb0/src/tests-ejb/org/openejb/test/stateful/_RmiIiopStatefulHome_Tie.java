@@ -1,18 +1,18 @@
-package org.openejb.test.entity.bmp;
+package org.openejb.test.stateful;
 
 /**
- * Interface definition : BasicBmp2DataSourcesHome
+ * Interface definition : RmiIiopStatefulHome
  * 
  * @author OpenORB Compiler
  */
 
-public class _BasicBmp2DataSourcesHome_Tie extends org.omg.PortableServer.Servant
+public class _RmiIiopStatefulHome_Tie extends org.omg.PortableServer.Servant
 		implements javax.rmi.CORBA.Tie
 {
 
 	static final String[] _ids_list =
 	{
-		"RMI:org.openejb.test.entity.bmp.BasicBmp2DataSourcesHome:0000000000000000", 
+		"RMI:org.openejb.test.stateful.RmiIiopStatefulHome:0000000000000000", 
 		"RMI:javax.ejb.EJBHome:0000000000000000"
 	};
 
@@ -29,7 +29,7 @@ public class _BasicBmp2DataSourcesHome_Tie extends org.omg.PortableServer.Servan
 	//
 	// Private reference to implementation object
 	//
-	private org.openejb.test.entity.bmp.BasicBmp2DataSourcesHome target;
+	private org.openejb.test.stateful.RmiIiopStatefulHome target;
 
 	//
 	// Private reference to the ORB
@@ -41,7 +41,7 @@ public class _BasicBmp2DataSourcesHome_Tie extends org.omg.PortableServer.Servan
 	//
 	public void setTarget( java.rmi.Remote targ )
 	{
-		target = (BasicBmp2DataSourcesHome) targ;
+		target = (RmiIiopStatefulHome) targ;
 	}
 
 	//
@@ -110,7 +110,7 @@ public class _BasicBmp2DataSourcesHome_Tie extends org.omg.PortableServer.Servan
 
 				try
 				{
-					org.openejb.test.entity.bmp.BasicBmp2DataSourcesObject _arg_result = target.create(arg0_in);
+					org.openejb.test.stateful.RmiIiopStatefulObject _arg_result = target.create(arg0_in);
 
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
 					javax.rmi.CORBA.Util.writeRemoteObject( _output, _arg_result );
@@ -123,62 +123,6 @@ public class _BasicBmp2DataSourcesHome_Tie extends org.omg.PortableServer.Servan
 					_output.write_string(exid);
 					_output.write_value(_exception);
 				}
-				return _output;
-			}
-			else
-			if ( opName.equals("findByPrimaryKey") )
-			{
-				java.lang.Integer arg0_in = ( java.lang.Integer )((org.omg.CORBA_2_3.portable.InputStream)_is).read_value(java.lang.Integer.class);
-
-				try
-				{
-					org.openejb.test.entity.bmp.BasicBmp2DataSourcesObject _arg_result = target.findByPrimaryKey(arg0_in);
-
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-					javax.rmi.CORBA.Util.writeRemoteObject( _output, _arg_result );
-
-				}
-				catch ( javax.ejb.FinderException _exception )
-				{
-					String exid = "IDL:javax/ejb/FinderEx:1.0";
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
-					_output.write_string(exid);
-					_output.write_value(_exception);
-				}
-				return _output;
-			}
-			else
-			if ( opName.equals("findEmptyCollection") )
-			{
-
-				try
-				{
-					java.util.Collection _arg_result = target.findEmptyCollection();
-
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-					_output.write_value((java.io.Serializable)_arg_result,java.util.Collection.class);
-
-				}
-				catch ( javax.ejb.FinderException _exception )
-				{
-					String exid = "IDL:javax/ejb/FinderEx:1.0";
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
-					_output.write_string(exid);
-					_output.write_value(_exception);
-				}
-				return _output;
-			}
-			else
-			if ( opName.equals("sum") )
-			{
-				int arg0_in = _is.read_long();
-				int arg1_in = _is.read_long();
-
-				int _arg_result = target.sum(arg0_in, arg1_in);
-
-				_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-				_output.write_long(_arg_result);
-
 				return _output;
 			}
 			else
