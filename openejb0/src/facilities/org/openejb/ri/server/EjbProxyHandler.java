@@ -62,6 +62,7 @@ import org.openejb.spi.Serializer;
 import org.openejb.util.proxy.InvalidatedReferenceHandler;
 import org.openejb.util.proxy.InvocationHandler;
 import org.openejb.util.proxy.ProxyManager;
+import org.openejb.alt.util.Messages;
 
 /**
  * This InvocationHandler and its proxy are serializable and can be used by
@@ -83,6 +84,9 @@ public class EjbProxyHandler implements InvocationHandler, Serializable {
     boolean inProxyMap = false;
     boolean isInvalidReference = false;
     String securityToken;
+
+    static protected Messages _messages = new Messages();
+
 
     /** Public no-arg constructor required by Externalizable API */
     public EjbProxyHandler() {}
@@ -122,7 +126,7 @@ public class EjbProxyHandler implements InvocationHandler, Serializable {
     // entity identity. Synchronizing the stub is a simple and elegant solution to a difficult problem.
     //
     public synchronized Object invoke(Object proxy, Method method, Object[] args) throws Throwable{
-        if (isInvalidReference) throw new NoSuchObjectException("reference is invalid");
+        if (isInvalidReference) throw new NoSuchObjectException( _messages.message( "ejbProxyHandler.referenceIsInvalid" ) );
 
         if(method.getDeclaringClass().getName().equals("java.lang.Object")) {
             if(method.getName().equals("equals")) {
@@ -171,7 +175,7 @@ public class EjbProxyHandler implements InvocationHandler, Serializable {
             oos.reset();
             retval = ois.readObject();
         } catch(IOException e) {
-            throw new java.rmi.RemoteException("Communication Breakdown", e);
+            throw new java.rmi.RemoteException( _messages.format( "ejbProxyHandler.communicationBreakdown", e) );
         }
 
         if ( retval instanceof InvalidateReferenceException ) {

@@ -70,6 +70,7 @@ import org.openejb.ProxyInfo;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.proxy.ProxyManager;
+import org.openejb.alt.util.Messages;
 
 
 /**
@@ -79,7 +80,9 @@ import org.openejb.util.proxy.ProxyManager;
  * @see javax.ejb.EJBHome
  */
 public class EjbRemoteIntfcProcessor {
-    
+
+    static protected Messages _messages = new Messages();
+
     /**
      * Internally processes the business methods from the bean's remote 
      * interface.
@@ -113,7 +116,7 @@ public class EjbRemoteIntfcProcessor {
             try{
             proxy = ProxyManager.newProxyInstance(prxInfo.getInterface(), handler);
             }catch(IllegalAccessException iae){
-                throw new RuntimeException("Could not create IVM proxy for "+prxInfo.getInterface()+" interface");
+                throw new RuntimeException( _messages.format( "ejbRemoteIntfcProcessor.couldNotCreateIVMProxy", prxInfo.getInterface() ) );
             }
             return proxy;
         }

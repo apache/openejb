@@ -66,13 +66,16 @@ import javax.naming.NameClassPair;
 import org.openejb.Container;
 import org.openejb.DeploymentInfo;
 import org.openejb.ProxyInfo;
-import org.openejb.util.Messages;
 import org.openejb.util.proxy.DynamicProxyFactory;
 import org.openejb.util.proxy.ProxyManager;
 import org.openejb.OpenEJB;
+import org.openejb.alt.util.Messages;
 
 
 public class NamingServer implements Runnable {
+
+    static protected Messages _messages = new Messages();
+
     Thread thread = new Thread(this);
     HashMap nameMap;
     HashMap principalMap = new HashMap();
@@ -134,10 +137,10 @@ public class NamingServer implements Runnable {
         public void run( ) {
             String CURRENT_OPERATION ="";
             try {
-                CURRENT_OPERATION = "Authenticating... reading authentication request.";
+                CURRENT_OPERATION = _messages.message( "namingServer.authenticatingReading" );
                 AuthenticationRequest authRequest = (AuthenticationRequest)ois.readObject();
 
-                CURRENT_OPERATION = "Authenticating... writing authentication response.";
+                CURRENT_OPERATION = _messages.message( "namingServer.authenticatingWriting" );
                 oos.writeObject("RECEIVED");
                 oos.flush();
 
@@ -145,7 +148,7 @@ public class NamingServer implements Runnable {
                     CURRENT_OPERATION = "";
                     Object retValue = null;
                     Object obj = ois.readObject();
-                    CURRENT_OPERATION = "Reading incomming request from "+authRequest.getUserID()+"...";
+                    CURRENT_OPERATION = _messages.format( "namingServer.incomingReading", authRequest.getUserID() );
                     if ( obj instanceof Byte ) {
                         byte code = ((Byte)obj).byteValue();
                         Iterator names = null;
@@ -154,7 +157,7 @@ public class NamingServer implements Runnable {
                         Object clientID = null;
                         switch ( code ) {
                             case REQUESTING_LIST:
-                                CURRENT_OPERATION += "operation=REQUESTING_LIST...";
+                                CURRENT_OPERATION += _messages.message( "namingServer.requestingList" );
                                 names = nameMap.keySet().iterator();
                                 pairs = new Vector();
                                 while ( names.hasNext() ) {
@@ -167,12 +170,12 @@ public class NamingServer implements Runnable {
                                     if ( authorized )
                                         pairs.addElement(new NameClassPair(name,info.getHomeInterface().getName()));
                                 }
-                                CURRENT_OPERATION += "sending list...";
+                                CURRENT_OPERATION += _messages.message( "namingServer.sendingList" );
                                 oos.writeObject(pairs);
                                 oos.flush();
-                                CURRENT_OPERATION += "OPERATION COMPLETE";
+                                CURRENT_OPERATION += _messages.message( "namingServer.operationComplete" );
                             case REQUESTING_BINDINGS:
-                                CURRENT_OPERATION += "operation=REQUESTING_BINDINGS...";
+                                CURRENT_OPERATION += _messages.message( "namingServer.requestingBindings" );
                                 names = nameMap.keySet().iterator();
                                 pairs = new Vector();
                                 while ( names.hasNext() ) {
@@ -182,26 +185,26 @@ public class NamingServer implements Runnable {
                                     DeploymentInfo dInfo = binding.getDeploymentInfo();
                                     pairs.addElement(new javax.naming.Binding(name,dInfo.getHomeInterface().getName(),proxy));
                                 }
-                                CURRENT_OPERATION += "sending bindings...";
+                                CURRENT_OPERATION += _messages.message( "namingServer.sendingBindings" );
                                 oos.writeObject(pairs);
                                 oos.flush();
-                                CURRENT_OPERATION += "OPERATION COMPLETE";
+                                CURRENT_OPERATION += _messages.message( "namingServer.operationComplete" );
                                 break;
                             case REQUESTING_CLASS:
-                                CURRENT_OPERATION += "operation=REQUESTING_CLASS...";
+                                CURRENT_OPERATION += _messages.message( "namingServer.requestingClass" );
                                 String className = "";
 
-                                CURRENT_OPERATION += "reading class name...";
+                                CURRENT_OPERATION += _messages.message( "namingServer.readingClassName" );
                                 className = ois.readUTF();
-                                CURRENT_OPERATION += "loading class \'"+className+"\'...";
+                                CURRENT_OPERATION += _messages.format( "namingServer.loadingClass", className );
                                 // FIXME: Doesn't handle ClassLoaders for hot-deploy JARs
                                 Class clazz = DynamicProxyFactory.loader.loadClass(className);
-                                CURRENT_OPERATION += "class="+clazz.getName()+"...";
+                                CURRENT_OPERATION += _messages.format( "namingServer.class", clazz.getName() );
                                 className = "/"+clazz.getName().replace('.','/')+".class";
-                                CURRENT_OPERATION += "looking up resource \'"+className+"\'...";
+                                CURRENT_OPERATION += _messages.format( "lookingUpResource.loadingClass", className );
 
                                 InputStream in = clazz.getResourceAsStream(className);
-                                CURRENT_OPERATION += "inputstream="+in+"...";
+                                CURRENT_OPERATION += _messages.format( "lookingUpResource.inputstream", in );
                                 ByteArrayOutputStream baos = new ByteArrayOutputStream(8000);
 
                                 int b=0;
@@ -214,20 +217,20 @@ public class NamingServer implements Runnable {
                                 oos.writeInt( byteCode.length );
                                 oos.write( byteCode );
                                 oos.flush();
-                                CURRENT_OPERATION += "OPERATION COMPLETE";
+                                CURRENT_OPERATION += _messages.message( "namingServer.operationComplete" );
                                 break;
                             case CLOSE_CONNECTION:
-                                CURRENT_OPERATION += "operation=CLOSE_CONNECTION...";
-                                CURRENT_OPERATION += "closing input stream...";
+                                CURRENT_OPERATION += _messages.message( "namingServer.closeConnection" );
+                                CURRENT_OPERATION += _messages.message( "namingServer.closeInputStream" );
                                 ois.close();
-                                CURRENT_OPERATION += "closing output stream...";
+                                CURRENT_OPERATION += _messages.message( "namingServer.closeOutputStream" );
                                 oos.close();
-                                CURRENT_OPERATION += "closing socket...";
+                                CURRENT_OPERATION += _messages.message( "namingServer.closeSocket" );
                                 mySocket.close();
                                 ois = null;
                                 oos = null;
                                 mySocket = null;
-                                CURRENT_OPERATION += "OPERATION COMPLETE";
+                                CURRENT_OPERATION += _messages.message( "namingServer.operationComplete" );
                                 break;
                         }
                     } else {
@@ -241,10 +244,10 @@ public class NamingServer implements Runnable {
 
             } catch ( SocketException cnfe ) {
                 //Logger.getSystemLogger().println(Messages.format("sa0001", "RMH Naming Server"));
-                System.out.println("[RI Naming Server] "+CURRENT_OPERATION+"Connection reset by peer...OPERATION TERMINATED.");
+                System.out.println(  _messages.format( "namingServer.connectionResetByPeer", CURRENT_OPERATION ) );
 
             } catch ( Exception cnfe ) {
-                System.out.println("[RI Naming Server] "+CURRENT_OPERATION+"ERROR...OPERATION TERMINATED");
+                System.out.println(  _messages.format( "namingServer.error", CURRENT_OPERATION ) );
                 System.out.println("\n"+cnfe+"\n");
                 // do something interesting
                 //cnfe.printStackTrace();

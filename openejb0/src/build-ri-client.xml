@@ -55,6 +55,7 @@
     <copy todir="${build.riclient.src}">
     
       <fileset dir="${src.java.dir}/facilities" >
+        <include name="${src.java.dir}/facilities/org/openejb/alt/util/Messages.java"/>
         <include name="**/ri/**"/>
         <exclude name="**/CVS/**"/>
         <exclude name="**/*.class"/>
@@ -88,6 +89,18 @@
   
   </target>
   
+    <target name="copy.i18n">
+    
+      <copy todir="${build.riserver.dest}">
+      
+        <fileset dir="${src.java.dir}/facilities" >
+          <include name="**/resources/*.properties"/>
+        </fileset>
+      
+      </copy>
+    
+    </target>
+
   <!-- ================================================================== -->
   <!-- Compiles the source directory                                      -->
   <!-- ================================================================== -->
@@ -121,7 +134,7 @@
   <!-- ================================================================== -->
   
   <target name="jar"
-          depends="compile, copy.manifest"
+          depends="compile, copy.manifest, copy.i18n"
           description="--> generates all java archives (default)">
           
     <jar jarfile="dist/${project}_ri_client-${version}.jar"

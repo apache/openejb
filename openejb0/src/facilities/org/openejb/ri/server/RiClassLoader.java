@@ -49,6 +49,7 @@ import java.io.*;
 import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.NamingException;
+import org.openejb.alt.util.Messages;
 
 /**
  * Dynamic ClassLoader that loads classes from the NamingServer.
@@ -59,7 +60,10 @@ import javax.naming.NamingException;
  * @author David Blevins
  */
 public class RiClassLoader extends ClassLoader {
-    
+
+    static protected Messages _messages = new Messages();
+
+
     private Hashtable env;
     private Socket hostSocket;
     final static Byte CLASS_REQUEST = new Byte((byte)3);
@@ -70,7 +74,7 @@ public class RiClassLoader extends ClassLoader {
     private int port;
     
     RiClassLoader(Hashtable environment) throws NamingException {
-        if ( environment ==null ) throw new NamingException("Invalid Argument");
+        if ( environment ==null ) throw new NamingException( _messages.message( "riClassLoader.invalidArgument" ) );
         else env = (Hashtable)environment.clone();
         
         String userID = (String)env.get(Context.SECURITY_PRINCIPAL);
@@ -96,7 +100,7 @@ public class RiClassLoader extends ClassLoader {
             if ( answer instanceof NamingException ) throw (NamingException)answer;
 
         } catch ( Exception e ) {
-            System.out.println("[RI Class Loader] ERROR: Cannot Authenticate.");
+            System.out.println( _messages.message( "riClassLoader.cannotAuthenticate" ) );
             //e.printStackTrace();
             throw new NamingException(e.getMessage());
         }
@@ -184,7 +188,7 @@ public class RiClassLoader extends ClassLoader {
         //System.out.println("@");
         return clazz;
         } catch(ClassNotFoundException e){
-            System.out.println("[RI Class Loader] ERROR: Cannot find class: "+name);
+            System.out.println( _messages.format( "riClassLoader.cannotAuthenticate", name ) );
             throw e;
         }
         
@@ -200,7 +204,7 @@ public class RiClassLoader extends ClassLoader {
             ois.readFully(byteCode);
             return byteCode;
         } catch( IOException ioe){
-            throw new ClassNotFoundException("Problem reading class byte-code from host.");
+            throw new ClassNotFoundException( _messages.message( "riClassLoader.problemReadingClass" ) );
         }
     }
 }

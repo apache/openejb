@@ -54,7 +54,7 @@ import java.util.*;
  * @author <a href="arkin@exoffice.com">Assaf Arkin</a>
  * @version $Revision$ $Date$
  */
-public class Messages extends MessagesBase
+public class Messages extends org.openejb.util.MessagesBase
 {
     public Messages() {
 	super();

@@ -68,12 +68,16 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NotContextException;
 import javax.naming.OperationNotSupportedException;
+import org.openejb.alt.util.Messages;
 
 
 /**
  * The initial Context implementation that is returned from the client's first JNDI lookup.
  */
 public class RiContext implements Context, DynamicContext {
+
+    static protected Messages _messages = new Messages();
+
     Hashtable myEnv;
     private Hashtable bindings = new Hashtable(11);
     private Socket mySocket;
@@ -129,7 +133,7 @@ public class RiContext implements Context, DynamicContext {
     public void init(Hashtable environment) throws NamingException{
 
         if ( environment ==null )
-            throw new NamingException("Invalid Argument");
+            throw new NamingException( _messages.message( "riContext.invalidArgument" ) );
         else
             myEnv = (Hashtable)environment.clone();
 
@@ -155,13 +159,13 @@ public class RiContext implements Context, DynamicContext {
             oos.flush();*/
 
         } catch ( NamingException ne ) {
-            System.out.println("[Ri Context] ERROR:  Cannot initialize and authenticate.");
+            System.out.println( _messages.message( "riContext.cannotInitialize" ) );
             //ne.printStackTrace();
             throw ne;
         }
 
         catch ( Exception e ) {
-            System.out.println("[Ri Context] ERROR:  Cannot initialize and authenticate.");
+            System.out.println( _messages.message( "riContext.cannotInitialize" ) );
             //e.printStackTrace();
             throw new NamingException(e.getMessage());
         }
@@ -184,14 +188,14 @@ public class RiContext implements Context, DynamicContext {
             Object answer = ois.readObject();
 
             if ( answer instanceof NamingException ) {
-                System.out.println("[Ri Context] Server returned NamingException: "+answer);
+                System.out.println( _messages.format( "riContext.serverReturnedNamingException", answer ) );
                 throw (NamingException)answer;
             } else
                 return answer;
 
 
         } catch ( Exception e ) {
-            System.out.println("[Ri Context] Requesting "+req+"...ERROR...OPERATION TERMINATED");
+            System.out.println( _messages.format( "riContext.operationTerminated", req ) );
             //e.printStackTrace();
             throw new NamingException(e.getMessage());
         }
@@ -205,7 +209,7 @@ public class RiContext implements Context, DynamicContext {
         }
         Object answer = request(name);
         if ( answer == null ) {
-            throw new NameNotFoundException(name + " not found");
+            throw new NameNotFoundException( _messages.format( "riContext.nameNotFound", name ) );
         }
         return answer;
     }
@@ -219,7 +223,7 @@ public class RiContext implements Context, DynamicContext {
 
             return new RiNamingEnum((Vector)request(LIST));
         }
-        throw new NotContextException(name + " cannot be listed");
+        throw new NotContextException( _messages.format( "riContext.nameNotListed", name ) );
     }
 
     public NamingEnumeration list(Name name) throws NamingException {
@@ -231,7 +235,7 @@ public class RiContext implements Context, DynamicContext {
 
             return new RiNamingEnum((Vector)request(BINDINGS));
         }
-        throw new NotContextException(name + " cannot be listed");
+        throw new NotContextException( _messages.format( "riContext.nameNotListed", name ) );
     }
 
     public NamingEnumeration listBindings(Name name) throws NamingException {
