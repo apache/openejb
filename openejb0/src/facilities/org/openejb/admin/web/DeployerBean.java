@@ -721,7 +721,7 @@ public class DeployerBean implements javax.ejb.SessionBean {
 		this.usedBeanNames = new ArrayList();
 
 		//put all the used deployments into the array
-		DeploymentInfo[] deployments = OpenEJB.deployments();
+		DeploymentInfo[] deployments = OpenEJB.deployments(OpenEJB.getDefaultContainerSystemID());
 		for (int i = 0; i < deployments.length; i++) {
 			this.usedBeanNames.add(deployments[i].getDeploymentID());
 		}

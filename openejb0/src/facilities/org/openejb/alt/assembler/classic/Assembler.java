@@ -59,6 +59,7 @@ import org.openejb.OpenEJBException;
 import org.openejb.core.ConnectorReference;
 import org.openejb.core.DeploymentInfo;
 import org.openejb.spi.SecurityService;
+import org.openejb.spi.ContainerSystem;
 import org.openejb.util.OpenEJBErrorHandler;
 import org.openejb.util.SafeToolkit;
 /**
@@ -89,19 +90,17 @@ import org.openejb.util.SafeToolkit;
  * @see OpenEjbConfigurationFactory
  */
 public class Assembler extends AssemblerTool implements org.openejb.spi.Assembler{
+    private final static String DEFAULT_CONTAINER_SYSTEM="default";
     private org.openejb.core.ContainerSystem containerSystem;
     private TransactionManager transactionManager;
     private org.openejb.spi.SecurityService securityService;
     private HashMap remoteJndiContexts = null;
     
-    public org.openejb.spi.ContainerSystem getContainerSystem(){
-        return containerSystem;
+    public org.openejb.spi.ContainerSystem[] getContainerSystems(){
+        return new ContainerSystem[]{containerSystem};
     }
     public TransactionManager getTransactionManager(){
         return transactionManager;
-    }
-    public SecurityService getSecurityService(){
-        return securityService;
     }
 
     protected SafeToolkit toolkit = SafeToolkit.getToolkit("Assembler");
@@ -162,7 +161,11 @@ public class Assembler extends AssemblerTool implements org.openejb.spi.Assemble
             throw new OpenEJBException(e);
         }
     }
-    
+
+    public String getDefaultContainerSystemID() {
+        return DEFAULT_CONTAINER_SYSTEM;
+    }
+
     /////////////////////////////////////////////////////////////////////
     ////
     ////    Public Methods Used for Assembly
@@ -217,7 +220,7 @@ public class Assembler extends AssemblerTool implements org.openejb.spi.Assemble
 
         
         
-        org.openejb.core.ContainerSystem containerSystem = new org.openejb.core.ContainerSystem();
+        org.openejb.core.ContainerSystem containerSystem = new org.openejb.core.ContainerSystem(DEFAULT_CONTAINER_SYSTEM);
 
         /*[2] Assemble Containers and Deployments ///////////////////////////////////*/
         
@@ -228,7 +231,8 @@ public class Assembler extends AssemblerTool implements org.openejb.spi.Assemble
         /*[3] Assemble SecurityServices ////////////////////////////////////*/
         securityService = assembleSecurityService(configInfo.facilities.securityService);
         containerSystem.getJNDIContext().bind("java:openejb/SecurityService",securityService);
-        
+        containerSystem.setSecurityService(securityService);
+
         /*[3]\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
         /*[4] Apply method permissions, role refs, and tx attributes ////////////////////////////////////*/

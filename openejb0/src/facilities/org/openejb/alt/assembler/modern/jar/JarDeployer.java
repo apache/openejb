@@ -175,7 +175,7 @@ public class JarDeployer extends AssemblerUtilities implements DeployerService {
      */
     private void build(String jarName, OpenEjbMetaData data, ClassLoader loader) throws OpenEJBException {
     // 1: Create containers defined in this JAR
-        Container containers[] = createContainers(data.getContainers());
+        Container containers[] = createContainersImpl(system, data.getContainers());
     // 2: Deploy beans
         BeanMetaData[] beans = data.getEJBs();
         DeploymentInfo[] deployments = createDeployments(system, containers, beans, data.getSecurityRoles(), loader);

@@ -106,7 +106,8 @@ public class EJBMetaDataImpl implements javax.ejb.EJBMetaData, java.io.Externali
 
     protected transient String deploymentID;
     protected transient int    deploymentCode;
-                                                        
+    protected transient String containerSystemID;
+
     /**
      * The home interface of the enterprise Bean.
      */
@@ -142,13 +143,14 @@ public class EJBMetaDataImpl implements javax.ejb.EJBMetaData, java.io.Externali
         }
     }
     
-    public EJBMetaDataImpl(Class homeInterface, Class remoteInterface, Class primaryKeyClass, byte typeOfBean, String deploymentID) {
+    public EJBMetaDataImpl(Class homeInterface, Class remoteInterface, Class primaryKeyClass, byte typeOfBean, String deploymentID, String containerSystemID) {
         this(homeInterface, remoteInterface, primaryKeyClass, typeOfBean);
         this.deploymentID   = deploymentID;
+        this.containerSystemID = containerSystemID;
     }
     
-    public EJBMetaDataImpl(Class homeInterface, Class remoteInterface, Class primaryKeyClass, byte typeOfBean, String deploymentID, int deploymentCode) {
-        this(homeInterface, remoteInterface, primaryKeyClass, typeOfBean, deploymentID);
+    public EJBMetaDataImpl(Class homeInterface, Class remoteInterface, Class primaryKeyClass, byte typeOfBean, String deploymentID, int deploymentCode, String containerSystemID) {
+        this(homeInterface, remoteInterface, primaryKeyClass, typeOfBean, deploymentID, containerSystemID);
         this.deploymentCode = deploymentCode;
     }
     /**
@@ -217,6 +219,7 @@ public class EJBMetaDataImpl implements javax.ejb.EJBMetaData, java.io.Externali
         out.writeByte(   type );
         out.writeUTF(    deploymentID );
         out.writeShort( (short)deploymentCode );
+        out.writeUTF(containerSystemID == null ? "" : containerSystemID);
     }
 
     public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {
@@ -227,6 +230,7 @@ public class EJBMetaDataImpl implements javax.ejb.EJBMetaData, java.io.Externali
         type           = in.readByte();
         deploymentID   = in.readUTF();
         deploymentCode = in.readShort();
+        containerSystemID = in.readUTF();
     }
 
 }

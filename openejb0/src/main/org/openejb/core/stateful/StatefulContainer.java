@@ -62,6 +62,7 @@ import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.ProxyInfo;
 import org.openejb.SystemException;
+import org.openejb.spi.ContainerSystem;
 import org.openejb.core.EnvProps;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
@@ -93,6 +94,9 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
 
     final static protected Logger logger = Logger.getInstance("OpenEJB", "org.openejb.util.resources");
 
+    // The container system configured for this container
+    private ContainerSystem containerSystem;
+
     // manages the transactional scope according to the bean's transaction attributes
     //StatefulTransactionScopeHandler txScopeHandle;
 
@@ -108,8 +112,9 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
      * @throws OpenEJBException if there is a problem constructing the container
      * @see org.openejb.Container
      */
-    public void init(Object id, HashMap registry, Properties properties)
+    public void init(ContainerSystem system, Object id, HashMap registry, Properties properties)
     throws org.openejb.OpenEJBException{
+        setContainerSystem(system);
         containerID = id;
         deploymentRegistry = registry;
 
@@ -151,6 +156,20 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
     //===============================
     // begin Container Implementation
     //
+
+    /**
+     * Tracks the container system for this container
+     */
+    public ContainerSystem getContainerSystem() {
+        return containerSystem;
+    }
+
+    /**
+     * Tracks the container system for this container
+     */
+    public void setContainerSystem(ContainerSystem containerSystem) {
+        this.containerSystem = containerSystem;
+    }
 
     /**
      * Gets the <code>DeploymentInfo</code> objects for all the beans deployed in this container.
@@ -214,23 +233,23 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
      * @param callMethod the method to be called on the bean instance
      * @param args the arguments to use when invoking the specified method
      * @param primKey the primary key class of the bean or null if the bean does not need a primary key
-     * @param prncpl
      * @return the result of invoking the specified method on the bean instance
      * @throws org.openejb.OpenEJBException
      * @see org.openejb.Container#invoke Container.invoke
      * @see org.openejb.core.stateless.StatelessContainer#invoke StatelessContainer.invoke
      */
     // process all business methods on an remote interface
-    public Object invoke(Object deployID, Method callMethod,Object [] args,Object primKey, Object securityIdentity)    throws org.openejb.OpenEJBException{
+    public Object invoke(Object deployID, Method callMethod,Object [] args,Object primKey)    throws org.openejb.OpenEJBException{
         try {
 
             org.openejb.core.DeploymentInfo deployInfo = (org.openejb.core.DeploymentInfo)this.getDeploymentInfo(deployID);
 
             ThreadContext callContext = ThreadContext.getThreadContext();
-            callContext.set(deployInfo, primKey, securityIdentity);
+            callContext.set(getContainerSystem(), deployInfo, primKey);
 
             // check authorization to invoke
-            boolean authorized = OpenEJB.getSecurityService().isCallerAuthorized(securityIdentity, deployInfo.getAuthorizedRoles(callMethod));
+            String[] roles = deployInfo.getAuthorizedRoles(callMethod);
+            boolean authorized = roles == null || getContainerSystem().getSecurityService().isCallerAuthorized(roles);
             if ( !authorized )
                 throw new org.openejb.ApplicationException(new RemoteException("Unauthorized Access by Principal Denied"));
 

@@ -74,15 +74,15 @@ public class ThreadContext implements Cloneable {
     /**
      * TODO: Add comment
      */
+    protected org.openejb.spi.ContainerSystem containerSystem;
+    /**
+     * TODO: Add comment
+     */
     protected Object primaryKey;
     /**
      * TODO: Add comment
      */
     protected byte currentOperation;
-    /**
-     * TODO: Add comment
-     */
-    protected Object securityIdentity;
     /**
      * Unspecified is any object that a customer container may want to 
      * attach to the current thread context. (e.g. CastorCMP11_EntityContainer
@@ -144,7 +144,6 @@ public class ThreadContext implements Cloneable {
         deploymentInfo = null;
         primaryKey = null;
         currentOperation = (byte)0;
-        securityIdentity = null;
         unspecified = null;
     }
     /**
@@ -211,14 +210,6 @@ public class ThreadContext implements Cloneable {
      * 
      * @return 
      */
-    public Object getSecurityIdentity( ) {
-        return securityIdentity;
-    }
-    /**
-     * TODO: Add comment
-     * 
-     * @return 
-     */
     public Object getUnspecified() {
         return unspecified;
     }
@@ -228,12 +219,11 @@ public class ThreadContext implements Cloneable {
      * 
      * @param di
      * @param primKey
-     * @param securityIdentity
      */
-    public void set(DeploymentInfo di, Object primKey, Object securityIdentity) {
+    public void set(org.openejb.spi.ContainerSystem system, DeploymentInfo di, Object primKey) {
+        setContainerSystem(system);
         setDeploymentInfo(di);
         setPrimaryKey(primKey);
-        setSecurityIdentity(securityIdentity);
         valid = true;
     }
     /**
@@ -252,15 +242,6 @@ public class ThreadContext implements Cloneable {
      */
     public void setPrimaryKey(Object primKey) {
         primaryKey = primKey;
-        valid = true;
-    }
-    /**
-     * TODO: Add comment
-     * 
-     * @param identity
-     */
-    public void setSecurityIdentity(Object identity) {
-        securityIdentity = identity;
         valid = true;
     }
     /**
@@ -287,6 +268,14 @@ public class ThreadContext implements Cloneable {
      */
     public boolean valid() {
         return valid;
+    }
+
+    public org.openejb.spi.ContainerSystem getContainerSystem() {
+        return containerSystem;
+    }
+
+    public void setContainerSystem(org.openejb.spi.ContainerSystem containerSystem) {
+        this.containerSystem = containerSystem;
     }
 
     public java.lang.Object clone() throws java.lang.CloneNotSupportedException {

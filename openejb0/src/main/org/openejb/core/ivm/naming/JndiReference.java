@@ -16,6 +16,7 @@ public class JndiReference implements Reference{
     
     private Context   context;
     private Hashtable envProperties;
+    private String    containerSystemId;
     private String    jndiName;
     private String    contextJndiName;
     /*
@@ -30,7 +31,8 @@ public class JndiReference implements Reference{
     
     /*
     */
-    public JndiReference(String contextJndiName, String jndiName){
+    public JndiReference(String containerSystemId, String contextJndiName, String jndiName){
+        this.containerSystemId = containerSystemId;
         this.contextJndiName = contextJndiName;
         this.jndiName = jndiName;
     }
@@ -57,8 +59,8 @@ public class JndiReference implements Reference{
 
     protected Context getContext() throws NamingException{
         if (context == null) {
-            if ( contextJndiName != null ) {
-                context = (Context)org.openejb.OpenEJB.getJNDIContext().lookup(contextJndiName);
+            if ( contextJndiName != null && containerSystemId != null ) {
+                context = (Context)org.openejb.OpenEJB.getJNDIContext(containerSystemId).lookup(contextJndiName);
             } else {
                 context = new InitialContext(envProperties);
             }

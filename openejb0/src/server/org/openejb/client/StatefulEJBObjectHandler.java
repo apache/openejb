@@ -137,6 +137,7 @@ public class StatefulEJBObjectHandler extends EJBObjectHandler {
 
         EJBRequest req = new EJBRequest( EJB_OBJECT_REMOVE ); 
         req.setClientIdentity( client.getClientIdentity() );
+        req.setContainerSystemID(ejb.containerSystemID);
         req.setDeploymentCode( ejb.deploymentCode );
         req.setDeploymentId(   ejb.deploymentID );
         req.setMethodInstance( method );

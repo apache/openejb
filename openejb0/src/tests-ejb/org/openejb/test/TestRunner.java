@@ -104,6 +104,7 @@ public class TestRunner extends junit.textui.TestRunner {
             TestManager.start();
         } catch (Exception e) {
             System.out.println("Cannot initialize the test environment: " + e.getClass().getName() + " " + e.getMessage());
+            try {TestManager.stop();} catch(Exception e2){}
             //e.printStackTrace();
             //System.exit(-1);
             throw e;

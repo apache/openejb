@@ -57,6 +57,8 @@ import javax.naming.spi.ObjectFactory;
 
 import org.openejb.core.DeploymentInfo;
 import org.openejb.core.ThreadContext;
+import org.openejb.core.ivm.naming.InitContextFactory;
+import org.openejb.OpenEJB;
 /**
  * Implements a URL context factory for the <tt>java:</tt> URL. Exposes
  * the environment naming context (<tt>java:/comp</tt>) as a read-only
@@ -75,7 +77,7 @@ import org.openejb.core.ThreadContext;
 public class javaURLContextFactory implements ObjectFactory,  InitialContextFactory {
     
     public Context getInitialContext(Hashtable env) throws NamingException {
-        return getContext();
+        return getContext((String)env.get(InitContextFactory.CONTEXT_CONTAINER_SYSTEM));
     }
     public Object getObjectInstance( Object obj, Name name, Context nameCtx, Hashtable env )
 	throws NamingException {
@@ -84,7 +86,7 @@ public class javaURLContextFactory implements ObjectFactory,  InitialContextFact
 	           A null obj ref means the NamingManager is requesting 
 	           a Context that can resolve the 'java:' schema
 	        */
-	        return getContext();
+	        return getContext((String)env.get(InitContextFactory.CONTEXT_CONTAINER_SYSTEM));
     	}else if(obj instanceof java.lang.String){
     	    String string = (String)obj;
     	    if(string.startsWith("java:comp")||string.startsWith("java:openejb")){
@@ -93,7 +95,7 @@ public class javaURLContextFactory implements ObjectFactory,  InitialContextFact
     	         resolve the URL in the context of this threads JNDI ENC
     	         */
     	        string = string.substring(string.indexOf(':'));
-    	        Context encRoot = getContext();
+    	        Context encRoot = getContext((String)env.get(InitContextFactory.CONTEXT_CONTAINER_SYSTEM));
     	        return encRoot.lookup(string);
     	    }
     	}
@@ -101,21 +103,27 @@ public class javaURLContextFactory implements ObjectFactory,  InitialContextFact
     }
     public Object getObjectInstance( Object obj, Hashtable env )
 	throws NamingException {
-	    return getContext();
+	    return getContext((String)env.get(InitContextFactory.CONTEXT_CONTAINER_SYSTEM));
 	}
 	    
-    public Context getContext(){
+    public Context getContext(String containerSystemId) throws NamingException {
         Context jndiCtx = null;
         
     	if( !ThreadContext.isValid() ){
-            return org.openejb.OpenEJB.getJNDIContext();
+            if(containerSystemId == null) {
+                containerSystemId = OpenEJB.getDefaultContainerSystemID();
+                if(containerSystemId == null) {
+                    throw new NamingException("No container system specified and no default available.  Try setting 'openejb.containersystem'."); //todo: resource bundle
+                }
+            }
+            return org.openejb.OpenEJB.getJNDIContext(containerSystemId);
         }
     	    
         DeploymentInfo di = ThreadContext.getThreadContext().getDeploymentInfo();
         if ( di != null ) {
             return di.getJndiEnc();
         } else {
-            return org.openejb.OpenEJB.getJNDIContext();
+            return ThreadContext.getThreadContext().getContainerSystem().getJNDIContext();
         }
     }
 }

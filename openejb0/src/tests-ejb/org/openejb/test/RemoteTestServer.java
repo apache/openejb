@@ -171,7 +171,7 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
     }
     
     private boolean connect(int tries) {
-        //System.out.println("CONNECT "+ tries);
+        System.out.println("CONNECT "+ tries);
         try{
             Socket socket = new Socket("localhost", 4201);
             OutputStream out = socket.getOutputStream();

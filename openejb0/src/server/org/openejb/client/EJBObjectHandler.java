@@ -252,7 +252,7 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
 //      return container.invoke(deploymentID, method, args, primaryKey, getThreadSpecificSecurityIdentity());
         
         EJBRequest req = new EJBRequest( EJB_OBJECT_BUSINESS_METHOD ); 
-        
+        req.setContainerSystemID(ejb.containerSystemID);
         req.setMethodParameters( args );
         req.setMethodInstance( method );
         req.setClientIdentity( client.getClientIdentity() );

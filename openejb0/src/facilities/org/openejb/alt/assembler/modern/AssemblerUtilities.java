@@ -157,7 +157,7 @@ public abstract class AssemblerUtilities extends AssemblerTool {
      * ContainerSystem.
      */
     protected void createContainers(ContainerSystem system, ContainerMetaData[] data) throws OpenEJBException {
-        Container[] containers = createContainers(data);
+        Container[] containers = createContainersImpl(system, data);
         for(int i=0; i<containers.length; i++) {
             system.addContainer(containers[i].getContainerID(), containers[i]);
         }
@@ -166,22 +166,22 @@ public abstract class AssemblerUtilities extends AssemblerTool {
     /**
      * Creates containers from the container meta data.
      */
-    protected Container[] createContainers(ContainerMetaData[] data) throws OpenEJBException {
+    protected Container[] createContainersImpl(ContainerSystem system, ContainerMetaData[] data) throws OpenEJBException {
         List list = new LinkedList();
         for(int i=0; i<data.length; i++) {
             Container container = null;
             switch(data[i].getType()) {
                 case ContainerMetaData.STATEFUL_CONTAINER_TYPE:
                     container = new StatefulContainer();
-                    container.init(data[i].getName(), new HashMap(), data[i].asProperties(data[i].getMap()));
+                    container.init(system, data[i].getName(), new HashMap(), data[i].asProperties(data[i].getMap()));
                     break;
                 case ContainerMetaData.ENTITY_CONTAINER_TYPE:
                     container = new EntityContainer();
-                    container.init(data[i].getName(), new HashMap(), data[i].asProperties(data[i].getMap()));
+                    container.init(system, data[i].getName(), new HashMap(), data[i].asProperties(data[i].getMap()));
                     break;
                 case ContainerMetaData.STATELESS_CONTAINER_TYPE:
                     container = new StatelessContainer();
-                    container.init(data[i].getName(), new HashMap(), data[i].asProperties(data[i].getMap()));
+                    container.init(system, data[i].getName(), new HashMap(), data[i].asProperties(data[i].getMap()));
                     break;
                 default:
                     throw new OpenEJBException("Unknown container type in GlobalAssembler.createContainers");
@@ -288,8 +288,8 @@ public abstract class AssemblerUtilities extends AssemblerTool {
             IvmContext root = new IvmContext(new NameNode(null, new ParsedName("comp"),null));
             info.setJndiEnc(root);
 
-            createEjbRefJNDIBindings(root, beans[i].getEjbRefs(), type);
-            createResourceRefJNDIBindings(root, beans[i].getResourceRefs(), type);
+            createEjbRefJNDIBindings(system.getId(), root, beans[i].getEjbRefs(), type);
+            createResourceRefJNDIBindings(system.getId(), root, beans[i].getResourceRefs(), type);
             createEnvVariableJNDIBindings(root, beans[i].getEnvironmentVariables(), type, loader);
 
             RoleRefMetaData refs[] = beans[i].getSecurityRoleRefs();
@@ -341,14 +341,14 @@ public abstract class AssemblerUtilities extends AssemblerTool {
     /**
      * Binds EJB references in the private JNDI namespace for a bean.
      */
-    protected void createEjbRefJNDIBindings(IvmContext root, org.openejb.alt.assembler.modern.jar.ejb11.EjbRefMetaData[] refs,
+    protected void createEjbRefJNDIBindings(String containerSystemId, IvmContext root, org.openejb.alt.assembler.modern.jar.ejb11.EjbRefMetaData[] refs,
                                             byte type)
                        throws OpenEJBException {
         for(int i=0; i<refs.length; i++) {
             if(refs[i].getEjbLink() != null) {
                 Object ref = null;
                 String jndiName = JNDI_BEAN_PREFIX+refs[i].getEjbLink();
-                org.openejb.core.ivm.naming.Reference ref2 = new org.openejb.core.ivm.naming.IntraVmJndiReference( jndiName );
+                org.openejb.core.ivm.naming.Reference ref2 = new org.openejb.core.ivm.naming.IntraVmJndiReference( containerSystemId, jndiName );
                 switch(type) {
                     case DeploymentInfo.BMP_ENTITY:
                 case DeploymentInfo.CMP_ENTITY:
@@ -377,13 +377,13 @@ public abstract class AssemblerUtilities extends AssemblerTool {
     /**
      * Binds resource references in the private JNDI namespace for a bean.
      */
-    protected void createResourceRefJNDIBindings(IvmContext root, org.openejb.alt.assembler.modern.jar.ejb11.ResourceRefMetaData[] refs,
+    protected void createResourceRefJNDIBindings(String containerSystemId, IvmContext root, org.openejb.alt.assembler.modern.jar.ejb11.ResourceRefMetaData[] refs,
                                                  byte type)
                        throws OpenEJBException {
         for(int i=0; i<refs.length; i++) {
             ResourceRefMetaData resource = (ResourceRefMetaData)refs[i];
             String jndiName = JNDI_CONNECTOR_PREFIX+(resource.isAuthContainer() ? "containermanaged/" : "beanManaged/")+resource.getConnectorName();
-            org.openejb.core.ivm.naming.Reference ref2 = new org.openejb.core.ivm.naming.IntraVmJndiReference( jndiName );
+            org.openejb.core.ivm.naming.Reference ref2 = new org.openejb.core.ivm.naming.IntraVmJndiReference( containerSystemId, jndiName );
             Object ref = null;
             switch(type) {
                 case DeploymentInfo.BMP_ENTITY:

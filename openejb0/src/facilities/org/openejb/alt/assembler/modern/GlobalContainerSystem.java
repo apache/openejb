@@ -90,7 +90,8 @@ public class GlobalContainerSystem extends ContainerSystem {
     private JarDeployer jarDeployer;
     private RarDeployer rarDeployer;
 
-    public GlobalContainerSystem() {
+    public GlobalContainerSystem(String id) {
+        super(id);
         if(instance != null) {
             throw new IllegalStateException("Only one GlobalContainerSystem allowed!");
         } else {

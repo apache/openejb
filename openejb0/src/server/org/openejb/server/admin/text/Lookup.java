@@ -63,8 +63,6 @@ import org.openejb.core.ivm.naming.IvmContext;
 public class Lookup extends Command
 {
 
-    javax.naming.Context ctx = OpenEJB.getJNDIContext();
-
     public static void register()
     {
         Lookup cmd = new Lookup();
@@ -79,20 +77,43 @@ public class Lookup extends Command
     {
         try
         {
+            String system = null;
             String name = "";
             if ( args == null || args.count() == 0 )
             {
                 name = PWD;
             }
+            else if(args.count() == 1)
+            {
+                name = args.get();
+                int pos = name.indexOf("/", 1);
+                if(pos > -1) {
+                    // Try to guess whether they mean a subcontext or a container system
+                    system = name.substring(0, pos);
+                    if(OpenEJB.getContainerSystem(system) != null) {
+                        if(pos + 1 < name.length()) {
+                            name = name.substring(pos+1);
+                        } else {
+                            name = "";
+                        }
+                    } else {
+                        system = null;
+                    }
+                }
+            }
             else
             {
+                system = args.get();
                 name = args.get();
             }
 
+            if(system == null) {
+                system = OpenEJB.getDefaultContainerSystemID();
+            }
             Object obj = null;
             try
             {
-                obj = ctx.lookup( name );
+                obj = OpenEJB.getJNDIContext(system).lookup( name );
             }
             catch ( NameNotFoundException e )
             {
@@ -110,7 +131,7 @@ public class Lookup extends Command
 
             if ( obj instanceof Context )
             {
-                list( name, in, out );
+                list( OpenEJB.getJNDIContext(system), name, in, out );
                 return;
             }
 
@@ -123,7 +144,7 @@ public class Lookup extends Command
         }
     }
 
-    public void list( String name, DataInputStream in, PrintStream out ) throws IOException
+    public void list( Context ctx, String name, DataInputStream in, PrintStream out ) throws IOException
     {
         try
         {

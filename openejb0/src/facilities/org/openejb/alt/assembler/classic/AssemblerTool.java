@@ -145,7 +145,7 @@ public class AssemblerTool {
         Iterator iterator = list.iterator();
         while(iterator.hasNext()){
             ContainerInfo containerInfo = (ContainerInfo)iterator.next();
-            org.openejb.Container container = assembleContainer(containerInfo);
+            org.openejb.Container container = assembleContainer(containerSystem, containerInfo);
             containerSystem.addContainer(container.getContainerID(),container);
         }
 
@@ -172,11 +172,11 @@ public class AssemblerTool {
      * @see org.openejb.alt.assembler.classic.ContainerInfo
      * @see org.openejb.alt.assembler.classic.Assembler.assembleDeploymentInfo();
     */
-    public  org.openejb.Container assembleContainer(ContainerInfo containerInfo)
+    public  org.openejb.Container assembleContainer(ContainerSystem system,ContainerInfo containerInfo)
     throws org.openejb.OpenEJBException{
         HashMap deployments = new HashMap();
         for(int z = 0; z < containerInfo.ejbeans.length; z++){
-            DeploymentInfo deployment = assembleDeploymentInfo(containerInfo.ejbeans[z]);
+            DeploymentInfo deployment = assembleDeploymentInfo(system.getId(),containerInfo.ejbeans[z]);
             deployments.put(containerInfo.ejbeans[z].ejbDeploymentId, deployment);
         }
         org.openejb.Container container = null;
@@ -219,7 +219,7 @@ public class AssemblerTool {
             }
         }
         try{
-            container.init(containerInfo.containerName, deployments, containerInfo.properties);                    
+            container.init(system, containerInfo.containerName, deployments, containerInfo.properties);
         } catch (OpenEJBException e){
             throw new OpenEJBException( messages.format( "as0003", containerInfo.containerName, e.getMessage() ) );
         }
@@ -255,7 +255,7 @@ public class AssemblerTool {
     * @param beanInfo describes the enterprise bean deployment to be assembled.
     * @param the DeploymentInfo object that was assembled from the beanInfo configuration.
     */
-    public  DeploymentInfo assembleDeploymentInfo(EnterpriseBeanInfo beanInfo)
+    public  DeploymentInfo assembleDeploymentInfo(String containerSystemId,EnterpriseBeanInfo beanInfo)
     throws org.openejb.SystemException, org.openejb.OpenEJBException {
   
         boolean isEntity = false;
@@ -378,13 +378,13 @@ public class AssemblerTool {
         }
              
         /*[4.2] Add BeanRefs to namespace */
-        bindJndiBeanRefs(beanInfo, root);
+        bindJndiBeanRefs(containerSystemId, beanInfo, root);
         
         /*[4.3] Add EnvEntries to namespace */
         bindJndiEnvEntries(beanInfo, root);
         
         /*[4.4] Add ResourceRefs to namespace */
-        bindJndiResourceRefs(beanInfo, root);
+        bindJndiResourceRefs(containerSystemId,beanInfo, root);
         
         return deployment;
     }
@@ -875,7 +875,7 @@ public class AssemblerTool {
         }
 
     }
-    protected void bindJndiResourceRefs(EnterpriseBeanInfo bean, IvmContext root) 
+    protected void bindJndiResourceRefs(String containerSystemId, EnterpriseBeanInfo bean, IvmContext root)
     throws org.openejb.OpenEJBException {
         /*TODO: Add better exception handling.  
          There is a lot of complex code here, I'm sure something could go wrong the user
@@ -893,7 +893,7 @@ public class AssemblerTool {
             if (reference.resourceID != null){
                 try{
                 String jndiName = "java:openejb/connector/"+reference.resourceID;
-                Reference ref2 = new IntraVmJndiReference( jndiName );
+                Reference ref2 = new IntraVmJndiReference( containerSystemId,jndiName );
                 if(EntityBeanInfo.class.isAssignableFrom(bean.getClass()))
                     ref = new org.openejb.core.entity.EncReference( ref2 );
                 else if(StatefulBeanInfo.class.isAssignableFrom(bean.getClass()))
@@ -909,7 +909,7 @@ public class AssemblerTool {
             }else{
                 String openEjbSubContextName = "java:openejb/remote_jndi_contexts/"+reference.location.jndiContextId;
                 String jndiName = reference.location.remoteRefName;
-                Reference ref2 = new JndiReference( openEjbSubContextName, jndiName );
+                Reference ref2 = new JndiReference( containerSystemId,openEjbSubContextName, jndiName );
 
                 if(StatefulBeanInfo.class.isAssignableFrom(bean.getClass()))
                     ref = new org.openejb.core.stateful.EncReference( ref2 );
@@ -932,7 +932,7 @@ public class AssemblerTool {
         }   
     }
     
-    protected  void bindJndiBeanRefs(EnterpriseBeanInfo bean, IvmContext root){
+    protected  void bindJndiBeanRefs(String containerSystemId, EnterpriseBeanInfo bean, IvmContext root){
         /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!
          there is a lot of complex code here, I'm sure something could go wrong the user
          might want to know about.
@@ -949,7 +949,7 @@ public class AssemblerTool {
             Object ref = null;
             if (!reference.location.remote){
                 String jndiName = "java:openejb/ejb/"+reference.location.ejbDeploymentId;
-                Reference ref2 = new IntraVmJndiReference( jndiName );
+                Reference ref2 = new IntraVmJndiReference( containerSystemId,jndiName );
                 if(StatefulBeanInfo.class.isAssignableFrom(bean.getClass()))
                     ref = new org.openejb.core.stateful.EncReference( ref2 );
                 else if(StatelessBeanInfo.class.isAssignableFrom(bean.getClass()))
@@ -959,7 +959,7 @@ public class AssemblerTool {
             }else{
                 String openEjbSubContextName = "java:openejb/remote_jndi_contexts/"+reference.location.jndiContextId;
                 String jndiName = reference.location.remoteRefName;
-                Reference ref2 = new JndiReference( openEjbSubContextName, jndiName );
+                Reference ref2 = new JndiReference( containerSystemId,openEjbSubContextName, jndiName );
                 
                 if(StatefulBeanInfo.class.isAssignableFrom(bean.getClass()))
                     ref = new org.openejb.core.stateful.EncReference( ref2 );

@@ -62,6 +62,7 @@ public class EJBRequest implements Request {
     private transient Object   clientIdentity;
     private transient Method   methodInstance;
 
+    private transient String   containerSystemID;
     private transient Class    methodClass;
     private transient String   methodName;
     private transient Class[]  methodParamTypes;
@@ -131,6 +132,14 @@ public class EJBRequest implements Request {
     
     public Class[] getMethodParamTypes(){
         return methodParamTypes;
+    }
+
+    public String getContainerSystemID() {
+        return containerSystemID;
+    }
+
+    public void setContainerSystemID(String containerSystemID) {
+        this.containerSystemID = containerSystemID;
     }
     
     //-------------
@@ -239,6 +248,7 @@ public class EJBRequest implements Request {
 	ClassNotFoundException result = null;
 
         requestMethod    = -1;
+        containerSystemID = null;
         deploymentId     = null;
         deploymentCode   = -1;
         clientIdentity   = null;
@@ -248,6 +258,8 @@ public class EJBRequest implements Request {
 	methodInstance   = null;
 
         requestMethod    = in.readByte();
+        containerSystemID = in.readUTF();
+        if(containerSystemID.equals("")) {containerSystemID = null;}
 	try {
 	    deploymentId     	= (String)in.readObject();
 	} catch (ClassNotFoundException cnfe) { result = cnfe; }
@@ -299,7 +311,8 @@ public class EJBRequest implements Request {
      */
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeByte(   requestMethod );
-        
+        out.writeUTF(containerSystemID);
+
         if ( deploymentCode > 0 ) {
             out.writeObject( null );
         } else {

@@ -48,8 +48,7 @@ package org.openejb;
 
 import java.net.URL;
 import java.security.Permission;
-import java.util.Date;
-import java.util.Properties;
+import java.util.*;
 
 import javax.transaction.TransactionManager;
 
@@ -115,14 +114,15 @@ import org.openejb.util.SafeToolkit;
 
 public final class OpenEJB {
 
-    private static ContainerSystem    containerSystem;
-    private static SecurityService    securityService;
+    private static Map                containerSystems;
+//    private static SecurityService    securityService;
     private static ApplicationServer  applicationServer;
     private static TransactionManager transactionManager;
     private static Properties         props;
     private static boolean            initialized;
     private static Logger             logger;
     private static Messages           messages = new Messages( "org.openejb.util.resources" );
+    private static String             defaultContainerSystem;
 
     public static void init(Properties props)
     throws OpenEJBException{
@@ -245,60 +245,71 @@ public final class OpenEJB {
             throw new OpenEJBException( msg, t );
         }
 
-        containerSystem    = assembler.getContainerSystem();
-        if (containerSystem == null) {
-	    String msg = messages.message( "startup.assemblerReturnedNullContainer" );
+        ContainerSystem[] containerSystems = assembler.getContainerSystems();
+        if (containerSystems == null) {
+            String msg = messages.message( "startup.assemblerReturnedNullContainer" );
             logger.i18n.fatal( msg );
             throw new OpenEJBException( msg );
         }
+        defaultContainerSystem = assembler.getDefaultContainerSystemID();
+        if(defaultContainerSystem == null && containerSystems.length > 0) {
+            defaultContainerSystem = containerSystems[0].getId();
+        }
+        OpenEJB.containerSystems = new HashMap();
+        for(int j=0; j<containerSystems.length; j++) {
+            OpenEJB.containerSystems.put(containerSystems[j].getId(), containerSystems[j]);
+            if (containerSystems[j].getSecurityService() == null) {
+                String msg = messages.format( "startup.assemblerReturnedNullSecurityService", containerSystems[j].getId());
+                logger.i18n.fatal( msg );
+                throw new OpenEJBException( msg );
+            } else {
+                logger.i18n.debug( "startup.securityService", containerSystems[j].getId(), containerSystems[j].getSecurityService().getClass().getName() );
+            }
+        }
 
         if (logger.isDebugEnabled()){
-            logger.i18n.debug( "startup.debugContainers", new Integer(containerSystem.containers().length) );
-
-            if (containerSystem.containers().length > 0) {
-                Container[] c = containerSystem.containers();
-                logger.i18n.debug( "startup.debugContainersType" );
-                for (int i=0; i < c.length; i++){
-                    String entry = "   ";
-                    switch ( c[i].getContainerType() ) {
-                    case Container.ENTITY:    entry += "ENTITY      "; break;
-                    case Container.STATEFUL:  entry += "STATEFUL    "; break;
-                    case Container.STATELESS: entry += "STATELESS   "; break;
+            int containers = 0;
+            int deployments = 0;
+            for(int j=0; j<containerSystems.length; j++) {
+                if (containerSystems[j].containers().length > 0) {
+                    containers += containerSystems[j].containers().length;
+                    Container[] c = containerSystems[j].containers();
+                    logger.i18n.debug( "startup.debugContainersType" );
+                    for (int i=0; i < c.length; i++){
+                        String entry = "   ";
+                        switch ( c[i].getContainerType() ) {
+                        case Container.ENTITY:    entry += "ENTITY      "; break;
+                        case Container.STATEFUL:  entry += "STATEFUL    "; break;
+                        case Container.STATELESS: entry += "STATELESS   "; break;
+                        }
+                        entry += c[i].getContainerID();
+                        logger.i18n.debug( "startup.debugEntry", entry) ;
                     }
-                    entry += c[i].getContainerID();
-                    logger.i18n.debug( "startup.debugEntry", entry) ;
+                }
+
+                if (containerSystems[j].deployments().length > 0) {
+                    deployments += containerSystems[j].deployments().length;
+                    logger.i18n.debug( "startup.debugDeploymentsType" );
+                    DeploymentInfo[] d = containerSystems[j].deployments();
+                    for (int i=0; i < d.length; i++){
+                        String entry = "   ";
+                        switch ( d[i].getComponentType() ) {
+                        case DeploymentInfo.BMP_ENTITY: entry += "BMP_ENTITY  "; break;
+                        case DeploymentInfo.CMP_ENTITY: entry += "CMP_ENTITY  "; break;
+                        case DeploymentInfo.STATEFUL:   entry += "STATEFUL    "; break;
+                        case DeploymentInfo.STATELESS:  entry += "STATELESS   "; break;
+                        }
+                        entry += d[i].getDeploymentID();
+                        logger.i18n.debug( "startup.debugEntry", entry );
+                    }
                 }
             }
-
-            logger.i18n.debug( "startup.debugDeployments", new Integer(containerSystem.deployments().length) );
-            if (containerSystem.deployments().length > 0) {
-                logger.i18n.debug( "startup.debugDeploymentsType" );
-                DeploymentInfo[] d = containerSystem.deployments();
-                for (int i=0; i < d.length; i++){
-                    String entry = "   ";
-                    switch ( d[i].getComponentType() ) {
-                    case DeploymentInfo.BMP_ENTITY: entry += "BMP_ENTITY  "; break;
-                    case DeploymentInfo.CMP_ENTITY: entry += "CMP_ENTITY  "; break;
-                    case DeploymentInfo.STATEFUL:   entry += "STATEFUL    "; break;
-                    case DeploymentInfo.STATELESS:  entry += "STATELESS   "; break;
-                    }
-                    entry += d[i].getDeploymentID();
-                    logger.i18n.debug( "startup.debugEntry", entry );
-                }
-            }
+            logger.i18n.debug( "startup.debugDeployments", new Integer(deployments) );
+            logger.i18n.debug( "startup.debugContainers", new Integer(containers) );
         }
 
       //logger.i18n.debug("There are "+containerSystem.containers().length+" containers.");
       //logger.i18n.debug("There are "+containerSystem.deployments().length+" ejb deployments.");
-
-        securityService    = assembler.getSecurityService();
-        if (securityService == null) {
-	    String msg = messages.message( "startup.assemblerReturnedNullSecurityService" );
-            logger.i18n.fatal( msg );
-            throw new OpenEJBException( msg );
-        } else {
-            logger.i18n.debug( "startup.securityService", securityService.getClass().getName() );
-        }
 
         transactionManager = assembler.getTransactionManager();
         if (transactionManager == null) {
@@ -323,22 +334,12 @@ public final class OpenEJB {
         return transactionManager;
     }
 
-    /**
-     * Gets the <code>SecurityService</code> that this container manager exposes to the <code>Container</code>s it manages.
-     *
-     * @return the SecurityService to be used by this container manager's containers when servicing beans
-     * @see org.openejb.spi.SecurityService
-     */
-    public static SecurityService getSecurityService( ){
-        return securityService;
-    }
-
     public static ApplicationServer getApplicationServer(){
         return applicationServer;
     }
 
     /**
-     * Gets the <code>DeploymentInfo</code> object for the bean with the specified deployment id.
+     * Gets the <code>DeploymentInfo</code> object for the bean with the specified deployment id in the specified container system.
      *
      * @param id the deployment id of the deployed bean.
      * @return the DeploymentInfo object associated with the bean.
@@ -346,23 +347,44 @@ public final class OpenEJB {
      * @see Container#getDeploymentInfo(Object) Container.getDeploymentInfo
      * @see DeploymentInfo#getDeploymentID()
      */
-    public static DeploymentInfo getDeploymentInfo(Object id){
-        return containerSystem.getDeploymentInfo(id);
+    public static DeploymentInfo getDeploymentInfo(String containerSystem, Object id){
+        return ((ContainerSystem)containerSystems.get(containerSystem)).getDeploymentInfo(id);
     }
 
     /**
-     * Gets the <code>DeploymentInfo</code> objects for all the beans deployed in all the containers in this container system.
+     * Gets the <code>DeploymentInfo</code> objects for all the beans deployed in all the containers in the specified container system.
      *
      * @return an array of DeploymentInfo objects
      * @see DeploymentInfo
      * @see Container#deployments() Container.deployments()
      */
-    public static DeploymentInfo [] deployments( ){
-        return containerSystem.deployments();
+    public static DeploymentInfo [] deployments(String containerSystem){
+        return ((ContainerSystem)containerSystems.get(containerSystem)).deployments();
     }
 
     /**
-     * Returns the <code>Container</code> in this container system with the specified id.
+     * Gets the ID of the default <code>ContainerSystem</code>.
+     */
+    public static String getDefaultContainerSystemID() {
+        return defaultContainerSystem;
+    }
+
+    /**
+     * Returns the <code>ContainerSystem</code> with the specified id.
+     */
+    public static ContainerSystem getContainerSystem(String id) {
+        return (ContainerSystem)containerSystems.get(id);
+    }
+
+    /**
+     * Returns all the <code>ContainerSystem</code> available.
+     */
+    public static ContainerSystem[] getContainerSystems() {
+        return (ContainerSystem [])containerSystems.values().toArray(new ContainerSystem [containerSystems.size()]);
+    }
+
+    /**
+     * Returns the <code>Container</code> in the specified container system with the specified id.
      *
      * @param id the id of the Container
      * @return the Container associated with the id
@@ -371,38 +393,38 @@ public final class OpenEJB {
      * @see Container#getContainerID() Container.getContainerID()
      * @see DeploymentInfo#getContainerID() DeploymentInfo.getContainerID()
      */
-    public static Container getContainer(Object id){
-        return containerSystem.getContainer(id);
+    public static Container getContainer(String containerSystem, Object id){
+        return ((ContainerSystem)containerSystems.get(containerSystem)).getContainer(id);
     }
 
     /**
-     * Gets all the <code>Container</code>s in this container system.
+     * Gets all the <code>Container</code>s in the specified container system.
      *
      * @return an array of all the Containers
      * @see Container
      * @see ContainerManager#containers() ContainerManager.containers()
      */
-    public static Container [] containers() {
-        if ( containerSystem == null ) {// Something went wrong in the configuration.
+    public static Container [] containers(String containerSystem) {
+        if ( containerSystems == null ) {// Something went wrong in the configuration.
             logger.i18n.warning( "startup.noContainersConfigured" );
             return null;
         } else {
-            return containerSystem.containers();
+            return ((ContainerSystem)containerSystems.get(containerSystem)).containers();
 	}
     }
 
     /**
-    * Returns the global JNDI name space for the OpenEJB container system.
-    * The global JNDI name space contains bindings for all enterprise bean
+    * Returns the JNDI name space for the specified container system.
+    * The container system's JNDI name space contains bindings for all enterprise bean
     * EJBHome object deployed in the entire container system.  EJBHome objects
     * are bound using their deployment-id under the java:openejb/ejb/ namespace.
     * For example, an enterprise bean with the deployment id = 55555 would be
     * have its EJBHome bound to the name "java:openejb/ejb/55555"
     *
-    * @return the global JNDI context
+    * @return the container system's JNDI context
     */
-    public static javax.naming.Context getJNDIContext(){
-        return containerSystem.getJNDIContext();
+    public static javax.naming.Context getJNDIContext(String containerSystem){
+        return ((ContainerSystem)containerSystems.get(containerSystem)).getJNDIContext();
     }
 
     /**
