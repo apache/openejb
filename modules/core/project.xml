@@ -28,163 +28,106 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-client</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-interop</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
-	<!--
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-remoting</artifactId>
-            <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-	-->
+
         <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
             <version>${activeio_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>	
+        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-timer</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-transaction</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-axis</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-axis-builder</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-naming-builder</artifactId>
-            <version>${geronimo_version}</version>
-            <properties>
-                <runtime>true</runtime>
-                <xmlbeans>true</xmlbeans>
-            </properties>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>geronimo</groupId>-->
+<!--            <artifactId>geronimo-naming-builder</artifactId>-->
+<!--            <version>${geronimo_version}</version>-->
+<!--            <properties>-->
+<!--                <xmlbeans>true</xmlbeans>-->
+<!--            </properties>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -196,81 +139,54 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
             <version>${geronimo_spec_j2ee_deployment_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-corba</artifactId>
             <version>${geronimo_spec_corba_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
             <version>${geronimo_spec_jta_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-ejb</artifactId>
             <version>${geronimo_spec_ejb_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
             <version>${geronimo_spec_servlet_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
             <version>${geronimo_spec_j2ee_connector_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
             <version>${geronimo_spec_j2ee_jacc_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jms</artifactId>
             <version>${geronimo_spec_jms_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-management</artifactId>
             <version>${geronimo_spec_j2ee_management_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
@@ -283,9 +199,6 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-saaj</artifactId>
             <version>${geronimo_spec_saaj_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
@@ -298,93 +211,63 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <xmlbeans>true</xmlbeans>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-webservices</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                <xmlbeans>true</xmlbeans>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
             <version>${tranql_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>axion</groupId>
             <artifactId>axion</artifactId>
             <version>${axion_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
+         </dependency>
 
         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>
             <version>${castor_version}</version>
             <url>http://www.castor.org</url>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
+         </dependency>
 
         <dependency>
             <groupId>oro</groupId>
             <artifactId>oro</artifactId>
             <version>${oro_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
+       </dependency>
 
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-full</artifactId>
             <version>${cglib_version}</version>
             <url>http://cglib.sf.net</url>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
+         </dependency>
 
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>${commons_logging_version}</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
             <version>${commons_primitives_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
+         </dependency>
 
         <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
             <version>${concurrent_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
@@ -392,27 +275,18 @@
             <artifactId>log4j</artifactId>
             <version>${log4j_version}</version>
             <url>http://jakarta.apache.org/log4j</url>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
             <version>${mx4j_version}</version>
-            <properties>
-                <runtime>false</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
             <version>${regexp_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
@@ -420,19 +294,12 @@
             <artifactId>xercesImpl</artifactId>
             <version>${xerces_version}</version>
             <url>http://xml.apache.org</url>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xmlParserAPIs</artifactId>
             <version>${xml_parser_apis_version}</version>
-            <properties>
-                <lib>true</lib>
-                <server>true</server>
-            </properties>
         </dependency>
         
         <!-- CORBA -->
@@ -440,27 +307,18 @@
             <groupId>tmporb</groupId>
             <artifactId>tmporb-orb</artifactId>
             <version>${tmporb_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tmporb</groupId>
             <artifactId>tmporb-orb-omg</artifactId>
             <version>${tmporb_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tmporb</groupId>
             <artifactId>tmporb-orb-tools</artifactId>
             <version>${tmporb_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
@@ -473,143 +331,101 @@
             <groupId>tmporb</groupId>
             <artifactId>tmporb-ins</artifactId>
             <version>${tmporb_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tmporb</groupId>
             <artifactId>tmporb-pss</artifactId>
             <version>${tmporb_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>tmporb</groupId>
             <artifactId>tmporb-ssl</artifactId>
             <version>${tmporb_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>avalon</groupId>
             <artifactId>avalon-framework</artifactId>
             <version>${avalon_framework_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>avalon</groupId>
             <artifactId>avalon-logkit</artifactId>
             <version>${avalon_logkit_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>${commons_cli_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>bouncycastle</groupId>
             <artifactId>bcprov</artifactId>
             <version>${bouncycastle_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
             <version>${ant_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
             <version>${asm_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>xfire</groupId>
             <artifactId>xfire</artifactId>
             <version>${xfire_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>xfire</groupId>
             <artifactId>xfire-java</artifactId>
             <version>${xfire_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
             <version>${wsdl4j_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>stax</groupId>
             <artifactId>stax</artifactId>
             <version>${stax_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>
             <version>${stax_api_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
         </dependency>
 
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
             <version>${axis_version}</version>
-            <properties>
-                <module>true</module>
-            </properties>
+<!--            <properties>-->
+<!--                <module>true</module>-->
+<!--            </properties>-->
         </dependency>
         <dependency>
             <groupId>axis</groupId>
             <artifactId>commons-discovery</artifactId>
             <version>${axis_commons_discovery_version}</version>
-            <properties>
-                <module>true</module>
-            </properties>
+<!--            <properties>-->
+<!--                <module>true</module>-->
+<!--            </properties>-->
         </dependency>
 
         <dependency>

@@ -51,6 +51,7 @@ package org.openejb.deployment;
 import javax.security.auth.Subject;
 
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.openejb.security.SecurityConfiguration;
 
 
@@ -65,9 +66,9 @@ public interface SecureBuilder extends ResourceEnvironmentBuilder {
 
     void setContainerId(String containerId);
 
-    Subject getDefaultSubject();
+    DefaultPrincipal getDefaultPrincipal();
 
-    void setDefaultSubject(Subject defaultSubject);
+    void setDefaultPrincipal(DefaultPrincipal defaultSubject);
 
     Subject getRunAs();
 

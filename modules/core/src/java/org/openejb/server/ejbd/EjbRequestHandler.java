@@ -142,17 +142,16 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
              * The identification principal contains the subject id.  Use this
              * id to obtain the registered subject.
              */
+            Subject subject = null;
             IdentificationPrincipal principal = (IdentificationPrincipal) req.getClientIdentity();
             if (principal != null && principal.getId() != null) {
-                Subject subject = ContextManager.getRegisteredSubject(principal.getId());
-
-                if (subject == null) {
-                    subject = container.getDefaultSubject();
-                }
-                
-                ContextManager.setCurrentCaller(subject);
-                ContextManager.setNextCaller(subject);
+                subject = ContextManager.getRegisteredSubject(principal.getId());
+            } else {
+                subject = container.getDefaultSubject();
             }
+
+            ContextManager.setCurrentCaller(subject);
+            ContextManager.setNextCaller(subject);
 
             log.debug("setting cl=" + cl + " for " + container.getContainerID());
         } catch (RemoteException e) {
@@ -188,7 +187,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                     doEjbObject_BUSINESS_METHOD(req, res);
                     break;
 
-                // Home interface methods
+                    // Home interface methods
                 case EJB_HOME_METHOD:
                     doEjbHome_METHOD(req, res);
                     break;
@@ -201,7 +200,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                     doEjbHome_FIND(req, res);
                     break;
 
-                // javax.ejb.EJBObject methods
+                    // javax.ejb.EJBObject methods
                 case EJB_OBJECT_GET_EJB_HOME:
                     doEjbObject_GET_EJB_HOME(req, res);
                     break;
@@ -222,7 +221,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
                     doEjbObject_REMOVE(req, res);
                     break;
 
-                // javax.ejb.EJBHome methods
+                    // javax.ejb.EJBHome methods
                 case EJB_HOME_GET_EJB_META_DATA:
                     doEjbHome_GET_EJB_META_DATA(req, res);
                     break;
@@ -268,7 +267,6 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
             call.reset();
         }
     }
-
 
 
     private Object invoke(EJBRequest req) throws Throwable {

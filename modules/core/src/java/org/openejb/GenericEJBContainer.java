@@ -83,6 +83,8 @@ import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
 import org.apache.geronimo.security.jacc.RoleMappingConfigurationFactory;
 import org.apache.geronimo.timer.ThreadPooledTimer;
@@ -148,7 +150,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
                                String objectName,
                                Kernel kernel,
                                SecurityConfiguration securityConfiguration,
-                               Subject defaultSubject,
+                               DefaultPrincipal defaultPrincipal,
                                Subject runAsSubject,
                                Serializable homeTxPolicyConfig,
                                Serializable remoteTxPolicyConfig,
@@ -202,7 +204,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         interceptorBuilder.setTrackedConnectionAssociator(trackedConnectionAssociator);
         interceptorBuilder.setInstancePool(pool);
         TwoChains chains = interceptorBuilder.buildInterceptorChains();
-        if (defaultSubject != null) {
+        if (defaultPrincipal != null) {
             interceptor = new DefaultSubjectInterceptor(chains.getUserChain());
         } else {
             interceptor = chains.getUserChain();
@@ -223,7 +225,11 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         }
 
         this.securityConfiguration = securityConfiguration;
-        this.defaultSubject = defaultSubject;
+        if (defaultPrincipal != null) {
+            this.defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
+        } else {
+            this.defaultSubject = null;
+        }
         this.runAsSubject = runAsSubject;
 
         // TODO maybe there is a more suitable place to do this.  Maybe not.
@@ -512,7 +518,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addAttribute("unmanagedReference", EJBContainer.class, false);
 
         infoFactory.addAttribute("SecurityConfiguration", SecurityConfiguration.class, true);
-        infoFactory.addAttribute("DefaultSubject", Subject.class, true);
+        infoFactory.addAttribute("DefaultPrincipal", DefaultPrincipal.class, true);
         infoFactory.addAttribute("RunAsSubject", Subject.class, true);
 
         infoFactory.addAttribute("HomeTxPolicyConfig", Serializable.class, true);
@@ -547,7 +553,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
             "objectName",
             "kernel",
             "SecurityConfiguration",
-            "DefaultSubject",
+            "DefaultPrincipal",
             "RunAsSubject",
             "HomeTxPolicyConfig",
             "RemoteTxPolicyConfig",
