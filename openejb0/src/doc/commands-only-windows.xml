@@ -31,9 +31,7 @@
     </section>
     
     <section title="Test" ref-id="test">
-        <command>C:\tmp\openejb> openejb test intravm</command>
-        <br/>
-        <command>C:\tmp\openejb> openejb test ejbserver</command>
+        <command>C:\tmp\openejb> openejb test</command>
     </section>
     
     <section title="Deploy" ref-id="delpoy">

@@ -41,9 +41,7 @@
     </section>
     
     <section title="Test" ref-id="test">
-        <command>[user@host openejb]# ./openejb.sh test intravm</command> 
-        <br/>
-        <command>[user@host openejb]# ./openejb.sh test ejbserver</command> 
+        <command>[user@host openejb]# ./openejb.sh test</command> 
     </section>
     
     <section title="Deploy" ref-id="delpoy">
