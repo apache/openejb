@@ -64,9 +64,10 @@ unset i
 CP=${OPENEJB_HOME}\src\examples\conf${PS}${CP}
 CP=${JAVA_HOME}/lib/tools.jar${PS}${CP}
 
-$JAVA -classpath $CP -Dopenejb.home=${OPENEJB_HOME} com.titan.clients.Client_1
-$JAVA -classpath $CP -Dopenejb.home=${OPENEJB_HOME} com.titan.clients.Client_2
-$JAVA -classpath $CP -Dopenejb.home=${OPENEJB_HOME} com.titan.clients.Client_3
-$JAVA -classpath $CP -Dopenejb.home=${OPENEJB_HOME} com.titan.clients.Client_4
-$JAVA -classpath $CP -Dopenejb.home=${OPENEJB_HOME} com.titan.clients.Client_cleanup
+# $JAVA -classpath $CP -Dopenejb.home=${OPENEJB_HOME} com.titan.clients.Client_1
+# $JAVA -classpath $CP -Dopenejb.home=${OPENEJB_HOME} com.titan.clients.Client_2
+# $JAVA -classpath $CP -Dopenejb.home=${OPENEJB_HOME} com.titan.clients.Client_3
+# $JAVA -classpath $CP -Dopenejb.home=${OPENEJB_HOME} com.titan.clients.Client_4
+# $JAVA -classpath $CP -Dopenejb.home=${OPENEJB_HOME} com.titan.clients.Client_cleanup
+$JAVA -classpath $CP -Dopenejb.home=${OPENEJB_HOME} org.acme.clients.HelloWorld
 

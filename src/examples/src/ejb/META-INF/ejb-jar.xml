@@ -4,6 +4,15 @@
 
 <ejb-jar>
     <enterprise-beans>
+        <session>
+            <ejb-name>Hello</ejb-name>
+            <home>org.acme.hello.HelloHome</home>
+            <remote>org.acme.hello.HelloObject</remote>
+            <ejb-class>org.acme.hello.HelloBean</ejb-class>
+            <session-type>Stateless</session-type>
+            <transaction-type>Container</transaction-type>
+        </session>
+
         <entity>
             <ejb-name>CabinEJB</ejb-name>
             <home>com.titan.cabin.CabinHomeRemote</home>
