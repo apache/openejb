@@ -103,7 +103,7 @@ REM================================================
    echo "_________________________________________________"
    echo " 1. Starting OpenEJB Server..."
    start "OpenEJB Server" .\bin\ejbserver.bat > ejb.server.log 2>&1
-   sleep 4
+   
    echo " 2. Starting test EJB client..."
    call .\bin\ejbclient.bat
 REM   echo "_________________________________________________"
