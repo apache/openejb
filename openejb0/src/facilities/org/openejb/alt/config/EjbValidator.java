@@ -45,6 +45,7 @@
 package org.openejb.alt.config;
 
 import org.openejb.alt.config.sys.*;
+import org.openejb.alt.config.rules.*;
 import org.openejb.alt.config.ejb11.*;
 import org.openejb.OpenEJBException;
 import org.openejb.util.Messages;
@@ -62,16 +63,7 @@ import java.io.File;
  */
 public class EjbValidator {
 
-    static protected Messages _messages = new Messages( "org.openejb.alt.util.resources" );
-
-    private DataInputStream in;
-    private PrintStream out;
-    private Openejb config;
-    private String configFile;
-    private boolean configChanged;
-    private boolean autoAssign;
-    private Container[] containers;
-    private Connector[] resources;
+    static protected Messages _messages = new Messages( "org.openejb.util.resources" );
 
     /*------------------------------------------------------*/
     /*    Constructors                                      */
@@ -79,11 +71,34 @@ public class EjbValidator {
     public EjbValidator() throws OpenEJBException {
     }
 
-    public void validateJar(String jarLocation) throws OpenEJBException{
+    public static EjbSet validateJar(String jarLocation) throws OpenEJBException{
+        EjbJar ejbJar = null;
         try {
-            // TODO:1: Finish this constructor
-            EjbJar ejbJar = null;
-            validateJar( ejbJar, jarLocation);
+            ejbJar = ConfigUtils.readEjbJar(jarLocation);
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            throw new OpenEJBException(e.getMessage());
+        }
+        
+        try {
+            return validateJar( ejbJar, jarLocation);
+        } catch ( Exception e ) {
+            throw new OpenEJBException(e.getMessage());
+        }
+    }
+
+    public static EjbSet validateJar(EjbJar ejbJar, String jarLocation) throws OpenEJBException{
+        try {
+            // Create the EjbSet
+            EjbSet set = new EjbSet(ejbJar, jarLocation);
+            
+            // Run the validation rules
+            ValidationRule[] rules = getValidationRules();
+            for (int i=0; i < rules.length; i++){
+                rules[i].validate( set );
+            }
+            // Report the failures
+            return set;
         } catch ( Exception e ) {
             // TODO: Better exception handling.
             e.printStackTrace();
@@ -91,26 +106,19 @@ public class EjbValidator {
         }
     }
 
-    public void validateJar(EjbJar ejbJar, String jarLocation) throws OpenEJBException{
-        try {
-            
-            Bean[] beans = getBeans(ejbJar);
-
-            //Validate all classes are present
-            
-
-            //Validate classes are the correct type
-            //Validate ejb references
-            //Validate resource references
-            //Validate security references
-            
-        } catch ( Exception e ) {
-            // TODO: Better exception handling.
-            e.printStackTrace();
-            throw new OpenEJBException(e.getMessage());
-        }
-
+    protected static ValidationRule[] getValidationRules(){
+        ValidationRule[] rules = new ValidationRule[]{
+            new CheckClasses(),
+            new CheckMethods()
+        };
+        return rules;
     }
+    
+    //Validate all classes are present
+    //Validate classes are the correct type
+    //Validate ejb references
+    //Validate resource references
+    //Validate security references
 
     
     /*------------------------------------------------------*/
@@ -118,212 +126,46 @@ public class EjbValidator {
     /*------------------------------------------------------*/
 
     public static void main(String args[]) {
-    }
-
-
-    /*------------------------------------------------------*/
-    /*    Methods for collecting beans                      */
-    /*------------------------------------------------------*/
-    private Bean[] getBeans(EjbJar jar) {
-        Enumeration beanItemList = jar.getEnterpriseBeans().enumerateEnterpriseBeansItem();
-        Vector beanList = new Vector();
-        while ( beanItemList.hasMoreElements() ) {
-            EnterpriseBeansItem item = (EnterpriseBeansItem)beanItemList.nextElement();
-            if ( item.getEntity() == null ) {
-                beanList.add(new SessionBean(item.getSession()));
-            } else {
-                beanList.add(new EntityBean(item.getEntity()));
-            }
-        }
-        Bean[] beans = new Bean[beanList.size()];
-        beanList.copyInto(beans);
-        return beans;
-    }
-
-
-
-
-    /*------------------------------------------------------*/
-    /*    Inner Classes for easy bean collections           */
-    /*------------------------------------------------------*/
-    
-    interface Bean {
-
-        public final String BMP_ENTITY = "BMP_ENTITY";
-        public final String CMP_ENTITY = "CMP_ENTITY";
-        public final String STATEFUL   = "STATEFUL";
-        public final String STATELESS  = "STATELESS";
-
-
-        public String getType();
-        
-        public Object getBean();
-        
-        public String getEjbName();
-        public String getEjbClass();
-        public String getHome();
-        public String getRemote();
-        
-        public EjbRef[] getEjbRef();
-        public EnvEntry[] getEnvEntry();
-        public ResourceRef[] getResourceRef();
-        public SecurityRoleRef[] getSecurityRoleRef();
-
-    }
-    
-
-    class EntityBean implements Bean {
-        
-        Entity bean;
-        String type;
-        
-        EntityBean(Entity bean) {
-            this.bean = bean;
-            if ( bean.getPersistenceType().equals("Container") ) {
-                type = CMP_ENTITY;
-            } else {
-                type = BMP_ENTITY;
-            }
+        try{
+            org.openejb.util.ClasspathUtils.addJarsToSystemPath("lib");
+            org.openejb.util.ClasspathUtils.addJarsToSystemPath("dist");
+        } catch (Exception e){
+            e.printStackTrace();
         }
 
-        public String getType() {
-            return type;
-        }
-        
-        public Object getBean() {
-            return bean;
-        }
-    
-        public String getEjbName(){
-            return bean.getEjbName();
-        }
-
-        public String getEjbClass(){
-            return bean.getEjbClass();
-        }
-
-        public String getHome(){
-            return bean.getHome();
-        }
-
-        public String getRemote(){
-            return bean.getRemote();
-        }
-
-
-        public EjbRef[] getEjbRef(){
-            return bean.getEjbRef();
-        }
-
-        public EnvEntry[] getEnvEntry(){
-            return bean.getEnvEntry();
-        }
-
-        public ResourceRef[] getResourceRef(){
-            return bean.getResourceRef();
-        }
-
-        public SecurityRoleRef[] getSecurityRoleRef(){
-            return bean.getSecurityRoleRef();
-        }
-
-    }
-
-    class SessionBean implements Bean {
-
-        Session bean;
-        String type;
-
-        SessionBean(Session bean) {
-            this.bean = bean;
-            if ( bean.getSessionType().equals("Stateful") ) {
-                type = STATEFUL;
-            } else {
-                type = STATELESS;
-            }
-        }
-
-        public String getType() {
-            return type;
-        }
-        
-        public Object getBean() {
-            return bean;
-        }
-    
-        public String getEjbName(){
-            return bean.getEjbName();
-        }
-
-        public String getEjbClass(){
-            return bean.getEjbClass();
-        }
-
-        public String getHome(){
-            return bean.getHome();
-        }
-
-        public String getRemote(){
-            return bean.getRemote();
-        }
-
-        public EjbRef[] getEjbRef(){
-            return bean.getEjbRef();
-        }
-
-        public EnvEntry[] getEnvEntry(){
-            return bean.getEnvEntry();
-        }
-
-        public ResourceRef[] getResourceRef(){
-            return bean.getResourceRef();
-        }
-
-        public SecurityRoleRef[] getSecurityRoleRef(){
-            return bean.getSecurityRoleRef();
-        }
-    }
-
-    interface ValidationRule {
-
-        public void validate(Bean[] beans, EjbJar jar, String jarLocation) throws ValidationException;
-    }
-
-    class ValidationException extends Exception{
-        public ValidationException( String message, Object[] args){
-            super(_messages.format(message, args));
-        }
-    }
-    
-    class HasEjbClasses implements ValidationRule{
-        public void validate(Bean[] beans, EjbJar jar, String jarLocation) throws ValidationException {
-
-            for (int i=0; i < beans.length; i++){
-                Bean b = beans[i];
-                checkForClass(b, b.getEjbClass(), "<ejb-class>", jarLocation);
-                checkForClass(b, b.getHome(), "<home>", jarLocation);
-                checkForClass(b, b.getRemote(), "<remote>", jarLocation);
-            }
-
-        }
-
-        private void checkForClass(Bean b, String clazz, String type, String jarLocation) throws ValidationException {
+        for (int i=0; i < args.length; i++){
             try{
-                //Bean class
-                if (b.getClass() == null) {
-                    //throw new ValidationException("ejb.validate.1.010", 
-                }
-                SafeToolkit.loadClass(b.getEjbClass(), jarLocation);
-
-            } catch (OpenEJBException e){
-                //throw new ValidationException("ejb.validate.1.020", 
+                EjbSet set = validateJar( args[i] );
+                printResults( set );                
+            } catch (Exception e){
+                e.printStackTrace();
             }
         }
-
     }
-    
-    class EjbClassesAreRightType implements ValidationRule{
-        public void validate(Bean[] beans, EjbJar jar, String jarLocation) throws ValidationException {
+
+    public static void printResults(EjbSet set){
+        System.out.println("------------------------------------------");
+        System.out.println(" "+ set.getJarPath() );
+        System.out.println("------------------------------------------");
+        
+        ValidationFailure[] failures = set.getFailures();
+        for (int i=0; i < failures.length; i++){
+            System.out.println(failures[i].getMessage());
+            System.out.println();
+        }
+        if (failures.length > 0) {
+            System.out.println(" "+failures.length+" failures");
+        }
+        System.out.println();
+        System.out.println();
+        
+        ValidationWarning[] warnings = set.getWarnings();
+        for (int i=0; i < warnings.length; i++){
+            System.out.println(warnings[i].getMessage());
+            System.out.println();
+        }
+        if (warnings.length > 0) {
+            System.out.println(" "+warnings.length+" warnings");
         }
     }
 }

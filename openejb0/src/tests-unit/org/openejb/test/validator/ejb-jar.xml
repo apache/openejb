@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar>
+<enterprise-beans>
+  <session>
+    <ejb-name>Bean00</ejb-name>
+    <home>org.openejb.test.validator.FooHome</home>
+    <remote>org.openejb.test.validator.FooObject</remote>
+    <ejb-class>org.openejb.test.validator.FooBean</ejb-class>
+    <session-type>Stateless</session-type>
+    <transaction-type>Container</transaction-type>
+  </session>
+  <session>
+    <ejb-name>Bean01</ejb-name>
+    <home>org.openejb.test.validator.Invalid01Home</home>
+    <remote>org.openejb.test.validator.Invalid01Object</remote>
+    <ejb-class>org.openejb.test.validator.Invalid01Bean</ejb-class>
+    <session-type>Stateless</session-type>
+    <transaction-type>Container</transaction-type>
+  </session>
+</enterprise-beans>
+</ejb-jar>

@@ -63,11 +63,11 @@ import org.openejb.util.FileUtils;
 import org.openejb.util.JarUtils;
 import org.openejb.util.Messages;
 
-/*------------------------------------------------------*/
-/* Utility method for reading and writing config files  */
-/*------------------------------------------------------*/
-
-
+/**
+ * Utility methods for reading and writing config files  
+ *
+ * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
+ */
 public class ConfigUtils  {
     
     public static File defaultServicesJar = null;
@@ -75,8 +75,8 @@ public class ConfigUtils  {
 
     private static Map loadedServiceJars = new HashMap();
 
-    private static Messages messages = new Messages( "org.openejb.alt.util.resources" );
-    private static Logger _logger = Logger.getInstance( "OpenEJB", "org.openejb.alt.util.resources" );
+    private static Messages messages = new Messages( "org.openejb.util.resources" );
+    private static Logger _logger = Logger.getInstance( "OpenEJB", "org.openejb.util.resources" );
 
     public static File getDefaultServiceJar() throws OpenEJBException{
 
@@ -732,6 +732,25 @@ public class ConfigUtils  {
         }
 
         return config;
+    }
+
+    /*------------------------------------------------------*/
+    /*    Methods for collecting beans                      */
+    /*------------------------------------------------------*/
+    public static Bean[] getBeans(EjbJar jar) {
+        Enumeration beanItemList = jar.getEnterpriseBeans().enumerateEnterpriseBeansItem();
+        Vector beanList = new Vector();
+        while ( beanItemList.hasMoreElements() ) {
+            EnterpriseBeansItem item = (EnterpriseBeansItem)beanItemList.nextElement();
+            if ( item.getEntity() == null ) {
+                beanList.add(new SessionBean(item.getSession()));
+            } else {
+                beanList.add(new EntityBean(item.getEntity()));
+            }
+        }
+        Bean[] beans = new Bean[beanList.size()];
+        beanList.copyInto(beans);
+        return beans;
     }
 
     /*------------------------------------------------------*/

@@ -120,6 +120,9 @@ time=${TSTAMP}</echo>
         <include name="**/resources/*.properties"/>
       </fileset>
     
+      <fileset dir="${src.java.dir}/facilities" >
+        <include name="**/rules/*.properties"/>
+      </fileset>
     </copy>
   
   </target>

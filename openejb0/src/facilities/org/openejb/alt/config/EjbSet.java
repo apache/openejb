@@ -44,20 +44,56 @@
  */
 package org.openejb.alt.config;
 
+import java.util.Vector;
+import org.openejb.alt.config.ejb11.*;
+
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
-interface ProviderDefaults {
+public class EjbSet {
+    
+    protected Vector failures = new Vector();
+    protected Vector warnings = new Vector();
+    
+    protected Bean[] beans;
+    protected EjbJar jar;
+    protected String jarPath;
+    
+    public EjbSet(EjbJar jar, String jarPath){
+        this.jar = jar;
+        this.jarPath = jarPath;
+        this.beans = ConfigUtils.getBeans( jar );
+    }
 
-    public static final String DEFAULT_CMP_CONTAINER         = "Default CMP Container";              
-    public static final String DEFAULT_BMP_CONTAINER         = "Default BMP Container";              
-    public static final String DEFAULT_STATELESS_CONTAINER   = "Default Stateless Container";        
-    public static final String DEFAULT_STATEFUL_CONTAINER    = "Default Stateful Container";         
-    public static final String DEFAULT_JDK_12_PROXYFACTORY   = "Default JDK 1.2 ProxyFactory";       
-    public static final String DEFAULT_JDK_13_PROXYFACTORY   = "Default JDK 1.3 ProxyFactory";       
-    public static final String DEFAULT_SECURITY_SERVICE      = "Default Security Service";           
-    public static final String DEFAULT_TRANSACTION_MANAGER   = "Default Transaction Manager";        
-    public static final String DEFAULT_JDBC_DATABASE         = "Default JDBC Database";              
-    public static final String DEFAULT_LOCAL_TX_CON_MANAGER  = "Default Local TX ConnectionManager"; 
+    public void addWarning( ValidationWarning warning ) {
+        warnings.addElement( warning );
+    }
+    
+    public void addFailure(ValidationFailure failure) {
+        failures.addElement( failure );
+    }
 
+    public ValidationFailure[] getFailures() {
+        ValidationFailure[] tmp = new ValidationFailure[failures.size()];
+        failures.copyInto( tmp );
+        return tmp;
+    }
+    
+    public ValidationWarning[] getWarnings() {
+        ValidationWarning[] tmp = new ValidationWarning[warnings.size()];
+        warnings.copyInto( tmp );
+        return tmp;
+    }
+    
+    public Bean[] getBeans(){
+        return beans;
+    }
+
+    public EjbJar getEjbJar(){
+        return jar;
+    }
+    
+    public String getJarPath(){
+        return jarPath;
+    }
 }
