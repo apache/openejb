@@ -65,7 +65,7 @@ import org.openejb.OpenEJBException;
 import org.openejb.entity.bmp.BMPContainerBuilder;
 import org.openejb.sfsb.StatefulContainerBuilder;
 import org.openejb.slsb.StatelessContainerBuilder;
-import org.openejb.transaction.EJBUserTransaction;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 public class ContainerBuilder implements RpcContainer {
 
@@ -301,7 +301,7 @@ public class ContainerBuilder implements RpcContainer {
         builder.setTransactionPolicySource(new DeploymentInfoTxPolicySource(deploymentInfo));
         builder.setTransactionManager(OpenEJB.getTransactionManager());
 
-        EJBUserTransaction userTransaction = new EJBUserTransaction();
+        UserTransactionImpl userTransaction = new UserTransactionImpl();
         if (deploymentInfo.isBeanManagedTransaction()) {
             builder.setUserTransaction(userTransaction);
         }
@@ -320,7 +320,7 @@ public class ContainerBuilder implements RpcContainer {
         builder.setTransactionPolicySource(new DeploymentInfoTxPolicySource(deploymentInfo));
         builder.setTransactionManager(OpenEJB.getTransactionManager());
 
-        EJBUserTransaction userTransaction = new EJBUserTransaction();
+        UserTransactionImpl userTransaction = new UserTransactionImpl();
         if (deploymentInfo.isBeanManagedTransaction()) {
             builder.setUserTransaction(userTransaction);
         }

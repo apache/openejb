@@ -60,7 +60,7 @@ import javax.xml.rpc.handler.MessageContext;
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
-import org.openejb.transaction.EJBUserTransaction;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  * Implementation of SessionContext using the State pattern to determine
@@ -69,7 +69,7 @@ import org.openejb.transaction.EJBUserTransaction;
  * @version $Revision$ $Date$
  */
 public class StatefulSessionContext extends EJBContextImpl implements SessionContext {
-    public StatefulSessionContext(StatefulInstanceContext context, EJBUserTransaction userTransaction) {
+    public StatefulSessionContext(StatefulInstanceContext context, UserTransactionImpl userTransaction) {
         super(context, userTransaction);
         state = INACTIVE;
     }

@@ -49,6 +49,7 @@ package org.openejb.slsb;
 
 import java.net.URI;
 import java.rmi.RemoteException;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -60,15 +61,10 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-
 import junit.framework.TestCase;
-import org.openejb.MockTransactionManager;
-import org.openejb.TransactionDemarcation;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.EJBContainerConfiguration;
 import org.openejb.deployment.TransactionPolicyHelper;
-import org.openejb.transaction.EJBUserTransaction;
 
 /**
  *

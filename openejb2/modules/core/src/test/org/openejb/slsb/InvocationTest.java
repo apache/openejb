@@ -51,6 +51,7 @@ import java.lang.reflect.Method;
 import javax.ejb.SessionBean;
 
 import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 import junit.framework.TestCase;
 import net.sf.cglib.reflect.FastClass;
@@ -59,7 +60,6 @@ import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.transaction.EJBUserTransaction;
 
 /**
  *
@@ -126,7 +126,7 @@ public class InvocationTest extends TestCase {
                 "containerID",
                 instance,
                 (EJBProxyFactory)null,
-                (EJBUserTransaction) null);
+                (UserTransactionImpl) null);
         invocation.setEJBInstanceContext(ctx);
         bizMethod.execute(invocation);
         long start = System.currentTimeMillis();

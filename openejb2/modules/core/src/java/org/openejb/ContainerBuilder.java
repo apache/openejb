@@ -21,15 +21,15 @@ import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 
-import org.openejb.transaction.EJBUserTransaction;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.openejb.deployment.TransactionPolicySource;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public interface ContainerBuilder {
@@ -81,9 +81,9 @@ public interface ContainerBuilder {
 
     void setUnshareableResources(Set unshareableResources);
 
-    EJBUserTransaction getUserTransaction();
+    UserTransactionImpl getUserTransaction();
 
-    void setUserTransaction(EJBUserTransaction userTransaction);
+    void setUserTransaction(UserTransactionImpl userTransaction);
 
     TransactionPolicySource getTransactionPolicySource();
 

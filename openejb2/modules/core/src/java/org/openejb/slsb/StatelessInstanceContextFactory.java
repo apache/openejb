@@ -56,7 +56,7 @@ import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
 import org.openejb.InstanceContextFactory;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.transaction.EJBUserTransaction;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  * @version $Revision$ $Date$
@@ -65,9 +65,9 @@ public class StatelessInstanceContextFactory implements InstanceContextFactory, 
     private final Object containerId;
     private final EJBProxyFactory proxyFactory;
     private final EJBInstanceFactory factory;
-    private final EJBUserTransaction userTransaction;
+    private final UserTransactionImpl userTransaction;
 
-    public StatelessInstanceContextFactory(Object containerId, EJBProxyFactory proxyFactory, Class beanClass, EJBUserTransaction userTransaction) {
+    public StatelessInstanceContextFactory(Object containerId, EJBProxyFactory proxyFactory, Class beanClass, UserTransactionImpl userTransaction) {
         this.containerId = containerId;
         this.proxyFactory = proxyFactory;
         this.userTransaction = userTransaction;

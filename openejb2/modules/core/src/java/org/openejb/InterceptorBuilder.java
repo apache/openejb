@@ -23,7 +23,7 @@ import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.core.service.Interceptor;
 
 import org.openejb.dispatch.VirtualOperation;
@@ -34,8 +34,8 @@ import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstanceFactory;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public interface InterceptorBuilder extends Serializable {

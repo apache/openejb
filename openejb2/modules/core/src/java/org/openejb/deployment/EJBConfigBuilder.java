@@ -100,7 +100,7 @@ import org.openejb.sfsb.StatefulContainerBuilder;
 import org.openejb.entity.bmp.BMPContainerBuilder;
 import org.openejb.entity.cmp.CMPContainerBuilder;
 import org.openejb.slsb.StatelessContainerBuilder;
-import org.openejb.transaction.EJBUserTransaction;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbGbeanType;
 import org.openejb.xbeans.ejbjar.OpenejbLocalRefType;
@@ -321,9 +321,9 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         builder.setLocalHomeInterfaceName(getJ2eeStringValue(sessionBean.getLocalHome()));
         builder.setLocalInterfaceName(getJ2eeStringValue(sessionBean.getLocal()));
 
-        EJBUserTransaction userTransaction;
+        UserTransactionImpl userTransaction;
         if ("Bean".equals(sessionBean.getTransactionType().getStringValue())) {
-            userTransaction = new EJBUserTransaction();
+            userTransaction = new UserTransactionImpl();
             builder.setUserTransaction(userTransaction);
             builder.setTransactionPolicySource(TransactionPolicyHelper.StatelessBMTPolicySource);
         } else {

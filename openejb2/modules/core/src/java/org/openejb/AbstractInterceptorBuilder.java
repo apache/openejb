@@ -51,7 +51,7 @@ import java.util.Set;
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 
 import org.openejb.cache.InstancePool;
@@ -62,8 +62,8 @@ import org.openejb.security.PermissionManager;
 import org.openejb.transaction.TransactionPolicyManager;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {

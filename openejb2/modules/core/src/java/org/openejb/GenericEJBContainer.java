@@ -59,7 +59,7 @@ import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
@@ -73,7 +73,7 @@ import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.entity.EntityInterceptorBuilder;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
-import org.openejb.transaction.EJBUserTransaction;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  * @version $Revision$ $Date$
@@ -94,7 +94,7 @@ public class GenericEJBContainer implements EJBContainer {
             InterfaceMethodSignature[] signatures,
             InterceptorBuilder interceptorBuilder,
             InstancePool pool,
-            EJBUserTransaction userTransaction,
+            UserTransactionImpl userTransaction,
             TransactionManager transactionManager,
             TrackedConnectionAssociator trackedConnectionAssociator) throws Exception {
 
@@ -232,7 +232,7 @@ public class GenericEJBContainer implements EJBContainer {
 
         infoFactory.setConstructor(
                 new String[]{"containerId", "ejbName", "proxyFactory", "signatures", "interceptorBuilder", "pool", "userTransaction", "transactionManager", "trackedConnectionAssociator"},
-                new Class[]{Object.class, String.class, EJBProxyFactory.class, InterfaceMethodSignature[].class, InterceptorBuilder.class, InstancePool.class, EJBUserTransaction.class, TransactionManager.class, TrackedConnectionAssociator.class});
+                new Class[]{Object.class, String.class, EJBProxyFactory.class, InterfaceMethodSignature[].class, InterceptorBuilder.class, InstancePool.class, UserTransactionImpl.class, TransactionManager.class, TrackedConnectionAssociator.class});
 
         infoFactory.addAttribute("containerId", true);
         infoFactory.addAttribute("ejbName", true);

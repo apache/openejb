@@ -56,7 +56,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.Def
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.transaction.EJBUserTransaction;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  *
@@ -71,7 +71,7 @@ public class StatefulInstanceContext extends DefaultComponentContext implements 
     private final StatefulSessionContext statefulContext;
     private boolean dead = false;
 
-    public StatefulInstanceContext(Object containerId, EJBProxyFactory proxyFactory, SessionBean instance, Object id, EJBUserTransaction userTransaction) {
+    public StatefulInstanceContext(Object containerId, EJBProxyFactory proxyFactory, SessionBean instance, Object id, UserTransactionImpl userTransaction) {
         this.containerId = containerId;
         this.proxyFactory = proxyFactory;
         this.instance = instance;

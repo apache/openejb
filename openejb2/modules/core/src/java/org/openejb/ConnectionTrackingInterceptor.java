@@ -53,7 +53,7 @@ import java.util.Set;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.TransactionContext;
 import org.apache.geronimo.transaction.InstanceContext;
 
@@ -80,16 +80,11 @@ public class ConnectionTrackingInterceptor implements Interceptor {
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         EJBInvocation ejbInvocation = (EJBInvocation)invocation;
         InstanceContext enteringInstanceContext = ejbInvocation.getEJBInstanceContext();
-        TransactionContext enteringTransactionContext = ejbInvocation.getTransactionContext();
-        Set oldUnshareableResources = trackedConnectionAssociator.setUnshareableResources(unshareableResources);
-        InstanceContext leavingInstanceContext = trackedConnectionAssociator.enter(enteringInstanceContext);
-        TransactionContext leavingTransactionContext = trackedConnectionAssociator.setTransactionContext(enteringTransactionContext);
+        TrackedConnectionAssociator.ConnectorContextInfo leavingConnectorContext = trackedConnectionAssociator.enter(enteringInstanceContext, unshareableResources);
         try {
             return next.invoke(invocation);
         } finally {
-            trackedConnectionAssociator.exit(leavingInstanceContext, unshareableResources);
-            trackedConnectionAssociator.resetTransactionContext(leavingTransactionContext);
-            trackedConnectionAssociator.setUnshareableResources(oldUnshareableResources);
+            trackedConnectionAssociator.exit(leavingConnectorContext);
         }
     }
 }

@@ -55,7 +55,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.Def
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.transaction.EJBUserTransaction;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  * Wrapper for a Stateless SessionBean.
@@ -68,7 +68,7 @@ public final class StatelessInstanceContext extends DefaultComponentContext impl
     private final SessionBean instance;
     private final StatelessSessionContext sessionContext;
 
-    public StatelessInstanceContext(Object containerId, SessionBean instance, EJBProxyFactory proxyFactory, EJBUserTransaction userTransaction) {
+    public StatelessInstanceContext(Object containerId, SessionBean instance, EJBProxyFactory proxyFactory, UserTransactionImpl userTransaction) {
         this.containerId = containerId;
         this.proxyFactory = proxyFactory;
         this.instance = instance;

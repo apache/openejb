@@ -52,7 +52,7 @@ import java.util.Set;
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
@@ -65,7 +65,7 @@ import org.openejb.dispatch.VirtualOperation;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.security.PermissionManager;
-import org.openejb.transaction.EJBUserTransaction;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.openejb.transaction.TransactionPolicyManager;
 import org.openejb.util.SoftLimitedInstancePool;
 
@@ -87,7 +87,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private Subject runAs;
     private ReadOnlyContext componentContext;
     private Set unshareableResources;
-    private EJBUserTransaction userTransaction;
+    private UserTransactionImpl userTransaction;
     private TransactionPolicySource transactionPolicySource;
     private TransactionManager transactionManager;
     private TrackedConnectionAssociator trackedConnectionAssociator;
@@ -192,11 +192,11 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         this.unshareableResources = unshareableResources;
     }
 
-    public EJBUserTransaction getUserTransaction() {
+    public UserTransactionImpl getUserTransaction() {
         return userTransaction;
     }
 
-    public void setUserTransaction(EJBUserTransaction userTransaction) {
+    public void setUserTransaction(UserTransactionImpl userTransaction) {
         this.userTransaction = userTransaction;
     }
 
