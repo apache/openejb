@@ -92,10 +92,12 @@ public class TransactionManagerWrapper  implements TransactionManager {
      * 
      * @see org.openejb.spi.TransactionService
      */
-    TransactionManager transactionManager;
+    final private TransactionManager transactionManager;
     /**
      */
-    Hashtable wrapperMap = new Hashtable();
+    final private Hashtable wrapperMap = new Hashtable();
+
+    final static protected org.apache.log4j.Category logger = org.apache.log4j.Category.getInstance("Transactions");
 
     /**
      * Constructor
@@ -118,7 +120,15 @@ public class TransactionManagerWrapper  implements TransactionManager {
      * @exception javax.transaction.NotSupportedException
      */
     public void begin( )throws javax.transaction.SystemException, javax.transaction.NotSupportedException{
+        int status=transactionManager.getStatus();
+        if(status== Status.STATUS_NO_TRANSACTION ||
+           status== Status.STATUS_ROLLEDBACK ||
+           status== Status.STATUS_COMMITTED ) {
         transactionManager.begin();
+            createTxWrapper();
+        }else {
+            throw new javax.transaction.NotSupportedException("Can't start new transaction."+getStatus(status));
+        }
     }
     /**
      * Delegates the call to the Transaction Manager 
@@ -213,63 +223,53 @@ public class TransactionManagerWrapper  implements TransactionManager {
      * @return 
      * @exception javax.transaction.SystemException
      */
-    public Transaction getTxWrapper(Transaction tx)throws javax.transaction.SystemException{
-        if ( tx == null )return null;
-        
-        if(tx.getStatus()==javax.transaction.Status.STATUS_COMMITTED||
-           tx.getStatus()==javax.transaction.Status.STATUS_ROLLEDBACK)
+    private Transaction getTxWrapper(Transaction tx)throws javax.transaction.SystemException{
+        if ( tx == null ) {
           return null;
-
-        TransactionWrapper txW = (TransactionWrapper)wrapperMap.get(tx);
-        if ( txW==null ) {
-            txW = new TransactionWrapper(tx);
-            if ( tx.getStatus()== Status.STATUS_ACTIVE ) {
-                try {
-                    tx.registerSynchronization(txW);
-                } catch ( javax.transaction.RollbackException re ) {
-                    /* 
-                    * Its not possible to enlist the TransactionWrapper as a Synchronization if the transaction
-                    * has already been marked for rollback.  We don't want to propagate this exception.
-                    */
-                }
-            }
-            wrapperMap.put(tx,txW);
         }
-        return txW;
+        return (TransactionWrapper)wrapperMap.get(tx);
     }
 
-
-
     /**
-     * Wraps the Transaction Manager's transaction implementation to
-     * facilitate a finer grain control for the Container.
+     * to be called ONLY from beginTransaction, to register a synchronization
+     * object while we can (e.g. before a rollback)
      */
-    public class TransactionWrapper 
+    private void createTxWrapper() {
+                try {
+            Transaction tx = transactionManager.getTransaction();
+            TransactionWrapper txW = new TransactionWrapper(tx);
+                    tx.registerSynchronization(txW);
+            wrapperMap.put(tx,txW);
+        } catch ( Exception re ) {
+            // this should never happen since we register right after
+            // the transaction started.
+            logger.info("", re);
+        }
+    }
+    
+    /**
+     * Wraps the Transaction Manager's transaction implementation to intercept calls
+     * to the Transaction object, most notably to registerSynchronization
+     */
+    private class TransactionWrapper 
     implements Transaction, javax.transaction.Synchronization {
 
         /**
          * The Transaction Manager's transaction instance.
          */
-        Transaction transaction;
+        private final Transaction transaction;
         /**
          * TODO: Add comment
          */
-        Vector registeredSynchronizations;
+        private final Vector registeredSynchronizations;
         /**
          * TODO: Add comment
          */
         final public static int MAX_PRIORITY_LEVEL = 3;
-        /*
-        * This may be marked as true by the TransactionManagerWrapper.getTxWrapper( ) method or
-        * this object's XAResource.rollback(javax.transaction.xa.Xid xid) method.
-        */
-        public TransactionWrapper(Transaction tx) {
+
+        private TransactionWrapper(Transaction tx) {
             transaction = tx;
             registeredSynchronizations = new Vector();
-            registeredSynchronizations.addElement(new Vector());
-            registeredSynchronizations.addElement(new Vector());
-            registeredSynchronizations.addElement(new Vector());
-
         }
 
 
@@ -289,15 +289,16 @@ public class TransactionManagerWrapper  implements TransactionManager {
          * @return 
          */
         public boolean equals(java.lang.Object obj) {
-
-            try {
-
+            if(obj != null && obj instanceof TransactionWrapper) {
                 return transaction.equals( ((TransactionWrapper)obj).getTransaction() );
-            } catch ( java.lang.Throwable ex ) {
             }
 
             return false;
         }       
+        // equals and hashCode always have to be implemented together!
+        public int hashCode() {
+            return transaction.hashCode();
+        }
 
         public String toString(){
             return transaction.toString();
@@ -358,28 +359,20 @@ public class TransactionManagerWrapper  implements TransactionManager {
         }
 
         /**
-         * TODO: Add comment
-         * 
+         * This method allows for notification when the transaction ends.
+         * As opposed to the documented behavior of the same method on the
+         * Transaction interface the registration will succeed even after
+         * the transaction has been marked for rollback. Multiple registrations
+         * for the same object will be ignored.
          * @param sync
          * @param priority
          * @exception javax.transaction.SystemException
          * @exception javax.transaction.RollbackException
          */
-        public void registerSynchronization(Synchronization sync, int priority)
-        throws javax.transaction.SystemException, javax.transaction.RollbackException{
-            if ( transaction.getStatus()== Status.STATUS_ACTIVE ) {
-                if ( priority > MAX_PRIORITY_LEVEL )
-                    priority = MAX_PRIORITY_LEVEL;
-                else if ( priority < 1 )
-                    priority = 1;
-                ((Vector)registeredSynchronizations.elementAt(priority-1)).addElement(sync);
-            } else if ( transaction.getStatus() == Status.STATUS_ROLLEDBACK || transaction.getStatus() == Status.STATUS_MARKED_ROLLBACK || transaction.getStatus()== Status.STATUS_ROLLING_BACK )
-                throw new javax.transaction.RollbackException();
-            else {
-                throw new java.lang.IllegalStateException(Thread.currentThread() + " The status of " + transaction + " is " + TransactionManagerWrapper.getStatus(transaction.getStatus()));
-
+        private void registerSynchronization(Synchronization sync, int priority) {
+            if (!registeredSynchronizations.contains(sync)) {
+                registeredSynchronizations.addElement(sync);
             }
-
         }
         /**
          * TODO: Add comment
@@ -402,15 +395,13 @@ public class TransactionManagerWrapper  implements TransactionManager {
         ///////////////////////////////////////////////
 
         public void beforeCompletion() {
-            for ( int i = 0; i < registeredSynchronizations.size(); i++ ) {
-                Vector synchronizations = (Vector)registeredSynchronizations.elementAt(i);
-                java.util.Enumeration enum = synchronizations.elements();
-                while ( enum.hasMoreElements() ) {
-                    try {
-                        Synchronization sync = (Synchronization)enum.nextElement();
+            int count = registeredSynchronizations.size();
+            for ( int i=0; i<count; ++i ) {
+                try {
+                    Synchronization sync = (Synchronization)registeredSynchronizations.elementAt(i);
                         sync.beforeCompletion();
                     } catch ( RuntimeException re ) {
-                    }
+                    logger.error("", re);
                 }
             }
         }
@@ -420,20 +411,15 @@ public class TransactionManagerWrapper  implements TransactionManager {
          * @param status
          */
         public void afterCompletion(int status) {
-            for ( int i = 0; i < registeredSynchronizations.size(); i++ ) {
-                Vector synchronizations = (Vector)registeredSynchronizations.elementAt(i);
-                java.util.Enumeration enum = synchronizations.elements();
-                while ( enum.hasMoreElements() ) {
-                    try {
-                        Synchronization sync = (Synchronization)enum.nextElement();
+            int count = registeredSynchronizations.size();
+            for ( int i=0; i<count; ++i ) {
+                try {
+                    Synchronization sync = (Synchronization)registeredSynchronizations.elementAt(i);
                         sync.afterCompletion(status);
                     } catch ( RuntimeException re ) {
-                        //TODO:2: Log the callback system exception
-                    }
+                    logger.error("", re);
                 }
-                synchronizations.clear();
             }
-            registeredSynchronizations.clear();
             wrapperMap.remove(transaction);
         }          
 
@@ -445,11 +431,11 @@ public class TransactionManagerWrapper  implements TransactionManager {
      * @param status The status
      * @return The status
      */
-    private static String getStatus( int status )
+    public static String getStatus( int status )
     {
         StringBuffer buffer;
 
-        buffer = new StringBuffer();
+        buffer = new StringBuffer(100);
         switch ( status ) {
         case Status.STATUS_ACTIVE:
             buffer.append( "STATUS_ACTIVE: " );
