@@ -68,6 +68,7 @@ import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
@@ -109,8 +110,20 @@ public class EJBConfigBuilderTest extends TestCase {
             return DeploymentHelper.RESOURCE_ADAPTER_NAME;
         }
 
-        public Object locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface) {
+        public GBeanData locateActivationSpecInfo(ObjectName resourceAdapterModuleName, String messageListenerInterface) {
             return DeploymentHelper.ACTIVATION_SPEC_INFO;
+        }
+
+        public GBeanData locateResourceAdapterGBeanData(ObjectName resourceAdapterModuleName) throws DeploymentException {
+            return null;
+        }
+
+        public GBeanData locateAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName) throws DeploymentException {
+            return null;
+        }
+
+        public GBeanData locateConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) throws DeploymentException {
+            return null;
         }
     };
 

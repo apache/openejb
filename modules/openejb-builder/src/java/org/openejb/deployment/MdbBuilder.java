@@ -51,21 +51,19 @@ import java.beans.Introspector;
 import java.net.URI;
 import java.security.Permissions;
 import java.util.Map;
-import javax.management.AttributeNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.ReflectionException;
 import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.connector.ActivationSpecInfo;
 import org.apache.geronimo.deployment.DeploymentException;
-import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.security.deploy.Security;
@@ -117,9 +115,10 @@ class MdbBuilder extends BeanBuilder {
             }
 
             String containerId = messageDrivenObjectName.getCanonicalName();
-            GBeanMBean activationSpecGBean = createActivationSpecWrapperGBean(earContext,
+            addActivationSpecWrapperGBean(earContext,
                     moduleJ2eeContext,
                     ejbModule.getModuleURI(),
+                    activationSpecName,
                     openejbMessageDrivenBean.isSetActivationConfig() ? openejbMessageDrivenBean.getActivationConfig().getActivationConfigPropertyArray() : null,
                     messageDrivenBean.isSetActivationConfig() ? messageDrivenBean.getActivationConfig().getActivationConfigPropertyArray() : new ActivationConfigPropertyType[]{},
                     openejbMessageDrivenBean.getResourceAdapter(),
@@ -127,7 +126,6 @@ class MdbBuilder extends BeanBuilder {
                     containerId,
                     cl);
             GBeanMBean messageDrivenGBean = createBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, security, cl);
-            earContext.addGBean(activationSpecName, activationSpecGBean);
             earContext.addGBean(messageDrivenObjectName, messageDrivenGBean);
         }
     }
@@ -208,61 +206,42 @@ class MdbBuilder extends BeanBuilder {
         }
     }
 
-    private GBeanMBean createActivationSpecWrapperGBean(EARContext earContext,
-                                                        J2eeContext moduleJ2eeContext,
-                                                        URI uri,
-                                                        OpenejbActivationConfigPropertyType[] openejbActivationConfigProperties,
-                                                        ActivationConfigPropertyType[] activationConfigProperties,
-                                                        GerResourceLocatorType resourceAdapter,
-                                                        String messageListenerInterfaceName,
-                                                        String containerId,
-                                                        ClassLoader cl) throws DeploymentException {
+    private void addActivationSpecWrapperGBean(EARContext earContext,
+                                               J2eeContext moduleJ2eeContext,
+                                               URI uri,
+                                               ObjectName activationSpecName,
+                                               OpenejbActivationConfigPropertyType[] openejbActivationConfigProperties,
+                                               ActivationConfigPropertyType[] activationConfigProperties,
+                                               GerResourceLocatorType resourceAdapter,
+                                               String messageListenerInterfaceName,
+                                               String containerId,
+                                               ClassLoader cl) throws DeploymentException {
         RefContext refContext = earContext.getRefContext();
-        ObjectName resourceAdapterObjectName = getResourceAdapterId(uri, resourceAdapter, refContext,moduleJ2eeContext);
-        ActivationSpecInfo activationSpecInfo = (ActivationSpecInfo) refContext.getActivationSpecInfo(resourceAdapterObjectName, messageListenerInterfaceName);
-
-//        String resourceAdapterModule = earContext.getRefContext().getResourceAdapterModule(resourceAdapterName);
-//        ActivationSpecInfo activationSpecInfo;
-//        if (resourceAdapterModule != null) {
-//            resourceAdapterObjectName = NameFactory.getResourceComponentName(null, null, null, resourceAdapterModule, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER, moduleJ2eeContext);
-//            activationSpecInfo = (ActivationSpecInfo) earContext.getRefContext().getActivationSpecInfo(resourceAdapterName, messageListenerInterfaceName);
-//        } else {
-//            ObjectName queryName = NameFactory.getComponentRestrictedQueryName(null, null, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER, moduleJ2eeContext);
-//            resourceAdapterObjectName = earContext.getRefContext().locateResourceName(queryName);
-//            activationSpecInfo = (ActivationSpecInfo) earContext.getRefContext().locateActivationSpecInfo(resourceAdapterObjectName, messageListenerInterfaceName);
-//        }
+        ObjectName resourceAdapterObjectName = getResourceAdapterId(uri, resourceAdapter, refContext, moduleJ2eeContext);
+        J2eeContext resourceAdapterJ2eeContext = new J2eeContextImpl(resourceAdapterObjectName, NameFactory.JCA_RESOURCE);
+        ObjectName resourceModuleObjectName = null;
+        try {
+            resourceModuleObjectName = NameFactory.getModuleName(null, null, null, null, NameFactory.RESOURCE_ADAPTER_MODULE, resourceAdapterJ2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct resource module name", e);
+        }
+        GBeanData activationSpecInfo = (GBeanData) refContext.getActivationSpecInfo(resourceModuleObjectName, messageListenerInterfaceName);
 
         if (activationSpecInfo == null) {
             throw new DeploymentException("no activation spec found for resource adapter: " + resourceAdapterObjectName + " and message listener type: " + messageListenerInterfaceName);
         }
-        String activationSpecClassName = activationSpecInfo.getActivationSpecClass();
-        Class activationSpecClass = null;
-        try {
-            activationSpecClass = cl.loadClass(activationSpecClassName);
-        } catch (ClassNotFoundException e) {
-            throw new DeploymentException("Class not available for activation spec: " + activationSpecClassName, e);
-        }
-
-        GBeanInfo activationSpecGBeanInfo = activationSpecInfo.getActivationSpecGBeanInfo();
-        GBeanMBean activationSpecGBean = new GBeanMBean(activationSpecGBeanInfo, cl);
-        try {
-            activationSpecGBean.setAttribute("activationSpecClass", activationSpecClass);
-            activationSpecGBean.setAttribute("containerId", containerId);
-            activationSpecGBean.setReferencePattern("ResourceAdapterWrapper", resourceAdapterObjectName);
-        } catch (ReflectionException e) {
-            throw new DeploymentException(e);
-        } catch (AttributeNotFoundException e) {
-            throw new DeploymentException(e);
-        }
+        activationSpecInfo = new GBeanData(activationSpecInfo);
+        activationSpecInfo.setAttribute("containerId", containerId);
+        activationSpecInfo.setReferencePattern("ResourceAdapterWrapper", resourceAdapterObjectName);
         if (openejbActivationConfigProperties != null) {
             for (int i = 0; i < openejbActivationConfigProperties.length; i++) {
                 OpenejbActivationConfigPropertyType activationConfigProperty = openejbActivationConfigProperties[i];
                 String propertyName = activationConfigProperty.getActivationConfigPropertyName();
                 String propertyValue = activationConfigProperty.getActivationConfigPropertyValue();
                 try {
-                    activationSpecGBean.setAttribute(propertyName, propertyValue);
+                    activationSpecInfo.setAttribute(Introspector.decapitalize(propertyName), propertyValue);
                 } catch (Exception e) {
-                    throw new DeploymentException("Could not set property: " + propertyName + " to value: " + propertyValue + " on activationSpec: " + activationSpecInfo.getActivationSpecClass(), e);
+                    throw new DeploymentException("Could not set property: " + propertyName + " to value: " + propertyValue + " on activationSpec: " + activationSpecInfo.getAttribute("activationSpecClass"), e);
                 }
             }
 
@@ -272,13 +251,14 @@ class MdbBuilder extends BeanBuilder {
                 String propertyName = activationConfigProperty.getActivationConfigPropertyName().getStringValue();
                 String propertyValue = activationConfigProperty.getActivationConfigPropertyValue().isNil() ? null : activationConfigProperty.getActivationConfigPropertyValue().getStringValue();
                 try {
-                    activationSpecGBean.setAttribute(Introspector.decapitalize(propertyName), propertyValue);
+                    activationSpecInfo.setAttribute(Introspector.decapitalize(propertyName), propertyValue);
                 } catch (Exception e) {
-                    throw new DeploymentException("Could not set property: " + propertyName + " to value: " + propertyValue + " on activationSpec: " + activationSpecInfo.getActivationSpecClass(), e);
+                    throw new DeploymentException("Could not set property: " + propertyName + " to value: " + propertyValue + " on activationSpec: " + activationSpecInfo.getAttribute("activationSpecClass"), e);
                 }
             }
         }
-        return activationSpecGBean;
+            activationSpecInfo.setName(activationSpecName);
+            earContext.addGBean(activationSpecInfo, cl);
     }
 
     private static ObjectName getResourceAdapterId(URI uri, GerResourceLocatorType resourceLocator, RefContext refContext, J2eeContext j2eeContext) throws DeploymentException {

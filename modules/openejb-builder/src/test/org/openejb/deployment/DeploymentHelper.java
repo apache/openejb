@@ -51,21 +51,29 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
-import org.apache.geronimo.connector.ActivationSpecInfo;
 import org.apache.geronimo.connector.ActivationSpecWrapper;
+import org.apache.geronimo.connector.ResourceAdapterModuleImpl;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.work.GeronimoWorkManager;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledTransactionalTimer;
 import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.openejb.deployment.mdb.mockra.MockActivationSpec;
 import org.openejb.deployment.mdb.mockra.MockResourceAdapter;
 
@@ -78,17 +86,33 @@ import org.openejb.deployment.mdb.mockra.MockResourceAdapter;
 public class DeploymentHelper {
     private static final String j2eeDomainName = "openejb.server";
     private static final String j2eeServerName = "TestOpenEJBServer";
+    private static final String appName = NameFactory.NULL;
+    private static final String moduleName = "MockRA";
+    //type is random to look for problems.
+    private static final J2eeContext raContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, appName, moduleName, "xxx", NameFactory.JCA_WORK_MANAGER);
     public static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
     public static final ObjectName TRANSACTIONMANAGER_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionManager");
     public static final ObjectName TRANSACTIONCONTEXTMANAGER_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionContextManager");
     public static final ObjectName TRACKEDCONNECTIONASSOCIATOR_NAME = JMXUtil.getObjectName("geronimo.test:role=TrackedConnectionAssociator");
     public static final ObjectName WORKMANAGER_NAME = JMXUtil.getObjectName("geronimo.server:type=WorkManager,name=DefaultWorkManager");
-    public static final ObjectName RESOURCE_ADAPTER_NAME = JMXUtil.getObjectName("openejb.server:j2eeType=JCAResourceAdapter,J2EEServer=TestOpenEJBServer,J2EEApplication=null,ResourceAdapterModule=something,name=MockRA");
-    public static final ObjectName ACTIVATIONSPEC_NAME = JMXUtil.getObjectName("geronimo.server:j2eeType=ActivationSpec,name=MockMDB");
+
+    public static final ObjectName RESOURCE_ADAPTER_MODULE_NAME;
+    public static final ObjectName RESOURCE_ADAPTER_NAME;
+    public static final ObjectName ACTIVATIONSPEC_NAME;
     public static final ObjectName THREADPOOL_NAME = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPool,name=DefaultThreadPool");
     public static final ObjectName TRANSACTIONALTIMER_NAME = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=TransactionalThreaPooledTimer");
     public static final ObjectName NONTRANSACTIONALTIMER_NAME = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=NonTransactionalThreaPooledTimer");
-    public static final ActivationSpecInfo ACTIVATION_SPEC_INFO = new ActivationSpecInfo(MockActivationSpec.class.getName(), ActivationSpecWrapper.getGBeanInfo());
+    public static final GBeanData ACTIVATION_SPEC_INFO = new GBeanData(ActivationSpecWrapper.getGBeanInfo());
+
+    static {
+        try {
+            RESOURCE_ADAPTER_MODULE_NAME = NameFactory.getModuleName(null, null, null, null, NameFactory.RESOURCE_ADAPTER_MODULE, raContext);
+            RESOURCE_ADAPTER_NAME = NameFactory.getResourceComponentName(null, null, null, null, "MockRA", NameFactory.JCA_RESOURCE_ADAPTER, raContext);
+            ACTIVATIONSPEC_NAME = NameFactory.getResourceComponentName(null, null, null, null, "MockRA", NameFactory.JCA_ACTIVATION_SPEC, raContext);
+        } catch (MalformedObjectNameException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static Kernel setUpKernelWithTransactionManager(String kernelName) throws Exception {
         Kernel kernel = new Kernel(kernelName);
@@ -132,26 +156,35 @@ public class DeploymentHelper {
     }
 
     public static void setUpResourceAdapter(Kernel kernel) throws Exception {
-        GBeanMBean geronimoWorkManagerGBean = new GBeanMBean(GeronimoWorkManager.getGBeanInfo());
+        GBeanData geronimoWorkManagerGBean = new GBeanData(WORKMANAGER_NAME, GeronimoWorkManager.getGBeanInfo());
         geronimoWorkManagerGBean.setAttribute("syncMaximumPoolSize", new Integer(5));
         geronimoWorkManagerGBean.setAttribute("startMaximumPoolSize", new Integer(5));
         geronimoWorkManagerGBean.setAttribute("scheduledMaximumPoolSize", new Integer(5));
         geronimoWorkManagerGBean.setReferencePattern("TransactionContextManager", TRANSACTIONCONTEXTMANAGER_NAME);
-        start(kernel, WORKMANAGER_NAME, geronimoWorkManagerGBean);
+        start(kernel, geronimoWorkManagerGBean);
 
-        GBeanMBean resourceAdapterGBean = new GBeanMBean(ResourceAdapterWrapper.getGBeanInfo());
         Map activationSpecInfoMap = new HashMap();
+        ACTIVATION_SPEC_INFO.setAttribute("activationSpecClass", MockActivationSpec.class.getName());
         activationSpecInfoMap.put(javax.jms.MessageListener.class.getName(), ACTIVATION_SPEC_INFO);
-        resourceAdapterGBean.setAttribute("resourceAdapterClass", MockResourceAdapter.class);
-        resourceAdapterGBean.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
-        resourceAdapterGBean.setReferencePattern("WorkManager", WORKMANAGER_NAME);
-        start(kernel, RESOURCE_ADAPTER_NAME, resourceAdapterGBean);
+        GBeanData moduleData = new GBeanData(RESOURCE_ADAPTER_MODULE_NAME, ResourceAdapterModuleImpl.GBEAN_INFO);
+        moduleData.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
+        start(kernel, moduleData);
 
-        GBeanMBean activationSpecGBean = new GBeanMBean(ActivationSpecWrapper.getGBeanInfo());
-        activationSpecGBean.setAttribute("activationSpecClass", MockActivationSpec.class);
+        GBeanData resourceAdapterGBean = new GBeanData(RESOURCE_ADAPTER_NAME, ResourceAdapterWrapper.getGBeanInfo());
+        resourceAdapterGBean.setAttribute("resourceAdapterClass", MockResourceAdapter.class.getName());
+        resourceAdapterGBean.setReferencePattern("WorkManager", WORKMANAGER_NAME);
+        start(kernel, resourceAdapterGBean);
+
+        GBeanData activationSpecGBean = new GBeanData(ACTIVATIONSPEC_NAME, ActivationSpecWrapper.getGBeanInfo());
+        activationSpecGBean.setAttribute("activationSpecClass", MockActivationSpec.class.getName());
         activationSpecGBean.setAttribute("containerId", CONTAINER_NAME.getCanonicalName());
         activationSpecGBean.setReferencePattern("ResourceAdapterWrapper", RESOURCE_ADAPTER_NAME);
-        start(kernel, ACTIVATIONSPEC_NAME, activationSpecGBean);
+        start(kernel, activationSpecGBean);
+    }
+
+    private static void start(Kernel kernel, GBeanData gbeanData) throws InvalidConfigException, InstanceAlreadyExistsException, InstanceNotFoundException {
+        kernel.loadGBean(gbeanData, DeploymentHelper.class.getClassLoader());
+        kernel.startGBean(gbeanData.getName());
     }
 
     public static void start(Kernel kernel, ObjectName name, GBeanMBean instance) throws Exception {
