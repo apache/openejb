@@ -100,20 +100,20 @@
           <p/>
 
             <h2>Current Release <xsl:value-of select="$current_release/@id"/></h2>
-            <p>
+            <p><span class="bodyBlack">
             <xsl:variable name="current_release_id" select="$current_release/@release_id"/>
             <xsl:element name="a">
               <xsl:attribute name="href"><xsl:value-of select="concat('http://sourceforge.net/project/showfiles.php?group_id=', $group_id, '&amp;release_id=', $current_release_id)"/></xsl:attribute>
               Download OpenEJB <xsl:value-of select="$current_release/@id"/>
             </xsl:element>
-            </p>
+            </span></p>
             
-            <p>
+            <p><span class="bodyBlack">
             We are cycling through a series of beta releases based on user-feedback.  Be sure to check 
             OpenEJB's <a href="http://sourceforge.net/project/showfiles.php?group_id=44351">download 
             page</a> at SourceForge for new releases.
-            </p>
-            <p>Current and previous releases that are available:<br/>
+            </span></p>
+            <p><span class="bodyBlack">Current and previous releases that are available:<br/>
             <xsl:for-each select="./ChangeLog/Version">
               <xsl:sort select="attribute::release_id" order="descending"/>
               <xsl:if test="@release_id">
@@ -122,7 +122,7 @@
                 </span>
               </xsl:if>
             </xsl:for-each>
-            </p>
+            </span></p>
           
 
         <br/>
@@ -218,10 +218,10 @@
       <xsl:variable name="release_id" select="@release_id"/>
       <a name="{@id}">
       <h2>Fixes in <xsl:value-of select="@id"/> - Released <xsl:value-of select="@releaseDate"/></h2></a>
-      <xsl:element name="a">
+      <span class="bodyBlack"><xsl:element name="a">
         <xsl:attribute name="href"><xsl:value-of select="concat('http://sourceforge.net/project/showfiles.php?group_id=', $group_id, '&amp;release_id=', $release_id)"/></xsl:attribute>
         Download OpenEJB <xsl:value-of select="@id"/>
-      </xsl:element>
+      </xsl:element></span>
       <table border="0" cellpadding="2" cellspacing="2">
         <tr><td colspan="2" height="5"></td></tr>
         <span class="bodyGrey"><xsl:apply-templates select="Entry"/></span>
