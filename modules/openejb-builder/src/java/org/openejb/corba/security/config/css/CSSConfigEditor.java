@@ -65,6 +65,8 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
     }
 
     public Object getValue(XmlObject xmlObject, String type, ClassLoader cl) throws DeploymentException {
+        CSSConfig cssConfig = new CSSConfig();
+
         CSSCssType css;
         if (xmlObject instanceof CSSCssType) {
             css =  (CSSCssType) xmlObject;
@@ -76,7 +78,7 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
             throw new DeploymentException(e);
         }
 
-        return css;
+        return cssConfig;
     }
 
     public static final GBeanInfo GBEAN_INFO;
