@@ -44,6 +44,7 @@
  */
 package org.openejb.corba;
 
+import java.io.File;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
@@ -52,25 +53,65 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.omg.CORBA.ORB;
 
 /**
+ * Starts the Sun transient cos naming service using NSORB.  This only not run
+ * on a Java VM containing the Sun ORB classes.  Add the following to your plan
+ * to use this service:
+ *
+ *  <gbean name="NameServer" class="org.openejb.corba.SunNameService">
+ *      <reference name="ServerInfo">
+ *          <module>org/apache/geronimo/System</module>
+ *          <name>ServerInfo</name>
+ *      </reference>
+ *      <attribute name="dbDir">var/cosnaming.db</attribute>
+ *      <attribute name="port">2809</attribute>
+ *  </gbean>
+ *
  * @version $Revision$ $Date$
  */
 public class SunNameService implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(SunNameService.class);
     private final ORB orb;
-    private final String port;
+    private final int port;
 
-    public SunNameService(String port) throws Exception {
+    protected SunNameService() {
+        orb = null;
+        port = -1;
+    }
+
+    public SunNameService(ServerInfo serverInfo, String dbDir, int port) throws Exception {
         this.port = port;
 
-        // create the orb
+        File dir = serverInfo.resolve(dbDir);
+        if (!dir.isDirectory()) {
+            dir.mkdirs();
+        }
+        // This must be a system property, the Sun BootStrapActivation class only looks at the
+        // system properties for this value
+        System.setProperty("com.sun.CORBA.activation.DbDir", dir.getAbsolutePath());
+
         Properties properties = new Properties();
+
+        // the transient name service is automatically started by the Sun NSORB
         properties.put("org.omg.CORBA.ORBClass", "com.sun.corba.se.internal.CosNaming.NSORB");
-        properties.put("com.sun.CORBA.POA.ORBPersistentServerPort", this.port);
-        properties.put("org.omg.CORBA.ORBInitialPort", this.port);
+
+        String portString = Integer.toString(port);
+
+        // causes the Sun orb to immedately activate and start the activation services
+        properties.put("com.sun.CORBA.POA.ORBPersistentServerPort", portString);
+
+        // this port must match the above entry so the orb can find its own name server
+        properties.put("org.omg.CORBA.ORBInitialPort", portString);
+
+        // create the orb
         orb = ORB.init(new String[0], properties);
+    }
+
+    public int getPort() {
+        return port;
     }
 
     public void doStart() throws Exception {
@@ -105,8 +146,10 @@ public class SunNameService implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SunNameService.class, NameFactory.CORBA_SERVICE);
 
-        infoFactory.addAttribute("port", String.class, true);
-        infoFactory.setConstructor(new String[]{"port"});
+        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
+        infoFactory.addAttribute("dbDir", String.class, true);
+        infoFactory.addAttribute("port", int.class, true);
+        infoFactory.setConstructor(new String[]{"ServerInfo", "dbDir", "port"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
