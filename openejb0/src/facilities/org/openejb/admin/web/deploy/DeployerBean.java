@@ -80,10 +80,9 @@ import org.openejb.util.StringUtilities;
  * This is a stateful session bean which handles the action of deployment for the
  * web administration.
  *
- * TODO:
- *  1. Add better error handling 
- *  2. Add documentation 
- *
+ * @see org.openejb.admin.web.deploy.DeployData
+ * @see org.openejb.admin.web.deploy.OQLData
+ * @see org.openejb.admin.web.deploy.ReferenceData
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class DeployerBean implements SessionBean {
@@ -125,7 +124,6 @@ public class DeployerBean implements SessionBean {
 	/** 
 	 * Creates a new instance of DeployerBean 
 	 * @throws CreateException if this bean cannot be created 
-	 * 
 	 */
 	public void ejbCreate() throws CreateException {
 		try {
@@ -448,6 +446,12 @@ public class DeployerBean implements SessionBean {
 		}
 	}
 
+	/**
+	 * creates an HTML table with form fields for deployment
+	 * information
+	 * @throws OpenEJBException when something goes wrong
+	 * @return the HTML table with the form fields 
+	 */
 	public String createIdTable() throws OpenEJBException {
 		//string that contains all the html
 		StringBuffer htmlString = new StringBuffer();
@@ -460,7 +464,7 @@ public class DeployerBean implements SessionBean {
 		this.deployDataArray = new DeployData[deployerBeans.length];
 		EjbDeployment ejbDeployment = null;
 
-		htmlString.append("<table cellspacing=\"1\" cellpadding=\"1\" border=\"1\">\n");
+		htmlString.append("<table cellspacing=\"0\" cellpadding=\"0\" border=\"1\">\n");
 		htmlString.append("<tr align=\"left\">\n");
 		htmlString.append("<th>Bean Name</th>\n");
 		htmlString.append("<th>Deployment Id</th>\n");
@@ -527,7 +531,13 @@ public class DeployerBean implements SessionBean {
 			if ((refs.length > 0) || (ejbRefs.length > 0)) {
 				htmlString.append("<td>");
 				htmlString.append(
-					createIdTableOutsideRef(refs, ejbRefs, deployerBeans[i].getEjbName(), deployDataArray[i], i));
+					createIdTableOutsideRef(
+						refs,
+						ejbRefs,
+						deployerBeans[i].getEjbName(),
+						deployDataArray[i],
+						ejbDeployment,
+						i));
 				htmlString.append("</td>");
 			} else {
 				htmlString.append("<td>N/A</td>\n");
@@ -560,16 +570,31 @@ public class DeployerBean implements SessionBean {
 		return htmlString.toString();
 	}
 
+	/**
+	 * creates an HTML table/form for outside references, ejb and resource
+	 * @param refs an array of resource references
+	 * @param ejbRefs an array of ejb references
+	 * @param deploymentName the name of this deployment
+	 * @param deployData the DeploymentData object for this deployment
+	 * @param index the index of this bean
+	 * @return the HTML table/form for these outside references
+	 */
 	private String createIdTableOutsideRef(
 		ResourceRef[] refs,
 		EjbRef[] ejbRefs,
 		String deploymentName,
 		DeployData deployData,
+		EjbDeployment ejbDeployment,
 		int index)
 		throws OpenEJBException {
 		StringBuffer htmlString = new StringBuffer();
 		String resourceId = "";
 		String ejbId = "";
+		ResourceLink[] resourceLinks =
+			(ejbDeployment != null && ejbDeployment.getResourceLink() != null)
+				? ejbDeployment.getResourceLink()
+				: new ResourceLink[0];
+		ReferenceData[] referenceDataArray = new ReferenceData[(refs.length + ejbRefs.length)];
 
 		//this will create the html for outside references
 		htmlString.append("<table cellspacing=\"0\" cellpadding=\"2\" border=\"0\" width=\"100%\">\n");
@@ -578,10 +603,11 @@ public class DeployerBean implements SessionBean {
 		htmlString.append("<th>Type</th>\n");
 		htmlString.append("<th>Id</th>\n");
 		htmlString.append("</tr>\n");
-		ReferenceData[] referenceDataArray = new ReferenceData[(refs.length + ejbRefs.length)];
 
+		//loop through the resource references
 		if (refs.length > 0) {
 			for (int i = 0; i < refs.length; i++) {
+				//create a new ReferenceData object and set the values
 				referenceDataArray[i] = new ReferenceData();
 				referenceDataArray[i].setReferenceType(ReferenceData.RESOURCE_REFERENCE);
 				referenceDataArray[i].setReferenceIdName("resourceRefId_" + index + "_" + i);
@@ -595,8 +621,16 @@ public class DeployerBean implements SessionBean {
 
 				//loop through the available resources
 				for (int j = 0; j < this.resources.length; j++) {
+					//check for selected values
+					boolean selected = false;
+					for (int k = 0; k < resourceLinks.length; k++) {
+						if (resources[j].getId().equals(resourceLinks[k].getResId())) {
+							selected = true;
+							break;
+						}
+					}
 					htmlString.append(
-						HtmlUtilities.createSelectOption(resources[j].getId(), resources[j].getId(), false)).append(
+						HtmlUtilities.createSelectOption(resources[j].getId(), resources[j].getId(), selected)).append(
 						'\n');
 				}
 
@@ -622,15 +656,24 @@ public class DeployerBean implements SessionBean {
 				//check for an available link
 				ejbLink = ejbRefs[i].getEjbLink();
 				if (ejbLink == null) {
-					htmlString.append("<td>").append(HtmlUtilities.createSelectFormField("ejbRefId_" + index + "_" + i, null));
+					htmlString.append("<td>").append(
+						HtmlUtilities.createSelectFormField("ejbRefId_" + index + "_" + i, null));
 					//loop through the available beans in the jar
 					for (int j = 0; j < deployerBeans.length; j++) {
 						if (!deployerBeans[j].getEjbName().equals(deploymentName)) {
+							//check for selected values
+							boolean selected = false;
+							for (int k = 0; k < resourceLinks.length; k++) {
+								if (deployerBeans[j].getEjbName().equals(resourceLinks[k].getResId())) {
+									selected = true;
+									break;
+								}
+							}
 							htmlString.append(
 								HtmlUtilities.createSelectOption(
 									deployerBeans[j].getEjbName(),
 									deployerBeans[j].getEjbName(),
-									false));
+									selected));
 						}
 					}
 
@@ -672,14 +715,9 @@ public class DeployerBean implements SessionBean {
 		OQLData oqlData;
 		String methodString;
 
-		Query[] queries;
+		Query[] queries =
+			(ejbDeployment != null && ejbDeployment.getQuery() != null) ? ejbDeployment.getQuery() : new Query[0];
 		Query query = null;
-
-		if (ejbDeployment != null) {
-			queries = ejbDeployment.getQuery();
-		} else {
-			queries = new Query[0];
-		}
 
 		htmlString.append("<tr>\n<td colspan=\"4\">&nbsp;</td>\n</tr>\n");
 		htmlString.append("<tr>\n<td colspan=\"2\">").append(beanName).append(" - ");
