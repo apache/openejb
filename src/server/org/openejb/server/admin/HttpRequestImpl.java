@@ -406,7 +406,7 @@ public class HttpRequestImpl implements HttpRequest {
 				break;
 
 			/* [2] Parse the Value */
-			if(param.hasMoreTokens()) {
+			if (param.hasMoreTokens()) {
 				value = URLDecoder.decode(param.nextToken());
 			} else {
 				value = ""; //if there is no token set value to blank string
@@ -414,13 +414,12 @@ public class HttpRequestImpl implements HttpRequest {
 
 			if (value == null)
 				value = "";
-				
+
 			formParams.put(name, value);
 			//System.out.println(name + ": " + value);
 		}
 	}
 
-	
 	/**
 	 * A method which parses form parameters that are multipart/form-data
 	 * according to <a href="http://www.ietf.org/rfc/rfc1867.txt" target="_blank">
@@ -430,14 +429,13 @@ public class HttpRequestImpl implements HttpRequest {
 		/* see http://www.ietf.org/rfc/rfc1867.txt */
 		ByteArrayOutputStream output;
 		StringBuffer multiPartBuffer;
-		int j, k;
+		int j;
 		Map headerMap;
 		boolean isFile;
 		String fileName = null;
 		byte[] outputArray;
-		int arraySize;
 		FileOutputStream fos;
-		
+
 		String contentType = getHeader(HttpRequest.HEADER_CONTENT_TYPE);
 		int boundaryIndex = contentType.indexOf("boundary=");
 		if (boundaryIndex < 0) {
@@ -453,27 +451,17 @@ public class HttpRequestImpl implements HttpRequest {
 			try {
 				output = new ByteArrayOutputStream();
 				multi.readBodyData(output);
-				multiPartBuffer = new StringBuffer(output.toString());
+				outputArray = output.toByteArray();
+				multiPartBuffer = new StringBuffer(50);
 				isFile = false;
 				File jarFileInTempDir;
 				j = 0;
-				k = 0;
 
-				//find each CRLF add to the array list
-				while (j != -1) {
-					k = j;
-					j = multiPartBuffer.indexOf(StringUtilities.CRLF, (j + 1));
-
-					//whe have come to the blank line and we have the data
-					if (j == (k + 2)) {
-						k += 4; //position where the data starts
-						break;
-					}
-					
-					if (k > 0)
-						k += 2; //skip the CLRF
-					if (j != k) {
-						headerMap = parseMultiPartHeader(multiPartBuffer.substring(k, j));
+				for (int i = 0; i < outputArray.length; i++) {
+					//first check for \r\n end of line
+					if (outputArray[i] == 13 && outputArray[i + 1] == 10) {
+						//we've come to the end of a line
+						headerMap = parseMultiPartHeader(multiPartBuffer);
 						if (headerMap.get(NAME) != null) {
 							fileName = (String) headerMap.get(NAME);
 						}
@@ -483,6 +471,19 @@ public class HttpRequestImpl implements HttpRequest {
 							this.formParams.put(fileName, headerMap.get(FILENAME));
 							isFile = true;
 						}
+
+						if (outputArray[i + 2] == 13 && outputArray[i + 3] == 10) {
+							//we've reached the blank line
+							i+=4;
+							j = i;
+							break;
+						} else {
+							i++;
+						}
+						
+						multiPartBuffer = new StringBuffer(50);
+					} else {
+						multiPartBuffer.append((char) outputArray[i]);
 					}
 				}
 
@@ -494,19 +495,19 @@ public class HttpRequestImpl implements HttpRequest {
 						jarFileInTempDir.createNewFile();
 					}
 
-					//create the byte array to write
-					arraySize = output.toByteArray().length - k;
-					outputArray = new byte[arraySize];
-					System.arraycopy(output.toByteArray(), k, outputArray, 0, arraySize);
-					
 					//write the byte array to the file
 					fos = new FileOutputStream(jarFileInTempDir);
-					fos.write(outputArray);
+					fos.write(outputArray, j, outputArray.length-j);
 					fos.close();
 				} else { //form data, not a file
+					multiPartBuffer = new StringBuffer(outputArray.length-j);
+					for (int i = j; i < outputArray.length; i++) {
+						multiPartBuffer.append((char)outputArray[i]);
+					}
+					
 					this.formParams.put(
 						fileName,
-						multiPartBuffer.substring(k, multiPartBuffer.length()).trim());
+						multiPartBuffer.toString());
 				}
 
 				nextPart = multi.readBoundary();
@@ -516,8 +517,6 @@ public class HttpRequestImpl implements HttpRequest {
 		}
 	}
 
-
-
 	/**
 	 * Parses the first one or two lines of a multipart.  The usual headers are
 	 * Content-Dispostion or Content-Type.
@@ -525,8 +524,7 @@ public class HttpRequestImpl implements HttpRequest {
 	 * @param header - the header string to be parsed
 	 * @return a map of of header info and their values 
 	 */
-	private Map parseMultiPartHeader(String header) throws IOException {
-		StringBuffer headerBuffer = new StringBuffer(header);
+	private Map parseMultiPartHeader(StringBuffer headerBuffer) throws IOException {
 		Map headerMap = new HashMap();
 		int colonIndex = headerBuffer.indexOf(":");
 		String headerName = headerBuffer.substring(0, colonIndex);
