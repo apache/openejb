@@ -47,49 +47,49 @@
  */
 package org.openejb.nova.security;
 
-import java.security.AccessControlContext;
-import java.security.Permission;
-import java.security.AccessController;
-import java.security.PrivilegedExceptionAction;
-import java.rmi.AccessException;
 import javax.security.auth.Subject;
-import javax.security.jacc.PolicyContext;
-import javax.ejb.AccessLocalException;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 
 import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.security.util.ContextManager;
 
-import org.openejb.nova.EJBInvocation;
 
 /**
- * 
- * 
+ * An interceptor that invokes the bean under the caller's <code>Subject</code>.
+ * This allows control over what the bean's code can access via the standard
+ * Java Policy implementations.
  * @version $Revision$ $Date$
  */
 public class EJBIdentityInterceptor implements Interceptor {
     private final Interceptor next;
-    private final AccessControlContext context;
 
-    public EJBIdentityInterceptor(Interceptor next, AccessControlContext context) {
+    public EJBIdentityInterceptor(Interceptor next) {
         this.next = next;
-        this.context = context;
     }
 
     public InvocationResult invoke(final Invocation invocation) throws Throwable {
-        return (InvocationResult) AccessController.doPrivileged(new PrivilegedExceptionAction(){
-            public Object run() throws Exception {
-                try {
-                    return next.invoke(invocation);
-                } catch (Exception e) {
-                    throw e;
-                } catch (Error e) {
-                    throw e;
-                } catch (Throwable t) {
-                    throw (AssertionError) new AssertionError("Unexpected Throwable").initCause(t);
+        Subject subject = ContextManager.getCurrentCaller();
+
+        try {
+            return (InvocationResult) Subject.doAs(subject, new PrivilegedExceptionAction() {
+                public Object run() throws Exception {
+                    try {
+                        return next.invoke(invocation);
+                    } catch (Exception e) {
+                        throw e;
+                    } catch (Error e) {
+                        throw e;
+                    } catch (Throwable t) {
+                        throw (AssertionError) new AssertionError("Unexpected Throwable").initCause(t);
+                    }
                 }
-            }
-        }, context);
+            });
+        } catch (PrivilegedActionException pae) {
+            Throwable t = pae.getException();
+            throw t;
+        }
     }
 }
