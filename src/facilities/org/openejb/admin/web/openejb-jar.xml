@@ -32,4 +32,8 @@
         ejb-name="deploy/webadmin/Deployer" 
         deployment-id="deploy/webadmin/Deployer"
         container-id="Default Stateful Container"/>
+    <ejb-deployment 
+        ejb-name="webadmin/ConfigurationData" 
+        deployment-id="webadmin/ConfigurationData"
+        container-id="Default Stateful Container"/>
 </openejb-jar>

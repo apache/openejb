@@ -40,40 +40,30 @@
  *
  * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
  *
- * $Id$
  */
-package org.openejb.alt.config;
+package org.openejb.admin.web.deploy;
 
-import org.openejb.alt.config.ejb11.EjbRef;
-import org.openejb.alt.config.ejb11.EnvEntry;
-import org.openejb.alt.config.ejb11.ResourceRef;
-import org.openejb.alt.config.ejb11.SecurityRoleRef;
+import java.rmi.RemoteException;
+
+import javax.ejb.EJBObject;
+
+import org.openejb.OpenEJBException;
 
 /**
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
+ *
+ * @author  <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
-public interface Bean {
-
-    public static final String BMP_ENTITY = "BMP_ENTITY";
-    public static final String CMP_ENTITY = "CMP_ENTITY";
-    public static final String STATEFUL   = "STATEFUL";
-    public static final String STATELESS  = "STATELESS";
-
-
-    public String getType();
-    
-    public Object getBean();
-    
-    public String getEjbName();
-    public String getEjbClass();
-    public String getHome();
-    public String getRemote();
-    
-    public EjbRef[] getEjbRef();
-    public EnvEntry[] getEnvEntry();
-    public ResourceRef[] getResourceRef();
-    public SecurityRoleRef[] getSecurityRoleRef();
-
+public interface DeployerObject extends EJBObject {
+	//action methods
+	public void setBooleanValues(boolean[] booleanValues) throws RemoteException;
+	public boolean[] getBooleanValues() throws RemoteException;
+	public void setJarFile(String jarFile) throws RemoteException;
+	public String getJarFile() throws RemoteException;
+	public void startDeployment() throws RemoteException, OpenEJBException;
+	public void finishDeployment() throws RemoteException, OpenEJBException;
+	public String getDeploymentHTML() throws RemoteException;
+	public DeployData[] getDeployDataArray() throws RemoteException;
+	public String createIdTable() throws RemoteException, OpenEJBException;
+	public void setDeployAndContainerIds(DeployData[] deployDataArray)
+		throws RemoteException, OpenEJBException;
 }
-
-

@@ -41,16 +41,65 @@
  * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
  *
  */
-package org.openejb.admin.web;
+package org.openejb.admin.web.deploy;
 
-import java.rmi.RemoteException;
-
-import javax.ejb.CreateException;
+import java.io.Serializable;
 
 /**
- *
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
-public interface DeployerHome extends javax.ejb.EJBHome {
-    public DeployerObject create() throws RemoteException, CreateException;
+public class ReferenceData implements Serializable {
+	public static final String RESOURCE_REFERENCE = "resource_reference";
+	public static final String EJB_REFERENCE = "ejb_reference";
+	
+	private String referenceType;
+	private String referenceIdName;
+	private String referenceIdValue;
+	private String referenceName;
+	private String referenceValue;
+
+	public ReferenceData() {
+		super();
+	}
+
+	public String getReferenceIdName() {
+		return referenceIdName;
+	}
+
+	public String getReferenceIdValue() {
+		return referenceIdValue;
+	}
+
+	public String getReferenceName() {
+		return referenceName;
+	}
+
+	public String getReferenceValue() {
+		return referenceValue;
+	}
+
+	public String getReferenceType() {
+		return referenceType;
+	}
+
+	public void setReferenceIdName(String string) {
+		referenceIdName = string;
+	}
+
+	public void setReferenceIdValue(String string) {
+		referenceIdValue = string;
+	}
+
+	public void setReferenceName(String string) {
+		referenceName = string;
+	}
+
+	public void setReferenceValue(String string) {
+		referenceValue = string;
+	}
+
+	public void setReferenceType(String string) {
+		referenceType = string;
+	}
+
 }

@@ -289,4 +289,22 @@ public class EnvProps {
     * or a property of the Property argument when invoking OpenEJB.init(props).
     */
     public final static String INTRA_VM_COPY = "org/openejb/core/ivm/BaseEjbProxyHandler/INTRA_VM_COPY";
+
+	/** The JdbcDriver string for a connector */
+	public static final String JDBC_DRIVER = "JdbcDriver";
+
+	/** The JdbcUrl string for a connector */
+	public static final String JDBC_URL = "JdbcUrl";
+
+	/** The UserName string for a connector */
+	public static final String USER_NAME = "UserName";
+
+	/** The Password string for a connector */
+	public static final String PASSWORD = "Password";
+
+	/** The Global_TX_Database for CMP beans */
+	public static final String GLOBAL_TX_DATABASE = "Global_TX_Database";
+
+	/** The Local_TX_Database for CMP beans */
+	public static final String LOCAL_TX_DATABASE = "Local_TX_Database";
 }

@@ -41,7 +41,7 @@
  * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
  *
  */
-package org.openejb.admin.web;
+package org.openejb.admin.web.deploy;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -51,6 +51,9 @@ import java.util.HashMap;
 
 import org.openejb.DeploymentInfo;
 import org.openejb.OpenEJB;
+import org.openejb.admin.web.HttpRequest;
+import org.openejb.admin.web.HttpResponse;
+import org.openejb.admin.web.WebAdminBean;
 import org.openejb.alt.assembler.classic.ContainerInfo;
 import org.openejb.alt.assembler.classic.EjbReferenceInfo;
 import org.openejb.alt.assembler.classic.EnterpriseBeanInfo;
@@ -174,7 +177,8 @@ public class DeploymentListBean extends WebAdminBean {
         printRow("Remote Interface", bean.remote, body);
         printRow("Jar location", bean.codebase, body);
 
-        String container = URLEncoder.encode("" + di.getContainer().getContainerID());
+        //String container = URLEncoder.encode("" + di.getContainer().getContainerID());
+		String container = (String)di.getContainer().getContainerID();
         printRow("Deployed in", container, body);
 
         body.println("</table>");

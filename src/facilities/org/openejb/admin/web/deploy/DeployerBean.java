@@ -41,7 +41,7 @@
  * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
  *
  */
-package org.openejb.admin.web;
+package org.openejb.admin.web.deploy;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -49,6 +49,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import javax.ejb.CreateException;
+import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
 import org.openejb.DeploymentInfo;
@@ -83,7 +85,7 @@ import org.openejb.util.StringUtilities;
  *
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
-public class DeployerBean implements javax.ejb.SessionBean {
+public class DeployerBean implements SessionBean {
 	public static final String ALL_FIELDS_REQUIRED_ERROR =
 		"All fields (except OQL parameters) are required, "
 			+ "please hit your back button and fill out the required fields.";
@@ -120,7 +122,7 @@ public class DeployerBean implements javax.ejb.SessionBean {
 	private DeployData[] deployDataArray;
 
 	/** Creates a new instance of DeployerBean */
-	public void ejbCreate() {
+	public void ejbCreate() throws CreateException {
 		try {
 			if (configFile == null) {
 				try {
