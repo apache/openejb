@@ -26,8 +26,9 @@
       <section title="Including your PuTTY binaries in your default PATH">
         <p>
         You have to include the PuTTY binaries mentioned above in
-        your system's default PATH. To do so add a file like the
-        following the your system's PATH environment variable.
+        your system's default PATH. To do so add the path to your
+        PuTTY binaries like the ollowing the your system's PATH
+        environment variable.
         
         <pre><![CDATA[
         set PATH=C:\PROGRAM FILES\PUTTY;%PATH%
@@ -185,7 +186,7 @@
             
             <p>
             From now on the PuTTY SSH agent will log you in to any remote
-            system which has your public key installed on it. No need to ^_NO_ type passwords
+            system which has your public key installed on it. No need to type passwords
             any more.
             </p>
             
