@@ -127,6 +127,16 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-derby-connector</artifactId>
+            <version>&geronimo-version;</version>
+            <type>rar</type>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>&geronimo-version;</version>
             <properties>
