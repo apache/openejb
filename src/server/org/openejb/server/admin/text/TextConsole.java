@@ -72,7 +72,7 @@ public class TextConsole implements Runnable {
     boolean stop = false;
 
     DataInputStream  in  = null;
-    DataOutputStream out = null;
+    PrintStream out = null;
 
     public void start(){
         try{
@@ -153,7 +153,7 @@ public class TextConsole implements Runnable {
                 //...need a security service first
                 
                 DataInputStream  in  = console.getInputStream();
-                DataOutputStream out = console.getOutputStream();
+                PrintStream out = console.getOutputStream();
 
                 while ( !stop ) {
                     exec(in, out);
@@ -167,9 +167,9 @@ public class TextConsole implements Runnable {
         }
     }
 
-    protected void exec(DataInputStream in, DataOutputStream out){
+    protected void exec(DataInputStream in, PrintStream out){
         try {
-            out.writeBytes(PROMPT);
+            out.print(PROMPT);
             out.flush();
 
             String command = in.readLine();
@@ -191,8 +191,8 @@ public class TextConsole implements Runnable {
             Command cmd = Command.getCommand(command);
 
             if (cmd == null) {
-                out.writeBytes(command);
-                out.writeBytes(": command not found\n");
+                out.print(command);
+                out.println(": command not found");
             } else {
                 cmd.exec( args, in, out );
             }
@@ -205,7 +205,7 @@ public class TextConsole implements Runnable {
         }
     }
 
-    protected void badCommand(DataInputStream in, DataOutputStream out) throws IOException{
+    protected void badCommand(DataInputStream in, PrintStream out) throws IOException{
         //asdf: command not found
     }
 }
@@ -214,7 +214,7 @@ public class TextConsole implements Runnable {
 abstract class Console {
 
     DataInputStream  in  = null;
-    DataOutputStream out = null;
+    PrintStream out = null;
 
     public abstract void open() throws IOException;
     public abstract void close() throws IOException;
@@ -223,7 +223,7 @@ abstract class Console {
         return in;
     }
 
-    public DataOutputStream getOutputStream() throws IOException{
+    public PrintStream getOutputStream() throws IOException{
         return out;
     }
 }
@@ -236,10 +236,10 @@ class LocalConsole extends Console{
         if (opened) return;
 
         in  = new DataInputStream(  System.in );
-        out = new DataOutputStream( System.out );
+        out = new PrintStream( System.out );
         
-        out.writeBytes("OpenEJB Remote Server Console\n");
-        out.writeBytes("type \'help\' for a list of commands\n");
+        out.println("OpenEJB Remote Server Console");
+        out.println("type \'help\' for a list of commands");
         
         opened = true;
     }
@@ -252,6 +252,7 @@ class RemoteConsole extends Console{
     
     Socket socket = null; 
     ServerSocket serverSocket = null;
+    byte[] CRLF = new byte[]{(byte) '\r',(byte) '\n' };
 
     public RemoteConsole(){
         try{
@@ -263,11 +264,63 @@ class RemoteConsole extends Console{
 
     public void open() throws IOException {
         socket = serverSocket.accept();
-        out = new DataOutputStream( socket.getOutputStream() );
+        out = new PrintStream( socket.getOutputStream() ){
+                public void println() {
+                        newLine();
+                }
+                public void println(long x) {
+                    synchronized (this) {
+                        print(x);
+                        newLine();
+                    }
+                }
+                public void println(char x) {
+                    synchronized (this) {
+                        print(x);
+                        newLine();
+                    }
+                }
+                public void println(boolean x) {
+                    synchronized (this) {
+                        print(x);
+                        newLine();
+                    }
+                }
+                public void println(float x) {
+                    synchronized (this) {
+                        print(x);
+                        newLine();
+                    }
+                }
+                public void println(double x) {
+                    synchronized (this) {
+                        print(x);
+                        newLine();
+                    }
+                }
+                public void println(int x) {
+                    synchronized (this) {
+                        print(x);
+                        newLine();
+                    }
+                }
+                public void println(char x[]) {
+                    synchronized (this) {
+                        print(x);
+                        newLine();
+                    }
+                }
+                private void newLine(){
+                    try{
+                        this.write(CRLF);
+                    } catch (Exception e){
+                    }
+                }
+        };
         in  = new DataInputStream(  socket.getInputStream() );
 
-        out.writeBytes("OpenEJB Remote Server Console\n");
-        out.writeBytes("type \'help\' for a list of commands\n");
+        out.println("OpenEJB Remote Server Console");
+        out.println("type \'help\' for a list of commands");
     }                              
     
     public void close() throws IOException {

@@ -57,7 +57,7 @@ public class Test extends Command {
         Command.register("test", Test.class);
     }
     
-    public void exec(String[] args, DataInputStream in, DataOutputStream out) throws IOException{
+    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
         try{
             
             InputStream file = new FileInputStream("print.txt");
