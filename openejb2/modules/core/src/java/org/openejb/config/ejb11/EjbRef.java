@@ -1,47 +1,69 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
 package org.openejb.config.ejb11;
 
-  //---------------------------------/
- //- Imported classes and packages -/
+//---------------------------------/
+//- Imported classes and packages -/
 //---------------------------------/
 
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 
 /**
- * 
+ * Class EjbRef.
+ *
  * @version $Revision$ $Date$
-**/
+ */
 public class EjbRef implements java.io.Serializable {
 
 
-      //--------------------------/
-     //- Class/Member Variables -/
+    //--------------------------/
+    //- Class/Member Variables -/
     //--------------------------/
 
+    /**
+     * Field _id
+     */
     private java.lang.String _id;
 
+    /**
+     * Field _description
+     */
     private java.lang.String _description;
 
+    /**
+     * Field _ejbRefName
+     */
     private java.lang.String _ejbRefName;
 
+    /**
+     * Field _ejbRefType
+     */
     private java.lang.String _ejbRefType;
 
+    /**
+     * Field _home
+     */
     private java.lang.String _home;
 
+    /**
+     * Field _remote
+     */
     private java.lang.String _remote;
 
+    /**
+     * Field _ejbLink
+     */
     private java.lang.String _ejbLink;
 
 
-      //----------------/
-     //- Constructors -/
+    //----------------/
+    //- Constructors -/
     //----------------/
 
     public EjbRef() {
@@ -49,172 +71,185 @@ public class EjbRef implements java.io.Serializable {
     } //-- org.openejb.config.ejb11.EjbRef()
 
 
-      //-----------/
-     //- Methods -/
+    //-----------/
+    //- Methods -/
     //-----------/
 
     /**
-    **/
-    public java.lang.String getDescription()
-    {
+     * Returns the value of field 'description'.
+     *
+     * @return the value of field 'description'.
+     */
+    public java.lang.String getDescription() {
         return this._description;
     } //-- java.lang.String getDescription() 
 
     /**
-    **/
-    public java.lang.String getEjbLink()
-    {
+     * Returns the value of field 'ejbLink'.
+     *
+     * @return the value of field 'ejbLink'.
+     */
+    public java.lang.String getEjbLink() {
         return this._ejbLink;
     } //-- java.lang.String getEjbLink() 
 
     /**
-    **/
-    public java.lang.String getEjbRefName()
-    {
+     * Returns the value of field 'ejbRefName'.
+     *
+     * @return the value of field 'ejbRefName'.
+     */
+    public java.lang.String getEjbRefName() {
         return this._ejbRefName;
     } //-- java.lang.String getEjbRefName() 
 
     /**
-    **/
-    public java.lang.String getEjbRefType()
-    {
+     * Returns the value of field 'ejbRefType'.
+     *
+     * @return the value of field 'ejbRefType'.
+     */
+    public java.lang.String getEjbRefType() {
         return this._ejbRefType;
     } //-- java.lang.String getEjbRefType() 
 
     /**
-    **/
-    public java.lang.String getHome()
-    {
+     * Returns the value of field 'home'.
+     *
+     * @return the value of field 'home'.
+     */
+    public java.lang.String getHome() {
         return this._home;
     } //-- java.lang.String getHome() 
 
     /**
-    **/
-    public java.lang.String getId()
-    {
+     * Returns the value of field 'id'.
+     *
+     * @return the value of field 'id'.
+     */
+    public java.lang.String getId() {
         return this._id;
     } //-- java.lang.String getId() 
 
     /**
-    **/
-    public java.lang.String getRemote()
-    {
+     * Returns the value of field 'remote'.
+     *
+     * @return the value of field 'remote'.
+     */
+    public java.lang.String getRemote() {
         return this._remote;
     } //-- java.lang.String getRemote() 
 
     /**
-    **/
-    public boolean isValid()
-    {
+     * Method isValid
+     */
+    public boolean isValid() {
         try {
             validate();
-        }
-        catch (org.exolab.castor.xml.ValidationException vex) {
+        } catch (org.exolab.castor.xml.ValidationException vex) {
             return false;
         }
         return true;
     } //-- boolean isValid() 
 
     /**
-     * 
+     * Method marshal
+     *
      * @param out
-    **/
+     */
     public void marshal(java.io.Writer out)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
-        
+            throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
+
         Marshaller.marshal(this, out);
     } //-- void marshal(java.io.Writer) 
 
     /**
-     * 
+     * Method marshal
+     *
      * @param handler
-    **/
-    public void marshal(org.xml.sax.DocumentHandler handler)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
-        
+     */
+    public void marshal(org.xml.sax.ContentHandler handler)
+            throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
+
         Marshaller.marshal(this, handler);
-    } //-- void marshal(org.xml.sax.DocumentHandler) 
+    } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
-     * 
-     * @param _description
-    **/
-    public void setDescription(java.lang.String _description)
-    {
-        this._description = _description;
+     * Sets the value of field 'description'.
+     *
+     * @param description the value of field 'description'.
+     */
+    public void setDescription(java.lang.String description) {
+        this._description = description;
     } //-- void setDescription(java.lang.String) 
 
     /**
-     * 
-     * @param _ejbLink
-    **/
-    public void setEjbLink(java.lang.String _ejbLink)
-    {
-        this._ejbLink = _ejbLink;
+     * Sets the value of field 'ejbLink'.
+     *
+     * @param ejbLink the value of field 'ejbLink'.
+     */
+    public void setEjbLink(java.lang.String ejbLink) {
+        this._ejbLink = ejbLink;
     } //-- void setEjbLink(java.lang.String) 
 
     /**
-     * 
-     * @param _ejbRefName
-    **/
-    public void setEjbRefName(java.lang.String _ejbRefName)
-    {
-        this._ejbRefName = _ejbRefName;
+     * Sets the value of field 'ejbRefName'.
+     *
+     * @param ejbRefName the value of field 'ejbRefName'.
+     */
+    public void setEjbRefName(java.lang.String ejbRefName) {
+        this._ejbRefName = ejbRefName;
     } //-- void setEjbRefName(java.lang.String) 
 
     /**
-     * 
-     * @param _ejbRefType
-    **/
-    public void setEjbRefType(java.lang.String _ejbRefType)
-    {
-        this._ejbRefType = _ejbRefType;
+     * Sets the value of field 'ejbRefType'.
+     *
+     * @param ejbRefType the value of field 'ejbRefType'.
+     */
+    public void setEjbRefType(java.lang.String ejbRefType) {
+        this._ejbRefType = ejbRefType;
     } //-- void setEjbRefType(java.lang.String) 
 
     /**
-     * 
-     * @param _home
-    **/
-    public void setHome(java.lang.String _home)
-    {
-        this._home = _home;
+     * Sets the value of field 'home'.
+     *
+     * @param home the value of field 'home'.
+     */
+    public void setHome(java.lang.String home) {
+        this._home = home;
     } //-- void setHome(java.lang.String) 
 
     /**
-     * 
-     * @param _id
-    **/
-    public void setId(java.lang.String _id)
-    {
-        this._id = _id;
+     * Sets the value of field 'id'.
+     *
+     * @param id the value of field 'id'.
+     */
+    public void setId(java.lang.String id) {
+        this._id = id;
     } //-- void setId(java.lang.String) 
 
     /**
-     * 
-     * @param _remote
-    **/
-    public void setRemote(java.lang.String _remote)
-    {
-        this._remote = _remote;
+     * Sets the value of field 'remote'.
+     *
+     * @param remote the value of field 'remote'.
+     */
+    public void setRemote(java.lang.String remote) {
+        this._remote = remote;
     } //-- void setRemote(java.lang.String) 
 
     /**
-     * 
+     * Method unmarshal
+     *
      * @param reader
-    **/
-    public static org.openejb.config.ejb11.EjbRef unmarshal(java.io.Reader reader)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
+     */
+    public static java.lang.Object unmarshal(java.io.Reader reader)
+            throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
         return (org.openejb.config.ejb11.EjbRef) Unmarshaller.unmarshal(org.openejb.config.ejb11.EjbRef.class, reader);
-    } //-- org.openejb.config.ejb11.EjbRef unmarshal(java.io.Reader) 
+    } //-- java.lang.Object unmarshal(java.io.Reader) 
 
     /**
-    **/
+     * Method validate
+     */
     public void validate()
-        throws org.exolab.castor.xml.ValidationException
-    {
+            throws org.exolab.castor.xml.ValidationException {
         org.exolab.castor.xml.Validator validator = new org.exolab.castor.xml.Validator();
         validator.validate(this);
     } //-- void validate() 

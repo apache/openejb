@@ -1,14 +1,14 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
 package org.openejb.config.sys;
 
-  //---------------------------------/
- //- Imported classes and packages -/
+//---------------------------------/
+//- Imported classes and packages -/
 //---------------------------------/
 
 import java.util.Vector;
@@ -17,46 +17,75 @@ import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 
 /**
- * 
+ * Class Openejb.
+ *
  * @version $Revision$ $Date$
-**/
+ */
 public class Openejb implements java.io.Serializable {
 
 
-      //--------------------------/
-     //- Class/Member Variables -/
+    //--------------------------/
+    //- Class/Member Variables -/
     //--------------------------/
 
     /**
      * internal content storage
-    **/
+     */
     private java.lang.String _content = "";
 
+    /**
+     * Field _containerList
+     */
     private java.util.Vector _containerList;
 
+    /**
+     * Field _jndiProviderList
+     */
     private java.util.Vector _jndiProviderList;
 
-    private SecurityService _securityService;
+    /**
+     * Field _securityService
+     */
+    private org.openejb.config.sys.SecurityService _securityService;
 
-    private TransactionService _transactionService;
+    /**
+     * Field _transactionService
+     */
+    private org.openejb.config.sys.TransactionService _transactionService;
 
-    private ConnectionManager _connectionManager;
+    /**
+     * Field _connectionManager
+     */
+    private org.openejb.config.sys.ConnectionManager _connectionManager;
 
-    private ProxyFactory _proxyFactory;
+    /**
+     * Field _proxyFactory
+     */
+    private org.openejb.config.sys.ProxyFactory _proxyFactory;
 
+    /**
+     * Field _connectorList
+     */
     private java.util.Vector _connectorList;
 
+    /**
+     * Field _resourceList
+     */
     private java.util.Vector _resourceList;
 
+    /**
+     * Field _deploymentsList
+     */
     private java.util.Vector _deploymentsList;
 
 
-      //----------------/
-     //- Constructors -/
+    //----------------/
+    //- Constructors -/
     //----------------/
 
     public Openejb() {
         super();
+        setContent("");
         _containerList = new Vector();
         _jndiProviderList = new Vector();
         _connectorList = new Vector();
@@ -65,694 +94,693 @@ public class Openejb implements java.io.Serializable {
     } //-- org.openejb.config.sys.Openejb()
 
 
-      //-----------/
-     //- Methods -/
+    //-----------/
+    //- Methods -/
     //-----------/
 
     /**
-     * 
+     * Method addConnector
+     *
      * @param vConnector
-    **/
-    public void addConnector(Connector vConnector)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void addConnector(org.openejb.config.sys.Connector vConnector)
+            throws java.lang.IndexOutOfBoundsException {
         _connectorList.addElement(vConnector);
-    } //-- void addConnector(Connector) 
+    } //-- void addConnector(org.openejb.config.sys.Connector) 
 
     /**
-     * 
+     * Method addConnector
+     *
      * @param index
      * @param vConnector
-    **/
-    public void addConnector(int index, Connector vConnector)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void addConnector(int index, org.openejb.config.sys.Connector vConnector)
+            throws java.lang.IndexOutOfBoundsException {
         _connectorList.insertElementAt(vConnector, index);
-    } //-- void addConnector(int, Connector) 
+    } //-- void addConnector(int, org.openejb.config.sys.Connector) 
 
     /**
-     * 
+     * Method addContainer
+     *
      * @param vContainer
-    **/
-    public void addContainer(Container vContainer)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void addContainer(org.openejb.config.sys.Container vContainer)
+            throws java.lang.IndexOutOfBoundsException {
         _containerList.addElement(vContainer);
-    } //-- void addContainer(Container) 
+    } //-- void addContainer(org.openejb.config.sys.Container) 
 
     /**
-     * 
+     * Method addContainer
+     *
      * @param index
      * @param vContainer
-    **/
-    public void addContainer(int index, Container vContainer)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void addContainer(int index, org.openejb.config.sys.Container vContainer)
+            throws java.lang.IndexOutOfBoundsException {
         _containerList.insertElementAt(vContainer, index);
-    } //-- void addContainer(int, Container) 
+    } //-- void addContainer(int, org.openejb.config.sys.Container) 
 
     /**
-     * 
+     * Method addDeployments
+     *
      * @param vDeployments
-    **/
-    public void addDeployments(Deployments vDeployments)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void addDeployments(org.openejb.config.sys.Deployments vDeployments)
+            throws java.lang.IndexOutOfBoundsException {
         _deploymentsList.addElement(vDeployments);
-    } //-- void addDeployments(Deployments) 
+    } //-- void addDeployments(org.openejb.config.sys.Deployments) 
 
     /**
-     * 
+     * Method addDeployments
+     *
      * @param index
      * @param vDeployments
-    **/
-    public void addDeployments(int index, Deployments vDeployments)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void addDeployments(int index, org.openejb.config.sys.Deployments vDeployments)
+            throws java.lang.IndexOutOfBoundsException {
         _deploymentsList.insertElementAt(vDeployments, index);
-    } //-- void addDeployments(int, Deployments) 
+    } //-- void addDeployments(int, org.openejb.config.sys.Deployments) 
 
     /**
-     * 
+     * Method addJndiProvider
+     *
      * @param vJndiProvider
-    **/
-    public void addJndiProvider(JndiProvider vJndiProvider)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void addJndiProvider(org.openejb.config.sys.JndiProvider vJndiProvider)
+            throws java.lang.IndexOutOfBoundsException {
         _jndiProviderList.addElement(vJndiProvider);
-    } //-- void addJndiProvider(JndiProvider) 
+    } //-- void addJndiProvider(org.openejb.config.sys.JndiProvider) 
 
     /**
-     * 
+     * Method addJndiProvider
+     *
      * @param index
      * @param vJndiProvider
-    **/
-    public void addJndiProvider(int index, JndiProvider vJndiProvider)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void addJndiProvider(int index, org.openejb.config.sys.JndiProvider vJndiProvider)
+            throws java.lang.IndexOutOfBoundsException {
         _jndiProviderList.insertElementAt(vJndiProvider, index);
-    } //-- void addJndiProvider(int, JndiProvider) 
+    } //-- void addJndiProvider(int, org.openejb.config.sys.JndiProvider) 
 
     /**
-     * 
+     * Method addResource
+     *
      * @param vResource
-    **/
-    public void addResource(Resource vResource)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void addResource(org.openejb.config.sys.Resource vResource)
+            throws java.lang.IndexOutOfBoundsException {
         _resourceList.addElement(vResource);
-    } //-- void addResource(Resource) 
+    } //-- void addResource(org.openejb.config.sys.Resource) 
 
     /**
-     * 
+     * Method addResource
+     *
      * @param index
      * @param vResource
-    **/
-    public void addResource(int index, Resource vResource)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void addResource(int index, org.openejb.config.sys.Resource vResource)
+            throws java.lang.IndexOutOfBoundsException {
         _resourceList.insertElementAt(vResource, index);
-    } //-- void addResource(int, Resource) 
+    } //-- void addResource(int, org.openejb.config.sys.Resource) 
 
     /**
-    **/
-    public java.util.Enumeration enumerateConnector()
-    {
+     * Method enumerateConnector
+     */
+    public java.util.Enumeration enumerateConnector() {
         return _connectorList.elements();
     } //-- java.util.Enumeration enumerateConnector() 
 
     /**
-    **/
-    public java.util.Enumeration enumerateContainer()
-    {
+     * Method enumerateContainer
+     */
+    public java.util.Enumeration enumerateContainer() {
         return _containerList.elements();
     } //-- java.util.Enumeration enumerateContainer() 
 
     /**
-    **/
-    public java.util.Enumeration enumerateDeployments()
-    {
+     * Method enumerateDeployments
+     */
+    public java.util.Enumeration enumerateDeployments() {
         return _deploymentsList.elements();
     } //-- java.util.Enumeration enumerateDeployments() 
 
     /**
-    **/
-    public java.util.Enumeration enumerateJndiProvider()
-    {
+     * Method enumerateJndiProvider
+     */
+    public java.util.Enumeration enumerateJndiProvider() {
         return _jndiProviderList.elements();
     } //-- java.util.Enumeration enumerateJndiProvider() 
 
     /**
-    **/
-    public java.util.Enumeration enumerateResource()
-    {
+     * Method enumerateResource
+     */
+    public java.util.Enumeration enumerateResource() {
         return _resourceList.elements();
     } //-- java.util.Enumeration enumerateResource() 
 
     /**
      * Returns the value of field 'connectionManager'.
+     *
      * @return the value of field 'connectionManager'.
-    **/
-    public ConnectionManager getConnectionManager()
-    {
+     */
+    public org.openejb.config.sys.ConnectionManager getConnectionManager() {
         return this._connectionManager;
-    } //-- ConnectionManager getConnectionManager() 
+    } //-- org.openejb.config.sys.ConnectionManager getConnectionManager() 
 
     /**
-     * 
+     * Method getConnector
+     *
      * @param index
-    **/
-    public Connector getConnector(int index)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public org.openejb.config.sys.Connector getConnector(int index)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _connectorList.size())) {
             throw new IndexOutOfBoundsException();
         }
-        
-        return (Connector) _connectorList.elementAt(index);
-    } //-- Connector getConnector(int) 
+
+        return (org.openejb.config.sys.Connector) _connectorList.elementAt(index);
+    } //-- org.openejb.config.sys.Connector getConnector(int) 
 
     /**
-    **/
-    public Connector[] getConnector()
-    {
+     * Method getConnector
+     */
+    public org.openejb.config.sys.Connector[] getConnector() {
         int size = _connectorList.size();
-        Connector[] mArray = new Connector[size];
+        org.openejb.config.sys.Connector[] mArray = new org.openejb.config.sys.Connector[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (Connector) _connectorList.elementAt(index);
+            mArray[index] = (org.openejb.config.sys.Connector) _connectorList.elementAt(index);
         }
         return mArray;
-    } //-- Connector[] getConnector() 
+    } //-- org.openejb.config.sys.Connector[] getConnector() 
 
     /**
-    **/
-    public int getConnectorCount()
-    {
+     * Method getConnectorCount
+     */
+    public int getConnectorCount() {
         return _connectorList.size();
     } //-- int getConnectorCount() 
 
     /**
-     * 
+     * Method getContainer
+     *
      * @param index
-    **/
-    public Container getContainer(int index)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public org.openejb.config.sys.Container getContainer(int index)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _containerList.size())) {
             throw new IndexOutOfBoundsException();
         }
-        
-        return (Container) _containerList.elementAt(index);
-    } //-- Container getContainer(int) 
+
+        return (org.openejb.config.sys.Container) _containerList.elementAt(index);
+    } //-- org.openejb.config.sys.Container getContainer(int) 
 
     /**
-    **/
-    public Container[] getContainer()
-    {
+     * Method getContainer
+     */
+    public org.openejb.config.sys.Container[] getContainer() {
         int size = _containerList.size();
-        Container[] mArray = new Container[size];
+        org.openejb.config.sys.Container[] mArray = new org.openejb.config.sys.Container[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (Container) _containerList.elementAt(index);
+            mArray[index] = (org.openejb.config.sys.Container) _containerList.elementAt(index);
         }
         return mArray;
-    } //-- Container[] getContainer() 
+    } //-- org.openejb.config.sys.Container[] getContainer() 
 
     /**
-    **/
-    public int getContainerCount()
-    {
+     * Method getContainerCount
+     */
+    public int getContainerCount() {
         return _containerList.size();
     } //-- int getContainerCount() 
 
     /**
      * Returns the value of field 'content'. The field 'content'
      * has the following description: internal content storage
+     *
      * @return the value of field 'content'.
-    **/
-    public java.lang.String getContent()
-    {
+     */
+    public java.lang.String getContent() {
         return this._content;
     } //-- java.lang.String getContent() 
 
     /**
-     * 
+     * Method getDeployments
+     *
      * @param index
-    **/
-    public Deployments getDeployments(int index)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public org.openejb.config.sys.Deployments getDeployments(int index)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _deploymentsList.size())) {
             throw new IndexOutOfBoundsException();
         }
-        
-        return (Deployments) _deploymentsList.elementAt(index);
-    } //-- Deployments getDeployments(int) 
+
+        return (org.openejb.config.sys.Deployments) _deploymentsList.elementAt(index);
+    } //-- org.openejb.config.sys.Deployments getDeployments(int) 
 
     /**
-    **/
-    public Deployments[] getDeployments()
-    {
+     * Method getDeployments
+     */
+    public org.openejb.config.sys.Deployments[] getDeployments() {
         int size = _deploymentsList.size();
-        Deployments[] mArray = new Deployments[size];
+        org.openejb.config.sys.Deployments[] mArray = new org.openejb.config.sys.Deployments[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (Deployments) _deploymentsList.elementAt(index);
+            mArray[index] = (org.openejb.config.sys.Deployments) _deploymentsList.elementAt(index);
         }
         return mArray;
-    } //-- Deployments[] getDeployments() 
+    } //-- org.openejb.config.sys.Deployments[] getDeployments() 
 
     /**
-    **/
-    public int getDeploymentsCount()
-    {
+     * Method getDeploymentsCount
+     */
+    public int getDeploymentsCount() {
         return _deploymentsList.size();
     } //-- int getDeploymentsCount() 
 
     /**
-     * 
+     * Method getJndiProvider
+     *
      * @param index
-    **/
-    public JndiProvider getJndiProvider(int index)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public org.openejb.config.sys.JndiProvider getJndiProvider(int index)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _jndiProviderList.size())) {
             throw new IndexOutOfBoundsException();
         }
-        
-        return (JndiProvider) _jndiProviderList.elementAt(index);
-    } //-- JndiProvider getJndiProvider(int) 
+
+        return (org.openejb.config.sys.JndiProvider) _jndiProviderList.elementAt(index);
+    } //-- org.openejb.config.sys.JndiProvider getJndiProvider(int) 
 
     /**
-    **/
-    public JndiProvider[] getJndiProvider()
-    {
+     * Method getJndiProvider
+     */
+    public org.openejb.config.sys.JndiProvider[] getJndiProvider() {
         int size = _jndiProviderList.size();
-        JndiProvider[] mArray = new JndiProvider[size];
+        org.openejb.config.sys.JndiProvider[] mArray = new org.openejb.config.sys.JndiProvider[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (JndiProvider) _jndiProviderList.elementAt(index);
+            mArray[index] = (org.openejb.config.sys.JndiProvider) _jndiProviderList.elementAt(index);
         }
         return mArray;
-    } //-- JndiProvider[] getJndiProvider() 
+    } //-- org.openejb.config.sys.JndiProvider[] getJndiProvider() 
 
     /**
-    **/
-    public int getJndiProviderCount()
-    {
+     * Method getJndiProviderCount
+     */
+    public int getJndiProviderCount() {
         return _jndiProviderList.size();
     } //-- int getJndiProviderCount() 
 
     /**
      * Returns the value of field 'proxyFactory'.
+     *
      * @return the value of field 'proxyFactory'.
-    **/
-    public ProxyFactory getProxyFactory()
-    {
+     */
+    public org.openejb.config.sys.ProxyFactory getProxyFactory() {
         return this._proxyFactory;
-    } //-- ProxyFactory getProxyFactory() 
+    } //-- org.openejb.config.sys.ProxyFactory getProxyFactory() 
 
     /**
-     * 
+     * Method getResource
+     *
      * @param index
-    **/
-    public Resource getResource(int index)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public org.openejb.config.sys.Resource getResource(int index)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _resourceList.size())) {
             throw new IndexOutOfBoundsException();
         }
-        
-        return (Resource) _resourceList.elementAt(index);
-    } //-- Resource getResource(int) 
+
+        return (org.openejb.config.sys.Resource) _resourceList.elementAt(index);
+    } //-- org.openejb.config.sys.Resource getResource(int) 
 
     /**
-    **/
-    public Resource[] getResource()
-    {
+     * Method getResource
+     */
+    public org.openejb.config.sys.Resource[] getResource() {
         int size = _resourceList.size();
-        Resource[] mArray = new Resource[size];
+        org.openejb.config.sys.Resource[] mArray = new org.openejb.config.sys.Resource[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (Resource) _resourceList.elementAt(index);
+            mArray[index] = (org.openejb.config.sys.Resource) _resourceList.elementAt(index);
         }
         return mArray;
-    } //-- Resource[] getResource() 
+    } //-- org.openejb.config.sys.Resource[] getResource() 
 
     /**
-    **/
-    public int getResourceCount()
-    {
+     * Method getResourceCount
+     */
+    public int getResourceCount() {
         return _resourceList.size();
     } //-- int getResourceCount() 
 
     /**
      * Returns the value of field 'securityService'.
+     *
      * @return the value of field 'securityService'.
-    **/
-    public SecurityService getSecurityService()
-    {
+     */
+    public org.openejb.config.sys.SecurityService getSecurityService() {
         return this._securityService;
-    } //-- SecurityService getSecurityService() 
+    } //-- org.openejb.config.sys.SecurityService getSecurityService() 
 
     /**
      * Returns the value of field 'transactionService'.
+     *
      * @return the value of field 'transactionService'.
-    **/
-    public TransactionService getTransactionService()
-    {
+     */
+    public org.openejb.config.sys.TransactionService getTransactionService() {
         return this._transactionService;
-    } //-- TransactionService getTransactionService() 
+    } //-- org.openejb.config.sys.TransactionService getTransactionService() 
 
     /**
-    **/
-    public boolean isValid()
-    {
+     * Method isValid
+     */
+    public boolean isValid() {
         try {
             validate();
-        }
-        catch (org.exolab.castor.xml.ValidationException vex) {
+        } catch (org.exolab.castor.xml.ValidationException vex) {
             return false;
         }
         return true;
     } //-- boolean isValid() 
 
     /**
-     * 
+     * Method marshal
+     *
      * @param out
-    **/
+     */
     public void marshal(java.io.Writer out)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
-        
+            throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
+
         Marshaller.marshal(this, out);
     } //-- void marshal(java.io.Writer) 
 
     /**
-     * 
+     * Method marshal
+     *
      * @param handler
-    **/
-    public void marshal(org.xml.sax.DocumentHandler handler)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
-        
+     */
+    public void marshal(org.xml.sax.ContentHandler handler)
+            throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
+
         Marshaller.marshal(this, handler);
-    } //-- void marshal(org.xml.sax.DocumentHandler) 
+    } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
-    **/
-    public void removeAllConnector()
-    {
+     * Method removeAllConnector
+     */
+    public void removeAllConnector() {
         _connectorList.removeAllElements();
     } //-- void removeAllConnector() 
 
     /**
-    **/
-    public void removeAllContainer()
-    {
+     * Method removeAllContainer
+     */
+    public void removeAllContainer() {
         _containerList.removeAllElements();
     } //-- void removeAllContainer() 
 
     /**
-    **/
-    public void removeAllDeployments()
-    {
+     * Method removeAllDeployments
+     */
+    public void removeAllDeployments() {
         _deploymentsList.removeAllElements();
     } //-- void removeAllDeployments() 
 
     /**
-    **/
-    public void removeAllJndiProvider()
-    {
+     * Method removeAllJndiProvider
+     */
+    public void removeAllJndiProvider() {
         _jndiProviderList.removeAllElements();
     } //-- void removeAllJndiProvider() 
 
     /**
-    **/
-    public void removeAllResource()
-    {
+     * Method removeAllResource
+     */
+    public void removeAllResource() {
         _resourceList.removeAllElements();
     } //-- void removeAllResource() 
 
     /**
-     * 
+     * Method removeConnector
+     *
      * @param index
-    **/
-    public Connector removeConnector(int index)
-    {
+     */
+    public org.openejb.config.sys.Connector removeConnector(int index) {
         java.lang.Object obj = _connectorList.elementAt(index);
         _connectorList.removeElementAt(index);
-        return (Connector) obj;
-    } //-- Connector removeConnector(int) 
+        return (org.openejb.config.sys.Connector) obj;
+    } //-- org.openejb.config.sys.Connector removeConnector(int) 
 
     /**
-     * 
+     * Method removeContainer
+     *
      * @param index
-    **/
-    public Container removeContainer(int index)
-    {
+     */
+    public org.openejb.config.sys.Container removeContainer(int index) {
         java.lang.Object obj = _containerList.elementAt(index);
         _containerList.removeElementAt(index);
-        return (Container) obj;
-    } //-- Container removeContainer(int) 
+        return (org.openejb.config.sys.Container) obj;
+    } //-- org.openejb.config.sys.Container removeContainer(int) 
 
     /**
-     * 
+     * Method removeDeployments
+     *
      * @param index
-    **/
-    public Deployments removeDeployments(int index)
-    {
+     */
+    public org.openejb.config.sys.Deployments removeDeployments(int index) {
         java.lang.Object obj = _deploymentsList.elementAt(index);
         _deploymentsList.removeElementAt(index);
-        return (Deployments) obj;
-    } //-- Deployments removeDeployments(int) 
+        return (org.openejb.config.sys.Deployments) obj;
+    } //-- org.openejb.config.sys.Deployments removeDeployments(int) 
 
     /**
-     * 
+     * Method removeJndiProvider
+     *
      * @param index
-    **/
-    public JndiProvider removeJndiProvider(int index)
-    {
+     */
+    public org.openejb.config.sys.JndiProvider removeJndiProvider(int index) {
         java.lang.Object obj = _jndiProviderList.elementAt(index);
         _jndiProviderList.removeElementAt(index);
-        return (JndiProvider) obj;
-    } //-- JndiProvider removeJndiProvider(int) 
+        return (org.openejb.config.sys.JndiProvider) obj;
+    } //-- org.openejb.config.sys.JndiProvider removeJndiProvider(int) 
 
     /**
-     * 
+     * Method removeResource
+     *
      * @param index
-    **/
-    public Resource removeResource(int index)
-    {
+     */
+    public org.openejb.config.sys.Resource removeResource(int index) {
         java.lang.Object obj = _resourceList.elementAt(index);
         _resourceList.removeElementAt(index);
-        return (Resource) obj;
-    } //-- Resource removeResource(int) 
+        return (org.openejb.config.sys.Resource) obj;
+    } //-- org.openejb.config.sys.Resource removeResource(int) 
 
     /**
      * Sets the value of field 'connectionManager'.
+     *
      * @param connectionManager the value of field
-     * 'connectionManager'.
-    **/
-    public void setConnectionManager(ConnectionManager connectionManager)
-    {
+     *                          'connectionManager'.
+     */
+    public void setConnectionManager(org.openejb.config.sys.ConnectionManager connectionManager) {
         this._connectionManager = connectionManager;
-    } //-- void setConnectionManager(ConnectionManager) 
+    } //-- void setConnectionManager(org.openejb.config.sys.ConnectionManager) 
 
     /**
-     * 
+     * Method setConnector
+     *
      * @param index
      * @param vConnector
-    **/
-    public void setConnector(int index, Connector vConnector)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void setConnector(int index, org.openejb.config.sys.Connector vConnector)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _connectorList.size())) {
             throw new IndexOutOfBoundsException();
         }
         _connectorList.setElementAt(vConnector, index);
-    } //-- void setConnector(int, Connector) 
+    } //-- void setConnector(int, org.openejb.config.sys.Connector) 
 
     /**
-     * 
+     * Method setConnector
+     *
      * @param connectorArray
-    **/
-    public void setConnector(Connector[] connectorArray)
-    {
+     */
+    public void setConnector(org.openejb.config.sys.Connector[] connectorArray) {
         //-- copy array
         _connectorList.removeAllElements();
         for (int i = 0; i < connectorArray.length; i++) {
             _connectorList.addElement(connectorArray[i]);
         }
-    } //-- void setConnector(Connector) 
+    } //-- void setConnector(org.openejb.config.sys.Connector) 
 
     /**
-     * 
+     * Method setContainer
+     *
      * @param index
      * @param vContainer
-    **/
-    public void setContainer(int index, Container vContainer)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void setContainer(int index, org.openejb.config.sys.Container vContainer)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _containerList.size())) {
             throw new IndexOutOfBoundsException();
         }
         _containerList.setElementAt(vContainer, index);
-    } //-- void setContainer(int, Container) 
+    } //-- void setContainer(int, org.openejb.config.sys.Container) 
 
     /**
-     * 
+     * Method setContainer
+     *
      * @param containerArray
-    **/
-    public void setContainer(Container[] containerArray)
-    {
+     */
+    public void setContainer(org.openejb.config.sys.Container[] containerArray) {
         //-- copy array
         _containerList.removeAllElements();
         for (int i = 0; i < containerArray.length; i++) {
             _containerList.addElement(containerArray[i]);
         }
-    } //-- void setContainer(Container) 
+    } //-- void setContainer(org.openejb.config.sys.Container) 
 
     /**
      * Sets the value of field 'content'. The field 'content' has
      * the following description: internal content storage
+     *
      * @param content the value of field 'content'.
-    **/
-    public void setContent(java.lang.String content)
-    {
+     */
+    public void setContent(java.lang.String content) {
         this._content = content;
     } //-- void setContent(java.lang.String) 
 
     /**
-     * 
+     * Method setDeployments
+     *
      * @param index
      * @param vDeployments
-    **/
-    public void setDeployments(int index, Deployments vDeployments)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void setDeployments(int index, org.openejb.config.sys.Deployments vDeployments)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _deploymentsList.size())) {
             throw new IndexOutOfBoundsException();
         }
         _deploymentsList.setElementAt(vDeployments, index);
-    } //-- void setDeployments(int, Deployments) 
+    } //-- void setDeployments(int, org.openejb.config.sys.Deployments) 
 
     /**
-     * 
+     * Method setDeployments
+     *
      * @param deploymentsArray
-    **/
-    public void setDeployments(Deployments[] deploymentsArray)
-    {
+     */
+    public void setDeployments(org.openejb.config.sys.Deployments[] deploymentsArray) {
         //-- copy array
         _deploymentsList.removeAllElements();
         for (int i = 0; i < deploymentsArray.length; i++) {
             _deploymentsList.addElement(deploymentsArray[i]);
         }
-    } //-- void setDeployments(Deployments) 
+    } //-- void setDeployments(org.openejb.config.sys.Deployments) 
 
     /**
-     * 
+     * Method setJndiProvider
+     *
      * @param index
      * @param vJndiProvider
-    **/
-    public void setJndiProvider(int index, JndiProvider vJndiProvider)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void setJndiProvider(int index, org.openejb.config.sys.JndiProvider vJndiProvider)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _jndiProviderList.size())) {
             throw new IndexOutOfBoundsException();
         }
         _jndiProviderList.setElementAt(vJndiProvider, index);
-    } //-- void setJndiProvider(int, JndiProvider) 
+    } //-- void setJndiProvider(int, org.openejb.config.sys.JndiProvider) 
 
     /**
-     * 
+     * Method setJndiProvider
+     *
      * @param jndiProviderArray
-    **/
-    public void setJndiProvider(JndiProvider[] jndiProviderArray)
-    {
+     */
+    public void setJndiProvider(org.openejb.config.sys.JndiProvider[] jndiProviderArray) {
         //-- copy array
         _jndiProviderList.removeAllElements();
         for (int i = 0; i < jndiProviderArray.length; i++) {
             _jndiProviderList.addElement(jndiProviderArray[i]);
         }
-    } //-- void setJndiProvider(JndiProvider) 
+    } //-- void setJndiProvider(org.openejb.config.sys.JndiProvider) 
 
     /**
      * Sets the value of field 'proxyFactory'.
+     *
      * @param proxyFactory the value of field 'proxyFactory'.
-    **/
-    public void setProxyFactory(ProxyFactory proxyFactory)
-    {
+     */
+    public void setProxyFactory(org.openejb.config.sys.ProxyFactory proxyFactory) {
         this._proxyFactory = proxyFactory;
-    } //-- void setProxyFactory(ProxyFactory) 
+    } //-- void setProxyFactory(org.openejb.config.sys.ProxyFactory) 
 
     /**
-     * 
+     * Method setResource
+     *
      * @param index
      * @param vResource
-    **/
-    public void setResource(int index, Resource vResource)
-        throws java.lang.IndexOutOfBoundsException
-    {
+     */
+    public void setResource(int index, org.openejb.config.sys.Resource vResource)
+            throws java.lang.IndexOutOfBoundsException {
         //-- check bounds for index
         if ((index < 0) || (index > _resourceList.size())) {
             throw new IndexOutOfBoundsException();
         }
         _resourceList.setElementAt(vResource, index);
-    } //-- void setResource(int, Resource) 
+    } //-- void setResource(int, org.openejb.config.sys.Resource) 
 
     /**
-     * 
+     * Method setResource
+     *
      * @param resourceArray
-    **/
-    public void setResource(Resource[] resourceArray)
-    {
+     */
+    public void setResource(org.openejb.config.sys.Resource[] resourceArray) {
         //-- copy array
         _resourceList.removeAllElements();
         for (int i = 0; i < resourceArray.length; i++) {
             _resourceList.addElement(resourceArray[i]);
         }
-    } //-- void setResource(Resource) 
+    } //-- void setResource(org.openejb.config.sys.Resource) 
 
     /**
      * Sets the value of field 'securityService'.
+     *
      * @param securityService the value of field 'securityService'.
-    **/
-    public void setSecurityService(SecurityService securityService)
-    {
+     */
+    public void setSecurityService(org.openejb.config.sys.SecurityService securityService) {
         this._securityService = securityService;
-    } //-- void setSecurityService(SecurityService) 
+    } //-- void setSecurityService(org.openejb.config.sys.SecurityService) 
 
     /**
      * Sets the value of field 'transactionService'.
+     *
      * @param transactionService the value of field
-     * 'transactionService'.
-    **/
-    public void setTransactionService(TransactionService transactionService)
-    {
+     *                           'transactionService'.
+     */
+    public void setTransactionService(org.openejb.config.sys.TransactionService transactionService) {
         this._transactionService = transactionService;
-    } //-- void setTransactionService(TransactionService) 
+    } //-- void setTransactionService(org.openejb.config.sys.TransactionService) 
 
     /**
-     * 
+     * Method unmarshal
+     *
      * @param reader
-    **/
-    public static org.openejb.config.sys.Openejb unmarshal(java.io.Reader reader)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
-    {
+     */
+    public static java.lang.Object unmarshal(java.io.Reader reader)
+            throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
         return (org.openejb.config.sys.Openejb) Unmarshaller.unmarshal(org.openejb.config.sys.Openejb.class, reader);
-    } //-- org.openejb.config.sys.Openejb unmarshal(java.io.Reader) 
+    } //-- java.lang.Object unmarshal(java.io.Reader) 
 
     /**
-    **/
+     * Method validate
+     */
     public void validate()
-        throws org.exolab.castor.xml.ValidationException
-    {
+            throws org.exolab.castor.xml.ValidationException {
         org.exolab.castor.xml.Validator validator = new org.exolab.castor.xml.Validator();
         validator.validate(this);
     } //-- void validate() 
