@@ -59,7 +59,7 @@ public class Test extends Command {
         Command.register("test", Test.class);
     }
 
-    public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
+    public void exec(Arguments args, DataInputStream in, PrintStream out) throws IOException{
         try{
 
             InputStream file = new FileInputStream("print.txt");
