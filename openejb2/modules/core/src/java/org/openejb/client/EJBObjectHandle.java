@@ -103,8 +103,6 @@ public class EJBObjectHandle implements java.io.Externalizable , javax.ejb.Handl
     public void writeExternal(ObjectOutput out) throws IOException{
 
         // Write the full proxy data
-        handler.client.writeExternal( out );
-        
         EJBMetaDataImpl ejb = handler.ejb;
         out.writeObject( ejb.homeClass );
         out.writeObject( ejb.remoteClass );
@@ -139,7 +137,7 @@ public class EJBObjectHandle implements java.io.Externalizable , javax.ejb.Handl
         server.readExternal( in );
         Object primaryKey  = in.readObject();
 
-        handler = EJBObjectHandler.createEJBObjectHandler(ejb, server, client, primaryKey);
+        handler = EJBObjectHandler.createEJBObjectHandler(ejb, server, primaryKey);
         ejbObjectProxy = handler.createEJBObjectProxy();
     }
 

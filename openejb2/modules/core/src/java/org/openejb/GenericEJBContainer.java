@@ -56,6 +56,7 @@ import javax.management.ObjectName;
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
+import javax.security.auth.Subject;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.security.Permissions;
@@ -82,6 +83,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
@@ -108,6 +110,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
     private final SecurityConfiguration securityConfiguration;
     private transient PolicyConfiguration policyConfiguration;
+    private transient Subject defaultSubject;
     private final BasicTimerService timerService;
 
 
@@ -126,7 +129,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
                                ThreadPooledTimer timer,
                                String objectName,
                                Kernel kernel,
-                               SecurityConfiguration securityConfiguration) throws Exception {
+                               SecurityConfiguration securityConfiguration,
+                               Subject defaultSubject) throws Exception {
 
         assert (containerId != null);
         assert (ejbName != null && ejbName.length() > 0);
@@ -175,6 +179,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         }
 
         this.securityConfiguration = securityConfiguration;
+        this.defaultSubject = defaultSubject;
 
         // TODO maybe there is a more suitable place to do this.  Maybe not.
 
@@ -272,6 +277,10 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         return proxyInfo;
     }
 
+    public Subject getDefaultSubject() {
+        return defaultSubject;
+    }
+
     public EJBProxyFactory getProxyFactory() {
         return proxyFactory;
     }
@@ -317,6 +326,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
             timerService.doStart();
         }
 
+        if (defaultSubject != null) ContextManager.registerSubject(defaultSubject);
+
         if (this.securityConfiguration != null) {
             /**
              * Get the JACC policy configuration that's associated with this
@@ -356,6 +367,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         if (timerService != null) {
             timerService.doStop();
         }
+
+        if (defaultSubject != null) ContextManager.unregisterSubject(defaultSubject);
 
         if (this.securityConfiguration != null) {
             /**
@@ -414,6 +427,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addAttribute("unmanagedReference", EJBContainer.class, false);
 
         infoFactory.addAttribute("SecurityConfiguration", SecurityConfiguration.class, true);
+        infoFactory.addAttribute("DefaultSubject", Subject.class, true);
 
         infoFactory.setConstructor(new String[]{
             "ContainerID",
@@ -431,7 +445,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
             "Timer",
             "objectName",
             "kernel",
-            "SecurityConfiguration"});
+            "SecurityConfiguration",
+            "DefaultSubject"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

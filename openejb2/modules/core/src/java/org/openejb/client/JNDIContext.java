@@ -68,7 +68,6 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
     
     private transient String tail = "/";
     private transient ServerMetaData server;
-    private transient ClientMetaData client;
     private transient Hashtable env;
 
     /**
@@ -96,7 +95,6 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
     public JNDIContext(JNDIContext that){
         this.tail   = that.tail;    
         this.server = that.server;
-        this.client = that.client;
         this.env    = (Hashtable)that.env.clone();
     }
 
@@ -209,11 +207,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
 	}
         
         switch (res.getResponseCode()) {
-            case AUTH_GRANTED:
-                client = res.getIdentity();
-                break;
             case AUTH_REDIRECT:
-                client = res.getIdentity();
                 server = res.getServer();
                 break;
             case AUTH_DENIED:
@@ -224,7 +218,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
     // Construct a new handler and proxy.
     public EJBHomeProxy createEJBHomeProxy(EJBMetaDataImpl ejbData){
         
-        EJBHomeHandler handler = EJBHomeHandler.createEJBHomeHandler(ejbData, server, client);
+        EJBHomeHandler handler = EJBHomeHandler.createEJBHomeHandler(ejbData, server);
         EJBHomeProxy proxy = handler.createEJBHomeProxy();
         handler.ejb.ejbHomeProxy = proxy;
         

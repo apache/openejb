@@ -89,6 +89,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private String localInterfaceName;
     private String serviceEndpointName;
     private String primaryKeyClassName;
+    private Subject defaultSubject;
     private Subject runAs;
     private boolean doAsCurrentCaller = false;
     private boolean securityEnabled = false;
@@ -186,6 +187,14 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
 
     public void setPrimaryKeyClassName(String primaryKeyClassName) {
         this.primaryKeyClassName = primaryKeyClassName;
+    }
+
+    public Subject getDefaultSubject() {
+        return defaultSubject;
+    }
+
+    public void setDefaultSubject(Subject defaultSubject) {
+        this.defaultSubject = defaultSubject;
     }
 
     public Subject getRunAs() {
@@ -393,7 +402,8 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 null, //timer
                 null, //objectname
                 null, //kernel
-                getSecurityConfiguration());
+                getSecurityConfiguration(),
+                getDefaultSubject());
     }
 
     protected GBeanMBean createConfiguration(
@@ -416,6 +426,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         gbean.setAttribute("LocalJndiNames", getLocalJndiNames());
         gbean.setReferencePattern("Timer", timerName);
         gbean.setAttribute("SecurityConfiguration", getSecurityConfiguration());
+        gbean.setAttribute("DefaultSubject", getDefaultSubject());
 
         return gbean;
     }

@@ -60,6 +60,10 @@ import org.openejb.security.SecurityConfiguration;
  */
 public interface SecureBuilder extends ResourceEnvironmentBuilder {
 
+    Subject getDefaultSubject();
+
+    void setDefaultSubject(Subject defaultSubject);
+
     Subject getRunAs();
 
     void setRunAs(Subject runAs);

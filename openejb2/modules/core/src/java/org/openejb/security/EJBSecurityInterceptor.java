@@ -85,14 +85,14 @@ public class EJBSecurityInterceptor implements Interceptor {
         Subject subject = ContextManager.getCurrentCaller();
         String oldPolicyContextID = PolicyContext.getContextID();
         try {
-            ContextManager.setCurrentCaller(ContextManager.getNextCaller());
-            // @todo should setContainerId take an object?
             PolicyContext.setContextID(contextId.toString());
             AccessControlContext accessContext = ContextManager.getCurrentContext();
             if (accessContext != null) {
                 Permission permission = permissionManager.getPermission(ejbInvocation.getType(), ejbInvocation.getMethodIndex());
                 accessContext.checkPermission(permission);
             }
+
+            ContextManager.setCurrentCaller(ContextManager.getNextCaller());
 
             return next.invoke(invocation);
         } catch (AccessControlException e) {

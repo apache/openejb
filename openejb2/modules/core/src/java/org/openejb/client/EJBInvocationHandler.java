@@ -128,12 +128,7 @@ public abstract class EJBInvocationHandler implements MethodInterceptor, Invocat
      * send invokations to the EJB Server.
      */
     protected transient ServerMetaData server;
-    /**
-     * The ClientMetaData object containing the information aquired from
-     * the server after authenticating.
-     */
-    protected transient ClientMetaData client;
-    
+
     /**
      * The primary key of the bean deployment or null if the deployment
      * is a bean type that doesn't require a primary key
@@ -146,14 +141,13 @@ public abstract class EJBInvocationHandler implements MethodInterceptor, Invocat
     public EJBInvocationHandler(){
     }
     
-    public EJBInvocationHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client){
+    public EJBInvocationHandler(EJBMetaDataImpl ejb, ServerMetaData server){
         this.ejb        = ejb;
         this.server     = server;
-        this.client     = client;
     }
     
-    public EJBInvocationHandler(EJBMetaDataImpl ejb, ServerMetaData server, ClientMetaData client, Object primaryKey){
-        this(ejb, server, client);
+    public EJBInvocationHandler(EJBMetaDataImpl ejb, ServerMetaData server, Object primaryKey){
+        this(ejb, server);
         this.primaryKey = primaryKey;
     }
 
@@ -222,7 +216,6 @@ public abstract class EJBInvocationHandler implements MethodInterceptor, Invocat
      */
     protected void invalidateReference(){
         this.server     = null;
-        this.client     = null;
         this.ejb        = null;
         this.inProxyMap = false;
         this.isInvalidReference = true;

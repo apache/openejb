@@ -70,7 +70,6 @@ class AuthRequestHandler implements ResponseCodes, RequestMethods {
 
             client.setClientIdentity(new String((String) req.getPrinciple()));
 
-            res.setIdentity(client);
             res.setResponseCode(AUTH_GRANTED);
 
             res.writeExternal(out);
