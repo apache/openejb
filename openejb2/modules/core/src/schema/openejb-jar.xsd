@@ -56,6 +56,7 @@
 
     <xs:include schemaLocation="geronimo-naming.xsd"/>
     <xs:include schemaLocation="geronimo-common.xsd"/>
+    <xs:include schemaLocation="geronimo-security.xsd"/>
 
     <!--
     todo for some reason this has to be redeclared with a different name just to make name resolution happy....
@@ -95,6 +96,7 @@
             </xs:element>
 
             <xs:element name="gbean" type="openejb:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="security" type="openejb:securityType" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute name="configId" type="xs:string" use="required"/>
         <xs:attribute name="parentId" type="xs:string" use="optional"/>
