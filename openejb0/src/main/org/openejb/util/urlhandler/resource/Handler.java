@@ -76,7 +76,7 @@ public class Handler extends java.net.URLStreamHandler
             try {
                 clz = Class.forName( cln );
             } catch ( ClassNotFoundException ex ) {
-                org.apache.log4j.Category.getInstance("OpenEJB").info( getClass().getName()+".openConnection: Class " + cln + " cannot be found." );
+                org.openejb.util.Logger.getInstance("OpenEJB").info( getClass().getName()+".openConnection: Class " + cln + " cannot be found." );
 
                 throw new java.net.MalformedURLException( "Class " + cln + " cannot be found (" + ex + ")" );
             }

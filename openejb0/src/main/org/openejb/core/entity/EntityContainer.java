@@ -67,7 +67,6 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionRequiredException;
 import javax.transaction.UserTransaction;
-import org.apache.log4j.Category;
 import org.openejb.Container;
 import org.openejb.DeploymentInfo;
 import org.openejb.InvalidateReferenceException;
@@ -78,6 +77,7 @@ import org.openejb.SystemException;
 import org.openejb.core.EnvProps;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
+import org.openejb.util.Logger;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.core.transaction.TransactionContainer;
@@ -110,7 +110,7 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
 
     // manages the transactional scope according to the bean's transaction attributes
     //EntityTransactionScopeHandler txScopeHandle;
-    public Category logger = Category.getInstance("OpenEJB");
+    public Logger logger = Logger.getInstance("OpenEJB");
 
 
     /**

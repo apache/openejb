@@ -6,7 +6,6 @@ import javax.transaction.Status;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionRolledbackException;
-import org.apache.log4j.Category;
 import org.openejb.ApplicationException;
 import org.openejb.OpenEJB;
 import org.openejb.SystemException;

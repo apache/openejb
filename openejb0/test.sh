@@ -69,11 +69,11 @@ unset i
 CP=lib/xerces-J_1.3.1.jar${PS}${CP}
 
 # Setup options for testsuite execution
-#OPTIONS="-Dlog4j.configuration=file:conf/default.logging.conf -Djava.naming.factory.initial=org.openejb.core.ivm.naming.InitContextFactory"
+#OPTIONS="-Djava.naming.factory.initial=org.openejb.core.ivm.naming.InitContextFactory"
 #  Test suite properties
 SERVER="-Dopenejb.test.server=org.openejb.test.IvmTestServer"
 DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
-OPTIONS="-Dlog4j.configuration=file:conf/default.logging.conf $SERVER $DATABASE"
+OPTIONS="$SERVER $DATABASE"
 #CONTEXT="-Djava.naming.factory.initial=org.openejb.core.ivm.naming.InitContextFactory"
 
 CLASSPATH=${CP}

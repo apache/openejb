@@ -68,7 +68,7 @@ ORB=" -DORBProfile=ejb -Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFac
 #  Test suite properties
 SERVER="-Dopenejb.test.server=org.openejb.test.CorbaTestServer"
 DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
-OPTIONS="-Dlog4j.configuration=file:conf/default.logging.conf $SERVER $DATABASE $ORB"
+OPTIONS="$SERVER $DATABASE $ORB"
 
 $JAVA $OPTIONS -classpath $CLASSPATH org.openejb.test.ClientTestRunner -s src/tests-ejb/CorbaServer_config.properties org.openejb.test.ClientTestSuite
 

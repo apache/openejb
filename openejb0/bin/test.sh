@@ -55,7 +55,7 @@ CP=lib/xerces-J_1.3.1.jar${PS}${CP}
 #  Test suite properties
 SERVER="-Dopenejb.test.server=org.openejb.test.IvmTestServer"
 DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
-OPTIONS="-Dlog4j.configuration=file:conf/default.logging.conf $SERVER $DATABASE"
+OPTIONS="$SERVER $DATABASE"
 
 CLASSPATH=${CP}
 #$JAVA $OPTIONS -classpath $CLASSPATH org.openejb.test.ClientTestRunner -s test/conf/IvmServer_config.properties org.openejb.test.ClientTestSuite

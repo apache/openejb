@@ -49,7 +49,6 @@ package org.openejb.util;
 
 import java.text.*;
 import java.util.*;
-import org.apache.log4j.Category;
 
 
 /**
@@ -70,7 +69,7 @@ public class Messages
 
     private static Hashtable        _formats;
 
-    private static Category         _logger = Category.getInstance( "OpenEJB" );
+    private static Logger           _logger = Logger.getInstance( "OpenEJB" );
 
 
 
