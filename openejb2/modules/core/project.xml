@@ -427,7 +427,7 @@
         <dependency>
             <groupId>bouncycastle</groupId>
             <artifactId>bcprov</artifactId>
-            <version>jdk14-124</version>
+            <version>${bouncycastle_version}</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
@@ -445,7 +445,7 @@
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
-            <version>1.4.3</version>
+            <version>${asm_version}</version>
             <properties>
                 <runtime>true</runtime>
             </properties>
