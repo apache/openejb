@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision$ $Date$ -->
+
+<project>
+  <parent>
+    <groupId>openejb</groupId>
+    <artifactId>openejb</artifactId>
+    <version>2.0-SNAPSHOT</version>
+  </parent>
+
+  <name>OpenEJB :: Core</name>
+  <artifactId>openejb-core</artifactId>
+  <description>OpenEJB Core EJB Container</description>
+  <url>http://www.openejb.org</url>
+
+  <!-- TODO: trim deps -->
+  <dependencies>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-connector</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-client</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-common</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-deployment</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-j2ee</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-j2ee-builder</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-kernel</artifactId>
+    </dependency>
+
+    <!--
+<dependency>
+<groupId>geronimo</groupId>
+<artifactId>geronimo-remoting</artifactId>
+<version>${geronimo_version}</version>
+<properties>
+<runtime>true</runtime>
+</properties>
+</dependency>
+    -->
+
+    <dependency>
+      <groupId>activeio</groupId>
+      <artifactId>activeio</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-security</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-timer</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-transaction</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-axis</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-axis-builder</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-naming</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-naming-builder</artifactId>
+      <!-- TODO: xmlbeans? -->
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-system</artifactId>
+      <!-- TODO: not runtime -->
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-j2ee-deployment</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-jta</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-ejb</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-servlet</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-j2ee-connector</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-j2ee-jacc</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-jms</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-j2ee-management</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-jaxrpc</artifactId>
+      <!-- TODO: not runtime -->
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-saaj</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-qname</artifactId>
+      <!-- TODO: not runtime -->
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-j2ee-schema</artifactId>
+      <!-- TODO: not runtime -->
+      <!-- TODO: xmlbeans -->
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>geronimo-webservices</artifactId>
+      <!-- TODO: not runtime -->
+      <!-- TODO: xmlbeans -->
+    </dependency>
+
+    <dependency>
+      <groupId>tranql</groupId>
+      <artifactId>tranql</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>axion</groupId>
+      <artifactId>axion</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>castor</groupId>
+      <artifactId>castor</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib-full</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-primitives</groupId>
+      <artifactId>commons-primitives</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>concurrent</groupId>
+      <artifactId>concurrent</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j</artifactId>
+      <!-- TODO: not runtime -->
+    </dependency>
+
+    <dependency>
+      <groupId>regexp</groupId>
+      <artifactId>regexp</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xmlParserAPIs</artifactId>
+      <!-- TODO: not runtime -->
+      <!-- TODO: lib, system -->
+    </dependency>
+
+    <!-- CORBA -->
+    <dependency>
+      <groupId>openorb</groupId>
+      <artifactId>openorb-orb</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>openorb</groupId>
+      <artifactId>openorb-ins</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>openorb</groupId>
+      <artifactId>openorb-pss</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>openorb</groupId>
+      <artifactId>openorb-ssl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>openorb</groupId>
+      <artifactId>openorb-orb-tools</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>openorb</groupId>
+      <artifactId>openorb-orb-omg</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>openorb</groupId>
+      <artifactId>openorb-tools</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>avalon</groupId>
+      <artifactId>avalon-framework</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>avalon</groupId>
+      <artifactId>avalon-logkit</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-cli</groupId>
+      <artifactId>commons-cli</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>bouncycastle</groupId>
+      <artifactId>bcprov</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>xfire</groupId>
+      <artifactId>xfire</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>xfire</groupId>
+      <artifactId>xfire-java</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>wsdl4j</groupId>
+      <artifactId>wsdl4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>stax</groupId>
+      <artifactId>stax</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>stax</groupId>
+      <artifactId>stax-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>axis</groupId>
+      <artifactId>axis</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>axis</groupId>
+      <artifactId>commons-discovery</artifactId>
+      <!-- TODO: not runtime -->
+      <!-- TODO: module -->
+    </dependency>
+  </dependencies>
+
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <testSourceDirectory>src/test</testSourceDirectory>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/schema</directory>
+        <includes>*.xsd,*.dtd</includes>
+      </resource>
+    </resources>
+  </build>
+</project>
