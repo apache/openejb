@@ -130,11 +130,11 @@ public class StatefulSessionContext extends EJBContextImpl implements SessionCon
             throw new IllegalStateException("getUserTransaction() cannot be called when inactive");
         }
 
-        public void setRollbackOnly(EJBInstanceContext context) {
+        public void setRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("setRollbackOnly() cannot be called when inactive");
         }
 
-        public boolean getRollbackOnly(EJBInstanceContext context) {
+        public boolean getRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("getRollbackOnly() cannot be called when inactive");
         }
 
@@ -142,7 +142,7 @@ public class StatefulSessionContext extends EJBContextImpl implements SessionCon
             throw new IllegalStateException("getMessageContext() cannot be called when inactive");
         }
 
-        public TimerService getTimerService() {
+        public TimerService getTimerService(EJBInstanceContext context) {
             throw new IllegalStateException("getTimerService() cannot be called when inactive");
         }
     };
@@ -168,11 +168,11 @@ public class StatefulSessionContext extends EJBContextImpl implements SessionCon
             throw new IllegalStateException("getUserTransaction() cannot be called from setSessionContext(SessionContext)");
         }
 
-        public void setRollbackOnly(EJBInstanceContext context) {
+        public void setRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("setRollbackOnly() cannot be called from setSessionContext(SessionContext)");
         }
 
-        public boolean getRollbackOnly(EJBInstanceContext context) {
+        public boolean getRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("getRollbackOnly() cannot be called from setSessionContext(SessionContext)");
         }
 
@@ -180,17 +180,17 @@ public class StatefulSessionContext extends EJBContextImpl implements SessionCon
             throw new IllegalStateException("getMessageContext() cannot be called from setSessionContext(SessionContext)");
         }
 
-        public TimerService getTimerService() {
+        public TimerService getTimerService(EJBInstanceContext context) {
             throw new IllegalStateException("getTimerService() cannot be called from from a StatefulSessionBean");
         }
     };
 
     public static final StatefulSessionContextState EJBCREATEREMOVEACTIVATE = new StatefulSessionContextState() {
-        public void setRollbackOnly(EJBInstanceContext context) {
+        public void setRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("setRollbackOnly() cannot be called from ejbCreate/ejbRemove");
         }
 
-        public boolean getRollbackOnly(EJBInstanceContext context) {
+        public boolean getRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("getRollbackOnly() cannot be called from ejbCreate/ejbRemove");
         }
 
@@ -198,7 +198,7 @@ public class StatefulSessionContext extends EJBContextImpl implements SessionCon
             throw new IllegalStateException("getMessageContext() cannot be called from ejbCreate/ejbRemove");
         }
 
-        public TimerService getTimerService() {
+        public TimerService getTimerService(EJBInstanceContext context) {
             throw new IllegalStateException("getTimerService() cannot be called from from a StatefulSessionBean");
         }
     };
@@ -208,7 +208,7 @@ public class StatefulSessionContext extends EJBContextImpl implements SessionCon
             throw new IllegalStateException("getMessageContext() cannot be called in a business method invocation from component interface)");
         }
 
-        public TimerService getTimerService() {
+        public TimerService getTimerService(EJBInstanceContext context) {
             throw new IllegalStateException("getTimerService() cannot be called from from a StatefulSessionBean");
         }
     };

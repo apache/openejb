@@ -138,15 +138,15 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
             throw new IllegalStateException("getUserTransaction() is not allowed on an Entity bean");
         }
 
-        public void setRollbackOnly(EJBInstanceContext context) {
+        public void setRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("setRollbackOnly() cannot be called when inactive");
         }
 
-        public boolean getRollbackOnly(EJBInstanceContext context) {
+        public boolean getRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("getRollbackOnly() cannot be called when inactive");
         }
 
-        public TimerService getTimerService() {
+        public TimerService getTimerService(EJBInstanceContext context) {
             throw new IllegalStateException("getTimerService() cannot be called when inactive");
         }
     };
@@ -172,15 +172,15 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
             throw new IllegalStateException("isCallerInRole(String) cannot be called from set/unsetEntityContext");
         }
 
-        public void setRollbackOnly(EJBInstanceContext context) {
+        public void setRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("setRollbackOnly() cannot be called from set/unsetEntityContext");
         }
 
-        public boolean getRollbackOnly(EJBInstanceContext context) {
+        public boolean getRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("getRollbackOnly() cannot be called from set/unsetEntityContext");
         }
 
-        public TimerService getTimerService() {
+        public TimerService getTimerService(EJBInstanceContext context) {
             throw new IllegalStateException("getTimerService() cannot be called from set/unsetEntityContext");
         }
     };
@@ -218,7 +218,7 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
             throw new IllegalStateException("getPrimaryKey() cannot be called from ejbFind");
         }
 
-        public TimerService getTimerService() {
+        public TimerService getTimerService(EJBInstanceContext context) {
             throw new IllegalStateException("getTimerService() cannot be called from ejbFind");
         }
     };
@@ -246,11 +246,11 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
             throw new IllegalStateException("isCallerInRole(String) cannot be called from ejbActivate/ejbPassivate");
         }
 
-        public void setRollbackOnly(EJBInstanceContext context) {
+        public void setRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("setRollbackOnly() cannot be called from ejbActivate/ejbPassivate");
         }
 
-        public boolean getRollbackOnly(EJBInstanceContext context) {
+        public boolean getRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("getRollbackOnly() cannot be called from ejbActivate/ejbPassivate");
         }
     };

@@ -73,6 +73,9 @@ import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.openejb.ContainerBuilder;
+import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.transaction.TransactionPolicy;
+import org.openejb.transaction.ContainerPolicy;
 import org.openejb.sfsb.StatefulContainerBuilder;
 import org.openejb.slsb.StatelessContainerBuilder;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
@@ -128,12 +131,16 @@ class SessionBuilder extends BeanBuilder {
             if (isStateless) {
                 builder.setTransactionPolicySource(TransactionPolicyHelper.StatelessBMTPolicySource);
             } else {
-                builder.setTransactionPolicySource(TransactionPolicyHelper.StatefulBMTPolicySource);
+                builder.setTransactionPolicySource(new StatefulTransactionPolicySource(TransactionPolicyHelper.StatefulBMTPolicySource));
             }
         } else {
             userTransaction = null;
             TransactionPolicySource transactionPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);
-            builder.setTransactionPolicySource(transactionPolicySource);
+            if (isStateless) {
+                builder.setTransactionPolicySource(transactionPolicySource);
+            } else {
+                builder.setTransactionPolicySource(new StatefulTransactionPolicySource(transactionPolicySource));
+            }
         }
 
         try {
@@ -251,6 +258,24 @@ class SessionBuilder extends BeanBuilder {
                 String objectName = sessionObjectName.getCanonicalName();
                 earContext.getEJBRefContext().addEJBLocalId(module.getModuleURI(), ejbName, objectName, true, localHome, local);
             }
+        }
+    }
+
+    private static class StatefulTransactionPolicySource implements TransactionPolicySource {
+        private final TransactionPolicySource transactionPolicySource;
+
+        public StatefulTransactionPolicySource(TransactionPolicySource transactionPolicySource) {
+            this.transactionPolicySource = transactionPolicySource;
+        }
+
+        public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
+            if ("Home".equals(methodIntf)) {
+                return ContainerPolicy.NotSupported;
+            }
+            if ("LocalHome".equals(methodIntf)) {
+                return ContainerPolicy.NotSupported;
+            }
+            return transactionPolicySource.getTransactionPolicy(methodIntf, signature);
         }
     }
 }
