@@ -40,7 +40,7 @@
  *
  * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
  *
- * $Id:
+ * $Id$
  */
 package org.openejb.admin.web.config;
 

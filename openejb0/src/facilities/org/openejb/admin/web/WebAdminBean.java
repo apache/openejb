@@ -203,9 +203,12 @@ public abstract class WebAdminBean implements HttpBean {
         for (int i=0; i < navSections.length; i+=2){
             body.print("<a href=\"");
             body.print(navSections[i]);
-            body.print("\"><span class=\"menuTopOff\">");
+            body.print("\" class=\"menuTopOff\">");
             body.print(navSections[i+1]);
-            body.print("</span></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+            if(i == (navSections.length-2))
+				body.print("</a>");
+            else
+            	body.print("</a> | ");
         }
     }
     
@@ -244,9 +247,9 @@ public abstract class WebAdminBean implements HttpBean {
             body.println("<tr><td valign=\"top\" align=\"left\">");
             body.print("<a href=\"");
             body.print(navSections[i]);
-            body.print("\"><span class=\"subMenuOn\">");
+            body.print("\" class=\"subMenuOn\">");
             body.print(navSections[i+1]);
-            body.print("</span></a></td></tr>");
+            body.print("</a></td></tr>");
             if ( navSections[i].equals( this.section )) writeSubMenuItems(body);            
         }
     }
@@ -282,10 +285,9 @@ public abstract class WebAdminBean implements HttpBean {
         StringBuffer buff = new StringBuffer();
         buff.append("<tr>");
         buff.append("<td valign=\"top\" align=\"left\">");
-        buff.append("<a href=\"").append(url).append("\">");
-        buff.append("<span class=\"subMenuOff\">");
+        buff.append("<a href=\"").append(url).append("\" class=\"subMenuOff\">");
         buff.append("&nbsp;&nbsp;&nbsp;").append(itemName);
-        buff.append("</span></a></td></tr>");
+        buff.append("</a></td></tr>");
 
         return buff.toString();
     }
@@ -403,12 +405,12 @@ public abstract class WebAdminBean implements HttpBean {
      */    
     protected void printRow(String col1, String col2, PrintWriter out) throws IOException{
         out.println("<tr>"  );
-        out.print("<td><span class=\"bodyBlack\">");
+        out.print("<td class=\"bodyBlack\">");
         out.print(col1);
-        out.println("</span></td>");
-        out.print("<td><span class=\"bodyBlack\">");
+        out.println("</td>");
+        out.print("<td class=\"bodyBlack\">");
         out.print(col2);
-        out.println("</span></td>");
+        out.println("</td>");
         out.println("</tr>");
     }
 
@@ -427,15 +429,15 @@ public abstract class WebAdminBean implements HttpBean {
      */    
     protected void printRow(String col1, String col2, String col3, PrintWriter out) throws IOException{
         out.println("<tr>");
-        out.print("<td><span class=\"bodyBlack\">");
+        out.print("<td class=\"bodyBlack\">");
         out.print(col1);
-        out.println("</span></td>");
-        out.print("<td><span class=\"bodyBlack\">");
+        out.println("</td>");
+        out.print("<td class=\"bodyBlack\">");
         out.print(col2);
-        out.println("</span></td>");
-        out.print("<td><span class=\"bodyBlack\">");
+        out.println("</td>");
+        out.print("<td class=\"bodyBlack\">");
         out.print(col3);
-        out.println("</span></td>");
+        out.println("</td>");
         out.println("</tr>");
     }
 

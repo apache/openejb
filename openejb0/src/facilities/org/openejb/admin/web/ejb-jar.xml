@@ -98,5 +98,14 @@
     <session-type>Stateless</session-type>
     <transaction-type>Bean</transaction-type>
   </session>
+  <session>
+    <description>Holds the mapping info in between HTTP requests</description>
+    <ejb-name>mapping/webadmin/CMPMappingData</ejb-name>
+    <home>org.openejb.admin.web.cmp.mapping.CMPMappingDataHome</home>
+    <remote>org.openejb.admin.web.cmp.mapping.CMPMappingDataObject</remote>
+    <ejb-class>org.openejb.admin.web.cmp.mapping.CMPMappingDataBean</ejb-class>
+    <session-type>Stateful</session-type>
+    <transaction-type>Bean</transaction-type>
+  </session>
 </enterprise-beans>
 </ejb-jar>

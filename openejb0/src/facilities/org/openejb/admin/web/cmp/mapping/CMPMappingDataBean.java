@@ -42,32 +42,84 @@
  *
  * $Id$
  */
-package org.openejb.admin.web.deploy;
+package org.openejb.admin.web.cmp.mapping;
 
 import java.rmi.RemoteException;
 
-import javax.ejb.EJBObject;
+import javax.ejb.EJBException;
+import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
 
-import org.openejb.OpenEJBException;
+import org.exolab.castor.jdo.conf.Database;
+import org.exolab.castor.mapping.xml.MappingRoot;
 
 /**
- * This is a stateful session bean which holds deployment information
- * for the web deployment of an EJB. 
- *
- * @see org.openejb.admin.web.deploy.DeployerBean
- * @author  <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
+ * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
-public interface DeployerObject extends EJBObject {
-	//action methods
-	public void setBooleanValues(boolean[] booleanValues) throws RemoteException;
-	public boolean[] getBooleanValues() throws RemoteException;
-	public void setJarFile(String jarFile) throws RemoteException;
-	public String getJarFile() throws RemoteException;
-	public void startDeployment() throws RemoteException, OpenEJBException;
-	public void finishDeployment() throws RemoteException, OpenEJBException;
-	public String getDeploymentHTML() throws RemoteException;
-	public DeployData[] getDeployDataArray() throws RemoteException;
-	public String createIdTable() throws RemoteException, OpenEJBException;
-	public void setDeployAndContainerIds(DeployData[] deployDataArray)
-		throws RemoteException, OpenEJBException;
+public class CMPMappingDataBean implements SessionBean {
+	private Database globalDatabase;
+	private Database localDatabase;
+	private String globalDatabaseFileName;
+	private String localDatabaseFileName;
+	private MappingRoot mappingRoot;
+	private String mappingRootFileName;
+	
+	public void ejbCreate() {}
+
+	public void ejbActivate() {}
+
+	public void ejbPassivate() {}
+
+	public void ejbRemove() {}
+
+	public void setSessionContext(SessionContext arg0) {}
+
+	public Database getGlobalDatabase() {
+		return globalDatabase;
+	}
+
+	public String getGlobalDatabaseFileName() {
+		return globalDatabaseFileName;
+	}
+
+	public Database getLocalDatabase() {
+		return localDatabase;
+	}
+
+	public String getLocalDatabaseFileName() {
+		return localDatabaseFileName;
+	}
+
+	public MappingRoot getMappingRoot() {
+		return mappingRoot;
+	}
+
+	public String getMappingRootFileName() {
+		return mappingRootFileName;
+	}
+
+	public void setGlobalDatabase(Database database) {
+		globalDatabase = database;
+	}
+
+	public void setGlobalDatabaseFileName(String string) {
+		globalDatabaseFileName = string;
+	}
+
+	public void setLocalDatabase(Database database) {
+		localDatabase = database;
+	}
+
+	public void setLocalDatabaseFileName(String string) {
+		localDatabaseFileName = string;
+	}
+
+	public void setMappingRoot(MappingRoot root) {
+		mappingRoot = root;
+	}
+
+	public void setMappingRootFileName(String string) {
+		mappingRootFileName = string;
+	}
+
 }
