@@ -11,6 +11,7 @@ set JAVA=%JAVA_HOME%\bin\java
 set CP=
 for %%i in (%OPENEJB_HOME%\dist\openejb*.jar) do call cp.bat %%i
 set CP=%JAVA_HOME%\lib\tools.jar;%CP%
+set CLASSPATH=%CLASSPATH%;%CP%
 
 set OPTIONS=-Dopenejb.home=%OPENEJB_HOME%
 
