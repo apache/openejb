@@ -689,10 +689,16 @@ public class ConfigUtils  {
 	}
 
         if ( configLocation == null ) {
+            configLocation = searchForConfiguration( "file://conf/openejb.conf" );
+        }
+        if ( configLocation == null ) {
+            configLocation = searchForConfiguration( "file://conf/default.openejb.conf" );
+        }
+        if ( configLocation == null ) {
             configLocation = searchForConfiguration( "resource:/openejb.conf" );
         }
-
-	defaultConfigLocation = searchForConfiguration( "resource:/default.openejb.conf" );
+	
+        defaultConfigLocation = searchForConfiguration( "resource:/default.openejb.conf" );
 	if ( defaultConfigLocation == null ) {
 	    handleException( "config.noDefaultConfig" );
 	}
@@ -930,7 +936,7 @@ public class ConfigUtils  {
 
     public static void logWarning(String errorCode ) {
         OpenEJBException e = new OpenEJBException(errorCode);
-        logger.info( e.getMessage() );
+        logger.warn( e.getMessage() );
     }
 
     public static void logInfo(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3 ) {
