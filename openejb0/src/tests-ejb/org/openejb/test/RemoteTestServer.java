@@ -47,6 +47,7 @@ package org.openejb.test;
 import java.util.Properties;
 import javax.naming.Context;
 import java.io.OutputStream;
+import java.io.FileOutputStream;
 import java.net.Socket;
 
 /**
@@ -98,22 +99,45 @@ public class RemoteTestServer implements org.openejb.test.TestServer {
                 
                 // it seems as if OpenEJB wouldn't start up till the output stream was read
                 final java.io.InputStream is = remoteServerProcess.getInputStream();
-                Thread server = new Thread(new Runnable(){
+                final java.io.OutputStream out = new FileOutputStream("logs/testsuite.out");
+                Thread serverOut = new Thread(new Runnable(){
                         public void run() {
                             try{
                                 //while ( is.read() != -1 );
                                 int i = is.read();
+                                out.write( i );
                                 while ( i != -1 ){
                                     //System.out.write( i );
                                     i = is.read();
+                                    out.write( i );
                                 }
                             } catch (Exception e){
                                 e.printStackTrace();
                             }
                         }
                 });
-                server.setDaemon(true);
-                server.start();
+                serverOut.setDaemon(true);
+                serverOut.start();
+                
+                final java.io.InputStream is2 = remoteServerProcess.getErrorStream();
+                Thread serverErr = new Thread(new Runnable(){
+                        public void run() {
+                            try{
+                                //while ( is.read() != -1 );
+                                int i = is2.read();
+                                out.write( i );
+                                while ( i != -1 ){
+                                    //System.out.write( i );
+                                    i = is2.read();
+                                    out.write( i );
+                                }
+                            } catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        }
+                });
+                serverErr.setDaemon(true);
+                serverErr.start();
             } catch (Exception e){
                 throw new RuntimeException("Cannot start the server.");
             }

@@ -98,7 +98,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
     private SafeToolkit toolkit = SafeToolkit.getToolkit("OpenEJB EJB Server");
 
     Messages _messages = new Messages( "org.openejb.server.util.resources" );
-    Logger logger = Logger.getInstance( "OpenEJB", "org.openejb.server.util.resources" );
+    Logger logger = Logger.getInstance( "OpenEJB.server.remote", "org.openejb.server.util.resources" );
 
     Vector           clientSockets  = new Vector();
     ServerSocket     serverSocket   = null;
@@ -354,7 +354,9 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
 
                 byte requestType = (byte)in.read();
-
+                
+                if (requestType == -1) {continue;}
+                
                 switch (requestType) {
                     case STOP_REQUEST_Quit:
                     case STOP_REQUEST_quit:
@@ -372,6 +374,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                     case EJB_REQUEST:  processEjbRequest(ois, oos); break;
                     case JNDI_REQUEST: processJndiRequest(ois, oos);break;
                     case AUTH_REQUEST: processAuthRequest(ois, oos);break;
+                    default: logger.error("Unknown request type "+requestType);
                 }
 
                 // Exceptions should not be thrown from these methods
