@@ -81,8 +81,12 @@ public class Container extends ContainerInfo {
      * Represents the <tt>codebase</tt> element in the XML config file.
      */
     public static final String CODEBASE = "codebase";
-        
 
+    /**
+        * Represents the <tt>codebase</tt> element in the XML config file.
+     */
+    public static final String CLASSNAME = "class-name";
+        
     /** 
      * Parses out the values needed by this DomObject from the DOM Node passed in.
      */
@@ -91,6 +95,7 @@ public class Container extends ContainerInfo {
         container.displayName = DomTools.getChildElementPCData(node, DISPLAY_NAME);
         container.containerName = DomTools.getChildElementPCData(node, CONTAINER_NAME);
         container.codebase = DomTools.getChildElementPCData(node, CODEBASE);
+        container.className = DomTools.getChildElementPCData(node, CLASSNAME);
         container.properties = DomTools.readProperties(node);      
     }
 
