@@ -76,77 +76,54 @@ In your favorite editor, create the file below.
 <file name="C:\my\app\org\acme\employee\EmployeeBean.java">
 package org.acme.employee;
 
-import javax.ejb.*;
-import java.rmi.RemoteException;
+import javax.ejb.CreateException;
+import javax.ejb.EJBException;
+import javax.ejb.EntityBean;
+import javax.ejb.EntityContext;
+import javax.ejb.RemoveException;
 
-public class EmployeeBean implements EntityBean
-{
-  public int id;
-  public String firstname;
-  public String lastname;
-  public String email;
-  public EntityContext context;
+public class EmployeeBean implements EntityBean {
+	public int id;
+	public String firstname;
+	public String lastname;
+	public String email;
+	public EntityContext context;
 
-  public EmployeeBean()
-  {
-  }
+	public EmployeeBean() {}
 
-  public Integer ejbCreate( String firstname, String lastname, String email )
-    throws CreateException
-  {
-    this.firstname = firstname;
-    this.lastname = lastname;
-    this.email = email;
-    return null;
-  }
+	public Integer ejbCreate(String firstname, String lastname, String email)
+		throws CreateException {
+		this.firstname = firstname;
+		this.lastname = lastname;
+		this.email = email;
+		return null;
+	}
 
-  public void ejbPostCreate( String firstname, String lastname, String email )
-    throws CreateException
-  {
-  }
+	public void ejbPostCreate(String firstname, String lastname, String email)
+		throws CreateException {}
 
-  public void says( String message )
-  {
-    System.out.println( "[" + firstname + " " + lastname + 
-          "(" + id + ") " + email + "] " + message );
-  }
+	public void says(String message) {
+		System.out.println(
+			"[" + firstname + " " + lastname + "(" + id + ") " + 
+			email + "] " + message);
+	}
 
-  public void setEntityContext( EntityContext context )
-    throws EJBException, RemoteException
-  {
-    this.context = context;
-  }
+	public void setEntityContext(EntityContext context) {
+		this.context = context;
+	}
 
-  public void unsetEntityContext()
-    throws EJBException, RemoteException
-  {
-  }
+	public void unsetEntityContext() {}
 
-  public void ejbActivate()
-    throws EJBException, RemoteException
-  {
-  }
+	public void ejbActivate() {}
 
-  public void ejbLoad()
-    throws EJBException, RemoteException
-  {
-  }
+	public void ejbLoad() {}
 
-  public void ejbPassivate()
-    throws EJBException, RemoteException
-  {
-  }
+	public void ejbPassivate() {}
 
-  public void ejbRemove()
-    throws RemoveException, EJBException, RemoteException
-  {
-  }
+	public void ejbRemove() throws RemoveException {}
 
-  public void ejbStore()
-    throws EJBException, RemoteException
-  {
-  }
-}                                                                                   
+	public void ejbStore() {}
+}                                                                                  
 </file>
 </p>
 </section>
@@ -160,19 +137,19 @@ In your favorite editor, create the file below.
 <file name="C:\my\app\org\acme\employee\EmployeeHome.java">
 package org.acme.employee;
 
+import java.rmi.RemoteException;
+
 import javax.ejb.CreateException;
 import javax.ejb.EJBHome;
 import javax.ejb.FinderException;
-import java.rmi.RemoteException;
 
-public interface EmployeeHome extends EJBHome
-{
-  public Employee create( String firstname, String lastname, String email )
-    throws RemoteException, CreateException;
+public interface EmployeeHome extends EJBHome {
+    public EmployeeObject create(String firstName, String lastName, String email)
+        throws RemoteException, CreateException;
 
-  public Employee findByPrimaryKey( Integer id )
-    throws RemoteException, FinderException;
-}                                                                                   
+    public EmployeeObject findByPrimaryKey(Integer id) 
+        throws RemoteException, FinderException;
+}                                                                                  
 </file>
 </p>
 </section>
@@ -183,17 +160,16 @@ In your favorite editor, create the file below.
 </p>
 
 <p>
-<file name="C:\my\app\org\acme\employee\Employee.java">
+<file name="C:\my\app\org\acme\employee\EmployeeObject.java">
 package org.acme.employee;
 
-import javax.ejb.EJBObject;
 import java.rmi.RemoteException;
 
-public interface Employee extends EJBObject
-{
-  public void says( String message )
-    throws RemoteException;
-}                                                                                   
+import javax.ejb.EJBObject;
+
+public interface EmployeeObject extends EJBObject {
+    public void says(String message) throws RemoteException;
+}                                                                                  
 </file>
 </p>
 </section>
@@ -218,7 +194,7 @@ In your favorite editor, create the file below.
     <entity>
       <ejb-name>EmployeeBean</ejb-name>
       <home>org.acme.employee.EmployeeHome</home>
-      <remote>org.acme.employee.Employee</remote>
+      <remote>org.acme.employee.EmployeeObject</remote>
       <ejb-class>org.acme.employee.EmployeeBean</ejb-class>
       <persistence-type>Container</persistence-type>
       <prim-key-class>java.lang.Integer</prim-key-class>
@@ -253,9 +229,7 @@ In your favorite editor, create the file below.
     </container-transaction>
   </assembly-descriptor>
 </ejb-jar>
-]]>
-                                                                                    
-</file>
+]]></file>
 </p>
 </section>
         
@@ -359,7 +333,7 @@ In your favorite editor, create the file below.
   <SecurityService id="Default Security Service"/>
   <TransactionService id="Default Transaction Manager"/>
 </openejb>
-]]>                                                                                    </file>
+]]></file>
 
 <p>
 Before we go on a few words about the structure of the file.
@@ -431,7 +405,7 @@ editor.
   <jndi name="java:comp/env/jdbc/postgresql" />
   <mapping href="c:/my/app//conf/postgresql.cmp_or_mapping.xml" />
 </database>
-]]>                                                                                    </file>
+]]></file>
 
 <br/>
 <file name="C:\my\app\conf\postgresql.cmp_or_mapping.xml"><![CDATA[
@@ -534,43 +508,53 @@ Create the file in your favorite editor.
 <file name="C:\my\app\org\acme\employee\EmployeeClient.java">
 package org.acme.employee;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.rmi.PortableRemoteObject;
+import java.rmi.RemoteException;
 import java.util.Properties;
 
-public class EmployeeClient
-{
-   public static void main( String[] args )
-           throws Exception
-   {
-      Properties env = new Properties();
-      <comment>//The JNDI properties you set depend</comment>
-      <comment>//on which server you are using.</comment>
-      String jndiProvider = "org.openejb.client.RemoteInitialContextFactory";
-      env.put( "java.naming.factory.initial", jndiProvider );
-      env.put( "java.naming.provider.url", "localhost:4201" );
-      env.put( "java.naming.security.principal", "fakeuser" );
-      env.put( "java.naming.security.credentials", "fakepass" );
-      Context ctx = new InitialContext( env );
+import javax.ejb.CreateException;
+import javax.ejb.FinderException;
+import javax.ejb.RemoveException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.rmi.PortableRemoteObject;
 
-      Object obj = ctx.lookup( "EmployeeBean" );
-      obj = PortableRemoteObject.narrow( obj, EmployeeHome.class );
-      EmployeeHome home = ( EmployeeHome ) obj;
+public class EmployeeClient {
 
-      Employee empl_create = home.create( "Jacek", "Laskowski", 
-            "OpenEJB-" + System.currentTimeMillis() + "@SF.net" );
-      
-      Integer primaryKey = ( Integer ) empl_create.getPrimaryKey();
-      Employee empl_find = home.findByPrimaryKey( primaryKey );
-      
-      System.out.println( "Are the \"create\" and \"find\" users identical ? "+ 
-            empl_create.isIdentical( empl_find ) );
-      
-      empl_find.says( "Hello OpenEJB World!" );
-      empl_find.remove();
-   }
-}                                                                                   
+	public static void main(String[] args)
+		throws NamingException, CreateException, FinderException, 
+		RemoteException, RemoveException {
+		
+		Properties env = new Properties();
+		<comment>//The JNDI properties you set depend</comment>
+		<comment>//on which server you are using.</comment>
+		String jndiProvider = "org.openejb.client.RemoteInitialContextFactory";
+		env.put("java.naming.factory.initial", jndiProvider);
+		env.put("java.naming.provider.url", "localhost:4201");
+		env.put("java.naming.security.principal", "fakeuser");
+		env.put("java.naming.security.credentials", "fakepass");
+
+		Context ctx = new InitialContext(env);
+
+		Object obj = ctx.lookup("EmployeeBean");
+		EmployeeHome home = (EmployeeHome) 
+			PortableRemoteObject.narrow(obj, EmployeeHome.class);
+
+		EmployeeObject empl_create =
+			home.create("Jacek", "Laskowski", "OpenEJB-" + 
+			System.currentTimeMillis() + "@SF.net");
+
+		Integer primaryKey = (Integer) empl_create.getPrimaryKey();
+		EmployeeObject empl_find = home.findByPrimaryKey(primaryKey);
+
+		System.out.println(
+			"Are the \"create\" and \"find\" users identical ? "
+				+ empl_create.isIdentical(empl_find));
+
+		empl_find.says("Hello OpenEJB World!");
+		empl_find.remove();
+	}
+}                                                    
 </file>
 </p>
 </section>
