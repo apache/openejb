@@ -117,7 +117,7 @@ _test_server()
    echo "Running EJB compliance tests on EJB Server"
    echo "_________________________________________________"
    echo " 1. Starting OpenEJB Server..."
-   sh ./bin/ejbserver.sh &> ejb.server.log
+   sh ./bin/ejbserver.sh &> ejb.server.log &
    echo " 2. Starting test EJB client..."
    ./bin/ejbclient.sh
 }
