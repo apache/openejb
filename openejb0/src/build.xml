@@ -711,7 +711,7 @@
         destdir="${docs.dest}/html" 
         style="src/doc/style/sysdesign.xsl"
         includes="**/design_*.xml" 
-        excludes="style/**,project.xml,CHANGELOG.xml,download.xml,release-plan.xml"
+        excludes="style/**,src/doc/faq**,project.xml,CHANGELOG.xml,download.xml,release-plan.xml"
         processor="trax">           
       
         <classpath>
@@ -719,11 +719,23 @@
         </classpath>
     </style>
     
+	<style basedir="${docs.src}" 
+		destdir="${docs.dest}/html" 
+		style="src/doc/style/faq.xsl"
+		includes="**/faq*.xml" 
+		excludes="style/**,project.xml,CHANGELOG.xml,download.xml,release-plan.xml"
+		processor="trax">           
+
+		<classpath>
+			<path refid="project.classpath"/>
+		</classpath>
+	</style>
+
     <style basedir="${docs.src}" 
         destdir="${docs.dest}/html" 
         style="src/doc/style/website.xsl"
         includes="**/**.xml" 
-        excludes="style/**,src/doc/design_**,project.xml,CHANGELOG.xml,download.xml,release-plan.xml"
+        excludes="style/**,src/doc/design_**,src/doc/faq**,project.xml,CHANGELOG.xml,download.xml,release-plan.xml"
         processor="trax">           
       
         <classpath>
