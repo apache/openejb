@@ -46,6 +46,11 @@ package org.openejb.resource.jdbc;
 
 import java.sql.*;
 
+import javax.resource.ResourceException;
+import javax.resource.spi.LazyAssociatableConnectionManager;
+import javax.resource.spi.ConnectionRequestInfo;
+import javax.resource.spi.ManagedConnectionFactory;
+
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 
@@ -53,262 +58,296 @@ public class JdbcConnection implements java.sql.Connection {
 
     private static Log log = LogFactory.getLog(JdbcConnection.class);
 
-    private java.sql.Connection physicalConn;
     private JdbcManagedConnection managedConn;
     protected boolean isClosed = false;
+    private final JdbcManagedConnectionFactory managedConnectionFactory;
+    private final ConnectionRequestInfo connectionRequestInfo;
 
-    protected JdbcConnection(JdbcManagedConnection managedConn, java.sql.Connection physicalConn){
-        this.physicalConn = physicalConn;
+    protected JdbcConnection(JdbcManagedConnection managedConn, ConnectionRequestInfo connectionRequestInfo, JdbcManagedConnectionFactory managedConnectionFactory) {
         this.managedConn = managedConn;
+        this.connectionRequestInfo = connectionRequestInfo;
+        this.managedConnectionFactory = managedConnectionFactory;
     }
-    protected java.sql.Connection getPhysicalConnection(){
-        return physicalConn;
+
+    protected Connection getPhysicalConnection() throws SQLException {
+        if (isClosed) {
+            throw new SQLException("Connection is closed");
+        }
+        if (managedConn == null) {
+            managedConnectionFactory.associateConnection(this, connectionRequestInfo);
+        }
+        return getManagedConnection().getSQLConnection();
     }
-    protected JdbcManagedConnection getManagedConnection(){
+
+    protected JdbcManagedConnection getManagedConnection() {
         return managedConn;
     }
+
     /**
-    * Renders this conneciton invalid; unusable.  Its called by the
-    * JdbcManagedConnection when its connectionClose() or cleanup()
-    * methods are invoked.
-    */
-    protected void invalidate(){
-        isClosed = true;
-        physicalConn = null;
+     * Renders this conneciton invalid; unusable.  Its called by the
+     * JdbcManagedConnection when its connectionClose() or cleanup()
+     * methods are invoked.
+     */
+    protected void invalidate(boolean setClosed) {
+        isClosed = setClosed;
         managedConn = null;
     }
-    protected void associate(JdbcManagedConnection mngdConn){
-        isClosed = false;
+
+    protected void associate(JdbcManagedConnection mngdConn) throws ResourceException {
+        if (isClosed) {
+            throw new ResourceException("Connection handle has been closed");
+        }
         managedConn = mngdConn;
-        physicalConn = mngdConn.getSQLConnection();
     }
+
     public Statement createStatement() throws SQLException {
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            return new JdbcStatement(physicalConn.createStatement());
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                return new JdbcStatement(this, physicalConn.createStatement());
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
+
     public PreparedStatement prepareStatement(String sql)
-	    throws SQLException{
-        System.out.println("Preparing statement: " + sql);
+            throws SQLException {
         log.info("Preparing statement: " + sql);
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            return new JdbcPreparedStatement(physicalConn.prepareStatement(sql));
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                return new JdbcPreparedStatement(this, physicalConn.prepareStatement(sql));
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public CallableStatement prepareCall(String sql) throws SQLException{
-        System.out.println("Preparing call: " + sql) ;
+
+    public CallableStatement prepareCall(String sql) throws SQLException {
         log.info("Preparing call: " + sql);
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            return physicalConn.prepareCall(sql);
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                return physicalConn.prepareCall(sql);
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public String nativeSQL(String sql) throws SQLException{
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            return physicalConn.nativeSQL(sql);
+
+    public String nativeSQL(String sql) throws SQLException {
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                return physicalConn.nativeSQL(sql);
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public void setAutoCommit(boolean autoCommit) throws SQLException{
+
+    public void setAutoCommit(boolean autoCommit) throws SQLException {
         throw new java.sql.SQLException("Method not supported. Commit is managed automatically by container provider");
     }
-    public boolean getAutoCommit() throws SQLException{
+
+    public boolean getAutoCommit() throws SQLException {
         throw new java.sql.SQLException("Method not supported. Commit is managed automatically by container provider");
     }
-    public void commit() throws SQLException{
+
+    public void commit() throws SQLException {
         throw new java.sql.SQLException("Method not supported. Commit is managed automatically by container provider");
     }
-    public void rollback() throws SQLException{
+
+    public void rollback() throws SQLException {
         throw new java.sql.SQLException("Method not supported. Rollback is managed automatically by container provider");
     }
-    public void close() throws SQLException{
-        if(isClosed)
+
+    public void close() throws SQLException {
+        if (isClosed)
             return;
-        else{
+        else {
             // managed conneciton will call this object's invalidate() method which
             // will set isClosed = true, and nullify references to the sqlConnection and managed connection.
-            managedConn.connectionClose(this);
+            managedConn.connectionClose(this, true);
         }
     }
-    public boolean isClosed() throws SQLException{
+
+    public boolean isClosed() throws SQLException {
         return isClosed;
     }
-    public DatabaseMetaData getMetaData() throws SQLException{
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            return physicalConn.getMetaData();
+
+    public DatabaseMetaData getMetaData() throws SQLException {
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                return physicalConn.getMetaData();
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public void setReadOnly(boolean readOnly) throws SQLException{
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            physicalConn.setReadOnly(readOnly);
+
+    public void setReadOnly(boolean readOnly) throws SQLException {
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                physicalConn.setReadOnly(readOnly);
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public boolean isReadOnly() throws SQLException{
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            return physicalConn.isReadOnly();
+
+    public boolean isReadOnly() throws SQLException {
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                return physicalConn.isReadOnly();
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public void setCatalog(String catalog) throws SQLException{
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            physicalConn.setCatalog(catalog);
+
+    public void setCatalog(String catalog) throws SQLException {
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                physicalConn.setCatalog(catalog);
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public String getCatalog() throws SQLException{
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            return physicalConn.getCatalog();
+
+    public String getCatalog() throws SQLException {
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                return physicalConn.getCatalog();
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public void setTransactionIsolation(int level) throws SQLException{
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            physicalConn.setTransactionIsolation(level);
+
+    public void setTransactionIsolation(int level) throws SQLException {
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                physicalConn.setTransactionIsolation(level);
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public int getTransactionIsolation() throws SQLException{
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            return physicalConn.getTransactionIsolation();
+
+    public int getTransactionIsolation() throws SQLException {
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                return physicalConn.getTransactionIsolation();
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public SQLWarning getWarnings() throws SQLException{
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            return physicalConn.getWarnings();
+
+    public SQLWarning getWarnings() throws SQLException {
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                return physicalConn.getWarnings();
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public void clearWarnings() throws SQLException{
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            physicalConn.clearWarnings();
+
+    public void clearWarnings() throws SQLException {
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                physicalConn.clearWarnings();
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
+
     public Statement createStatement(int resultSetType, int resultSetConcurrency)
-      throws SQLException{
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            return new JdbcStatement(physicalConn.createStatement(resultSetType, resultSetConcurrency));
+            throws SQLException {
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                return new JdbcStatement(this, physicalConn.createStatement(resultSetType, resultSetConcurrency));
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public PreparedStatement prepareStatement(String sql, int resultSetType,int resultSetConcurrency)
-       throws SQLException{
-        System.out.println("Preparing statement: " + sql) ;
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            return new JdbcPreparedStatement(physicalConn.prepareStatement(sql, resultSetType,resultSetConcurrency));
+
+    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency)
+            throws SQLException {
+        log.trace("preparing statement: " + sql + ", resultSetType: " + resultSetType + ", resultSetConcurrency" + resultSetConcurrency);
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                return new JdbcPreparedStatement(this, physicalConn.prepareStatement(sql, resultSetType, resultSetConcurrency));
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public CallableStatement prepareCall(String sql, int resultSetType,int resultSetConcurrency) throws SQLException{
-        System.out.println("Preparing call: " + sql) ;
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            return physicalConn.prepareCall(sql, resultSetType,resultSetConcurrency) ;
+
+    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
+        log.trace("Preparing call: " + sql);
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                return physicalConn.prepareCall(sql, resultSetType, resultSetConcurrency);
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public java.util.Map getTypeMap() throws SQLException{
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            return physicalConn.getTypeMap();
+
+    public java.util.Map getTypeMap() throws SQLException {
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                return physicalConn.getTypeMap();
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
     }
-    public void setTypeMap(java.util.Map map) throws SQLException{
-        if(isClosed) throw new SQLException("Connection is closed");
-        try{
-            synchronized(physicalConn){
-            physicalConn.setTypeMap(map);
+
+    public void setTypeMap(java.util.Map map) throws SQLException {
+        try {
+            Connection physicalConn = getPhysicalConnection();
+            synchronized (physicalConn) {
+                physicalConn.setTypeMap(map);
             }
-        }catch(SQLException sqlE){
+        } catch (SQLException sqlE) {
             managedConn.connectionErrorOccurred(this, sqlE);
             throw sqlE;
         }
@@ -318,40 +357,51 @@ public class JdbcConnection implements java.sql.Connection {
      * JDBC 3
      */
     public void setHoldability(int holdability) throws java.sql.SQLException {
-	throw new SQLException("method setHoldability not implemented");
+        throw new SQLException("method setHoldability not implemented");
     }
-    public int getHoldability() throws java.sql.SQLException{
-	throw new SQLException("method getHoldability not implemented");
+
+    public int getHoldability() throws java.sql.SQLException {
+        throw new SQLException("method getHoldability not implemented");
     }
-    public java.sql.Savepoint setSavepoint() throws java.sql.SQLException{
-	throw new SQLException("method not implemented");
+
+    public java.sql.Savepoint setSavepoint() throws java.sql.SQLException {
+        throw new SQLException("method not implemented");
     }
-    public java.sql.Savepoint setSavepoint(String name) throws java.sql.SQLException{
-	throw new SQLException("method not implemented");
+
+    public java.sql.Savepoint setSavepoint(String name) throws java.sql.SQLException {
+        throw new SQLException("method not implemented");
     }
-    public void rollback(java.sql.Savepoint savepoint) throws java.sql.SQLException{
-	throw new SQLException("method not implemented");
+
+    public void rollback(java.sql.Savepoint savepoint) throws java.sql.SQLException {
+        throw new SQLException("method not implemented");
     }
-    public void releaseSavepoint(java.sql.Savepoint savepoint) throws java.sql.SQLException{
-	throw new SQLException("method not implemented");
+
+    public void releaseSavepoint(java.sql.Savepoint savepoint) throws java.sql.SQLException {
+        throw new SQLException("method not implemented");
     }
-    public java.sql.Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws java.sql.SQLException{
-	throw new SQLException("method not implemented");
+
+    public java.sql.Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws java.sql.SQLException {
+        throw new SQLException("method not implemented");
     }
-    public java.sql.PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws java.sql.SQLException{
-	throw new SQLException("method not implemented");
+
+    public java.sql.PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws java.sql.SQLException {
+        throw new SQLException("method not implemented");
     }
-    public java.sql.PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws java.sql.SQLException{
-	throw new SQLException("method not implemented");
+
+    public java.sql.PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws java.sql.SQLException {
+        throw new SQLException("method not implemented");
     }
-    public java.sql.PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws java.sql.SQLException{
-	throw new SQLException("method not implemented");
+
+    public java.sql.PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws java.sql.SQLException {
+        throw new SQLException("method not implemented");
     }
-    public java.sql.PreparedStatement prepareStatement(String sql, String[] columnNames) throws java.sql.SQLException{
-	throw new SQLException("method not implemented");
+
+    public java.sql.PreparedStatement prepareStatement(String sql, String[] columnNames) throws java.sql.SQLException {
+        throw new SQLException("method not implemented");
     }
-    public java.sql.CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws java.sql.SQLException{
-	throw new SQLException("method not implemented");
+
+    public java.sql.CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws java.sql.SQLException {
+        throw new SQLException("method not implemented");
     }
 }
 

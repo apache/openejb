@@ -44,23 +44,26 @@
  */
 package org.openejb.resource.jdbc;
 
+import java.sql.Connection;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionEvent;
 import javax.resource.spi.ConnectionEventListener;
 import javax.resource.spi.ConnectionRequestInfo;
-import java.util.HashSet;
-import javax.resource.spi.LocalTransaction;
+import javax.resource.spi.DissociatableManagedConnection;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ManagedConnectionMetaData;
-import java.util.Set;
 
-public class JdbcManagedConnection implements ManagedConnection {
+public class JdbcManagedConnection implements ManagedConnection, DissociatableManagedConnection {
 
     private JdbcManagedConnectionFactory managedFactory;
     private java.sql.Connection sqlConn;
     private JdbcConnectionRequestInfo requestInfo;
     private JdbcManagedConnectionMetaData metaData;
 
-    // there may be many conneciton handles active at any one time
+    // there may be many connection handles active at any one time
     private java.util.Vector jdbcConnections = new java.util.Vector();
     private Set listeners;
     private java.io.PrintWriter logWriter;
@@ -109,7 +112,7 @@ public class JdbcManagedConnection implements ManagedConnection {
         Object [] connectionHandles = jdbcConnections.toArray();
         for(int i = 0; i < connectionHandles.length; i++){
             JdbcConnection handle = (JdbcConnection)connectionHandles[i];
-            handle.invalidate();
+            handle.invalidate(true);
         }
         jdbcConnections.clear();
         localTransaction.cleanup();
@@ -133,7 +136,7 @@ public class JdbcManagedConnection implements ManagedConnection {
     *
     */
     public java.lang.Object getConnection(javax.security.auth.Subject subject,ConnectionRequestInfo cxRequestInfo)  throws javax.resource.ResourceException  {
-        JdbcConnection jdbcCon = new JdbcConnection(this,sqlConn);
+        JdbcConnection jdbcCon = new JdbcConnection(this, cxRequestInfo, managedFactory);
         jdbcConnections.add(jdbcCon);
         return jdbcCon;
     }
@@ -212,12 +215,12 @@ public class JdbcManagedConnection implements ManagedConnection {
     }
 
     /**
-    * Invoked by the JdbcConneciton when its close() method is called.
+    * Invoked by the JdbcConnection when its close() method is called.
     * This method invalidates the JdbcConnection handle, removes it from
     * the list of active handles and notifies all the ConnectionEventListeners.
     */
-    protected void connectionClose(JdbcConnection jdbcConn){
-        jdbcConn.invalidate();
+    protected void connectionClose(JdbcConnection jdbcConn, boolean setClosed){
+        jdbcConn.invalidate(setClosed);
         jdbcConnections.remove(jdbcConn);
         ConnectionEvent event = new ConnectionEvent(this, ConnectionEvent.CONNECTION_CLOSED);
         event.setConnectionHandle(jdbcConn);
@@ -231,4 +234,13 @@ public class JdbcManagedConnection implements ManagedConnection {
     public String toString( ){
         return "JdbcManagedConnection ("+sqlConn.toString()+")";
     }
+
+    public void dissociateConnections() throws ResourceException {
+        JdbcConnection[] connections = (JdbcConnection[]) jdbcConnections.toArray(new JdbcConnection[jdbcConnections.size()]);
+        for (int i = 0; i < connections.length; i++) {
+            connections[i].invalidate(false);
+        }
+        jdbcConnections.clear();
+    }
+
 }
