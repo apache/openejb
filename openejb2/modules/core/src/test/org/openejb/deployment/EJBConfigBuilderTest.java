@@ -106,6 +106,13 @@ public class EJBConfigBuilderTest extends TestCase {
     private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=ConnectionTracker");
     private Kernel kernel;
 
+    public void testCreateResourceAdapterNameQuery() throws Exception {
+        EARContext earContext = new EARContext(null, null, null, null, "geronimo.server", "geronimo", null, null, null);
+        OpenEJBModuleBuilder builder = new OpenEJBModuleBuilder(null);
+        ObjectName testName = builder.createResourceAdapterQueryName(earContext, "TestResourceAdapterName");
+        assertEquals(ObjectName.getInstance("geronimo.server:j2eeType=ResourceAdapter,name=TestResourceAdapterName,J2EEServer=geronimo,*"), testName);
+    }
+
     public void testCreateSessionBean() throws Exception {
         OpenEJBModuleBuilder configBuilder = new OpenEJBModuleBuilder(kernel);
         File ejbJarFile = new File("target/test-ejb-jar.jar");

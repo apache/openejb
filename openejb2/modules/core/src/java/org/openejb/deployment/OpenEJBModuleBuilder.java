@@ -63,6 +63,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Collection;
+import java.util.ArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -266,7 +268,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
                 ejbJar = doc.getEjbJar();
                 ejbModule.setSpecDD(ejbJar);
             } catch (XmlException e) {
-                throw new DeploymentException("Unable to parse ejb-jar.xml");
+                throw new DeploymentException("Unable to parse ejb-jar.xml", e);
             }
 
             // load the openejb-jar.xml file
@@ -488,11 +490,19 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             MessageDrivenBeanType messageDrivenBean = messageDrivenBeans[i];
 
             OpenejbMessageDrivenBeanType openejbMessageDrivenBean = (OpenejbMessageDrivenBeanType) openejbBeans.get(messageDrivenBean.getEjbName().getStringValue());
+            if (openejbMessageDrivenBean == null) {
+                throw new DeploymentException("No openejb deployment descriptor for mdb: " + messageDrivenBean.getEjbName().getStringValue());
+            }
             ObjectName messageDrivenObjectName = createEJBObjectName(earContext, module.getName(), messageDrivenBean);
             ObjectName activationSpecName = createActivationSpecObjectName(earContext, module.getName(), messageDrivenBean);
 
             String containerId = messageDrivenObjectName.getCanonicalName();
-            GBeanMBean activationSpecGBean = createActivationSpecWrapperGBean(messageDrivenBean.getActivationConfig().getActivationConfigPropertyArray(), openejbMessageDrivenBean.getResourceAdapterName(), openejbMessageDrivenBean.getActivationSpecClass(), containerId);
+            GBeanMBean activationSpecGBean = createActivationSpecWrapperGBean(earContext,
+                    messageDrivenBean.isSetActivationConfig()? messageDrivenBean.getActivationConfig().getActivationConfigPropertyArray(): new ActivationConfigPropertyType[] {},
+                    openejbMessageDrivenBean.getResourceAdapterName(),
+                    openejbMessageDrivenBean.getActivationSpecClass(),
+                    containerId,
+                    cl);
             GBeanMBean messageDrivenGBean = createMessageDrivenBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, cl);
             earContext.addGBean(activationSpecName, activationSpecGBean);
             earContext.addGBean(messageDrivenObjectName, messageDrivenGBean);
@@ -777,18 +787,35 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private GBeanMBean createActivationSpecWrapperGBean(ActivationConfigPropertyType[] activationConfigProperties, String resourceAdapterName, String activationSpecClass, String containerId) throws DeploymentException {
-        Map activationSpecMap = null;
+    private GBeanMBean createActivationSpecWrapperGBean(EARContext earContext,
+                                                        ActivationConfigPropertyType[] activationConfigProperties,
+                                                        String resourceAdapterName,
+                                                        String activationSpecClass,
+                                                        String containerId,
+                                                        ClassLoader cl) throws DeploymentException {
         ObjectName resourceAdapterObjectName = null;
-        try {
-            resourceAdapterObjectName = ObjectName.getInstance(resourceAdapterName);
-            activationSpecMap = (Map)kernel.getAttribute(resourceAdapterObjectName, "activationSpecInfoMap");
-        } catch (Exception e) {
-            throw new DeploymentException(e);
+        String resourceAdapterModule = earContext.getResourceAdapterModule(resourceAdapterName);
+        ActivationSpecInfo activationSpecInfo;
+        if (resourceAdapterModule != null) {
+            resourceAdapterObjectName = createResourceAdapterObjectName(earContext, resourceAdapterModule, resourceAdapterName);
+            activationSpecInfo = (ActivationSpecInfo) earContext.getActivationSpecInfo(resourceAdapterName, activationSpecClass);
+        } else {
+            Set names = kernel.listGBeans(createResourceAdapterQueryName(earContext, resourceAdapterName));
+            if (names.size() != 1) {
+                throw new DeploymentException("Unknown or ambiguous resource adapter reference: " + resourceAdapterName + " match count: " + names.size());
+            }
+            resourceAdapterObjectName = (ObjectName) names.iterator().next();
+            Map activationSpecInfos = null;
+            try {
+                activationSpecInfos = (Map)kernel.getAttribute(resourceAdapterObjectName, "activationSpecInfoMap");
+            } catch (Exception e) {
+                throw new DeploymentException("Could not get activation spec infos for resource adapter named: " + resourceAdapterObjectName, e);
+            }
+            activationSpecInfo = (ActivationSpecInfo) activationSpecInfos.get(activationSpecClass);
         }
-        ActivationSpecInfo activationSpecInfo = (ActivationSpecInfo)activationSpecMap.get(activationSpecClass);
-        GBeanInfo activationSpecGBeanInfo= activationSpecInfo.getActivationSpecGBeanInfo();
-        GBeanMBean activationSpecGBean = new GBeanMBean(activationSpecGBeanInfo);
+
+        GBeanInfo activationSpecGBeanInfo = activationSpecInfo.getActivationSpecGBeanInfo();
+        GBeanMBean activationSpecGBean = new GBeanMBean(activationSpecGBeanInfo, cl);
         try {
             activationSpecGBean.setAttribute("activationSpecClass", activationSpecInfo.getActivationSpecClass());
             activationSpecGBean.setAttribute("containerId", containerId);
@@ -801,7 +828,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         for (int i = 0; i < activationConfigProperties.length; i++) {
             ActivationConfigPropertyType activationConfigProperty = activationConfigProperties[i];
             String propertyName = activationConfigProperty.getActivationConfigPropertyName().getStringValue();
-            String propertyValue = activationConfigProperty.getActivationConfigPropertyValue().getStringValue();
+            String propertyValue = activationConfigProperty.getActivationConfigPropertyValue().isNil()? null: activationConfigProperty.getActivationConfigPropertyValue().getStringValue();
             try {
                 activationSpecGBean.setAttribute(propertyName, propertyValue);
             } catch (Exception e) {
@@ -857,10 +884,39 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         nameProps.put("name", ejbName);
         nameProps.put("J2EEServer", earContext.getJ2EEServerName());
         nameProps.put("J2EEApplication", earContext.getJ2EEApplicationName());
+        //TODO should this be EJBModule rather than J2EEModule???
         nameProps.put("J2EEModule", moduleName);
 
         try {
             return new ObjectName(earContext.getJ2EEDomainName(), nameProps);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Unable to construct ObjectName", e);
+        }
+    }
+
+    private ObjectName createResourceAdapterObjectName(EARContext earContext, String moduleName, String resourceAdapterName) throws DeploymentException {
+        Properties nameProps = new Properties();
+        nameProps.put("j2eeType", "ResourceAdapter");
+        nameProps.put("name", resourceAdapterName);
+        nameProps.put("J2EEServer", earContext.getJ2EEServerName());
+        nameProps.put("J2EEApplication", earContext.getJ2EEApplicationName());
+        nameProps.put("ResourceAdapterModule", moduleName);
+
+        try {
+            return new ObjectName(earContext.getJ2EEDomainName(), nameProps);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Unable to construct ObjectName", e);
+        }
+    }
+
+    ObjectName createResourceAdapterQueryName(EARContext earContext, String resourceAdapterName) throws DeploymentException {
+        StringBuffer buffer = new StringBuffer(earContext.getJ2EEDomainName())
+                .append(":j2eeType=ResourceAdapter,J2EEServer=")
+                .append(earContext.getJ2EEServerName())
+                .append(",*,name=").append(resourceAdapterName);
+
+        try {
+            return new ObjectName(buffer.toString());
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Unable to construct ObjectName", e);
         }
@@ -1170,7 +1226,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addInterface(ModuleBuilder.class);
 
-        infoFactory.setConstructor(new String[] {"kernel"});
+        infoFactory.setConstructor(new String[]{"kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
