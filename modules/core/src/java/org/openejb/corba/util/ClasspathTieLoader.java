@@ -48,6 +48,7 @@ import org.omg.PortableServer.Servant;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import org.openejb.corba.CORBAException;
 
@@ -88,7 +89,7 @@ public class ClasspathTieLoader implements TieLoader {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ClasspathTieLoader.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ClasspathTieLoader.class, NameFactory.CORBA_SERVICE);
 
         infoFactory.addOperation("loadTieClass", new Class[]{Class.class, ClassLoader.class});
 

@@ -47,20 +47,18 @@ package org.openejb.corba;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openorb.ins.Server;
-import org.openorb.ins.Service;
-
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import EDU.oswego.cs.dl.util.concurrent.Executor;
+import org.openorb.ins.Server;
+import org.openorb.ins.Service;
 
 
 /**
@@ -147,7 +145,7 @@ public class OpenORBNameBean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBNameBean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBNameBean.class, NameFactory.CORBA_SERVICE);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);

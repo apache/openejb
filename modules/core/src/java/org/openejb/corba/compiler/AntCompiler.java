@@ -56,6 +56,7 @@ import org.apache.tools.ant.types.Path;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 
 /**
@@ -96,7 +97,7 @@ public class AntCompiler implements Compiler {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AntCompiler.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AntCompiler.class, NameFactory.CORBA_SERVICE);
 
         infoFactory.addInterface(Compiler.class);
 

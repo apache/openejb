@@ -116,7 +116,6 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
             } else {
                 loader = (ClassLoader) nameToLoaderMap.get(name);
             }
-
             if (loader == null) {
                 URL url = (URL) nameToClassMap.get(name);
                 if (url == null) {
@@ -133,14 +132,15 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
                         stubGenerator.generateStubs(Collections.singleton(iName), file, classLoader);
 
                         url = file.toURL();
+                        nameToClassMap.put(name, url);
                     } catch (IOException e) {
                         throw new ClassNotFoundException("Unable to generate stub", e);
                     } catch (CompilerException e) {
                         throw new ClassNotFoundException("Unable to generate stub", e);
                     }
-                    loader = new URLClassLoader(new URL[]{url}, classLoader);
-                    nameToLoaderMap.put(name, loader);
                 }
+                loader = new URLClassLoader(new URL[]{url}, classLoader);
+                nameToLoaderMap.put(name, loader);
             } else {
                 if (log.isDebugEnabled()) log.debug("Found cached loader");
             }
@@ -167,7 +167,7 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
 
     public synchronized void doStop() throws Exception {
         this.state = STOPPED;
-        
+
         parentToNameToLoaderMap.clear();
         nameToClassMap.clear();
 
@@ -188,9 +188,9 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
 
     static {
 
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBStubClassLoader.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBStubClassLoader.class, NameFactory.CORBA_SERVICE);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("StubGenerator", StubGenerator.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("StubGenerator", StubGenerator.class, NameFactory.CORBA_SERVICE);
         infoFactory.addAttribute("cacheDir", String.class, true);
         infoFactory.addOperation("loadClass", new Class[]{String.class});
         infoFactory.setConstructor(new String[]{"ServerInfo", "StubGenerator", "cacheDir"});

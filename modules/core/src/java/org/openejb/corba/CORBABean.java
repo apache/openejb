@@ -163,7 +163,7 @@ public class CORBABean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(CORBABean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(CORBABean.class, NameFactory.CORBA_SERVICE);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
