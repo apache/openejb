@@ -47,6 +47,7 @@
 package org.openejb;
 
 import java.security.Permission;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
@@ -111,25 +112,13 @@ import org.apache.log4j.Category;
 
 public final class OpenEJB {
 
-    static {
-	// This system property must be set before the org.apache.log4j.Category object is created.
-        /* DMB: We should get the defaults from the functionality 
-         *      Alan is working on.  This is temporary.
-         *      When that logic is finished, this block should
-         *      probably just be deleted.
-         */
-	if( System.getProperty("log4j.configuration") == null) {
-	    System.setProperty("log4j.configuration", "file:conf/default.logging.conf");
-	}
-    }
-
     private static ContainerSystem    containerSystem;
     private static SecurityService    securityService;
     private static ApplicationServer  applicationServer;
     private static TransactionManager transactionManager;
     private static Properties         props;
     private static boolean            initialized;
-    private static Category           logger = Category.getInstance("OpenEJB");
+    private static Category           logger;
 
     public static void init(Properties props)
     throws OpenEJBException{
@@ -142,21 +131,39 @@ public final class OpenEJB {
      * @exception org.openejb.OpenEJBException Thrown if a problem occurs building the ContainerSystem
      * @since JDK 1.2
      */
-    public static void init(Properties initProps, ApplicationServer appServer) throws OpenEJBException{
-        
-//      try{
-//          System.getProperties().list(new java.io.PrintStream(new java.io.FileOutputStream("sys.properties")));
-//      }catch (Exception e){
-//      }
+    public static void init(Properties initProps, ApplicationServer appServer) throws OpenEJBException {
         
         if ( initialized ) {
-            logger.error("Cannot initialize OpenEJB a second time in the same VM.");
-            throw new OpenEJBException("OpenEJB has already been initialized.");
+            logger.error( "Cannot initialize OpenEJB a second time in the same VM." );
+            throw new OpenEJBException( "OpenEJB has already been initialized." );
         } else {
+	    /*
+	     * Setup the java protocol handler path to include org.openejb.util.urlhandler
+	     * so that org.openejb.util.urlhandler.resource.Handler will be used for URLs
+	     * of the form "resource:/path".
+	     */
+            try {
+                String oldPkgs = System.getProperty( "java.protocol.handler.pkgs" );
+
+                if ( oldPkgs == null )
+                    System.setProperty( "java.protocol.handler.pkgs", "org.openejb.util.urlhandler" );
+                else if ( oldPkgs.indexOf( "org.openejb.util.urlhandler" ) < 0 )
+                    System.setProperty( "java.protocol.handler.pkgs", oldPkgs + "|" + "org.openejb.util.urlhandler" );
+            } catch ( SecurityException ex ) {
+            }
+	    
+	    // Set log4j's configuration (Note the URL's form)
+	    if( System.getProperty( "log4j.configuration" ) == null ) {
+		System.setProperty( "log4j.configuration", "resource:/default.logging.conf" );
+	    }
+
+	    logger = Category.getInstance( "OpenEJB" );
+
             initialized = true;
         }
         
         logger.info("Intializing OpenEJB...");
+        logger.info(new Date());
 
         SecurityManager sm = System.getSecurityManager();
         if (sm == null) {
