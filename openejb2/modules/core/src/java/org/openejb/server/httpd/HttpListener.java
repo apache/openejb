@@ -44,6 +44,8 @@
  */
 package org.openejb.server.httpd;
 
+import java.io.IOException;
+
 public interface HttpListener {
-    void onMessage(HttpRequest req, HttpResponse res);
+    void onMessage(HttpRequest req, HttpResponse res) throws IOException;
 }

@@ -84,7 +84,7 @@ public class HttpServerTest extends TestCase {
             connection = (HttpURLConnection) url.openConnection();
 
             int responseCode = connection.getResponseCode();
-            assertEquals("HTTP response code should be 204", responseCode, HttpURLConnection.HTTP_NO_CONTENT);
+            assertEquals("HTTP response code should be 204", HttpURLConnection.HTTP_NO_CONTENT, responseCode);
         } finally {
             connection.disconnect();
             daemon.doStop();
@@ -106,7 +106,7 @@ public class HttpServerTest extends TestCase {
             connection = (HttpURLConnection) url.openConnection();
 
             int responseCode = connection.getResponseCode();
-            assertEquals("HTTP response code should be 204", responseCode, HttpURLConnection.HTTP_NO_CONTENT);
+            assertEquals("HTTP response code should be 204", HttpURLConnection.HTTP_NO_CONTENT, responseCode);
         } finally {
             connection.disconnect();
             serviceStack.doStop();
@@ -133,7 +133,7 @@ public class HttpServerTest extends TestCase {
             connection = (HttpURLConnection) url.openConnection();
 
             int responseCode = connection.getResponseCode();
-            assertEquals("HTTP response code should be 204", responseCode, HttpURLConnection.HTTP_NO_CONTENT);
+            assertEquals("HTTP response code should be 204", HttpURLConnection.HTTP_NO_CONTENT, responseCode);
         } finally {
             connection.disconnect();
             serviceStack.doStop();
