@@ -114,38 +114,4 @@
             </properties>
         </dependency>
     </dependencies>
-
-
-    <!-- =================== -->
-    <!-- Build Specification -->
-    <!-- =================== -->
-
-    <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/etc</directory>
-                <includes>
-                    <include>*.properties</include>
-                </includes>
-            </resource>
-        </resources>
-        <unitTest>
-            <resources>
-                <resource>
-                    <directory>${basedir}/src/schema</directory>
-                    <includes>
-                        <include>*.xsd</include>
-                        <include>*.dtd</include>
-                    </includes>
-                </resource>
-            </resources>
-        </unitTest>
-    </build>
 </project>
