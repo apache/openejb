@@ -68,7 +68,7 @@ public class Lookup extends Command {
         Command.register("lookup", cmd);
         //Command.register("list", cmd);
     }
-    
+
 
     //DMB: Temp-current dir support will be added later
     static String PWD = "";
@@ -83,7 +83,7 @@ public class Lookup extends Command {
             } else {
                 name = args[0];
             }
-                        
+
             Object obj = null;
             try{
                obj = ctx.lookup(name);
@@ -97,12 +97,12 @@ public class Lookup extends Command {
                 e.printStackTrace(new PrintStream(out));
                 return;
             }
-            
+
             if ( obj instanceof Context ){
                 list(args, in, out);
                 return;
             }
-    
+
             // TODO:1: Output the differnt data types differently
             out.println(""+obj);
         } catch (Exception e){

@@ -60,7 +60,7 @@ public class Ls extends Command {
         Command.register("system", cmd);
         //Command.register("list", cmd);
     }
-    
+
     public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
         //list containers
         Container[] c = OpenEJB.containers();

@@ -56,7 +56,7 @@ public class Help extends Command {
     public static void register() {
         Command.register("help", Help.class);
     }
-    
+
     public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
         HashMap hash = Command.commands;
         Set set = hash.keySet();
@@ -65,7 +65,7 @@ public class Help extends Command {
             out.print(" "+cmds.next());
             out.println("");
         }
-        
+
     }
 
 }

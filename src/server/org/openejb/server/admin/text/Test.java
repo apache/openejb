@@ -56,10 +56,10 @@ public class Test extends Command {
     public static void _DONT_register() {
         Command.register("test", Test.class);
     }
-    
+
     public void exec(String[] args, DataInputStream in, PrintStream out) throws IOException{
         try{
-            
+
             InputStream file = new FileInputStream("print.txt");
             int b = file.read();
             while (b != -1) {
