@@ -70,7 +70,7 @@ import org.openejb.ProxyInfo;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.proxy.ProxyManager;
-import org.openejb.alt.util.Messages;
+import org.openejb.util.Messages;
 
 
 /**
@@ -81,7 +81,7 @@ import org.openejb.alt.util.Messages;
  */
 public class EjbRemoteIntfcProcessor {
 
-    static protected Messages _messages = new Messages();
+    static protected Messages _messages = new Messages( "org.openejb.alt.util.resources" );
 
     /**
      * Internally processes the business methods from the bean's remote 

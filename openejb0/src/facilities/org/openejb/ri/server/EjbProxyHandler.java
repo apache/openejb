@@ -62,7 +62,7 @@ import org.openejb.spi.Serializer;
 import org.openejb.util.proxy.InvalidatedReferenceHandler;
 import org.openejb.util.proxy.InvocationHandler;
 import org.openejb.util.proxy.ProxyManager;
-import org.openejb.alt.util.Messages;
+import org.openejb.util.Messages;
 
 /**
  * This InvocationHandler and its proxy are serializable and can be used by
@@ -85,7 +85,7 @@ public class EjbProxyHandler implements InvocationHandler, Serializable {
     boolean isInvalidReference = false;
     String securityToken;
 
-    static protected Messages _messages = new Messages();
+    static protected Messages _messages = new Messages( "org.openejb.alt.util.resources" );
 
 
     /** Public no-arg constructor required by Externalizable API */

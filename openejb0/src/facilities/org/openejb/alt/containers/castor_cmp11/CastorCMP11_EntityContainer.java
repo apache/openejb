@@ -86,7 +86,7 @@ import org.openejb.util.LinkedListStack;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.Stack;
-import org.openejb.alt.util.Logger;
+import org.openejb.util.Logger;
 
 /**
  * Container-Managed Persistence EntityBean container
@@ -104,7 +104,7 @@ public class CastorCMP11_EntityContainer
 
 
     protected static class CMPLogger implements org.exolab.castor.persist.spi.LogInterceptor {
-        protected final Logger logger = Logger.getInstance( "OpenEJB.CastorCMP" );
+        protected final Logger logger = Logger.getInstance( "OpenEJB.CastorCMP", "org.openejb.alt.util.resources" );
         protected final String db;
 
         public CMPLogger(String db) {
@@ -222,7 +222,7 @@ public class CastorCMP11_EntityContainer
     }
 
 
-    public Logger logger = Logger.getInstance( "OpenEJB" );
+    public Logger logger = Logger.getInstance( "OpenEJB", "org.openejb.alt.util.resources" );
     
     // contains deployment information for each by deployed to this container
     HashMap deploymentRegistry;

@@ -18,7 +18,7 @@ import java.io.File;
  */
 public class EjbValidator {
 
-    static protected Messages _messages = new Messages();
+    static protected Messages _messages = new Messages( "org.openejb.alt.util.resources" );
 
     private DataInputStream in;
     private PrintStream out;

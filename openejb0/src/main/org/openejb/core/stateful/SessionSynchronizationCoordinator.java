@@ -37,7 +37,7 @@ public class SessionSynchronizationCoordinator implements javax.transaction.Sync
     
 
     private static java.util.HashMap coordinators = new java.util.HashMap();
-    public static Logger logger = Logger.getInstance( "OpenEJB" );
+    public static Logger logger = Logger.getInstance( "OpenEJB", "org.openejb.util.resources" );
 
     /**
      * The actual instances are not stored in this hash as we cannot forsee how 

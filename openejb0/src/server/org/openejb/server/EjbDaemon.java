@@ -82,8 +82,8 @@ import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.FileUtils;
 import org.openejb.util.JarUtils;
-import org.openejb.server.util.Logger;
-import org.openejb.server.util.Messages;
+import org.openejb.util.Logger;
+import org.openejb.util.Messages;
 import org.openejb.server.admin.text.*;
 
 /**
@@ -94,8 +94,8 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
     private SafeToolkit toolkit = SafeToolkit.getToolkit("OpenEJB EJB Server");
 
-	Messages _messages = new Messages();
-    Logger logger = Logger.getInstance( "OpenEJB" );
+	Messages _messages = new Messages( "org.openejb.server.util.resources" );
+    Logger logger = Logger.getInstance( "OpenEJB", "org.openejb.server.util.resources" );
 
     Vector           clientSockets  = new Vector();
     ServerSocket     serverSocket   = null;

@@ -68,7 +68,7 @@ import org.openejb.OpenEJBException;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.proxy.ProxyManager;
-import org.openejb.alt.util.Messages;
+import org.openejb.util.Messages;
 
 /**
  * Represents the EJB Server's responsibility in handling methods that are
@@ -78,7 +78,7 @@ import org.openejb.alt.util.Messages;
  */
 public class EjbObjectProcessor {
 
-    static protected Messages _messages = new Messages();
+    static protected Messages _messages = new Messages( "org.openejb.alt.util.resources" );
 
     /**
      * Internally processes the getHandle, getPrimaryKey, isIdentical, remove

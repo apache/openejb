@@ -49,7 +49,7 @@ import java.io.*;
 import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.NamingException;
-import org.openejb.alt.util.Messages;
+import org.openejb.util.Messages;
 
 /**
  * Dynamic ClassLoader that loads classes from the NamingServer.
@@ -61,7 +61,7 @@ import org.openejb.alt.util.Messages;
  */
 public class RiClassLoader extends ClassLoader {
 
-    static protected Messages _messages = new Messages();
+    static protected Messages _messages = new Messages( "org.openejb.alt.util.resources" );
 
 
     private Hashtable env;
