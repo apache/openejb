@@ -42,46 +42,70 @@
  *
  * $Id$
  */
-package org.openejb.corba.security;
+package org.openejb.corba.sunorb;
 
+import java.net.Socket;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+
+import com.sun.corba.se.interceptor.RequestInfoExt;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.omg.CORBA.INV_POLICY;
 import org.omg.CORBA.LocalObject;
-import org.omg.IOP.TAG_INTERNET_IOP;
-import org.omg.PortableInterceptor.IORInfo;
-import org.omg.PortableInterceptor.IORInterceptor;
+import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.omg.PortableInterceptor.ServerRequestInterceptor;
 
-import org.openejb.corba.util.Util;
+import org.openejb.corba.security.SSLSessionManager;
 
 
 /**
  * @version $Revision$ $Date$
  */
-final class IORSecurityInterceptor extends LocalObject implements IORInterceptor {
+final class ServiceContextInterceptor extends LocalObject implements ServerRequestInterceptor {
 
-    private final Log log = LogFactory.getLog(IORSecurityInterceptor.class);
+    private final Log log = LogFactory.getLog(ServiceContextInterceptor.class);
 
-    public void establish_components(IORInfo info) {
+    public ServiceContextInterceptor() {
+        if (log.isDebugEnabled()) log.debug("<init>");
+    }
 
-        try {
-            ServerPolicy policy = (ServerPolicy) info.get_effective_policy(ServerPolicyFactory.POLICY_TYPE);
+    public void receive_request(ServerRequestInfo ri) {
+    }
 
-            if (policy == null || policy.getConfig() == null) return;
+    public void receive_request_service_contexts(ServerRequestInfo ri) {
 
-            info.add_ior_component_to_profile(policy.getConfig().generateIOR(Util.getORB(), Util.getCodec()), TAG_INTERNET_IOP.value);
-        } catch (INV_POLICY e) {
-            // do nothing
-        } catch (Exception e) {
-            log.error("Generating IOR", e);
+        if (log.isDebugEnabled()) log.debug("Looking for SSL Session");
+
+        RequestInfoExt riExt = (RequestInfoExt) ri;
+        Socket socket = riExt.connection().getSocket();
+        if (socket instanceof SSLSocket) {
+            if (log.isDebugEnabled()) log.debug("Found SSL Session");
+            SSLSocket sslSocket = (SSLSocket) socket;
+
+            SSLSessionManager.setSSLSession(ri.request_id(), sslSocket.getSession());
         }
     }
 
+    public void send_exception(ServerRequestInfo ri) {
+        SSLSession old = SSLSessionManager.clearSSLSession(ri.request_id());
+        if (log.isDebugEnabled() && old != null) log.debug("Removing SSL Session for send_exception");
+    }
+
+    public void send_other(ServerRequestInfo ri) {
+        SSLSession old = SSLSessionManager.clearSSLSession(ri.request_id());
+        if (log.isDebugEnabled() && old != null) log.debug("Removing SSL Session for send_reply");
+    }
+
+    public void send_reply(ServerRequestInfo ri) {
+        SSLSession old = SSLSessionManager.clearSSLSession(ri.request_id());
+        if (log.isDebugEnabled() && old != null) log.debug("Removing SSL Session for send_reply");
+    }
+
     public void destroy() {
+        if (log.isDebugEnabled()) log.debug("Destroy");
     }
 
     public String name() {
-        return "org.openejb.corba.security.IORSecurityInterceptor";
+        return "org.openejb.corba.sunorb.ServiceContextInterceptor";
     }
-
 }

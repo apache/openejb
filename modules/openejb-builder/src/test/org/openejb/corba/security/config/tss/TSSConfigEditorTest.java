@@ -125,10 +125,8 @@ public class TSSConfigEditorTest extends TestCase {
     }
 
 
-    private static final String propString = " org.omg.CORBA.ORBClass=org.openorb.orb.core.ORB\n" +
-            "            org.omg.CORBA.ORBSingletonClass=org.openorb.orb.core.ORBSingleton\n" +
+    private static final String propString = "\n" +
             "\n" +
-            "            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.util.UtilInitializer\n" +
             "            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer\n" +
             "            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer\n" +
             "            org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.openorb.OpenORBInitializer\n" +
@@ -163,10 +161,6 @@ public class TSSConfigEditorTest extends TestCase {
         String configAdapter = "org.openejb.corba.openorb.OpenORBConfigAdapter";
         CORBABean corbaBean = new CORBABean(configAdapter, classLoader, threadPool, null, null);
         ArrayList args = new ArrayList();
-        args.add("-ORBPort");
-        args.add("6683");
-        args.add("-ORBInitRef");
-        args.add("NameService=corbaloc::localhost:2809/NameService");
         corbaBean.setArgs(args);
         Properties properties = new Properties();
         properties.load(new ByteArrayInputStream(propString.getBytes()));

@@ -52,13 +52,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.omg.CORBA.ORB;
-import org.omg.CSI.ITTAbsent;
-import org.omg.CSI.ITTPrincipalName;
-import org.omg.CSIIOP.DelegationByClient;
-import org.omg.CSIIOP.IdentityAssertion;
-import org.omg.CSIIOP.SAS_ContextSec;
-import org.omg.CSIIOP.ServiceConfiguration;
 import org.omg.IOP.Codec;
+
+import org.apache.geronimo.interop.CSI.ITTAbsent;
+import org.apache.geronimo.interop.CSI.ITTPrincipalName;
+import org.apache.geronimo.interop.CSIIOP.DelegationByClient;
+import org.apache.geronimo.interop.CSIIOP.IdentityAssertion;
+import org.apache.geronimo.interop.CSIIOP.SAS_ContextSec;
+import org.apache.geronimo.interop.CSIIOP.ServiceConfiguration;
 
 import org.openejb.corba.util.Util;
 

@@ -49,17 +49,18 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.LocalObject;
+import org.omg.CORBA.Policy;
 import org.omg.IOP.ServiceContext;
 import org.omg.IOP.TAG_CSI_SEC_MECH_LIST;
 import org.omg.IOP.TaggedComponent;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
-import org.openorb.orb.net.AbstractServerRequest;
 
 import org.openejb.corba.security.config.css.CSSCompoundSecMechConfig;
 import org.openejb.corba.security.config.css.CSSConfig;
 import org.openejb.corba.security.config.tss.TSSCompoundSecMechListConfig;
 import org.openejb.corba.util.Util;
+import org.openejb.corba.ClientContextManager;
 
 
 /**
@@ -70,20 +71,23 @@ final class ClientSecurityInterceptor extends LocalObject implements ClientReque
     private final Log log = LogFactory.getLog(ClientSecurityInterceptor.class);
 
     public ClientSecurityInterceptor() {
-        AbstractServerRequest.disableServiceContextExceptions();
         if (log.isDebugEnabled()) log.debug("Registered");
     }
 
     public void receive_exception(ClientRequestInfo ri) {
+        int i = 0;
     }
 
     public void receive_other(ClientRequestInfo ri) {
+        int i = 0;
     }
 
     public void receive_reply(ClientRequestInfo ri) {
+        int i = 0;
     }
 
     public void send_poll(ClientRequestInfo ri) {
+        int i = 0;
     }
 
     public void send_request(ClientRequestInfo ri) {
@@ -96,12 +100,11 @@ final class ClientSecurityInterceptor extends LocalObject implements ClientReque
 
             if (log.isDebugEnabled()) log.debug("Target has a security policy");
 
-            ClientPolicy policy = (ClientPolicy) ri.get_request_policy(ClientPolicyFactory.POLICY_TYPE);
-            if (policy.getConfig() == null) return;
+            CSSConfig config = ClientContextManager.getClientContext().getSecurityConfig();
+            if (config == null) return;
 
             if (log.isDebugEnabled()) log.debug("Client has a security policy");
 
-            CSSConfig config = policy.getConfig();
             List compat = config.findCompatibleSet(csml);
 
             if (compat.size() == 0) return;

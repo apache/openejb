@@ -87,7 +87,7 @@ public class AdapterStateful extends Adapter {
     private final AdapterProxyFactory factory;
 
     public AdapterStateful(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader, Policy securityPolicy) throws CORBAException {
-        super(container, orb, parentPOA, tieLoader);
+        super(container, orb, parentPOA, tieLoader, securityPolicy);
 
         Any any = orb.create_any();
         any.insert_Value(container.getRemoteTxPolicyConfig());

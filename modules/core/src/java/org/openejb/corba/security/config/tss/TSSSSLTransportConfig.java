@@ -59,13 +59,17 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;
-import org.omg.CSIIOP.TAG_NULL_TAG;
-import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
-import org.omg.CSIIOP.TLS_SEC_TRANS;
-import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
-import org.omg.CSIIOP.TransportAddress;
 import org.omg.IOP.Codec;
-import org.omg.IOP.TaggedComponent;
+
+import org.apache.geronimo.interop.CSIIOP.EstablishTrustInClient;
+import org.apache.geronimo.interop.CSIIOP.TAG_NULL_TAG;
+import org.apache.geronimo.interop.CSIIOP.TAG_TLS_SEC_TRANS;
+import org.apache.geronimo.interop.CSIIOP.TLS_SEC_TRANS;
+import org.apache.geronimo.interop.CSIIOP.TLS_SEC_TRANSHelper;
+import org.apache.geronimo.interop.CSIIOP.TransportAddress;
+import org.apache.geronimo.interop.IOP.TaggedComponent;
+
+import org.openejb.corba.security.SASException;
 
 
 /**
@@ -75,7 +79,7 @@ import org.omg.IOP.TaggedComponent;
  */
 public class TSSSSLTransportConfig extends TSSTransportMechConfig {
 
-    private final transient Log log = LogFactory.getLog(TSSSSLTransportConfig.class);
+    private final static Log log = LogFactory.getLog(TSSSSLTransportConfig.class);
 
     private short port;
     private String hostname;
@@ -162,17 +166,27 @@ public class TSSSSLTransportConfig extends TSSTransportMechConfig {
         return result;
     }
 
-    public Subject check(SSLSession session) throws NO_PERMISSION {
+    public Subject check(SSLSession session) throws SASException {
         if (session == null && requires != 0) throw new NO_PERMISSION("Missing required SSL session");
 
         try {
+            if (log.isDebugEnabled()) log.debug("Scraping principal from SSL session");
+
             X509Certificate link = session.getPeerCertificateChain()[0];
             Subject subject = new Subject();
+            String name = link.getSubjectDN().toString();
 
-            subject.getPrincipals().add(new X500Principal(link.getSubjectDN().toString()));
+            if (log.isDebugEnabled()) log.debug("Obtained principal " + name);
+
+            subject.getPrincipals().add(new X500Principal(name));
 
             return subject;
         } catch (SSLPeerUnverifiedException e) {
+            if ((requires & EstablishTrustInClient.value) != 0) {
+                if (log.isDebugEnabled()) log.debug("Unverified peer, throwing exception");
+                throw new SASException(1);
+            }
+            if (log.isDebugEnabled()) log.debug("Unverified peer, using empty subject");
             return new Subject();
         }
     }

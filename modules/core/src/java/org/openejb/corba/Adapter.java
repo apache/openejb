@@ -84,7 +84,7 @@ public abstract class Adapter implements RefGenerator {
     private final byte[] home_id;
     private final org.omg.CORBA.Object homeReference;
 
-    protected Adapter(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader) throws CORBAException {
+    protected Adapter(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader, Policy securityPolicy) throws CORBAException {
         this.container = container;
         this.parentPOA = parentPOA;
         this.tieLoader = tieLoader;
@@ -95,8 +95,9 @@ public abstract class Adapter implements RefGenerator {
 
         try {
             Policy[] policies = new Policy[]{
+                securityPolicy,
                 orb.create_policy(ServerTransactionPolicyFactory.POLICY_TYPE, any),
-                parentPOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
+//                parentPOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
                 parentPOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_ACTIVE_OBJECT_MAP_ONLY),
                 parentPOA.create_servant_retention_policy(ServantRetentionPolicyValue.RETAIN),
                 parentPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),

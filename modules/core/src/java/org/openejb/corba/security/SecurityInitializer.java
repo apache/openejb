@@ -66,6 +66,10 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
 
     private final Log log = LogFactory.getLog(SecurityInitializer.class);
 
+    public SecurityInitializer() {
+        if (log.isDebugEnabled()) log.debug("SecurityInitializer.<init>");
+    }
+
     /**
      * Called during ORB initialization.  If it is expected that initial
      * services registered by an interceptor will be used by other
@@ -99,26 +103,35 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
      */
     public void post_init(ORBInitInfo info) {
 
-        Subject defaultSubject = null;
-        String[] strings = info.arguments();
-        for (int i = 0; i < strings.length; i++) {
-            String arg = strings[i];
-            if (arg.startsWith("default-principal::")) {
-                defaultSubject = generateDefaultSubject(arg);
-                break;
-            }
-        }
-
         try {
-            info.add_client_request_interceptor(new ClientSecurityInterceptor());
-            info.add_server_request_interceptor(new ServerSecurityInterceptor(info.allocate_slot_id(), defaultSubject));
-            info.add_ior_interceptor(new IORSecurityInterceptor());
-        } catch (DuplicateName dn) {
-            log.error("Error registering interceptor", dn);
-        }
+            if (log.isDebugEnabled()) log.debug("Registering interceptors and policy factories");
 
-        info.register_policy_factory(ClientPolicyFactory.POLICY_TYPE, new ClientPolicyFactory());
-        info.register_policy_factory(ServerPolicyFactory.POLICY_TYPE, new ServerPolicyFactory());
+            Subject defaultSubject = null;
+            String[] strings = info.arguments();
+            for (int i = 0; i < strings.length; i++) {
+                String arg = strings[i];
+                if (arg.startsWith("default-principal::")) {
+                    defaultSubject = generateDefaultSubject(arg);
+                    break;
+                }
+            }
+
+            if (log.isDebugEnabled()) log.debug("Default subject: " + defaultSubject);
+
+            try {
+                info.add_client_request_interceptor(new ClientSecurityInterceptor());
+                info.add_server_request_interceptor(new ServerSecurityInterceptor(info.allocate_slot_id(), info.allocate_slot_id(), defaultSubject));
+                info.add_ior_interceptor(new IORSecurityInterceptor());
+            } catch (DuplicateName dn) {
+                log.error("Error registering interceptor", dn);
+            }
+
+            info.register_policy_factory(ClientPolicyFactory.POLICY_TYPE, new ClientPolicyFactory());
+            info.register_policy_factory(ServerPolicyFactory.POLICY_TYPE, new ServerPolicyFactory());
+        } catch (RuntimeException re) {
+            log.error("Error registering interceptor", re);
+            throw re;
+        }
     }
 
     private Subject generateDefaultSubject(String argument) {

@@ -174,6 +174,8 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
             jar.setUpdate(true);
             jar.execute();
         } catch (Exception e) {
+            log.error(e);
+
             /**
              * Convert the msg to string so that we don't try to serialize
              * anything that is unserializable in a cause exception
@@ -198,6 +200,8 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
         if (compiler == null) {
             compiler = new AntCompiler();
         }
+        URL url = Thread.currentThread().getContextClassLoader().getResource("resource:/org/openorb/config/OpenORB.xml");
+        //resource:/org/openorb/config/OpenORB.xml
     }
 
     public void doStop() throws Exception {

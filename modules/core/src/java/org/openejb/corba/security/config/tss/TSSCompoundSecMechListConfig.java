@@ -52,12 +52,13 @@ import java.util.ArrayList;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
-import org.omg.CSIIOP.CompoundSecMech;
-import org.omg.CSIIOP.CompoundSecMechList;
-import org.omg.CSIIOP.CompoundSecMechListHelper;
-import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
 import org.omg.IOP.Codec;
 import org.omg.IOP.TaggedComponent;
+
+import org.apache.geronimo.interop.CSIIOP.CompoundSecMech;
+import org.apache.geronimo.interop.CSIIOP.CompoundSecMechList;
+import org.apache.geronimo.interop.CSIIOP.CompoundSecMechListHelper;
+import org.apache.geronimo.interop.CSIIOP.TAG_CSI_SEC_MECH_LIST;
 
 
 /**

@@ -38,31 +38,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2005 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
  *
  * $Id$
  */
-package org.openejb.corba.util;
+package org.openejb.corba.sunorb;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.LocalObject;
-import org.omg.CORBA.UserException;
-import org.omg.CORBA.ORB;
 import org.omg.PortableInterceptor.ORBInitInfo;
+import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 import org.omg.PortableInterceptor.ORBInitializer;
 
 
 /**
- * The sole purpose of this initializer is to register a non-singleton ORB
- * with the class <code>Util</code>.
- *
  * @version $Revision$ $Date$
- * @see Util
  */
-public class UtilInitializer extends LocalObject implements ORBInitializer {
+public class SunORBInitializer extends LocalObject implements ORBInitializer {
 
-    private final Log log = LogFactory.getLog(UtilInitializer.class);
+    private final Log log = LogFactory.getLog(SunORBInitializer.class);
+
+    public SunORBInitializer() {
+        if (log.isDebugEnabled()) log.debug("SSLInitializer.<init>");
+    }
 
     /**
      * Called during ORB initialization.  If it is expected that initial
@@ -96,5 +95,19 @@ public class UtilInitializer extends LocalObject implements ORBInitializer {
      *             operations by which Interceptors can be registered.
      */
     public void post_init(ORBInitInfo info) {
+
+        try {
+            if (log.isDebugEnabled()) log.debug("Registering IOR interceptor");
+
+            try {
+                info.add_ior_interceptor(new IORSSLInterceptor());
+                info.add_server_request_interceptor(new ServiceContextInterceptor());
+            } catch (DuplicateName dn) {
+                log.error("Error registering interceptor", dn);
+            }
+        } catch (RuntimeException re) {
+            log.error("Error registering interceptor", re);
+            throw re;
+        }
     }
 }

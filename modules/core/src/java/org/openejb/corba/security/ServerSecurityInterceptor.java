@@ -44,7 +44,9 @@
  */
 package org.openejb.corba.security;
 
+import java.util.Set;
 import javax.security.auth.Subject;
+import javax.security.auth.DestroyFailedException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,22 +54,26 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.INV_POLICY;
 import org.omg.CORBA.LocalObject;
-import org.omg.CSI.MTCompleteEstablishContext;
-import org.omg.CSI.MTContextError;
-import org.omg.CSI.MTEstablishContext;
-import org.omg.CSI.MTMessageInContext;
-import org.omg.CSI.SASContextBody;
-import org.omg.CSI.SASContextBodyHelper;
+import org.omg.CORBA.MARSHAL;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.IOP.CodecPackage.FormatMismatch;
+import org.omg.IOP.CodecPackage.InvalidTypeForEncoding;
 import org.omg.IOP.CodecPackage.TypeMismatch;
 import org.omg.IOP.SecurityAttributeService;
 import org.omg.IOP.ServiceContext;
-import org.omg.PortableInterceptor.InvalidSlot;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
-import org.openorb.orb.net.AbstractServerRequest;
 
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.interop.CSI.SASContextBodyHelper;
+import org.apache.geronimo.interop.CSI.SASContextBody;
+import org.apache.geronimo.interop.CSI.MTEstablishContext;
+import org.apache.geronimo.interop.CSI.ContextError;
+import org.apache.geronimo.interop.CSI.CompleteEstablishContext;
+import org.apache.geronimo.interop.CSI.MTCompleteEstablishContext;
+import org.apache.geronimo.interop.CSI.MTContextError;
+import org.apache.geronimo.interop.CSI.MTMessageInContext;
 
 import org.openejb.corba.security.config.tss.TSSConfig;
 import org.openejb.corba.util.Util;
@@ -80,23 +86,26 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 
     private final Log log = LogFactory.getLog(ServerSecurityInterceptor.class);
 
-    private final int slotId;
+    private final int subjectSlot;
+    private final int replySlot;
     private final Subject defaultSubject;
 
-    public ServerSecurityInterceptor(int slotId, Subject defaultSubject) {
-        this.slotId = slotId;
+    public ServerSecurityInterceptor(int subjectSlot, int replySlot, Subject defaultSubject) {
+        this.subjectSlot = subjectSlot;
+        this.replySlot = replySlot;
         this.defaultSubject = defaultSubject;
 
         if (defaultSubject != null) ContextManager.registerSubject(defaultSubject);
-        AbstractServerRequest.disableServiceContextExceptions();
     }
 
     public void receive_request(ServerRequestInfo ri) {
 
         Subject identity = null;
+        long contextId = 0;
 
         try {
             ServerPolicy serverPolicy = (ServerPolicy) ri.get_server_policy(ServerPolicyFactory.POLICY_TYPE);
+            if (serverPolicy == null) return;
             TSSConfig tssPolicy = serverPolicy.getConfig();
             if (tssPolicy == null) return;
 
@@ -109,9 +118,13 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
             short msgType = contextBody.discriminator();
             switch (msgType) {
                 case MTEstablishContext.value:
+                    contextId = contextBody.establish_msg().client_context_id;
+
                     identity = tssPolicy.check(SSLSessionManager.getSSLSession(ri.request_id()), contextBody.establish_msg());
 
                     ContextManager.registerSubject(identity);
+
+                    SASReplyManager.setSASReply(ri.request_id(), generateContextEstablished(identity, contextId, false));
 
                     break;
 
@@ -125,33 +138,34 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 
                 case MTMessageInContext.value:
                     log.error("The CSIv2 TSS is not supposed to receive a CompleteEstablishContext message.");
-                    throw new INTERNAL("MessageInContext is currently not supported by this implementation.");
-            }
 
+                    contextId = contextBody.in_context_msg().client_context_id;
+                    throw new SASNoContextException();
+            }
+        } catch (BAD_PARAM e) {
+            identity = defaultSubject;
         } catch (INV_POLICY e) {
             identity = defaultSubject;
         } catch (TypeMismatch tm) {
             log.error("TypeMismatch thrown", tm);
-            throw new INTERNAL("TypeMismatch thrown: " + tm);
+            throw new MARSHAL("TypeMismatch thrown: " + tm);
         } catch (FormatMismatch fm) {
             log.error("FormatMismatch thrown", fm);
-            throw new INTERNAL("FormatMismatch thrown: " + fm);
+            throw new MARSHAL("FormatMismatch thrown: " + fm);
+        } catch (SASException e) {
+            log.error("SASException", e);
+            SASReplyManager.setSASReply(ri.request_id(), generateContextError(e, contextId));
+            throw (RuntimeException) e.getCause();
+        } catch (Exception e) {
+            log.error("Exception", e);
+            throw (RuntimeException) e.getCause();
         }
 
         if (identity != null) {
-            try {
-                ContextManager.setCurrentCaller(identity);
-                ContextManager.setNextCaller(identity);
+            ContextManager.setCurrentCaller(identity);
+            ContextManager.setNextCaller(identity);
 
-                Any subjectAny = ri.get_slot(slotId);
-                subjectAny.insert_Value(identity);
-                ri.set_slot(slotId, subjectAny);
-
-                SubjectManager.setSubject(ri.request_id(), identity);
-            } catch (InvalidSlot is) {
-                log.error("InvalidSlot thrown", is);
-                throw new INTERNAL("InvalidSlot thrown: " + is);
-            }
+            SubjectManager.setSubject(ri.request_id(), identity);
         }
     }
 
@@ -159,32 +173,20 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
     }
 
     public void send_exception(ServerRequestInfo ri) {
-        try {
-            Any subjectAny = ri.get_slot(slotId);
-//            Subject identity = (Subject) subjectAny.extract_Value();
-            Subject identity = SubjectManager.clearSubject(ri.request_id());
+        Subject identity = SubjectManager.clearSubject(ri.request_id());
+        if (identity != null && identity != defaultSubject) ContextManager.unregisterSubject(identity);
 
-            if (identity != null && identity != defaultSubject) ContextManager.unregisterSubject(identity);
-        } catch (InvalidSlot is) {
-            log.error("InvalidSlot thrown", is);
-            throw new INTERNAL("InvalidSlot thrown: " + is);
-        }
+        insertServiceContext(ri);
     }
 
     public void send_other(ServerRequestInfo ri) {
     }
 
     public void send_reply(ServerRequestInfo ri) {
-        try {
-            Any subjectAny = ri.get_slot(slotId);
-//            Subject identity = (Subject) subjectAny.extract_Value();
-            Subject identity = SubjectManager.clearSubject(ri.request_id());
+        Subject identity = SubjectManager.clearSubject(ri.request_id());
+        if (identity != null && identity != defaultSubject) ContextManager.unregisterSubject(identity);
 
-            if (identity != null && identity != defaultSubject) ContextManager.unregisterSubject(identity);
-        } catch (InvalidSlot is) {
-            log.error("InvalidSlot thrown", is);
-            throw new INTERNAL("InvalidSlot thrown: " + is);
-        }
+        insertServiceContext(ri);
     }
 
     public void destroy() {
@@ -193,5 +195,47 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 
     public String name() {
         return "org.openejb.corba.security.ServerSecurityInterceptor";
+    }
+
+    protected SASContextBody generateContextError(SASException e, long contextId) {
+        SASContextBody reply = new SASContextBody();
+
+        reply.error_msg(new ContextError(contextId, e.getMajor(), e.getMinor(), e.getErrorToken()));
+
+        return reply;
+    }
+
+    protected SASContextBody generateContextEstablished(Subject identity, long contextId, boolean stateful) {
+        SASContextBody reply = new SASContextBody();
+
+        byte[] finalContextToken = null;
+        Set credentials = identity.getPrivateCredentials(FinalContextToken.class);
+        if (!credentials.isEmpty()) {
+            try {
+                FinalContextToken token = (FinalContextToken) credentials.iterator().next();
+                finalContextToken = token.getToken();
+                token.destroy();
+            } catch (DestroyFailedException e) {
+                // do nothing
+            }
+        }
+        if (finalContextToken == null) finalContextToken = new byte[0];
+        reply.complete_msg(new CompleteEstablishContext(contextId, stateful, finalContextToken));
+
+        return reply;
+    }
+
+    protected void insertServiceContext(ServerRequestInfo ri) {
+        try {
+            SASContextBody sasContextBody = SASReplyManager.clearSASReply(ri.request_id());
+            if (sasContextBody != null) {
+                Any any = ORB.init().create_any();
+                SASContextBodyHelper.insert(any, sasContextBody);
+                ri.add_reply_service_context(new ServiceContext(SecurityAttributeService.value, Util.getCodec().encode_value(any)), true);
+            }
+        } catch (InvalidTypeForEncoding itfe) {
+            log.error("InvalidTypeForEncoding thrown", itfe);
+            throw new INTERNAL("InvalidTypeForEncoding thrown: " + itfe);
+        }
     }
 }

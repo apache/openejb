@@ -74,6 +74,12 @@
             <version>${geronimo_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-interop</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+
         <!-- should be removed once we figure out where DConfigBeans will live -->
         <dependency>
             <groupId>geronimo</groupId>

@@ -87,7 +87,7 @@ public final class AdapterEntity extends Adapter {
     private final AdapterProxyFactory factory;
 
     public AdapterEntity(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader, Policy securityPolicy) throws CORBAException {
-        super(container, orb, parentPOA, tieLoader);
+        super(container, orb, parentPOA, tieLoader, securityPolicy);
 
         Any any = orb.create_any();
         any.insert_Value(container.getRemoteTxPolicyConfig());
@@ -96,7 +96,7 @@ public final class AdapterEntity extends Adapter {
             Policy[] policies = new Policy[]{
                 securityPolicy,
                 orb.create_policy(ServerTransactionPolicyFactory.POLICY_TYPE, any),
-                homePOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT),
+//                homePOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT),
                 homePOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_SERVANT_MANAGER),
                 homePOA.create_servant_retention_policy(ServantRetentionPolicyValue.NON_RETAIN),
                 homePOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),

@@ -46,9 +46,9 @@ package org.openejb.corba.security.config.tss;
 
 import java.io.Serializable;
 
-import org.omg.CSIIOP.SCS_GSSExportedName;
-import org.omg.CSIIOP.SCS_GeneralNames;
-import org.omg.CSIIOP.ServiceConfiguration;
+import org.apache.geronimo.interop.CSIIOP.SCS_GSSExportedName;
+import org.apache.geronimo.interop.CSIIOP.SCS_GeneralNames;
+import org.apache.geronimo.interop.CSIIOP.ServiceConfiguration;
 
 import org.openejb.corba.security.config.ConfigException;
 

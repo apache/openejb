@@ -71,7 +71,7 @@ public final class SSLSessionManager {
         requestSSLSessions.put(new Integer(requestId), session);
     }
 
-    public static void clearSSLSession(int requestId) {
-        requestSSLSessions.remove(new Integer(requestId));
+    public static SSLSession clearSSLSession(int requestId) {
+        return (SSLSession) requestSSLSessions.remove(new Integer(requestId));
     }
 }

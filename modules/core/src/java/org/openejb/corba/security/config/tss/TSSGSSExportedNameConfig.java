@@ -44,8 +44,8 @@
  */
 package org.openejb.corba.security.config.tss;
 
-import org.omg.CSIIOP.SCS_GSSExportedName;
-import org.omg.CSIIOP.ServiceConfiguration;
+import org.apache.geronimo.interop.CSIIOP.SCS_GSSExportedName;
+import org.apache.geronimo.interop.CSIIOP.ServiceConfiguration;
 
 import org.openejb.corba.security.config.ConfigException;
 import org.openejb.corba.util.Util;
