@@ -90,7 +90,7 @@ public class HttpRequestImpl implements HttpRequest {
      * the content of the body of this page
      */
     private byte[] body;
-    private DataInput in;
+    private InputStream in;
     private int length;
     private String contentType;
 
@@ -192,7 +192,7 @@ public class HttpRequestImpl implements HttpRequest {
     }
 
     public InputStream getInputStream() throws IOException {
-        return (InputStream) this.in;
+        return this.in;
     }
 
     /*------------------------------------------------------------*/
@@ -386,7 +386,7 @@ public class HttpRequestImpl implements HttpRequest {
 
         contentType = getHeader(HttpRequest.HEADER_CONTENT_TYPE);
 
-        if (FORM_URL_ENCODED.equals(contentType)) {
+        if (method == POST && FORM_URL_ENCODED.equals(contentType)) {
             String rawParams = null;
 
             try {
@@ -422,9 +422,15 @@ public class HttpRequestImpl implements HttpRequest {
                 formParams.put(name, value);
                     //System.out.println(name + ": " + value);
             }
+        } else if (method == POST){
+            // TODO This really is terrible
+            byte[] body = new byte[length];
+            in.readFully(body);
+            this.in = new ByteArrayInputStream(body);
         } else {
-            this.in = in;
+            this.in = new ByteArrayInputStream(new byte[0]);
         }
+
     }
 
     private int parseContentLength() {
@@ -476,5 +482,4 @@ public class HttpRequestImpl implements HttpRequest {
     public HttpSession getSession() {
         return getSession(true);
     }
-
 }

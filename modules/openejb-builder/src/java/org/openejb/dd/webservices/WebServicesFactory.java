@@ -15,7 +15,7 @@
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
  *    permission of The OpenEJB Group.  For written permission,
- *    please contact openejb-group@openejb.sf.net.
+ *    please contact openejb@openejb.org.
  *
  * 4. Products derived from this Software may not be called "OpenEJB"
  *    nor may "OpenEJB" appear in their names without prior written
@@ -23,7 +23,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://openejb.sf.net/).
+ *    (http://openejb.org/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -42,63 +42,62 @@
  *
  * $Id$
  */
-package org.openejb.server.ejbd;
+package org.openejb.dd.webservices;
 
+import java.io.InputStream;
+import java.net.URL;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.util.Properties;
+import org.apache.geronimo.common.DeploymentException;
+import org.exolab.castor.mapping.Mapping;
+import org.exolab.castor.xml.Unmarshaller;
+import org.exolab.castor.xml.Marshaller;
+import org.xml.sax.InputSource;
 
-import org.openejb.server.ServerFederation;
-import org.openejb.server.ServiceException;
-import org.openejb.server.ServerService;
-import org.openejb.ContainerIndex;
-import org.openejb.OpenEJB;
+public class WebServicesFactory {
 
-/**
- * @since 11/25/2001
- */
-public class EjbServer implements ServerService {
-    private EjbDaemon ejbDaemon;
+    private static WebServicesFactory webServicesFactory;
 
-    static {
-        // TODO Horrid hack, the concept needs to survive somewhere
-        if (OpenEJB.getApplicationServer() == null) {
-            OpenEJB.setApplicationServer(new ServerFederation());
+    private final Mapping mapping;
+    private final Unmarshaller unmarshaller;
+
+    private WebServicesFactory() {
+        ClassLoader classLoader = WebServicesFactory.class.getClassLoader();
+        URL mappingUrl = classLoader.getResource("org/openejb/dd/webservices/webservices_1_1.xml");
+
+        try {
+            mapping = new Mapping(classLoader);
+            mapping.loadMapping(mappingUrl);
+            unmarshaller = new Unmarshaller(mapping);
+        } catch (Exception e) {
+            throw (IllegalStateException)new IllegalStateException("Unable to initialize xml unmarshaller").initCause(e);
         }
     }
-    public EjbServer() throws Exception {
-        ejbDaemon = EjbDaemon.getEjbDaemon();
+
+    public static WebServicesFactory getInstance() {
+        if (webServicesFactory == null){
+            webServicesFactory = new WebServicesFactory();
+        }
+        return webServicesFactory;
     }
 
-    public EjbServer(ContainerIndex containerIndex) throws Exception {
-        ejbDaemon = new EjbDaemon(containerIndex);
-    }
-
-    public void init(Properties props) throws Exception {
-    }
-
-    public void service(Socket socket) throws ServiceException, IOException {
-        ServerFederation.setApplicationServer(ejbDaemon);
-        ejbDaemon.service(socket);
-    }
-
-    public void start() throws ServiceException {
-    }
-
-    public void stop() throws ServiceException {
-    }
-
-    public String getName() {
-        return "ejbd";
-    }
-
-    public int getPort() {
-        return 0;
-    }
-
-    public String getIP() {
-        return "";
+    public WebServices readXML(URL webservicesURL) throws DeploymentException {
+        InputStream in = null;
+        WebServices webservice = null;
+        try {
+            in = webservicesURL.openStream();
+            webservice = (WebServices) unmarshaller.unmarshal(new InputSource(in));
+        } catch (Exception e) {
+            throw new DeploymentException(e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch(Exception ignored) {
+                    // Don't care
+                }
+            }
+        }
+        return webservice;
     }
 
 }

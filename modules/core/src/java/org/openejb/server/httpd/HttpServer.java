@@ -47,6 +47,7 @@ package org.openejb.server.httpd;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.URL;
 import java.util.Properties;
@@ -65,6 +66,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
+import sun.net.www.protocol.http.HttpURLConnection;
 
 /**
  * This is the main class for the web administration.  It takes care of the
@@ -188,6 +190,11 @@ public class HttpServer implements SocketService, ServerService, GBeanLifecycle 
             req.readMessage(in);
             res.setRequest(req);
         } catch (Throwable t) {
+            res.setCode(HttpURLConnection.HTTP_BAD_REQUEST);
+            res.setResponseString("Could not read the request");
+            res.getPrintWriter().println(t.getMessage());
+            t.printStackTrace(res.getPrintWriter());
+            log.error("BAD REQUEST", t);
             throw new OpenEJBException("Could not read the request.\n" + t.getClass().getName() + ":\n" + t.getMessage(), t);
         }
 

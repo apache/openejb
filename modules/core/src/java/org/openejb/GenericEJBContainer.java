@@ -450,6 +450,9 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
+        infoFactory.addOperation("invoke", new Class[]{Invocation.class});
+        infoFactory.addOperation("invoke", new Class[]{Method.class, Object[].class, Object.class});
+
         infoFactory.setConstructor(new String[]{
             "ContainerID",
             "EJBName",

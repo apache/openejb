@@ -66,9 +66,9 @@ import org.openejb.server.StandardServiceStackGBean;
 
 public class HttpServerTest extends TestCase {
 
-//    static {
-//        BasicConfigurator.configure();
-//    }
+    static {
+        BasicConfigurator.configure();
+    }
 
     public void testBareService() throws Exception {
         ServerService service = new HttpServer(new TestHttpListener());
