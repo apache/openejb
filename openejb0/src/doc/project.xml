@@ -133,6 +133,10 @@
     
     <section name="Developers">
       <navLink>
+        <url>connector_service.xml</url>
+        <display>Custom Services</display>
+      </navLink>
+      <navLink>
         <url>release-plan.xml</url>
         <display>Release Plan</display>
       </navLink>

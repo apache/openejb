@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <document url="http://openejb.sf.net/cmp_entity_postgresql.xml" toc="numeric">
 	<properties>
-		<title>Hello OpenEJB World!</title>
+		<title>Custom OpenEJB Services</title>
 		<sub-title>A basic (connector) service example</sub-title>
 	</properties>
 	<body>
