@@ -91,7 +91,7 @@
   
     <target name="copy.i18n">
     
-      <copy todir="${build.riserver.dest}">
+      <copy todir="${build.corba.dest}">
       
         <fileset dir="${src.java.dir}/facilities" >
           <include name="**/resources/*.properties"/>
