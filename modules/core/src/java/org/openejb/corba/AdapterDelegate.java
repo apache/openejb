@@ -61,6 +61,4 @@ public class AdapterDelegate {
     final public Remote getDelegate() {
         return delegate;
     }
-
-    public void finalize() throws Throwable { }
 }
