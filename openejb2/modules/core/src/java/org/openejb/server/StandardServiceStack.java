@@ -50,6 +50,8 @@ import java.io.IOException;
 
 import org.apache.geronimo.gbean.GBeanLifecycle;
 
+import EDU.oswego.cs.dl.util.concurrent.Executor;
+
 public class StandardServiceStack implements GBeanLifecycle {
 
     private String name;
@@ -60,10 +62,10 @@ public class StandardServiceStack implements GBeanLifecycle {
     private ServicePool pool;
     private ServerService server;
 
-    public StandardServiceStack(String name, int port, InetAddress address, InetAddress[] allowHosts, int threads, int priority, String[] logOnSuccess, String[] logOnFailure, ServerService server) {
+    public StandardServiceStack(String name, int port, InetAddress address, InetAddress[] allowHosts, String[] logOnSuccess, String[] logOnFailure, Executor executor, ServerService server) {
         this.server = server;
         this.name = name;
-        this.pool = new ServicePool(name, server, threads, priority);
+        this.pool = new ServicePool(server, executor);
         this.hba = new ServiceAccessController(name, pool, allowHosts);
         this.logger = new ServiceLogger(name, hba, logOnSuccess, logOnFailure);
         this.daemon = new ServiceDaemon(name, logger, address, port);
@@ -104,14 +106,6 @@ public class StandardServiceStack implements GBeanLifecycle {
 
     public void setAllowHosts(InetAddress[] allowHosts) {
         hba.setAllowHosts(allowHosts);
-    }
-
-    public int getThreads() {
-        return pool.getThreads();
-    }
-
-    public int getPriority() {
-        return pool.getPriority();
     }
 
     public void doStart() throws Exception {

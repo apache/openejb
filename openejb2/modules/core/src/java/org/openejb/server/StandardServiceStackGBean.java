@@ -57,6 +57,8 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
+import EDU.oswego.cs.dl.util.concurrent.Executor;
+
 public class StandardServiceStackGBean {
 
     public static final GBeanInfo GBEAN_INFO;
@@ -69,10 +71,10 @@ public class StandardServiceStackGBean {
         infoFactory.addAttribute("soTimeout", int.class, true);
         infoFactory.addAttribute("address", InetAddress.class, true);
         infoFactory.addAttribute("allowHosts", InetAddress[].class, true);
-        infoFactory.addAttribute("threads", int.class, true);
-        infoFactory.addAttribute("priority", int.class, true);
         infoFactory.addAttribute("logOnSuccess", String[].class, true);
         infoFactory.addAttribute("logOnFailure", String[].class, true);
+
+        infoFactory.addReference("Executor", Executor.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("Server", ServerService.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.setConstructor(new String[]{
@@ -80,10 +82,9 @@ public class StandardServiceStackGBean {
             "port",
             "address",
             "allowHosts",
-            "threads",
-            "priority",
             "logOnSuccess",
             "logOnFailure",
+            "Executor",
             "Server"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
@@ -93,19 +94,20 @@ public class StandardServiceStackGBean {
         return GBEAN_INFO;
     }
 
-    public static ObjectName addGBean(Kernel kernel, String name, int port, InetAddress address, InetAddress[] allowHosts, int threads, int priority, String[] logOnSuccess, String[] logOnFailure, ObjectName server) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+    public static ObjectName addGBean(Kernel kernel, String name, int port, InetAddress address, InetAddress[] allowHosts, String[] logOnSuccess, String[] logOnFailure, ObjectName executor, ObjectName server) throws GBeanAlreadyExistsException, GBeanNotFoundException {
         ClassLoader classLoader = StandardServiceStack.class.getClassLoader();
         ObjectName SERVICE_NAME = JMXUtil.getObjectName("openejb:type=StandardServiceStack,name=" + name);
 
         GBeanData gbean = new GBeanData(SERVICE_NAME, StandardServiceStackGBean.GBEAN_INFO);
+
         gbean.setAttribute("name", name);
         gbean.setAttribute("port", new Integer(port));
         gbean.setAttribute("address", address);
         gbean.setAttribute("allowHosts", allowHosts);
-        gbean.setAttribute("threads", new Integer(threads));
-        gbean.setAttribute("priority", new Integer(priority));
         gbean.setAttribute("logOnSuccess", logOnSuccess);
         gbean.setAttribute("logOnFailure", logOnFailure);
+        
+        gbean.setReferencePattern("Executor", executor);
         gbean.setReferencePattern("Server", server);
 
         kernel.loadGBean(gbean, classLoader);
