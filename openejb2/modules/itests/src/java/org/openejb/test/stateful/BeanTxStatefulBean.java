@@ -61,24 +61,24 @@ import org.openejb.test.object.Account;
 import org.openejb.test.object.Transaction;
 
 /**
- * 
+ *
  */
 public class BeanTxStatefulBean implements javax.ejb.SessionBean{
 
-    
+
     private String name;
     private SessionContext ejbContext;
     private InitialContext jndiContext;
     public final String jndiDatabaseEntry = "jdbc/stateful/beanManagedTransaction/database";
 
 
-    
+
     //=============================
     // Home interface methods
-    //    
+    //
     /**
      * Maps to BasicStatefulHome.create
-     * 
+     *
      * @param name
      * @exception javax.ejb.CreateException
      * @see BasicStatefulHome.create
@@ -87,28 +87,28 @@ public class BeanTxStatefulBean implements javax.ejb.SessionBean{
     throws javax.ejb.CreateException{
         this.name = name;
         try {
-            jndiContext = new InitialContext(); 
+            jndiContext = new InitialContext();
         } catch (Exception e){
             throw new CreateException("Can not get the initial context: "+e.getMessage());
         }
     }
-    //    
+    //
     // Home interface methods
     //=============================
-    
+
 
     //=============================
     // Remote interface methods
-    //    
-    
+    //
+
     /**
      * Maps to BasicStatefulObject.businessMethod
-     * 
-     * @return 
+     *
+     * @return
      * @see BasicStatefulObject.businessMethod
      */
     public Transaction getUserTransaction() throws RemoteException{
-        
+
         UserTransaction ut = null;
         try{
             ut = ejbContext.getUserTransaction();
@@ -118,7 +118,7 @@ public class BeanTxStatefulBean implements javax.ejb.SessionBean{
         if (ut == null) return null;
         return new Transaction(ut);
     }
-    
+
     public Transaction jndiUserTransaction() throws RemoteException{
         UserTransaction ut = null;
         try{
@@ -131,12 +131,12 @@ public class BeanTxStatefulBean implements javax.ejb.SessionBean{
     }
 
     public void openAccount(Account acct, Boolean rollback) throws RemoteException, RollbackException{
-        
+
         try{
-            
+
             DataSource ds = (DataSource)javax.rmi.PortableRemoteObject.narrow( jndiContext.lookup("java:comp/env/datasource"), DataSource.class);
             Connection con = ds.getConnection();
-            
+
             UserTransaction ut = ejbContext.getUserTransaction();
             /*[1] Begin the transaction */
             ut.begin();
@@ -152,10 +152,10 @@ public class BeanTxStatefulBean implements javax.ejb.SessionBean{
 
             /*[3] Commit or Rollback the transaction */
             if (rollback.booleanValue()) ut.setRollbackOnly();
-            
+
             /*[4] Commit or Rollback the transaction */
             ut.commit();
-            
+
 
             /*[4] Clean up */
             stmt.close();
@@ -178,7 +178,7 @@ public class BeanTxStatefulBean implements javax.ejb.SessionBean{
             stmt.setString(1, ssn);
             ResultSet rs = stmt.executeQuery();
             if (!rs.next()) return null;
-            
+
             acct.setSsn( rs.getString(1) );
             acct.setFirstName( rs.getString(2) );
             acct.setLastName( rs.getString(3) );
@@ -194,14 +194,14 @@ public class BeanTxStatefulBean implements javax.ejb.SessionBean{
     }
 
 
-    //    
+    //
     // Remote interface methods
     //=============================
 
 
     //=================================
     // SessionBean interface methods
-    //    
+    //
     /**
      * Set the associated session context. The container calls this method
      * after the instance creation.
@@ -231,8 +231,8 @@ public class BeanTxStatefulBean implements javax.ejb.SessionBean{
      */
     public void ejbPassivate() throws EJBException,RemoteException {
     }
-    //    
+    //
     // SessionBean interface methods
     //==================================
-    
+
 }

@@ -70,10 +70,18 @@
         <session>
             <ejb-name>BasicStatefulBean</ejb-name>
             <jndi-name>client/tests/stateful/BasicStatefulHome</jndi-name>
+            <resource-ref>
+                <ref-name>stateful/references/Resource_manager_access</ref-name>
+                <target-name>DefaultDatasource</target-name>
+            </resource-ref>
         </session>
         <session>
             <ejb-name>Basic BMT StatefulBean</ejb-name>
             <jndi-name>client/tests/stateful/BeanManagedBasicStatefulHome</jndi-name>
+            <resource-ref>
+                <ref-name>stateful/references/Resource_manager_access</ref-name>
+                <target-name>DefaultDatasource</target-name>
+            </resource-ref>
         </session>
         <session>
             <ejb-name>BMT StatefulBean</ejb-name>

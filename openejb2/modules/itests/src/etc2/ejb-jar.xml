@@ -227,10 +227,30 @@
             <ejb-class>org.openejb.test.stateful.BasicStatefulBean</ejb-class>
             <session-type>Stateful</session-type>
             <transaction-type>Container</transaction-type>
+            <env-entry>
+                <env-entry-name>stateful/references/JNDI_access_to_java_comp_env</env-entry-name>
+                <env-entry-type>java.lang.String</env-entry-type>
+                <env-entry-value>Success</env-entry-value>
+            </env-entry>
+            <ejb-ref>
+                <ejb-ref-name>stateful/beanReferences/Enterprise_bean_access</ejb-ref-name>
+                <ejb-ref-type>Session</ejb-ref-type>
+                <home>org.openejb.test.stateful.BasicStatefulHome</home>
+                <remote>org.openejb.test.stateful.BasicStatefulObject</remote>
+                <ejb-link>BasicStatefulBean</ejb-link>
+            </ejb-ref>
             <security-role-ref>
                 <role-name>TheMan</role-name>
                 <role-link>Executive</role-link>
             </security-role-ref>
+            <resource-ref>
+                <description>
+                    This is a reference to a JDBC database.
+                </description>
+                <res-ref-name>stateful/references/Resource_manager_access</res-ref-name>
+                <res-type>javax.sql.DataSource</res-type>
+                <res-auth>Container</res-auth>
+            </resource-ref>
         </session>
 
         <!--
@@ -249,10 +269,30 @@
             <ejb-class>org.openejb.test.stateful.BMTStatefulBean</ejb-class>
             <session-type>Stateful</session-type>
             <transaction-type>Bean</transaction-type>
+            <env-entry>
+                <env-entry-name>stateful/references/JNDI_access_to_java_comp_env</env-entry-name>
+                <env-entry-type>java.lang.String</env-entry-type>
+                <env-entry-value>Success</env-entry-value>
+            </env-entry>
+            <ejb-ref>
+                <ejb-ref-name>stateful/beanReferences/Enterprise_bean_access</ejb-ref-name>
+                <ejb-ref-type>Session</ejb-ref-type>
+                <home>org.openejb.test.stateful.BasicStatefulHome</home>
+                <remote>org.openejb.test.stateful.BasicStatefulObject</remote>
+                <ejb-link>BasicStatefulBean</ejb-link>
+            </ejb-ref>
             <security-role-ref>
                 <role-name>TheMan</role-name>
                 <role-link>Executive</role-link>
             </security-role-ref>
+            <resource-ref>
+                <description>
+                    This is a reference to a JDBC database.
+                </description>
+                <res-ref-name>stateful/references/Resource_manager_access</res-ref-name>
+                <res-type>javax.sql.DataSource</res-type>
+                <res-auth>Container</res-auth>
+            </resource-ref>
         </session>
 
         <!--
@@ -947,7 +987,7 @@
                 <ejb-name>BasicStatefulBean</ejb-name>
                 <method-name>*</method-name>
             </method>
-            <trans-attribute>Supports</trans-attribute>
+            <trans-attribute>Required</trans-attribute>
         </container-transaction>
 
         <container-transaction>

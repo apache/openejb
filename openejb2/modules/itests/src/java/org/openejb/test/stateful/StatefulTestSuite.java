@@ -62,17 +62,17 @@ public class StatefulTestSuite extends junit.framework.TestCase{
         suite.addTest(new StatefulJndiTests());
         suite.addTest(new StatefulHomeIntfcTests());
         suite.addTest(new StatefulEjbHomeTests());
-        suite.addTest(new StatefulEjbObjectTests());    
+        suite.addTest(new StatefulEjbObjectTests());
         suite.addTest(new StatefulRemoteIntfcTests());
         suite.addTest(new StatefulHomeHandleTests());
         suite.addTest(new StatefulHandleTests());
         suite.addTest(new StatefulEjbMetaDataTests());
         suite.addTest(new StatefulBeanTxTests());
-        //suite.addTest(new StatefulAllowedOperationsTests());
-        //suite.addTest(new BMTStatefulAllowedOperationsTests());
+        suite.addTest(new StatefulAllowedOperationsTests());
+        suite.addTest(new BMTStatefulAllowedOperationsTests());
         suite.addTest(new StatefulJndiEncTests());
         suite.addTest(new StatefulRmiIiopTests());
-        /* TO DO 
+        /* TO DO
         suite.addTest(new StatefulEjbContextTests());
         suite.addTest(new BMTStatefulEjbContextTests());
         suite.addTest(new BMTStatefulEncTests());
