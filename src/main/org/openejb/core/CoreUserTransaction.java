@@ -88,7 +88,7 @@ public class CoreUserTransaction
     public CoreUserTransaction(TransactionManager txMngr)
     {
         _txManager = txMngr;
-        txLogger=org.apache.log4j.Category.getInstance("Transactions");
+        txLogger=org.apache.log4j.Category.getInstance("Transaction");
     }
 
     public CoreUserTransaction( ){
