@@ -68,6 +68,7 @@ import org.apache.geronimo.xbeans.j2ee.CmpFieldType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
+import org.apache.geronimo.xbeans.j2ee.EjbNameType;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.entity.cmp.CMPContainerBuilder;
 import org.openejb.proxy.EJBProxyFactory;
@@ -94,11 +95,11 @@ class CMPEntityBuilder extends EntityBuilder {
         for (int i = 0; i < entityBeans.length; i++) {
             EntityBeanType entityBean = entityBeans[i];
 
-            if (!"Container".equals(entityBean.getPersistenceType().getStringValue())) {
+            if (!"Container".equals(getString(entityBean.getPersistenceType()))) {
                 continue;
             }
 
-            OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(entityBean.getEjbName().getStringValue());
+            OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(getString(entityBean.getEjbName()));
             ObjectName entityObjectName = super.createEJBObjectName(earContext, module.getName(), entityBean);
 
             GBeanMBean entityGBean = createBean(earContext, ejbModule, entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, ejbSchema, sqlSchema, connectionFactoryName, transactionPolicyHelper, security, cl);
@@ -112,32 +113,32 @@ class CMPEntityBuilder extends EntityBuilder {
 
         for (int i = 0; i < entityBeans.length; i++) {
             EntityBeanType entityBean = entityBeans[i];
-            if ("Container".equals(entityBean.getPersistenceType().getStringValue())) {
-                String ejbName = entityBean.getEjbName().getStringValue();
-                String abstractSchemaName = entityBean.getAbstractSchemaName().getStringValue();
+            if ("Container".equals(getString(entityBean.getPersistenceType()))) {
+                String ejbName = getString(entityBean.getEjbName());
+                String abstractSchemaName = getString(entityBean.getAbstractSchemaName());
 
                 ObjectName entityObjectName = super.createEJBObjectName(earContext, ejbModuleName, entityBean);
 
                 EJBProxyFactory proxyFactory = (EJBProxyFactory) getModuleBuilder().createEJBProxyFactory(entityObjectName.getCanonicalName(),
                         false,
-                        OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getRemote()),
-                        OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getHome()),
-                        OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocal()),
-                        OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocalHome()),
+                        getString(entityBean.getRemote()),
+                        getString(entityBean.getHome()),
+                        getString(entityBean.getLocal()),
+                        getString(entityBean.getLocalHome()),
                         cl);
 
                 Class ejbClass;
                 try {
-                    ejbClass = cl.loadClass(entityBean.getEjbClass().getStringValue());
+                    ejbClass = cl.loadClass(getString(entityBean.getEjbClass()));
                 } catch (ClassNotFoundException e) {
-                    throw new DeploymentException("Could not load cmp bean class: ejbName=" + ejbName + " ejbClass=" + entityBean.getEjbClass().getStringValue());
+                    throw new DeploymentException("Could not load cmp bean class: ejbName=" + ejbName + " ejbClass=" + getString(entityBean.getEjbClass()));
                 }
 
                 Class pkClass;
                 try {
-                    pkClass = cl.loadClass(entityBean.getPrimKeyClass().getStringValue());
+                    pkClass = cl.loadClass(getString(entityBean.getPrimKeyClass()));
                 } catch (ClassNotFoundException e) {
-                    throw new DeploymentException("Could not load cmp primary key class: ejbName=" + ejbName + " pkClass=" + entityBean.getPrimKeyClass().getStringValue());
+                    throw new DeploymentException("Could not load cmp primary key class: ejbName=" + ejbName + " pkClass=" + getString(entityBean.getPrimKeyClass()));
                 }
 
                 EJB ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory);
@@ -155,13 +156,13 @@ class CMPEntityBuilder extends EntityBuilder {
                 } else {
 // specific field is primary key
                     pkFieldNames = new HashSet(1);
-                    pkFieldNames.add(entityBean.getPrimkeyField().getStringValue());
+                    pkFieldNames.add(getString(entityBean.getPrimkeyField()));
                 }
 
                 CmpFieldType[] cmpFieldTypes = entityBean.getCmpFieldArray();
                 for (int cmpFieldIndex = 0; cmpFieldIndex < cmpFieldTypes.length; cmpFieldIndex++) {
                     CmpFieldType cmpFieldType = cmpFieldTypes[cmpFieldIndex];
-                    String fieldName = cmpFieldType.getFieldName().getStringValue();
+                    String fieldName = getString(cmpFieldType.getFieldName());
                     Class fieldType = getCMPFieldType(fieldName, ejbClass);
                     boolean isPKField = pkFieldNames.contains(fieldName);
                     ejb.addCMPField(new CMPField(fieldName, fieldType, isPKField));
@@ -197,18 +198,17 @@ class CMPEntityBuilder extends EntityBuilder {
     }
 
     public GBeanMBean createBean(EARContext earContext, EJBModule ejbModule, String containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, EJBSchema ejbSchema, Schema sqlSchema, String connectionFactoryName, TransactionPolicyHelper transactionPolicyHelper, Security security, ClassLoader cl) throws DeploymentException {
-        String ejbName = entityBean.getEjbName().getStringValue();
-
+        String ejbName = getString(entityBean.getEjbName());
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(cl);
         builder.setContainerId(containerId);
         builder.setEJBName(ejbName);
-        builder.setBeanClassName(entityBean.getEjbClass().getStringValue());
-        builder.setHomeInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getHome()));
-        builder.setRemoteInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getRemote()));
-        builder.setLocalHomeInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocalHome()));
-        builder.setLocalInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocal()));
-        builder.setPrimaryKeyClassName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getPrimKeyClass()));
+        builder.setBeanClassName(getString(entityBean.getEjbClass()));
+        builder.setHomeInterfaceName(getString(entityBean.getHome()));
+        builder.setRemoteInterfaceName(getString(entityBean.getRemote()));
+        builder.setLocalHomeInterfaceName(getString(entityBean.getLocalHome()));
+        builder.setLocalInterfaceName(getString(entityBean.getLocal()));
+        builder.setPrimaryKeyClassName(getString(entityBean.getPrimKeyClass()));
         TransactionPolicySource transactionPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);
         builder.setTransactionPolicySource(transactionPolicySource);
         builder.setTransactedTimerName(earContext.getTransactedTimerName());
@@ -224,7 +224,7 @@ class CMPEntityBuilder extends EntityBuilder {
                 toBeChecked,
                 security,
                 ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
-                entityBean.getEjbName().getStringValue(),
+                getString(entityBean.getEjbName()),
                 entityBean.getSecurityIdentity(),
                 entityBean.getSecurityRoleRefArray());
 
@@ -269,5 +269,19 @@ class CMPEntityBuilder extends EntityBuilder {
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName=" + ejbName, e);
         }
+    }
+
+    private static String getString(org.apache.geronimo.xbeans.j2ee.String value) {
+        if (value == null) {
+            return null;
+        }
+        return value.getStringValue();
+    }
+
+    private String getString(EjbNameType value) {
+        if (value == null) {
+            return null;
+        }
+        return value.getStringValue();
     }
 }
