@@ -66,6 +66,7 @@ import org.openejb.nova.persistence.jdbc.JDBCUpdateCommand;
 public class SimpleCommandFactory implements CMPCommandFactory {
     private final DataSource ds;
     private final Map commandMap = new HashMap();
+    private final Map containerMap = new HashMap();
 
     public SimpleCommandFactory(DataSource ds) {
         this.ds = ds;
@@ -79,11 +80,19 @@ public class SimpleCommandFactory implements CMPCommandFactory {
         commandMap.put(signature, new JDBCUpdateCommand(ds, sql, inputBindings));
     }
 
+    public void defineContainer(String abstractSchemaName, CMPEntityContainer container) {
+        containerMap.put(abstractSchemaName, container);
+    }
+
     public QueryCommand getQueryCommand(MethodSignature signature) {
         return (JDBCQueryCommand) commandMap.get(signature);
     }
 
     public UpdateCommand getUpdateCommand(MethodSignature signature) {
         return (JDBCUpdateCommand) commandMap.get(signature);
+    }
+
+    public CMPEntityContainer getContainer(String abstractSchemaName) {
+        return (CMPEntityContainer) containerMap.get(abstractSchemaName);
     }
 }

@@ -47,6 +47,7 @@
  */
 package org.openejb.nova.slsb;
 
+import java.lang.reflect.InvocationTargetException;
 import javax.ejb.SessionBean;
 
 import org.apache.commons.logging.Log;
@@ -103,9 +104,18 @@ public class StatelessInstanceFactory implements InstanceFactory {
             instance.setSessionContext(ctx.getSessionContext());
 
             ctx.setOperation(EJBOperation.EJBCREATE);
-            implClass.invoke(createIndex, instance, null);
-
-            ctx.setOperation(EJBOperation.INACTIVE);
+            try {
+                implClass.invoke(createIndex, instance, null);
+            } catch (InvocationTargetException ite) {
+                Throwable t = ite.getTargetException();
+                if (t instanceof Exception) {
+                    throw (Exception) t;
+                } else {
+                    throw (Error) t;
+                }
+            } finally {
+                ctx.setOperation(EJBOperation.INACTIVE);
+            }
 
             return ctx;
         } finally {

@@ -47,20 +47,14 @@
  */
 package org.openejb.nova.entity.cmp;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import javax.ejb.FinderException;
-import javax.ejb.ObjectNotFoundException;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
-
 import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.dispatch.VirtualOperation;
 import org.openejb.nova.persistence.QueryCommand;
-import org.openejb.nova.persistence.Tuple;
 
 /**
  *
@@ -68,49 +62,17 @@ import org.openejb.nova.persistence.Tuple;
  * @version $Revision$ $Date$
  */
 public class CMPFinder implements VirtualOperation {
-    private final EJBContainer container;
-    private final QueryCommand finderCommand;
-    private final boolean multiValued;
+    private final CMPQueryMethod query;
 
     public CMPFinder(EJBContainer container, QueryCommand command, boolean multiValue) {
-        this.container = container;
-        this.finderCommand = command;
-        this.multiValued = multiValue;
+        this.query = new CMPQueryMethod(command, multiValue, container);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        List finderResult = finderCommand.executeQuery(invocation.getArguments());
-
-        boolean local = invocation.getType().isLocal();
-
-        if (multiValued) {
-            ArrayList result = new ArrayList(finderResult.size());
-            for (Iterator iterator = finderResult.iterator(); iterator.hasNext();) {
-                Tuple tuple = (Tuple) iterator.next();
-                Object pk = tuple.getValue(0);
-                result.add(getReference(local, pk));
-            }
-            return new SimpleInvocationResult(true, result);
-        } else {
-            if (finderResult.size() == 0) {
-                return new SimpleInvocationResult(false, new ObjectNotFoundException());
-            } else if (finderResult.size() > 1) {
-                return new SimpleInvocationResult(false, new FinderException("Query returned more than one result"));
-            }
-            Tuple tuple = (Tuple)finderResult.get(0);
-            Object pk = tuple.getValue(0);
-            return new SimpleInvocationResult(true, getReference(local, pk));
-        }
-    }
-
-    private Object getReference(boolean local, Object id) {
-        if (id == null) {
-            // yes, finders can return null
-            return null;
-        } else if (local) {
-            return container.getEJBLocalObject(id);
-        } else {
-            return container.getEJBObject(id);
+        try {
+            return new SimpleInvocationResult(true, query.execute(invocation.getType().isLocal(), invocation.getArguments()));
+        } catch (FinderException e) {
+            return new SimpleInvocationResult(false, e);
         }
     }
 }

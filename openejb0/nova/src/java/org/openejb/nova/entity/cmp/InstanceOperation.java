@@ -54,5 +54,5 @@ package org.openejb.nova.entity.cmp;
  * @version $Revision$ $Date$
  */
 public interface InstanceOperation {
-    Object invokeInstance(CMPInstanceContext ctx, Object[] args);
+    Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception;
 }

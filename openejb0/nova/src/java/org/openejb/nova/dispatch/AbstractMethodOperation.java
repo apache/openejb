@@ -47,6 +47,8 @@
  */
 package org.openejb.nova.dispatch;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 import net.sf.cglib.reflect.FastClass;
@@ -75,7 +77,8 @@ public abstract class AbstractMethodOperation implements VirtualOperation {
             ctx.setOperation(operation);
             try {
                 return new SimpleInvocationResult(true, fastClass.invoke(methodIndex, ctx.getInstance(), invocation.getArguments()));
-            } catch (Throwable t) {
+            } catch (InvocationTargetException ite) {
+                Throwable t = ite.getTargetException();
                 if (t instanceof Exception && t instanceof RuntimeException == false) {
                     // checked exception - which we simply include in the result
                     return new SimpleInvocationResult(false, t);

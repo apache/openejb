@@ -47,6 +47,7 @@
  */
 package org.openejb.nova.sfsb;
 
+import java.lang.reflect.InvocationTargetException;
 import javax.ejb.SessionBean;
 
 import net.sf.cglib.reflect.FastClass;
@@ -86,14 +87,16 @@ public class CreateMethod implements VirtualOperation {
         try {
             ctx.setOperation(EJBOperation.EJBCREATE);
             beanClass.invoke(createIndex, instance, args);
-        } catch (Throwable t) {
-            // the cretae method failed so this instance should not exist
+        } catch (InvocationTargetException ite) {
+            // the create method failed so this instance should not exist
             ctx.die();
-            if(t instanceof Exception) {
-                // Application exception
+
+            Throwable t = ite.getTargetException();
+            if (t instanceof Exception && t instanceof RuntimeException == false) {
+                // checked exception - which we simply include in the result
                 return new SimpleInvocationResult(false, t);
             } else {
-                // System exception
+                // unchecked Exception - just throw it to indicate an abnormal completion
                 throw t;
             }
         } finally {

@@ -47,6 +47,7 @@
  */
 package org.openejb.nova.entity;
 
+import java.util.Collection;
 import javax.ejb.CreateException;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.FinderException;
@@ -62,4 +63,10 @@ public interface MockLocalHome extends EJBLocalHome {
     MockLocal findByPrimaryKey(Object o) throws FinderException;
 
     int intMethod(int i);
+
+    String singleSelect(Integer i) throws FinderException;
+
+    Collection multiSelect(Integer i) throws FinderException;
+
+    Collection multiObject(Integer i) throws FinderException;
 }

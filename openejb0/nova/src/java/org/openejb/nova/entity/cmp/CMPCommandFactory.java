@@ -60,4 +60,6 @@ public interface CMPCommandFactory {
     QueryCommand getQueryCommand(MethodSignature signature);
 
     UpdateCommand getUpdateCommand(MethodSignature signature);
+
+    CMPEntityContainer getContainer(String abstractSchemaName);
 }

@@ -47,6 +47,7 @@
  */
 package org.openejb.nova.entity.cmp;
 
+import java.lang.reflect.InvocationTargetException;
 import javax.ejb.EntityBean;
 
 import net.sf.cglib.reflect.FastClass;
@@ -92,10 +93,15 @@ public class CMPCreateMethod implements VirtualOperation {
         try {
             ctx.setOperation(EJBOperation.EJBCREATE);
             beanClass.invoke(createIndex, instance, args);
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            return new SimpleInvocationResult(false, e);
+        } catch (InvocationTargetException ite) {
+            Throwable t = ite.getTargetException();
+            if (t instanceof Exception && t instanceof RuntimeException == false) {
+                // checked exception - which we simply include in the result
+                return new SimpleInvocationResult(false, t);
+            } else {
+                // unchecked Exception - just throw it to indicate an abnormal completion
+                throw t;
+            }
         } finally {
             ctx.setOperation(EJBOperation.INACTIVE);
         }
@@ -108,10 +114,15 @@ public class CMPCreateMethod implements VirtualOperation {
         try {
             ctx.setOperation(EJBOperation.EJBPOSTCREATE);
             beanClass.invoke(postCreateIndex, instance, args);
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            return new SimpleInvocationResult(false, e);
+        } catch (InvocationTargetException ite) {
+            Throwable t = ite.getTargetException();
+            if (t instanceof Exception && t instanceof RuntimeException == false) {
+                // checked exception - which we simply include in the result
+                return new SimpleInvocationResult(false, t);
+            } else {
+                // unchecked Exception - just throw it to indicate an abnormal completion
+                throw t;
+            }
         } finally {
             ctx.setOperation(EJBOperation.INACTIVE);
         }

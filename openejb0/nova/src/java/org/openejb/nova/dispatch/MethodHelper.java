@@ -80,6 +80,24 @@ public final class MethodHelper {
      * Gets the super index of the specified method on the proxyImpl.  This is the number returned by
      * MethodProxy.getSuperIndex() when the specifiec method is intercepted.
      * @param proxyImpl the enhanced proxy class; this is the generated sub class of your interface
+     * @param signature the signature of method that will be intercepted
+     * @return the number that MethodProxy.getSuperIndex() will return when the specifiec method is
+     * intercepted or -1 if the method can not be intercepted (i.e., it was not enhanced)
+     */
+    public static int getSuperIndex(FastClass proxyImpl, MethodSignature signature) throws ClassNotFoundException {
+        String[] parameterTypes = signature.getParameterTypes();
+        ClassLoader cl = proxyImpl.getJavaClass().getClassLoader();
+        Class[] params = new Class[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            params[i] = cl.loadClass(parameterTypes[i]);
+        }
+        return getSuperIndex(proxyImpl, signature.getMethodName(), params);
+    }
+
+    /**
+     * Gets the super index of the specified method on the proxyImpl.  This is the number returned by
+     * MethodProxy.getSuperIndex() when the specifiec method is intercepted.
+     * @param proxyImpl the enhanced proxy class; this is the generated sub class of your interface
      * @param methodName the name of the method that will be intercepted
      * @param methodParameters the parameter types of the method that will be intercepted
      * @return the number that MethodProxy.getSuperIndex() will return when the specifiec method is

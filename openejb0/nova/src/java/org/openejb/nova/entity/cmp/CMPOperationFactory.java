@@ -50,6 +50,8 @@ package org.openejb.nova.entity.cmp;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import javax.ejb.EntityContext;
 
 import net.sf.cglib.proxy.CallbackFilter;
@@ -65,6 +67,7 @@ import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.dispatch.VirtualOperation;
 import org.openejb.nova.entity.BusinessMethod;
 import org.openejb.nova.entity.HomeMethod;
+import org.openejb.nova.persistence.QueryCommand;
 
 /**
  *
@@ -80,7 +83,6 @@ public class CMPOperationFactory extends AbstractOperationFactory {
         Class enhancedClass = factory.getClass();
 
         FastClass fastClass = FastClass.create(enhancedClass);
-        String beanClassName = beanClass.getName();
 
         // get the context set unset method objects
         Method setEntityContext;
@@ -96,6 +98,9 @@ public class CMPOperationFactory extends AbstractOperationFactory {
         Method[] beanMethods = beanClass.getMethods();
         ArrayList sigList = new ArrayList(beanMethods.length);
         ArrayList vopList = new ArrayList(beanMethods.length);
+        InstanceOperation[] itable = new InstanceOperation[fastClass.getMaxIndex() + 1];
+        HashMap signatureMap = new HashMap(beanMethods.length);
+        int vopId = 0;
         for (int i = 0; i < beanMethods.length; i++) {
             Method beanMethod = beanMethods[i];
 
@@ -132,21 +137,37 @@ public class CMPOperationFactory extends AbstractOperationFactory {
 
             sigList.add(signature);
             vopList.add(vop);
+            signatureMap.put(signature, new Integer(vopId++));
         }
 
         for (int i = 0; i < queries.length; i++) {
             CMPQuery query = queries[i];
             MethodSignature signature = query.getSignature();
-            VirtualOperation vop = new CMPFinder(container, persistenceFactory.getQueryCommand(signature), query.isMultiValue());
-            sigList.add(signature);
-            vopList.add(vop);
+            QueryCommand queryCommand = persistenceFactory.getQueryCommand(signature);
+            boolean multiValue = query.isMultiValue();
+
+            String returnSchemaName = query.getReturnSchemaName();
+            if (!signature.getMethodName().startsWith("ejbSelect")) {
+                VirtualOperation vop = new CMPFinder(persistenceFactory.getContainer(returnSchemaName), queryCommand, multiValue);
+                sigList.add(signature);
+                vopList.add(vop);
+                signatureMap.put(signature, new Integer(vopId++));
+            } else {
+                int index;
+                try {
+                    index = MethodHelper.getSuperIndex(fastClass, signature);
+                } catch (ClassNotFoundException e) {
+                    throw new IllegalStateException("Cannot load classes for "+signature);
+                }
+                CMPEntityContainer queryContainer = (returnSchemaName == null) ? null : persistenceFactory.getContainer(returnSchemaName);
+                itable[index] = new CMPSelectMethod(queryContainer, queryCommand, multiValue, query.isLocal());
+            }
         }
 
 
         MethodSignature[] signatures = (MethodSignature[]) sigList.toArray(new MethodSignature[0]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopList.toArray(new VirtualOperation[0]);
 
-        InstanceOperation[] itable = new InstanceOperation[fastClass.getMaxIndex() + 1];
         for (int i = 0; i < fieldNames.length; i++) {
             String fieldName = fieldNames[i];
             try {

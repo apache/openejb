@@ -55,11 +55,23 @@ import org.openejb.nova.dispatch.MethodSignature;
  * @version $Revision$ $Date$
  */
 public class CMPQuery {
+    private final String returnSchemaName;
+    private final boolean local;
     private final MethodSignature signature;
     private final boolean multiValue;
     private final String ejbql;
 
     public CMPQuery(MethodSignature signature, boolean multiValue, String ejbql) {
+        this.signature = signature;
+        this.multiValue = multiValue;
+        this.ejbql = ejbql;
+        this.returnSchemaName = null;
+        this.local = false;
+    }
+
+    public CMPQuery(String returnSchemaName, boolean local, MethodSignature signature, boolean multiValue, String ejbql) {
+        this.returnSchemaName = returnSchemaName;
+        this.local = local;
         this.signature = signature;
         this.multiValue = multiValue;
         this.ejbql = ejbql;
@@ -75,5 +87,14 @@ public class CMPQuery {
 
     public boolean isMultiValue() {
         return multiValue;
+    }
+
+
+    public String getReturnSchemaName() {
+        return returnSchemaName;
+    }
+
+    public boolean isLocal() {
+        return local;
     }
 }

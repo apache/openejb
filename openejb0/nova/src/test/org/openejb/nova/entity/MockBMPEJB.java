@@ -47,6 +47,7 @@
  */
 package org.openejb.nova.entity;
 
+import java.util.Collection;
 import javax.ejb.CreateException;
 import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
@@ -74,6 +75,18 @@ public class MockBMPEJB implements EntityBean {
 
     public int ejbHomeIntMethod(int i) {
         return i + 1;
+    }
+
+    public String ejbHomeSingleSelect(Integer i) throws FinderException {
+        return null;
+    }
+
+    public Collection ejbHomeMultiSelect(Integer i) throws FinderException {
+        return null;
+    }
+
+    public Collection ejbHomeMultiObject(Integer i) throws FinderException {
+        return null;
     }
 
     public int intMethod(int i) {
