@@ -15,7 +15,8 @@
 ############################################################
 $MAIL_CMD      = "| /usr/lib/sendmail -i -t";
 $MAIL_TO       = 'openejb-development@lists.sourceforge.net';
-$MAIL_FROM     = 'noreply@sourceforge.net';
+$MAIL_FROM     = 'Tasks <noreply@sourceforge.net>';
+$XSENDER       = 'OpenEJB-Task';
 
 ############################################################
 #
@@ -94,6 +95,9 @@ sub convertTaskHeader {
 
         
     open(MAIL, $MAIL_CMD);
+    if ($XSENDER NE ""){
+        print MAIL "X-Sender: $XSENDER\n";
+    }
     print MAIL "From: $MAIL_FROM\n";
     print MAIL "To: $MAIL_TO\n";
     print MAIL "Reply-To: $MAIL_TO\n";
