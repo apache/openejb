@@ -242,8 +242,13 @@
         <xsl:apply-templates select="document/body/section"/>
       </td>
       <td width="120" height="5" valign="top"
-        align="left"><a href="http://www.exolab.org"><img
-        src="images/logo_exolab.gif" hspace="0" vspace="10" width="77" height="20" border="0"/></a></td>
+        align="left">
+        <!--
+        <a href="http://www.exolab.org"><img
+        src="images/logo_exolab.gif" hspace="0" vspace="10" width="77" height="20" border="0"/></a>
+        -->
+        &#160;        
+        </td>
       </tr>
 
       <!-- line row -->
@@ -265,7 +270,12 @@
 
       <tr>
         <td width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&#160;</td>
-        <td width="95" bgcolor="#7270c2" valign="top" align="left">&#160;</td>
+        <td width="95" bgcolor="#7270c2" valign="top" align="left">
+          <A href="http://sourceforge.net"> 
+            <IMG  src="http://sourceforge.net/sflogo.php?group_id=44351"
+                  width="88" height="31" border="0" alt="SourceForge Logo"/>
+          </A>
+        </td>
         <td width="7" bgcolor="#a9a5de" valign="top" align="left">
           <img src="images/dotTrans.gif" width="1" height="25" border="0"/>
         </td>
