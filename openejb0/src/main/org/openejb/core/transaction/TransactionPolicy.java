@@ -39,7 +39,7 @@ public abstract class TransactionPolicy {
     protected TransactionContainer container;
 
     protected final static Logger logger = Logger.getInstance( "OpenEJB" );
-    protected final static Logger txLogger = Logger.getInstance("Transactions");
+    protected final static Logger txLogger = Logger.getInstance("Transaction");
 
     protected TransactionManager getTxMngr( ) {
         if(manager==null) {

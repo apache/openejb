@@ -97,7 +97,7 @@ public class TransactionManagerWrapper  implements TransactionManager {
      */
     final private Hashtable wrapperMap = new Hashtable();
 
-    final static protected org.apache.log4j.Category logger = org.apache.log4j.Category.getInstance("Transactions");
+    final static protected org.apache.log4j.Category logger = org.apache.log4j.Category.getInstance("Transaction");
 
     /**
      * Constructor
