@@ -648,6 +648,7 @@
     <copy todir="build/src/javadoc">
         <fileset dir="src/main" includes="**/**.java,**/**.html" excludes="**/CVS/**"/>
         <fileset dir="src/facilities" includes="**/**.java,**/**.html" excludes="**/modern/**,**/ui/**,**/sp/**,**/CVS/**"/>
+        <fileset dir="src/server" includes="**/**.java,**/**.html" excludes="**/webadmin/**,**/CVS/**"/>
     </copy>
     
     <mkdir dir="${docs.dest}/html/apidocs"/>
@@ -655,8 +656,9 @@
     <javadoc packagenames="org.openejb.*"
              sourcepath="build/src/javadoc"
              destdir="${docs.dest}/html/apidocs"
-             doctitle="${name} JavaDoc"
-             windowtitle="${name} JavaDoc"
+             doctitle="${name} ${version} Java API Documentation"
+             windowtitle="${name} ${version} Java API Documentation"
+             overview="src/package.html"
 		     package="true"
 		     author="true"
              version="true"
