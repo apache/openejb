@@ -45,61 +45,64 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.deployment.entity.cmp.ejbql;
 
+
+import javax.ejb.CreateException;
+import javax.ejb.EntityBean;
+import javax.ejb.EntityContext;
 import javax.ejb.FinderException;
-import javax.ejb.ObjectNotFoundException;
+import javax.ejb.RemoveException;
 
-import org.tranql.field.FieldTransform;
-import org.tranql.field.FieldTransformException;
-import org.tranql.field.Row;
-import org.tranql.ql.QueryException;
-import org.tranql.query.QueryCommandView;
-import org.tranql.query.ResultHandler;
 
 /**
- * 
- * 
+ *
  * @version $Revision$ $Date$
  */
-public class SingleValuedSelect implements InstanceOperation {
-    private static final Object NODATA = new Object();
+public abstract class ABean implements EntityBean {
 
-    private final QueryCommandView commandView;
+    private EntityContext context;
+    
+    // CMP
+    public abstract Integer getField1();
+    public abstract void setField1(Integer field1);
 
-    public SingleValuedSelect(QueryCommandView commandView) {
-        this.commandView = commandView;
+    public abstract String getField2();
+    public abstract void setField2(String field2);
+    
+    public Integer ejbCreate(Integer field1)  throws CreateException {
+        setField1(field1);
+        return null;
     }
 
-    public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
-        Object o;
-        try {
-            SingleValuedResultHandler handler = new SingleValuedResultHandler(commandView.getView()[0]);
-            o = commandView.getQueryCommand().execute(handler, new Row(args), NODATA);
-        } catch (QueryException e) {
-            return new FinderException(e.getMessage()).initCause(e);
-        }
-        if (NODATA == o) {
-            throw new ObjectNotFoundException();
-        }
-        return o;
+    public void ejbPostCreate(Integer field1) {
     }
 
-    private class SingleValuedResultHandler implements ResultHandler {
-        private final FieldTransform accessor;
-        public SingleValuedResultHandler(FieldTransform accessor) {
-            this.accessor = accessor;
-        }
-
-        public Object fetched(Row row, Object arg) throws QueryException {
-            if (arg == NODATA) {
-                try {
-                    return accessor.get(row);
-                } catch (FieldTransformException e) {
-                    throw new QueryException(e);
-                }
-            }
-            return new FinderException("More than one row returned from single valued select.");
-        }
+    public void setEntityContext(EntityContext ctx) {
+        context = ctx;
     }
+
+    public void unsetEntityContext() {
+    }
+
+    public void ejbActivate() {
+    }
+
+    public void ejbPassivate() {
+    }
+
+    public void ejbLoad() {
+    }
+
+    public void ejbStore() {
+    }
+
+    public void ejbRemove() throws RemoveException {
+    }
+    
+    public ALocal ejbHomeSelectTest(String test) throws FinderException {
+        return ejbSelectTest(test);
+    }
+    
+    public abstract ALocal ejbSelectTest(String test) throws FinderException;
 }

@@ -45,61 +45,21 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.deployment.entity.cmp.ejbql;
 
-import javax.ejb.FinderException;
-import javax.ejb.ObjectNotFoundException;
-
-import org.tranql.field.FieldTransform;
-import org.tranql.field.FieldTransformException;
-import org.tranql.field.Row;
-import org.tranql.ql.QueryException;
-import org.tranql.query.QueryCommandView;
-import org.tranql.query.ResultHandler;
+import javax.ejb.EJBLocalObject;
 
 /**
- * 
- * 
+ *
  * @version $Revision$ $Date$
  */
-public class SingleValuedSelect implements InstanceOperation {
-    private static final Object NODATA = new Object();
+public interface ALocal extends EJBLocalObject {
 
-    private final QueryCommandView commandView;
+    // CMP
+    public Integer getField1();
+    public void setField1(Integer field1);
 
-    public SingleValuedSelect(QueryCommandView commandView) {
-        this.commandView = commandView;
-    }
-
-    public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
-        Object o;
-        try {
-            SingleValuedResultHandler handler = new SingleValuedResultHandler(commandView.getView()[0]);
-            o = commandView.getQueryCommand().execute(handler, new Row(args), NODATA);
-        } catch (QueryException e) {
-            return new FinderException(e.getMessage()).initCause(e);
-        }
-        if (NODATA == o) {
-            throw new ObjectNotFoundException();
-        }
-        return o;
-    }
-
-    private class SingleValuedResultHandler implements ResultHandler {
-        private final FieldTransform accessor;
-        public SingleValuedResultHandler(FieldTransform accessor) {
-            this.accessor = accessor;
-        }
-
-        public Object fetched(Row row, Object arg) throws QueryException {
-            if (arg == NODATA) {
-                try {
-                    return accessor.get(row);
-                } catch (FieldTransformException e) {
-                    throw new QueryException(e);
-                }
-            }
-            return new FinderException("More than one row returned from single valued select.");
-        }
-    }
+    public String getField2();
+    public void setField2(String field2);
+    
 }

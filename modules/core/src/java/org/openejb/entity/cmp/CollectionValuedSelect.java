@@ -47,17 +47,38 @@
  */
 package org.openejb.entity.cmp;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.ejb.FinderException;
+
+import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.tranql.field.Row;
+import org.tranql.ql.QueryException;
+import org.tranql.query.CollectionResultHandler;
 import org.tranql.query.QueryCommandView;
+
 
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public class CollectionValuedSelect extends CollectionValuedFinder {
+public class CollectionValuedSelect implements InstanceOperation {
+    private final QueryCommandView commandView;
 
-    public CollectionValuedSelect(QueryCommandView queryView) {
-        super(queryView, queryView);
+    public CollectionValuedSelect(QueryCommandView commandView) {
+        this.commandView = commandView;
     }
 
+    public Object invokeInstance(CMPInstanceContext ctx, Object[] args) {
+        Collection results = new ArrayList();
+        try {
+            CollectionResultHandler handler = new CollectionResultHandler(commandView.getView()[0]);
+            commandView.getQueryCommand().execute(handler, new Row(args), results);
+        } catch (QueryException e) {
+            return new FinderException(e.getMessage()).initCause(e);
+        }
+        return results;
+    }
 }

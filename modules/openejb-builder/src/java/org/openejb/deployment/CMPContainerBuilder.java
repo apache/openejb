@@ -54,6 +54,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.management.ObjectName;
@@ -237,7 +238,6 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
         // EJB QL queries
         Map finders = createFinders(ejb);
-        Map selects = createSelects(ejb);
         
         // findByPrimaryKey
         QueryCommandView localProxyLoadView = queryBuilder.buildFindByPrimaryKey(getEJBName(), true);
@@ -255,25 +255,26 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         // build the instance factory
         LinkedHashMap cmpFieldAccessors = createCMPFieldAccessors(faultHandler);
         LinkedHashMap cmrFieldAccessors = createCMRFieldAccessors();
+        LinkedHashMap selects = createSelects(ejb);
         Map instanceMap = null;
         CMP1Bridge cmp1Bridge = null;
         if (cmp2) {
             // filter out the accessors associated to virtual CMR fields.
-            LinkedHashMap existingCMRFieldAccessores = new LinkedHashMap(cmrFieldAccessors);
-            for (Iterator iter = existingCMRFieldAccessores.entrySet().iterator(); iter.hasNext();) {
+            LinkedHashMap existingCMRFieldAccessors = new LinkedHashMap(cmrFieldAccessors);
+            for (Iterator iter = existingCMRFieldAccessors.entrySet().iterator(); iter.hasNext();) {
                 Map.Entry entry = (Map.Entry) iter.next();
                 String name = (String) entry.getKey();
                 if ( ejb.getAssociationEnd(name).isVirtual() ) {
                     iter.remove();
                 }
             }
-            instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors, existingCMRFieldAccessores);
+            instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors, existingCMRFieldAccessors, selects);
         } else {
             cmp1Bridge = new CMP1Bridge(beanClass, cmpFieldAccessors);
         }
 
         // build the vop table
-        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrFieldAccessors, cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGeneratorDelegate(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, finders, selects);
+        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrFieldAccessors, cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGeneratorDelegate(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, finders);
 
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
@@ -302,15 +303,15 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return createEJBQLQueryMap(findersMap);
     }
     
-    private Map createSelects(EJB ejb) throws Exception {
+    private LinkedHashMap createSelects(EJB ejb) throws Exception {
         EJBQLToPhysicalQuery toPhysicalQuery = new EJBQLToPhysicalQuery(ejbSchema, sqlSchema, globalSchema);
 
         IdentityHashMap selectsMap = toPhysicalQuery.buildSelects(ejb);
         return createEJBQLQueryMap(selectsMap);
     }
 
-    private Map createEJBQLQueryMap(Map ejbQLMap) {
-        Map queryCommands = new HashMap();
+    private LinkedHashMap createEJBQLQueryMap(Map ejbQLMap) {
+        LinkedHashMap queryCommands = new LinkedHashMap();
         
         for (Iterator iter = ejbQLMap.entrySet().iterator(); iter.hasNext();) {
             Map.Entry entry = (Map.Entry) iter.next();
@@ -401,7 +402,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         CMRField relatedField = (CMRField) association.getOtherEnd(field);
         EJB relatedEJB = (EJB) field.getEntity();
         CacheTable relatedCacheTbl = (CacheTable) globalSchema.getEntity(relatedEJB.getName());
-        IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner((EJB) relatedField.getEntity());
+        IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(relatedField.getEntity());
 
         List pkFields = relatedEJB.getPrimaryKeyFields();
         IdentityDefiner relatedIdentityDefiner;
@@ -427,7 +428,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 new ReferenceAccessor(relatedIdentityDefiner));
     }
 
-    private Map buildInstanceMap(Class beanClass, LinkedHashMap cmpFields, LinkedHashMap cmrFields) {
+    private Map buildInstanceMap(Class beanClass, LinkedHashMap cmpFields, LinkedHashMap cmrFields, LinkedHashMap selects) {
         Map instanceMap;
         instanceMap = new HashMap();
 
@@ -437,7 +438,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         // add the cmr getters and setters to the instance table.
         addFieldOperations(instanceMap, beanClass, cmrFields);
 
-        // todo add the select methods
+        // add the select methods
+        addSelects(instanceMap, beanClass, selects);
 
         return instanceMap;
     }
@@ -461,6 +463,29 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
+    private void addSelects(Map instanceMap, Class beanClass, LinkedHashMap selects) throws IllegalArgumentException {
+        for (Iterator iterator = selects.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            InterfaceMethodSignature signature = (InterfaceMethodSignature) entry.getKey();
+            QueryCommandView view = (QueryCommandView) entry.getValue();
+
+            Method method = signature.getMethod(beanClass);
+            if (method == null) {
+                throw new IllegalArgumentException("Could not find select for signature: " + signature);
+            }
+            MethodSignature methodSignature = new MethodSignature(method);
+            
+            String returnType = method.getReturnType().getName();
+            if (returnType.equals("java.util.Collection")) {
+                instanceMap.put(methodSignature, new CollectionValuedSelect(view));
+            } else if (returnType.equals("java.util.Set")) {
+                instanceMap.put(methodSignature, new SetValuedSelect(view));
+            } else {
+                instanceMap.put(methodSignature, new SingleValuedSelect(view));
+            }
+        }
+    }
+
     protected LinkedHashMap buildVopMap(Class beanClass,
             CacheTable cacheTable,
             Map cmrFieldAccessors,
@@ -470,8 +495,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             IdentityTransform primaryKeyTransform,
             IdentityTransform localProxyTransform,
             IdentityTransform remoteProxyTransform,
-            Map finders,
-            Map selects) throws Exception {
+            Map finders) throws Exception {
 
         ProxyInfo proxyInfo = createProxyInfo();
 
@@ -595,26 +619,6 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 vopMap.put(signature, new EnumerationValuedFinder(views[0], views[1]));
             } else {
                 vopMap.put(signature, new SingleValuedFinder(views[0], views[1]));
-            }
-        }
-        
-        for (Iterator iterator = selects.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            InterfaceMethodSignature signature = (InterfaceMethodSignature) entry.getKey();
-            QueryCommandView view = (QueryCommandView) entry.getValue();
-
-            Method method = signature.getMethod(beanClass);
-            if (method == null) {
-                throw new DeploymentException("Could not find method for signature: " + signature);
-            }
-
-            String returnType = method.getReturnType().getName();
-            if (returnType.equals("java.util.Collection")) {
-                vopMap.put(signature, new CollectionValuedSelect(view));
-            } else if (returnType.equals("java.util.Set")) {
-                vopMap.put(signature, new SetValuedSelect(view));
-            } else {
-                vopMap.put(signature, new SingleValuedSelect(view));
             }
         }
         
