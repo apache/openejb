@@ -71,6 +71,7 @@ import org.apache.geronimo.timer.UserTaskFactory;
 import org.apache.geronimo.timer.WorkInfo;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.kernel.proxy.DeadProxyException;
 import org.openejb.EJBInvocation;
 
 /**
@@ -195,8 +196,20 @@ public class BasicTimerServiceImpl implements BasicTimerService {
         return timers;
     }
 
+    //TODO HACK SEE GERONIMO-623
+    private boolean notified = false;
     public TimerImpl getTimerById(Long id) {
-        WorkInfo workInfo = persistentTimer.getWorkInfo(id);
+        WorkInfo workInfo = null;
+        try {
+            workInfo = persistentTimer.getWorkInfo(id);
+        } catch (DeadProxyException e) {
+            //TODO HACK SEE GERONIMO-623
+            notified = true;
+            if (notified) {
+                return null;
+            }
+            throw new RuntimeException("Dead proxy for ejb " + key);
+        }
         if (workInfo != null) {
             TimerImpl timer = (TimerImpl) workInfo.getClientHandle();
             return timer;
@@ -248,6 +261,10 @@ public class BasicTimerServiceImpl implements BasicTimerService {
 
         public void run() {
             TimerImpl timerImpl = timerService.getTimerById(new Long(timerId));
+            //TODO HACK SEE GERONIMO-623
+            if (timerImpl == null) {
+                return;
+            }
             EJBInvocation invocation = timerService.invocationFactory.getEJBTimeoutInvocation(timerImpl.getUserId(), timerImpl);
 
             // set the transaction context into the invocation object
