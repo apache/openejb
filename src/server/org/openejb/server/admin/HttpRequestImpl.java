@@ -526,7 +526,7 @@ public class HttpRequestImpl implements HttpRequest {
 	 */
 	private Map parseMultiPartHeader(StringBuffer headerBuffer) throws IOException {
 		Map headerMap = new HashMap();
-		int colonIndex = headerBuffer.indexOf(":");
+		int colonIndex = headerBuffer.toString().indexOf(":");
 		String headerName = headerBuffer.substring(0, colonIndex);
 		StringTokenizer headerValueToken =
 			new StringTokenizer(headerBuffer.substring(colonIndex + 1, headerBuffer.length()), ";");
@@ -553,7 +553,7 @@ public class HttpRequestImpl implements HttpRequest {
 			StringBuffer temp;
 			if (fileName.indexOf("\\") > -1) {
 				temp = new StringBuffer(fileName).reverse();
-				fileName = temp.delete(temp.indexOf("\\"), temp.length()).reverse().toString();
+				fileName = temp.delete(temp.toString().indexOf("\\"), temp.length()).reverse().toString();
 			}
 
 			temp = new StringBuffer();
