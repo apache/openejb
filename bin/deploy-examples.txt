@@ -52,7 +52,7 @@ Example: -D
  The deployment ID is also used by most servers as the client-side 
  JNDI name for doing JNDI lookups.
 
- See http://openejb.sf.net/deploymentids.html for more details. 
+ See http://www.openejb.org/deploymentids.html for more details. 
 
 Example: -a
 

@@ -25,6 +25,6 @@ OPTIONS
 
 OpenEJB -- EJB Container System and EJB Server.
 For updates and additional information, visit
-http://openejb.sf.net  
+http://www.openejb.org
 
 Bug Reports to <openejb-user@lists.sf.net>
