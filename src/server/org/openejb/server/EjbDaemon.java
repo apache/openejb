@@ -161,9 +161,6 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
     public synchronized void start(){
         try{
-            System.out.println("  ** Starting Services **");
-            System.out.println("  NAME             IP              PORT");
-
             SafeProperties safeProps = toolkit.getSafeProperties(props);
 
             port = safeProps.getPropertyAsInt("openejb.server.port");
@@ -171,7 +168,6 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
             sMetaData = new ServerMetaData(ip, port);
 
-            System.out.print("  ejb server       ");
             try{
                 serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
             } catch (Exception e){
@@ -188,9 +184,14 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                 System.out.println("");
                 System.out.println("and issue the command 'stop'.  If you do not get an OpenEJB prompt when");
                 System.out.println("you telnet, then another program has that address and port bound. "); 
-		System.out.println("You can select a new port by setting the system property ");
-		System.out.println("'openejb.server.port'.  You can select a new port by setting the system");
-		System.out.println("property 'openejb.server.ip'.");
+		System.out.println("You can select a new port by using the -p option of the start command: ");
+                System.out.println("");
+                System.out.println("\topenejb start -p <port>");
+                System.out.println("");
+		System.out.println("You can select a new ip address by using the -h option of the start command: ");
+                System.out.println("");
+                System.out.println("\topenejb start -h <address>");
+                System.out.println("");
 
                 System.exit(1);
             }
@@ -202,6 +203,15 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                 d.start();
             }
 
+            TextConsole textConsole = new TextConsole(this);
+            textConsole.init(props);
+            textConsole.start();
+
+
+            System.out.println("  ** Starting Services **");
+            System.out.println("  NAME             IP              PORT");
+            System.out.print("  ejb server       ");
+
             String serverIP = serverSocket.getInetAddress().getHostAddress();
             serverIP += "         ";
             serverIP = serverIP.substring(0,15);
@@ -210,11 +220,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
             System.out.print("  admin console    ");
 
-            TextConsole textConsole = new TextConsole(this);
-            textConsole.init(props);
-            textConsole.start();
-
-            System.out.println(serverIP +" "+(port-1));
+	    System.out.println(serverIP +" "+(port-1));
 
             serverIP = serverIP.trim();
 
