@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<document url="http://openejb.exolab.org/GSG-2.xml">
+    <properties>
+        <abstract>
+            Abstract
+        </abstract>
+        <author email="david.blevins@visi.com" ldap="">David Blevins</author>
+    </properties>
+  <body>
+    <title>GSG-2 -- Get the source: CVS</title>
+    <header>
+    <p> 
+    <table border="0" cellpadding="0" width="100%">
+    <tr><td>OpenEJB - Container System</td><td ALIGN="RIGHT">David Blevins</td></tr>
+    <tr><td>Getting Started Guide: GSG-2</td><td ALIGN="RIGHT">February 2001</td></tr>
+    </table>
+    </p>
+    <p><center>Getting Started Guide -- Get the source: CVS</center></p>
+
+    <p>Abstract</p><p>
+
+      Getting involved in any Open Source project requires the source.  This 
+      document guides you through the process of getting the OpenEJB 
+      project source using the CVS command line client.
+    </p>
+
+    <p>Table of Contents</p>
+
+    </header>
+    <section title="1  Introduction">
+    <a href="GSG-2-TODO.html#TD-0001">[TD-0001]</a>
+    </section> 
+    
+    <section title="2  Get CVS">
+    
+      <p>
+      
+      Before we go into getting the source, let's take a second to answer the 
+      question, "What is CVS?".
+      
+      </p>
+    </section> 
+    
+    <section title="2.1  What is CVS">
+      
+      <p>
+    
+      The Concurrent Versions System (CVS) provides network-transparent source
+      control for groups of developers.  CVS has four basic functions:
+      
+      </p>
+      
+      <ul>
+        <LI>Maintains a history of all changes made to each directory tree it manages</LI>
+        <LI>Provides hooks to support process control and change control</LI>
+        <LI>Provides reliable access to its directory trees from remote hosts using Internet protocols</LI>
+        <LI>Supports parallel development allowing more than one developer to work on the same sources at the same time</LI>
+      </ul>          
+      
+      <p>
+      All the OpenEJB source code, documentation, and other files are in a CVS
+      repository an ExoLab server.  To access the repository and download the 
+      source code and other files, you need a cvs client.
+      </p>
+    </section> 
+    
+    <section title="2.2   Downloading CVS">
+      <p>
+    
+      The CVS client is available on many operating systems. Choose the CVS 
+      client that's right for your OS by following on one of the links below:
+      
+      </p>    
+      
+      <ul>
+        <LI><a href="ftp://ftp.cvshome.org/pub/cvs-1.10.5/windows/cvs.exe">CVS for Windows</a></LI>
+        <LI><a href="ftp://ftp.cvshome.org/pub/cvs-1.10.8/bin/cvs">CVS for Linux</a></LI>
+      </ul>
+      <a href="GSG-2-TODO.html#TD-0002">[TD-0002]</a>
+      
+      <p>    
+      If you don't see your OS listed above, go to the official CVS download  
+      page or CVS ftp directory and choose from a complete list of CVS 
+      clients. 
+    
+      </p>    
+      <a href="GSG-2-TODO.html#TD-0003">[TD-0003]</a>
+    
+    </section> 
+    
+    <section title="2.3   Installing CVS">
+      <p>
+    
+      There is no "Install Shield" for cvs. You just put the cvs executable in
+      any directory and then include that directory in your PATH system     
+      variable. Then you can execute cvs commands from anywhere in your 
+      command shell.
+      
+      </p>    
+    <a href="GSG-2-TODO.html#TD-0004">[TD-0004]</a>
+    <a href="GSG-2-TODO.html#TD-0005">[TD-0005]</a>
+    <a href="GSG-2-TODO.html#TD-0006">[TD-0006]</a>
+  
+    </section> 
+    
+    <section title="3  Downloading the project source">
+      <p>
+    
+      In the CVS world, downloading is referred to as checking out. Before you
+      can checkout the OpenEJB source from the repository, you need to login.
+    
+      </p>    
+    </section> 
+    
+    <section title="3.1  Logging into the ExoLab CVS server">
+      <p>
+    
+      To log into the ExoLab cvs server where the OpenEJB project source
+      lives.  Execute the following command in your shell:
+      
+      </p>    
+      <p>    
+    
+      [prompt]$ cvs -d :pserver:anoncvs@openejb.exolab.org:/cvs/openejb login
+      
+      </p>    
+      
+      <p>    
+      
+      When it prompts you for the CVS password, type "anoncvs" without quotes.
+      
+      </p>    
+      <a href="GSG-2-TODO.html#TD-0007">[TD-0007]</a> 
+      <a href="GSG-2-TODO.html#TD-0008">[TD-0008]</a>
+
+    </section> 
+    
+    <section title="3.2  Checking out the source">
+      
+      <p>
+    
+      After you have logged in, you can checkout the source code and execute  
+      other CVS commands. To checkout the OpenEJB source, go to the directory 
+      where you would like to place the files and execute the following 
+      command: 
+      
+      </p>    
+      
+      <p>    
+    
+      [prompt]$ cvs -d :pserver:anoncvs@openejb.exolab.org:/cvs/openejb
+      checkout openejb 
+      
+      </p>    
+      
+      <p>    
+    
+      NOTE: The text above should be on one line and executed as one command. 
+    
+      </p>    
+      
+      <p>    
+      
+      When you do a checkout, a copy of the newest files in the repository is 
+      downloaded to a directory on your local machine. This is called a 
+      working copy and is yours to play with, edit, or manage as you see fit. 
+      Changes made to your working copy do not become a permanent part of the 
+      repository until they are checked in. 
+    
+      </p>    
+      
+      <p>    
+      
+      When files are checked into the repository, they are uploaded from the 
+      working copy on your machine to the CVS repository on the ExoLab server.
+      The files then become a permanent part of the repository and can be   
+      checked out by anyone. 
+    
+      </p>    
+    </section> 
+    
+    <section title="3.3  Checking in source files (committing)">
+      
+      <p>
+    
+      Checking in files, known as committing, requires special access which is
+      granted on an individual basis. If you would like to contribute changes 
+      to files or new files, you can email the files to the openejb-dev 
+      mailing list for review. 
+      
+      </p>    
+    
+    </section> 
+    
+    <section title="4  Other Resources"><p>
+    
+      <a href="GSG-2-TODO.html#TD-0009">[TD-0009]</a>
+      </p>    
+    </section> 
+    
+    <section title="5  References">
+      <p>
+      <a href="GSG-2-TODO.html#TD-0010">[TD-0010]</a>
+      </p>
+    </section>
+
+
+  </body>
+</document>

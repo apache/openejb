@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<document url="http://openejb.exolab.org/GSG-1.xml">
+    <properties>
+        <abstract>
+            Abstract
+        </abstract>
+        <author email="david.blevins@visi.com" ldap="">David Blevins</author>
+    </properties>
+  <body>
+    <title>GSG-1 -- Join the mailing list</title>
+    <header>
+    <p> 
+    <table border="0" cellpadding="0" width="100%">
+    <tr><td>OpenEJB - Container System</td><td ALIGN="RIGHT">David Blevins</td></tr>
+    <tr><td>Getting Started Guide: GSG-1</td><td ALIGN="RIGHT">February 2001</td></tr>
+    </table>
+    </p>
+    <p><center>Getting Started Guide -- Join the mailing list</center></p>
+
+    <p>Abstract</p><p>
+
+    The mailing list is your connection to all the developers and members of
+    the OpenEJB community. This document shows you how to subscribe
+    to our main mailing list, the OpenEJB-Dev mailing list. 
+    </p>
+
+    <p>Table of Contents</p>
+
+    </header>
+    
+    <section title="1  Introduction">
+      <p>
+
+      The OpenEJB Developer list is where the general OpenEJB community goes to ask questions, make suggestions, chat
+      with other users and developers, and keep a finger on the pulse of the project.
+      
+      </p>
+
+      <p>
+      Please feel free to ask as many questions as you need while becoming 
+      familiar with the project.  We believe the perspective of those who are new 
+      the project is very valuable and we rely on your feedback to make the 
+      project easier to use and understand for everyone.  If you have any 
+      suggestions on ways we can help those that are new to the project get up to 
+      speed more quickly, we are more than willing to listen.
+      </p>
+    
+    </section>
+    
+    <section title="2  Subscribe">
+      <p>                  
+      To subscribe to the list send mail to minimalist@exolab.org with 
+      "subscribe openejb-dev" in the subject line, with out quotes.
+
+        <UL>
+        <LI><a href="mailto:minimalist@exolab.org?subject=subscribe openejb-dev">
+           Subscribe</a></LI>
+         <LI><a href="http://www.openejb.org/list-archive/">
+           View Archive</a></LI>
+        </UL>                                                                           
+      </p>
+
+    </section>
+    
+    <section title="3  List Conduct">
+    <p>
+
+    <UL>
+    <LI>THE GOAL - 
+       Everyone must feel free to ask questions and make comments without fear 
+       of being attacked, insulted, perceived as stupid, or looked down upon.
+    </LI>
+    <LI>THE RULE - 
+       All opinions, comments and questions are respected, appreciated and 
+       welcome.
+    </LI>
+    
+    <LI>THE EXCEPTION TO THE RULE - 
+       Posts lacking in patients, decorum or constructiveness will not be 
+       tolerated on this list.
+    </LI>
+    </UL>
+   </p>
+   </section>
+
+
+  </body>
+</document>

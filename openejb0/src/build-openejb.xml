@@ -1,0 +1,161 @@
+<project name="OpenEJB-OpenEJB" default="jar" basedir="../">
+  <!-- 
+  		Contributions by:
+  			Daniel S. Haischt <sirabyss@gmx.net>
+  	-->
+
+  <property name="build.openejb.src" value="${build.src}/openejb"/>
+  <property name="build.openejb.dest" value="${build.dest}/openejb"/>
+  <property name="dest.openejb.javadoc.dir" value="${dest.javadoc.dir}/openejb"/>
+  
+  <!-- Build classpath -->
+  <path id="project.classpath">
+    <pathelement location="${jrefactory.jar}"/>
+    <pathelement location="${castor.home}/dist/${castor.jar}"/>
+    <pathelement location="${ejb11.jar}"/>
+    <pathelement location="${ejb20.jar}"/>
+    <pathelement location="${jaas.home}/lib/${jaas.jar}"/>
+    <pathelement location="${jca.jar}"/>
+    <pathelement location="${jdbcext.jar}"/>
+    <pathelement location="${jdk12proxy.jar}"/>
+    <pathelement location="${jedi.home}/lib/${jedi.jar}"/>
+    <pathelement location="${jedi.home}/lib/${jediplugin.jar}"/>
+    <pathelement location="${jms.jar}"/>
+    <pathelement location="${jndi.jar}"/>
+    <pathelement location="${jta.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+    <pathelement location="${minerva.jar}"/>
+    <pathelement location="${openorb.home}/dist/${openorb.jar}"/>
+    <pathelement location="${openorb.home}/dist/${openorb.rmi.jar}"/>
+    <pathelement location="${openorb.home}/dist/${openorb.tools.jar}"/>
+    <pathelement location="${jts.jar}"/>
+    <pathelement location="${tyrex.home}/dist/${tyrex.jar}"/>
+    <pathelement location="${tyrex.home}/dist/${tyrex.iiop.jar}"/>
+    <pathelement location="${jaxp.home}/jaxp.jar"/>
+    <pathelement location="${jaxp.home}/${jaxp.parser.jar}"/>
+    <pathelement location="${jaxp.home}/${jaxp.xsltprocessor.jar}"/>
+    <pathelement location="${jaxp.home}/${jaxp.xalan1compat.jar}"/>
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${xslp.jar}"/>
+  </path>
+  
+  <!-- ================================================================== -->
+  <!-- Prepares the build directory                                       -->
+  <!-- ================================================================== -->
+
+  <target name="prepare">
+  
+    <mkdir dir="${build.openejb.src}"/>
+    <mkdir dir="${build.openejb.dest}"/>
+    <mkdir dir="${dest.openejb.javadoc.dir}"/>
+    
+    <copy todir="${build.openejb.src}">
+      <fileset dir="${src.java.dir}/main" 
+               excludes="**/CVS/**,**/*.class"
+      />
+    </copy>
+    <copy todir="${build.openejb.src}" >
+      <fileset dir="${src.java.dir}/facilities" 
+               includes="**/alt/**,**/resource/**,**/tyrex/**,**/ui/**,javax/**" 
+               excludes="**/CVS/**,**/*.class"
+      />
+    </copy>
+    
+  </target>
+  
+  <target name="copy.manifest">
+  
+    <copy todir="${build.openejb.dest}">
+    
+      <fileset dir="${src.java.dir}/etc" >
+        <include name="**/CHANGELOG"/>
+        <include name="**/LICENSE"/>
+        <include name="**/MANIFEST.MF"/>
+        <include name="**/README"/>
+      </fileset>
+    
+    </copy>
+    
+    <replace file="${build.openejb.dest}/MANIFEST.MF" token="$$VERSION$$" value="${version}"/>
+  
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Compiles the source directory                                      -->
+  <!-- ================================================================== -->
+  
+  <target name="compile"
+          depends="prepare, compile.jdk12, compile.jdk13"
+          description="--> compiles the java source files"/>
+         
+  <target name="compile.jdk12" unless="jdk13">
+          
+    <javac srcdir="${build.openejb.src}"
+           destdir="${build.openejb.dest}"
+           excludes="**/jdk13/**/"
+           classpathref="project.classpath"
+           debug="${debug}"
+           deprecation="${deprecation}"/>
+          
+  </target>
+  
+  <target name="compile.jdk13" if="jdk13">
+          
+    <javac srcdir="${build.openejb.src}"
+           destdir="${build.openejb.dest}"
+           classpathref="project.classpath"
+           debug="${debug}"
+           deprecation="${deprecation}"/>
+          
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Compiles the source directory and creates a .jar file              -->
+  <!-- ================================================================== -->
+  
+  <target name="jar"
+          depends="compile, copy.manifest"
+          description="--> generates all java archives (default)">
+          
+    <jar jarfile="dist/${project}-${version}.jar"
+         basedir="${build.openejb.dest}"
+         manifest="${build.openejb.dest}/MANIFEST.MF"/>
+         
+    <copy file="src/etc/jedi-plugin-openejb11.properties"
+          tofile="${build.openejb.dest}/plugin.properties" />
+          
+    <copy todir="${build.openejb.dest}">
+      <fileset dir="src/schema"
+               includes="openejb-*.dtd" />
+    </copy>
+    
+    <jar jarfile="dist/${project}-plugin-${version}.jar"
+         basedir="${build.openejb.dest}"
+         includes="*.dtd,*.properties,**/jedi/**"
+         manifest="${build.openejb.dest}/MANIFEST.MF"/>
+          
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Creates the API documentation                                      -->
+  <!-- ================================================================== -->
+  
+  <target name="javadocs"
+          depends="compile"
+          description="--> generates the API documentation">
+          
+    <javadoc packagenames="org.openejb.*,javax.ejb.*"
+             sourcepath="${build.openejb.src}"
+             destdir="${dest.openejb.javadoc.dir}"
+             doctitle="${name} JavaDoc"
+             windowtitle="${name} JavaDoc"
+             bottom="${copyright}"
+		     package="true"
+             author="true"
+             version="true"
+             noindex="true"
+             classpathref="project.classpath"/>
+          
+  </target>
+  
+</project>

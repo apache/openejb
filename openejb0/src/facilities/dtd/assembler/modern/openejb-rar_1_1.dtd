@@ -1,0 +1,6 @@
+<!ELEMENT openejb-connector (resourceadapter*)>
+<!ELEMENT config-property (config-property-name, config-property-value)>
+<!ELEMENT config-property-name (#PCDATA)>
+<!ELEMENT config-property-value (#PCDATA)>
+<!ELEMENT connector-id (#PCDATA)>
+<!ELEMENT resourceadapter (connector-id, config-property*)>

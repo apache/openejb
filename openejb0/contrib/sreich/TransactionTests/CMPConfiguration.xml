@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapping PUBLIC "-//EXOLAB/Castor Mapping DTD Version 1.0//EN"
+                         "http://castor.exolab.org/mapping.dtd">
+<!--
+   Values that need to be changed are marked by a string starting with "*** MARKER". Use a good
+        text editor to search for such occurrence and replace it with a valid value.
+-->
+<mapping>
+    <class
+        identity="id" name="transactiontests.CMPEntityBean">
+        <map-to table="TransactionTests"/>
+        <field name="id" direct="true" >
+            <sql name="ID" type="char"/>
+        </field>
+        <field name="value" direct="true" >
+            <sql name="VALUE" type="char"/>
+        </field>
+    </class>
+</mapping>

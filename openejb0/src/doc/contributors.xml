@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<!-- This file contains a list of OpenEJB contributors -->
+<document url="http://openejb.exolab.org/contributors.xml">
+  <body>
+    <title>Contributors</title>
+    <header>
+    <p><span class="header">Richard Monson-Haefel</span> - Founder</p><p>
+        <span class="bodyBlack">
+        Richard Monson-Haefel is a leading expert on Enterprise JavaBeans. He is the
+        author of the book Enterprise JavaBeans, 2nd Edition (O'Reilly 2000) and
+        co-author of the book Java Message Service (O'Reilly 2000). Mr. Monson-Haefel
+        has consulted as an architect on Enterprise JavaBeans, CORBA, Java RMI, and
+        other distributed computing projects and is the lead architect of OpenEJB.
+        </span></p>
+    <p><span class="header">David Blevins</span> - Co-Founder</p><p>
+        <span class="bodyBlack">
+        David Blevins is a contributing author to the book 'Component-Based Software 
+        Engineering' (Addison-Wesley 2001) and author of a forthcoming Addison-Wesley
+        book on the Java 2 Enterprise Edition. David is also the co-founder of the 
+        OpenEJB open source Enterprise JavaBeans container system.  David can be found
+        speaking about EJB and OpenEJB at conferences such the Exolab Sessions, O'Reilly 
+        Enterprise Java Conference, O'Reilly Open Source Convention and JavaOne.
+        </span></p>
+    </header>
+    
+    <section title="">
+<contributors>
+
+  <contributor type="Committer">
+    <name surname="Monson-Haefel" given="Richard"/>
+    <email>rmh@intalio.com</email>
+    <company id="intalio"/>
+    <description>
+      OpenEJB Founder
+    </description>
+  </contributor>
+
+  <contributor type="Committer">
+    <name surname="Blevins" given="David"/>
+    <email>david.blevins@visi.com</email>
+    <company id="intalio"/>
+    <description>
+      OpenEJB Co-Founder
+    </description>
+  </contributor>
+
+  <contributor type="Committer">
+    <name surname="Mulder" given="Aaron"/>
+    <email>ammulder@alumni.princeton.edu</email>
+    <company id=""/>
+    <description>
+    Creator of the Modern Assembler and Hot Deploy functionality
+    </description>
+  </contributor>
+
+  <contributor type="Committer">
+    <name surname="Cabrera" given="Alan"/>
+    <email>adc@toolazydogs.com</email>
+    <company id=""/>
+    <description>
+      All around good guy to have on your side.  Alan has taken his place among 
+      the ranks of OpenEJB developers and dedicates himself to anything that needs
+      to be done.  His strengths are versatility, leadership and dedication.
+    </description>
+  </contributor>
+
+  <contributor type="Contributor">
+    <name surname="Haischt" given="Daniel"/>
+    <email>sirabyss@gmx.net</email>
+    <company id=""/>
+    <description>
+      Daniel has been hanging out on the dev list for quite some time.  Recently, he has made his 
+      very distingushable mark all over our build system by completely cleaning, reorganizing, 
+      modularizing, and completing all those little things that never seem to get done. We can 
+      expect more great enchancements from Daniel in the future.  His strengths are persistence 
+      and extreme organizational skills -- even his emails are specially formatted.
+    </description>
+  </contributor>
+
+  <contributor type="Feedback">
+    <name surname="Cabot" given="Toby"/>
+    <email>toby@caboteria.org</email>
+    <company id=""/>
+    <description>
+    Our friend from the north, as Alan calls him. Toby is a regular on the dev 
+    list and is always giving us good feedback on the various issues that come
+    in the list.  Maybe if people lean on him a bit, we can turn him into one
+    of the projects contributors ;)
+    </description>
+  </contributor>
+
+  <contributor type="Feedback">
+    <name surname="Gangadhar" given="Mukesh"/>
+    <email>opensrc_inf@yahoo.com</email>
+    <company id=""/>
+    <description>
+    One of our friends from the testing team that was learning the container 
+    system this summer. Mukesh has been on the dev list for quite some time and
+    is great for asking questions that most are too shy to ask.
+    </description>
+  </contributor>
+  
+  <contributor type="Feedback">
+    <name surname="Chen" given="Pizer"/>
+    <email>pizerc@utstar.com</email>
+    <company id=""/>
+    <description>
+    Another friend from the testing efforts of the summer.  Pizer still comes 'round to 
+    give new functionality a spin and tell us what goes wrong.
+    </description>
+  </contributor>
+  
+  <!--
+      Company Information, so we don't have to duplicate it for
+      mulitple contributors of the same company
+  -->
+  <company id="intalio">
+    <name>Intalio, Inc.</name>
+    <url>www.intalio.com</url>
+  </company>
+
+
+
+  <!-- description of contributor types -->
+
+  <type name="Committer">
+    Committers are contributors who have written lots of important code,
+    sacrificing all social events, and becoming a hermit at the expense
+    of providing good tools for people they don't even know. In return for
+    their love and devotion you may bug them with questions, bug fixes,
+    patches and offer them free beer.
+  </type>
+
+  <type name="Contributor">
+    Contributors are responsible for making this a better project and
+    we all end up benefiting from the bug fixes, design changees or features
+    they contributed. Contributors tend to live a balanced life and
+    hopefully eat a healthy diet.
+  </type>
+
+  <type name="Documentor">
+    Documentors do the impossible and actually explain how to use the
+    software in spite of all the complexity introduced by the committers
+    and contributors.
+  </type>
+
+  <type name="Feedback">
+    The following have offered valuable feedback (including bug reports) that has been beneficial
+    to the development and stability.
+  </type>
+
+</contributors>
+</section>
+</body></document>

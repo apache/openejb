@@ -1,0 +1,38 @@
+The patches for the directory stuff. 
+
+The attached files are based on version 0.7.3, I didn't have time to isolate just my modified parts. Hope it helps anyway.
+
+Add the following section to org/openejb/core/EnvProps
+
+     /**
+      * Property name that specifies the path prefix for directories created by bean passivation
+      *
+      * <p>
+      * NAME:<br>&nbsp;&nbsp;
+      * <code>org/openejb/core/InstanceManager/PASSIVATOR_PATH_PREFIX</code>
+      * </p>
+      *
+      * <p>
+      * EXAMPLE VALUE:<br>&nbsp;&nbsp;
+      * <code>/tmp/openejb</code>
+      * </p>
+      *
+      * <p>
+      * USED BY:
+      * <UL>
+      * <LI>{@link org.openejb.core.stateful.StatefulInstanceManager}
+      * </UL>
+      * </p>
+      */
+     public final static String IM_PASSIVATOR_PATH_PREFIX = "org/openejb/core/InstanceManager/PASSIVATOR_PATH_PREFIX";
+
+Save the following file to org/openejb/core/stateful:
+
+  PassivationStrategy.java
+  RAFPassivater.java
+  SimplePassivater.java
+
+
+Finally, add this file to the package org.openejb.util.io:
+
+  FilesystemUtilities.java
