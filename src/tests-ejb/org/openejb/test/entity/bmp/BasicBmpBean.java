@@ -142,6 +142,36 @@ public class BasicBmpBean implements javax.ejb.EntityBean {
     }
 
     /**
+     * Maps to BasicBmpHome.findByPrimaryKey
+     * 
+     * @param primaryKey
+     * @return 
+     * @exception javax.ejb.FinderException
+     * @see BasicBmpHome.sum
+     */
+    public java.util.Collection ejbFindByLastName(String lastName)
+    throws javax.ejb.FinderException{
+        java.util.Vector keys = new java.util.Vector();
+        try {
+            InitialContext jndiContext = new InitialContext( ); 
+            DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/jdbc/basic/entityDatabase");
+            Connection con = ds.getConnection();
+
+            PreparedStatement stmt = con.prepareStatement("SELECT id FROM entity WHERE last_name = ?");
+            stmt.setString(1, lastName);
+
+            ResultSet set = stmt.executeQuery();
+
+            while ( set.next() ) keys.add( new Integer(set.getInt("id")) );
+            con.close();
+        } catch ( Exception e ) {
+            throw new FinderException("FindByPrimaryKey failed");
+        }
+
+        if ( keys.size() > 0 ) return keys;
+        else      throw new javax.ejb.ObjectNotFoundException();
+    }
+    /**
      * Maps to BasicBmpHome.create
      * 
      * @param name

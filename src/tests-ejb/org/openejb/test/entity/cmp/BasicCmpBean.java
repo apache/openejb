@@ -72,7 +72,7 @@ import org.openejb.test.ApplicationException;
  */
 public class BasicCmpBean implements javax.ejb.EntityBean{
     
-    public static int key = 20;
+    public static int key = 1000;
     
     public int primaryKey;
     public String firstName;
