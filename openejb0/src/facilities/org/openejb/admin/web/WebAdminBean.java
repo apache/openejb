@@ -54,6 +54,7 @@ import javax.ejb.SessionContext;
 import javax.naming.Context;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
+import org.openejb.OpenEJB;
 
 /** This is the template web admin bean to extend from.  It contains all the functionality for the webadministration.  To use
  *  this class, simply sub-class it:<br><br>
@@ -356,7 +357,7 @@ public abstract class WebAdminBean implements HttpBean {
     public void initNavSections(){
         try{
             java.util.Vector sections = new java.util.Vector();
-            Context ctx = org.openejb.OpenEJB.getJNDIContext();
+            Context ctx = OpenEJB.getJNDIContext(OpenEJB.getDefaultContainerSystemID());
             NamingEnumeration enum = ctx.list("openejb/ejb/webadmin");
             //System.out.println("\n\nENUM "+enum);
             

@@ -51,6 +51,7 @@ import java.io.PrintStream;
 import org.openejb.Container;
 import org.openejb.DeploymentInfo;
 import org.openejb.OpenEJB;
+import org.openejb.spi.ContainerSystem;
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
@@ -64,26 +65,30 @@ public class Ls extends Command {
     }
 
     public void exec(Arguments args, DataInputStream in, PrintStream out) throws IOException{
-        //list containers
-        Container[] c = OpenEJB.containers();
-        out.println("Containers:");
-        // -l
-        //out.println(c.length +" total");
-        for (int i=0; i < c.length; i++){
-            out.print(" "+c[i].getContainerID());
+        ContainerSystem[] cs = OpenEJB.getContainerSystems();
+        for(int j=0; j<cs.length; j++) {
+            out.println("Container System: "+cs[j].getId());
+            //list containers
+            Container[] c = OpenEJB.containers(cs[j].getId());
+            out.println(" Containers:");
+            // -l
+            //out.println(c.length +" total");
+            for (int i=0; i < c.length; i++){
+                out.print("  "+c[i].getContainerID());
+                out.println("");
+            }
             out.println("");
-        }
-        out.println("");
 
 
-        //list deployments
-        out.println("Deployments:");
-        // -l
-        //out.println(d.length +" total");
-        DeploymentInfo[] d = OpenEJB.deployments();
-        for (int i=0; i < d.length; i++){
-            out.print(" "+d[i].getDeploymentID());
-            out.println("");
+            //list deployments
+            out.println(" Deployments:");
+            // -l
+            //out.println(d.length +" total");
+            DeploymentInfo[] d = OpenEJB.deployments(cs[j].getId());
+            for (int i=0; i < d.length; i++){
+                out.print("  "+d[i].getDeploymentID());
+                out.println("");
+            }
         }
     }
 

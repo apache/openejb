@@ -55,8 +55,19 @@ public interface Assembler {
     public void init(Properties props)throws OpenEJBException;
     
     public void build()throws OpenEJBException;
-    
-    public ContainerSystem getContainerSystem();
+
+    /**
+     * Gets the ID of the default container system, or null if none was
+     * specified.
+     */
+    public String getDefaultContainerSystemID();
+
+    /**
+     * Gets all of the container systems configured by this assembler.  There
+     * may be multiple, for example, if several distinct applications are
+     * configured at startup.
+     */
+    public ContainerSystem[] getContainerSystems();
     
     /**
      * Gets the <code>TransactionManager</code> that this container manager exposes to the <code>Container</code>s it manages.
@@ -66,13 +77,4 @@ public interface Assembler {
      * @see org.openejb.spi.TransactionService#getTransactionManager() TransactionService.getTransactionManager()
      */
     public TransactionManager getTransactionManager( );
-    
-    /**
-     * Gets the <code>SecurityService</code> that this container manager exposes to the <code>Container</code>s it manages.
-     *
-     * @return the SecurityService to be used by this container manager's containers when servicing beans
-     * @see org.openejb.spi.SecurityService
-     */
-    public SecurityService getSecurityService( );
-    
 }

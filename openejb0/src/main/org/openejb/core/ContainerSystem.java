@@ -48,6 +48,7 @@ import java.util.HashMap;
 
 import org.openejb.Container;
 import org.openejb.DeploymentInfo;
+import org.openejb.spi.SecurityService;
 import org.openejb.core.ivm.naming.IvmContext;
 import org.openejb.core.ivm.naming.ObjectReference;
 import org.openejb.core.ivm.naming.Reference;
@@ -57,9 +58,12 @@ public class ContainerSystem implements org.openejb.spi.ContainerSystem{
     HashMap deployments = new HashMap();
     HashMap containers = new HashMap();
     IvmContext jndiRootContext = null;
+    private String id;
+    private SecurityService securityService;
 
 
-    public ContainerSystem( ){
+    public ContainerSystem(String id){
+        this.id = id;
         // create OpenEJB JNDI Name Space
 	try {
 	    // Create the root context.
@@ -70,6 +74,27 @@ public class ContainerSystem implements org.openejb.spi.ContainerSystem{
 	catch( javax.naming.NamingException exception) {
 	    throw new RuntimeException();
 	}
+    }
+
+    /**
+     * Gets the ID for this container.
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * Tracks the security service for this container system.
+     */
+    public SecurityService getSecurityService() {
+        return securityService;
+    }
+
+    /**
+     * Tracks the security service for this container system.
+     */ 
+    public void setSecurityService(SecurityService securityService) {
+        this.securityService = securityService;
     }
 
     /**

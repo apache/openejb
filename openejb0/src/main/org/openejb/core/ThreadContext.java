@@ -74,6 +74,10 @@ public class ThreadContext implements Cloneable {
     /**
      * TODO: Add comment
      */
+    protected org.openejb.spi.ContainerSystem containerSystem;
+    /**
+     * TODO: Add comment
+     */
     protected Object primaryKey;
     /**
      * TODO: Add comment
@@ -216,7 +220,8 @@ public class ThreadContext implements Cloneable {
      * @param di
      * @param primKey
      */
-    public void set(DeploymentInfo di, Object primKey) {
+    public void set(org.openejb.spi.ContainerSystem system, DeploymentInfo di, Object primKey) {
+        setContainerSystem(system);
         setDeploymentInfo(di);
         setPrimaryKey(primKey);
         valid = true;
@@ -263,6 +268,14 @@ public class ThreadContext implements Cloneable {
      */
     public boolean valid() {
         return valid;
+    }
+
+    public org.openejb.spi.ContainerSystem getContainerSystem() {
+        return containerSystem;
+    }
+
+    public void setContainerSystem(org.openejb.spi.ContainerSystem containerSystem) {
+        this.containerSystem = containerSystem;
     }
 
     public java.lang.Object clone() throws java.lang.CloneNotSupportedException {

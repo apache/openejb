@@ -50,6 +50,7 @@ import java.util.Properties;
 import javax.naming.Context;
 
 import org.openejb.EnvProps;
+import org.openejb.OpenEJB;
 
 /**
  * Invoked by server on the OpenEJB JNDI global name space.
@@ -62,17 +63,28 @@ import org.openejb.EnvProps;
  * EJB Server.  In this case, OpenEJB is not capable of receiving 
  * remote calls.
  *
+ * Note that if nothing is deployed in OpenEJB, the call to
+ * create an InitialContext will fail.
+ *
  * @author David Blevins
  * @author Richard Monson-Haefel
  */
 public class InitContextFactory implements javax.naming.spi.InitialContextFactory {
-    
+    public final static String CONTEXT_CONTAINER_SYSTEM = "openejb.containersystem";
+
     public Context getInitialContext(Hashtable env) throws javax.naming.NamingException {
         if (!org.openejb.OpenEJB.isInitialized()) {
             initializeOpenEJB(env);
         }
 
-        Context context = org.openejb.OpenEJB.getJNDIContext();
+        String container = (String)env.get(CONTEXT_CONTAINER_SYSTEM);
+        if(container == null) {
+            container = OpenEJB.getDefaultContainerSystemID();
+            if(container == null) {
+                throw new javax.naming.NamingException("No container system specified and no default available.  Try setting 'openejb.containersystem'."); //todo: resource bundle
+            }
+        }
+        Context context = OpenEJB.getJNDIContext(container);
         context = (Context)context.lookup("java:openejb/ejb");
         return context;
 

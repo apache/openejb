@@ -18,12 +18,14 @@ import org.openejb.OpenEJB;
 public class IntraVmJndiReference implements Reference{
     
     private String    jndiName;
-    
-    public IntraVmJndiReference(String jndiName){
+    private String containerSystemId;
+
+    public IntraVmJndiReference(String containerSystemId, String jndiName){
+        this.containerSystemId = containerSystemId;
         this.jndiName = jndiName;
     }
     
     public Object getObject( ) throws NamingException{
-        return OpenEJB.getJNDIContext().lookup( jndiName );
+        return OpenEJB.getJNDIContext(containerSystemId).lookup( jndiName );
     }
 }

@@ -103,6 +103,11 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
     public final Object deploymentID;
 
     /**
+     * The container system ID for this handler.
+     */
+    public final String containerSystemID;
+
+    /**
      * The primary key of the bean deployment or null if the deployment is a bean type that doesn't require a primary key
      */
     public final Object primaryKey;
@@ -150,7 +155,8 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
        this.primaryKey = pk;
        this.deploymentID = depID;
        this.deploymentInfo = (org.openejb.core.DeploymentInfo)container.getDeploymentInfo(depID);
-       
+       this.containerSystemID = container.getContainerSystem().getId();
+
        String value = org.openejb.OpenEJB.getInitProps().getProperty("openejb.localcopy");
        if ( value == null ) {
            value = org.openejb.OpenEJB.getInitProps().getProperty(org.openejb.core.EnvProps.INTRA_VM_COPY);
@@ -178,7 +184,7 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
 
         in.defaultReadObject();
 
-        deploymentInfo = (org.openejb.core.DeploymentInfo)OpenEJB.getDeploymentInfo(deploymentID);
+        deploymentInfo = (org.openejb.core.DeploymentInfo)OpenEJB.getDeploymentInfo(containerSystemID, deploymentID);
         container = (RpcContainer)deploymentInfo.getContainer();
     }
     /**
@@ -191,7 +197,7 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
      *                   If the caller does bot have adequate authorization to execute the specified method.
      */
     protected void checkAuthorization(Method method) throws org.openejb.OpenEJBException{
-        boolean authorized = OpenEJB.getSecurityService().isCallerAuthorized(deploymentInfo.getAuthorizedRoles(method));
+        boolean authorized = container.getContainerSystem().getSecurityService().isCallerAuthorized(deploymentInfo.getAuthorizedRoles(method));
         if(!authorized)
             throw new org.openejb.ApplicationException(new RemoteException("Unauthorized Access by Principal Denied"));
     }
@@ -301,7 +307,7 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
             System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, jndiEnc);
             // restore the context
             if(cntextValid){
-                cntext.set(depInfo, prmryKey);
+                cntext.set(container.getContainerSystem(), depInfo, prmryKey);
                 cntext.setCurrentOperation(crrntOperation);
             }
             if(doIntraVmCopy==true){

@@ -52,6 +52,7 @@ import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.alt.assembler.modern.AssemblerUtilities;
 import org.openejb.alt.assembler.modern.DeployerService;
+import org.openejb.alt.assembler.modern.global.GlobalAssembler;
 
 /**
  * The name says it all.  This service watches a directory.  Any time a new
@@ -249,7 +250,7 @@ public class DirectoryWatchingHotDeployer implements Runnable {
 
     private void loadDeployers() {
         try {
-            Context ctx = OpenEJB.getJNDIContext();
+            Context ctx = OpenEJB.getJNDIContext(GlobalAssembler.DEFAULT_CONTAINER_SYSTEM);
             jarDeployer = (DeployerService)ctx.lookup("openejb/assembler/modern/JarDeployer");
             rarDeployer = (DeployerService)ctx.lookup("openejb/assembler/modern/RarDeployer");
         } catch(NamingException e) {

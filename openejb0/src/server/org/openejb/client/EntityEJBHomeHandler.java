@@ -123,6 +123,7 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
         req.setMethodParameters( args );
         req.setMethodInstance( method );
         req.setClientIdentity( client.getClientIdentity() );
+        req.setContainerSystemID(ejb.containerSystemID);
         req.setDeploymentCode( ejb.deploymentCode );
         req.setDeploymentId( ejb.deploymentID );
         req.setPrimaryKey( primaryKey );

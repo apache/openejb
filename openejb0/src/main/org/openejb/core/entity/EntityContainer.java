@@ -61,6 +61,7 @@ import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.ProxyInfo;
 import org.openejb.SystemException;
+import org.openejb.spi.ContainerSystem;
 import org.openejb.core.EnvProps;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
@@ -99,6 +100,8 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
     //EntityTransactionScopeHandler txScopeHandle;
     public Logger logger = Logger.getInstance( "OpenEJB", "org.openejb.util.resources" );
 
+    // The container system configured for this container
+    private ContainerSystem containerSystem;
 
     /**
      * Construct this container with the specified container id, deployments, 
@@ -115,8 +118,9 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
      * @exception org.openejb.OpenEJBException
      * @see org.openejb.Container
      */
-    public void init(Object id, HashMap registry, Properties properties)
+    public void init(ContainerSystem system, Object id, HashMap registry, Properties properties)
     throws org.openejb.OpenEJBException{
+        setContainerSystem(system);
         containerID = id;
         deploymentRegistry = registry;
 
@@ -153,6 +157,20 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
     //===============================
     // begin Container Implementation
     //
+
+    /**
+     * Tracks the container system for this container
+     */
+    public ContainerSystem getContainerSystem() {
+        return containerSystem;
+    }
+
+    /**
+     * Tracks the container system for this container
+     */
+    public void setContainerSystem(ContainerSystem containerSystem) {
+        this.containerSystem = containerSystem;
+    }
 
     /**
      * Gets the <code>DeploymentInfo</code> objects for all the beans deployed in 
@@ -230,12 +248,12 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
         org.openejb.core.DeploymentInfo deployInfo = (org.openejb.core.DeploymentInfo)this.getDeploymentInfo(deployID);
 
         ThreadContext callContext = ThreadContext.getThreadContext();
-        callContext.set(deployInfo, primKey);
+        callContext.set(getContainerSystem(), deployInfo, primKey);
 
         // check authorization to invoke
 
         String[] roles = deployInfo.getAuthorizedRoles(callMethod);
-        boolean authorized = roles == null || OpenEJB.getSecurityService().isCallerAuthorized(roles);
+        boolean authorized = roles == null || getContainerSystem().getSecurityService().isCallerAuthorized(roles);
         if(!authorized)
             throw new org.openejb.ApplicationException(new RemoteException("Unauthorized Access by Principal Denied"));
 

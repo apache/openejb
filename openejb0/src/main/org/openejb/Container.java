@@ -47,6 +47,7 @@ package org.openejb;
 
 import java.util.HashMap;
 import java.util.Properties;
+import org.openejb.spi.ContainerSystem;
 
 /**
  * The Container manages one or more bean deployments at runtime. There are two
@@ -78,7 +79,7 @@ public interface Container {
     * this method is invoked by the assembler and will throw an exception if invoked after 
     * the container is assembled.
     */
-    public void init(Object containerId, HashMap deployments, Properties properties)
+    public void init(ContainerSystem system, Object containerId, HashMap deployments, Properties properties)
     throws OpenEJBException;
 
 
@@ -127,4 +128,10 @@ public interface Container {
      *      reason.
      */
     public void deploy(Object deploymentID, DeploymentInfo info) throws OpenEJBException;
+
+    /**
+     * Gets the ContainerSystem responsible for this particular Container.  Should
+     * be configured at assembly time.
+     */
+    public ContainerSystem getContainerSystem();
 }

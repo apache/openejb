@@ -62,8 +62,7 @@ import org.openejb.OpenEJBException;
 import org.openejb.alt.assembler.modern.AssemblerUtilities;
 import org.openejb.alt.assembler.modern.DeployerService;
 import org.openejb.alt.assembler.modern.GlobalContainerSystem;
-import org.openejb.spi.Assembler;
-import org.openejb.spi.SecurityService;
+import org.openejb.spi.*;
 import org.openejb.util.SafeProperties;
 
 /**
@@ -77,6 +76,7 @@ import org.openejb.util.SafeProperties;
 
 // FIXME: use a real logger instead of System.out for this class?
 public class GlobalAssembler extends AssemblerUtilities implements Assembler {
+    public final static String DEFAULT_CONTAINER_SYSTEM="default";
     private OpenEjbMetaData data;
     private GlobalContainerSystem system;
     private SecurityService security;
@@ -200,14 +200,14 @@ public class GlobalAssembler extends AssemblerUtilities implements Assembler {
         }
     }
 
-    public org.openejb.spi.ContainerSystem getContainerSystem() {
-        return system;
+    public String getDefaultContainerSystemID() {
+        return DEFAULT_CONTAINER_SYSTEM;
+    }
+    public org.openejb.spi.ContainerSystem[] getContainerSystems() {
+        return new ContainerSystem[]{system};
     }
     public TransactionManager getTransactionManager() {
         return transaction;
-    }
-    public SecurityService getSecurityService() {
-        return security;
     }
 
     /**
@@ -215,13 +215,14 @@ public class GlobalAssembler extends AssemblerUtilities implements Assembler {
      */
     private void buildContainerSystem() throws OpenEJBException {
     // 0: Create the container system
-        system = new GlobalContainerSystem();
+        system = new GlobalContainerSystem(DEFAULT_CONTAINER_SYSTEM);
     // 1: Initialize the proxy factory, which will be used by everything else
         createProxyFactory(data.getServerData());
     // 2: Create the containers
         createContainers(system, data.getContainers());
     // 3: Create the security service
         security = createSecurityService(data.getSecurityData());
+        system.setSecurityService(security);
     // 4: Create the transaction service
         transaction = createTransactionService(data.getTransactionData());
     // 5: Create the ConnectionManagers

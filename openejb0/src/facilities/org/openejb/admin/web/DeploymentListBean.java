@@ -140,7 +140,7 @@ public class DeploymentListBean extends WebAdminBean {
         body.println("</tr>");
 
         org.openejb.core.DeploymentInfo di =
-            (org.openejb.core.DeploymentInfo) OpenEJB.getDeploymentInfo(id);
+            (org.openejb.core.DeploymentInfo) OpenEJB.getDeploymentInfo(OpenEJB.getDefaultContainerSystemID(),id);
 
         printRow("Name", bean.ejbName, body);
         printRow(
@@ -219,7 +219,7 @@ public class DeploymentListBean extends WebAdminBean {
     }
 
     private void printDeployments(PrintWriter out) throws IOException {
-        DeploymentInfo[] deployments = OpenEJB.deployments();
+        DeploymentInfo[] deployments = OpenEJB.deployments(OpenEJB.getDefaultContainerSystemID());
         String[] deploymentString = new String[deployments.length];
         out.println("<table width=\"100%\" border=\"1\">");
         out.println("<tr bgcolor=\"#5A5CB8\">");

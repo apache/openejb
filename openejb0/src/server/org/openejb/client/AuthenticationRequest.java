@@ -54,7 +54,11 @@ import java.io.ObjectOutput;
  * @since 11/25/2001
  */
 public class AuthenticationRequest implements Request {
-    
+    /**
+     * The container system we're trying to authenticate to.
+     */
+    private transient String containerSystem;
+
     /**
      * The principle of the client.  Can be a user name or some other id.
      */
@@ -122,7 +126,15 @@ public class AuthenticationRequest implements Request {
     public void setCredentials(Object credentials){
         this.credentials = credentials;
     }
-    
+
+    public String getContainerSystem() {
+        return containerSystem;
+    }
+
+    public void setContainerSystem(String containerSystem) {
+        this.containerSystem = containerSystem;
+    }
+
     /**
      * The object implements the readExternal method to restore its
      * contents by calling the methods of DataInput for primitive
@@ -137,8 +149,13 @@ public class AuthenticationRequest implements Request {
      */
     public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {
         principle   = in.readObject(); 
-        credentials = in.readObject(); 
+        credentials = in.readObject();
+        containerSystem = in.readUTF();
+        if(containerSystem.equals("")) {
+            containerSystem = null;
+        }
     }
+
     /**
      * The object implements the writeExternal method to save its contents
      * by calling the methods of DataOutput for its primitive values or
@@ -156,6 +173,7 @@ public class AuthenticationRequest implements Request {
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(principle  );
         out.writeObject(credentials);
+        out.writeUTF(containerSystem == null ? "" : containerSystem);
     }
 }
 

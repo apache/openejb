@@ -225,6 +225,7 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
         EJBRequest req = new EJBRequest( EJB_HOME_CREATE ); 
         
         req.setClientIdentity( client.getClientIdentity() );
+        req.setContainerSystemID(ejb.containerSystemID);
         req.setDeploymentCode( ejb.deploymentCode );
         req.setDeploymentId(   ejb.deploymentID );
         req.setMethodInstance( method );

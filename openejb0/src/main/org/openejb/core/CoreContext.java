@@ -100,7 +100,7 @@ public abstract class CoreContext implements java.io.Serializable {
 
     /**
      * TODO: Add comments
-     * 
+     *
      * @param methodCategory
      * @exception IllegalStateException
      */
@@ -108,30 +108,30 @@ public abstract class CoreContext implements java.io.Serializable {
 
     /**
      * TODO: Add comments
-     * 
-     * @return 
+     *
+     * @return
      */
     public java.security.Principal getCallerPrincipal() {
         checkBeanState(SECURITY_METHOD);
-        return OpenEJB.getSecurityService().getCallerPrincipal();
+        return ThreadContext.getThreadContext().getContainerSystem().getSecurityService().getCallerPrincipal();
     }
     /**
      * TODO: Add comments
-     * 
+     *
      * @param roleName
-     * @return 
+     * @return
      */
     public boolean isCallerInRole(java.lang.String roleName) {
         checkBeanState(SECURITY_METHOD);
         ThreadContext threadContext = ThreadContext.getThreadContext();
         org.openejb.core.DeploymentInfo di = (org.openejb.core.DeploymentInfo)threadContext.getDeploymentInfo();
         String physicalRoles [] = di.getPhysicalRole(roleName);
-        return  OpenEJB.getSecurityService().isCallerAuthorized(physicalRoles);
+        return ThreadContext.getThreadContext().getContainerSystem().getSecurityService().isCallerAuthorized(physicalRoles);
     }
     /**
      * TODO: Add comments
-     * 
-     * @return 
+     *
+     * @return
      */
     public EJBHome getEJBHome() {
         checkBeanState(EJBHOME_METHOD);
@@ -143,8 +143,8 @@ public abstract class CoreContext implements java.io.Serializable {
     }
     /**
      * TODO: Add comments
-     * 
-     * @return 
+     *
+     * @return
      */
     public javax.ejb.EJBObject getEJBObject() {
         checkBeanState(EJBOBJECT_METHOD);
@@ -166,8 +166,8 @@ public abstract class CoreContext implements java.io.Serializable {
     }
     /**
      * TODO: Add comments
-     * 
-     * @return 
+     *
+     * @return
      */
     public Object getPrimaryKey( ) {
         /*
@@ -182,8 +182,8 @@ public abstract class CoreContext implements java.io.Serializable {
     }
     /**
      * TODO: Add comments
-     * 
-     * @return 
+     *
+     * @return
      */
     public boolean getRollbackOnly() {
 
@@ -225,8 +225,8 @@ public abstract class CoreContext implements java.io.Serializable {
     }
     /**
      * TODO: Add comments
-     * 
-     * @return 
+     *
+     * @return
      */
     public javax.transaction.UserTransaction getUserTransaction() {
 
@@ -245,25 +245,25 @@ public abstract class CoreContext implements java.io.Serializable {
 
     /**
      * TODO: Add comments
-     * 
+     *
      * @param role
-     * @return 
+     * @return
      */
     public boolean isCallerInRole(java.security.Identity role) {
         throw new java.lang.UnsupportedOperationException();
     }
     /**
      * TODO: Add comments
-     * 
-     * @return 
+     *
+     * @return
      */
     public java.security.Identity getCallerIdentity() {
         throw new java.lang.UnsupportedOperationException();
     }
     /**
      * TODO: Add comments
-     * 
-     * @return 
+     *
+     * @return
      */
     public java.util.Properties getEnvironment() {
         throw new java.lang.UnsupportedOperationException();
@@ -271,11 +271,11 @@ public abstract class CoreContext implements java.io.Serializable {
 
     /**
      * TODO: Add comments
-     * 
+     *
      * @param container
      * @param pk
      * @param depID
-     * @return 
+     * @return
      */
     protected abstract EjbObjectProxyHandler newEjbObjectHandler(RpcContainer container, Object pk, Object depID);
 }

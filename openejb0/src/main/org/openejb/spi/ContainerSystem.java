@@ -73,8 +73,18 @@ import org.openejb.DeploymentInfo;
  * @see org.openejb.core.ContainerSystem
  */
 public interface ContainerSystem {
+    /**
+     * Gets the identifier for this ContainerSystem
+     */
+    public String getId();
 
-
+    /**
+     * Gets the <code>SecurityService</code> that this container manager exposes to the <code>Container</code>s it manages.
+     *
+     * @return the SecurityService to be used by this container manager's containers when servicing beans
+     * @see org.openejb.spi.SecurityService
+     */
+    public SecurityService getSecurityService();
 
     /**
      * Gets the <code>DeploymentInfo</code> object for the bean with the specified deployment id.
@@ -119,8 +129,8 @@ public interface ContainerSystem {
 
 
     /**
-    * Returns the global JNDI name space for the OpenEJB container system.
-    * The global JNDI name space contains bindings for all enterprise bean
+    * Returns the JNDI name space for this container system.
+    * The JNDI name space contains bindings for all enterprise bean
     * EJBHome object deployed in the entire container system.  EJBHome objects
     * are bound using their deployment-id under the java:openejb/ejb/ namespace.
     * For example, an enterprise bean with the deployment id = 55555 would be
