@@ -75,8 +75,6 @@ import org.openejb.nova.persistence.QueryCommand;
  * @version $Revision$ $Date$
  */
 public class CMPOperationFactory extends AbstractOperationFactory {
-    private final InstanceOperation itable[];
-
     public static CMPOperationFactory newInstance(CMPEntityContainer container, CMPQuery[] queries, CMPCommandFactory persistenceFactory, String[] fieldNames, CMRelation[] relations) {
         Class beanClass = container.getBeanClass();
         Factory factory = Enhancer.create(beanClass, new Class[0], FILTER, new SimpleCallbacks());
@@ -129,7 +127,9 @@ public class CMPOperationFactory extends AbstractOperationFactory {
                 if (Object.class.equals(beanMethod.getReturnType())) {
                     vop = new UnknownPKCreateMethod(container, fastClass, index, postCreateIndex, persistenceFactory.getUpdateCommand(signature), slots);
                 } else {
-                    vop = new CMPCreateMethod(container, fastClass, index, postCreateIndex, persistenceFactory.getUpdateCommand(signature), slots);
+                    PrimaryKeyFactory pkFactory;
+                    pkFactory = new SingleFieldPKFactory(0);
+                    vop = new CMPCreateMethod(container, fastClass, index, postCreateIndex, persistenceFactory.getUpdateCommand(signature), slots, pkFactory);
                 }
             } else if (name.startsWith("ejbHome")) {
                 vop = new HomeMethod(fastClass, index);
@@ -191,7 +191,6 @@ public class CMPOperationFactory extends AbstractOperationFactory {
             }
         }
 
-        int slot = fieldNames.length;
         for (int i = 0; i < relations.length; i++) {
             CMRelation relation = relations[i];
             String fieldName = relation.getName();
@@ -236,6 +235,7 @@ public class CMPOperationFactory extends AbstractOperationFactory {
         this.contextFactory = contextFactory;
     }
 
+    private final InstanceOperation itable[];
     private final CMPInstanceContextFactory contextFactory;
 
     public CMPInstanceContextFactory getInstanceContextFactory() {

@@ -72,14 +72,16 @@ public class CMPCreateMethod implements VirtualOperation {
     private final int postCreateIndex;
     private final UpdateCommand updateCommand;
     private final int slots;
+    private final PrimaryKeyFactory pkFactory;
 
-    public CMPCreateMethod(EJBContainer container, FastClass beanClass, int createIndex, int postCreateIndex, UpdateCommand updateCommand, int slots) {
+    public CMPCreateMethod(EJBContainer container, FastClass beanClass, int createIndex, int postCreateIndex, UpdateCommand updateCommand, int slots, PrimaryKeyFactory pkFactory) {
         this.container = container;
         this.beanClass = beanClass;
         this.createIndex = createIndex;
         this.postCreateIndex = postCreateIndex;
         this.updateCommand = updateCommand;
         this.slots = slots;
+        this.pkFactory = pkFactory;
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
@@ -106,7 +108,7 @@ public class CMPCreateMethod implements VirtualOperation {
             ctx.setOperation(EJBOperation.INACTIVE);
         }
 
-        ctx.setId(instanceData.get(0));
+        ctx.setId(pkFactory.getPrimaryKey(instanceData));
         Object[] values = new Object[slots];
         instanceData.store(values);
         updateCommand.executeUpdate(values);
