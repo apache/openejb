@@ -317,7 +317,7 @@ public class StatefulRemoteClientContainer implements EJBRemoteClientContainer {
         }
 
         public boolean isSession() {
-            return false;
+            return true;
         }
 
         public boolean isStatelessSession() {

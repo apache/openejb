@@ -53,7 +53,6 @@ import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 
 import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.EJBOperation;
-import org.openejb.nova.entity.BusinessMethod;
 import org.openejb.nova.transaction.TransactionContext;
 
 /**
@@ -64,7 +63,7 @@ import org.openejb.nova.transaction.TransactionContext;
 public class RemoveMethod extends BusinessMethod {
     private final StatefulContainer container;
     public RemoveMethod(StatefulContainer container, FastClass fastClass, int methodIndex) {
-        super(fastClass, methodIndex);
+        super(container, fastClass, methodIndex);
         this.container = container;
     }
 

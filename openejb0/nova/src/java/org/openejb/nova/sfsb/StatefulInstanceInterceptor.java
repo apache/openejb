@@ -60,8 +60,9 @@ import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.transaction.TransactionContext;
 
 /**
- * Interceptor for Stateless Session EJBs that obtains an instance
- * from a pool to execute the method.
+ * Interceptor for Stateful Session EJBs that acquires an instance for execution.
+ * For create methods it creates a new context using the factory, and for every
+ * thing else it gets the context from either the main or transaction cache.
  *
  * @version $Revision$ $Date$
  */

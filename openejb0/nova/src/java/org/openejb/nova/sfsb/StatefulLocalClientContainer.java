@@ -245,7 +245,7 @@ public class StatefulLocalClientContainer implements EJBLocalClientContainer {
         }
 
         public Object getPrimaryKey() throws EJBException {
-            throw new EJBException("Cannot use getPrimaryKey() on a Stateless SessionBean");
+            throw new EJBException("Cannot use getPrimaryKey() on a Stateful SessionBean");
         }
 
         public boolean isIdentical(EJBLocalObject obj) throws EJBException {
