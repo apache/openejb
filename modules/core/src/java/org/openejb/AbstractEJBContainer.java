@@ -57,7 +57,7 @@ import javax.ejb.EJBObject;
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBean;
@@ -73,7 +73,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.transaction.EJBUserTransaction;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  * @version $Revision$ $Date$
@@ -84,7 +84,7 @@ public abstract class AbstractEJBContainer implements EJBContainer, GBean {
 
     protected final TransactionDemarcation transactionDemarcation;
     protected final ReadOnlyContext componentContext;
-    protected final EJBUserTransaction userTransaction;
+    protected final UserTransactionImpl userTransaction;
     protected final String contextId;
     protected final Subject runAs;
     protected final boolean setSecurityInterceptor;
@@ -101,14 +101,14 @@ public abstract class AbstractEJBContainer implements EJBContainer, GBean {
     protected final Class localInterface;
 
     protected final Class primaryKeyClass;
-    
+
     private Long remoteId;
 
     private Map homeMethodMap;
     private Map remoteMethodMap;
     private Map localHomeMethodMap;
     private Map localMethodMap;
-    
+
 
     public AbstractEJBContainer(EJBContainerConfiguration config, TransactionManager transactionManager, TrackedConnectionAssociator trackedConnectionAssociator) throws Exception {
         // copy over all the config stuff
@@ -122,8 +122,8 @@ public abstract class AbstractEJBContainer implements EJBContainer, GBean {
         setSecurityInterceptor = config.setSecurityInterceptor;
         setPolicyContextHandlerDataEJB = config.setPolicyContextHandlerDataEJB;
         setIdentity = config.setIdentity;
-        
-        
+
+
 
         // load all the classes
         classLoader = Thread.currentThread().getContextClassLoader();
@@ -142,21 +142,21 @@ public abstract class AbstractEJBContainer implements EJBContainer, GBean {
             localHomeInterface = null;
             localInterface = null;
         }
-        
+
         if (config.pkClassName != null){
             primaryKeyClass = classLoader.loadClass(config.pkClassName);
         } else {
             primaryKeyClass = null;
         }
-        
+
         // initialize the user transaction
         if (userTransaction != null) {
             userTransaction.setUp(transactionManager, trackedConnectionAssociator);
         }
     }
-    
+
     protected abstract EJBProxyFactory getProxyFactory();
-    
+
 
     public Object invoke(Method method, Object[] args, Object primKey) throws Throwable{
         EJBInterfaceType invocationType = null;
@@ -176,11 +176,11 @@ public abstract class AbstractEJBContainer implements EJBContainer, GBean {
             invocationType = EJBInterfaceType.LOCAL;
             index = (Integer) localHomeMethodMap.get(method);
         }
-        
+
         if(index == null) {
             index = new Integer(-1);
         }
-        
+
         EJBInvocationImpl invocation = new EJBInvocationImpl(invocationType, primKey, index.intValue(), args);
 
         InvocationResult result = null;
@@ -197,7 +197,7 @@ public abstract class AbstractEJBContainer implements EJBContainer, GBean {
             return result.getResult();
         }
     }
-    
+
     public void setGBeanContext(GBeanContext context) {
     }
 
@@ -263,7 +263,7 @@ public abstract class AbstractEJBContainer implements EJBContainer, GBean {
     public Object getContainerID() {
         return containerID;
     }
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -303,7 +303,7 @@ public abstract class AbstractEJBContainer implements EJBContainer, GBean {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-    
+
     protected void buildMethodMap(MethodSignature[] signatures) {
         if (homeInterface != null) {
             homeMethodMap = MethodHelper.getHomeMethodMap(signatures, homeInterface);

@@ -63,7 +63,7 @@ import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.transaction.ContainerTransactionContext;
 import org.apache.geronimo.transaction.TransactionContext;
 
-import org.openejb.transaction.EJBUserTransaction;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  * Implementation of EJBContext that uses the State pattern to determine
@@ -73,10 +73,10 @@ import org.openejb.transaction.EJBUserTransaction;
  */
 public abstract class EJBContextImpl {
     protected final EJBInstanceContext context;
-    protected final EJBUserTransaction userTransaction;
+    protected final UserTransactionImpl userTransaction;
     protected EJBContextState state;
 
-    public EJBContextImpl(EJBInstanceContext context, EJBUserTransaction userTransaction) {
+    public EJBContextImpl(EJBInstanceContext context, UserTransactionImpl userTransaction) {
         this.context = context;
         this.userTransaction = userTransaction;
     }

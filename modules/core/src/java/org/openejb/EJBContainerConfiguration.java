@@ -53,7 +53,7 @@ import javax.security.auth.Subject;
 
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.openejb.deployment.TransactionPolicySource;
-import org.openejb.transaction.EJBUserTransaction;
+import org.apache.geronimo.transaction.UserTransactionImpl;
 
 /**
  *
@@ -71,7 +71,7 @@ public class EJBContainerConfiguration {
     public String pkClassName;
     public String messageEndpointInterfaceName;
     public TransactionDemarcation txnDemarcation;
-    public EJBUserTransaction userTransaction;
+    public UserTransactionImpl userTransaction;
     public ReadOnlyContext componentContext;
     public Set unshareableResources;
     public TransactionPolicySource transactionPolicySource;
