@@ -72,11 +72,13 @@ import org.openejb.nova.util.SoftLimitedInstancePool;
 public class CMPEntityContainer extends AbstractEJBContainer implements CMPEntityContainerMBean {
     private final String pkClassName;
     private final CMPCommandFactory persistenceFactory;
+    private final CMPQuery[] queries;
 
-    public CMPEntityContainer(EntityContainerConfiguration config, CMPCommandFactory persistenceFactory) {
+    public CMPEntityContainer(EntityContainerConfiguration config, CMPCommandFactory persistenceFactory, CMPQuery[] queries) {
         super(config);
         pkClassName = config.pkClassName;
         this.persistenceFactory = persistenceFactory;
+        this.queries = queries;
     }
 
     protected void doStart() throws Exception {
@@ -84,7 +86,7 @@ public class CMPEntityContainer extends AbstractEJBContainer implements CMPEntit
 
         Class pkClass = classLoader.loadClass(pkClassName);
 
-        VirtualOperationFactory vopFactory = CMPOperationFactory.newInstance(this, beanClass, persistenceFactory);
+        VirtualOperationFactory vopFactory = CMPOperationFactory.newInstance(this, queries, persistenceFactory);
         vtable = vopFactory.getVTable();
 
         EJBInstanceFactory implFactory = new CMPInstanceFactory(beanClass);

@@ -49,10 +49,9 @@ package org.openejb.nova.entity.cmp;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Collection;
+import java.util.Map;
 import javax.ejb.EntityContext;
-import javax.sql.DataSource;
 
 import net.sf.cglib.reflect.FastClass;
 
@@ -68,7 +67,8 @@ import org.openejb.nova.entity.HomeMethod;
  * @version $Revision$ $Date$
  */
 public class CMPOperationFactory extends AbstractOperationFactory {
-    public static CMPOperationFactory newInstance(CMPEntityContainer container, Class beanClass, CMPCommandFactory persistenceFactory) {
+    public static CMPOperationFactory newInstance(CMPEntityContainer container, CMPQuery[] queries, CMPCommandFactory persistenceFactory) {
+        Class beanClass = container.getBeanClass();
         FastClass fastClass = FastClass.create(beanClass);
         String beanClassName = beanClass.getName();
 
@@ -82,7 +82,7 @@ public class CMPOperationFactory extends AbstractOperationFactory {
             throw new IllegalArgumentException("Bean does not implement javax.ejb.EntityBean");
         }
 
-        // Build the vop table
+        // Build the VirtualOperations for business methods defined by the EJB implementation
         Method[] beanMethods = beanClass.getMethods();
         ArrayList sigList = new ArrayList(beanMethods.length);
         ArrayList vopList = new ArrayList(beanMethods.length);
@@ -101,36 +101,44 @@ public class CMPOperationFactory extends AbstractOperationFactory {
                 continue;
             }
 
-            // create a VitrualOperation for the method (if the method is understood)
+            // create a VirtualOperation for the method (if the method is understood)
             String name = beanMethod.getName();
             MethodSignature signature = new MethodSignature(beanClassName, beanMethod);
             int index = fastClass.getIndex(name, beanMethod.getParameterTypes());
             VirtualOperation vop;
-            if (!name.startsWith("ejb")) {
-                vop = new BusinessMethod(fastClass, index);
-            } else if (name.startsWith("ejbCreate")) {
+
+            if (name.startsWith("ejbCreate")) {
                 try {
-                    // ejbCreat vop needs a reference to the ejbPostCreate method
+                    // ejbCreate vop needs a reference to the ejbPostCreate method
                     Method postCreate = beanClass.getMethod("ejbPostCreate" + name.substring(9), beanMethod.getParameterTypes());
                     vop = new CMPCreateMethod(beanMethod, postCreate);
                 } catch (NoSuchMethodException e) {
                     throw new IllegalStateException("No ejbPostCreate method found matching " + beanMethod);
                 }
-            } else if (name.startsWith("ejbFind")) {
-                Class returnType = beanMethod.getReturnType();
-                boolean multiValued = Collection.class.isAssignableFrom(returnType);
-                vop = new CMPFinder(container, persistenceFactory.getFinder(signature), multiValued);
             } else if (name.startsWith("ejbHome")) {
                 vop = new HomeMethod(fastClass, index);
             } else if (name.equals("ejbRemove")) {
                 vop = new CMPRemoveMethod(fastClass, index);
                 remove = new Integer(sigList.size());
-            } else {
+            } else if (name.startsWith("ejb")) {
                 continue;
+            } else {
+                vop = new BusinessMethod(fastClass, index);
             }
+
             sigList.add(signature);
             vopList.add(vop);
         }
+
+        for (int i = 0; i < queries.length; i++) {
+            CMPQuery query = queries[i];
+            MethodSignature signature = query.getSignature();
+            VirtualOperation vop = new CMPFinder(container, persistenceFactory.getFinder(signature), query.isMultiValue());
+            sigList.add(signature);
+            vopList.add(vop);
+        }
+
+
         MethodSignature[] signatures = (MethodSignature[]) sigList.toArray(new MethodSignature[0]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopList.toArray(new VirtualOperation[0]);
 

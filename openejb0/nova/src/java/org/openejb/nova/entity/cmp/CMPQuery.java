@@ -45,65 +45,35 @@
  *
  * ====================================================================
  */
-package org.openejb.nova.entity;
+package org.openejb.nova.entity.cmp;
 
-import javax.ejb.CreateException;
-import javax.ejb.EntityBean;
-import javax.ejb.EntityContext;
-import javax.ejb.FinderException;
-import javax.ejb.RemoveException;
+import org.openejb.nova.dispatch.MethodSignature;
 
 /**
- *
- *
+ * 
+ * 
  * @version $Revision$ $Date$
  */
-public abstract class MockCMPEJB implements EntityBean {
-    private int field;
+public class CMPQuery {
+    private final MethodSignature signature;
+    private final boolean multiValue;
+    private final String ejbql;
 
-    public Object ejbCreate(Integer id) throws CreateException {
-        return id;
+    public CMPQuery(MethodSignature signature, boolean multiValue, String ejbql) {
+        this.signature = signature;
+        this.multiValue = multiValue;
+        this.ejbql = ejbql;
     }
 
-    public void ejbPostCreate(Integer id) {
+    public String getEJBQL() {
+        return ejbql;
     }
 
-    public int ejbHomeIntMethod(int i) {
-        return i + 1;
+    public MethodSignature getSignature() {
+        return signature;
     }
 
-    public int intMethod(int i) {
-        return 1 + i + ((Integer) context.getPrimaryKey()).intValue();
-    }
-
-    public int getIntField() {
-        return field;
-    }
-
-    private EntityContext context;
-
-    public void setEntityContext(EntityContext ctx) {
-        context = ctx;
-    }
-
-    public void unsetEntityContext() {
-    }
-
-    public void ejbActivate() {
-        field = 0;
-    }
-
-    public void ejbPassivate() {
-        field = 0;
-    }
-
-    public void ejbLoad() {
-        field = ((Integer) context.getPrimaryKey()).intValue();
-    }
-
-    public void ejbStore() {
-    }
-
-    public void ejbRemove() throws RemoveException {
+    public boolean isMultiValue() {
+        return multiValue;
     }
 }

@@ -62,6 +62,7 @@ import org.openejb.nova.MockTransactionManager;
 import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.entity.cmp.CMPEntityContainer;
 import org.openejb.nova.entity.cmp.SimpleCommandFactory;
+import org.openejb.nova.entity.cmp.CMPQuery;
 import org.openejb.nova.persistence.jdbc.Binding;
 import org.openejb.nova.persistence.jdbc.binding.IntBinding;
 import org.openejb.nova.util.ServerUtil;
@@ -115,7 +116,11 @@ public class BasicCMPEntityContainerTest extends TestCase {
         MethodSignature signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbFindByPrimaryKey", new String[] {"java.lang.Object"});
         persistenceFactory.defineQuery(signature, "SELECT ID FROM Mock WHERE ID=?", new Binding[] { new IntBinding(1, 0)}, new Binding[] {new IntBinding(1, 0)});
 
-        container = new CMPEntityContainer(config, persistenceFactory);
+        CMPQuery[] queries = {
+            new CMPQuery(signature, false, null)
+        };
+        
+        container = new CMPEntityContainer(config, persistenceFactory, queries);
         mbServer.registerMBean(container, CONTAINER_NAME);
         container.start();
     }
