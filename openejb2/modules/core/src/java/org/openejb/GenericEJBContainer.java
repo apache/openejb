@@ -442,15 +442,16 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
         infoFactory.addAttribute("proxyFactory", EJBProxyFactory.class, false);
         infoFactory.addAttribute("ejbHome", EJBHome.class, false);
-        infoFactory.addAttribute("ejbObject", EJBObject.class, false);
         infoFactory.addAttribute("ejbLocalHome", EJBLocalHome.class, false);
-        infoFactory.addAttribute("ejbLocalObject", EJBLocalObject.class, false);
         infoFactory.addAttribute("unmanagedReference", EJBContainer.class, false);
 
         infoFactory.addAttribute("SecurityConfiguration", SecurityConfiguration.class, true);
         infoFactory.addAttribute("DefaultSubject", Subject.class, true);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+
+        infoFactory.addOperation("getEJBObject", new Class[] {Object.class});
+        infoFactory.addOperation("getEJBLocalObject", new Class[] {Object.class});
 
         infoFactory.addOperation("invoke", new Class[]{Invocation.class});
         infoFactory.addOperation("invoke", new Class[]{Method.class, Object[].class, Object.class});
