@@ -44,9 +44,7 @@
  */
 package org.openejb.server.ejbd;
 
-import java.net.UnknownHostException;
-
-import org.openejb.assembler.DeploymentInfo;
+import org.openejb.ContainerIndex;
 import org.openejb.client.ClientMetaData;
 import org.openejb.client.EJBHomeHandle;
 import org.openejb.client.EJBHomeHandler;
@@ -63,19 +61,13 @@ import org.openejb.proxy.ProxyInfo;
  * 
  */
 class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
-    private final EjbDaemon daemon;
+    private final ContainerIndex containerIndex;
 
     protected ServerMetaData sMetaData;
 
-    public ClientObjectFactory(EjbDaemon daemon) {
-
-        try {
-            this.sMetaData = new ServerMetaData("127.0.0.1", 4201);
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        this.daemon = daemon;
+    public ClientObjectFactory(ContainerIndex containerIndex) throws Exception {
+        this.containerIndex = containerIndex;
+        this.sMetaData = new ServerMetaData("127.0.0.1", 4201);
     }
 
     public javax.ejb.EJBMetaData getEJBMetaData(ProxyInfo info) {
@@ -147,7 +139,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      */
     protected javax.ejb.EJBMetaData _getEJBMetaData(CallContext call, ProxyInfo info) {
 
-        int idCode = this.daemon.deploymentIndex.getContainerIndex(info.getContainerID());
+        int idCode = containerIndex.getContainerIndex(info.getContainerID());
         
         EJBMetaDataImpl metaData = new EJBMetaDataImpl(info.getHomeInterface(),
                 info.getRemoteInterface(),
@@ -170,7 +162,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      */
     protected javax.ejb.Handle _getHandle(CallContext call, ProxyInfo info) {
 
-        int idCode = this.daemon.deploymentIndex.getContainerIndex(info.getContainerID());
+        int idCode = containerIndex.getContainerIndex(info.getContainerID());
         
         Object securityIdentity = null;
         try {
@@ -204,7 +196,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      */
     protected javax.ejb.HomeHandle _getHomeHandle(CallContext call, ProxyInfo info) {
 
-        int idCode = this.daemon.deploymentIndex.getContainerIndex(info.getContainerID());
+        int idCode = containerIndex.getContainerIndex(info.getContainerID());
         
         Object securityIdentity = null;
         try {
@@ -237,7 +229,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      */
     protected javax.ejb.EJBObject _getEJBObject(CallContext call, ProxyInfo info) {
 
-        int idCode = this.daemon.deploymentIndex.getContainerIndex(info.getContainerID());
+        int idCode = containerIndex.getContainerIndex(info.getContainerID());
         
         Object securityIdentity = null;
         try {
@@ -271,7 +263,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      */
     protected javax.ejb.EJBHome _getEJBHome(CallContext call, ProxyInfo info) {
 
-        int idCode = this.daemon.deploymentIndex.getContainerIndex(info.getContainerID());
+        int idCode = containerIndex.getContainerIndex(info.getContainerID());
 
         Object securityIdentity = null;
         try {

@@ -89,6 +89,8 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private Set unshareableResources;
     private UserTransactionImpl userTransaction;
     private TransactionPolicySource transactionPolicySource;
+    private String[] jndiNames;
+    private String[] localJndiNames;
     private TransactionManager transactionManager;
     private TrackedConnectionAssociator trackedConnectionAssociator;
 
@@ -204,6 +206,22 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         this.transactionPolicySource = transactionPolicySource;
     }
 
+    public String[] getJndiNames() {
+        return jndiNames;
+    }
+
+    public void setJndiNames(String[] jndiNames) {
+        this.jndiNames = jndiNames;
+    }
+
+    public String[] getLocalJndiNames() {
+        return localJndiNames;
+    }
+
+    public void setLocalJndiNames(String[] localJndiNames) {
+        this.localJndiNames = localJndiNames;
+    }
+
     public TransactionManager getTransactionManager() {
         return transactionManager;
     }
@@ -289,6 +307,8 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 interceptorBuilder,
                 pool,
                 getUserTransaction(),
+                getJndiNames(),
+                getLocalJndiNames(),
                 getTransactionManager(),
                 getTrackedConnectionAssociator());
     }
@@ -300,13 +320,15 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
             InstancePool pool) throws Exception {
 
         GBeanMBean gbean = new GBeanMBean(GenericEJBContainer.GBEAN_INFO);
-        gbean.setAttribute("containerId", getContainerId());
-        gbean.setAttribute("ejbName", getEJBName());
-        gbean.setAttribute("proxyFactory", proxyFactory);
-        gbean.setAttribute("signatures", signatures);
-        gbean.setAttribute("interceptorBuilder", interceptorBuilder);
-        gbean.setAttribute("pool", pool);
-        gbean.setAttribute("userTransaction", getUserTransaction());
+        gbean.setAttribute("ContainerID", getContainerId());
+        gbean.setAttribute("EJBName", getEJBName());
+        gbean.setAttribute("ProxyFactory", proxyFactory);
+        gbean.setAttribute("Signatures", signatures);
+        gbean.setAttribute("InterceptorBuilder", interceptorBuilder);
+        gbean.setAttribute("Pool", pool);
+        gbean.setAttribute("UserTransaction", getUserTransaction());
+        gbean.setAttribute("JndiNames", getJndiNames());
+        gbean.setAttribute("LocalJndiNames", getLocalJndiNames());
 
         return gbean;
     }

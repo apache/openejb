@@ -65,6 +65,7 @@ import org.openejb.OpenEJBException;
 import org.openejb.entity.bmp.BMPContainerBuilder;
 import org.openejb.sfsb.StatefulContainerBuilder;
 import org.openejb.slsb.StatelessContainerBuilder;
+
 import org.apache.geronimo.transaction.UserTransactionImpl;
 
 public class ContainerBuilder implements RpcContainer {
@@ -307,8 +308,9 @@ public class ContainerBuilder implements RpcContainer {
             builder.setUserTransaction(userTransaction);
         }
         builder.setComponentContext(new ReadOnlyContextWrapper(deploymentInfo.getJndiEnc(), userTransaction));
+        builder.setJndiNames(new String[]{deploymentInfo.getDeploymentID().toString()});
 
-        return (GenericEJBContainer)builder.createContainer();
+        return (GenericEJBContainer) builder.createContainer();
     }
 
     private static GenericEJBContainer createStatefulEJBContainerWapper(CoreDeploymentInfo deploymentInfo) throws Exception {
@@ -327,8 +329,9 @@ public class ContainerBuilder implements RpcContainer {
             builder.setUserTransaction(userTransaction);
         }
         builder.setComponentContext(new ReadOnlyContextWrapper(deploymentInfo.getJndiEnc(), userTransaction));
+        builder.setJndiNames(new String[]{deploymentInfo.getDeploymentID().toString()});
 
-        return (GenericEJBContainer)builder.createContainer();
+        return (GenericEJBContainer) builder.createContainer();
     }
 
     private static GenericEJBContainer createBMPEntityEJBContainerWapper(CoreDeploymentInfo deploymentInfo) throws Exception {
@@ -343,7 +346,8 @@ public class ContainerBuilder implements RpcContainer {
         builder.setComponentContext(new ReadOnlyContextWrapper(deploymentInfo.getJndiEnc(), null));
         builder.setTransactionPolicySource(new DeploymentInfoTxPolicySource(deploymentInfo));
         builder.setTransactionManager(OpenEJB.getTransactionManager());
-        return (GenericEJBContainer)builder.createContainer();
+        builder.setJndiNames(new String[]{deploymentInfo.getDeploymentID().toString()});
+        return (GenericEJBContainer) builder.createContainer();
     }
 
     static class ReadOnlyContextWrapper extends ReadOnlyContext {

@@ -78,6 +78,7 @@ import org.openejb.proxy.ProxyInfo;
  * @version $Revision$ $Date$
  */
 public class GenericEJBContainer implements EJBContainer {
+    private final ClassLoader classLoader;
     private final Object containerId;
     private final String ejbName;
 
@@ -85,6 +86,9 @@ public class GenericEJBContainer implements EJBContainer {
     private final EJBProxyFactory proxyFactory;
 
     private final Map legacyMethodMap;
+
+    private final String[] jndiNames;
+    private final String[] localJndiNames;
 
     public GenericEJBContainer(
             Object containerId,
@@ -94,6 +98,8 @@ public class GenericEJBContainer implements EJBContainer {
             InterceptorBuilder interceptorBuilder,
             InstancePool pool,
             UserTransactionImpl userTransaction,
+            String[] jndiNames,
+            String[] localJndiNames,
             TransactionManager transactionManager,
             TrackedConnectionAssociator trackedConnectionAssociator) throws Exception {
 
@@ -101,11 +107,17 @@ public class GenericEJBContainer implements EJBContainer {
         assert (ejbName != null && ejbName.length() > 0);
         assert (signatures != null);
         assert (interceptorBuilder != null);
+        assert (jndiNames != null);
+        assert (localJndiNames != null);
         assert (pool != null);
         assert (transactionManager != null);
 
+        this.classLoader = Thread.currentThread().getContextClassLoader();
+        assert (classLoader != null);
         this.containerId = containerId;
         this.ejbName = ejbName;
+        this.jndiNames = copyNames(jndiNames);
+        this.localJndiNames = copyNames(localJndiNames);
 
         // initialize the proxy factory
         proxyFactory.setContainer(this);
@@ -185,6 +197,10 @@ public class GenericEJBContainer implements EJBContainer {
         }
     }
 
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
     public Object getContainerID() {
         return containerId;
     }
@@ -193,20 +209,32 @@ public class GenericEJBContainer implements EJBContainer {
         return ejbName;
     }
 
+    public String[] getJndiNames() {
+        return copyNames(jndiNames);
+    }
+
+    public String[] getLocalJndiNames() {
+        return copyNames(localJndiNames);
+    }
+
     public EJBHome getEJBHome() {
-        return getProxyFactory().getEJBHome();
+        return proxyFactory.getEJBHome();
     }
 
     public EJBObject getEJBObject(Object primaryKey) {
-        return getProxyFactory().getEJBObject(primaryKey);
+        return proxyFactory.getEJBObject(primaryKey);
     }
 
     public EJBLocalHome getEJBLocalHome() {
-        return getProxyFactory().getEJBLocalHome();
+        return proxyFactory.getEJBLocalHome();
     }
 
     public EJBLocalObject getEJBLocalObject(Object primaryKey) {
-        return getProxyFactory().getEJBLocalObject(primaryKey);
+        return proxyFactory.getEJBLocalObject(primaryKey);
+    }
+
+    public EJBProxyFactory getProxyFactory() {
+        return proxyFactory;
     }
 
     private static void addLegacyMethods(Map legacyMethodMap, Class clazz, InterfaceMethodSignature[] signatures) {
@@ -223,6 +251,15 @@ public class GenericEJBContainer implements EJBContainer {
         }
     }
 
+    private static String[] copyNames(String[] names) {
+        if(names == null) {
+            return null;
+        }
+        int length = names.length;
+        String[] copy = new String[length];
+        System.arraycopy(names, 0, copy, 0, length);
+        return copy;
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -230,18 +267,20 @@ public class GenericEJBContainer implements EJBContainer {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(GenericEJBContainer.class);
 
         infoFactory.setConstructor(
-                new String[]{"containerId", "ejbName", "proxyFactory", "signatures", "interceptorBuilder", "pool", "userTransaction", "transactionManager", "trackedConnectionAssociator"},
-                new Class[]{Object.class, String.class, EJBProxyFactory.class, InterfaceMethodSignature[].class, InterceptorBuilder.class, InstancePool.class, UserTransactionImpl.class, TransactionManager.class, TrackedConnectionAssociator.class});
+                new String[]{"ContainerID", "EJBName", "ProxyFactory", "Signatures", "InterceptorBuilder", "Pool", "UserTransaction", "JndiNames", "LocalJndiNames", "TransactionManager", "TrackedConnectionAssociator"},
+                new Class[]{Object.class, String.class, EJBProxyFactory.class, InterfaceMethodSignature[].class, InterceptorBuilder.class, InstancePool.class, UserTransactionImpl.class, String[].class, String[].class, TransactionManager.class, TrackedConnectionAssociator.class});
 
-        infoFactory.addAttribute("containerId", true);
-        infoFactory.addAttribute("ejbName", true);
-        infoFactory.addAttribute("proxyFactory", true);
-        infoFactory.addAttribute("signatures", true);
-        infoFactory.addAttribute("interceptorBuilder", true);
-        infoFactory.addAttribute("pool", true);
-        infoFactory.addAttribute("userTransaction", true);
-        infoFactory.addReference("transactionManager", TransactionManager.class);
-        infoFactory.addReference("trackedConnectionAssociator", TrackedConnectionAssociator.class);
+        infoFactory.addAttribute("ContainerID", true);
+        infoFactory.addAttribute("EJBName", true);
+        infoFactory.addAttribute("ProxyFactory", true);
+        infoFactory.addAttribute("Signatures", true);
+        infoFactory.addAttribute("InterceptorBuilder", true);
+        infoFactory.addAttribute("Pool", true);
+        infoFactory.addAttribute("UserTransaction", true);
+        infoFactory.addAttribute("JndiNames", true);
+        infoFactory.addAttribute("LocalJndiNames", true);
+        infoFactory.addReference("TransactionManager", TransactionManager.class);
+        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
 
         infoFactory.addAttribute("EJBHome", false);
         infoFactory.addAttribute("EJBLocalHome", false);
@@ -252,9 +291,5 @@ public class GenericEJBContainer implements EJBContainer {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    protected EJBProxyFactory getProxyFactory() {
-        return proxyFactory;
     }
 }

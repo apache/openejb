@@ -44,9 +44,7 @@
  */
 package org.openejb.server;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.util.Properties;
 
 import org.openejb.spi.Service;
 
@@ -63,7 +61,7 @@ import org.openejb.spi.Service;
  * constructor.
  * 
  */
-public interface ServerService extends Service {
+public interface ServerService extends Service, SocketService {
     
     public void init(Properties props) throws Exception;
     
@@ -71,14 +69,6 @@ public interface ServerService extends Service {
     
     public void stop() throws ServiceException;
 
-    public void service(Socket socket) throws ServiceException, IOException;
-
-
-    /**
-     * Gets the name of the service.
-     * Used for display purposes only
-     */ 
-    public String getName();
 
     /**
      * Gets the ip number that the 

@@ -78,14 +78,19 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
     /**
      * Index from the container id to the index (Integer) number in the containers lookup table
      */
-    private final HashMap index = new HashMap();
+    private final HashMap containerIdToIndex = new HashMap();
+
+    /**
+     * Index from jndi name to the index (Integer) number in the containers lookup table
+     */
+    private final HashMap jndiNameToIndex = new HashMap();
 
     /**
      * GBean reference collection that we watch for new containers to register
      */
     private ReferenceCollection ejbContainers;
 
-    private ContainerIndex() {
+    protected ContainerIndex() {
     }
 
     public ContainerIndex(Collection ejbContainers) {
@@ -102,23 +107,36 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
         for (int i = 1; i < containers.length && iterator.hasNext(); i++) {
             EJBContainer container = (EJBContainer) iterator.next();
             containers[i] = container;
-            index.put(container.getContainerID(), new Integer(i));
+            containerIdToIndex.put(container.getContainerID(), new Integer(i));
+            addJNDINames(container, i);
+        }
+    }
+
+    private void addJNDINames(EJBContainer container, int i) {
+        String[] jnidNames = container.getJndiNames();
+        if(jnidNames != null) {
+            for (int j = 0; j < jnidNames.length; j++) {
+                String jnidName = jnidNames[j];
+                jndiNameToIndex.put(jnidName, new Integer(i));
+            }
         }
     }
 
     public void doStop() throws WaitingException, Exception {
-        index.clear();
+        containerIdToIndex.clear();
         Arrays.fill(containers, null);
+        jndiNameToIndex.clear();
     }
 
     public void doFail() {
-        index.clear();
+        containerIdToIndex.clear();
         Arrays.fill(containers, null);
+        jndiNameToIndex.clear();
     }
 
     public synchronized void addContainer(EJBContainer container) {
         Object containerID = container.getContainerID();
-        if(index.containsKey(containerID)) {
+        if(containerIdToIndex.containsKey(containerID)) {
             return;
         }
 
@@ -129,13 +147,20 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
         containers = newArray;
 
         containers[i] = container;
-        index.put(containerID, new Integer(i));
+        containerIdToIndex.put(containerID, new Integer(i));
+        addJNDINames(container, i);
     }
 
     public synchronized void removeContainer(EJBContainer container) {
-        int i = getContainerIndex(container.getContainerID());
-        if(i > 0) {
-            containers[i] = null;
+        Integer index = (Integer) containerIdToIndex.remove(container.getContainerID());
+        if(index != null) {
+            containers[index.intValue()] = null;
+        }
+
+        String[] jnidNames = container.getJndiNames();
+        for (int i = 0; i < jnidNames.length; i++) {
+            String jnidName = jnidNames[i];
+            jndiNameToIndex.remove(jnidName);
         }
     }
 
@@ -156,9 +181,13 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
     }
 
     public synchronized int getContainerIndex(String containerID) {
-        Integer idCode = (Integer) index.get(containerID);
+        Integer index = (Integer) containerIdToIndex.get(containerID);
+        return (index == null) ? -1 : index.intValue();
+    }
 
-        return (idCode == null) ? -1 : idCode.intValue();
+    public synchronized int getContainerIndexByJndiName(String jndiName) {
+        Integer index = (Integer) jndiNameToIndex.get(jndiName);
+        return (index == null) ? -1 : index.intValue();
     }
 
     public synchronized EJBContainer getContainer(String containerID) {
@@ -167,6 +196,10 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
 
     public synchronized EJBContainer getContainer(Integer index) {
         return (index == null) ? null : getContainer(index.intValue());
+    }
+
+    public synchronized EJBContainer getContainerByJndiName(String jndiName) {
+        return getContainer(getContainerIndexByJndiName(jndiName));
     }
 
     public synchronized EJBContainer getContainer(int index) {
@@ -184,9 +217,11 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
 
         infoFactory.addOperation("getContainerIndex", new Class[]{Object.class});
         infoFactory.addOperation("getContainerIndex", new Class[]{String.class});
+        infoFactory.addOperation("getContainerIndexByJndiName", new Class[]{String.class});
         infoFactory.addOperation("getContainer", new Class[]{String.class});
         infoFactory.addOperation("getContainer", new Class[]{Integer.class});
         infoFactory.addOperation("getContainer", new Class[]{Integer.TYPE});
+        infoFactory.addOperation("getContainerByJndiName", new Class[]{String.class});
 
         infoFactory.addReference("EJBContainers", EJBContainer.class);
 

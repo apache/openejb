@@ -66,7 +66,7 @@ public class EmbeddedLoader implements Loader {
             org.openejb.OpenEJB.init( props );
     
         } catch( Exception e){
-            throw new Exception("Cannot initailize OpenEJB. " + e.getMessage());
+            throw new Exception("Cannot initailize OpenEJB", e);
         }
     }
 }

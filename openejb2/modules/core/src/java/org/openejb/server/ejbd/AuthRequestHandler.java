@@ -53,17 +53,8 @@ import org.openejb.client.ClientMetaData;
 import org.openejb.client.RequestMethods;
 import org.openejb.client.ResponseCodes;
 
-
-/**
- */
 class AuthRequestHandler implements ResponseCodes, RequestMethods {
-    private final EjbDaemon daemon;
-    /**
-     * @param EjbDaemon
-     */
-    AuthRequestHandler(EjbDaemon daemon) {
-        this.daemon = daemon;
-        // TODO Auto-generated constructor stub
+    AuthRequestHandler() {
     }
 
     public void processRequest(ObjectInputStream in, ObjectOutputStream out) {
@@ -71,18 +62,18 @@ class AuthRequestHandler implements ResponseCodes, RequestMethods {
         AuthenticationResponse res = new AuthenticationResponse();
 
         try {
-            req.readExternal( in );
+            req.readExternal(in);
 
             // TODO: perform some real authentication here
 
             ClientMetaData client = new ClientMetaData();
 
-            client.setClientIdentity( new String( (String)req.getPrinciple() ) );
+            client.setClientIdentity(new String((String) req.getPrinciple()));
 
-            res.setIdentity( client );
-            res.setResponseCode( AUTH_GRANTED );
+            res.setIdentity(client);
+            res.setResponseCode(AUTH_GRANTED);
 
-            res.writeExternal( out );
+            res.writeExternal(out);
         } catch (Throwable t) {
             //replyWithFatalError
             //(out, t, "Error caught during request processing");

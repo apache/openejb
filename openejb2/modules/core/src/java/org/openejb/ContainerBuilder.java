@@ -97,6 +97,14 @@ public interface ContainerBuilder {
 
     void setTrackedConnectionAssociator(TrackedConnectionAssociator trackedConnectionAssociator);
 
+    String[] getJndiNames();
+
+    void setJndiNames(String[] jndiNames);
+
+    String[] getLocalJndiNames();
+
+    void setLocalJndiNames(String[] localJndiNames);
+
     EJBContainer createContainer() throws Exception;
 
     GBeanMBean createConfiguration() throws Exception;

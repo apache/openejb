@@ -44,16 +44,14 @@
  */
 package org.openejb.server;
 
-import org.openejb.util.FastThreadLocal;
+import javax.ejb.EJBHome;
+import javax.ejb.EJBMetaData;
+import javax.ejb.EJBObject;
+import javax.ejb.Handle;
+import javax.ejb.HomeHandle;
 
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.spi.ApplicationServer;
-
-import javax.ejb.Handle;
-import javax.ejb.EJBMetaData;
-import javax.ejb.HomeHandle;
-import javax.ejb.EJBObject;
-import javax.ejb.EJBHome;
 
 /**
  * This class is passed in as the ApplicationServer implementation
@@ -71,10 +69,7 @@ import javax.ejb.EJBHome;
  * 
  */
 public class ServerFederation implements ApplicationServer {
-
-    private static FastThreadLocal threadStorage = new FastThreadLocal();
-
-
+    private static ThreadLocal threadStorage = new ThreadLocal();
 
     /**
      * Delegates this call to the application server implementation
@@ -146,9 +141,7 @@ public class ServerFederation implements ApplicationServer {
      * @param server
      */
     public static void setApplicationServer(ApplicationServer server) {
-        if ( server != null ) {
-            threadStorage.set(server);
-        }
+        threadStorage.set(server);
     }
     
     /**

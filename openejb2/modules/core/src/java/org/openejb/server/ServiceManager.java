@@ -139,7 +139,7 @@ public class ServiceManager {
 
                     String ip = props.getProperty("bind");
                     int port = Integer.parseInt(props.getProperty("port"));
-                    ServiceDaemon daemon = new ServiceDaemon(server, ip, port);
+                    ServiceDaemon daemon = new ServiceDaemon(server, InetAddress.getByName(ip), port);
                     enabledServers.add(daemon);
                 }
             } catch (Throwable e) {
@@ -214,7 +214,7 @@ public class ServiceManager {
             ServiceDaemon d = daemons[i];
             try {
                 d.doStart();
-                printRow(d.getServiceName(), d.getInetAddress(), d.getPort() + "");
+                printRow(d.getServiceName(), d.getInetAddress().toString(), d.getPort() + "");
             } catch (Exception e) {
                 logger.error(d.getServiceName() + " " + d.getInetAddress() + " " + d.getPort() + ": " + e.getMessage());
                 printRow(d.getServiceName(), "----", "FAILED");

@@ -44,8 +44,6 @@
  */
 package org.openejb;
 
-import java.io.PrintStream;
-import java.io.PrintWriter;
 
 /**
  * The OpenEJBException is the standard exception thrown by all methods in all type in the
@@ -73,7 +71,7 @@ import java.io.PrintWriter;
  *     thrown within the container (not by a bean) is are good examples.  The org.openejb.SystemException represents a
  *     serious problem with the Container.  The Container should be shut down and not used for any more processing.
  * </ul>
- * 
+ *
  * @version $Revision$ $Date$
  * @see ApplicationException
  * @see InvalidateReferenceException
@@ -83,12 +81,12 @@ import java.io.PrintWriter;
 public class OpenEJBException extends Exception {
 
     /** Error code for unknown errors */
-    private String message = "error.unknown";
+//    private String message = "error.unknown";
 
     /** Stored <code>Exception</code> for root cause */
-    private Throwable rootCause;
+//    private Throwable rootCause;
 
-    /** 
+    /**
      * <p>
      *  Default constructor, which simply delegates exception
      *    handling up the inheritance chain to <code>Exception</code>.
@@ -98,7 +96,7 @@ public class OpenEJBException extends Exception {
         super();
     }
 
-    /** 
+    /**
      * <p>
      *  This constructor allows a message to be supplied indicating the source
      *    of the problem that occurred.
@@ -107,8 +105,8 @@ public class OpenEJBException extends Exception {
      * @param message <code>String</code> identifying the cause of the problem.
      */
     public OpenEJBException(String message) {
-        super( message );
-        this.message = message;
+        super(message);
+//        this.message = message;
     }
 
     /**
@@ -120,7 +118,8 @@ public class OpenEJBException extends Exception {
      * @param rootCause <code>Throwable</code> that triggered the problem.
      */
     public OpenEJBException(Throwable rootCause) {
-        this.rootCause = rootCause;
+        super(rootCause);
+//        this.rootCause = rootCause;
     }
 
     /**
@@ -128,31 +127,31 @@ public class OpenEJBException extends Exception {
      * problem that occurred as well as a "root cause" exception
      * to be supplied, which may later be used by the wrapping
      * application.
-     * 
+     *
      * @param message   <code>String</code> identifying the cause of the problem.
      * @param rootCause <code>Throwable</code> that triggered this problem.
      */
     public OpenEJBException(String message, Throwable rootCause) {
-        this( message );
-        this.rootCause = rootCause;
+        super(message, rootCause);
+//        this.rootCause = rootCause;
     }
 
     /**
      * <p>
-     *  This returns the message for the <code>Exception</code>. If there is 
+     *  This returns the message for the <code>Exception</code>. If there is
      *    a root cause, the message associated with the root cause
      *    is appended.
      * </p>
      *
      * @return <code>String</code> - message for this <code>Exception</code>.
      */
-    public String getMessage() {
-        if (rootCause != null) {
-            return super.getMessage() + ": " + rootCause.getMessage();
-        } else {
-            return super.getMessage();
-        }
-    }
+//    public String getMessage() {
+//        if (rootCause != null) {
+//            return super.getMessage() + ": " + rootCause.getMessage();
+//        } else {
+//            return super.getMessage();
+//        }
+//    }
 
     /**
      * <p>
@@ -161,13 +160,13 @@ public class OpenEJBException extends Exception {
      *    is printed right after.
      * </p>
      */
-    public void printStackTrace() {
-        super.printStackTrace();
-        if (rootCause != null) {
-            System.err.println("Root cause: ");
-            rootCause.printStackTrace();
-        }
-    }
+//    public void printStackTrace() {
+//        super.printStackTrace();
+//        if (rootCause != null) {
+//            System.err.println("Root cause: ");
+//            rootCause.printStackTrace();
+//        }
+//    }
 
     /**
      * <p>
@@ -178,14 +177,14 @@ public class OpenEJBException extends Exception {
      *
      * @param stream <code>PrintStream</code> to print stack trace to.
      */
-    public void printStackTrace(PrintStream stream) {
-        super.printStackTrace(stream);
-        if (rootCause != null) {
-            stream.print("Root cause: ");
-            rootCause.printStackTrace(stream);
-        }
-    }
-    
+//    public void printStackTrace(PrintStream stream) {
+//        super.printStackTrace(stream);
+//        if (rootCause != null) {
+//            stream.print("Root cause: ");
+//            rootCause.printStackTrace(stream);
+//        }
+//    }
+
     /**
      * <p>
      *  This prints the stack trace of the <code>Exception</code>. If there is
@@ -195,13 +194,13 @@ public class OpenEJBException extends Exception {
      *
      * @param writer <code>PrintWriter</code> to print stack trace to.
      */
-    public void printStackTrace(PrintWriter writer) {
-        super.printStackTrace(writer);
-        if (rootCause != null) {
-            writer.print("Root cause: ");
-            rootCause.printStackTrace(writer);
-        }
-    }
+//    public void printStackTrace(PrintWriter writer) {
+//        super.printStackTrace(writer);
+//        if (rootCause != null) {
+//            writer.print("Root cause: ");
+//            rootCause.printStackTrace(writer);
+//        }
+//    }
 
     /**
      * <p>
@@ -211,8 +210,9 @@ public class OpenEJBException extends Exception {
      *
      * @return <code>Throwable</code> - the wrapped <code>Throwable</code>.
      */
-    public Throwable getRootCause() {
-        return rootCause;
-    }
+//    public Throwable getRootCause() {
+//        super.getCause();
+//        return rootCause;
+//    }
 
 }

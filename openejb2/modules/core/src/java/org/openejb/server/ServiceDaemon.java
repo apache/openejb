@@ -59,14 +59,17 @@ import org.apache.geronimo.gbean.GBeanInfoFactory;
 public class ServiceDaemon implements GBean {
     private static final Log log = LogFactory.getLog(ServiceDaemon.class);
 
-    private final ServerService serverService;
-    private final String inetAddress;
+    private final SocketService socketService;
+    private final InetAddress inetAddress;
     private final int port;
 
     private SocketDaemon socketDaemon;
 
-    public ServiceDaemon(ServerService serverService, String inetAddress, int port) {
-        this.serverService = serverService;
+    public ServiceDaemon(SocketService socketService, InetAddress inetAddress, int port) {
+        if(socketService == null) {
+            throw new IllegalArgumentException("socketService is null");
+        }
+        this.socketService = socketService;
         this.inetAddress = inetAddress;
         this.port = port;
     }
@@ -82,14 +85,14 @@ public class ServiceDaemon implements GBean {
 
         ServerSocket serverSocket;
         try {
-            serverSocket = new ServerSocket(port, 20, InetAddress.getByName(inetAddress));
+            serverSocket = new ServerSocket(port, 20, inetAddress);
         } catch (Exception e) {
             throw new ServiceException("Service failed to open socket", e);
         }
 
-        socketDaemon = new SocketDaemon(serverService, serverSocket);
+        socketDaemon = new SocketDaemon(socketService, serverSocket);
         Thread thread = new Thread(socketDaemon);
-        thread.setName("service." + serverService.getName() + "@" + socketDaemon.hashCode());
+        thread.setName("service." + getServiceName() + "@" + socketDaemon.hashCode());
         thread.setDaemon(true);
         thread.start();
     }
@@ -106,14 +109,14 @@ public class ServiceDaemon implements GBean {
     }
 
     public String getServiceName() {
-        return serverService.getName();
+        return socketService.getName();
     }
 
     /**
      * Gets the inetAddress number that the
      * daemon is listening on.
      */
-    public String getInetAddress() {
+    public InetAddress getInetAddress() {
         return inetAddress;
     }
 
@@ -126,11 +129,11 @@ public class ServiceDaemon implements GBean {
     }
 
     private static class SocketDaemon implements Runnable {
-        private ServerService serverService;
+        private SocketService serverService;
         private ServerSocket serverSocket;
         private boolean stopped;
 
-        public SocketDaemon(ServerService serverService, ServerSocket serverSocket) {
+        public SocketDaemon(SocketService serverService, ServerSocket serverSocket) {
             this.serverService = serverService;
             this.serverSocket = serverSocket;
             stopped = false;
@@ -183,10 +186,10 @@ public class ServiceDaemon implements GBean {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ServiceDaemon.class);
 
         infoFactory.setConstructor(
-                new String[]{"ServerService", "InetAddress", "Port"},
-                new Class[]{ServerService.class, String.class, Integer.TYPE});
+                new String[]{"SocketService", "InetAddress", "Port"},
+                new Class[]{SocketService.class, InetAddress.class, Integer.TYPE});
 
-        infoFactory.addReference("ServerService", ServerService.class);
+        infoFactory.addReference("SocketService", SocketService.class);
         infoFactory.addAttribute("InetAddress", true);
         infoFactory.addAttribute("Port", true);
 
@@ -195,6 +198,8 @@ public class ServiceDaemon implements GBean {
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
-
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 }
 

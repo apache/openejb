@@ -208,22 +208,22 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
          */
         }catch ( org.openejb.InvalidateReferenceException ire ) {
             invalidateAllHandlers(getRegistryId());
-            return ire.getRootCause();
+            return ire.getCause();
         /*
          * Application exceptions must be reported dirctly to the client. They
          * do not impact the viability of the proxy.
          */
         } catch ( org.openejb.ApplicationException ae ) {
-            throw ae.getRootCause();
+            throw ae.getCause();
         /*
          * A system exception would be highly unusual and would indicate a sever
          * problem with the container system.
          */
         } catch ( org.openejb.SystemException se ) {
             invalidateReference();
-            throw new RemoteException("Container has suffered a SystemException",se.getRootCause());
+            throw new RemoteException("Container has suffered a SystemException",se.getCause());
         } catch ( org.openejb.OpenEJBException oe ) {
-            throw new RemoteException("Unknown Container Exception",oe.getRootCause());
+            throw new RemoteException("Unknown Container Exception",oe.getCause());
         }  
         return retValue;
     }
