@@ -48,6 +48,7 @@ import java.util.Collection;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.NotSerializableException;
@@ -57,6 +58,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.InetAddress;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Properties;
@@ -80,6 +82,7 @@ import org.openejb.RpcContainer;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.FileUtils;
+import org.openejb.util.JarUtils;
 
 /** 
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
@@ -801,7 +804,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                     if (args.length > i+1 ) {
                         System.setProperty("openejb.server.threads", args[++i]);
                     }
-                } else if (args[i].equals("-c")){
+                } else if (args[i].equals("-conf")){
                     if (args.length > i+1 ) {
                         System.setProperty("openejb.configuration", args[++i]);
                     }
@@ -813,15 +816,18 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                     if (args.length > i+1 ) {
                         System.setProperty("openejb.home", args[++i]);
                     }
+                } else if (args[i].equals("-help")){
+                    printHelp();
+                    return;
+                } else if (args[i].equals("-version")){
+                    printVersion();
+                    return;
+                } else if (args[i].equals("-examples")){
+                    printExamples();
+                    return;
                 }
             }
             
-            if ( args.length == 1 ) {
-                File propsFile = new File(args[0]);
-                FileInputStream input = new FileInputStream(propsFile.getAbsoluteFile());
-                props.load(input);
-            }
-
             props.setProperty("org/openejb/configuration_factory", "org.openejb.alt.config.ConfigurationFactory");            
             
 
@@ -848,7 +854,69 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             System.exit(-1);
         }
     }
-    //
-    //  Inner class for sending commands to the server at runtime
-    //=============================================================
+
+    private static void printVersion() {
+        /*
+         * Output startup message
+         */
+        Properties versionInfo = new Properties();
+
+        try {
+            JarUtils.setHandlerSystemProperty();
+            versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
+        } catch (java.io.IOException e) {
+        }
+        System.out.println( "OpenEJB Remote Server " + versionInfo.get( "version" ) );
+        System.out.println( "" + versionInfo.get( "url" ) );
+    }
+    
+    private static void printHelp() {
+        String header = "OpenEJB Remote Server ";
+        try {
+            JarUtils.setHandlerSystemProperty();
+            Properties versionInfo = new Properties();
+            versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
+            header += versionInfo.get( "version" );
+        } catch (java.io.IOException e) {
+        }
+        
+        System.out.println( header );
+        
+        // Internationalize this
+        try {
+            InputStream in = new URL( "resource:/openejb/ejbserver.txt" ).openConnection().getInputStream();
+
+            int b = in.read();
+            while (b != -1) {
+                System.out.write( b );
+                b = in.read();
+            }
+        } catch (java.io.IOException e) {
+        }
+    }
+
+    private static void printExamples() {
+        String header = "OpenEJB Remote Server ";
+        try {
+            JarUtils.setHandlerSystemProperty();
+            Properties versionInfo = new Properties();
+            versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
+            header += versionInfo.get( "version" );
+        } catch (java.io.IOException e) {
+        }
+        
+        System.out.println( header );
+        
+        // Internationalize this
+        try {
+            InputStream in = new URL( "resource:/openejb/ejbserver-examples.txt" ).openConnection().getInputStream();
+
+            int b = in.read();
+            while (b != -1) {
+                System.out.write( b );
+                b = in.read();
+            }
+        } catch (java.io.IOException e) {
+        }
+    }
 }
