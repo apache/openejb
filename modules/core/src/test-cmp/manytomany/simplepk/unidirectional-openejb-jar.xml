@@ -58,9 +58,6 @@
                 <relationship-role-source>
                     <ejb-name>B</ejb-name>
                 </relationship-role-source>
-                <cmr-field>
-                    <cmr-field-name>a</cmr-field-name>
-                </cmr-field>
                 <role-mapping>
                     <cmr-field-mapping>
                         <key-column>b1</key-column>

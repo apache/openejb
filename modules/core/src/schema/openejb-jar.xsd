@@ -88,7 +88,6 @@
         <xs:sequence>
             <xs:element name="dependency" type="openejb:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="cmp-connection-factory" type="xs:string" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="transaction-manager" type="xs:string" minOccurs="0"/>
 
             <xs:element name="enterprise-beans">
                 <xs:complexType>
@@ -203,7 +202,7 @@
 
     <xs:complexType name="ejb-relationType">
         <xs:sequence>
-            <xs:element name="ejb-relation-name" type="xs:string"/>
+            <xs:element name="ejb-relation-name" type="xs:string" minOccurs="0"/>
             <xs:element name="many-to-many-table-name" type="xs:string" minOccurs="0"/>
             <xs:element name="ejb-relationship-role" type="openejb:ejb-relationship-roleType" maxOccurs="2"/>
         </xs:sequence>
@@ -211,7 +210,22 @@
 
     <xs:complexType name="ejb-relationship-roleType">
         <xs:sequence>
-            <xs:element name="ejb-relationship-role-name" type="xs:string"/>
+            <xs:element name="ejb-relationship-role-name" type="xs:string" minOccurs="0"/>
+            <xs:element name="relationship-role-source">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="ejb-name" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="cmr-field" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="cmr-field-name" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="foreign-key-column-on-source" minOccurs="0"/>
             <xs:element name="role-mapping">
                 <xs:complexType>
                     <xs:sequence>

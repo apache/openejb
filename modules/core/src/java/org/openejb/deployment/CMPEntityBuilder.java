@@ -336,28 +336,41 @@ class CMPEntityBuilder extends EntityBuilder {
     private void processRelationships(EARContext earContext, String ejbModuleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema) throws DeploymentException {
         if ( !ejbJar.isSetRelationships() ) {
             return;
+        } else if ( !openejbEjbJar.isSetRelationships() ) {
+            throw new DeploymentException("Relationships are not mapped by OpenEJB DD.");
         }
         
         Map openEjbRelations = new HashMap();
         OpenejbEjbRelationType[] openEJBRelations = openejbEjbJar.getRelationships().getEjbRelationArray();
         for (int i = 0; i < openEJBRelations.length; i++) {
             OpenejbEjbRelationType relation = openEJBRelations[i];
-            openEjbRelations.put(relation.getEjbRelationName(), relation);
+            OpenejbEjbRelationshipRoleType[] roles = relation.getEjbRelationshipRoleArray();
+            for (int j = 0; j < roles.length; j++) {
+                OpenejbEjbRelationshipRoleType role = roles[j];
+                if ( !role.isSetCmrField() ) {
+                    continue;
+                }
+                String ejbName = role.getRelationshipRoleSource().getEjbName();
+                String cmrFieldName = role.getCmrField().getCmrFieldName();
+                RoleInfo roleInfo = new RoleInfo(ejbName, cmrFieldName);
+                openEjbRelations.put(roleInfo, relation);
+            }
         }
 
         EjbRelationType[] relations = ejbJar.getRelationships().getEjbRelationArray();
         for (int i = 0; i < relations.length; i++) {
-            EjbRelationType relation = relations[i];
-            String name = relation.getEjbRelationName().getStringValue();
-            OpenejbEjbRelationType openEjbRelation = (OpenejbEjbRelationType) openEjbRelations.get(name);
-            if (null == openEjbRelation) {
-                throw new DeploymentException("Relation [" + name + "] is misconfigured: no CMR mapping defined by OpenEJB DD.");
-            }
-
-            EjbRelationshipRoleType[] roles = relation.getEjbRelationshipRoleArray();
+            EjbRelationshipRoleType[] roles = relations[i].getEjbRelationshipRoleArray();
             RoleInfo[] roleInfo = new RoleInfo[2];
             roleInfo[0] = extractRoleInfo(ejbSchema, sqlSchema, roles[0]);
             roleInfo[1] = extractRoleInfo(ejbSchema, sqlSchema, roles[1]);
+
+            OpenejbEjbRelationType openEjbRelation = (OpenejbEjbRelationType) openEjbRelations.get(roleInfo[0]);
+            if (null == openEjbRelation) {
+                openEjbRelation = (OpenejbEjbRelationType) openEjbRelations.get(roleInfo[1]);
+                if ( null == openEjbRelation ) {
+                    throw new DeploymentException("No CMR mapping defined by OpenEJB DD for roles " + roleInfo[0] + " or " + roleInfo[1]);
+                }
+            }
 
             OpenejbEjbRelationshipRoleType[] openEjbRoles = openEjbRelation.getEjbRelationshipRoleArray();
             for (int j = 0; j < openEjbRoles.length; j++) {
@@ -367,7 +380,8 @@ class CMPEntityBuilder extends EntityBuilder {
             String mtmTableName = null;
             if ( !roleInfo[0].isOne && !roleInfo[1].isOne ) {
                 if ( !openEjbRelation.isSetManyToManyTableName() ) {
-                    throw new DeploymentException("Relation [" + name + "] is misconfigured: no many to many table defined by OpenEJB DD.");
+                    throw new DeploymentException("MTM relation between " + roleInfo[0] + " and " + roleInfo[1] +
+                            " is misconfigured: no many to many table defined by OpenEJB DD.");
                 }
                 mtmTableName = openEjbRelation.getManyToManyTableName();
             }
@@ -377,14 +391,14 @@ class CMPEntityBuilder extends EntityBuilder {
     }
 
     private RoleInfo extractRoleInfo(EJBSchema ejbSchema, SQLSchema sqlSchema, EjbRelationshipRoleType role) {
-        String sourceEjbName = role.getRelationshipRoleSource().getEjbName().getStringValue();
-        RoleInfo roleInfo = new RoleInfo();
-        roleInfo.name = role.getEjbRelationshipRoleName().getStringValue();
-        roleInfo.ejb = ejbSchema.getEJB(sourceEjbName);
-        roleInfo.table = sqlSchema.getTable(sourceEjbName);
-        if (role.isSetCmrField()) {
-            roleInfo.cmrFieldName = role.getCmrField().getCmrFieldName().getStringValue();
+        String entityName = role.getRelationshipRoleSource().getEjbName().getStringValue();
+        String cmrFieldName = null;
+        if ( role.isSetCmrField() ) {
+            cmrFieldName = role.getCmrField().getCmrFieldName().getStringValue();
         }
+        RoleInfo roleInfo = new RoleInfo(entityName, cmrFieldName);
+        roleInfo.ejb = ejbSchema.getEJB(entityName);
+        roleInfo.table = sqlSchema.getTable(entityName);
         if ("One".equals(role.getMultiplicity().getStringValue())) {
             roleInfo.isOne = true;
         }
@@ -392,15 +406,24 @@ class CMPEntityBuilder extends EntityBuilder {
     }
 
     private void extractJoinInfo(RoleInfo[] roleInfo, OpenejbEjbRelationshipRoleType role) throws DeploymentException {
-        String roleName = role.getEjbRelationshipRoleName();
+        String ejbName = role.getRelationshipRoleSource().getEjbName();
+        String cmrFieldName = null;
+        if ( role.isSetCmrField() ) {
+            cmrFieldName = role.getCmrField().getCmrFieldName();
+        }
+        RoleInfo sourceRoleInfo = new RoleInfo(ejbName, cmrFieldName);
         RoleInfo[] mappedRoleInfo = new RoleInfo[2];
-        if (roleInfo[0].name.equals(roleName)) {
+        if (roleInfo[0].equals(sourceRoleInfo)) {
             mappedRoleInfo = roleInfo;
-        } else if (roleInfo[1].name.equals(roleName)) {
+        } else {
             mappedRoleInfo[0] = roleInfo[1];
             mappedRoleInfo[1] = roleInfo[0];
-        } else {
-            throw new DeploymentException("Role [" + roleName + "] defined by OpenEJB DD is not defined by ejb-jar.xml.");
+        }
+
+        if ( role.isSetForeignKeyColumnOnSource() ) {
+            RoleInfo tmp = mappedRoleInfo[0];
+            mappedRoleInfo[0] = mappedRoleInfo[1];
+            mappedRoleInfo[1] = tmp;
         }
 
         Map pkToFkMap = new HashMap();
@@ -419,7 +442,7 @@ class CMPEntityBuilder extends EntityBuilder {
             String pkColumn = att.getPhysicalName();
             String fkColumn = (String) pkToFkMap.get(pkColumn);
             if (null == fkColumn) {
-                throw new DeploymentException("Role [" + roleName + "] is misconfigured: column [" + pkColumn + "] is not a primary key.");
+                throw new DeploymentException("Role " + sourceRoleInfo + " is misconfigured: column [" + pkColumn + "] is not a primary key.");
             }
             pkToFkMapEJB.put(pkEJB.getAttribute(att.getName()), new FKField(fkColumn, att.getType()));
             pkToFkMapTable.put(att, new FKColumn(fkColumn, att.getType()));
@@ -663,13 +686,35 @@ class CMPEntityBuilder extends EntityBuilder {
     }
     
     private static class RoleInfo {
-        private String name;
-        private Table table;
+        private final String entityName;
+        private final String cmrFieldName;
         private EJB ejb;
-        private String cmrFieldName;
+        private Table table;
         private boolean isOne;
         private JoinDefinition ejbJDef;
         private JoinDefinition tableJDef;
+        private RoleInfo(String entityName, String cmrFieldName) {
+            this.entityName = entityName;
+            this.cmrFieldName = cmrFieldName;
+        }
+        public int hashCode() {
+            if ( null == cmrFieldName ) {
+                return entityName.hashCode();
+            } else {
+                return entityName.hashCode() ^ cmrFieldName.hashCode();
+            }
+        }
+        public boolean equals(Object obj) {
+            if ( false == obj instanceof RoleInfo ) {
+                return false;
+            }
+            RoleInfo other = (RoleInfo) obj;
+            return entityName.equals(other.entityName) &&
+                    null == cmrFieldName?null == other.cmrFieldName:cmrFieldName.equals(other.cmrFieldName);
+        }
+        public String toString() {
+            return "EJB [" + entityName + "]; CMR field [" + cmrFieldName + "]";
+        }
     }
 
     private static String getString(org.apache.geronimo.xbeans.j2ee.String value) {
