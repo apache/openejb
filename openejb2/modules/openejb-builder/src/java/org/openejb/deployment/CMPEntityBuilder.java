@@ -558,8 +558,7 @@ class CMPEntityBuilder extends EntityBuilder {
                 ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
                 getString(entityBean.getEjbName()),
                 entityBean.getSecurityIdentity(),
-                entityBean.getSecurityRoleRefArray(),
-                getModuleBuilder().getSecurityService());
+                entityBean.getSecurityRoleRefArray());
 
         processEnvironmentRefs(builder, earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
 

@@ -137,10 +137,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         this.mdbBuilder = new MdbBuilder(this);
     }
 
-    public SecurityService getSecurityService() {
-        return securityService;
-    }
-
     public ContainerSecurityBuilder getSecurityBuilder() {
         return containerSecurityBuilder;
     }
@@ -437,7 +433,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             transactionPolicyHelper = new TransactionPolicyHelper();
         }
 
+        /**
+         * Build the security configuration.  Attempt to auto generate role mappings.
+         */
         Security security = SecurityBuilder.buildSecurityConfig(openejbEjbJar.getSecurity(), collectRoleNames(ejbJar));
+        if (security != null) security.autoGenerate(securityService);
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 

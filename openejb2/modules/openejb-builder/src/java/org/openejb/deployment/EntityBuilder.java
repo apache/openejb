@@ -134,8 +134,7 @@ class EntityBuilder extends BeanBuilder {
                 ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
                 entityBean.getEjbName().getStringValue(),
                 entityBean.getSecurityIdentity(),
-                entityBean.getSecurityRoleRefArray(),
-                getModuleBuilder().getSecurityService());
+                entityBean.getSecurityRoleRefArray());
 
         processEnvironmentRefs(builder, earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
 

@@ -177,8 +177,7 @@ class MdbBuilder extends BeanBuilder {
                 ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
                 messageDrivenBean.getEjbName().getStringValue(),
                 messageDrivenBean.getSecurityIdentity(),
-                null,
-                getModuleBuilder().getSecurityService());
+                null);
 
         UserTransactionImpl userTransaction;
         //TODO this is probably wrong???
