@@ -97,6 +97,13 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
+        <dependency>
+            <groupId>maven-itest-plugin</groupId>
+            <artifactId>maven-itest-plugin</artifactId>
+            <version>&maven-itest-plugin-version;</version>
+            <type>plugin</type>
+        </dependency>
+
         <!-- Thirdparty -->
 
         <dependency>
