@@ -70,4 +70,6 @@ public interface InterceptorBuilder extends Serializable {
     void setInstanceFactory(InstanceFactory instanceFactory);
 
     Interceptor buildInterceptorChain();
+
+    void setApplicationManagedSecurityResources(Set applicationManagedSecurityResources);
 }

@@ -61,6 +61,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -541,6 +543,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
 
         if (openejbSessionBean != null) {
+            setResourceEnvironment(builder, sessionBean.getResourceRefArray(), openejbSessionBean.getResourceRefArray());
             builder.setJndiNames(openejbSessionBean.getJndiNameArray());
             builder.setLocalJndiNames(openejbSessionBean.getLocalJndiNameArray());
         } else {
@@ -582,6 +585,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
 
         if (openejbEntityBean != null) {
+            setResourceEnvironment(builder, entityBean.getResourceRefArray(), openejbEntityBean.getResourceRefArray());
             builder.setJndiNames(openejbEntityBean.getJndiNameArray());
             builder.setLocalJndiNames(openejbEntityBean.getLocalJndiNameArray());
         } else {
@@ -623,6 +627,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
 
         if (openejbEntityBean != null) {
+            setResourceEnvironment(builder, entityBean.getResourceRefArray(), openejbEntityBean.getResourceRefArray());
             builder.setJndiNames(openejbEntityBean.getJndiNameArray());
             builder.setLocalJndiNames(openejbEntityBean.getLocalJndiNameArray());
         } else {
@@ -865,6 +870,27 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         ENCConfigBuilder.addResourceRefs(resourceRefs, cl, resourceRefMap, builder);
     }
 
+    private void setResourceEnvironment(ContainerBuilder builder, ResourceRefType[] resourceRefArray, OpenejbLocalRefType[] openejbResourceRefArray) {
+        Map openejbNames = new HashMap();
+        for (int i = 0; i < openejbResourceRefArray.length; i++) {
+            OpenejbLocalRefType openejbLocalRefType = openejbResourceRefArray[i];
+            openejbNames.put(openejbLocalRefType.getRefName(), openejbLocalRefType.getTargetName());
+        }
+        Set unshareableResources = new HashSet();
+        Set applicationManagedSecurityResources = new HashSet();
+        for (int i = 0; i < resourceRefArray.length; i++) {
+            ResourceRefType resourceRefType = resourceRefArray[i];
+            String name = (String)openejbNames.get(resourceRefType.getResRefName().getStringValue());
+            if ("Unshareable".equals(resourceRefType.getResSharingScope().getStringValue())) {
+                unshareableResources.add(name);
+            }
+            if ("Application".equals(resourceRefType.getResAuth().getStringValue())) {
+                applicationManagedSecurityResources.add(name);
+            }
+        }
+        builder.setUnshareableResources(unshareableResources);
+        builder.setApplicationManagedSecurityResources(applicationManagedSecurityResources);
+    }
 
     private URI getDependencyURI(OpenejbDependencyType dep) throws DeploymentException {
         URI uri;
