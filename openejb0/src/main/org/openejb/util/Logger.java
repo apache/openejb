@@ -44,10 +44,18 @@
  */
 package org.openejb.util;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.Category;
 import org.apache.log4j.Level;
 import java.lang.Throwable;
 import java.util.HashMap;
+import java.net.URL;
+import java.util.Properties;
+import java.io.InputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import org.openejb.OpenEJBException;
 
 
 /**
@@ -66,11 +74,10 @@ import java.util.HashMap;
 public class Logger {
 
     static {
-	// Set log4j's configuration (Note the URL's form)
-	// It assumes that the OpenEJB URL handler has already been registered
-	if( System.getProperty( "log4j.configuration" ) == null ) {
-	    System.setProperty( "log4j.configuration", "resource:/default.logging.conf" );
-	}
+        Log4jConfigUtils log4j = new Logger.Log4jConfigUtils();
+
+        log4j.configure();
+
     }
 
     static protected HashMap _loggers = new HashMap();
@@ -1587,5 +1594,151 @@ public class Logger {
 	public void debug( String code, Throwable t, Object[] args ) {
 	    _logger.debug( _messages.format( code, args ), t );
 	}
+    }
+
+    static class Log4jConfigUtils {
+
+        public void configure(){
+            String config = System.getProperty( "log4j.configuration" );
+            try{
+                // resolve the config file location
+                config = searchForConfiguration(config);
+
+                // load the config
+                Properties props = loadProperties(config);
+
+                // filter the config
+                props = filterProperties(props);
+
+                PropertyConfigurator.configure(props);
+            } catch (Exception e){
+                System.err.println("Failed to configure log4j. "+e.getMessage());
+            }
+        }
+
+        public Properties loadProperties(String file) throws Exception{
+            Properties props = new Properties();
+            FileInputStream fin = null;
+
+            try{
+                fin = new FileInputStream(file);
+                props.load(fin);
+            } finally {
+                if (fin != null) fin.close();
+            }
+            return props;
+        }
+
+        public Properties filterProperties(Properties props) throws Exception{
+            Object[] names = props.keySet().toArray();
+            for (int i=0; i < names.length; i++){
+                String name = (String)names[i];
+                if (name.endsWith(".File")) {
+                    String path = props.getProperty(name);
+                    path = FileUtils.getBase().getFile(path,false).getPath();
+                    props.setProperty(name, path);
+                }
+            }
+            return props;
+        }
+        /**
+         * Search for the config file.
+         * 
+         * OPENJB_HOME/conf/logging.conf
+         * OPENJB_HOME/conf/default.logging.conf
+         * 
+         * @return 
+         */
+        public String searchForConfiguration() throws Exception{
+            return searchForConfiguration(null);
+        }
+
+        public String searchForConfiguration(String path) throws Exception{
+            File file = null;
+            try{
+
+                /* [1] Try finding the file relative to the 
+                 *     current working directory
+                 */
+                try{
+                    file = new File(path);
+                    if (file != null && file.exists() && file.isFile()) {
+                        return file.getAbsolutePath();
+                    }
+                } catch (NullPointerException e){
+                }
+
+                /* [2] Try finding the file relative to the 
+                 *     openejb.home directory
+                 */
+                try{
+                    file = FileUtils.getBase().getFile(path);
+                    if (file != null && file.exists() && file.isFile()) {
+                        return file.getAbsolutePath();
+                    }
+                } catch (NullPointerException e){
+                } catch (java.io.FileNotFoundException e){
+                    System.err.println("Cannot find the logging configuration file ["+path+"], Using default OPENEJB_HOME/conf/logging.conf instead.");
+                }
+
+                /* [3] Try finding the standard logging.conf file 
+                 *     relative to the openejb.home directory
+                 */
+                try{
+                    file = FileUtils.getBase().getFile("conf/logging.conf");
+                    if (file != null && file.exists() && file.isFile()) {
+                        return file.getAbsolutePath();
+                    }
+                } catch (java.io.FileNotFoundException e){
+                }
+
+                /* [4] No config found! Create a config for them
+                 *     using the default.logging.conf file from 
+                 *     the openejb-x.x.x.jar
+                 */
+                //Gets the conf directory, creating it if needed.
+                File confDir = FileUtils.getBase().getDirectory("conf");
+
+                //TODO:1: We cannot find the user's conf file and
+                // are taking the liberty of creating one for them.
+                // We should log this.                   
+                file = createConfig(new File(confDir, "logging.conf"));
+
+            } catch (java.io.IOException e){
+                //e.printStackTrace();
+                throw new OpenEJBException("Could not locate config file: ", e);
+            }
+
+            /*TODO:2: Check these too.
+            * OPENJB_HOME/lib/openejb-x.x.x.jar
+            * OPENJB_HOME/dist/openejb-x.x.x.jar
+            */
+            //return (file == null)? null: file.getAbsoluteFile().toURL().toExternalForm();
+            return (file == null)? null: file.getAbsolutePath();
+        }
+
+        public File createConfig(File config) throws java.io.IOException{
+            try{
+                URL defaultConfig = new URL("resource:/default.logging.conf");
+                InputStream in = defaultConfig.openStream();
+                FileOutputStream out = new FileOutputStream(config);
+
+                int b = in.read();
+
+                while (b != -1) {
+                    out.write(b);
+                    b = in.read();
+                }
+
+                in.close();
+                out.close();
+
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+
+            return config;
+        }
+
     }
 }

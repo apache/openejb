@@ -72,7 +72,7 @@ public class SimplePassivater implements PassivationStrategy {
 
         try{
             if(dir!=null) {
-            sessionDirectory = FileUtils.getDirectory(dir);
+            sessionDirectory = FileUtils.getBase().getDirectory(dir);
             }else {
                 sessionDirectory = FileUtils.createTempDirectory();
             }

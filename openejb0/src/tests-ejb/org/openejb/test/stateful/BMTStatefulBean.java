@@ -166,6 +166,7 @@ public class BMTStatefulBean implements javax.ejb.SessionBean {
      * after the instance creation.
      */
     public void setSessionContext(SessionContext ctx) throws EJBException,RemoteException {
+        ejbContext = ctx;
         testAllowedOperations("setSessionContext");
     }
     /**

@@ -44,30 +44,30 @@
  */
 package org.openejb.alt.config;
 
-import org.openejb.alt.config.sys.Openejb;
-import org.openejb.alt.config.sys.Container;
-import org.openejb.alt.config.sys.Connector;
+import java.io.DataInputStream;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.List;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import org.openejb.OpenEJBException;
 import org.openejb.alt.config.ejb11.EjbDeployment;
 import org.openejb.alt.config.ejb11.EjbJar;
+import org.openejb.alt.config.ejb11.MethodParams;
 import org.openejb.alt.config.ejb11.OpenejbJar;
+import org.openejb.alt.config.ejb11.QueryMethod;
 import org.openejb.alt.config.ejb11.ResourceLink;
 import org.openejb.alt.config.ejb11.ResourceRef;
-import org.openejb.OpenEJBException;
-import org.openejb.util.Messages;
-import org.openejb.util.FileUtils;
+import org.openejb.alt.config.sys.Connector;
+import org.openejb.alt.config.sys.Container;
+import org.openejb.alt.config.sys.Openejb;
 import org.openejb.util.JarUtils;
-import java.util.Vector;
-import java.util.Properties;
-import java.io.PrintStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.net.URL;
-
+import org.openejb.util.Messages;
+import org.openejb.util.SafeToolkit;
 
 /**
  * This class represents a command line tool for deploying beans.
@@ -276,7 +276,8 @@ public class Deploy {
             System.out.println();
             System.out.println("Jar not deployable." );
             System.out.println();
-            System.out.println("Use the validator for more details" );
+            System.out.println("Use the validator with -vvv option for more details." );
+            System.out.println("See http://openejb.sf.net/validate.html for usage." );
             return;
         }
         EjbJar jar = set.getEjbJar();
@@ -288,7 +289,7 @@ public class Deploy {
         listBeanNames(beans);
 
         for ( int i=0; i < beans.length; i++ ) {
-            openejbJar.addEjbDeployment(deployBean(beans[i]));
+            openejbJar.addEjbDeployment(deployBean(beans[i], jarLocation));
         }
         
         if (MOVE_JAR) {
@@ -309,8 +310,10 @@ public class Deploy {
 
     }
 
-    private EjbDeployment deployBean(Bean bean) throws OpenEJBException{
+    private EjbDeployment deployBean(Bean bean, String jarLocation)
+    throws OpenEJBException {
         EjbDeployment deployment = new EjbDeployment();
+        Class tempBean = SafeToolkit.loadTempClass(bean.getHome(), jarLocation);
 
         out.println("\n-----------------------------------------------------------");
         out.println("Deploying bean: "+bean.getEjbName());
@@ -350,7 +353,124 @@ public class Deploy {
             }
         }
 
+        //check for OQL statement
+        if (bean.getType().equals("CMP_ENTITY")) {
+            promptForOQLForEntityBeans(tempBean, deployment);
+        }
+
         return deployment;
+    }
+
+    private void promptForOQLForEntityBeans(
+                                           Class bean,
+                                           EjbDeployment deployment)
+    throws OpenEJBException {
+        org.openejb.alt.config.ejb11.Query query;
+        QueryMethod queryMethod;
+        MethodParams methodParams;
+        boolean instructionsPrinted = false;
+
+        Method[] methods = bean.getMethods();
+        Class[] parameterList;
+        Class[] exceptionList;
+        String answer = null;
+        String parameters;
+
+        StringTokenizer parameterTokens;
+
+        for (int i = 0; i < methods.length; i++) {
+            if (methods[i].getName().startsWith("find")
+                && !methods[i].getName().equals("findByPrimaryKey")) {
+
+                if (!instructionsPrinted) {
+                    out.println("\n==--- Step 4 ---==");
+                    out.println(
+                        "\nThis part of the application allows you to add OQL (Object\n"
+                        + "Query Language) statements to your CMP Entity find methods.\n"
+                        + "Below is a list of find methods, each of which should get an \n"
+                        + "OQL statement.\n"
+                        + "\n"
+                        + "OQL statements are very similar to SQL statments with the \n"
+                        + "exception that they reference class names rather than table\n"
+                        + "names.  Find method parameters can be referenced in OQL \n"
+                        + "statements as $1, $2, $3, and so on.  \n"
+                        + "\n"
+                        + "If you had a find method in your home interface like this one:\n"
+                        + "\n"
+                        + "  public Employee findByLastName( String lName )\n"
+                        + "\n"
+                        + "Then you could use an OQL method like the following:\n"
+                        + "\n"
+                        + "  SELECT o FROM org.acme.employee.EmployeeBean o WHERE o.lastname = $1\n"
+                        + "\n"
+                        + "In this example, the $1 is referring to the first parameter, \n"
+                        + "which is the String lName.\n"
+                        + "\n"
+                        + "For more information on OQL see:\n"
+                        + "http://openejb.sourceforge.net/cmp_guide.html\n"
+                        );
+
+                    instructionsPrinted = true;
+                }
+                
+                // Print the method ...
+                out.print("Method: ");
+                parameterList = methods[i].getParameterTypes();
+
+                // and it's parameters
+                out.print(methods[i].getName() + "(");
+                for (int j = 0; j < parameterList.length; j++) {
+                    out.print(parsePartialClassName(parameterList[j].getName()));
+                    if (j != (parameterList.length - 1)) {
+                        out.print(", ");
+                    }
+                }
+                out.println(") ");
+
+                try {
+                    boolean replied = false;
+
+                    while (!replied) {
+                        out.println("Please enter your OQL Statement here.");
+                        out.print("\nOQL Statement: ");
+                        answer = in.readLine();
+                        if (answer.length() > 0) {
+                            replied = true;
+                        }
+                    }
+
+                } catch (Exception e) {
+                    throw new OpenEJBException(e.getMessage());
+                }
+
+                //create a new query and add it to the deployment
+                if (answer != null && !answer.equals("")) {
+                    query = new org.openejb.alt.config.ejb11.Query();
+                    methodParams = new MethodParams();
+                    queryMethod = new QueryMethod();
+
+                    //loop through the list of parameters
+                    for (int j=0; j < parameterList.length; j++){
+                        methodParams.addMethodParam(parameterList[j].getName());
+                    }
+
+                    queryMethod.setMethodParams(methodParams);
+                    queryMethod.setMethodName(methods[i].getName());
+                    query.setQueryMethod(queryMethod);
+                    query.setObjectQl(answer);
+
+                    deployment.addQuery(query);
+
+                    out.println(
+                               "\nYour OQL statement was successfully added to the jar.\n");
+                }
+            }
+        }
+    }
+
+    private String parsePartialClassName(String className) {
+        if ( className.indexOf('.') < 1 ) return className;
+        return className.substring( className.lastIndexOf('.')+1 );
     }
 
 

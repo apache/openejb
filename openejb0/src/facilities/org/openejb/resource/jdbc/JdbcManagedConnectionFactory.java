@@ -51,11 +51,13 @@ import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ResourceAdapterInternalException;
 import javax.resource.ResourceException;
-
+import org.openejb.util.Logger;
 
 public class JdbcManagedConnectionFactory 
 implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
     
+    protected Logger logger = Logger.getInstance("OpenEJB.connector", "org.openejb.alt.util.resources");
+
     protected String jdbcDriver;
     protected String jdbcUrl;
     protected String defaultUserName;
@@ -68,6 +70,31 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
         setDefaultPassword(props.getProperty("Password"));   
         setJdbcUrl(props.getProperty("JdbcUrl"));   
         setJdbcDriver(props.getProperty("JdbcDriver"));   
+
+        String userDir = System.getProperty("user.dir");
+        try{
+            System.setProperty("user.dir",System.getProperty("openejb.base"));
+            // Test the connection out, problems are logged
+            testDriver();
+        } finally {
+            System.setProperty("user.dir",userDir);
+        }
+    }
+
+    protected void testDriver() {
+        java.sql.Connection physicalConn = null;
+        try{
+            physicalConn = DriverManager.getConnection(jdbcUrl, defaultUserName, defaultPassword);        
+        }catch(Throwable e){
+            logger.error("Testing driver failed.  "+
+                         "["+jdbcUrl+"]  "+
+                         "Could not obtain a physical JDBC connection from the DriverManager.  "+
+                         e.getMessage());
+        } finally {
+            try{
+                physicalConn.close();
+            } catch (Exception dontCare){}
+        }
     }
    
     public void setDefaultUserName(String dun){
@@ -119,12 +146,16 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
     public ManagedConnection createManagedConnection(javax.security.auth.Subject subject,ConnectionRequestInfo cxRequestInfo)  throws javax.resource.ResourceException{
         JdbcConnectionRequestInfo rxInfo = (JdbcConnectionRequestInfo)cxRequestInfo;
         java.sql.Connection physicalConn;
+        String userDir = System.getProperty("user.dir");
         try{
+            System.setProperty("user.dir",System.getProperty("openejb.home"));
             physicalConn = DriverManager.getConnection(jdbcUrl, rxInfo.getUserName(), rxInfo.getPassword());        
         }catch(java.sql.SQLException sqlE){
             EISSystemException eisse =  new EISSystemException("Could not obtain a physical JDBC connection from the DriverManager");
             eisse.setLinkedException(sqlE);
             throw eisse;
+        } finally {
+            System.setProperty("user.dir",userDir);
         }
         return new JdbcManagedConnection(this, physicalConn, rxInfo);
     } 

@@ -49,7 +49,7 @@ import javax.naming.InitialContext;
 import javax.naming.Context;
 import javax.servlet.*;
 import javax.servlet.http.*;
-
+import java.io.File;
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
@@ -71,6 +71,8 @@ public class LoaderServlet extends HttpServlet {
             System.setProperty("openejb.home",home);
             p.put("openejb.home",home);
         }
+
+        checkOpenEjbHome();
         if (conf != null) {
             System.setProperty("openejb.configuration",conf);
             p.put("openejb.configuration",conf);
@@ -84,6 +86,61 @@ public class LoaderServlet extends HttpServlet {
         } catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    String NO_HOME = "The openejb.home is not set.";
+    String BAD_HOME = "Invalid openejb.home: ";
+    String NOT_THERE = "The path specified does not exist.";
+    String NOT_DIRECTORY = "The path specified is not a directory.";
+    String NO_DIST = "The path specified is not correct, it does not contain a 'dist' directory.";
+    String NO_LIBS = "The path specified is not correct, it does not contain any OpenEJB libraries.";
+    String INSTRUCTIONS = "Please edit the web.xml of the openejb_loader webapp and set the openejb.home init-param to the full path where OpenEJB is installed.";
+
+    private void checkOpenEjbHome() throws ServletException{
+        try{
+
+            // The openejb.home must be set
+            String homePath = System.getProperty("openejb.home");
+            if (homePath == null) handleError(NO_HOME, INSTRUCTIONS);
+
+            // The openejb.home must exist
+            File openejbHome = new File(homePath);
+            if (!openejbHome.exists()) handleError(BAD_HOME+homePath, NOT_THERE, INSTRUCTIONS);
+            
+            // The openejb.home must be a directory
+            if (!openejbHome.isDirectory()) handleError(BAD_HOME+homePath, NOT_DIRECTORY, INSTRUCTIONS);
+
+            // The openejb.home must contain a 'dist' directory
+            File openejbHomeDist = new File(openejbHome, "dist");
+            if ( !openejbHomeDist.exists() ) handleError(BAD_HOME+homePath, NO_DIST, INSTRUCTIONS);
+
+            // The openejb.home there must be openejb*.jar files in the 'dist' directory
+            String[] libs = openejbHomeDist.list();
+            boolean found = false;
+            for (int i=0; i < libs.length && !found; i++){
+                found = (libs[i].startsWith("openejb-") && libs[i].endsWith(".jar"));
+            }
+            if ( !found ) handleError(BAD_HOME+homePath, NO_LIBS, INSTRUCTIONS);
+        
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void handleError(String m1, String m2, String m3) throws ServletException{
+        System.err.println("--[PLEASE FIX]-------------------------------------");
+        System.err.println(m1);
+        System.err.println(m2);
+        System.err.println(m3);
+        System.err.println("---------------------------------------------------");
+        throw new ServletException(m1+" "+m2+" "+m3);
+    }
+    private void handleError(String m1, String m2) throws ServletException{
+        System.err.println("--[PLEASE FIX]-------------------------------------");
+        System.err.println(m1);
+        System.err.println(m2);
+        System.err.println("---------------------------------------------------");
+        throw new ServletException(m1+" "+m2);
     }
 }
 
