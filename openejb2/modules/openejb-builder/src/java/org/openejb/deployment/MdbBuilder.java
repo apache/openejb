@@ -57,13 +57,12 @@ import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.security.deploy.Security;
@@ -123,10 +122,10 @@ class MdbBuilder extends BeanBuilder {
                     messageDrivenBean.isSetActivationConfig() ? messageDrivenBean.getActivationConfig().getActivationConfigPropertyArray() : new ActivationConfigPropertyType[]{},
                     openejbMessageDrivenBean.getResourceAdapter(),
                     messageDrivenBean.getMessagingType().getStringValue().trim(),
-                    containerId,
-                    cl);
-            GBeanMBean messageDrivenGBean = createBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, security, cl);
-            earContext.addGBean(messageDrivenObjectName, messageDrivenGBean);
+                    containerId);
+            GBeanData messageDrivenGBean = createBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, security, cl);
+            messageDrivenGBean.setName(messageDrivenObjectName);
+            earContext.addGBean(messageDrivenGBean);
         }
     }
 
@@ -145,7 +144,7 @@ class MdbBuilder extends BeanBuilder {
         }
     }
 
-    private GBeanMBean createBean(EARContext earContext,
+    private GBeanData createBean(EARContext earContext,
                                   EJBModule ejbModule,
                                   String containerId,
                                   MessageDrivenBeanType messageDrivenBean,
@@ -195,7 +194,7 @@ class MdbBuilder extends BeanBuilder {
         processEnvironmentRefs(builder, earContext, ejbModule, messageDrivenBean, openejbMessageDrivenBean, userTransaction, cl);
 
         try {
-            GBeanMBean gbean = builder.createConfiguration();
+            GBeanData gbean = builder.createConfiguration();
             gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
             gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
             gbean.setReferencePattern("ActivationSpecWrapper", activationSpecWrapperName);
@@ -206,15 +205,14 @@ class MdbBuilder extends BeanBuilder {
     }
 
     private void addActivationSpecWrapperGBean(EARContext earContext,
-                                               J2eeContext moduleJ2eeContext,
-                                               URI uri,
-                                               ObjectName activationSpecName,
-                                               OpenejbActivationConfigPropertyType[] openejbActivationConfigProperties,
-                                               ActivationConfigPropertyType[] activationConfigProperties,
-                                               GerResourceLocatorType resourceAdapter,
-                                               String messageListenerInterfaceName,
-                                               String containerId,
-                                               ClassLoader cl) throws DeploymentException {
+            J2eeContext moduleJ2eeContext,
+            URI uri,
+            ObjectName activationSpecName,
+            OpenejbActivationConfigPropertyType[] openejbActivationConfigProperties,
+            ActivationConfigPropertyType[] activationConfigProperties,
+            GerResourceLocatorType resourceAdapter,
+            String messageListenerInterfaceName,
+            String containerId) throws DeploymentException {
         RefContext refContext = earContext.getRefContext();
         ObjectName resourceAdapterObjectName = getResourceAdapterId(uri, resourceAdapter, refContext, moduleJ2eeContext);
         J2eeContext resourceAdapterJ2eeContext = new J2eeContextImpl(resourceAdapterObjectName, NameFactory.JCA_RESOURCE);
@@ -224,7 +222,7 @@ class MdbBuilder extends BeanBuilder {
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Could not construct resource module name", e);
         }
-        GBeanData activationSpecInfo = (GBeanData) refContext.getActivationSpecInfo(resourceModuleObjectName, messageListenerInterfaceName);
+        GBeanData activationSpecInfo = refContext.getActivationSpecInfo(resourceModuleObjectName, messageListenerInterfaceName);
 
         if (activationSpecInfo == null) {
             throw new DeploymentException("no activation spec found for resource adapter: " + resourceAdapterObjectName + " and message listener type: " + messageListenerInterfaceName);
@@ -257,7 +255,7 @@ class MdbBuilder extends BeanBuilder {
             }
         }
             activationSpecInfo.setName(activationSpecName);
-            earContext.addGBean(activationSpecInfo, cl);
+            earContext.addGBean(activationSpecInfo);
     }
 
     private static ObjectName getResourceAdapterId(URI uri, GerResourceLocatorType resourceLocator, RefContext refContext, J2eeContext j2eeContext) throws DeploymentException {
