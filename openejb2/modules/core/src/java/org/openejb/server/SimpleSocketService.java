@@ -127,15 +127,15 @@ public class SimpleSocketService implements SocketService, GBean {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(SimpleSocketService.class);
 
-        infoFactory.setConstructor(
-                new String[]{"ServiceClassName", "OnlyFrom", "ContainerIndex"},
-                new Class[]{String.class, InetAddress[].class, ContainerIndex.class});
+        infoFactory.addAttribute("ServiceClassName", String.class, true);
+        infoFactory.addAttribute("OnlyFrom", InetAddress[].class, true);
+        infoFactory.addAttribute("Name", String.class, false);
 
-        infoFactory.addAttribute("ServiceClassName", true);
-        infoFactory.addAttribute("OnlyFrom", true);
-        infoFactory.addAttribute("Name", false);
         infoFactory.addReference("ContainerIndex", ContainerIndex.class);
+
         infoFactory.addInterface(SocketService.class);
+
+        infoFactory.setConstructor(new String[]{"ServiceClassName", "OnlyFrom", "ContainerIndex"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

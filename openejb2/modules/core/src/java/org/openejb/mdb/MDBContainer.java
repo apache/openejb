@@ -258,17 +258,19 @@ public class MDBContainer implements MessageEndpointFactory, GBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(MDBContainer.class.getName());
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(MDBContainer.class);
 
-        infoFactory.setConstructor(new GConstructorInfo(
-                new String[]{"EJBContainerConfiguration", "TransactionManager", "TrackedConnectionAssociator", "ActivationSpec"},
-                new Class[]{EJBContainerConfiguration.class, TransactionManager.class, TrackedConnectionAssociator.class, ActivationSpec.class}));
+        infoFactory.addAttribute("ActivationSpec", ActivationSpec.class, true);
+        infoFactory.addAttribute("EJBContainerConfiguration", EJBContainerConfiguration.class, true);
 
-        infoFactory.addAttribute(new GAttributeInfo("ActivationSpec", true));
-        infoFactory.addAttribute(new GAttributeInfo("EJBContainerConfiguration", true));
+        infoFactory.addReference("TransactionManager", TransactionManager.class);
+        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
 
-        infoFactory.addReference(new GReferenceInfo("TransactionManager", TransactionManager.class.getName()));
-        infoFactory.addReference(new GReferenceInfo("TrackedConnectionAssociator", TrackedConnectionAssociator.class.getName()));
+        infoFactory.setConstructor(new String[]{
+            "EJBContainerConfiguration",
+            "TransactionManager",
+            "TrackedConnectionAssociator",
+            "ActivationSpec"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

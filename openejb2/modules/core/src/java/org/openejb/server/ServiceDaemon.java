@@ -180,15 +180,13 @@ public class ServiceDaemon implements GBean {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ServiceDaemon.class);
 
-        infoFactory.setConstructor(
-                new String[]{"SocketService", "InetAddress", "Port"},
-                new Class[]{SocketService.class, InetAddress.class, Integer.TYPE});
-
         infoFactory.addReference("SocketService", SocketService.class);
-        infoFactory.addAttribute("InetAddress", true);
-        infoFactory.addAttribute("Port", true);
+        infoFactory.addAttribute("InetAddress", InetAddress.class, true);
+        infoFactory.addAttribute("Port", int.class, true);
 
-        infoFactory.addAttribute("ServiceName", false);
+        infoFactory.addAttribute("ServiceName", String.class, false);
+
+        infoFactory.setConstructor(new String[]{"SocketService", "InetAddress", "Port"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

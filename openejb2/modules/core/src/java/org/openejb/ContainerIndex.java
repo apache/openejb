@@ -214,9 +214,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ContainerIndex.class);
 
-        infoFactory.setConstructor(
-                new String[]{ "EJBContainers" },
-                new Class[]{ Collection.class });
+        infoFactory.setConstructor(new String[]{"EJBContainers" });
 
         infoFactory.addOperation("getContainerIndex", new Class[]{Object.class});
         infoFactory.addOperation("getContainerIndex", new Class[]{String.class});
