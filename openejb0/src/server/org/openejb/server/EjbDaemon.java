@@ -189,7 +189,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                 System.out.println("This is most likely because you have another version of OpenEJB running");
                 System.out.println("somewhere on your machine.  To shut that version down, type:");
                 System.out.println("");
-                System.out.println("telnet "+ip+" "+(port-1));
+                System.out.println("telnet "+ip+" "+(port+1));  // how do we know the listen port of TelnetConsole?
                 System.out.println("");
                 System.out.println("and issue the command 'stop'.  If you do not get an OpenEJB prompt when");
                 System.out.println("you telnet, then another program has that address and port bound. "); 
@@ -226,7 +226,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             textConsole.init(props);
             textConsole.start();
 
-            System.out.println(serverIP +" "+(port+1));
+            System.out.println(serverIP +" "+ textConsole.getListenPort());
             
             /* Start the Text Admin Console *************/
             /*   admin console    127.0.0.1       4202  */
@@ -241,7 +241,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             admin.setDaemon(true);
             admin.start();
 
-            System.out.println(serverIP +" "+(port+2));
+            System.out.println(serverIP +" "+ httpd.getListenPort());
 
             serverIP = serverIP.trim();
 
@@ -249,12 +249,12 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             System.out.println("To administer the server via telnet,   ");
             System.out.println("start a telnet client and telnet to:"); 
             System.out.print(" telnet ");
-            System.out.println(serverIP+" "+(port+1));
+            System.out.println(serverIP+" "+textConsole.getListenPort());
             System.out.println("");
             System.out.println("To administer the server via http, open");
             System.out.println("a web browser to the following URL: "); 
             System.out.print(" http://");
-            System.out.println(serverIP+":"+(port+2));
+            System.out.println(serverIP+":"+httpd.getListenPort());
             System.out.println("---------------------------------------");
             System.out.println("Ready!");
 

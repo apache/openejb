@@ -108,6 +108,11 @@ public class TextConsole implements Runnable
         }
     }
 
+    public int getListenPort()
+    {
+        return this.getConsole().getListenPort();
+    }
+    
     Console console;
 
     private Console getConsole()
