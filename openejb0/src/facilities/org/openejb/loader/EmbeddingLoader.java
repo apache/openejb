@@ -105,23 +105,9 @@ public class EmbeddingLoader implements Loader {
             // Loads all the libraries in the openejb.home/dist directory
             org.openejb.util.ClasspathUtils.addJarsToPath("dist");
 
-            pushHandlerToSystemPath();            
         } catch (Exception e){
             throw new Exception( "Could not load OpenEJB libraries. Exception: "+
                                  e.getClass().getName()+" "+ e.getMessage());
-        }
-    }
-
-    private void pushHandlerToSystemPath() throws Exception{
-        File dir = org.openejb.util.FileUtils.getDirectory("dist"); 
-        String[] jarNames = dir.list(new java.io.FilenameFilter(){
-            public boolean accept(File dir, String n) {
-                return (n.startsWith("openejb") && n.indexOf("handler") != -1 );
-            }
-        });
-        if (jarNames.length == 1) {
-            File jar = new File(dir, jarNames[0]);
-            org.openejb.util.ClasspathUtils.addJarToPath(jar.toURL(), "system");
         }
     }
 }

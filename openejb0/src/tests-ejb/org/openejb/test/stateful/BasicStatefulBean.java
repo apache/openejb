@@ -109,7 +109,7 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
      * 
      */
     public void throwApplicationException() throws ApplicationException{
-        throw new ApplicationException("Don't Panic");
+        throw new ApplicationException("Testing ability to throw Application Exceptions");
     }
     
     /**
@@ -120,7 +120,7 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
      * 
      */
     public void throwSystemException_NullPointer() {
-        throw new NullPointerException("Panic");
+        throw new NullPointerException("Testing ability to throw System Exceptions");
     }
     
     /**

@@ -139,7 +139,7 @@ public class BasicCmpBean implements javax.ejb.EntityBean{
      * 
      */
     public void throwApplicationException() throws ApplicationException{
-        throw new ApplicationException("Don't Panic");
+        throw new ApplicationException("Testing ability to throw Application Exceptions");
     }
     
     /**
@@ -150,7 +150,7 @@ public class BasicCmpBean implements javax.ejb.EntityBean{
      * 
      */
     public void throwSystemException_NullPointer() {
-        throw new NullPointerException("Panic");
+        throw new NullPointerException("Testing ability to throw System Exceptions");
     }
     
     

@@ -93,7 +93,7 @@ public class ListLogsBean extends WebAdminBean {
      */
     public void writeBody(PrintWriter body) throws IOException {
         // Get the logs directory
-        File logsDir = FileUtils.getDirectory("logs");
+        File logsDir = FileUtils.getBase().getDirectory("logs");
 
         File[] openejbLogs = logsDir.listFiles(new FilenameFilter(){
             public boolean accept(File dir, String name) {

@@ -21,7 +21,7 @@ java.lang.reflect.Modifier
 <html>
 <head>
     <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>OpenEJB Tomcat Integration/1.0</title>
+    <title>OpenEJB Integration/1.0</title>
     <link href="default.css" rel="stylesheet">
     <!-- $Id$ -->
     <!-- Author: David Blevins (david.blevins@visi.com) -->
@@ -38,7 +38,7 @@ java.lang.reflect.Modifier
         <tr>
             <td bgcolor="#5A5CB8" align="left" valign="top" bgcolor="#ffffff" width="13"><img border="0" height="15" width="13" src="images/dotTrans.gif"></td>
             <td align="left" valign="top" width="40"><img border="0" height="1" width="1" src="images/dotTrans.gif"></td>
-            <td align="left" valign="middle" width="530"><a href="http://openejb.sourceforge.net"><span class="menuTopOff">OpenEJB</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://openjms.sourceforge.net"><span class="menuTopOff">OpenJMS</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://openorb.sourceforge.net"><span class="menuTopOff">OpenORB</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://castor.exolab.org"><span class="menuTopOff">Castor</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://tyrex.sourceforge.net"><span class="menuTopOff">Tyrex</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"></td>
+            <td align="left" valign="middle" width="530"><a href="http://openejb.sourceforge.net"><span class="menuTopOff">OpenEJB</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="index.html"><span class="menuTopOff">Index</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="viewjndi.jsp"><span class="menuTopOff">JNDI</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="viewejb.jsp"><span class="menuTopOff">EJB</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="viewclass.jsp"><span class="menuTopOff">Class</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="invokeobj.jsp"><span class="menuTopOff">Invoke</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"></td>
             <td align="left" valign="top" height="20" width="120"><img border="0" height="2" width="10" src="images/dotTrans.gif"></td>
         </tr>
         <tr>
@@ -360,25 +360,29 @@ java.lang.reflect.Modifier
             inv.result = inv.invoke();
 
             out.print("<b>Result:</b><br>");
-            String clazz = inv.result.getClass().getName();
-            String objID = getObjectID(inv.result);
-            setObject(objID,inv.result);
+            if (inv.method.getReturnType() == java.lang.Void.TYPE) {
+                out.print(tab+"Done");
+            } else if (inv.result == null) {
+                out.print(tab+"<i>null</i>");
+            } else {
+                String clazz = inv.result.getClass().getName();
+                String objID = getObjectID(inv.result);
+                setObject(objID,inv.result);
 
-            out.print("<table>");
-            printRow("<i>id</i>",objID);
-            printRow("<i>class</i>","<a href='viewclass.jsp?class="+clazz+"'>"+clazz+"</a>");
-            printRow("<i>toString</i>",formatObject(inv.result));
-            out.print("</table>");
-            
-            out.print("<br><br><b>Actions:</b><br>");
-            out.print("<table>");
-            String invokerURL = "<a href='invokeobj.jsp?obj="+objID+"'>Invoke a method on the object</a>";
-            printRow(pepperImg,invokerURL);
-            String discardURL = "<a href='invokeobj.jsp?remove="+objID+"'>Discard the object</a>";
-            printRow(pepperImg,discardURL);
-            out.print("</table>");
-            
+                out.print("<table>");
+                printRow("<i>id</i>",objID);
+                printRow("<i>class</i>","<a href='viewclass.jsp?class="+clazz+"'>"+clazz+"</a>");
+                printRow("<i>toString</i>",formatObject(inv.result));
+                out.print("</table>");
 
+                out.print("<br><br><b>Actions:</b><br>");
+                out.print("<table>");
+                String invokerURL = "<a href='invokeobj.jsp?obj="+objID+"'>Invoke a method on the object</a>";
+                printRow(pepperImg,invokerURL);
+                String discardURL = "<a href='invokeobj.jsp?remove="+objID+"'>Discard the object</a>";
+                printRow(pepperImg,discardURL);
+                out.print("</table>");
+            }
         } catch (InvocationTargetException e){
             out.print("<b>Exception:</b><br><br>");
             Throwable t = e.getTargetException();
@@ -390,7 +394,11 @@ java.lang.reflect.Modifier
                 out.print("<i>RemoteException message:</i><br>");
                 out.print(t.getMessage()+"<br><br>");
                 out.print("<i>Nested exception's stack trace:</i><br>");
-                out.print(formatThrowable(re.detail));
+                
+                while (t instanceof java.rmi.RemoteException) {
+                    t = ((java.rmi.RemoteException)t).detail;
+                }
+                out.print(formatThrowable(t));
             } else {
                 out.print("<br><br>"+formatThrowable(t));
             }

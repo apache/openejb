@@ -80,6 +80,7 @@ public class ServiceUtils {
     public static ServiceProvider getServiceProvider(Service service) throws OpenEJBException {
         return getServiceProvider(service.getProvider());
     }
+
     /**
      * 
      * org.openejb#Default JDBC Connector
@@ -165,6 +166,7 @@ public class ServiceUtils {
         }
         return obj;
     }
+
     public static void writeServicesJar(String xmlFile, ServicesJar servicesJarObject)
         throws OpenEJBException {
         /* TODO:  Just to be picky, the xml file created by
@@ -206,6 +208,7 @@ public class ServiceUtils {
             handleException("file.0020", xmlFile, e.getLocalizedMessage());
         }
     }
+
     public static Properties assemblePropertiesFor(
         String confItem,
         String itemId,
@@ -255,9 +258,11 @@ public class ServiceUtils {
         }
         return props;
     }
+
     public static Properties loadProperties(String pFile) throws OpenEJBException {
         return loadProperties(pFile, new Properties());
     }
+
     public static Properties loadProperties(String propertiesFile, Properties defaults)
         throws OpenEJBException {
         try {
@@ -273,6 +278,7 @@ public class ServiceUtils {
         }
         return defaults;
     }
+
     public static Properties loadProperties(InputStream in, Properties defaults)
         throws OpenEJBException {
         try {
@@ -300,20 +306,25 @@ public class ServiceUtils {
         throws OpenEJBException {
         throw new OpenEJBException(messages.format(errorCode, arg0, arg1, arg2, arg3));
     }
+
     public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2)
         throws OpenEJBException {
         throw new OpenEJBException(messages.format(errorCode, arg0, arg1, arg2));
     }
+
     public static void handleException(String errorCode, Object arg0, Object arg1)
         throws OpenEJBException {
         throw new OpenEJBException(messages.format(errorCode, arg0, arg1));
     }
+
     public static void handleException(String errorCode, Object arg0) throws OpenEJBException {
         throw new OpenEJBException(messages.format(errorCode, arg0));
     }
+
     public static void handleException(String errorCode) throws OpenEJBException {
         throw new OpenEJBException(messages.message(errorCode));
     }
+
     /*------------------------------------------------------*/
     /*  Methods for logging exceptions that are noteworthy  */
     /*  but not bad enough to stop the container system.    */
@@ -326,15 +337,19 @@ public class ServiceUtils {
         Object arg3) {
         _logger.i18n.warning(errorCode, arg0, arg1, arg2, arg3);
     }
+
     public static void logWarning(String errorCode, Object arg0, Object arg1, Object arg2) {
         _logger.i18n.warning(errorCode, arg0, arg1, arg2);
     }
+    
     public static void logWarning(String errorCode, Object arg0, Object arg1) {
         _logger.i18n.warning(errorCode, arg0, arg1);
     }
+
     public static void logWarning(String errorCode, Object arg0) {
         _logger.i18n.warning(errorCode, arg0);
     }
+
     public static void logWarning(String errorCode) {
         _logger.i18n.warning(errorCode);
     }

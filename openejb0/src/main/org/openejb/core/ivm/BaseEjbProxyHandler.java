@@ -274,6 +274,8 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
 	     cntextValid = true;
         }
 
+        String jndiEnc = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
+        System.setProperty(javax.naming.Context.URL_PKG_PREFIXES,"org.openejb.core.ivm.naming");
         // the four operations on IntraVmCopyMonitor are quite expensive, because
         // all of them require a Thread.currentThread() operation, which is native code
         try{
@@ -308,6 +310,7 @@ public abstract class BaseEjbProxyHandler implements InvocationHandler, Serializ
                 return _invoke(proxy,method,args);
             }
         } finally {
+            System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, jndiEnc);
             // restore the context
             if(cntextValid){
                 cntext.set(depInfo, prmryKey, scrtyIdentity);
