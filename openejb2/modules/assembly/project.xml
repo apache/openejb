@@ -230,7 +230,7 @@
                 <deploy>true</deploy>
                 <repository>true</repository>
             </properties>
-        </dependency>	
+        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -249,7 +249,7 @@
                 <repository>true</repository>
             </properties>
         </dependency>
-    
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-service-builder</artifactId>
@@ -735,9 +735,9 @@
         </dependency>
 
         <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis-wsdl4j</artifactId>
-            <version>${axis_wsdl4j_version}</version>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>${wsdl4j_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
