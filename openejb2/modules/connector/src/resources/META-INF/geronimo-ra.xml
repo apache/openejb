@@ -27,14 +27,12 @@
                     <config-property-setting name="JdbcDriver">org.axiondb.jdbc.AxionDriver</config-property-setting>
                     <config-property-setting name="JdbcUrl">jdbc:axiondb:DefaultDatabase</config-property-setting>
                     <connectionmanager>
-                        <!--realm-bridge>TargetRealm</realm-bridge-->
-                        <blockingTimeout>100</blockingTimeout>
-                        <maxSize>1</maxSize>
-                        <useTransactions>true</useTransactions>
-                        <useLocalTransactions>true</useLocalTransactions>
-                        <useTransactionCaching>true</useTransactionCaching>
-                        <useConnectionRequestInfo>false</useConnectionRequestInfo>
-                        <useSubject>false</useSubject>
+                        <local-transaction/>
+                        <single-pool>
+                            <max-size>1</max-size>
+                            <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                            <select-one-assume-match/>
+                        </single-pool>
                     </connectionmanager>
                 </connectiondefinition-instance>
 
