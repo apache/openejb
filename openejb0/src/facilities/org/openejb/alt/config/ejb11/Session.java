@@ -20,7 +20,7 @@ import org.exolab.castor.xml.Unmarshaller;
  * 
  * @version $Revision$ $Date$
 **/
-public class Session implements java.io.Serializable {
+public class Session implements java.io.Serializable, EnterpriseBean {
 
 
       //--------------------------/

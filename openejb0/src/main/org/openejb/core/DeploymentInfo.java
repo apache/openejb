@@ -51,23 +51,14 @@ import java.util.HashSet;
 
 import javax.ejb.EJBContext;
 import javax.ejb.EJBHome;
-import javax.ejb.SessionSynchronization;
 import javax.naming.Context;
 
-import org.openejb.Container;
-import org.openejb.RpcContainer;
-import org.openejb.alt.containers.castor_cmp11.CastorCMP11_EntityContainer;
-import org.openejb.alt.containers.castor_cmp11.CastorCmpEntityTxPolicy;
-import org.openejb.alt.containers.castor_cmp11.KeyGenerator;
+import org.openejb.*;
 import org.openejb.core.entity.EntityEjbHomeHandler;
 import org.openejb.core.ivm.BaseEjbProxyHandler;
 import org.openejb.core.ivm.EjbHomeProxyHandler;
 import org.openejb.core.ivm.SpecialProxyInfo;
-import org.openejb.core.stateful.SessionSynchronizationTxPolicy;
-import org.openejb.core.stateful.StatefulBeanManagedTxPolicy;
-import org.openejb.core.stateful.StatefulContainerManagedTxPolicy;
 import org.openejb.core.stateful.StatefulEjbHomeHandler;
-import org.openejb.core.stateless.StatelessBeanManagedTxPolicy;
 import org.openejb.core.stateless.StatelessEjbHomeHandler;
 import org.openejb.core.transaction.TransactionContainer;
 import org.openejb.core.transaction.TransactionPolicy;
@@ -81,12 +72,9 @@ import org.openejb.util.proxy.ProxyManager;
 
 /**
  * Contains all the information needed by the container for a particular 
- * deployment.  Some of this information is generic, but this class is 
- * largely becoming a dumping ground for information specific to individual
- * containers.  This class should be abstracted and subclassed in the individual
- * container packages.  The container should be required to provide its own DeploymentInfo
- * implementation, possibly returning it to the assembler and OpenEJB in general via a
- * new accessor method.
+ * deployment.  This information is either generic for all EJBs, or from
+ * the EJB deployment descriptors.  Individual containers may attach custom
+ * information to this object via the ContainerInfo property.
  * 
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
@@ -99,7 +87,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     private Class     remoteInterface;
     private Class     beanClass;
     private Class     pkClass;
-        
+    private Field     primKeyField;
     private boolean   isBeanManagedTransaction;
     private boolean   isReentrant;
     private Container container;
@@ -107,7 +95,8 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     private EJBHome   ejbHomeRef;
     
     private Context   jndiContextRoot;
-    
+    private String[]  cmpFields;
+
     
     /**
      * Stateless session beans only have one create method. The getCreateMethod is
@@ -131,11 +120,12 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     private HashMap methodTransactionAttributes  = new HashMap();
     private HashMap methodTransactionPolicies    = new HashMap();
     private HashMap methodMap                    = new HashMap();
-    /**
-     */
     private HashMap securityRoleReferenceMap     = new HashMap();
     private HashSet methodsWithRemoteReturnTypes = null;
-    
+    private HashMap queryMethodMap               = new HashMap();
+
+    private Object containerInfo;
+
     /**
      * Creates an empty DeploymentInfo instance.
      */
@@ -156,12 +146,10 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      *               the fully qualified class name of the bean's primary key class
      * @param componentType
      *               one of the component type constants defined in org.openejb.DeploymentInfo
-     * @exception ClassNotFoundException
-     *                   if the home, remote, bean class, or primary key definitions could not be found and loaded
      * @exception org.openejb.SystemException
-     * @see org.openejb.ContainerSystem
+     *                   if the home, remote, bean class, or primary key definitions could not be found and loaded
+     * @see org.openejb.spi.ContainerSystem
      * @see org.openejb.Container#getContainerID
-     * @see org.openejb.ContainerManager#getContainerManagerID
      * @see org.openejb.DeploymentInfo#STATEFUL
      * @see org.openejb.DeploymentInfo#STATELESS
      * @see org.openejb.DeploymentInfo#BMP_ENTITY
@@ -191,9 +179,8 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * @param componentType
      *                  one of the component type constants defined in org.openejb.DeploymentInfo
      * @exception org.openejb.SystemException
-     * @see org.openejb.ContainerSystem
+     * @see org.openejb.spi.ContainerSystem
      * @see org.openejb.Container#getContainerID
-     * @see org.openejb.ContainerManager#getContainerManagerID
      * @see org.openejb.DeploymentInfo#STATEFUL
      * @see org.openejb.DeploymentInfo#STATELESS
      * @see org.openejb.DeploymentInfo#BMP_ENTITY
@@ -221,12 +208,10 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * @param componentType
      *               one of the component type constants defined in org.openejb.DeploymentInfo
      * @param loader A ClassLoader to use to load the classes named here
-     * @exception ClassNotFoundException
-     *                   if the home, remote, bean class, or primary key definitions could not be found and loaded
      * @exception org.openejb.SystemException
-     * @see org.openejb.ContainerSystem
+     *                   if the home, remote, bean class, or primary key definitions could not be found and loaded
+     * @see org.openejb.spi.ContainerSystem
      * @see org.openejb.Container#getContainerID
-     * @see org.openejb.ContainerManager#getContainerManagerID
      * @see org.openejb.DeploymentInfo#STATEFUL
      * @see org.openejb.DeploymentInfo#STATELESS
      * @see org.openejb.DeploymentInfo#BMP_ENTITY
@@ -255,9 +240,8 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * @param componentType
      *               one of the component type constants defined in org.openejb.DeploymentInfo
      * @exception org.openejb.SystemException
-     * @see org.openejb.ContainerSystem
+     * @see org.openejb.spi.ContainerSystem
      * @see org.openejb.Container#getContainerID
-     * @see org.openejb.ContainerManager#getContainerManagerID
      * @see org.openejb.DeploymentInfo#STATEFUL
      * @see org.openejb.DeploymentInfo#STATELESS
      * @see org.openejb.DeploymentInfo#BMP_ENTITY
@@ -296,6 +280,22 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     //====================================
     // begin DeploymentInfo Implementation
     //
+
+    /**
+     * Sets extended container-specific information.  The container can use
+     * this to store additional settings beyond the defaults defined here
+     * which are common to all EJBs.
+     */
+    public void setContainerInfo(Object o) {
+        containerInfo = o;
+    }
+
+    /**
+     * Gets extended container-specific information.
+     */
+    public Object getContainerInfo() {
+        return containerInfo;
+    }
 
     /**
      * Gets the type of this bean component.
@@ -352,22 +352,9 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
         if(policy==null && !isBeanManagedTransaction) {
             org.apache.log4j.Logger.getLogger("OpenEJB").warn("The following method doesn't have a transaction policy assigned: "+method);
         }
+        // If there's no policy set, get the default policy from the container
         if ( policy == null && container instanceof TransactionContainer) {
-            if ( isBeanManagedTransaction ) {
-                if ( componentType == STATEFUL ) {
-                    policy = new StatefulBeanManagedTxPolicy((TransactionContainer) container );
-                } else if (componentType == STATELESS) {
-                    policy = new StatelessBeanManagedTxPolicy((TransactionContainer) container );
-                }
-            } else if ( componentType == STATEFUL ){
-                policy = new TxNotSupported((TransactionContainer) container );
-                policy = new StatefulContainerManagedTxPolicy( policy );
-            } else if ( componentType == CMP_ENTITY && container instanceof CastorCMP11_EntityContainer){
-                policy = new TxNotSupported((TransactionContainer) container );
-                policy = new CastorCmpEntityTxPolicy( policy );
-            } else {
-                policy = new TxNotSupported((TransactionContainer) container );
-            }
+            policy = ((TransactionContainer)container).getDefaultTransactionPolicy(this);
             methodTransactionPolicies.put( method, policy );
         }
         return policy;
@@ -408,8 +395,6 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * Gets the id of this bean deployment.
      *
      * @return the id of of this bean deployment
-     * @see ContainerManager#getContainerManagerID() ContainerManager.getContainerManagerID()
-     * @see Container#getContainerManagerID() Container.getContainerManagerID()
      */
     public Object getDeploymentID( ){
         return deploymentId;
@@ -474,6 +459,64 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
         return pkClass;
     }
 
+    /**
+     * Gets the Field of the CMP entity bean class which corresponds to the simple
+     * primary key.  Entity beans that have complex primary keys (keys with several
+     * fields) will not have a primkey-field.
+     * <P>
+     * Useful for Container-Managed Persistence (CMP) Entity beans with Simple
+     * Primary Keys.
+     * </P>
+     *
+     * @return the EntityBean field that corresponds to the simple primary key.
+     *         return null if the bean is not a CMP Entity bean with a simple Primary key
+     */
+    public Field getPrimaryKeyField() {
+        return primKeyField;
+    }
+
+    public void setPrimKeyField(String fieldName)
+            throws java.lang.NoSuchFieldException {
+        if(componentType == DeploymentInfo.CMP_ENTITY) {
+
+            primKeyField = beanClass.getField(fieldName);
+        }
+    }
+
+    /**
+     * This method maps a query method (ejbFind) to a query string.
+     * <P>
+     * Each query method, ejbFind or ejbSelect(EJB 2.0), can be mapped to
+     * query string which describes the behavior of the method. For example,
+     * with the Castor JDO CMP container for EJB 1.1, every ejbFind method
+     * for each Deployment maps to a specific OQL statement which Castor JDO
+     * uses to access the object cache.
+     * </P>
+     *
+     * @param queryMethod
+     * @param queryString
+     */
+    public void addQuery(Method queryMethod, String queryString) {
+        queryMethodMap.put(queryMethod, queryString);
+    }
+
+    /**
+     * This method retrieves the query string associated with the query method.
+     * <P>
+     * Each query method, ejbFind or ejbSelect(EJB 2.0), can be mapped to
+     * query string which describes the behavior of the method. For example,
+     * with the Castor JDO CMP container for EJB 1.1, every ejbFind method
+     * for each Deployment maps to a specific OQL statement which Castor JDO
+     * uses to access the object cache.
+     * </P>
+     *
+     * @param queryMethod
+     * @return
+     */
+    public String getQuery(Method queryMethod) {
+        return (String)queryMethodMap.get(queryMethod);
+    }
+
     //
     // end DeploymentInfo Implementation
     //==================================
@@ -509,7 +552,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * Sets the JNDI namespace for the bean's environment.  This will be the ony
      * namespace that the bean will be able to access using the java: URL in the JNDI.
      *
-     * @param the Context of the bean's JNDI environment
+     * @param cntx the Context of the bean's JNDI environment
      * @see javax.naming.Context
      */
     public void setJndiEnc(javax.naming.Context cntx){
@@ -611,7 +654,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * @param interfaceMethod
      *               the Method of the home or remote interface
      * @return the Method in the bean class that maps to the method specified
-     * @see org.openejb.core.DeploymentInfo.createMethodMap()
+     * @see org.openejb.core.DeploymentInfo#createMethodMap()
      * @see java.lang.reflect.Method
      */
     public Method getMatchingBeanMethod(Method interfaceMethod){
@@ -668,7 +711,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * @param securityRoleReference
      *               the role used by the bean code; the security-role-ref
      * @param physicalRoles
-     * @see #getPhysicalrole
+     * @see #getPhysicalRole
      */
     public void addSecurityRoleReference(String securityRoleReference, String [] physicalRoles){
         securityRoleReferenceMap.put(securityRoleReference, physicalRoles);
@@ -744,34 +787,27 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
         } else{
             throw new IllegalArgumentException("Invalid transaction attribute \""+transAttribute+"\" declared for method "+method.getName()+". Please check your configuration.");
         }
-        
-        /* EJB 1.1 page 55
-         Only a stateful Session bean with container-managed transaction demarcation may implement the
-         SessionSynchronization interface. A stateless Session bean must not implement the SessionSynchronization
-         interface.
-         */
-        // If this is a Stateful SessionBean that implements the 
-        // SessionSynchronization interface and the method transaction
-        // attribute is not Never or notSupported, then wrap the TransactionPolicy
-        // with a SessionSynchronizationTxPolicy
-        if ( componentType == STATEFUL && !isBeanManagedTransaction  && container instanceof TransactionContainer){
 
-            // we have a stateful session bean with container-managed transactions
-            if ( SessionSynchronization.class.isAssignableFrom(beanClass) ) {
-                if ( !transAttribute.equals("Never") && !transAttribute.equals("NotSupported") ){
-                    // wrap the policy unless attribute is "never" or "NotSupported"
-                    policy = new SessionSynchronizationTxPolicy( policy );
-                }
-            } else {
-                // CMT stateful session bean but does not implement SessionSynchronization
-                policy = new StatefulContainerManagedTxPolicy( policy );
-            }
-
-        } else if ( componentType == CMP_ENTITY && container instanceof CastorCMP11_EntityContainer){
-            policy = new CastorCmpEntityTxPolicy( policy );
+        // Let the container wrap the policy with a container-specific implementation
+        if(container instanceof TransactionContainer) {
+            policy = ((TransactionContainer)container).getTransactionPolicy(policy, this);
         }
         methodTransactionAttributes.put( method, byteValue );
         methodTransactionPolicies.put( method, policy );
+    }
+
+    /**
+     * Returns the names of the bean's container-managed fields. Used for
+     * container-managed persistence entity beans only.
+     *
+     * @return
+     */
+    public String[] getCmpFields() {
+        return cmpFields;
+    }
+
+    public void setCmpFields(String[] cmrFields) {
+        this.cmpFields = cmrFields;
     }
 
     //
@@ -914,8 +950,6 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
         }catch(java.lang.NoSuchMethodException nsme){
             throw new org.openejb.SystemException(nsme);
         }
-        int i = 1 +2;// beak point
-
     }
 
     protected String  extractHomeBeanMethodName(String methodName){
@@ -949,103 +983,4 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     //==================================
 
 
-    //==================================
-    // Castor CMP Container Specific
-    //
-    private KeyGenerator keyGenerator;
-    private Field     primKeyField;
-    private String[]  cmrFields;
-    
-    
-    /**
-     * Each query method, ejbFind or ejbSelect(EJB 2.0), can be mapped to
-     * query string which describes the behavior of the method. For example,
-     * with the Castor JDO CMP container for EJB 1.1, every ejbFind method
-     * for each Deployment maps to a specific OQL statement which Castor JDO
-     * uses to access the object cache.
-     */
-    private HashMap queryMethodMap               = new HashMap();
-
-    
-    /**
-     * Gets the Field of the CMP entity bean class which corresponds to the simple
-     * primary key.  Entity beans that have complex primary keys (keys with several
-     * fields) will not have a primkey-field.
-     * <P>
-     * Useful for Container-Managed Persistence (CMP) Entity beans with Simple
-     * Primary Keys.
-     * </P>
-     * 
-     * @return the EntityBean field that corresponds to the simple primary key.
-     *         return null if the bean is not a CMP Entity bean with a simple Primary key
-     */
-    public Field getPrimaryKeyField( ){
-        return primKeyField;
-    }
-    
-    public void setPrimKeyField(String fieldName)
-    throws java.lang.NoSuchFieldException{
-        if(componentType == this.CMP_ENTITY){
-            
-            primKeyField = beanClass.getField(fieldName);            
-        }
-    }
-    
-    /**
-     * Returns the names of the bean's container-managed fields. Used for
-     * container-managed persistence only.
-     * 
-     * @return 
-     */
-    public String [] getCmrFields( ){
-        return cmrFields;
-    }
-    
-    public void setCmrFields(String [] cmrFields){
-        this.cmrFields = cmrFields;   
-    }
-    
-    public KeyGenerator getKeyGenerator(){
-        return keyGenerator;
-    }
-    
-    public void setKeyGenerator(KeyGenerator keyGenerator){
-        this.keyGenerator = keyGenerator;
-    }
-
-    /**
-     * This method maps a query method (ejbFind) to a query string.
-     * <P>
-     * Each query method, ejbFind or ejbSelect(EJB 2.0), can be mapped to
-     * query string which describes the behavior of the method. For example,
-     * with the Castor JDO CMP container for EJB 1.1, every ejbFind method
-     * for each Deployment maps to a specific OQL statement which Castor JDO
-     * uses to access the object cache.
-     * </P>
-     * 
-     * @param queryMethod
-     * @param queryString
-     */
-    public void addQuery(Method queryMethod, String queryString){
-        queryMethodMap.put(queryMethod, queryString);
-    }
-    /**
-     * This method retrieves the query string associated with the query method.
-     * <P>
-     * Each query method, ejbFind or ejbSelect(EJB 2.0), can be mapped to
-     * query string which describes the behavior of the method. For example,
-     * with the Castor JDO CMP container for EJB 1.1, every ejbFind method
-     * for each Deployment maps to a specific OQL statement which Castor JDO
-     * uses to access the object cache.
-     * </P>
-     * 
-     * @param queryMethod
-     * @return 
-     */
-    public String getQuery(Method queryMethod){
-        return (String)queryMethodMap.get(queryMethod);
-    }
-    //
-    // Castor CMP Container Specific
-    //==================================
 }

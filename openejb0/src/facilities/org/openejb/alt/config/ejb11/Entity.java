@@ -20,7 +20,7 @@ import org.exolab.castor.xml.Unmarshaller;
  * 
  * @version $Revision$ $Date$
 **/
-public class Entity implements java.io.Serializable {
+public class Entity implements java.io.Serializable, EnterpriseBean {
 
 
       //--------------------------/

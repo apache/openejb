@@ -386,10 +386,20 @@ public final class OpenEJB {
     }
 
     /**
-     * Returns all the <code>ContainerSystem</code> available.
+     * Returns all the <code>ContainerSystems</code> available.
      */
     public static ContainerSystem[] getContainerSystems() {
-        return (ContainerSystem [])containerSystems.values().toArray(new ContainerSystem [containerSystems.size()]);
+        return (ContainerSystem[])containerSystems.values().toArray(new ContainerSystem[containerSystems.size()]);
+    }
+
+    /**
+     * Returns the IDs of all the <code>ContainerSystems</code>.
+     */
+    public static String[] getContainerSystemIDs() {
+        ContainerSystem[] cs = (ContainerSystem[])containerSystems.values().toArray(new ContainerSystem[containerSystems.size()]);
+        String[] ids = new String[cs.length];
+        for(int i=0; i<ids.length; ids[i] = cs[i++].getId());
+        return ids;
     }
 
     /**

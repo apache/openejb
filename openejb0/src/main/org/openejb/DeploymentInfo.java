@@ -250,13 +250,25 @@ public interface DeploymentInfo {
     public Class getBeanClass( );
 
     /**
+     * Sets extended container-specific information.  The container can use
+     * this to store additional settings beyond the defaults defined here
+     * which are common to all EJBs.
+     */
+    public void setContainerInfo(Object o);
+
+    /**
+     * Gets extended container-specific information.
+     */
+    public Object getContainerInfo();
+
+    /**
      * Gets the Class type of the primary key for this bean deployment.
      * Returns null if the bean is a type that does not need a primary key.
      * 
      * @return the Class type of the bean's primary key or null if the bean doesn't need a primary key
      */
     public Class getPrimaryKeyClass( );
-    
+
     /**
     * Useful for Container-Managed Persistence (CMP) Entity beans with Simple Primary Keys.
     * Gets the Field of the CMP entity bean class which corresponds to the simple 
@@ -268,8 +280,7 @@ public interface DeploymentInfo {
     *
     */
     public java.lang.reflect.Field getPrimaryKeyField( );
-    
-    
+
     /**
     * Useful for Container-Managed Persistence (CMP) Entity beans. Returns true
     * if entity allows reentrant. Session bean types will always return false;
@@ -278,6 +289,5 @@ public interface DeploymentInfo {
     *
     */
     public boolean isReentrant();
-    
-    
+
 }

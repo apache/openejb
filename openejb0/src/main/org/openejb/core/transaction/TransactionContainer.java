@@ -47,6 +47,7 @@ package org.openejb.core.transaction;
 import javax.ejb.EnterpriseBean;
 
 import org.openejb.core.ThreadContext;
+import org.openejb.DeploymentInfo;
 
 /**
  * 
@@ -56,6 +57,24 @@ import org.openejb.core.ThreadContext;
 public interface TransactionContainer {
 
     public void discardInstance(EnterpriseBean instance, ThreadContext context);
+
+    /**
+     * Gets the transaction policy for methods with no explicit policy defined.
+     *
+     * @param bean The bean this policy is for
+     */
+    public TransactionPolicy getDefaultTransactionPolicy(DeploymentInfo bean);
+
+    /**
+     * Allows the container to wrap the default TransactionPolicy for a method
+     * with its own extension.  If this is not necessary, the implementation
+     * should just return the source.
+     *
+     * @param source The default TransactionPolicy
+     * @param bean   The bean in question
+     * @return       The container-specific TransactionPolicy
+     */
+    public TransactionPolicy getTransactionPolicy(TransactionPolicy source, DeploymentInfo bean);
 
 }
 

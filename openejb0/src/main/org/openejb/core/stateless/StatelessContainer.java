@@ -66,9 +66,7 @@ import org.openejb.spi.ContainerSystem;
 import org.openejb.core.EnvProps;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
-import org.openejb.core.transaction.TransactionContainer;
-import org.openejb.core.transaction.TransactionContext;
-import org.openejb.core.transaction.TransactionPolicy;
+import org.openejb.core.transaction.*;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 
@@ -164,7 +162,16 @@ public class StatelessContainer implements org.openejb.RpcContainer, Transaction
         this.containerSystem = containerSystem;
     }
 
-    /**
+    public TransactionPolicy getDefaultTransactionPolicy(DeploymentInfo bean) {
+        return bean.isBeanManagedTransaction() ? (TransactionPolicy)new StatelessBeanManagedTxPolicy(this) :
+                (TransactionPolicy)new TxNotSupported(this);
+    }
+
+    public TransactionPolicy getTransactionPolicy(TransactionPolicy source, DeploymentInfo bean) {
+        return source;
+    }
+
+  /**
      * Gets the <code>DeploymentInfo</code> objects for all the beans deployed in this container.
      *
      * @return an array of DeploymentInfo objects

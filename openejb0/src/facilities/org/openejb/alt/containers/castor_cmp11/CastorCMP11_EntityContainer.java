@@ -51,7 +51,6 @@ import org.exolab.castor.jdo.QueryResults;
 import org.exolab.castor.persist.spi.CallbackInterceptor;
 import org.exolab.castor.persist.spi.Complex;
 import org.exolab.castor.persist.spi.InstanceFactory;
-import org.exolab.castor.persist.spi.LogInterceptor;
 import org.openejb.Container;
 import org.openejb.DeploymentInfo;
 import org.openejb.OpenEJB;
@@ -61,9 +60,7 @@ import org.openejb.RpcContainer;
 import org.openejb.spi.ContainerSystem;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
-import org.openejb.core.transaction.TransactionContainer;
-import org.openejb.core.transaction.TransactionContext;
-import org.openejb.core.transaction.TransactionPolicy;
+import org.openejb.core.transaction.*;
 import org.openejb.util.LinkedListStack;
 import org.openejb.util.Logger;
 import org.openejb.util.SafeProperties;
@@ -110,25 +107,6 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      * transaction fails due to a runtime exception.
      */
     protected Hashtable txReadyPoolMap = new Hashtable();
-
-    //DMB: The actual stacks of instances should be kept in the DeploymentInfo also
-    protected Hashtable pooledInstancesMap = new Hashtable();
-    protected Hashtable readyInstancesMap = new Hashtable();
-
-    /*
-     * Contains all the KeyGenerator objects for each Deployment, indexed by deployment id.
-     * The KeyGenerator objects provide quick extraction of primary keys from entity bean
-     * classes and conversion between a primary key and a Castor Complex identity.
-        DMB: Instead of looking up an KeyGenerator for the deployment, we could attach it
-        to the DeploymentInfo, or a new DeploymentInfo subclass for the CMP container.
-     */
-//    protected HashMap keyGeneratorMap = new HashMap();
-
-    /*
-     * contains a collection of LinkListStacks indexed by deployment id. Each
-     * indexed stack represents the method ready pool of for that class.
-     */
-    protected HashMap methodReadyPoolMap = new HashMap();
 
     /* The default size of the method ready bean pools. Every bean class gets its own pool of this size */
     protected int poolsize = 0;
@@ -208,9 +186,6 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      * database mapping that has been configured to manage its own transactions.
      */
     protected JDO jdo_ForLocalTransaction;
-
-    // manages the transactional scope according to the bean's transaction attributes
-    //CastorTransactionScopeHandler txScopeHandle;
 
     // Manages the synchronization wrappers
     java.util.Hashtable syncWrappers = new java.util.Hashtable();
@@ -331,14 +306,16 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         JndiTxReference txReference = new JndiTxReference();
         for ( int x = 0; x < deploys.length; x++ ) {
             org.openejb.core.DeploymentInfo di = ( org.openejb.core.DeploymentInfo ) deploys[x];
+            CastorDeploymentInfo cdi = new CastorDeploymentInfo();
+            di.setContainerInfo(cdi);
             di.setContainer( this );
 
             // also added this line to create the Method Ready Pool for each deployment
-            methodReadyPoolMap.put( di.getDeploymentID(), new LinkedListStack( poolsize / 2 ) );
+            cdi.setMethodReadyPool(new LinkedListStack( poolsize / 2 ) );
             KeyGenerator kg = null;
             try {
                 kg = KeyGeneratorFactory.createKeyGenerator( di );
-                di.setKeyGenerator( kg );
+                cdi.setKeyGenerator( kg );
             } catch ( Exception e ) {
                 logger.error( "Unable to create KeyGenerator for deployment id = " + di.getDeploymentID(), e );
                 throw new org.openejb.SystemException( "Unable to create KeyGenerator for deployment id = " + di.getDeploymentID(), e );
@@ -431,6 +408,16 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      */
     public void setContainerSystem(ContainerSystem containerSystem) {
         this.containerSystem = containerSystem;
+    }
+
+    public TransactionPolicy getDefaultTransactionPolicy(DeploymentInfo bean) {
+        TransactionPolicy policy = new TxNotSupported(this);
+        policy = new CastorCmpEntityTxPolicy(policy);
+        return policy;
+    }
+
+    public TransactionPolicy getTransactionPolicy(TransactionPolicy source, DeploymentInfo bean) {
+        return new CastorCmpEntityTxPolicy(source);
     }
 
     /**
@@ -613,7 +600,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         /*
         Obtain the stack of instances of this deployment that are in the method ready state.
         */
-        Stack methodReadyPool = ( Stack ) methodReadyPoolMap.get( deploymentInfo.getDeploymentID() );
+        Stack methodReadyPool = ((CastorDeploymentInfo)deploymentInfo.getContainerInfo()).getMethodReadyPool();
 
         if ( methodReadyPool == null ) {
             // TODO:3: Localize this message
@@ -836,7 +823,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
                JDO Complex objects
             2. Extract a primary key object from a loaded Entity bean instance.
             */
-            KeyGenerator kg = deploymentInfo.getKeyGenerator();
+            KeyGenerator kg = ((CastorDeploymentInfo)deploymentInfo.getContainerInfo()).getKeyGenerator();
 
             /*
             The KeyGenerator creates a new primary key and populates its fields with the
@@ -956,6 +943,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
     protected Object findEJBObject( Method callMethod, Object[] args, ThreadContext callContext ) throws org.openejb.OpenEJBException {
 
         org.openejb.core.DeploymentInfo deploymentInfo = callContext.getDeploymentInfo();
+        CastorDeploymentInfo castorDeploymentInfo = (CastorDeploymentInfo)deploymentInfo.getContainerInfo();
 
         QueryResults results = null;
         Object returnValue = null;
@@ -991,7 +979,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
 
             if ( callMethod.getName().equals( "findByPrimaryKey" ) ) {
                 // bind complex primary key to query
-                KeyGenerator kg = deploymentInfo.getKeyGenerator();
+                KeyGenerator kg = castorDeploymentInfo.getKeyGenerator();
 
                 if ( kg.isKeyComplex() ) {
                     /*
@@ -1059,7 +1047,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
             1. Convert EJB developer defined complex primary keys to Castor JDO Complex objects
             2. Extract a primary key object from a loaded Entity bean instance.
             */
-            KeyGenerator kg = deploymentInfo.getKeyGenerator();
+            KeyGenerator kg = castorDeploymentInfo.getKeyGenerator();
 
             Object primaryKey = null;
 
@@ -1292,7 +1280,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
 
           2. Extract a primary key object from a loaded Entity bean instance.
         */
-        KeyGenerator kg = callContext.getDeploymentInfo().getKeyGenerator();
+        KeyGenerator kg = ((CastorDeploymentInfo)callContext.getDeploymentInfo().getContainerInfo()).getKeyGenerator();
 
         /*
             obtains a bean instance from the method ready pool, or
@@ -1398,7 +1386,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      instance."
      */
     protected void resetBeanFields( java.lang.Object bean, org.openejb.core.DeploymentInfo info ) {
-        final String[] cmFields = info.getCmrFields();
+        final String[] cmFields = info.getCmpFields();
         final Class beanClass = bean.getClass();
 
         try {

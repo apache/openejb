@@ -65,9 +65,7 @@ import org.openejb.spi.ContainerSystem;
 import org.openejb.core.EnvProps;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
-import org.openejb.core.transaction.TransactionContainer;
-import org.openejb.core.transaction.TransactionContext;
-import org.openejb.core.transaction.TransactionPolicy;
+import org.openejb.core.transaction.*;
 import org.openejb.util.Logger;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
@@ -170,6 +168,14 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
      */
     public void setContainerSystem(ContainerSystem containerSystem) {
         this.containerSystem = containerSystem;
+    }
+
+    public TransactionPolicy getDefaultTransactionPolicy(DeploymentInfo bean) {
+        return new TxNotSupported(this);
+    }
+
+    public TransactionPolicy getTransactionPolicy(TransactionPolicy source, DeploymentInfo bean) {
+        return source;
     }
 
     /**

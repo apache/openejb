@@ -51,10 +51,7 @@ import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Properties;
 
-import javax.ejb.EJBHome;
-import javax.ejb.EJBObject;
-import javax.ejb.EnterpriseBean;
-import javax.ejb.SessionBean;
+import javax.ejb.*;
 
 import org.openejb.Container;
 import org.openejb.DeploymentInfo;
@@ -66,9 +63,7 @@ import org.openejb.spi.ContainerSystem;
 import org.openejb.core.EnvProps;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
-import org.openejb.core.transaction.TransactionContainer;
-import org.openejb.core.transaction.TransactionContext;
-import org.openejb.core.transaction.TransactionPolicy;
+import org.openejb.core.transaction.*;
 import org.openejb.util.Logger;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
@@ -169,6 +164,37 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
      */
     public void setContainerSystem(ContainerSystem containerSystem) {
         this.containerSystem = containerSystem;
+    }
+
+    public TransactionPolicy getDefaultTransactionPolicy(DeploymentInfo bean) {
+        return bean.isBeanManagedTransaction() ? (TransactionPolicy)new StatefulBeanManagedTxPolicy(this) :
+                new StatefulContainerManagedTxPolicy(new TxNotSupported(this));
+    }
+
+    public TransactionPolicy getTransactionPolicy(TransactionPolicy source, DeploymentInfo bean) {
+        /* EJB 1.1 page 55
+        Only a stateful Session bean with container-managed transaction demarcation may implement the
+        SessionSynchronization interface. A stateless Session bean must not implement the SessionSynchronization
+        interface.
+        */
+        // If this is a Stateful SessionBean that implements the
+        // SessionSynchronization interface and the method transaction
+        // attribute is not Never or notSupported, then wrap the TransactionPolicy
+        // with a SessionSynchronizationTxPolicy
+        if(!bean.isBeanManagedTransaction()) {
+            // we have a stateful session bean with container-managed transactions
+            if(SessionSynchronization.class.isAssignableFrom(bean.getBeanClass())) {
+                if(!(source instanceof TxNever) && !(source instanceof TxNotSupported)) {
+                    // wrap the policy unless attribute is "never" or "NotSupported"
+                    source = new SessionSynchronizationTxPolicy(source);
+                }
+            } else {
+                // CMT stateful session bean but does not implement SessionSynchronization
+                source = new StatefulContainerManagedTxPolicy(source);
+            }
+
+        }
+        return source;
     }
 
     /**
