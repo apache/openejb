@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<classpath>
-  <classpathentry kind="var" rootpath="JRE_SRCROOT" path="JRE_LIB" sourcepath="JRE_SRC">
-  </classpathentry>
-  <classpathentry kind="output" path="target\classes">
-  </classpathentry>
-</classpath>
