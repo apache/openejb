@@ -2,31 +2,27 @@
 <openejb-jar xmlns="http://www.openejb.org/openejb-jar/1.1">
     <ejb-deployment 
         ejb-name="webadmin/Home" 
-        deployment-id="webadmin/Home"
-        container-id="Default Stateless Container"/>
-    <ejb-deployment 
-        ejb-name="webadmin/DefaultBean" 
-        deployment-id="webadmin/DefaultBean"
+        deployment-id="Webadmin/Home"
         container-id="Default Stateless Container"/>
     <ejb-deployment 
         ejb-name="webadmin/Configuration" 
-        deployment-id="webadmin/Configuration"
+        deployment-id="Webadmin/Configuration"
         container-id="Default Stateless Container"/>
     <ejb-deployment 
         ejb-name="webadmin/Properties" 
-        deployment-id="webadmin/Properties"
+        deployment-id="Webadmin/Properties"
         container-id="Default Stateless Container"/>
     <ejb-deployment 
         ejb-name="webadmin/ListLogs" 
-        deployment-id="webadmin/ListLogs"
+        deployment-id="Webadmin/ListLogs"
         container-id="Default Stateless Container"/>
     <ejb-deployment 
         ejb-name="webadmin/Deployment" 
-        deployment-id="webadmin/Deployment"
+        deployment-id="Webadmin/Deployment"
         container-id="Default Stateless Container"/>
     <ejb-deployment 
         ejb-name="webadmin/DeploymentList" 
-        deployment-id="webadmin/DeploymentList"
+        deployment-id="Webadmin/DeploymentList"
         container-id="Default Stateless Container"/>
     <ejb-deployment 
         ejb-name="deploy/webadmin/Deployer" 
@@ -38,14 +34,10 @@
         container-id="Default Stateful Container"/>
     <ejb-deployment 
         ejb-name="webadmin/CMPMapping" 
-        deployment-id="webadmin/CMPMapping"
+        deployment-id="Webadmin/CMPMapping"
         container-id="Default Stateless Container"/>
     <ejb-deployment 
         ejb-name="mapping/webadmin/CMPMappingData" 
         deployment-id="mapping/webadmin/CMPMappingData"
         container-id="Default Stateful Container"/>
-    <ejb-deployment
-    	ejb-name="webadmin/EJBGenerator"
-    	deployment-id="webadmin/EJBGenerator"
-    	container-id="Default Stateless Container"/>
 </openejb-jar>
