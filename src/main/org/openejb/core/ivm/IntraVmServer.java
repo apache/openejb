@@ -3,7 +3,7 @@ package org.openejb.core.ivm;
 import org.openejb.ProxyInfo;
 import javax.ejb.EJBMetaData;
 import javax.ejb.Handle;
-//FOR EJB 2.0: import javax.ejb.HomeHandle;
+import javax.ejb.HomeHandle;
 import javax.ejb.EJBObject;
 import javax.ejb.EJBHome;
 import org.openejb.util.proxy.ProxyManager;
@@ -75,10 +75,9 @@ public class IntraVmServer implements org.openejb.spi.ApplicationServer{
         return new IntraVmHandle(getEJBObject(pi));
     }
     
-    //FOR EJB 2.0:
-    //public HomeHandle getHomeHandle(ProxyInfo pi) {
-    //    return new IntraVmHandle(getEJBHome(pi));
-    //}
+    public HomeHandle getHomeHandle(ProxyInfo pi) {
+        return new IntraVmHandle(getEJBHome(pi));
+    }
     
     public EJBObject getEJBObject(ProxyInfo pi) {
         EjbHomeProxyHandler handler = null;
@@ -103,7 +102,6 @@ public class IntraVmServer implements org.openejb.spi.ApplicationServer{
     }
 
     private EjbHomeProxyHandler getEjbHomeHandler(ProxyInfo pi){
-        EjbHomeProxyHandler handler = null;
         
         switch (pi.getDeploymentInfo().getComponentType()) {
             

@@ -59,6 +59,7 @@ import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.ProxyInfo;
 import org.openejb.RpcContainer;
+import org.openejb.Container;
 import org.openejb.core.ThreadContext;
 import org.openejb.util.proxy.InvalidatedReferenceHandler;
 import org.openejb.util.proxy.InvocationHandler;
@@ -75,6 +76,19 @@ import org.openejb.util.proxy.ProxyManager;
  */
 public abstract class EjbObjectProxyHandler extends BaseEjbProxyHandler {
                      
+    protected final static org.apache.log4j.Category logger = org.apache.log4j.Category.getInstance("OpenEJB");
+    static final java.util.HashMap dispatchTable;
+    
+    // this table helps dispatching in constant time, instead of many expensive equals() calls
+    static {
+        dispatchTable = new java.util.HashMap();
+        dispatchTable.put("getHandle", new Integer(1));
+        dispatchTable.put("getPrimaryKey", new Integer(2));
+        dispatchTable.put("isIdentical", new Integer(3));
+        dispatchTable.put("remove", new Integer(4));
+        dispatchTable.put("getEJBHome", new Integer(5));
+    }
+    
     public EjbObjectProxyHandler(RpcContainer container, Object pk, Object depID){
         super(container, pk, depID);
     }
@@ -94,31 +108,37 @@ public abstract class EjbObjectProxyHandler extends BaseEjbProxyHandler {
     */
     public abstract Object getRegistryId();
 
-    // The EJBObject stub is synchronized to prevent multiple client threads from accessing the
-    // stub concurrently.  This is required by session beans (6.5.6 Serializing session bean methods) but
-    // not required by entity beans. Implementing synchronization on the stub prohibits multiple threads from currently
-    // invoking methods on the same stub, but doesn't prohibit a client from having multiple references to the same
-    // entity identity. Synchronizing the stub is a simple and elegant solution to a difficult problem.
-    //
-    public synchronized Object _invoke(Object p, Method m, Object[] a) throws Throwable{
-
-        Object retValue = null;
-        /*
-         * This section is to be replaced by a more appropriate solution.
-         * This code is very temporary.
-         */
+    // This method has been "desynchronized", because:
+    // 1. It is a common super class, and session beans don't need to be synchronized.
+    //    stateless session bean requests will be dispatched concurrently anyway,
+    //    and the statefull session container already has concurrent access protection.
+    // 2. It is a HUGE scalability problem if multiple clients access stateless session beans
+    //    through only one handler, because then all access is serialzed, which is unnrecessary
+    // 3. The scheme was broken anyway, because the handler instance was locked, which didn't
+    //    prevent access to the same bean using two different handlers.
+    public Object _invoke(Object p, Method m, Object[] a) throws Throwable{
+        java.lang.Object retValue=null;
+        java.lang.Throwable exc=null;
         
         try{
-
-            String method = m.getName();
+            if (logger.isInfoEnabled()) {
+                logger.info("invoking method "+m.getName()+" on "+deploymentID+" with identity "+primaryKey);
+            }
+            Integer operation = (Integer)dispatchTable.get(m.getName());
             
-            if(method.equals("getHandle"))          retValue = getHandle(m,a,p);
-            else if(method.equals("getPrimaryKey")) retValue = getPrimaryKey(m,a,p);
-            else if(method.equals("isIdentical"))   retValue = isIdentical(m,a,p);
-            else if(method.equals("getEJBHome"))    retValue = getEJBHome(m,a,p);
-            else if(method.equals("remove"))        retValue = remove(m,a,p);
-            else                                    retValue = businessMethod(m,a,p);
-            
+            if(operation==null) {
+                retValue = businessMethod(m,a,p);
+            }else {
+                switch(operation.intValue()) {
+                    case 1: retValue = getHandle(m,a,p); break;
+                    case 2: retValue = getPrimaryKey(m,a,p); break;
+                    case 3: retValue = isIdentical(m,a,p); break;
+                    case 4: retValue = remove(m,a,p); break;
+                    case 5: retValue = getEJBHome(m,a,p); break;
+                    default:
+                        throw new RuntimeException("Inconsistent internal state");
+                }
+            }
             /*
             * Business methods that return EJBHome or EJBObject references to local
             * beans (beans in the same container system) must have the return value
@@ -139,31 +159,53 @@ public abstract class EjbObjectProxyHandler extends BaseEjbProxyHandler {
             if(retValue instanceof SpecialProxyInfo)
                 retValue = ((SpecialProxyInfo)retValue).getProxy();
         
+            return retValue;
+
         /*
          * The ire is thrown by the container system and propagated by
          * the server to the stub.
          */
         }catch ( org.openejb.InvalidateReferenceException ire ) {
             invalidateAllHandlers(getRegistryId());
-            throw ire.getRootCause();
+            exc = (ire.getRootCause() != null )? ire.getRootCause(): ire;
+            throw exc;
         /*
          * Application exceptions must be reported dirctly to the client. They
          * do not impact the viability of the proxy.
          */
         } catch ( org.openejb.ApplicationException ae ) {
-            throw ae.getRootCause();
+            exc = (ae.getRootCause() != null )? ae.getRootCause(): ae;
+            throw exc;
+
         /*
          * A system exception would be highly unusual and would indicate a sever
          * problem with the container system.
          */
         } catch ( org.openejb.SystemException se ) {
             invalidateReference();
-            throw new RemoteException("Container has suffered a SystemException",se.getRootCause());
+            exc = (se.getRootCause() != null )? se.getRootCause(): se;
+            logger.error("The container received an unexpected exception: ", exc);
+            throw new RemoteException("Container has suffered a SystemException", exc);
         } catch ( org.openejb.OpenEJBException oe ) {
+            exc = (oe.getRootCause() != null )? oe.getRootCause(): oe;
+            logger.warn("The container received an unexpected exception: ", exc);
             throw new RemoteException("Unknown Container Exception",oe.getRootCause());
-        }  
-        return retValue;
-    }
+        }finally {
+            if(logger.isDebugEnabled()) {
+                if(exc==null) {
+                    logger.debug("finished invoking method "+m.getName()+". Return value:"+retValue);
+                } else {
+                    logger.debug("finished invoking method "+m.getName()+" with exception "+exc);
+                }                    
+            } else if (logger.isInfoEnabled()) {
+                if(exc==null) {
+                    logger.debug("finished invoking method "+m.getName());
+                } else {
+                    logger.debug("finished invoking method "+m.getName()+" with exception "+exc);
+                }
+            }
+        }            
+    }  
     
 
     protected Object getEJBHome(Method method, Object[] args, Object proxy) throws Throwable{
