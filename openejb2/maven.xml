@@ -8,7 +8,6 @@
     xmlns:ant="jelly:ant"
     xmlns:maven="jelly:maven"
     xmlns:define="jelly:define"
-    xmlns:aggregate="local:aggregate"
     xmlns:modules="local:modules">
 
     <j:set var="release.id" value="${pom.standardToLegacyId(pom.id)}-${pom.currentVersion}"/>
