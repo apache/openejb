@@ -76,6 +76,7 @@ public class EjbValidator {
     /*    Constructors                                      */
     /*------------------------------------------------------*/
     public EjbValidator() throws OpenEJBException {
+    	JarUtils.setHandlerSystemProperty();
     }
 
     public void addEjbSet(EjbSet set){
