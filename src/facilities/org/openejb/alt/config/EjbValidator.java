@@ -74,7 +74,7 @@ public class EjbValidator {
     public static EjbSet validateJar(String jarLocation) throws OpenEJBException{
         EjbJar ejbJar = null;
         try {
-            ejbJar = ConfigUtils.readEjbJar(jarLocation);
+            ejbJar = EjbJarUtils.readEjbJar(jarLocation);
         } catch ( Exception e ) {
             e.printStackTrace();
             throw new OpenEJBException(e.getMessage());
