@@ -19,6 +19,10 @@ fi
 
 JAVA=$JAVA_HOME/bin/java
 
+if [ -z "$OPENEJB_HOME" ] ; then
+  OPENEJB_HOME=$PWD
+fi
+
 if [ -z "$OSTYPE" ] ; then
   echo "OSTYPE environment variable is not set.  Cannot determine the host operating system!" 
   exit 1
