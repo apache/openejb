@@ -57,7 +57,7 @@ import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.openejb.EJBComponentType;
 import org.openejb.InstanceContextFactory;
