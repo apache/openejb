@@ -116,7 +116,7 @@
 
         <dependency>
             <id>cglib</id>
-            <version>HEAD-20031109</version>
+            <version>HEAD-20031111</version>
             <url>http://cglib.sf.net/</url>
             <properties>
                 <runtime>true</runtime>
