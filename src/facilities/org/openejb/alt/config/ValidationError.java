@@ -47,17 +47,18 @@ package org.openejb.alt.config;
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
-public class ValidationFailure extends ValidationException{
+public class ValidationError extends ValidationException{
 
-    public ValidationFailure(String message){
+    public ValidationError(String message){
         super( message );
     }
-
+    
     public String getPrefix() {
-        return "FAIL";
+        return "ERROR";
     }
+    
     public String getCategory() {
-        return "failures";
+        return "errors";
     }
 
 }
