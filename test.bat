@@ -21,6 +21,5 @@ set test_cp=%CLASSPATH%;%CP%
 
 set OPTIONS=
 
-REM %JAVA% -classpath %test_cp% -Dserver.classpath=%ri_cp% org.openejb.test.ClientTestRunner -s test/conf/basic_RiServer_config.properties org.openejb.test.stateless.StatelessTestSuite
-%JAVA% %OPTIONS% -classpath %ri_cp% org.openejb.test.ClientTestRunner -s test\conf\IvmServer_config.properties org.openejb.OpenEJBTestSuite
+%JAVA% %OPTIONS% -classpath %ri_cp% org.openejb.test.ClientTestRunner -s src\tests-ejb\IvmServer_config.properties org.openejb.test.ClientTestSuite
 

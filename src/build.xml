@@ -19,7 +19,6 @@
   <property name="src.doc.dir" value="${docs.src}"/>
   <property name="dest.doc.dir" value="${docs.dest}"/>
   <property name="dest.javadoc.dir" value="${javadoc.destdir}"/>
-  <property name="src.test.dir" value="test"/>
   <property name="final.name" value="${project}-${version}"/>
   <property name="final.dir" value="dist/${final.name}/"/>
   <property name="reports.tests.dir" value="test/reports"/>
@@ -908,7 +907,6 @@
       <property name="src.doc.dir" value="${src.doc.dir}"/>
       <property name="dest.doc.dir" value="${dest.doc.dir}"/>
       <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="src.test.dir" value="${src.test.dir}"/>
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
@@ -922,7 +920,6 @@
       <property name="src.doc.dir" value="${src.doc.dir}"/>
       <property name="dest.doc.dir" value="${dest.doc.dir}"/>
       <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="src.test.dir" value="${src.test.dir}"/>
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
@@ -936,7 +933,6 @@
       <property name="src.doc.dir" value="${src.doc.dir}"/>
       <property name="dest.doc.dir" value="${dest.doc.dir}"/>
       <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="src.test.dir" value="${src.test.dir}"/>
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
@@ -950,11 +946,10 @@
       <property name="src.doc.dir" value="${src.doc.dir}"/>
       <property name="dest.doc.dir" value="${dest.doc.dir}"/>
       <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="src.test.dir" value="${src.test.dir}"/>
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
-<!--    
+    
     <ant antfile="src/build-testsuite.xml" target="${target.name}">
       <property file="build.properties"/>
       
@@ -964,11 +959,10 @@
       <property name="src.doc.dir" value="${src.doc.dir}"/>
       <property name="dest.doc.dir" value="${dest.doc.dir}"/>
       <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="src.test.dir" value="${src.test.dir}"/>
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
--->          
+    
   </target>
   
 </project>
