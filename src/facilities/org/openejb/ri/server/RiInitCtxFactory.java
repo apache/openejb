@@ -51,7 +51,7 @@ import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.NamingException;
-import org.openejb.alt.util.Messages;
+import org.openejb.util.Messages;
 
 
 /**
@@ -62,7 +62,7 @@ import org.openejb.alt.util.Messages;
  */
 public class RiInitCtxFactory implements InitialContextFactory {
 
-    static protected Messages _messages = new Messages();
+    static protected Messages _messages = new Messages( "org.openejb.alt.util.resources" );
 
 
     // The ClassLoader could be implemented as static.

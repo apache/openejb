@@ -86,7 +86,7 @@ import org.openejb.util.Messages;
  */
 public class OpenEJBException extends Exception {
 
-    static protected Messages _messages = new Messages();
+    static protected Messages _messages = new Messages( "org.openejb.util.resources" );
 
     /** Error code for unknown errors */
     private String message = "error.unknown";
@@ -178,6 +178,69 @@ public class OpenEJBException extends Exception {
      */
     public OpenEJBException(String message, Object arg1, Object arg2) {
         super(_messages.format(message, arg1, arg2));
+        this.message = message;
+    }
+
+    /** 
+     * <p>
+     *  This constructor allows a message to be supplied indicating the source
+     *    of the problem that occurred. It also allows two arguments 
+     *    to be supplied as arguments to the <code>{@link Messages}</code>
+     *    class in the determination of the error message to delegate up the
+     *    inheritance chain.
+     * </p>
+     * <p>
+     *  This is purely a convenience form for 
+     *    <code>{@link #OpenEJBException(String, Object[])}</code>.
+     * </p>
+     *
+     * @param message <code>String</code> identifying the cause of the problem.
+     * @param args <code>Object[]</code> argument for messaging use.
+     */
+    public OpenEJBException(String message, Object arg1, Object arg2, Object arg3) {
+        super(_messages.format(message, arg1, arg2, arg3));
+        this.message = message;
+    }
+
+    /** 
+     * <p>
+     *  This constructor allows a message to be supplied indicating the source
+     *    of the problem that occurred. It also allows two arguments 
+     *    to be supplied as arguments to the <code>{@link Messages}</code>
+     *    class in the determination of the error message to delegate up the
+     *    inheritance chain.
+     * </p>
+     * <p>
+     *  This is purely a convenience form for 
+     *    <code>{@link #OpenEJBException(String, Object[])}</code>.
+     * </p>
+     *
+     * @param message <code>String</code> identifying the cause of the problem.
+     * @param args <code>Object[]</code> argument for messaging use.
+     */
+    public OpenEJBException(String message, Object arg1, Object arg2, Object arg3, Object arg4) {
+        super(_messages.format(message, arg1, arg2, arg3, arg4));
+        this.message = message;
+    }
+
+    /** 
+     * <p>
+     *  This constructor allows a message to be supplied indicating the source
+     *    of the problem that occurred. It also allows two arguments 
+     *    to be supplied as arguments to the <code>{@link Messages}</code>
+     *    class in the determination of the error message to delegate up the
+     *    inheritance chain.
+     * </p>
+     * <p>
+     *  This is purely a convenience form for 
+     *    <code>{@link #OpenEJBException(String, Object[])}</code>.
+     * </p>
+     *
+     * @param message <code>String</code> identifying the cause of the problem.
+     * @param args <code>Object[]</code> argument for messaging use.
+     */
+    public OpenEJBException(String message, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+        super(_messages.format(message, arg1, arg2, arg3, arg4, arg5));
         this.message = message;
     }
 

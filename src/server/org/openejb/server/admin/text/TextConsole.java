@@ -47,7 +47,7 @@ package org.openejb.server.admin.text;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.openejb.server.util.Logger;
+import org.openejb.util.Logger;
 import org.openejb.server.EjbDaemon;
 
 /**
@@ -55,7 +55,7 @@ import org.openejb.server.EjbDaemon;
  */
 public class TextConsole implements Runnable {
 
-    Logger logger = Logger.getInstance( "OpenEJB.admin" );
+    Logger logger = Logger.getInstance( "OpenEJB.admin", "org.openejb.server.util.resources" );
 
     // The EJB Server Port
     Properties props;

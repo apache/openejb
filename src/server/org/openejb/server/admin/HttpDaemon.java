@@ -82,7 +82,7 @@ import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.FileUtils;
 import org.openejb.util.JarUtils;
-import org.openejb.server.util.Logger;
+import org.openejb.util.Logger;
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
@@ -92,7 +92,7 @@ public class HttpDaemon implements Runnable{
 
     private SafeToolkit toolkit = SafeToolkit.getToolkit("OpenEJB EJB Server");
 
-    Logger logger = Logger.getInstance( "OpenEJB" );
+    Logger logger = Logger.getInstance( "OpenEJB", "org.openejb.server.util.resources" );
 
     Vector           clientSockets  = new Vector();
     ServerSocket     serverSocket   = null;

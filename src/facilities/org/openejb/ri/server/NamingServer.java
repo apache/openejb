@@ -69,12 +69,12 @@ import org.openejb.ProxyInfo;
 import org.openejb.util.proxy.DynamicProxyFactory;
 import org.openejb.util.proxy.ProxyManager;
 import org.openejb.OpenEJB;
-import org.openejb.alt.util.Messages;
+import org.openejb.util.Messages;
 
 
 public class NamingServer implements Runnable {
 
-    static protected Messages _messages = new Messages();
+    static protected Messages _messages = new Messages( "org.openejb.alt.util.resources" );
 
     Thread thread = new Thread(this);
     HashMap nameMap;

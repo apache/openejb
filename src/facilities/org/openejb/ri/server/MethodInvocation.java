@@ -50,7 +50,7 @@ package org.openejb.ri.server;
 import java.lang.reflect.*;
 import java.security.Principal;
 import org.openejb.DeploymentInfo;
-import org.openejb.alt.util.Messages;
+import org.openejb.util.Messages;
 
 /**
  * This object is used to uniqly identify a method invocation within  
@@ -63,7 +63,7 @@ import org.openejb.alt.util.Messages;
  */
 public class MethodInvocation implements java.io.Serializable {
 
-    static protected Messages _messages = new Messages();
+    static protected Messages _messages = new Messages( "org.openejb.alt.util.resources" );
 
     /**
     * The unique identity of the bean servicing the request.

@@ -92,7 +92,7 @@ public class StatefulContainer implements org.openejb.RpcContainer, TransactionC
     // the remove method is used repeatedly in the removeEJBObject method. 
     Method EJB_REMOVE_METHOD = null;
 
-    final static protected Logger logger = Logger.getInstance("OpenEJB");
+    final static protected Logger logger = Logger.getInstance("OpenEJB", "org.openejb.util.resources");
 
     // manages the transactional scope according to the bean's transaction attributes
     //StatefulTransactionScopeHandler txScopeHandle;

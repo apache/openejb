@@ -68,7 +68,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NotContextException;
 import javax.naming.OperationNotSupportedException;
-import org.openejb.alt.util.Messages;
+import org.openejb.util.Messages;
 
 
 /**
@@ -76,7 +76,7 @@ import org.openejb.alt.util.Messages;
  */
 public class RiContext implements Context, DynamicContext {
 
-    static protected Messages _messages = new Messages();
+    static protected Messages _messages = new Messages( "org.openejb.alt.util.resources" );
 
     Hashtable myEnv;
     private Hashtable bindings = new Hashtable(11);

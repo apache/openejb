@@ -62,7 +62,7 @@ import java.net.URLConnection;
 
 public class Handler extends java.net.URLStreamHandler
 {
-    static Logger _logger = Logger.getInstance( "OpenEJB" );
+    static Logger _logger = Logger.getInstance( "OpenEJB", "org.openejb.util.resources" );
 
     protected URLConnection openConnection( URL url )
         throws java.io.IOException

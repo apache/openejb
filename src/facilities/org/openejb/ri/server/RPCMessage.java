@@ -51,12 +51,12 @@ import java.io.ObjectOutput;
 import java.io.Externalizable;
 import java.io.Serializable;
 import java.io.IOException;
-import org.openejb.alt.util.Messages;
+import org.openejb.util.Messages;
 
 
 public class RPCMessage implements java.io.Externalizable {
 
-    static protected Messages _messages = new Messages();
+    static protected Messages _messages = new Messages( "org.openejb.alt.util.resources" );
 
     public Class[] paramTypes;
     public Serializable[] args;

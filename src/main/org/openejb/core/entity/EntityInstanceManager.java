@@ -114,7 +114,7 @@ public class EntityInstanceManager {
     */
     protected HashMap poolMap = null;
     
-    public Logger logger = Logger.getInstance( "OpenEJB" );
+    public Logger logger = Logger.getInstance( "OpenEJB", "org.openejb.util.resources" );
 
     protected SafeToolkit toolkit = SafeToolkit.getToolkit("EntityInstanceManager");
     /******************************************************************
