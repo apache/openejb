@@ -96,6 +96,7 @@ public class EjbValidator {
             set.setEjbJar( EjbJarUtils.readEjbJar(jarLocation) );
             validateJar( set );
         } catch ( Throwable e ) {
+        	e.printStackTrace(System.out);
             ValidationError err = new ValidationError( "cannot.validate" );
             err.setDetails( e.getMessage() );
             set.addError( err );
@@ -119,6 +120,7 @@ public class EjbValidator {
                 rules[i].validate( set );
             }
         } catch ( Throwable e ) {
+        	e.printStackTrace();
             ValidationError err = new ValidationError( "cannot.validate" );
             err.setDetails( e.getMessage() );
             set.addError( err );

@@ -58,6 +58,7 @@ import org.openejb.alt.assembler.classic.ConnectionManagerInfo;
 import org.openejb.alt.assembler.classic.ConnectorInfo;
 import org.openejb.alt.assembler.classic.ContainerInfo;
 import org.openejb.alt.assembler.classic.ContainerSystemInfo;
+import org.openejb.alt.assembler.classic.EjbLocalReferenceInfo;
 import org.openejb.alt.assembler.classic.EjbReferenceInfo;
 import org.openejb.alt.assembler.classic.EjbReferenceLocationInfo;
 import org.openejb.alt.assembler.classic.EnterpriseBeanInfo;
@@ -88,6 +89,7 @@ import org.openejb.alt.assembler.classic.TransactionServiceInfo;
 import org.openejb.alt.config.ejb11.ContainerTransaction;
 import org.openejb.alt.config.ejb11.EjbDeployment;
 import org.openejb.alt.config.ejb11.EjbJar;
+import org.openejb.alt.config.ejb11.EjbLocalRef;
 import org.openejb.alt.config.ejb11.EjbRef;
 import org.openejb.alt.config.ejb11.EnterpriseBeansItem;
 import org.openejb.alt.config.ejb11.Entity;
@@ -244,6 +246,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             try {
                 initEnterpriseBeanInfos(jars[i]);
             } catch (Exception e) {
+            	e.printStackTrace();
                 ConfigUtils.logWarning("conf.0004", jars[i].jarURI, e.getMessage());
             }
         }
@@ -695,27 +698,31 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         while (i.hasNext()) {
             EnterpriseBeanInfo bean = (EnterpriseBeanInfo) i.next();
             EnterpriseBeansItem item = (EnterpriseBeansItem) items.get(bean.ejbName);
-            Enumeration ee = null;
-            Enumeration er = null;
-            Enumeration rr = null;
+            Enumeration envEntries = null;
+            Enumeration ejbRefs = null;
+            Enumeration ejbLocalRefs = null;
+            Enumeration resourceRefs = null;
 
             if (item.getEntity() != null) {
-                ee = item.getEntity().enumerateEnvEntry();
-                er = item.getEntity().enumerateEjbRef();
-                rr = item.getEntity().enumerateResourceRef();
+                envEntries = item.getEntity().enumerateEnvEntry();
+                ejbRefs = item.getEntity().enumerateEjbRef();
+                ejbLocalRefs = item.getEntity().enumerateEjbLocalRef();
+                resourceRefs = item.getEntity().enumerateResourceRef();
             } else {
-                ee = item.getSession().enumerateEnvEntry();
-                er = item.getSession().enumerateEjbRef();
-                rr = item.getSession().enumerateResourceRef();
+                envEntries = item.getSession().enumerateEnvEntry();
+                ejbRefs = item.getSession().enumerateEjbRef();
+                ejbLocalRefs = item.getSession().enumerateEjbLocalRef();
+                resourceRefs = item.getSession().enumerateResourceRef();
             }
 
             Vector envRef = new Vector();
             Vector ejbRef = new Vector();
+            Vector ejbLocalRef = new Vector();
             Vector resRef = new Vector();
 
             /* Build Environment entries *****************/
-            while (ee.hasMoreElements()) {
-                EnvEntry env = (EnvEntry) ee.nextElement();
+            while (envEntries.hasMoreElements()) {
+                EnvEntry env = (EnvEntry) envEntries.nextElement();
                 EnvEntryInfo info = new EnvEntryInfo();
 
                 info.name = env.getEnvEntryName();
@@ -724,28 +731,6 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
                 envRef.add(info);
             }
-
-            /* Build EJB References **********************/
-            //			while (er.hasMoreElements()) {
-            //				EjbRef ejb = (EjbRef) er.nextElement();
-            //				EjbReferenceInfo info = new EjbReferenceInfo();
-            //
-            //				info.homeType = ejb.getHome();
-            //				info.referenceName = ejb.getEjbRefName();
-            //				info.location = new EjbReferenceLocationInfo();
-            //
-            //				EnterpriseBeanInfo otherBean = (EnterpriseBeanInfo) infos.get(ejb.getEjbLink());
-            //				if (otherBean == null) {
-            //					String msg =
-            //						messages.format("config.noBeanFound", ejb.getEjbRefName(), bean.ejbName);
-            //
-            //					logger.fatal(msg);
-            //					throw new OpenEJBException(msg);
-            //				}
-            //				info.location.ejbDeploymentId = otherBean.ejbDeploymentId;
-            //
-            //				ejbRef.add(info);
-            //			}
 
             /* Build Resource References *****************/
             EjbDeployment dep = (EjbDeployment) ejbds.get(bean.ejbName);
@@ -757,8 +742,8 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             }
 
             /* Build EJB References **********************/
-            while (er.hasMoreElements()) {
-                EjbRef ejb = (EjbRef) er.nextElement();
+            while (ejbRefs.hasMoreElements()) {
+                EjbRef ejb = (EjbRef) ejbRefs.nextElement();
                 EjbReferenceInfo info = new EjbReferenceInfo();
 
                 info.homeType = ejb.getHome();
@@ -786,8 +771,40 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                 ejbRef.add(info);
             }
 
-            while (rr.hasMoreElements()) {
-                ResourceRef res = (ResourceRef) rr.nextElement();
+
+            /* Build EJB References **********************/
+            while (ejbLocalRefs.hasMoreElements()) {
+            	EjbLocalRef ejb = (EjbLocalRef) ejbLocalRefs.nextElement();
+                EjbReferenceInfo info = new EjbReferenceInfo();
+
+                info.homeType = ejb.getLocalHome();
+                info.referenceName = ejb.getEjbRefName();
+                info.location = new EjbReferenceLocationInfo();
+
+                //the ejb-link must be local to the ejb-jar
+                String ejbLink;
+                if (ejb.getEjbLink() == null) {
+                	ejbLink = null;
+                	//ejbLink = ((ResourceLink) resLinks.get(ejb.getEjbRefName())).getResId();
+                } else {
+                    ejbLink = ejb.getEjbLink();
+                }
+
+                EnterpriseBeanInfo otherBean = (EnterpriseBeanInfo) infos.get(ejbLink);
+                if (otherBean == null) {
+                    String msg =
+                    messages.format("config.noBeanFound", ejb.getEjbRefName(), bean.ejbName);
+
+                    logger.fatal(msg);
+                    throw new OpenEJBException(msg);
+                }
+                info.location.ejbDeploymentId = otherBean.ejbDeploymentId;
+
+                ejbLocalRef.add(info);
+            }
+            
+            while (resourceRefs.hasMoreElements()) {
+                ResourceRef res = (ResourceRef) resourceRefs.nextElement();
                 ResourceReferenceInfo info = new ResourceReferenceInfo();
 
                 info.referenceAuth = res.getResAuth();
@@ -804,6 +821,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             JndiEncInfo jndi = new JndiEncInfo();
             jndi.envEntries = new EnvEntryInfo[envRef.size()];
             jndi.ejbReferences = new EjbReferenceInfo[ejbRef.size()];
+            jndi.ejbLocalReferences = new EjbLocalReferenceInfo[ejbLocalRef.size()];
             jndi.resourceRefs = new ResourceReferenceInfo[resRef.size()];
 
             envRef.copyInto(jndi.envEntries);
@@ -971,6 +989,8 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         bean.ejbName = s.getEjbName();
         bean.home = s.getHome();
         bean.remote = s.getRemote();
+        bean.localHome = s.getLocalHome();
+        bean.local = s.getLocal();
         bean.transactionType = s.getTransactionType();
 
         return bean;
@@ -998,6 +1018,8 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         bean.ejbName = e.getEjbName();
         bean.home = e.getHome();
         bean.remote = e.getRemote();
+        bean.localHome = e.getLocalHome();
+        bean.local = e.getLocal();
         bean.transactionType = "Container";
 
         bean.primKeyClass = e.getPrimKeyClass();

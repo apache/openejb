@@ -44,6 +44,7 @@
  */
 package org.openejb.alt.config;
 
+import org.openejb.alt.config.ejb11.EjbLocalRef;
 import org.openejb.alt.config.ejb11.EjbRef;
 import org.openejb.alt.config.ejb11.Entity;
 import org.openejb.alt.config.ejb11.EnvEntry;
@@ -67,6 +68,18 @@ public class EntityBean implements Bean {
         }
     }
 
+	public EjbLocalRef[] getEjbLocalRef() {
+		return bean.getEjbLocalRef();
+	}
+	
+	public String getLocal() {
+		return bean.getLocal();
+	}
+	
+	public String getLocalHome() {
+		return bean.getLocalHome();
+	}
+	
     public String getType() {
         return type;
     }

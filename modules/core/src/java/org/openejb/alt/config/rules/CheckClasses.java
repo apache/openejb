@@ -44,6 +44,9 @@
  */
 package org.openejb.alt.config.rules;
 
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
+
 import org.openejb.OpenEJBException;
 import org.openejb.alt.config.Bean;
 import org.openejb.alt.config.EjbSet;
@@ -67,21 +70,42 @@ public class CheckClasses implements ValidationRule {
         this.set = set;
 
         Bean[] beans = set.getBeans();
-        for ( int i=0; i < beans.length; i++ ) {
-            Bean b = beans[i];
-            check_hasEjbClass( b );
-            check_hasHomeClass( b );
-            check_hasRemoteClass( b );
-            check_isEjbClass( b );
-            check_isHomeInterface( b );
-            check_isRemoteInterface( b );
-        }
+        Bean b = null;
+        try {
+			for ( int i=0; i < beans.length; i++ ) {
+			    b = beans[i];
+			    check_hasEjbClass( b );
+			    check_isEjbClass( b );
+			    if (b.getHome() != null){
+			        check_hasHomeClass( b );
+			        check_hasRemoteClass( b );
+				    check_isHomeInterface( b );
+				    check_isRemoteInterface( b );
+			    }
+			    if (b.getLocalHome() != null){
+			        check_hasLocalHomeClass( b );
+			        check_hasLocalClass( b );
+				    check_isLocalHomeInterface( b );
+				    check_isLocalInterface( b );
+			    }
+			}
+		} catch (RuntimeException e) {
+			throw new RuntimeException(b.getEjbName(),e);
+		}
 
-	SafeToolkit.unloadTempCodebase( set.getJarPath() );
+        SafeToolkit.unloadTempCodebase( set.getJarPath() );
     }
 
+	private void check_hasLocalClass(Bean b) {
+        lookForClass(b, b.getLocal(), "<local>");
+	}
 
-    public void check_hasEjbClass( Bean b ) {
+	private void check_hasLocalHomeClass(Bean b) {
+        lookForClass(b, b.getLocalHome(), "<local-home>");
+	}
+
+
+	public void check_hasEjbClass( Bean b ) {
 
         lookForClass(b, b.getEjbClass(), "<ejb-class>");
 
@@ -119,6 +143,15 @@ public class CheckClasses implements ValidationRule {
 
     }
 
+
+
+	private void check_isLocalInterface(Bean b) {
+        compareTypes(b, b.getLocal(), EJBLocalObject.class);
+	}
+
+	private void check_isLocalHomeInterface(Bean b) {
+        compareTypes(b, b.getLocalHome(), EJBLocalHome.class);
+	}
 
 
     public void check_isHomeInterface( Bean b ) {

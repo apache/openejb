@@ -135,7 +135,6 @@ public class AutoDeployer {
 
     private EjbDeployment deployBean(Bean bean, String jarLocation) throws OpenEJBException {
         EjbDeployment deployment = new EjbDeployment();
-        Class tempBean = SafeToolkit.loadTempClass(bean.getHome(), jarLocation);
 
         deployment.setEjbName(bean.getEjbName());
 
@@ -153,8 +152,19 @@ public class AutoDeployer {
             deployment.addResourceLink(resolveResourceRef(refs[i]));
         }
 
-        if (bean.getType().equals("CMP_ENTITY") && hasFinderMethods(tempBean)) {
-            throw new OpenEJBException("CMP 1.1 Beans with finder methods cannot be autodeployed; finder methods require OQL Select statements which cannot be generated accurately.");
+        if (bean.getType().equals("CMP_ENTITY")){
+        	if (bean.getHome() != null){
+                Class tempBean = SafeToolkit.loadTempClass(bean.getHome(), jarLocation);
+            	if (hasFinderMethods(tempBean)){
+                    throw new OpenEJBException("CMP 1.1 Beans with finder methods cannot be autodeployed; finder methods require OQL Select statements which cannot be generated accurately.");
+            	}
+        	}
+        	if (bean.getLocalHome() != null){
+                Class tempBean = SafeToolkit.loadTempClass(bean.getHome(), jarLocation);
+            	if (hasFinderMethods(tempBean)){
+                    throw new OpenEJBException("CMP 1.1 Beans with finder methods cannot be autodeployed; finder methods require OQL Select statements which cannot be generated accurately.");
+            	}
+        	}
         }
 
         return deployment;

@@ -47,6 +47,7 @@ package org.openejb.webadmin.clienttools;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.naming.Context;
@@ -56,6 +57,9 @@ import org.openejb.webadmin.HttpRequest;
 import org.openejb.webadmin.HttpResponse;
 import org.openejb.webadmin.HttpSession;
 import org.openejb.webadmin.WebAdminBean;
+import org.openejb.alt.assembler.classic.ContainerInfo;
+import org.openejb.alt.assembler.classic.EnterpriseBeanInfo;
+import org.openejb.alt.config.ConfigurationFactory;
 import org.openejb.core.DeploymentInfo;
 
 /**
@@ -83,7 +87,14 @@ public class ViewEjbBean extends WebAdminBean implements Constants {
         try {
             String ejb = request.getQueryParameter("ejb");
             if (ejb == null) {
-                out.print("No EJB specified");
+                ContainerInfo[] cnt = ConfigurationFactory.sys.containerSystem.containers;
+                for (int i = 0; i < cnt.length; i++) {
+                    EnterpriseBeanInfo[] beans = cnt[i].ejbeans;
+                    for (int x = 0; x < beans.length; x++) {
+                    	EnterpriseBeanInfo bean = beans[x];
+                        out.print("<a href='"+VIEW_EJB+"?ejb="+bean.ejbDeploymentId+"'>"+ejbImg+"&nbsp;&nbsp;"+bean.ejbDeploymentId+"</a><br>");
+                    }
+                }
             } else {
                 printEjb(ejb, out, request.getSession());
             }
@@ -98,11 +109,14 @@ public class ViewEjbBean extends WebAdminBean implements Constants {
 
     public void printEjb(String name, PrintWriter out, HttpSession session)
         throws Exception {
+    	
+    	
         String id =
             (name.startsWith("/")) ? name.substring(1, name.length()) : name;
         org.openejb.DeploymentInfo ejb =
             org.openejb.OpenEJB.getDeploymentInfo(id);
 
+        
         if (ejb == null) {
             out.print("No such EJB: " + id);
             return;
@@ -129,12 +143,32 @@ public class ViewEjbBean extends WebAdminBean implements Constants {
         out.print("<b>" + type + "</b><br>");
         out.print("<table>");
         printRow("JNDI Name", name, out);
-        printRow(
-            "Remote Interface",
-            getClassRef(ejb.getRemoteInterface()),
-            out);
-        printRow("Home Interface", getClassRef(ejb.getHomeInterface()), out);
-        printRow("Bean Class", getClassRef(ejb.getBeanClass()), out);
+        
+        
+        boolean hasLocal = ejb.getLocalInterface() != null;
+        boolean hasRemote = ejb.getRemoteInterface() != null;
+
+        String remoteInterfaceClassRef;
+        String homeInterfaceClassRef;
+		if (hasRemote){
+            remoteInterfaceClassRef = getClassRef(ejb.getRemoteInterface());
+            homeInterfaceClassRef = getClassRef(ejb.getHomeInterface());
+        } else {
+            remoteInterfaceClassRef = "none";
+            homeInterfaceClassRef = "none";
+        }
+        
+		printRow("Remote Interface",remoteInterfaceClassRef,out);
+		printRow("Home Interface", homeInterfaceClassRef, out);
+
+		if (hasLocal){
+            String clzz = getClassRef(ejb.getLocalInterface());
+    		printRow("Local Interface",clzz,out);
+            clzz = getClassRef(ejb.getLocalHomeInterface());
+    		printRow("LocalHome Interface",clzz,out);
+        }
+        
+		printRow("Bean Class", getClassRef(ejb.getBeanClass()), out);
 
         if (ejb.getComponentType() == DeploymentInfo.BMP_ENTITY
             || ejb.getComponentType() == DeploymentInfo.CMP_ENTITY) {
@@ -162,16 +196,32 @@ public class ViewEjbBean extends WebAdminBean implements Constants {
         p.put("openejb.loader", "embed");
 
         ctx = new InitialContext(p);
-        Object obj = ctx.lookup(name);
-        String objID = ejb.getHomeInterface().getName() + "@" + obj.hashCode();
-        objects.put(objID, obj);
-        String invokerURL =
-            "<a href='"
-                + INVOKE_OBJ
-                + "?obj="
-                + objID
-                + "'>Invoke this EJB</a>";
-        printRow(pepperImg, invokerURL, out);
+        
+
+        if (hasRemote){
+	        Object obj = ctx.lookup(name);
+	        String objID = ejb.getHomeInterface().getName() + "@" + obj.hashCode();
+	        objects.put(objID, obj);
+	        String invokerURL =
+	            "<a href='"
+	                + INVOKE_OBJ
+	                + "?obj="
+	                + objID
+	                + "'>Invoke this EJB's home interface</a>";
+	        printRow(pepperImg, invokerURL, out);
+        }
+        if (hasLocal){
+	        Object obj = ctx.lookup(name+"Local");
+	        String objID = ejb.getLocalHomeInterface().getName() + "@" + obj.hashCode();
+	        objects.put(objID, obj);
+	        String invokerURL =
+	            "<a href='"
+	                + INVOKE_OBJ
+	                + "?obj="
+	                + objID
+	                + "'>Invoke this EJB's local home interface</a>";
+	        printRow(pepperImg, invokerURL, out);
+        }
 
         Context enc = ((org.openejb.core.DeploymentInfo) ejb).getJndiEnc();
         String ctxID = "enc" + enc.hashCode();

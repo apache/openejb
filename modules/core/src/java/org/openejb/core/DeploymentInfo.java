@@ -51,6 +51,8 @@ import java.util.HashSet;
 
 import javax.ejb.EJBContext;
 import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
 import javax.ejb.SessionSynchronization;
 import javax.naming.Context;
 
@@ -97,6 +99,8 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     private Object    deploymentId;
     private Class     homeInterface;
     private Class     remoteInterface;
+    private Class     localHomeInterface;
+    private Class     localInterface;
     private Class     beanClass;
     private Class     pkClass;
         
@@ -135,48 +139,13 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      */
     private HashMap securityRoleReferenceMap     = new HashMap();
     private HashSet methodsWithRemoteReturnTypes = null;
+	private EJBLocalHome ejbLocalHomeRef;
     
     /**
      * Creates an empty DeploymentInfo instance.
      */
     public DeploymentInfo( ){}
 
-    /**
-     * Constructs a DeploymentInfo object to represent the specified bean's 
-     * deployment information.
-     * 
-     * @param did    the id of this bean deployment
-     * @param homeClassName
-     *               the fully qualified class name of the bean's home interface definition
-     * @param remoteClassName
-     *               the fully qualified class name of the bean's remote interface definition
-     * @param beanClassName
-     *               the fully qualified class name of the bean's class definition
-     * @param pkClassName
-     *               the fully qualified class name of the bean's primary key class
-     * @param componentType
-     *               one of the component type constants defined in org.openejb.DeploymentInfo
-     * @exception ClassNotFoundException
-     *                   if the home, remote, bean class, or primary key definitions could not be found and loaded
-     * @exception org.openejb.SystemException
-     * @see org.openejb.ContainerSystem
-     * @see org.openejb.Container#getContainerID
-     * @see org.openejb.ContainerManager#getContainerManagerID
-     * @see org.openejb.DeploymentInfo#STATEFUL
-     * @see org.openejb.DeploymentInfo#STATELESS
-     * @see org.openejb.DeploymentInfo#BMP_ENTITY
-     * @see org.openejb.DeploymentInfo#CMP_ENTITY
-     */
-    public DeploymentInfo(Object did, String homeClassName, String remoteClassName, String beanClassName, String pkClassName, byte componentType)
-    throws org.openejb.SystemException{
-
-        try{
-            set(did, Class.forName(homeClassName), Class.forName(remoteClassName), Class.forName(beanClassName), null, componentType);
-            pkClass = (pkClassName == null)? null : Class.forName(pkClassName);
-        }catch(java.lang.ClassNotFoundException cnfe){
-            throw new org.openejb.SystemException("Could not find class " + cnfe);
-        }
-    }
 
     /**
      * Constructs a DeploymentInfo object to represent the specified bean's 
@@ -199,79 +168,19 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * @see org.openejb.DeploymentInfo#BMP_ENTITY
      * @see org.openejb.DeploymentInfo#CMP_ENTITY
      */
-    public DeploymentInfo(Object did, Class homeClass, Class remoteClass, Class beanClass, Class pkClass, byte componentType)
+    public DeploymentInfo(Object did, Class homeClass, Class remoteClass, Class localHomeClass, Class localClass, Class beanClass, Class pkClass, byte componentType)
     throws org.openejb.SystemException{
-        set(did, homeClass, remoteClass, beanClass, null, componentType);
         this.pkClass = pkClass;
-    }
-
-    /**
-     * Constructs a DeploymentInfo object to represent the specified bean's 
-     * deployment information.
-     * 
-     * @param did    the id of this bean deployment
-     * @param homeClassName
-     *               the fully qualified class name of the bean's home interface definition
-     * @param remoteClassName
-     *               the fully qualified class name of the bean's remote interface definition
-     * @param beanClassName
-     *               the fully qualified class name of the bean's class definition
-     * @param pkClassName
-     *               the fully qualified class name of the bean's primary key class
-     * @param componentType
-     *               one of the component type constants defined in org.openejb.DeploymentInfo
-     * @param loader A ClassLoader to use to load the classes named here
-     * @exception ClassNotFoundException
-     *                   if the home, remote, bean class, or primary key definitions could not be found and loaded
-     * @exception org.openejb.SystemException
-     * @see org.openejb.ContainerSystem
-     * @see org.openejb.Container#getContainerID
-     * @see org.openejb.ContainerManager#getContainerManagerID
-     * @see org.openejb.DeploymentInfo#STATEFUL
-     * @see org.openejb.DeploymentInfo#STATELESS
-     * @see org.openejb.DeploymentInfo#BMP_ENTITY
-     * @see org.openejb.DeploymentInfo#CMP_ENTITY
-     */
-    public DeploymentInfo(Object did, String homeClassName, String remoteClassName, String beanClassName, String pkClassName, byte componentType, ClassLoader loader)
-    throws org.openejb.SystemException{
-
-        try{
-            set(did, loader.loadClass(homeClassName), loader.loadClass(remoteClassName), loader.loadClass(beanClassName), null, componentType);
-            pkClass = (pkClassName == null)? null : loader.loadClass(pkClassName);
-        }catch(java.lang.ClassNotFoundException cnfe){
-            throw new org.openejb.SystemException(cnfe);
-        }
-    }
-
-    /**
-     * Constructs a DeploymentInfo object to represent the specified bean's 
-     * deployment information.
-     * 
-     * @param did    the id of this bean deployment
-     * @param home   the class of the bean's home interface definition
-     * @param remote the class of the bean's remote interface definition
-     * @param bean   the class of the bean's class definition
-     * @param pk     the class of the bean's primary key class
-     * @param componentType
-     *               one of the component type constants defined in org.openejb.DeploymentInfo
-     * @exception org.openejb.SystemException
-     * @see org.openejb.ContainerSystem
-     * @see org.openejb.Container#getContainerID
-     * @see org.openejb.ContainerManager#getContainerManagerID
-     * @see org.openejb.DeploymentInfo#STATEFUL
-     * @see org.openejb.DeploymentInfo#STATELESS
-     * @see org.openejb.DeploymentInfo#BMP_ENTITY
-     * @see org.openejb.DeploymentInfo#CMP_ENTITY
-     */
-    public void set(Object did,Class home, Class remote, Class bean, Class pk, byte componentType)
-    throws org.openejb.SystemException{
 
         deploymentId = did;
 
-        homeInterface = home;
-        remoteInterface = remote;
-        beanClass = bean;
-        pkClass = pk;
+        this.homeInterface = homeClass;
+        this.remoteInterface = remoteClass;
+        this.localInterface = localClass;
+        this.localHomeInterface = localHomeClass;
+        this.remoteInterface = remoteClass;
+        this.beanClass = beanClass;
+        this.pkClass = pkClass;
         this.componentType = componentType;
         
         createMethodMap();
@@ -452,6 +361,14 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
         return remoteInterface;
     }
 
+	public Class getLocalHomeInterface() {
+		return localHomeInterface;
+	}
+	
+	public Class getLocalInterface() {
+		return localInterface;
+	}
+	
     /**
      * Gets the bean's class definition.
      *
@@ -490,9 +407,23 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * @see javax.ejb.EJBHome
      */
     public EJBHome getEJBHome() {
-        if(ejbHomeRef == null)
-            createEJBHomeRef();
+    	if (getHomeInterface() == null) {
+    		throw new IllegalStateException("This component has no home interface: "+this.deploymentId);
+    	}
+        if(ejbHomeRef == null){
+        	ejbHomeRef = createEJBHomeRef();
+        }
         return ejbHomeRef;
+    }
+    
+    public EJBLocalHome getEJBLocalHome() {
+    	if (getLocalHomeInterface() == null) {
+    		throw new IllegalStateException("This component has no local home interface: "+this.deploymentId);
+    	}
+        if(ejbLocalHomeRef == null) {
+        	ejbLocalHomeRef = createEJBLocalHomeRef();
+        }
+        return ejbLocalHomeRef;
     }
 
     /**
@@ -788,7 +719,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * @exception RuntimeException
      *                   if there is a problem locating or instantiating the EJBHome proxy
      */
-    private void createEJBHomeRef(){
+    private javax.ejb.EJBHome createEJBHomeRef(){
 
         EjbHomeProxyHandler handler = null;
         
@@ -815,7 +746,44 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
             throw new RuntimeException("Can't create EJBHome stub" + e.getMessage());
         }
 
-        ejbHomeRef = (javax.ejb.EJBHome)proxy;
+        return (javax.ejb.EJBHome)proxy;
+
+    }
+    
+    /**
+     * Attempts to instantiate the EJBLocalHome proxy for the bean deployment.
+     * 
+     * @exception RuntimeException
+     *                   if there is a problem locating or instantiating the EJBHome proxy
+     */
+    private javax.ejb.EJBLocalHome createEJBLocalHomeRef(){
+
+        EjbHomeProxyHandler handler = null;
+        
+        switch ( getComponentType() ) {
+        case STATEFUL:
+            handler = new StatefulEjbHomeHandler((RpcContainer)container, null, getDeploymentID());
+            break;
+        
+        case STATELESS:
+            handler = new StatelessEjbHomeHandler((RpcContainer)container, null, getDeploymentID());
+            break;
+        case CMP_ENTITY:
+        case BMP_ENTITY:
+            handler = new EntityEjbHomeHandler((RpcContainer)container, null, getDeploymentID());
+            break;
+        }
+        handler.setIntraVmCopyMode(false);
+        Object proxy = null;
+        try{
+            Class[] interfaces = new Class[]{ this.getLocalHomeInterface(), org.openejb.core.ivm.IntraVmProxy.class };
+            proxy = ProxyManager.newProxyInstance( interfaces , handler );
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new RuntimeException("Can't create EJBLocalHome stub" + e.getMessage());
+        }
+
+        return (javax.ejb.EJBLocalHome)proxy;
 
     }
 
@@ -828,36 +796,51 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * @exception org.openejb.SystemException
      */
     private void createMethodMap() throws org.openejb.SystemException{
-        Method [] remoteMethods = remoteInterface.getMethods();
-        for(int i = 0; i < remoteMethods.length; i++){
-            if(remoteMethods[i].getDeclaringClass() != javax.ejb.EJBObject.class){
-                try{
-                    Method beanMethod =
-                    beanClass.getMethod(remoteMethods[i].getName(),remoteMethods[i].getParameterTypes());
-                    methodMap.put(remoteMethods[i],beanMethod);
-                }catch(NoSuchMethodException nsme){
-                    throw new RuntimeException("Invalid method ["+ remoteMethods[i] +"]. Not declared by "+beanClass.getName()+" class");
-                }
-                /*
-                   check for return type of java.rmi.Remote. If one of the business method returns a
-                   java.rmi.Remote type, it may be a org.openejb.ivm.BaseEjbProxyHandler type at runtime,
-                   in which case it will need to be converted by the container into a ProxyInfo object.
-                   The container will use the convertIfLocalReference() to check.
-                   This block of code sets up that method.
-                 */
-                if(java.rmi.Remote.class.isAssignableFrom(remoteMethods[i].getReturnType())) {
-                    if(methodsWithRemoteReturnTypes==null)methodsWithRemoteReturnTypes = new HashSet();
-                    methodsWithRemoteReturnTypes.add(remoteMethods[i]);
-                }
-
-            }
+    	if (homeInterface != null){
+            mapObjectInterface(remoteInterface, false);
+            mapHomeInterface(homeInterface);
+    	}
+    	if (localHomeInterface != null){
+            mapObjectInterface(localInterface, true);
+            mapHomeInterface(localHomeInterface);
+    	}
+    	
+        
+        try{
+        	
+        if(componentType == STATEFUL || componentType == STATELESS){
+            Method beanMethod = javax.ejb.SessionBean.class.getDeclaredMethod("ejbRemove", new Class []{});
+            Method clientMethod = EJBHome.class.getDeclaredMethod("remove", new Class [] {javax.ejb.Handle.class});
+            methodMap.put(clientMethod, beanMethod);
+            clientMethod = EJBHome.class.getDeclaredMethod("remove", new Class [] {java.lang.Object.class});
+            methodMap.put(clientMethod, beanMethod);
+            clientMethod = javax.ejb.EJBObject.class.getDeclaredMethod("remove", null);
+            methodMap.put(clientMethod, beanMethod);
+        }else if(componentType == BMP_ENTITY || componentType == CMP_ENTITY){
+            Method beanMethod = javax.ejb.EntityBean.class.getDeclaredMethod("ejbRemove", new Class []{});
+            Method clientMethod = EJBHome.class.getDeclaredMethod("remove", new Class [] {javax.ejb.Handle.class});
+            methodMap.put(clientMethod, beanMethod);
+            clientMethod = EJBHome.class.getDeclaredMethod("remove", new Class [] {java.lang.Object.class});
+            methodMap.put(clientMethod, beanMethod);
+            clientMethod = javax.ejb.EJBObject.class.getDeclaredMethod("remove", null);
+            methodMap.put(clientMethod, beanMethod);
         }
-        Method [] homeMethods = homeInterface.getMethods();
+        }catch(java.lang.NoSuchMethodException nsme){
+            throw new org.openejb.SystemException(nsme);
+        }
+
+    }
+
+	private void mapHomeInterface(Class intrface) {
+		Method [] homeMethods = intrface.getMethods();
         for(int i = 0; i < homeMethods.length; i++){
             Method method = homeMethods[i];
-            if(method.getDeclaringClass() != javax.ejb.EJBHome.class ){
+            Class owner = method.getDeclaringClass();
+            if( owner == javax.ejb.EJBHome.class || owner == EJBLocalHome.class ) {
+            	continue;
+            }
+            
             try{
-
                 Method beanMethod = null;
                 if(method.getName().equals("create")){
                     beanMethod = beanClass.getMethod("ejbCreate",method.getParameterTypes());
@@ -891,34 +874,42 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
             }catch(NoSuchMethodException nsme){
                 throw new RuntimeException("Invalid method ["+method+"] Not declared by "+beanClass.getName()+" class");
             }
+        }
+	}
+
+
+	private void mapObjectInterface(Class intrface, boolean isLocal) {
+		Method [] interfaceMethods = intrface.getMethods();
+        for(int i = 0; i < interfaceMethods.length; i++){
+            Method method = interfaceMethods[i];
+			Class declaringClass = method.getDeclaringClass();
+			if(declaringClass == javax.ejb.EJBObject.class || declaringClass == EJBLocalObject.class){
+				continue;
+			}
+            try{
+                Method beanMethod = beanClass.getMethod(method.getName(),method.getParameterTypes());
+                methodMap.put(method,beanMethod);
+            }catch(NoSuchMethodException nsme){
+                throw new RuntimeException("Invalid method ["+ method +"]. Not declared by "+beanClass.getName()+" class");
             }
+            /*
+               check for return type of java.rmi.Remote. If one of the business method returns a
+               java.rmi.Remote type, it may be a org.openejb.ivm.BaseEjbProxyHandler type at runtime,
+               in which case it will need to be converted by the container into a ProxyInfo object.
+               The container will use the convertIfLocalReference() to check.
+               This block of code sets up that method.
+             */
+            if(!isLocal && java.rmi.Remote.class.isAssignableFrom(method.getReturnType())) {
+                if( methodsWithRemoteReturnTypes == null ) {
+                	methodsWithRemoteReturnTypes = new HashSet();
+                }
+            	methodsWithRemoteReturnTypes.add(method);
+            }	
         }
-        try{
-        if(componentType == STATEFUL || componentType == STATELESS){
-            Method beanMethod = javax.ejb.SessionBean.class.getDeclaredMethod("ejbRemove", new Class []{});
-            Method clientMethod = EJBHome.class.getDeclaredMethod("remove", new Class [] {javax.ejb.Handle.class});
-            methodMap.put(clientMethod, beanMethod);
-            clientMethod = EJBHome.class.getDeclaredMethod("remove", new Class [] {java.lang.Object.class});
-            methodMap.put(clientMethod, beanMethod);
-            clientMethod = javax.ejb.EJBObject.class.getDeclaredMethod("remove", null);
-            methodMap.put(clientMethod, beanMethod);
-        }else if(componentType == BMP_ENTITY || componentType == CMP_ENTITY){
-            Method beanMethod = javax.ejb.EntityBean.class.getDeclaredMethod("ejbRemove", new Class []{});
-            Method clientMethod = EJBHome.class.getDeclaredMethod("remove", new Class [] {javax.ejb.Handle.class});
-            methodMap.put(clientMethod, beanMethod);
-            clientMethod = EJBHome.class.getDeclaredMethod("remove", new Class [] {java.lang.Object.class});
-            methodMap.put(clientMethod, beanMethod);
-            clientMethod = javax.ejb.EJBObject.class.getDeclaredMethod("remove", null);
-            methodMap.put(clientMethod, beanMethod);
-        }
-        }catch(java.lang.NoSuchMethodException nsme){
-            throw new org.openejb.SystemException(nsme);
-        }
-        int i = 1 +2;// beak point
+	}
 
-    }
 
-    protected String  extractHomeBeanMethodName(String methodName){
+	protected String extractHomeBeanMethodName(String methodName){
         if(methodName.equals("create"))
             return "ejbCreate";
         else if(methodName.startsWith("find"))

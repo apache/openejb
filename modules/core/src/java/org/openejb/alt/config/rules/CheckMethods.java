@@ -46,6 +46,8 @@ package org.openejb.alt.config.rules;
 
 import java.lang.reflect.Method;
 
+import javax.ejb.EJBLocalObject;
+
 import org.openejb.OpenEJBException;
 import org.openejb.alt.config.Bean;
 import org.openejb.alt.config.EjbSet;
@@ -79,16 +81,78 @@ public class CheckMethods implements ValidationRule {
         Bean[] beans = set.getBeans();
         for ( int i=0; i < beans.length; i++ ) {
             Bean b = beans[i];
-            check_remoteInterfaceMethods( b );
-            check_homeInterfaceMethods( b );
+		    if (b.getHome() != null){
+	            check_remoteInterfaceMethods( b );
+	            check_homeInterfaceMethods( b );
+		    }
+		    if (b.getLocalHome() != null){
+	            check_localInterfaceMethods( b );
+	            check_localHomeInterfaceMethods( b );
+		    }
         }
 
-	SafeToolkit.unloadTempCodebase( set.getJarPath() );
+        SafeToolkit.unloadTempCodebase( set.getJarPath() );
     }
 
 
+	private void check_localHomeInterfaceMethods(Bean b) {
+        Class home  = null;
+        Class bean = null;
+        try {
+            home = SafeToolkit.loadTempClass( b.getLocalHome() , set.getJarPath() );
+            bean = SafeToolkit.loadTempClass( b.getEjbClass() , set.getJarPath() );
+        } catch ( OpenEJBException e ) {
+            return;
+        }
 
-    private void check_remoteInterfaceMethods( Bean b ){
+        if ( check_hasCreateMethod(b, bean, home) ){
+            check_createMethodsAreImplemented(b, bean, home);
+            check_postCreateMethodsAreImplemented(b, bean, home);
+        }
+
+        check_unusedCreateMethods(b, bean, home);
+	}
+
+	private void check_localInterfaceMethods(Bean b) {
+        Class intrface  = null;
+        Class beanClass = null;
+        try {
+            intrface  = SafeToolkit.loadTempClass( b.getLocal() , set.getJarPath() );
+            beanClass = SafeToolkit.loadTempClass( b.getEjbClass() , set.getJarPath() );
+        } catch ( OpenEJBException e ) {
+            return;
+        }
+
+        Method[] interfaceMethods = intrface.getMethods();
+        Method[] beanClassMethods = intrface.getMethods();
+
+        for(int i = 0; i < interfaceMethods.length; i++){
+            if( interfaceMethods[i].getDeclaringClass() == EJBLocalObject.class) continue;
+            try{
+                String  name   = interfaceMethods[i].getName();
+                Class[] params = interfaceMethods[i].getParameterTypes();
+                Method beanMethod = beanClass.getMethod( name, params );
+            }catch(NoSuchMethodException nsme){
+                //  0 - method name
+                //  1 - full method name
+                //  2 - remote|home|local|local-home
+                //  3 - interface name
+                //  4 - EJB Class name
+                ValidationFailure failure = new ValidationFailure("no.busines.method");
+                failure.setDetails( interfaceMethods[i].getName(),interfaceMethods[i].toString(), "local", intrface.getName(), beanClass.getName());
+                failure.setBean( b );
+
+                set.addFailure( failure );
+
+                //set.addFailure( new ValidationFailure("no.busines.method", interfaceMethods[i].toString(), "remote", intrface.getName(), beanClass.getName()));
+            }
+        }
+		
+	}
+
+
+
+	private void check_remoteInterfaceMethods( Bean b ){
 
         Class intrface  = null;
         Class beanClass = null;

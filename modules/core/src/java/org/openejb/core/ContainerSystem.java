@@ -158,26 +158,43 @@ public class ContainerSystem implements org.openejb.spi.ContainerSystem{
         this.deployments.put(deployment.getDeploymentID(),deployment);
 
         // add deployment to OpenEJB JNDI Name Space
-        javax.ejb.EJBHome ejbHome = deployment.getEJBHome();
-        Reference ref = new ObjectReference( ejbHome );
-        if(deployment.getComponentType()== DeploymentInfo.STATEFUL)
-            ref = new org.openejb.core.stateful.EncReference( ref );
-        else if(deployment.getComponentType()== DeploymentInfo.STATELESS)
-            ref = new org.openejb.core.stateless.EncReference( ref );
-        else
-            ref = new org.openejb.core.entity.EncReference( ref );
-        try{
-
-        String bindName = deployment.getDeploymentID().toString();
-        if(bindName.charAt(0)== '/')
-            bindName = bindName.substring(1);
-        bindName = "openejb/ejb/"+bindName;
-        jndiRootContext.bind(bindName, ref);
-        }catch(Exception e){ e.printStackTrace();throw new RuntimeException();}
-
+        if (deployment.getHomeInterface() != null){
+	        bindProxy(deployment, deployment.getEJBHome(), false);
+        }
+        if (deployment.getLocalHomeInterface() != null){
+	        bindProxy(deployment, deployment.getEJBLocalHome(), true);
+        }
     }
 
-    /**
+    private void bindProxy(org.openejb.core.DeploymentInfo deployment, Object proxy, boolean isLocal) {
+		Reference ref = new ObjectReference( proxy );
+		
+		if(deployment.getComponentType()== DeploymentInfo.STATEFUL){
+			ref = new org.openejb.core.stateful.EncReference( ref );
+		} else if(deployment.getComponentType()== DeploymentInfo.STATELESS){
+			ref = new org.openejb.core.stateless.EncReference( ref );
+		} else{
+			ref = new org.openejb.core.entity.EncReference( ref );
+		}
+		
+		try{
+
+		    String bindName = deployment.getDeploymentID().toString();
+		    
+		    if(bindName.charAt(0)== '/') {
+		    	bindName = bindName.substring(1);
+		    }
+		    
+		    bindName = "openejb/ejb/"+bindName;
+		    if (isLocal){
+			    bindName += "Local";
+		    }
+		    jndiRootContext.bind(bindName, ref);
+		    
+		}catch(Exception e){ e.printStackTrace();throw new RuntimeException();}
+	}
+
+	/**
     * Returns the global JNDI name space for the OpenEJB container system.
     * The global JNDI name space contains bindings for all enterprise bean
     * EJBHome object deployed in the entire container system.  EJBHome objects
