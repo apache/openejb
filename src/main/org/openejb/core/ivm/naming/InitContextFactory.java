@@ -42,34 +42,70 @@
  *
  * $Id$
  */
-
-
 package org.openejb.core.ivm.naming;
 
-
 import java.util.Hashtable;
+import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.NamingException;
-
+import org.openejb.EnvProps;
 
 /**
  * Invoked by server on the OpenEJB JNDI global name space.
- * 
+ *
+ * Allows application clients in the same vm to lookup beans
+ * in the OpenEJB global name space.
+ *
+ * If OpenEJB is not initialized when getInitialContext(env) is
+ * called, the IntraVM Server will initialize OpenEJB as an in VM 
+ * EJB Server.  In this case, OpenEJB is not capable of receiving 
+ * remote calls.
+ *
  * @author David Blevins
  * @author Richard Monson-Haefel
  */
 public class InitContextFactory implements javax.naming.spi.InitialContextFactory {
-
-    // The ClassLoader could be implemented as static.
-    //static RiClassLoader loader;
     
     public Context getInitialContext(Hashtable env) throws NamingException {
+        if (!org.openejb.OpenEJB.isInitialized()) {
+            initializeOpenEJB(env);
+        }
+
         Context context = org.openejb.OpenEJB.getJNDIContext();
         context = (Context)context.lookup("java:openejb/ejb");
         return context;
 
     }
+
+    private void initializeOpenEJB(Hashtable env) throws NamingException{
+        try{ 
+        Properties props = new Properties();
+
+        //  Prepare defaults
+        /* DMB: We should get the defaults from the functionality 
+         *      Alan is working on.  This is temporary.
+         *      When that logic is finished, this block should
+         *      probably just be deleted.
+         */
+        props.put(EnvProps.ASSEMBLER, "org.openejb.alt.assembler.classic.Assembler");
+        props.put(EnvProps.CONFIGURATION_FACTORY, "org.openejb.alt.config.ConfigurationFactory");
+        props.put(EnvProps.CONFIGURATION, "conf/default.openejb.conf");
+        props.put("log4j.configuration", "file:conf/default.logging.conf");
+
+        //  Override defaults with System properties
+        props.putAll(System.getProperties());
+
+        //  Override defauls again with JNDI Env properties
+        props.putAll( env );
+
+        org.openejb.OpenEJB.init( props );
+
+        } catch (Exception e){
+            throw new NamingException("Cannot initailize OpenEJB: "+e.getMessage());
+        }
+    }
+
 }
 
 
