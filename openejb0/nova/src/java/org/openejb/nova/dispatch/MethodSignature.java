@@ -111,6 +111,9 @@ public final class MethodSignature implements Serializable {
             return false;
         }
         Class[] types = method.getParameterTypes();
+        if (types.length != parameterTypes.length) {
+            return false;
+        }
         for (int i = 0; i < parameterTypes.length; i++) {
             if(!types[i].getName().equals(parameterTypes[i])) {
                 return false;
