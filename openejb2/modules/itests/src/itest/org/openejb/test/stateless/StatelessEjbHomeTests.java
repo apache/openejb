@@ -89,7 +89,7 @@ public class StatelessEjbHomeTests extends BasicStatelessTestClient {
      * interface, or the remove(Handle handle) method of the javax.ejb.EJBHome interface.
      * <p/>
      * Because session objects do not have primary keys that are accessible to clients, invoking the
-     * javax.ejb.EJBHome.remove(Object primaryKey) method on a session results in the
+     * javax.ejb.EJBHome.remove(Object id) method on a session results in the
      * javax.ejb.RemoveException.
      * <p/>
      * ------------------------------------
@@ -100,7 +100,7 @@ public class StatelessEjbHomeTests extends BasicStatelessTestClient {
      * client’s perspective, appear anonymous. In contrast to entity objects,
      * which expose their identity as a primary key, session objects hide their
      * identity. As a result, the EJBObject.getPrimaryKey() and
-     * EJBHome.remove(Object primaryKey) methods result in a java.rmi.RemoteException
+     * EJBHome.remove(Object id) methods result in a java.rmi.RemoteException
      * if called on a session bean. If the EJBMetaData.getPrimaryKeyClass()
      * method is invoked on a EJBMetaData object for a Session bean, the method throws
      * the java.lang.RuntimeException.
@@ -113,7 +113,7 @@ public class StatelessEjbHomeTests extends BasicStatelessTestClient {
      */
     public void test03_removeByPrimaryKey() {
         try {
-            ejbHome.remove("primaryKey");
+            ejbHome.remove("id");
         } catch (javax.ejb.RemoveException e) {
             assertTrue(true);
             return;

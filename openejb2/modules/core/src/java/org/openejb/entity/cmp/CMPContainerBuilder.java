@@ -120,11 +120,20 @@ import org.tranql.schema.Schema;
  * @version $Revision$ $Date$
  */
 public class CMPContainerBuilder extends AbstractContainerBuilder {
+    private boolean cmp2 = true;
     private EJBSchema ejbSchema;
     private Schema sqlSchema;
     private EJB ejb;
     private String connectionFactoryName;
     private Map queries;
+
+    public boolean isCMP2() {
+        return cmp2;
+    }
+
+    public void setCMP2(boolean cmp2) {
+        this.cmp2 = cmp2;
+    }
 
     protected int getEJBComponentType() {
         return EJBComponentType.CMP_ENTITY;
@@ -254,9 +263,12 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
         // build the instance factory
         LinkedHashMap cmpFieldAccessors = createCMPFieldAccessors(faultHandler);
-        Map instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors);
+        Map instanceMap = null;
+        if (cmp2) {
+            instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors);
+        }
 
-        InstanceContextFactory contextFactory = new CMPInstanceContextFactory(getContainerId(), primaryKeyTransform, faultHandler, beanClass, instanceMap, getUnshareableResources(), getApplicationManagedSecurityResources());
+        InstanceContextFactory contextFactory = new CMPInstanceContextFactory(getContainerId(), cmp2, primaryKeyTransform, faultHandler, beanClass, instanceMap, getUnshareableResources(), getApplicationManagedSecurityResources());
         EntityInstanceFactory instanceFactory = new EntityInstanceFactory(contextFactory);
 
         // build the pool

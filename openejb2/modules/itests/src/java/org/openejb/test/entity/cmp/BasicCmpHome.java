@@ -44,24 +44,20 @@
  */
 package org.openejb.test.entity.cmp;
 
+import java.rmi.RemoteException;
+import java.util.Collection;
+import javax.ejb.CreateException;
+import javax.ejb.FinderException;
 
-/**
- * 
- */
+
 public interface BasicCmpHome extends javax.ejb.EJBHome {
+    public BasicCmpObject create(String name) throws CreateException, RemoteException;
 
+    public BasicCmpObject findByPrimaryKey(Integer primarykey) throws FinderException, RemoteException;
 
-    public BasicCmpObject create(String name)
-    throws javax.ejb.CreateException, java.rmi.RemoteException;
-    
-    public BasicCmpObject findByPrimaryKey(Integer primarykey)
-    throws javax.ejb.FinderException, java.rmi.RemoteException;
-    
-    public java.util.Collection findEmptyCollection()
-    throws javax.ejb.FinderException, java.rmi.RemoteException;
-    
-    public java.util.Collection findByLastName(String lastName)
-    throws javax.ejb.FinderException, java.rmi.RemoteException;
-    
-    public int sum(int x, int y) throws java.rmi.RemoteException;
+    public Collection findEmptyCollection() throws FinderException, RemoteException;
+
+    public Collection findByLastName(String lastName) throws FinderException, RemoteException;
+
+    public int sum(int x, int y) throws RemoteException;
 }

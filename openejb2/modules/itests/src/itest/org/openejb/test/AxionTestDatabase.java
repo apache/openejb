@@ -21,17 +21,17 @@ public class AxionTestDatabase implements TestDatabase {
     private static final String CREATE_ENTITY = "CREATE TABLE entity ( id integer default entity_seq.nextval, first_name string, last_name string )";
     private static final String DROP_ENTITY = "DROP TABLE entity";
 
-    private static final String CREATE_BASICCMP = "CREATE TABLE BASICCMP ( id integer default entity_seq.nextval, firstname string, lastname string )";
-    private static final String DROP_BASICCMP = "DROP TABLE BASICCMP";
+    private static final String CREATE_BASICCMP = "CREATE TABLE BASICCMP2 ( id integer default entity_seq.nextval, firstname string, lastname string )";
+    private static final String DROP_BASICCMP = "DROP TABLE BASICCMP2";
 
-    private static final String CREATE_AOBASICCMP = "CREATE TABLE AOBASICCMP ( id integer default entity_seq.nextval, firstname string, lastname string )";
-    private static final String DROP_AOBASICCMP = "DROP TABLE AOBASICCMP";
+    private static final String CREATE_AOBASICCMP = "CREATE TABLE AOBASICCMP2 ( id integer default entity_seq.nextval, firstname string, lastname string )";
+    private static final String DROP_AOBASICCMP = "DROP TABLE AOBASICCMP2";
 
-    private static final String CREATE_ENCCMP = "CREATE TABLE ENCCMP ( id integer default entity_seq.nextval, firstname string, lastname string )";
-    private static final String DROP_ENCCMP = "DROP TABLE ENCCMP";
+    private static final String CREATE_ENCCMP = "CREATE TABLE ENCCMP2 ( id integer default entity_seq.nextval, firstname string, lastname string )";
+    private static final String DROP_ENCCMP = "DROP TABLE ENCCMP2";
 
-    private static final String CREATE_CMPRMIIIOP = "CREATE TABLE CMPRMIIIOP ( id integer default entity_seq.nextval, firstname string, lastname string )";
-    private static final String DROP_CMPRMIIIOP = "DROP TABLE CMPRMIIIOP";
+    private static final String CREATE_CMPRMIIIOP = "CREATE TABLE CMP2RMIIIOP ( id integer default entity_seq.nextval, firstname string, lastname string )";
+    private static final String DROP_CMPRMIIIOP = "DROP TABLE CMP2RMIIIOP";
 
     private static final String CREATE_ENTITY_SEQ = "CREATE SEQUENCE entity_seq";
     private static final String DROP_ENTITY_SEQ = "DROP SEQUENCE entity_seq";

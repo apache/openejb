@@ -109,7 +109,7 @@ public class StatelessEjbObjectTests extends BasicStatelessTestClient {
      * client’s perspective, appear anonymous. In contrast to entity objects,
      * which expose their identity as a primary key, session objects hide their
      * identity. As a result, the EJBObject.getPrimaryKey() and
-     * EJBHome.remove(Object primaryKey) methods result in a java.rmi.RemoteException
+     * EJBHome.remove(Object id) methods result in a java.rmi.RemoteException
      * if called on a session bean. If the EJBMetaData.getPrimaryKeyClass()
      * method is invoked on a EJBMetaData object for a Session bean, the method throws
      * the java.lang.RuntimeException.

@@ -49,6 +49,7 @@ package org.openejb.deployment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.security.Permissions;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,9 +67,9 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.xbeans.j2ee.CmpFieldType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
+import org.apache.geronimo.xbeans.j2ee.EjbNameType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
-import org.apache.geronimo.xbeans.j2ee.EjbNameType;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.entity.cmp.CMPContainerBuilder;
 import org.openejb.proxy.EJBProxyFactory;
@@ -117,6 +118,8 @@ class CMPEntityBuilder extends EntityBuilder {
                 String ejbName = getString(entityBean.getEjbName());
                 String abstractSchemaName = getString(entityBean.getAbstractSchemaName());
 
+                boolean cmp2 = isCMP2(entityBean);
+
                 ObjectName entityObjectName = super.createEJBObjectName(earContext, ejbModuleName, entityBean);
 
                 EJBProxyFactory proxyFactory = (EJBProxyFactory) getModuleBuilder().createEJBProxyFactory(entityObjectName.getCanonicalName(),
@@ -146,7 +149,7 @@ class CMPEntityBuilder extends EntityBuilder {
 
                 Set pkFieldNames;
                 if (entityBean.getPrimkeyField() == null) {
-// no field name specified, must be a compound pk so get the field names from the public fields
+                    // no field name specified, must be a compound pk so get the field names from the public fields
                     Field[] fields = pkClass.getFields();
                     pkFieldNames = new HashSet(fields.length);
                     for (int j = 0; j < fields.length; j++) {
@@ -154,7 +157,7 @@ class CMPEntityBuilder extends EntityBuilder {
                         pkFieldNames.add(field.getName());
                     }
                 } else {
-// specific field is primary key
+                    // specific field is primary key
                     pkFieldNames = new HashSet(1);
                     pkFieldNames.add(getString(entityBean.getPrimkeyField()));
                 }
@@ -163,7 +166,7 @@ class CMPEntityBuilder extends EntityBuilder {
                 for (int cmpFieldIndex = 0; cmpFieldIndex < cmpFieldTypes.length; cmpFieldIndex++) {
                     CmpFieldType cmpFieldType = cmpFieldTypes[cmpFieldIndex];
                     String fieldName = getString(cmpFieldType.getFieldName());
-                    Class fieldType = getCMPFieldType(fieldName, ejbClass);
+                    Class fieldType = getCMPFieldType(cmp2, fieldName, ejbClass);
                     boolean isPKField = pkFieldNames.contains(fieldName);
                     ejb.addCMPField(new CMPField(fieldName, fieldType, isPKField));
                     table.addColumn(new Column(fieldName, fieldType, isPKField));
@@ -187,13 +190,55 @@ class CMPEntityBuilder extends EntityBuilder {
         }
     }
 
-    private Class getCMPFieldType(String fieldName, Class beanClass) throws DeploymentException {
-        try {
-            String getterName = "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-            Method getter = beanClass.getMethod(getterName, null);
-            return getter.getReturnType();
-        } catch (Exception e) {
-            throw new DeploymentException("Getter for CMP field not found: fieldName=" + fieldName + " beanClass=" + beanClass.getName());
+    private static boolean isCMP2(EntityBeanType entityBean) throws DeploymentException {
+        if (!entityBean.isSetCmpVersion()) {
+            return true;
+        } else {
+            String version = getString(entityBean.getCmpVersion());
+            if ("1.x".equals(version)) {
+                return false;
+            } else if ("2.x".equals(version)) {
+                return true;
+            } else {
+                throw new DeploymentException("cmp-version must be either 1.x or 2.x, but was " + version);
+            }
+        }
+    }
+
+    private Class getCMPFieldType(boolean cmp2, String fieldName, Class beanClass) throws DeploymentException {
+        if (cmp2) {
+            try {
+                String getterName = "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+                Method getter = beanClass.getMethod(getterName, null);
+                return getter.getReturnType();
+            } catch (Exception e) {
+                throw new DeploymentException("Getter for CMP field not found: fieldName=" + fieldName + " beanClass=" + beanClass.getName());
+            }
+        } else {
+            Field field;
+            try {
+                field = beanClass.getField(fieldName);
+            } catch (NoSuchFieldException e) {
+                throw new DeploymentException("Class field for CMP field not found: fieldName=" + fieldName + " beanClass=" + beanClass.getName());
+            }
+
+            if (!Modifier.isPublic(field.getModifiers())) {
+                throw new DeploymentException("Class field for CMP field is not public: fieldName=" + fieldName + " beanClass=" + beanClass.getName());
+            }
+
+            if (Modifier.isFinal(field.getModifiers())) {
+                throw new DeploymentException("Class field for CMP field is final: fieldName=" + fieldName + " beanClass=" + beanClass.getName());
+            }
+
+            if (Modifier.isTransient(field.getModifiers())) {
+                throw new DeploymentException("Class field for CMP field is transient: fieldName=" + fieldName + " beanClass=" + beanClass.getName());
+            }
+
+            if (Modifier.isStatic(field.getModifiers())) {
+                throw new DeploymentException("Class field for CMP field is static: fieldName=" + fieldName + " beanClass=" + beanClass.getName());
+            }
+
+            return field.getType();
         }
     }
 
@@ -209,6 +254,7 @@ class CMPEntityBuilder extends EntityBuilder {
         builder.setLocalHomeInterfaceName(getString(entityBean.getLocalHome()));
         builder.setLocalInterfaceName(getString(entityBean.getLocal()));
         builder.setPrimaryKeyClassName(getString(entityBean.getPrimKeyClass()));
+        builder.setCMP2(isCMP2(entityBean));
         TransactionPolicySource transactionPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);
         builder.setTransactionPolicySource(transactionPolicySource);
         builder.setTransactedTimerName(earContext.getTransactedTimerName());
