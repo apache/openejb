@@ -48,17 +48,18 @@ import java.rmi.RemoteException;
 
 import org.openejb.test.TestFailureException;
 
+
 /**
  * 
  */
-public interface SessionFacadeObject extends javax.ejb.EJBObject{
-    
+public interface SessionFacadeObject extends javax.ejb.EJBObject {
+
     public void invokeCreateRemoveCreateSameCMP() throws RemoteException, TestFailureException;
-    
+
     public void invokeCreateCreateSameCMP() throws RemoteException, TestFailureException;
 
-    public void invokeCreateFindNoForceCacheFlush() throws TestFailureException;
-    
-    public void invokeCreateFindForceCacheFlush() throws TestFailureException;
+    public void invokeCreateFindNoForceCacheFlush() throws RemoteException, TestFailureException;
+
+    public void invokeCreateFindForceCacheFlush() throws RemoteException, TestFailureException;
 
 }
