@@ -56,6 +56,8 @@ public class UtilDelegateImpl implements javax.rmi.CORBA.UtilDelegate {
 
     private static UtilDelegateImpl _instance;
 
+    private final static org.openejb.util.Logger logger = org.openejb.util.Logger.getInstance("CORBA-Adapter", "org.openejb.util.resources");
+
     public UtilDelegateImpl() throws Exception {
         _instance=this;
         String value = (String) System.getProperty(propName);
@@ -98,6 +100,7 @@ public class UtilDelegateImpl implements javax.rmi.CORBA.UtilDelegate {
         }else if(ProxyManager.isProxyClass(remote.getClass())){
             handler = (BaseEjbProxyHandler)ProxyManager.getInvocationHandler(remote);
         } else {
+	    logger.error("Encountered unknown object reference of type "+remote);
             throw new RuntimeException();
         }
         Class interf;
@@ -106,6 +109,7 @@ public class UtilDelegateImpl implements javax.rmi.CORBA.UtilDelegate {
         } else if(handler instanceof EjbObjectProxyHandler) {
             interf = handler.deploymentInfo.getRemoteInterface();
         } else {
+	    logger.error("Encountered unknown local invocation handler of type "+handler.getClass()+":"+handler);
             throw new RuntimeException();
         }
         ProxyInfo info = new ProxyInfo(handler.deploymentInfo, handler.primaryKey, interf, handler.container);
@@ -128,6 +132,7 @@ public class UtilDelegateImpl implements javax.rmi.CORBA.UtilDelegate {
         else if ( obj == null || obj instanceof org.omg.CORBA.Object )
             out.write_Object( ( org.omg.CORBA.Object ) obj );
         else
+	    logger.error("Encountered unknown object reference of type "+obj.getClass()+":"+obj);
             throw new IllegalArgumentException( "Not a remote object:"+obj );
         }catch(Throwable e) {
             throw new RuntimeException();
@@ -139,8 +144,16 @@ public class UtilDelegateImpl implements javax.rmi.CORBA.UtilDelegate {
     public void registerTarget(javax.rmi.CORBA.Tie tie, java.rmi.Remote obj){
         _delegate.registerTarget(tie, obj);
     }
-    public void unexportObject(java.rmi.Remote obj) throws java.rmi.NoSuchObjectException {
-        _delegate.unexportObject(obj);
+
+    public void unexportObject(java.rmi.Remote obj) {
+	try{
+	    _delegate.unexportObject(obj);
+	}catch(Exception e) {
+	    // this catch block exists, because SUN changed the method
+	    // signature of this method between 1.3 and 1.4 to include an
+	    // additional exception. We don't propagate it, but log it.
+	    logger.error("Tried to unexport an object that wasn't activated", e);
+	}
     }
     public javax.rmi.CORBA.Tie getTie(java.rmi.Remote obj){
         return _delegate.getTie(obj);
