@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<faqs>
+    <super id="faq">FAQ</super>
+    <super id="faq_support">Configuration Files</super>
+    <name>Configuration Files</name>
+<faq>
+<question>What engine does OpenEJB use for CMP persistence?</question>
+<answer id="jdo">
+<p>
+OpenEJB uses Castor JDO for CMP persistence.  The CMP config files are all 
+Castor controlled files (www.castor.org). At the moment, most of the 
+real juicy CMP configuration file information is at the Castor site. 
+There is no difference between configuring a CMP EntityBean in OpenEJB 
+than with any other Castor controlled java object, so anything you learn 
+about Castor's config files will be applicable. 
+</p>
+</answer>
+</faq>
+
+<faq>
+<question>What is the format for the CMP mapping files?</question>
+<answer id="cmp.mapping">
+<p>
+The Castor JDO mapping file provides a mechanism for binding a CMP 
+EntityBean deployed in OpenEJB to a relational database model. This is 
+usually referred to as object-to-relational mapping (O/R mapping). O/R 
+mapping bridges the gap between an object model and a relational model.
+</p>                     
+
+<p>
+The format of these files is <a 
+href="http://www.castor.org/jdo-mapping.html">documented here</a>
+</p>
+
+</answer>
+</faq>
+
+<faq>
+<question>How are primary keys created for CMP EntityBeans?</question>
+<answer id="cmp.mapping">
+<p>
+The KeyGenerator is responsible for creating the primary key of the 
+records that are inserted by Castor.  
+<a href="http://castor.exolab.org/key-generator.html">More information on 
+that here</a>
+</p>
+
+</answer>
+</faq>
+</faqs>
