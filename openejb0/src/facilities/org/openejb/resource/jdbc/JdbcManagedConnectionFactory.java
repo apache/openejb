@@ -88,9 +88,9 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
             //BUG: If this situtuation occurs, only the words:
             // java.lang.reflect.InvocationTargetException: javax.resource.spi.ResourceAdapterInternalException
             // are outputted to the screen.
-           cnf.printStackTrace(System.out);
+           //cnf.printStackTrace(System.out);
            ResourceAdapterInternalException raie =  new ResourceAdapterInternalException("JDBC Driver class \""+jdbcDriver+"\" not found by class loader", ErrorCode.JDBC_0002);
-           raie.setLinkedException(cnf);
+           //raie.setLinkedException(cnf);
            throw raie;
         }
     }

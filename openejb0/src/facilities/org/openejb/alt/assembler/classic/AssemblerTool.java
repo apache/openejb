@@ -458,18 +458,28 @@ public class AssemblerTool {
     */
     public  ManagedConnectionFactory assembleManagedConnectionFactory(ManagedConnectionFactoryInfo mngedConFactInfo)
     throws org.openejb.OpenEJBException, java.lang.Exception {
-        /*TODO: Add better exception handling, this method throws java.lang.Exception,
-         which is not very specific. Only a very specific OpenEJBException should be 
-         thrown.
-         */
-        Class factoryClass = toolkit.loadClass(mngedConFactInfo.className, mngedConFactInfo.codebase);
-        checkImplementation(CONNECTOR, factoryClass, "Connector", mngedConFactInfo.id);
-        ManagedConnectionFactory managedConnectionFactory = (ManagedConnectionFactory)toolkit.newInstance(factoryClass);
-            
-        // a ManagedConnectionFactory has either properties or configuration information or nothing at all
-        if(mngedConFactInfo.properties !=null)
-            applyProperties(managedConnectionFactory, mngedConFactInfo.properties);
         
+        ManagedConnectionFactory managedConnectionFactory = null;
+        try{
+            Class factoryClass = toolkit.loadClass(mngedConFactInfo.className, mngedConFactInfo.codebase);
+            checkImplementation(CONNECTOR, factoryClass, "Connector", mngedConFactInfo.id);
+            
+            managedConnectionFactory = (ManagedConnectionFactory)toolkit.newInstance(factoryClass);
+        } catch (Exception e){
+            throw new OpenEJBException("Could not instantiate Connector '"+mngedConFactInfo.id+"'.",e);
+        }
+                
+            
+        try{
+            // a ManagedConnectionFactory has either properties or configuration information or nothing at all
+            if(mngedConFactInfo.properties !=null)
+                applyProperties(managedConnectionFactory, mngedConFactInfo.properties);
+        } catch (java.lang.reflect.InvocationTargetException ite){
+            throw new OpenEJBException("Could not initialize Connector '"+mngedConFactInfo.id+"'.",ite.getTargetException());
+        } catch (Exception e){
+            //e.printStackTrace();
+            throw new OpenEJBException("Could not initialize Connector '"+mngedConFactInfo.id+"'.",e);
+        }
         
         return managedConnectionFactory;
     }
@@ -552,12 +562,15 @@ public class AssemblerTool {
 
     }   
     /**
-    * This method will automatically attempt to invoke an init(Properties )
-    * method on the target object, passing in the properties and an argument.
-    *
-    * @param target the object that will have its init(Properties) method invoked
-    * @param the properties argument for the init(Properties) method.
-    */
+     * This method will automatically attempt to invoke an init(Properties )
+     * method on the target object, passing in the properties and an argument.
+     * 
+     * @param target the object that will have its init(Properties) method invoked
+     * @param props
+     * @exception java.lang.reflect.InvocationTargetException
+     * @exception java.lang.IllegalAccessException
+     * @exception java.lang.NoSuchMethodException
+     */
     public  void applyProperties(Object target, Properties props)
     throws java.lang.reflect.InvocationTargetException, 
            java.lang.IllegalAccessException,java.lang.NoSuchMethodException  {
