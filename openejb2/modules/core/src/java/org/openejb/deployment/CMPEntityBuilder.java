@@ -47,11 +47,14 @@
  */
 package org.openejb.deployment;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.security.Permissions;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-
+import java.util.Set;
+import java.util.Iterator;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentException;
@@ -127,33 +130,60 @@ class CMPEntityBuilder extends EntityBuilder {
 	                                                                                   OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocalHome()),
 	                                                                                   cl);
 	
-	            Class ejbClass = null;
+	            Class ejbClass;
 	            try {
 	                ejbClass = cl.loadClass(entityBean.getEjbClass().getStringValue());
 	            } catch (ClassNotFoundException e) {
 	                throw new DeploymentException("Could not load cmp bean class: ejbName=" + ejbName + " ejbClass=" + entityBean.getEjbClass().getStringValue());
 	            }
-	
-	            EJB ejb = new EJB(ejbName, abstractSchemaName, proxyFactory);
+
+                Class pkClass;
+                try {
+                    pkClass = cl.loadClass(entityBean.getPrimKeyClass().getStringValue());
+                } catch (ClassNotFoundException e) {
+                    throw new DeploymentException("Could not load cmp primary key class: ejbName=" + ejbName + " pkClass=" + entityBean.getPrimKeyClass().getStringValue());
+                }
+
+	            EJB ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory);
 	            Table table = new Table(ejbName, abstractSchemaName);
-	
-	            String primkeyField = entityBean.getPrimkeyField().getStringValue();
-	            CmpFieldType[] cmpFieldTypes = entityBean.getCmpFieldArray();
-	            for (int cmpFieldIndex = 0; cmpFieldIndex < cmpFieldTypes.length; cmpFieldIndex++) {
-	                CmpFieldType cmpFieldType = cmpFieldTypes[cmpFieldIndex];
-	                String fieldName = cmpFieldType.getFieldName().getStringValue();
-	                Class fieldType = getCMPFieldType(fieldName, ejbClass);
-	                boolean isPKField = fieldName.equals(primkeyField);
-	                CMPField cmpField = new CMPField(fieldName, fieldType, isPKField);
-	                ejb.addCMPField(cmpField);
-	                if (isPKField) {
-	                    ejb.setPrimaryKeyField(cmpField);
-	                }
-	
-	                Column column = new Column(fieldName, fieldType, isPKField);
-	                table.addColumn(column);
-	            }
-	
+
+                Set pkFieldNames;
+                if (entityBean.getPrimkeyField() == null) {
+                    // no field name specified, must be a compound pk so get the field names from the public fields
+                    Field[] fields = pkClass.getFields();
+                    pkFieldNames = new HashSet(fields.length);
+                    for (int j = 0; j < fields.length; j++) {
+                        Field field = fields[j];
+                        pkFieldNames.add(field.getName());
+                    }
+                } else {
+                    // specific field is primary key
+                    pkFieldNames = new HashSet(1);
+                    pkFieldNames.add(entityBean.getPrimkeyField().getStringValue());
+                }
+
+                CmpFieldType[] cmpFieldTypes = entityBean.getCmpFieldArray();
+                for (int cmpFieldIndex = 0; cmpFieldIndex < cmpFieldTypes.length; cmpFieldIndex++) {
+                    CmpFieldType cmpFieldType = cmpFieldTypes[cmpFieldIndex];
+                    String fieldName = cmpFieldType.getFieldName().getStringValue();
+                    Class fieldType = getCMPFieldType(fieldName, ejbClass);
+                    boolean isPKField = pkFieldNames.contains(fieldName);
+                    ejb.addCMPField(new CMPField(fieldName, fieldType, isPKField));
+                    table.addColumn(new Column(fieldName, fieldType, isPKField));
+                    if (isPKField) {
+                        pkFieldNames.remove(fieldName);
+                    }
+                }
+                if (!pkFieldNames.isEmpty()) {
+                    StringBuffer fields = new StringBuffer();
+                    fields.append("Could not find cmp fields for following pk fields:");
+                    for (Iterator iterator = pkFieldNames.iterator(); iterator.hasNext();) {
+                        fields.append(' ');
+                        fields.append(iterator.next());
+                    }
+                    throw new DeploymentException(fields.toString());
+                }
+
 	            ejbSchema.addEJB(ejb);
 	            sqlSchema.addTable(table);
 	        }

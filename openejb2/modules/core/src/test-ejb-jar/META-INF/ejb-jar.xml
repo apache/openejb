@@ -55,6 +55,25 @@
             <cmp-field><field-name>lastName</field-name></cmp-field>
             <primkey-field>id</primkey-field>
         </entity>
+<!--
+        <entity>
+            <ejb-name>CompoundPKEntity</ejb-name>
+            <home>org.openejb.test.simple.cmp.CompoundPKEntityHome</home>
+            <remote>org.openejb.test.simple.cmp.CompoundPKEntity</remote>
+            <local-home>org.openejb.test.simple.cmp.CompoundPKEntityLocalHome</local-home>
+            <local>org.openejb.test.simple.cmp.CompoundPKEntityLocal</local>
+            <ejb-class>org.openejb.test.simple.cmp.CompoundPKEntityEJB</ejb-class>
+            <persistence-type>Container</persistence-type>
+            <prim-key-class>org.openejb.test.simple.cmp.CompoundPK</prim-key-class>
+            <reentrant>false</reentrant>
+            <cmp-version>2.x</cmp-version>
+            <abstract-schema-name>SimpleCMP</abstract-schema-name>
+            <cmp-field><field-name>k1</field-name></cmp-field>
+            <cmp-field><field-name>k2</field-name></cmp-field>
+            <cmp-field><field-name>firstName</field-name></cmp-field>
+            <cmp-field><field-name>lastName</field-name></cmp-field>
+        </entity>
+-->
         <message-driven>
             <ejb-name>SimpleMessageDriven</ejb-name>
             <ejb-class>org.openejb.test.simple.mdb.SimpleMessageDrivenBean</ejb-class>
