@@ -175,9 +175,9 @@ public class ViewJndiBean extends WebAdminBean  implements Constants {
 
     public void buildNode(Node parent, Context ctx) throws Exception{
         if (false) throw new NullPointerException();
-        NamingEnumeration enum = ctx.list( "" );
-        while (enum.hasMoreElements()){
-            NameClassPair pair = (NameClassPair)enum.next();
+        NamingEnumeration e = ctx.list( "" );
+        while (e.hasMoreElements()){
+            NameClassPair pair = (NameClassPair)e.next();
             Node node = new Node();
             parent.addChild(node);
             node.name = pair.getName();

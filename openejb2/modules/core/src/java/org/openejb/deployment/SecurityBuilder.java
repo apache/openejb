@@ -346,9 +346,9 @@ class SecurityBuilder {
             }
         }
 
-        Enumeration enum = notAssigned.elements();
-        while (enum.hasMoreElements()) {
-            Permission p = (Permission) enum.nextElement();
+        Enumeration e = notAssigned.elements();
+        while (e.hasMoreElements()) {
+            Permission p = (Permission) e.nextElement();
             permissions.add(p);
         }
     }
@@ -420,9 +420,9 @@ class SecurityBuilder {
     private Permissions cullPermissions(Permissions toBeChecked, Permission permission) {
         Permissions result = new Permissions();
 
-        Enumeration enum = toBeChecked.elements();
-        while (enum.hasMoreElements()) {
-            Permission test = (Permission) enum.nextElement();
+        Enumeration e = toBeChecked.elements();
+        while (e.hasMoreElements()) {
+            Permission test = (Permission) e.nextElement();
             if (!permission.implies(test)) {
                 result.add(test);
             }

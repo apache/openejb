@@ -376,12 +376,12 @@ public class ConfigUtils  {
     }
 
     public static boolean addDeploymentEntryToConfig(String jarLocation, Openejb config){
-        Enumeration enum = config.enumerateDeployments();
+        Enumeration deployments = config.enumerateDeployments();
         File jar = new File(jarLocation);
 
         /* Check to see if the entry is already listed */
-        while ( enum.hasMoreElements() ) {
-            Deployments d = (Deployments)enum.nextElement();
+        while ( deployments.hasMoreElements() ) {
+            Deployments d = (Deployments)deployments.nextElement();
             
             if ( d.getJar() != null ) {
                 try {
