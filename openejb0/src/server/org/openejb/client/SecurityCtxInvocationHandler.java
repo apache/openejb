@@ -70,6 +70,8 @@ public class SecurityCtxInvocationHandler implements InvocationHandler
 	ThreadContext context = ThreadContext.getThreadContext();
 	if (context.getSecurityIdentity() == null) {
 	    context.setSecurityIdentity(_data.getClientIdentity());
+
+            setSecurity = true;
 	}
 
 	Object result;
