@@ -154,14 +154,28 @@ public class CheckClasses implements ValidationRule {
             set.addFailure( failure );
 
             //set.addFailure( new ValidationFailure("missing.class", clazz, type, b.getEjbName()) );
+        } catch ( NoClassDefFoundError e){
+            /*
+             # 0 - Class name
+             # 1 - Element (home, ejb-class, remote)
+             # 2 - Bean name
+             # 3 - Misslocated Class name
+             */
+            ValidationFailure failure = new ValidationFailure("misslocated.class");
+            failure.setDetails( clazz, type, b.getEjbName(), e.getMessage());
+            failure.setBean( b );
+
+            set.addFailure( failure );
+            throw e;
         }
+        
     }
 
     private void compareTypes(Bean b, String clazz1, Class class2 ){
         Class class1 = null;
         try {
             class1 = SafeToolkit.loadTempClass( clazz1 , set.getJarPath() );
-        } catch ( OpenEJBException e ) {}
+        } catch ( OpenEJBException e ) { }
 
         if ( class1 != null && !class2.isAssignableFrom( class1 ) ) {
             ValidationFailure failure = new ValidationFailure("wrong.class.type");
