@@ -912,7 +912,7 @@
       <fileset dir="src/etc" >
         <include name="README"/>
         <include name="LICENSE"/>
-        <include name="THANKYOU"/>
+        <include name="CREDITS"/>
       </fileset>
     
     </copy>
