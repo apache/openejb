@@ -366,9 +366,10 @@ public class EntityInstanceManager {
                 */
                 this.SET_ENTITY_CONTEXT_METHOD.invoke(bean, new javax.ejb.EntityContext []{(javax.ejb.EntityContext)callContext.getDeploymentInfo().getEJBContext()});
                 //return bean;
+            }catch(java.lang.reflect.InvocationTargetException target) {
+                // contains most likely an EJBException, so forward that one
+                throw new org.openejb.ApplicationException(target.getTargetException());
             }catch(java.lang.Exception e){
-		System.out.println("========= FROM INSTANCE MGR ======");
-		e.printStackTrace();
                 /*
                 * The EJB 1.1 specification does not specify how exceptions thrown by setEntityContext impact the 
                 * transaction, if there is one.  In this case we choose the least disruptive operation, throwing an 
@@ -378,8 +379,6 @@ public class EntityInstanceManager {
             }finally{
                 callContext.setCurrentOperation(currentOp);
             }
-            
-            
         }
 
 	if( ( callContext.getCurrentOperation()== org.openejb.core.Operations.OP_BUSINESS) ||
@@ -616,7 +615,7 @@ public class EntityInstanceManager {
 
         try{
             /*
-            * setEntityContext executes in an unspecified transactional context. In this case we choose to 
+            * unsetEntityContext executes in an unspecified transactional context. In this case we choose to 
             * allow it to have what every transaction context is current. Better then suspending it 
             * unnecessarily.
             *
@@ -625,15 +624,19 @@ public class EntityInstanceManager {
             * we don't want the TransactionScopeHandler commiting the transaction in afterInvoke() which is what it would attempt 
             * to do.
             */
-                this.UNSET_ENTITY_CONTEXT_METHOD.invoke(bean, new javax.ejb.EntityContext []{(javax.ejb.EntityContext)callContext.getDeploymentInfo().getEJBContext()});
+                this.UNSET_ENTITY_CONTEXT_METHOD.invoke(bean, null);
+        }catch(java.lang.reflect.InvocationTargetException target) {
+            org.apache.log4j.Category.getInstance("OpenEJB").info(getClass().getName()+".freeInstance: ignoring exception "+target.getTargetException()+" on bean instance "+bean);
+            // To throw, or not to throw, this is the question! See below.
         }catch(java.lang.Exception e){
             /*
-            * The EJB 1.1 specification does not specify how exceptions thrown by setEntityContext impact the 
+            * The EJB 1.1 specification does not specify how exceptions thrown by unsetEntityContext impact the 
             * transaction, if there is one.  In this case we choose to do nothing since the instance is being disposed 
             * of anyway.
             */
             // TODO: Not spec compliant. Must fix. The spec clearly classifies this in the callback 
             // exception handling section 18.3.3 "Exceptions from container-invoked callbacks"
+            org.apache.log4j.Category.getInstance("OpenEJB").info(getClass().getName()+".freeInstance: ignoring exception "+e+" on bean instance "+bean);
         }finally{
             callContext.setCurrentOperation(currentOp);
         }
