@@ -45,55 +45,31 @@
  *
  * ====================================================================
  */
-package org.openejb.mdb;
+package org.openejb;
 
-import java.io.Serializable;
-import java.util.Set;
-import javax.ejb.MessageDrivenBean;
-import javax.ejb.MessageDrivenContext;
-
-import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.core.service.Interceptor;
-import org.openejb.EJBInstanceFactory;
-import org.openejb.EJBInstanceFactoryImpl;
-import org.openejb.dispatch.SystemMethodIndices;
-import org.openejb.dispatch.InterfaceMethodSignature;
 
 /**
+ *
+ *
  * @version $Revision$ $Date$
- */
-public class MDBInstanceContextFactory implements Serializable {
-    private final Object containerId;
-    private final EJBInstanceFactory factory;
-    private final UserTransactionImpl userTransaction;
-    private final Set unshareableResources;
-    private final Set applicationManagedSecurityResources;
-    private SystemMethodIndices systemMethodIndices;
-    private Interceptor systemChain;
+ *
+ * */
+public class TwoChains {
 
-    public MDBInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
-        this.containerId = containerId;
-        this.userTransaction = userTransaction;
-        this.factory = new EJBInstanceFactoryImpl(beanClass);
-        this.unshareableResources = unshareableResources;
-        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
-    }
+    private final Interceptor userChain;
+    private final Interceptor systemChain;
 
-    public void setSystemChain(Interceptor systemChain) {
+    public TwoChains(Interceptor userChain, Interceptor systemChain) {
+        this.userChain = userChain;
         this.systemChain = systemChain;
     }
 
-    public void setSignatures(InterfaceMethodSignature[] signatures) {
-        systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setMessageDrivenContext", MessageDrivenContext.class.getName(), null);
+    public Interceptor getUserChain() {
+        return userChain;
     }
 
-
-    public InstanceContext newInstance() throws Exception {
-        return new MDBInstanceContext(containerId,
-                (MessageDrivenBean) factory.newInstance(),
-                userTransaction,
-                systemMethodIndices, systemChain, unshareableResources,
-                applicationManagedSecurityResources);
+    public Interceptor getSystemChain() {
+        return systemChain;
     }
 }

@@ -71,6 +71,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.cache.InstancePool;
+import org.openejb.TwoChains;
 
 /**
  * @version $Revision$ $Date$
@@ -93,7 +94,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
             String endpointInterfaceName,
             InterfaceMethodSignature[] signatures,
             boolean[] deliveryTransacted,
-            MDBInterceptorBuilder interceptorBuilder,
+            MDBInstanceContextFactory contextFactory, MDBInterceptorBuilder interceptorBuilder,
             InstancePool instancePool, UserTransactionImpl userTransaction,
             ActivationSpecWrapper activationSpecWrapper,
             TransactionManager transactionManager,
@@ -124,7 +125,12 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         // build the interceptor chain
         interceptorBuilder.setInstancePool(instancePool);
         interceptorBuilder.setTrackedConnectionAssociator(trackedConnectionAssociator);
-        interceptor = interceptorBuilder.buildInterceptorChain();
+        TwoChains chains = interceptorBuilder.buildInterceptorChains();
+        interceptor = chains.getUserChain();
+
+        contextFactory.setSignatures(getSignatures());
+
+        contextFactory.setSystemChain(chains.getSystemChain());
 
         // initialize the user transaction
         if (userTransaction != null) {
@@ -218,6 +224,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         infoFactory.addAttribute("endpointInterfaceName", String.class, true);
         infoFactory.addAttribute("signatures", InterfaceMethodSignature[].class, true);
         infoFactory.addAttribute("deliveryTransacted", boolean[].class, true);
+        infoFactory.addAttribute("contextFactory", MDBInstanceContextFactory.class, true);
         infoFactory.addAttribute("interceptorBuilder", MDBInterceptorBuilder.class, true);
         infoFactory.addAttribute("instancePool", InstancePool.class, true);
         infoFactory.addAttribute("userTransaction", UserTransactionImpl.class, true);
@@ -233,6 +240,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
             "endpointInterfaceName",
             "signatures",
             "deliveryTransacted",
+            "contextFactory",
             "interceptorBuilder",
             "instancePool",
             "userTransaction",

@@ -51,6 +51,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 import javax.ejb.EntityBean;
+import javax.ejb.EntityContext;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.InstanceContext;
@@ -58,6 +59,7 @@ import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
 import org.openejb.InstanceContextFactory;
 import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 
 /**
@@ -71,9 +73,8 @@ public class BMPInstanceContextFactory implements InstanceContextFactory, Serial
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
     private transient EJBProxyFactory proxyFactory;
-    private transient Interceptor lifecycleInterceptorChain;
-    private transient int loadIndex = -1;
-    private transient int storeIndex = -1;
+    private transient Interceptor systemChain;
+    private SystemMethodIndices systemMethodIndices;
 
     public BMPInstanceContextFactory(Object containerId, Class beanClass, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.containerId = containerId;
@@ -86,26 +87,18 @@ public class BMPInstanceContextFactory implements InstanceContextFactory, Serial
         this.proxyFactory = proxyFactory;
     }
 
-    public void setLifecycleInterceptorChain(Interceptor lifecycleInterceptorChain) {
-        this.lifecycleInterceptorChain = lifecycleInterceptorChain;
+    public void setSystemChain(Interceptor systemChain) {
+        this.systemChain = systemChain;
     }
 
     public void setSignatures(InterfaceMethodSignature[] signatures) {
-        for (int i = 0; i < signatures.length; i++) {
-            InterfaceMethodSignature signature = signatures[i];
-            if (signature.getMethodName().equals("ejbLoad")) {
-                loadIndex = i;
-            } else if (signature.getMethodName().equals("ejbStore")) {
-
-                storeIndex = i;
-            }
-        }
+        systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setEntityContext", EntityContext.class.getName(), "unsetEntityContext");
     }
 
     public InstanceContext newInstance() throws Exception {
         if (proxyFactory == null) {
             throw new IllegalStateException("ProxyFacory has not been set");
         }
-        return new BMPInstanceContext(containerId, proxyFactory, (EntityBean) factory.newInstance(), lifecycleInterceptorChain, loadIndex, storeIndex, unshareableResources, applicationManagedSecurityResources);
+        return new BMPInstanceContext(containerId, proxyFactory, (EntityBean) factory.newInstance(), systemChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources);
     }
 }

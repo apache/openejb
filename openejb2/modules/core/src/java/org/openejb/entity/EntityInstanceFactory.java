@@ -48,15 +48,13 @@
 package org.openejb.entity;
 
 import java.io.Serializable;
-import javax.ejb.EntityBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openejb.EJBOperation;
-import org.openejb.InstanceContextFactory;
-import org.openejb.cache.InstanceFactory;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
+import org.openejb.InstanceContextFactory;
+import org.openejb.cache.InstanceFactory;
 
 
 /**
@@ -69,12 +67,9 @@ import org.apache.geronimo.naming.java.RootContext;
  */
 public class EntityInstanceFactory implements InstanceFactory, Serializable {
     private static final Log log = LogFactory.getLog(EntityInstanceFactory.class);
-
-    private final ReadOnlyContext componentContext;
     private final InstanceContextFactory factory;
 
-    public EntityInstanceFactory(ReadOnlyContext componentContext, InstanceContextFactory factory) {
-        this.componentContext = componentContext;
+    public EntityInstanceFactory(InstanceContextFactory factory) {
         this.factory = factory;
     }
 
@@ -87,17 +82,16 @@ public class EntityInstanceFactory implements InstanceFactory, Serializable {
 
             // create an EJBInstanceContext wrapping the raw instance
             EntityInstanceContext ctx = (EntityInstanceContext) factory.newInstance();
-            EntityBean instance = (EntityBean) ctx.getInstance();
 
-            // Activate this components JNDI Component Context
-            RootContext.setComponentContext(componentContext);
-
-            // initialize the instance
-            ctx.setOperation(EJBOperation.SETCONTEXT);
             try {
-                instance.setEntityContext(ctx.getEntityContext());
-            } finally {
-                ctx.setOperation(EJBOperation.INACTIVE);
+                ctx.setContext();
+            } catch (Throwable t) {
+                //TODO check this error handling
+                if (t instanceof Exception) {
+                    throw (Exception) t;
+                } else {
+                    throw (Error) t;
+                }
             }
 
             return ctx;
@@ -108,21 +102,10 @@ public class EntityInstanceFactory implements InstanceFactory, Serializable {
 
     public void destroyInstance(Object instance) {
         EntityInstanceContext ctx = (EntityInstanceContext) instance;
-        EntityBean beanInstance = (EntityBean) ctx.getInstance();
-
-        ctx.setOperation(EJBOperation.SETCONTEXT);
-
-        // Activate this components JNDI Component Context
-        ReadOnlyContext oldContext = RootContext.getComponentContext();
-        RootContext.setComponentContext(componentContext);
         try {
-            beanInstance.unsetEntityContext();
+            ctx.unsetContext();
         } catch (Throwable t) {
-            // We're destroying this instance, so just log and continue
             log.warn("Unexpected error destroying Entity instance", t);
-        } finally {
-            ctx.setOperation(EJBOperation.INACTIVE);
-            RootContext.setComponentContext(oldContext);
         }
     }
 }

@@ -57,6 +57,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.ejb.EntityBean;
+import javax.ejb.EntityContext;
 
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.core.service.Interceptor;
@@ -71,6 +72,7 @@ import org.openejb.InstanceContextFactory;
 import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 import org.tranql.cache.FaultHandler;
 import org.tranql.identity.IdentityTransform;
@@ -91,9 +93,10 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
     private transient final InstanceOperation[] itable;
     private transient final Enhancer enhancer;
     private transient EJBProxyFactory proxyFactory;
-    private transient Interceptor lifecycleInterceptorChain;
-    private transient int loadIndex = -1;
-    private transient int storeIndex = -1;
+    private transient Interceptor systemChain;
+    private transient SystemMethodIndices systemMethodIndices;
+//    private transient int loadIndex = -1;
+//    private transient int storeIndex = -1;
 
     public CMPInstanceContextFactory(Object containerId, IdentityTransform primaryKeyTransform, FaultHandler loadFault, Class beanClass, Map imap, Set unshareableResources, Set applicationManagedSecurityResources) throws ClassNotFoundException {
         this.containerId = containerId;
@@ -127,26 +130,19 @@ public class CMPInstanceContextFactory implements InstanceContextFactory, Serial
         this.proxyFactory = proxyFactory;
     }
 
-    public void setLifecycleInterceptorChain(Interceptor lifecycleInterceptorChain) {
-        this.lifecycleInterceptorChain = lifecycleInterceptorChain;
+    public void setSystemChain(Interceptor systemChain) {
+        this.systemChain = systemChain;
     }
 
     public void setSignatures(InterfaceMethodSignature[] signatures) {
-        for (int i = 0; i < signatures.length; i++) {
-            InterfaceMethodSignature signature = signatures[i];
-            if (signature.getMethodName().equals("ejbLoad")) {
-                loadIndex = i;
-            } else if (signature.getMethodName().equals("ejbStore")) {
-                storeIndex = i;
-            }
-        }
+            systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setEntityContext", EntityContext.class.getName(), "unsetEntityContext");
     }
 
     public synchronized InstanceContext newInstance() throws Exception {
         if (proxyFactory == null) {
-            throw new IllegalStateException("ProxyFacory has not been set");
+            throw new IllegalStateException("ProxyFactory has not been set");
         }
-        return new CMPInstanceContext(containerId, proxyFactory, itable, loadFault, primaryKeyTransform, this, lifecycleInterceptorChain, loadIndex, storeIndex, unshareableResources, applicationManagedSecurityResources);
+        return new CMPInstanceContext(containerId, proxyFactory, itable, loadFault, primaryKeyTransform, this, systemChain, systemMethodIndices, unshareableResources, applicationManagedSecurityResources);
     }
 
     public synchronized EntityBean createCMPBeanInstance(CMPInstanceContext instanceContext) {

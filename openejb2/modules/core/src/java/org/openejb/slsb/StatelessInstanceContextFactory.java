@@ -51,6 +51,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
 
 import org.apache.geronimo.transaction.InstanceContext;
 
@@ -58,6 +59,7 @@ import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
 import org.openejb.InstanceContextFactory;
 import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.core.service.Interceptor;
@@ -72,6 +74,8 @@ public class StatelessInstanceContextFactory implements InstanceContextFactory, 
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
     private EJBProxyFactory proxyFactory;
+    private SystemMethodIndices systemMethodIndices;
+    private Interceptor systemChain;
 
     public StatelessInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.containerId = containerId;
@@ -85,24 +89,24 @@ public class StatelessInstanceContextFactory implements InstanceContextFactory, 
         this.proxyFactory = proxyFactory;
     }
 
-    public void setLifecycleInterceptorChain(Interceptor lifecycleInterceptorChain) {
-        //not relevant for session beans
+    public void setSystemChain(Interceptor systemChain) {
+        this.systemChain = systemChain;
     }
 
     public void setSignatures(InterfaceMethodSignature[] signatures) {
-        //not relevant for session beans
+        systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setSessionContext", SessionContext.class.getName(), "unsetSessionContext");
     }
 
     public InstanceContext newInstance() throws Exception {
         if (proxyFactory == null) {
-            throw new IllegalStateException("ProxyFacory has not been set");
+            throw new IllegalStateException("ProxyFactory has not been set");
         }
         return new StatelessInstanceContext(
                 containerId,
                 (SessionBean) factory.newInstance(),
                 proxyFactory,
                 userTransaction,
-                unshareableResources,
+                systemMethodIndices, systemChain, unshareableResources,
                 applicationManagedSecurityResources);
     }
 }

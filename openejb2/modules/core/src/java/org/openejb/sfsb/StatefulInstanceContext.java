@@ -52,9 +52,11 @@ import java.util.Set;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionSynchronization;
 
+import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
+import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 
 /**
@@ -68,11 +70,13 @@ public class StatefulInstanceContext extends AbstractInstanceContext {
     private final StatefulSessionContext statefulContext;
     private boolean dead = false;
 
-    public StatefulInstanceContext(Object containerId, EJBProxyFactory proxyFactory, SessionBean instance, Object id, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
-        super(unshareableResources, applicationManagedSecurityResources, instance, proxyFactory);
+    public StatefulInstanceContext(Object containerId, EJBProxyFactory proxyFactory, SessionBean instance, Object id, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources) {
+        super(systemMethodIndices, systemChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory);
         this.containerId = containerId;
         this.id = id;
         statefulContext = new StatefulSessionContext(this, userTransaction);
+        setContextInvocation = systemMethodIndices.getSetContextInvocation(this, statefulContext);
+        unsetContextInvocation = systemMethodIndices.getSetContextInvocation(this, null);
     }
 
     public Object getContainerId() {

@@ -68,7 +68,7 @@ public interface InstancePool {
      * @throws Exception if object demand object construction was required and
      * an error occured during construction
      */
-    Object acquire() throws InterruptedException, Exception;
+    Object acquire() throws Exception;
 
     /**
      * Releases the hold on the instance.  This method may or may not reinsert the instance

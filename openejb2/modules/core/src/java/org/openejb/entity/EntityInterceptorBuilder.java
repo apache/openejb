@@ -53,6 +53,7 @@ import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 import org.openejb.AbstractInterceptorBuilder;
 import org.openejb.ConnectionTrackingInterceptor;
 import org.openejb.SystemExceptionInterceptor;
+import org.openejb.TwoChains;
 import org.openejb.dispatch.DispatchInterceptor;
 import org.openejb.security.EJBIdentityInterceptor;
 import org.openejb.security.EJBRunAsInterceptor;
@@ -66,9 +67,8 @@ import org.openejb.transaction.TransactionContextInterceptor;
  * @version $Revision$ $Date$
  */
 public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
-    private Interceptor lifecycleInteceptorChain = null;
 
-    public Interceptor buildInterceptorChain() {
+    public TwoChains buildInterceptorChains() {
         if (transactionManager == null) {
             throw new IllegalStateException("Transaction manager must be set before building the interceptor chain");
         }
@@ -85,7 +85,7 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
         if (trackedConnectionAssociator != null) {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
         }
-        lifecycleInteceptorChain = firstInterceptor;
+        Interceptor systemChain = firstInterceptor;
         if (securityEnabled) {
             firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, containerId, permissionManager);
         }
@@ -98,13 +98,7 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
         firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, instancePool);
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, transactionPolicyManager);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
-        return firstInterceptor;
+        return new TwoChains(firstInterceptor, systemChain);
     }
 
-    public Interceptor getLifecycleInterceptorChain() {
-        if (lifecycleInteceptorChain == null) {
-            throw new IllegalStateException("You must call buildInterceptorStack once before calling getLifecycleInterceptorChain");
-        }
-        return lifecycleInteceptorChain;
-    }
 }

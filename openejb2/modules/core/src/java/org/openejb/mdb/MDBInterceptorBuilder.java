@@ -56,6 +56,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.openejb.ConnectionTrackingInterceptor;
 import org.openejb.SystemExceptionInterceptor;
+import org.openejb.TwoChains;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.DispatchInterceptor;
 import org.openejb.dispatch.VirtualOperation;
@@ -108,20 +109,22 @@ public class MDBInterceptorBuilder implements Serializable {
     public Interceptor getLifecycleInterceptorChain() {
         return null;
     }
-    public Interceptor buildInterceptorChain() {
+    public TwoChains buildInterceptorChains() {
         if (instancePool == null) {
             throw new IllegalStateException("Pool must be set before building the interceptor chain");
         }
 
         Interceptor firstInterceptor;
         firstInterceptor = new DispatchInterceptor(vtable);
+        if (setIdentityEnabled) {
+            firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
+        }
+        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
+        Interceptor systemChain = firstInterceptor;
         if (trackedConnectionAssociator != null) {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
         }
         // firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, transactionPolicyManager);
-        if (setIdentityEnabled) {
-            firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
-        }
 
         if (runAs != null) {
             firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);
@@ -132,8 +135,7 @@ public class MDBInterceptorBuilder implements Serializable {
         //     firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
         // }
         firstInterceptor = new MDBInstanceInterceptor(firstInterceptor, instancePool);
-        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
-        return firstInterceptor;
+        return new TwoChains(firstInterceptor, systemChain);
     }
 }

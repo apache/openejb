@@ -67,7 +67,6 @@ public interface InterceptorBuilder extends Serializable {
 
     void setInstanceFactory(InstanceFactory instanceFactory);
 
-    Interceptor buildInterceptorChain();
+    TwoChains buildInterceptorChains();
 
-    Interceptor getLifecycleInterceptorChain();
 }

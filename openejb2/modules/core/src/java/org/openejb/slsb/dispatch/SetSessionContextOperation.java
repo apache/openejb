@@ -45,55 +45,40 @@
  *
  * ====================================================================
  */
-package org.openejb.mdb;
+package org.openejb.slsb.dispatch;
 
-import java.io.Serializable;
-import java.util.Set;
-import javax.ejb.MessageDrivenBean;
-import javax.ejb.MessageDrivenContext;
+import javax.ejb.EnterpriseBean;
+import javax.ejb.EntityBean;
+import javax.ejb.EntityContext;
+import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
 
-import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.apache.geronimo.core.service.Interceptor;
-import org.openejb.EJBInstanceFactory;
-import org.openejb.EJBInstanceFactoryImpl;
-import org.openejb.dispatch.SystemMethodIndices;
-import org.openejb.dispatch.InterfaceMethodSignature;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.openejb.EJBInvocation;
+import org.openejb.EJBOperation;
+import org.openejb.entity.dispatch.SetEntityContextOperation;
+import org.openejb.dispatch.AbstractSpecificMethodOperation;
 
 /**
+ *
+ *
  * @version $Revision$ $Date$
- */
-public class MDBInstanceContextFactory implements Serializable {
-    private final Object containerId;
-    private final EJBInstanceFactory factory;
-    private final UserTransactionImpl userTransaction;
-    private final Set unshareableResources;
-    private final Set applicationManagedSecurityResources;
-    private SystemMethodIndices systemMethodIndices;
-    private Interceptor systemChain;
+ *
+ * */
+public class SetSessionContextOperation extends AbstractSpecificMethodOperation {
 
-    public MDBInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
-        this.containerId = containerId;
-        this.userTransaction = userTransaction;
-        this.factory = new EJBInstanceFactoryImpl(beanClass);
-        this.unshareableResources = unshareableResources;
-        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
+    public static final SetSessionContextOperation INSTANCE = new SetSessionContextOperation();
+
+    private SetSessionContextOperation() {}
+
+
+    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+        return invoke(invocation, EJBOperation.SETCONTEXT);
     }
 
-    public void setSystemChain(Interceptor systemChain) {
-        this.systemChain = systemChain;
+    protected Object doOperation(EnterpriseBean instance, Object[] arguments) throws Throwable {
+        ((SessionBean)instance).setSessionContext((SessionContext)arguments[0]);
+        return null;
     }
 
-    public void setSignatures(InterfaceMethodSignature[] signatures) {
-        systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setMessageDrivenContext", MessageDrivenContext.class.getName(), null);
-    }
-
-
-    public InstanceContext newInstance() throws Exception {
-        return new MDBInstanceContext(containerId,
-                (MessageDrivenBean) factory.newInstance(),
-                userTransaction,
-                systemMethodIndices, systemChain, unshareableResources,
-                applicationManagedSecurityResources);
-    }
 }

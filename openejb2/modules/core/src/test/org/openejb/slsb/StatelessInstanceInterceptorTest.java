@@ -60,6 +60,8 @@ import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
 import org.openejb.EJBInterfaceType;
+import org.openejb.dispatch.SystemMethodIndices;
+import org.openejb.dispatch.InterfaceMethodSignature;
 
 /**
  *
@@ -117,7 +119,14 @@ public class StatelessInstanceInterceptorTest extends TestCase {
         private boolean removed;
 
         public MockPool(MockEJB mockEJB) {
-            ctx = new StatelessInstanceContext("containerId", mockEJB, null, null, new HashSet(), new HashSet());
+            ctx = new StatelessInstanceContext("containerId",
+                    mockEJB,
+                    null,
+                    null,
+                    SystemMethodIndices.createSystemMethodIndices(new InterfaceMethodSignature[] {}, null, null, null),
+                    null,
+                    new HashSet(),
+                    new HashSet());
         }
 
         public Object acquire() throws InterruptedException, Exception {

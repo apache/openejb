@@ -24,6 +24,8 @@ import java.util.Set;
 import javax.ejb.EnterpriseBean;
 
 import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.dispatch.SystemMethodIndices;
+import org.apache.geronimo.core.service.Interceptor;
 
 
 /**
@@ -37,15 +39,25 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
     private final Map connectionManagerMap = new HashMap();
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
-    //this sucks, but the CMP instance is not available until after the superclass constructor executes.
+    //this not being final sucks, but the CMP instance is not available until after the superclass constructor executes.
     protected EnterpriseBean instance;
     private final EJBProxyFactory proxyFactory;
+    private final EJBInvocation ejbActivateInvocation;
+    private final EJBInvocation ejbPassivateInvocation;
+    //initialized in subclass, can't be final :-((
+    protected EJBInvocation setContextInvocation;
+    protected EJBInvocation unsetContextInvocation;
+    protected final Interceptor systemChain;
 
-    public AbstractInstanceContext(Set unshareableResources, Set applicationManagedSecurityResources, EnterpriseBean instance, EJBProxyFactory proxyFactory) {
+
+    public AbstractInstanceContext(SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, EnterpriseBean instance, EJBProxyFactory proxyFactory) {
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.instance = instance;
         this.proxyFactory = proxyFactory;
+        this.systemChain = systemChain;
+        ejbActivateInvocation = systemMethodIndices.getEjbActivateInvocation(this);
+        ejbPassivateInvocation = systemMethodIndices.getEjbPassivateInvocation(this);
     }
 
     public Object getId() {
@@ -89,6 +101,22 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
 
     public EJBProxyFactory getProxyFactory() {
         return proxyFactory;
+    }
+
+    public void ejbActivate() throws Throwable {
+        systemChain.invoke(ejbActivateInvocation);
+    }
+
+    public void ejbPassivate() throws Throwable {
+        systemChain.invoke(ejbPassivateInvocation);
+    }
+
+    public void setContext() throws Throwable {
+        systemChain.invoke(setContextInvocation);
+    }
+
+    public void unsetContext() throws Throwable {
+        systemChain.invoke(unsetContextInvocation);
     }
 
 }

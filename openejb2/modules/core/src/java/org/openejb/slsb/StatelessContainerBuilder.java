@@ -55,8 +55,12 @@ import org.openejb.EJBComponentType;
 import org.openejb.InterceptorBuilder;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
+import org.openejb.slsb.dispatch.EJBActivateOperation;
+import org.openejb.slsb.dispatch.EJBPassivateOperation;
+import org.openejb.slsb.dispatch.SetSessionContextOperation;
 
 /**
  * @version $Revision$ $Date$
@@ -114,17 +118,27 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
             if (Object.class == beanMethod.getDeclaringClass()) {
                 continue;
             }
-            if (setSessionContext.equals(beanMethod)) {
-                continue;
-            }
             String name = beanMethod.getName();
-            if (name.startsWith("ejb")) {
-                continue;
-            }
             MethodSignature signature = new MethodSignature(beanMethod);
-            vopMap.put(
-                    new InterfaceMethodSignature(signature, false),
-                    new BusinessMethod(beanClass, signature));
+            if (name.equals("ejbActivate")) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , EJBActivateOperation.INSTANCE);
+            } else if (name.equals("ejbPassivate")) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , EJBPassivateOperation.INSTANCE);
+            } else if (setSessionContext.equals(beanMethod)) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , SetSessionContextOperation.INSTANCE);
+            } else if (name.startsWith("ejb")) {
+                continue;
+            } else {
+                vopMap.put(
+                        new InterfaceMethodSignature(signature, false),
+                        new BusinessMethod(beanClass, signature));
+            }
         }
 
         return vopMap;

@@ -52,16 +52,15 @@ import java.util.HashSet;
 
 import javax.ejb.SessionBean;
 
-import org.apache.geronimo.core.service.SimpleInvocationResult;
-import org.apache.geronimo.transaction.UserTransactionImpl;
-
 import junit.framework.TestCase;
 import net.sf.cglib.reflect.FastClass;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
+import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodSignature;
-import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.dispatch.SystemMethodIndices;
 
 /**
  *
@@ -129,7 +128,8 @@ public class InvocationTest extends TestCase {
                 instance,
                 null,
                 null,
-                new HashSet(),
+                SystemMethodIndices.createSystemMethodIndices(new InterfaceMethodSignature[] {}, null, null, null),
+                null, new HashSet(),
                 new HashSet());
         invocation.setEJBInstanceContext(ctx);
         bizMethod.execute(invocation);

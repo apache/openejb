@@ -45,55 +45,37 @@
  *
  * ====================================================================
  */
-package org.openejb.mdb;
+package org.openejb.entity.cmp;
 
-import java.io.Serializable;
-import java.util.Set;
-import javax.ejb.MessageDrivenBean;
-import javax.ejb.MessageDrivenContext;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
-import org.apache.geronimo.transaction.InstanceContext;
-import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.apache.geronimo.core.service.Interceptor;
-import org.openejb.EJBInstanceFactory;
-import org.openejb.EJBInstanceFactoryImpl;
-import org.openejb.dispatch.SystemMethodIndices;
+import javax.ejb.EntityContext;
+
+import junit.framework.TestCase;
 import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.dispatch.SystemMethodIndices;
+import org.openejb.entity.MockCMPEJB;
 
 /**
+ *
+ *
  * @version $Revision$ $Date$
- */
-public class MDBInstanceContextFactory implements Serializable {
-    private final Object containerId;
-    private final EJBInstanceFactory factory;
-    private final UserTransactionImpl userTransaction;
-    private final Set unshareableResources;
-    private final Set applicationManagedSecurityResources;
-    private SystemMethodIndices systemMethodIndices;
-    private Interceptor systemChain;
+ *
+ * */
+public class CMPSystemMethodIndicesTest extends TestCase {
 
-    public MDBInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
-        this.containerId = containerId;
-        this.userTransaction = userTransaction;
-        this.factory = new EJBInstanceFactoryImpl(beanClass);
-        this.unshareableResources = unshareableResources;
-        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
-    }
-
-    public void setSystemChain(Interceptor systemChain) {
-        this.systemChain = systemChain;
-    }
-
-    public void setSignatures(InterfaceMethodSignature[] signatures) {
-        systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setMessageDrivenContext", MessageDrivenContext.class.getName(), null);
-    }
-
-
-    public InstanceContext newInstance() throws Exception {
-        return new MDBInstanceContext(containerId,
-                (MessageDrivenBean) factory.newInstance(),
-                userTransaction,
-                systemMethodIndices, systemChain, unshareableResources,
-                applicationManagedSecurityResources);
+    public void testSystemMethodIndices() throws Exception {
+        CMPContainerBuilder builder = new CMPContainerBuilder();
+        builder.setClassLoader(MockCMPEJB.class.getClassLoader());
+        Map vopMap = builder.buildVopMap(MockCMPEJB.class, null, null, null, null, null, new LinkedHashMap());
+        InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
+        SystemMethodIndices systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setEntityContext", new String(EntityContext.class.getName()), "unsetEntityContext");
+        assertFalse(systemMethodIndices.getEjbActivateInvocation(null).getMethodIndex() == -1);
+        assertFalse(systemMethodIndices.getEjbLoadInvocation(null).getMethodIndex() == -1);
+        assertFalse(systemMethodIndices.getEjbPassivateInvocation(null).getMethodIndex() == -1);
+        assertFalse(systemMethodIndices.getEjbStoreInvocation(null).getMethodIndex() == -1);
+        assertFalse(systemMethodIndices.getSetContextInvocation(null, null).getMethodIndex() == -1);
+        assertFalse(systemMethodIndices.getUnsetContextInvocation(null).getMethodIndex() == -1);
     }
 }

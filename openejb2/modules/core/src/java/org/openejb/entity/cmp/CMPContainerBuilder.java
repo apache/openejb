@@ -66,7 +66,12 @@ import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
 import org.openejb.entity.BusinessMethod;
-import org.openejb.entity.EJBLoadOperation;
+import org.openejb.entity.dispatch.EJBLoadOperation;
+import org.openejb.entity.dispatch.EJBStoreOperation;
+import org.openejb.entity.dispatch.SetEntityContextOperation;
+import org.openejb.entity.dispatch.UnsetEntityContextOperation;
+import org.openejb.entity.dispatch.EJBPassivateOperation;
+import org.openejb.entity.dispatch.EJBActivateOperation;
 import org.openejb.entity.EntityInstanceFactory;
 import org.openejb.entity.EntityInterceptorBuilder;
 import org.openejb.entity.HomeMethod;
@@ -245,7 +250,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         Map instanceMap = buildInstanceMap(beanClass, cmpFieldAccessors);
 
         InstanceContextFactory contextFactory = new CMPInstanceContextFactory(getContainerId(), primaryKeyTransform, faultHandler, beanClass, instanceMap, getUnshareableResources(), getApplicationManagedSecurityResources());
-        EntityInstanceFactory instanceFactory = new EntityInstanceFactory(getComponentContext(), contextFactory);
+        EntityInstanceFactory instanceFactory = new EntityInstanceFactory(contextFactory);
 
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
@@ -386,12 +391,6 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             if (Object.class == beanMethod.getDeclaringClass()) {
                 continue;
             }
-            if (setEntityContext.equals(beanMethod)) {
-                continue;
-            }
-            if (unsetEntityContext.equals(beanMethod)) {
-                continue;
-            }
 
             // create a VirtualOperation for the method (if the method is understood)
             String name = beanMethod.getName();
@@ -434,11 +433,32 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 vopMap.put(
                         new InterfaceMethodSignature("ejbRemove", new Class[]{handleClass}, true),
                         new CMPRemoveMethod(beanClass, signature));
-            } else if (name.equals("ejbLoad") || name.equals("ejbStore")) {
+            } else if (name.equals("ejbActivate")) {
                 vopMap.put(
                         MethodHelper.translateToInterface(signature)
-                        , new EJBLoadOperation(beanClass, signature));
+                        , EJBActivateOperation.INSTANCE);
+            } else if (name.equals("ejbLoad")) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , EJBLoadOperation.INSTANCE);
+            } else if (name.equals("ejbPassivate")) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , EJBPassivateOperation.INSTANCE);
+            } else if (name.equals("ejbStore")) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , EJBStoreOperation.INSTANCE);
+            } else if (setEntityContext.equals(beanMethod)) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , SetEntityContextOperation.INSTANCE);
+            } else if (unsetEntityContext.equals(beanMethod)) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , UnsetEntityContextOperation.INSTANCE);
             } else if (name.startsWith("ejb")) {
+                //TODO this shouldn't happen?
                 continue;
             } else {
                 vopMap.put(

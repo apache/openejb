@@ -53,6 +53,9 @@ import java.util.LinkedHashMap;
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
 import org.openejb.InterceptorBuilder;
+import org.openejb.slsb.dispatch.EJBActivateOperation;
+import org.openejb.slsb.dispatch.EJBPassivateOperation;
+import org.openejb.slsb.dispatch.SetSessionContextOperation;
 import org.openejb.cache.InstancePool;
 import org.openejb.cache.SimpleInstanceCache;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -80,7 +83,7 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
 
         // build the instance factory
         StatefulInstanceContextFactory contextFactory = new StatefulInstanceContextFactory(getContainerId(), beanClass, getUserTransaction(), getUnshareableResources(), getApplicationManagedSecurityResources());
-        StatefulInstanceFactory instanceFactory = new StatefulInstanceFactory(getComponentContext(), contextFactory);
+        StatefulInstanceFactory instanceFactory = new StatefulInstanceFactory(contextFactory);
 
         // create and intitalize the interceptor builder
         InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new StatefulInterceptorBuilder(), signatures, vtable);
@@ -116,17 +119,11 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
             if (Object.class == beanMethod.getDeclaringClass()) {
                 continue;
             }
-            if (setSessionContext.equals(beanMethod)) {
-                continue;
-            }
-            // create a VitrualOperation for the method (if the method is understood)
-            MethodSignature signature = new MethodSignature(beanMethod);
+            // create a VirtualOperation for the method (if the method is understood)
             String name = beanMethod.getName();
-            if (!name.startsWith("ejb")) {
-                vopMap.put(
-                        MethodHelper.translateToInterface(signature),
-                        new BusinessMethod(beanClass, signature, isBMT));
-            } else if (name.startsWith("ejbCreate")) {
+            MethodSignature signature = new MethodSignature(beanMethod);
+
+            if (name.startsWith("ejbCreate")) {
                 vopMap.put(
                         MethodHelper.translateToInterface(signature),
                         new CreateMethod(beanClass, signature, isBMT));
@@ -143,9 +140,26 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
                 vopMap.put(
                         new InterfaceMethodSignature("remove", new Class[]{handleClass}, true),
                         new RemoveMethod(beanClass, signature, isBMT));
-            } else {
+            } else if (name.equals("ejbActivate")) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , EJBActivateOperation.INSTANCE);
+            } else if (name.equals("ejbPassivate")) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , EJBPassivateOperation.INSTANCE);
+            } else if (setSessionContext.equals(beanMethod)) {
+                vopMap.put(
+                        MethodHelper.translateToInterface(signature)
+                        , SetSessionContextOperation.INSTANCE);
+            } else if (name.startsWith("ejb")) {
                 continue;
+            } else {
+                vopMap.put(
+                        new InterfaceMethodSignature(signature, false),
+                        new BusinessMethod(beanClass, signature, isBMT));
             }
+
         }
 
         return vopMap;

@@ -51,6 +51,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 import javax.ejb.SessionBean;
+import javax.ejb.SessionContext;
 
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
@@ -60,6 +61,7 @@ import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
 import org.openejb.InstanceContextFactory;
 import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 
 /**
@@ -74,6 +76,8 @@ public class StatefulInstanceContextFactory implements InstanceContextFactory, S
     private final Set unshareableResources;
     private final Set applicationManagedSecurityResources;
     private EJBProxyFactory proxyFactory;
+    private Interceptor systemChain;
+    private SystemMethodIndices systemMethodIndices;
 
     public StatefulInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.containerId = containerId;
@@ -87,12 +91,12 @@ public class StatefulInstanceContextFactory implements InstanceContextFactory, S
         this.proxyFactory = proxyFactory;
     }
 
-    public void setLifecycleInterceptorChain(Interceptor lifecycleInterceptorChain) {
-        //not relevant for session beans.
+    public void setSystemChain(Interceptor systemChain) {
+        this.systemChain = systemChain;
     }
 
     public void setSignatures(InterfaceMethodSignature[] signatures) {
-        //not relevant for session beans.
+        systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setSessionContext", SessionContext.class.getName(), "unsetSessionContext");
     }
 
     public InstanceContext newInstance() throws Exception {
@@ -105,7 +109,7 @@ public class StatefulInstanceContextFactory implements InstanceContextFactory, S
                 (SessionBean) factory.newInstance(),
                 createInstanceId(),
                 userTransaction,
-                unshareableResources,
+                systemMethodIndices, systemChain, unshareableResources,
                 applicationManagedSecurityResources);
     }
 

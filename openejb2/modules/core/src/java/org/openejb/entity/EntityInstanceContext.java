@@ -55,10 +55,9 @@ import javax.ejb.EntityContext;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.TransactionContext;
 import org.openejb.AbstractInstanceContext;
-import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
-import org.openejb.EJBInvocationImpl;
 import org.openejb.EJBOperation;
+import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 
 /**
@@ -69,21 +68,19 @@ import org.openejb.proxy.EJBProxyFactory;
 public abstract class EntityInstanceContext extends AbstractInstanceContext {
     private final Object containerId;
     private final EntityContextImpl entityContext;
-    private final Interceptor lifecycleInterceptorChain;
     private Object id;
     private final EJBInvocation loadInvocation;
     private final EJBInvocation storeInvocation;
     private boolean stateValid;
 
-    public EntityInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EnterpriseBean instance, Interceptor lifecycleInterceptorChain, int loadIndex, int storeIndex, Set unshareableResources, Set applicationManagedSecurityResources) {
-        super(unshareableResources, applicationManagedSecurityResources, instance, proxyFactory);
+    public EntityInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EnterpriseBean instance, Interceptor lifecycleInterceptorChain, SystemMethodIndices systemMethodIndices, Set unshareableResources, Set applicationManagedSecurityResources) {
+        super(systemMethodIndices, lifecycleInterceptorChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory);
         this.containerId = containerId;
-        this.lifecycleInterceptorChain = lifecycleInterceptorChain;
         entityContext = new EntityContextImpl(this);
-        loadInvocation = new EJBInvocationImpl(EJBInterfaceType.LIFECYCLE, id, loadIndex, null);
-        loadInvocation.setEJBInstanceContext(this);
-        storeInvocation = new EJBInvocationImpl(EJBInterfaceType.LIFECYCLE, id, storeIndex, null);
-        storeInvocation.setEJBInstanceContext(this);
+        loadInvocation = systemMethodIndices.getEjbLoadInvocation(this);
+        storeInvocation = systemMethodIndices.getEjbStoreInvocation(this);
+        setContextInvocation = systemMethodIndices.getSetContextInvocation(this, entityContext);
+        unsetContextInvocation = systemMethodIndices.getUnsetContextInvocation(this);
     }
 
     public Object getContainerId() {
@@ -121,7 +118,7 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
 
     public void associate() throws Throwable {
         if (id != null && !stateValid) {
-            lifecycleInterceptorChain.invoke(loadInvocation);
+            systemChain.invoke(loadInvocation);
             stateValid = true;
         }
     }
@@ -132,7 +129,7 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
     public void flush() throws Throwable {
         if (id != null) {
             assert (stateValid) : "Trying to invoke ejbStore for invalid instance";
-            lifecycleInterceptorChain.invoke(storeInvocation);
+            systemChain.invoke(storeInvocation);
         }
     }
 
