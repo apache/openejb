@@ -54,6 +54,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URI;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Collections;
@@ -77,16 +78,13 @@ import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.openejb.ContainerIndex;
-import org.openejb.corba.compiler.SkeletonGenerator;
-import org.openejb.corba.compiler.OpenORBSkeletonGenerator;
 import org.openejb.corba.compiler.AntCompiler;
-
+import org.openejb.corba.compiler.OpenORBSkeletonGenerator;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
@@ -118,6 +116,7 @@ public class EJBConfigBuilderTest extends TestCase {
     };
 
     private J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, NameFactory.NULL, "testejbmodule",  "testapp", NameFactory.J2EE_APPLICATION);
+    private URI defaultParentId;
 
 //    public void testCreateResourceAdapterNameQuery() throws Exception {
 //        File tempDir = null;
@@ -157,10 +156,9 @@ public class EJBConfigBuilderTest extends TestCase {
         String j2eeApplicationName = "null";
         String j2eeModuleName = "org/openejb/deployment/test";
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
-        OpenORBSkeletonGenerator generator = new OpenORBSkeletonGenerator();
-        generator.setCompiler(new AntCompiler());
-        moduleBuilder.setSkeletonGenerator(generator);
+        OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator();
+        skeletonGenerator.setCompiler(new AntCompiler());
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator);
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         ClassLoader cl = new URLClassLoader(new URL[]{ejbJarFile.toURL()}, oldCl);
@@ -204,10 +202,9 @@ public class EJBConfigBuilderTest extends TestCase {
         String j2eeApplicationName = "null";
         String j2eeModuleName = "org/openejb/deployment/test";
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
-        OpenORBSkeletonGenerator generator = new OpenORBSkeletonGenerator();
-        generator.setCompiler(new AntCompiler());
-        moduleBuilder.setSkeletonGenerator(generator);
+        OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator();
+        skeletonGenerator.setCompiler(new AntCompiler());
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator);
 
         File earFile = new File("target/test-ejb-jar.jar");
 
@@ -219,8 +216,7 @@ public class EJBConfigBuilderTest extends TestCase {
         File tempDir = null;
         try {
             tempDir = DeploymentUtil.createTempDir();
-            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(
-                    new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(defaultParentId, new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
                     DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
                     DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
                     DeploymentHelper.TRANSACTIONALTIMER_NAME,
@@ -255,10 +251,9 @@ public class EJBConfigBuilderTest extends TestCase {
         String j2eeApplicationName = "org/apache/geronimo/j2ee/deployment/test";
         String j2eeModuleName = "test-ejb-jar.jar";
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
-        OpenORBSkeletonGenerator generator = new OpenORBSkeletonGenerator();
-        generator.setCompiler(new AntCompiler());
-        moduleBuilder.setSkeletonGenerator(generator);
+        OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator();
+        skeletonGenerator.setCompiler(new AntCompiler());
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(defaultParentId, skeletonGenerator);
 
         File earFile = new File("target/test-ear.ear");
 
@@ -270,8 +265,7 @@ public class EJBConfigBuilderTest extends TestCase {
         File tempDir = null;
         try {
             tempDir = DeploymentUtil.createTempDir();
-            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(
-                    new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(defaultParentId, new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
                     DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
                     DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
                     DeploymentHelper.TRANSACTIONALTIMER_NAME,
@@ -440,6 +434,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
+        defaultParentId = new URI("org/apache/geronimo/Server");
         String str = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
         if (str == null) {
             str = ":org.apache.geronimo.naming";
