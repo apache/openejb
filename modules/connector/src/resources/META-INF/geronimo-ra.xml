@@ -40,4 +40,12 @@
 
         </outbound-resourceadapter>
     </resourceadapter>
+
+    <gbean name="geronimo.server:type=ThreadPooledTimer,name=JDBCTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
+        <attribute name="repeatCount" type="int">5</attribute>
+        <reference name="TransactionContextManager">geronimo.server:type=TransactionContextManager</reference>
+        <reference name="ManagedConnectionFactoryWrapper">geronimo.server:name=DefaultDatasource</reference>
+        <reference name="ThreadPool">geronimo.server:type=ThreadPool,name=DefaultThreadPool</reference>
+
+    </gbean>
 </connector>
