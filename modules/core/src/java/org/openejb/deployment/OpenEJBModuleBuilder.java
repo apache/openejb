@@ -819,7 +819,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         try {
             activationSpecGBean.setAttribute("activationSpecClass", activationSpecInfo.getActivationSpecClass());
             activationSpecGBean.setAttribute("containerId", containerId);
-            activationSpecGBean.setReferencePattern("resourceAdapterWrapper", resourceAdapterObjectName);
+            activationSpecGBean.setReferencePattern("ResourceAdapterWrapper", resourceAdapterObjectName);
         } catch (ReflectionException e) {
             throw new DeploymentException(e);
         } catch (AttributeNotFoundException e) {

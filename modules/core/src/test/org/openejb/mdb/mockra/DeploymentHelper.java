@@ -58,6 +58,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.ActivationSpecInfo;
 import org.apache.geronimo.connector.ActivationSpecWrapper;
+import org.apache.geronimo.connector.work.GeronimoWorkManager;
 
 /**
  *
@@ -66,14 +67,21 @@ import org.apache.geronimo.connector.ActivationSpecWrapper;
  *
  * */
 public class DeploymentHelper {
+    private static final String j2eeDomainName = "openejb.server";
+    private static final String j2eeServerName = "TestOpenEJBServer";
     public static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
-    public static final ObjectName BOOTSTRAPCONTEXT_NAME = JMXUtil.getObjectName("geronimo.server:j2eeType=BootStrapContext");
+    public static final ObjectName TRANSACTIONMANAGER_NAME = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionManager");
+    public static final ObjectName WORKMANAGER_NAME = JMXUtil.getObjectName("geronimo.server:type=WorkManager,name=DefaultWorkManager");
     public static final ObjectName RESOURCE_ADAPTER_NAME = JMXUtil.getObjectName("openejb.server:j2eeType=ResourceAdapter,J2EEServer=TestOpenEJBServer,name=MockRA");
     public static final ObjectName ACTIVATIONSPEC_NAME = JMXUtil.getObjectName("geronimo.server:j2eeType=ActivationSpec,name=MockMDB");
 
     public static void setUpResourceAdapter(Kernel kernel) throws Exception {
-        GBeanMBean bootstrapContextGBean = new GBeanMBean(MockBootstrapContext.getGBeanInfo());
-        start(kernel, BOOTSTRAPCONTEXT_NAME, bootstrapContextGBean);
+        GBeanMBean geronimoWorkManagerGBean = new GBeanMBean(GeronimoWorkManager.getGBeanInfo());
+        geronimoWorkManagerGBean.setAttribute("syncMaximumPoolSize", new Integer(5));
+        geronimoWorkManagerGBean.setAttribute("startMaximumPoolSize", new Integer(5));
+        geronimoWorkManagerGBean.setAttribute("scheduledMaximumPoolSize", new Integer(5));
+        geronimoWorkManagerGBean.setReferencePattern("XAServices", TRANSACTIONMANAGER_NAME);
+        start(kernel, WORKMANAGER_NAME, geronimoWorkManagerGBean);
 
         GBeanMBean resourceAdapterGBean = new GBeanMBean(ResourceAdapterWrapper.getGBeanInfo());
         Map activationSpecInfoMap = new HashMap();
@@ -81,13 +89,13 @@ public class DeploymentHelper {
         activationSpecInfoMap.put(MockActivationSpec.class.getName(), activationSpecInfo);
         resourceAdapterGBean.setAttribute("resourceAdapterClass", MockResourceAdapter.class);
         resourceAdapterGBean.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
-        resourceAdapterGBean.setReferencePattern("bootstrapContext", BOOTSTRAPCONTEXT_NAME);
+        resourceAdapterGBean.setReferencePattern("WorkManager", WORKMANAGER_NAME);
         start(kernel, RESOURCE_ADAPTER_NAME, resourceAdapterGBean);
 
         GBeanMBean activationSpecGBean = new GBeanMBean(ActivationSpecWrapper.getGBeanInfo());
         activationSpecGBean.setAttribute("activationSpecClass", MockActivationSpec.class);
         activationSpecGBean.setAttribute("containerId", CONTAINER_NAME.getCanonicalName());
-        activationSpecGBean.setReferencePattern("resourceAdapterWrapper", RESOURCE_ADAPTER_NAME);
+        activationSpecGBean.setReferencePattern("ResourceAdapterWrapper", RESOURCE_ADAPTER_NAME);
         start(kernel, ACTIVATIONSPEC_NAME, activationSpecGBean);
     }
 
@@ -99,7 +107,7 @@ public class DeploymentHelper {
     public static void tearDownAdapter(Kernel kernel) throws Exception {
         stop(kernel, ACTIVATIONSPEC_NAME);
         stop(kernel, RESOURCE_ADAPTER_NAME);
-        stop(kernel, BOOTSTRAPCONTEXT_NAME);
+        stop(kernel, WORKMANAGER_NAME);
     }
 
     public static void stop(Kernel kernel, ObjectName name) throws Exception {

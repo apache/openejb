@@ -42,7 +42,7 @@ by the server.
         <uri>geronimo/jars/geronimo-connector-1.0-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>concurrent/jars/concurrent-1.3.2.jar</uri>
+        <uri>concurrent/jars/concurrent-1.3.4.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-transaction-1.0-SNAPSHOT.jar</uri>
@@ -63,19 +63,19 @@ by the server.
         <uri>howl/jars/howl-logger-0.1.3.jar</uri>
     </dependency>
 
+    <!-- required for rar 1.5 to load realms -->
+    <dependency>
+        <uri>regexp/jars/regexp-1.3.jar</uri>
+    </dependency>
+
     <gbean name="geronimo.server:type=ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
     </gbean>
 
-    <gbean name="geronimo.server:type=WorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
-        <attribute name="SyncMaximumPoolSize" type="int">10</attribute>
-        <attribute name="StartMaximumPoolSize" type="int">10</attribute>
-        <attribute name="ScheduledMaximumPoolSize" type="int">10</attribute>
-        <reference name="XAWork">geronimo.server:type=TransactionManager</reference>
-    </gbean>
-
-    <gbean name="geronimo.server:type=BootstrapContext" class="org.apache.geronimo.connector.BootstrapContext">
-        <reference name="WorkManager">geronimo.connector:service=WorkManager</reference>
-        <reference name="XATerminator">geronimo.server:type=TransactionManager</reference>
+    <gbean name="geronimo.server:type=WorkManager,name=DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
+        <attribute name="syncMaximumPoolSize" type="int">10</attribute>
+        <attribute name="startMaximumPoolSize" type="int">10</attribute>
+        <attribute name="scheduledMaximumPoolSize" type="int">10</attribute>
+        <reference name="XAServices">geronimo.server:type=TransactionManager</reference>
     </gbean>
 
     <gbean name="geronimo.server:type=HOWLTransactionLog" class="org.apache.geronimo.transaction.log.HOWLLog">
@@ -92,12 +92,11 @@ by the server.
         <attribute name="minBuffers" type="int">4</attribute>
         <attribute name="threadsWaitingForceThreshold" type="int">-1</attribute>
         <reference name="serverInfo">geronimo.system:role=ServerInfo</reference>
-
     </gbean>
 
     <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.GeronimoTransactionManager">
-        <reference name="transactionLog">geronimo.server:type=HOWLTransactionLog</reference>
-        <references name="resourceManagers">
+        <reference name="TransactionLog">geronimo.server:type=HOWLTransactionLog</reference>
+        <references name="ResourceManagers">
             <pattern>geronimo.server:j2eeType=JCAManagedConnectionFactory,*</pattern>
             <pattern>geronimo.server:j2eeType=ActivationSpec,*</pattern>
         </references>
@@ -113,13 +112,13 @@ by the server.
 
     <!-- EJB Protocol -->
     <gbean name="openejb:type=SocketService,name=EJB" class="org.openejb.server.SimpleSocketService">
-        <attribute name="ServiceClassName" type="java.lang.String">org.openejb.server.ejbd.EjbServer</attribute>
-        <attribute name="OnlyFrom" type="java.net.InetAddress[]">127.0.0.1</attribute>
+        <attribute name="serviceClassName" type="java.lang.String">org.openejb.server.ejbd.EjbServer</attribute>
+        <attribute name="onlyFrom" type="java.net.InetAddress[]">127.0.0.1</attribute>
         <reference name="ContainerIndex">openejb:type=ContainerIndex</reference>
     </gbean>
     <gbean name="openejb:type=ServiceDaemon,name=EJB" class="org.openejb.server.ServiceDaemon">
-        <attribute name="Port" type="int">4201</attribute>
-        <attribute name="InetAddress" type="java.net.InetAddress">127.0.0.1</attribute>
+        <attribute name="port" type="int">4201</attribute>
+        <attribute name="inetAddress" type="java.net.InetAddress">127.0.0.1</attribute>
         <reference name="SocketService">openejb:type=SocketService,name=EJB</reference>
     </gbean>
 

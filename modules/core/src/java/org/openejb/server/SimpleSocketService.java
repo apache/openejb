@@ -122,15 +122,15 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(SimpleSocketService.class);
 
-        infoFactory.addAttribute("ServiceClassName", String.class, true);
-        infoFactory.addAttribute("OnlyFrom", InetAddress[].class, true);
-        infoFactory.addAttribute("Name", String.class, false);
+        infoFactory.addAttribute("serviceClassName", String.class, true);
+        infoFactory.addAttribute("onlyFrom", InetAddress[].class, true);
+        infoFactory.addAttribute("name", String.class, false);
 
         infoFactory.addReference("ContainerIndex", ContainerIndex.class);
 
         infoFactory.addInterface(SocketService.class);
 
-        infoFactory.setConstructor(new String[]{"ServiceClassName", "OnlyFrom", "ContainerIndex"});
+        infoFactory.setConstructor(new String[]{"serviceClassName", "onlyFrom", "ContainerIndex"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

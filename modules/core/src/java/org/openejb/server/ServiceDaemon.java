@@ -149,7 +149,7 @@ public class ServiceDaemon implements GBeanLifecycle {
                 try {
                     socket = serverSocket.accept();
                     if (!shouldStop()) {
-                        // the server service is responsible 
+                        // the server service is responsible
                         // for closing the socket.
                         serverService.service(socket);
                     }
@@ -177,12 +177,12 @@ public class ServiceDaemon implements GBeanLifecycle {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ServiceDaemon.class);
 
         infoFactory.addReference("SocketService", SocketService.class);
-        infoFactory.addAttribute("InetAddress", InetAddress.class, true);
-        infoFactory.addAttribute("Port", int.class, true);
+        infoFactory.addAttribute("inetAddress", InetAddress.class, true);
+        infoFactory.addAttribute("port", int.class, true);
 
-        infoFactory.addAttribute("ServiceName", String.class, false);
+        infoFactory.addAttribute("serviceName", String.class, false);
 
-        infoFactory.setConstructor(new String[]{"SocketService", "InetAddress", "Port"});
+        infoFactory.setConstructor(new String[]{"SocketService", "inetAddress", "port"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
