@@ -107,7 +107,7 @@ public class DatabaseBean implements SessionBean {
             stmt = con.createStatement();
             return stmt.execute(statement);
         } catch (NamingException e) {
-            throw new EJBException("Cannot lookup the Database bean."+e.getMessage());
+            throw new EJBException("Cannot lookup the Database bean."+e.getMessage(), e);
         } finally {
             if (stmt != null) {
                 try {
