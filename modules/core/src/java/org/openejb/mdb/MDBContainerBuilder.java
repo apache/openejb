@@ -51,7 +51,6 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import javax.ejb.MessageDrivenContext;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 
@@ -232,7 +231,8 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder {
 
         Method setMessageDrivenContext = null;
         try {
-            setMessageDrivenContext = beanClass.getMethod("setMessageDrivenContext", new Class[]{MessageDrivenContext.class});
+            Class messageDrivenContextClass = getClassLoader().loadClass("javax.ejb.MessageDrivenContext");
+            setMessageDrivenContext = beanClass.getMethod("setMessageDrivenContext", new Class[]{messageDrivenContextClass});
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Bean does not implement setMessageDrivenContext(javax.ejb.MessageDrivenContext)");
         }

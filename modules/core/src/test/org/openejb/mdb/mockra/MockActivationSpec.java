@@ -69,6 +69,8 @@ public class MockActivationSpec implements ActivationSpec {
 
     private boolean raSet = false;
 
+    private String QueueName;
+
 
     /**
      * @see javax.resource.spi.ActivationSpec#validate()
@@ -94,4 +96,13 @@ public class MockActivationSpec implements ActivationSpec {
         this.resourceAdapter = resourceAdapter;
         raSet = true;
     }
+
+    public String getQueueName() {
+        return QueueName;
+    }
+
+    public void setQueueName(String queueName) {
+        QueueName = queueName;
+    }
+
 }

@@ -68,7 +68,7 @@ import org.apache.geronimo.connector.ActivationSpecWrapper;
 public class DeploymentHelper {
     public static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
     public static final ObjectName BOOTSTRAPCONTEXT_NAME = JMXUtil.getObjectName("geronimo.server:j2eeType=BootStrapContext");
-    public static final ObjectName RESOURCE_ADAPTER_NAME = JMXUtil.getObjectName("geronimo.server:j2eeType=ResourceAdapter,name=MockRA");
+    public static final ObjectName RESOURCE_ADAPTER_NAME = JMXUtil.getObjectName("openejb.server:j2eeType=ResourceAdapter,J2EEServer=TestOpenEJBServer,name=MockRA");
     public static final ObjectName ACTIVATIONSPEC_NAME = JMXUtil.getObjectName("geronimo.server:j2eeType=ActivationSpec,name=MockMDB");
 
     public static void setUpResourceAdapter(Kernel kernel) throws Exception {

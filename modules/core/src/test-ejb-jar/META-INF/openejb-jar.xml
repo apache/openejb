@@ -14,7 +14,7 @@
         </session>
         <message-driven>
             <ejb-name>SimpleMessageDriven</ejb-name>
-            <resource-adapter-name>geronimo.server:j2eeType=ResourceAdapter,name=MockRA</resource-adapter-name>
+            <resource-adapter-name>MockRA</resource-adapter-name>
             <activation-spec-class>org.openejb.mdb.mockra.MockActivationSpec</activation-spec-class>
         </message-driven>
 

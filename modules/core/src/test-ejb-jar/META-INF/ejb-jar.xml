@@ -36,7 +36,7 @@
             <ejb-class>org.openejb.test.simple.bmp.SimpleBMPEntityEJB</ejb-class>
             <persistence-type>Bean</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>False</reentrant>
+            <reentrant>false</reentrant>
         </entity>
         <entity>
             <ejb-name>SimpleCMPEntity</ejb-name>
@@ -47,7 +47,7 @@
             <ejb-class>org.openejb.test.simple.cmp.SimpleCMPEntityEJB</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>False</reentrant>
+            <reentrant>false</reentrant>
             <cmp-version>2.x</cmp-version>
             <abstract-schema-name>SimpleCMP</abstract-schema-name>
             <cmp-field><field-name>id</field-name></cmp-field>
@@ -60,7 +60,7 @@
             <ejb-class>org.openejb.test.simple.mdb.SimpleMessageDrivenBean</ejb-class>
             <messaging-type>javax.jms.MessageListener</messaging-type>
             <transaction-type>Container</transaction-type>
-            <activation-config></activation-config>
+            <!--activation-config></activation-config-->
         </message-driven>
     </enterprise-beans>
     <assembly-descriptor>
