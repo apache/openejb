@@ -330,6 +330,9 @@ public class EJBRequest implements Request {
 
     protected void writeMethodParameters(ObjectOutput out, Class[] types, Object[] args) throws IOException {
 
+
+        // TODO Once we index methods properly, we won't need te args to determine the method
+        // and can get the arg length from the metadata in the Method instance.
         out.writeByte(types.length);
 
         for (int i = 0; i < types.length; i++) {

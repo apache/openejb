@@ -42,7 +42,7 @@
  *
  * $Id$
  */
-package org.openejb.server.xfire;
+package org.openejb.server.axis;
 
 import java.net.URI;
 import java.net.URL;
@@ -58,8 +58,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.codehaus.xfire.MessageContext;
+import org.apache.axis.description.JavaServiceDesc;
 import org.openejb.EJBContainer;
 
 public class WSContainerGBean {
@@ -69,26 +68,20 @@ public class WSContainerGBean {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(WSContainer.class);
 
-        infoFactory.addOperation("invoke", new Class[]{WebServiceContainer.Request.class, WebServiceContainer.Response.class});
+//        infoFactory.addOperation("invoke", new Class[]{WebServiceContainer.Request.class, WebServiceContainer.Response.class});
 
-        infoFactory.addReference("EJBContainer", EJBContainer.class, NameFactory.STATELESS_SESSION_BEAN);
-        infoFactory.addAttribute("definition", Definition.class, true);
+        infoFactory.addReference("EJBContainer", EJBContainer.class);
         infoFactory.addAttribute("location", URI.class, true);
         infoFactory.addAttribute("wsdlURL", URL.class, true);
-        infoFactory.addAttribute("namespace", String.class, true);
-        infoFactory.addAttribute("encoding", String.class, true);
-        infoFactory.addAttribute("style", String.class, true);
-        infoFactory.addReference("WebServiceContainer", SoapHandler.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("WebServiceContainer", SoapHandler.class);
+        infoFactory.addAttribute("serviceDesc", JavaServiceDesc.class, true);
 
         infoFactory.setConstructor(new String[]{
             "EJBContainer",
-            "definition",
             "location",
             "wsdlURL",
-            "namespace",
-            "encoding",
-            "style",
-            "WebServiceContainer"
+            "WebServiceContainer",
+            "serviceDesc"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
@@ -98,26 +91,23 @@ public class WSContainerGBean {
         return GBEAN_INFO;
     }
 
-    public static ObjectName addGBean(Kernel kernel, String name, ObjectName ejbContainer, ObjectName listener, Definition definition, URI location, URL wsdlURL, String namespace, String encoding, String style) throws GBeanAlreadyExistsException, GBeanNotFoundException {
-        GBeanData gbean = createGBean(name, ejbContainer, listener, definition, location, wsdlURL, namespace, encoding, style);
+    public static ObjectName addGBean(Kernel kernel, String name, ObjectName ejbContainer, ObjectName listener, URI location, URL wsdlURL, JavaServiceDesc serviceDesc) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+        GBeanData gbean = createGBean(name, ejbContainer, listener, location, wsdlURL, serviceDesc);
         kernel.loadGBean(gbean, WSContainer.class.getClassLoader());
         kernel.startGBean(gbean.getName());
         return gbean.getName();
     }
 
-    public static GBeanData createGBean(String name, ObjectName ejbContainer, ObjectName listener, Definition definition, URI location, URL wsdlURL, String namespace, String encoding, String style) {
+    public static GBeanData createGBean(String name, ObjectName ejbContainer, ObjectName listener, URI location, URL wsdlURL, JavaServiceDesc serviceDesc) {
         assert ejbContainer != null : "EJBContainer objectname is null";
 
         ObjectName gbeanName = JMXUtil.getObjectName("openejb:type=WSContainer,name=" + name);
 
         GBeanData gbean = new GBeanData(gbeanName, WSContainerGBean.GBEAN_INFO);
         gbean.setReferencePattern("EJBContainer", ejbContainer);
-        gbean.setAttribute("definition", definition);
         gbean.setAttribute("location", location);
         gbean.setAttribute("wsdlURL", wsdlURL);
-        gbean.setAttribute("namespace", namespace);
-        gbean.setAttribute("encoding", encoding);
-        gbean.setAttribute("style", style);
+        gbean.setAttribute("serviceDesc", serviceDesc);
 
         gbean.setReferencePattern("WebServiceContainer", listener);
 

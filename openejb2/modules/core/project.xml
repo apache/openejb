@@ -142,6 +142,24 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-axis</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-axis-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${geronimo_version}</version>
             <properties>
@@ -238,6 +256,27 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jaxrpc</artifactId>
+            <version>${geronimo_spec_jaxrpc_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-saaj</artifactId>
+            <version>${geronimo_spec_saaj_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-qname</artifactId>
+            <version>${geronimo_spec_qname_version}</version>
+        </dependency>
+
+       <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${geronimo_version}</version>
@@ -538,6 +577,23 @@
             <version>${stax_api_version}</version>
             <properties>
                 <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>${axis_version}</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>${axis_commons_discovery_version}</version>
+            <properties>
+                <module>true</module>
             </properties>
         </dependency>
     </dependencies>

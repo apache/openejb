@@ -94,6 +94,7 @@ public class MockEJBContainer implements EJBContainer {
     }
 
     public int getMethodIndex(Method callMethod) {
+        assert callMethod == null: "Method cannot be null";
         Method ejbMethod = null;
         try {
             ejbMethod = ejbClass.getMethod(callMethod.getName(), callMethod.getParameterTypes());

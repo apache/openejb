@@ -46,6 +46,7 @@ package org.openejb.server.httpd;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import javax.servlet.ServletInputStream;
 
 
@@ -142,26 +143,23 @@ public interface HttpRequest extends java.io.Serializable{
      */
     public String getFormParameter(String name);
     
-    /** Gets all the form parameters in the form of a two-dimentional array
-     *  The second dimention has two indexes which contain the key and value
-     *  for example: 
-     *  <code>
-     *  for(int i=0; i<formParams.length; i++) {
-     *     key = formParams[i][0];
-     *     value = formParams[i][1];
-     *  }
-     *  </code>
-     * 
-     *  All values are strings
+    /**
+     * Gets all the form parameters
      * @return All the form parameters
      */
-    public String[][] getFormParameters();
+    public Map getFormParameters();
 
     /** Gets a URL (or query) parameter based on the name passed in.
      * @param name The name of the URL (or query) parameter
      * @return The value of the URL (or query) parameter
      */
     public String getQueryParameter(String name);
+
+    /**
+     * Gets all the query parameters
+     * @return All the query parameters
+     */
+    public Map getQueryParameters();
 
     /** Gets an integer value of the request method.  These values are:
      *

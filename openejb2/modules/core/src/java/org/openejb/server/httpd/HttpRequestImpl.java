@@ -50,6 +50,7 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+import java.util.Map;
 
 /**
  * A class to take care of HTTP Requests.  It parses headers, content, form and url
@@ -115,34 +116,12 @@ public class HttpRequestImpl implements HttpRequest {
         return (String) formParams.get(name);
     }
 
-    /**
-     * Gets all the form parameters in the form of a two-dimentional array
-     * The second dimention has two indexes which contain the key and value
-     * for example:
-     * <code>
-     * for(int i=0; i<formParams.length; i++) {
-     * key = formParams[i][0];
-     * value = formParams[i][1];
-     * }
-     * </code>
-     * <p/>
-     * All values are strings
-     *
-     * @return All the form parameters
-     */
-    public String[][] getFormParameters() {
-        Iterator keys = formParams.keySet().iterator();
-        String[][] returnValue = new String[formParams.size()][2];
+    public Map getFormParameters() {
+        return (Map)formParams.clone();
+    }
 
-        String temp;
-        int i = 0;
-        while (keys.hasNext()) {
-            temp = (String) keys.next();
-            returnValue[i][0] = temp;
-            returnValue[i++][1] = (String) formParams.get(temp);
-        }
-
-        return returnValue;
+    public Map getQueryParameters() {
+        return (Map)queryParams.clone();
     }
 
     /**
