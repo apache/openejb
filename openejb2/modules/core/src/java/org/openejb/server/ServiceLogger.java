@@ -114,11 +114,11 @@ public class ServiceLogger implements ServerService {
     }
 
     private void logIncoming() {
-        log.info("incomming request");
+        log.trace("incomming request");
     }
 
     private void logSuccess() {
-        log.info("successful request");
+        log.trace("successful request");
     }
 
     private void logFailure(Exception e) {
