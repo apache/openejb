@@ -955,6 +955,7 @@
     <copy todir="${final.dir}/src">
     
       <fileset dir="src" >
+        <include name="doc/**"/>
 		<include name="etc/CHANGELOG"/>
 		<include name="etc/LICENSE"/>
 		<include name="etc/MANIFEST.MF"/>
