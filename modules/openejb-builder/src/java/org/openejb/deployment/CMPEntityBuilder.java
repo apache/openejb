@@ -195,12 +195,12 @@ class CMPEntityBuilder extends EntityBuilder {
                 throw new DeploymentException("Could not load cmp bean class: ejbName=" + ejbName + " ejbClass=" + getString(entityBean.getEjbClass()));
             }
 
-            boolean isUnknownPK = false;
+            boolean unknownPK = false;
             Class pkClass;
             try {
                 String pkClassName = getString(entityBean.getPrimKeyClass());
                 if ( pkClassName.equals("java.lang.Object") ) {
-                    isUnknownPK = true;
+                    unknownPK = true;
                     if ( false == openEjbEntity.isSetAutomaticKeyGeneration() ) {
                         throw new DeploymentException("Automatic key generation is not defined: ejbName=" + ejbName);
                     }
@@ -213,10 +213,11 @@ class CMPEntityBuilder extends EntityBuilder {
             }
 
             EJB ejb;
+            PrimaryKeyGeneratorDelegate keyGeneratorDelegate = null;
             if ( openEjbEntity.isSetAutomaticKeyGeneration() ) {
                 AutomaticKeyGeneration keyGeneration = openEjbEntity.getAutomaticKeyGeneration();
                 String generatorName = keyGeneration.getGeneratorName();
-                PrimaryKeyGeneratorDelegate keyGeneratorDelegate = (PrimaryKeyGeneratorDelegate) keyGenerators.get(generatorName);
+                keyGeneratorDelegate = (PrimaryKeyGeneratorDelegate) keyGenerators.get(generatorName);
                 if ( null == keyGeneratorDelegate ) {
                     keyGeneratorDelegate = new PrimaryKeyGeneratorDelegate();
                     GBeanData keyGenerator;
@@ -233,15 +234,13 @@ class CMPEntityBuilder extends EntityBuilder {
                     
                     keyGenerators.put(generatorName, keyGeneratorDelegate);
                 }
-                ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory, keyGeneratorDelegate);
-            } else {
-                ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory);
             }
+            ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory, keyGeneratorDelegate, unknownPK);
 
             Table table = new Table(ejbName, openEjbEntity.getTableName());
 
             Set pkFieldNames;
-            if ( isUnknownPK && openEjbEntity.isSetPrimkeyField() ) {
+            if ( unknownPK && openEjbEntity.isSetPrimkeyField() ) {
                 pkFieldNames = new HashSet(1);
                 pkFieldNames.add(openEjbEntity.getPrimkeyField());
             } else if ( false == entityBean.isSetPrimkeyField() ) {

@@ -435,7 +435,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
 //        builder.setConnectionFactoryName("defaultDatasource");
 
         EJBProxyFactory proxyFactory = new EJBProxyFactory(CONTAINER_NAME.getCanonicalName(), false, MockRemote.class, MockHome.class, MockLocal.class, MockLocalHome.class);
-        EJB ejb = new EJB("MockEJB", "MOCK", Integer.class, proxyFactory);
+        EJB ejb = new EJB("MockEJB", "MOCK", Integer.class, proxyFactory, null, false);
         CMPField pkField = new CMPField("id", Integer.class, true);
         ejb.addCMPField(pkField);
         ejb.addCMPField(new CMPField("value", String.class, false));
