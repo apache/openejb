@@ -67,3 +67,4 @@ CLASSPATH=lib/xerces-J_1.3.1.jar${PS}${CP}
 
 $JAVA $OPTIONS -classpath $CLASSPATH org.openorb.rmi.compiler.JavaToIdl -tie -stub -noidl $@
 #java org.openorb.rmi.compiler.JavaToIdl -tie -stub -noidl  
+

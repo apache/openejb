@@ -90,3 +90,4 @@ OPTIONS="$OPENEJB_OPTION_X $OPENEJB_OPTION_1 $OPENEJB_OPTION_2 $OPENORB_OPTIONS"
 
 $JAVA $OPTIONS -classpath $CLASSPATH org.openejb.corba.Server conf/xopenejb_startup.props -ORBProfile=ejb -domain conf/tyrex_resources.xml
 
+

@@ -58,3 +58,4 @@ CP=test/lib/idb_3.26.jar${PS}${CP}
 CLASSPATH=$CP
 
 $JAVA -classpath $CLASSPATH -Dant.home=lib org.apache.tools.ant.Main "$@" -buildfile src/build.xml
+

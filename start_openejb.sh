@@ -2,3 +2,4 @@
 
 ./launch_jndi.sh &
 ./launch_server.sh &
+
