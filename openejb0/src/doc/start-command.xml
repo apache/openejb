@@ -124,7 +124,7 @@ Default number of threads is 20.
 </option>
 
 
-<option flag="--local-copy" param"[true|false]">
+<option flag="--local-copy" param="[true|false]">
 Instructs the container system whether or not marshal (copy) 
 the parameters and return values on calls between beans.
 </option>
