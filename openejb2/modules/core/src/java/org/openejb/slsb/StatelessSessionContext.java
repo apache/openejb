@@ -56,6 +56,7 @@ import javax.ejb.SessionContext;
 import javax.ejb.TimerService;
 import javax.transaction.UserTransaction;
 import javax.xml.rpc.handler.MessageContext;
+import javax.security.auth.Subject;
 
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
@@ -125,7 +126,7 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("getEJBLocalObject() cannot be called when inactive");
         }
 
-        public Principal getCallerPrincipal() {
+        public Principal getCallerPrincipal(Subject callerSubject) {
             throw new IllegalStateException("getCallerPrincipal() cannot be called when inactive");
         }
 
@@ -163,7 +164,7 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("getEJBLocalObject() cannot be called from setSessionContext(SessionContext)");
         }
 
-        public Principal getCallerPrincipal() {
+        public Principal getCallerPrincipal(Subject callerSubject) {
             throw new IllegalStateException("getCallerPrincipal() cannot be called from setSessionContext(SessionContext)");
         }
 
@@ -193,7 +194,7 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
     };
 
     public static final StatelessSessionContextState EJBCREATEREMOVE = new StatelessSessionContextState() {
-        public Principal getCallerPrincipal() {
+        public Principal getCallerPrincipal(Subject callerSubject) {
             throw new IllegalStateException("getCallerPrincipal() cannot be called from ejbCreate/ejbRemove");
         }
 
