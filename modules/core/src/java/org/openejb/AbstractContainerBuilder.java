@@ -319,12 +319,13 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     }
 
     protected GBeanMBean createConfiguration(
-            InterfaceMethodSignature[] signatures,
+            ClassLoader cl, InterfaceMethodSignature[] signatures,
             InstanceContextFactory contextFactory,
             InterceptorBuilder interceptorBuilder,
-            InstancePool pool) throws Exception {
+            InstancePool pool
+            ) throws Exception {
 
-        GBeanMBean gbean = new GBeanMBean(GenericEJBContainer.GBEAN_INFO);
+        GBeanMBean gbean = new GBeanMBean(GenericEJBContainer.GBEAN_INFO, cl);
         gbean.setAttribute("ContainerID", getContainerId());
         gbean.setAttribute("EJBName", getEJBName());
         gbean.setAttribute("ProxyInfo", createProxyInfo());

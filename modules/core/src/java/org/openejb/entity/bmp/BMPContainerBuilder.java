@@ -77,7 +77,8 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
 
     protected Object buildIt(boolean buildContainer) throws Exception {
         // get the bean class
-        Class beanClass = getClassLoader().loadClass(getBeanClassName());
+        ClassLoader classLoader = getClassLoader();
+        Class beanClass = classLoader.loadClass(getBeanClassName());
 
         // build the vop table
         LinkedHashMap vopMap = buildVopMap(beanClass);
@@ -97,7 +98,7 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
         if (buildContainer) {
             return createContainer(signatures, contextFactory, interceptorBuilder, pool);
         } else {
-            return createConfiguration(signatures, contextFactory, interceptorBuilder, pool);
+            return createConfiguration(classLoader, signatures, contextFactory, interceptorBuilder, pool);
         }
     }
 
