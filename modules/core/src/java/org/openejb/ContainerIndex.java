@@ -191,6 +191,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecyc
     }
 
     public synchronized EJBContainer getContainer(String containerID) {
+        //TODO return an informative exception if there is no such containerId.  Currently returns ArrayIndexOutOfBoundsException(-1)
         return getContainer(getContainerIndex(containerID));
     }
 
