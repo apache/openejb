@@ -18,6 +18,14 @@
         </p>
     </introduction>
     <faq>
+        <question>CMP EntityBean FAQ</question>
+        <answer id="cmp">
+            <p>
+            <a href="faq_cmp.html">CMP EntityBean FAQ.</a>
+            </p>
+        </answer>
+    </faq>
+    <faq>
         <question>MySQL FAQ</question>
         <answer id="mysql">
             <p>
@@ -46,4 +54,16 @@
             </p>
         </answer>
     </faq>
+    <faq>
+        <question>Can I add to these FAQ documents?</question>
+        <answer id="help">
+            <p>
+            Yes, of course!  Please do!  You can use this simple document 
+as a <a href="faq_template.xml">template</a>.  Just fill it in and send it 
+to the <a href="http://sourceforge.net/tracker/?func=add&amp;group_id=44351&amp;atid=439276">Patch tracker</a>, it will be up in no time!
+            
+            </p>
+        </answer>
+    </faq>
+
 </faqs>
