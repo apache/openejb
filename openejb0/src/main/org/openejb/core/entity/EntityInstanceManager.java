@@ -533,9 +533,6 @@ public class EntityInstanceManager {
             * to do.
             */
             bean.unsetEntityContext();
-        }catch(java.lang.reflect.InvocationTargetException target) {
-            logger.info(getClass().getName()+".freeInstance: ignoring exception "+target.getTargetException()+" on bean instance "+bean);
-            // To throw, or not to throw, this is the question! See below.
         }catch(java.lang.Exception e){
             /*
             * The EJB 1.1 specification does not specify how exceptions thrown by unsetEntityContext impact the 

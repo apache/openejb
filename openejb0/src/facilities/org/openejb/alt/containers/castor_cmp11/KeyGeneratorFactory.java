@@ -8,7 +8,7 @@ import java.util.HashMap;
 import org.openejb.util.Logger;
 
 public abstract class KeyGeneratorFactory {
-    protected final static Logger logger = Logger.getLogger("CastorCMP");
+    protected final static Logger logger = Logger.getInstance("CastorCMP");
 
     private static class PrimitiveKey implements org.openejb.alt.containers.castor_cmp11.KeyGenerator{
         private final java.lang.reflect.Field field;

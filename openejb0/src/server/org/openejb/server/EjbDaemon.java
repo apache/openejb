@@ -880,6 +880,11 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         return _getHandle(call, info);
     }
 
+    public javax.ejb.HomeHandle getHomeHandle(ProxyInfo info){
+        CallContext call = CallContext.getCallContext();
+        return _getHomeHandle(call, info);
+    }
+
     public javax.ejb.EJBObject getEJBObject(ProxyInfo info){
         CallContext call = CallContext.getCallContext();
         return _getEJBObject(call, info);
@@ -927,6 +932,24 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         EJBObjectHandler hanlder = EJBObjectHandler.createEJBObjectHandler(eMetaData,sMetaData,cMetaData,primKey);
 
         return new EJBObjectHandle( hanlder.createEJBObjectProxy() );
+    }
+
+    private javax.ejb.HomeHandle _getHomeHandle(CallContext call, ProxyInfo info){
+        DeploymentInfo deployment = info.getDeploymentInfo();
+
+        Integer idCode = (Integer)deploymentsMap.get( deployment.getDeploymentID() );
+
+        ClientMetaData  cMetaData = new ClientMetaData(call.getEJBRequest().getClientIdentity());
+        EJBMetaDataImpl eMetaData = new EJBMetaDataImpl(deployment.getHomeInterface(),
+                                                        deployment.getRemoteInterface(),
+                                                        deployment.getPrimaryKeyClass(),
+                                                        deployment.getComponentType(),
+                                                        deployment.getDeploymentID().toString(),
+                                                        idCode.intValue());
+
+        EJBHomeHandler hanlder = EJBHomeHandler.createEJBHomeHandler(eMetaData,sMetaData,cMetaData);
+
+        return new EJBHomeHandle( hanlder.createEJBHomeProxy() );
     }
 
     private javax.ejb.EJBObject _getEJBObject(CallContext call, ProxyInfo info){

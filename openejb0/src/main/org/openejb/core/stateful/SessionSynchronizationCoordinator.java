@@ -37,7 +37,7 @@ public class SessionSynchronizationCoordinator implements javax.transaction.Sync
     
 
     private static java.util.HashMap coordinators = new java.util.HashMap();
-    public Logger logger = Logger.getInstance( "OpenEJB" );
+    public static Logger logger = Logger.getInstance( "OpenEJB" );
 
     /**
      * The actual instances are not stored in this hash as we cannot forsee how 
@@ -125,7 +125,7 @@ public class SessionSynchronizationCoordinator implements javax.transaction.Sync
                 
                 SessionSynchronization bean = (SessionSynchronization)instanceManager.obtainInstance(callContext.getPrimaryKey(), callContext);
                 bean.beforeCompletion();
-                instanceManager.poolInstance(callContext.getPrimaryKey(), bean);
+                instanceManager.poolInstance(callContext.getPrimaryKey(), (EnterpriseBean)bean);
             }catch(org.openejb.InvalidateReferenceException inv) {
                 // the bean doesn't exist anymore, e.g. a system exception occured
                 // and the bean hass been discarded. No container callbacks
@@ -207,7 +207,7 @@ public class SessionSynchronizationCoordinator implements javax.transaction.Sync
                 SessionSynchronization bean = (SessionSynchronization)instanceManager.obtainInstance(callContext.getPrimaryKey(), callContext);
                 
                 bean.afterCompletion( status == Status.STATUS_COMMITTED );
-                instanceManager.poolInstance(callContext.getPrimaryKey(), bean);
+                instanceManager.poolInstance(callContext.getPrimaryKey(), (EnterpriseBean)bean);
             }catch(org.openejb.InvalidateReferenceException inv) {
                 // the bean doesn't exist anymore, e.g. a system exception occured
                 // and the bean has been discarded. No container callbacks
