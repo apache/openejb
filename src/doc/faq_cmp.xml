@@ -58,6 +58,30 @@ directory of your jar and add a 'query' declaration like the one below for
 all the CMP entities that need them. </p>
 
 <p>
+After the deployer is run for the first time, using your favourite 
+editor edit openejb-jar.xml file and add your finder select statement
+in openejb-jar.xml file.
+</p>
+
+<p>
+Repackage your jar file.
+</p>
+
+<p>
+If openejb is already running close currently running openejb instance
+by telnet localhost 4200 and issuing the stop command and restart openejb.
+</p>
+
+<p>
+Test your program by calling Runit.sh .
+</p>
+
+<p>
+Whenever deployer is run again for your current application, it will overwrite
+openejb-jar.xml file.
+</p>
+
+<p>
 Say you had a home interface with the following finder method... 
 </p>
 <p>
@@ -94,7 +118,7 @@ file like this one ...
       </method-params>
     </query-method>
     <object-ql>
-    SELECT o FROM org.acme.employee.EmployeeBean o WHERE o.lastName = $1 
+    SELECT o FROM org.acme.employee.EmployeeBean o WHERE o.lastname = $1 
     </object-ql>
   </query>
 </ejb-deployment>
