@@ -46,7 +46,7 @@ package org.openejb.test;
 
 import java.util.Properties;
 
-import org.openejb.OpenEJB;
+import javax.naming.InitialContext;
 
 /**
  *
@@ -58,10 +58,17 @@ public class IvmTestServer implements TestServer {
     private Properties properties;
 
     public void init(Properties props){
+        
         properties = props;
+        
         try{
-        OpenEJB.init(properties);
-        }catch(org.openejb.OpenEJBException oe){
+            props.put("java.naming.factory.initial", "org.openejb.client.LocalInitialContextFactory");
+            Properties p = new Properties(props);
+            p.put("openejb.loader", "embed");
+            new InitialContext( p );
+            
+        //OpenEJB.init(properties);
+        }catch(Exception oe){
             System.out.println("=========================");
             System.out.println(""+oe.getMessage());
             System.out.println("=========================");

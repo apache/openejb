@@ -50,6 +50,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Hashtable;
 import java.util.jar.JarFile;
 
 import org.openejb.OpenEJBException;
@@ -75,7 +78,7 @@ public class JarUtils{
              * so that org.openejb.util.urlhandler.resource.Handler will be used for URLs
              * of the form "resource:/path".
              */
-            try {
+            /*try {
                 String oldPkgs = System.getProperty( "java.protocol.handler.pkgs" );
 
                 if ( oldPkgs == null )
@@ -84,7 +87,23 @@ public class JarUtils{
                     System.setProperty( "java.protocol.handler.pkgs", oldPkgs + "|" + "org.openejb.util.urlhandler" );
 
             } catch ( SecurityException ex ) {
-            }
+            }*/
+            Hashtable urlHandlers = (Hashtable)AccessController.doPrivileged(
+                new PrivilegedAction(){
+                    public Object run() { 
+                        java.lang.reflect.Field handlers = null;
+                        try{
+                        handlers = URL.class.getDeclaredField("handlers");
+                        handlers.setAccessible(true);
+                        return handlers.get(null);
+                        } catch (Exception e2){
+                            e2.printStackTrace();
+                        }
+                        return null;
+                    }
+                }
+            );
+            urlHandlers.put("resource", new org.openejb.util.urlhandler.resource.Handler());
             alreadySet = true;
         }
     }

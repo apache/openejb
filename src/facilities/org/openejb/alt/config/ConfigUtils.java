@@ -222,15 +222,15 @@ public class ConfigUtils  {
     }
     
     public static boolean checkForOpenejbJar(String jarFile) throws OpenEJBException {
-		/*[1.1]  Get the jar ***************/
-		JarFile jar = JarUtils.getJarFile(jarFile);
+        /*[1.1]  Get the jar ***************/
+        JarFile jar = JarUtils.getJarFile(jarFile);
 
-		/*[1.2]  Find the openejb-jar.xml from the jar ***************/
-		JarEntry entry = jar.getJarEntry("META-INF/openejb-jar.xml");
-		if (entry == null) entry = jar.getJarEntry("openejb-jar.xml");
-		if (entry == null) return false;
+        /*[1.2]  Find the openejb-jar.xml from the jar ***************/
+        JarEntry entry = jar.getJarEntry("META-INF/openejb-jar.xml");
+        if (entry == null) entry = jar.getJarEntry("openejb-jar.xml");
+        if (entry == null) return false;
 		
-		return true;
+        return true;
     }
     
     public static void writeOpenejbJar(String xmlFile, OpenejbJar openejbJarObject) throws OpenEJBException{
@@ -309,7 +309,7 @@ public class ConfigUtils  {
              *     openejb.home directory
              */
             try{
-                file = FileUtils.getFile(path);
+                file = FileUtils.getBase().getFile(path);
                 if (file != null && file.exists() && file.isFile()) {
                     return file.getAbsolutePath();
                 }
@@ -322,7 +322,7 @@ public class ConfigUtils  {
              *     relative to the openejb.home directory
              */
             try{
-                file = FileUtils.getFile("conf/openejb.conf");
+                file = FileUtils.getBase().getFile("conf/openejb.conf");
                 if (file != null && file.exists() && file.isFile()) {
                     return file.getAbsolutePath();
                 }
@@ -334,7 +334,7 @@ public class ConfigUtils  {
              *     the openejb-x.x.x.jar
              */
             //Gets the conf directory, creating it if needed.
-            File confDir = FileUtils.getDirectory("conf");
+            File confDir = FileUtils.getBase().getDirectory("conf");
             
             //TODO:1: We cannot find the user's conf file and
             // are taking the liberty of creating one for them.
@@ -386,7 +386,7 @@ public class ConfigUtils  {
             
             if ( d.getJar() != null ) {
                 try {
-                    File target = FileUtils.getFile(d.getJar(), false);
+                    File target = FileUtils.getBase().getFile(d.getJar(), false);
                     
                     /* 
                      * If the jar entry is already there, no need 
@@ -401,7 +401,7 @@ public class ConfigUtils  {
                 }
             } else if ( d.getDir() != null ) {
                 try {
-                    File target = FileUtils.getFile(d.getDir(), false);
+                    File target = FileUtils.getBase().getFile(d.getDir(), false);
                     File jarDir = jar.getAbsoluteFile().getParentFile();
 
                     /* 

@@ -211,7 +211,7 @@ public class BasicBmpBean implements javax.ejb.EntityBean {
 
         } catch ( Exception e ) {
             e.printStackTrace();
-            throw new javax.ejb.CreateException("can't create");
+            throw new javax.ejb.CreateException("can't create: "+e.getClass().getName()+" "+e.getMessage());
         }
     }
 
@@ -246,7 +246,7 @@ public class BasicBmpBean implements javax.ejb.EntityBean {
      * 
      */
     public void throwApplicationException() throws ApplicationException{
-        throw new ApplicationException("Don't Panic");
+        throw new ApplicationException("Testing ability to throw Application Exceptions");
     }
     
     /**
@@ -257,7 +257,7 @@ public class BasicBmpBean implements javax.ejb.EntityBean {
      * 
      */
     public void throwSystemException_NullPointer() {
-        throw new NullPointerException("Panic");
+        throw new NullPointerException("Testing ability to throw System Exceptions");
     }
     
 

@@ -44,58 +44,82 @@
  */
 package org.openejb.test;
 
+import junit.framework.TestResult;
+import java.io.PrintStream;
+
 /**
  *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
-public class TestRunner extends junit.textui.TestRunner
-{
-    public TestRunner()
-    {
-        super();
+public class TestRunner extends junit.textui.TestRunner {
+    
+    /**
+     * Constructs a TestRunner.
+     */
+    public TestRunner() {
+            this(System.out);
+    }
+
+    /**
+     * Constructs a TestRunner using the given stream for all the output
+     */
+    public TestRunner(PrintStream writer) {
+            this(new ResultPrinter(writer));
+    }
+
+    /**
+     * Constructs a TestRunner using the given ResultPrinter all the output
+     */
+    public TestRunner(ResultPrinter printer) {
+            super(printer);
     }
 
     /**
      * main entry point.
      */
-    public static void main( String args[] )
-    {
-        try
-        {
+    public static void main(String args[]) {
+        
+        try {
             org.openejb.util.ClasspathUtils.addJarsToPath("lib");
             org.openejb.util.ClasspathUtils.addJarsToPath("dist");
             org.openejb.util.ClasspathUtils.addJarsToPath("beans");
 
+            TestRunner aTestRunner= new TestRunner();
+            TestResult r = aTestRunner.start(args);
+            if (!r.wasSuccessful()) System.exit(FAILURE_EXIT);
+            System.exit(SUCCESS_EXIT);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.exit(EXCEPTION_EXIT);
+        }
+    }
+
+
+    public TestResult start(String args[]) throws Exception {
+        TestResult result = null;
+        try {
+
             TestManager.init(null);
             TestManager.start();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             System.out.println("Cannot initialize the test environment: " + e.getClass().getName() + " " + e.getMessage());
-            e.printStackTrace();
-            System.exit(-1);
+            //e.printStackTrace();
+            //System.exit(-1);
+            throw e;
         }
 
-        TestRunner aTestRunner = new TestRunner();
-        try
-        {
-            aTestRunner.start(args);
-        }
-        catch (Exception ex)
-        {
-        }
-        finally
-        {
-            try
-            {
+        try {
+            result = super.start(args);
+        } catch (Exception ex) {
+        } finally {
+            try {
                 TestManager.stop();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 ;   // ignore it
             }
         }
-        System.exit(0);
+        //System.exit(0);
+        return result;
     }
 }

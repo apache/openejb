@@ -93,51 +93,7 @@ import java.util.Properties;
  */
 public class CastorCMP11_EntityContainer
 implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFactory {
-    protected static class CMPLogger implements LogInterceptor {
-        
-        protected final Logger logger = Logger.getInstance( "OpenEJB.CastorCMP", "org.openejb.alt.util.resources" );
-        protected final String db;
-
-        public CMPLogger( String db ) {
-            this.db = db + ": ";
-        }
-
-        public void loading( java.lang.Object objClass, java.lang.Object identity ) {
-            logger.debug( db + "Loading an instance of " + objClass + " with identity \"" + identity + "\"" );
-        }
-
-        public void creating( java.lang.Object objClass, java.lang.Object identity ) {
-            logger.debug( db + "Creating an instance of " + objClass + " with identity \"" + identity + "\"" );
-        }
-
-        public void removing( java.lang.Object objClass, java.lang.Object identity ) {
-            logger.debug( db + "Removing an instance of " + objClass + " with identity \"" + identity + "\"" );
-        }
-
-        public void storing( java.lang.Object objClass, java.lang.Object identity ) {
-            logger.debug( db + "Storing an instance of " + objClass + " with identity \"" + identity + "\"" );
-        }
-
-        public void storeStatement( java.lang.String statement ) {
-            logger.debug( db + statement );
-        }
-
-        public void queryStatement( java.lang.String statement ) {
-            logger.debug( db + statement );
-        }
-
-        public void message( java.lang.String message ) {
-            logger.info( db + "JDO message:" + message );
-        }
-
-        public void exception( java.lang.Exception ex ) {
-            logger.info( db + "JDO exception:", ex );
-        }
-
-        public java.io.PrintWriter getPrintWriter() {
-            return null;
-        }
-    }
+    
 
     /*
      * Bean instances that are currently in use are placed in the txReadyPoolMap indexed
@@ -296,12 +252,12 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         File gTxDb = null;
         File lTxDb = null;
         try {
-            gTxDb = org.openejb.util.FileUtils.getFile( Global_TX_Database );
+            gTxDb = org.openejb.util.FileUtils.getBase().getFile( Global_TX_Database );
         } catch ( Exception e ) {
             throw new OpenEJBException( "Cannot locate the Global_TX_Database file. " + e.getMessage() );
         }
         try {
-            lTxDb = org.openejb.util.FileUtils.getFile( Local_TX_Database );
+            lTxDb = org.openejb.util.FileUtils.getBase().getFile( Local_TX_Database );
         } catch ( Exception e ) {
             throw new OpenEJBException( "Cannot locate the Local_TX_Database file. " + e.getMessage() );
         }
@@ -434,6 +390,25 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         resetMap.put( float.class, new Float( 0 ) );
         resetMap.put( double.class, new Double( 0.0 ) );
     }
+    
+    boolean initialized;
+    protected void postInit() {
+        if (initialized) return;
+
+        String userDir = System.getProperty("user.dir");
+        try{
+            System.setProperty("user.dir",System.getProperty("openejb.base"));
+            jdo_ForLocalTransaction.getDatabase();
+            jdo_ForGlobalTransaction.getDatabase();
+
+        } catch (Throwable e){
+            //e.printStackTrace();
+            //throw new org.openejb.SystemException("DB thing failed",e);
+        } finally {
+            initialized = true;
+            System.setProperty("user.dir",userDir);
+        }
+    }
     //===============================
     // begin Container Implementation
     //
@@ -512,6 +487,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      */
     public Object invoke( Object deployID, Method callMethod, Object[] args, Object primKey, Object securityIdentity )
     throws org.openejb.OpenEJBException {
+        postInit();
         try {
             org.openejb.core.DeploymentInfo deployInfo = ( org.openejb.core.DeploymentInfo ) this.getDeploymentInfo( deployID );
 

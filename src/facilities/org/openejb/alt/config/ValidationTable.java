@@ -148,7 +148,7 @@ public class ValidationTable {
 
     public boolean isValidated(String jarFile){
         try{
-            File jar = FileUtils.getFile(jarFile);
+            File jar = FileUtils.getBase().getFile(jarFile);
             long lastModified = jar.lastModified();
             long lastValidated = getLastValidated(jar);
             //System.out.println("  -- modified  "+lastModified);
@@ -226,7 +226,7 @@ public class ValidationTable {
     public void setLastValidated(String jarFile, long timeValidated){
         try{
             conn = getConnection();
-            File jar = FileUtils.getFile(jarFile);
+            File jar = FileUtils.getBase().getFile(jarFile);
             String jarFileURL = jar.toURL().toExternalForm();
             //System.out.println("[] setLastValidated "+jarFileURL );
             //System.out.println("        -- time "+timeValidated );

@@ -27,16 +27,16 @@ java.lang.reflect.Modifier
     <a name="top"></a>
     <table width="712" cellspacing="0" cellpadding="0" border="0">
         <tr>
-            <td bgcolor="#5A5CB8" align="left" valign="top" width="7"><img height="5" width="1" border="0" src="images/dotTrans.gif"></td>
+            <td bgcolor="#5A5CB8" align="left" valign="top" width="7"><img height="9" width="1" border="0" src="images/dotTrans.gif"></td>
             <td bgcolor="#5A5CB8" align="left" valign="top" width="40"><img border="0" height="6" width="40" src="images/dotTrans.gif"></td>
             <td bgcolor="#5A5CB8" align="left" valign="top" height="2" width="530"><img border="0" height="6" width="530" src="images/top_2.gif"></td>
             <td bgcolor="#E24717" align="left" valign="top" height="2" width="120"><img src="images/top_3.gif" width="120" height="6" border="0"></td>
         </tr>
         <tr>
-            <td bgcolor="#5A5CB8" align="left" valign="top" bgcolor="#ffffff" width="7"><img border="0" height="15" width="10" src="images/dotTrans.gif"></td>
+            <td bgcolor="#5A5CB8" align="left" valign="top" bgcolor="#ffffff" width="13"><img border="0" height="15" width="13" src="images/dotTrans.gif"></td>
             <td align="left" valign="top" width="40"><img border="0" height="1" width="1" src="images/dotTrans.gif"></td>
-            <td align="left" valign="middle" width="530"><a href="http://openejb.sourceforge.net"><span class="menuTopOff">OpenEJB</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://openjms.sourceforge.net"><span class="menuTopOff">OpenJMS</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://openorb.sourceforge.net"><span class="menuTopOff">OpenORB</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://castor.exolab.org"><span class="menuTopOff">Castor</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="http://tyrex.sourceforge.net"><span class="menuTopOff">Tyrex</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"></td>
-            <td align="left" valign="top" height="10" width="120"><img border="0" height="2" width="10" src="images/dotTrans.gif"></td>
+            <td align="left" valign="middle" width="530"><a href="http://openejb.sourceforge.net"><span class="menuTopOff">OpenEJB</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="index.html"><span class="menuTopOff">Index</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="viewjndi.jsp"><span class="menuTopOff">JNDI</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="viewejb.jsp"><span class="menuTopOff">EJB</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="viewclass.jsp"><span class="menuTopOff">Class</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"><a href="invokeobj.jsp"><span class="menuTopOff">Invoke</span></a><img border="0" height="2" width="20" src="images/dotTrans.gif"></td>
+            <td align="left" valign="top" height="20" width="120"><img border="0" height="2" width="10" src="images/dotTrans.gif"></td>
         </tr>
         <tr>
             <td align="left" valign="top" bgcolor="#a9a5de" width="7"><img border="0" height="3" width="7" src="images/line_sm.gif"></td>
@@ -64,11 +64,29 @@ java.lang.reflect.Modifier
                 <p>
                 </p>
                 <FONT SIZE="2">
+                
 <%
     try{
         String className = request.getParameter("class");
         if (className == null) {
-            out.print("No class specified");
+            out.print("<b>Enter a class name to browse:</b>");
+            out.print("<FORM NAME='view' METHOD='GET' ACTION='viewclass.jsp'>");
+            out.print("<INPUT type='text' NAME='class' size='40' VALUE=''>");
+            out.print("<INPUT type='SUBMIT' NAME='view' value='View'>");
+            out.print("</form>");
+            out.print("<b>Or browse one of these fun classes:</b><br><br>");
+            out.print(tab+getClassRef("javax.ejb.EJBHome")+"<br>");
+            out.print(tab+getClassRef("javax.ejb.EJBObject")+"<br>");
+            out.print(tab+getClassRef("javax.ejb.EnterpriseBean")+"<br>");
+            out.print(tab+getClassRef("javax.ejb.SessionBean")+"<br>");
+            out.print(tab+getClassRef("javax.ejb.EntityBean")+"<br>");
+            out.print(tab+getClassRef("javax.servlet.http.HttpServlet")+"<br>");
+            out.print(tab+getClassRef("javax.servlet.http.HttpServletRequest")+"<br>");
+            out.print(tab+getClassRef("javax.servlet.http.HttpServletResponse")+"<br>");
+            out.print(tab+getClassRef("javax.servlet.http.HttpSession")+"<br>");
+            out.print(tab+getClassRef("javax.naming.InitialContext")+"<br>");
+            out.print(tab+getClassRef("javax.naming.Context")+"<br>");
+
         } else {
             Class clazz = this.getClass().forName(className);
             printClass(clazz,out);
@@ -196,6 +214,10 @@ java.lang.reflect.Modifier
 
     public String getClassRef(Class clazz) throws Exception {
             String name = clazz.getName();
+            return "<a href='viewclass.jsp?class="+name+"'>"+name+"</a>";
+    }
+    
+    public String getClassRef(String name) throws Exception {
             return "<a href='viewclass.jsp?class="+name+"'>"+name+"</a>";
     }
     
