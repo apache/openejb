@@ -110,7 +110,7 @@ public class BmpHomeIntfcTests extends BasicBmpTestClient{
             assertEquals("The Collection is not the right size.", keys.length, objects.size() );
             Object[] objs = objects.toArray();
             for (int i=0; i < objs.length; i++){
-                ejbObject = (BasicBmpObject)objs[i];
+                ejbObject = (BasicBmpObject)javax.rmi.PortableRemoteObject.narrow(objs[i], BasicBmpObject.class);
                 // This could be problematic, it assumes the order of the collection.
                 assertEquals("The primary keys are not equal.", keys[i], ejbObject.getPrimaryKey());
             }

@@ -110,7 +110,7 @@ public class CmpHomeIntfcTests extends BasicCmpTestClient{
             assertEquals("The Collection is not the right size.", keys.length, objects.size() );
             Object[] objs = objects.toArray();
             for (int i=0; i < objs.length; i++){
-                ejbObject = (BasicCmpObject)objs[i];
+                ejbObject = (BasicCmpObject)javax.rmi.PortableRemoteObject.narrow(objs[i], BasicCmpObject.class);
                 // This could be problematic, it assumes the order of the collection.
                 assertEquals("The primary keys are not equal.", keys[i], ejbObject.getPrimaryKey());
             }
