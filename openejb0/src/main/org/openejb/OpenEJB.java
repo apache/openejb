@@ -122,12 +122,12 @@ public final class OpenEJB {
     private static Properties         props;
     private static boolean            initialized;
     private static Logger             logger;
-    
+
     public static void init(Properties props)
     throws OpenEJBException{
         init(props,null);
     }
-    
+
     /**
      *
      * @param props Specifies the Assembler and other properties used to build the ContainerSystem
@@ -135,12 +135,16 @@ public final class OpenEJB {
      * @since JDK 1.2
      */
     public static void init(Properties initProps, ApplicationServer appServer) throws OpenEJBException {
-        
+
         if ( initialized ) {
             logger.error( "startup.alreadyInitialzied" );
             throw new OpenEJBException( "startup.alreadyInitialzied" );
         } else {
-	    logger = Logger.getInstance( "OpenEJB" );
+            // Setting the handler system property should be the first thing
+            // OpenEJB does.
+            JarUtils.setHandlerSystemProperty();
+
+            logger = Logger.getInstance( "OpenEJB" );
 
             initialized = true;
         }
@@ -151,7 +155,6 @@ public final class OpenEJB {
 	Properties versionInfo = new Properties();
 
 	try {
-            JarUtils.setHandlerSystemProperty();
 	    versionInfo.load( new URL( "resource:/openejb-version.properties" ).openConnection().getInputStream() );
 	} catch (java.io.IOException e) {
 	}
@@ -170,24 +173,24 @@ public final class OpenEJB {
                 System.setSecurityManager(new SecurityManager(){
                     public void checkPermission(Permission perm) {}
                     public void checkPermission(Permission perm, Object context) {}
-                
+
                 });
             } catch (Exception e){
                 logger.warning( "startup.couldNotInstalllDefaultSecurityManager", e.getClass().getName(), e.getMessage() );
             }
         }
-        
+
         props = new Properties(System.getProperties());
 
         if ( initProps == null ) {
             logger.info( "startup.noInitializationProperties" );
         } else {
-            props.putAll( initProps );            
+            props.putAll( initProps );
         }
-        
+
         if ( appServer == null ) logger.warning( "startup.noApplicationServerSpecified" );
         applicationServer = appServer;
-            
+
 
         SafeToolkit toolkit = SafeToolkit.getToolkit("OpenEJB");
 
@@ -199,7 +202,7 @@ public final class OpenEJB {
         } else {
             logger.warning( "startup.deprecatedPropertyName", EnvProps.ASSEMBLER );
         }
-        
+
         logger.debug( "startup.instantiatingAssemberClass", className );
         Assembler assembler = null;
 
@@ -212,7 +215,7 @@ public final class OpenEJB {
             logger.fatal( "startup.openEjbEncounterUnexpectedError", t );
             throw new OpenEJBException( "startup.openEjbEncounterUnexpectedError", t );
         }
-        
+
         try {
             assembler.init(props);
         } catch ( OpenEJBException oe ){
@@ -222,7 +225,7 @@ public final class OpenEJB {
             logger.fatal( "startup.assemblerEncounterUnexpectedError", t );
             throw new OpenEJBException( "startup.assemblerEncounterUnexpectedError", t );
         }
-        
+
         try {
             assembler.build();
         } catch ( OpenEJBException oe ){
@@ -232,7 +235,7 @@ public final class OpenEJB {
             logger.fatal( "startup.assemblerEncounterUnexpectedBuildError", t );
             throw new OpenEJBException( "startup.assemblerEncounterUnexpectedBuildError", t );
         }
-        
+
         containerSystem    = assembler.getContainerSystem();
         if (containerSystem == null) {
             logger.fatal( "startup.assemblerReturnedNullContainer" );
@@ -241,7 +244,7 @@ public final class OpenEJB {
 
         if (logger.isDebugEnabled()){
             logger.debug( "startup.debugContainers", new Integer(containerSystem.containers().length) );
-            
+
             if (containerSystem.containers().length > 0) {
                 Container[] c = containerSystem.containers();
                 logger.debug( "startup.debugContainersType" );
@@ -256,7 +259,7 @@ public final class OpenEJB {
                     logger.debug( "startup.debugEntry", entry) ;
                 }
             }
-    
+
             logger.debug( "startup.debugDeployments", new Integer(containerSystem.deployments().length) );
             if (containerSystem.deployments().length > 0) {
                 logger.debug( "startup.debugDeploymentsType" );
@@ -274,7 +277,7 @@ public final class OpenEJB {
                 }
             }
         }
-        
+
       //logger.debug("There are "+containerSystem.containers().length+" containers.");
       //logger.debug("There are "+containerSystem.deployments().length+" ejb deployments.");
 
@@ -285,7 +288,7 @@ public final class OpenEJB {
         } else {
             logger.debug( "startup.securityService", securityService.getClass().getName() );
         }
-        
+
         transactionManager = assembler.getTransactionManager();
         if (transactionManager == null) {
             logger.fatal( "startup.assemblerReturnedNullTransactionManager" );
@@ -293,7 +296,7 @@ public final class OpenEJB {
         } else {
             logger.debug( "startup.transactionManager", transactionManager.getClass().getName() );
         }
-        
+
         logger.info( "startup.ready" );
     }
 
@@ -317,7 +320,7 @@ public final class OpenEJB {
     public static SecurityService getSecurityService( ){
         return securityService;
     }
-    
+
     public static ApplicationServer getApplicationServer(){
         return applicationServer;
     }
@@ -370,7 +373,7 @@ public final class OpenEJB {
     public static Container [] containers() {
         if ( containerSystem == null ) {// Something went wrong in the configuration.
             logger.warning( "startup.noContainersConfigured" );
-            return null;   
+            return null;
         } else {
             return containerSystem.containers();
 	}
@@ -389,10 +392,10 @@ public final class OpenEJB {
     public static javax.naming.Context getJNDIContext(){
         return containerSystem.getJNDIContext();
     }
-    
+
     /**
     * This method returns a clone of the original properties used to initialize the OpenEJB
-    * class.  Modifications to the clone will not affect the operations of the OpenEJB 
+    * class.  Modifications to the clone will not affect the operations of the OpenEJB
     * container system.
     */
     public static Properties getInitProps( ){
