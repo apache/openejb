@@ -86,8 +86,8 @@ import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
 import org.apache.geronimo.security.jacc.RoleMappingConfigurationFactory;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 
 import org.openejb.cache.InstancePool;
 import org.openejb.client.EJBObjectHandler;

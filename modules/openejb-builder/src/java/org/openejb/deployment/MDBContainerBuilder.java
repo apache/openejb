@@ -59,7 +59,7 @@ import javax.security.auth.Subject;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
-import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.EJBTimeoutOperation;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -337,11 +337,10 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
     protected LinkedHashMap buildVopMap(Class beanClass) throws Exception {
         LinkedHashMap vopMap = new LinkedHashMap();
 
-        boolean isBMT = (getUserTransaction() != null);
         // ejbCreate... this is the method called by the pool to create a new instance
-        vopMap.put(new InterfaceMethodSignature("ejbCreate", false), new EJBCreateMethod(beanClass, isBMT));
+        vopMap.put(new InterfaceMethodSignature("ejbCreate", false), new EJBCreateMethod(beanClass));
         // ejbRemove... this is the method called by the pool to destroy an instance
-        vopMap.put(new InterfaceMethodSignature("ejbRemove", false), new RemoveMethod(beanClass, isBMT));
+        vopMap.put(new InterfaceMethodSignature("ejbRemove", false), new RemoveMethod(beanClass));
         // ejbTimeout
         if (TimedObject.class.isAssignableFrom(beanClass)) {
             vopMap.put(new InterfaceMethodSignature("ejbTimeout", new String[]{Timer.class.getName()}, false),

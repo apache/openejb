@@ -56,7 +56,8 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationKey;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.transaction.context.UnspecifiedTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import junit.framework.TestCase;
 
 import org.openejb.cache.InstancePool;
@@ -79,6 +80,8 @@ public class StatelessInstanceInterceptorTest extends TestCase {
             return false;
         }
     };
+    private TransactionManagerImpl transactionManager;
+    private TransactionContextManager transactionContextManager;
     private MockPool pool;
     private StatelessInstanceInterceptor interceptor;
     private EJBInstanceContext ctx;
@@ -95,10 +98,9 @@ public class StatelessInstanceInterceptorTest extends TestCase {
     };
 
 
-
     public void testNormalInvocation() throws Throwable {
         EJBInvocationImpl invocation = new EJBInvocationImpl(EJBInterfaceType.REMOTE, 0, null);
-        invocation.setTransactionContext(new UnspecifiedTransactionContext());
+        invocation.setTransactionContext(transactionContextManager.newUnspecifiedTransactionContext());
         invocation.put(KEY, Boolean.FALSE);
         assertNull(interceptor.invoke(invocation));
         assertNull(invocation.getEJBInstanceContext());
@@ -109,7 +111,7 @@ public class StatelessInstanceInterceptorTest extends TestCase {
 
     public void testSystemException() throws Throwable {
         EJBInvocationImpl invocation = new EJBInvocationImpl(EJBInterfaceType.REMOTE, 0, null);
-        invocation.setTransactionContext(new UnspecifiedTransactionContext());
+        invocation.setTransactionContext(transactionContextManager.newUnspecifiedTransactionContext());
         invocation.put(KEY, Boolean.TRUE);
         try {
             interceptor.invoke(invocation);
@@ -126,6 +128,8 @@ public class StatelessInstanceInterceptorTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
+        transactionManager = new TransactionManagerImpl(10 * 1000, null, null);
+        transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
         mockEJB = new MockEJB();
         pool = new MockPool(mockEJB);
         interceptor = new StatelessInstanceInterceptor(new MockInterceptor(), pool);

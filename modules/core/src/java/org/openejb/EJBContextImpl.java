@@ -60,10 +60,9 @@ import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.apache.geronimo.transaction.context.ContainerTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 
 /**
  * Implementation of EJBContext that uses the State pattern to determine
@@ -195,29 +194,25 @@ public abstract class EJBContextImpl {
 
         public void setRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             TransactionContext ctx = transactionContextManager.getContext();
-            if (ctx instanceof ContainerTransactionContext) {
-                ContainerTransactionContext containerContext = (ContainerTransactionContext) ctx;
-                try {
-                    containerContext.setRollbackOnly();
-                } catch (SystemException e) {
-                    throw new EJBException(e);
-                }
-            } else {
+            if (ctx == null || !ctx.isInheritable() || !ctx.isActive()) {
                 throw new IllegalStateException("There is no transaction in progess.");
+            }
+            try {
+                ctx.setRollbackOnly();
+            } catch (SystemException e) {
+                throw new EJBException(e);
             }
         }
 
         public boolean getRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             TransactionContext ctx = transactionContextManager.getContext();
-            if (ctx instanceof ContainerTransactionContext) {
-                ContainerTransactionContext containerContext = (ContainerTransactionContext) ctx;
-                try {
-                    return containerContext.getRollbackOnly();
-                } catch (SystemException e) {
-                    throw new EJBException(e);
-                }
-            } else {
+            if (ctx == null || !ctx.isInheritable() || !ctx.isActive()) {
                 throw new IllegalStateException("There is no transaction in progess.");
+            }
+            try {
+                return ctx.getRollbackOnly();
+            } catch (SystemException e) {
+                throw new EJBException(e);
             }
         }
 

@@ -54,7 +54,6 @@ import java.lang.reflect.Method;
 import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
-import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
@@ -68,14 +67,12 @@ public class EJBCreateMethod implements VirtualOperation, Serializable {
     private static final InvocationResult NULL_RESULT = new SimpleInvocationResult(true, null);
     private static final MethodSignature CREATE_SIG = new MethodSignature("ejbCreate");
     private final Class beanClass;
-    private final boolean isBMT;
 
     private final transient FastClass fastClass;
     private final transient int createIndex;
 
-    public EJBCreateMethod(Class beanClass, boolean isBMT) {
+    public EJBCreateMethod(Class beanClass) {
         this.beanClass = beanClass;
-        this.isBMT = isBMT;
 
         fastClass = FastClass.create(beanClass);
         Method javaMethod = CREATE_SIG.getMethod(beanClass);
@@ -107,15 +104,10 @@ public class EJBCreateMethod implements VirtualOperation, Serializable {
             }
         } finally {
             ctx.setOperation(EJBOperation.INACTIVE);
-            if (isBMT) {
-                // we need to update the invocation cache of the transaction context
-                // because they may have used UserTransaction to push a new context
-                invocation.setTransactionContext(TransactionContext.getContext());
-            }
         }
     }
 
     private Object readResolve() {
-        return new EJBCreateMethod(beanClass, isBMT);
+        return new EJBCreateMethod(beanClass);
     }
 }

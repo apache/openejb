@@ -48,38 +48,26 @@
 package org.openejb.sfsb;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.transaction.context.TransactionContext;
-
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.MethodSignature;
+import org.openejb.dispatch.AbstractMethodOperation;
 
 /**
- * Virtual operation handling removal of an instance.
+ * Virtual operation handling removal of a stateful session bean instance instance.
  *
  * @version $Revision$ $Date$
  */
-public class RemoveMethod extends BusinessMethod {
-    public RemoveMethod(Class beanClass, MethodSignature signature, boolean isBMT) {
-        super(beanClass, signature, isBMT);
+public class RemoveMethod extends AbstractMethodOperation {
+    public RemoveMethod(Class beanClass, MethodSignature signature) {
+        super(beanClass, signature);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        StatefulInstanceContext ctx = (StatefulInstanceContext) invocation.getEJBInstanceContext();
-        InvocationResult result = null;
-        try {
-            result = invoke(invocation, EJBOperation.EJBREMOVE);
-        } finally {
-            if(isBMT) {
-                // we need to update the invocation cache of the transaction context
-                // because they may have used UserTransaction to push a new context
-                invocation.setTransactionContext(TransactionContext.getContext());
-            }
-        }
-
+        InvocationResult result = invoke(invocation, EJBOperation.EJBREMOVE);
         if (result.isNormal()) {
             // flag the context as dead so it does not get put back in the cache
-            ctx.die();
+            invocation.getEJBInstanceContext().die();
         }
         return result;
     }

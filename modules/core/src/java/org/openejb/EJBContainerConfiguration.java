@@ -52,7 +52,7 @@ import java.util.Set;
 import javax.security.auth.Subject;
 import javax.naming.Context;
 
-import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.transaction.TransactionPolicySource;
 
 /**

@@ -50,8 +50,8 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.EJBContainer;
 import org.openejb.transaction.TransactionPolicySource;
 

@@ -53,7 +53,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.apache.geronimo.transaction.context.ContainerTransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.deployment.entity.cmp.cmr.AbstractCMRTest;
 import org.openejb.deployment.entity.cmp.cmr.CompoundPK;
 
@@ -68,7 +68,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
     private BLocal b;
     
     public void testAGetBExistingAB() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         ALocal a = ahome.findByPrimaryKey(new CompoundPK(new Integer(1), "value1"));
         BLocal b = a.getB();
         assertNotNull(b);
@@ -78,7 +78,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
     }
 
     public void testBGetAExistingAB() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
         ALocal a = b.getA();
         assertNotNull(a);
@@ -103,7 +103,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
      * DB DataSource successfully.
      */
     public void XtestASetBDropExisting() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         ALocal a = ahome.findByPrimaryKey(new CompoundPK(new Integer(1), "value1"));
         a.setB(null);
         ctx.commit();
@@ -116,7 +116,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
      * DB DataSource successfully.
      */
     public void XtestBSetADropExisting() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
         b.setA(null);
         ctx.commit();
@@ -124,10 +124,10 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
         assertStateDropExisting();
     }
 
-    private ContainerTransactionContext prepareNewAB() throws Exception {
+    private TransactionContext prepareNewAB() throws Exception {
         CompoundPK pkA = new CompoundPK(new Integer(2), "value2");
 
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         a = ahome.create(pkA);
         b = bhome.create(new Integer(22));
         b.setField2("value22");
@@ -152,7 +152,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
     }
 
     public void testASetBNewAB() throws Exception {
-        ContainerTransactionContext ctx = prepareNewAB();
+        TransactionContext ctx = prepareNewAB();
         a.setB(b);
         ctx.commit();
         
@@ -160,17 +160,17 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
     }
 
     public void testBSetANewAB() throws Exception {
-        ContainerTransactionContext ctx = prepareNewAB();
+        TransactionContext ctx = prepareNewAB();
         b.setA(a);
         ctx.commit();
         
         assertStateNewAB();
     }
 
-    private ContainerTransactionContext prepareExistingBNewA() throws Exception {
+    private TransactionContext prepareExistingBNewA() throws Exception {
         CompoundPK pkA = new CompoundPK(new Integer(2), "value2");
 
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         a = ahome.create(pkA);
         b = bhome.findByPrimaryKey(new Integer(11));
         return ctx;
@@ -194,7 +194,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
     }
 
     public void testASetBExistingBNewA() throws Exception {
-        ContainerTransactionContext ctx = prepareExistingBNewA();
+        TransactionContext ctx = prepareExistingBNewA();
         a.setB(b);
         ctx.commit();
         
@@ -202,17 +202,17 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
     }
     
     public void testBSetAExistingBNewA() throws Exception {
-        ContainerTransactionContext ctx = prepareExistingBNewA();
+        TransactionContext ctx = prepareExistingBNewA();
         b.setA(a);
         ctx.commit();
         
         assertStateExistingBNewA();
     }
 
-    private ContainerTransactionContext prepareExistingANewB() throws Exception {
+    private TransactionContext prepareExistingANewB() throws Exception {
         CompoundPK pkA = new CompoundPK(new Integer(1), "value1");
         
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         a = ahome.findByPrimaryKey(pkA);
         b = bhome.create(new Integer(22));
         b.setField2("value22");
@@ -242,7 +242,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
      * @see OneToOneTest for more details.
      */
     public void XtestASetBExistingANewB() throws Exception {
-        ContainerTransactionContext ctx = prepareExistingANewB();
+        TransactionContext ctx = prepareExistingANewB();
         a.setB(b);
         ctx.commit();
         
@@ -255,7 +255,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
      * @see OneToOneTest for more details.
      */
     public void XtestBSetAExistingANewB() throws Exception {
-        ContainerTransactionContext ctx = prepareExistingANewB();
+        TransactionContext ctx = prepareExistingANewB();
         b.setA(a);
         ctx.commit();
         
@@ -267,7 +267,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
      * DB DataSource successfully.
      */
     public void XtestRemoveRelationships() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         ALocal a = ahome.findByPrimaryKey(new CompoundPK(new Integer(1), "value1"));
         a.remove();
         ctx.commit();
@@ -287,7 +287,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
     }
 
     public void testCascadeDelete() throws Exception {
-        ContainerTransactionContext ctx = newTransactionContext();
+        TransactionContext ctx = newTransactionContext();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
         b.remove();
         ctx.commit();

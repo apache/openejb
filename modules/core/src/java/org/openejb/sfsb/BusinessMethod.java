@@ -48,7 +48,6 @@
 package org.openejb.sfsb;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.transaction.context.TransactionContext;
 
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
@@ -56,27 +55,14 @@ import org.openejb.dispatch.AbstractMethodOperation;
 import org.openejb.dispatch.MethodSignature;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class BusinessMethod extends AbstractMethodOperation {
-    protected final boolean isBMT;
-
-    public BusinessMethod(Class beanClass, MethodSignature signature, boolean isBMT) {
+    public BusinessMethod(Class beanClass, MethodSignature signature) {
         super(beanClass, signature);
-        this.isBMT = isBMT;
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        try {
-            return invoke(invocation, EJBOperation.BIZMETHOD);
-        } finally {
-            if(isBMT) {
-                // we need to update the invocation cache of the transaction context
-                // because they may have used UserTransaction to push a new context
-                invocation.setTransactionContext(TransactionContext.getContext());
-            }
-        }
+        return invoke(invocation, EJBOperation.BIZMETHOD);
     }
 }

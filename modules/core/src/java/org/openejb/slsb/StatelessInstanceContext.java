@@ -52,8 +52,8 @@ import javax.ejb.SessionBean;
 import javax.xml.rpc.handler.MessageContext;
 
 import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;

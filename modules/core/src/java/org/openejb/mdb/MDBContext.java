@@ -57,7 +57,7 @@ import javax.ejb.TimerService;
 import javax.transaction.UserTransaction;
 import javax.xml.rpc.handler.MessageContext;
 
-import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
