@@ -11,15 +11,25 @@
 
   <topNav>
     <navLink>
-      <url>http://openejb.sf.net</url>
-      <display>OpenEJB at SourceForge</display>
+      <url>http://openejb.sourceforge.net</url>
+      <display>OpenEJB</display>
     </navLink>
-
     <navLink>
-      <url>http://openejb.exolab.org</url>
-      <display>OpenEJB at Exolab</display>
+      <url>http://openjms.sourceforge.net</url>
+      <display>OpenJMS</display>
     </navLink>
- 
+    <navLink>
+      <url>http://openorb.sourceforge.net</url>
+      <display>OpenORB</display>
+    </navLink>
+    <navLink>
+      <url>http://castor.exolab.org</url>
+      <display>Castor</display>
+    </navLink>
+    <navLink>
+      <url>http://tyrex.sourceforge.net</url>
+      <display>Tyrex</display>
+    </navLink>
   </topNav>
 
   <navSections>
