@@ -823,7 +823,6 @@
         <include name="openejb-${version}.jar"/>
         <include name="openejb_client-${version}.jar"/>
         <include name="openejb_server-${version}.jar"/>
-        <include name="openejb_corba-${version}.jar"/>
         <include name="openejb_ejb_tests-${version}.jar"/>
       </fileset>
     
@@ -841,6 +840,7 @@
     
       <fileset dir="lib" >
         <include name="*.jar"/>
+        <exclude name="openorb*.jar"/>
       </fileset>
     
     </copy>
@@ -912,6 +912,7 @@
       <fileset dir="src/etc" >
         <include name="README"/>
         <include name="LICENSE"/>
+        <include name="THANKYOU"/>
       </fileset>
     
     </copy>
