@@ -362,7 +362,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         EjbJarType ejbJar = (EjbJarType) module.getSpecDD();
 
         GbeanType[] gbeans = openejbEjbJar.getGbeanArray();
-        ServiceConfigBuilder.addGBeans(gbeans, cl, earContext);
+        ServiceConfigBuilder.addGBeans(gbeans, cl, moduleJ2eeContext, earContext);
 
         ObjectName ejbModuleObjectName = null;
         try {
