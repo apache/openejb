@@ -51,8 +51,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.Permissions;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -97,7 +95,6 @@ import org.tranql.ejb.FKField;
 import org.tranql.ejb.Relationship;
 import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
-import org.tranql.schema.Attribute;
 import org.tranql.schema.Schema;
 import org.tranql.schema.Association.JoinDefinition;
 import org.tranql.sql.Column;
@@ -106,6 +103,8 @@ import org.tranql.sql.FKColumn;
 import org.tranql.sql.JoinTable;
 import org.tranql.sql.SQLSchema;
 import org.tranql.sql.Table;
+import org.tranql.sql.TypeConverter;
+import org.tranql.sql.jdbc.SQLTypeLoader;
 import org.tranql.sql.sql92.SQL92Schema;
 
 
@@ -136,7 +135,7 @@ class CMPEntityBuilder extends EntityBuilder {
 
     public void buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema, GlobalSchema globalSchema) throws DeploymentException {
         try {
-            Collection entities = processEnterpriseBeans(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema);
+            processEnterpriseBeans(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema);
             processRelationships(ejbJar, openejbEjbJar, ejbSchema, sqlSchema);
             GlobalSchemaLoader.populateGlobalSchema(globalSchema, ejbSchema, sqlSchema);
         } catch (Exception e) {
@@ -144,9 +143,7 @@ class CMPEntityBuilder extends EntityBuilder {
         }
     }
 
-    private Collection processEnterpriseBeans(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema) throws DeploymentException {
-        Collection entities = new ArrayList();
-
+    private void processEnterpriseBeans(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema) throws DeploymentException {
         Map openEjbEntities = new HashMap();
         OpenejbEntityBeanType[] openEJBEntities = openejbEjbJar.getEnterpriseBeans().getEntityArray();
         for (int i = 0; i < openEJBEntities.length; i++) {
@@ -275,7 +272,21 @@ class CMPEntityBuilder extends EntityBuilder {
                 Class fieldType = getCMPFieldType(cmp2, fieldName, ejbClass);
                 boolean isPKField = pkFieldNames.contains(fieldName);
                 ejb.addCMPField(new CMPField(fieldName, fieldName, fieldType, isPKField));
-                table.addColumn(new Column(fieldName, mapping.getTableColumn(), fieldType, isPKField));
+                Column column = new Column(fieldName, mapping.getTableColumn(), fieldType, isPKField);
+                if (mapping.isSetSqlType()) {
+                    column.setSQLType(SQLTypeLoader.getSQLType(mapping.getSqlType()));
+                }
+                if (mapping.isSetTypeConverter()) {
+                    TypeConverter typeConverter;
+                    try {
+                        Class typeConverterClass = cl.loadClass(mapping.getTypeConverter());
+                        typeConverter = (TypeConverter) typeConverterClass.newInstance();
+                    } catch (Exception e) {
+                        throw new DeploymentException("Can not create type converter " + mapping.getTypeConverter(), e);
+                    }
+                    column.setTypeConverter(typeConverter);
+                }
+                table.addColumn(column);
                 if (isPKField) {
                     pkFieldNames.remove(fieldName);
                 }
@@ -316,10 +327,7 @@ class CMPEntityBuilder extends EntityBuilder {
                 
             ejbSchema.addEJB(ejb);
             sqlSchema.addTable(table);
-            entities.add(ejb);
         }
-        
-        return entities;
     }
 
     private void processRelationships(EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, EJBSchema ejbSchema, SQL92Schema sqlSchema) throws DeploymentException {
@@ -430,14 +438,21 @@ class CMPEntityBuilder extends EntityBuilder {
         Table pkTable = mappedRoleInfo[0].table;
         EJB pkEJB = mappedRoleInfo[0].ejb;
         for (Iterator attIter = pkTable.getPrimaryKeyFields().iterator(); attIter.hasNext();) {
-            Attribute att = (Attribute) attIter.next();
+            Column att = (Column) attIter.next();
             String pkColumn = att.getPhysicalName();
             String fkColumn = (String) pkToFkMap.get(pkColumn);
             if (null == fkColumn) {
                 throw new DeploymentException("Role " + sourceRoleInfo + " is misconfigured: column [" + pkColumn + "] is not a primary key.");
             }
             pkToFkMapEJB.put(pkEJB.getAttribute(att.getName()), new FKField(fkColumn, att.getType()));
-            pkToFkMapTable.put(att, new FKColumn(fkColumn, att.getType()));
+            FKColumn column = new FKColumn(fkColumn, att.getType());
+            if (att.isSQLTypeSet()) {
+                column.setSQLType(att.getSQLType());
+            }
+            if (att.isTypeConverterSet()) {
+                column.setTypeConverter(att.getTypeConverter());
+            }
+            pkToFkMapTable.put(att, column);
         }
 
         mappedRoleInfo[0].ejbJDef = new JoinDefinition(mappedRoleInfo[0].ejb, mappedRoleInfo[1].ejb, pkToFkMapEJB);
@@ -465,14 +480,39 @@ class CMPEntityBuilder extends EntityBuilder {
         }
 
         boolean isVirtual = null == roleInfo[0].cmrFieldName;
-        String endName = isVirtual ? "$VirtualEnd" + id : roleInfo[0].cmrFieldName;
-        roleInfo[0].ejb.addCMRField(new CMRField(endName, roleInfo[1].ejb, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, relationship, isVirtual));
-        roleInfo[0].table.addEndTable(new EndTable(endName, roleInfo[1].table, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, joinTable, isVirtual));
-
+        String endName0 = isVirtual ? "$VirtualEnd" + id : roleInfo[0].cmrFieldName;
+        roleInfo[0].ejb.addCMRField(new CMRField(endName0, roleInfo[1].ejb, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, relationship, isVirtual));
+        roleInfo[0].table.addEndTable(new EndTable(endName0, roleInfo[1].table, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, joinTable, isVirtual));
+        
         isVirtual = null == roleInfo[1].cmrFieldName;
-        endName = isVirtual ? "$VirtualEnd" + id : roleInfo[1].cmrFieldName;
-        roleInfo[1].ejb.addCMRField(new CMRField(endName, roleInfo[0].ejb, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, relationship, isVirtual));
-        roleInfo[1].table.addEndTable(new EndTable(endName, roleInfo[0].table, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, joinTable, isVirtual));
+        String endName1 = isVirtual ? "$VirtualEnd" + id : roleInfo[1].cmrFieldName;
+        roleInfo[1].ejb.addCMRField(new CMRField(endName1, roleInfo[0].ejb, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, relationship, isVirtual));
+        roleInfo[1].table.addEndTable(new EndTable(endName1, roleInfo[0].table, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, joinTable, isVirtual));
+        
+        if (null != mtmEntityName) {
+            EJB mtmEJB = (EJB) ejbSchema.getEJB(mtmEntityName);
+            Relationship mtmRelationship = new Relationship(relationship.getLeftJoinDefinition());
+            CMRField field = new CMRField(endName0, roleInfo[0].ejb, true, false, mtmRelationship, true);
+            mtmEJB.addCMRField(field);
+            mtmRelationship.addAssociationEnd(roleInfo[0].ejb.getAssociationEnd(endName0));
+            
+            mtmRelationship = new Relationship(relationship.getRightJoinDefinition());
+            field = new CMRField(endName1, roleInfo[1].ejb, true, false, mtmRelationship, true);
+            mtmEJB.addCMRField(field);
+            mtmRelationship.addAssociationEnd(roleInfo[1].ejb.getAssociationEnd(endName1));
+            
+            Table mtmTable = (Table) sqlSchema.getTable(mtmEntityName);
+            JoinTable mtmJoinTable = new JoinTable(joinTable.getLeftJoinDefinition());
+            EndTable endTable = new EndTable(endName0, roleInfo[0].table, true, false, mtmJoinTable, true);
+            mtmTable.addEndTable(endTable);
+            mtmJoinTable.addAssociationEnd(roleInfo[0].table.getAssociationEnd(endName0));
+            
+            mtmTable = (Table) sqlSchema.getTable(mtmEntityName);
+            mtmJoinTable = new JoinTable(joinTable.getRightJoinDefinition());
+            endTable = new EndTable(endName1, roleInfo[1].table, true, false, mtmJoinTable, true);
+            mtmTable.addEndTable(endTable);
+            mtmJoinTable.addAssociationEnd(roleInfo[1].table.getAssociationEnd(endName1));
+        }
     }
 
     private Class getCMPFieldType(boolean cmp2, String fieldName, Class beanClass) throws DeploymentException {
