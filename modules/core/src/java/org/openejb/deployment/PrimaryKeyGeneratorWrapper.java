@@ -48,7 +48,7 @@
 package org.openejb.deployment;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
@@ -82,7 +82,7 @@ public class PrimaryKeyGeneratorWrapper implements GBeanLifecycle  {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PrimaryKeyGeneratorWrapper.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(PrimaryKeyGeneratorWrapper.class);
         infoFactory.addReference("PrimaryKeyGenerator", PrimaryKeyGenerator.class);
         infoFactory.addAttribute("primaryKeyGeneratorDelegate", PrimaryKeyGeneratorDelegate.class, true);
 

@@ -49,7 +49,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.openejb.client.naming.java.javaURLContextFactory;
@@ -108,7 +108,7 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(AppClientJNDIContext.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AppClientJNDIContext.class);
 
         infoFactory.addOperation("startClient", new Class[]{ObjectName.class});
         infoFactory.addOperation("stopClient", new Class[]{ObjectName.class});

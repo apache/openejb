@@ -63,7 +63,7 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.timer.ThreadPooledTimer;
@@ -245,7 +245,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(MDBContainer.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MDBContainer.class);
 
         infoFactory.addAttribute("containerId", String.class, true);
         infoFactory.addAttribute("ejbName", String.class, true);

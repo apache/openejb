@@ -54,7 +54,7 @@ import javax.enterprise.deploy.spi.DeploymentConfiguration;
 
 import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  *
@@ -73,7 +73,7 @@ public class EJBConfigurer implements ModuleConfigurer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(EJBConfigurer.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(EJBConfigurer.class);
         infoFactory.addInterface(ModuleConfigurer.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

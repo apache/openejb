@@ -62,7 +62,7 @@ import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.WorkManager;
 
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  * @version $Revision$ $Date$
@@ -95,7 +95,7 @@ public class MockBootstrapContext implements BootstrapContext {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(MockBootstrapContext.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MockBootstrapContext.class);
         infoFactory.addInterface(BootstrapContext.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
