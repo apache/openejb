@@ -54,7 +54,11 @@ import org.openejb.test.object.OperationsPolicy;
  * 
  */
 public interface BasicStatefulObject extends javax.ejb.EJBObject{
-    
+    /**
+     * Does nothing... used to initialize the allowed operations map
+     */
+    public void doNothing() throws RemoteException;
+
     /**
      * Reverses the string passed in then returns it
      * 

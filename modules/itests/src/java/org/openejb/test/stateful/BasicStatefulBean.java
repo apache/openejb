@@ -47,10 +47,10 @@ package org.openejb.test.stateful;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Properties;
-
 import javax.ejb.EJBException;
 import javax.ejb.SessionContext;
 import javax.ejb.SessionSynchronization;
+import javax.naming.InitialContext;
 
 import org.openejb.test.ApplicationException;
 import org.openejb.test.object.OperationsPolicy;
@@ -59,8 +59,6 @@ import org.openejb.test.object.OperationsPolicy;
  * 
  */
 public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchronization {
-
-    
     private String name;
     private SessionContext ejbContext;
     private Hashtable allowedOperationsTable = new Hashtable();
@@ -71,13 +69,8 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
     //    
     /**
      * Maps to BasicStatefulHome.create
-     * 
-     * @param name
-     * @exception javax.ejb.CreateException
-     * @see BasicStatefulHome.create
      */
-    public void ejbCreate(String name)
-    throws javax.ejb.CreateException{
+    public void ejbCreate(String name) throws javax.ejb.CreateException{
         testAllowedOperations("ejbCreate");
         this.name = name;
     }
@@ -88,16 +81,16 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
 
     //=============================
     // Remote interface methods
-    //    
-    
+    //
+
+    public void doNothing() {
+        testAllowedOperations("businessMethod");
+    }
+
     /**
      * Maps to BasicStatefulObject.businessMethod
-     * 
-     * @return 
-     * @see BasicStatefulObject.businessMethod
      */
     public String businessMethod(String text){
-        testAllowedOperations("businessMethod");
         StringBuffer b = new StringBuffer(text);
         return b.reverse().toString();
     }
@@ -126,9 +119,6 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
      * 
      * Returns a report of the bean's
      * runtime permissions
-     * 
-     * @return 
-     * @see BasicStatefulObject.getPermissionsReport
      */
     public Properties getPermissionsReport(){
         /* TO DO: */
@@ -142,8 +132,6 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
      * for one of the bean's methods.
      * 
      * @param methodName The method for which to get the allowed opperations report
-     * @return 
-     * @see BasicStatefulObject.getAllowedOperationsReport
      */
     public OperationsPolicy getAllowedOperationsReport(String methodName){
         return (OperationsPolicy) allowedOperationsTable.get(methodName);
@@ -161,7 +149,7 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
      * Set the associated session context. The container calls this method
      * after the instance creation.
      */
-    public void setSessionContext(SessionContext ctx) throws EJBException,RemoteException {
+    public void setSessionContext(SessionContext ctx) {
         ejbContext = ctx;
         testAllowedOperations("setSessionContext");
     }
@@ -171,7 +159,7 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
      * operation, or when a container decides to terminate the session object
      * after a timeout.
      */
-    public void ejbRemove() throws EJBException,RemoteException {
+    public void ejbRemove() {
         testAllowedOperations("ejbRemove");
     }
     /**
@@ -179,7 +167,7 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
      * from its "passive" state. The instance should acquire any resource
      * that it has released earlier in the ejbPassivate() method.
      */
-    public void ejbActivate() throws EJBException,RemoteException {
+    public void ejbActivate() {
         testAllowedOperations("ejbActivate");
     }
     /**
@@ -187,7 +175,7 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
      * the "passive" state. The instance should release any resources that
      * it can re-acquire later in the ejbActivate() method.
      */
-    public void ejbPassivate() throws EJBException,RemoteException {
+    public void ejbPassivate() {
         testAllowedOperations("ejbPassivate");
     }
     //    
@@ -271,11 +259,39 @@ public class BasicStatefulBean implements javax.ejb.SessionBean, SessionSynchron
             policy.allow( policy.Context_getEJBObject );
         }catch(IllegalStateException ise){}
          
-        /* TO DO:  
-         * Check for policy.Enterprise_bean_access       
-         * Check for policy.JNDI_access_to_java_comp_env 
-         * Check for policy.Resource_manager_access      
-         */
+        /*[8] Test JNDI_access_to_java_comp_env ///////////////*/
+        try {
+            InitialContext jndiContext = new InitialContext();
+
+            jndiContext.lookup("java:comp/env/stateful/references/JNDI_access_to_java_comp_env");
+
+            policy.allow( policy.JNDI_access_to_java_comp_env );
+        } catch (IllegalStateException ise) {
+        } catch (javax.naming.NamingException ne) {
+        }
+
+        /*[9] Test Resource_manager_access ///////////////*/
+        try {
+            InitialContext jndiContext = new InitialContext( );
+
+            jndiContext.lookup("java:comp/env/stateful/references/Resource_manager_access");
+
+            policy.allow( policy.Resource_manager_access );
+        } catch (IllegalStateException ise) {
+        } catch (javax.naming.NamingException ne) {
+        }
+
+        /*[10] Test Enterprise_bean_access ///////////////*/
+        try {
+            InitialContext jndiContext = new InitialContext( );
+
+            jndiContext.lookup("java:comp/env/stateful/beanReferences/Enterprise_bean_access");
+
+            policy.allow( policy.Enterprise_bean_access );
+        } catch (IllegalStateException ise) {
+        } catch (javax.naming.NamingException ne) {
+        }
+
         allowedOperationsTable.put(methodName, policy);
     }
 
