@@ -85,11 +85,11 @@ import org.apache.geronimo.xbeans.j2ee.SecurityRoleRefType;
 import org.openejb.security.SecurityConfiguration;
 
 
-class SecurityBuilder {
+class ContainerSecurityBuilder {
 
     protected final OpenEJBModuleBuilder moduleBuilder;
 
-    public SecurityBuilder(final OpenEJBModuleBuilder moduleBuilder) {
+    public ContainerSecurityBuilder(final OpenEJBModuleBuilder moduleBuilder) {
         super();
         this.moduleBuilder = moduleBuilder;
     }
