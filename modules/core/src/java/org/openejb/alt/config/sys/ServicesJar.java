@@ -1,7 +1,7 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
@@ -11,15 +11,23 @@ package org.openejb.alt.config.sys;
  //- Imported classes and packages -/
 //---------------------------------/
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.Writer;
+import java.util.Enumeration;
 import java.util.Vector;
-
+import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
+import org.exolab.castor.xml.ValidationException;
+import org.xml.sax.ContentHandler;
 
 /**
+ * Class ServicesJar.
  * 
  * @version $Revision$ $Date$
-**/
+ */
 public class ServicesJar implements java.io.Serializable {
 
 
@@ -27,6 +35,9 @@ public class ServicesJar implements java.io.Serializable {
      //- Class/Member Variables -/
     //--------------------------/
 
+    /**
+     * Field _serviceProviderList
+     */
     private java.util.Vector _serviceProviderList;
 
 
@@ -45,38 +56,42 @@ public class ServicesJar implements java.io.Serializable {
     //-----------/
 
     /**
+     * Method addServiceProvider
      * 
      * @param vServiceProvider
-    **/
-    public void addServiceProvider(ServiceProvider vServiceProvider)
+     */
+    public void addServiceProvider(org.openejb.alt.config.sys.ServiceProvider vServiceProvider)
         throws java.lang.IndexOutOfBoundsException
     {
         _serviceProviderList.addElement(vServiceProvider);
-    } //-- void addServiceProvider(ServiceProvider) 
+    } //-- void addServiceProvider(org.openejb.alt.config.sys.ServiceProvider) 
 
     /**
+     * Method addServiceProvider
      * 
      * @param index
      * @param vServiceProvider
-    **/
-    public void addServiceProvider(int index, ServiceProvider vServiceProvider)
+     */
+    public void addServiceProvider(int index, org.openejb.alt.config.sys.ServiceProvider vServiceProvider)
         throws java.lang.IndexOutOfBoundsException
     {
         _serviceProviderList.insertElementAt(vServiceProvider, index);
-    } //-- void addServiceProvider(int, ServiceProvider) 
+    } //-- void addServiceProvider(int, org.openejb.alt.config.sys.ServiceProvider) 
 
     /**
-    **/
+     * Method enumerateServiceProvider
+     */
     public java.util.Enumeration enumerateServiceProvider()
     {
         return _serviceProviderList.elements();
     } //-- java.util.Enumeration enumerateServiceProvider() 
 
     /**
+     * Method getServiceProvider
      * 
      * @param index
-    **/
-    public ServiceProvider getServiceProvider(int index)
+     */
+    public org.openejb.alt.config.sys.ServiceProvider getServiceProvider(int index)
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
@@ -84,30 +99,33 @@ public class ServicesJar implements java.io.Serializable {
             throw new IndexOutOfBoundsException();
         }
         
-        return (ServiceProvider) _serviceProviderList.elementAt(index);
-    } //-- ServiceProvider getServiceProvider(int) 
+        return (org.openejb.alt.config.sys.ServiceProvider) _serviceProviderList.elementAt(index);
+    } //-- org.openejb.alt.config.sys.ServiceProvider getServiceProvider(int) 
 
     /**
-    **/
-    public ServiceProvider[] getServiceProvider()
+     * Method getServiceProvider
+     */
+    public org.openejb.alt.config.sys.ServiceProvider[] getServiceProvider()
     {
         int size = _serviceProviderList.size();
-        ServiceProvider[] mArray = new ServiceProvider[size];
+        org.openejb.alt.config.sys.ServiceProvider[] mArray = new org.openejb.alt.config.sys.ServiceProvider[size];
         for (int index = 0; index < size; index++) {
-            mArray[index] = (ServiceProvider) _serviceProviderList.elementAt(index);
+            mArray[index] = (org.openejb.alt.config.sys.ServiceProvider) _serviceProviderList.elementAt(index);
         }
         return mArray;
-    } //-- ServiceProvider[] getServiceProvider() 
+    } //-- org.openejb.alt.config.sys.ServiceProvider[] getServiceProvider() 
 
     /**
-    **/
+     * Method getServiceProviderCount
+     */
     public int getServiceProviderCount()
     {
         return _serviceProviderList.size();
     } //-- int getServiceProviderCount() 
 
     /**
-    **/
+     * Method isValid
+     */
     public boolean isValid()
     {
         try {
@@ -120,9 +138,10 @@ public class ServicesJar implements java.io.Serializable {
     } //-- boolean isValid() 
 
     /**
+     * Method marshal
      * 
      * @param out
-    **/
+     */
     public void marshal(java.io.Writer out)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
@@ -131,40 +150,44 @@ public class ServicesJar implements java.io.Serializable {
     } //-- void marshal(java.io.Writer) 
 
     /**
+     * Method marshal
      * 
      * @param handler
-    **/
-    public void marshal(org.xml.sax.DocumentHandler handler)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
+     */
+    public void marshal(org.xml.sax.ContentHandler handler)
+        throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         
         Marshaller.marshal(this, handler);
-    } //-- void marshal(org.xml.sax.DocumentHandler) 
+    } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
-    **/
+     * Method removeAllServiceProvider
+     */
     public void removeAllServiceProvider()
     {
         _serviceProviderList.removeAllElements();
     } //-- void removeAllServiceProvider() 
 
     /**
+     * Method removeServiceProvider
      * 
      * @param index
-    **/
-    public ServiceProvider removeServiceProvider(int index)
+     */
+    public org.openejb.alt.config.sys.ServiceProvider removeServiceProvider(int index)
     {
         java.lang.Object obj = _serviceProviderList.elementAt(index);
         _serviceProviderList.removeElementAt(index);
-        return (ServiceProvider) obj;
-    } //-- ServiceProvider removeServiceProvider(int) 
+        return (org.openejb.alt.config.sys.ServiceProvider) obj;
+    } //-- org.openejb.alt.config.sys.ServiceProvider removeServiceProvider(int) 
 
     /**
+     * Method setServiceProvider
      * 
      * @param index
      * @param vServiceProvider
-    **/
-    public void setServiceProvider(int index, ServiceProvider vServiceProvider)
+     */
+    public void setServiceProvider(int index, org.openejb.alt.config.sys.ServiceProvider vServiceProvider)
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
@@ -172,33 +195,36 @@ public class ServicesJar implements java.io.Serializable {
             throw new IndexOutOfBoundsException();
         }
         _serviceProviderList.setElementAt(vServiceProvider, index);
-    } //-- void setServiceProvider(int, ServiceProvider) 
+    } //-- void setServiceProvider(int, org.openejb.alt.config.sys.ServiceProvider) 
 
     /**
+     * Method setServiceProvider
      * 
      * @param serviceProviderArray
-    **/
-    public void setServiceProvider(ServiceProvider[] serviceProviderArray)
+     */
+    public void setServiceProvider(org.openejb.alt.config.sys.ServiceProvider[] serviceProviderArray)
     {
         //-- copy array
         _serviceProviderList.removeAllElements();
         for (int i = 0; i < serviceProviderArray.length; i++) {
             _serviceProviderList.addElement(serviceProviderArray[i]);
         }
-    } //-- void setServiceProvider(ServiceProvider) 
+    } //-- void setServiceProvider(org.openejb.alt.config.sys.ServiceProvider) 
 
     /**
+     * Method unmarshal
      * 
      * @param reader
-    **/
-    public static org.openejb.alt.config.sys.ServicesJar unmarshal(java.io.Reader reader)
+     */
+    public static java.lang.Object unmarshal(java.io.Reader reader)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         return (org.openejb.alt.config.sys.ServicesJar) Unmarshaller.unmarshal(org.openejb.alt.config.sys.ServicesJar.class, reader);
-    } //-- org.openejb.alt.config.sys.ServicesJar unmarshal(java.io.Reader) 
+    } //-- java.lang.Object unmarshal(java.io.Reader) 
 
     /**
-    **/
+     * Method validate
+     */
     public void validate()
         throws org.exolab.castor.xml.ValidationException
     {
