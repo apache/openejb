@@ -60,9 +60,16 @@ public abstract class StatelessEJBHome extends EJBHomeImpl {
     }
 
     public void remove(Handle handle) throws RemoteException, RemoveException {
+        if (handle == null) {
+            throw new RemoveException("Handle is null");
+        }
+        Class remoteInterface = ejbHandler.getProxyInfo().getRemoteInterface();
+        if (!remoteInterface.isInstance(handle.getEJBObject())) {
+            throw new RemoteException("Handle does not hold a " + remoteInterface.getName());
+        }
     }
 
     public void remove(Object primaryKey) throws RemoteException, RemoveException {
-        throw new RemoteException("Session objects are private resources and do not have primary keys");        
+        throw new RemoveException("Session objects are private resources and do not have primary keys");
     }
 }

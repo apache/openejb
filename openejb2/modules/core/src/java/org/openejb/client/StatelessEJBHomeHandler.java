@@ -45,7 +45,7 @@
 package org.openejb.client;
 
 import java.lang.reflect.Method;
-import java.rmi.RemoteException;
+import javax.ejb.RemoveException;
 
 /**
  * This InvocationHandler and its proxy are serializable and can be used by
@@ -80,36 +80,19 @@ public class StatelessEJBHomeHandler extends EJBHomeHandler {
     }
     
     /**
-     * ------------------------------------
-     * 5.3.2 Removing a session object
-     * A client may remove a session object using the remove() method on the javax.ejb.EJBObject
-     * interface, or the remove(Handle handle) method of the javax.ejb.EJBHome interface.
-     * 
-     * Because session objects do not have primary keys that are accessible to clients, invoking the
-     * javax.ejb.EJBHome.remove(Object primaryKey) method on a session results in the
-     * javax.ejb.RemoveException.
-     * 
-     * ------------------------------------
-     * 5.5 Session object identity
-     * 
-     * Session objects are intended to be private resources used only by the
-     * client that created them. For this reason, session objects, from the
-     * clientís perspective, appear anonymous. In contrast to entity objects,
-     * which expose their identity as a primary key, session objects hide their
-     * identity. As a result, the EJBObject.getPrimaryKey() and
-     * EJBHome.remove(Object primaryKey) methods result in a java.rmi.RemoteException
-     * if called on a session bean. If the EJBMetaData.getPrimaryKeyClass()
-     * method is invoked on a EJBMetaData object for a Session bean, the method throws
-     * the java.lang.RuntimeException.
-     * ------------------------------------
-     * 
-     * Sections 5.3.2 and 5.5 conflict.  5.3.2 says to throw javax.ejb.RemoveException, 5.5 says to
-     * throw java.rmi.RemoteException.
-     * 
-     * For now, we are going with java.rmi.RemoteException.
+     * EJB 2.1 Specification, Section 6.6 Session Object Identity
+     * Session objects are intended to be private resources used only by the client that created them. For this
+     * reason, session objects, from the client’s perspective, appear anonymous. In contrast to entity objects,
+     * which expose their identity as a primary key, session objects hide their identity. As a result, the EJBObject.
+     * getPrimaryKey() method results in a java.rmi.RemoteException and the EJBLocalObject.
+     * getPrimaryKey() method results in a javax.ejb.EJBException, and the
+     * EJBHome.remove(Object primaryKey) and the EJBLocalHome.remove(Object primaryKey)
+     * methods result in a javax.ejb.RemoveException if called on a session bean. If the
+     * EJBMetaData.getPrimaryKeyClass()method is invoked on a EJBMetaData object for a
+     * session bean, the method throws the java.lang.RuntimeException.
      */
-    protected Object removeByPrimaryKey(Method method, Object[] args, Object proxy) throws Throwable {
-        throw new RemoteException("Session objects are private resources and do not have primary keys");        
+    protected Object removeByPrimaryKey(Method method, Object[] args, Object proxy) throws RemoveException {
+        throw new RemoveException("Session objects are private resources and do not have primary keys");
     }
     
     

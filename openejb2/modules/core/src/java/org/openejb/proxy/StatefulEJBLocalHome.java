@@ -58,6 +58,6 @@ public abstract class StatefulEJBLocalHome extends EJBLocalHomeImpl{
     }
 
     public void remove(Object primaryKey) throws RemoveException, EJBException {
-        throw new EJBException("Session objects are private resources and do not have primary keys");        
+        throw new RemoveException("Session objects are private resources and do not have primary keys");
     }
 }

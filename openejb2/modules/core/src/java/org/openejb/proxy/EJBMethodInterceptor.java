@@ -60,7 +60,7 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
             interceptor = new ContainerHandler(container);    
         }
         
-        if (!interfaceType.isLocal() || !skipCopy()) {
+        if (!interfaceType.isLocal() && !skipCopy()) {
             interceptor = new SerializationHanlder(interceptor);
         }
         
@@ -76,12 +76,13 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
      * @return
      */
     private boolean skipCopy() {
-        String value = org.openejb.OpenEJB.getInitProps().getProperty("openejb.localcopy");
-        if (value == null) {
-            value = System.getProperty("openejb.localcopy");
-        }
-
-        return value != null && !value.equalsIgnoreCase("FALSE");
+//        String value = org.openejb.OpenEJB.getInitProps().getProperty("openejb.localcopy");
+//        if (value == null) {
+//            value = System.getProperty("openejb.localcopy");
+//        }
+//
+//        return value != null && !value.equalsIgnoreCase("FALSE");
+        return false;
     }
 
     private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {

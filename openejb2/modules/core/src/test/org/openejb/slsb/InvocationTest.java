@@ -125,8 +125,8 @@ public class InvocationTest extends TestCase {
         StatelessInstanceContext ctx = new StatelessInstanceContext(
                 "containerID",
                 instance,
-                (EJBProxyFactory)null,
-                (UserTransactionImpl) null);
+                null,
+                null);
         invocation.setEJBInstanceContext(ctx);
         bizMethod.execute(invocation);
         long start = System.currentTimeMillis();
