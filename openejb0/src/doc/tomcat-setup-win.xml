@@ -11,12 +11,9 @@
 This is a rough draft of how to set up Tomcat with OpenEJB on Window's 2000.
 These are the minimum steps for integrating OpenEJB into Tomcat. The commands 
 in this document are specifically for a Window's DOS prompt and Window's environment.
-</p>
-
-<p>
-There isn't a whole lot of information on what is going on behind 
-the scenes.  So, I encourage *anyone* to feel completely welcome (perhaps 
-obligated) to add to this document.  
+Please feel free to add to this document or email the 
+<a href="mailto:openejb-user@lists.sourceforge.net">openejb-user</a> 
+mailing list with your suggetions. <b>Your suggestions are always welcome!</b>
 </p>
 </section>
 
@@ -49,18 +46,33 @@ Java HotSpot(TM) Client VM (build 1.4.1-rc-b19, mixed mode)
 <section title="Install Tomcat" ref-id="download.tomcat">
 <p>
 If you don't already have Tomcat on your machine, download the 
-Tomcat version of your choice from Apache.
+Tomcat version of your choice from Apache. 
 </p>
 <p>
-<a href="http://jakarta.apache.org/builds/jakarta-tomcat-4.0/release/v4.1.12/bin/" target="_blank">
-http://jakarta.apache.org/builds/jakarta-tomcat-4.0/release/v4.1.12/bin/</a><br/>
+<a href="http://jakarta.apache.org/builds/jakarta-tomcat-4.0/release/" target="_blank">
+http://jakarta.apache.org/builds/jakarta-tomcat-4.0/release/</a><br/>
 <br/>
+Go into the latest version and click on the bin directory. 
 If you have version 1.4.x of the Java 2 SDK you could download:
-<b>jakarta-tomcat-4.1.12-LE-jdk14.exe</b> - which is a lighter version for 1.4.x
+<b>jakarta-tomcat-4.x.x-LE-jdk14.exe</b> - which is a lighter version for 1.4.x
 and makes use of the libraries that version 1.4.x has.  
-Otherwise download <b>jakarta-tomcat-4.1.12.exe</b> which has the libraries that all 
-versions below 1.4.x are missing.
+Otherwise download <b>jakarta-tomcat-4.x.x.exe</b> which has the libraries that all 
+versions below Java 2 SDK 1.4.x are missing.  
 </p>
+
+<note>
+As an alternative to the self executable Tomcat download for Window's, you may also download the
+zip version named: jakarta-tomcat-4.x.x.zip or jakarta-tomcat-4.x.x-LE-jdk14.zip. Unzip this version
+into a directory instead of installing via the Window's installer.  The main difference between the two is that the zip
+version does not have an NT Service installer or Start menu additions, so you would have to start/stop Tomcat manually.
+<br/><br/>
+If you choose to download the zip version of Tomcat, unzip it to a directory that makes sense to you
+(such as C:\) and follow the post Tomcat install directions.  The start/stop Tomcat
+utility will not be in Start->Programs->Apache Tomcat 4.1, instead they will be in C:\tomcat-4.x.x\bin
+and you will need to run them manually by double clicking on them.  The rest of the Tomcat directory structure will 
+be the same in both versions.
+</note>
+
 <p>
 Install Tomcat
 </p>
