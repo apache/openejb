@@ -42,32 +42,40 @@
  *
  * $Id$
  */
-package org.openejb.admin.web.deploy;
+package org.openejb.admin.web.cmp.mapping;
 
 import java.rmi.RemoteException;
 
 import javax.ejb.EJBObject;
 
-import org.openejb.OpenEJBException;
+import org.exolab.castor.jdo.conf.Database;
+import org.exolab.castor.mapping.xml.MappingRoot;
 
 /**
- * This is a stateful session bean which holds deployment information
- * for the web deployment of an EJB. 
- *
- * @see org.openejb.admin.web.deploy.DeployerBean
- * @author  <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
+ * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
-public interface DeployerObject extends EJBObject {
-	//action methods
-	public void setBooleanValues(boolean[] booleanValues) throws RemoteException;
-	public boolean[] getBooleanValues() throws RemoteException;
-	public void setJarFile(String jarFile) throws RemoteException;
-	public String getJarFile() throws RemoteException;
-	public void startDeployment() throws RemoteException, OpenEJBException;
-	public void finishDeployment() throws RemoteException, OpenEJBException;
-	public String getDeploymentHTML() throws RemoteException;
-	public DeployData[] getDeployDataArray() throws RemoteException;
-	public String createIdTable() throws RemoteException, OpenEJBException;
-	public void setDeployAndContainerIds(DeployData[] deployDataArray)
-		throws RemoteException, OpenEJBException;
+public interface CMPMappingDataObject extends EJBObject {
+	public Database getGlobalDatabase() throws RemoteException;
+
+	public String getGlobalDatabaseFileName() throws RemoteException;
+
+	public Database getLocalDatabase() throws RemoteException;
+
+	public String getLocalDatabaseFileName() throws RemoteException;
+
+	public MappingRoot getMappingRoot() throws RemoteException;
+
+	public String getMappingRootFileName() throws RemoteException;
+
+	public void setGlobalDatabase(Database database) throws RemoteException;
+
+	public void setGlobalDatabaseFileName(String string) throws RemoteException;
+
+	public void setLocalDatabase(Database database) throws RemoteException;
+
+	public void setLocalDatabaseFileName(String string) throws RemoteException;
+
+	public void setMappingRoot(MappingRoot root) throws RemoteException;
+
+	public void setMappingRootFileName(String string) throws RemoteException;
 }

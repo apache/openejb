@@ -40,37 +40,64 @@
  *
  * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
  *
+ * $Id$
  */
 package org.openejb.admin.web.cmp.mapping;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.util.Properties;
 
+import javax.ejb.Handle;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.rmi.PortableRemoteObject;
+
+import org.exolab.castor.jdo.conf.Database;
+import org.exolab.castor.jdo.conf.Driver;
+import org.exolab.castor.jdo.conf.Jndi;
+import org.exolab.castor.jdo.conf.Mapping;
+import org.exolab.castor.jdo.conf.Param;
+import org.exolab.castor.xml.ValidationException;
 import org.openejb.admin.web.HttpRequest;
 import org.openejb.admin.web.HttpResponse;
 import org.openejb.admin.web.WebAdminBean;
+import org.openejb.core.EnvProps;
+import org.openejb.util.FileUtils;
+import org.openejb.util.HtmlUtilities;
+import org.openejb.util.StringUtilities;
 
 /**
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class CMPMappingBean extends WebAdminBean {
+	/** the handle file name */
+	private static final String HANDLE_FILE = System.getProperty("file.separator") + "configurationHandle.obj";
+
 	/** Creates a new instance of HomeBean */
 	public void ejbCreate() {
 		this.section = "CMPMapping";
 	}
-	
+
 	/** called before any content is written to the browser
 	 * @param request the http request
 	 * @param response the http response
 	 * @throws IOException if an exception is thrown
 	 */
 	public void preProcess(HttpRequest request, HttpResponse response) throws IOException {}
+
 	/** called after all content is written to the browser
 	 * @param request the http request
 	 * @param response the http response
 	 * @throws IOException if an exception is thrown
 	 */
 	public void postProcess(HttpRequest request, HttpResponse response) throws IOException {}
+
 	/** Write the TITLE of the HTML document.  This is the part
 	 * that goes into the <code>&lt;head&gt;&lt;title&gt;
 	 * &lt;/title&gt;&lt;/head&gt;</code> tags
@@ -90,7 +117,7 @@ public class CMPMappingBean extends WebAdminBean {
 	 * @exception IOException if an exception is thrown
 	 */
 	public void writePageTitle(PrintWriter body) throws IOException {
-		body.println("CMP Mapping");
+		body.println("Container Managed Persistance Mapping");
 	}
 
 	/** Write the sub items for this bean in the left navigation bar of
@@ -115,14 +142,195 @@ public class CMPMappingBean extends WebAdminBean {
 	 */
 	public void writeSubMenuItems(PrintWriter body) throws IOException {}
 
-	/** writes the main body content to the broswer.  This content is inside a <code>&lt;p&gt;</code> block
-	 *  
+	/** 
+	 * writes the main body content to the broswer.  This content is inside 
+	 * a <code>&lt;p&gt;</code> block 
 	 * 
 	 * @param body the output to write to
 	 * @exception IOException if an exception is thrown
 	 */
 	public void writeBody(PrintWriter body) throws IOException {
-		body.print("Comming soon...");
+		CMPMappingDataObject dataObject;
+		String submitDBInfo = request.getFormParameter(CMPMappingWriter.FORM_FIELD_SUBMIT_DB_INFO);
+		String handleFile = request.getFormParameter(CMPMappingWriter.FORM_FIELD_HANDLE_FILE);
+
+		//get or create a new handle
+		if (handleFile == null) {
+			dataObject = getCMPMappingDataObject();
+			handleFile = createHandle(dataObject);
+		} else {
+			dataObject = getHandle(handleFile);
+		}
+
+		//check for which type of action we're taking
+		if (submitDBInfo != null) {
+			submitDatabaseInformation(body);
+		} else {
+			CMPMappingWriter.printDBInfo(body, "", new DatabaseData());
+		}
 	}
 
+	/**
+	 * takes care of the submission of database information
+	 */
+	private boolean submitDatabaseInformation(PrintWriter body) throws IOException {
+		/* TODO: 
+		 * 1. Check to see if files exist
+		 * 2. Validate required fields 
+		 */
+		DatabaseData databaseData = new DatabaseData();
+		databaseData.setDbEngine(request.getFormParameter(CMPMappingWriter.FORM_FIELD_DB_ENGINE));
+		databaseData.setDriverClass(request.getFormParameter(CMPMappingWriter.FORM_FIELD_DRIVER_CLASS));
+		databaseData.setDriverUrl(request.getFormParameter(CMPMappingWriter.FORM_FIELD_DRIVER_URL));
+		databaseData.setFileName(request.getFormParameter(CMPMappingWriter.FORM_FIELD_FILE_NAME));
+		databaseData.setJndiName(request.getFormParameter(CMPMappingWriter.FORM_FIELD_JNDI_NAME));
+		databaseData.setPassword(request.getFormParameter(CMPMappingWriter.FORM_FIELD_PASSWORD));
+		databaseData.setUsername(request.getFormParameter(CMPMappingWriter.FORM_FIELD_USERNAME));
+
+		//validate the required fields
+		try {
+			databaseData.validate();
+		} catch (ValidationException e) {
+			CMPMappingWriter.printDBInfo(body, e.getMessage(), databaseData);
+			return false;
+		}
+
+		//assemble the file names
+		String path =
+			FileUtils.getBase().getDirectory("conf").getAbsolutePath()
+				+ System.getProperty("file.separator")
+				+ request.getFormParameter(databaseData.getFileName());
+
+		//create the file paths and names
+		String localDBFileName = path + ".cmp_local_database.xml";
+		String globalDBFileName = path + ".cmp_global_database.xml";
+		String mappingFileName = path + ".cmp_or_mapping.xml";
+
+		//set the standard variables for the global and local databases
+		Database globalDatabase = new Database();
+		Database localDatabase = new Database();
+		globalDatabase.setName(EnvProps.GLOBAL_TX_DATABASE);
+		globalDatabase.setEngine(databaseData.getDbEngine());
+		localDatabase.setName(EnvProps.LOCAL_TX_DATABASE);
+		localDatabase.setEngine(databaseData.getDbEngine());
+
+		//create and set the mapping for the db's
+		Mapping mapping = new Mapping();
+		mapping.setHref(mappingFileName);
+		globalDatabase.addMapping(mapping);
+		localDatabase.addMapping(mapping);
+
+		//set up the global specific fields
+		Jndi jndi = new Jndi();
+		jndi.setName(databaseData.getJndiName());
+		globalDatabase.setJndi(jndi);
+
+		//set up the local specific fields
+		Driver driver = new Driver();
+		Param userNameParam = new Param();
+		Param passwordParam = new Param();
+
+		//set up the user and password
+		userNameParam.setName("user");
+		userNameParam.setValue(databaseData.getUsername());
+		passwordParam.setName("password");
+		passwordParam.setValue(databaseData.getPassword());
+
+		//set up the driver
+		driver.setClassName(databaseData.getDriverClass());
+		driver.setUrl(databaseData.getDriverUrl());
+		driver.addParam(userNameParam);
+		driver.addParam(passwordParam);
+
+		localDatabase.setDriver(driver);
+
+		//validate the two database types again just in case
+		try {
+			localDatabase.validate();
+			globalDatabase.validate();
+		} catch (ValidationException e) {
+			CMPMappingWriter.printDBInfo(body, e.getMessage(), databaseData);
+			return false;
+		}
+
+		//here we want to move the jdbc driver over to the bin dir
+		File jdbcDriverSource =
+			FileUtils.getBase().getFile(request.getFormParameter(CMPMappingWriter.FORM_FIELD_JDBC_DRIVER));
+		String libDir =
+			FileUtils.getBase().getDirectory("lib").getAbsolutePath()
+				+ System.getProperty("file.separator")
+				+ jdbcDriverSource.getName();
+
+		//this is part of the mapping in the next section
+		//MappingRoot root = new MappingRoot();
+		//ClassMapping map = new ClassMapping();
+
+		return true;
+	}
+
+	/** 
+	 * gets an object reference and handle 
+	 * 
+	 * @param mappingData the object to create a handle from
+	 * @return an absolute path of the handle file
+	 * @throws IOException if the file cannot be created
+	 */
+	private String createHandle(CMPMappingDataObject mappingData) throws IOException {
+		//write the handle out to a file
+		File myHandleFile = new File(FileUtils.createTempDirectory().getAbsolutePath() + HANDLE_FILE);
+		if (!myHandleFile.exists()) {
+			myHandleFile.createNewFile();
+		}
+
+		ObjectOutputStream objectOut = new ObjectOutputStream(new FileOutputStream(myHandleFile));
+		objectOut.writeObject(mappingData.getHandle()); //writes the handle to the file
+		objectOut.flush();
+		objectOut.close();
+
+		return myHandleFile.getAbsolutePath();
+	}
+
+	/** 
+	 * creates a new CMPMappingDataObject 
+	 * 
+	 * @return a new CMPMappingDataObject
+	 * @throws IOException if the object cannot be created
+	 */
+	private CMPMappingDataObject getCMPMappingDataObject() throws IOException {
+		Properties p = new Properties();
+		p.put(Context.INITIAL_CONTEXT_FACTORY, "org.openejb.core.ivm.naming.InitContextFactory");
+
+		//lookup the bean
+		try {
+			InitialContext ctx = new InitialContext(p);
+			Object obj = ctx.lookup("mapping/webadmin/CMPMappingData");
+			//create a new instance
+			CMPMappingDataHome home = (CMPMappingDataHome) PortableRemoteObject.narrow(obj, CMPMappingDataHome.class);
+			return home.create();
+		} catch (Exception e) {
+			throw new IOException(e.getMessage());
+		}
+	}
+
+	/** 
+	 * this method gets the handle 
+	 * 
+	 * @param handleFile the handle to the object
+	 * @return the configuration data object
+	 * @throws IOException if the file is not found
+	 */
+	private CMPMappingDataObject getHandle(String handleFile) throws IOException {
+		File myHandleFile = new File(handleFile);
+
+		//get the object
+		ObjectInputStream objectIn = new ObjectInputStream(new FileInputStream(myHandleFile));
+		//get the handle
+		Handle mappingHandle;
+		try {
+			mappingHandle = (Handle) objectIn.readObject();
+			return (CMPMappingDataObject) mappingHandle.getEJBObject();
+		} catch (Exception e) {
+			throw new IOException(e.getMessage());
+		}
+	}
 }

@@ -42,32 +42,16 @@
  *
  * $Id$
  */
-package org.openejb.admin.web.deploy;
+package org.openejb.admin.web.cmp.mapping;
 
 import java.rmi.RemoteException;
 
-import javax.ejb.EJBObject;
-
-import org.openejb.OpenEJBException;
+import javax.ejb.CreateException;
+import javax.ejb.EJBHome;
 
 /**
- * This is a stateful session bean which holds deployment information
- * for the web deployment of an EJB. 
- *
- * @see org.openejb.admin.web.deploy.DeployerBean
- * @author  <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
+ * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
-public interface DeployerObject extends EJBObject {
-	//action methods
-	public void setBooleanValues(boolean[] booleanValues) throws RemoteException;
-	public boolean[] getBooleanValues() throws RemoteException;
-	public void setJarFile(String jarFile) throws RemoteException;
-	public String getJarFile() throws RemoteException;
-	public void startDeployment() throws RemoteException, OpenEJBException;
-	public void finishDeployment() throws RemoteException, OpenEJBException;
-	public String getDeploymentHTML() throws RemoteException;
-	public DeployData[] getDeployDataArray() throws RemoteException;
-	public String createIdTable() throws RemoteException, OpenEJBException;
-	public void setDeployAndContainerIds(DeployData[] deployDataArray)
-		throws RemoteException, OpenEJBException;
+public interface CMPMappingDataHome extends EJBHome {
+	public CMPMappingDataObject create() throws RemoteException, CreateException;
 }

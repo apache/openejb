@@ -40,6 +40,7 @@
  *
  * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
  *
+ * $Id$
  */
 package org.openejb.util;
 
@@ -84,6 +85,26 @@ public class StringUtilities {
 	 */
 	public static String nullToBlankString(String stringToCheckForNull) {
 		return (stringToCheckForNull == null) ? "" : stringToCheckForNull;
+	}
+	
+	/**
+	 * Checks a String to see if it's value is null or blank
+	 * @param stringToCheck - the string to check for blank or null
+	 * @return whether blank or null
+	 */
+	public static boolean checkNullBlankString(String stringToCheck) {
+		return (stringToCheck == null || "".equals(stringToCheck.trim()));
+	}
+	
+	/**
+	 * Checks a String to see if it's blank, 
+	 * and if so returns null (the opposite of <code>nullToBlankString</code>.
+	 * @param stringToCheckForNull - the string to check for blank
+	 * @return the checked string or null
+	 */
+	public static String blankToNullString(String stringToCheckForBlank) {
+		if(stringToCheckForBlank != null) stringToCheckForBlank.trim();
+		return ("".equals(stringToCheckForBlank)) ? null : stringToCheckForBlank;
 	}
 
 	/**

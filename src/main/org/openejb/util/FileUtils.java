@@ -50,150 +50,167 @@ import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class FileUtils{
+public class FileUtils {
 
-    private static final java.util.Random _random = new java.util.Random();
+	private static final java.util.Random _random = new java.util.Random();
 
-    
-    private static FileUtils openejbHomeUtils = new FileUtils("openejb.home", "user.dir");
-    private static FileUtils openejbBaseUtils = new FileUtils("openejb.base", "openejb.home");
-    
-    private File home;
+	private static FileUtils openejbHomeUtils = new FileUtils("openejb.home", "user.dir");
+	private static FileUtils openejbBaseUtils = new FileUtils("openejb.base", "openejb.home");
 
-    private FileUtils(String homeDir, String defaultDir){
-        String homePath =  null;
-        try{
-            homePath = (String)System.getProperty(homeDir);
-            if (homePath == null) {
-                homePath = System.getProperty(defaultDir);
-                System.setProperty(homeDir, homePath);
-            }
-            
-            home = new File(homePath);
-            
-            if( !home.exists() || (home.exists() && !home.isDirectory())) {
-                homePath = System.getProperty("user.dir");
-                System.setProperty(homeDir, homePath);
-                home = new File(homePath);
-            }
+	private File home;
 
-            home = home.getAbsoluteFile();
-        } catch (SecurityException e){
-            //throw new IOException("Cannot resolve the directory: "+homeDir+" : "+e.getMessage());
-        }
-    }
+	private FileUtils(String homeDir, String defaultDir) {
+		String homePath = null;
+		try {
+			homePath = (String) System.getProperty(homeDir);
+			if (homePath == null) {
+				homePath = System.getProperty(defaultDir);
+				System.setProperty(homeDir, homePath);
+			}
 
-    public static FileUtils getBase(){
-        return openejbBaseUtils;
-    }
+			home = new File(homePath);
 
-    public static FileUtils getHome(){
-        return openejbHomeUtils;
-    }
+			if (!home.exists() || (home.exists() && !home.isDirectory())) {
+				homePath = System.getProperty("user.dir");
+				System.setProperty(homeDir, homePath);
+				home = new File(homePath);
+			}
 
-    /**
-     * Resolves the specifed path reletive to the openejb.home variable
-     * 
-     * @param path
-     * @return 
-     * @exception java.io.IOException
-     */
-    public File getDirectory(String path) throws java.io.IOException{
-        File dir = null;
-        
-        dir = new File(home, path);
-        dir = dir.getCanonicalFile();
+			home = home.getAbsoluteFile();
+		} catch (SecurityException e) {
+			//throw new IOException("Cannot resolve the directory: "+homeDir+" : "+e.getMessage());
+		}
+	}
 
+	public static FileUtils getBase() {
+		return openejbBaseUtils;
+	}
 
-        if( !dir.exists() ) {
-            try{
-                if (!dir.mkdirs()) throw new IOException("Cannot create the directory "+dir.getPath());
-            } catch (SecurityException e){
-                throw new IOException("Permission denied: Cannot create the directory "+dir.getPath()+" : "+e.getMessage());
-            }
-        } else if ( dir.exists() && !dir.isDirectory() ) {
-            throw new IOException("The path specified is not a valid directory: "+dir.getPath());
-        }
+	public static FileUtils getHome() {
+		return openejbHomeUtils;
+	}
 
-        return dir;
-    }	
+	/**
+	 * Resolves the specifed path reletive to the openejb.home variable
+	 * 
+	 * @param path
+	 * @return 
+	 * @exception java.io.IOException
+	 */
+	public File getDirectory(String path) throws java.io.IOException {
+		File dir = null;
 
-    public File getFile(String path) throws java.io.FileNotFoundException, java.io.IOException{
-        return getFile(path, true);
-    }	
+		dir = new File(home, path);
+		dir = dir.getCanonicalFile();
 
-    public File getFile(String path, boolean validate) throws java.io.FileNotFoundException, java.io.IOException{
-        File file = null;
-        
-        file = new File(path);
-        
-        if (!file.isAbsolute()) {
-            file = new File(home, path);
-        }
-        
-        if( validate && !file.exists() ) {
-            throw new FileNotFoundException("The path specified is not a valid file: "+file.getPath());
-        } else if ( validate && file.isDirectory() ) {
-            throw new FileNotFoundException("The path specified is a directory, not a file: "+file.getPath());
-        }
+		if (!dir.exists()) {
+			try {
+				if (!dir.mkdirs()) throw new IOException("Cannot create the directory " + dir.getPath());
+			} catch (SecurityException e) {
+				throw new IOException(
+					"Permission denied: Cannot create the directory " + dir.getPath() + " : " + e.getMessage());
+			}
+		} else if (dir.exists() && !dir.isDirectory()) {
+			throw new IOException("The path specified is not a valid directory: " + dir.getPath());
+		}
 
-        return file;
-    }	
+		return dir;
+	}
 
-    /** Creates a string for a temporary directory
+	public File getFile(String path) throws java.io.FileNotFoundException, java.io.IOException {
+		return getFile(path, true);
+	}
+
+	public File getFile(String path, boolean validate) throws java.io.FileNotFoundException, java.io.IOException {
+		File file = null;
+
+		file = new File(path);
+
+		if (!file.isAbsolute()) {
+			file = new File(home, path);
+		}
+
+		if (validate && !file.exists()) {
+			throw new FileNotFoundException("The path specified is not a valid file: " + file.getPath());
+		} else if (validate && file.isDirectory()) {
+			throw new FileNotFoundException("The path specified is a directory, not a file: " + file.getPath());
+		}
+
+		return file;
+	}
+
+	/** Creates a string for a temporary directory
 	@param pathPrefix the path prefix to for the directory, e.g. /tmp/openejb
 	@returns the file object associated with the unique name
 	@throws java.io.IOException if it can't find a unique directory name after many iterations
-    */
-    public static File createTempDirectory(String pathPrefix) throws java.io.IOException{
-	for(int maxAttempts=100; maxAttempts>0; --maxAttempts){
-	    String path=pathPrefix+_random.nextLong();
-	    java.io.File tmpDir = new java.io.File(path);
-	    if(tmpDir.exists()) {
-		continue;
-	    } else {
-                tmpDir.mkdir();
-		return tmpDir;
-	    }
+	*/
+	public static File createTempDirectory(String pathPrefix) throws java.io.IOException {
+		for (int maxAttempts = 100; maxAttempts > 0; --maxAttempts) {
+			String path = pathPrefix + _random.nextLong();
+			java.io.File tmpDir = new java.io.File(path);
+			if (tmpDir.exists()) {
+				continue;
+			} else {
+				tmpDir.mkdir();
+				return tmpDir;
+			}
+		}
+		throw new java.io.IOException("Can't create temporary directory.");
 	}
-	throw new java.io.IOException("Can't create temporary directory.");
-    }	
 
-    /** Creates a string for a temporary directory
+	/** Creates a string for a temporary directory
 	The path prefix is chosen from the system property "java.io.tmpdir" plus a file separator plus the string "openejb"
 	@returns the file object associated with the unique name
 	@throws java.io.IOException if it can't find a unique directory name after many iterations
-    */
-    public static File createTempDirectory() throws java.io.IOException{
-	String prefix = System.getProperty("java.io.tmpdir", File.separator + "tmp") + File.separator+"openejb";
-	return createTempDirectory(prefix);
-    }
-
-    /**
-     * Copies the contents of one file to another.
-     * 
-     * @param to     Destination file
-     * @param from   Source file
-     * 
-     * @exception java.io.IOException
-     *                   Thrown if there is an error copying the file.
-     */
-    public static void copyFile( File to, File from ) throws java.io.IOException {
-	FileInputStream in =null;
-	FileOutputStream out =null;
-	try {
-	    in = new FileInputStream( from );
-	    out = new FileOutputStream( to );
-    
-	    int aByte;
-	    while ( (aByte = in.read()) != -1 ) {
-		out.write( aByte );
-	    }
-	} catch ( java.io.IOException e) {
-	    throw e;
-	} finally {
-	    in.close();
-	    out.close();
+	*/
+	public static File createTempDirectory() throws java.io.IOException {
+		String prefix = System.getProperty("java.io.tmpdir", File.separator + "tmp") + File.separator + "openejb";
+		return createTempDirectory(prefix);
 	}
-    }
+
+	/**
+	 * Copies the contents of one file to another.
+	 * 
+	 * @param destination     Destination file
+	 * @param source   Source file
+	 * 
+	 * @exception java.io.IOException
+	 *                   Thrown if there is an error copying the file.
+	 */
+	public static void copyFile(File destination, File source) throws java.io.IOException {
+		copyFile(destination, source, false);
+	}
+	
+	/**
+	 * Copies the contents of one file to another.
+	 * 
+	 * @param destination     Destination file
+	 * @param source   Source file
+	 * @param deleteSourceFile whether or not to delete the source file 
+	 * 
+	 * @exception java.io.IOException
+	 *                   Thrown if there is an error copying the file.
+	 */
+	public static void copyFile(File destination, File source, boolean deleteSourceFile) throws java.io.IOException {
+		FileInputStream in = null;
+		FileOutputStream out = null;
+		try {
+			in = new FileInputStream(source);
+			out = new FileOutputStream(destination);
+
+			int aByte;
+			while ((aByte = in.read()) != -1) {
+				out.write(aByte);
+			}
+		} catch (java.io.IOException e) {
+			throw e;
+		} finally {
+			in.close();
+			out.close();
+		}
+		
+		if(deleteSourceFile) {
+			source.delete();
+		}
+	}
 }

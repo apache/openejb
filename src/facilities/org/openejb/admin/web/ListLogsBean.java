@@ -39,6 +39,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ * 
+ * $Id$
  */
 package org.openejb.admin.web;
 
