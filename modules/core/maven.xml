@@ -14,11 +14,15 @@
 
   <preGoal name="jar:jar">
     <ant:tstamp />
-  <ant:echo file="${maven.build.dest}/openejb-version.properties">copyright=Copyright ${pom.inceptionYear} (C) ${pom.organization.name} Group, All Rights Reserved.
-url=${pom.url}
-version=${pom.currentVersion}
-date=${DSTAMP}
-time=${TSTAMP}</ant:echo>
+    <replace file="${maven.build.dest}/openejb-version.properties" 
+             token="@VERSION-REPLACED-BY-MAVEN@"
+             value="${pom.currentVersion}"/>
+    <replace file="${maven.build.dest}/openejb-version.properties" 
+             token="@DATE-REPLACED-BY-MAVEN@"
+             value="${DSTAMP}"/>
+    <replace file="${maven.build.dest}/openejb-version.properties" 
+             token="@TIME-REPLACED-BY-MAVEN@"
+             value="${TSTAMP}"/>
   </preGoal>
 
   <postGoal name="jar:jar">
