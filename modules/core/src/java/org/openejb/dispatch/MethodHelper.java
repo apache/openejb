@@ -65,18 +65,11 @@ public final class MethodHelper {
     private MethodHelper() {
     }
 
-    public static int getSuperIndex(Class proxyImpl, MethodSignature signature) throws ClassNotFoundException {
-        // convert the signature parameter type String array into a Class array
-        String[] parameterTypes = signature.getParameterTypes();
-        ClassLoader classLoader = proxyImpl.getClassLoader();
-        Class[] params = new Class[parameterTypes.length];
-        for (int i = 0; i < parameterTypes.length; i++) {
-            params[i] = classLoader.loadClass(parameterTypes[i]);
-        }
-
+    public static int getSuperIndex(Class proxyImpl, MethodSignature signature) {
         try {
+            //TODO look at asm Type and see if there is a more straightforward way to do this.
             // lookup the method object and get its index
-            Method method = proxyImpl.getMethod(signature.getMethodName(), params);
+            Method method = signature.getMethod(proxyImpl);
             return getSuperIndex(proxyImpl, method);
         } catch (Exception e) {
             // didn't find the method
