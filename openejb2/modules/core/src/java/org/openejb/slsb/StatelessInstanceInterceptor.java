@@ -47,11 +47,15 @@
  */
 package org.openejb.slsb;
 
+import javax.xml.rpc.handler.MessageContext;
+
 import org.openejb.EJBInvocation;
 import org.openejb.cache.InstancePool;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocation;
+import org.apache.geronimo.webservices.MessageContextInvocationKey;
 
 
 /**
@@ -79,6 +83,8 @@ public final class StatelessInstanceInterceptor implements Interceptor {
         // initialize the context and set it into the invocation
         ejbInvocation.setEJBInstanceContext(ctx);
 
+        ctx.setMessageContext((MessageContext)invocation.get(MessageContextInvocationKey.INSTANCE));
+
         try {
             InvocationResult result = next.invoke(invocation);
 
@@ -93,6 +99,7 @@ public final class StatelessInstanceInterceptor implements Interceptor {
         } finally {
             // remove the reference to the context from the invocation
             ejbInvocation.setEJBInstanceContext(null);
+            ctx.setMessageContext(null);
         }
     }
 }

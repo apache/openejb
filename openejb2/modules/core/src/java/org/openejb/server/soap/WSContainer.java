@@ -47,10 +47,10 @@ package org.openejb.server.soap;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
-
+import java.util.Iterator;
+import java.util.Map;
+import java.util.HashMap;
 import javax.wsdl.Definition;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
 
 import org.codehaus.xfire.MessageContext;
 import org.codehaus.xfire.XFireRuntimeException;
@@ -60,10 +60,14 @@ import org.codehaus.xfire.handler.SoapHandler;
 import org.codehaus.xfire.java.DefaultJavaService;
 import org.codehaus.xfire.java.Invoker;
 import org.codehaus.xfire.java.JavaServiceHandler;
-import org.codehaus.xfire.java.mapping.DefaultTypeMappingRegistry;
 import org.codehaus.xfire.soap.Soap11;
 import org.openejb.EJBContainer;
+import org.openejb.EJBInterfaceType;
+import org.openejb.EJBInvocation;
+import org.openejb.EJBInvocationImpl;
 import org.openejb.proxy.ProxyInfo;
+import org.apache.geronimo.core.service.InvocationKey;
+import org.apache.geronimo.webservices.MessageContextInvocationKey;
 
 public class WSContainer implements Invoker {
 
@@ -124,7 +128,13 @@ public class WSContainer implements Invoker {
 
     public Object invoke(Method m, Object[] params, MessageContext context) throws XFireFault {
         try {
-            return ejbContainer.invoke(m, params, null);
+            int index = ejbContainer.getProxyFactory().getMethodIndex(m);
+            EJBInvocation invocation = new EJBInvocationImpl(EJBInterfaceType.WEB_SERVICE, null, index, params);
+            //I give up, why would you use xfire?
+            Map properties = new HashMap();
+            javax.xml.rpc.handler.MessageContext messageContext = new SimpleMessageContext(properties);
+            invocation.put(MessageContextInvocationKey.INSTANCE, messageContext);
+            return ejbContainer.invoke(invocation);
         } catch (Throwable throwable) {
             throwable.printStackTrace();
             throw new XFireFault("Error invoking EJB", throwable, XFireFault.RECEIVER);
@@ -137,5 +147,34 @@ public class WSContainer implements Invoker {
 
     public URL getWsdlURL() {
         return wsdlURL;
+    }
+
+    private static class SimpleMessageContext implements javax.xml.rpc.handler.MessageContext {
+
+        private final Map properties;
+
+        public SimpleMessageContext(Map properties) {
+            this.properties = new HashMap(properties);
+        }
+
+        public boolean containsProperty(String name) {
+            return properties.containsKey(name);
+        }
+
+        public Object getProperty(String name) {
+            return properties.get(name);
+        }
+
+        public Iterator getPropertyNames() {
+            return properties.keySet().iterator();
+        }
+
+        public void removeProperty(String name) {
+            properties.remove(name);
+        }
+
+        public void setProperty(String name, Object value) {
+            properties.put(name, value);
+        }
     }
 }

@@ -490,6 +490,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addOperation("invoke", new Class[]{Method.class, Object[].class, Object.class});
 
         infoFactory.addOperation("getTimerById", new Class[]{Long.class});
+        //TODO this should be unnecessary, when WS stack gets included in the EJBContainer, remove this:
+        infoFactory.addOperation("getProxyFactory");
 
         infoFactory.setConstructor(new String[]{
             "ContainerID",
