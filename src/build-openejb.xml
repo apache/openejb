@@ -64,8 +64,7 @@
     <copy todir="${build.openejb.src}" >
       <fileset dir="${src.java.dir}/facilities" 
                includes="**/alt/**,**/resource/**,**/tyrex/**,**/sp/**" 
-               excludes="**/CVS/**,**/modern/**,**/minerva/**,**/*.class"
-      />
+               excludes="**/CVS/**,**/modern/**,**/admin/**,**/minerva/**,**/*.class" />
     </copy>
     
     <copy todir="${build.openejb.dest}">
