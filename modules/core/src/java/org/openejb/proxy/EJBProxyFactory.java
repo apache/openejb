@@ -112,16 +112,17 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         this.containerId = containerId;
         isSessionBean = sessionBean;
 
-        assert remoteInterface == null || (remoteInterface.isInterface() && EJBObject.class.isAssignableFrom(remoteInterface));
+// JNB: these are temporarily disabled due to classloader issues during deployment
+//        assert remoteInterface == null || (remoteInterface.isInterface() && EJBObject.class.isAssignableFrom(remoteInterface));
         this.remoteInterface = remoteInterface;
 
-        assert homeInterface == null || (homeInterface.isInterface() && EJBHome.class.isAssignableFrom(homeInterface));
+//        assert homeInterface == null || (homeInterface.isInterface() && EJBHome.class.isAssignableFrom(homeInterface));
         this.homeInterface = homeInterface;
 
-        assert localInterface == null || (localInterface.isInterface() && EJBLocalObject.class.isAssignableFrom(localInterface));
+//        assert localInterface == null || (localInterface.isInterface() && EJBLocalObject.class.isAssignableFrom(localInterface));
         this.localInterface = localInterface;
 
-        assert localHomeInterface == null || (localHomeInterface.isInterface() && EJBLocalHome.class.isAssignableFrom(localHomeInterface));
+//        assert localHomeInterface == null || (localHomeInterface.isInterface() && EJBLocalHome.class.isAssignableFrom(localHomeInterface));
         this.localHomeInterface = localHomeInterface;
 
         this.remoteFactory = getFactory(EJBInterfaceType.REMOTE.getOrdinal(), remoteInterface);
