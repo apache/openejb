@@ -169,7 +169,11 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
             jar.setUpdate(true);
             jar.execute();
         } catch (Exception e) {
-            throw new CompilerException(e);
+            /**
+             * Convert the msg to string so that we don't try to serialize
+             * anything that is unserializable in a cause exception
+             */
+            throw new CompilerException(e.toString());
         } finally {
             Thread.currentThread().setContextClassLoader(savedLoader);
             DeploymentUtil.recursiveDelete(TEMPDIR);
