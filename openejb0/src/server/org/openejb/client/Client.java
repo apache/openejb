@@ -49,20 +49,20 @@ import java.io.*;
 import java.rmi.RemoteException;
 
 /**
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @since 11/25/2001
  */
 public class Client {
-    
+
     public static Response request(Request req, Response res, ServerMetaData server) throws RemoteException {
         if ( server == null ) throw new IllegalArgumentException("Server instance cannot be null");
-        
+
         OutputStream out       = null;
         ObjectOutput objectOut = null;
         ObjectInput  objectIn  = null;
         Connection   conn      = null;
-        
+
         try{
             /*----------------------------*/
             /* Get a connection to server */
@@ -74,71 +74,71 @@ public class Client {
             } catch (Throwable e){
                 throw new RemoteException("Cannot access server: "+server.address+":"+server.port+" due to an unkown exception in the OpenEJB client: ", e );
             }
-            
+
             /*----------------------------------*/
             /* Get output streams               */
             /*----------------------------------*/
             try{
-                
+
                 out = conn.getOuputStream();
-            
+
             } catch (IOException e){
                 throw new RemoteException("Cannot open output stream to server: " , e );
-            
+
             } catch (Throwable e){
                 throw new RemoteException("Cannot open output stream to server: " , e );
-            } 
-            
+            }
+
             /*----------------------------------*/
             /* Write request type               */
             /*----------------------------------*/
             try{
-            
+
                 out.write( req.getRequestType() );
 
             } catch (IOException e){
                 throw new RemoteException("Cannot write the request type to the server: " , e );
-            
+
             } catch (Throwable e){
                 throw new RemoteException("Cannot write the request type to the server: " , e );
-            } 
-            
+            }
+
             /*----------------------------------*/
             /* Get output streams               */
             /*----------------------------------*/
             try{
-                
+
                 objectOut = new ObjectOutputStream( out );
-            
+
             } catch (IOException e){
                 throw new RemoteException("Cannot open object output stream to server: " , e );
-            
+
             } catch (Throwable e){
                 throw new RemoteException("Cannot open object output stream to server: " , e );
-            } 
-            
-            
+            }
+
+
             /*----------------------------------*/
             /* Write request                    */
             /*----------------------------------*/
             try{
-            
+
                 // Write the request data.
-                req.writeExternal( objectOut );
+                objectOut.writeObject( req );
                 objectOut.flush();
-            
+
             } catch (java.io.NotSerializableException e){
                 //TODO:3: This doesn't seem to work in the OpenEJB test suite
                 // run some other test to see if the exception reaches the client.
                 throw new IllegalArgumentException("Object is not serializable: "+ e.getMessage());
-            
+
             } catch (IOException e){
                 throw new RemoteException("Cannot write the request to the server: " , e );
-            
+
             } catch (Throwable e){
                 throw new RemoteException("Cannot write the request to the server: " , e );
-            } 
-            
+            }
+
             /*----------------------------------*/
             /* Get input streams               */
             /*----------------------------------*/
@@ -147,30 +147,30 @@ public class Client {
                 objectIn = new ObjectInputStream(conn.getInputStream());
             } catch (IOException e){
                 throw new RemoteException("Cannot open object input stream to server: " , e );
-            
+
             } catch (Throwable e){
                 throw new RemoteException("Cannot open object input stream to server: " , e );
-            } 
-            
+            }
+
             /*----------------------------------*/
             /* Read response                    */
             /*----------------------------------*/
             try{
                 // Read the response from the server
-                res.readExternal( objectIn );
+                res = (Response)objectIn.readObject();
             } catch (ClassNotFoundException e){
                 throw new RemoteException("Cannot read the response from the server.  The class for an object being returned is not located in this system:" , e );
-    
+
             } catch (IOException e){
                 throw new RemoteException("Cannot read the response from the server." , e );
-            
+
             } catch (Throwable e){
                 throw new RemoteException("Error reading response from server: " , e );
-            } 
-        
+            }
+
         } catch ( Throwable error ) {
             throw new RemoteException("Error while communicating with server: " , error );
-        
+
         } finally {
             try {
                 conn.close();

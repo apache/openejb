@@ -426,7 +426,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 	res.setResponse(EJB_ERROR, re);
 	try
 	{
-	    res.writeExternal(out);
+	    out.writeObject( res );
 	}
 	catch (java.io.IOException ie)
 	{
@@ -436,7 +436,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
     public void processEjbRequest (ObjectInputStream in, ObjectOutputStream out) {
 
-        EJBRequest req = new EJBRequest();
+        EJBRequest req = null;
         EJBResponse res = new EJBResponse();
 
         // TODO:2: This method can throw a large number of exceptions, we should
@@ -445,7 +445,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         // java.io.WriteAbortedException  can be thrown containing a
         //
         try {
-            req.readExternal( in );
+            req = (EJBRequest)in.readObject();
 
 	/*
         } catch (java.io.WriteAbortedException e){
@@ -481,7 +481,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 	    /*
             logger.warn( req + "No such deployment: "+e.getMessage());
             res.setResponse( EJB_SYS_EXCEPTION, e);
-            res.writeExternal( out );
+            out.writeObject( res );
             return;
 	    */
         } catch ( Throwable t ){
@@ -576,7 +576,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         } finally {
             logger.info( "EJB RESPONSE: "+res );
 	    try {
-		res.writeExternal( out );
+			out.writeObject( res );
 	    }
 	    catch (java.io.IOException ie)
 	    {
@@ -589,9 +589,8 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
     static javax.naming.Context clientJndi;
 
     public void processJndiRequest(ObjectInputStream in, ObjectOutputStream out) throws Exception{
-        JNDIRequest  req = new JNDIRequest();
+        JNDIRequest  req = (JNDIRequest)in.readObject();
         JNDIResponse res = new JNDIResponse();
-        req.readExternal( in );
 
         // We are assuming that the request method is JNDI_LOOKUP
         // TODO: Implement the JNDI_LIST and JNDI_LIST_BINDINGS methods
@@ -635,7 +634,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             res.setResult( metaData );
         }
 
-        res.writeExternal( out );
+        out.writeObject( res );
     }
 
     public void processAuthRequest(ObjectInputStream in, ObjectOutputStream out) throws Exception{
@@ -1057,7 +1056,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             }
 
             props.setProperty("org/openejb/configuration_factory", "org.openejb.alt.config.ConfigurationFactory");
-            
+
             EjbDaemon ejbd = EjbDaemon.getEjbDaemon();
             ejbd.init(props);
             ejbd.start();

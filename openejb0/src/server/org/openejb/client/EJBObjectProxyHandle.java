@@ -52,26 +52,26 @@ import java.io.ObjectStreamException;
 
 
 public class EJBObjectProxyHandle implements Externalizable{
-    
+
     EJBObjectHandler handler;
 
     public EJBObjectProxyHandle(){
     }
-    
+
     public EJBObjectProxyHandle(EJBObjectHandler handler){
         this.handler = handler;
     }
-    
+
     /**
      * Writes the instanceHandle to the stream.
-     * 
+     *
      * @param out
      * @exception IOException
      */
     public void writeExternal(ObjectOutput out) throws IOException{
         // Write the full proxy data
-        handler.client.writeExternal( out );
-        
+        out.writeObject( handler.client );
+
         EJBMetaDataImpl ejb = handler.ejb;
         out.writeObject( ejb.homeClass );
         out.writeObject( ejb.remoteClass );
@@ -79,22 +79,22 @@ public class EJBObjectProxyHandle implements Externalizable{
         out.writeByte(   ejb.type );
         out.writeUTF(    ejb.deploymentID );
         out.writeShort(  ejb.deploymentCode );
-        handler.server.writeExternal( out );
+        out.writeObject( handler.server );
         out.writeObject( handler.primaryKey );
     }
 
     /**
      * Reads the instanceHandle from the stream
-     * 
+     *
      * @param in
      * @exception IOException
      */
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException{
-        ClientMetaData client = new ClientMetaData();
+        ClientMetaData client = null;
         EJBMetaDataImpl   ejb = new EJBMetaDataImpl();
-        ServerMetaData server = new ServerMetaData();        
+        ServerMetaData server = null;
 
-        client.readExternal( in );
+        client = (ClientMetaData)in.readObject();
 
         ejb.homeClass      = (Class) in.readObject();
         ejb.remoteClass    = (Class) in.readObject();
@@ -102,18 +102,18 @@ public class EJBObjectProxyHandle implements Externalizable{
         ejb.type           = in.readByte();
         ejb.deploymentID   = in.readUTF();
         ejb.deploymentCode = in.readShort();
-        
-        server.readExternal( in );
+
+        server = (ServerMetaData)in.readObject();
         Object primaryKey  = in.readObject();
-        
+
         handler = EJBObjectHandler.createEJBObjectHandler(ejb, server, client, primaryKey);
 
     }
 
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      * @exception ObjectStreamException
      */
     private Object readResolve() throws ObjectStreamException{
