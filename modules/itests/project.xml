@@ -129,15 +129,6 @@
             </resource>
         </resources>
         <unitTest>
-            <includes>
-                <include>**/StatelessTestSuite.java</include>
-                <include>**/StatefulTestSuite.java</include>
-                <include>**/BmpTestSuite.java</include>
-                <include>**/CmpTestSuite.java</include>
-            </includes>
-            <excludes>
-                <exclude>**/Abstract*.java</exclude>
-            </excludes>
             <resources>
                 <resource>
                     <directory>${basedir}/src/schema</directory>
