@@ -49,11 +49,13 @@ import java.io.PrintWriter;
 
 import org.openejb.OpenEJBException;
 import org.openejb.util.Logger;
+import org.openejb.util.Messages;
 
 
 public class OpenEJBErrorHandler {
 
     private static Logger _logger = Logger.getInstance( "OpenEJB", "org.openejb.util.resources" );
+    private static Messages _messages = new Messages( "org.openejb.util.resources" );
 
     /**
      * This method is only intended for situations where an unknown error
@@ -94,8 +96,7 @@ public class OpenEJBErrorHandler {
         pw.close();
         // }
 
-        Object[] errorMessageParams = {systemLocation, new String(baos.toByteArray())};
-        OpenEJBException exception = new OpenEJBException("ge0001", errorMessageParams);
+        OpenEJBException exception = new OpenEJBException( _messages.format( "ge0001", systemLocation, new String(baos.toByteArray()) ) );
 
         _logger.i18n.error("ge0001", exception);
 
@@ -115,8 +116,7 @@ public class OpenEJBErrorHandler {
      */
     public static void propertiesObjectIsNull(String systemLocation) throws OpenEJBException{
 
-        Object[] errorMessageParams = {systemLocation};
-        throw new OpenEJBException("ge0002", errorMessageParams);
+        throw new OpenEJBException( _messages.format( "ge0002", systemLocation ) );
     }
 
     /**
@@ -131,8 +131,7 @@ public class OpenEJBErrorHandler {
      */
     public static void propertyFileNotFound(String propertyfileName, String systemLocation) throws OpenEJBException{
 
-        Object[] errorMessageParams = {propertyfileName, systemLocation};
-        throw new OpenEJBException("ge0003", errorMessageParams);
+        throw new OpenEJBException( _messages.format( "ge0003", propertyfileName, systemLocation ) );
     }
 
     /**
@@ -147,8 +146,7 @@ public class OpenEJBErrorHandler {
      */
     public static void propertyNotFound(String propertyName, String propertyfileName) throws OpenEJBException{
 
-        Object[] errorMessageParams = {propertyName, propertyfileName};
-        throw new OpenEJBException("ge0004", errorMessageParams);
+        throw new OpenEJBException( _messages.format( "ge0004", propertyName, propertyfileName ) );
     }
 
     /**
@@ -163,8 +161,7 @@ public class OpenEJBErrorHandler {
      */
     public static void propertyValueIsIllegal(String propertyName, String value) throws OpenEJBException{
 
-        Object[] errorMessageParams = {propertyName, value};
-        throw new OpenEJBException("ge0005", errorMessageParams);
+        throw new OpenEJBException( _messages.format( "ge0005", propertyName, value ) );
     }
 
     /**
@@ -181,8 +178,7 @@ public class OpenEJBErrorHandler {
      */
     public static void propertyValueIsIllegal(String propertyName, String value, String message) throws OpenEJBException{
 
-        Object[] errorMessageParams = {propertyName, value, message};
-        throw new OpenEJBException("ge0006", errorMessageParams);
+        throw new OpenEJBException( _messages.format( "ge0006", propertyName, value, message ) );
     }
 
     /**
@@ -197,8 +193,7 @@ public class OpenEJBErrorHandler {
      */
     public static void classNotFound(String systemLocation, String className) throws OpenEJBException{
 
-        Object[] errorMessageParams = {systemLocation, className};
-        throw new OpenEJBException("ge0007", errorMessageParams);
+        throw new OpenEJBException( _messages.format( "ge0007", systemLocation, className ) );
     }
 
     /**
@@ -213,8 +208,7 @@ public class OpenEJBErrorHandler {
      */
     public static void classNotAccessible(String systemLocation, String className) throws OpenEJBException{
 
-        Object[] errorMessageParams = {systemLocation, className};
-        throw new OpenEJBException("ge0008", errorMessageParams);
+        throw new OpenEJBException( _messages.format( "ge0008", systemLocation, className ) );
     }
 
     /**
@@ -229,8 +223,7 @@ public class OpenEJBErrorHandler {
      */
     public static void classNotIntantiateable(String systemLocation, String className) throws OpenEJBException{
 
-        Object[] errorMessageParams = {systemLocation, className};
-        throw new OpenEJBException("ge0009", errorMessageParams);
+        throw new OpenEJBException( _messages.format( "ge0009", systemLocation, className ) );
     }
 
     /**
@@ -249,8 +242,7 @@ public class OpenEJBErrorHandler {
      */
     public static void classNotIntantiateableForUnknownReason(String systemLocation, String className, String exceptionClassName, String message) throws OpenEJBException{
 
-        Object[] errorMessageParams = {systemLocation, className, exceptionClassName, message};
-        throw new OpenEJBException("ge0011", errorMessageParams);
+        throw new OpenEJBException( _messages.format( "ge0011", systemLocation, className, exceptionClassName, message ) );
     }
 
     /**
@@ -272,8 +264,7 @@ public class OpenEJBErrorHandler {
     public static void classNotIntantiateableFromCodebaseForUnknownReason(String systemLocation, String className, String codebase, String exceptionClassName, String message) 
 	throws OpenEJBException
     {
-        Object[] errorMessageParams = {systemLocation, className, codebase, exceptionClassName, message};
-        throw new OpenEJBException("ge0012", errorMessageParams);
+        throw new OpenEJBException( _messages.format( "ge0012", systemLocation, className, codebase, exceptionClassName, message ) );
     }
 
     /**
@@ -291,8 +282,7 @@ public class OpenEJBErrorHandler {
      */
     public static void classCodebaseNotFound(String systemLocation, String className, String codebase, Exception e) throws OpenEJBException{
 
-        Object[] errorMessageParams = {systemLocation, className, codebase, e.getMessage()};
-        throw new OpenEJBException("ge0010", errorMessageParams);
+        throw new OpenEJBException( _messages.format( "ge0010", systemLocation, className, codebase, e.getMessage() ) );
     }
 
     /**
@@ -312,10 +302,7 @@ public class OpenEJBErrorHandler {
      */
     public static void configurationParsingError(String messageType, String message, String line, String column){
 
-        Object[] errorMessageParams = { messageType, message, line, column};
-        OpenEJBException exception = new OpenEJBException("as0001", errorMessageParams);
-
-        _logger.i18n.error("as0001", exception);
+        _logger.i18n.error( "as0001", messageType, message, line, column );
         /*
          * An error broadcasting system is under development.
          * At this point an appropriate error would be broadcast to all listeners.

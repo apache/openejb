@@ -129,6 +129,10 @@ public class Messages
         return format( message, new Object[] { arg1, arg2, arg3, arg4, arg5 } );
     }
 
+    public String format( String message ) {
+	return message( message );
+    }
+
 
     public String format( String message, Object[] args )
     {
