@@ -54,6 +54,26 @@
                 <res-type>javax.sql.DataSource</res-type>
                 <res-auth>Container</res-auth>
             </resource-ref>
+            <query>
+                <query-method>
+                    <method-name>findByLastName</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>
+                <![CDATA[SELECT OBJECT(a) FROM BasicCmpBean AS a WHERE a.lastName = ?1]]>
+                </ejb-ql>
+            </query>
+            <query>
+                <query-method>
+                    <method-name>findEmptyCollection</method-name>
+                    <method-params/>
+                </query-method>
+                <ejb-ql>
+                <![CDATA[SELECT OBJECT(a) FROM BasicCmpBean AS a WHERE 1 = 0]]>
+                </ejb-ql>
+            </query>
         </entity>
 
         <!--
@@ -106,6 +126,26 @@
                 <res-type>javax.sql.DataSource</res-type>
                 <res-auth>Container</res-auth>
             </resource-ref>
+            <query>
+                <query-method>
+                    <method-name>findByLastName</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>
+                <![CDATA[SELECT OBJECT(a) FROM AOBasicCmpBean AS a WHERE a.lastName = ?1]]>
+                </ejb-ql>
+            </query>
+            <query>
+                <query-method>
+                    <method-name>findEmptyCollection</method-name>
+                    <method-params/>
+                </query-method>
+                <ejb-ql>
+                <![CDATA[SELECT OBJECT(a) FROM AOBasicCmpBean AS a WHERE 1 = 0]]>
+                </ejb-ql>
+            </query>
         </entity>
 
         <!--
@@ -281,6 +321,26 @@
                 <res-type>javax.sql.DataSource</res-type>
                 <res-auth>Container</res-auth>
             </resource-ref>
+            <query>
+                <query-method>
+                    <method-name>findByLastName</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>
+                <![CDATA[SELECT OBJECT(a) FROM BasicCmp2Bean AS a WHERE a.lastName = ?1]]>
+                </ejb-ql>
+            </query>
+            <query>
+                <query-method>
+                    <method-name>findEmptyCollection</method-name>
+                    <method-params/>
+                </query-method>
+                <ejb-ql>
+                <![CDATA[SELECT OBJECT(a) FROM BasicCmp2Bean AS a WHERE 1 = 0]]>
+                </ejb-ql>
+            </query>
         </entity>
 
         <!--
@@ -333,6 +393,26 @@
                 <res-type>javax.sql.DataSource</res-type>
                 <res-auth>Container</res-auth>
             </resource-ref>
+            <query>
+                <query-method>
+                    <method-name>findByLastName</method-name>
+                    <method-params>
+                        <method-param>java.lang.String</method-param>
+                    </method-params>
+                </query-method>
+                <ejb-ql>
+                <![CDATA[SELECT OBJECT(a) FROM AOBasicCmp2Bean AS a WHERE a.lastName = ?1]]>
+                </ejb-ql>
+            </query>
+            <query>
+                <query-method>
+                    <method-name>findEmptyCollection</method-name>
+                    <method-params/>
+                </query-method>
+                <ejb-ql>
+                <![CDATA[SELECT OBJECT(a) FROM AOBasicCmp2Bean AS a WHERE 1 = 0]]>
+                </ejb-ql>
+            </query>
         </entity>
 
         <!--
