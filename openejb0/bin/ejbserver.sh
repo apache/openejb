@@ -72,10 +72,13 @@ fi
 #        
 OPTIONS="-Dopenejb.home=$OPENEJB_HOME"
 
+echo "--------------SUPPORT INFO-------------"
+echo "`uname -srv`"
 echo "Using JAVA_HOME:     $JAVA_HOME"
 echo "Using OPENEJB_HOME:  $OPENEJB_HOME"
-echo "Using OPTIONS:       $OPTIONS"
-echo "Using CLASSPATH:     $CP"
+echo "."
+#echo "Using OPTIONS:       $OPTIONS"
+#echo "Using CLASSPATH:     $CP"
                                       
 $JAVA ${OPTIONS} -classpath ${CP} org.openejb.server.Main $@
 
