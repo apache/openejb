@@ -93,7 +93,7 @@ public class BasicTimerService {
     private final ObjectName timerSourceName;
     private final TransactionContextManager transactionContextManager;
 
-    public BasicTimerService(EJBTimeoutInvocationFactory invocationFactory, Interceptor stack, ThreadPooledTimer timer, String key, String kernelName, ObjectName timerSourceName, TransactionContextManager transactionContextManager) throws PersistenceException {
+    public BasicTimerService(EJBTimeoutInvocationFactory invocationFactory, Interceptor stack, ThreadPooledTimer timer, String key, String kernelName, ObjectName timerSourceName, TransactionContextManager transactionContextManager, ClassLoader classLoader) throws PersistenceException {
         this.invocationFactory = invocationFactory;
         this.stack = stack;
         this.persistentTimer = timer;
@@ -101,7 +101,7 @@ public class BasicTimerService {
         this.kernelName = kernelName;
         this.timerSourceName = timerSourceName;
         this.transactionContextManager = transactionContextManager;
-        userTaskFactory = new EJBInvokeTaskFactory(this);
+        userTaskFactory = new EJBInvokeTaskFactory(this, classLoader);
     }
 
     public void doStart() throws PersistenceException {
@@ -220,10 +220,12 @@ public class BasicTimerService {
 
         private final BasicTimerService timerService;
         private final long timerId;
+        private final ClassLoader classLoader;
 
-        public EJBInvokeTask(BasicTimerService timerService, long id) {
+        public EJBInvokeTask(BasicTimerService timerService, long id, ClassLoader classLoader) {
             this.timerService = timerService;
             this.timerId = id;
+            this.classLoader = classLoader;
         }
 
         public void run() {
@@ -231,10 +233,15 @@ public class BasicTimerService {
             Object id = timerImpl.getUserId();
             EJBInvocation invocation = timerService.invocationFactory.getEJBTimeoutInvocation(id, timerImpl);
 
+            Thread currentThread = Thread.currentThread();
+            ClassLoader oldClassLoader = currentThread.getContextClassLoader();
             try {
+                currentThread.setContextClassLoader(classLoader);
                 timerService.getStack().invoke(invocation);
             } catch (Throwable throwable) {
                 log.info(throwable);
+            } finally {
+                currentThread.setContextClassLoader(oldClassLoader);
             }
         }
 
@@ -243,13 +250,15 @@ public class BasicTimerService {
     private static class EJBInvokeTaskFactory implements UserTaskFactory {
 
         private final BasicTimerService timerService;
+        private final ClassLoader classLoader;
 
-        public EJBInvokeTaskFactory(BasicTimerService timerService) {
+        public EJBInvokeTaskFactory(BasicTimerService timerService, ClassLoader classLoader) {
             this.timerService = timerService;
+            this.classLoader = classLoader;
         }
 
         public Runnable newTask(long id) {
-            return new EJBInvokeTask(timerService, id);
+            return new EJBInvokeTask(timerService, id, classLoader);
         }
 
     }
