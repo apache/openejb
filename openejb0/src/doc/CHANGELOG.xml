@@ -91,6 +91,28 @@
 	<Version id="0.8.1" releaseDate="July 31st, 2002" cvsTag="v0_8_1" released="true" release_id="102635">
         <Entry bug="587783">The input line is too long.</Entry>
 	</Version>
+	<Version id="0.8.2" releaseDate="September 5th, 2002" cvsTag="v0_8_2" released="true" release_id="108833">
+        <Entry bug="516975">BMP beans pooled after ejbPostCreate</Entry>
+        <Entry bug="595960">openejb start -conf c:\any\openejb.conf</Entry>
+        <Entry bug="603770">Fixes to BMP ejbLoad/ejbStore</Entry>
+        <Entry bug="595958">jar -cvf breaks openejb deploy</Entry>
+        <Entry bug="590854">MyEjbApplication.java doesn't work</Entry>
+        <Entry task="604217">Complete logging and i18n API</Entry>
+        <Entry task="603785">Removed classloading in scripts</Entry>
+        <Entry task="603789">No more openejb jars in lib dir</Entry>
+        <Entry task="603741">Better mapping of transaction attributes</Entry>
+        <Entry task="603745">Warnings are logged for bad tx attribute</Entry>
+        <Entry task="603747">Major cleanup of SessionSynchronizations</Entry>
+        <Entry task="603751">Added transaction logging facility</Entry>
+        <Entry task="603759">TX manager code cleanup</Entry>
+        <Entry task="603761">Added method invocation logging facility</Entry>
+        <Entry task="603768">performance/locking review throughout</Entry>
+        <Entry task="603769">Entity pooling performance</Entry>
+        <Entry task="603772">Stateless instance pooling performance</Entry>
+        <Entry task="603775">Faster bulk session passivation</Entry>
+        <Entry task="603777">StatefulContainer: better exptn handling</Entry>
+        <Entry task="603778">Fixed session loss during passivation</Entry>
+	</Version>
 	<Version id="0.9" releaseDate="TBD" cvsTag="TBD" released="false">
 		<Entry task="578360">Complete web administration</Entry>
 		<Entry>Full task details to be determined</Entry>
