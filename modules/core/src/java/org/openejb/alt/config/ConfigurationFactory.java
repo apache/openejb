@@ -1120,6 +1120,18 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     private String[] getJarLocations(Deployments[] deploy) {
 
         Vector jarList = new Vector(deploy.length);
+	// tmpJarList is used to store jar file names, without paths
+	// this is used when loading from different bean directories
+	Vector tmpJarList = new Vector(deploy.length);
+
+	boolean loadFromBoth = false;
+        String loadLocalBeans = (String) this.props.get("openejb.load-local-beans");
+	if (loadLocalBeans != null && loadLocalBeans.compareToIgnoreCase("true") == 0) {
+	    String homeDir = (String) this.props.get("openejb.home");
+	    String baseDir = (String) this.props.get("openejb.base");
+	    if (homeDir != null && baseDir != null && !homeDir.equals(baseDir))
+		loadFromBoth = true;
+	}
 
         try {
 
@@ -1140,6 +1152,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                     }
                     if (!jarList.contains(jar.getAbsolutePath())) {
                         jarList.add(jar.getAbsolutePath());
+			tmpJarList.add(jar.getName());
                     }
 
                     continue;
@@ -1180,9 +1193,47 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
                     if ( jarList.contains( jar.getAbsolutePath() ) ) continue;
                     jarList.add(jar.getAbsolutePath());
+		    tmpJarList.add(jar.getName());
 
                 }
 
+		if (loadFromBoth) {
+		    // If openejb.base and openejb.home are both specified
+		    // but are different, we would have already loaded from
+		    // openejb.base. Now load from openejb.home to pick up
+		    // any global beans.
+
+		    dir = null;
+                    try {
+                        dir = FileUtils.getHome(this.props).getFile(d.getDir(), false);
+                    } catch (Exception ignoredAgain) {
+                    }
+
+		    // Opps! Not a directory
+		    if ( dir == null || !dir.isDirectory() ) continue;
+
+		    files = dir.list();
+
+		    if ( files == null ) {
+			continue;
+		    }
+
+		    for (int x = 0; x < files.length; x++) {
+
+			String f = files[x];
+
+			if ( !f.endsWith(".jar") ) continue;
+
+			//// Found a jar in the dir ////
+
+			File jar = new File(dir, f);
+
+			// Use our tmpJarList to make sure we don't load a
+			// jar deployed twice
+			if ( tmpJarList.contains( jar.getName() ) ) continue;
+			jarList.add(jar.getAbsolutePath());
+		    }
+                }
             }
         } catch (SecurityException se) {
             //Worthless security exception
