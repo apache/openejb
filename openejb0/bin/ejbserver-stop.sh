@@ -50,9 +50,13 @@ fi
 # ============= END OS TYPE TESTS =============
 
 
-# Setup Classpath
-CP=`echo $OPENEJB_HOME/dist/*.jar | tr ' ' ${PS}`${PS}${CP}
-CLASSPATH=$CP
+#
+# setup CLASSPATH
+#
+for i in ./dist/*.jar
+do
+    CP=${CP}${PS}${i}
+done
 
-$JAVA $OPTIONS -classpath $CLASSPATH org.openejb.server.Stop $@
+${JAVA} ${OPTIONS} -classpath ${CP} org.openejb.server.Stop $@
 
