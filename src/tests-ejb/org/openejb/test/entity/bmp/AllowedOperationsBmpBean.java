@@ -101,7 +101,13 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
     throws javax.ejb.FinderException, java.rmi.RemoteException {
         return new java.util.Vector();
     }
-       
+
+    public java.util.Enumeration ejbFindEmptyEnumeration()
+    throws javax.ejb.FinderException
+    {
+        return (new java.util.Vector()).elements();
+    }
+
     public java.util.Collection ejbFindByLastName(String lastName)
     throws javax.ejb.FinderException{
         return new java.util.Vector();

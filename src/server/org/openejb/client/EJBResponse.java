@@ -99,8 +99,11 @@ public class EJBResponse implements Response {
             case EJB_OK_FOUND:
                 s = new StringBuffer( "EJB_OK_FOUND" );
                 break;
-            case EJB_OK_FOUND_MULTIPLE:
-                s = new StringBuffer( "EJB_OK_FOUND_MULTIPLE" );
+            case EJB_OK_FOUND_COLLECTION:
+                s = new StringBuffer( "EJB_OK_FOUND_COLLECTION" );
+                break;
+            case EJB_OK_FOUND_ENUMERATION:
+                s = new StringBuffer( "EJB_OK_FOUND_ENUMERATION" );
                 break;
             case EJB_OK_NOT_FOUND:
                 s = new StringBuffer( "EJB_OK_NOT_FOUND" );

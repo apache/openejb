@@ -193,11 +193,11 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                 System.out.println("");
                 System.out.println("and issue the command 'stop'.  If you do not get an OpenEJB prompt when");
                 System.out.println("you telnet, then another program has that address and port bound. "); 
-		System.out.println("You can select a new port by using the -p option of the start command: ");
+        System.out.println("You can select a new port by using the -p option of the start command: ");
                 System.out.println("");
                 System.out.println("\topenejb start -p <port>");
                 System.out.println("");
-		System.out.println("You can select a new ip address by using the -h option of the start command: ");
+        System.out.println("You can select a new ip address by using the -h option of the start command: ");
                 System.out.println("");
                 System.out.println("\topenejb start -h <address>");
                 System.out.println("");
@@ -416,9 +416,9 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             } finally {
                 try {
                     if ( oos != null ) {
-			oos.flush();
-			oos.close();
-		    }
+            oos.flush();
+            oos.close();
+            }
                     if ( ois    != null ) ois.close();
                     if ( in     != null ) in.close();
                     if ( socket != null ) socket.close();
@@ -468,23 +468,23 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
     }
 
     private void replyWithFatalError
-	(ObjectOutputStream out,
-	 Throwable error,
-	 String message)
+    (ObjectOutputStream out,
+     Throwable error,
+     String message)
     {
-	logger.fatal(message, error);
-	RemoteException re = new RemoteException
-	    ("The server has encountered a fatal error: "+message+" "+error);
-	EJBResponse res = new EJBResponse();
-	res.setResponse(EJB_ERROR, re);
-	try
-	{
-	    res.writeExternal(out);
-	}
-	catch (java.io.IOException ie)
-	{
-	    logger.error("Failed to write to EJBResponse", ie);
-	}
+    logger.fatal(message, error);
+    RemoteException re = new RemoteException
+        ("The server has encountered a fatal error: "+message+" "+error);
+    EJBResponse res = new EJBResponse();
+    res.setResponse(EJB_ERROR, re);
+    try
+    {
+        res.writeExternal(out);
+    }
+    catch (java.io.IOException ie)
+    {
+        logger.error("Failed to write to EJBResponse", ie);
+    }
     }
 
     public void processEjbRequest (ObjectInputStream in, ObjectOutputStream out) {
@@ -500,7 +500,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         try {
             req.readExternal( in );
 
-	/*
+    /*
         } catch (java.io.WriteAbortedException e){
             if ( e.detail instanceof java.io.NotSerializableException){
                 //TODO:1: Log this warning better. Include information on what bean is to blame
@@ -513,11 +513,11 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         } catch (Throwable t){
             throw new Exception("Cannot read client request: "+ t.getClass().getName()+" "+ t.getMessage());
         }
-	*/
+    */
 
         } catch (Throwable t) {
-	    replyWithFatalError
-		(out, t, "Error caught during request processing");
+        replyWithFatalError
+        (out, t, "Error caught during request processing");
             return;
         }
 
@@ -528,18 +528,18 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         try{
             di = getDeployment(req);
         } catch (RemoteException e){
-	    replyWithFatalError
-		(out, e, "No such deployment");
+        replyWithFatalError
+        (out, e, "No such deployment");
             return;
-	    /*
+        /*
             logger.warn( req + "No such deployment: "+e.getMessage());
             res.setResponse( EJB_SYS_EXCEPTION, e);
             res.writeExternal( out );
             return;
-	    */
+        */
         } catch ( Throwable t ){
-	    replyWithFatalError
-		(out, t, "Unkown error occured while retrieving deployment");
+        replyWithFatalError
+        (out, t, "Unkown error occured while retrieving deployment");
             return;
         }
 
@@ -548,8 +548,8 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             call.setEJBRequest( req );
             call.setDeploymentInfo( di );
         } catch ( Throwable t ){
-	    replyWithFatalError
-		(out, t, "Unable to set the thread context for this request");
+        replyWithFatalError
+        (out, t, "Unable to set the thread context for this request");
             return;
         }
 
@@ -623,18 +623,18 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             logger.fatal( req+": OpenEJB encountered an unknown system error in container: ", e);
         } catch (java.lang.Throwable t){
             //System.out.println(req+": Unkown error in container: ");
-	    replyWithFatalError
-		(out, t, "Unknown error in container");
-	    return;
+        replyWithFatalError
+        (out, t, "Unknown error in container");
+        return;
         } finally {
             logger.info( "EJB RESPONSE: "+res );
-	    try {
-		res.writeExternal( out );
-	    }
-	    catch (java.io.IOException ie)
-	    {
-		logger.fatal("Couldn't write EjbResponse to output stream", ie);
-	    }
+        try {
+        res.writeExternal( out );
+        }
+        catch (java.io.IOException ie)
+        {
+        logger.fatal("Couldn't write EjbResponse to output stream", ie);
+        }
             call.reset();
         }
     }
@@ -698,19 +698,19 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         try {
             req.readExternal( in );
 
-	    // TODO: perform some real authentication here
+        // TODO: perform some real authentication here
 
-	    ClientMetaData client = new ClientMetaData();
+        ClientMetaData client = new ClientMetaData();
 
-    	    client.setClientIdentity( new String( (String)req.getPrinciple() ) );
+            client.setClientIdentity( new String( (String)req.getPrinciple() ) );
 
-	    res.setIdentity( client );
-	    res.setResponseCode( AUTH_GRANTED );
+        res.setIdentity( client );
+        res.setResponseCode( AUTH_GRANTED );
 
-	    res.writeExternal( out );
+        res.writeExternal( out );
         } catch (Throwable t) {
-	    replyWithFatalError
-		(out, t, "Error caught during request processing");
+        replyWithFatalError
+        (out, t, "Error caught during request processing");
             return;
         }
     }
@@ -830,19 +830,33 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                 primaryKeys[i] = ((ProxyInfo)primaryKeys[i]).getPrimaryKey();
             }
 
-            res.setResponse( EJB_OK_FOUND_MULTIPLE , primaryKeys );
+            res.setResponse( EJB_OK_FOUND_COLLECTION , primaryKeys );
 
-        /* Single intance found */
+        } else if (result instanceof java.util.Enumeration ) {
+            
+            java.util.Enumeration resultAsEnum = (java.util.Enumeration) result;
+            java.util.List listOfPKs = new java.util.ArrayList();
+            while ( resultAsEnum.hasMoreElements() ) {
+                listOfPKs.add( ((ProxyInfo)resultAsEnum.nextElement()).getPrimaryKey() );
+            }
+            
+            res.setResponse( EJB_OK_FOUND_ENUMERATION , listOfPKs.toArray( new Object[listOfPKs.size()]) );
+        /* Single instance found */
         } else if (result instanceof ProxyInfo) {
             result = ((ProxyInfo)result).getPrimaryKey();
             res.setResponse( EJB_OK_FOUND , result );
 
         } else {
             // There should be no else, the entity should be found
-            // or and exception should be thrown.
+            // or an exception should be thrown.
             //TODO:3: Localize all error messages in an separate file.
-            result = new RemoteException("The bean is not EJB compliant.  The should be found or and exception should be thrown.");
-            logger.error( req + "The bean is not EJB compliant.  The should be found or and exception should be thrown.");
+            // TODO:4: It should provide more info on the wrong method
+            final String message = "The bean is not EJB compliant. " +
+                "The finder method ["+req.getMethodInstance().getName()+"] is declared " +
+                "to return neither Collection nor the Remote Interface, " +
+                "but [" +result.getClass().getName()+ "]";
+            result = new RemoteException( message );
+            logger.error( req + " " + message);
             res.setResponse( EJB_SYS_EXCEPTION, result);
         }
     }

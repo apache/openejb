@@ -131,6 +131,7 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
         
         Object primKey = null;
         EJBObjectHandler handler = null;
+        Object[] primaryKeys = null;
 
         switch (res.getResponseCode()) {
         case EJB_ERROR:
@@ -147,12 +148,12 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
             registerHandler(ejb.deploymentID+":"+primKey, handler);
             return handler.createEJBObjectProxy();
         
-        case EJB_OK_FOUND_MULTIPLE:
+        case EJB_OK_FOUND_COLLECTION:
             // The result is an array of primary keys
             // We are going to convert those primary keys into
             // EJBObject instance and reuse the same array to 
             // create the collection.
-            Object[] primaryKeys = (Object[])res.getResult();
+            primaryKeys = (Object[])res.getResult();
 
             for (int i=0; i < primaryKeys.length; i++){
                 primKey = primaryKeys[i];
@@ -162,7 +163,18 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
                 primaryKeys[i] = handler.createEJBObjectProxy();
             }
             return java.util.Arrays.asList( primaryKeys );
+        case EJB_OK_FOUND_ENUMERATION:
+            // TODO: it's almost duplication of what's in EJB_OK_FOUND_COLLECTION
+            primaryKeys = (Object[])res.getResult();
 
+            for (int i=0; i < primaryKeys.length; i++){
+                primKey = primaryKeys[i];
+                handler = EJBObjectHandler.createEJBObjectHandler(ejb,server,client,primKey);
+                handler.setEJBHomeProxy((EJBHomeProxy)proxy);
+                registerHandler(ejb.deploymentID+":"+primKey, handler);
+                primaryKeys[i] = handler.createEJBObjectProxy();
+            }
+            return new org.openejb.util.ArrayEnumeration( java.util.Arrays.asList( primaryKeys ) );
         default:
             throw new RemoteException("Received invalid response code from server: "+res.getResponseCode());
         }
