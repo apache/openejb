@@ -48,13 +48,11 @@
 package org.openejb.timer;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Collection;
-
-import javax.management.ObjectName;
-import javax.transaction.TransactionManager;
-import javax.ejb.Timer;
+import java.util.Date;
 import javax.ejb.NoSuchObjectLocalException;
+import javax.ejb.Timer;
+import javax.management.ObjectName;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import junit.framework.TestCase;
@@ -63,18 +61,18 @@ import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.pool.ThreadPool;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.timer.ExecutorTaskFactory;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.timer.TransactionalExecutorTaskFactory;
 import org.apache.geronimo.timer.UserTaskFactory;
 import org.apache.geronimo.timer.WorkerPersistence;
 import org.apache.geronimo.timer.vm.VMWorkerPersistence;
+import org.apache.geronimo.transaction.context.TransactionContext;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
-import org.openejb.EJBInterfaceType;
 
 /**
  *
@@ -90,6 +88,7 @@ public class TimerServiceImplTest extends TestCase {
     private static final String key = "testThreadPooledTimer";
     private static final String kernelName = "testKernel";
     private static final ObjectName timerSourceName = JMXUtil.getObjectName("test:type=TimerService");
+    private final ClassLoader classLoader = this.getClass().getClassLoader();
     private ThreadPool threadPool;
     private ThreadPooledTimer threadPooledTimer;
 
@@ -116,7 +115,7 @@ public class TimerServiceImplTest extends TestCase {
         TransactionContext.setContext(null);
 
         interceptor = new MockInterceptor();
-        timerService = new BasicTimerService(new InvocationFactory(), interceptor, threadPooledTimer, key, kernelName, timerSourceName, transactionContextManager);
+        timerService = new BasicTimerService(new InvocationFactory(), interceptor, threadPooledTimer, key, kernelName, timerSourceName, transactionContextManager, classLoader);
     }
 
     protected void tearDown() throws Exception {
@@ -128,26 +127,26 @@ public class TimerServiceImplTest extends TestCase {
     public void testSchedule1() throws Exception {
         Object id = new Integer(1);
         timerService.createTimer(id, 200L, userKey);
-        Thread.currentThread().sleep(200L + SLOP);
+        Thread.sleep(200L + SLOP);
         assertEquals(1, interceptor.getCount());
         assertSame(id, interceptor.getId());
     }
 
     public void testSchedule2() throws Exception {
         timerService.createTimer(id, new Date(System.currentTimeMillis() + 20L), userKey);
-        Thread.currentThread().sleep(SLOP);
+        Thread.sleep(SLOP);
         assertEquals(1, interceptor.getCount());
     }
 
     public void testSchedule3() throws Exception {
         timerService.createTimer(id, 200L, DELAY, userKey);
-        Thread.currentThread().sleep(200L + SLOP + DELAY);
+        Thread.sleep(200L + SLOP + DELAY);
         assertEquals(2, interceptor.getCount());
     }
 
     public void testSchedule4() throws Exception {
         timerService.createTimer(id, new Date(System.currentTimeMillis()), DELAY, userKey);
-        Thread.currentThread().sleep(SLOP + DELAY);
+        Thread.sleep(SLOP + DELAY);
         assertEquals(2, interceptor.getCount());
     }
 
@@ -156,26 +155,26 @@ public class TimerServiceImplTest extends TestCase {
         Collection timers = timerService.getTimers(id);
         assertEquals(1, timers.size());
         assertSame(timer, timers.iterator().next());
-        Thread.currentThread().sleep(SLOP + DELAY);
+        Thread.sleep(SLOP + DELAY);
         assertEquals(1, interceptor.getCount());
 
         threadPooledTimer.doStop();
         threadPooledTimer.doStart();
-        timerService = new BasicTimerService(new InvocationFactory(), interceptor, threadPooledTimer, key, kernelName, timerSourceName, transactionContextManager);
+        timerService = new BasicTimerService(new InvocationFactory(), interceptor, threadPooledTimer, key, kernelName, timerSourceName, transactionContextManager, classLoader);
         timerService.doStart();
 
         Collection timers2 = timerService.getTimers(id);
         assertEquals(1, timers2.size());
-        Thread.currentThread().sleep(SLOP + DELAY);
+        Thread.sleep(SLOP + DELAY);
         assertEquals(2, interceptor.getCount());
     }
 
     public void testCancel() throws Exception {
         Timer timer = timerService.createTimer(id, 0L, DELAY, userKey);
-        Thread.currentThread().sleep(SLOP + DELAY);
+        Thread.sleep(SLOP + DELAY);
         assertEquals(2, interceptor.getCount());
         timer.cancel();
-        Thread.currentThread().sleep(SLOP + DELAY);
+        Thread.sleep(SLOP + DELAY);
         assertEquals(2, interceptor.getCount());
         assertEquals(0, timerService.getTimers(id).size());
         try {
