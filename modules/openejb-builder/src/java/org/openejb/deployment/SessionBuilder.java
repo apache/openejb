@@ -162,8 +162,11 @@ class SessionBuilder extends BeanBuilder {
     }
 
     private void addWSContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, Security security, ObjectName listener) throws DeploymentException {
-        WSContainerBuilder wsBuilder = new WSContainerBuilder();
-        wsBuilder.addGbean(earContext, ejbModule, cl, sessionObjectName, listener, sessionBean, openejbSessionBean, transactionPolicyHelper, security);
+        // TODO Make these guys GBeans and delegate to them so we can plug in Axis or XFire
+//        XFireWebServiceContainerBuilder xfireWebServiceBuilder = new XFireWebServiceContainerBuilder();
+//        xfireWebServiceBuilder.addGbean(earContext, ejbModule, cl, sessionObjectName, listener, sessionBean, openejbSessionBean, transactionPolicyHelper, security);
+        AxisWebServiceContainerBuilder axisWebServiceContainerBuilder = new AxisWebServiceContainerBuilder();
+        axisWebServiceContainerBuilder.addGbean(earContext, ejbModule, cl, sessionObjectName, listener, sessionBean, openejbSessionBean, transactionPolicyHelper, security);
     }
 
     private void addEJBContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, Security security) throws DeploymentException {

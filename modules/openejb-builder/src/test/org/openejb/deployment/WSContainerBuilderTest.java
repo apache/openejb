@@ -55,12 +55,12 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 public class WSContainerBuilderTest extends TestCase {
 
     public void testBuildGBeanData() throws Exception {
-        WSContainerBuilder wsContainerBuilder = new WSContainerBuilder();
+        XFireWebServiceContainerBuilder xfireWebServiceContainerBuilder = new XFireWebServiceContainerBuilder();
         JarFile jarFile = new JarFile("target/test-ejb-jar.jar");
         String serviceEndpointName = "org.openejb.test.simple.slsb.SimpleStatelessSessionEndpoint";
         ObjectName sessionObjectName = JMXUtil.getObjectName("openejb:type=StatelessSessionBean,name=MockSession");
         ObjectName listener = null;
-        GBeanData gBeanData = wsContainerBuilder.buildGBeanData(sessionObjectName, listener, "MockSession", serviceEndpointName, jarFile);
+        GBeanData gBeanData = xfireWebServiceContainerBuilder.buildGBeanData(sessionObjectName, listener, "MockSession", serviceEndpointName, jarFile);
         assertEquals("encoded", gBeanData.getAttribute("encoding"));
         assertEquals("rpc", gBeanData.getAttribute("style"));
     }
