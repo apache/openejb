@@ -944,7 +944,7 @@
                 <ejb-name>BasicStatefulBean</ejb-name>
                 <method-name>*</method-name>
             </method>
-            <trans-attribute>Required</trans-attribute>
+            <trans-attribute>Supports</trans-attribute>
         </container-transaction>
 
         <container-transaction>
@@ -952,21 +952,21 @@
                 <ejb-name>BasicStatelessBean</ejb-name>
                 <method-name>*</method-name>
             </method>
-            <trans-attribute>Required</trans-attribute>
+            <trans-attribute>Supports</trans-attribute>
         </container-transaction>
         <container-transaction>
             <method>
                 <ejb-name>BasicCmpBean</ejb-name>
                 <method-name>*</method-name>
             </method>
-            <trans-attribute>Required</trans-attribute>
+            <trans-attribute>Supports</trans-attribute>
         </container-transaction>
         <container-transaction>
             <method>
                 <ejb-name>AOBasicCmpBean</ejb-name>
                 <method-name>*</method-name>
             </method>
-            <trans-attribute>Required</trans-attribute>
+            <trans-attribute>Supports</trans-attribute>
         </container-transaction>
         <container-transaction>
             <method>
@@ -1002,7 +1002,7 @@
                 <ejb-name>DatabaseBean</ejb-name>
                 <method-name>*</method-name>
             </method>
-            <trans-attribute>Required</trans-attribute>
+            <trans-attribute>Supports</trans-attribute>
         </container-transaction>
         <container-transaction>
             <method>
@@ -1024,14 +1024,14 @@
                 <ejb-name>BasicBmpBean</ejb-name>
                 <method-name>*</method-name>
             </method>
-            <trans-attribute>Required</trans-attribute>
+            <trans-attribute>Supports</trans-attribute>
         </container-transaction>
         <container-transaction>
             <method>
                 <ejb-name>AOBasicBmpBean</ejb-name>
                 <method-name>*</method-name>
             </method>
-            <trans-attribute>Required</trans-attribute>
+            <trans-attribute>Supports</trans-attribute>
         </container-transaction>
 
         <container-transaction>
