@@ -45,13 +45,15 @@
 package org.openejb.resource.jdbc;
 
 import java.sql.DriverManager;
-import javax.resource.spi.EISSystemException;
+import java.sql.SQLException;
+
+import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ConnectionRequestInfo;
+import javax.resource.spi.EISSystemException;
+import javax.resource.spi.LazyAssociatableConnectionManager;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ResourceAdapterInternalException;
-import javax.resource.ResourceException;
-import javax.resource.spi.ResourceAdapter;
 
 public class JdbcManagedConnectionFactory
 implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
@@ -62,16 +64,15 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
     protected String defaultUserName;
     protected String defaultPassword;
     protected java.io.PrintWriter logWriter;
-    private int hashCode = 0;// assumes that this class is immutable
-    private ResourceAdapter resourceAdapter;
+    protected int hashCode = 0;// assumes that this class is immutable
+    private LazyAssociatableConnectionManager connectionManager;
 
-    public void init(java.util.Properties props)throws javax.resource.spi.ResourceAdapterInternalException{
+    public void init(java.util.Properties props) throws javax.resource.spi.ResourceAdapterInternalException{
         setDefaultUserName(props.getProperty("UserName"));
         setDefaultPassword(props.getProperty("Password"));
         setJdbcUrl(props.getProperty("JdbcUrl"));
         setJdbcDriver(props.getProperty("JdbcDriver"));
 
-        String userDir = System.getProperty("user.dir");
         try{
             // Test the connection out, problems are logged
             testDriver();
@@ -129,19 +130,13 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
         return jdbcUrl;
     }
 
-    public void setResourceAdapter(ResourceAdapter resourceAdapter) {
-        this.resourceAdapter = resourceAdapter;
-    }
-
-    public ResourceAdapter getResourceAdapter() {
-        return resourceAdapter;
-    }
-
     public java.lang.Object createConnectionFactory()  throws javax.resource.ResourceException{
 
         throw new javax.resource.NotSupportedException("This connector must be used with an application server connection manager");
     }
+
     public java.lang.Object createConnectionFactory(ConnectionManager cxManager)  throws javax.resource.ResourceException{
+        connectionManager = (cxManager instanceof LazyAssociatableConnectionManager)? (LazyAssociatableConnectionManager)cxManager: null;
         // return the DataSource
         return new JdbcConnectionFactory(this, cxManager);
     }
@@ -152,12 +147,11 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
         try{
             physicalConn = DriverManager.getConnection(jdbcUrl, rxInfo.getUserName(), rxInfo.getPassword());
         }catch(java.sql.SQLException sqlE){
-            EISSystemException eisse =  new EISSystemException("Could not obtain a physical JDBC connection from the DriverManager");
-            eisse.setLinkedException(sqlE);
-            throw eisse;
+            throw (EISSystemException) new EISSystemException("Could not obtain a physical JDBC connection from the DriverManager").initCause(sqlE);
         }
         return new JdbcManagedConnection(this, physicalConn, rxInfo);
     }
+
     public boolean equals(Object other){
         if(other instanceof JdbcManagedConnectionFactory){
             JdbcManagedConnectionFactory otherMCF = (JdbcManagedConnectionFactory)other;
@@ -189,6 +183,17 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
     }
     public void setLogWriter(java.io.PrintWriter out) {
         logWriter = out;
+    }
+
+    void associateConnection(JdbcConnection jdbcConnection, ConnectionRequestInfo connectionRequestInfo) throws SQLException {
+        if (connectionManager == null) {
+            throw new SQLException("No LazyAssociatableConnectionManager available for re-associating connection");
+        }
+        try {
+            connectionManager.associateConnection(jdbcConnection, this, connectionRequestInfo);
+        } catch (ResourceException e) {
+            throw (SQLException)new SQLException("Failure re-associating managed connection").initCause(e);
+        }
     }
 
 }
