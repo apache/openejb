@@ -71,7 +71,7 @@ public class MDBInterceptorBuilder implements Serializable {
     private VirtualOperation[] vtable;
     private Subject runAs;
     private ReadOnlyContext componentContext;
-    private boolean setIdentityEnabled = false;
+    private boolean doAsCurrentCaller = false;
     private transient TrackedConnectionAssociator trackedConnectionAssociator;
     private transient InstancePool instancePool;
 
@@ -94,8 +94,8 @@ public class MDBInterceptorBuilder implements Serializable {
         this.componentContext = componentContext;
     }
 
-    public void setSetIdentityEnabled(boolean setIdentityEnabled) {
-        this.setIdentityEnabled = setIdentityEnabled;
+    public void setDoAsCurrentCaller(boolean doAsCurrentCaller) {
+        this.doAsCurrentCaller = doAsCurrentCaller;
     }
 
     public void setTrackedConnectionAssociator(TrackedConnectionAssociator trackedConnectionAssociator) {
@@ -116,24 +116,17 @@ public class MDBInterceptorBuilder implements Serializable {
 
         Interceptor firstInterceptor;
         firstInterceptor = new DispatchInterceptor(vtable);
-        if (setIdentityEnabled) {
+        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
+        if (doAsCurrentCaller) {
             firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
         }
-        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
         Interceptor systemChain = firstInterceptor;
         if (trackedConnectionAssociator != null) {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
         }
         // firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
 
-        if (runAs != null) {
-            firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);
-        }
 
-        // todo Alan do we need this?
-        // if (securityEnabled) {
-        //     firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
-        // }
         firstInterceptor = new MDBInstanceInterceptor(firstInterceptor, instancePool);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
         return new TwoChains(firstInterceptor, systemChain);
