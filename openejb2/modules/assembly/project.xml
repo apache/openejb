@@ -598,6 +598,15 @@
 
         <dependency>
             <groupId>openorb</groupId>
+            <artifactId>openorb-ssl</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openorb</groupId>
             <artifactId>openorb-orb-omg</artifactId>
             <version>${openorb_version}</version>
             <properties>
