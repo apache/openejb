@@ -54,6 +54,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
+import org.openejb.timer.TimerState;
 import org.openejb.dispatch.VirtualOperation;
 
 /**
@@ -67,12 +68,14 @@ public class AfterCompletion implements VirtualOperation, Serializable {
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         boolean comitted = ((Boolean)invocation.getArguments()[0]).booleanValue();
         StatefulInstanceContext ctx = (StatefulInstanceContext) invocation.getEJBInstanceContext();
+        boolean oldTimerMethodAvailable = ctx.setTimerState(EJBOperation.EJBCREATE);
         EJBOperation oldOperation = ctx.getOperation();
         try {
             ctx.setOperation(EJBOperation.EJBCREATE);
             ((SessionSynchronization) ctx.getInstance()).afterCompletion(comitted);
         } finally {
             ctx.setOperation(oldOperation);
+            TimerState.setTimerState(oldTimerMethodAvailable);
         }
         return new SimpleInvocationResult(true, null);
     }
