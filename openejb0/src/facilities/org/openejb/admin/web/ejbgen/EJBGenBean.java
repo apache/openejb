@@ -71,7 +71,7 @@ public class EJBGenBean extends WebAdminBean
 	{
 		// The section variable must match 
 		// the deployment id name
-		section = "EJBGenerator";
+		section = "/EJBGenerator/CreateEJB";
 	}
 
 	/** called after all content is written to the browser
@@ -163,18 +163,18 @@ public class EJBGenBean extends WebAdminBean
 				
 				if(ejbstyp.equals("remote"))
 				{
-					File nsdir = new File(oehp + psep + "httpd" + psep + "EJBGenerator" + psep + "BeanSources");
+					File nsdir = new File(oehp + psep + "htdocs" + psep + "EJBGenerator" + psep + "BeanSources");
 					
 					if(!nsdir.exists())
 					{
-						nsdir.mkdir();
+						nsdir.mkdirs();
 					}
 					
 					File nzdir = new File(nsdir,ejbname);
 					
 					if(!nzdir.exists())
 					{
-						nzdir.mkdir();
+						nzdir.mkdirs();
 					}
 					
 					FileUtils.copyFile(new File(nzdir, ejbname + ".zip"), 
@@ -334,7 +334,7 @@ public class EJBGenBean extends WebAdminBean
 		body.println("<br>");
 		body.println("<br>");
 		body.println("<h2>General EJB Information</h2>");
-		body.println("<form action=\"EJBGenerator\" method=\"post\" enctype=\"multipart/form-data\" onsubmit=\"return validate(this)\">");
+		body.println("<form action=\""+section+"\" method=\"post\" enctype=\"multipart/form-data\" onsubmit=\"return validate(this)\">");
 		body.println("<table width=\"100%\" border=\"1\">");
 		body.println("<tr bgcolor=\"#5A5CB8\">");
 		body.println("<td onclick=\"popupMsg(\'" + namehelp + "\')\"><font face=\"arial\" color=\"white\">EJB Name:&nbsp;&nbsp;&nbsp;</font></td><td>" +
