@@ -46,9 +46,7 @@ package org.openejb.client;
 
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-
-import javax.ejb.EJBObject;
-import javax.ejb.Handle;
+import java.rmi.NoSuchObjectException;
 
 import org.apache.geronimo.security.ContextManager;
 
@@ -209,11 +207,27 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
     protected Object removeByPrimaryKey(Method method, Object[] args, Object proxy) throws Throwable{
         
         Object primKey = args[0];
-               
-        if ( primKey == null ) throw new NullPointerException("The primary key is null.");
-        //TODO: Send EJBRequest to server
-            
-        /* 
+
+        // TODO:1: Check that this is exactly spec compliant
+        if (primKey == null) throw new RemoteException("The primary key is null");
+
+        EJBRequest req = new EJBRequest(EJB_HOME_REMOVE_BY_PKEY);
+        req.setClientIdentity(ContextManager.getThreadPrincipal());
+        req.setContainerCode(ejb.deploymentCode);
+        req.setContainerID(ejb.deploymentID);
+        req.setMethodInstance(method);
+        req.setMethodParameters(args);
+        req.setPrimaryKey(primKey);
+
+        EJBResponse res = request(req);
+
+        if (res.getResponseCode() == ResponseCodes.EJB_ERROR ||
+                res.getResponseCode() == ResponseCodes.EJB_SYS_EXCEPTION ||
+                res.getResponseCode() == ResponseCodes.EJB_APP_EXCEPTION) {
+            throw (Throwable) res.getResult();
+        }
+
+        /*
          * This operation takes care of invalidating all the EjbObjectProxyHanders 
          * associated with the same RegistryId. See this.createProxy().
          */
@@ -246,15 +260,43 @@ public class EntityEJBHomeHandler extends EJBHomeHandler {
      * @see javax.ejb.EJBHome
      * @see javax.ejb.EJBHome#remove
      */
-    protected Object removeWithHandle(Method method, Object[] args, Object proxy) throws Throwable{
-        
-        if ( args[0] == null ) throw new RemoteException("Handler is null");
+    protected Object removeWithHandle(Method method, Object[] args, Object proxy) throws Throwable {
+        // Extract the primary key from the handle
+        EJBObjectHandle handle = (EJBObjectHandle) args[0];
 
-        //DMB: There is a better way to do this,
-        //     but this will work for now.
-        Handle handle = (Handle)args[0];
-        EJBObject ejbObject = handle.getEJBObject();
-        ejbObject.remove();
+        // TODO:1: Check that this is exactly spec compliant
+        if (handle == null) throw new RemoteException("The handle is null");
+
+        EJBObjectHandler handler = handle.handler;
+        Object primKey = handler.primaryKey;
+
+        if (handler.isInvalidReference) {
+            throw new NoSuchObjectException("Handle has been invalidated due to removal or system exception");
+        }
+
+        // TODO:1: Check that this is exactly spec compliant
+        if (!handler.ejb.deploymentID.equals(this.ejb.deploymentID)) {
+            throw new RemoteException("The handle is not from the same deployment");
+        }
+
+        EJBRequest req = new EJBRequest(EJB_HOME_REMOVE_BY_HANDLE);
+        req.setClientIdentity(ContextManager.getThreadPrincipal());
+        req.setContainerCode(handler.ejb.deploymentCode);
+        req.setContainerID(handler.ejb.deploymentID);
+        req.setMethodInstance(method);
+        req.setMethodParameters(args);
+        req.setPrimaryKey(primKey);
+
+        EJBResponse res = request(req);
+
+        if (res.getResponseCode() == ResponseCodes.EJB_ERROR ||
+                res.getResponseCode() == ResponseCodes.EJB_SYS_EXCEPTION ||
+                res.getResponseCode() == ResponseCodes.EJB_APP_EXCEPTION) {
+            throw (Throwable) res.getResult();
+        }
+
+        invalidateAllHandlers(handler.getRegistryId());
+        handler.invalidateReference();
         return null;
     }
 
