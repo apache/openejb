@@ -4,7 +4,7 @@
 <!ENTITY % locator SYSTEM "file:locator.ent">
 %locator;
 %versions;
- ]>
+]>
 
 <!-- $Revision$ $Date$ -->
 
@@ -79,7 +79,7 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
-         <!-- Thirdparty -->
+        <!-- Thirdparty -->
 
         <dependency>
             <groupId>geronimo-spec</groupId>

@@ -48,34 +48,36 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.rmi.RemoteException;
-
 import javax.ejb.EJBObject;
 
 /**
  * -------------------------------------
  * EJB 1.1
- *
+ * <p/>
  * 9.3.4 Handle class
- *
+ * <p/>
  * The deployment tools are responsible for implementing the handle class for
  * the entity bean. The handle class must be serializable by the Java
  * programming language Serialization protocol.
- *
+ * <p/>
  * As the handle class is not entity bean specific, the container may, but is
  * not required to, use a single class for all deployed entity beans.
  * -------------------------------------
- *
+ * <p/>
  * The handle class for all deployed beans, not just entity beans.
  *
  * @since 11/25/2001
  */
-public class EJBObjectHandle implements java.io.Externalizable , javax.ejb.Handle {
+public class EJBObjectHandle implements java.io.Externalizable, javax.ejb.Handle {
 
     protected transient EJBObjectProxy ejbObjectProxy;
     protected transient EJBObjectHandler handler;
 
-    /** Public no-arg constructor required by Externalizable API */
-    public EJBObjectHandle() {}
+    /**
+     * Public no-arg constructor required by Externalizable API
+     */
+    public EJBObjectHandle() {
+    }
 
     public EJBObjectHandle(EJBObjectProxy proxy) {
         this.ejbObjectProxy = proxy;
@@ -90,8 +92,8 @@ public class EJBObjectHandle implements java.io.Externalizable , javax.ejb.Handl
     /**
      * Obtain the EJB object reference represented by this handle.
      *
-     * @exception RemoteException The EJB object could not be obtained
-     *    because of a system-level failure.
+     * @throws RemoteException The EJB object could not be obtained
+     * because of a system-level failure.
      */
     public EJBObject getEJBObject() throws RemoteException {
         return ejbObjectProxy;
@@ -100,42 +102,36 @@ public class EJBObjectHandle implements java.io.Externalizable , javax.ejb.Handl
     //========================================
     // Externalizable object implementation
     //
-    public void writeExternal(ObjectOutput out) throws IOException{
+    public void writeExternal(ObjectOutput out) throws IOException {
 
         // Write the full proxy data
         EJBMetaDataImpl ejb = handler.ejb;
-        out.writeObject( ejb.homeClass );
-        out.writeObject( ejb.remoteClass );
-        out.writeObject( ejb.keyClass );
-        out.writeByte(   ejb.type );
-        out.writeUTF(    ejb.deploymentID );
-        out.writeShort(  ejb.deploymentCode );
-        handler.server.writeExternal( out );
-        out.writeObject( handler.primaryKey );
+        out.writeObject(ejb.homeClass);
+        out.writeObject(ejb.remoteClass);
+        out.writeObject(ejb.keyClass);
+        out.writeByte(ejb.type);
+        out.writeUTF(ejb.deploymentID);
+        out.writeShort(ejb.deploymentCode);
+        handler.server.writeExternal(out);
+        out.writeObject(handler.primaryKey);
     }
 
     /**
      * Reads the instanceHandle from the stream
-     *
-     * @param in
-     * @exception IOException
      */
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException{
-        ClientMetaData client = new ClientMetaData();
-        EJBMetaDataImpl   ejb = new EJBMetaDataImpl();
-        ServerMetaData server = new ServerMetaData();        
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        EJBMetaDataImpl ejb = new EJBMetaDataImpl();
+        ServerMetaData server = new ServerMetaData();
 
-        client.readExternal( in );
-
-        ejb.homeClass      = (Class) in.readObject();
-        ejb.remoteClass    = (Class) in.readObject();
-        ejb.keyClass       = (Class) in.readObject();
-        ejb.type           = in.readByte();
-        ejb.deploymentID   = in.readUTF();
+        ejb.homeClass = (Class) in.readObject();
+        ejb.remoteClass = (Class) in.readObject();
+        ejb.keyClass = (Class) in.readObject();
+        ejb.type = in.readByte();
+        ejb.deploymentID = in.readUTF();
         ejb.deploymentCode = in.readShort();
 
-        server.readExternal( in );
-        Object primaryKey  = in.readObject();
+        server.readExternal(in);
+        Object primaryKey = in.readObject();
 
         handler = EJBObjectHandler.createEJBObjectHandler(ejb, server, primaryKey);
         ejbObjectProxy = handler.createEJBObjectProxy();
