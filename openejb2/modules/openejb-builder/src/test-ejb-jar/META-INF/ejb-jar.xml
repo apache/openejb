@@ -13,6 +13,7 @@
             <remote>org.openejb.test.simple.slsb.SimpleStatelessSession</remote>
             <local-home>org.openejb.test.simple.slsb.SimpleStatelessSessionLocalHome</local-home>
             <local>org.openejb.test.simple.slsb.SimpleStatelessSessionLocal</local>
+            <service-endpoint>org.openejb.test.simple.slsb.SimpleStatelessSessionEndpoint</service-endpoint>
             <ejb-class>org.openejb.test.simple.slsb.SimpleStatelessSessionEJB</ejb-class>
             <session-type>Stateless</session-type>
             <transaction-type>Container</transaction-type>
