@@ -64,8 +64,10 @@ import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.service.GBeanHelper;
+import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.xbeans.DependencyType;
+import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -79,6 +81,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
@@ -95,9 +98,7 @@ import org.openejb.corba.compiler.SkeletonGenerator;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyObjectFactory;
 import org.openejb.proxy.ProxyRefAddr;
-import org.openejb.xbeans.ejbjar.OpenejbDependencyType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
-import org.openejb.xbeans.ejbjar.OpenejbGbeanType;
 import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
@@ -124,9 +125,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final MdbBuilder mdbBuilder;
     private final ContainerSecurityBuilder containerSecurityBuilder;
     private final SkeletonGenerator skeletonGenerator;
+    private final Repository repository;
     private final Kernel kernel;
 
-    public OpenEJBModuleBuilder(URI defaultParentId, SkeletonGenerator skeletonGenerator, Kernel kernel) {
+    public OpenEJBModuleBuilder(URI defaultParentId, SkeletonGenerator skeletonGenerator, Repository repository, Kernel kernel) {
         this.defaultParentId = defaultParentId;
         this.skeletonGenerator = skeletonGenerator;
         this.containerSecurityBuilder = new ContainerSecurityBuilder(this);
@@ -134,6 +136,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         this.sessionBuilder = new SessionBuilder(this);
         this.entityBuilder = new EntityBuilder(this);
         this.mdbBuilder = new MdbBuilder(this);
+        this.repository = repository;
         this.kernel = kernel;
     }
 
@@ -227,6 +230,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             // if we got one extract the validate it otherwise create a default one
             if (openejbJar != null) {
                 openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.convertToGeronimoNamingSchema(openejbJar);
+                openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.convertToGeronimoSecuritySchema(openejbJar);
+                openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.convertToGeronimoServiceSchema(openejbJar);
                 SchemaConversionUtils.validateDD(openejbJar);
             } else {
                 String path;
@@ -279,10 +284,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
         // add the dependencies declared in the openejb-jar.xml file
         OpenejbOpenejbJarType openEjbJar = (OpenejbOpenejbJarType) module.getVendorDD();
-        OpenejbDependencyType[] dependencies = openEjbJar.getDependencyArray();
-        for (int i = 0; i < dependencies.length; i++) {
-            earContext.addDependency(getDependencyURI(dependencies[i]));
-        }
+        DependencyType[] dependencies = openEjbJar.getDependencyArray();
+        ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -358,10 +361,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         OpenejbOpenejbJarType openejbEjbJar = (OpenejbOpenejbJarType) module.getVendorDD();
         EjbJarType ejbJar = (EjbJarType) module.getSpecDD();
 
-        OpenejbGbeanType[] gbeans = openejbEjbJar.getGbeanArray();
-        for (int i = 0; i < gbeans.length; i++) {
-            GBeanHelper.addGbean(new OpenEJBGBeanAdapter(gbeans[i]), cl, earContext);
-        }
+        GbeanType[] gbeans = openejbEjbJar.getGbeanArray();
+        ServiceConfigBuilder.addGBeans(gbeans, cl, earContext);
 
         ObjectName ejbModuleObjectName = null;
         try {
@@ -524,27 +525,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         }
     }
 
-    private URI getDependencyURI(OpenejbDependencyType dep) throws DeploymentException {
-        URI uri;
-        if (dep.isSetUri()) {
-            try {
-                uri = new URI(dep.getUri());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid dependency URI " + dep.getUri(), e);
-            }
-        } else {
-            // @todo support more than just jars
-            String id = dep.getGroupId() + "/jars/" + dep.getArtifactId() + '-' + dep.getVersion() + ".jar";
-            try {
-                uri = new URI(id);
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Unable to construct URI for groupId=" + dep.getGroupId() + ", artifactId=" + dep.getArtifactId() + ", version=" + dep.getVersion(), e);
-            }
-        }
-        return uri;
-    }
-
-
     protected static String getJ2eeStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
         if (string == null) {
             return null;
@@ -558,11 +538,12 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class);
+        infoBuilder.addReference("Repository", Repository.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
          infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(EJBReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[] {"defaultParentId", "SkeletonGenerator", "kernel"});
+        infoBuilder.setConstructor(new String[] {"defaultParentId", "SkeletonGenerator", "Repository", "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

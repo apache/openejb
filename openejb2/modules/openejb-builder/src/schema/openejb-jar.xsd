@@ -51,6 +51,7 @@
     targetNamespace="http://www.openejb.org/xml/ns/openejb-jar"
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
     xmlns:security="http://geronimo.apache.org/xml/ns/security"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
@@ -58,8 +59,8 @@
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="geronimo-naming.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="geronimo-security.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="geronimo-config.xsd"/>
 
-    <xs:include schemaLocation="geronimo-common.xsd"/>
 <!--    <xs:include schemaLocation="geronimo-security.xsd"/>-->
 
     <xs:group name="openejb-jndiEnvironmentRefsGroup">
@@ -88,7 +89,7 @@
 
     <xs:complexType name="openejb-jarType">
         <xs:sequence>
-            <xs:element name="dependency" type="openejb:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
             <!-- use a ref to put this element in the naming namespace rather than openejb namespace-->
             <xs:element ref="naming:cmp-connection-factory" minOccurs="0"/>
             <xs:element name="enforce-foreign-key-constraints" minOccurs="0"/>
@@ -105,8 +106,8 @@
 
             <xs:element name="relationships" type="openejb:relationshipsType" minOccurs="0"/>
 
-            <xs:element name="gbean" type="openejb:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="security:security" minOccurs="0"/>
+            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="configId" type="xs:string" use="required"/>
         <xs:attribute name="parentId" type="xs:string" use="optional"/>

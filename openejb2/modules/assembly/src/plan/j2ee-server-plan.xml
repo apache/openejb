@@ -345,6 +345,7 @@ by the server.
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=EJB,config=org/apache/geronimo/Server" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <reference name="SkeletonGenerator">openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</reference>>
+        <reference name="Repository">*:role=Repository,*</reference>
     </gbean>
 
     <gbean name="geronimo.deployer:role=ModuleBuilder,type=Connector,config=org/apache/geronimo/Server" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
@@ -355,6 +356,7 @@ by the server.
         <attribute name="defaultIdleTimeoutMinutes" type="int">15</attribute>
         <attribute name="defaultXATransactionCaching" type="boolean">true</attribute>
         <attribute name="defaultXAThreadCaching" type="boolean">false</attribute>
+        <reference name="Repository">*:role=Repository,*</reference>
     </gbean>
 
     <!-- these need names that include the parent id so they don't conflict with the deployer namens-->
