@@ -262,13 +262,6 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
     };
 
     public static EntityContextState EJBTIMEOUT = new EntityContextState() {
-        public Principal getCallerPrincipal() {
-            throw new IllegalStateException("getCallerPrincipal() cannot be called from ejbActivate/ejbPassivate");
-        }
-
-        public boolean isCallerInRole(String s, EJBInstanceContext context) {
-            throw new IllegalStateException("isCallerInRole(String) cannot be called from ejbActivate/ejbPassivate");
-        }
     };
 
     private static final EntityContextState states[] = new EntityContextState[EJBOperation.MAX_ORDINAL];
