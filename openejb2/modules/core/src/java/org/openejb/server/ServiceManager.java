@@ -49,14 +49,14 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Vector;
-
 import javax.management.ObjectName;
 
-import org.openejb.util.Logger;
-import org.openejb.util.Messages;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.openejb.util.Messages;
 
 
 /**
@@ -75,7 +75,7 @@ import org.apache.geronimo.gbean.jmx.GBeanMBean;
 public class ServiceManager {
 
     static Messages messages = new Messages("org.openejb.server");
-    static Logger logger = Logger.getInstance("OpenEJB.server.remote", "org.openejb.server");
+    Log log = LogFactory.getLog(ServiceManager.class);
 
     private static ServiceManager manager;
 
@@ -144,11 +144,13 @@ public class ServiceManager {
 
                     String ip = props.getProperty("bind");
                     int port = Integer.parseInt(props.getProperty("port"));
-                    ServiceDaemon daemon = new ServiceDaemon(server, InetAddress.getByName(ip), port);
+                    ServiceDaemon daemon = new ServiceDaemon(serviceFiles[i], server, InetAddress.getByName(ip), port);
                     enabledServers.add(daemon);
                 }
             } catch (Throwable e) {
-                logger.i18n.error("service.not.loaded", serviceFiles[i], e.getMessage());
+                // TODO get i18n back in
+                //logger.i18n.error("service.not.loaded", serviceFiles[i], e.getMessage());
+                log.error("Service not loaded",e);
             }
         }
 
@@ -206,8 +208,8 @@ public class ServiceManager {
     }
 
     private ServerService wrapService(ServerService service) {
-        service = new ServiceLogger(service);
-        service = new ServiceAccessController(service);
+//        service = new ServiceLogger(service);
+//        service = new ServiceAccessController(service);
         return service;
     }
 
@@ -253,10 +255,10 @@ public class ServiceManager {
                 this.wait(Long.MAX_VALUE);
             }
         } catch (Throwable t) {
-            logger.fatal("Unable to keep the server thread alive. Received exception: " + t.getClass().getName() + " : " + t.getMessage());
+            log.fatal("Unable to keep the server thread alive. Received exception: " + t.getClass().getName() + " : " + t.getMessage());
         }
         System.out.println("[] exiting vm");
-        logger.info("Stopping Remote Server");
+        log.info("Stopping Remote Server");
 
     }
 
@@ -379,19 +381,25 @@ public class ServiceManager {
     }
 
     public static void setUpServerService(Kernel kernel, String type, String host, int port, Class serviceClass) throws Exception {
-//        ObjectName SOCKETSERVICE_NAME = JMXUtil.getObjectName("openejb:type=SocketService,name="+type);
-//        ObjectName SERVICEDAEMON_NAME = JMXUtil.getObjectName("openejb:type=ServiceDaemon,name="+type);
-//
-//        GBeanMBean gBeanMBean = new GBeanMBean(SimpleSocketService.GBEAN_INFO);
-//        gBeanMBean.setAttribute("serviceClassName", serviceClass.getName());
-//        gBeanMBean.setAttribute("onlyFrom", new InetAddress[]{InetAddress.getByName(host)});
-//        gBeanMBean.setReferencePattern("ContainerIndex",NovaAssembler.CONTAINERINDEX_NAME);
-//        NovaAssembler.start(kernel, SOCKETSERVICE_NAME, gBeanMBean);
-//
-//        GBeanMBean gBeanMBean1 = new GBeanMBean(ServiceDaemon.GBEAN_INFO);
-//        gBeanMBean1.setAttribute("port", new Integer(port));
-//        gBeanMBean1.setAttribute("inetAddress", InetAddress.getByName(host));
-//        gBeanMBean1.setReferencePattern("SocketService",SOCKETSERVICE_NAME);
-//        NovaAssembler.start(kernel, SERVICEDAEMON_NAME, gBeanMBean1);
+        ObjectName SOCKETSERVICE_NAME = JMXUtil.getObjectName(":type=SocketService,name="+type);
+        ObjectName SERVICEDAEMON_NAME = JMXUtil.getObjectName(":type=ServiceDaemon,name="+type);
+        ObjectName CONTAINER_INDEX = JMXUtil.getObjectName(":type=ContainerIndex,*");
+
+        ClassLoader classLoader = ServiceManager.class.getClassLoader();
+
+        GBeanData socketService = new GBeanData(SOCKETSERVICE_NAME, SimpleSocketService.GBEAN_INFO);
+        socketService.setAttribute("serviceClassName", serviceClass.getName());
+        socketService.setAttribute("onlyFrom", new InetAddress[]{InetAddress.getByName(host)});
+        socketService.setReferencePattern("ContainerIndex", CONTAINER_INDEX);
+        kernel.loadGBean(socketService, classLoader);
+
+        GBeanData serviceDaemon = new GBeanData(SERVICEDAEMON_NAME, ServiceDaemon.GBEAN_INFO);
+        serviceDaemon.setAttribute("port", new Integer(port));
+        serviceDaemon.setAttribute("inetAddress", InetAddress.getByName(host));
+        serviceDaemon.setReferencePattern("SocketService",SOCKETSERVICE_NAME);
+        kernel.loadGBean(serviceDaemon, classLoader);
+
+        kernel.startGBean(SOCKETSERVICE_NAME);
+        kernel.startGBean(SERVICEDAEMON_NAME);
     }
 }
