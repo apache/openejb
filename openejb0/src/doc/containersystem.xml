@@ -1,161 +1,135 @@
 <?xml version="1.0"?>
-<document url="http://openejb.sf.net/embedded.xml" toc="none">
+<document url="http://openejb.sf.net/datasheet.xml">
 <properties>
-<title>An EJB Container System</title>
-<sub-title>Everything in OpenEJB is pluggable, even OpenEJB itself</sub-title>
+<title>OpenEJB Container System</title>
+<sub-title>Technical Overview</sub-title>
 </properties>
 <body>
 <sideimg src="images/diagram-container-system.gif" width="240" height="300"/>
-
-<section title="OpenEJB is whatever you want it to be">
-
-  <p>
-OpenEJB is a complete EJB Server platform, clients can access beans through 
-the <a href="embedded.html">Local Server</a> or the 
-<a href="remote-server.html">Remote Server</a>.  Both of these are focused on 
-ordinary users who just want to create EJBs and need a an EJB Server to run them.  
-This is great, but what if you want more control?  
- </p>
-  <p>
-What if you want to customize part of the EJB Server? What if want to create a new 
-enterprise bean type?  What if you want to tear out things you don't need?  What if 
-you want to re-implement something or make very specific optimizations?   
- </p>
-  <p>
-What if you want the EJB Server to directly and tightly use systems
-in your existing infrastructure, such as a security system or transaction system?
- </p>
-  <p>
-What if you are not looking to create EJBs at all, but rather, you want to create your own 
-EJB Server or add EJB compliance to your existing application server?
- </p>
-  <p>
-If you need any of these things, then OpenEJB is for you.
- </p>
-</section>
-
-<section title="OpenEJB is like a kernel">
-
-  <p>
-Just as Linux is actually the kernel for the operating system, OpenEJB is a kernel
-for an EJB platform.  We refer to this EJB specific "kernel" as the container system.
-It is a framework by which EJB Containers can interoperate but not be dependent on each other.
-Where an EJB Server can provide remote access to beans in those EJB Containers without 
-being dependent on any of the EJB Containers in the system.
- </p>
- <p>
-Just like the Linux operating system, OpenEJB is divided into several independent pieces. 
-Every piece can be ripped out and replaced independently of the others.  Pieces can be added
-and combined in a number of different ways to create customized EJB platforms for specific 
-needs.  This idea is similar the concept of a Linux distribution.  Each distribution is a 
-full working operating system, each has a unique combination of pieces, but all share the 
-same heart, the kernel.
- </p>
-</section>
-
-<section title="Anyone can participate">
  
- <p>
-The power of OpenEJB, as with Linux, is that many people can play in the same game.  Anyone 
-can add a piece.  All pieces can play together.
- </p>
+    <section title="Overview">
 
- <p>
-For example, the open source project <a href="http://openorb.sf.net">OpenORB</a>, formerly 
-of <a href="http://www.exolab.org">Exolab</a>, integrated OpenEJB into OpenORB to provide 
-OpenORB users with EJB functionality.  Similarly,  Apple Computer integrated OpenEJB into its 
-<a href="http://www.apple.com/webobjects/">WebObjects</a> application server to provide 
-WebObjects users with EJB functionality.
- </p>
- 
-
-</section>
-
-<section title="Vendors can play along">
- <p>
-Vendors are already participating in this game.  As mentioned above, Apple Computer
-put OpenEJB into WebObjects and has been shipping it world over since WebObjects version 5.1.
-This is great. Imagine the possibilities when more vendors participate.</p>
- <p>
-Let's say Oracle decided to take the part of their application server that provides
-EntityBeans with lightning-fast Container-Managed Persistence to the Oracle Database and 
-make it an OpenEJB-compatible EJB Container.  They could sell that EJB Container separately 
-or packaged with the Oracle Database to anyone using an OpenEJB-based platform.  WebObjects 
-users could purchase and plug-in the Oracle CMP Container, as could OpenORB users, and as 
-could users of any other software that uses OpenEJB as its container system.
- </p>
- 
- <p>
-In the extreme case, IBM or BEA could convert their EJB Containers to OpenEJB-compatible 
-EJB Containers and sell them separately, in combinations, or at different price levels.  
-One container for stateless SessionBeans, one for stateful SessionBeans, one for 
-bean-managed persistence EntityBeans, one for container-managed EntityBeans, and one 
-for JMS MessageDrivenBeans.  Along with selling one big platform for $20 grand, they 
-could sell a base platform for $5, for example, and each of the containers 
-for $5 grand.  They could sell those containers to their existing customers or users of any
-other OpenEJB-based EJB platform.
- </p>
-
-</section>
-<section title="Open Source can play along">
- <p>
-Now if someday the developers of the PostgreSQL database server, or the MySQL database 
-server decided to create an EJB Container that supported EntityBeans with container-managed 
-persistence, the same rules apply.  Anyone using an OpenEJB-based EJB platform could
-download, plug-in and use one or both of those those containers for their CMP EntityBeans.
-Those containers could be written to work as close to the database as possible, cutting out
-all middle-men like JDBC and providing container-managed persitence in the most performant way 
-possible, taking full advantage of all the features of the database.
- </p>
- 
-</section>
-
-<section title="You can play along">
- 
- <p>
-Let's not forget, OpenEJB is open source and distributed with a business-friendly,
-non-restrictive, BSD-style license.  Anyone can help themselves to as much of 
-our code as they can stomach.  You can even sell what you make from it!
- </p>
-
- <p>
-Change the code as much as you want.  If there is functionality you need, grab
-the existing piece and edit till your heart is content.  We do this very same thing
-when there is functionality we need, you can too.  In fact, all the containers in OpenEJB
-were created using our stateless SessionBean container as a template.
- </p>
-
- <p>
-If you want to be the one to write that PostgreSQL CMP EntityBean Container, just grab
-our existing Castor CMP EntityBean Container and hack it up.  We'll even let you use our CVS
-if you want to make it available to other OpenEJB users as well.
- </p>
- <p>
-Perhaps you want to create a CMP EntityBean container that persists beans directly to your 
-mainframe.  Grab the code you need to get started, put a few developers on the task, then
-plug it into an OpenEJB system and put it to work.
- </p>
-
- <p>
-Be creative and think outside the box, invent a new EnterpriseBean type! 
-A NativeBean type, for example.  Just create an OpenEJB EJB Container that executes
-your native code according to your specification, and start writing beans in C++.
- </p>
-
- <p>
-Want to distribute beans via a special distributed object protocol?  Grab the Remote Server
-code and change it to use another protocol, SOAP for example.  Maybe you want to make
-it an extention to the Remote Server or maybe you want to write it as a brand new
-org.openejb.spi.ApplicationServer implementation.  It's your time and your desicion.
- </p>
+      <p>
+The Enterprise JavaBeans (EJB) architecture is a component architecture
+for the development and deployment of component-based distributed business 
+applications. Applications written using the Enterprise JavaBeans architecture
+are scalable, transactional, and multi-user secure. OpenEJB is an Open Source 
+implementation of version 1.1 of the EJB specification, which supports both 
+session and entity beans in addition to an enhanced security model.
 
 
- <p>
+     </p>
+
+    </section>
+
+    <section title="Container-Server Contract">
+
+      <p>
+OpenEJB is a pre-built, self-contained, portable EJB container system that can 
+be plugged into any application server environment. OpenEJB provides a clear 
+separation of responsibilities between the EJB container and the EJB server. 
+The application server and OpenEJB container system interact through an open 
+programming interface, which forms the container-server contact. This contract 
+is defined by the Container Provider Interface (CPI), which is a small and 
+simple set of classes and interfaces.
+     </p>
+
+    </section>
+
+    <section title="Application Server's Role">
+
+
+      <p>
+Application servers that use OpenEJB are responsible for providing client applications
+with naming and remote access to the application server. Its services may include 
+providing JNDI and proxy implementations that fulfill the client-server contract of the 
+EJB programming model. In application servers that use OpenEJB locally, such as a 
+Servlet Container, OpenEJB already provides the necessary JNDI and proxy 
+implementations. When a client makes a request on a remote bean reference, the 
+application server delivers the request to the OpenEJB container system, which delegates
+the request to the appropriate enterprise bean and applies the transaction, security, and
+persistence services appropriately.
+     </p>
+
+    </section>
+
+    <section title="Container's Role">
+
+      <p>
+OpenEJB manages the enterprise bean's lifecycle and coordinates the application 
+of transactions (local or distributed), persistence, and security as defined by 
+the EJB specification. To manage these tasks in a way that is flexible and 
+customizable, OpenEJB also enforces a separation of these responsibilities into 
+separate services. OpenEJB provides a Service Provider Interface (SPI) for 
+transaction, persistence, and security services. These simple and flexible 
+container-service contracts are based on simple adapters and industry standards 
+like JTS and JAAS.
+     </p>
+
+    </section>
+
+    <section title="OpenEJB Architecture">
+
+      <p>
+OpenEJB is the first EJB container system that allows developers of an EJB 
+platform to assemble it from existing products rather than construct it from 
+scratch. Vendors focus on what they do best while OpenEJB provides the container 
+to host Enterprise JavaBeans. When plugged into any Java compatible application 
+server, the result is a complete, yet modular Enterprise JavaBeans container 
+system. Through the CPI, an application server vendor can use the OpenEJB container 
+system to obtain an instant and customizable EJB 1.1 platform. Through the SPI, 
+primary services may be interchanged to match any target environment's specific 
+requirements.
+
+     </p>
+
+    </section>
+
+
+
+    <section title="Containers">
+
+      <p>
+The OpenEJB container system provides four robust container types, including stateless 
+and stateful session-bean containers as well as Bean-Managed (BMP) and Container-Managed 
+(CMP) entity-bean containers. These containers are strictly compliant with the EJB 1.1 
+specification, and provide the full complement of security and transaction behaviors to 
+beans. The OpenEJB containers are very lightweight because they multiplex requests 
+concurrently, requiring less overhead to service more beans. The containers are also 
+extremely fast because they introduce virtually no bottlenecks to service requests, 
+allowing a high volume of requests to execute within the container system simultaneously.
+     </p>
+
+    </section>
+
+
+
+  <section title="Primary Services">
+
+      <p>
+OpenEJB defines four primary services: transaction, security, persistence, and assembly.
+The first three are used continually at runtime by the container system. The last is 
+used only at startup to assemble the container system. The containers use the 
+transaction, security, and persistence services while servicing beans and performing 
+other responsibilities: the transaction service provides the container with 
+transactional integrity; the security service provides authorization control; the 
+persistence service provides an API for container-managed persistence of entity beans.
+     </p>
+
+    </section>
+
+ <section title="IntraVM Server">
+
+      <p>
+OpenEJB includes an IntraVM server that allows for swift interaction among beans in the 
+same virtual machine. While respecting the remote semantics required by EJB, optimizations
+in method calls from one bean to another provide for very fast throughput and little or 
+no latency. The IntraVM provides an immediately available platform for application servers 
+that do not need to support client access through distributed objects. For example, an 
+existing Servlet Container can use the IntraVM server to integrate the OpenEJB container
+system with very little effort.
+     </p>
+    </section>
   
- </p>
-
-</section>
-
-</body>
+  </body>
 </document>
-

@@ -1,36 +1,69 @@
-OpenEJB v0.8beta1  
-http://openejb.sf.net/
------------------------------------------------
+===============================================
+OpenEJB -- EJB Container System and EJB Server
 
+OpenEJB v0.8beta2        http://openejb.sf.net/
+-----------------------------------------------
+___________________
 Installation
 ===================
-If you are reading this, you've already installed OpenEJB.  You 
-simply need to unpack the release and start using OpenEJB via the
-command line tool.  For instance, move to the directory where 
-OpenEJB is unpacked and type:
+ 
+ If you are reading this, you've already unpacked the OpenEJB release.  
+ In that case, congradulations, you've installed OpenEJB.  
+ 
+ If you've unpacked OpenEJB into the directory C:\openejb, for example.
+ Than this directory is your OPENEJB_HOME directory.  The OPENEJB_HOME
+ directory is refered to in various parts of the documentation, so it's
+ good to remeber where it is.
 
-openejb.bat help
-
-
+___________________
+Using OpenEJB
+===================
+ 
+ Now all you need to do is move to the OPENEJB_HOME directory, the 
+ directory where OpenEJB was unpacked, and type:
+ 
+   openejb help
+ 
+ For Windows users, that looks like this:
+  
+   C:\openejb> openejb help
+ 
+ For UNIX/Linux/Mac OS X users, that looks like this:
+ 
+   [user@host openejb]# ./openejb.sh help
+ 
+ You really only need to know two commands to use OpenEJB, deploy
+ and start.  Both are completely documented and have examples.
+ 
+ For help information and command options, try this:
+ 
+   openejb deploy -help
+   openejb start -help
+ 
+ For examples on using the command and options, try this:
+ 
+   openejb deploy -examples
+   openejb start -examples
+ 
+ That's it!
+ 
+___________________
 Documentation
 ===================
-The initial versions of the documentation for this release 
-are in the diretory docs/html,  see file docs/html/index.html
+ 
+ The initial versions of the documentation for this release 
+ are in the diretory docs/html,  see file docs/html/index.html
 
-Most of these docs are new and will be updated over the next
-few days. Keep an eye on http://openejb.sf.net/ for changes and
-new docs.
-
-
+___________________
 Support
 ===================
-Any problems with this release can be reported to our user
-mailing list or to our Support forum at SourceForge.
+ 
+ Any problems with this release can be reported to our user
+ mailing list or to our Support forum at SourceForge.
 
-User list:
-http://lists.sourceforge.net/lists/listinfo/openejb-user
+ User list:
+ http://lists.sourceforge.net/lists/listinfo/openejb-user
 
-Support forum:
-http://sourceforge.net/tracker/?group_id=44351&atid=439275
-
+ Support forum:
+ http://sourceforge.net/tracker/?group_id=44351&atid=439275
 
