@@ -77,7 +77,7 @@ public class SingleValuedSelect implements InstanceOperation {
             SingleValuedResultHandler handler = new SingleValuedResultHandler(commandView.getView()[0]);
             o = commandView.getQueryCommand().execute(handler, new Row(args), NODATA);
         } catch (QueryException e) {
-            return new FinderException(e.getMessage()).initCause(e);
+            throw (FinderException) new FinderException(e.getMessage()).initCause(e);
         }
         if (NODATA == o) {
             throw new ObjectNotFoundException();
@@ -99,7 +99,7 @@ public class SingleValuedSelect implements InstanceOperation {
                     throw new QueryException(e);
                 }
             }
-            return new FinderException("More than one row returned from single valued select.");
+            throw new QueryException("More than one row returned from single valued select.");
         }
     }
 }

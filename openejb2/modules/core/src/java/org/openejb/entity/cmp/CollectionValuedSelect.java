@@ -52,7 +52,6 @@ import java.util.Collection;
 
 import javax.ejb.FinderException;
 
-import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.tranql.field.Row;
 import org.tranql.ql.QueryException;
 import org.tranql.query.CollectionResultHandler;
@@ -71,13 +70,13 @@ public class CollectionValuedSelect implements InstanceOperation {
         this.commandView = commandView;
     }
 
-    public Object invokeInstance(CMPInstanceContext ctx, Object[] args) {
+    public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
         Collection results = new ArrayList();
         try {
             CollectionResultHandler handler = new CollectionResultHandler(commandView.getView()[0]);
             commandView.getQueryCommand().execute(handler, new Row(args), results);
         } catch (QueryException e) {
-            return new FinderException(e.getMessage()).initCause(e);
+            throw (FinderException) new FinderException(e.getMessage()).initCause(e);
         }
         return results;
     }
