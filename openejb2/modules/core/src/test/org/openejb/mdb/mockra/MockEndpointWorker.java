@@ -56,6 +56,7 @@
 package org.openejb.mdb.mockra;
 
 import java.lang.reflect.Method;
+
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.resource.spi.endpoint.MessageEndpoint;
@@ -64,6 +65,7 @@ import javax.resource.spi.work.Work;
 import javax.resource.spi.work.WorkException;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 
 /**
  * @version $Revision$ $Date$
@@ -82,6 +84,7 @@ public class MockEndpointWorker implements Work {
 
     private MockResourceAdapter adapter;
     private MockEndpointActivationKey endpointActivationKey;
+    private SynchronizedBoolean started = new SynchronizedBoolean(false);
     Latch stopLatch = new Latch();
     boolean stopping = false;
     private MessageEndpointFactory messageEndpointFactory;
@@ -102,7 +105,7 @@ public class MockEndpointWorker implements Work {
 
         messageEndpointFactory = endpointActivationKey.getMessageEndpointFactory();
         activationSpec = endpointActivationKey.getActivationSpec();
-        adapter.getBootstrapContext().getWorkManager().doWork(this);
+        adapter.getBootstrapContext().getWorkManager().scheduleWork(this);
     }
 
     /**
@@ -110,7 +113,9 @@ public class MockEndpointWorker implements Work {
      */
     public void stop() throws InterruptedException {
         release();
-        stopLatch.acquire();
+        if (started.get()) {
+            stopLatch.acquire();
+        }
     }
 
     /**
@@ -124,6 +129,7 @@ public class MockEndpointWorker implements Work {
      * @see java.lang.Runnable#run()
      */
     public void run() {
+        started.set(true);
         try {
 
             MessageEndpoint endpoint = null;

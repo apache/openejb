@@ -292,7 +292,7 @@ public class EJBConfigBuilderTest extends TestCase {
             kernel.startGBean(connectionProxyFactoryObjectName);
             assertRunning(kernel, connectionProxyFactoryObjectName);
 
-            ds = (DataSource) kernel.getAttribute(connectionProxyFactoryObjectName, "Proxy");
+            ds = (DataSource) kernel.getAttribute(connectionProxyFactoryObjectName, "proxy");
             Connection connection = null;
             Statement statement = null;
             try {
@@ -307,7 +307,7 @@ public class EJBConfigBuilderTest extends TestCase {
             // load the configuration
             ObjectName objectName = ObjectName.getInstance("test:configuration=test-ejb-jar");
             kernel.loadGBean(objectName, config);
-            config.setAttribute("BaseURL", unpackedDir.toURL());
+            config.setAttribute("baseURL", unpackedDir.toURL());
 
             // start the configuration
             kernel.startRecursiveGBean(objectName);
@@ -423,7 +423,7 @@ public class EJBConfigBuilderTest extends TestCase {
         kernel.boot();
 
         GBeanMBean serverInfoGBean = new GBeanMBean(ServerInfo.GBEAN_INFO);
-        serverInfoGBean.setAttribute("BaseDirectory", ".");
+        serverInfoGBean.setAttribute("baseDirectory", ".");
         ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ServerInfo");
         kernel.loadGBean(serverInfoObjectName, serverInfoGBean);
         kernel.startGBean(serverInfoObjectName);
@@ -440,7 +440,7 @@ public class EJBConfigBuilderTest extends TestCase {
         Set patterns = new HashSet();
         patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=ActivationSpec,*"));
-        tmGBean.setReferencePatterns("resourceManagers", patterns);
+        tmGBean.setReferencePatterns("ResourceManagers", patterns);
         kernel.loadGBean(transactionManagerObjectName, tmGBean);
         kernel.startGBean(transactionManagerObjectName);
         assertRunning(kernel, transactionManagerObjectName);

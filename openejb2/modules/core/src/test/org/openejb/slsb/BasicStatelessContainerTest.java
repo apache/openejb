@@ -166,7 +166,7 @@ public class BasicStatelessContainerTest extends TestCase {
         GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
         Set rmpatterns = new HashSet();
         rmpatterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
-        tmGBean.setReferencePatterns("resourceManagers", rmpatterns);
+        tmGBean.setReferencePatterns("ResourceManagers", rmpatterns);
         start(TM_NAME, tmGBean);
         GBeanMBean trackedConnectionAssociator = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
         start(TCA_NAME, trackedConnectionAssociator);
