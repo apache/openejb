@@ -25,14 +25,22 @@ public class StatefulBeanManagedTxPolicy extends TransactionPolicy {
 
     public StatefulBeanManagedTxPolicy(TransactionContainer container){
         this();
+        if(container instanceof org.openejb.Container &&
+           ((org.openejb.Container)container).getContainerType()!=org.openejb.Container.STATEFUL) {
+            throw new IllegalArgumentException();
+        }
         this.container = container;
         this.statefulContainer = (StatefulContainer)container;
+        
     }
 
     public StatefulBeanManagedTxPolicy(){
         policyType = BeanManaged;
     }
     
+    public String policyToString() {
+        return "TX_BeanManaged: ";
+    }
     /**
      * When a client invokes a business method via the enterprise bean's home or 
      * component interface, the Container suspends any transaction that may be 
@@ -63,46 +71,18 @@ public class StatefulBeanManagedTxPolicy extends TransactionPolicy {
         try {
         
             // if no transaction ---> suspend returns null
-            context.clientTx = getTxMngr().suspend();
+            context.clientTx = suspendTransaction();
 
             // Get any previously started transaction
             Object primaryKey = context.callContext.getPrimaryKey();
             Object possibleBeanTx = statefulContainer.getInstanceManager().getAncillaryState( primaryKey );
             if ( possibleBeanTx instanceof Transaction ) {
                 context.currentTx =  (Transaction)possibleBeanTx;
-                if(context.currentTx != null && context.currentTx.getStatus() == Status.STATUS_ACTIVE){
-                    if ( context.clientTx != null ) {
-                        try{
-                            getTxMngr( ).resume( context.currentTx );
-                        }catch(javax.transaction.InvalidTransactionException ite){
-                            logger.error("Could not resume the stateful session bean's transaction, the transaction is no longer valid: "+ite.getMessage());
-                            throw ite;
-                        }catch(IllegalStateException e){
-                            logger.error("Could not resume the stateful session bean's transaction: "+e.getMessage());
-                            throw e;
-                        }catch(javax.transaction.SystemException e){
-                            logger.error("Could not resume the stateful session bean's transaction: The transaction reported a system exception: "+e.getMessage());
-                            throw e;
-                        }
-                    }
-                }
+                resumeTransaction( context.currentTx );
             }
         } catch ( org.openejb.OpenEJBException e ) {
             handleSystemException( e.getRootCause(), instance, context );
-        
-        } catch (javax.transaction.InvalidTransactionException e){
-            handleSystemException( e, instance, context );
-        
-        } catch (IllegalStateException e){
-            handleSystemException( e, instance, context );
-        
-        } catch ( javax.transaction.SystemException e ) {
-            handleSystemException( e, instance, context );
-        
-        } catch ( Throwable e ){
-            handleSystemException( e, instance, context );
         }
-
     }
 
     /**
@@ -122,22 +102,20 @@ public class StatefulBeanManagedTxPolicy extends TransactionPolicy {
      */
     public void afterInvoke(EnterpriseBean instance, TransactionContext context) throws org.openejb.ApplicationException, org.openejb.SystemException{
         try {
+            // Get the instance's transaction
+            context.currentTx = getTxMngr().getTransaction();
+
             /*
             // Remeber the instance's transaction if it is not committed or rolledback
             */
-            // Get any previously started transaction
-            context.currentTx = getTxMngr().getTransaction();
-
-            // (true) No transaction
-            if ( context.currentTx == null ) return;
-            
-            // (true) transaction completed
-            if ( context.currentTx.getStatus() == Status.STATUS_COMMITTED && 
-                 context.currentTx.getStatus() == Status.STATUS_ROLLEDBACK ) {
-                return;
+            if ( context.currentTx != null &&
+                 context.currentTx.getStatus() != Status.STATUS_COMMITTED && 
+                 context.currentTx.getStatus() != Status.STATUS_ROLLEDBACK ) {
+                // There is a transaction in progress
+                // if we have a valid transaction it must be suspended
+                suspendTransaction();
             }
                             
-            // If we get this far, we know there is a transaction in progress
             // Remeber the instance's transaction
 
             Object primaryKey = context.callContext.getPrimaryKey();
@@ -150,19 +128,8 @@ public class StatefulBeanManagedTxPolicy extends TransactionPolicy {
         } catch ( Throwable e ){
             handleSystemException( e, instance, context );
         } finally {
-            if ( context.clientTx != null ) {
-                try{
-                    getTxMngr( ).resume( context.clientTx );
-                }catch(javax.transaction.InvalidTransactionException ite){
-                    logger.error("Could not resume the client's transaction, the transaction is no longer valid: "+ite.getMessage());
-                }catch(IllegalStateException e){
-                    logger.error("Could not resume the client's transaction: "+e.getMessage());
-                }catch(javax.transaction.SystemException e){
-                    logger.error("Could not resume the client's transaction: The transaction reported a system exception: "+e.getMessage());
-                }
-            }
+            resumeTransaction( context.clientTx );
         }
-
     }
 
     /**

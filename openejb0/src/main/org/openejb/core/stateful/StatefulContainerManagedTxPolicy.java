@@ -37,8 +37,16 @@ public class StatefulContainerManagedTxPolicy extends org.openejb.core.transacti
         this.policy     = policy;
         this.container  = policy.getContainer();
         this.policyType = policy.policyType;
+        if(container instanceof org.openejb.Container &&
+           ((org.openejb.Container)container).getContainerType()!=org.openejb.Container.STATEFUL) {
+            throw new IllegalArgumentException();
+        }
     }
 
+    public String policyToString() {
+        return policy.policyToString();
+    }
+    
     public void beforeInvoke(EnterpriseBean instance, TransactionContext context) throws org.openejb.SystemException, org.openejb.ApplicationException{
         policy.beforeInvoke( instance, context );
     }
