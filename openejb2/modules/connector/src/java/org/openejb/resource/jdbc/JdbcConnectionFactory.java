@@ -43,32 +43,37 @@
  * $Id$
  */package org.openejb.resource.jdbc;
 
+import javax.resource.spi.ManagedConnectionFactory;
+import javax.resource.spi.ConnectionManager;
+import javax.resource.ResourceException;
 import java.sql.SQLException;
 
-import javax.resource.ResourceException;
-import javax.resource.spi.ConnectionManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /*
-* As a connection factory the JdbcConnecitonFactory must implement the Serializable and 
+* As a connection factory the JdbcConnecitonFactory must implement the Serializable and
 * Referenceable methods so that it can be store in a JNDI name space.  The referenc itself
 * is an application specific object that can be used to lookup and configure a new ManagedConnectionFactory
-* the JdbcConnecitonFactory is only a store for this reference, its not expected to be functional after 
+* the JdbcConnecitonFactory is only a store for this reference, its not expected to be functional after
 * it has been serialized into a JNDI name space.  See section 10.5.3 of the Connector API spec.
 */
-public class JdbcConnectionFactory 
-implements 
-javax.sql.DataSource, 
-javax.resource.Referenceable, 
+public class JdbcConnectionFactory
+implements
+javax.sql.DataSource,
+javax.resource.Referenceable,
 java.io.Serializable {
-    
+
+    private static Log log = LogFactory.getLog(JdbcConnection.class);
+
     protected transient JdbcManagedConnectionFactory mngdCxFactory;
     protected transient ConnectionManager cxManager;
     protected transient java.io.PrintWriter logWriter;
     protected int logTimeout = 0;
-    
+
     // Reference to this ConnectionFactory
     javax.naming.Reference jndiReference;
-    
+
     // setReference is called by deployment code
     public void setReference(javax.naming.Reference ref) {
         jndiReference = ref;
@@ -77,16 +82,23 @@ java.io.Serializable {
     public javax.naming.Reference getReference() {
         return jndiReference;
     }
-    
+
     public JdbcConnectionFactory(JdbcManagedConnectionFactory mngdCxFactory, ConnectionManager cxManager)
     throws ResourceException{
         this.mngdCxFactory = mngdCxFactory;
         this.cxManager = cxManager;
         logWriter = mngdCxFactory.getLogWriter();
     }
-        
+
     public java.sql.Connection getConnection() throws SQLException{
-        return getConnection(mngdCxFactory.getDefaultUserName(), mngdCxFactory.getDefaultPassword());
+        System.out.println("Getting connection from JdbcConnectionFactory");
+        try {
+            return getConnection(mngdCxFactory.getDefaultUserName(), mngdCxFactory.getDefaultPassword());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            log.info("Error getting connection", e);
+            throw e;
+        }
     }
     public java.sql.Connection getConnection(java.lang.String username, java.lang.String password)throws SQLException{
         JdbcConnectionRequestInfo conInfo = new JdbcConnectionRequestInfo(username, password, mngdCxFactory.getJdbcDriver(), mngdCxFactory.getJdbcUrl());
@@ -131,16 +143,16 @@ java.io.Serializable {
     }
     public int getLoginTimeout(){
         return logTimeout;
-    } 
-       
+    }
+
     public java.io.PrintWriter getLogWriter(){
         return logWriter;
     }
     public void setLoginTimeout(int seconds){
         //FIXME: how should log timeout work?
         logTimeout = seconds;
-    } 
-       
+    }
+
     public void setLogWriter(java.io.PrintWriter out){
         logWriter = out;
     }

@@ -45,19 +45,15 @@
 package org.openejb.resource.jdbc;
 
 import javax.resource.spi.LocalTransaction;
-
-import org.openejb.util.Logger;
-import org.openejb.util.Messages;
+import java.sql.Connection;
 
 public class JdbcLocalTransaction implements LocalTransaction {
 
     protected java.sql.Connection sqlConn;
     protected JdbcManagedConnection managedConn;
     protected boolean isActiveTransaction = false;
-    
-    protected static Messages messages = new Messages( "org.openejb" );
-    protected static Logger   logger   = Logger.getInstance( "OpenEJB.resource.jdbc", "org.openejb" );
-    
+
+
     public JdbcLocalTransaction(JdbcManagedConnection managedConn) {
         this.sqlConn = managedConn.getSQLConnection();
         this.managedConn = managedConn;
@@ -84,9 +80,7 @@ public class JdbcLocalTransaction implements LocalTransaction {
             try{
             sqlConn.commit();
             }catch(java.sql.SQLException sqlE){
-                String msg = messages.format( "jdbc.commit.failed", formatSqlException( sqlE ));
-                logger.error( msg );
-                throw new javax.resource.spi.LocalTransactionException( msg );
+                throw new javax.resource.spi.LocalTransactionException(sqlE);
             }
             managedConn.localTransactionCommitted();
             try{
@@ -102,17 +96,15 @@ public class JdbcLocalTransaction implements LocalTransaction {
     public void rollback() throws javax.resource.ResourceException{
         if(isActiveTransaction){
             isActiveTransaction = false;
-            
+
             try{
             sqlConn.rollback();
             }catch(java.sql.SQLException sqlE){
-                String msg = messages.format( "jdbc.rollback.failed", formatSqlException( sqlE ));
-                logger.error( msg );
-                throw new javax.resource.spi.LocalTransactionException( msg );
+                throw new javax.resource.spi.LocalTransactionException( sqlE );
             }
-            
+
             managedConn.localTransactionRolledback();
-            
+
             try{
             sqlConn.setAutoCommit(true);
             }catch(java.sql.SQLException sqlE){
@@ -125,7 +117,7 @@ public class JdbcLocalTransaction implements LocalTransaction {
 
     /**
     * This method is called by the JdbcConnectionManager when its own cleanup method is called.
-    * It ensures that the JdbcLocalTransaction has been properly committed or rolled back. If the 
+    * It ensures that the JdbcLocalTransaction has been properly committed or rolled back. If the
     * transaction is still active, it's rolled back.
     */
     protected void cleanup() throws javax.resource.ResourceException{
@@ -133,8 +125,5 @@ public class JdbcLocalTransaction implements LocalTransaction {
             rollback();
         }
     }
-    
-    protected String formatSqlException(java.sql.SQLException e){
-        return messages.format("jdbc.exception", e.getClass().getName(), e.getMessage(), e.getErrorCode()+"", e.getSQLState());
-    }
+
 }

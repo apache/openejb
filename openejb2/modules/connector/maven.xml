@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision$ $Date$ -->
+
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:define="jelly:define"
+    xmlns:xdoclet="common:xdoclet">
+
+    <goal name="default">
+        <attainGoal name="jar:install"/>
+    </goal>
+
+    <goal name="build">
+        <attainGoal name="default"/>
+    </goal>
+
+    <goal name="rebuild">
+        <attainGoal name="clean"/>
+        <attainGoal name="build"/>
+    </goal>
+
+    <preGoal name="xdoc:jelly-transform">
+        <attainGoal name="html2xdoc"/>
+    </preGoal>
+
+    <postGoal name="java:compile">
+        <jar destfile="${maven.build.dest}/ra.jar" basedir="${maven.build.dest}" includes="**/*.class"/>
+        <delete includeEmptyDirs="true">
+            <fileset dir="${maven.build.dest}" includes="**/*.class"/>
+        </delete>
+        <!--this hack makes the classes available to the openejb integration tests which
+        can't deal with properly packed rars-->
+        <copy file="${maven.build.dest}/ra.jar" todir="target"/>
+    </postGoal>
+
+</project>

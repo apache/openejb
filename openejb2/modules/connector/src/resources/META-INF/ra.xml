@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<connector>
+  <display-name>OpenEJB JDBC Wrapping Connector</display-name>
+  <vendor-name>OpenEJB</vendor-name>
+  <spec-version>1.0</spec-version>
+  <eis-type>Relational Database JDBC Wrapper</eis-type>
+  <version>1.0</version>
+  <resourceadapter>
+    <managedconnectionfactory-class>org.openejb.resource.jdbc.JdbcManagedConnectionFactory</managedconnectionfactory-class>
+    <connectionfactory-interface>javax.sql.DataSource</connectionfactory-interface>
+    <connectionfactory-impl-class>org.openejb.resource.jdbc.JdbcConnectionFactory</connectionfactory-impl-class>
+    <connection-interface>java.sql.Connection</connection-interface>
+    <connection-impl-class>org.openejb.resource.jdbc.JdbcConnection</connection-impl-class>
+    <transaction-support>LocalTransaction</transaction-support>
+    <config-property>
+      <config-property-name>DefaultUserName</config-property-name>
+      <config-property-type>java.lang.String</config-property-type>
+      <config-property-value></config-property-value>
+    </config-property>
+    <config-property>
+      <config-property-name>DefaultPassword</config-property-name>
+      <config-property-type>java.lang.String</config-property-type>
+      <config-property-value></config-property-value>
+    </config-property>
+    <config-property>
+      <config-property-name>JdbcDriver</config-property-name>
+      <config-property-type>java.lang.String</config-property-type>
+      <config-property-value></config-property-value>
+    </config-property>
+    <config-property>
+      <config-property-name>JdbcUrl</config-property-name>
+      <config-property-type>java.lang.String</config-property-type>
+      <config-property-value></config-property-value>
+    </config-property>
+    <authentication-mechanism>
+      <authentication-mechanism-type>BasicPassword</authentication-mechanism-type>
+      <credential-interface>javax.resource.security.PasswordCredential</credential-interface>
+    </authentication-mechanism>
+    <reauthentication-support>false</reauthentication-support>
+  </resourceadapter>
+</connector>

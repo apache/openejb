@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision$ $Date$ -->
+
+<project>
+    <pomVersion>3</pomVersion>
+
+    <name>OpenEJB :: Connector</name>
+    <id>openejb-jca</id>
+    <shortDescription>OpenJCA wrapper</shortDescription>
+    <description>Open JCA adapter</description>
+    <url>http://openejb.org</url>
+    <siteDirectory>http://openejb.org</siteDirectory>
+    <distributionDirectory>http://openejb.org</distributionDirectory>
+
+    <currentVersion>DEV</currentVersion>
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <!-- Plugin Dependencies -->
+
+        <dependency>
+            <id>commons-collections</id>
+            <version>2.1</version>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <id>commons-logging</id>
+            <version>1.0.3</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
+            <properties>
+                <runtime>false</runtime>
+            </properties>
+        </dependency>
+
+
+        <!-- Module Dependencies -->
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-connector</artifactId>
+            <version>DEV</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+
+    </dependencies>
+
+
+    <!-- =================== -->
+    <!-- Build Specification -->
+    <!-- =================== -->
+
+    <build>
+        <sourceDirectory>src/java</sourceDirectory>
+        <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+
+        <resources>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <excludes>
+                <exclude>**/Abstract*.java</exclude>
+            </excludes>
+        </unitTest>
+    </build>
+</project>
