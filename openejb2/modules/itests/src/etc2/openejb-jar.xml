@@ -26,7 +26,7 @@
             </resource-ref>
         </session>
         <session>
-            <ejb-name>Basic BMT StatelessBean</ejb-name>
+            <ejb-name>BasicBMTStatelessBean</ejb-name>
             <jndi-name>client/tests/stateless/BeanManagedBasicStatelessHome</jndi-name>
             <resource-ref>
                 <ref-name>stateless/references/Resource_manager_access</ref-name>
@@ -42,7 +42,7 @@
             </resource-ref>
         </session>
         <session>
-            <ejb-name>BMT StatelessBean</ejb-name>
+            <ejb-name>BMTStatelessBean</ejb-name>
             <jndi-name>client/tests/stateless/BeanManagedTransactionTests/EJBHome</jndi-name>
             <resource-ref>
                 <ref-name>database</ref-name>
@@ -58,7 +58,7 @@
             </resource-ref>
         </session>
         <session>
-            <ejb-name>Stateless RMI-IIOP Bean</ejb-name>
+            <ejb-name>StatelessRMIIIOPBean</ejb-name>
             <jndi-name>client/tests/stateless/RMI-over-IIOP/EJBHome</jndi-name>
         </session>
 
@@ -78,7 +78,7 @@
             </resource-ref>
         </session>
         <session>
-            <ejb-name>Basic BMT StatefulBean</ejb-name>
+            <ejb-name>BasicBMTStatefulBean</ejb-name>
             <jndi-name>client/tests/stateful/BeanManagedBasicStatefulHome</jndi-name>
             <resource-ref>
                 <ref-name>stateful/references/Resource_manager_access</ref-name>
@@ -86,7 +86,7 @@
             </resource-ref>
         </session>
         <session>
-            <ejb-name>BMT StatefulBean</ejb-name>
+            <ejb-name>BMTStatefulBean</ejb-name>
             <jndi-name>client/tests/stateful/BeanManagedTransactionTests/EJBHome</jndi-name>
             <resource-ref>
                 <ref-name>datasource</ref-name>
@@ -102,7 +102,7 @@
             </resource-ref>
         </session>
         <session>
-            <ejb-name>Stateful RMI-IIOP Bean</ejb-name>
+            <ejb-name>StatefulRMIIIOPBean</ejb-name>
             <jndi-name>client/tests/stateful/RMI-over-IIOP/EJBHome</jndi-name>
         </session>
 
@@ -144,7 +144,7 @@
             </resource-ref>
         </entity>
         <entity>
-            <ejb-name>Bmp RMI-IIOP Bean</ejb-name>
+            <ejb-name>BmpRMIIIOPBean</ejb-name>
             <jndi-name>client/tests/entity/bmp/RMI-over-IIOP/EJBHome</jndi-name>
         </entity>
 
@@ -219,7 +219,7 @@
             </resource-ref>
         </entity>
         <entity>
-            <ejb-name>Cmp RMI-IIOP Bean</ejb-name>
+            <ejb-name>CmpRMIIIOPBean</ejb-name>
             <jndi-name>client/tests/entity/cmp/RMI-over-IIOP/EJBHome</jndi-name>
         </entity>
     </enterprise-beans>

@@ -40,7 +40,7 @@
             <ejb-class>org.openejb.test.entity.cmp.BasicCmp2Bean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>False</reentrant>
+            <reentrant>false</reentrant>
             <cmp-version>2.x</cmp-version>
             <abstract-schema-name>BasicCmp</abstract-schema-name>
             <cmp-field><field-name>id</field-name></cmp-field>
@@ -73,7 +73,7 @@
             <ejb-class>org.openejb.test.entity.cmp.AllowedOperationsCmp2Bean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>False</reentrant>
+            <reentrant>false</reentrant>
             <abstract-schema-name>AOBasicCmp</abstract-schema-name>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>firstName</field-name></cmp-field>
@@ -125,7 +125,7 @@
             <ejb-class>org.openejb.test.entity.cmp.EncCmp2Bean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>False</reentrant>
+            <reentrant>false</reentrant>
             <abstract-schema-name>EncCmp</abstract-schema-name>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>firstName</field-name></cmp-field>
@@ -214,13 +214,13 @@
             <description>
                 blah, blah, blah
             </description>
-            <ejb-name>Cmp RMI-IIOP Bean</ejb-name>
+            <ejb-name>CmpRMIIIOPBean</ejb-name>
             <home>org.openejb.test.entity.cmp.RmiIiopCmpHome</home>
             <remote>org.openejb.test.entity.cmp.RmiIiopCmpObject</remote>
             <ejb-class>org.openejb.test.entity.cmp.RmiIiopCmp2Bean</ejb-class>
             <persistence-type>Container</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>False</reentrant>
+            <reentrant>false</reentrant>
             <abstract-schema-name>CmpRmiIiop</abstract-schema-name>
             <cmp-field><field-name>id</field-name></cmp-field>
             <cmp-field><field-name>firstName</field-name></cmp-field>
@@ -300,7 +300,7 @@
             <description>A basic stateful session bean with bean-managed
                 transaction demarcation.
             </description>
-            <ejb-name>Basic BMT StatefulBean</ejb-name>
+            <ejb-name>BasicBMTStatefulBean</ejb-name>
             <home>org.openejb.test.stateful.BasicStatefulHome</home>
             <remote>org.openejb.test.stateful.BasicStatefulObject</remote>
             <ejb-class>org.openejb.test.stateful.BMTStatefulBean</ejb-class>
@@ -342,7 +342,7 @@
             <description>A basic stateful session bean with bean-managed
                 transaction demarcation.
             </description>
-            <ejb-name>BMT StatefulBean</ejb-name>
+            <ejb-name>BMTStatefulBean</ejb-name>
             <home>org.openejb.test.stateful.BeanTxStatefulHome</home>
             <remote>org.openejb.test.stateful.BeanTxStatefulObject</remote>
             <ejb-class>org.openejb.test.stateful.BeanTxStatefulBean</ejb-class>
@@ -457,7 +457,7 @@
             <description>
                 The stateful bean for the RMI-IIOP Tests
             </description>
-            <ejb-name>Stateful RMI-IIOP Bean</ejb-name>
+            <ejb-name>StatefulRMIIIOPBean</ejb-name>
             <home>org.openejb.test.stateful.RmiIiopStatefulHome</home>
             <remote>org.openejb.test.stateful.RmiIiopStatefulObject</remote>
             <ejb-class>org.openejb.test.stateful.RmiIiopStatefulBean</ejb-class>
@@ -540,7 +540,7 @@
             <description>A basic stateless session bean with bean-managed
                 transaction demarcation.
             </description>
-            <ejb-name>Basic BMT StatelessBean</ejb-name>
+            <ejb-name>BasicBMTStatelessBean</ejb-name>
             <home>org.openejb.test.stateless.BasicStatelessHome</home>
             <remote>org.openejb.test.stateless.BasicStatelessObject</remote>
             <ejb-class>org.openejb.test.stateless.BasicStatelessBean</ejb-class>
@@ -617,7 +617,7 @@
             <description>A basic stateless session bean with bean-managed
                 transaction demarcation.
             </description>
-            <ejb-name>BMT StatelessBean</ejb-name>
+            <ejb-name>BMTStatelessBean</ejb-name>
             <home>org.openejb.test.stateless.BeanTxStatelessHome</home>
             <remote>org.openejb.test.stateless.BeanTxStatelessObject</remote>
             <ejb-class>org.openejb.test.stateless.BeanTxStatelessBean</ejb-class>
@@ -750,7 +750,7 @@
             <description>
                 The stateless bean for the RMI-IIOP Tests
             </description>
-            <ejb-name>Stateless RMI-IIOP Bean</ejb-name>
+            <ejb-name>StatelessRMIIIOPBean</ejb-name>
             <home>org.openejb.test.stateless.RmiIiopStatelessHome</home>
             <remote>org.openejb.test.stateless.RmiIiopStatelessObject</remote>
             <ejb-class>org.openejb.test.stateless.RmiIiopStatelessBean</ejb-class>
@@ -797,7 +797,7 @@
             <ejb-class>org.openejb.test.entity.bmp.BasicBmpBean</ejb-class>
             <persistence-type>Bean</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>False</reentrant>
+            <reentrant>false</reentrant>
             <primkey-field>primaryKey</primkey-field>
             <resource-ref>
                 <description>
@@ -825,7 +825,7 @@
             <ejb-class>org.openejb.test.entity.bmp.AllowedOperationsBmpBean</ejb-class>
             <persistence-type>Bean</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>False</reentrant>
+            <reentrant>false</reentrant>
             <primkey-field>primaryKey</primkey-field>
             <env-entry>
                 <env-entry-name>entity/references/JNDI_access_to_java_comp_env</env-entry-name>
@@ -873,7 +873,7 @@
             <ejb-class>org.openejb.test.entity.bmp.EncBmpBean</ejb-class>
             <persistence-type>Bean</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>False</reentrant>
+            <reentrant>false</reentrant>
             <primkey-field>primaryKey</primkey-field>
             <env-entry>
                 <env-entry-name>entity/bmp/references/Boolean</env-entry-name>
@@ -958,13 +958,13 @@
             <description>
                 blah, blah, blah
             </description>
-            <ejb-name>Bmp RMI-IIOP Bean</ejb-name>
+            <ejb-name>BmpRMIIIOPBean</ejb-name>
             <home>org.openejb.test.entity.bmp.RmiIiopBmpHome</home>
             <remote>org.openejb.test.entity.bmp.RmiIiopBmpObject</remote>
             <ejb-class>org.openejb.test.entity.bmp.RmiIiopBmpBean</ejb-class>
             <persistence-type>Bean</persistence-type>
             <prim-key-class>java.lang.Integer</prim-key-class>
-            <reentrant>False</reentrant>
+            <reentrant>false</reentrant>
             <primkey-field>primaryKey</primkey-field>
             <ejb-ref>
                 <ejb-ref-name>bmp/rmi-iiop/home</ejb-ref-name>
@@ -1057,7 +1057,7 @@
         </container-transaction>
         <container-transaction>
             <method>
-                <ejb-name>Cmp RMI-IIOP Bean</ejb-name>
+                <ejb-name>CmpRMIIIOPBean</ejb-name>
                 <method-name>*</method-name>
             </method>
             <trans-attribute>Never</trans-attribute>
@@ -1072,7 +1072,7 @@
 
         <container-transaction>
             <method>
-                <ejb-name>Stateful RMI-IIOP Bean</ejb-name>
+                <ejb-name>StatefulRMIIIOPBean</ejb-name>
                 <method-name>*</method-name>
             </method>
             <trans-attribute>Never</trans-attribute>
@@ -1094,7 +1094,7 @@
 
         <container-transaction>
             <method>
-                <ejb-name>Stateless RMI-IIOP Bean</ejb-name>
+                <ejb-name>StatelessRMIIIOPBean</ejb-name>
                 <method-name>*</method-name>
             </method>
             <trans-attribute>Never</trans-attribute>
@@ -1123,7 +1123,7 @@
         </container-transaction>
         <container-transaction>
             <method>
-                <ejb-name>Bmp RMI-IIOP Bean</ejb-name>
+                <ejb-name>BmpRMIIIOPBean</ejb-name>
                 <method-name>*</method-name>
             </method>
             <trans-attribute>Never</trans-attribute>
