@@ -48,11 +48,13 @@
 package org.openejb.nova.persistence.jdbc;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public final class JDBCUtil {
@@ -64,5 +66,36 @@ public final class JDBCUtil {
         } catch (SQLException e) {
             // ignore
         }
+    }
+
+    public static void close(Statement s) {
+        try {
+            if (s != null) {
+                s.close();
+            }
+        } catch (SQLException e) {
+            // ignore
+        }
+    }
+
+    public static void close(ResultSet rs) {
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+        } catch (SQLException e) {
+            // ignore
+        }
+    }
+
+    public static void close(Connection c, Statement s, ResultSet rs) {
+        close(rs);
+        close(s);
+        close(c);
+    }
+
+    public static void close(Connection c, Statement s) {
+        close(s);
+        close(c);
     }
 }

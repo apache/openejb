@@ -45,16 +45,78 @@
  *
  * ====================================================================
  */
-package org.openejb.nova.entity.cmp;
+package org.openejb.nova.persistence.jdbc.binding;
 
-import org.openejb.nova.dispatch.MethodSignature;
-import org.openejb.nova.persistence.QueryCommand;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.Reader;
+import java.io.StringWriter;
+
+import org.openejb.nova.persistence.jdbc.Binding;
+import org.openejb.nova.persistence.Tuple;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public interface CMPCommandFactory {
-    QueryCommand getFinder(MethodSignature signature);
+public final class CharacterStreamBinding implements Binding {
+    private final int index;
+    private final int slot;
+
+    public CharacterStreamBinding(int index, int slot) {
+        this.index = index;
+        this.slot = slot;
+    }
+
+    public void bind(PreparedStatement ps, Object[] args) throws SQLException {
+        String str = (String) args[slot];
+        ps.setCharacterStream(index, new StringReader(str), str.length());
+    }
+
+    public void unbind(ResultSet rs, Tuple tuple) throws SQLException {
+        Object[] values = tuple.getValues();
+        Reader reader = rs.getCharacterStream(index);
+        try {
+            if (rs.wasNull()) {
+                values[slot] = null;
+            } else {
+                char[] buffer = new char[4096];
+                StringWriter writer = new StringWriter(4096);
+                int len;
+                try {
+                    while ((len = reader.read(buffer)) != -1) {
+                        writer.write(buffer, 0, len);
+                    }
+                } catch (IOException e) {
+                    SQLException sqlException = new SQLException("Unable to read Character stream from server");
+                    sqlException.initCause(e);
+                    throw sqlException;
+                }
+                values[slot] = writer.toString();
+            }
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    SQLException sqlException = new SQLException("Unable to close Character stream");
+                    sqlException.initCause(e);
+                    throw sqlException;
+                }
+            }
+        }
+    }
+
+    public int getLength() {
+        return 1;
+    }
 }

@@ -54,14 +54,14 @@ import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 
 import org.openejb.nova.AbstractEJBContainer;
 import org.openejb.nova.EJBInstanceFactory;
-import org.openejb.nova.transaction.TransactionContextInterceptor;
-import org.openejb.nova.util.SoftLimitedInstancePool;
-import org.openejb.nova.dispatch.VirtualOperationFactory;
 import org.openejb.nova.dispatch.DispatchInterceptor;
+import org.openejb.nova.dispatch.VirtualOperationFactory;
+import org.openejb.nova.entity.EntityClientContainerFactory;
 import org.openejb.nova.entity.EntityContainerConfiguration;
 import org.openejb.nova.entity.EntityInstanceFactory;
 import org.openejb.nova.entity.EntityInstanceInterceptor;
-import org.openejb.nova.entity.EntityClientContainerFactory;
+import org.openejb.nova.transaction.TransactionContextInterceptor;
+import org.openejb.nova.util.SoftLimitedInstancePool;
 
 /**
  * @jmx.mbean
@@ -71,10 +71,12 @@ import org.openejb.nova.entity.EntityClientContainerFactory;
  */
 public class CMPEntityContainer extends AbstractEJBContainer implements CMPEntityContainerMBean {
     private final String pkClassName;
+    private final CMPCommandFactory persistenceFactory;
 
-    public CMPEntityContainer(EntityContainerConfiguration config) {
+    public CMPEntityContainer(EntityContainerConfiguration config, CMPCommandFactory persistenceFactory) {
         super(config);
         pkClassName = config.pkClassName;
+        this.persistenceFactory = persistenceFactory;
     }
 
     protected void doStart() throws Exception {
@@ -82,7 +84,7 @@ public class CMPEntityContainer extends AbstractEJBContainer implements CMPEntit
 
         Class pkClass = classLoader.loadClass(pkClassName);
 
-        VirtualOperationFactory vopFactory = CMPOperationFactory.newInstance(this, beanClass);
+        VirtualOperationFactory vopFactory = CMPOperationFactory.newInstance(this, beanClass, persistenceFactory);
         vtable = vopFactory.getVTable();
 
         EJBInstanceFactory implFactory = new CMPInstanceFactory(beanClass);

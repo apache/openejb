@@ -45,72 +45,50 @@
  *
  * ====================================================================
  */
-package org.openejb.nova.entity.cmp;
+package org.openejb.nova.persistence.jdbc.binding;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import javax.ejb.FinderException;
-import javax.ejb.ObjectNotFoundException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
-
-import org.openejb.nova.EJBContainer;
-import org.openejb.nova.EJBInvocation;
-import org.openejb.nova.dispatch.VirtualOperation;
-import org.openejb.nova.persistence.QueryCommand;
+import org.openejb.nova.persistence.jdbc.Binding;
 import org.openejb.nova.persistence.Tuple;
 
 /**
- *
- *
+ * 
+ * 
  * @version $Revision$ $Date$
  */
-public class CMPFinderMethod implements VirtualOperation {
-    private final EJBContainer container;
-    private final QueryCommand finderCommand;
-    private final boolean multiValued;
+public final class ByteBinding implements Binding {
+    private final int index;
+    private final int slot;
 
-    public CMPFinderMethod(EJBContainer container, QueryCommand command, boolean multiValue) {
-        this.container = container;
-        this.finderCommand = command;
-        this.multiValued = multiValue;
+    public ByteBinding(int index, int slot) {
+        this.index = index;
+        this.slot = slot;
     }
 
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        List finderResult = finderCommand.executeQuery(invocation.getArguments());
-
-        boolean remote = invocation.getType().isRemoteInvocation();
-
-        if (multiValued) {
-            ArrayList result = new ArrayList(finderResult.size());
-            for (Iterator iterator = finderResult.iterator(); iterator.hasNext();) {
-                Tuple tuple = (Tuple) iterator.next();
-                Object pk = tuple.getValue(0);
-                result.add(getReference(remote, pk));
-            }
-            return new SimpleInvocationResult(true, result);
+    public void bind(PreparedStatement ps, Object[] args) throws SQLException {
+        Byte value = (Byte)args[slot];
+        if (value == null) {
+            ps.setNull(index, Types.TINYINT);
         } else {
-            if (finderResult.size() == 0) {
-                return new SimpleInvocationResult(false, new ObjectNotFoundException());
-            } else if (finderResult.size() > 1) {
-                return new SimpleInvocationResult(false, new FinderException("Query returned more than one result"));
-            }
-            Tuple tuple = (Tuple)finderResult.get(0);
-            Object pk = tuple.getValue(0);
-            return new SimpleInvocationResult(true, getReference(remote, pk));
+            ps.setByte(index, value.byteValue());
         }
     }
 
-    private Object getReference(boolean remote, Object id) {
-        if (id == null) {
-            // yes, finders can return null
-            return null;
-        } else if (remote) {
-            return container.getEJBObject(id);
+    public void unbind(ResultSet rs, Tuple tuple) throws SQLException {
+        byte value = rs.getByte(index);
+        Object[] values = tuple.getValues();
+        if (rs.wasNull()) {
+            values[slot] = null;
         } else {
-            return container.getEJBLocalObject(id);
+            values[slot] = new Byte(value);
         }
+    }
+
+    public int getLength() {
+        return 1;
     }
 }

@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Collection;
 import javax.ejb.EntityContext;
+import javax.sql.DataSource;
 
 import net.sf.cglib.reflect.FastClass;
 
@@ -62,12 +63,12 @@ import org.openejb.nova.entity.BusinessMethod;
 import org.openejb.nova.entity.HomeMethod;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public class CMPOperationFactory extends AbstractOperationFactory {
-    public static CMPOperationFactory newInstance(CMPEntityContainer container, Class beanClass) {
+    public static CMPOperationFactory newInstance(CMPEntityContainer container, Class beanClass, CMPCommandFactory persistenceFactory) {
         FastClass fastClass = FastClass.create(beanClass);
         String beanClassName = beanClass.getName();
 
@@ -102,6 +103,7 @@ public class CMPOperationFactory extends AbstractOperationFactory {
 
             // create a VitrualOperation for the method (if the method is understood)
             String name = beanMethod.getName();
+            MethodSignature signature = new MethodSignature(beanClassName, beanMethod);
             int index = fastClass.getIndex(name, beanMethod.getParameterTypes());
             VirtualOperation vop;
             if (!name.startsWith("ejb")) {
@@ -117,7 +119,7 @@ public class CMPOperationFactory extends AbstractOperationFactory {
             } else if (name.startsWith("ejbFind")) {
                 Class returnType = beanMethod.getReturnType();
                 boolean multiValued = Collection.class.isAssignableFrom(returnType);
-                vop = new CMPFinderMethod(container, null, multiValued);
+                vop = new CMPFinder(container, persistenceFactory.getFinder(signature), multiValued);
             } else if (name.startsWith("ejbHome")) {
                 vop = new HomeMethod(fastClass, index);
             } else if (name.equals("ejbRemove")) {
@@ -126,7 +128,7 @@ public class CMPOperationFactory extends AbstractOperationFactory {
             } else {
                 continue;
             }
-            sigList.add(new MethodSignature(beanClassName, beanMethod));
+            sigList.add(signature);
             vopList.add(vop);
         }
         MethodSignature[] signatures = (MethodSignature[]) sigList.toArray(new MethodSignature[0]);

@@ -49,16 +49,19 @@ package org.openejb.nova.persistence.jdbc;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.openejb.nova.persistence.Tuple;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public interface Binding {
-    void bind(PreparedStatement ps, Object[] args);
+    int getLength();
+    
+    void bind(PreparedStatement ps, Object[] args) throws SQLException;
 
-    void unbind(ResultSet rs, Tuple tuple);
+    void unbind(ResultSet rs, Tuple tuple) throws SQLException;
 }

@@ -47,14 +47,33 @@
  */
 package org.openejb.nova.entity.cmp;
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.sql.DataSource;
+
 import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.persistence.QueryCommand;
+import org.openejb.nova.persistence.jdbc.Binding;
+import org.openejb.nova.persistence.jdbc.JDBCQueryCommand;
 
 /**
- *
- *
+ * 
+ * 
  * @version $Revision$ $Date$
  */
-public interface CMPCommandFactory {
-    QueryCommand getFinder(MethodSignature signature);
+public class SimpleCommandFactory implements CMPCommandFactory {
+    private final DataSource ds;
+    private final Map commandMap = new HashMap();
+
+    public SimpleCommandFactory(DataSource ds) {
+        this.ds = ds;
+    }
+
+    public void defineQuery(MethodSignature signature, String sql, Binding[] inputBindings, Binding[] outputBindings) {
+        commandMap.put(signature, new JDBCQueryCommand(ds, sql, inputBindings, outputBindings));
+    }
+
+    public QueryCommand getFinder(MethodSignature signature) {
+        return (JDBCQueryCommand) commandMap.get(signature);
+    }
 }

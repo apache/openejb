@@ -45,16 +45,19 @@
  *
  * ====================================================================
  */
-package org.openejb.nova.persistence.jdbc;
+package org.openejb.nova.persistence.jdbc.binding;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
-import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
-import org.openejb.nova.persistence.QueryCommand;
+import org.openejb.nova.persistence.jdbc.Binding;
 import org.openejb.nova.persistence.Tuple;
 
 /**
@@ -62,44 +65,63 @@ import org.openejb.nova.persistence.Tuple;
  *
  * @version $Revision$ $Date$
  */
-public class JDBCQueryCommand implements QueryCommand {
-    private final DataSource ds;
-    private final String sql;
-    private final Binding[] inputBindings;
-    private final Binding[] outputBindings;
+public final class AsciiStreamBinding implements Binding {
+    private final int index;
+    private final int slot;
+    private final String encoding;
 
-    public JDBCQueryCommand(DataSource ds, String sql, Binding[] inputBindings, Binding[] outputBindings) {
-        this.ds = ds;
-        this.sql = sql;
-        this.inputBindings = inputBindings;
-        this.outputBindings = outputBindings;
+    public AsciiStreamBinding(int index, int slot) {
+        this(index, slot, "US-ASCII");
     }
 
-    public List executeQuery(Object[] args) throws Exception {
-        Connection c = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            c = ds.getConnection();
-            ps = c.prepareStatement(sql);
-            for (int i = 0; i < inputBindings.length; i++) {
-                Binding inputBinding = inputBindings[i];
-                inputBinding.bind(ps, args);
-            }
-            rs = ps.executeQuery();
+    public AsciiStreamBinding(int index, int slot, String encoding) {
+        this.index = index;
+        this.slot = slot;
+        this.encoding = encoding;
+    }
 
-            ArrayList result = new ArrayList();
-            while (rs.next()) {
-                Tuple tuple = new Tuple(new Object[outputBindings.length]);
-                for (int i = 0; i < outputBindings.length; i++) {
-                    Binding outputBinding = outputBindings[i];
-                    outputBinding.unbind(rs, tuple);
-                }
-                result.add(tuple);
-            }
-            return result;
-        } finally {
-            JDBCUtil.close(c, ps, rs);
+    public void bind(PreparedStatement ps, Object[] args) throws SQLException {
+        try {
+            String str = (String) args[slot];
+            byte[] bytes = str.getBytes(encoding);
+            InputStream stream = new ByteArrayInputStream(bytes);
+            ps.setAsciiStream(index, stream, bytes.length);
+        } catch (UnsupportedEncodingException e) {
+            SQLException sqlException = new SQLException("Unable to convert to "+encoding);
+            sqlException.initCause(e);
+            throw sqlException;
         }
+    }
+
+    public void unbind(ResultSet rs, Tuple tuple) throws SQLException {
+        Object[] values = tuple.getValues();
+        InputStream stream = rs.getAsciiStream(index);
+        if (rs.wasNull()) {
+            values[slot] = null;
+        } else {
+            byte[] buffer = new byte[4096];
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            int len;
+            try {
+                while ((len = stream.read(buffer)) != -1) {
+                    baos.write(buffer, 0, len);
+                }
+            } catch (IOException e) {
+                SQLException sqlException = new SQLException("Unable to read ASCII stream from server");
+                sqlException.initCause(e);
+                throw sqlException;
+            }
+            try {
+                values[slot] = baos.toString(encoding);
+            } catch (UnsupportedEncodingException e) {
+                SQLException sqlException = new SQLException("Unable to convert to "+encoding);
+                sqlException.initCause(e);
+                throw sqlException;
+            }
+        }
+    }
+
+    public int getLength() {
+        return 1;
     }
 }

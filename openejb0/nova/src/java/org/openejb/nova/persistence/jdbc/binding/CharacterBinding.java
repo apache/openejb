@@ -45,16 +45,41 @@
  *
  * ====================================================================
  */
-package org.openejb.nova.entity.cmp;
+package org.openejb.nova.persistence.jdbc.binding;
 
-import org.openejb.nova.dispatch.MethodSignature;
-import org.openejb.nova.persistence.QueryCommand;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+
+import org.openejb.nova.persistence.jdbc.Binding;
+import org.openejb.nova.persistence.Tuple;
 
 /**
- *
- *
+ * 
+ * 
  * @version $Revision$ $Date$
  */
-public interface CMPCommandFactory {
-    QueryCommand getFinder(MethodSignature signature);
+public final class CharacterBinding implements Binding {
+    private final int index;
+    private final int slot;
+
+    public CharacterBinding(int index, int slot) {
+        this.index = index;
+        this.slot = slot;
+    }
+
+    public void bind(PreparedStatement ps, Object[] args) throws SQLException {
+        ps.setString(index, args[slot].toString());
+    }
+
+    public void unbind(ResultSet rs, Tuple tuple) throws SQLException {
+        Object[] values = tuple.getValues();
+        String value = rs.getString(index);
+        values[slot] = value == null ? null : new Character(value.charAt(0));
+    }
+
+    public int getLength() {
+        return 1;
+    }
 }

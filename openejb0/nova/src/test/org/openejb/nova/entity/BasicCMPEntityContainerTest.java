@@ -48,15 +48,22 @@
 package org.openejb.nova.entity;
 
 import java.net.URI;
+import java.sql.Connection;
+import java.sql.Statement;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import junit.framework.TestCase;
+import org.hsqldb.jdbcDataSource;
 
 import org.openejb.nova.MockTransactionManager;
+import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.entity.cmp.CMPEntityContainer;
+import org.openejb.nova.entity.cmp.SimpleCommandFactory;
+import org.openejb.nova.persistence.jdbc.Binding;
+import org.openejb.nova.persistence.jdbc.binding.IntBinding;
 import org.openejb.nova.util.ServerUtil;
 
 /**
@@ -74,13 +81,23 @@ public class BasicCMPEntityContainerTest extends TestCase {
         MockLocalHome home = (MockLocalHome) container.getEJBLocalHome();
         assertEquals(2, home.intMethod(1));
 
-//        MockLocal local = home.findByPrimaryKey(new Integer(1));
+        MockLocal local = home.findByPrimaryKey(new Integer(1));
 //        assertEquals(3, local.intMethod(1));
 //        assertEquals(1, local.getIntField());
     }
 
     protected void setUp() throws Exception {
         super.setUp();
+
+        jdbcDataSource ds = new jdbcDataSource();
+        ds.setDatabase(".");
+        ds.setUser("sa");
+        ds.setPassword("");
+        Connection c = ds.getConnection();
+        Statement s = c.createStatement();
+        s.execute("CREATE TABLE MOCK(ID INTEGER)");
+        s.execute("INSERT INTO MOCK(ID) VALUES(1)");
+
         mbServer = ServerUtil.newRemoteServer();
 
         config = new EntityContainerConfiguration();
@@ -94,7 +111,11 @@ public class BasicCMPEntityContainerTest extends TestCase {
         config.txnManager = new MockTransactionManager();
         config.pkClassName = Integer.class.getName();
 
-        container = new CMPEntityContainer(config);
+        SimpleCommandFactory persistenceFactory = new SimpleCommandFactory(ds);
+        MethodSignature signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbFindByPrimaryKey", new String[] {"java.lang.Object"});
+        persistenceFactory.defineQuery(signature, "SELECT ID FROM Mock WHERE ID=?", new Binding[] { new IntBinding(1, 0)}, new Binding[] {new IntBinding(1, 0)});
+
+        container = new CMPEntityContainer(config, persistenceFactory);
         mbServer.registerMBean(container, CONTAINER_NAME);
         container.start();
     }

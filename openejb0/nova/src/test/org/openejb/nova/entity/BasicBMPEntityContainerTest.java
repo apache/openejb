@@ -55,7 +55,6 @@ import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import junit.framework.TestCase;
 
-import org.openejb.nova.entity.EntityContainerConfiguration;
 import org.openejb.nova.MockTransactionManager;
 import org.openejb.nova.entity.bmp.BMPEntityContainer;
 import org.openejb.nova.util.ServerUtil;
