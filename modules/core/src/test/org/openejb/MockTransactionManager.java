@@ -52,17 +52,18 @@ import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
+import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-import javax.transaction.Status;
+
+import org.apache.geronimo.transaction.ExtendedTransactionManager;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public class MockTransactionManager implements TransactionManager {
+public class MockTransactionManager implements ExtendedTransactionManager {
     private Transaction transaction = new MockTransaction();
     public boolean committed;
     public boolean rolledBack;
@@ -102,5 +103,9 @@ public class MockTransactionManager implements TransactionManager {
 
     public Transaction suspend() throws SystemException {
         return null;
+    }
+
+    public Transaction begin(long transactionTimeoutMilliseconds) throws NotSupportedException, SystemException {
+        return transaction;
     }
 }
