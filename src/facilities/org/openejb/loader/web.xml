@@ -13,11 +13,11 @@
     <servlet-name>loader</servlet-name>
     <servlet-class>org.openejb.loader.LoaderServlet</servlet-class>
     
-    <!--
+
     <init-param>
       
       <param-name>openejb.home</param-name>
-      <param-value>C:\anypath\openejb</param-value>
+      <param-value>$OPENEJB_HOME$</param-value>
       
       <description>
         Set this to the exact path where OpenEJB is installed.
@@ -28,7 +28,7 @@
       </description>
     
     </init-param>
-    -->
+
  
     <!--
     <init-param>

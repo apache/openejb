@@ -131,12 +131,61 @@
     <!-- Installs onto Tomcat                                               -->
     <!-- ================================================================== -->
   
+    <target name="check_available">
+
+        <available 
+            file="${openejb.dir}/dist/${project}_web-${version}.war"
+            property="examples.present"
+            classpathref="project.classpath"
+        />
+     
+        <available 
+            file="${openejb.dir}/dist/openejb_loader-${openejb.version}.war"
+            property="loader.present"
+            classpathref="project.classpath"
+         />
+   
+    </target>
+
+    <target name="check.loader"
+        depends="check_available"
+        unless="loader.present">
+        <antcall target="property-warning">
+            <param name="name" value="openejb.version"/>
+            <param name="value" value="${openejb.version}"/>
+        </antcall>
+    </target>
+                                            
+    <!-- ================================================================== -->
+    <!-- Print a requirement waring if a requirement check fails            -->
+    <!-- ================================================================== -->
+  
+    <target name="property-warning">
+        <echo>
+      +----------------------------------------------------------------+
+      + F A I L E D  R E Q U I R E M E N T                             |
+      +----------------------------------------------------------------+
+      | You must define the following property in order                |
+      | to build OpenEJB web examples:                                 |
+      |                                                                |
+      | ${name} = ${value}
+      |                                                                |
+      | You can set this property in the provided build.properties     |
+      | file, or you may set this property in your                     |
+      | ${user.home}/build.properties file.                            
+      +----------------------------------------------------------------+
+        </echo>
+        <fail message="Failed Requirement"/>
+    </target>
+
     <target name="install"
-          description="--> installs onto Tomcat">
+        depends="check.loader"
+        description="--> installs onto Tomcat">
         <copy todir="${tomcat.dir}/webapps">
         
             <fileset dir="${openejb.dir}/dist" >
                 <include name="${project}_web-${version}.war"/>
+                <include name="openejb_loader-${openejb.version}.war"/>
             </fileset>
         
         </copy>
