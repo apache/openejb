@@ -85,7 +85,7 @@ public class StatefulContainerBuilder extends AbstractContainerBuilder {
         StatefulInstanceContextFactory contextFactory = new StatefulInstanceContextFactory(getContainerId(), beanClass, getUserTransaction(), getUnshareableResources(), getApplicationManagedSecurityResources());
         StatefulInstanceFactory instanceFactory = new StatefulInstanceFactory(contextFactory);
 
-        // create and intitalize the interceptor builder
+        // create and intitalize the interceptor moduleBuilder
         InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new StatefulInterceptorBuilder(), signatures, vtable);
         interceptorBuilder.setInstanceFactory(instanceFactory);
         interceptorBuilder.setInstanceCache(new SimpleInstanceCache());

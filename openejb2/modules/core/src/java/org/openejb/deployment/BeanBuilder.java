@@ -47,13 +47,11 @@
  */
 package org.openejb.deployment;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
@@ -76,17 +74,17 @@ import org.openejb.xbeans.ejbjar.OpenejbRemoteRefType;
 
 
 abstract class BeanBuilder {
-	private OpenEJBModuleBuilder builder;
-	protected final OpenEJBModuleBuilder moduleBuilder;
-	protected final SecurityBuilder securityBuilder;
-	public BeanBuilder(OpenEJBModuleBuilder builder, final OpenEJBModuleBuilder moduleBuilder) {
-		super();
-		this.builder = builder;
-		this.moduleBuilder = moduleBuilder;
-		this.securityBuilder = moduleBuilder.securityBuilder;
-	}
+    protected final OpenEJBModuleBuilder moduleBuilder;
 
-	protected void setResourceEnvironment(ResourceEnvironmentBuilder builder, ResourceRefType[] resourceRefArray, OpenejbLocalRefType[] openejbResourceRefArray) {
+    protected BeanBuilder(OpenEJBModuleBuilder moduleBuilder) {
+        this.moduleBuilder = moduleBuilder;
+    }
+
+    public OpenEJBModuleBuilder getModuleBuilder() {
+        return moduleBuilder;
+    }
+
+    protected void setResourceEnvironment(ResourceEnvironmentBuilder builder, ResourceRefType[] resourceRefArray, OpenejbLocalRefType[] openejbResourceRefArray) {
 	    Map openejbNames = new HashMap();
 	    for (int i = 0; i < openejbResourceRefArray.length; i++) {
 	        OpenejbLocalRefType openejbLocalRefType = openejbResourceRefArray[i];
@@ -107,6 +105,7 @@ abstract class BeanBuilder {
 	    builder.setUnshareableResources(unshareableResources);
 	    builder.setApplicationManagedSecurityResources(applicationManagedSecurityResources);
 	}
+
 	protected ReadOnlyContext buildComponentContext(EARContext earContext,
 	                                                     EJBModule ejbModule,
 	                                                     EnvEntryType[] envEntries,
@@ -125,12 +124,11 @@ abstract class BeanBuilder {
 	    Map ejbLocalRefMap = mapRefs(openejbEjbLocalRefs);
 	    Map resourceRefMap = mapRefs(openejbResourceRefs);
 	    Map resourceEnvRefMap = mapRefs(openejbResourceEnvRefs);
-	
-	    URI uri = ejbModule.getURI();
-	
-	    return ENCConfigBuilder.buildComponentContext(earContext, uri, userTransaction, envEntries, ejbRefs, ejbRefMap, ejbLocalRefs, ejbLocalRefMap, resourceRefs, resourceRefMap, resourceEnvRefs, resourceEnvRefMap, messageDestinationRefs, cl);
+
+        return ENCConfigBuilder.buildComponentContext(earContext, ejbModule.getModuleURI(), userTransaction, envEntries, ejbRefs, ejbRefMap, ejbLocalRefs, ejbLocalRefMap, resourceRefs, resourceRefMap, resourceEnvRefs, resourceEnvRefMap, messageDestinationRefs, cl);
 	
 	}
+
 	protected Map mapRefs(OpenejbRemoteRefType[] refs) {
 	    Map refMap = new HashMap();
 	    if (refs != null) {
@@ -141,6 +139,7 @@ abstract class BeanBuilder {
 	    }
 	    return refMap;
 	}
+
 	protected ObjectName createEJBObjectName(EARContext earContext, String moduleName, String type, String ejbName) throws DeploymentException {
 	    Properties nameProps = new Properties();
 	    nameProps.put("j2eeType", type);

@@ -156,12 +156,12 @@ class SecurityBuilder {
     }
 
     /**
-     * Fill the container builder with the security information that it needs
+     * Fill the container moduleBuilder with the security information that it needs
      * to create the proper interceptors.  A <code>SecurityConfiguration</code>
      * is also filled with permissions that need to be used to fill the JACC
      * policy configuration.
      *
-     * @param builder            the container builder that is to be filled
+     * @param builder            the container moduleBuilder that is to be filled
      * @param notAssigned        the set of all possible permissions.  These will be
      *                           culled so that all that are left are those that have
      *                           not been assigned roles.

@@ -250,7 +250,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
 
-        // create and intitalize the interceptor builder
+        // create and intitalize the interceptor moduleBuilder
         InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new EntityInterceptorBuilder(), signatures, vtable);
 
         // build the instance factory
