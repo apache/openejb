@@ -63,44 +63,6 @@ public abstract class ENCReference implements Reference{
     protected Reference ref = null;
     protected boolean checking = true;
     
-    /*
-    * This constructor is used when the object to be referenced is accessible through 
-    * some the OpenEJB global name space. The lookup name is provided, but not the context 
-    * because it can be obtained dynamically using OpenEJB.getJNDIContext() method. The 
-    * object is not resolved until it's requested.  This is primarily used when constructing
-    * the JNDI ENC for a bean.
-    */
-    public ENCReference(String jndiName){
-        this.ref = new IntraVmJndiReference( jndiName );
-    }
-    
-    /*
-    * This constructor is used when the object to be referenced is accessible through 
-    * some other JNDI name space. The context is provided and the lookup name, but the 
-    * object is not resolved until it's requested. 
-    */
-    public ENCReference(javax.naming.Context linkedContext, String jndiName){
-        this.ref = new JndiReference( linkedContext, jndiName );
-    }
-  
-    /*
-    * This constructor is used when the object to be referenced is accessible through 
-    * some other JNDI name space, whose initial context is an element of the OpenEJB root 
-    * context. To resolve the reference we must first look up the foreign context in the OpenEJB
-    * root and then resolve the lookup on that.
-    */
-    public ENCReference(String linkedContextName, String jndiName){
-        this.ref = new JndiReference( linkedContextName, jndiName );
-    }
-    
-    /*
-    * This constructor is used when the object to be reference is available at the time 
-    * the reference is created.
-    */
-    public ENCReference(Object reference){
-        this.ref = new ObjectReference( reference );
-    }
-    
     /**
      */
     public ENCReference(Reference ref){

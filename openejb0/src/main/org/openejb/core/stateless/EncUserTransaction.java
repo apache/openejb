@@ -48,6 +48,7 @@ import javax.ejb.EJBHome;
 import javax.naming.NameNotFoundException;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
+import org.openejb.core.ivm.naming.ObjectReference;
 
 /*
   This class is a wrapper for CoreUserTransaction reference in the 
@@ -60,7 +61,7 @@ public class EncUserTransaction extends org.openejb.core.ivm.naming.ENCReference
     * This constructor take a new CoreUserTransaction object as the object reference
     */
     public EncUserTransaction(org.openejb.core.CoreUserTransaction reference){
-        super(reference);
+        super( new ObjectReference(reference) );
     }
     
     /*
