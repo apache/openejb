@@ -6,7 +6,7 @@
     parentId="org/openejb/Security">
 
     <dependency>
-        <uri>junit/jars/junit-3.8.jar</uri>
+        <uri>junit/jars/junit-3.8.1.jar</uri>
     </dependency>
 
     <enterprise-beans>

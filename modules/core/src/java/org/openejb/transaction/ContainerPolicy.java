@@ -48,14 +48,13 @@
 package org.openejb.transaction;
 
 import javax.ejb.TransactionRequiredLocalException;
-import javax.transaction.TransactionRequiredException;
 import javax.transaction.RollbackException;
+import javax.transaction.TransactionRequiredException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.transaction.context.InheritableTransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;

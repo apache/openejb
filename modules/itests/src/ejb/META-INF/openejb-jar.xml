@@ -6,7 +6,7 @@
     parentId="org/apache/geronimo/DefaultDatabase">
 
     <dependency>
-        <uri>junit/jars/junit-3.8.jar</uri>
+        <uri>junit/jars/junit-3.8.1.jar</uri>
     </dependency>
 
     <cmp-connection-factory>DefaultDatasource</cmp-connection-factory>

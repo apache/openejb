@@ -129,11 +129,11 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("getUserTransaction() cannot be called when inactive");
         }
 
-        public void setRollbackOnly(EJBInstanceContext context) {
+        public void setRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("setRollbackOnly() cannot be called when inactive");
         }
 
-        public boolean getRollbackOnly(EJBInstanceContext context) {
+        public boolean getRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("getRollbackOnly() cannot be called when inactive");
         }
 
@@ -141,7 +141,7 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("getMessageContext() cannot be called when inactive");
         }
 
-        public TimerService getTimerService() {
+        public TimerService getTimerService(EJBInstanceContext context) {
             throw new IllegalStateException("getTimerService() cannot be called when inactive");
         }
     };
@@ -167,11 +167,11 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("getUserTransaction() cannot be called from setSessionContext(SessionContext)");
         }
 
-        public void setRollbackOnly(EJBInstanceContext context) {
+        public void setRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("setRollbackOnly() cannot be called from setSessionContext(SessionContext)");
         }
 
-        public boolean getRollbackOnly(EJBInstanceContext context) {
+        public boolean getRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("getRollbackOnly() cannot be called from setSessionContext(SessionContext)");
         }
 
@@ -179,7 +179,7 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("getMessageContext() cannot be called from setSessionContext(SessionContext)");
         }
 
-        public TimerService getTimerService() {
+        public TimerService getTimerService(EJBInstanceContext context) {
             throw new IllegalStateException("getTimerService() cannot be called from setSessionContext(SessionContext)");
         }
     };
@@ -193,11 +193,11 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("isCallerInRole(String) cannot be called from ejbCreate/ejbRemove");
         }
 
-        public void setRollbackOnly(EJBInstanceContext context) {
+        public void setRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("setRollbackOnly() cannot be called from ejbCreate/ejbRemove");
         }
 
-        public boolean getRollbackOnly(EJBInstanceContext context) {
+        public boolean getRollbackOnly(EJBInstanceContext context, TransactionContextManager transactionContextManager) {
             throw new IllegalStateException("getRollbackOnly() cannot be called from ejbCreate/ejbRemove");
         }
 

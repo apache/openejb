@@ -120,9 +120,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>&junit-version;</version>
-            <properties>
-                <classloader>root</classloader>
-            </properties>
         </dependency>
         
         <dependency>
