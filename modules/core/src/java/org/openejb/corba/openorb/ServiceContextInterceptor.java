@@ -49,9 +49,9 @@ import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.LocalObject;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
-import org.openorb.orb.net.ServerRequest;
-import org.openorb.orb.net.Transport;
-import org.openorb.orb.ssl.SSLTransport;
+//import org.openorb.orb.net.ServerRequest;
+//import org.openorb.orb.net.Transport;
+//import org.openorb.orb.ssl.SSLTransport;
 
 import org.openejb.corba.security.SSLSessionManager;
 
@@ -67,13 +67,13 @@ final class ServiceContextInterceptor extends LocalObject implements ServerReque
     }
 
     public void receive_request_service_contexts(ServerRequestInfo ri) {
-        if (ri instanceof ServerRequest) {
-            Transport transport = ((ServerRequest) ri).channel().transport();
-            if (transport instanceof SSLTransport) {
-                SSLTransport sslTransport = (SSLTransport) transport;
-                SSLSessionManager.setSSLSession(ri.request_id(), sslTransport.getSocketSession());
-            }
-        }
+//        if (ri instanceof ServerRequest) {
+//            Transport transport = ((ServerRequest) ri).channel().transport();
+//            if (transport instanceof SSLTransport) {
+//                SSLTransport sslTransport = (SSLTransport) transport;
+//                SSLSessionManager.setSSLSession(ri.request_id(), sslTransport.getSocketSession());
+//            }
+//        }
     }
 
     public void send_exception(ServerRequestInfo ri) {

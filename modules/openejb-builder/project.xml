@@ -196,6 +196,12 @@
 
         <dependency>
             <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-corba</artifactId>
+            <version>${geronimo_spec_corba_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
             <version>${geronimo_spec_jta_version}</version>
         </dependency>
@@ -429,15 +435,6 @@
         <dependency>
             <groupId>tmporb</groupId>
             <artifactId>tmporb-pss</artifactId>
-            <version>${tmporb_version}</version>
-            <properties>
-                <runtime>true</runtime>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-ssl</artifactId>
             <version>${tmporb_version}</version>
             <properties>
                 <runtime>true</runtime>
