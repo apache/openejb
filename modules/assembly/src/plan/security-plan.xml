@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+
+<!--
+Configuration for the CORBA server.
+-->
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="org/openejb/Security"
+    parentId="org/apache/geronimo/DefaultDatabase"
+    >
+
+    <dependency>
+        <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>
+    </dependency>
+
+    <!-- Provide access to the login service -->
+    <gbean name="geronimo.remoting:router=SubsystemRouter" class="org.apache.geronimo.remoting.router.SubsystemRouter"/>
+
+    <gbean name="geronimo.remoting:transport=async" class="org.apache.geronimo.remoting.transport.TransportLoader">
+        <attribute name="bindURI" type="java.net.URI">async://0.0.0.0:4242</attribute>
+        <reference name="Router">geronimo.remoting:router=SubsystemRouter</reference>
+    </gbean>
+
+    <gbean name="geronimo.remoting:router=JMXRouter" class="org.apache.geronimo.remoting.router.JMXRouter">
+        <reference name="SubsystemRouter">geronimo.remoting:router=SubsystemRouter</reference>
+    </gbean>
+
+    <gbean name="geronimo.remoting:target=LoginServiceStub" class="org.apache.geronimo.security.remoting.jmx.LoginServiceStub">
+        <reference name="Router">geronimo.remoting:router=JMXRouter</reference>
+    </gbean>
+
+    <!-- public security realm -->
+    <gbean name="geronimo.security:type=SecurityRealm,realm=public-properties-realm" class="org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm">
+        <attribute name="realmName" type="java.lang.String">public-properties-realm</attribute>
+        <attribute name="maxLoginModuleAge" type="long">86400000</attribute>
+        <attribute name="usersURI" type="java.net.URI">var/security/public_users.properties</attribute>
+        <attribute name="groupsURI" type="java.net.URI">var/security/public_groups.properties</attribute>
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    </gbean>
+
+    <!-- JAAS login configuration entry for the public security realm -->
+    <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=public" class="org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal">
+        <attribute name="applicationConfigName" type="java.lang.String">public</attribute>
+        <attribute name="realmName" type="java.lang.String">public-properties-realm</attribute>
+        <attribute name="controlFlag" type="org.apache.geronimo.security.jaas.LoginModuleControlFlag">REQUIRED</attribute>
+    </gbean>
+
+    <!-- secret internal auditing security realm -->
+    <gbean name="geronimo.security:type=SecurityRealm,realm=black-properties-realm" class="org.apache.geronimo.security.realm.providers.PropertiesFileSecurityRealm">
+        <attribute name="realmName" type="java.lang.String">black-properties-realm</attribute>
+        <attribute name="maxLoginModuleAge" type="long">86400000</attribute>
+        <attribute name="usersURI" type="java.net.URI">var/security/black_users.properties</attribute>
+        <attribute name="groupsURI" type="java.net.URI">var/security/black_groups.properties</attribute>
+        <reference name="ServerInfo">geronimo.system:role=ServerInfo</reference>
+    </gbean>
+
+    <gbean name="geronimo.security:type=ConfigurationEntry,jaasId=black" class="org.apache.geronimo.security.jaas.ConfigurationEntryRealmLocal">
+        <attribute name="applicationConfigName" type="java.lang.String">black</attribute>
+        <attribute name="realmName" type="java.lang.String">black-properties-realm</attribute>
+        <attribute name="controlFlag" type="org.apache.geronimo.security.jaas.LoginModuleControlFlag">REQUIRED</attribute>
+    </gbean>
+
+</configuration>
