@@ -190,7 +190,7 @@ public class ClasspathUtils{
         
     
         protected void addJarToPath(final URL jar, final URLClassLoader loader) throws Exception {
-            getURLClassPath(loader).addURL( jar );
+            this.getURLClassPath(loader).addURL( jar );
         }
     
         protected void addJarsToPath(final File dir, final URLClassLoader loader) throws Exception {
@@ -252,14 +252,14 @@ public class ClasspathUtils{
         private URLClassLoader sysLoader;
     
         public void addJarsToPath(File dir) throws Exception {
-            addJarsToPath( dir , getSystemLoader() );
-            rebuildJavaClassPathVariable();
+            this.addJarsToPath( dir , getSystemLoader() );
+            this.rebuildJavaClassPathVariable();
         }
         
         public void addJarToPath(URL jar) throws Exception {
             //System.out.println("[|] SYSTEM "+jar.toExternalForm());
-            addJarToPath( jar, getSystemLoader() );
-            rebuildJavaClassPathVariable();
+            this.addJarToPath( jar, getSystemLoader() );
+            this.rebuildJavaClassPathVariable();
         }
     
         private URLClassLoader getSystemLoader() throws Exception{
@@ -303,12 +303,12 @@ public class ClasspathUtils{
         
         public void addJarsToPath(File dir) throws Exception {
             URLClassLoader loader = (URLClassLoader)ClasspathUtils.getContextClassLoader();
-            addJarsToPath( dir , loader );
+            this.addJarsToPath( dir , loader );
         }
         
         public void addJarToPath(URL jar) throws Exception {
             URLClassLoader loader = (URLClassLoader)ClasspathUtils.getContextClassLoader();
-            addJarToPath( jar, loader );
+            this.addJarToPath( jar, loader );
         }
     }
     
@@ -337,14 +337,14 @@ public class ClasspathUtils{
             });
         
             for (int j=0; j < jarNames.length; j++){
-                addJarToPath( new File( dir, jarNames[j]).toURL() );
+                this.addJarToPath( new File( dir, jarNames[j]).toURL() );
             }
             rebuild();
         }
         
         public void addJarToPath(URL jar) throws Exception {
             //System.out.println("[|] TOMCAT "+jar.toExternalForm());
-            _addJarToPath(jar);
+            this._addJarToPath(jar);
             rebuild();
         }
 
@@ -355,7 +355,7 @@ public class ClasspathUtils{
           //    path = path.substring("file:/C".length());
           //    path = "file:C"+path;
           //}
-            addRepository( path );
+            this.addRepository( path );
           //ClassLoader cl = ClasspathUtils.getContextClassLoader();
           //cl = getCommonLoader(cl);
           //System.out.println("[] "+cl.getClass().getName());
@@ -369,7 +369,7 @@ public class ClasspathUtils{
         }
         
         public void addRepository(String path) throws Exception{
-            getAddRepositoryMethod().invoke(getCommonLoader(), new Object[]{path});        
+            this.getAddRepositoryMethod().invoke(getCommonLoader(), new Object[]{path});        
         }
     
         private void rebuild(){
@@ -401,7 +401,7 @@ public class ClasspathUtils{
         }
         private ClassLoader getCommonLoader(){
             if (tomcatLoader == null) {
-                tomcatLoader = getCommonLoader(ClasspathUtils.getContextClassLoader()).getParent();
+                tomcatLoader = this.getCommonLoader(ClasspathUtils.getContextClassLoader()).getParent();
             }
             return tomcatLoader;
         }
@@ -411,7 +411,7 @@ public class ClasspathUtils{
             if (loader.getClass().getName().equals("org.apache.catalina.loader.StandardClassLoader")) {
                 return loader;                
             } else {
-                return getCommonLoader(loader.getParent());
+                return this.getCommonLoader(loader.getParent());
             }
         }
     
@@ -429,7 +429,7 @@ public class ClasspathUtils{
         throws Exception{
             if (addRepositoryMethod == null) {
                 final Class clazz = getCommonLoader().getClass();
-                addRepositoryMethod = (java.lang.reflect.Method)AccessController.doPrivileged(
+                this.addRepositoryMethod = (java.lang.reflect.Method)AccessController.doPrivileged(
                     new PrivilegedAction(){
                         public Object run() { 
                             java.lang.reflect.Method method = null;
