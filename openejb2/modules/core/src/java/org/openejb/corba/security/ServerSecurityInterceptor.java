@@ -164,7 +164,7 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 //            Subject identity = (Subject) subjectAny.extract_Value();
             Subject identity = SubjectManager.clearSubject(ri.request_id());
 
-            if (identity != null) ContextManager.unregisterSubject(identity);
+            if (identity != null && identity != defaultSubject) ContextManager.unregisterSubject(identity);
         } catch (InvalidSlot is) {
             log.error("InvalidSlot thrown", is);
             throw new INTERNAL("InvalidSlot thrown: " + is);
@@ -180,7 +180,7 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
 //            Subject identity = (Subject) subjectAny.extract_Value();
             Subject identity = SubjectManager.clearSubject(ri.request_id());
 
-            if (identity != null) ContextManager.unregisterSubject(identity);
+            if (identity != null && identity != defaultSubject) ContextManager.unregisterSubject(identity);
         } catch (InvalidSlot is) {
             log.error("InvalidSlot thrown", is);
             throw new INTERNAL("InvalidSlot thrown: " + is);
