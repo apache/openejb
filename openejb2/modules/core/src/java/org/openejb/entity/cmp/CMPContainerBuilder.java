@@ -55,6 +55,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.kernel.ClassLoading;
+
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
 import org.openejb.InstanceContextFactory;
@@ -86,7 +88,10 @@ import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.LocalProxyTransform;
 import org.tranql.ejb.RemoteProxyTransform;
 import org.tranql.ejb.SimplePKTransform;
+import org.tranql.ejb.IdAsEJBLocalObjectTransform;
+import org.tranql.ejb.IdAsEJBObjectTransform;
 import org.tranql.field.FieldAccessor;
+import org.tranql.field.FieldTransform;
 import org.tranql.identity.IdentityDefiner;
 import org.tranql.identity.IdentityTransform;
 import org.tranql.identity.UserDefinedIdentity;
@@ -181,21 +186,44 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
         // queries
         LinkedHashMap queryCommands = new LinkedHashMap();
-/*
         for (Iterator iterator = queries.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
-            MethodSignature signature = (MethodSignature)entry.getKey();
-            String sql = (String)entry.getValue();
+            MethodSignature signature = (MethodSignature) entry.getKey();
 
-            QueryCommand query = buildQueryCommand(dataSourceDelegate, signature, sql);
+            // The SQL
+            String sql = (String) entry.getValue();
 
-            QueryCommand localProxyLoad = new ProxyQueryCommand(query, identityDefiner, localProxyTransform);
-            QueryCommand remoteProxyLoad = new ProxyQueryCommand(query, identityDefiner, remoteProxyTransform);
+            // Parameters
+            String[] parameterTypes = signature.getParameterTypes();
+            FieldTransform[] parameterTransforms = new FieldTransform[parameterTypes.length];
+            for (int i = 0; i < parameterTransforms.length; i++) {
+                parameterTransforms[i] = new FieldAccessor(i, ClassLoading.loadClass(parameterTypes[i], getClassLoader()));
+            }
+
+            // Local Proxy Results
+            FieldTransform localResultsTransform;
+            localResultsTransform = new FieldAccessor(0, proxyFactory.getLocalInterfaceClass());
+            localResultsTransform = new IdAsEJBLocalObjectTransform(localResultsTransform, proxyFactory, ejb.getPrimaryKeyClass());
+
+            QueryCommand localProxyLoad = sqlSchema.getCommandFactory().createQuery(
+                    sql,
+                    parameterTransforms,
+                    new FieldTransform[] {localResultsTransform});
+
+            // Remote Proxy Results
+            FieldTransform remoteResultsTransform;
+            remoteResultsTransform = new FieldAccessor(0, proxyFactory.getRemoteInterfaceClass());
+            remoteResultsTransform = new IdAsEJBObjectTransform(remoteResultsTransform, proxyFactory, ejb.getPrimaryKeyClass());
+
+            QueryCommand remoteProxyLoad = sqlSchema.getCommandFactory().createQuery(
+                    sql,
+                    parameterTransforms,
+                    new FieldTransform[] {remoteResultsTransform});
+
             queryCommands.put(
                     new InterfaceMethodSignature(signature, true),
                     new QueryCommand[]{localProxyLoad, remoteProxyLoad});
         }
-*/
 
         // findByPrimaryKey
         QueryCommand localProxyLoad = mapper.transform(queryBuilder.buildFindByPrimaryKey(getEJBName(), true));
@@ -274,16 +302,18 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     }
 
     private static final Map DEFAULTS = new HashMap();
+
     static {
         DEFAULTS.put(Boolean.TYPE, Boolean.FALSE);
-        DEFAULTS.put(Byte.TYPE, new Byte((byte)0));
-        DEFAULTS.put(Short.TYPE, new Short((short)0));
+        DEFAULTS.put(Byte.TYPE, new Byte((byte) 0));
+        DEFAULTS.put(Short.TYPE, new Short((short) 0));
         DEFAULTS.put(Integer.TYPE, new Integer(0));
         DEFAULTS.put(Long.TYPE, new Long(0L));
         DEFAULTS.put(Float.TYPE, new Float(0.0f));
         DEFAULTS.put(Double.TYPE, new Double(0.0d));
         DEFAULTS.put(Character.TYPE, new Character(Character.MIN_VALUE));
     }
+
     private Object getDefault(Class type) {
         // assumes get returns null and that is valid ...
         return DEFAULTS.get(type);
@@ -428,7 +458,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             String returnType = method.getReturnType().getName();
             if (returnType.equals("java.util.Collection")) {
                 vopMap.put(signature, new CollectionValuedFinder(queryCommands[0], queryCommands[1]));
-            } else if(returnType.equals("java.util.Enumeration")) {
+            } else if (returnType.equals("java.util.Enumeration")) {
                 vopMap.put(signature, new EnumerationValuedFinder(queryCommands[0], queryCommands[1]));
             } else {
                 vopMap.put(signature, new SingleValuedFinder(queryCommands[0], queryCommands[1]));
