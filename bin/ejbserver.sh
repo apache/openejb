@@ -29,6 +29,7 @@ PS=':'
 # Setup Classpath
 CP=$JAVA_HOME/lib/tools.jar${PS}${CP}
 CP=`echo lib/*.jar | tr ' ' ${PS}`${PS}${CP}
+CP=`echo beans/*.jar | tr ' ' ${PS}`${PS}${CP}
 CP=`echo dist/*.jar | tr ' ' ${PS}`${PS}${CP}
 CLASSPATH=$CP
 
