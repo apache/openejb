@@ -69,7 +69,7 @@ public class MockBMPEJB implements EntityBean {
     public void ejbPostCreate(Integer id, String value) {
     }
 
-    public Object ejbFindByPrimaryKey(Object pk) throws FinderException {
+    public Object ejbFindByPrimaryKey(Integer pk) throws FinderException {
         return pk;
     }
 
