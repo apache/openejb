@@ -47,8 +47,6 @@
  */
 package org.openejb.deployment;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.jacc.EJBMethodPermission;
 import javax.security.jacc.EJBRoleRefPermission;
@@ -65,13 +63,12 @@ import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.security.GeronimoSecurityException;
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.deploy.AutoMapAssistant;
+import org.apache.geronimo.security.SecurityService;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
 import org.apache.geronimo.xbeans.j2ee.ExcludeListType;
@@ -119,7 +116,8 @@ class ContainerSecurityBuilder {
                                                 AssemblyDescriptorType assemblyDescriptor,
                                                 String EJBName,
                                                 SecurityIdentityType securityIdentity,
-                                                SecurityRoleRefType[] roleReferences)
+                                                SecurityRoleRefType[] roleReferences,
+                                                SecurityService securityService)
             throws DeploymentException {
 
         if (security == null) return;
@@ -229,41 +227,7 @@ class ContainerSecurityBuilder {
         /**
          * Set the security interceptor's run-as subject, if one has been defined.
          */
-        boolean found = (securityIdentity == null || securityIdentity.getRunAs() == null);
-        String runAsName = (!found ? securityIdentity.getRunAs().getRoleName().getStringValue() : "");
-        Iterator rollMappings = security.getRoleMappings().iterator();
-        while (rollMappings.hasNext()) {
-            Role role = (Role) rollMappings.next();
-
-            String roleName = role.getRoleName();
-            Subject roleDesignate = new Subject();
-            Set principalSet = new HashSet();
-
-            Iterator realms = role.getRealms().iterator();
-            while (realms.hasNext()) {
-                Realm realm = (Realm) realms.next();
-
-                Iterator principals = realm.getPrincipals().iterator();
-                while (principals.hasNext()) {
-                    Principal principal = (Principal) principals.next();
-
-                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
-
-                    if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
-
-                    principalSet.add(realmPrincipal);
-                    if (principal.isDesignatedRunAs()) roleDesignate.getPrincipals().add(realmPrincipal);
-                }
-            }
-            securityConfiguration.getRoleMapping().put(roleName, principalSet);
-
-            if (!found && roleDesignate.getPrincipals().size() > 0 && runAsName.equals(roleName)) {
-                builder.setRunAs(roleDesignate);
-                found = true;
-            }
-        }
-        if (!found) throw new DeploymentException("Role designate not found for role: " + runAsName);
-
+        addRoleMappings(securityConfiguration, builder, security, securityIdentity, securityService);
 
         /**
          * EJB v2.1 section 21.3.2
@@ -300,31 +264,7 @@ class ContainerSecurityBuilder {
      * @return the default principal
      */
     protected Subject generateDefaultSubject(Security security) throws GeronimoSecurityException {
-
         DefaultPrincipal defaultPrincipal = security.getDefaultPrincipal();
-        if (defaultPrincipal == null) {
-            AutoMapAssistant config = security.getAssistant();
-            try {
-                if (config != null) {
-                    Set assistants = moduleBuilder.getKernel().listGBeans(new ObjectName("geronimo.security:type=SecurityRealm,realm=" + config.getSecurityRealm()));
-                    if (assistants.size() < 1 || assistants.size() > 1) throw new GeronimoSecurityException("Only one auto mapping assistant should match " + config.getSecurityRealm());
-
-                    org.apache.geronimo.security.realm.AutoMapAssistant assistant = (org.apache.geronimo.security.realm.AutoMapAssistant) assistants.iterator().next();
-                    org.apache.geronimo.security.deploy.Principal principal = assistant.obtainDefaultPrincipal();
-                    defaultPrincipal = new DefaultPrincipal();
-                    defaultPrincipal.setPrincipal(principal);
-                    defaultPrincipal.setRealmName(((SecurityRealm) assistant).getRealmName());
-                }
-            } catch (MalformedObjectNameException e) {
-                throw new GeronimoSecurityException("Bad object name geronimo.security:type=SecurityRealm,realm=" + config.getSecurityRealm());
-            }
-        }
-        if (defaultPrincipal == null) throw new GeronimoSecurityException("Unable to generate default principal");
-
-        return generateDefaultSubject(security, defaultPrincipal);
-    }
-
-    protected Subject generateDefaultSubject(Security security, DefaultPrincipal defaultPrincipal) throws GeronimoSecurityException {
         Subject defaultSubject = new Subject();
 
         RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
@@ -382,83 +322,24 @@ class ContainerSecurityBuilder {
     protected void addRoleMappings(SecurityConfiguration securityConfiguration,
                                    SecureBuilder builder,
                                    Security security,
-                                   SecurityIdentityType securityIdentity)
+                                   SecurityIdentityType securityIdentity,
+                                   SecurityService securityService)
             throws DeploymentException {
 
-        String runAsName = ((securityIdentity != null && securityIdentity.getRunAs() != null) ? securityIdentity.getRunAs().getRoleName().getStringValue() : "");
 
-        autoMapRoles(securityConfiguration, builder, security, securityIdentity, runAsName);
-        addExplicitMappings(securityConfiguration, builder, security, securityIdentity, runAsName);
+        security.autoGenerate(securityService);
+        addExplicitMappings(securityConfiguration, builder, security, securityIdentity);
 
-        if (builder.getRunAs() == null) throw new DeploymentException("Role designate not found for role: " + runAsName);
-    }
-
-    protected void autoMapRoles(SecurityConfiguration securityConfiguration,
-                                SecureBuilder builder,
-                                Security security,
-                                SecurityIdentityType securityIdentity,
-                                String runAsName)
-            throws DeploymentException {
-
-        Iterator rollMappings = security.getRoleMappings().iterator();
-        AutoMapAssistant config = security.getAssistant();
-        try {
-            if (config != null) {
-                ObjectName assistantName = new ObjectName("geronimo.security:type=SecurityRealm,realm=" + config.getSecurityRealm());
-                Set assistants = moduleBuilder.getKernel().listGBeans(assistantName);
-                if (assistants.size() < 1 || assistants.size() > 1) throw new GeronimoSecurityException("Only one auto mapping assistant should match " + assistantName);
-
-                org.apache.geronimo.security.realm.AutoMapAssistant assistant = (org.apache.geronimo.security.realm.AutoMapAssistant) assistants.iterator().next();
-
-                while (rollMappings.hasNext()) {
-                    Role role = (Role) rollMappings.next();
-
-                    String roleName = role.getRoleName();
-                    Subject roleDesignate = new Subject();
-                    Set principalSet = new HashSet();
-
-                    Iterator classNames = assistant.obtainRolePrincipalClasses().iterator();
-                    while (classNames.hasNext()) {
-                        Principal principal = new Principal();
-                        principal.setClassName((String) classNames.next());
-                        principal.setPrincipalName(roleName);
-
-                        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, ((SecurityRealm) assistant).getRealmName());
-
-                        if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
-
-                        principalSet.add(realmPrincipal);
-                        roleDesignate.getPrincipals().add(realmPrincipal);
-                    }
-                    Set roleMapping = (Set) securityConfiguration.getRoleMapping().get(roleName);
-                    if (roleMapping == null) {
-                        roleMapping = new HashSet();
-                        securityConfiguration.getRoleMapping().put(roleName, roleMapping);
-                    }
-                    roleMapping.addAll(principalSet);
-
-                    if (roleDesignate.getPrincipals().size() > 0 && runAsName.equals(roleName)) {
-                        if (builder.getRunAs() != null) {
-                            builder.getRunAs().getPrincipals().addAll(roleDesignate.getPrincipals());
-                        } else {
-                            builder.setRunAs(roleDesignate);
-                        }
-                    }
-                }
-            }
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Bad object name geronimo.security:type=SecurityRealm,realm=" + config.getSecurityRealm());
-        }
     }
 
     protected void addExplicitMappings(SecurityConfiguration securityConfiguration,
                                        SecureBuilder builder,
                                        Security security,
-                                       SecurityIdentityType securityIdentity,
-                                       String runAsName)
+                                       SecurityIdentityType securityIdentity)
             throws DeploymentException {
 
-        Iterator rollMappings = security.getRoleMappings().iterator();
+        String runAsName = ((securityIdentity != null && securityIdentity.getRunAs() != null) ? securityIdentity.getRunAs().getRoleName().getStringValue() : "");
+        Iterator rollMappings = security.getRoleMappings().values().iterator();
         while (rollMappings.hasNext()) {
             Role role = (Role) rollMappings.next();
 
@@ -466,7 +347,7 @@ class ContainerSecurityBuilder {
             Subject roleDesignate = new Subject();
             Set principalSet = new HashSet();
 
-            Iterator realms = role.getRealms().iterator();
+            Iterator realms = role.getRealms().values().iterator();
             while (realms.hasNext()) {
                 Realm realm = (Realm) realms.next();
 
@@ -497,6 +378,7 @@ class ContainerSecurityBuilder {
                 }
             }
         }
+        if (builder.getRunAs() == null) throw new DeploymentException("Role designate not found for role: " + runAsName);
     }
 
     /**

@@ -126,7 +126,8 @@ class SessionBuilder extends BeanBuilder {
                 ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
                 sessionBean.getEjbName().getStringValue(),
                 sessionBean.getSecurityIdentity(),
-                sessionBean.getSecurityRoleRefArray());
+                sessionBean.getSecurityRoleRefArray(),
+                getModuleBuilder().getSecurityService());
 
         UserTransactionImpl userTransaction;
         if ("Bean".equals(sessionBean.getTransactionType().getStringValue())) {

@@ -80,11 +80,12 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
+import org.apache.geronimo.security.SecurityService;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -116,7 +117,7 @@ import org.tranql.sql.sql92.SQL92Schema;
  */
 public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder {
 
-    private final Kernel kernel;
+    private final SecurityService securityService;
     private final URI defaultParentId;
     private final CMPEntityBuilder cmpEntityBuilder;
     private final SessionBuilder sessionBuilder;
@@ -125,8 +126,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final ContainerSecurityBuilder containerSecurityBuilder;
     private final SkeletonGenerator skeletonGenerator;
 
-    public OpenEJBModuleBuilder(Kernel kernel, URI defaultParentId, SkeletonGenerator skeletonGenerator) {
-        this.kernel = kernel;
+    public OpenEJBModuleBuilder(SecurityService securityService, URI defaultParentId, SkeletonGenerator skeletonGenerator) {
+        this.securityService = securityService;
         this.defaultParentId = defaultParentId;
         this.skeletonGenerator = skeletonGenerator;
         this.containerSecurityBuilder = new ContainerSecurityBuilder(this);
@@ -136,8 +137,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         this.mdbBuilder = new MdbBuilder(this);
     }
 
-    public Kernel getKernel() {
-        return kernel;
+    public SecurityService getSecurityService() {
+        return securityService;
     }
 
     public ContainerSecurityBuilder getSecurityBuilder() {
@@ -436,7 +437,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             transactionPolicyHelper = new TransactionPolicyHelper();
         }
 
-        Security security = SecurityBuilder.buildSecurityConfig(openejbEjbJar.getSecurity());
+        Security security = SecurityBuilder.buildSecurityConfig(openejbEjbJar.getSecurity(), collectRoleNames(ejbJar));
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
@@ -449,6 +450,17 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         mdbBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, security, enterpriseBeans);
 
         return null;
+    }
+
+    private static Set collectRoleNames(EjbJarType ejbJar) {
+        Set roleNames = new HashSet();
+
+        SecurityRoleType[] securityRoles = ejbJar.getAssemblyDescriptor().getSecurityRoleArray();
+        for (int i=0; i<securityRoles.length; i++) {
+            roleNames.add(securityRoles[i].getRoleName().getStringValue());
+        }
+
+        return roleNames;
     }
 
     private static ObjectName getResourceContainerId(URI uri, GerResourceLocatorType resourceLocator, RefContext refContext, J2eeContext j2eeContext) throws DeploymentException {
@@ -531,13 +543,13 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class);
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.addReference("SecurityService", SecurityService.class);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class);
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(EJBReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[] {"kernel", "defaultParentId", "SkeletonGenerator"});
+        infoBuilder.setConstructor(new String[] {"SecurityService", "defaultParentId", "SkeletonGenerator"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
