@@ -45,41 +45,24 @@
  *
  * ====================================================================
  */
-package org.openejb.nova;
+package org.openejb.nova.persistence.jdbc;
 
-import java.lang.reflect.InvocationTargetException;
-import javax.ejb.EnterpriseBean;
-
-import net.sf.cglib.reflect.FastClass;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public class EJBInstanceFactoryImpl implements EJBInstanceFactory {
-    private final FastClass implClass;
-
-    public EJBInstanceFactoryImpl(Class beanClass) {
-        implClass = FastClass.create(beanClass);
-    }
-
-    public EJBInstanceFactoryImpl(FastClass implClass) {
-        this.implClass = implClass;
-    }
-
-    public EnterpriseBean newInstance() throws Exception {
+public final class JDBCUtil {
+    public static void close(Connection c) {
         try {
-            return (EnterpriseBean) implClass.newInstance();
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getTargetException();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
-            } else {
-                throw e;
+            if (c != null) {
+                c.close();
             }
+        } catch (SQLException e) {
+            // ignore
         }
     }
 }

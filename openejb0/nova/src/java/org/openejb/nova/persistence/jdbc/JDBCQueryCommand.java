@@ -45,41 +45,47 @@
  *
  * ====================================================================
  */
-package org.openejb.nova;
+package org.openejb.nova.persistence.jdbc;
 
-import java.lang.reflect.InvocationTargetException;
-import javax.ejb.EnterpriseBean;
+import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.sql.DataSource;
 
-import net.sf.cglib.reflect.FastClass;
+import org.openejb.nova.persistence.QueryCommand;
 
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public class EJBInstanceFactoryImpl implements EJBInstanceFactory {
-    private final FastClass implClass;
+public class JDBCQueryCommand implements QueryCommand {
+    private final DataSource ds;
+    private final String sql;
+    private final Binding[] bindings;
 
-    public EJBInstanceFactoryImpl(Class beanClass) {
-        implClass = FastClass.create(beanClass);
+    public JDBCQueryCommand(DataSource ds, String sql, Binding[] bindings) {
+        this.ds = ds;
+        this.sql = sql;
+        this.bindings = bindings;
     }
 
-    public EJBInstanceFactoryImpl(FastClass implClass) {
-        this.implClass = implClass;
-    }
-
-    public EnterpriseBean newInstance() throws Exception {
+    public List executeQuery(Object[] args) throws Exception {
+        Connection c = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         try {
-            return (EnterpriseBean) implClass.newInstance();
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getTargetException();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
-            } else {
-                throw e;
+            c = ds.getConnection();
+            ps = c.prepareStatement(sql);
+            for (int i = 0; i < bindings.length; i++) {
+                Binding binding = bindings[i];
+                binding.bind(ps, args);
             }
+            rs = ps.executeQuery();
+            return null;
+        } finally {
+            JDBCUtil.close(c);
         }
     }
 }

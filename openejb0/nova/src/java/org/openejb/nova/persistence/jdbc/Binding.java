@@ -45,41 +45,20 @@
  *
  * ====================================================================
  */
-package org.openejb.nova;
+package org.openejb.nova.persistence.jdbc;
 
-import java.lang.reflect.InvocationTargetException;
-import javax.ejb.EnterpriseBean;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
-import net.sf.cglib.reflect.FastClass;
+import org.openejb.nova.persistence.Tuple;
 
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public class EJBInstanceFactoryImpl implements EJBInstanceFactory {
-    private final FastClass implClass;
+public interface Binding {
+    void bind(PreparedStatement ps, Object[] args);
 
-    public EJBInstanceFactoryImpl(Class beanClass) {
-        implClass = FastClass.create(beanClass);
-    }
-
-    public EJBInstanceFactoryImpl(FastClass implClass) {
-        this.implClass = implClass;
-    }
-
-    public EnterpriseBean newInstance() throws Exception {
-        try {
-            return (EnterpriseBean) implClass.newInstance();
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getTargetException();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
-            } else {
-                throw e;
-            }
-        }
-    }
+    void unbind(ResultSet rs, Tuple tuple);
 }

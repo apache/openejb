@@ -47,21 +47,20 @@
  */
 package org.openejb.nova.entity.cmp;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
+import javax.ejb.FinderException;
+import javax.ejb.ObjectNotFoundException;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBInvocation;
-import org.openejb.nova.EJBOperation;
-import org.openejb.nova.util.SerializableEnumeration;
 import org.openejb.nova.dispatch.VirtualOperation;
-import org.openejb.nova.entity.EntityInstanceContext;
+import org.openejb.nova.persistence.QueryCommand;
+import org.openejb.nova.persistence.Tuple;
 
 /**
  *
@@ -69,51 +68,42 @@ import org.openejb.nova.entity.EntityInstanceContext;
  * @version $Revision$ $Date$
  */
 public class CMPFinderMethod implements VirtualOperation {
-    private final Method finderMethod;
+    private final EJBContainer container;
+    private final QueryCommand finderCommand;
+    private final boolean multiValued;
 
-    public CMPFinderMethod(Method finderMethod) {
-        this.finderMethod = finderMethod;
+    public CMPFinderMethod(EJBContainer container, QueryCommand command, boolean multiValue) {
+        this.container = container;
+        this.finderCommand = command;
+        this.multiValued = multiValue;
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        EntityInstanceContext ctx = (EntityInstanceContext) invocation.getEJBInstanceContext();
-        Object instance = ctx.getInstance();
-
-        Object finderResult;
-        try {
-            ctx.setOperation(EJBOperation.EJBFIND);
-            finderResult = finderMethod.invoke(instance, invocation.getArguments());
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            return new SimpleInvocationResult(false, e);
-        } finally {
-            ctx.setOperation(EJBOperation.INACTIVE);
-        }
+        List finderResult = finderCommand.executeQuery(invocation.getArguments());
 
         boolean remote = invocation.getType().isRemoteInvocation();
-        EJBContainer container = ctx.getContainer();
 
-        if (finderResult instanceof Enumeration) {
-            Enumeration e = (Enumeration) finderResult;
-            ArrayList values = new ArrayList();
-            while (e.hasMoreElements()) {
-                values.add(getReference(remote, container, e.nextElement()));
-            }
-            return new SimpleInvocationResult(true, new SerializableEnumeration(values.toArray()));
-        } else if (finderResult instanceof Collection) {
-            Collection c = (Collection) finderResult;
-            ArrayList result = new ArrayList(c.size());
-            for (Iterator i = c.iterator(); i.hasNext();) {
-                result.add(getReference(remote, container, i.next()));
+        if (multiValued) {
+            ArrayList result = new ArrayList(finderResult.size());
+            for (Iterator iterator = finderResult.iterator(); iterator.hasNext();) {
+                Tuple tuple = (Tuple) iterator.next();
+                Object pk = tuple.getValue(0);
+                result.add(getReference(remote, pk));
             }
             return new SimpleInvocationResult(true, result);
         } else {
-            return new SimpleInvocationResult(true, getReference(remote, container, finderResult));
+            if (finderResult.size() == 0) {
+                return new SimpleInvocationResult(false, new ObjectNotFoundException());
+            } else if (finderResult.size() > 1) {
+                return new SimpleInvocationResult(false, new FinderException("Query returned more than one result"));
+            }
+            Tuple tuple = (Tuple)finderResult.get(0);
+            Object pk = tuple.getValue(0);
+            return new SimpleInvocationResult(true, getReference(remote, pk));
         }
     }
 
-    private Object getReference(boolean remote, EJBContainer container, Object id) {
+    private Object getReference(boolean remote, Object id) {
         if (id == null) {
             // yes, finders can return null
             return null;

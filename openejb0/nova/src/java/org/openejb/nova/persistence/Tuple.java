@@ -45,41 +45,25 @@
  *
  * ====================================================================
  */
-package org.openejb.nova;
-
-import java.lang.reflect.InvocationTargetException;
-import javax.ejb.EnterpriseBean;
-
-import net.sf.cglib.reflect.FastClass;
+package org.openejb.nova.persistence;
 
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public class EJBInstanceFactoryImpl implements EJBInstanceFactory {
-    private final FastClass implClass;
+public final class Tuple {
+    private final Object[] values;
 
-    public EJBInstanceFactoryImpl(Class beanClass) {
-        implClass = FastClass.create(beanClass);
+    public Tuple(Object[] values) {
+        this.values = values;
     }
 
-    public EJBInstanceFactoryImpl(FastClass implClass) {
-        this.implClass = implClass;
+    public Object[] getValues() {
+        return values;
     }
 
-    public EnterpriseBean newInstance() throws Exception {
-        try {
-            return (EnterpriseBean) implClass.newInstance();
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getTargetException();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
-            } else {
-                throw e;
-            }
-        }
+    public Object getValue(int i) {
+        return values[i];
     }
 }
