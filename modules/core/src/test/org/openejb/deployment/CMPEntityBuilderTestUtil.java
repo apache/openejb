@@ -48,6 +48,7 @@
 
 package org.openejb.deployment;
 
+import junit.framework.TestCase;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
@@ -56,8 +57,6 @@ import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.sql.sql92.SQL92Schema;
-
-import junit.framework.TestCase;
 
 /**
  *

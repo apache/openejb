@@ -64,6 +64,7 @@ import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.BeanPolicy;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
+import org.openejb.transaction.TransactionPolicySource;
 
 /**
  * @version $Revision$ $Date$

@@ -49,11 +49,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openejb.EJBComponentType;
-import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.BeanPolicy;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
+import org.openejb.transaction.TransactionPolicySource;
 
 public class DeploymentInfoTxPolicySource implements TransactionPolicySource {
     private final Map policyMap = new HashMap();

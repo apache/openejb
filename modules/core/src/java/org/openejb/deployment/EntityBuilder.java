@@ -75,9 +75,8 @@ import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
-import org.openejb.ContainerBuilder;
-import org.openejb.entity.bmp.BMPContainerBuilder;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
+import org.openejb.transaction.TransactionPolicySource;
 
 
 class EntityBuilder extends BeanBuilder {

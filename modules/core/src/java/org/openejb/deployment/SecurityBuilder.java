@@ -47,9 +47,6 @@
  */
 package org.openejb.deployment;
 
-import javax.security.auth.Subject;
-import javax.security.jacc.EJBMethodPermission;
-import javax.security.jacc.EJBRoleRefPermission;
 import java.lang.reflect.Method;
 import java.security.Permission;
 import java.security.Permissions;
@@ -58,6 +55,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import javax.security.auth.Subject;
+import javax.security.jacc.EJBMethodPermission;
+import javax.security.jacc.EJBRoleRefPermission;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.security.GeronimoSecurityException;
@@ -76,8 +76,6 @@ import org.apache.geronimo.xbeans.j2ee.MethodType;
 import org.apache.geronimo.xbeans.j2ee.RoleNameType;
 import org.apache.geronimo.xbeans.j2ee.SecurityIdentityType;
 import org.apache.geronimo.xbeans.j2ee.SecurityRoleRefType;
-
-import org.openejb.SecureBuilder;
 import org.openejb.security.SecurityConfiguration;
 import org.openejb.xbeans.ejbjar.OpenejbDefaultPrincipalType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
