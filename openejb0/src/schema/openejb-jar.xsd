@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
 		targetNamespace="http://www.openejb.org/openejb-jar/1.1">
-	
+	<!-- $Id$ -->
     <!--===========================================================
     This is the XML Schema for the OpenEJB 1.1 deployment descriptor.
     ============================================================-->
@@ -94,7 +94,7 @@
     select query.
     
     The method-name element specifies the name of a finder method in the 
-    entity bean’s implementation class.
+    entity beanï¿½s implementation class.
     Each method-param must be defined for a query-method using the
     method-params element.
     Used in: query

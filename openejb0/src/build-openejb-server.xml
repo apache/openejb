@@ -1,4 +1,5 @@
 <project name="OpenEJB--Server" default="jar" basedir="../">
+  <!-- $Id$ -->
   <!-- 
   		Contributions by:
   			Daniel S. Haischt <sirabyss@gmx.net>

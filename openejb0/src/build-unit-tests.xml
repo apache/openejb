@@ -1,4 +1,5 @@
 <project name="OpenEJB-Testsuite" default="jar" basedir="../">
+  <!-- $Id$ -->
   
   <property name="build.testsuite.src" value="${build.src}/tests-unit"/>
   <property name="build.testsuite.dest" value="${build.dest}/tests-unit"/>
