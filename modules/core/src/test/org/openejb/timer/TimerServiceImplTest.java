@@ -94,7 +94,7 @@ public class TimerServiceImplTest extends TestCase {
 
     private MockInterceptor interceptor;
 
-    private BasicTimerService timerService;
+    private BasicTimerServiceImpl timerService;
 
     protected TransactionContextManager transactionContextManager;
     protected ExecutorTaskFactory executableWorkFactory;
@@ -115,7 +115,7 @@ public class TimerServiceImplTest extends TestCase {
         TransactionContext.setContext(null);
 
         interceptor = new MockInterceptor();
-        timerService = new BasicTimerService(new InvocationFactory(), interceptor, threadPooledTimer, key, kernelName, timerSourceName, transactionContextManager, classLoader);
+        timerService = new BasicTimerServiceImpl(new InvocationFactory(), interceptor, threadPooledTimer, key, kernelName, timerSourceName, transactionContextManager, classLoader);
     }
 
     protected void tearDown() throws Exception {
@@ -160,7 +160,7 @@ public class TimerServiceImplTest extends TestCase {
 
         threadPooledTimer.doStop();
         threadPooledTimer.doStart();
-        timerService = new BasicTimerService(new InvocationFactory(), interceptor, threadPooledTimer, key, kernelName, timerSourceName, transactionContextManager, classLoader);
+        timerService = new BasicTimerServiceImpl(new InvocationFactory(), interceptor, threadPooledTimer, key, kernelName, timerSourceName, transactionContextManager, classLoader);
         timerService.doStart();
 
         Collection timers2 = timerService.getTimers(id);
@@ -173,6 +173,7 @@ public class TimerServiceImplTest extends TestCase {
         Timer timer = timerService.createTimer(id, 0L, DELAY, userKey);
         Thread.sleep(SLOP + DELAY);
         assertEquals(2, interceptor.getCount());
+        TimerState.setTimerState(true);
         timer.cancel();
         Thread.sleep(SLOP + DELAY);
         assertEquals(2, interceptor.getCount());
