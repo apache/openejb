@@ -4,7 +4,7 @@
     <title>Accessing OpenEJB from Tomcat</title>
 <sideimg src="images/diagram-tomcat-adapter.gif" width="240" height="500"/>
 
-<section title="Accessing EJBs locally from Tomcat" ref-id="local.tomcat.access">
+<section title="Accessing EJBs locally from Tomcat" ref-id="local.access">
 
 <p>
 Servlets can access beans from OpenEJB using either the Local (IntraVM) Server 
@@ -62,9 +62,7 @@ as a convenience, so if there is something you don't like or think should be cha
 send code.
 </p>
 
-</section>
-
-<section title="Passing initialization parameters" ref-id="config">
+<section title="Passing initialization parameters" ref-id="params">
 <p>
 When accessing OpenEJB in local mode, the Local (IntraVM) Server will instantiate 
 OpenEJB for you.  When it instantiates OpenEJB, it puts default values 
@@ -114,8 +112,10 @@ that, OpenEJB will have been initialized and the parameters will be ignored.</p>
 </p> 
     
 </section>
+</section>
 
-<section title="Accessing EJBs locally from Tomcat" ref-id="local.tomcat.access">
+
+<section title="Accessing EJBs remotely from Tomcat" ref-id="remote.access">
 
 <p>
 Servlets can access beans from OpenEJB using either the Local (IntraVM) Server 
