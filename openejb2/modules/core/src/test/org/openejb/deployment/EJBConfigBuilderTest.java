@@ -50,9 +50,9 @@ package org.openejb.deployment;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
@@ -61,27 +61,24 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.deployment.util.FileUtil;
-import org.apache.geronimo.deployment.util.JarUtil;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.EJBRefContext;
+import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
-import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.openejb.ContainerIndex;
 import org.openejb.DeploymentHelper;
@@ -97,103 +94,57 @@ public class EJBConfigBuilderTest extends TestCase {
     private Kernel kernel;
 
     public void testCreateResourceAdapterNameQuery() throws Exception {
-        OpenEJBModuleBuilder builder = new OpenEJBModuleBuilder(null);
-        EARContext earContext = new EARContext(null, null, ConfigurationModuleType.EJB, null, null, "geronimo.server", "geronimo", null, null, null, null, null, new EJBRefContext(builder));
-        ObjectName testName = builder.createResourceAdapterQueryName(earContext, "TestResourceAdapterName");
-        assertEquals(ObjectName.getInstance("geronimo.server:j2eeType=ResourceAdapter,name=TestResourceAdapterName,J2EEServer=geronimo,*"), testName);
+        File tempDir = null;
+        try {
+            tempDir = DeploymentUtil.createTempDir();
+            OpenEJBModuleBuilder builder = new OpenEJBModuleBuilder(null);
+            EARContext earContext = new EARContext(tempDir,
+                    URI.create("id"),
+                    ConfigurationModuleType.EJB,
+                    URI.create("parentId"),
+                    null,
+                    "geronimo.server",
+                    "geronimo",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    new EJBRefContext(builder));
+
+            ObjectName testName = builder.createResourceAdapterQueryName(earContext, "TestResourceAdapterName");
+            assertEquals(ObjectName.getInstance("geronimo.server:j2eeType=ResourceAdapter,name=TestResourceAdapterName,J2EEServer=geronimo,*"), testName);
+        } finally {
+            DeploymentUtil.recursiveDelete(tempDir);
+        }
     }
 
-//    public void testCreateSessionBean() throws Exception {
-//        OpenEJBModuleBuilder configBuilder = new OpenEJBModuleBuilder(kernel);
-//        File ejbJarFile = new File("target/test-ejb-jar.jar");
-//        assertTrue(ejbJarFile.canRead());
-//
-//        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-//        ClassLoader cl = new URLClassLoader(new URL[]{ejbJarFile.toURL()}, oldCl);
-//        URL ejbJarXml = cl.getResource("META-INF/ejb-jar.xml");
-//        InputStream in = ejbJarXml.openStream();
-//        in.close();
-//
-//        assertNotNull(cl.loadClass("org.openejb.test.simple.slsb.SimpleStatelessSessionEJB"));
-//
-//        EjbJarDocument doc = (EjbJarDocument) XmlBeansUtil.getXmlObject(ejbJarXml, EjbJarDocument.type);
-//        EjbJarType ejbJar = doc.getEjbJar();
-//
-//        SessionBeanType[] sessionBeans = ejbJar.getEnterpriseBeans().getSessionArray();
-//
-//        SessionBeanType sessionBean = sessionBeans[0];
-//        OpenejbSessionBeanType openejbSessionBean = null;
-//
-//        TransactionPolicyHelper transactionPolicyHelper = new TransactionPolicyHelper(ejbJar.getAssemblyDescriptor().getContainerTransactionArray());
-//
-//        EARContext earContext = new EARContext(null,
-//                null,
-//                ConfigurationModuleType.EJB,
-//                null,
-//                null,
-//                j2eeDomainName,
-//                j2eeServerName,
-//                null,
-//                DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
-//                DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME,
-//                DeploymentHelper.TRANSACTIONALTIMER_NAME,
-//                DeploymentHelper.NONTRANSACTIONALTIMER_NAME,
-//                configBuilder);
-//        try {
-//            Thread.currentThread().setContextClassLoader(cl);
-//            //     ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor().getMethodPermissionArray(),
-//            OpenejbOpenejbJarType openEJB = (OpenejbOpenejbJarType) configBuilder.getDeploymentPlan(JarUtil.createJarFile(ejbJarFile));
-//            EJBModule module = new EJBModule("TestModule", URI.create("TestModule"), JarUtil.createJarFile(ejbJarFile), "/", ejbJar, openEJB, null);
-//            configBuilder.getSessionBuilder().createBean(earContext, module, "containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, null, cl);
-//        } finally {
-//            Thread.currentThread().setContextClassLoader(oldCl);
-//        }
-//    }
-
     public void testBuildUnpackedModule() throws Exception {
-        InstallAction action = new InstallAction() {
-            private File ejbJarFile = new File("target/test-ejb-jar");
-            public File getEjbJarFile() {
-                return ejbJarFile;
-            }
-            public void install(OpenEJBModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-                moduleBuilder.installModule(JarUtil.createJarFile(ejbJarFile), earContext, module);
-            }
-        };
-        executeTestBuildModule(action);
+        executeTestBuildModule(new File("target/test-ejb-jar"));
     }
  
     public void testBuildPackedModule() throws Exception {
-        InstallAction action = new InstallAction() {
-            private File ejbJarFile = new File("target/test-ejb-jar.jar");
-            public File getEjbJarFile() {
-                return ejbJarFile;
-            }
-            public void install(OpenEJBModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-                moduleBuilder.installModule(new JarFile(ejbJarFile), earContext, module);
-            }
-        };
-        executeTestBuildModule(action);
+        executeTestBuildModule(new File("target/test-ejb-jar.jar"));
     }
     
-    private void executeTestBuildModule(InstallAction action) throws Exception {
+    private void executeTestBuildModule(File ejbJarFile) throws Exception {
         String j2eeApplicationName = "null";
         String j2eeModuleName = "org/openejb/deployment/test";
 
         OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
-        File ejbJarFile = action.getEjbJarFile();
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         ClassLoader cl = new URLClassLoader(new URL[]{ejbJarFile.toURL()}, oldCl);
 
         Thread.currentThread().setContextClassLoader(cl);
 
-        JarFile jarFile = JarUtil.createJarFile(ejbJarFile);
+        JarFile jarFile = DeploymentUtil.createJarFile(ejbJarFile);
         Module module = moduleBuilder.createModule(null, jarFile);
 
-        File carFile = File.createTempFile("OpenEJBTest", ".car");
+        File tempDir = null;
         try {
-            EARContext earContext = new EARContext(new JarOutputStream(new FileOutputStream(carFile)),
+            tempDir = DeploymentUtil.createTempDir();
+            EARContext earContext = new EARContext(tempDir,
                     module.getConfigId(),
                     module.getType(),
                     module.getParentId(),
@@ -207,20 +158,16 @@ public class EJBConfigBuilderTest extends TestCase {
                     DeploymentHelper.NONTRANSACTIONALTIMER_NAME,
                     new EJBRefContext(moduleBuilder));
 
-            action.install(moduleBuilder, earContext, module);
+            moduleBuilder.installModule(DeploymentUtil.createJarFile(ejbJarFile), earContext, module);
             earContext.getClassLoader(null);
             moduleBuilder.initContext(earContext, module, cl);
             moduleBuilder.addGBeans(earContext, module, cl);
             earContext.close();
 
-            File tempdir = new File(System.getProperty("java.io.tmpdir"));
-            File unpackedDir = new File(tempdir, "OpenEJBTest-Unpacked");
-            FileUtil.recursiveDelete(unpackedDir);
-            LocalConfigStore.unpack(unpackedDir, new FileInputStream(carFile));
-
-            verifyDeployment(unpackedDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName);
+            verifyDeployment(tempDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName);
         } finally {
-            carFile.delete();
+            module.close();
+            DeploymentUtil.recursiveDelete(tempDir);
         }
     }
 
@@ -236,8 +183,9 @@ public class EJBConfigBuilderTest extends TestCase {
 
         Thread.currentThread().setContextClassLoader(cl);
 
-        File carFile = File.createTempFile("OpenEJBTest", ".car");
+        File tempDir = null;
         try {
+            tempDir = DeploymentUtil.createTempDir();
             EARConfigBuilder earConfigBuilder = new EARConfigBuilder(
                     new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
                     DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
@@ -253,17 +201,20 @@ public class EJBConfigBuilderTest extends TestCase {
                     null // kernel
             );
 
-            JarFile jarFile = new JarFile(earFile);
-            Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
-            earConfigBuilder.buildConfiguration(carFile, null, plan, jarFile);
+            JarFile jarFile = null;
+            try {
+                jarFile = new JarFile(earFile);
+                Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
+                earConfigBuilder.buildConfiguration(plan, jarFile, tempDir);
+            } finally {
+                if (jarFile != null) {
+                    jarFile.close();
+                }
+            }
 
-            File tempdir = new File(System.getProperty("java.io.tmpdir"));
-            File unpackedDir = new File(tempdir, "OpenEJBTest-ear-Unpacked");
-            LocalConfigStore.unpack(unpackedDir, new FileInputStream(carFile));
-
-            verifyDeployment(unpackedDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName);
+            verifyDeployment(tempDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName);
         } finally {
-            carFile.delete();
+            DeploymentUtil.recursiveDelete(tempDir);
         }
     }
 
@@ -279,8 +230,9 @@ public class EJBConfigBuilderTest extends TestCase {
 
         Thread.currentThread().setContextClassLoader(cl);
 
-        File carFile = File.createTempFile("OpenEJBTest", ".car");
+        File tempDir = null;
         try {
+            tempDir = DeploymentUtil.createTempDir();
             EARConfigBuilder earConfigBuilder = new EARConfigBuilder(
                     new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
                     DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME,
@@ -296,24 +248,20 @@ public class EJBConfigBuilderTest extends TestCase {
                     null // kernel
             );
 
-            JarFile jarFile = JarUtil.createJarFile(earFile);
+            JarFile jarFile = DeploymentUtil.createJarFile(earFile);
             Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
-            earConfigBuilder.buildConfiguration(carFile, null, plan, jarFile);
+            earConfigBuilder.buildConfiguration(plan, jarFile, tempDir);
 
-            File tempdir = new File(System.getProperty("java.io.tmpdir"));
-            File unpackedDir = new File(tempdir, "OpenEJBTest-ear-Unpacked");
-            LocalConfigStore.unpack(unpackedDir, new FileInputStream(carFile));
-
-            verifyDeployment(unpackedDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName);
+            verifyDeployment(tempDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName);
         } finally {
-            carFile.delete();
+            DeploymentUtil.recursiveDelete(tempDir);
         }
     }
 
-    private void verifyDeployment(File unpackedDir, ClassLoader cl, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName) throws Exception {
+    private void verifyDeployment(File tempDir, ClassLoader cl, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName) throws Exception {
         DataSource ds = null;
         try {
-            GBeanMBean config = loadConfig(unpackedDir);
+            GBeanMBean config = loadConfig(tempDir);
 
             GBeanMBean containerIndexGBean = new GBeanMBean(ContainerIndex.GBEAN_INFO);
             ObjectName containerIndexObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ContainerIndex");
@@ -348,7 +296,7 @@ public class EJBConfigBuilderTest extends TestCase {
             // load the configuration
             ObjectName objectName = ObjectName.getInstance("test:configuration=test-ejb-jar");
             kernel.loadGBean(objectName, config);
-            config.setAttribute("baseURL", unpackedDir.toURL());
+            config.setAttribute("baseURL", tempDir.toURL());
 
             // start the configuration
             kernel.startRecursiveGBean(objectName);
@@ -490,10 +438,4 @@ public class EJBConfigBuilderTest extends TestCase {
         DeploymentHelper.tearDownAdapter(kernel);
         kernel.shutdown();
     }
-    
-    private interface InstallAction {
-        public File getEjbJarFile();
-        public void install(OpenEJBModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception;
-    }
-
 }

@@ -64,8 +64,7 @@ import javax.naming.Reference;
 
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
-import org.apache.geronimo.deployment.util.IOUtil;
-import org.apache.geronimo.deployment.util.JarUtil;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -140,12 +139,12 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         EjbJarType ejbJar;
         try {
             if (specDDUrl == null) {
-                specDDUrl = JarUtil.createJarURL(moduleFile, "META-INF/ejb-jar.xml");
+                specDDUrl = DeploymentUtil.createJarURL(moduleFile, "META-INF/ejb-jar.xml");
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
-            specDD = IOUtil.readAll(specDDUrl);
+            specDD = DeploymentUtil.readAll(specDDUrl);
 
             // parse it
             EjbJarDocument ejbJarDoc = SchemaConversionUtils.convertToEJBSchema(SchemaConversionUtils.parse(specDD));
@@ -191,7 +190,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
                     if (plan != null) {
                         openejbJarDoc = OpenejbOpenejbJarDocument.Factory.parse((File)plan);
                     } else {
-                        URL path = JarUtil.createJarURL(moduleFile, "META-INF/openejb-jar.xml");
+                        URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/openejb-jar.xml");
                         openejbJarDoc = OpenejbOpenejbJarDocument.Factory.parse(path);
                     }
                     if (openejbJarDoc != null) {
@@ -246,19 +245,19 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
+        JarFile moduleFile = module.getModuleFile();
         try {
             // extract the ejbJar file into a standalone packed jar file and add the contents to the output
-            File ejbJarFile = JarUtil.extractToPackedJar(module.getModuleFile());
-            earContext.addInclude(URI.create(module.getTargetPath()), ejbJarFile.toURL());
-
-            // add the dependencies declared in the openejb-jar.xml file
-            OpenejbOpenejbJarType openEjbJar = (OpenejbOpenejbJarType) module.getVendorDD();
-            OpenejbDependencyType[] dependencies = openEjbJar.getDependencyArray();
-            for (int i = 0; i < dependencies.length; i++) {
-                earContext.addDependency(getDependencyURI(dependencies[i]));
-            }
+            earContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
         } catch (IOException e) {
-            throw new DeploymentException("Unable to deploy ejb module [" + module.getName() + "]", e);
+            throw new DeploymentException("Unable to copy ejb module jar into configuration: " + moduleFile.getName());
+        }
+
+        // add the dependencies declared in the openejb-jar.xml file
+        OpenejbOpenejbJarType openEjbJar = (OpenejbOpenejbJarType) module.getVendorDD();
+        OpenejbDependencyType[] dependencies = openEjbJar.getDependencyArray();
+        for (int i = 0; i < dependencies.length; i++) {
+            earContext.addDependency(getDependencyURI(dependencies[i]));
         }
     }
 
