@@ -160,25 +160,33 @@ public final class UtilDelegateImpl implements UtilDelegate {
 
     public RemoteException mapSystemException(SystemException ex) {
         if (ex instanceof TRANSACTION_ROLLEDBACK) {
-            return new TransactionRolledbackException(ex.getMessage());
+            TransactionRolledbackException transactionRolledbackException = new TransactionRolledbackException(ex.getMessage());
+            transactionRolledbackException.detail = ex;
+            return transactionRolledbackException;
         }
         if (ex instanceof TRANSACTION_REQUIRED) {
-            return new TransactionRequiredException(ex.getMessage());
+            TransactionRequiredException transactionRequiredException = new TransactionRequiredException(ex.getMessage());
+            transactionRequiredException.detail = ex;
+            return transactionRequiredException;
         }
         if (ex instanceof INVALID_TRANSACTION) {
-            return new InvalidTransactionException(ex.getMessage());
+            InvalidTransactionException invalidTransactionException = new InvalidTransactionException(ex.getMessage());
+            invalidTransactionException.detail = ex;
+            return invalidTransactionException;
         }
         if (ex instanceof OBJECT_NOT_EXIST) {
-            return new NoSuchObjectException(ex.getMessage());
+            NoSuchObjectException noSuchObjectException = new NoSuchObjectException(ex.getMessage());
+            noSuchObjectException.detail = ex;
+            return noSuchObjectException;
         }
         if (ex instanceof NO_PERMISSION) {
-            return new AccessException(ex.getMessage());
+            return new AccessException(ex.getMessage(), ex);
         }
         if (ex instanceof MARSHAL) {
-            return new MarshalException(ex.getMessage());
+            return new MarshalException(ex.getMessage(), ex);
         }
         if (ex instanceof UNKNOWN) {
-            return new RemoteException(ex.getMessage());
+            return new RemoteException(ex.getMessage(), ex);
         }
         return delegate.mapSystemException(ex);
     }
