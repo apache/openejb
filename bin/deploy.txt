@@ -1,12 +1,21 @@
 Usage: openejb deploy [options] JARFILES...
 
 OPTIONS
- -m         Move the jar to the OPENEJB_HOME/beans directory
+ -m         Move the jar to the OPENEJB_HOME/beans directory. Will 
+            not overwrite the jar if there is an existing jar with 
+            the same name in the OPENEJB_HOME/beans directory. Add 
+            the -f option to force the overwrite.
          
- -c         Copy the jar to the OPENEJB_HOME/beans directory
-         
+ -c         Copy the jar to the OPENEJB_HOME/beans directory. Will 
+            not overwrite the jar if there is an existing jar with 
+            the same name in the OPENEJB_HOME/beans directory. Add 
+            the -f option to force the overwrite.
+
+ -f         Forces a move or a copy, overwriting any previously
+            existing jar with the same name.
+          
  -a         Automate deployment as much as possible.  Applies
-            all automation related flags.
+            all automation related flags (-C & -D).
          
  -C         Automatically assigns each bean in the jar to the
             first container of the appropriate bean type.

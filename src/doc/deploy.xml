@@ -108,9 +108,23 @@ know exactly what you are doing.
 <p>
 <options>
 
-<option flag="-m">Move the jar to the OPENEJB_HOME/beans directory</option>
+<option flag="-m">
+Move the jar to the OPENEJB_HOME/beans directory. Will not overwrite the 
+jar if there is an existing jar with the same name in the 
+OPENEJB_HOME/beans directory. Add the -f option to force the overwrite.    
+</option>
  
-<option flag="-c">Copy the jar to the OPENEJB_HOME/beans directory</option>
+<option flag="-c">
+Copy the jar to the OPENEJB_HOME/beans directory. Will 
+not overwrite the jar if there is an existing jar with 
+the same name in the OPENEJB_HOME/beans directory. Add 
+the -f option to force the overwrite.
+</option>
+
+<option flag="-f">
+Forces a move or a copy, overwriting any previously
+existing jar with the same name.
+</option>
  
 <option flag="-a">Automate deployment as much as possible.  Applies all automation related flags.</option>
 <option flag="-C">Automatically assigns each bean in the jar to the first container of the appropriate bean type.</option>
@@ -168,7 +182,11 @@ two beans can share the same deployment ID.</option>
 
  <p>
  If the jar OPENEJB_HOME\beans\myEjbs.jar already existed, it will 
- be overwritten.
+ not be overwritten.  Supply the -f to force an overwrite.
+ </p>
+
+ <p>
+<command>openejb deploy -m -f myapp\myEjbs.jar</command>
  </p>
 
 </section>
@@ -180,7 +198,9 @@ two beans can share the same deployment ID.</option>
  </p>
  
  <p>
- Same as using -m, except the jar is copied not moved.
+ Same as using -m, except the jar is copied not moved. The -f also
+ can be used with a -c to force an overwrite if the file is already
+ present.
  </p>
 
 </section>
