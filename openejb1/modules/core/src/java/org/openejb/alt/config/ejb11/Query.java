@@ -1,7 +1,7 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
@@ -11,13 +11,21 @@ package org.openejb.alt.config.ejb11;
  //- Imported classes and packages -/
 //---------------------------------/
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.Writer;
+import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
+import org.exolab.castor.xml.ValidationException;
+import org.xml.sax.ContentHandler;
 
 /**
+ * Class Query.
  * 
  * @version $Revision$ $Date$
-**/
+ */
 public class Query implements java.io.Serializable {
 
 
@@ -25,10 +33,19 @@ public class Query implements java.io.Serializable {
      //- Class/Member Variables -/
     //--------------------------/
 
+    /**
+     * Field _description
+     */
     private java.lang.String _description;
 
-    private QueryMethod _queryMethod;
+    /**
+     * Field _queryMethod
+     */
+    private org.openejb.alt.config.ejb11.QueryMethod _queryMethod;
 
+    /**
+     * Field _objectQl
+     */
     private java.lang.String _objectQl;
 
 
@@ -47,8 +64,9 @@ public class Query implements java.io.Serializable {
 
     /**
      * Returns the value of field 'description'.
+     * 
      * @return the value of field 'description'.
-    **/
+     */
     public java.lang.String getDescription()
     {
         return this._description;
@@ -56,8 +74,9 @@ public class Query implements java.io.Serializable {
 
     /**
      * Returns the value of field 'objectQl'.
+     * 
      * @return the value of field 'objectQl'.
-    **/
+     */
     public java.lang.String getObjectQl()
     {
         return this._objectQl;
@@ -65,15 +84,17 @@ public class Query implements java.io.Serializable {
 
     /**
      * Returns the value of field 'queryMethod'.
+     * 
      * @return the value of field 'queryMethod'.
-    **/
-    public QueryMethod getQueryMethod()
+     */
+    public org.openejb.alt.config.ejb11.QueryMethod getQueryMethod()
     {
         return this._queryMethod;
-    } //-- QueryMethod getQueryMethod() 
+    } //-- org.openejb.alt.config.ejb11.QueryMethod getQueryMethod() 
 
     /**
-    **/
+     * Method isValid
+     */
     public boolean isValid()
     {
         try {
@@ -86,9 +107,10 @@ public class Query implements java.io.Serializable {
     } //-- boolean isValid() 
 
     /**
+     * Method marshal
      * 
      * @param out
-    **/
+     */
     public void marshal(java.io.Writer out)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
@@ -97,20 +119,22 @@ public class Query implements java.io.Serializable {
     } //-- void marshal(java.io.Writer) 
 
     /**
+     * Method marshal
      * 
      * @param handler
-    **/
-    public void marshal(org.xml.sax.DocumentHandler handler)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
+     */
+    public void marshal(org.xml.sax.ContentHandler handler)
+        throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         
         Marshaller.marshal(this, handler);
-    } //-- void marshal(org.xml.sax.DocumentHandler) 
+    } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
      * Sets the value of field 'description'.
+     * 
      * @param description the value of field 'description'.
-    **/
+     */
     public void setDescription(java.lang.String description)
     {
         this._description = description;
@@ -118,8 +142,9 @@ public class Query implements java.io.Serializable {
 
     /**
      * Sets the value of field 'objectQl'.
+     * 
      * @param objectQl the value of field 'objectQl'.
-    **/
+     */
     public void setObjectQl(java.lang.String objectQl)
     {
         this._objectQl = objectQl;
@@ -127,25 +152,28 @@ public class Query implements java.io.Serializable {
 
     /**
      * Sets the value of field 'queryMethod'.
+     * 
      * @param queryMethod the value of field 'queryMethod'.
-    **/
-    public void setQueryMethod(QueryMethod queryMethod)
+     */
+    public void setQueryMethod(org.openejb.alt.config.ejb11.QueryMethod queryMethod)
     {
         this._queryMethod = queryMethod;
-    } //-- void setQueryMethod(QueryMethod) 
+    } //-- void setQueryMethod(org.openejb.alt.config.ejb11.QueryMethod) 
 
     /**
+     * Method unmarshal
      * 
      * @param reader
-    **/
-    public static org.openejb.alt.config.ejb11.Query unmarshal(java.io.Reader reader)
+     */
+    public static java.lang.Object unmarshal(java.io.Reader reader)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         return (org.openejb.alt.config.ejb11.Query) Unmarshaller.unmarshal(org.openejb.alt.config.ejb11.Query.class, reader);
-    } //-- org.openejb.alt.config.ejb11.Query unmarshal(java.io.Reader) 
+    } //-- java.lang.Object unmarshal(java.io.Reader) 
 
     /**
-    **/
+     * Method validate
+     */
     public void validate()
         throws org.exolab.castor.xml.ValidationException
     {

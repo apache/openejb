@@ -1,7 +1,7 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.3.9+</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
@@ -11,13 +11,21 @@ package org.openejb.alt.config.ejb11;
  //- Imported classes and packages -/
 //---------------------------------/
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.Writer;
+import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
+import org.exolab.castor.xml.ValidationException;
+import org.xml.sax.ContentHandler;
 
 /**
+ * Class QueryMethod.
  * 
  * @version $Revision$ $Date$
-**/
+ */
 public class QueryMethod implements java.io.Serializable {
 
 
@@ -25,9 +33,15 @@ public class QueryMethod implements java.io.Serializable {
      //- Class/Member Variables -/
     //--------------------------/
 
+    /**
+     * Field _methodName
+     */
     private java.lang.String _methodName;
 
-    private MethodParams _methodParams;
+    /**
+     * Field _methodParams
+     */
+    private org.openejb.alt.config.ejb11.MethodParams _methodParams;
 
 
       //----------------/
@@ -45,8 +59,9 @@ public class QueryMethod implements java.io.Serializable {
 
     /**
      * Returns the value of field 'methodName'.
+     * 
      * @return the value of field 'methodName'.
-    **/
+     */
     public java.lang.String getMethodName()
     {
         return this._methodName;
@@ -54,15 +69,17 @@ public class QueryMethod implements java.io.Serializable {
 
     /**
      * Returns the value of field 'methodParams'.
+     * 
      * @return the value of field 'methodParams'.
-    **/
-    public MethodParams getMethodParams()
+     */
+    public org.openejb.alt.config.ejb11.MethodParams getMethodParams()
     {
         return this._methodParams;
-    } //-- MethodParams getMethodParams() 
+    } //-- org.openejb.alt.config.ejb11.MethodParams getMethodParams() 
 
     /**
-    **/
+     * Method isValid
+     */
     public boolean isValid()
     {
         try {
@@ -75,9 +92,10 @@ public class QueryMethod implements java.io.Serializable {
     } //-- boolean isValid() 
 
     /**
+     * Method marshal
      * 
      * @param out
-    **/
+     */
     public void marshal(java.io.Writer out)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
@@ -86,20 +104,22 @@ public class QueryMethod implements java.io.Serializable {
     } //-- void marshal(java.io.Writer) 
 
     /**
+     * Method marshal
      * 
      * @param handler
-    **/
-    public void marshal(org.xml.sax.DocumentHandler handler)
-        throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
+     */
+    public void marshal(org.xml.sax.ContentHandler handler)
+        throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         
         Marshaller.marshal(this, handler);
-    } //-- void marshal(org.xml.sax.DocumentHandler) 
+    } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
      * Sets the value of field 'methodName'.
+     * 
      * @param methodName the value of field 'methodName'.
-    **/
+     */
     public void setMethodName(java.lang.String methodName)
     {
         this._methodName = methodName;
@@ -107,25 +127,28 @@ public class QueryMethod implements java.io.Serializable {
 
     /**
      * Sets the value of field 'methodParams'.
+     * 
      * @param methodParams the value of field 'methodParams'.
-    **/
-    public void setMethodParams(MethodParams methodParams)
+     */
+    public void setMethodParams(org.openejb.alt.config.ejb11.MethodParams methodParams)
     {
         this._methodParams = methodParams;
-    } //-- void setMethodParams(MethodParams) 
+    } //-- void setMethodParams(org.openejb.alt.config.ejb11.MethodParams) 
 
     /**
+     * Method unmarshal
      * 
      * @param reader
-    **/
-    public static org.openejb.alt.config.ejb11.QueryMethod unmarshal(java.io.Reader reader)
+     */
+    public static java.lang.Object unmarshal(java.io.Reader reader)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
         return (org.openejb.alt.config.ejb11.QueryMethod) Unmarshaller.unmarshal(org.openejb.alt.config.ejb11.QueryMethod.class, reader);
-    } //-- org.openejb.alt.config.ejb11.QueryMethod unmarshal(java.io.Reader) 
+    } //-- java.lang.Object unmarshal(java.io.Reader) 
 
     /**
-    **/
+     * Method validate
+     */
     public void validate()
         throws org.exolab.castor.xml.ValidationException
     {

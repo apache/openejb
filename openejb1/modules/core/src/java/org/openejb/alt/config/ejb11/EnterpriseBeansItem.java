@@ -1,7 +1,7 @@
 /*
  * This class was automatically generated with 
- * <a href="http://castor.exolab.org">Castor 0.9.2</a>, using an
- * XML Schema.
+ * <a href="http://www.castor.org">Castor 0.9.5.3</a>, using an XML
+ * Schema.
  * $Id$
  */
 
@@ -11,11 +11,15 @@ package org.openejb.alt.config.ejb11;
  //- Imported classes and packages -/
 //---------------------------------/
 
+import java.io.Serializable;
+import org.exolab.castor.xml.Marshaller;
+import org.exolab.castor.xml.Unmarshaller;
 
 /**
+ * Class EnterpriseBeansItem.
  * 
  * @version $Revision$ $Date$
-**/
+ */
 public class EnterpriseBeansItem implements java.io.Serializable {
 
 
@@ -23,11 +27,15 @@ public class EnterpriseBeansItem implements java.io.Serializable {
      //- Class/Member Variables -/
     //--------------------------/
 
-    private java.lang.String _id;
+    /**
+     * Field _session
+     */
+    private org.openejb.alt.config.ejb11.Session _session;
 
-    private Session _session;
-
-    private Entity _entity;
+    /**
+     * Field _entity
+     */
+    private org.openejb.alt.config.ejb11.Entity _entity;
 
 
       //----------------/
@@ -44,51 +52,43 @@ public class EnterpriseBeansItem implements java.io.Serializable {
     //-----------/
 
     /**
-    **/
-    public Entity getEntity()
+     * Returns the value of field 'entity'.
+     * 
+     * @return the value of field 'entity'.
+     */
+    public org.openejb.alt.config.ejb11.Entity getEntity()
     {
         return this._entity;
-    } //-- Entity getEntity() 
+    } //-- org.openejb.alt.config.ejb11.Entity getEntity() 
 
     /**
-    **/
-    public java.lang.String getId()
-    {
-        return this._id;
-    } //-- java.lang.String getId() 
-
-    /**
-    **/
-    public Session getSession()
+     * Returns the value of field 'session'.
+     * 
+     * @return the value of field 'session'.
+     */
+    public org.openejb.alt.config.ejb11.Session getSession()
     {
         return this._session;
-    } //-- Session getSession() 
+    } //-- org.openejb.alt.config.ejb11.Session getSession() 
 
     /**
+     * Sets the value of field 'entity'.
      * 
-     * @param _entity
-    **/
-    public void setEntity(Entity _entity)
+     * @param entity the value of field 'entity'.
+     */
+    public void setEntity(org.openejb.alt.config.ejb11.Entity entity)
     {
-        this._entity = _entity;
-    } //-- void setEntity(Entity) 
+        this._entity = entity;
+    } //-- void setEntity(org.openejb.alt.config.ejb11.Entity) 
 
     /**
+     * Sets the value of field 'session'.
      * 
-     * @param _id
-    **/
-    public void setId(java.lang.String _id)
+     * @param session the value of field 'session'.
+     */
+    public void setSession(org.openejb.alt.config.ejb11.Session session)
     {
-        this._id = _id;
-    } //-- void setId(java.lang.String) 
-
-    /**
-     * 
-     * @param _session
-    **/
-    public void setSession(Session _session)
-    {
-        this._session = _session;
-    } //-- void setSession(Session) 
+        this._session = session;
+    } //-- void setSession(org.openejb.alt.config.ejb11.Session) 
 
 }
