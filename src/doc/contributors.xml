@@ -35,15 +35,6 @@
   </contributor>
 
   <contributor type="Committer">
-    <name surname="Mulder" given="Aaron"/>
-    <email>ammulder@alumni.princeton.edu</email>
-    <company id=""/>
-    <description>
-    Creator of the Modern Assembler and Hot Deploy functionality
-    </description>
-  </contributor>
-
-  <contributor type="Committer">
     <name surname="Cabrera" given="Alan"/>
     <email>adc@toolazydogs.com</email>
     <company id=""/>
@@ -55,6 +46,18 @@
   </contributor>
 
   <contributor type="Committer">
+    <name surname="Reich" given="Stefan"/>
+    <email>sreich@apple.com</email>
+    <company id=""/>
+    <description>
+    Stefan is a real "hard hitter" on the OpenEJB project, bringing with
+    him not only the solid feedback we've always wanted, but code to back
+    it all up!  Stefan rounds out the team nicely and does a great job of
+    finding those dusty areas that have gone ignored.
+    </description>
+  </contributor>
+  
+  <contributor type="Committer">
     <name surname="Haischt" given="Daniel"/>
     <email>sirabyss@gmx.net</email>
     <company id=""/>
@@ -65,6 +68,15 @@
       little things that never seem to get done. We can expect more great enchancements
       from Daniel in the future.  His strengths are persistence and extreme 
       organizational skills -- even his emails are specially formatted.
+    </description>
+  </contributor>
+
+  <contributor type="Committer">
+    <name surname="Mulder" given="Aaron"/>
+    <email>ammulder@alumni.princeton.edu</email>
+    <company id=""/>
+    <description>
+    Creator of the Modern Assembler and Hot Deploy functionality
     </description>
   </contributor>
 
