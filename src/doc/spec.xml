@@ -4,7 +4,6 @@
     <style>spec.css</style>
     <author>Richard Monson-Haefel and David Blevins</author>
     <title>OpenEJB Specification</title>
-    <sub-title>for OpenEJB version 0.7.3</sub-title>
   </properties>
   
   <body>
