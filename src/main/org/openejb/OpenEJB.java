@@ -144,7 +144,7 @@ public final class OpenEJB {
             // OpenEJB does.
             JarUtils.setHandlerSystemProperty();
 
-            logger = Logger.getInstance( "OpenEJB" );
+            logger = new Logger( "OpenEJB" );
 
             initialized = true;
         }

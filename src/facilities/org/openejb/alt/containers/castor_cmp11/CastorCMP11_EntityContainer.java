@@ -178,7 +178,7 @@ public class CastorCMP11_EntityContainer
     }
 
 
-    public Logger logger = Logger.getInstance("OpenEJB");
+    public Logger logger = new Logger( "OpenEJB" );
     
     // contains deployment information for each by deployed to this container
     HashMap deploymentRegistry;

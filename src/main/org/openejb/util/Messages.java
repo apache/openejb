@@ -69,7 +69,7 @@ public class Messages
 
     private static Hashtable        _formats;
 
-    private static Logger           _logger = Logger.getInstance( "OpenEJB" );
+    private static Logger           _logger = new Logger( "OpenEJB" );
 
 
 
