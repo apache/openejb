@@ -50,15 +50,25 @@
 </head>
 <body bgcolor="white">
 
-The core classes of the container system implementing the interfaces defined by the OpenEJB container system architecture.
+The classes and interfaces directly under this package define the basic parts of the OpenEJB assembler xml system architecture.
 
 
 <h2>Package Specification</h2>
 
-The core package of OpenEJB defines the main classes that implement the core functionality
-of the container system.  In the core package are the implementations of the stateful, stateless
-and entity containers.  These Containers and the and the classes that support them are in the packages
- {@link org.openejb.core.stateful}, {@link org.openejb.core.stateless}, and {@link org.openejb.core.entity}.
+OpenEJB is a pre-built, self-contained, portable EJB {@link org.openejb.ContainerSystem container system} that can be
+plugged into any application server environment. OpenEJB provides a clear separation
+of responsibilities between the EJB container and the EJB server. The application server
+and OpenEJB container system interact through the interfaces and classes defined in this
+package, called the Container Provider Interface (CPI).  The CPI and the OpenEJB specifaction
+form the container-server contact.
+<br>
+<br>
+Application servers that use OpenEJB are responsible for providing client applications with
+naming and remote access to the application server. Its services may include providing JNDI
+and {@link org.openejb.ProxyInfo proxy} implementations that fulfill the client-server contract of the EJB programming model.
+When a client makes a request on a remote bean reference, the application server delivers the
+request to the OpenEJB container system, which delegates the request to the appropriate enterprise
+bean and applies the transaction, security, and persistence services appropriately.
 
 <h2>Related Documentation</h2>
 
@@ -69,9 +79,10 @@ and entity containers.  These Containers and the and the classes that support th
 </ul>
 
 <!-- Put @see and @since tags down here. -->
-@see org.openejb.core.ContainerSystem
-@see org.openejb.core.ContainerManager
-@see org.openejb.core.Container
-@see org.openejb.core.DeploymentInfo
+@see org.openejb.OpenEJB
+@see org.openejb.ContainerSystem
+@see org.openejb.ContainerManager
+@see org.openejb.Container
+@see org.openejb.DeploymentInfo
 </body>
 </html>
