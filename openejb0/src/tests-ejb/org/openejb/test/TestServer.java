@@ -1,5 +1,3 @@
-
-
 /**
  * Redistribution and use of this software and associated documentation
  * ("Software"), with or without modification, are permitted provided
@@ -56,9 +54,7 @@ import java.util.Hashtable;
  */
 public interface TestServer {
 
-    public void create(Properties props);
-    
-    public void destroy();
+    public void init(Properties props);
     
     public void start();
 

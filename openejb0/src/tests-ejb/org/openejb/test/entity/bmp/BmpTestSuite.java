@@ -48,10 +48,8 @@ import junit.framework.Test;
 import javax.naming.*;
 import java.sql.*;
 import javax.sql.*;
-import org.openejb.test.beans.Database;
-import org.openejb.test.beans.DatabaseHome;
 import java.util.Properties;
-import org.openejb.test.TestServerManager;
+import org.openejb.test.TestManager;
 
 /**
  * 
@@ -60,11 +58,6 @@ import org.openejb.test.TestServerManager;
  */
 public class BmpTestSuite extends org.openejb.test.TestSuite{
        
-    public static final String CREATE_TABLE = "CREATE TABLE BasicEntities ( EntityID INT PRIMARY KEY AUTO INCREMENT, FIRSTNAME CHAR(20), LASTNAME CHAR(20) )";
-    public static final String DROP_TABLE = "DROP TABLE BasicEntities";
-    
-    private Database database;
-
     public BmpTestSuite(){
         super();
         this.addTest(new BmpJndiTests());
@@ -90,14 +83,13 @@ public class BmpTestSuite extends org.openejb.test.TestSuite{
      * This method is called before a test is executed.
      */
     protected void setUp() throws Exception {
-        Properties props = TestServerManager.getContextEnvironment();
+        Properties props = TestManager.getServer().getContextEnvironment();
         props.put(Context.SECURITY_PRINCIPAL, "ENTITY_TEST_CLIENT");
         props.put(Context.SECURITY_CREDENTIALS, "ENTITY_TEST_CLIENT");
         InitialContext initialContext = new InitialContext(props);
         
-        DatabaseHome databaseHome = (DatabaseHome)javax.rmi.PortableRemoteObject.narrow(initialContext.lookup("client/tools/DatabaseHome"), DatabaseHome.class);
-        database = databaseHome.create();
-        database.executeQuery(CREATE_TABLE);
+        /*[2] Create database table */
+        TestManager.getDatabase().createEntityTable();
     }
     
     /**
@@ -105,6 +97,7 @@ public class BmpTestSuite extends org.openejb.test.TestSuite{
      * This method is called after a test is executed.
      */
     protected void tearDown() throws Exception {
-        database.executeQuery(DROP_TABLE);
+        /*[1] Drop database table */
+        TestManager.getDatabase().dropEntityTable();
     }
 }

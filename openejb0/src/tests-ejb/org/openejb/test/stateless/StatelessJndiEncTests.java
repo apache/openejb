@@ -48,8 +48,7 @@ import javax.ejb.*;
 import java.util.Properties;
 import javax.naming.InitialContext;
 import org.openejb.test.TestFailureException;
-import org.openejb.test.beans.Database;
-import org.openejb.test.beans.DatabaseHome;
+import org.openejb.test.TestManager;
 
 /**
  * [4] Should be run as the fourth test suite of the EncStatelessTestClients
@@ -62,11 +61,6 @@ public class StatelessJndiEncTests extends StatelessTestClient{
     protected EncStatelessHome   ejbHome;
     protected EncStatelessObject ejbObject;
     
-    public static final String CREATE_ENTITY_TABLE = "CREATE TABLE BasicEntities ( EntityID INT PRIMARY KEY AUTO INCREMENT, FIRSTNAME CHAR(20), LASTNAME CHAR(20) )";
-    public static final String DROP_ENTITY_TABLE = "DROP TABLE BasicEntities";
-    
-    private Database database;
-    
     public StatelessJndiEncTests(){
         super("JNDI_ENC.");
     }
@@ -77,10 +71,8 @@ public class StatelessJndiEncTests extends StatelessTestClient{
         ejbHome = (EncStatelessHome)javax.rmi.PortableRemoteObject.narrow( obj, EncStatelessHome.class);
         ejbObject = ejbHome.create();
         
-        obj = initialContext.lookup("client/tools/DatabaseHome");
-        DatabaseHome databaseHome = (DatabaseHome)javax.rmi.PortableRemoteObject.narrow( obj, DatabaseHome.class);
-        database = databaseHome.create();
-        database.executeQuery(CREATE_ENTITY_TABLE);
+        /*[2] Create database table */
+        TestManager.getDatabase().createEntityTable();
     }
     
     /**
@@ -89,8 +81,8 @@ public class StatelessJndiEncTests extends StatelessTestClient{
      */
     protected void tearDown() throws Exception {
         try {
-            //ejbObject.remove();
-            database.executeQuery( DROP_ENTITY_TABLE);
+            /*[1] Drop database table */
+            TestManager.getDatabase().dropEntityTable();
         } catch (Exception e){
             throw e;
         } finally {

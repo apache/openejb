@@ -63,7 +63,7 @@ public class DatabaseBean implements javax.ejb.SessionBean {
         }
     }
     
-    public void executeQuery(String statement) throws RemoteException{
+    public void executeQuery(String statement) throws RemoteException, java.sql.SQLException{
         try{        
 
         DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/database");
@@ -74,8 +74,30 @@ public class DatabaseBean implements javax.ejb.SessionBean {
         
         con.close();
         } catch (Exception e){
-            throw new RemoteException(e.getMessage());
+            throw new RemoteException("Cannot execute the statement: "+statement, e);
         }
+    }
+    
+    public boolean execute(String statement) throws RemoteException, java.sql.SQLException{
+        boolean retval;
+        Connection con = null;
+        try{        
+
+        DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/database");
+        con = ds.getConnection();
+
+        Statement stmt = con.createStatement();
+        retval = stmt.execute(statement);
+        
+        } catch (javax.naming.NamingException e){
+//        } catch (Exception e){
+//            e.printStackTrace();
+            //throw new RemoteException("Cannot execute the statement: "+statement, e);
+            throw new RemoteException("Cannot lookup the Database bean.",e);
+        } finally {
+            con.close();
+        }
+        return retval;
     }
     
     public void ejbPassivate( ){

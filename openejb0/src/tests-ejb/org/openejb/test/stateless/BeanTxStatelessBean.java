@@ -121,11 +121,11 @@ public class BeanTxStatelessBean implements javax.ejb.SessionBean{
 
 
             /*[2] Update the table */
-            PreparedStatement stmt = con.prepareStatement("insert into Account (SSN, FirstName, LastName, Balance) values (?,?,?,?)");
-            stmt.setString(1, acct.ssn);
-            stmt.setString(2, acct.firstName);
-            stmt.setString(3, acct.lastName);
-            stmt.setInt(4, acct.balance);
+            PreparedStatement stmt = con.prepareStatement("insert into Account (SSN, First_name, Last_name, Balance) values (?,?,?,?)");
+            stmt.setString(1, acct.getSsn());
+            stmt.setString(2, acct.getFirstName());
+            stmt.setString(3, acct.getLastName());
+            stmt.setInt(4, acct.getBalance());
             stmt.executeUpdate();
 
             /*[3] Commit or Rollback the transaction */
@@ -157,10 +157,10 @@ public class BeanTxStatelessBean implements javax.ejb.SessionBean{
             ResultSet rs = stmt.executeQuery();
             if (!rs.next()) return null;
             
-            acct.ssn = rs.getString(2);
-            acct.firstName = rs.getString(3);
-            acct.lastName = rs.getString(4);
-            acct.balance = rs.getInt(5);
+            acct.setSsn( rs.getString(1) );
+            acct.setFirstName( rs.getString(2) );
+            acct.setLastName( rs.getString(3) );
+            acct.setBalance( rs.getInt(4) );
 
             stmt.close();
             con.close();

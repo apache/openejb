@@ -59,28 +59,29 @@ import javax.sql.*;
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
 public class IvmTestServer implements TestServer {
-    public static final String OPENEJB_CONFIG_FILE = "openejb_config_file";
+    
     private Properties properties;
     
-    static{
-        System.setProperty("noBanner", "true");
-    }
-    
-    public void create(Properties props){
+    public void init(Properties props){
         properties = props;
+        try{
+        OpenEJB.init(properties);
+        }catch(org.openejb.OpenEJBException oe){
+            System.out.println("=========================");
+            System.out.println(""+oe.getMessage());
+            System.out.println("=========================");
+            oe.printStackTrace();
+            throw new RuntimeException("OpenEJB could not be initiated");
+        }
+
+        properties.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY, "org.openejb.core.ivm.naming.InitContextFactory");
+        
     }
     
     public void destroy(){
     }
     
     public void start(){
-        try{
-        OpenEJB.init(properties);
-        }catch(org.openejb.OpenEJBException oe){
-            oe.printStackTrace();
-            throw new RuntimeException("OpenEJB could not be initiated");
-        }
-        
     }
 
     public void stop(){

@@ -69,19 +69,20 @@ import org.openejb.test.stateless.BasicStatelessObject;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
-public class BasicBmpBean implements javax.ejb.EntityBean{
-    
-    public static int primaryKey = 1;
+public class BasicBmpBean implements javax.ejb.EntityBean {
+
+    public static int keys = 1;
+    public int primaryKey;
     public String firstName;
     public String lastName;
     public EntityContext ejbContext;
     public Hashtable allowedOperationsTable = new Hashtable();
-    
-    
+
+
     //=============================
     // Home interface methods
     //    
-    
+
     /**
      * Maps to BasicBmpHome.sum
      * 
@@ -96,8 +97,8 @@ public class BasicBmpBean implements javax.ejb.EntityBean{
         testAllowedOperations("ejbHome");
         return x+y;
     }
-    
-    
+
+
     /**
      * Maps to BasicBmpHome.findEmptyCollection
      * 
@@ -122,20 +123,20 @@ public class BasicBmpBean implements javax.ejb.EntityBean{
     public Integer ejbFindByPrimaryKey(Integer primaryKey)
     throws javax.ejb.FinderException{
         boolean found = false;
-        try{
+        try {
             InitialContext jndiContext = new InitialContext( ); 
             DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/jdbc/basic/entityDatabase");
             Connection con = ds.getConnection();
-            
-            PreparedStatement stmt = con.prepareStatement("select * from BasicEntities where EntityID = ?");
+
+            PreparedStatement stmt = con.prepareStatement("select * from entity where id = ?");
             stmt.setInt(1, primaryKey.intValue());
             found = stmt.executeQuery().next();
             con.close();
-        }catch(Exception e){
+        } catch ( Exception e ) {
             throw new FinderException("FindByPrimaryKey failed");
         }
-        
-        if(found) return primaryKey;
+
+        if ( found ) return primaryKey;
         else      throw new javax.ejb.ObjectNotFoundException();
     }
 
@@ -149,65 +150,65 @@ public class BasicBmpBean implements javax.ejb.EntityBean{
      */
     public Integer ejbCreate(String name)
     throws javax.ejb.CreateException{
-        try{
-        StringTokenizer st = new StringTokenizer(name, " ");    
-        firstName = st.nextToken();
-        lastName = st.nextToken();
-        
-        InitialContext jndiContext = new InitialContext( ); 
- 
-        DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/jdbc/basic/entityDatabase");
-        
-        Connection con = ds.getConnection();
-        
-        // Support for Oracle because Oracle doesn't do auto increment
-        PreparedStatement stmt = con.prepareStatement("insert into BasicEntities (EntityID, FirstName, LastName) values (?,?,?)");
-        stmt.setInt(1, primaryKey++);
-        stmt.setString(2, firstName);
-        stmt.setString(3, lastName);
-        stmt.executeUpdate();
-        
-        stmt = con.prepareStatement("select EntityID from BasicEntities where FirstName = ? AND LastName = ?");
-        stmt.setString(1, firstName);
-        stmt.setString(2, lastName);
-        ResultSet set = stmt.executeQuery();
-        while(set.next()) primaryKey = set.getInt("EntityID");
-        con.close();
-        
-        return new Integer(primaryKey);
-        
-        }catch(Exception e){
+        try {
+            StringTokenizer st = new StringTokenizer(name, " ");    
+            firstName = st.nextToken();
+            lastName = st.nextToken();
+
+            InitialContext jndiContext = new InitialContext( ); 
+
+            DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/jdbc/basic/entityDatabase");
+
+            Connection con = ds.getConnection();
+
+            // Support for Oracle because Oracle doesn't do auto increment
+            PreparedStatement stmt = con.prepareStatement("insert into entity (id, first_name, last_name) values (?,?,?)");
+            stmt.setInt(1, keys++);
+            stmt.setString(2, firstName);
+            stmt.setString(3, lastName);
+            stmt.executeUpdate();
+
+            stmt = con.prepareStatement("select id from entity where first_name = ? AND last_name = ?");
+            stmt.setString(1, firstName);
+            stmt.setString(2, lastName);
+            ResultSet set = stmt.executeQuery();
+            while ( set.next() ) primaryKey = set.getInt("id");
+            con.close();
+
+            return new Integer(primaryKey);
+
+        } catch ( Exception e ) {
             e.printStackTrace();
             throw new javax.ejb.CreateException("can't create");
         }
     }
-    
+
     public void ejbPostCreate(String name)
     throws javax.ejb.CreateException{
     }
-    
+
     //    
     // Home interface methods
     //=============================
-    
+
 
     //=============================
     // Remote interface methods
     //    
-    
+
     /**
      * Maps to BasicBmpObject.businessMethod
      * 
      * @return 
      * @see BasicBmpObject.businessMethod
      */
-    public String businessMethod(String text){
+    public String businessMethod(String text) {
         testAllowedOperations("businessMethod");
         StringBuffer b = new StringBuffer(text);
         return b.reverse().toString();
     }
 
-    
+
     /**
      * Maps to BasicBmpObject.getPermissionsReport
      * 
@@ -217,11 +218,11 @@ public class BasicBmpBean implements javax.ejb.EntityBean{
      * @return 
      * @see BasicBmpObject.getPermissionsReport
      */
-    public Properties getPermissionsReport(){
+    public Properties getPermissionsReport() {
         /* TO DO: */
         return null;
     }
-    
+
     /**
      * Maps to BasicBmpObject.getAllowedOperationsReport
      * 
@@ -232,10 +233,10 @@ public class BasicBmpBean implements javax.ejb.EntityBean{
      * @return 
      * @see BasicBmpObject.getAllowedOperationsReport
      */
-    public OperationsPolicy getAllowedOperationsReport(String methodName){
-        return (OperationsPolicy) allowedOperationsTable.get(methodName);
+    public OperationsPolicy getAllowedOperationsReport(String methodName) {
+        return(OperationsPolicy) allowedOperationsTable.get(methodName);
     }
-    
+
     //    
     // Remote interface methods
     //=============================
@@ -244,33 +245,33 @@ public class BasicBmpBean implements javax.ejb.EntityBean{
     //================================
     // EntityBean interface methods
     //    
-    
+
     /**
      * A container invokes this method to instruct the
      * instance to synchronize its state by loading it state from the
      * underlying database.
      */
     public void ejbLoad() throws EJBException,RemoteException {
-        try{
-        InitialContext jndiContext = new InitialContext( ); 
-        DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/jdbc/basic/entityDatabase");
-        Connection con = ds.getConnection();
-        
-        PreparedStatement stmt = con.prepareStatement("select * from BasicEntities where EntityID = ?");
-        Integer primaryKey = (Integer)ejbContext.getPrimaryKey();
-        stmt.setInt(1, primaryKey.intValue());
-        ResultSet rs = stmt.executeQuery();
-        while(rs.next()){
-            lastName = rs.getString("LastName");
-            firstName = rs.getString("FirstName");
-        }
-        con.close();
-        
-        }catch(Exception e){
+        try {
+            InitialContext jndiContext = new InitialContext( ); 
+            DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/jdbc/basic/entityDatabase");
+            Connection con = ds.getConnection();
+
+            PreparedStatement stmt = con.prepareStatement("select * from entity where id = ?");
+            Integer primaryKey = (Integer)ejbContext.getPrimaryKey();
+            stmt.setInt(1, primaryKey.intValue());
+            ResultSet rs = stmt.executeQuery();
+            while ( rs.next() ) {
+                lastName = rs.getString("last_name");
+                firstName = rs.getString("first_name");
+            }
+            con.close();
+
+        } catch ( Exception e ) {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Set the associated entity context. The container invokes this method
      * on an instance after the instance has been created.
@@ -279,7 +280,7 @@ public class BasicBmpBean implements javax.ejb.EntityBean{
         ejbContext = ctx;
         testAllowedOperations("setEntityContext");
     }
-    
+
     /**
      * Unset the associated entity context. The container calls this method
      * before removing the instance.
@@ -287,29 +288,29 @@ public class BasicBmpBean implements javax.ejb.EntityBean{
     public void unsetEntityContext() throws EJBException,RemoteException {
         testAllowedOperations("unsetEntityContext");
     }
-    
+
     /**
      * A container invokes this method to instruct the
      * instance to synchronize its state by storing it to the underlying
      * database.
      */
     public void ejbStore() throws EJBException,RemoteException {
-        try{
-        InitialContext jndiContext = new InitialContext( ); 
-        DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/jdbc/basic/entityDatabase");
-        Connection con = ds.getConnection();
-        
-        PreparedStatement stmt = con.prepareStatement("update BasicEntities set FirstName = ?, LastName = ? where EmployeeID = ?");
-        stmt.setString(1, firstName);
-        stmt.setString(2, lastName);
-        stmt.setInt(3, primaryKey);
-        stmt.execute();
-        con.close();
-        }catch(Exception e){
+        try {
+            InitialContext jndiContext = new InitialContext( ); 
+            DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/jdbc/basic/entityDatabase");
+            Connection con = ds.getConnection();
+
+            PreparedStatement stmt = con.prepareStatement("update entity set first_name = ?, last_name = ? where id = ?");
+            stmt.setString(1, firstName);
+            stmt.setString(2, lastName);
+            stmt.setInt(3, primaryKey);
+            stmt.execute();
+            con.close();
+        } catch ( Exception e ) {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * A container invokes this method before it removes the EJB object
      * that is currently associated with the instance. This method
@@ -319,23 +320,23 @@ public class BasicBmpBean implements javax.ejb.EntityBean{
      * of available instances.
      */
     public void ejbRemove() throws RemoveException,EJBException,RemoteException {
-        try{
+        try {
             InitialContext jndiContext = new InitialContext( ); 
             DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/jdbc/basic/entityDatabase");
             Connection con = ds.getConnection();
-            
-            PreparedStatement stmt = con.prepareStatement("delete from BasicEntities where EntityID = ?");
+
+            PreparedStatement stmt = con.prepareStatement("delete from entity where id = ?");
             Integer primaryKey = (Integer)ejbContext.getPrimaryKey();
             stmt.setInt(1, primaryKey.intValue());
             stmt.executeUpdate();
             con.close();
-        
-        }catch(Exception e){
+
+        } catch ( Exception e ) {
             e.printStackTrace();
             throw new javax.ejb.EJBException(e);
         }
     }
-    
+
     /**
      * A container invokes this method when the instance
      * is taken out of the pool of available instances to become associated
@@ -345,7 +346,7 @@ public class BasicBmpBean implements javax.ejb.EntityBean{
     public void ejbActivate() throws EJBException,RemoteException {
         testAllowedOperations("ejbActivate");
     }
-    
+
     /**
      * A container invokes this method on an instance before the instance
      * becomes disassociated with a specific EJB object. After this method
@@ -360,98 +361,98 @@ public class BasicBmpBean implements javax.ejb.EntityBean{
     //    
     // EntityBean interface methods
     //================================
-    
-	protected void testAllowedOperations(String methodName) {
-		OperationsPolicy policy = new OperationsPolicy();
-	
-		/*[0] Test getEJBHome /////////////////*/ 
-		try {
-			ejbContext.getEJBHome();
-			policy.allow(policy.Context_getEJBHome);
-		} catch (IllegalStateException ise) {
-		}
-	
-		/*[1] Test getCallerPrincipal /////////*/
-		try {
-			ejbContext.getCallerPrincipal();
-			policy.allow( policy.Context_getCallerPrincipal );
-		} catch (IllegalStateException ise) {
-		}
-	
-		/*[2] Test isCallerInRole /////////////*/
-		try {
-			ejbContext.isCallerInRole("ROLE");
-			policy.allow( policy.Context_isCallerInRole );
-		} catch (IllegalStateException ise) {
-		}
-	
-		/*[3] Test getRollbackOnly ////////////*/
-		try {
-			ejbContext.getRollbackOnly();
-			policy.allow( policy.Context_getRollbackOnly );
-		} catch (IllegalStateException ise) { 
-		}
-	
-		/*[4] Test setRollbackOnly ////////////*/
-		try {
-			ejbContext.setRollbackOnly();
-			policy.allow( policy.Context_setRollbackOnly );
-		} catch (IllegalStateException ise) {
-		}
-	
-		/*[5] Test getUserTransaction /////////*/
-		try {
-			ejbContext.getUserTransaction();
-			policy.allow( policy.Context_getUserTransaction );
-		} catch (IllegalStateException ise) {
-		}
-	
-		/*[6] Test getEJBObject ///////////////*/
-		try {
-			ejbContext.getEJBObject();
-			policy.allow( policy.Context_getEJBObject );
-		} catch (IllegalStateException ise) {
-		}
-	
-		/*[7] Test Context_getPrimaryKey ///////////////
-		 *
-		 * Can't really do this
-		 */
-	
-		/*[8] Test JNDI_access_to_java_comp_env ///////////////*/
-		try {
-			InitialContext jndiContext = new InitialContext();            
-	
-			String actual = (String)jndiContext.lookup("java:comp/env/stateless/references/JNDI_access_to_java_comp_env");
-	
-			policy.allow( policy.JNDI_access_to_java_comp_env );
-		} catch (IllegalStateException ise) {
-		} catch (javax.naming.NamingException ne) {
-		}
-	
-		/*[9] Test Resource_manager_access ///////////////*/
-		try {
-			InitialContext jndiContext = new InitialContext( ); 
-	
-			DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/stateless/references/Resource_manager_access");
-	
-			policy.allow( policy.Resource_manager_access );
-		} catch (IllegalStateException ise) {
-		} catch (javax.naming.NamingException ne) {
-		}
-	
-		/*[10] Test Enterprise_bean_access ///////////////*/
-		try {
-			InitialContext jndiContext = new InitialContext( ); 
-	
-			Object obj = jndiContext.lookup("java:comp/env/stateless/beanReferences/Enterprise_bean_access");
-	
-			policy.allow( policy.Enterprise_bean_access );
-		} catch (IllegalStateException ise) {
-		} catch (javax.naming.NamingException ne) {
-		}
-	
-		allowedOperationsTable.put(methodName, policy);
-	}
+
+    protected void testAllowedOperations(String methodName) {
+        OperationsPolicy policy = new OperationsPolicy(); 
+
+        /*[0] Test getEJBHome /////////////////*/
+        try {
+            ejbContext.getEJBHome();
+            policy.allow(policy.Context_getEJBHome);
+        } catch ( IllegalStateException ise ) {
+        }
+
+        /*[1] Test getCallerPrincipal /////////*/
+        try {
+            ejbContext.getCallerPrincipal();
+            policy.allow( policy.Context_getCallerPrincipal );
+        } catch ( IllegalStateException ise ) {
+        }
+
+        /*[2] Test isCallerInRole /////////////*/
+        try {
+            ejbContext.isCallerInRole("ROLE");
+            policy.allow( policy.Context_isCallerInRole );
+        } catch ( IllegalStateException ise ) {
+        }
+
+        /*[3] Test getRollbackOnly ////////////*/
+        try {
+            ejbContext.getRollbackOnly();
+            policy.allow( policy.Context_getRollbackOnly );
+        } catch ( IllegalStateException ise ) {
+        }
+
+        /*[4] Test setRollbackOnly ////////////*/
+        try {
+            ejbContext.setRollbackOnly();
+            policy.allow( policy.Context_setRollbackOnly );
+        } catch ( IllegalStateException ise ) {
+        }
+
+        /*[5] Test getUserTransaction /////////*/
+        try {
+            ejbContext.getUserTransaction();
+            policy.allow( policy.Context_getUserTransaction );
+        } catch ( IllegalStateException ise ) {
+        }
+
+        /*[6] Test getEJBObject ///////////////*/
+        try {
+            ejbContext.getEJBObject();
+            policy.allow( policy.Context_getEJBObject );
+        } catch ( IllegalStateException ise ) {
+        }
+
+        /*[7] Test Context_getPrimaryKey ///////////////
+         *
+         * Can't really do this
+         */
+
+        /*[8] Test JNDI_access_to_java_comp_env ///////////////*/
+        try {
+            InitialContext jndiContext = new InitialContext();            
+
+            String actual = (String)jndiContext.lookup("java:comp/env/stateless/references/JNDI_access_to_java_comp_env");
+
+            policy.allow( policy.JNDI_access_to_java_comp_env );
+        } catch ( IllegalStateException ise ) {
+        } catch ( javax.naming.NamingException ne ) {
+        }
+
+        /*[9] Test Resource_manager_access ///////////////*/
+        try {
+            InitialContext jndiContext = new InitialContext( ); 
+
+            DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/stateless/references/Resource_manager_access");
+
+            policy.allow( policy.Resource_manager_access );
+        } catch ( IllegalStateException ise ) {
+        } catch ( javax.naming.NamingException ne ) {
+        }
+
+        /*[10] Test Enterprise_bean_access ///////////////*/
+        try {
+            InitialContext jndiContext = new InitialContext( ); 
+
+            Object obj = jndiContext.lookup("java:comp/env/stateless/beanReferences/Enterprise_bean_access");
+
+            policy.allow( policy.Enterprise_bean_access );
+        } catch ( IllegalStateException ise ) {
+        } catch ( javax.naming.NamingException ne ) {
+        }
+
+        allowedOperationsTable.put(methodName, policy);
+    }
 
 }

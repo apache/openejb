@@ -50,9 +50,7 @@ import javax.naming.*;
 import javax.naming.InitialContext;
 import junit.framework.*;
 import javax.transaction.RollbackException;
-import org.openejb.test.TestServerManager;
-import org.openejb.test.beans.Database;
-import org.openejb.test.beans.DatabaseHome;
+import org.openejb.test.TestManager;
 import org.openejb.test.object.Transaction;
 import org.openejb.test.object.Account;
 
@@ -66,10 +64,6 @@ public class StatefulBeanTxTests extends org.openejb.test.NamedTestCase{
     
     public final static String jndiEJBHomeEntry = "client/tests/stateful/BeanManagedTransactionTests/EJBHome";
     
-
-    public final static String CREATE_TABLE = "CREATE TABLE Account ( AcctID INT PRIMARY KEY AUTO INCREMENT,  SSN CHAR(11), FIRSTNAME CHAR(20), LASTNAME CHAR(20), BALANCE INT)";
-    public final static String DROP_TABLE = "DROP TABLE Account";
-    
     protected BeanTxStatefulHome   ejbHome;
     protected BeanTxStatefulObject ejbObject;
     
@@ -78,7 +72,6 @@ public class StatefulBeanTxTests extends org.openejb.test.NamedTestCase{
     protected Handle            ejbHandle;
     protected Integer           ejbPrimaryKey;
     
-    protected Database database;
     protected InitialContext initialContext;
 
     public StatefulBeanTxTests(){
@@ -91,7 +84,7 @@ public class StatefulBeanTxTests extends org.openejb.test.NamedTestCase{
      */
     protected void setUp() throws Exception {
         
-        Properties properties = TestServerManager.getContextEnvironment();
+        Properties properties = TestManager.getServer().getContextEnvironment();
         properties.put(Context.SECURITY_PRINCIPAL, "STATEFUL_test00_CLIENT");
         properties.put(Context.SECURITY_CREDENTIALS, "STATEFUL_test00_CLIENT");
         
@@ -103,10 +96,7 @@ public class StatefulBeanTxTests extends org.openejb.test.NamedTestCase{
         ejbObject = ejbHome.create("Transaction Bean");
 
         /*[2] Create database table */
-        Object obj2 = initialContext.lookup("client/tools/DatabaseHome");
-        DatabaseHome databaseHome = (DatabaseHome)javax.rmi.PortableRemoteObject.narrow( obj2, DatabaseHome.class);
-        database = databaseHome.create();
-        database.executeQuery(CREATE_TABLE);
+        TestManager.getDatabase().createAccountTable();
     }
     
     /**
@@ -115,7 +105,7 @@ public class StatefulBeanTxTests extends org.openejb.test.NamedTestCase{
      */
     protected void tearDown() throws Exception {
         /*[1] Drop database table */
-        database.executeQuery(DROP_TABLE);
+        TestManager.getDatabase().dropAccountTable();
     }
 
     
@@ -221,7 +211,7 @@ public class StatefulBeanTxTests extends org.openejb.test.NamedTestCase{
             Account actual = new Account();
             
             ejbObject.openAccount(expected, new Boolean(false));
-            actual = ejbObject.retreiveAccount( expected.ssn );
+            actual = ejbObject.retreiveAccount( expected.getSsn() );
 
             assertNotNull( "The transaction was not commited.  The record is null", actual );
             assertEquals( "The transaction was not commited cleanly.", expected, actual );
@@ -235,13 +225,13 @@ public class StatefulBeanTxTests extends org.openejb.test.NamedTestCase{
     /**
      * 
      */
-    public void BUG_test06_singleTransactionRollback(){
+    public void test06_singleTransactionRollback(){
         try{
             Account expected = new Account("234-56-7890","Charlie","Brown", 20000);
             Account actual = new Account();
             
             ejbObject.openAccount(expected, new Boolean(true));
-            actual = ejbObject.retreiveAccount( expected.ssn );
+            actual = ejbObject.retreiveAccount( expected.getSsn() );
             assertNull( "The transaction was commited. A javax.transaction.RollbackException should have been thrown. ", actual );
         } catch (RollbackException re){
             assert("Transaction was rolledback.  Received Exception "+re.getClass()+ " : "+re.getMessage(), true);

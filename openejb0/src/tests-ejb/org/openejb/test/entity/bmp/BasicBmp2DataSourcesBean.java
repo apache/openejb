@@ -127,7 +127,7 @@ public class BasicBmp2DataSourcesBean implements javax.ejb.EntityBean{
             DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/jdbc/basic/entityDatabase");
             Connection con = ds.getConnection();
             
-            PreparedStatement stmt = con.prepareStatement("select * from BasicEntities where EntityID = ?");
+            PreparedStatement stmt = con.prepareStatement("select * from entity where id = ?");
             stmt.setInt(1, primaryKey.intValue());
             found = stmt.executeQuery().next();
             con.close();
@@ -161,17 +161,17 @@ public class BasicBmp2DataSourcesBean implements javax.ejb.EntityBean{
         Connection con = ds.getConnection();
         
         // Support for Oracle because Oracle doesn't do auto increment
-        PreparedStatement stmt = con.prepareStatement("insert into BasicEntities (EntityID, FirstName, LastName) values (?,?,?)");
+        PreparedStatement stmt = con.prepareStatement("insert into entity (id, first_name, last_name) values (?,?,?)");
         stmt.setInt(1, primaryKey++);
         stmt.setString(2, firstName);
         stmt.setString(3, lastName);
         stmt.executeUpdate();
         
-        stmt = con.prepareStatement("select EntityID from BasicEntities where FirstName = ? AND LastName = ?");
+        stmt = con.prepareStatement("select id from entity where first_name = ? AND last_name = ?");
         stmt.setString(1, firstName);
         stmt.setString(2, lastName);
         ResultSet set = stmt.executeQuery();
-        while(set.next()) primaryKey = set.getInt("EntityID");
+        while(set.next()) primaryKey = set.getInt("id");
         con.close();
         
         // Do backup
@@ -180,7 +180,7 @@ public class BasicBmp2DataSourcesBean implements javax.ejb.EntityBean{
         con = ds.getConnection();
         
         // Support for Oracle because Oracle doesn't do auto increment
-        stmt = con.prepareStatement("insert into BasicEntitiesBackup (EntityID, FirstName, LastName) values (?,?,?)");
+        stmt = con.prepareStatement("insert into entityBackup (id, first_name, last_name) values (?,?,?)");
         stmt.setInt(1, primaryKey);
         stmt.setString(2, firstName);
         stmt.setString(3, lastName);
@@ -270,13 +270,13 @@ public class BasicBmp2DataSourcesBean implements javax.ejb.EntityBean{
         DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/jdbc/basic/entityDatabase");
         Connection con = ds.getConnection();
         
-        PreparedStatement stmt = con.prepareStatement("select * from BasicEntities where EntityID = ?");
+        PreparedStatement stmt = con.prepareStatement("select * from entity where id = ?");
         Integer primaryKey = (Integer)ejbContext.getPrimaryKey();
         stmt.setInt(1, primaryKey.intValue());
         ResultSet rs = stmt.executeQuery();
         while(rs.next()){
-            lastName = rs.getString("LastName");
-            firstName = rs.getString("FirstName");
+            lastName = rs.getString("last_name");
+            firstName = rs.getString("first_name");
         }
         con.close();
         
@@ -313,7 +313,7 @@ public class BasicBmp2DataSourcesBean implements javax.ejb.EntityBean{
         DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/jdbc/basic/entityDatabase");
         Connection con = ds.getConnection();
         
-        PreparedStatement stmt = con.prepareStatement("update BasicEntities set FirstName = ?, LastName = ? where EmployeeID = ?");
+        PreparedStatement stmt = con.prepareStatement("update entity set first_name = ?, last_name = ? where EmployeeID = ?");
         stmt.setString(1, firstName);
         stmt.setString(2, lastName);
         stmt.setInt(3, primaryKey);
@@ -338,7 +338,7 @@ public class BasicBmp2DataSourcesBean implements javax.ejb.EntityBean{
             DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/jdbc/basic/entityDatabase");
             Connection con = ds.getConnection();
             
-            PreparedStatement stmt = con.prepareStatement("delete from BasicEntities where EntityID = ?");
+            PreparedStatement stmt = con.prepareStatement("delete from entity where id = ?");
             Integer primaryKey = (Integer)ejbContext.getPrimaryKey();
             stmt.setInt(1, primaryKey.intValue());
             stmt.executeUpdate();

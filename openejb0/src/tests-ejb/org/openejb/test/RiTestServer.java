@@ -90,7 +90,7 @@ public class RiTestServer implements TestServer {
         
     public RiTestServer(){}
 
-    public void create(Properties props){
+    public void init(Properties props){
         try{
             /* [DMB] Temporary fix  */
             try{

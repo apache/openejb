@@ -337,7 +337,9 @@ public class EntityInstanceManager {
             }catch(Exception e){
                 throw new org.openejb.SystemException(e);
             }
-            // setEntityContext needs to be invoked, so need a special MethodInvocation that specifies the setSessionContext on the SessionBean interface with one argument,session context
+            // setEntityContext needs to be invoked, so need a special MethodInvocation 
+            // that specifies the setEntityContext on the EntityBean interface with 
+            // one argument, entity context
             
             
             Transaction currentTx = null;

@@ -128,6 +128,7 @@ public class StatelessInstanceManager {
                     throw (SystemException)oee;
                 }
                     
+                byte originalOperation = callContext.getCurrentOperation();
                 try{
                     // invoke the setSessionContext method
                     callContext.setCurrentOperation(Operations.OP_SET_CONTEXT);
@@ -143,6 +144,8 @@ public class StatelessInstanceManager {
                     //TODO:1: Should be logged instead of printed to System.out
 		    System.out.println("StatelessInstanceManager----->");
                     throw new org.openejb.ApplicationException(new RemoteException("Can not obtain a free instance."));
+                } finally {
+                    callContext.setCurrentOperation( originalOperation );
                 }
                 pool.addToBeanCount(1);
             }

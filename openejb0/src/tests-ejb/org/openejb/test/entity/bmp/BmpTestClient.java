@@ -50,7 +50,7 @@ import javax.naming.InitialContext;
 import javax.naming.Context;
 import junit.framework.*;
 import java.net.URL;
-import org.openejb.test.TestServerManager;
+import org.openejb.test.TestManager;
 import java.sql.*;
 import javax.sql.*;
 
@@ -78,7 +78,7 @@ public abstract class BmpTestClient extends org.openejb.test.NamedTestCase{
      */
     protected void setUp() throws Exception {
         
-        Properties properties = TestServerManager.getContextEnvironment();
+        Properties properties = TestManager.getServer().getContextEnvironment();
         properties.put(Context.SECURITY_PRINCIPAL, "ENTITY_TEST_CLIENT");
         properties.put(Context.SECURITY_CREDENTIALS, "ENTITY_TEST_CLIENT");
         
