@@ -38,66 +38,66 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2004-2005 (C) The OpenEJB Group. All Rights Reserved.
  *
  * $Id$
  */
-package org.openejb.corba.security;
+package org.openejb.corba;
 
-import org.omg.CORBA.LocalObject;
-import org.omg.PortableInterceptor.ClientRequestInfo;
-import org.omg.PortableInterceptor.ClientRequestInterceptor;
-import org.omg.PortableInterceptor.ForwardRequest;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.omg.CORBA.ORB;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.PortableServer.POA;
+
+import org.openejb.EJBComponentType;
+import org.openejb.EJBContainer;
+import org.openejb.corba.util.TieLoader;
 
 
 /**
  * @version $Revision$ $Date$
  */
-class ClientSecurityInterceptor extends LocalObject implements ClientRequestInterceptor {
+public final class AdapterWrapper {
+    private final static Map adapters = new HashMap();
+    private final EJBContainer container;
+    private Adapter generator;
 
-    private final int slotId;
+    public AdapterWrapper(EJBContainer container) {
+        this.container = container;
 
-    public ClientSecurityInterceptor(int slotId) {
-        this.slotId = slotId;
     }
 
-    public void receive_exception(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public EJBContainer getContainer() {
+        return container;
     }
 
-    public void receive_other(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void start(ORB orb, POA poa, NamingContextExt initialContext, TieLoader tieLoader) throws CORBAException {
+        switch (container.getProxyInfo().getComponentType()) {
+            case EJBComponentType.STATELESS:
+                generator = new AdapterStateless(container, orb, poa, tieLoader);
+                break;
+            case EJBComponentType.STATEFUL:
+                generator = new AdapterStateful(container, orb, poa, tieLoader);
+                break;
+            case EJBComponentType.BMP_ENTITY:
+            case EJBComponentType.CMP_ENTITY:
+                generator = new AdapterEntity(container, orb, poa, tieLoader);
+                break;
+            default:
+                throw new CORBAException("CORBA Adapter does not handle MDB containers");
+        }
+        adapters.put(container.getContainerID(), generator);
     }
 
-    public void receive_reply(ClientRequestInfo ri) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void stop() throws CORBAException {
+        generator.stop();
+        adapters.remove(container.getContainerID());
+
     }
 
-    public void send_poll(ClientRequestInfo ri) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void send_request(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void destroy() {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    /**
-     * Returns the name of the interceptor.
-     * <p/>
-     * Each Interceptor may have a name that may be used administratively
-     * to order the lists of Interceptors. Only one Interceptor of a given
-     * name can be registered with the ORB for each Interceptor type. An
-     * Interceptor may be anonymous, i.e., have an empty string as the name
-     * attribute. Any number of anonymous Interceptors may be registered with
-     * the ORB.
-     *
-     * @return the name of the interceptor.
-     */
-    public String name() {
-        return "ClientSecurityInterceptor";
+    public static RefGenerator getRefGenerator(String containerId) {
+        return (RefGenerator) adapters.get(containerId);
     }
 }

@@ -45,16 +45,10 @@
 package org.openejb.corba.compiler;
 
 import java.io.File;
-import java.util.Properties;
 import java.util.Set;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public interface SkeletonGenerator {

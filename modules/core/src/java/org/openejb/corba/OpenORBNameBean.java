@@ -38,7 +38,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2004-2005 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2005 (C) The OpenEJB Group. All Rights Reserved.
  *
  * $Id$
  */
@@ -47,11 +47,13 @@ package org.openejb.corba;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
+import org.openorb.ins.Server;
+import org.openorb.ins.Service;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -63,97 +65,95 @@ import org.apache.geronimo.pool.ThreadPool;
 /**
  * @version $Revision$ $Date$
  */
-public class CORBABean implements GBeanLifecycle {
+public class OpenORBNameBean implements GBeanLifecycle {
 
-    private final Log log = LogFactory.getLog(CORBABean.class);
+    private final Log log = LogFactory.getLog(OpenORBNameBean.class);
 
     private final ClassLoader classLoader;
+    private final Server server;
     private final ThreadPool threadPool;
-    private ORB orb;
-    private POA rootPOA;
     private ArrayList args = new ArrayList();
     private Properties props = new Properties();
 
-    public CORBABean() {
+    public OpenORBNameBean() {
         this.classLoader = null;
+        this.server = null;
         this.threadPool = null;
+        this.args = null;
+        this.props = null;
     }
 
-    public CORBABean(ClassLoader classLoader, ThreadPool threadPool) {
+    public OpenORBNameBean(ClassLoader classLoader, ThreadPool threadPool, ArrayList args, Properties props) {
+        this.server = new Server();
         this.classLoader = classLoader;
         this.threadPool = threadPool;
-    }
+        this.args = args;
+        this.props = props;
 
-    public ORB getORB() {
-        return orb;
-    }
+        ClassLoader savedLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(classLoader);
 
-    public POA getRootPOA() {
-        return rootPOA;
+            Options options = new Options();
+            // persistenceType
+            options.addOption(OptionBuilder.withArgName(Service.OPT_PERSISTENCE_ARG_NAME)
+                              .hasArg()
+                              .withDescription(Service.OPT_PERSISTENCE_DESCRIP)
+                              .withLongOpt(Service.OPT_PERSISTENCE_LONG)
+                              .create(Service.OPT_PERSISTENCE));
+            // shutdown
+            options.addOption(new Option(Service.OPT_SHUTDOWN_ROOT,
+                                         Service.OPT_SHUTDOWN_ROOT_LONG, false,
+                                         Service.OPT_SHUTDOWN_ROOT_DESCRIP));
+
+            // make sure to import the pss config
+            props.put("ImportModule.pss", "${openorb.home}config/pss.xml#pss");
+            server.init((String[]) args.toArray(new String[args.size()]), options, props);
+        } finally {
+            Thread.currentThread().setContextClassLoader(savedLoader);
+        }
     }
 
     public ArrayList getArgs() {
         return args;
     }
 
-    public void setArgs(ArrayList args) {
-        this.args = args;
-    }
-
     public Properties getProps() {
         return props;
     }
 
-    public void setProps(Properties props) {
-        this.props = props;
-    }
-
     public void doStart() throws WaitingException, Exception {
+        threadPool.execute(new Runnable() {
+            public void run() {
+                Thread.currentThread().setContextClassLoader(classLoader);
+                server.run();
+            }
+        });
 
-        ClassLoader savedLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(classLoader);
-
-            orb = ORB.init((String[]) args.toArray(new String[args.size()]), props);
-
-            org.omg.CORBA.Object obj = orb.resolve_initial_references("RootPOA");
-
-            rootPOA = POAHelper.narrow(obj);
-
-            threadPool.execute(new Runnable() {
-                public void run() {
-                    orb.run();
-                }
-            });
-        } finally {
-            Thread.currentThread().setContextClassLoader(savedLoader);
-        }
-
-        log.info("Started CORBABean");
+        log.info("Started OpenORBNameBean");
     }
 
     public void doStop() throws WaitingException, Exception {
-        orb.shutdown(true);
-        log.info("Stopped CORBABean");
+        server.getORB().shutdown(true);
+
+        log.info("Stopped OpenORBNameBean");
     }
 
     public void doFail() {
-        log.info("Failed CORBABean");
+        log.info("Failed OpenORBNameBean");
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(CORBABean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBNameBean.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addReference("ThreadPool", ThreadPool.class);
-        infoFactory.addAttribute("ORB", ORB.class, false);
-        infoFactory.addAttribute("rootPOA", POA.class, false);
         infoFactory.addAttribute("args", ArrayList.class, true);
         infoFactory.addAttribute("props", Properties.class, true);
 
-        infoFactory.setConstructor(new String[]{"classLoader", "ThreadPool"});
+        infoFactory.setConstructor(new String[]{"classLoader", "ThreadPool", "args", "props"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

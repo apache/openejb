@@ -63,7 +63,7 @@ import org.apache.geronimo.security.ContextManager;
  * Java Policy implementations.
  * @version $Revision$ $Date$
  */
-public class EJBIdentityInterceptor implements Interceptor {
+public final class EJBIdentityInterceptor implements Interceptor {
     private final Interceptor next;
 
     public EJBIdentityInterceptor(Interceptor next) {

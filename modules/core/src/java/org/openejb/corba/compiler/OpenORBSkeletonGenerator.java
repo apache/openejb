@@ -44,14 +44,18 @@
  */
 package org.openejb.corba.compiler;
 
-import javax.ejb.EJBHome;
 import java.io.File;
 import java.net.URL;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.Set;
+import javax.ejb.EJBHome;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.Jar;
 import org.openorb.compiler.CompilerHost;
 import org.openorb.compiler.object.IdlObject;
 import org.openorb.compiler.object.IdlRoot;
@@ -59,10 +63,6 @@ import org.openorb.compiler.orb.Configurator;
 import org.openorb.compiler.rmi.RmiCompilerProperties;
 import org.openorb.compiler.rmi.generator.Javatoidl;
 import org.openorb.compiler.rmi.parser.JavaParser;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.Jar;
 
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -160,6 +160,9 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
             collectClasspaths(set, EJBHome.class);
 
             compiler.compileDirectory(SRCDIR, CLASSESDIR, set);
+
+            // delete this file since someone may be holding on to it.
+            destination.delete();
 
             Project project = new Project();
             Jar jar = new Jar();

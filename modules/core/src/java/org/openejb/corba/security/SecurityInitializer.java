@@ -53,8 +53,6 @@ import org.omg.PortableInterceptor.ORBInitializer;
 
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class SecurityInitializer extends LocalObject implements ORBInitializer {

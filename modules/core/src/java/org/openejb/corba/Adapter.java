@@ -38,39 +38,125 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2004-2005 (C) The OpenEJB Group. All Rights Reserved.
  *
  * $Id$
  */
 package org.openejb.corba;
 
-import org.openejb.EJBContainer;
+import javax.rmi.CORBA.Tie;
+
 import org.omg.CORBA.ORB;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContext;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.CosNaming.NamingContextHelper;
+import org.omg.CosNaming.NamingContextPackage.NotEmpty;
 import org.omg.PortableServer.POA;
+import org.omg.PortableServer.Servant;
+
+import org.openejb.EJBContainer;
+import org.openejb.corba.util.TieLoader;
+import org.openejb.proxy.ProxyInfo;
 
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
-public class Adapter {
-    private final ORB orb;
-    private final POA poa;
+public abstract class Adapter implements RefGenerator {
     private final EJBContainer container;
+    private final POA parentPOA;
+    private final NamingContextExt initialContext;
+    private final TieLoader tieLoader;
+    private final byte[] home_id;
+    private final org.omg.CORBA.Object homeReference;
 
-    public Adapter(ORB orb, POA poa, EJBContainer container) {
-        this.orb = orb;
-        this.poa = poa;
+    protected Adapter(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader) throws CORBAException {
         this.container = container;
+        this.parentPOA = parentPOA;
+        this.tieLoader = tieLoader;
+        this.home_id = container.getContainerID().toString().getBytes();
 
-        String home_name = container.getEJBName();
-        byte[] objectId = container.getContainerID().toString().getBytes();
 
-        byte [] home_id = home_name.getBytes();
+        try {
+            org.omg.CORBA.Object obj = orb.resolve_initial_references("NameService");
+            initialContext = NamingContextExtHelper.narrow(obj);
+
+            Servant servant = tieLoader.loadTieClass(container.getProxyInfo().getHomeInterface(), container.getProxyInfo());
+            if (servant instanceof Tie) {
+                ((Tie) servant).setTarget(container.getEJBHome());
+            }
+            parentPOA.activate_object_with_id(home_id, servant);
+            homeReference = parentPOA.servant_to_reference(servant);
+
+            String[] names = container.getJndiNames();
+            for (int i = 0; i < names.length; i++) {
+                NameComponent[] nameComponent = initialContext.to_name(names[i]);
+                NamingContext currentContext = initialContext;
+                NameComponent[] nc = new NameComponent[1];
+                int lastComponent = nameComponent.length - 1;
+                for (int j = 0; j < lastComponent; ++j) {
+                    nc[0] = nameComponent[j];
+                    try {
+                        currentContext = NamingContextHelper.narrow(currentContext.resolve(nc));
+                    } catch (org.omg.CosNaming.NamingContextPackage.NotFound nf) {
+                        currentContext = currentContext.bind_new_context(nc);
+                    }
+                }
+                nc[0] = nameComponent[lastComponent];
+                currentContext.rebind(nc, homeReference);
+                initialContext.resolve(nameComponent);
+            }
+        } catch (Exception e) {
+            throw new CORBAException(e);
+        }
     }
 
-    public void stop() {
-
+    public EJBContainer getContainer() {
+        return container;
     }
+
+    public NamingContextExt getInitialContext() {
+        return initialContext;
+    }
+
+    public TieLoader getTieLoader() {
+        return tieLoader;
+    }
+
+    public org.omg.CORBA.Object getHomeReference() {
+        return homeReference;
+    }
+
+    public void stop() throws CORBAException {
+        try {
+            String[] names = container.getJndiNames();
+            for (int i = 0; i < names.length; i++) {
+                NameComponent[] nameComponent = initialContext.to_name(names[i]);
+                initialContext.unbind(nameComponent);
+
+                for (int j = nameComponent.length - 1; 0 < j; --j) {
+                    NameComponent[] nc = new NameComponent[j];
+                    System.arraycopy(nameComponent, 0, nc, 0, j);
+                    NamingContext currentContext = NamingContextHelper.narrow(initialContext.resolve(nc));
+                    try {
+                        initialContext.unbind(nc);
+                        currentContext.destroy();
+                    } catch (NotEmpty nf) {
+                        break;
+                    }
+                }
+            }
+
+            parentPOA.deactivate_object(home_id);
+        } catch (Exception e) {
+            throw new CORBAException(e);
+        }
+    }
+
+    public org.omg.CORBA.Object genHomeReference(ProxyInfo proxyInfo) throws CORBAException {
+        return this.getHomeReference();
+    }
+
 }
