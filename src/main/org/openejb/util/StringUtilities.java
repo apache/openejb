@@ -68,4 +68,32 @@ public class StringUtilities {
         
         return returnValue;
     }
+
+    /**
+     * Checks a String to see if it's value is null, 
+     * and if so returns a blank string.
+     * @param stringToCheckForNull - the string to check for null
+     * @return the checked string
+     */
+    public static String replaceNullStringWithBlankString(String stringToCheckForNull) {
+        if (stringToCheckForNull == null) {
+            return "";
+        } else {
+            return stringToCheckForNull;
+        }
+    }
+
+    /**
+     * Checks a String to see if it's value is null or blank, 
+     * and if so returns a non-breaking space.
+     * @param stringToCheckForNull - the string to check for null or blank 
+     * @return the checked string
+     */
+    public static String replaceNullOrBlankStringWithNonBreakingSpace(String stringToCheckForNull) {
+        if ((stringToCheckForNull == null) || (stringToCheckForNull.equals(""))) {
+            return "&nbsp;";
+        } else {
+            return stringToCheckForNull;
+        }
+    }
 }

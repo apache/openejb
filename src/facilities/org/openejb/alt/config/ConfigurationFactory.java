@@ -155,7 +155,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     //   I n f o   O b j e c t s
     //
     //------------------------------------------------//
-    OpenEjbConfiguration sys;
+    public static OpenEjbConfiguration sys;
 
     ContainerInfo[] cntrs;
     EntityContainerInfo[] entyCntrs;
@@ -175,6 +175,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         }
 
         configLocation = ConfigUtils.searchForConfiguration(configLocation);
+        System.setProperty("openejb.configuration", configLocation);
 
     }
 
@@ -705,6 +706,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                 info.referenceName = ejb.getEjbRefName();
                 info.location = new EjbReferenceLocationInfo();
 
+    
                 EnterpriseBeanInfo otherBean  = (EnterpriseBeanInfo)infos.get(ejb.getEjbLink());
 		if ( otherBean == null ) {
 		    String msg = messages.format( "config.noBeanFound", ejb.getEjbRefName(), bean.ejbName );
