@@ -24,6 +24,7 @@ if /I %P1% EQU _TEST    goto TEST
 if /I %P1% EQU _BUILD   goto BUILD
 if /I %P1% EQU _DEPLOY  goto DEPLOY 
 if /I %P1% EQU _START   goto START_SERVER
+if /I %P1% EQU _STOP    goto STOP_SERVER
 if /I %P1% EQU _CORBA   goto CORBA
 if /I %P1% EQU _HELP    goto HELP
 if /I %P1% EQU _-HELP   goto HELP
@@ -39,6 +40,7 @@ REM================================================
    if /I %P2% EQU _TEST     goto HELP_TEST
    if /I %P2% EQU _DEPLOY   goto HELP_DEPLOY
    if /I %P2% EQU _START    goto HELP_START
+   if /I %P2% EQU _STOP     goto HELP_STOP
    
    more < .\bin\commands.txt
 
@@ -50,8 +52,8 @@ REM================================================
 goto EOF
 REM================================================
 :TEST
-   if /I %P2% EQU _INTRA-VM  goto TEST_INTRAVM
-   if /I %P2% EQU _EJBSERVER goto TEST_SERVER
+   if /I %P2% EQU _LOCAL     goto TEST_INTRAVM
+   if /I %P2% EQU _REMOTE    goto TEST_SERVER
    if /I %P2% EQU _CORBA     goto TEST_CORBA
    if /I %P2% EQU _HELP      goto HELP_TEST
    if /I %P2% EQU _          goto TEST_NOARGS
@@ -69,8 +71,12 @@ REM================================================
 goto EOF
 REM================================================
 :START_SERVER
-   echo "Starting OpenEJB Server..."
    .\bin\ejbserver.bat %2 %3 %4 %5 %6 %7 %8 %9
+
+goto EOF
+REM================================================
+:STOP_SERVER
+   .\bin\ejbserver-stop.bat %2 %3 %4 %5 %6 %7 %8 %9
 
 goto EOF
 REM================================================
@@ -174,6 +180,11 @@ goto EOF
 REM================================================
 :HELP_START
    more < .\bin\start.txt    
+
+goto EOF
+REM================================================
+:HELP_STOP
+   more < .\bin\stop.txt    
 
 goto EOF
 

@@ -55,7 +55,7 @@ import org.openejb.server.EjbDaemon;
  */
 public class TextConsole implements Runnable {
     
-    Logger logger = new Logger( "OpenEJB" );
+    Logger logger = new Logger( "OpenEJB.admin" );
 
     // The EJB Server Port
     Properties props;
@@ -137,7 +137,7 @@ public class TextConsole implements Runnable {
     public static final String TTY_BG_Cyan    = ESC+"[46m";
     public static final String TTY_BG_White   = ESC+"[47m";
         
-    public static String PROMPT = TTY_Bright+"[openejb]$ "+TTY_Reset;
+    public static String PROMPT = TTY_Reset+TTY_Bright+"[openejb]$ "+TTY_Reset;
     
     public void run( ) {
         
@@ -161,7 +161,8 @@ public class TextConsole implements Runnable {
                    
                 console.close();
             } catch (Throwable t){
-                t.printStackTrace();
+                logger.error(t.getMessage() );
+                //t.printStackTrace();
                 break;
             }
         }
