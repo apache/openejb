@@ -44,16 +44,18 @@
  */
 package org.openejb.util;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Properties;
+
 import org.openejb.OpenEJBException;
-import org.openejb.util.Messages;
 
 public class SafeToolkit{
 
     private String systemLocation;
     protected static Messages messages = new Messages( "org.openejb.util.resources" );
     protected static HashMap codebases = new HashMap();
+    protected static HashMap _tempcodebases = new HashMap();
 
     /**
      * Creates a new SafeToolkit dedicated to the specified system location.
@@ -304,4 +306,110 @@ public class SafeToolkit{
         );
     }
 
+
+    /**
+     * Loads the class using the class loader for the specific
+     * codebase.  If the codebase is null, the bootstrap classloader
+     * is used.
+     * 
+     * @param className
+     * @param codebase
+     * @return 
+     * @exception ClassNotFoundException
+     * @exception OpenEJBException
+     */
+    public static Class loadTempClass( String className, String codebase ) throws OpenEJBException {
+        return loadTempClass( className, codebase, true );
+    }
+
+    public static Class loadTempClass(String className, String codebase, boolean cache) throws OpenEJBException {
+        
+        ClassLoader cl = (cache) ? getCodebaseTempClassLoader( codebase ) : getTempClassLoader( codebase );
+        Class clazz = null;
+        try {
+            clazz = cl.loadClass(className);
+        } catch ( ClassNotFoundException cnfe ) {
+            throw new OpenEJBException( messages.format( "cl0007", className, codebase ) );
+        } 
+	return clazz;
+    }
+
+    public static void unloadTempCodebase( String codebase ) {
+	_tempcodebases.remove( codebase );
+    }
+
+    /**
+     * Ensures that a class loader for each code base used in the
+     * system is created at most one time.  The default bootsrap
+     * classloader is used if codebase is null.
+     * 
+     * @param codebase
+     * @return 
+     * @exception OpenEJBException
+     */
+    protected static ClassLoader getCodebaseTempClassLoader( String codebase ) throws OpenEJBException {
+        if (codebase == null) codebase = "CLASSPATH";
+
+        ClassLoader cl = (ClassLoader) _tempcodebases.get( codebase );
+        if ( cl == null ) {
+	    synchronized ( codebases ) {
+		cl = (ClassLoader) codebases.get( codebase );
+		if ( cl == null ) {
+		    try {
+			java.net.URL[] urlCodebase = new java.net.URL[1];
+			urlCodebase[0] = createTempCopy( codebase ).toURL();
+
+                        // make sure everything works if we were not loaded by the system class loader
+			cl = new java.net.URLClassLoader( urlCodebase, SafeToolkit.class.getClassLoader() );
+
+			_tempcodebases.put( codebase, cl );
+		    } catch ( java.net.MalformedURLException mue ) {
+			throw new OpenEJBException( messages.format ( "cl0001", codebase, mue.getMessage() ) );
+		    } catch ( SecurityException se ) {
+			throw new OpenEJBException( messages.format ( "cl0002", codebase, se.getMessage() ) );
+		    }
+		}
+	    }
+        }
+        return cl;
+    }
+
+    /**
+     * Ensures that a class loader for each code base used in the
+     * system is created at most one time.  The default bootsrap
+     * classloader is used if codebase is null.
+     * 
+     * @param codebase
+     * @return 
+     * @exception OpenEJBException
+     */
+    protected static ClassLoader getTempClassLoader( String codebase ) throws OpenEJBException {
+        ClassLoader cl = null;
+        try {
+            java.net.URL[] urlCodebase = new java.net.URL[1];
+            urlCodebase[0] = createTempCopy( codebase ).toURL();
+
+            // make sure everything works if we were not loaded by the system class loader
+            cl = new java.net.URLClassLoader( urlCodebase, SafeToolkit.class.getClassLoader() );
+        } catch ( java.net.MalformedURLException mue ) {
+            throw new OpenEJBException( messages.format ( "cl0001", codebase, mue.getMessage() ) );
+        } catch ( SecurityException se ) {
+            throw new OpenEJBException( messages.format ( "cl0002", codebase, se.getMessage() ) );
+        }
+        return cl;
+    }
+
+    protected static File createTempCopy( String codebase )  throws OpenEJBException {
+	File file = null;
+
+	try {
+	    File codebaseFile = new File( codebase );
+	    file = File.createTempFile( "openejb_validate", ".jar", FileUtils.createTempDirectory() );
+
+	    FileUtils.copyFile( file, codebaseFile );
+	} catch ( Exception e ) {
+            throw new OpenEJBException( messages.format ( "cl0002", codebase, e.getMessage() ) );
+	}
+	return file;
+    }
 }
