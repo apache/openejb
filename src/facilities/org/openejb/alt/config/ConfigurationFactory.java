@@ -134,7 +134,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         sys.containerSystem.statelessContainers = stlsCntrs;
 
         for (int i=0; i < jars.length; i++){
-            EnterpriseBeanInfo[] beans = initEnterpriseBeanInfos(jars[i]);
+            initEnterpriseBeanInfos(jars[i]);
         }
         
 
@@ -478,14 +478,25 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         return map;
     }
 
-    private EnterpriseBeanInfo[] initEnterpriseBeanInfos(DeployedJar jar)  throws OpenEJBException{
+    /**
+     * Creates and EnterpriseBeanInfo for each bean in the deployed jar
+     * then calls assignBeansToContainers.  If there is a problem with
+     * the jar, such as a duplicate deployment id, the jar will be skipped.
+     * 
+     * @param jar
+     * @exception OpenEJBException
+     */
+    private void initEnterpriseBeanInfos(DeployedJar jar)  throws OpenEJBException{
     
         int beansDeployed = jar.openejbJar.getEjbDeploymentCount();
         int beansInEjbJar = jar.ejbJar.getEnterpriseBeans().getEnterpriseBeansItemCount();
 
         if (beansInEjbJar != beansDeployed) {
             ConfigUtils.logWarning("conf.0008",jar.jarURI,""+beansInEjbJar, ""+beansDeployed);
-            return new EnterpriseBeanInfo[0];
+            // Not all ejb in this jar have been deployed.
+            // This jar cannot be loaded into the system and must 
+            // be skipped.
+            return;                
         }
 
 
@@ -508,10 +519,15 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             
             // Check For Duplicate Deployment IDs
             if (deploymentIds.contains(beans[i].ejbDeploymentId)){
-                ConfigUtils.logWarning("conf.0100",beans[i].ejbDeploymentId,jar.jarURI);
-            } else {
-                deploymentIds.add(beans[i].ejbDeploymentId);
-            }
+                ConfigUtils.logWarning("conf.0100",beans[i].ejbDeploymentId,jar.jarURI,beans[i].ejbName);
+                // No two deployments can have the same deployment ID
+                // the entire ejb jar is invalid and must be redeployed.
+                // This jar cannot be loaded into the system and must 
+                // be skipped.
+                return;                
+            } 
+
+            deploymentIds.add(beans[i].ejbDeploymentId);
             
             beans[i].codebase = jar.jarURI;
             infos.put(beans[i].ejbName, beans[i]);
@@ -534,7 +550,6 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         
         assignBeansToContainers(beans, ejbds);
         
-        return beans;
     }
 
 
