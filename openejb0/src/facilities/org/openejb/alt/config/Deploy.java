@@ -267,7 +267,19 @@ public class Deploy {
     /*------------------------------------------------------*/
 
     private void deploy(String jarLocation) throws OpenEJBException{
-        EjbJar jar = EjbJarUtils.readEjbJar(jarLocation);
+        EjbValidator validator = new EjbValidator();
+
+        EjbSet set = validator.validateJar( jarLocation );
+
+        if (set.hasErrors() || set.hasFailures()) {
+            validator.printResults( set );
+            System.out.println();
+            System.out.println("Jar not deployable." );
+            System.out.println();
+            System.out.println("Use the validator for more details" );
+            return;
+        }
+        EjbJar jar = set.getEjbJar();
         
         OpenejbJar openejbJar = new OpenejbJar();
         
@@ -664,7 +676,7 @@ public class Deploy {
                         try{
                             d.deploy( args[i] );
                         } catch (Exception e){
-                            System.out.print("ERROR in ");
+                            System.out.print("\nERROR in ");
                             System.out.println(args[i]);
                             System.out.println(e.getMessage());
                         }
