@@ -80,3 +80,4 @@ CLASSPATH=${CP}
 #$JAVA $OPTIONS -classpath $CLASSPATH org.openejb.test.ClientTestRunner -s test/conf/IvmServer_config.properties org.openejb.test.ClientTestSuite
 $JAVA $OPTIONS -classpath $CLASSPATH org.openejb.test.ClientTestRunner -s src/tests-ejb/IvmServer_config.properties org.openejb.test.ClientTestSuite
 
+

@@ -60,3 +60,4 @@ echo $CLASSPATH | tr ';' '\n'
 # Launch the naming server
 NAMING_OPTIONS=" -Djava.naming.factory.initial=org.openorb.rmi.jndi.CtxFactory -Dorg.omg.CORBA.ORBClass=org.openorb.CORBA.ORB -Dorg.omg.CORBA.ORBSingletonClass=org.openorb.CORBA.ORBSingleton -Djavax.rmi.CORBA.StubClass=org.openorb.rmi.system.StubDelegateImpl -Djavax.rmi.CORBA.UtilClass=org.openorb.rmi.system.UtilDelegateImpl -Djavax.rmi.CORBA.PortableRemoteObjectClass=org.openorb.rmi.system.PortableRemoteObjectDelegateImpl"
 $JAVA $NAMING_OPTIONS -classpath $CLASSPATH org.openorb.util.MapNamingContext -ORBPort=2001
+

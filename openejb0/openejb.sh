@@ -57,3 +57,4 @@ case $1 in
    "" ) cat ./bin/command.hlp;;
 
 esac   
+

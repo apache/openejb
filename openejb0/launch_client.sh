@@ -72,3 +72,4 @@ OPTIONS=" -DORBProfile=ejb -Djava.naming.factory.initial=org.openorb.rmi.jndi.Ct
 #$JAVA $OPTIONS -classpath $CLASSPATH org.openejb.corba.test.ClientTestSuite
 $JAVA $OPTIONS -classpath $CLASSPATH org.openejb.test.ClientTestRunner -s test/conf/CorbaServer_config.properties org.openejb.test.ClientTestSuite
 # $JAVA $OPTIONS -classpath $CLASSPATH org.openejb.test.Client
+
