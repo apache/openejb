@@ -258,6 +258,6 @@ public abstract class EjbObjectProxyHandler extends BaseEjbProxyHandler {
     
     protected Object businessMethod(Method method, Object[] args, Object proxy) throws Throwable{
         checkAuthorization(method);
-        return container.invoke(deploymentID, method, args, primaryKey, getThreadSpecificSecurityIdentity());
+        return container.invoke(deploymentID, method, args, primaryKey);
     }
 }

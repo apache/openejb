@@ -44,6 +44,9 @@
  */
 package org.openejb.spi;
 
+import java.security.Principal;
+import javax.security.auth.Subject;
+
 
 public interface SecurityService extends Service{
     
@@ -53,32 +56,16 @@ public interface SecurityService extends Service{
     * to assume at least one of a collection of roles, the roles authorized for 
     * a particular method of a particular deployment.
     */   
-    public boolean isCallerAuthorized(Object securityIdentity,String [] roleNames);
+    public boolean isCallerAuthorized(String [] roleNames);
 
     /**
-    * Attempts to convert an opaque securityIdentity to a concrete target type.
-    * This is currently used to obtain an java.security.Princiapl type which
-    * must be returned by OpenEJB when a bean invokes EJBContext.getCallerPrincipal().
-    * Conversion to a Principal type must be supported.
-    *
-    * It may also be used by JCX connectors to obtain the JAAS Subject of the caller,
-    * support for translation to Subject type is currently optional.
-    *
-    */
-    public Object translateTo(Object securityIdentity, Class type);
-    
-    /*
-     * Associates a security identity object with the current thread. Setting 
-     * this argument to null, will effectively dissociate the thread with a
-     * security identity.  This is used when access enterprise beans through 
-     * the global JNDI name space. Its not used when calling invoke on a 
-     * RpcContainer object.
-    */
-    public void setSecurityIdentity(Object securityIdentity);
-    
-    /*
-    * Obtains the security identity associated with the current thread.
-    * If there is no association, then null is returned. 
-    */
-    public Object getSecurityIdentity( );
+     * Gets the Subject for the current caller.  This will be null if the
+     * current caller did not authenticate.
+     */
+    public Subject getCallerSubject() throws UnsupportedOperationException;
+
+    /**
+     * Gets the Principal for the current caller.
+     */
+    public Principal getCallerPrincipal();
 }

@@ -231,7 +231,7 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
      * @exception Throwable
      */
     protected Object create(Method method, Object[] args, Object proxy) throws Throwable{
-        ProxyInfo proxyInfo = (ProxyInfo) container.invoke(deploymentID,method,args,null, getThreadSpecificSecurityIdentity());
+        ProxyInfo proxyInfo = (ProxyInfo) container.invoke(deploymentID,method,args,null);
         return createProxy(proxyInfo);
     }
 
@@ -419,7 +419,7 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
             stub=null;
         }
         // invoke remove() on the container
-        container.invoke(deploymentID, method, args, primKey, ThreadContext.getThreadContext().getSecurityIdentity());
+        container.invoke(deploymentID, method, args, primKey);
 
         /*
          * This operation takes care of invalidating all the EjbObjectProxyHanders associated with

@@ -192,7 +192,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                 System.out.println("telnet "+ip+" "+(port-1));
                 System.out.println("");
                 System.out.println("and issue the command 'stop'.  If you do not get an OpenEJB prompt when");
-                System.out.println("you telnet, then another program has that address and port bound. "); 
+                System.out.println("you telnet, then another program has that address and port bound. ");
 		System.out.println("You can select a new port by using the -p option of the start command: ");
                 System.out.println("");
                 System.out.println("\topenejb start -p <port>");
@@ -227,17 +227,18 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             textConsole.start();
 
             System.out.println(serverIP +" "+(port+1));
-            
+
             /* Start the Text Admin Console *************/
             /*   admin console    127.0.0.1       4202  */
             System.out.print("  web console      ");
-            
+
             // Start the WebAdmin thread
             // TODO:1: Make this configurable
             // using vm properties
             HttpDaemon httpd = new HttpDaemon(this);
             httpd.init(props);
             Thread admin = new Thread(httpd);
+            admin.setDaemon(true);
             admin.start();
 
             System.out.println(serverIP +" "+(port+2));
@@ -246,16 +247,17 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
             System.out.println("-----------------INFO------------------");
             System.out.println("To administer the server via telnet,   ");
-            System.out.println("start a telnet client and telnet to:"); 
+            System.out.println("start a telnet client and telnet to:");
             System.out.print(" telnet ");
             System.out.println(serverIP+" "+(port+1));
             System.out.println("");
             System.out.println("To administer the server via http, open");
-            System.out.println("a web browser to the following URL: "); 
+            System.out.println("a web browser to the following URL: ");
             System.out.print(" http://");
             System.out.println(serverIP+":"+(port+2));
             System.out.println("---------------------------------------");
             System.out.println("Ready!");
+
             /*
              * This will cause the user thread (the thread that keeps the
              *  vm alive) to go into a state of constant waiting.
@@ -380,9 +382,9 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
 
 
                 byte requestType = (byte)in.read();
-                
+
                 if (requestType == -1) {continue;}
-                
+
                 switch (requestType) {
                     case STOP_REQUEST_Quit:
                     case STOP_REQUEST_quit:
@@ -689,27 +691,31 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         res.writeExternal( out );
     }
 
-    public void processAuthRequest(ObjectInputStream in, ObjectOutputStream out) throws Exception{
+    public void processAuthRequest(ObjectInputStream in, ObjectOutputStream out) throws Exception {
         AuthenticationRequest req = new AuthenticationRequest();
         AuthenticationResponse res = new AuthenticationResponse();
 
         try {
             req.readExternal( in );
 
-	    // TODO: perform some real authentication here
+            if(OpenEJB.getSecurityService() instanceof ServerSecurityService) {
+                CallerID cid = new CallerID((String)req.getPrinciple(), (String)req.getCredentials());
+                if(((ServerSecurityService)OpenEJB.getSecurityService()).authenticateCaller(cid.getUsername(), cid.getPassword())) {
+                    ClientMetaData client = new ClientMetaData();
+                    client.setClientIdentity(cid);
+                    res.setIdentity(client);
+                    res.setResponseCode(AUTH_GRANTED);
+                } else {
+                    res.setResponseCode(AUTH_DENIED);
+                }
+            } else {
+                logger.warning("Unable to authenticate against unknown security service: "+OpenEJB.getSecurityService().getClass().getName()); //todo: get message from resource bundle
+                res.setResponseCode(AUTH_DENIED);
+            }
 
-	    ClientMetaData client = new ClientMetaData();
-
-    	    client.setClientIdentity( new String( (String)req.getPrinciple() ) );
-
-	    res.setIdentity( client );
-	    res.setResponseCode( AUTH_GRANTED );
-
-	    res.writeExternal( out );
-        } catch (Throwable t) {
-	    replyWithFatalError
-		(out, t, "Error caught during request processing");
-            return;
+            res.writeExternal(out);
+        } catch(Throwable t) {
+            replyWithFatalError(out, t, "Error caught during request processing");
         }
     }
 
@@ -721,8 +727,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
-                                  req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  req.getPrimaryKey());
 
         if (result instanceof ProxyInfo) {
             ProxyInfo info = (ProxyInfo)result;
@@ -754,8 +759,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
-                                  req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  req.getPrimaryKey());
 
         if (result instanceof ProxyInfo) {
             ProxyInfo info = (ProxyInfo)result;
@@ -778,28 +782,28 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
      *
      * Some finder methods (such as ejbFindByPrimaryKey) are designed to return
      * at most one entity object. For these single-object finders, the result type
-     * of the find<METHOD>(...)method defined in the entity bean’s home interface
-     * is the entity bean’s remote interface. The result type of the corresponding
-     * ejbFind<METHOD>(...) method defined in the entity’s implementation class is
-     * the entity bean’s primary key type.
+     * of the find<METHOD>(...)method defined in the entity beanï¿½s home interface
+     * is the entity beanï¿½s remote interface. The result type of the corresponding
+     * ejbFind<METHOD>(...) method defined in the entityï¿½s implementation class is
+     * the entity beanï¿½s primary key type.
      *
      * 9.1.8.2 Multi-object finders
      *
      * Some finder methods are designed to return multiple entity objects. For
      * these multi-object finders, the result type of the find<METHOD>(...)method
-     * defined in the entity bean’s home interface is a col-lection of objects
-     * implementing the entity bean’s remote interface. The result type of the
+     * defined in the entity beanï¿½s home interface is a col-lection of objects
+     * implementing the entity beanï¿½s remote interface. The result type of the
      * corresponding ejbFind<METHOD>(...) implementation method defined in the
-     * entity bean’s implementation class is a collection of objects of the entity
-     * bean’s primary key type.
+     * entity beanï¿½s implementation class is a collection of objects of the entity
+     * beanï¿½s primary key type.
      *
      * The Bean Provider can choose two types to define a collection type for a finder:
-     * • the JDK™ 1.1 java.util.Enumeration interface
-     * • the Java™ 2 java.util.Collection interface
+     * ï¿½ the JDKï¿½ 1.1 java.util.Enumeration interface
+     * ï¿½ the Javaï¿½ 2 java.util.Collection interface
      *
      * A Bean Provider that wants to ensure that the entity bean is compatible
      * with containers and clients based on JDK TM 1.1 software must use the
-     * java.util.Enumeration interface for the finder’s result type.
+     * java.util.Enumeration interface for the finderï¿½s result type.
      * </P>
      *
      * @param req
@@ -815,8 +819,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
-                                  req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  req.getPrimaryKey());
 
 
         /* Multiple instances found */
@@ -870,8 +873,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
-                                  req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  req.getPrimaryKey());
 
         res.setResponse( EJB_OK, null);
     }
@@ -893,8 +895,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
-                                  req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  req.getPrimaryKey());
 
         res.setResponse( EJB_OK, null);
     }
@@ -907,8 +908,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         Object result = c.invoke( req.getDeploymentId(),
                                   req.getMethodInstance(),
                                   req.getMethodParameters(),
-                                  req.getPrimaryKey(),
-                                  req.getClientIdentity());
+                                  req.getPrimaryKey());
 
         res.setResponse( EJB_OK, null);
     }
@@ -923,7 +923,7 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         DeploymentInfo di   = caller.getDeploymentInfo();
         String[] authRoles  = di.getAuthorizedRoles( req.getMethodInstance() );
 
-        if (sec.isCallerAuthorized( req.getClientIdentity(), authRoles )) {
+        if (sec.isCallerAuthorized(authRoles )) {
             res.setResponse( EJB_OK, null );
         } else {
             logger.info(req + "Unauthorized Access by Principal Denied");
@@ -1140,9 +1140,9 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                         System.setProperty("openejb.server.admin-ip", args[++i]);
                     }
                 } else if (args[i].startsWith("--local-copy")){
-                    if (args[i].endsWith("false") || 
-                        args[i].endsWith("FALSE") || 
-                        args[i].endsWith("no") || 
+                    if (args[i].endsWith("false") ||
+                        args[i].endsWith("FALSE") ||
+                        args[i].endsWith("no") ||
                         args[i].endsWith("NO") ) {
                         System.setProperty("openejb.localcopy", "false");
                     } else {

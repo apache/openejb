@@ -86,8 +86,7 @@ public abstract class BaseCMFactory implements ConnectionManagerFactory {
         });
         mgr.setSecurityManager(new ServerSecurityManager() {
             public Subject getSubject(ManagedConnectionFactory p0, String p1) {
-                Object securityIdentity = OpenEJB.getSecurityService().getSecurityIdentity();
-                return (Subject)OpenEJB.getSecurityService().translateTo(securityIdentity, Subject.class);
+                return OpenEJB.getSecurityService().getCallerSubject();
             }
         });
     }

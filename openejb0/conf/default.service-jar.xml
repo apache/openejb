@@ -185,7 +185,9 @@ BulkPassivate  50
 <ServiceProvider 
     id="Default Security Service"
     provider-type="Security"
-    class-name="org.openejb.ri.sp.PseudoSecurityService" />
+    class-name="org.openejb.server.ServerSecurityService" >
+auth.file login.conf
+</ServiceProvider>
 
 <!--
 # ================================================

@@ -134,5 +134,5 @@ public interface RpcContainer extends Container{
      * @see org.openejb.core.stateful.StatefulContainer#invoke StatefulContainer.invoke
      * @see org.openejb.core.stateless.StatelessContainer#invoke StatelessContainer.invoke
      */
-    public Object invoke(Object deployID, Method callMethod, Object [] args, Object primKey, Object securityIdentity) throws OpenEJBException;
+    public Object invoke(Object deployID, Method callMethod, Object [] args, Object primKey) throws OpenEJBException;
 }

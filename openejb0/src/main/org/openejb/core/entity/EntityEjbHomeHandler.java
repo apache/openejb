@@ -107,7 +107,7 @@ public class EntityEjbHomeHandler extends EjbHomeProxyHandler {
      * @exception Throwable
      */
     protected Object findX(Method method, Object[] args, Object proxy) throws Throwable {
-        Object retValue = container.invoke(deploymentID,method,args,null, getThreadSpecificSecurityIdentity());
+        Object retValue = container.invoke(deploymentID,method,args,null);
 
         if ( retValue instanceof java.util.Collection ) {
             Object [] proxyInfos = ((java.util.Collection)retValue).toArray();
@@ -166,7 +166,7 @@ public class EntityEjbHomeHandler extends EjbHomeProxyHandler {
      */
     protected Object removeByPrimaryKey(Method method, Object[] args, Object proxy) throws Throwable{
         Object primKey = args[0];
-        container.invoke(deploymentID, method, args, primKey, getThreadSpecificSecurityIdentity());
+        container.invoke(deploymentID, method, args, primKey);
             
         /* 
         * This operation takes care of invalidating all the EjbObjectProxyHanders associated with 
