@@ -70,6 +70,13 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deployment-plugin</artifactId>
+            <version>&geronimo-version;</version>
+            <type>plugin</type>
+        </dependency>
+
+        <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-full</artifactId>
             <version>&cglib-version;</version>
