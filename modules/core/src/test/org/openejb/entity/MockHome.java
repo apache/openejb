@@ -57,7 +57,7 @@ import javax.ejb.FinderException;
  * @version $Revision$ $Date$
  */
 public interface MockHome extends EJBHome {
-    MockRemote findByPrimaryKey(Object o) throws FinderException, RemoteException;
+    MockRemote findByPrimaryKey(Integer i) throws FinderException, RemoteException;
 
     int intMethod(int i) throws RemoteException;
 }
