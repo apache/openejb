@@ -99,12 +99,12 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
     }
 
     public MessageContext getMessageContext() throws IllegalStateException {
-        return ((StatelessSessionContextState) state).getMessageContext();
+        return ((StatelessSessionContextState) state).getMessageContext((StatelessInstanceContext)context);
     }
 
     public abstract static class StatelessSessionContextState extends EJBContextImpl.EJBContextState {
-        protected MessageContext getMessageContext() {
-            throw new UnsupportedOperationException();
+        protected MessageContext getMessageContext(StatelessInstanceContext context) {
+            return context.getMessageContext();
         }
     }
 
@@ -145,7 +145,7 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("getRollbackOnly() cannot be called when inactive");
         }
 
-        public MessageContext getMessageContext() {
+        public MessageContext getMessageContext(StatelessInstanceContext context) {
             throw new IllegalStateException("getMessageContext() cannot be called when inactive");
         }
 
@@ -183,7 +183,7 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("getRollbackOnly() cannot be called from setSessionContext(SessionContext)");
         }
 
-        public MessageContext getMessageContext() {
+        public MessageContext getMessageContext(StatelessInstanceContext context) {
             throw new IllegalStateException("getMessageContext() cannot be called from setSessionContext(SessionContext)");
         }
 
@@ -209,13 +209,13 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
             throw new IllegalStateException("getRollbackOnly() cannot be called from ejbCreate/ejbRemove");
         }
 
-        public MessageContext getMessageContext() {
+        public MessageContext getMessageContext(StatelessInstanceContext context) {
             throw new IllegalStateException("getMessageContext() cannot be called from ejbCreate/ejbRemove");
         }
     };
 
     public static final StatelessSessionContextState BIZ_INTERFACE = new StatelessSessionContextState() {
-        public MessageContext getMessageContext() {
+        public MessageContext getMessageContext(StatelessInstanceContext context) {
             throw new IllegalStateException("getMessageContext() cannot be called in a business method invocation from component interface)");
         }
     };
@@ -225,7 +225,7 @@ public class StatelessSessionContext extends EJBContextImpl implements SessionCo
     };
 
     public static final StatelessSessionContextState EJBTIMEOUT = new StatelessSessionContextState() {
-         public MessageContext getMessageContext() {
+         public MessageContext getMessageContext(StatelessInstanceContext context) {
             throw new IllegalStateException("getMessageContext() cannot be called from ejbTimeout");
         }
     };

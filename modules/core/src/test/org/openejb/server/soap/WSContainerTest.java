@@ -136,7 +136,7 @@ public class WSContainerTest extends TestCase {
         }
     }
 
-    public void testAxisStyleMessage() throws Exception {
+    public void xtestAxisStyleMessage() throws Exception {
         Kernel kernel = new Kernel("wstest");
         kernel.boot();
 

@@ -50,6 +50,7 @@ package org.openejb.slsb;
 import java.util.Set;
 
 import javax.ejb.SessionBean;
+import javax.xml.rpc.handler.MessageContext;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.transaction.UserTransactionImpl;
@@ -72,6 +73,8 @@ public final class StatelessInstanceContext extends AbstractInstanceContext {
     private final EJBInvocation ejbCreateInvocation;
     private final EJBInvocation ejbRemoveInvocation;
 
+    private MessageContext messageContext;
+
     public StatelessInstanceContext(Object containerId, SessionBean instance, EJBProxyFactory proxyFactory, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) {
         super(systemChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, timerService);
         this.containerId = containerId;
@@ -92,6 +95,14 @@ public final class StatelessInstanceContext extends AbstractInstanceContext {
 
     public void setId(Object id) {
         throw new AssertionError("Cannot set identity for a Stateless Context");
+    }
+
+    public MessageContext getMessageContext() {
+        return messageContext;
+    }
+
+    public void setMessageContext(MessageContext messageContext) {
+        this.messageContext = messageContext;
     }
 
     public void flush() {
