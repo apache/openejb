@@ -45,14 +45,14 @@
 
 package org.openejb.server.ejbd;
 
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.NotSerializableException;
+import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.Collection;
-import java.lang.reflect.Method;
+
 import javax.security.auth.Subject;
-import javax.ejb.Handle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -66,8 +66,6 @@ import org.openejb.client.EJBRequest;
 import org.openejb.client.EJBResponse;
 import org.openejb.client.RequestMethods;
 import org.openejb.client.ResponseCodes;
-import org.openejb.client.EJBObjectProxy;
-import org.openejb.client.EJBObjectHandler;
 import org.openejb.proxy.BaseEJB;
 import org.openejb.proxy.ProxyInfo;
 
@@ -418,10 +416,9 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
             BaseEJB proxy = (BaseEJB) result;
             ProxyInfo info = proxy.getProxyInfo();
             res.setResponse(EJB_OK_FOUND, info.getPrimaryKey());
+        } else if (null == result) {
+            res.setResponse(EJB_OK_FOUND, null);
         } else {
-
-            // There should be no else, the entity should be found
-            // or an exception should be thrown.
             //TODO:3: Localize all error messages in an separate file.
             // TODO:4: It should provide more info on the wrong method
             final String message = "The bean is not EJB compliant. " +
