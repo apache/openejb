@@ -319,11 +319,11 @@ public abstract class AbstractEJBContainer
     protected void buildMethodMap(MethodSignature[] signatures) {
         if (homeInterface != null) {
             homeMethodMap = MethodHelper.getHomeMethodMap(signatures, homeInterface);
-            remoteMethodMap = MethodHelper.getHomeMethodMap(signatures, remoteInterface);
+            remoteMethodMap = MethodHelper.getObjectMethodMap(signatures, remoteInterface);
         }
         if (localHomeInterface != null) {
             localHomeMethodMap = MethodHelper.getHomeMethodMap(signatures, localHomeInterface);
-            localMethodMap = MethodHelper.getHomeMethodMap(signatures, localInterface);
+            localMethodMap = MethodHelper.getObjectMethodMap(signatures, localInterface);
         }
     }
 
