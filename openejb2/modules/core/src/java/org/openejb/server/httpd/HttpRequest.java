@@ -186,4 +186,9 @@ public interface HttpRequest extends java.io.Serializable{
     String getContentType();
 
     InputStream getInputStream() throws IOException;
+
+    public Object getAttribute(String name);
+
+    public void setAttribute(String name, Object value);
+
 }

@@ -101,6 +101,8 @@ public class HttpRequestImpl implements HttpRequest {
     /** the address the request came in on */
     private final URI socketURI;
 
+    private HashMap attributes = new HashMap();
+
     public HttpRequestImpl(URI socketURI) {
         this.socketURI = socketURI;
     }
@@ -496,5 +498,13 @@ public class HttpRequestImpl implements HttpRequest {
 
     public HttpSession getSession() {
         return getSession(true);
+    }
+    
+    public Object getAttribute(String name) {
+        return attributes.get(name);
+    }
+
+    public void setAttribute(String name, Object value){
+        attributes.put(name, value);
     }
 }
