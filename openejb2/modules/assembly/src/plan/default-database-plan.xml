@@ -6,10 +6,10 @@
     parentId="org/apache/geronimo/Server">
 
     <dependency>
-        <uri>derby/jars/derby-${derby_version}.jar</uri>
+        <uri>incubator-derby/jars/derby-${derby_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>derby/jars/derbynet-${derby_version}.jar</uri>
+        <uri>incubator-derby/jars/derbynet-${derby_version}.jar</uri>
     </dependency>
 
     <dependency>
