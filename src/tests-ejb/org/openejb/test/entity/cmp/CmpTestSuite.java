@@ -96,7 +96,7 @@ public class CmpTestSuite extends org.openejb.test.TestSuite{
         props.put(Context.SECURITY_CREDENTIALS, "ENTITY_TEST_CLIENT");
         InitialContext initialContext = new InitialContext(props);
         
-        DatabaseHome databaseHome = (DatabaseHome)initialContext.lookup("client/tools/DatabaseHome");
+        DatabaseHome databaseHome = (DatabaseHome)javax.rmi.PortableRemoteObject.narrow(initialContext.lookup("client/tools/DatabaseHome"), DatabaseHome.class);
         database = databaseHome.create();
         database.executeQuery(DROP_TABLE);
         database.executeQuery(CREATE_TABLE);
