@@ -43,7 +43,6 @@
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
-            home="${basedir}"
             module="${basedir}/target/openejb-itests-${pom.currentVersion}.jar"
             />
         <echo message="distributed ejbs"/>
@@ -66,14 +65,12 @@
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
-            home="${basedir}"
             module="${basedir}/target/openejb-security-001.jar"
             />
         <deploy:distribute
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
-            home="${basedir}"
             module="${basedir}/target/openejb-security-002.jar"
             />
         <deploy:start
