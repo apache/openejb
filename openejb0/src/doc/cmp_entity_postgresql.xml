@@ -557,7 +557,7 @@ public class EmployeeClient
       Properties env = new Properties();
       <comment>//The JNDI properties you set depend</comment>
       <comment>//on which server you are using.</comment>
-      String jndiProvider = "org.openejb.client.JNDIContext";
+      String jndiProvider = "org.openejb.client.RemoteInitialContextFactory";
       env.put( "java.naming.factory.initial", jndiProvider );
       env.put( "java.naming.provider.url", "localhost:4201" );
       env.put( "java.naming.security.principal", "fakeuser" );

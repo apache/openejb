@@ -146,7 +146,7 @@ Default number of threads is 20.
 
   <p>
    <code>
-   java.naming.factory.initial      = org.openejb.client.JNDIContext
+   java.naming.factory.initial      = org.openejb.client.RemoteInitialContextFactory
    java.naming.provider.url         = 127.0.0.1:4201
    java.naming.security.principal   = myuser
    java.naming.security.credentials = mypass
@@ -172,7 +172,7 @@ Default number of threads is 20.
 
   <p>
    <code>
-   java.naming.factory.initial      = org.openejb.client.JNDIContext
+   java.naming.factory.initial      = org.openejb.client.RemoteInitialContextFactory
    java.naming.provider.url         = 10.45.67.8:4201
    java.naming.security.principal   = myuser
    java.naming.security.credentials = mypass
@@ -194,7 +194,7 @@ Default number of threads is 20.
 
   <p>
    <code>
-   java.naming.factory.initial      = org.openejb.client.JNDIContext
+   java.naming.factory.initial      = org.openejb.client.RemoteInitialContextFactory
    java.naming.provider.url         = myhost.foo.com:4201
    java.naming.security.principal   = myuser
    java.naming.security.credentials = mypass
@@ -219,7 +219,7 @@ Default number of threads is 20.
 
   <p>
    <code>
-   java.naming.factory.initial      = org.openejb.client.JNDIContext
+   java.naming.factory.initial      = org.openejb.client.RemoteInitialContextFactory
    java.naming.provider.url         = 127.0.0.1:8765
    java.naming.security.principal   = myuser
    java.naming.security.credentials = mypass

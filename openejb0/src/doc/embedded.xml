@@ -57,7 +57,7 @@ public static void main( String args[]) {
     Properties properties = new Properties();
     
     properties.put(Context.INITIAL_CONTEXT_FACTORY, 
-        "org.openejb.core.ivm.naming.InitContextFactory");
+        "org.openejb.client.LocalInitialContextFactory");
     
     InitialContext ctx = new InitialContext(properties);
     
@@ -152,7 +152,7 @@ public static void main( String args[]) {
     Properties p = new Properties();
     
     p.put(Context.INITIAL_CONTEXT_FACTORY, 
-          "org.openejb.core.ivm.naming.InitContextFactory");
+          "org.openejb.client.LocalInitialContextFactory");
     
     p.put("openejb.home", "c:\\dir\\openejb");
     
@@ -224,7 +224,7 @@ public static void main( String args[]) {
   Properties p = new Properties();
   
   p.put(Context.INITIAL_CONTEXT_FACTORY, 
-        "org.openejb.core.ivm.naming.InitContextFactory");
+        "org.openejb.client.LocalInitialContextFactory");
   
   p.put("openejb.home", "c:\\dir\\openejb");
       

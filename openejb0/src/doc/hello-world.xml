@@ -242,7 +242,7 @@ public class HelloWorld {
     <comment>//The JNDI properties you set depend</comment>
     <comment>//on which server you are using.</comment>
     <comment>//These properties are for the Remote Server.</comment>
-    p.put("java.naming.factory.initial", "org.openejb.client.JNDIContext");
+    p.put("java.naming.factory.initial", "org.openejb.client.RemoteInitialContextFactory");
     p.put("java.naming.provider.url", "127.0.0.1:4201");
     p.put("java.naming.security.principal", "myuser");
     p.put("java.naming.security.credentials", "mypass");    
@@ -289,7 +289,7 @@ any problems.
 Properties p = new Properties();
 
 p.put("java.naming.factory.initial", 
-    "org.openejb.core.ivm.naming.InitContextFactory");
+    "org.openejb.client.LocalInitialContextFactory");
 p.put("openejb.home", "c:\\openejb");
     
 InitialContext ctx = new InitialContext(p);
@@ -307,7 +307,7 @@ using the Remote Server.
 <p>
 <code>
 Properties p = new Properties();
-p.put("java.naming.factory.initial", "org.openejb.client.JNDIContext");
+p.put("java.naming.factory.initial", "org.openejb.client.RemoteInitialContextFactory");
 p.put("java.naming.provider.url", "127.0.0.1:4201");
 p.put("java.naming.security.principal", "myuser");
 p.put("java.naming.security.credentials", "mypass");
@@ -415,7 +415,7 @@ Now run the script!
 <p>
 If you ran into any problems, first check your openejb.log file at c:\openejb\openejb.log.
 Look for any lines that begin with <b><term>"WARN"</term></b>, 
-<term>"ERROR"</term>, or <term>"FATAL"</term>.
+<b><term>"ERROR"</term></b>, or <b><term>"FATAL"</term></b>.
 </p> 
 <p>
 If the log file doesn't help you, email it to the OpenEJB <a href="lists.html#openejb-user">
