@@ -47,4 +47,101 @@ that here</a>
 
 </answer>
 </faq>
+
+<faq>
+<question>How do I map my CMP finder methods?</question> 
+<answer id="finders">
+<p>
+You can map your finder methods in the openejb-jar.xml that is created by 
+the deploy tool.  Just grab the openejb-jar.xml file from the META-INF 
+directory of your jar and add a 'query' declaration like the one below for 
+all the CMP entities that need them. </p>
+
+<p>
+Say you had a home interface with the following finder method... 
+</p>
+<p>
+<code-block>
+package org.acme.employee;
+
+...
+
+public interface EmployeeHome extends EJBHome{
+  
+  ...
+  
+  public Employee findByLastName( String lastName ) 
+         throws RemoteException, FinderException; 
+         
+}
+</code-block>
+</p>
+
+<p>
+... then that would require a 'query' declaration in your openejb-jar.xml 
+file like this one ...
+ 
+ </p>
+
+<p>
+<file name="META-INF/openejb-jar.xml"><![CDATA[  
+<ejb-deployment ...
+  <query>
+    <query-method>
+      <method-name>findByLastName</method-name>
+      <method-params>
+        <method-param>java.lang.String</method-param>
+      </method-params>
+    </query-method>
+    <object-ql>
+    SELECT o FROM org.acme.employee.EmployeeBean o WHERE o.lastName = $1 
+    </object-ql>
+  </query>
+</ejb-deployment>
+]]></file>
+</p>
+
+<p>
+The 'query' element goes inside an 'ejb-deployment' element, right under 
+any 'resource-link' elements that may be there already. 
+</p>
+
+</answer>
+</faq>
+
+<faq>
+<question>Does OpenEJB support EJB-QL?</question>
+<answer id="cmp.mapping">
+<p>
+No, EJB-QL is an EJB 2.0 CMP feature, so that syntax won't work 
+with OpenEJB as the 2.0 spec isn't yet supported. However...
+</p>
+
+<p>
+We do support OQL (Object Query Language), which is functionally identical.
+</p>                     
+</answer>
+</faq>
+
+<faq>
+<question>What is the syntax of OQL?</question>
+<answer id="cmp.mapping">
+<p>
+The syntax of the query statement must be Object Query Language (OQL) 
+compatible as described in the ODMG 3.0 specification section 4.12.  OQL 
+is nearly identical to EJB QL, so converting CMP beans from 1.1 to 2.0 
+will be very easy. 
+</p>
+
+<p>
+OQL itself is parsed by our persistence engine Castor, see this document 
+for more details on writing OQL statements for use with OpenEJB and 
+Castor. <a href="http://www.castor.org/oql.html">More information on 
+that here</a>
+ 
+</p>
+</answer>
+</faq>
+
+
 </faqs>
