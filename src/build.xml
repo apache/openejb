@@ -969,17 +969,20 @@
   
     <!-- create a zip file containing the whole OpenEJB dist -->
     <zip zipfile="dist/${project}-${version}.zip">
-      <fileset dir="${final.dir}"/>
+      <zipfileset dir="${final.dir}"
+      			  prefix="./${project}-${version}" />
     </zip>
     
     <!-- create a zip file containing just jar files -->
     <zip zipfile="dist/${project}-${version}-lib.zip">
-      <fileset dir="${final.dir}/lib"/>
+      <zipfileset dir="${final.dir}/lib"
+      			  prefix="./${project}-${version}/lib" />
     </zip>
     
     <!-- create a zip file containing just documentation files -->
     <zip zipfile="dist/${project}-${version}-doc.zip">
-      <fileset dir="${final.dir}/docs"/>
+      <zipfileset dir="${final.dir}/docs"
+      			  prefix="./${project}-${version}/docs" />
     </zip>
   
   </target>
