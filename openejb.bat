@@ -30,7 +30,7 @@ if /I %P1% EQU _-HELP   goto HELP
 if /I %P1% EQU _--HELP  goto HELP
 
 echo Unknown command: %1
-more .\bin\commands.txt
+more < .\bin\commands.txt
 
 goto EOF
 REM================================================
@@ -40,7 +40,7 @@ REM================================================
    if /I %P2% EQU _DEPLOY   goto HELP_DEPLOY
    if /I %P2% EQU _START    goto HELP_START
    
-   more .\bin\commands.txt
+   more < .\bin\commands.txt
 
 goto EOF
 REM================================================
@@ -158,22 +158,22 @@ REM================================================
 goto EOF
 REM================================================
 :HELP_BUILD
-   more .\bin\build.txt    
+   more < .\bin\build.txt    
    
 goto EOF
 REM================================================
 :HELP_TEST
-   more .\bin\test.txt    
+   more < .\bin\test.txt    
 
 goto EOF
 REM================================================
 :HELP_DEPLOY
-   more .\bin\deploy.txt
+   more < .\bin\deploy.txt
 
 goto EOF
 REM================================================
 :HELP_START
-   more .\bin\start.txt    
+   more < .\bin\start.txt    
 
 goto EOF
 
