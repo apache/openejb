@@ -1,0 +1,67 @@
+===============================================
+OpenEJB -- EJB Container System and EJB Server
+
+ THANK YOU to our community for your support.
+
+OpenEJB 0.8             http://openejb.sf.net/
+-----------------------------------------------
+
+OpenEJB would like to thank the our community members
+for their feedback, patches, time and love.  
+
+OpenEJB is a better project as a result of you!
+
+**** CREDITS for version 0.8 Beta 3 ****
+
+    --Feedback and Direction by--
+  Aaron Mulder
+  Anthony W. Marino
+  Bradley Smith
+  Daniel S. Haischt
+  Frank Marshall
+  Pizer Chen
+  Stefan Reich
+      
+    --Code Contributions by--
+  Alan Cabrera
+  David Blevins
+  Jason Rosenberg
+  John Mettraux
+
+    --Release by--
+  Alan Cabrera
+  David Blevins
+
+
+** GENERAL CREDITS **
+
+    --OpenEJB Committers--
+  David Blevins - OpenEJB Co-Founder, Project Lead
+  Richard Monson-Haefel - OpenEJB Founder
+  Alan Cabrera
+  Stefan Reich
+  Daniel Haischt
+  Pizer Chen
+  Aaron Mulder
+  Morphius
+  
+    --OpenEJB Sponsors--
+  Apple Computer, Inc. [http://www.apple.com]
+    
+    We would like to thank Intalio, Inc. for their
+  continued support and use of OpenEJB.
+    Very special thanks to Stefan Reich and the 
+  WebObjects team for their support and feedback.
+  
+
+  Intalio, Inc. [http://www.intalio.com]
+    
+    We would like to thank Intalio, Inc. for two
+  years of support, hard work, and encouragement.
+  Without Intalio, there would be no OpenEJB.
+    Very special thanks to Jerome Daniel and Olivier 
+  Modica for their work on OpenORB and OpenEJB, Thomas 
+  Yip for supporting our use of CastorJDO, to Riad 
+  Mohammed for supporting our use of Tyrex, and to
+  Ashish Agrawal for his leadership of Exolab and 
+  coordinating all our efforts.    
