@@ -47,7 +47,6 @@
  */
 package org.openejb.slsb;
 
-import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.cache.InstancePool;
 import org.apache.geronimo.core.service.Interceptor;

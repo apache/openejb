@@ -53,7 +53,7 @@ import javax.ejb.SessionContext;
 import junit.framework.TestCase;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
-import org.openejb.slsb.MockEJB;
+import org.openejb.deployment.slsb.MockEJB;
 
 /**
  *
@@ -69,11 +69,11 @@ public class StatelessSystemMethodIndicesTest extends TestCase {
         Map vopMap = builder.buildVopMap(MockEJB.class);
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         SystemMethodIndices systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setSessionContext", new String(SessionContext.class.getName()), null);
-        assertFalse(systemMethodIndices.getEjbActivateInvocation(null).getMethodIndex() == -1);
+        assertTrue(systemMethodIndices.getEjbActivateInvocation(null).getMethodIndex() == -1);
         assertTrue(systemMethodIndices.getEjbLoadInvocation(null).getMethodIndex() == -1);
-        assertFalse(systemMethodIndices.getEjbPassivateInvocation(null).getMethodIndex() == -1);
+        assertTrue(systemMethodIndices.getEjbPassivateInvocation(null).getMethodIndex() == -1);
         assertTrue(systemMethodIndices.getEjbStoreInvocation(null).getMethodIndex() == -1);
-        assertFalse(systemMethodIndices.getSetContextInvocation(null, null).getMethodIndex() == -1);
+        assertTrue(systemMethodIndices.getSetContextInvocation(null, null).getMethodIndex() != -1);
         assertTrue(systemMethodIndices.getUnsetContextInvocation(null).getMethodIndex() == -1);
     }
 }

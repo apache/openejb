@@ -66,18 +66,22 @@ public final class SystemMethodIndices implements EJBTimeoutInvocationFactory {
     private final int ejbLoad;
     private final int ejbPassivate;
     private final int ejbStore;
+    private final int ejbCreate;
+    private final int ejbRemove;
+    private final int ejbTimeout;
     private final int setContext;
     private final int unsetContext;
-    private final int ejbTimeout;
 
     public static SystemMethodIndices createSystemMethodIndices(InterfaceMethodSignature[] signatures, String setContextName, String setContextType, String unsetContextName) {
         int ejbActivate = -1;
         int ejbLoad = -1;
         int ejbPassivate = -1;
         int ejbStore = -1;
+        int ejbTimeout = -1;
+        int ejbCreate = -1;
+        int ejbRemove = -1;
         int setContext = -1;
         int unsetContext = -1;
-        int ejbTimeout = -1;
         for (int i = 0; i < signatures.length; i++) {
             InterfaceMethodSignature signature = signatures[i];
             if (signature.getMethodName().equals("ejbActivate")) {
@@ -90,23 +94,29 @@ public final class SystemMethodIndices implements EJBTimeoutInvocationFactory {
                  ejbStore = i;
             } else if (signature.getMethodName().equals("ejbTimeout")) {
                  ejbTimeout = i;
+            } else if (signature.getMethodName().equals("ejbCreate") && signature.getParameterTypes().length == 0 && !signature.isHomeMethod() )  {
+                 ejbCreate = i;
+            } else if (signature.getMethodName().equals("ejbRemove") && signature.getParameterTypes().length == 0 && !signature.isHomeMethod() ) {
+                 ejbRemove = i;
             } else if (signature.getMethodName().equals(setContextName) && signature.getParameterTypes().length == 1 && signature.getParameterTypes()[0].equals(setContextType)) {
                  setContext = i;
             } else if (signature.getMethodName().equals(unsetContextName) && signature.getParameterTypes().length == 0) {
                  unsetContext = i;
             }
         }
-        return new SystemMethodIndices(ejbActivate, ejbLoad, ejbPassivate, ejbStore, setContext, unsetContext, ejbTimeout);
+        return new SystemMethodIndices(ejbActivate, ejbLoad, ejbPassivate, ejbStore, ejbTimeout, ejbCreate, ejbRemove, setContext, unsetContext);
     }
 
-    public SystemMethodIndices(int ejbActivate, int ejbLoad, int ejbPassivate, int ejbStore, int setContext, int unsetContext, int ejbTimeout) {
+    public SystemMethodIndices(int ejbActivate, int ejbLoad, int ejbPassivate, int ejbStore, int ejbTimeout, int ejbCreate, int ejbRemove, int setContext, int unsetContext) {
         this.ejbActivate = ejbActivate;
         this.ejbLoad = ejbLoad;
         this.ejbPassivate = ejbPassivate;
         this.ejbStore = ejbStore;
+        this.ejbTimeout = ejbTimeout;
+        this.ejbCreate = ejbCreate;
+        this.ejbRemove = ejbRemove;
         this.setContext = setContext;
         this.unsetContext = unsetContext;
-        this.ejbTimeout = ejbTimeout;
     }
 
     public EJBInvocation getEjbActivateInvocation(EJBInstanceContext instanceContext) {
@@ -125,6 +135,19 @@ public final class SystemMethodIndices implements EJBTimeoutInvocationFactory {
         return new EJBInvocationImpl(ejbStore, null, instanceContext);
     }
 
+    public EJBInvocation getEJBTimeoutInvocation(Object id, TimerImpl timer) {
+        return new EJBInvocationImpl(EJBInterfaceType.TIMEOUT, id, ejbTimeout, new Object[] {timer});
+    }
+
+    public EJBInvocation getEJBCreateInvocation(EJBInstanceContext instanceContext) {
+        return new EJBInvocationImpl(ejbCreate, null, instanceContext);
+    }
+
+    public EJBInvocation getEJBRemoveInvocation(EJBInstanceContext instanceContext) {
+        return new EJBInvocationImpl(ejbRemove, null, instanceContext);
+
+    }
+
     public EJBInvocation getSetContextInvocation(EJBInstanceContext instanceContext, Object context) {
         return new EJBInvocationImpl(setContext, new Object[] {context}, instanceContext);
     }
@@ -133,8 +156,5 @@ public final class SystemMethodIndices implements EJBTimeoutInvocationFactory {
         return new EJBInvocationImpl(unsetContext, null, instanceContext);
     }
 
-    public EJBInvocation getEJBTimeoutInvocation(Object id, TimerImpl timer) {
-        return new EJBInvocationImpl(EJBInterfaceType.TIMEOUT, id, ejbTimeout, new Object[] {timer});
-    }
 
 }

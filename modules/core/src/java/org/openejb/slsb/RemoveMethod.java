@@ -47,67 +47,36 @@
  */
 package org.openejb.slsb;
 
-import javax.ejb.CreateException;
-import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
-import javax.ejb.TimedObject;
-import javax.ejb.Timer;
-import javax.ejb.TimerService;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.transaction.context.TransactionContext;
+
+import org.openejb.EJBInvocation;
+import org.openejb.EJBOperation;
+import org.openejb.dispatch.MethodSignature;
 
 /**
- *
- *
+ * Virtual operation handling removal of an instance.
  *
  * @version $Revision$ $Date$
  */
-public class MockEJB implements SessionBean, TimedObject {
+public class RemoveMethod extends org.openejb.sfsb.BusinessMethod {
+    private static final MethodSignature REMOVE_SIG = new MethodSignature("ejbRemove");
 
-    private int timeoutCount = 0;
-
-    private SessionContext sessionContext;
-
-    public int intMethod(int i) {
-        return i + 1;
+    public RemoveMethod(Class beanClass, boolean isBMT) {
+        super(beanClass, REMOVE_SIG, isBMT);
     }
 
-    public Integer integerMethod(Integer i) {
-        return i;
-    }
-
-    public void appException() throws AppException {
-        throw new AppException("App Message");
-    }
-
-    public void sysException() {
-        throw new IllegalArgumentException("Sys Message");
-    }
-
-    public void startTimer() {
-        TimerService timerService = sessionContext.getTimerService();
-        timerService.createTimer(100L, null);
-    }
-
-    public int getTimeoutCount() {
-        return timeoutCount;
-    }
-
-    public void setSessionContext(SessionContext sessionContext) {
-        this.sessionContext = sessionContext;
-    }
-
-    public void ejbCreate() throws CreateException {
-    }
-
-    public void ejbActivate() {
-    }
-
-    public void ejbPassivate() {
-    }
-
-    public void ejbRemove() {
-    }
-
-    public void ejbTimeout(Timer timer) {
-        timeoutCount++;
+    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+        InvocationResult result = null;
+        try {
+            result = invoke(invocation, EJBOperation.EJBREMOVE);
+        } finally {
+            if(isBMT) {
+                // we need to update the invocation cache of the transaction context
+                // because they may have used UserTransaction to push a new context
+                invocation.setTransactionContext(TransactionContext.getContext());
+            }
+        }
+        return result;
     }
 }

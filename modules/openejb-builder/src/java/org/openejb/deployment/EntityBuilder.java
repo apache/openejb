@@ -62,7 +62,6 @@ import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
@@ -193,10 +192,9 @@ class EntityBuilder extends BeanBuilder {
         MessageDestinationRefType[] messageDestinationRefs = entityBean.getMessageDestinationRefArray();
         ServiceRefType[] serviceRefs = entityBean.getServiceRefArray();
 
-        ReadOnlyContext context = ENCConfigBuilder.buildComponentContext(earContext, ejbModule, userTransaction, envEntries, ejbRefs, openejbEjbRefs, ejbLocalRefs, openejbEjbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, serviceRefs, cl);
+        Map context = ENCConfigBuilder.buildComponentContext(earContext, ejbModule, userTransaction, envEntries, ejbRefs, openejbEjbRefs, ejbLocalRefs, openejbEjbLocalRefs, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, messageDestinationRefs, serviceRefs, cl);
         builder.setComponentContext(context);
         ENCConfigBuilder.setResourceEnvironment(earContext, ejbModule.getModuleURI(), builder, resourceRefs, openejbResourceRefs);
-
     }
 
     public void initContext(EARContext earContext, J2eeContext moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans, Set interfaces) throws DeploymentException {

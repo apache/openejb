@@ -58,22 +58,23 @@ import org.openejb.InterceptorBuilder;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.EJBTimeoutOperation;
 import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
 import org.openejb.slsb.BusinessMethod;
-import org.openejb.slsb.CreateMethod;
+import org.openejb.slsb.EJBCreateMethod;
+import org.openejb.slsb.RemoveMethod;
 import org.openejb.slsb.StatelessInstanceContextFactory;
 import org.openejb.slsb.StatelessInstanceFactory;
 import org.openejb.slsb.StatelessInterceptorBuilder;
-import org.openejb.slsb.dispatch.EJBActivateOperation;
-import org.openejb.slsb.dispatch.EJBPassivateOperation;
+import org.openejb.slsb.CreateMethod;
 import org.openejb.slsb.dispatch.SetSessionContextOperation;
 
 /**
  * @version $Revision$ $Date$
  */
 public class StatelessContainerBuilder extends AbstractContainerBuilder {
+    private static final MethodSignature SET_SESSION_CONTEXT = new MethodSignature("setSessionContext", new String[]{"javax.ejb.SessionContext"});
+
     protected int getEJBComponentType() {
         return EJBComponentType.STATELESS;
     }
@@ -93,7 +94,7 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
 
         // build the instance factory
         StatelessInstanceContextFactory contextFactory = new StatelessInstanceContextFactory(getContainerId(), beanClass, getUserTransaction(), getUnshareableResources(), getApplicationManagedSecurityResources());
-        StatelessInstanceFactory instanceFactory = new StatelessInstanceFactory(getComponentContext(), contextFactory, beanClass);
+        StatelessInstanceFactory instanceFactory = new StatelessInstanceFactory(contextFactory);
 
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
@@ -111,16 +112,18 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
     protected LinkedHashMap buildVopMap(Class beanClass) throws Exception {
         LinkedHashMap vopMap = new LinkedHashMap();
 
-        Method setSessionContext = null;
-        try {
-            Class sessionContextClass = getClassLoader().loadClass("javax.ejb.SessionContext");
-            setSessionContext = beanClass.getMethod("setSessionContext", new Class[]{sessionContextClass});
-        } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException("Bean does not implement setSessionContext(javax.ejb.SessionContext)");
-        }
-
-        // add the create method
+        boolean isBMT = (getUserTransaction() != null);
+        // ejbCreate... this is the method called by the pool to create a new instance
+        vopMap.put(new InterfaceMethodSignature("ejbCreate", false), new EJBCreateMethod(beanClass, isBMT));
+        // create... this is the method that is called by the user
         vopMap.put(new InterfaceMethodSignature("create", true), new CreateMethod());
+        // ejbRemove... this is the method called by the pool to destroy an instance
+        vopMap.put(new InterfaceMethodSignature("ejbRemove", false), new RemoveMethod(beanClass, isBMT));
+        // ejbTimeout
+        if (TimedObject.class.isAssignableFrom(beanClass)) {
+            vopMap.put(new InterfaceMethodSignature("ejbTimeout", new String[]{Timer.class.getName()}, false),
+                EJBTimeoutOperation.INSTANCE);
+        }
 
         // add the business methods
         Method[] beanMethods = beanClass.getMethods();
@@ -129,31 +132,18 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
             if (Object.class == beanMethod.getDeclaringClass()) {
                 continue;
             }
-            String name = beanMethod.getName();
-            if (TimedObject.class.isAssignableFrom(beanClass)) {
-                MethodSignature signature = new MethodSignature("ejbTimeout", new Class[]{Timer.class});
-                vopMap.put(
-                        MethodHelper.translateToInterface(signature)
-                        , EJBTimeoutOperation.INSTANCE);
-            }
-            MethodSignature signature = new MethodSignature(beanMethod);
-            if (name.equals("ejbActivate")) {
-                vopMap.put(
-                        MethodHelper.translateToInterface(signature)
-                        , EJBActivateOperation.INSTANCE);
-            } else if (name.equals("ejbPassivate")) {
-                vopMap.put(
-                        MethodHelper.translateToInterface(signature)
-                        , EJBPassivateOperation.INSTANCE);
-            } else if (setSessionContext.equals(beanMethod)) {
-                vopMap.put(
-                        MethodHelper.translateToInterface(signature)
-                        , SetSessionContextOperation.INSTANCE);
-            } else if (name.startsWith("ejb")) {
+
+            if (beanMethod.getName().startsWith("ejb")) {
                 continue;
+            }
+
+            MethodSignature signature = new MethodSignature(beanMethod);
+            // match set session context sig down here since it can not be easily ignored like ejb* methods
+            if (SET_SESSION_CONTEXT.equals(signature)) {
+                vopMap.put(new InterfaceMethodSignature("setSessionContext", new String[]{"javax.ejb.SessionContext"}, false),
+                        SetSessionContextOperation.INSTANCE);
             } else {
-                vopMap.put(
-                        new InterfaceMethodSignature(signature, false),
+                vopMap.put(new InterfaceMethodSignature(signature, false),
                         new BusinessMethod(beanClass, signature));
             }
         }

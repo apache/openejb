@@ -49,10 +49,10 @@ package org.openejb.mdb;
 
 import java.io.Serializable;
 import javax.security.auth.Subject;
+import javax.naming.Context;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.openejb.ConnectionTrackingInterceptor;
 import org.openejb.SystemExceptionInterceptor;
@@ -61,7 +61,6 @@ import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.DispatchInterceptor;
 import org.openejb.dispatch.VirtualOperation;
 import org.openejb.security.EJBIdentityInterceptor;
-import org.openejb.security.EJBRunAsInterceptor;
 
 /**
  * @version $Revision$ $Date$
@@ -70,7 +69,7 @@ public class MDBInterceptorBuilder implements Serializable {
     private String ejbName;
     private VirtualOperation[] vtable;
     private Subject runAs;
-    private ReadOnlyContext componentContext;
+    private Context componentContext;
     private boolean doAsCurrentCaller = false;
     private transient TrackedConnectionAssociator trackedConnectionAssociator;
     private transient InstancePool instancePool;
@@ -89,7 +88,7 @@ public class MDBInterceptorBuilder implements Serializable {
         this.runAs = runAs;
     }
 
-    public void setComponentContext(ReadOnlyContext componentContext) {
+    public void setComponentContext(Context componentContext) {
         assert (componentContext != null) : "componentContext is null";
         this.componentContext = componentContext;
     }

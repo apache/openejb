@@ -45,11 +45,11 @@
 package org.openejb.deployment.mdb;
 
 import java.util.HashSet;
+import java.util.HashMap;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.MDBContainerBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -83,11 +83,11 @@ public class BasicMDBContainerTest extends TestCase {
                 return ContainerPolicy.Required;
             }
         });
-        builder.setComponentContext(new ReadOnlyContext());
+        builder.setComponentContext(new HashMap());
         container = builder.createConfiguration();
         container.setName(DeploymentHelper.CONTAINER_NAME);
 
-       //start the ejb container
+        //start the ejb container
         container.setReferencePattern("TransactionContextManager", DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME);
         container.setReferencePattern("TrackedConnectionAssociator", DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME);
         container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
@@ -108,11 +108,11 @@ public class BasicMDBContainerTest extends TestCase {
         // @todo put a wait limit in here... otherwise this can lock a build
         // Wait for 3 messages to arrive..
         System.out.println("Waiting for message 1");
-        MockEJB.messageCounter.acquire();
+        assertTrue(MockEJB.messageCounter.attempt(10000));
         System.out.println("Waiting for message 2");
-        MockEJB.messageCounter.acquire();
+        assertTrue(MockEJB.messageCounter.attempt(10000));
         System.out.println("Waiting for message 3");
-        MockEJB.messageCounter.acquire();
+        assertTrue(MockEJB.messageCounter.attempt(10000));
 
         System.out.println("Done.");
         assertTrue("Timer should have fired once by now...", MockEJB.timerFired);

@@ -57,7 +57,7 @@ import org.apache.geronimo.naming.java.RootContext;
 public class javaURLContextFactory implements ObjectFactory, InitialContextFactory {
 
     public Context getInitialContext(Hashtable environment) throws NamingException {
-        return new RootContext(environment);
+        return new RootContext();
 
     }
 

@@ -49,6 +49,7 @@ package org.openejb.deployment.slsb;
 
 import java.rmi.RemoteException;
 import java.util.HashSet;
+import java.util.HashMap;
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBMetaData;
@@ -60,19 +61,12 @@ import javax.rmi.PortableRemoteObject;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBContainer;
 import org.openejb.deployment.MockTransactionManager;
 import org.openejb.deployment.StatelessContainerBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.security.SecurityConfiguration;
-import org.openejb.slsb.AppException;
-import org.openejb.slsb.MockEJB;
-import org.openejb.slsb.MockHome;
-import org.openejb.slsb.MockLocal;
-import org.openejb.slsb.MockLocalHome;
-import org.openejb.slsb.MockRemote;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicySource;
@@ -126,7 +120,7 @@ public class StatelessClientContainerTest extends TestCase {
         }
         try {
             home.remove(new Handle() {
-                public EJBObject getEJBObject() throws RemoteException {
+                public EJBObject getEJBObject() {
                     return null;
                 }
             });
@@ -138,6 +132,30 @@ public class StatelessClientContainerTest extends TestCase {
         } catch (Throwable t) {
             fail("Expected RemoteException, but got " + t.getClass().getName());
         }
+    }
+
+    public MockEJB mockEJB1;
+    public MockEJB mockEJB2;
+
+    public void testRemove() throws Throwable {
+        MockLocalHome home = (MockLocalHome) container.getEJBLocalHome();
+        final MockLocal mock1 = home.create();
+        Thread waiter = new Thread("Waiter") {
+            public void run() {
+                mockEJB1 = mock1.waitForSecondThread(10000);
+            }
+        };
+        waiter.start();
+
+        MockLocal mock2 = home.create();
+        mockEJB2 = mock2.waitForSecondThread(10000);
+        waiter.join();
+
+        assertTrue("We should have two different EJB instances", mockEJB1 != mockEJB2);
+        assertTrue("ejbCreate should have been called on the first instance", mockEJB1.createCalled);
+        assertTrue("ejbCreate should have been called on the second instance", mockEJB2.createCalled);
+        assertTrue("ejbRemove should have been called on either instance since the pool size is one",
+                mockEJB1.removeCalled || mockEJB2.removeCalled);
     }
 
     public void testLocalHomeInterface() {
@@ -228,7 +246,7 @@ public class StatelessClientContainerTest extends TestCase {
             }
         });
         builder.setSecurityConfiguration(new SecurityConfiguration());
-        builder.setComponentContext(new ReadOnlyContext());
+        builder.setComponentContext(new HashMap());
         builder.setTransactionContextManager(new TransactionContextManager(new MockTransactionManager(), null));
         builder.setTrackedConnectionAssociator(new ConnectionTrackingCoordinator());
         container = builder.createContainer();

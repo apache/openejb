@@ -49,14 +49,12 @@ package org.openejb.deployment.slsb;
 
 import javax.ejb.EJBLocalObject;
 
-
 /**
- *
- *
- *
  * @version $Revision$ $Date$
  */
 public interface MockLocal extends EJBLocalObject {
+    MockEJB waitForSecondThread(long timeout);
+
     int intMethod(int i);
 
     Integer integerMethod(Integer i);

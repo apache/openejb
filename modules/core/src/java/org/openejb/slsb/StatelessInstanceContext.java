@@ -56,6 +56,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
+import org.openejb.EJBInvocation;
 import org.openejb.timer.BasicTimerService;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
@@ -68,11 +69,15 @@ import org.openejb.proxy.EJBProxyFactory;
 public final class StatelessInstanceContext extends AbstractInstanceContext {
     private final Object containerId;
     private final StatelessSessionContext sessionContext;
+    private final EJBInvocation ejbCreateInvocation;
+    private final EJBInvocation ejbRemoveInvocation;
 
     public StatelessInstanceContext(Object containerId, SessionBean instance, EJBProxyFactory proxyFactory, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) {
         super(systemMethodIndices, systemChain, unshareableResources, applicationManagedSecurityResources, instance, proxyFactory, timerService);
         this.containerId = containerId;
         this.sessionContext = new StatelessSessionContext(this, transactionContextManager, userTransaction);
+        ejbCreateInvocation = systemMethodIndices.getEJBCreateInvocation(this);
+        ejbRemoveInvocation = systemMethodIndices.getEJBRemoveInvocation(this);
         setContextInvocation = systemMethodIndices.getSetContextInvocation(this, sessionContext);
         unsetContextInvocation = systemMethodIndices.getSetContextInvocation(this, null);
     }
@@ -101,4 +106,13 @@ public final class StatelessInstanceContext extends AbstractInstanceContext {
         sessionContext.setState(operation);
     }
 
+    public void ejbCreate() throws Throwable {
+        assert(getInstance() != null);
+        systemChain.invoke(ejbCreateInvocation);
+    }
+
+    public void ejbRemove() throws Throwable {
+        assert(getInstance() != null);
+        systemChain.invoke(ejbRemoveInvocation);
+    }
 }
