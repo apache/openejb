@@ -224,6 +224,9 @@ public class CastorCMP11_EntityContainer
     protected java.io.PrintWriter globalTransactionLogWriter; 
     protected java.io.PrintWriter localTransactionLogWriter;  
 
+    // this map contains the Java language initial values for all all data types
+    protected HashMap resetMap;
+
     //DMB:TODO:1: make logger for life cycle info.
 
     /**
@@ -397,7 +400,15 @@ public class CastorCMP11_EntityContainer
                 throw new org.openejb.SystemException("Could not generate a query statement for the findByPrimaryKey method of the deployment = "+di.getDeploymentID(),e);
             }
         }
-
+        resetMap = new HashMap();
+        resetMap.put(byte.class, new Byte((byte)0));
+        resetMap.put(boolean.class, new Boolean(false));
+        resetMap.put(char.class, new Character((char)0));
+        resetMap.put(short.class, new Short((short)0));
+        resetMap.put(int.class, new Integer(0));
+        resetMap.put(long.class, new Long(0));
+        resetMap.put(float.class, new Float(0));
+        resetMap.put(double.class, new Double(0.0));        
     }
     //===============================
     // begin Container Implementation
@@ -579,7 +590,7 @@ public class CastorCMP11_EntityContainer
      */
     public EntityBean fetchFreeInstance(ThreadContext callContext) throws IllegalAccessException, InvocationTargetException, InstantiationException{
 
-        DeploymentInfo deploymentInfo = callContext.getDeploymentInfo();
+        org.openejb.core.DeploymentInfo deploymentInfo = callContext.getDeploymentInfo();
         
         /*
         Obtain the stack of instances of this deployment that are in the method ready state.
@@ -608,13 +619,16 @@ public class CastorCMP11_EntityContainer
                 context is current. Better then suspending it unnecessarily.
                 */
                 callContext.setCurrentOperation(Operations.OP_SET_CONTEXT);
-                Object[] params =  new javax.ejb.EntityContext []{(javax.ejb.EntityContext)callContext.getDeploymentInfo().getEJBContext()};
+                Object[] params =  new javax.ejb.EntityContext []{(javax.ejb.EntityContext)deploymentInfo.getEJBContext()};
                 logger.debug(bean + ".setEntityContext("+params[0]+")");
                 this.SET_ENTITY_CONTEXT_METHOD.invoke( bean, params );
             } finally {
                 callContext.setCurrentOperation(currentOperation);
             }
-        }
+        } else {
+            // Here we need to reset all fields to their default values ( 0 for primitive types, null for pointers )
+            resetBeanFields(bean, deploymentInfo);
+        }            
         // move the bean instance to the tx method ready pool
         txReadyPoolMap.put(bean, methodReadyPool);
         return bean;
@@ -727,7 +741,7 @@ public class CastorCMP11_EntityContainer
         return returnValue;
 
 
-    }
+            }
 
     /**
      * This method is responsible for delegating the ejbCreate() and 
@@ -1368,6 +1382,30 @@ public class CastorCMP11_EntityContainer
         }
     }
 
+    /**
+     Section 9.2.4 EJB 1.1:
+     "The Container must ensure that the values of the container-managed fields are set to the Java language
+     defaults (e.g. 0 for integer, null for pointers) prior to invoking an ejbCreate(...) method on an
+     instance."
+     */
+    protected void resetBeanFields(java.lang.Object bean, org.openejb.core.DeploymentInfo info) {
+        final String[] cmFields = info.getCmrFields();
+        final Class beanClass = bean.getClass();
+
+        try {
+            for ( int i=0; i<cmFields.length; i++ ) {
+                Field field = beanClass.getDeclaredField(cmFields[i]);
+                Object value = resetMap.get(field.getType());
+//                System.out.println("Setting field "+cmFields[i]+" to "+value);
+                field.set( bean, value );
+            }
+        } catch ( Exception e) {
+            // NoSuchFieldException or IllegalAccessException
+            // internal inconistency. This should have been handled at start time.
+            logger.error("Internal inconsistency accessing the fields of a CMP entity bean"+bean+":"+ e);
+        }
+    }
+    
     /******************************************************************************
     *                                                                             *
     *             CallbackInterceptor methods                                     *
