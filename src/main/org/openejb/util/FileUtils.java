@@ -45,6 +45,8 @@
 package org.openejb.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -135,7 +137,35 @@ public class FileUtils{
     public static File createTempDirectory() throws java.io.IOException{
 	String prefix = System.getProperty("java.io.tmpdir", File.separator + "tmp") + File.separator+"openejb";
 	return createTempDirectory(prefix);
-    }	
+    }
+
+    /**
+     * Copies the contents of one file to another.
+     * 
+     * @param to     Destination file
+     * @param from   Source file
+     * 
+     * @exception java.io.IOException
+     *                   Thrown if there is an error copying the file.
+     */
+    public static void copyFile( File to, File from ) throws java.io.IOException {
+	FileInputStream in =null;
+	FileOutputStream out =null;
+	try {
+	    in = new FileInputStream( from );
+	    out = new FileOutputStream( to );
+    
+	    int aByte;
+	    while ( (aByte = in.read()) != -1 ) {
+		out.write( aByte );
+	    }
+	} catch ( java.io.IOException e) {
+	    throw e;
+	} finally {
+	    in.close();
+	    out.close();
+	}
+    }
     
     private static void resolveOpenEjbHome() throws IOException{
         String openejb =  null;
