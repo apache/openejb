@@ -139,7 +139,7 @@ public class UtilDelegateImpl implements javax.rmi.CORBA.UtilDelegate {
     public void registerTarget(javax.rmi.CORBA.Tie tie, java.rmi.Remote obj){
         _delegate.registerTarget(tie, obj);
     }
-    public void unexportObject(java.rmi.Remote obj){
+    public void unexportObject(java.rmi.Remote obj) throws java.rmi.NoSuchObjectException {
         _delegate.unexportObject(obj);
     }
     public javax.rmi.CORBA.Tie getTie(java.rmi.Remote obj){
