@@ -28,6 +28,7 @@
 
         <ant:javac srcdir="${basedir}/src/test-ejb-jar"
             destdir="${basedir}/target/test-ejb-jar"
+            source="${maven.compile.source}"
             target="${maven.compile.target}"
             debug="on"
             fork="true">
