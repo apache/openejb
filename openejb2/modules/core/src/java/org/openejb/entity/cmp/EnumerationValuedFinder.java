@@ -47,20 +47,38 @@
  */
 package org.openejb.entity.cmp;
 
-import java.util.HashSet;
+import java.util.Collections;
+import javax.ejb.FinderException;
 
 import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.openejb.EJBInvocation;
 
+import org.tranql.field.Row;
+import org.tranql.field.FieldAccessor;
 import org.tranql.ql.QueryException;
-import org.tranql.query.QueryResult;
+import org.tranql.query.ArrayListResultHandler;
+import org.tranql.query.QueryCommand;
 
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public class HashSetResultFactory extends CollectionResultFactory {
-    public InvocationResult createQueryResults(QueryResult result) throws QueryException {
-        return fetchAll(new HashSet(), result);
+public class EnumerationValuedFinder extends CMPFinder {
+    public EnumerationValuedFinder(QueryCommand localQuery, QueryCommand remoteQuery) {
+        super(localQuery, remoteQuery);
     }
+
+    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+        try {
+            QueryCommand command = getCommand(invocation);
+            ArrayListResultHandler handler = new ArrayListResultHandler(new FieldAccessor(0, null));
+            command.execute(handler, new Row(invocation.getArguments()));
+            return new SimpleInvocationResult(true, Collections.enumeration(handler.getResults()));
+        } catch (QueryException e) {
+            return new SimpleInvocationResult(false, new FinderException(e.getMessage()).initCause(e));
+        }
+    }
+
 }

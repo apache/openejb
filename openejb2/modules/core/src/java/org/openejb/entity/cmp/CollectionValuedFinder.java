@@ -47,35 +47,37 @@
  */
 package org.openejb.entity.cmp;
 
-import javax.ejb.ObjectNotFoundException;
 import javax.ejb.FinderException;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.openejb.EJBInvocation;
 
-import org.tranql.ql.QueryException;
-import org.tranql.query.QueryResult;
 import org.tranql.field.Row;
+import org.tranql.field.FieldAccessor;
+import org.tranql.ql.QueryException;
+import org.tranql.query.ArrayListResultHandler;
+import org.tranql.query.QueryCommand;
 
 /**
- *
- *
+ * 
+ * 
  * @version $Revision$ $Date$
  */
-public class SingleValuedQueryResultsFactory implements QueryResultsFactory {
-    public InvocationResult createQueryResults(QueryResult result) throws QueryException {
+public class CollectionValuedFinder extends CMPFinder {
+    public CollectionValuedFinder(QueryCommand localQuery, QueryCommand remoteQuery) {
+        super(localQuery, remoteQuery);
+    }
+
+    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         try {
-            Row row = new Row(new Object[0]);
-            if (!result.fetch(row)) {
-                return new SimpleInvocationResult(false, new ObjectNotFoundException());
-            }
-            Object value = row.get(0);
-            if (result.fetch(row)) {
-                return new SimpleInvocationResult(false, new FinderException("More than one result returned from single valued finder"));
-            }
-            return new SimpleInvocationResult(true, value);
-        } finally {
-            result.close();
+            QueryCommand command = getCommand(invocation);
+            ArrayListResultHandler handler = new ArrayListResultHandler(new FieldAccessor(0, null));
+            command.execute(handler, new Row(invocation.getArguments()));
+            return new SimpleInvocationResult(true, handler.getResults());
+        } catch (QueryException e) {
+            return new SimpleInvocationResult(false, new FinderException(e.getMessage()).initCause(e));
         }
     }
+
 }

@@ -100,8 +100,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
 
     private DataSource ds;
 
-    // JNB: diabled due to problem with fault handler
-    public void XtestLocalInvoke() throws Exception {
+    public void testLocalInvoke() throws Exception {
         MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
         assertEquals(2, home.intMethod(1));
 
@@ -120,7 +119,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         assertEquals(value, local.getValue());
     }
 
-    public void XtestRemoteInvoke() throws Exception {
+    public void testRemoteInvoke() throws Exception {
         MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "EJBHome");
         assertEquals(2, home.intMethod(1));
 
@@ -139,7 +138,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         assertEquals(value, remote.getValue());
     }
 
-    public void XtestFields() throws Exception {
+    public void testFields() throws Exception {
         MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
         MockLocal local = home.findByPrimaryKey(new Integer(1));
         assertEquals("Hello", local.getValue());
@@ -157,7 +156,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         assertEquals("World", local.getValue());
     }
 
-    public void XtestLocalLifeCycle() throws Exception {
+    public void testLocalLifeCycle() throws Exception {
         Connection c = ds.getConnection();
         Statement s = c.createStatement();
         ResultSet rs;
@@ -230,7 +229,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         c.close();
     }
 
-    public void XtestRemoteLifeCycle() throws Exception {
+    public void testRemoteLifeCycle() throws Exception {
         Connection c = ds.getConnection();
         Statement s = c.createStatement();
         ResultSet rs;
@@ -409,9 +408,9 @@ public class BasicCMPEntityContainerTest extends TestCase {
 
         EJBProxyFactory proxyFactory = new EJBProxyFactory(CONTAINER_NAME.getCanonicalName(), false, MockRemote.class, MockHome.class, MockLocal.class, MockLocalHome.class);
         EJB ejb = new EJB("MockEJB", "MOCK", proxyFactory);
-        ejb.addCMPField(new CMPField("value", String.class, false));
         CMPField pkField = new CMPField("id", Integer.class, true);
         ejb.addCMPField(pkField);
+        ejb.addCMPField(new CMPField("value", String.class, false));
         ejb.setPrimaryKeyField(pkField);
         ejbSchema.addEJB(ejb);
 

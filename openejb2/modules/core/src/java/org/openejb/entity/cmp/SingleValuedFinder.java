@@ -47,30 +47,62 @@
  */
 package org.openejb.entity.cmp;
 
-import java.util.Collection;
+import javax.ejb.FinderException;
+import javax.ejb.ObjectNotFoundException;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.openejb.EJBInvocation;
 
+import org.tranql.field.FieldTransform;
 import org.tranql.field.Row;
+import org.tranql.field.FieldAccessor;
 import org.tranql.ql.QueryException;
-import org.tranql.query.QueryResult;
+import org.tranql.query.ObjectResultHandler;
+import org.tranql.query.QueryCommand;
 
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public abstract class CollectionResultFactory implements QueryResultsFactory {
-    protected InvocationResult fetchAll(Collection c, QueryResult result) throws QueryException {
+public class SingleValuedFinder extends CMPFinder {
+    public SingleValuedFinder(QueryCommand localQuery, QueryCommand remoteQuery) {
+        super(localQuery, remoteQuery);
+    }
+
+    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         try {
-            Row row = new Row(new Object[1]);
-            while (result.fetch(row)) {
-                c.add(row.get(0));
+            QueryCommand command = getCommand(invocation);
+            SingleValuedResultHandler handler = new SingleValuedResultHandler(new FieldAccessor(0, null));
+            command.execute(handler, new Row(invocation.getArguments()));
+            return handler.result;
+        } catch (QueryException e) {
+            return new SimpleInvocationResult(false, new FinderException(e.getMessage()).initCause(e));
+        }
+    }
+
+    public static class SingleValuedResultHandler extends ObjectResultHandler {
+        private static InvocationResult NODATA = new SimpleInvocationResult(false, new ObjectNotFoundException());
+        private static InvocationResult TOMUCHDATA = new SimpleInvocationResult(false, new FinderException("More than one row returned from single valued finder"));
+
+        private InvocationResult result = NODATA;
+
+        public SingleValuedResultHandler(FieldTransform accessor) {
+            super(accessor);
+        }
+
+        public void fetched(Row row) throws QueryException {
+            if (result != NODATA) {
+                result = TOMUCHDATA;
+            } else {
+                super.fetched(row);
+                result = new SimpleInvocationResult(true, getValue());
             }
-            return new SimpleInvocationResult(true, c);
-        } finally {
-            result.close();
+        }
+
+        public InvocationResult getResult() {
+            return result;
         }
     }
 }
