@@ -29,6 +29,7 @@
     <pathelement location="${openorb.home}/${openorb.jar}"/>
     <pathelement location="${openorb.home}/${openorb.rmi.jar}"/>
     <pathelement location="${openorb.home}/${openorb.tools.jar}"/>
+    <pathelement location="${servlet.jar}"/>
     <pathelement location="${jts.jar}"/>
     <pathelement location="${tyrex.home}/${tyrex.jar}"/>
     <pathelement location="${tyrex.home}/${tyrex.iiop.jar}"/>
