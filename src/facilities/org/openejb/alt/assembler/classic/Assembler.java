@@ -139,7 +139,7 @@ public class Assembler extends AssemblerTool implements org.openejb.spi.Assemble
         if(str==null)
             str = ":org.openejb.core.ivm.naming";
         else
-            str = str+":org.openejb.core.ivm.naming";
+            str = "org.openejb.core.ivm.naming:"+str;
         System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
         /*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
     }
