@@ -78,7 +78,7 @@
             <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:group ref="css:transportMechGroup" minOccurs="0"/>
             <xsd:group ref="css:asMechGroup" minOccurs="0"/>
-            <!-- xsd:element name="sasMech" type="css:sasMechType" minOccurs="0"/ -->
+            <xsd:element name="sasMech" type="css:sasMechType" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
 
@@ -166,6 +166,52 @@
         <xsd:complexContent>
             <xsd:restriction base="xsd:anyType">
                 <xsd:attribute name="domain" type="xsd:string" use="optional"/>
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="sasMechType">
+        <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:group ref="css:ittGroup"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:group name="ittGroup">
+        <xsd:choice>
+            <xsd:element name="ITTAbsent" type="css:ITTAbsentType"/>
+            <xsd:element name="ITTAnonymous" type="css:ITTAnonymousType"/>
+            <xsd:element name="ITTPrincipalNameStatic" type="css:ITTPrincipalNameStaticType"/>
+            <xsd:element name="ITTPrincipalNameDynamic" type="css:ITTPrincipalNameDynamicType"/>
+        </xsd:choice>
+    </xsd:group>
+
+    <xsd:complexType name="ITTAbsentType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="ITTAnonymousType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="ITTPrincipalNameStaticType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType">
+                <xsd:attribute name="name" type="xsd:string"/>
+                <xsd:attribute name="oid" type="xsd:string" use="optional"/>
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="ITTPrincipalNameDynamicType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType">
+                <xsd:attribute name="domain" type="xsd:string"/>
+                <xsd:attribute name="oid" type="xsd:string" use="optional"/>
             </xsd:restriction>
         </xsd:complexContent>
     </xsd:complexType>

@@ -69,9 +69,12 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 
 import org.openejb.xbeans.csiv2.css.CSSCompoundSecMechType;
 import org.openejb.xbeans.csiv2.css.CSSCssType;
-import org.openejb.xbeans.csiv2.css.CSSSSLType;
-import org.openejb.xbeans.csiv2.css.CSSGSSUPStaticType;
 import org.openejb.xbeans.csiv2.css.CSSGSSUPDynamicType;
+import org.openejb.xbeans.csiv2.css.CSSGSSUPStaticType;
+import org.openejb.xbeans.csiv2.css.CSSITTPrincipalNameDynamicType;
+import org.openejb.xbeans.csiv2.css.CSSITTPrincipalNameStaticType;
+import org.openejb.xbeans.csiv2.css.CSSSSLType;
+import org.openejb.xbeans.csiv2.css.CSSSasMechType;
 import org.openejb.xbeans.csiv2.tss.TSSAssociationOption;
 
 
@@ -132,7 +135,8 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
         } else {
             result.setAs_mech(new CSSNULLASMechConfig());
         }
-        result.setSas_mech(new CSSSASMechConfig());
+
+        result.setSas_mech(extractSASMech(mechType.getSasMech()));
 
         return result;
     }
@@ -152,6 +156,26 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
 
     protected static CSSASMechConfig extractGSSUPDynamic(CSSGSSUPDynamicType gssupType) {
         return new CSSGSSUPMechConfigDynamic(gssupType.getDomain());
+    }
+
+    protected static CSSSASMechConfig extractSASMech(CSSSasMechType sasMechType) {
+        CSSSASMechConfig result = new CSSSASMechConfig();
+
+        if (sasMechType == null) {
+            result.setIdentityToken(new CSSSASITTAbsent());
+        } else if (sasMechType.isSetITTAbsent()) {
+            result.setIdentityToken(new CSSSASITTAbsent());
+        } else if (sasMechType.isSetITTAnonymous()) {
+            result.setIdentityToken(new CSSSASITTAnonymous());
+        } else if (sasMechType.isSetITTPrincipalNameStatic()) {
+            CSSITTPrincipalNameStaticType principal = sasMechType.getITTPrincipalNameStatic();
+            result.setIdentityToken(new CSSSASITTPrincipalNameStatic(principal.getOid(), principal.getName()));
+        } else if (sasMechType.isSetITTPrincipalNameDynamic()) {
+            CSSITTPrincipalNameDynamicType principal = sasMechType.getITTPrincipalNameDynamic();
+            result.setIdentityToken(new CSSSASITTPrincipalNameDynamic(principal.getOid(), principal.getDomain()));
+        }
+
+        return result;
     }
 
     protected static short extractAssociationOptions(List list) {

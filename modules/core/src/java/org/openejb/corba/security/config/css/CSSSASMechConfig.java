@@ -69,49 +69,8 @@ public class CSSSASMechConfig implements Serializable {
     private short supports;
     private short requires;
     private boolean required;
-    private final ArrayList privilegeAuthorities = new ArrayList();
-    private final ArrayList namingMechanisms = new ArrayList();
-    private int identityTypes = ITTAbsent.value;
+    private CSSSASIdentityToken identityToken;
 
-
-    public void addServiceConfigurationConfig(TSSServiceConfigurationConfig config) {
-        privilegeAuthorities.add(config);
-
-        supports |= DelegationByClient.value;
-        if (required) requires = DelegationByClient.value;
-    }
-
-    public TSSServiceConfigurationConfig serviceConfigurationAt(int i) {
-        return (TSSServiceConfigurationConfig) privilegeAuthorities.get(i);
-    }
-
-    public int paSize() {
-        return privilegeAuthorities.size();
-    }
-
-    public void addnamingMechanism(String mech) {
-        namingMechanisms.add(mech);
-
-        identityTypes |= ITTPrincipalName.value;
-        supports |= IdentityAssertion.value;
-    }
-
-    public String namingMechanismAt(int i) {
-        return (String) namingMechanisms.get(i);
-    }
-
-    public int nmSize() {
-        return namingMechanisms.size();
-    }
-
-    public int getIdentityTypes() {
-        return identityTypes;
-    }
-
-    public void setIdentityTypes(int identityTypes) {
-        this.identityTypes = identityTypes;
-        if (identityTypes != 0) supports |= IdentityAssertion.value;
-    }
 
     public short getSupports() {
         return supports;
@@ -127,8 +86,14 @@ public class CSSSASMechConfig implements Serializable {
 
     public void setRequired(boolean required) {
         this.required = required;
+    }
 
-        if (required) requires = (short) (supports & DelegationByClient.value);
+    public CSSSASIdentityToken getIdentityToken() {
+        return identityToken;
+    }
+
+    public void setIdentityToken(CSSSASIdentityToken identityToken) {
+        this.identityToken = identityToken;
     }
 
     public boolean canHandle(TSSSASMechConfig sasMech) {
@@ -145,10 +110,6 @@ public class CSSSASMechConfig implements Serializable {
     }
 
     public IdentityToken encodeIdentityToken() {
-        IdentityToken token = new IdentityToken();
-
-        token.anonymous(true);
-
-        return token;
+        return identityToken.encodeIdentityToken();
     }
 }
