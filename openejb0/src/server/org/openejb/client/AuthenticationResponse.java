@@ -107,11 +107,14 @@ public class AuthenticationResponse implements Response {
         responseCode = in.readByte();
         switch (responseCode) {
             case AUTH_GRANTED:
-                identity = (ClientMetaData)in.readObject();
+                identity = new ClientMetaData();
+                identity.readExternal(in);
                 break;
             case AUTH_REDIRECT:
-                identity = (ClientMetaData)in.readObject();
-                server = (ServerMetaData)in.readObject();
+                identity = new ClientMetaData();
+                identity.readExternal(in);
+                server   = new ServerMetaData();
+                server.readExternal( in );
                 break;
             case AUTH_DENIED:
                 break;
