@@ -42,7 +42,7 @@
  *
  * $Id$
  */
-package org.openejb.server.soap;
+package org.openejb.server.xfire;
 
 
 import java.io.IOException;

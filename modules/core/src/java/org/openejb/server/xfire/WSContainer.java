@@ -42,7 +42,7 @@
  *
  * $Id$
  */
-package org.openejb.server.soap;
+package org.openejb.server.xfire;
 
 import java.lang.reflect.Method;
 import java.net.URI;
