@@ -96,8 +96,11 @@ import org.openejb.util.Stack;
  * @version $Revision$ $Date$
  */
 public class CastorCMP11_EntityContainer 
-implements org.openejb.RpcContainer, TransactionContainer,
-org.exolab.castor.persist.spi.CallbackInterceptor {
+	implements org.openejb.RpcContainer, 
+		TransactionContainer,
+		org.exolab.castor.persist.spi.CallbackInterceptor,
+		org.exolab.castor.persist.spi.InstanceFactory
+{
 
     /*
      * Bean instances that are currently in use are placed in the txReadyPoolMap indexed
@@ -294,6 +297,7 @@ org.exolab.castor.persist.spi.CallbackInterceptor {
         jdo_ForGlobalTransaction.setConfiguration(Global_TX_Database);
         jdo_ForGlobalTransaction.setDatabaseName("Global_TX_Database");
         jdo_ForGlobalTransaction.setCallbackInterceptor(this);
+        jdo_ForGlobalTransaction.setInstanceFactory(this);
 
         // Make sure the DB is registered as a as synchronization object before the transaction begins.
         jdo_ForLocalTransaction = new JDO();
@@ -303,6 +307,7 @@ org.exolab.castor.persist.spi.CallbackInterceptor {
         jdo_ForLocalTransaction.setConfiguration(Local_TX_Database);
         jdo_ForLocalTransaction.setDatabaseName("Local_TX_Database");
         jdo_ForLocalTransaction.setCallbackInterceptor(this);
+        jdo_ForLocalTransaction.setInstanceFactory(this);
 
 
         /*
@@ -1239,7 +1244,7 @@ org.exolab.castor.persist.spi.CallbackInterceptor {
             instantiates a new one calling setEntityContext. 
             Also places the bean instance in the tx method ready pool.
         */
-        EntityBean bean = fetchFreeInstance(callContext);
+        EntityBean bean = null;
 
         /*
             Castor JDO doesn't recognize EJB complex primary keys, so if the 
@@ -1339,6 +1344,33 @@ org.exolab.castor.persist.spi.CallbackInterceptor {
     ******************************************************************************/
 
     /**
+     * Called to indicate that an object needs to be instatiated.
+     * <p>
+     * The parameters are ignored.  Data is obtained from the deployment info
+     * which has been obtained, in turn, from the current call context.
+     *
+     * @return an instance of the object needs to be instatiated
+     * @param The name of the class of the object to be created
+     * @param The class loader to use when creating the object
+     */
+    public Object newInstance( String className, ClassLoader loader ) {
+		
+		Object obj =null;
+
+		try {
+			obj = fetchFreeInstance( ThreadContext.getThreadContext() );
+		} catch (IllegalAccessException iae) {
+            throw new RuntimeException( iae.getLocalizedMessage() );
+		} catch (InvocationTargetException ite) {
+            throw new RuntimeException( ite.getLocalizedMessage() );
+		} catch (InstantiationException ie) {
+            throw new RuntimeException( ie.getLocalizedMessage() );
+		}
+
+		return obj;
+	}
+    
+	/**
      * Called to indicate that the object has been loaded from persistent
      * storage.
      *
