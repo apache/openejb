@@ -117,9 +117,31 @@
             <xs:element name="jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="local-jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
+            <xs:element name="query" type="openejb:queryType" minOccurs="0" maxOccurs="unbounded"/>
+
             <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
         </xs:sequence>
         <xs:attribute name="id" type="xs:ID"/>
+    </xs:complexType>
+
+    <xs:complexType name="queryType">
+        <xs:sequence>
+            <xs:element name="query-method">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="method-name" type="xs:string"/>
+                        <xs:element name="method-params">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="method-param" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="sql" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="message-driven-beanType">

@@ -68,7 +68,22 @@ public class AllowedOperationsCmpBean implements javax.ejb.EntityBean{
     public EntityContext ejbContext;
     public Hashtable allowedOperationsTable = new Hashtable();
     
-    
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
     //=============================
     // Home interface methods
     //    

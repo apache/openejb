@@ -47,7 +47,6 @@
  */
 package org.openejb.entity.cmp;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,8 +55,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.ejb.EJBLocalObject;
-import javax.ejb.EJBObject;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
@@ -69,6 +66,7 @@ import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
+import org.openejb.proxy.ProxyInfo;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodHelper;
@@ -78,8 +76,6 @@ import org.openejb.entity.BusinessMethod;
 import org.openejb.entity.EntityInstanceFactory;
 import org.openejb.entity.EntityInterceptorBuilder;
 import org.openejb.entity.HomeMethod;
-import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.proxy.ProxyInfo;
 import org.tranql.cache.CacheLoadCommand;
 import org.tranql.cache.CacheRowAccessor;
 import org.tranql.cache.CacheTable;
@@ -125,6 +121,7 @@ import org.tranql.sql.jdbc.binding.BindingFactory;
 public class CMPContainerBuilder extends AbstractContainerBuilder {
     private EJB ejb;
     private String connectionFactoryName;
+    private Map queries;
 
     // todo delete this
     private DataSource dataSource;
@@ -156,6 +153,14 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public Map getQueries() {
+        return queries;
+    }
+
+    public void setQueries(Map queries) {
+        this.queries = queries;
     }
 
     protected Object buildIt(boolean buildContainer) throws Exception {
@@ -192,22 +197,35 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         LinkedHashMap cmpFieldAccessors = createCMPFieldAccessors(ejb, faultHandler);
 
         // Identity Transforms
-        ProxyInfo proxyInfo = createProxyInfo();
         TranqlEJBProxyFactory tranqlEJBProxyFactory = new TranqlEJBProxyFactory();
         IdentityTransform primaryKeyTransform = new SimplePKTransform(cacheTable);
         IdentityTransform localProxyTransform = new LocalProxyTransform(primaryKeyTransform, tranqlEJBProxyFactory);
         IdentityTransform remoteProxyTransform = new RemoteProxyTransform(primaryKeyTransform, tranqlEJBProxyFactory);
 
         // queries
-        LinkedHashMap queries = new LinkedHashMap();
+        LinkedHashMap queryCommands = new LinkedHashMap();
+        for (Iterator iterator = queries.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            MethodSignature signature = (MethodSignature)entry.getKey();
+            String sql = (String)entry.getValue();
+
+            QueryCommand query = buildQueryCommand(dataSourceDelegate, signature, sql);
+
+            QueryCommand localProxyLoad = new ProxyQueryCommand(query, identityDefiner, localProxyTransform);
+            QueryCommand remoteProxyLoad = new ProxyQueryCommand(query, identityDefiner, remoteProxyTransform);
+            queryCommands.put(
+                    new InterfaceMethodSignature(signature, true),
+                    new QueryCommand[]{localProxyLoad, remoteProxyLoad});
+        }
+
         QueryCommand localProxyLoad = new ProxyQueryCommand(loadCommand, identityDefiner, localProxyTransform);
         QueryCommand remoteProxyLoad = new ProxyQueryCommand(loadCommand, identityDefiner, remoteProxyTransform);
-        queries.put(
+        queryCommands.put(
                 new InterfaceMethodSignature("findByPrimaryKey", new String[]{getPrimaryKeyClassName()}, true),
                 new QueryCommand[]{localProxyLoad, remoteProxyLoad});
 
         // build the vop table
-        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, identityDefiner, primaryKeyTransform, localProxyTransform, remoteProxyTransform, queries);
+        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, identityDefiner, primaryKeyTransform, localProxyTransform, remoteProxyTransform, queryCommands);
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
 
@@ -297,6 +315,17 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
         loadCommand = new CacheLoadCommand(loadCommand, idDefiner, slotMap);
         return loadCommand;
+    }
+
+    private QueryCommand buildQueryCommand(DataSourceDelegate dataSourceDelegate, MethodSignature signature, String sql) throws QueryException {
+        InputBinding[] parameterBindings = BindingFactory.getInputBindings(signature.getParameterTypes());
+        FieldTransform[] argTransforms = new FieldTransform[signature.getParameterTypes().length];
+        for (int i = 0; i < argTransforms.length; i++) {
+            argTransforms[i] = new FieldAccessor(i);
+        }
+        ResultBinding[] resultBindings = new ResultBinding[] {BindingFactory.getResultBinding(getPrimaryKeyClassName(), 1)};
+        QueryCommand query = new JDBCQueryCommand(dataSourceDelegate, sql, parameterBindings, argTransforms, resultBindings);
+        return query;
     }
 
     private static CacheTable createCacheTable(EJB ejb, QueryTransformer queryTransformer, DataSourceDelegate dataSourceDelegate) throws QueryException {
@@ -451,6 +480,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             IdentityTransform remoteProxyTransform,
             LinkedHashMap queries) throws Exception {
 
+        ProxyInfo proxyInfo = createProxyInfo();
+
         LinkedHashMap vopMap = new LinkedHashMap();
 
         // get the context set unset method objects
@@ -530,11 +561,26 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             }
         }
 
+        Class homeInterface = proxyInfo.getHomeInterface();
+        Class localHomeInterface = proxyInfo.getLocalHomeInterface();
         for (Iterator iterator = queries.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             InterfaceMethodSignature signature = (InterfaceMethodSignature) entry.getKey();
             QueryCommand[] queryCommands = (QueryCommand[]) entry.getValue();
-            vopMap.put(signature, new CMPFinder(queryCommands[0], queryCommands[1], new SingleValuedQueryResultsFactory()));
+
+            Method method = signature.getMethod(homeInterface);
+            if (method == null) {
+                method = signature.getMethod(localHomeInterface);
+            }
+
+            String returnType = method.getReturnType().getName();
+            if (returnType.equals("java.util.Collection")) {
+                vopMap.put(signature, new CMPFinder(queryCommands[0], queryCommands[1], new CollectionResults.Factory()));
+            } else if(returnType.equals("java.util.Set")) {
+                vopMap.put(signature, new CMPFinder(queryCommands[0], queryCommands[1], new SetResults.Factory()));
+            } else {
+                vopMap.put(signature, new CMPFinder(queryCommands[0], queryCommands[1], new SingleValuedQueryResultsFactory()));
+            }
         }
         return vopMap;
     }

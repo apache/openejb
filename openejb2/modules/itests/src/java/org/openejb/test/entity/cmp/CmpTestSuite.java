@@ -66,7 +66,7 @@ public class CmpTestSuite extends org.openejb.test.TestSuite{
         this.addTest(new CmpHomeHandleTests());
         this.addTest(new CmpHandleTests());
         this.addTest(new CmpEjbMetaDataTests());
-        //TODO:0:this.addTest(new CmpAllowedOperationsTests());
+        this.addTest(new CmpAllowedOperationsTests());
         this.addTest(new CmpJndiEncTests());
         this.addTest(new CmpRmiIiopTests());
         

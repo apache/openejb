@@ -50,6 +50,7 @@ import java.util.StringTokenizer;
 import javax.ejb.CreateException;
 import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
+import javax.naming.InitialContext;
 
 import org.openejb.test.ApplicationException;
 import org.openejb.test.object.OperationsPolicy;
@@ -61,7 +62,7 @@ public abstract class AllowedOperationsCmp2Bean implements EntityBean {
 
     public static int key = 20;
     public EntityContext ejbContext;
-    public Hashtable allowedOperationsTable = new Hashtable();
+    public static final Hashtable allowedOperationsTable = new Hashtable();
 
     public abstract Integer getId();
 
@@ -276,11 +277,12 @@ public abstract class AllowedOperationsCmp2Bean implements EntityBean {
         }
 
         /*[5] Test setRollbackOnly ////////////*/
-        try {
-            ejbContext.setRollbackOnly();
-            policy.allow(policy.Context_setRollbackOnly);
-        } catch (IllegalStateException ise) {
-        }
+        // This is way to difficult to test as it rolls back all work
+//        try {
+//            ejbContext.setRollbackOnly();
+//            policy.allow(policy.Context_setRollbackOnly);
+//        } catch (IllegalStateException ise) {
+//        }
 
         /*[6] Test getUserTransaction /////////*/
         try {
@@ -308,6 +310,40 @@ public abstract class AllowedOperationsCmp2Bean implements EntityBean {
          * Check for policy.JNDI_access_to_java_comp_env
          * Check for policy.Resource_manager_access
          */
+
+        /*[9] Test JNDI_access_to_java_comp_env ///////////////*/
+        try {
+            InitialContext jndiContext = new InitialContext();
+
+            jndiContext.lookup("java:comp/env/entity/references/JNDI_access_to_java_comp_env");
+
+            policy.allow(policy.JNDI_access_to_java_comp_env);
+        } catch (IllegalStateException ise) {
+        } catch (javax.naming.NamingException ne) {
+        }
+
+        /*[9] Test Resource_manager_access ///////////////*/
+//        try {
+//            InitialContext jndiContext = new InitialContext();
+//
+//            jndiContext.lookup("java:comp/env/stateless/references/Resource_manager_access");
+//
+//            policy.allow(policy.Resource_manager_access);
+//        } catch (IllegalStateException ise) {
+//        } catch (javax.naming.NamingException ne) {
+//        }
+
+        /*[10] Test Enterprise_bean_access ///////////////*/
+//        try {
+//            InitialContext jndiContext = new InitialContext();
+//
+//            jndiContext.lookup("java:comp/env/stateless/beanReferences/Enterprise_bean_access");
+//
+//            policy.allow(policy.Enterprise_bean_access);
+//        } catch (IllegalStateException ise) {
+//        } catch (javax.naming.NamingException ne) {
+//        }
+
         allowedOperationsTable.put(methodName, policy);
     }
 }

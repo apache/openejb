@@ -103,6 +103,7 @@ import org.apache.xmlbeans.XmlObject;
 
 import org.openejb.ContainerBuilder;
 import org.openejb.EJBModule;
+import org.openejb.dispatch.MethodSignature;
 import org.openejb.entity.bmp.BMPContainerBuilder;
 import org.openejb.entity.cmp.CMPContainerBuilder;
 import org.openejb.proxy.ProxyObjectFactory;
@@ -117,6 +118,7 @@ import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
+import org.openejb.xbeans.ejbjar.OpenejbQueryType;
 import org.openejb.xbeans.ejbjar.impl.OpenejbOpenejbJarDocumentImpl;
 import org.tranql.ejb.CMPField;
 import org.tranql.ejb.EJB;
@@ -572,6 +574,20 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         }
         builder.setEJB(ejb);
         builder.setConnectionFactoryName(connectionFactoryName);
+
+        Map queries = new HashMap();
+        if (openejbEntityBean != null) {
+            OpenejbQueryType[] queryTypes = openejbEntityBean.getQueryArray();
+            for (int i = 0; i < queryTypes.length; i++) {
+                OpenejbQueryType queryType = queryTypes[i];
+                MethodSignature signature = new MethodSignature(
+                        queryType.getQueryMethod().getMethodName(),
+                        queryType.getQueryMethod().getMethodParams().getMethodParamArray());
+                String sql = queryType.getSql();
+                queries.put(signature, sql);
+            }
+        }
+        builder.setQueries(queries);
 
         try {
             GBeanMBean gbean = builder.createConfiguration();

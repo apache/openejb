@@ -54,7 +54,14 @@ import org.openejb.test.object.OperationsPolicy;
  * 
  */
 public interface BasicCmpObject extends javax.ejb.EJBObject{
-    
+    public String getFirstName();
+
+    public void setFirstName(String firstName);
+
+    public String getLastName();
+
+    public void setLastName(String lastName);
+
     /**
      * Reverses the string passed in then returns it
      * 
