@@ -33,6 +33,8 @@ cp $poms/ejb-core.pom $modules_dir/core/pom.xml
   mv src/conf src/main/resources
   mv src/test/org src/test/java
   mv src/test-resources src/test/resources
+  # cygwin seems to freak out sometimes without the sleep. Weird.
+  sleep 10
   mv src/java src/main
 )
 
