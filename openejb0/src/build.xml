@@ -68,6 +68,9 @@
     <pathelement path="${build.dest}/openejb"/>
     <pathelement location="${proxy.factory.jar}"/>
     <pathelement location="${client.testrunner.jar}"/>
+    <fileset dir="dist">
+      <include name="${project}*-${version}.jar"/>
+    </fileset>
   </path>
 
   <!-- ================================================================== -->
@@ -835,6 +838,13 @@
   <!-- ================================================================== -->
   <!-- T E S T S                                                          -->
   <!-- ================================================================== -->
+
+  <target name="prepare-test"
+          depends="check_test_available,
+                   check.proxy.factory,
+                   check.client.testrunner,
+                   jar"
+  />
   
   <target name="check_test_available">
     
@@ -845,7 +855,7 @@
     />
     
     <available 
-      classname="org.openejb.test.ClientTestRunner"
+      classname="org.openejb.test.TestRunner"
       property="client.testrunner.present"
       classpathref="project.test.classpath"
     />
@@ -866,18 +876,49 @@
     </antcall>
   </target>
   
-  <target name="test"
-          depends="check.proxy.factory,
-                   check.client.testrunner,
-                   jar"
-          description="--> runs OpenEJB unit tests"
-          if="junit.present">
-    
-    <java classname="org.openejb.test.ClientTestRunner" >
-      <arg line="-s test/conf/IvmServer_config.properties org.openejb.OpenEJBTestSuite"/> 
+  <target name="test-runner">
+
+    <java classname="org.openejb.test.TestRunner" fork="true">
+      <jvmarg value="-Dopenejb.testsuite.properties=${testsuite.properties}"/>
+      <jvmarg value="-Dopenejb.test.server=${test.server}"/>
+      <jvmarg value="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"/>
+      <jvmarg value="-Dopenejb.home=${basedir}"/>
+      <arg line="org.openejb.test.ClientTestSuite"/> 
       <classpath refid="project.test.classpath"/>
     </java>
+
+  </target>
+
+  <target name="test.local"
+          depends="prepare-test"
+          description="--> runs OpenEJB Local Server (aka IntraVM Server) unit tests"
+          if="junit.present">
+    
+    <antcall target="test-runner">
+      <param name="testsuite.properties" value="src/tests-ejb/IvmServer_config.properties"/>
+      <param name="test.server" value="org.openejb.test.IvmTestServer"/>
+    </antcall>
   
+  </target>
+
+  <target name="test.remote"
+          depends="prepare-test"
+          description="--> runs OpenEJB Remote Server unit tests"
+          if="junit.present">
+    
+    <antcall target="test-runner">
+      <param name="testsuite.properties" value="src/tests-ejb/RemoteServer_config.properties"/>
+      <param name="test.server" value="org.openejb.test.RemoteTestServer"/>
+    </antcall>
+  
+  </target>
+
+  <target name="test"
+          depends="prepare-test,
+                   test.local,
+                   test.remote"
+          description="--> runs OpenEJB unit tests"
+          if="junit.present">
   </target>
   
   <!-- ================================================================== -->
