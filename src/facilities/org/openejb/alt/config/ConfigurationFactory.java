@@ -64,13 +64,12 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         if ( props == null ) props = new Properties();
 
         configLocation = props.getProperty("openejb.conf.file");
+        
         if ( configLocation == null ) {
-            configLocation = props.getProperty("openejb.configuration","conf/default.openejb.conf");
+            configLocation = props.getProperty("openejb.configuration");
         }
 
-        if ( configLocation == null ) {
-            configLocation = ConfigUtils.searchForConfiguration();
-        }
+        configLocation = ConfigUtils.searchForConfiguration(configLocation);
         
     }
 

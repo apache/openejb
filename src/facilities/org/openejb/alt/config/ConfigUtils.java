@@ -587,19 +587,61 @@ public class ConfigUtils  {
      * @return 
      */
     public static String searchForConfiguration() throws OpenEJBException{
+        return searchForConfiguration(null);
+    }
+
+    public static String searchForConfiguration(String path) throws OpenEJBException{
         File file = null;
         try{
+
+            /* [1] Try finding the file relative to the 
+             *     current working directory
+             */
             try{
-                file = FileUtils.getFile("conf/openejb.conf");
+                file = new File(path);
+                if (file != null && file.exists() && file.isFile()) {
+                    return file.getAbsolutePath();
+                }
+            } catch (NullPointerException e){
+            }
+            
+            /* [2] Try finding the file relative to the 
+             *     openejb.home directory
+             */
+            try{
+                file = FileUtils.getFile(path);
+                if (file != null && file.exists() && file.isFile()) {
+                    return file.getAbsolutePath();
+                }
+            } catch (NullPointerException e){
             } catch (java.io.FileNotFoundException e){
             }
-            if (file == null) {
-                try{
-                    file = FileUtils.getFile("conf/default.openejb.conf");
-                } catch (java.io.FileNotFoundException e){
+
+            /* [3] Try finding the standard openejb.conf file 
+             *     relative to the openejb.home directory
+             */
+            try{
+                file = FileUtils.getFile("conf/openejb.conf");
+                if (file != null && file.exists() && file.isFile()) {
+                    return file.getAbsolutePath();
                 }
+            } catch (java.io.FileNotFoundException e){
             }
+                        
+            /* [4] No config found! Create a config for them
+             *     using the default.openejb.conf file from 
+             *     the openejb-x.x.x.jar
+             */
+            //Gets the conf directory, creating it if needed.
+            File confDir = FileUtils.getDirectory("conf");
+            
+            //TODO:1: We cannot find the user's conf file and
+            // are taking the liberty of creating one for them.
+            // We should log this.                   
+            file = createConfig(new File(confDir, "openejb.conf"));
+            
         } catch (java.io.IOException e){
+            e.printStackTrace();
             throw new OpenEJBException("Could not locate config file: ", e);
         }
         
@@ -610,6 +652,28 @@ public class ConfigUtils  {
         return (file == null)? null: file.getAbsolutePath() ;
     }
 
+    public static File createConfig(File config) throws java.io.IOException{
+        try{
+            URL defaultConfig = new URL("resource:/default.openejb.conf");
+            InputStream in = defaultConfig.openStream();
+            FileOutputStream out = new FileOutputStream(config);
+
+            int b = in.read();
+
+            while (b != -1) {
+                out.write(b);
+                b = in.read();
+            }
+
+            in.close();
+            out.close();
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return config;
+    }
 
     /*------------------------------------------------------*/
     /*    Methods for easy exception handling               */
