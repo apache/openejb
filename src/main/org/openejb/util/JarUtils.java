@@ -44,18 +44,23 @@
  */
 package org.openejb.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.SecurityException;
-import org.openejb.OpenEJBException;
 import java.net.URL;
+import java.util.jar.JarFile;
+import org.openejb.OpenEJBException;
 
 /**
  * @author <a href="mailto:adc@toolazydogs.com">Alan Cabrera</a>
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class JarUtils{
+    
+    private static Messages messages = new Messages( "org.openejb.util.resources" );
     
     static {
         setHandlerSystemProperty();
@@ -116,4 +121,58 @@ public class JarUtils{
         }
         return jarFile;
     }	
+
+    public static void addFileToJar(String jarFile, String file ) throws OpenEJBException{
+        ByteArrayOutputStream errorBytes = new ByteArrayOutputStream();
+    
+        /* NOTE: Sadly, we have to play this little game 
+         * with temporarily switching the standard error
+         * stream to capture the errors.
+         * Although you can pass in an error stream in 
+         * the constructor of the jar tool, they are not
+         * used when an error occurs.
+         */
+        PrintStream newErr = new PrintStream(errorBytes);
+        PrintStream oldErr = System.err;
+        System.setErr(newErr);
+    
+        sun.tools.jar.Main jarTool = new sun.tools.jar.Main(newErr, newErr, "config_utils");
+    
+        String[] args = new String[]{"uf",jarFile,file};
+        jarTool.run(args);
+    
+        System.setErr(oldErr);
+    
+        try{
+        errorBytes.close();
+        newErr.close();
+        } catch (Exception e){
+            throw new OpenEJBException( messages.format("file.0020",jarFile, e.getLocalizedMessage()));
+        }
+    
+        String error = new String(errorBytes.toByteArray());
+        if (error.indexOf("java.io.IOException") != -1) {
+            // an IOException was thrown!
+            // clean the error message
+            int begin = error.indexOf(':')+1;
+            int end = error.indexOf('\n');
+            String message = error.substring(begin, end);
+            throw new OpenEJBException( messages.format("file.0003", file, jarFile, message) );
+        }
+    
+    }
+
+    public static JarFile getJarFile(String jarFile) throws OpenEJBException{
+        /*[1.1]  Get the jar ***************/
+        JarFile jar = null;
+        try {
+            File file = new File(jarFile);
+            jar = new JarFile(file);
+        } catch ( FileNotFoundException e ) {
+            throw new OpenEJBException( messages.format("file.0001", jarFile, e.getLocalizedMessage()));
+        } catch ( IOException e ) {
+            throw new OpenEJBException( messages.format("file.0002", jarFile, e.getLocalizedMessage()));
+        }
+        return jar;
+    }
 }
