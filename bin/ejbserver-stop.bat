@@ -15,6 +15,11 @@ set CLASSPATH=%CLASSPATH%;%CP%
 
 set OPTIONS=-Dopenejb.home=%OPENEJB_HOME%
 
+echo --------------SUPPORT INFO-------------
+echo %OS%
+echo Using JAVA_HOME:     %JAVA_HOME%
+echo Using OPENEJB_HOME:  %OPENEJB_HOME%
+echo .
 %JAVA% %OPTIONS% -classpath %CLASSPATH% org.openejb.server.Stop  %1 %2 %3 %4 %5 %6
 
 

@@ -44,6 +44,12 @@ for i in $OPENEJB_HOME/dist/*.jar ; do
 done
 unset i
 
+echo "--------------SUPPORT INFO-------------"
+echo "`uname -srv`"
+echo "Using JAVA_HOME:     $JAVA_HOME"
+echo "Using OPENEJB_HOME:  $OPENEJB_HOME"
+echo "."
+
 CP=$JAVA_HOME/lib/tools.jar${PS}${CP}
 CLASSPATH=$CP
 

@@ -16,5 +16,11 @@ set SERVER=-Dopenejb.test.server=org.openejb.test.IvmTestServer
 set DATABASE=-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase
 set OPTIONS=%SERVER% %DATABASE%
 
+echo --------------SUPPORT INFO-------------
+echo %OS%
+echo Using JAVA_HOME:     %JAVA_HOME%
+echo Using OPENEJB_HOME:  %OPENEJB_HOME%
+echo .
+
 %JAVA% %OPTIONS% -classpath %CP% org.openejb.test.Main -s src\tests-ejb\IvmServer_config.properties org.openejb.test.ClientTestSuite
 
