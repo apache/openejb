@@ -59,20 +59,33 @@ import org.openejb.proxy.EJBProxyFactory;
  * @version $Revision$ $Date$
  */
 final class TranqlEJBProxyFactory implements org.tranql.ejb.EJBProxyFactory, Serializable {
+    private final Class localClass;
+    private final Class remoteClass;
+
     private transient EJBProxyFactory ejbProxyFactory;
 
-    public TranqlEJBProxyFactory() {
+    public TranqlEJBProxyFactory(Class localClass, Class remoteClass) {
+        this.localClass = localClass;
+        this.remoteClass = remoteClass;
     }
 
     public void setEjbProxyFactory(EJBProxyFactory ejbProxyFactory) {
         this.ejbProxyFactory = ejbProxyFactory;
     }
 
-    public EJBLocalObject getLocalProxy(Object pk) {
+    public Class getLocalInterfaceClass() {
+        return localClass;
+    }
+
+    public Class getRemoteInterfaceClass() {
+        return remoteClass;
+    }
+
+    public EJBLocalObject getEJBLocalObject(Object pk) {
         return ejbProxyFactory.getEJBLocalObject(pk);
     }
 
-    public EJBObject getRemoteProxy(Object pk) {
+    public EJBObject getEJBObject(Object pk) {
         return ejbProxyFactory.getEJBObject(pk);
     }
 }

@@ -18,6 +18,8 @@ package org.openejb.entity.cmp;
 
 import java.io.Serializable;
 
+import org.apache.geronimo.core.service.InvocationResult;
+
 import org.tranql.query.QueryResult;
 import org.tranql.ql.QueryException;
 
@@ -27,5 +29,5 @@ import org.tranql.ql.QueryException;
  * @version $Revision$ $Date$
  */
 public interface QueryResultsFactory extends Serializable {
-    public Object createQueryResults(QueryResult result) throws QueryException;
+    public InvocationResult createQueryResults(QueryResult result) throws QueryException;
 }

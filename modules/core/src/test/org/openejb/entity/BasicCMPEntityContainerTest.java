@@ -397,10 +397,11 @@ public class BasicCMPEntityContainerTest extends TestCase {
         builder.setComponentContext(new ReadOnlyContext());
         builder.setConnectionFactoryName("DefaultDatasource");
 
-        EJB ejb = new EJB("MockEJB", "MOCK");
+        EJB ejb = new EJB("MockEJB", "MOCK", null);
         ejb.addCMPField(new CMPField("value", String.class, false));
-        ejb.addCMPField(new CMPField("id", Integer.class, true));
-        builder.setEJB(ejb);
+        CMPField pkField = new CMPField("id", Integer.class, true);
+        ejb.addCMPField(pkField);
+        ejb.setPrimaryKeyField(pkField);
 
         builder.setQueries(new HashMap());
 

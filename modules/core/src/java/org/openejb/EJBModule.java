@@ -52,37 +52,79 @@ import java.util.Iterator;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.kernel.management.ManagedObject;
 
+import org.openejb.entity.cmp.ConnectionProxyFactory;
+
+import org.tranql.ejb.EJBSchema;
+import org.tranql.schema.Schema;
+import org.tranql.query.ConnectionFactoryDelegate;
+
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
-public class EJBModule {
+public class EJBModule implements GBean {
     private final Collection ejbs;
+    private final EJBSchema ejbSchema;
+    private final Schema sqlSchema;
+    private final ConnectionFactoryDelegate delegate;
+    private final ConnectionProxyFactory connectionFactory;
 
-    public EJBModule(Collection ejbs) {
+    public EJBModule(Collection ejbs, EJBSchema ejbSchema, Schema sqlSchema, ConnectionFactoryDelegate delegate, ConnectionProxyFactory connectionFactory) {
         this.ejbs = ejbs;
+        this.ejbSchema = ejbSchema;
+        this.sqlSchema = sqlSchema;
+        this.delegate = delegate;
+        this.connectionFactory = connectionFactory;
     }
 
     public String[] getEjbs() {
         String[] ejbsArray = new String[ejbs.size()];
         int i = 0;
         for (Iterator iterator = ejbs.iterator(); iterator.hasNext();) {
-            ejbsArray[i++] =((ManagedObject) iterator.next()).getObjectName();
+            ejbsArray[i++] = ((ManagedObject) iterator.next()).getObjectName();
         }
         return ejbsArray;
+    }
+
+    public void setGBeanContext(GBeanContext gBeanContext) {
+    }
+
+    public void doStart() throws WaitingException, Exception {
+        if (delegate != null) {
+            delegate.setConnectionFactory(connectionFactory.getProxy());
+        }
+    }
+
+    public void doStop() throws WaitingException, Exception {
+        if (delegate != null) {
+            delegate.setConnectionFactory(null);
+        }
+    }
+
+    public void doFail() {
+        if (delegate != null) {
+            delegate.setConnectionFactory(null);
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(EJBModule.class);
+        infoFactory.addAttribute("EJBSchema", true);
+        infoFactory.addAttribute("SQLSchema", true);
         infoFactory.addReference("ejbs", ManagedObject.class);
+        infoFactory.addReference("ConnectionFactory", ConnectionProxyFactory.class);
+        infoFactory.addAttribute("Delegate", true);
         infoFactory.setConstructor(
-                new String[]{"ejbs"},
-                new Class[]{Collection.class}
+                new String[]{"ejbs", "EJBSchema", "SQLSchema", "Delegate", "ConnectionFactory"},
+                new Class[]{Collection.class, EJBSchema.class, Schema.class, ConnectionFactoryDelegate.class, ConnectionProxyFactory.class}
         );
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

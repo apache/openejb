@@ -48,26 +48,29 @@
 package org.openejb.entity.cmp;
 
 import java.util.Collection;
-import java.util.LinkedList;
 
-import org.tranql.query.QueryResult;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
+
+import org.tranql.field.Row;
 import org.tranql.ql.QueryException;
+import org.tranql.query.QueryResult;
 
 /**
+ * 
+ * 
  * @version $Revision$ $Date$
  */
-public class SetResults extends CollectionResults {
-    public static class Factory implements QueryResultsFactory {
-        public Object createQueryResults(QueryResult result) throws QueryException {
-            LinkedList list = new LinkedList();
-            while(result.next()) {
-                list.add(result.getValues().get(0));
+public abstract class CollectionResultFactory implements QueryResultsFactory {
+    protected InvocationResult fetchAll(Collection c, QueryResult result) throws QueryException {
+        try {
+            Row row = new Row(new Object[1]);
+            while (result.fetch(row)) {
+                c.add(row.get(0));
             }
-            return new SetResults(list);
+            return new SimpleInvocationResult(true, c);
+        } finally {
+            result.close();
         }
-    }
-
-    public SetResults(Collection delegate) {
-        super(delegate);
     }
 }
