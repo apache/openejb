@@ -430,7 +430,7 @@
                 <ejb-ref-name>stateful/rmi-iiop/home</ejb-ref-name>
                 <ejb-ref-type>Session</ejb-ref-type>
                 <home>org.openejb.test.stateful.EncStatefulHome</home>
-                <remote>org.openejb.test.stateful.EncStatefulBean</remote>
+                <remote>org.openejb.test.stateful.EncStatefulObject</remote>
                 <ejb-link>EncStatefulBean</ejb-link>
             </ejb-ref>
             <security-role-ref>
@@ -723,7 +723,7 @@
                 <ejb-ref-name>stateless/rmi-iiop/home</ejb-ref-name>
                 <ejb-ref-type>Session</ejb-ref-type>
                 <home>org.openejb.test.stateless.EncStatelessHome</home>
-                <remote>org.openejb.test.stateless.EncStatelessBean</remote>
+                <remote>org.openejb.test.stateless.EncStatelessObject</remote>
                 <ejb-link>EncStatelessBean</ejb-link>
             </ejb-ref>
             <security-role-ref>
