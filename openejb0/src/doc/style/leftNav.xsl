@@ -36,6 +36,13 @@
           </xsl:for-each>
       </table>
     </xsl:for-each>
+        <img src="images/dotTrans.gif" width="1" height="15" border="0"/><br/>
+        <img src="images/line_sm.gif" width="105" height="3" border="0"/><br/>
+
+          <A href="http://sourceforge.net"> 
+            <IMG  src="http://sourceforge.net/sflogo.php?group_id=44351"
+                  width="88" height="31" border="0" alt="SourceForge Logo"/>
+          </A>
   </xsl:template>
   
 </xsl:stylesheet>
