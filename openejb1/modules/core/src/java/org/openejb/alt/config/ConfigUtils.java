@@ -82,6 +82,10 @@ public class ConfigUtils  {
     private static Messages messages = new Messages( "org.openejb.util.resources" );
     private static Logger _logger = Logger.getInstance( "OpenEJB", "org.openejb.util.resources" );
 
+    public static Openejb readConfig() throws OpenEJBException{
+        return readConfig(searchForConfiguration());
+    }
+        
     /*
         TODO: Use the java.net.URL instead of java.io.File so configs
         and jars can be located remotely in the network
@@ -184,7 +188,8 @@ public class ConfigUtils  {
         /*[1.2]  Find the openejb-jar.xml from the jar ***************/
         JarEntry entry = jar.getJarEntry("META-INF/openejb-jar.xml");
         if (entry == null) entry = jar.getJarEntry("openejb-jar.xml");
-        if (entry == null) handleException("conf.2900", jarFile, "no message");
+//        if (entry == null) handleException("conf.2900", jarFile, "no message");
+        if (entry == null) return null;
 
         /*[1.3]  Get the openejb-jar.xml from the jar ***************/
         Reader reader = null;
@@ -292,7 +297,7 @@ public class ConfigUtils  {
      * @return 
      */
     public static String searchForConfiguration() throws OpenEJBException{
-        return searchForConfiguration(null);
+        return searchForConfiguration(System.getProperty("openejb.configuration"));
     }
 
     public static String searchForConfiguration(String path) throws OpenEJBException{

@@ -134,19 +134,20 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     protected static Logger logger = Logger.getInstance("OpenEJB", "org.openejb.util.resources");
     protected static Messages messages = new Messages("org.openejb.util.resources");
 
-    Openejb openejb;
-    DeployedJar[] jars;
-    ServicesJar openejbDefaults = null;
+    private AutoDeployer deployer;
+    private Openejb openejb;
+    private DeployedJar[] jars;
+    private ServicesJar openejbDefaults = null;
 
-    String configLocation = "";
+    private String configLocation = "";
 
-    Vector deploymentIds = new Vector();
-    Vector securityRoles = new Vector();
-    Vector containerIds = new Vector();
+    private Vector deploymentIds = new Vector();
+    private Vector securityRoles = new Vector();
+    private Vector containerIds = new Vector();
 
-    Vector mthdPermInfos = new Vector();
-    Vector mthdTranInfos = new Vector();
-    Vector sRoleInfos = new Vector();
+    private Vector mthdPermInfos = new Vector();
+    private Vector mthdTranInfos = new Vector();
+    private Vector sRoleInfos = new Vector();
 
     //------------------------------------------------//
     //
@@ -154,14 +155,14 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     //
     //------------------------------------------------//
     public static OpenEjbConfiguration sys;
-
-    ContainerInfo[] cntrs;
-    EntityContainerInfo[] entyCntrs;
-    StatefulSessionContainerInfo[] stflCntrs;
-    StatelessSessionContainerInfo[] stlsCntrs;
+    
+    private ContainerInfo[] cntrs;
+    private EntityContainerInfo[] entyCntrs;
+    private StatefulSessionContainerInfo[] stflCntrs;
+    private StatelessSessionContainerInfo[] stlsCntrs;
 
     /** Hash of container info objects for quick reference */
-    HashMap containerTable = new HashMap();
+    private HashMap containerTable = new HashMap();
 
     public void init(Properties props) throws OpenEJBException {
         if ( props == null ) props = new Properties();
@@ -208,6 +209,8 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         // Validate Configuration
         openejb = ConfigUtils.readConfig(configLocation);
 
+        deployer = new AutoDeployer(openejb);
+        
         // Resolve File Locations
         // Resolve Classes
         resolveDependencies(openejb);
@@ -1039,6 +1042,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             // Get the container it was assigned to
             ContainerInfo cInfo = (ContainerInfo) containerTable.get(d.getContainerId());
             if (cInfo == null) {
+                //TODO Create container if one is not provided
                 String msg =
                 messages.format("config.noContainerFound", d.getContainerId(), d.getEjbName());
 
@@ -1182,14 +1186,12 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             try {
                 EjbJar ejbJar = EjbJarUtils.readEjbJar(jarLocation);
 
-                /* If there is no openejb-jar.xml an exception
-                 * will be thrown.
-                 * TODO: This shouldn't cause such a problem.  If
-                 * a jar in the path has not yet been deployed we could
-                 * attempt to auto deploy it. 
+                /* If there is no openejb-jar.xml attempt to auto deploy it. 
                  */
                 OpenejbJar openejbJar = ConfigUtils.readOpenejbJar(jarLocation);
-
+                if (openejbJar == null){
+                    openejbJar = deployer.deploy(ejbJar, jarLocation);
+                }
                 validateJar(ejbJar, jarLocation);
 
                 /* Add it to the Vector ***************/

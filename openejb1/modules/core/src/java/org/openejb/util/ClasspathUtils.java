@@ -302,13 +302,19 @@ public class ClasspathUtils{
     class ContextLoader extends BasicURLLoader{
         
         public void addJarsToPath(File dir) throws Exception {
-            URLClassLoader loader = (URLClassLoader)ClasspathUtils.getContextClassLoader();
-            this.addJarsToPath( dir , loader );
+            ClassLoader contextClassLoader = ClasspathUtils.getContextClassLoader();
+            if (contextClassLoader instanceof URLClassLoader){
+                URLClassLoader loader = (URLClassLoader)contextClassLoader;
+                this.addJarsToPath( dir , loader );
+            }
         }
         
         public void addJarToPath(URL jar) throws Exception {
-            URLClassLoader loader = (URLClassLoader)ClasspathUtils.getContextClassLoader();
-            this.addJarToPath( jar, loader );
+            ClassLoader contextClassLoader = ClasspathUtils.getContextClassLoader();
+            if (contextClassLoader instanceof URLClassLoader){
+                URLClassLoader loader = (URLClassLoader)contextClassLoader;
+                this.addJarToPath( jar, loader );
+            }
         }
     }
     
