@@ -54,6 +54,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashMap;
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
 
@@ -105,7 +106,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
         try {
             Thread.currentThread().setContextClassLoader(cl);
-            configBuilder.createSessionBean("containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, cl);
+            configBuilder.createSessionBean("containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, new HashMap(), cl);
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }

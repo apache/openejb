@@ -56,6 +56,7 @@ import javax.ejb.EJBObject;
 import org.apache.geronimo.core.service.Interceptor;
 
 import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.dispatch.InterfaceMethodSignature;
 
 /**
  * Interface exposed by server side EJB Containers to allow the interceptor
@@ -64,7 +65,7 @@ import org.openejb.proxy.EJBProxyFactory;
  * @version $Revision$ $Date$
  */
 public interface EJBContainer extends Interceptor {
-    
+
     /**
      * Unique id used for locating the container
      * No assumptions are made about the type of
@@ -72,7 +73,7 @@ public interface EJBContainer extends Interceptor {
      * @return the id of the container
      */
     Object getContainerID();
-    
+
     /**
      * Return the name of the EJB
      * @return the name of the EJB
@@ -130,5 +131,7 @@ public interface EJBContainer extends Interceptor {
     ClassLoader getClassLoader();
 
     EJBContainer getUnmanagedReference();
-    
+
+    InterfaceMethodSignature[] getSignatures();
+
 }

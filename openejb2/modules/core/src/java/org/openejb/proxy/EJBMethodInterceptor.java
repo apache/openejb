@@ -16,7 +16,7 @@ import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
 
-public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
+public class EJBMethodInterceptor implements MethodInterceptor, EJBInterceptor, Serializable {
     private final ProxyInfo proxyInfo;
     private final Object primaryKey;
 
@@ -26,6 +26,11 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
     private final EJBInterceptor next;
 
     /**
+     * Proxy factory for this proxy
+     */
+    private final EJBProxyFactory proxyFactory;
+
+    /**
      * The type of the ejb interface.  This is used during construction of the EJBInvocation object.
      */
     private final EJBInterfaceType interfaceType;
@@ -33,16 +38,18 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
     /**
      * Map from interface method ids to vop ids.
      */
-    private final int[] operationMap;
+    private transient int[] operationMap;
 
+    /**
+     * The container we are invokeing
+     */
+    private transient EJBContainer container;
 
-    private final EJBProxyFactory proxyFactory;
-
-    public EJBMethodInterceptor(EJBContainer container, EJBProxyFactory proxyFactory, EJBInterfaceType type, int[] operationMap) {
-        this(container, proxyFactory, type, operationMap, null);
+    public EJBMethodInterceptor(EJBProxyFactory proxyFactory, EJBInterfaceType type, EJBContainer container, int[] operationMap) {
+        this(proxyFactory, type, container, operationMap, null);
     }
 
-    public EJBMethodInterceptor(EJBContainer container, EJBProxyFactory proxyFactory, EJBInterfaceType type, int[] operationMap, Object primaryKey) {
+    public EJBMethodInterceptor(EJBProxyFactory proxyFactory, EJBInterfaceType type, EJBContainer container, int[] operationMap, Object primaryKey) {
         // @todo REMOVE: this is a dirty dirty dirty hack to make the old openejb code work
         // this lets really stupid clients get access to the primary key of the proxy, which is readily
         // available from several other sources
@@ -50,25 +57,27 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
 
         this.primaryKey = primaryKey;
         this.interfaceType = type;
+        this.container = container;
         this.operationMap = operationMap;
         this.proxyFactory = proxyFactory;
 
-        EJBInterceptor interceptor;
-        if (container == null){
-            interceptor = new ContainerReferenceHandler(proxyInfo.getContainerID());
-        } else {
-            interceptor = new ContainerHandler(container);    
-        }
-        
         if (!interfaceType.isLocal() && !skipCopy()) {
-            interceptor = new SerializationHanlder(interceptor);
+            next = new SerializationHanlder(this);
+        } else {
+            next = this;
         }
-        
-        next = interceptor;
     }
 
     public EJBProxyFactory getProxyFactory() {
         return proxyFactory;
+    }
+
+    public ProxyInfo getProxyInfo() {
+        return proxyInfo;
+    }
+
+    public Object getPrimaryKey() {
+        return primaryKey;
     }
 
     /** Returns true of the EJB 1.1 comliant copying of
@@ -85,11 +94,13 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         return false;
     }
 
-    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
-        in.defaultReadObject();
-    }
-
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+        // fault in the operation map if we don't have it yet
+        if (operationMap == null) {
+            container = proxyFactory.getContainer();
+            operationMap = proxyFactory.getOperationMap(interfaceType);
+        }
+
         int methodIndex = operationMap[methodProxy.getSuperIndex()];
         if (methodIndex < 0) throw new AssertionError("Unknown method: method=" + method);
 
@@ -134,11 +145,11 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         }
     }
 
-    public ProxyInfo getProxyInfo() {
-        return proxyInfo;
+    public InvocationResult invoke(EJBInvocation ejbInvocation) throws Throwable {
+        return container.invoke(ejbInvocation);
     }
 
-    public Object getPrimaryKey() {
-        return primaryKey;
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+        in.defaultReadObject();
     }
 }
