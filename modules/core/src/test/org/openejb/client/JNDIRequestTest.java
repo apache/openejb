@@ -44,10 +44,7 @@
  */
 package org.openejb.client;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 
 import junit.framework.TestCase;
 
@@ -56,41 +53,38 @@ public class JNDIRequestTest extends TestCase {
 
     public void testExternalize() throws Exception {
         JNDIRequest expected = new JNDIRequest(RequestMethods.JNDI_LOOKUP,"this/is/a/jndi/name");
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream(baos);
-
-        expected.writeExternal(out);
-        out.close();
-
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        ObjectInputStream in = new ObjectInputStream(bais);
-
         JNDIRequest actual = new JNDIRequest();
-        actual.readExternal(in);
+
+        externalize(expected, actual);
 
         assertEquals("Request method not the same",expected.getRequestMethod(),actual.getRequestMethod());
         assertEquals("ClientModuleID not the same",expected.getClientModuleID(),actual.getClientModuleID());
         assertEquals("JNDI Name not the same",expected.getRequestString(),actual.getRequestString());
     }
-    
+
+
     public void testExternalize2() throws Exception {
         JNDIRequest expected = new JNDIRequest(RequestMethods.JNDI_LOOKUP,"foobar","this/is/a/jndi/name");
+        JNDIRequest actual = new JNDIRequest();
 
+        externalize(expected, actual);
+
+        assertEquals("Request method not the same",expected.getRequestMethod(),actual.getRequestMethod());
+        assertEquals("ClientModuleID not the same",expected.getClientModuleID(),actual.getClientModuleID());
+        assertEquals("JNDI Name not the same",expected.getRequestString(),actual.getRequestString());
+    }
+
+
+    private void externalize(Externalizable original, Externalizable copy) throws IOException, ClassNotFoundException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(baos);
 
-        expected.writeExternal(out);
+        original.writeExternal(out);
         out.close();
 
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
         ObjectInputStream in = new ObjectInputStream(bais);
 
-        JNDIRequest actual = new JNDIRequest();
-        actual.readExternal(in);
-
-        assertEquals("Request method not the same",expected.getRequestMethod(),actual.getRequestMethod());
-        assertEquals("ClientModuleID not the same",expected.getClientModuleID(),actual.getClientModuleID());
-        assertEquals("JNDI Name not the same",expected.getRequestString(),actual.getRequestString());
+        copy.readExternal(in);
     }
 }
