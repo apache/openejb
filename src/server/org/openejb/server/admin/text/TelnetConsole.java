@@ -48,6 +48,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import org.openejb.server.EjbDaemon;
+import org.openejb.util.SafeProperties;
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
@@ -64,10 +65,16 @@ public class TelnetConsole implements Console, TelnetCodes {
     private ServerSocket serverSocket = null;
     
     private TelnetOption[] options = new TelnetOption[256];
+    private SafeProperties safeProps;
+
+    private int port = 4200;
 
     public TelnetConsole() {
         try {
-            serverSocket = new ServerSocket(4200);                                    
+            safeProps = new SafeProperties(System.getProperties(),"Telnet Server");
+            port = safeProps.getPropertyAsInt("openejb.server.port");
+            
+            serverSocket = new ServerSocket(--port);                                    
         } catch ( Throwable t ) {
             t.printStackTrace();
         }

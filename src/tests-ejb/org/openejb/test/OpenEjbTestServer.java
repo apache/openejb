@@ -46,6 +46,8 @@ package org.openejb.test;
 
 import java.util.Properties;
 import javax.naming.Context;
+import java.io.OutputStream;
+import java.net.Socket;
 
 /**
  * 
@@ -70,7 +72,16 @@ public class OpenEjbTestServer implements org.openejb.test.TestServer {
     }
 
     public void stop(){
-       
+        try{
+            
+        Socket socket = new Socket("localhost", 4201);
+        OutputStream out = socket.getOutputStream();
+        
+        out.write( "Stop".getBytes() );
+                
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public Properties getContextEnvironment(){
