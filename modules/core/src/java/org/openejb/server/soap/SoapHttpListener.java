@@ -85,7 +85,7 @@ public class SoapHttpListener implements HttpListener, SoapHandler {
 
         if (req.getQueryParameter("wsdl") != null) {
             try {
-                container.getWsdl(res.getOutputStream());
+                container.getWsdl(new RequestAdapter(req), new ResponseAdapter(res));
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
