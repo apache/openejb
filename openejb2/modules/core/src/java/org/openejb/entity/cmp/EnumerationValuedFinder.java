@@ -49,7 +49,6 @@ package org.openejb.entity.cmp;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.ejb.FinderException;
@@ -57,10 +56,7 @@ import javax.ejb.FinderException;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.openejb.EJBInvocation;
-import org.tranql.cache.CacheTable;
 import org.tranql.field.Row;
-import org.tranql.identity.IdentityDefiner;
-import org.tranql.identity.IdentityTransform;
 import org.tranql.ql.QueryException;
 import org.tranql.query.CollectionResultHandler;
 import org.tranql.query.QueryCommandView;
@@ -72,10 +68,8 @@ import org.tranql.query.QueryCommandView;
  */
 public class EnumerationValuedFinder extends CMPFinder {
 
-    public EnumerationValuedFinder(CacheTable cacheTable, IdentityDefiner identityDefiner,
-            IdentityTransform localProxyTransform, IdentityTransform remoteProxyTransform,
-            QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
-        super(cacheTable, identityDefiner, localProxyTransform, remoteProxyTransform, localQueryView, remoteQueryView);
+    public EnumerationValuedFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
+        super(localQueryView, remoteQueryView);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
@@ -84,11 +78,6 @@ public class EnumerationValuedFinder extends CMPFinder {
             List results = new ArrayList();
             CollectionResultHandler handler = new CollectionResultHandler(commandView.getView()[0]);
             commandView.getQueryCommand().execute(handler, new Row(invocation.getArguments()), results);
-            
-            for (Iterator iter = results.iterator(); iter.hasNext();) {
-                checkInTxCache(invocation, iter.next());
-            }
-            
             return new SimpleInvocationResult(true, Collections.enumeration(results));
         } catch (QueryException e) {
             return new SimpleInvocationResult(false, new FinderException(e.getMessage()).initCause(e));

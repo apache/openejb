@@ -53,13 +53,9 @@ import javax.ejb.ObjectNotFoundException;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.openejb.EJBInvocation;
-import org.tranql.cache.CacheTable;
-import org.tranql.field.FieldAccessor;
 import org.tranql.field.FieldTransform;
 import org.tranql.field.FieldTransformException;
 import org.tranql.field.Row;
-import org.tranql.identity.IdentityDefiner;
-import org.tranql.identity.IdentityTransform;
 import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommandView;
 import org.tranql.query.ResultHandler;
@@ -72,17 +68,14 @@ import org.tranql.query.ResultHandler;
 public class SingleValuedFinder extends CMPFinder {
     private static final Object NODATA = new Object();
 
-    public SingleValuedFinder(CacheTable cacheTable, IdentityDefiner identityDefiner,
-            IdentityTransform localProxyTransform, IdentityTransform remoteProxyTransform,
-            QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
-        super(cacheTable, identityDefiner, localProxyTransform, remoteProxyTransform, localQueryView, remoteQueryView);
+    public SingleValuedFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
+        super(localQueryView, remoteQueryView);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         try {
             QueryCommandView commandView = getCommand(invocation);
-            FieldAccessor accessor = new FieldAccessor(0, null);
-            SingleValuedResultHandler handler = new SingleValuedResultHandler(invocation, commandView.getView()[0]);
+            SingleValuedResultHandler handler = new SingleValuedResultHandler(commandView.getView()[0]);
             Object o = commandView.getQueryCommand().execute(handler, new Row(invocation.getArguments()), NODATA);
             return o == NODATA ? new SimpleInvocationResult(false, new ObjectNotFoundException()) : (InvocationResult) o;
         } catch (QueryException e) {
@@ -91,10 +84,8 @@ public class SingleValuedFinder extends CMPFinder {
     }
 
     private class SingleValuedResultHandler implements ResultHandler {
-        private final EJBInvocation invocation;
         private final FieldTransform accessor;
-        public SingleValuedResultHandler(EJBInvocation invocation, FieldTransform accessor) {
-            this.invocation = invocation;
+        public SingleValuedResultHandler(FieldTransform accessor) {
             this.accessor = accessor;
         }
 
@@ -102,14 +93,12 @@ public class SingleValuedFinder extends CMPFinder {
             if (arg == NODATA) {
                 try {
                     Object opaque = accessor.get(row);
-                    checkInTxCache(invocation, opaque);
                     return new SimpleInvocationResult(true, opaque);
                 } catch (FieldTransformException e) {
                     throw new QueryException(e);
                 }
-            } else {
-                return new SimpleInvocationResult(false, new FinderException("More than one row returned from single valued finder"));
             }
+            return new SimpleInvocationResult(false, new FinderException("More than one row returned from single valued finder"));
         }
     }
 }

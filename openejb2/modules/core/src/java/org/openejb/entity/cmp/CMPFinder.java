@@ -51,33 +51,16 @@ import java.io.Serializable;
 
 import org.openejb.EJBInvocation;
 import org.openejb.dispatch.VirtualOperation;
-import org.tranql.cache.AlreadyAssociatedException;
-import org.tranql.cache.CacheRow;
-import org.tranql.cache.CacheTable;
-import org.tranql.cache.InTxCache;
-import org.tranql.identity.GlobalIdentity;
-import org.tranql.identity.IdentityDefiner;
-import org.tranql.identity.IdentityTransform;
-import org.tranql.identity.IdentityTransformException;
 import org.tranql.query.QueryCommandView;
 
 /**
  * @version $Revision$ $Date$
  */
 public abstract class CMPFinder implements VirtualOperation, Serializable {
-    private final CacheTable cacheTable;
-    private final IdentityDefiner identityDefiner;
-    private final IdentityTransform localProxyTransform;
-    private final IdentityTransform remoteProxyTransform;
     private final QueryCommandView localQueryView;
     private final QueryCommandView remoteQueryView;
 
-    public CMPFinder(CacheTable cacheTable, IdentityDefiner identityDefiner, IdentityTransform localProxyTransform,
-            IdentityTransform remoteProxyTransform, QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
-        this.cacheTable = cacheTable;
-        this.identityDefiner = identityDefiner;
-        this.localProxyTransform = localProxyTransform;
-        this.remoteProxyTransform = remoteProxyTransform;
+    public CMPFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
         this.localQueryView = localQueryView;
         this.remoteQueryView = remoteQueryView;
     }
@@ -86,30 +69,4 @@ public abstract class CMPFinder implements VirtualOperation, Serializable {
         return invocation.getType().isLocal() ? localQueryView : remoteQueryView;
     }
     
-    protected void checkInTxCache(EJBInvocation invocation, Object opaque) {
-        InTxCache cache = invocation.getTransactionContext().getInTxCache();
-
-        GlobalIdentity id;
-        try {
-            if (invocation.getType().isLocal()) {
-                id = localProxyTransform.getGlobalIdentity(opaque);
-            } else {
-                id = remoteProxyTransform.getGlobalIdentity(opaque);
-            }
-        } catch (IdentityTransformException e1) {
-            throw new AssertionError("Not a domain object.");
-        }
-        
-        if ( null != cache.get(id) ) {
-            return;
-        }
-        
-        CacheRow row = id.getTable().emptyRow(id);
-        identityDefiner.injectIdentity(row);
-        try {
-            cache.associate(row);
-        } catch (AlreadyAssociatedException e) {
-            throw new AssertionError("Concurrent access to InTxCache.");
-        }
-    }
 }
