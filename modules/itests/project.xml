@@ -48,7 +48,7 @@
     <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-j2ee</artifactId>
-      <version>1.4-rc1</version>
+      <version>1.4-rc3</version>
       <properties>
         <runtime>true</runtime>
       </properties>
