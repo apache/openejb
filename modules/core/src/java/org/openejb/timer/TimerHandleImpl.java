@@ -79,6 +79,10 @@ public class TimerHandleImpl implements TimerHandle, Serializable {
         Kernel kernel = Kernel.getKernel(kernelName);
         try {
             return (Timer) kernel.invoke(timerSourceName, "getTimerById", new Object[] {new Long(id)}, new String[] {Long.class.getName()});
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (EJBException e) {
+            throw e;
         } catch (Exception e) {
             throw new EJBException(e);
         }
