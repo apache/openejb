@@ -104,7 +104,6 @@ public class OneToOneTest extends AbstractCMRTest {
     public void XtestASetBDropExisting() throws Exception {
         ContainerTransactionContext ctx = newTransactionContext();
         ALocal a = ahome.findByPrimaryKey(new Integer(1));
-        a.getB();
         a.setB(null);
         ctx.commit();
 
@@ -118,7 +117,6 @@ public class OneToOneTest extends AbstractCMRTest {
     public void XtestBSetADropExisting() throws Exception {
         ContainerTransactionContext ctx = newTransactionContext();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
-        b.getA();
         b.setA(null);
         ctx.commit();
 
@@ -172,8 +170,6 @@ public class OneToOneTest extends AbstractCMRTest {
         a = ahome.create(new Integer(2));
         a.setField2("value2");
         b = bhome.findByPrimaryKey(new Integer(11));
-        // TODO findByPrimaryKey does not load the InTxCache; retrieve a field to force this loading. 
-        b.getA();
         return ctx;
     }
 
@@ -213,8 +209,6 @@ public class OneToOneTest extends AbstractCMRTest {
     private ContainerTransactionContext prepareExistingANewB() throws Exception {
         ContainerTransactionContext ctx = newTransactionContext();
         a = ahome.findByPrimaryKey(new Integer(1));
-        // TODO findByPrimaryKey does not load the InTxCache; retrieve a field to force this loading. 
-        a.getB();
         b = bhome.create(new Integer(22));
         b.setField2("value22");
         return ctx;

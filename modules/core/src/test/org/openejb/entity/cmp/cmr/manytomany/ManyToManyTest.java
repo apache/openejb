@@ -119,13 +119,10 @@ public class ManyToManyTest extends AbstractCMRTest {
     public void testASetBDropExisting() throws Exception {
         ContainerTransactionContext ctx = newTransactionContext();
         ALocal a = ahome.findByPrimaryKey(new Integer(1));
-        a.getB();
         a.setB(new HashSet());
         a = ahome.findByPrimaryKey(new Integer(2));
-        a.getB();
         a.setB(new HashSet());
         a = ahome.findByPrimaryKey(new Integer(3));
-        a.getB();
         a.setB(new HashSet());
         ctx.commit();
 
@@ -135,10 +132,8 @@ public class ManyToManyTest extends AbstractCMRTest {
     public void testBSetADropExisting() throws Exception {
         ContainerTransactionContext ctx = newTransactionContext();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
-        b.getA();
         b.setA(new HashSet());
         b = bhome.findByPrimaryKey(new Integer(22));
-        b.getA();
         b.setA(new HashSet());
         ctx.commit();
 
@@ -197,8 +192,6 @@ public class ManyToManyTest extends AbstractCMRTest {
         a = ahome.create(new Integer(4));
         a.setField2("value4");
         b = bhome.findByPrimaryKey(new Integer(11));
-        // TODO findByPrimaryKey does not load the InTxCache; retrieve a field to force this loading. 
-        b.getA();
         return ctx;
     }
 
@@ -239,8 +232,6 @@ public class ManyToManyTest extends AbstractCMRTest {
     private ContainerTransactionContext prepareExistingANewB() throws Exception {
         ContainerTransactionContext ctx = newTransactionContext();
         a = ahome.findByPrimaryKey(new Integer(1));
-        // TODO findByPrimaryKey does not load the InTxCache; retrieve a field to force this loading. 
-        a.getB();
         b = bhome.create(new Integer(33));
         b.setField2("value33");
         return ctx;

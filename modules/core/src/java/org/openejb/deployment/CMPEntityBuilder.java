@@ -53,13 +53,15 @@ import java.lang.reflect.Modifier;
 import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.DeploymentException;
@@ -72,48 +74,50 @@ import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.xbeans.j2ee.CmpFieldType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EjbNameType;
-import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
-import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
 import org.apache.geronimo.xbeans.j2ee.EjbRelationType;
 import org.apache.geronimo.xbeans.j2ee.EjbRelationshipRoleType;
+import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
+import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.entity.cmp.CMPContainerBuilder;
 import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.xbeans.ejbjar.OpenejbEjbRelationType;
+import org.openejb.xbeans.ejbjar.OpenejbEjbRelationshipRoleType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbQueryType;
-import org.openejb.xbeans.ejbjar.OpenejbEjbRelationType;
-import org.openejb.xbeans.ejbjar.OpenejbEjbRelationshipRoleType;
+import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.AutomaticKeyGeneration;
+import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.CmpFieldMapping;
+import org.tranql.cache.CacheSlot;
+import org.tranql.cache.CacheTable;
+import org.tranql.cache.GlobalSchema;
 import org.tranql.ejb.CMPField;
+import org.tranql.ejb.CMRField;
 import org.tranql.ejb.EJB;
+import org.tranql.ejb.EJBQueryBuilder;
 import org.tranql.ejb.EJBSchema;
-import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.ejb.FKField;
 import org.tranql.ejb.Relationship;
-import org.tranql.ejb.CMRField;
-import org.tranql.ejb.EJBQueryBuilder;
-import org.tranql.schema.Schema;
-import org.tranql.schema.Association;
-import org.tranql.schema.Association.JoinDefinition;
-import org.tranql.schema.Attribute;
-import org.tranql.schema.AssociationEnd;
-import org.tranql.schema.Entity;
-import org.tranql.sql.Column;
-import org.tranql.sql.Table;
-import org.tranql.sql.SQLSchema;
-import org.tranql.sql.FKColumn;
-import org.tranql.sql.JoinTable;
-import org.tranql.sql.EndTable;
-import org.tranql.sql.sql92.SQL92Schema;
-import org.tranql.cache.GlobalSchema;
-import org.tranql.cache.CacheSlot;
-import org.tranql.cache.CacheRow;
-import org.tranql.cache.CacheTable;
-import org.tranql.ql.QueryException;
+import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.identity.IdentityDefinerBuilder;
+import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
+import org.tranql.ql.QueryException;
 import org.tranql.query.CommandTransform;
 import org.tranql.query.SchemaMapper;
 import org.tranql.query.UpdateCommand;
+import org.tranql.schema.Association;
+import org.tranql.schema.AssociationEnd;
+import org.tranql.schema.Attribute;
+import org.tranql.schema.Entity;
+import org.tranql.schema.Schema;
+import org.tranql.schema.Association.JoinDefinition;
+import org.tranql.sql.Column;
+import org.tranql.sql.EndTable;
+import org.tranql.sql.FKColumn;
+import org.tranql.sql.JoinTable;
+import org.tranql.sql.SQLSchema;
+import org.tranql.sql.Table;
+import org.tranql.sql.sql92.SQL92Schema;
 
 
 class CMPEntityBuilder extends EntityBuilder {
@@ -139,6 +143,7 @@ class CMPEntityBuilder extends EntityBuilder {
             earContext.addGBean(entityObjectName, entityGBean);
         }
     }
+    
 
     public void buildCMPSchema(EARContext earContext, String ejbModuleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema, GlobalSchema globalSchema) throws DeploymentException {
         try {
@@ -160,113 +165,179 @@ class CMPEntityBuilder extends EntityBuilder {
             openEjbEntities.put(entity.getEjbName(), entity);
         }
 
+        Map keyGenerators = new HashMap();
         EntityBeanType[] entityBeans = ejbJar.getEnterpriseBeans().getEntityArray();
         for (int i = 0; i < entityBeans.length; i++) {
             EntityBeanType entityBean = entityBeans[i];
-            if ("Container".equals(getString(entityBean.getPersistenceType()))) {
-                String ejbName = getString(entityBean.getEjbName());
-                OpenejbEntityBeanType openEjbEntity = (OpenejbEntityBeanType) openEjbEntities.get(ejbName);
-                if (null == openEjbEntity) {
-                    throw new DeploymentException("EJB [" + ejbName + "] is misconfigured: no CMP mapping defined by OpenEJB DD.");
-                }
-
-                boolean cmp2 = isCMP2(entityBean);
-                String abstractSchemaName;
-                if (cmp2) {
-                    abstractSchemaName = getString(entityBean.getAbstractSchemaName());
-                } else {
-                    abstractSchemaName = ejbName;
-                }
-
-                ObjectName entityObjectName = super.createEJBObjectName(earContext, ejbModuleName, entityBean);
-
-                EJBProxyFactory proxyFactory = (EJBProxyFactory) getModuleBuilder().createEJBProxyFactory(entityObjectName.getCanonicalName(),
-                        false,
-                        OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getRemote()),
-                        OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getHome()),
-                        OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocal()),
-                        OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getLocalHome()),
-                        cl);
-                Class ejbClass;
-                try {
-                    ejbClass = cl.loadClass(getString(entityBean.getEjbClass()));
-                } catch (ClassNotFoundException e) {
-                    throw new DeploymentException("EJB [" + ejbName + "] is misconfigured: could not load class [" + entityBean.getEjbClass().getStringValue() + "]");
-                }
-
-                Class pkClass;
-                try {
-                    pkClass = cl.loadClass(getString(entityBean.getPrimKeyClass()));
-                } catch (ClassNotFoundException e) {
-                    throw new DeploymentException("EJB [" + ejbName + "] is misconfigured: could not load primary key class [" + entityBean.getPrimKeyClass().getStringValue() + "]");
-                }
-
-                EJB ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory);
-                Table table = new Table(ejbName, openEjbEntity.getTableName());
-
-                Set pkFieldNames;
-                if (entityBean.getPrimkeyField() == null) {
-                    // no field name specified, must be a compound pk so get the field names from the public fields
-                    Field[] fields = pkClass.getFields();
-                    pkFieldNames = new HashSet(fields.length);
-                    for (int j = 0; j < fields.length; j++) {
-                        Field field = fields[j];
-                        pkFieldNames.add(field.getName());
-                    }
-                } else {
-                    // specific field is primary key
-                    pkFieldNames = new HashSet(1);
-                    pkFieldNames.add(getString(entityBean.getPrimkeyField()));
-                }
-
-                Map cmpFieldToColumn = new HashMap();
-                OpenejbEntityBeanType.CmpFieldMapping mappings[] = openEjbEntity.getCmpFieldMappingArray();
-                for (int j = 0; j < mappings.length; j++) {
-                    OpenejbEntityBeanType.CmpFieldMapping mapping = mappings[j];
-                    cmpFieldToColumn.put(mapping.getCmpFieldName(), mapping.getTableColumn());
-                }
-
-                CmpFieldType[] cmpFieldTypes = entityBean.getCmpFieldArray();
-                for (int cmpFieldIndex = 0; cmpFieldIndex < cmpFieldTypes.length; cmpFieldIndex++) {
-                    CmpFieldType cmpFieldType = cmpFieldTypes[cmpFieldIndex];
-                    String fieldName = getString(cmpFieldType.getFieldName());
-                    String physicalName = (String) cmpFieldToColumn.get(fieldName);
-                    if (null == physicalName) {
-                        throw new DeploymentException("EJB [" + ejbName + "] is misconfigured: CMP field [" + fieldName + "] not mapped by OpenEJB DD.");
-                    }
-                    Class fieldType = getCMPFieldType(cmp2, fieldName, ejbClass);
-                    boolean isPKField = pkFieldNames.contains(fieldName);
-                    ejb.addCMPField(new CMPField(fieldName, fieldName, fieldType, isPKField));
-                    table.addColumn(new Column(fieldName, physicalName, fieldType, isPKField));
-                    if (isPKField) {
-                        pkFieldNames.remove(fieldName);
-                    }
-                }
-                if (!pkFieldNames.isEmpty()) {
-                    StringBuffer fields = new StringBuffer();
-                    fields.append("EJB [" + ejbName + "] is misconfigured: could not find CMP fields for following pk fields:");
-                    for (Iterator iterator = pkFieldNames.iterator(); iterator.hasNext();) {
-                        fields.append(" [");
-                        fields.append(iterator.next());
-                        fields.append(']');
-                    }
-                    throw new DeploymentException(fields.toString());
-                }
-
-                ejbSchema.addEJB(ejb);
-                sqlSchema.addTable(table);
-                entities.add(ejb);
+            if ( false == "Container".equals(getString(entityBean.getPersistenceType()))) {
+                continue;
             }
-        }
+            
+            String ejbName = getString(entityBean.getEjbName());
+            boolean cmp2 = isCMP2(entityBean);
 
+            String abstractSchemaName;
+            if (cmp2) {
+                abstractSchemaName = getString(entityBean.getAbstractSchemaName());
+            } else {
+                abstractSchemaName = ejbName;
+            }
+
+            OpenejbEntityBeanType openEjbEntity = (OpenejbEntityBeanType) openEjbEntities.get(ejbName);
+            if (null == openEjbEntity) {
+                throw new DeploymentException("EJB [" + ejbName + "] is misconfigured: no CMP mapping defined by OpenEJB DD.");
+            }
+                
+            ObjectName entityObjectName = super.createEJBObjectName(earContext, ejbModuleName, entityBean);
+    
+            EJBProxyFactory proxyFactory = (EJBProxyFactory) getModuleBuilder().createEJBProxyFactory(entityObjectName.getCanonicalName(),
+                    false,
+                    getString(entityBean.getRemote()),
+                    getString(entityBean.getHome()),
+                    getString(entityBean.getLocal()),
+                    getString(entityBean.getLocalHome()),
+                    cl);
+
+            Class ejbClass;
+            try {
+                ejbClass = cl.loadClass(getString(entityBean.getEjbClass()));
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not load cmp bean class: ejbName=" + ejbName + " ejbClass=" + getString(entityBean.getEjbClass()));
+            }
+
+            boolean isUnknownPK = false;
+            Class pkClass;
+            try {
+                String pkClassName = getString(entityBean.getPrimKeyClass());
+                if ( pkClassName.equals("java.lang.Object") ) {
+                    isUnknownPK = true;
+                    if ( false == openEjbEntity.isSetAutomaticKeyGeneration() ) {
+                        throw new DeploymentException("Automatic key generation is not defined: ejbName=" + ejbName);
+                    }
+                    AutomaticKeyGeneration keyGeneration = openEjbEntity.getAutomaticKeyGeneration();
+                    pkClassName = keyGeneration.getPrimaryKeyClass();
+                }
+                pkClass = cl.loadClass(pkClassName);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not load cmp primary key class: ejbName=" + ejbName + " pkClass=" + getString(entityBean.getPrimKeyClass()));
+            }
+
+            EJB ejb;
+            if ( openEjbEntity.isSetAutomaticKeyGeneration() ) {
+                AutomaticKeyGeneration keyGeneration = openEjbEntity.getAutomaticKeyGeneration();
+                String generatorName = keyGeneration.getGeneratorName();
+                PrimaryKeyGeneratorDelegate keyGeneratorDelegate = (PrimaryKeyGeneratorDelegate) keyGenerators.get(generatorName);
+                if ( null == keyGeneratorDelegate ) {
+                    keyGeneratorDelegate = new PrimaryKeyGeneratorDelegate();
+                    ObjectName wrapperGeneratorObjectName;
+                    GBeanMBean keyGenerator = new GBeanMBean(PrimaryKeyGeneratorWrapper.GBEAN_INFO, cl);
+                    try {
+                        ObjectName generatorObjectName = new ObjectName(generatorName);
+                        wrapperGeneratorObjectName = new ObjectName(generatorName + ",isWrapper=true");
+                        keyGenerator.setReferencePatterns("PrimaryKeyGenerator", Collections.singleton(generatorObjectName));
+                        keyGenerator.setAttribute("primaryKeyGeneratorDelegate", keyGeneratorDelegate);
+                    } catch (Exception e) {
+                        throw new DeploymentException("Unable to initialize PrimaryKeyGeneratorWrapper GBean", e);
+                    }
+                    earContext.addGBean(wrapperGeneratorObjectName, keyGenerator);
+                    
+                    keyGenerators.put(generatorName, keyGeneratorDelegate);
+                }
+                ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory, keyGeneratorDelegate);
+            } else {
+                ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory);
+            }
+
+            Table table = new Table(ejbName, openEjbEntity.getTableName());
+
+            Set pkFieldNames;
+            if ( isUnknownPK && openEjbEntity.isSetPrimkeyField() ) {
+                pkFieldNames = new HashSet(1);
+                pkFieldNames.add(openEjbEntity.getPrimkeyField());
+            } else if ( false == entityBean.isSetPrimkeyField() ) {
+                // no field name specified, must be a compound pk so get the field names from the public fields
+                Field[] fields = pkClass.getFields();
+                pkFieldNames = new HashSet(fields.length);
+                for (int j = 0; j < fields.length; j++) {
+                    Field field = fields[j];
+                    pkFieldNames.add(field.getName());
+                }
+            } else {
+                // specific field is primary key
+                pkFieldNames = new HashSet(1);
+                pkFieldNames.add(getString(entityBean.getPrimkeyField()));
+            }
+
+            Map cmpFieldToMapping = new HashMap();
+            CmpFieldMapping mappings[] = openEjbEntity.getCmpFieldMappingArray();
+            for (int j = 0; j < mappings.length; j++) {
+                CmpFieldMapping mapping = mappings[j];
+                cmpFieldToMapping.put(mapping.getCmpFieldName(), mapping);
+            }
+                
+            CmpFieldType[] cmpFieldTypes = entityBean.getCmpFieldArray();
+            for (int cmpFieldIndex = 0; cmpFieldIndex < cmpFieldTypes.length; cmpFieldIndex++) {
+                CmpFieldType cmpFieldType = cmpFieldTypes[cmpFieldIndex];
+                String fieldName = getString(cmpFieldType.getFieldName());
+                CmpFieldMapping mapping = (CmpFieldMapping) cmpFieldToMapping.remove(fieldName);
+                if ( null == mapping ) {
+                    throw new DeploymentException("EJB [" + ejbName + "] is misconfigured: CMP field [" + fieldName + "] not mapped by OpenEJB DD.");
+                }
+                Class fieldType = getCMPFieldType(cmp2, fieldName, ejbClass);
+                boolean isPKField = pkFieldNames.contains(fieldName);
+                ejb.addCMPField(new CMPField(fieldName, fieldName, fieldType, isPKField));
+                table.addColumn(new Column(fieldName, mapping.getTableColumn(), fieldType, isPKField));
+                if (isPKField) {
+                    pkFieldNames.remove(fieldName);
+                }
+            }
+            
+            for (Iterator iter = cmpFieldToMapping.entrySet().iterator(); iter.hasNext();) {
+                Map.Entry entry = (Map.Entry) iter.next();
+                CmpFieldMapping mapping = (CmpFieldMapping) entry.getValue();
+                String fieldName = mapping.getCmpFieldName();
+                if ( false == mapping.isSetCmpFieldClass() ) {
+                    throw new DeploymentException("Class must be defined for an automatic primary key field: ejbName=" + ejbName + " field=" + fieldName);
+                }
+                String fieldClass = mapping.getCmpFieldClass();
+                Class fieldType;
+                try {
+                    fieldType = cl.loadClass(fieldClass);
+                } catch (ClassNotFoundException e1) {
+                    throw new DeploymentException("Could not load automatic primary field: ejbName=" + ejbName + " field=" + fieldName);
+                }
+                boolean isPKField = pkFieldNames.contains(fieldName);
+                ejb.addVirtualCMPField(new CMPField(fieldName, fieldName, fieldType, isPKField));
+                table.addColumn(new Column(fieldName, mapping.getTableColumn(), fieldType, isPKField));
+                if (isPKField) {
+                    pkFieldNames.remove(fieldName);
+                }
+            }
+            
+            if (!pkFieldNames.isEmpty()) {
+                StringBuffer fields = new StringBuffer();
+                fields.append("EJB [" + ejbName + "] is misconfigured: could not find CMP fields for following pk fields:");
+                for (Iterator iterator = pkFieldNames.iterator(); iterator.hasNext();) {
+                    fields.append(" [");
+                    fields.append(iterator.next());
+                    fields.append("]");
+                }
+                throw new DeploymentException(fields.toString());
+            }
+                
+            ejbSchema.addEJB(ejb);
+            sqlSchema.addTable(table);
+            entities.add(ejb);
+        }
+        
         return entities;
     }
 
     private void processRelationships(EARContext earContext, String ejbModuleName, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema) throws DeploymentException {
-        if (!ejbJar.isSetRelationships()) {
+        if ( !ejbJar.isSetRelationships() ) {
             return;
         }
-
+        
         Map openEjbRelations = new HashMap();
         OpenejbEjbRelationType[] openEJBRelations = openejbEjbJar.getRelationships().getEjbRelationArray();
         for (int i = 0; i < openEJBRelations.length; i++) {
@@ -292,15 +363,15 @@ class CMPEntityBuilder extends EntityBuilder {
             for (int j = 0; j < openEjbRoles.length; j++) {
                 extractJoinInfo(roleInfo, openEjbRoles[j]);
             }
-
+            
             String mtmTableName = null;
-            if (!roleInfo[0].isOne && !roleInfo[1].isOne) {
-                if (!openEjbRelation.isSetManyToManyTableName()) {
+            if ( !roleInfo[0].isOne && !roleInfo[1].isOne ) {
+                if ( !openEjbRelation.isSetManyToManyTableName() ) {
                     throw new DeploymentException("Relation [" + name + "] is misconfigured: no many to many table defined by OpenEJB DD.");
                 }
                 mtmTableName = openEjbRelation.getManyToManyTableName();
             }
-
+            
             buildSchemaForJoin(roleInfo, mtmTableName, ejbSchema, sqlSchema, i);
         }
     }
@@ -416,9 +487,9 @@ class CMPEntityBuilder extends EntityBuilder {
                 }
                 EJB targetEJB = (EJB) end.getEntity();
                 Class type = targetEJB.getProxyFactory().getLocalInterfaceClass();
-                Object defaultValue = CacheRow.NO_DATA;
+                Object defaultValue = null;
                 if (end.isMulti()) {
-                    defaultValue = CacheRow.SET_VALUE;
+                    defaultValue = new HashSet();
                 }
                 slots[i + attributes.size()] = new CacheSlot(end.getName(), type, defaultValue);
             }
@@ -440,21 +511,6 @@ class CMPEntityBuilder extends EntityBuilder {
             UpdateCommand mtmCreate = mapper.transform(queryBuilder.buildMTMCreate(association));
             UpdateCommand mtmRemove = mapper.transform(queryBuilder.buildMTMRemove(association));
             globalSchema.addCacheTable(new CacheTable(mtmEntity.getName(), mtmSlots, mtmCreate, null, mtmRemove));
-        }
-    }
-
-    private static boolean isCMP2(EntityBeanType entityBean) throws DeploymentException {
-        if (!entityBean.isSetCmpVersion()) {
-            return true;
-        } else {
-            String version = getString(entityBean.getCmpVersion());
-            if ("1.x".equals(version)) {
-                return false;
-            } else if ("2.x".equals(version)) {
-                return true;
-            } else {
-                throw new DeploymentException("cmp-version must be either 1.x or 2.x, but was " + version);
-            }
         }
     }
 
@@ -494,6 +550,22 @@ class CMPEntityBuilder extends EntityBuilder {
             return field.getType();
         }
     }
+
+    private static boolean isCMP2(EntityBeanType entityBean) throws DeploymentException {
+        if (!entityBean.isSetCmpVersion()) {
+            return true;
+        } else {
+            String version = getString(entityBean.getCmpVersion());
+            if ("1.x".equals(version)) {
+                return false;
+            } else if ("2.x".equals(version)) {
+                return true;
+            } else {
+                throw new DeploymentException("cmp-version must be either 1.x or 2.x, but was " + version);
+            }
+        }
+    }
+
 
     public GBeanMBean createBean(EARContext earContext, EJBModule ejbModule, String containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, EJBSchema ejbSchema, Schema sqlSchema, GlobalSchema globalSchema, String connectionFactoryName, TransactionPolicyHelper transactionPolicyHelper, Security security, ClassLoader cl, TransactionManagerDelegate tmDelegate) throws DeploymentException {
         String ejbName = getString(entityBean.getEjbName());
@@ -571,7 +643,7 @@ class CMPEntityBuilder extends EntityBuilder {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName [" + ejbName + "]", e);
         }
     }
-
+    
     private static final Map DEFAULTS = new HashMap();
 
     static {
@@ -589,15 +661,15 @@ class CMPEntityBuilder extends EntityBuilder {
         // assumes get returns null and that is valid ...
         return DEFAULTS.get(type);
     }
-
+    
     private static class RoleInfo {
         private String name;
         private Table table;
         private EJB ejb;
         private String cmrFieldName;
         private boolean isOne;
-        private Association.JoinDefinition ejbJDef;
-        private Association.JoinDefinition tableJDef;
+        private JoinDefinition ejbJDef;
+        private JoinDefinition tableJDef;
     }
 
     private static String getString(org.apache.geronimo.xbeans.j2ee.String value) {

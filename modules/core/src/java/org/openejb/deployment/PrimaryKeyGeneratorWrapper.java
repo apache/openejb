@@ -45,54 +45,56 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.deployment;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.ejb.FinderException;
-
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
-import org.openejb.EJBInvocation;
-import org.tranql.cache.CacheTable;
-import org.tranql.field.Row;
-import org.tranql.identity.IdentityDefiner;
-import org.tranql.identity.IdentityTransform;
-import org.tranql.ql.QueryException;
-import org.tranql.query.CollectionResultHandler;
-import org.tranql.query.QueryCommandView;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.WaitingException;
+import org.tranql.pkgenerator.PrimaryKeyGenerator;
+import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
 
 /**
- * 
- * 
+ *
  * @version $Revision$ $Date$
  */
-public class EnumerationValuedFinder extends CMPFinder {
-
-    public EnumerationValuedFinder(CacheTable cacheTable, IdentityDefiner identityDefiner,
-            IdentityTransform localProxyTransform, IdentityTransform remoteProxyTransform,
-            QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
-        super(cacheTable, identityDefiner, localProxyTransform, remoteProxyTransform, localQueryView, remoteQueryView);
+public class PrimaryKeyGeneratorWrapper implements GBeanLifecycle  {
+    private final PrimaryKeyGenerator keyGenerator;
+    private final PrimaryKeyGeneratorDelegate keyGeneratorDelegate;
+    
+    public PrimaryKeyGeneratorWrapper(PrimaryKeyGenerator keyGenerator, PrimaryKeyGeneratorDelegate keyGeneratorDelegate) {
+        this.keyGenerator = keyGenerator;
+        this.keyGeneratorDelegate = keyGeneratorDelegate;
+    }
+    
+    public void doStart() throws WaitingException, Exception {
+        keyGeneratorDelegate.setPrimaryKeyGenerator(keyGenerator);
     }
 
-    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        try {
-            QueryCommandView commandView = getCommand(invocation);
-            List results = new ArrayList();
-            CollectionResultHandler handler = new CollectionResultHandler(commandView.getView()[0]);
-            commandView.getQueryCommand().execute(handler, new Row(invocation.getArguments()), results);
-            
-            for (Iterator iter = results.iterator(); iter.hasNext();) {
-                checkInTxCache(invocation, iter.next());
-            }
-            
-            return new SimpleInvocationResult(true, Collections.enumeration(results));
-        } catch (QueryException e) {
-            return new SimpleInvocationResult(false, new FinderException(e.getMessage()).initCause(e));
-        }
+    public void doStop() throws WaitingException, Exception {
+        keyGeneratorDelegate.setPrimaryKeyGenerator(null);
     }
 
+    public void doFail() {
+        keyGeneratorDelegate.setPrimaryKeyGenerator(null);
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(PrimaryKeyGeneratorWrapper.class);
+        infoFactory.addReference("PrimaryKeyGenerator", PrimaryKeyGenerator.class);
+        infoFactory.addAttribute("primaryKeyGeneratorDelegate", PrimaryKeyGeneratorDelegate.class, true);
+
+        infoFactory.setConstructor(new String[]{
+            "PrimaryKeyGenerator",
+            "primaryKeyGeneratorDelegate"});
+
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+    
 }
