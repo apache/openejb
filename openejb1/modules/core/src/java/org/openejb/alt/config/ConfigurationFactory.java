@@ -163,9 +163,11 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
     /** Hash of container info objects for quick reference */
     private HashMap containerTable = new HashMap();
+    
+    private Properties props;
 
     public void init(Properties props) throws OpenEJBException {
-        if ( props == null ) props = new Properties();
+        this.props = props;
 
         configLocation = props.getProperty("openejb.conf.file");
 
@@ -173,8 +175,8 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             configLocation = props.getProperty("openejb.configuration");
         }
 
-        configLocation = ConfigUtils.searchForConfiguration(configLocation);
-        System.setProperty("openejb.configuration", configLocation);
+        configLocation = ConfigUtils.searchForConfiguration(configLocation, props);
+        this.props.setProperty("openejb.configuration", configLocation);
 
     }
 
@@ -1106,8 +1108,12 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                 if (d.getDir() == null && d.getJar() != null) {
                     File jar = null;
                     try {
-                        jar = FileUtils.getBase().getFile(d.getJar(), false);
-                    } catch (Exception e) {
+                        jar = FileUtils.getBase(this.props).getFile(d.getJar(), false);
+                    } catch (Exception ignored) {
+                        try {
+                            jar = FileUtils.getHome(this.props).getFile(d.getJar(), false);
+                        } catch (Exception ignoredAgain) {
+                        }
                     }
                     if (!jarList.contains(jar.getAbsolutePath())) {
                         jarList.add(jar.getAbsolutePath());
@@ -1120,15 +1126,25 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
                 File dir = null;
                 try {
-                    dir = FileUtils.getBase().getFile(d.getDir(), false);
-                } catch (Exception e) {
+                    dir = FileUtils.getBase(this.props).getFile(d.getDir(), false);
+                } catch (Exception ignored) {
+                }
+                if (dir == null || !dir.exists()) {
+                    try {
+                        dir = FileUtils.getHome(this.props).getFile(d.getDir(), false);
+                    } catch (Exception ignoredAgain) {
+                    }
                 }
 
                 // Opps! Not a directory
-                if ( !dir.isDirectory() ) continue;
+                if ( dir == null || !dir.isDirectory() ) continue;
 
                 String[] files = dir.list();
 
+                if ( files == null ) {
+                    continue;
+                }
+                
                 for (int x = 0; x < files.length; x++) {
 
                     String f = files[x];
@@ -1175,14 +1191,6 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         for (int i = 0; i < jarsToLoad.length; i++) {
 
             String jarLocation = jarsToLoad[i];
-            try {
-                // Try to resolve path relative to openejb.home
-                jarLocation = FileUtils.getBase().getFile(jarLocation,false).getAbsolutePath();
-            } catch (java.io.IOException e) {
-                // The methods below have more specific exception 
-                // handling for this
-            }
-
             try {
                 EjbJar ejbJar = EjbJarUtils.readEjbJar(jarLocation);
 

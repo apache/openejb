@@ -105,7 +105,6 @@ public class Assembler extends AssemblerTool implements org.openejb.spi.Assemble
     }
 
     protected SafeToolkit toolkit = SafeToolkit.getToolkit("Assembler");
-    protected Properties props;
     protected OpenEjbConfiguration config;
 
 

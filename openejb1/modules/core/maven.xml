@@ -28,6 +28,7 @@ time=${TSTAMP}</ant:echo>
              <include name="org/openejb/util/FileUtils.class" />
              <include name="org/openejb/client/LocalInitialContextFactory.class" />
              <include name="org/openejb/loader/**" />
+             <include name="org/openejb/OpenEJBException.class" />
      </fileset>
    </ant:jar>
   </postGoal>

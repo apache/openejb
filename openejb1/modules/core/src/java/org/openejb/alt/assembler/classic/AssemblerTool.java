@@ -106,6 +106,8 @@ public class AssemblerTool {
     protected static SafeToolkit toolkit = SafeToolkit.getToolkit("AssemblerTool");
     protected static HashMap codebases = new HashMap();
     
+    protected Properties props;
+
     static{
         ClassLoader cl = ClassLoader.getSystemClassLoader();
         codebases.put("CLASSPATH", cl );
@@ -219,7 +221,9 @@ public class AssemblerTool {
             }
         }
         try{
-            container.init(containerInfo.containerName, deployments, containerInfo.properties);                    
+            Properties clonedProps = (Properties)(this.props.clone());
+            clonedProps.putAll(containerInfo.properties);
+            container.init(containerInfo.containerName, deployments, clonedProps);                    
         } catch (OpenEJBException e){
             throw new OpenEJBException( messages.format( "as0003", containerInfo.containerName, e.getMessage() ) );
         }
@@ -414,15 +418,18 @@ public class AssemblerTool {
          which is not very specific. Only a very specific OpenEJBException should be 
          thrown.
          */
-        Class managerClass = toolkit.loadClass(cmInfo.className, cmInfo.codebase);
+        Class managerClass = SafeToolkit.loadClass(cmInfo.className, cmInfo.codebase);
         
         checkImplementation(CONNECTION_MANAGER, managerClass, "ConnectionManager",cmInfo.connectionManagerId);
         
         ConnectionManager connectionManager = (ConnectionManager)toolkit.newInstance(managerClass);
         
         // a container manager has either properties or configuration information or nothing at all
-        if(cmInfo.properties !=null)
-            applyProperties(connectionManager, cmInfo.properties);
+        if(cmInfo.properties !=null) {
+            Properties clonedProps = (Properties)(this.props.clone());
+            clonedProps.putAll(cmInfo.properties);
+            applyProperties(connectionManager, clonedProps);
+        }
             
         return connectionManager;
     }
@@ -438,7 +445,7 @@ public class AssemblerTool {
         
         ManagedConnectionFactory managedConnectionFactory = null;
         try{
-            Class factoryClass = toolkit.loadClass(mngedConFactInfo.className, mngedConFactInfo.codebase);
+            Class factoryClass = SafeToolkit.loadClass(mngedConFactInfo.className, mngedConFactInfo.codebase);
             checkImplementation(CONNECTOR, factoryClass, "Connector", mngedConFactInfo.id);
             
             managedConnectionFactory = (ManagedConnectionFactory)toolkit.newInstance(factoryClass);
@@ -449,8 +456,11 @@ public class AssemblerTool {
             
         try{
             // a ManagedConnectionFactory has either properties or configuration information or nothing at all
-            if(mngedConFactInfo.properties !=null)
-                applyProperties(managedConnectionFactory, mngedConFactInfo.properties);
+            if(mngedConFactInfo.properties !=null) {
+                Properties clonedProps = (Properties)(this.props.clone());
+                clonedProps.putAll(mngedConFactInfo.properties);
+                applyProperties(managedConnectionFactory, clonedProps);
+            }
         } catch (java.lang.reflect.InvocationTargetException ite){
             throw new OpenEJBException("Could not initialize Connector '"+mngedConFactInfo.id+"'.",ite.getTargetException());
         } catch (Exception e){

@@ -76,13 +76,13 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
         setJdbcUrl(props.getProperty(EnvProps.JDBC_URL));   
         setJdbcDriver(props.getProperty(EnvProps.JDBC_DRIVER));   
 
-        String userDir = System.getProperty("user.dir");
+        String userDir = props.getProperty("user.dir");
         try{
-            System.setProperty("user.dir",System.getProperty("openejb.base"));
+            props.setProperty("user.dir", props.getProperty("openejb.base"));
             // Test the connection out, problems are logged
             testDriver();
         } finally {
-            System.setProperty("user.dir",userDir);
+            props.setProperty("user.dir",userDir);
         }
     }
 
