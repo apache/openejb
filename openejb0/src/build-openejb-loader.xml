@@ -63,7 +63,7 @@
     
     <copy todir="${build.openejb.src}" >
       <fileset dir="${src.java.dir}/server" 
-               includes="org/openejb/client/LocalInitialContextFactory.java"
+               includes="org/openejb/client/LoaderInitialContextFactory.java"
                excludes="**/CVS/**,**/*.class" />
     </copy>
     

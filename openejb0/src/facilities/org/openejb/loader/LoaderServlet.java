@@ -54,19 +54,19 @@ import javax.servlet.http.*;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class LoaderServlet extends HttpServlet {
-    
+
     public void init(ServletConfig config) throws ServletException {
         try{
-        
+
         String home = config.getInitParameter("openejb.home");
         String conf = config.getInitParameter("openejb.configuration");
         String copy = config.getInitParameter("openejb.localcopy");
 
         Properties p = new Properties();
-        
-        p.put(Context.INITIAL_CONTEXT_FACTORY, "org.openejb.client.LocalInitialContextFactory");
+
+        p.put(Context.INITIAL_CONTEXT_FACTORY, "org.openejb.client.LoaderInitialContextFactory");
         p.put("openejb.loader", "embed");
-        
+
         if (home != null) {
             System.setProperty("openejb.home",home);
             p.put("openejb.home",home);
