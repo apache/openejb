@@ -133,6 +133,7 @@ import org.tranql.sql.sql92.SQL92Schema;
  * @version $Revision$ $Date$
  */
 public class OpenEJBModuleBuilder implements ModuleBuilder {
+
     public XmlObject getDeploymentPlan(URL module) throws XmlException {
         try {
             URL moduleBase;
@@ -554,8 +555,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         try {
             GBeanMBean gbean = builder.createConfiguration();
-            gbean.setReferencePatterns("TransactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
-            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));
+            gbean.setReferencePatterns("TransactionManager", Collections.singleton(earContext.getTransactionManagerObjectName()));
+            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(earContext.getConnectionTrackerObjectName()));
             return gbean;
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName" + ejbName, e);
@@ -596,8 +597,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         try {
             GBeanMBean gbean = builder.createConfiguration();
-            gbean.setReferencePatterns("TransactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
-            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));
+            gbean.setReferencePatterns("TransactionManager", Collections.singleton(earContext.getTransactionManagerObjectName()));
+            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(earContext.getConnectionTrackerObjectName()));
             return gbean;
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName=" + ejbName, e);
@@ -655,8 +656,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
 
         try {
             GBeanMBean gbean = builder.createConfiguration();
-            gbean.setReferencePatterns("TransactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
-            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));
+            gbean.setReferencePatterns("TransactionManager", Collections.singleton(earContext.getTransactionManagerObjectName()));
+            gbean.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(earContext.getConnectionTrackerObjectName()));
             return gbean;
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName=" + ejbName, e);

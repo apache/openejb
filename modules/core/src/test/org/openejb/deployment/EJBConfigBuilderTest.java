@@ -63,6 +63,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
+
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
@@ -78,14 +79,14 @@ import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
-import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.transaction.TransactionManagerProxy;
+import org.apache.geronimo.transaction.GeronimoTransactionManager;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
@@ -98,6 +99,12 @@ import org.tranql.sql.jdbc.JDBCUtil;
  * @version $Revision$ $Date$
  */
 public class EJBConfigBuilderTest extends TestCase {
+
+    private static final String j2eeDomainName = "openejb.server";
+    private static final String j2eeServerName = "TestOpenEJBServer";
+    private static final ObjectName transactionManagerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=TransactionManager");
+    private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName(j2eeDomainName + ":type=ConnectionTracker");
+
     public void testCreateSessionBean() throws Exception {
         OpenEJBModuleBuilder configBuilder = new OpenEJBModuleBuilder();
         File ejbJarFile = new File("target/test-ejb-jar.jar");
@@ -121,17 +128,24 @@ public class EJBConfigBuilderTest extends TestCase {
 
         TransactionPolicyHelper transactionPolicyHelper = new TransactionPolicyHelper(ejbJar.getAssemblyDescriptor().getContainerTransactionArray());
 
+        EARContext earContext = new EARContext(null,
+                null,
+                null,
+                null,
+                j2eeDomainName,
+                j2eeServerName,
+                null,
+                transactionManagerObjectName,
+                connectionTrackerObjectName);
         try {
             Thread.currentThread().setContextClassLoader(cl);
-            configBuilder.createSessionBean(null, new EJBModule("TestModule", URI.create("/")), "containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, cl);
+            configBuilder.createSessionBean(earContext, new EJBModule("TestModule", URI.create("/")), "containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, cl);
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }
     }
 
     public void testBuildModule() throws Exception {
-        String j2eeDomainName = "openejb.server";
-        String j2eeServerName = "TestOpenEJBServer";
         String j2eeApplicationName = "null";
         String j2eeModuleName = "org/openejb/deployment/test";
 
@@ -156,7 +170,9 @@ public class EJBConfigBuilderTest extends TestCase {
                     null,
                     j2eeDomainName,
                     j2eeServerName,
-                    j2eeApplicationName);
+                    j2eeApplicationName,
+                    transactionManagerObjectName,
+                    connectionTrackerObjectName);
 
             moduleBuilder.installModule(new JarFile(ejbJarFile), earContext, module);
             earContext.getClassLoader(null);
@@ -175,8 +191,6 @@ public class EJBConfigBuilderTest extends TestCase {
     }
 
     public void testEJBJarDeploy() throws Exception {
-        String j2eeDomainName = "openejb.server";
-        String j2eeServerName = "TestOpenEJBServer";
         String j2eeApplicationName = "null";
         String j2eeModuleName = "org/openejb/deployment/test";
 
@@ -195,7 +209,9 @@ public class EJBConfigBuilderTest extends TestCase {
                     new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
                     moduleBuilder,
                     null, // web
-                    null); // connector
+                    null, //connector
+                    transactionManagerObjectName,
+                    connectionTrackerObjectName);
 
             XmlObject plan = earConfigBuilder.getDeploymentPlan(earFile.toURL());
             earConfigBuilder.buildConfiguration(carFile, null, earFile, plan);
@@ -211,8 +227,6 @@ public class EJBConfigBuilderTest extends TestCase {
     }
 
     public void testEARDeploy() throws Exception {
-        String j2eeDomainName = "openejb.server";
-        String j2eeServerName = "TestOpenEJBServer";
         String j2eeApplicationName = "org/apache/geronimo/j2ee/deployment/test";
         String j2eeModuleName = "test-ejb-jar.jar";
 
@@ -231,7 +245,9 @@ public class EJBConfigBuilderTest extends TestCase {
                     new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
                     moduleBuilder,
                     null, // web
-                    null); // connector
+                    null, //connector
+                    transactionManagerObjectName,
+                    connectionTrackerObjectName);
 
             XmlObject plan = earConfigBuilder.getDeploymentPlan(earFile.toURL());
             earConfigBuilder.buildConfiguration(carFile, null, earFile, plan);
@@ -269,7 +285,10 @@ public class EJBConfigBuilderTest extends TestCase {
             kernel.startGBean(j2eeServerObjectName);
             assertRunning(kernel, j2eeServerObjectName);
 
-            GBeanMBean tmGBean = new GBeanMBean(TransactionManagerProxy.GBEAN_INFO);
+            GBeanMBean tmGBean = new GBeanMBean(GeronimoTransactionManager.GBEAN_INFO);
+            Set patterns = new HashSet();
+            patterns.add(ObjectName.getInstance("geronimo.management:J2eeType=ManagedConnectionFactory,*"));
+            tmGBean.setReferencePatterns("resourceManagers", patterns);
             ObjectName tmObjectName = ObjectName.getInstance(j2eeDomainName + ":type=TransactionManager");
             kernel.loadGBean(tmObjectName, tmGBean);
             kernel.startGBean(tmObjectName);
