@@ -250,12 +250,7 @@ public class Assembler extends AssemblerTool implements org.openejb.spi.Assemble
 
         /*[2] Assemble Containers and Deployments ///////////////////////////////////*/
         
-        // Support for static method inheritance
-        if(this instanceof org.openejb.tyrex.TyrexClassicAssembler) {
-          
-          org.openejb.tyrex.TyrexClassicAssembler.assembleContainers(containerSystem,containerSystemInfo);
-        }  
-        else assembleContainers(containerSystem,containerSystemInfo);
+        assembleContainers(containerSystem,containerSystemInfo);
         /*[2]\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
 
         
