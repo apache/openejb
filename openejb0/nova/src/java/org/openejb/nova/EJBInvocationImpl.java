@@ -53,6 +53,8 @@ import java.io.ObjectOutput;
 
 import org.apache.geronimo.core.service.SimpleInvocation;
 
+import org.openejb.nova.transaction.TransactionContext;
+
 /**
  *
  *
@@ -66,7 +68,10 @@ public class EJBInvocationImpl extends SimpleInvocation implements EJBInvocation
     private Object id;
 
     // Valid in server-side interceptor stack once an instance has been identified
-    private transient EJBInstanceContext ctx;
+    private transient EJBInstanceContext instanceContext;
+
+    // Valid in server-side interceptor stack once a TransactionContext has been created
+    private transient TransactionContext transactionContext;
 
     /**
      * No-arg constructor needed for Externalizable
@@ -105,11 +110,19 @@ public class EJBInvocationImpl extends SimpleInvocation implements EJBInvocation
     }
 
     public EJBInstanceContext getEJBInstanceContext() {
-        return ctx;
+        return instanceContext;
     }
 
     public void setEJBInstanceContext(EJBInstanceContext instanceContext) {
-        this.ctx = instanceContext;
+        this.instanceContext = instanceContext;
+    }
+
+    public TransactionContext getTransactionContext() {
+        return transactionContext;
+    }
+
+    public void setTransactionContext(TransactionContext transactionContext) {
+        this.transactionContext = transactionContext;
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {

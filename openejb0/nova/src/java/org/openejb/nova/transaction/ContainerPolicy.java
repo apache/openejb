@@ -200,10 +200,10 @@ public class ContainerPolicy {
                 return interceptor.invoke(ejbInvocation);
             }
 
-            if (ejbInvocation.getType().isRemoteInvocation()) {
-                throw new TransactionRequiredException();
-            } else {
+            if (ejbInvocation.getType().isLocal()) {
                 throw new TransactionRequiredLocalException();
+            } else {
+                throw new TransactionRequiredException();
             }
         }
     };

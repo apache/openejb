@@ -53,6 +53,7 @@ import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 
 import org.openejb.nova.EJBInvocation;
+import org.openejb.nova.EJBInvocationType;
 
 /**
  * Interceptor for Stateless Session EJBs that obtains an instance
@@ -70,7 +71,7 @@ public final class StatelessInstanceInterceptor extends AbstractInterceptor {
     public InvocationResult invoke(final Invocation invocation) throws Throwable {
         EJBInvocation ejbInvocation = (EJBInvocation) invocation;
 
-        assert (ejbInvocation.getType().isHomeInvocation() == false) : "Cannot invoke home method on a SLSB";
+        assert (ejbInvocation.getType() == EJBInvocationType.HOME || ejbInvocation.getType() == EJBInvocationType.LOCALHOME) : "Cannot invoke home method on a SLSB";
 
         // get the context
         StatelessInstanceContext ctx = (StatelessInstanceContext) pool.acquire();

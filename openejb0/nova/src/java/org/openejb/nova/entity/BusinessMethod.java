@@ -68,7 +68,9 @@ public class BusinessMethod extends AbstractMethodOperation {
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         EntityInstanceContext ctx = (EntityInstanceContext) invocation.getEJBInstanceContext();
-        ensureLoaded(invocation, ctx);
+        if (!ctx.isStateValid()) {
+            notifyLoaded(ctx);
+        }
         InvocationResult result = invoke(invocation, EJBOperation.BIZMETHOD);
         try {
             ctx.setOperation(EJBOperation.EJBLOAD);
@@ -79,15 +81,13 @@ public class BusinessMethod extends AbstractMethodOperation {
         return result;
     }
 
-    protected void ensureLoaded(EJBInvocation invocation, EntityInstanceContext ctx) throws Throwable {
-        if (!ctx.isStateValid()) {
-            try {
-                ctx.setOperation(EJBOperation.EJBLOAD);
-                ((EntityBean) ctx.getInstance()).ejbLoad();
-                ctx.setStateValid(true);
-            } finally {
-                ctx.setOperation(EJBOperation.INACTIVE);
-            }
+    protected void notifyLoaded(EntityInstanceContext ctx) throws Throwable {
+        try {
+            ctx.setOperation(EJBOperation.EJBLOAD);
+            ((EntityBean) ctx.getInstance()).ejbLoad();
+        } finally {
+            ctx.setOperation(EJBOperation.INACTIVE);
         }
+        ctx.setStateValid(true);
     }
 }

@@ -47,12 +47,18 @@
  */
 package org.openejb.nova.transaction;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
+
+import org.openejb.nova.EJBInstanceContext;
+import org.openejb.nova.InstanceID;
+import org.openejb.nova.entity.cmp.InstanceData;
 
 
 /**
@@ -71,6 +77,9 @@ public abstract class TransactionContext {
         CONTEXT.set(context);
     }
 
+    private final Map contextCache = new HashMap();
+    private final Map instanceDataCache = new HashMap();
+
     public abstract void begin() throws SystemException, NotSupportedException;
 
     public abstract void suspend() throws SystemException;
@@ -80,4 +89,20 @@ public abstract class TransactionContext {
     public abstract void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException;
 
     public abstract void rollback() throws SystemException;
+
+    public final void putContext(InstanceID id, EJBInstanceContext context) {
+        contextCache.put(id, context);
+    }
+
+    public final EJBInstanceContext getContext(InstanceID id) {
+        return (EJBInstanceContext) contextCache.get(id);
+    }
+
+    public final void putInstanceData(InstanceID id, InstanceData data) {
+        instanceDataCache.put(id, data);
+    }
+
+    public final InstanceData getInstancedata(InstanceID id) {
+        return (InstanceData) instanceDataCache.get(id);
+    }
 }

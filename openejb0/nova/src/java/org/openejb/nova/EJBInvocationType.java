@@ -51,61 +51,53 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 /**
- *
+ * Type-safe enum describing
  *
  *
  * @version $Revision$ $Date$
  */
 public final class EJBInvocationType implements Serializable {
-    // Be careful here.  If you change the ordinals, this class must be changed on evey client.
-    public static final EJBInvocationType REMOTE = new EJBInvocationType("Remote", 0, false, false);
-    public static final EJBInvocationType HOME = new EJBInvocationType("Home", 1, false, true);
-    public static final EJBInvocationType LOCAL = new EJBInvocationType("Local", 2, true, false);
-    public static final EJBInvocationType LOCALHOME = new EJBInvocationType("LocalHome", 3, true, true);
-    public static final EJBInvocationType WEB_SERVICE = new EJBInvocationType("Web-Service", 4, false, false);
-    public static final EJBInvocationType TIMEOUT = new EJBInvocationType("ejbTimeout", 5, false, false);
+    private final transient String name;
 
-    private static final EJBInvocationType[] values = {
+    private EJBInvocationType(String name, boolean local) {
+        this.name = name;
+        this.local = local;
+    }
+
+    public static final EJBInvocationType REMOTE = new EJBInvocationType("Remote", false);
+    public static final EJBInvocationType HOME = new EJBInvocationType("Home", false);
+    public static final EJBInvocationType LOCAL = new EJBInvocationType("Local", true);
+    public static final EJBInvocationType LOCALHOME = new EJBInvocationType("LocalHome", true);
+    public static final EJBInvocationType WEB_SERVICE = new EJBInvocationType("Web-Service", false);
+    public static final EJBInvocationType TIMEOUT = new EJBInvocationType("ejbTimeout", true);
+
+    private static final EJBInvocationType[] VALUES = {
         REMOTE, HOME, LOCAL, LOCALHOME, WEB_SERVICE, TIMEOUT
     };
 
-    private final transient String name;
     private final transient boolean local;
-    private final transient boolean home;
-    private final int ordinal;
 
-    private EJBInvocationType(String name, int ordinal, boolean local, boolean home) {
-        this.name = name;
-        this.ordinal = ordinal;
-        this.local = local;
-        this.home = home;
-    }
-
-    public boolean isRemoteInvocation() {
-        return !local;
-    }
-
-    public boolean isLocalInvocation() {
+    public boolean isLocal() {
         return local;
-    }
-
-    public boolean isHomeInvocation() {
-        return home;
-    }
-
-    public boolean isBeanInvocation() {
-        return !home;
-    }
-
-    public boolean isWebService() {
-        return false;
     }
 
     public String toString() {
         return name;
     }
 
+    private static int nextOrdinal;
+    private final int ordinal = nextOrdinal++;
+
     Object readResolve() throws ObjectStreamException {
-        return values[ordinal];
+        return VALUES[ordinal];
+    }
+
+    // verify that all are defined and the ids match up
+    static {
+        assert (VALUES.length == nextOrdinal) : "VALUES is missing a value";
+        for (int i = 0; i < VALUES.length; i++) {
+            EJBInvocationType value = VALUES[i];
+            assert (value.ordinal == i) : "Ordinal mismatch for " + value;
+        }
     }
 }

@@ -67,7 +67,9 @@ public class BMPRemoveMethod extends BusinessMethod {
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         EntityInstanceContext ctx = (EntityInstanceContext) invocation.getEJBInstanceContext();
-        ensureLoaded(invocation, ctx);
+        if (!ctx.isStateValid()) {
+            notifyLoaded(ctx);
+        }
         InvocationResult result = invoke(invocation, EJBOperation.EJBREMOVE);
 
         if (result.isNormal()) {

@@ -52,6 +52,7 @@ import net.sf.cglib.reflect.FastClass;
 
 import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.EJBOperation;
+import org.openejb.nova.EJBInvocationType;
 import org.openejb.nova.dispatch.AbstractMethodOperation;
 
 /**
@@ -65,6 +66,6 @@ public class BusinessMethod extends AbstractMethodOperation {
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        return invoke(invocation, invocation.getType().isWebService() ? EJBOperation.ENDPOINT : EJBOperation.BIZMETHOD);
+        return invoke(invocation, invocation.getType() == EJBInvocationType.WEB_SERVICE ? EJBOperation.ENDPOINT : EJBOperation.BIZMETHOD);
     }
 }

@@ -63,7 +63,7 @@ import org.openejb.nova.entity.EntityInstanceContext;
  *
  * @version $Revision$ $Date$
  */
-public class CMPInstanceContext extends EntityInstanceContext implements MethodInterceptor {
+public final class CMPInstanceContext extends EntityInstanceContext implements MethodInterceptor {
     private final EntityBean instance;
     private InstanceData instanceData;
 

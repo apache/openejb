@@ -91,36 +91,36 @@ public class BMPFinderMethod implements VirtualOperation {
             ctx.setOperation(EJBOperation.INACTIVE);
         }
 
-        boolean remote = invocation.getType().isRemoteInvocation();
+        boolean local = invocation.getType().isLocal();
         EJBContainer container = ctx.getContainer();
 
         if (finderResult instanceof Enumeration) {
             Enumeration e = (Enumeration) finderResult;
             ArrayList values = new ArrayList();
             while (e.hasMoreElements()) {
-                values.add(getReference(remote, container, e.nextElement()));
+                values.add(getReference(local, container, e.nextElement()));
             }
             return new SimpleInvocationResult(true, new SerializableEnumeration(values.toArray()));
         } else if (finderResult instanceof Collection) {
             Collection c = (Collection) finderResult;
             ArrayList result = new ArrayList(c.size());
             for (Iterator i = c.iterator(); i.hasNext();) {
-                result.add(getReference(remote, container, i.next()));
+                result.add(getReference(local, container, i.next()));
             }
             return new SimpleInvocationResult(true, result);
         } else {
-            return new SimpleInvocationResult(true, getReference(remote, container, finderResult));
+            return new SimpleInvocationResult(true, getReference(local, container, finderResult));
         }
     }
 
-    private Object getReference(boolean remote, EJBContainer container, Object id) {
+    private Object getReference(boolean local, EJBContainer container, Object id) {
         if (id == null) {
             // yes, finders can return null
             return null;
-        } else if (remote) {
-            return container.getEJBObject(id);
-        } else {
+        } else if (local) {
             return container.getEJBLocalObject(id);
+        } else {
+            return container.getEJBObject(id);
         }
     }
 }

@@ -61,7 +61,7 @@ import javax.transaction.TransactionManager;
  *
  * @version $Revision$ $Date$
  */
-public class ContainerTransactionContext extends TransactionContext {
+public class ContainerTransactionContext extends InheritableTransactionContext {
     private final TransactionManager txnManager;
     private Transaction tx;
 

@@ -58,7 +58,7 @@ import org.openejb.nova.entity.EntityInstanceContext;
  *
  * @version $Revision$ $Date$
  */
-public class BMPInstanceContext extends EntityInstanceContext {
+public final class BMPInstanceContext extends EntityInstanceContext {
     private final EntityBean instance;
 
     public BMPInstanceContext(EJBContainer container, EntityBean instance) throws Exception {

@@ -81,14 +81,14 @@ public class CMPFinder implements VirtualOperation {
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         List finderResult = finderCommand.executeQuery(invocation.getArguments());
 
-        boolean remote = invocation.getType().isRemoteInvocation();
+        boolean local = invocation.getType().isLocal();
 
         if (multiValued) {
             ArrayList result = new ArrayList(finderResult.size());
             for (Iterator iterator = finderResult.iterator(); iterator.hasNext();) {
                 Tuple tuple = (Tuple) iterator.next();
                 Object pk = tuple.getValue(0);
-                result.add(getReference(remote, pk));
+                result.add(getReference(local, pk));
             }
             return new SimpleInvocationResult(true, result);
         } else {
@@ -99,18 +99,18 @@ public class CMPFinder implements VirtualOperation {
             }
             Tuple tuple = (Tuple)finderResult.get(0);
             Object pk = tuple.getValue(0);
-            return new SimpleInvocationResult(true, getReference(remote, pk));
+            return new SimpleInvocationResult(true, getReference(local, pk));
         }
     }
 
-    private Object getReference(boolean remote, Object id) {
+    private Object getReference(boolean local, Object id) {
         if (id == null) {
             // yes, finders can return null
             return null;
-        } else if (remote) {
-            return container.getEJBObject(id);
-        } else {
+        } else if (local) {
             return container.getEJBLocalObject(id);
+        } else {
+            return container.getEJBObject(id);
         }
     }
 }

@@ -85,10 +85,12 @@ public final class EntityInstanceInterceptor extends AbstractInterceptor {
     }
 
     private EntityInstanceContext acquireInstance(EJBInvocation ejbInvocation) throws Throwable {
+        Object id = ejbInvocation.getId();
         EntityInstanceContext context = (EntityInstanceContext) pool.acquire();
-        if (ejbInvocation.getType().isBeanInvocation()) {
+
+        if (id != null) {
             EntityBean instance = (EntityBean) context.getInstance();
-            context.setId(ejbInvocation.getId());
+            context.setId(id);
             try {
                 context.setOperation(EJBOperation.EJBACTIVATE);
                 instance.ejbActivate();

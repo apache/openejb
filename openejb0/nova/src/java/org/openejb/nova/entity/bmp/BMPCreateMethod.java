@@ -119,14 +119,14 @@ public class BMPCreateMethod implements VirtualOperation {
 
         EJBInvocationType type = invocation.getType();
         EJBContainer container = ctx.getContainer();
-        return new SimpleInvocationResult(true, getReference(type.isRemoteInvocation(), container, id));
+        return new SimpleInvocationResult(true, getReference(type.isLocal(), container, id));
     }
 
-    private Object getReference(boolean remote, EJBContainer container, Object id) {
-        if (remote) {
-            return container.getEJBObject(id);
-        } else {
+    private Object getReference(boolean local, EJBContainer container, Object id) {
+        if (local) {
             return container.getEJBLocalObject(id);
+        } else {
+            return container.getEJBObject(id);
         }
     }
 }
