@@ -29,7 +29,7 @@
             targetDir="${maven.build.dir}/openejb"/>
         <deploy:startRemoteServer
             geronimoTarget="${maven.build.dir}/openejb"
-            vmArgs="-Xmx512m -XX:MaxPermSize=128m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl"
+            vmArgs="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xmx512m -XX:MaxPermSize=128m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl"
             configs="org/openejb/Security"/>
         <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
         <deploy:waitForStarted
