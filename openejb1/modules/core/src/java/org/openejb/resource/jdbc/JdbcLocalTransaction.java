@@ -54,10 +54,10 @@ public class JdbcLocalTransaction implements LocalTransaction {
     protected java.sql.Connection sqlConn;
     protected JdbcManagedConnection managedConn;
     protected boolean isActiveTransaction = false;
-    
-    protected static Messages messages = new Messages( "org.openejb.util.resources" );
-    protected static Logger   logger   = Logger.getInstance( "OpenEJB.resource.jdbc", "org.openejb.util.resources" );
-    
+
+    protected static final Messages messages = new Messages( "org.openejb.util.resources" );
+    protected static final Logger   logger   = Logger.getInstance( "OpenEJB.resource.jdbc", "org.openejb.util.resources" );
+
     public JdbcLocalTransaction(JdbcManagedConnection managedConn) {
         this.sqlConn = managedConn.getSQLConnection();
         this.managedConn = managedConn;
@@ -102,7 +102,7 @@ public class JdbcLocalTransaction implements LocalTransaction {
     public void rollback() throws javax.resource.ResourceException{
         if(isActiveTransaction){
             isActiveTransaction = false;
-            
+
             try{
             sqlConn.rollback();
             }catch(java.sql.SQLException sqlE){
@@ -110,9 +110,9 @@ public class JdbcLocalTransaction implements LocalTransaction {
                 logger.error( msg );
                 throw new javax.resource.spi.LocalTransactionException( msg );
             }
-            
+
             managedConn.localTransactionRolledback();
-            
+
             try{
             sqlConn.setAutoCommit(true);
             }catch(java.sql.SQLException sqlE){
@@ -125,7 +125,7 @@ public class JdbcLocalTransaction implements LocalTransaction {
 
     /**
     * This method is called by the JdbcConnectionManager when its own cleanup method is called.
-    * It ensures that the JdbcLocalTransaction has been properly committed or rolled back. If the 
+    * It ensures that the JdbcLocalTransaction has been properly committed or rolled back. If the
     * transaction is still active, it's rolled back.
     */
     protected void cleanup() throws javax.resource.ResourceException{
@@ -133,7 +133,7 @@ public class JdbcLocalTransaction implements LocalTransaction {
             rollback();
         }
     }
-    
+
     protected String formatSqlException(java.sql.SQLException e){
         return messages.format("jdbc.exception", e.getClass().getName(), e.getMessage(), e.getErrorCode()+"", e.getSQLState());
     }

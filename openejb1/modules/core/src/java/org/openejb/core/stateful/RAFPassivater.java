@@ -48,6 +48,7 @@ package org.openejb.core.stateful;
 
 
 import java.io.RandomAccessFile;
+import java.io.File;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -56,11 +57,11 @@ import org.openejb.spi.Serializer;
 
 
 // optimization: replace HashTable with HashMap (vc no debug hashmap)
-public class RAFPassivater implements PassivationStrategy{    
-    
+public class RAFPassivater implements PassivationStrategy{
+
     int fileID = 0;
     Hashtable masterTable = new Hashtable();
-    
+
     static class Pointer {
         int fileid;
         long filepointer;
@@ -71,16 +72,16 @@ public class RAFPassivater implements PassivationStrategy{
             bytesize = bytecount;
         }
     }
-    
+
     public void init(Properties props) throws org.openejb.SystemException {}
-    
-    
+
+
     public synchronized void passivate(Hashtable stateTable)
     throws org.openejb.SystemException{
         try{
             fileID++;
-            
-            RandomAccessFile ras = new RandomAccessFile("passivation"+fileID+".ser","rw");
+
+            RandomAccessFile ras = new RandomAccessFile(System.getProperty("java.io.tmpdir", File.separator + "tmp") + File.separator + "passivation"+fileID+".ser","rw");
             Enumeration enum = stateTable.keys();
             Pointer lastPointer = null;
             while(enum.hasMoreElements()){
@@ -88,10 +89,10 @@ public class RAFPassivater implements PassivationStrategy{
                 Object obj = stateTable.get(id);
                 byte [] bytes = Serializer.serialize(obj);
                 long filepointer = ras.getFilePointer();
-                
+
                 if( lastPointer == null ) lastPointer = new Pointer(fileID, filepointer, (int)(filepointer));
                 else lastPointer = new Pointer(fileID, filepointer, (int)(filepointer-lastPointer.filepointer));
-                
+
                 masterTable.put(id,lastPointer);
                 ras.write(bytes);
             }
@@ -100,16 +101,16 @@ public class RAFPassivater implements PassivationStrategy{
             throw new org.openejb.SystemException(e);
         }
     }
-        
+
     public synchronized Object activate(Object primaryKey)
     throws org.openejb.SystemException{
-        
+
         Pointer pointer = (Pointer)masterTable.get(primaryKey);
         if(pointer == null)
             return null;
-        
+
         try{
-            RandomAccessFile ras = new RandomAccessFile("passivation"+pointer.fileid+".ser","r");
+            RandomAccessFile ras = new RandomAccessFile(System.getProperty("java.io.tmpdir", File.separator + "tmp") + File.separator + "passivation"+pointer.fileid+".ser","r");
             byte [] bytes = new byte[(int)pointer.bytesize];
             ras.seek(pointer.filepointer);
             ras.readFully(bytes);
@@ -118,7 +119,7 @@ public class RAFPassivater implements PassivationStrategy{
         }catch(Exception e){
             throw new org.openejb.SystemException(e);
         }
-        
+
     }
-    
+
 }

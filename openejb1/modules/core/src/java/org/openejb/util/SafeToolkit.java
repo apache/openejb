@@ -53,9 +53,9 @@ import org.openejb.OpenEJBException;
 public class SafeToolkit{
 
     private String systemLocation;
-    protected static Messages messages = new Messages( "org.openejb.util.resources" );
-    protected static HashMap codebases = new HashMap();
-    protected static HashMap _tempcodebases = new HashMap();
+    protected static final Messages messages = new Messages( "org.openejb.util.resources" );
+    protected static final HashMap codebases = new HashMap();
+    protected static final HashMap _tempcodebases = new HashMap();
 
     /**
      * Creates a new SafeToolkit dedicated to the specified system location.
@@ -90,7 +90,7 @@ public class SafeToolkit{
     }
 
     /**
-     * Attempts to find and load the specified class, using the 
+     * Attempts to find and load the specified class, using the
      * specified codebase.
      * If the codebase is null, the bootstrap classloader is used.
      *
@@ -138,7 +138,7 @@ public class SafeToolkit{
     public Object newInstance(String className) throws OpenEJBException{
         return newInstance(forName(className));
     }
-    
+
     /**
      * Attempts to find and load the specified class then instaniate it.
      *
@@ -173,7 +173,7 @@ public class SafeToolkit{
 	    exception.printStackTrace();
 	    ClassLoader classLoader = clazz.getClassLoader();
 	    if( classLoader instanceof java.net.URLClassLoader) {
-		OpenEJBErrorHandler.classNotIntantiateableFromCodebaseForUnknownReason(systemLocation, clazz.getName(), getCodebase( (java.net.URLClassLoader)classLoader), 
+		OpenEJBErrorHandler.classNotIntantiateableFromCodebaseForUnknownReason(systemLocation, clazz.getName(), getCodebase( (java.net.URLClassLoader)classLoader),
 										       exception.getClass().getName(), exception.getMessage());
 	    }
 	    else {
@@ -199,10 +199,10 @@ public class SafeToolkit{
      * Loads the class using the class loader for the specific
      * codebase.  If the codebase is null, the bootstrap classloader
      * is used.
-     * 
+     *
      * @param className
      * @param codebase
-     * @return 
+     * @return
      * @exception ClassNotFoundException
      * @exception OpenEJBException
      */
@@ -211,15 +211,15 @@ public class SafeToolkit{
     }
 
     public static Class loadClass(String className, String codebase, boolean cache) throws OpenEJBException {
-        
+
         ClassLoader cl = (cache)?getCodebaseClassLoader(codebase):getClassLoader(codebase);
         Class clazz = null;
         try{
             clazz = cl.loadClass(className);
-        } 
+        }
 	catch (ClassNotFoundException cnfe){
             throw new OpenEJBException( messages.format( "cl0007", className, codebase ) );
-        } 
+        }
 	return clazz;
     }
 
@@ -227,9 +227,9 @@ public class SafeToolkit{
      * Ensures that a class loader for each code base used in the
      * system is created at most one time.  The default bootsrap
      * classloader is used if codebase is null.
-     * 
+     *
      * @param codebase
-     * @return 
+     * @return
      * @exception OpenEJBException
      */
     protected static ClassLoader getCodebaseClassLoader(String codebase) throws OpenEJBException{
@@ -262,9 +262,9 @@ public class SafeToolkit{
      * Ensures that a class loader for each code base used in the
      * system is created at most one time.  The default bootsrap
      * classloader is used if codebase is null.
-     * 
+     *
      * @param codebase
-     * @return 
+     * @return
      * @exception OpenEJBException
      */
     protected static ClassLoader getClassLoader(String codebase) throws OpenEJBException{
@@ -311,10 +311,10 @@ public class SafeToolkit{
      * Loads the class using the class loader for the specific
      * codebase.  If the codebase is null, the bootstrap classloader
      * is used.
-     * 
+     *
      * @param className
      * @param codebase
-     * @return 
+     * @return
      * @exception ClassNotFoundException
      * @exception OpenEJBException
      */
@@ -323,14 +323,14 @@ public class SafeToolkit{
     }
 
     public static Class loadTempClass(String className, String codebase, boolean cache) throws OpenEJBException {
-        
+
         ClassLoader cl = (cache) ? getCodebaseTempClassLoader( codebase ) : getTempClassLoader( codebase );
         Class clazz = null;
         try {
             clazz = cl.loadClass(className);
         } catch ( ClassNotFoundException cnfe ) {
             throw new OpenEJBException( messages.format( "cl0007", className, codebase ) );
-        } 
+        }
 	return clazz;
     }
 
@@ -343,9 +343,9 @@ public class SafeToolkit{
      * Ensures that a class loader for each code base used in the
      * system is created at most one time.  The default bootsrap
      * classloader is used if codebase is null.
-     * 
+     *
      * @param codebase
-     * @return 
+     * @return
      * @exception OpenEJBException
      */
     protected static ClassLoader getCodebaseTempClassLoader( String codebase ) throws OpenEJBException {
@@ -379,9 +379,9 @@ public class SafeToolkit{
      * Ensures that a class loader for each code base used in the
      * system is created at most one time.  The default bootsrap
      * classloader is used if codebase is null.
-     * 
+     *
      * @param codebase
-     * @return 
+     * @return
      * @exception OpenEJBException
      */
     protected static ClassLoader getTempClassLoader( String codebase ) throws OpenEJBException {

@@ -65,20 +65,20 @@ import org.apache.log4j.PropertyConfigurator;
  * and more likely, the OpenEJB URL handler has not been registered.  (Note
  * that the log4j.configuration default setting uses the protocol resource.)
  * <p>
- * 
+ *
  * TODO: Create a wrapper to Tomcat logging facility; Make Logger class a factory
- * 
+ *
  * @author <a href="mailto:adc@toolazydogs.com">Alan Cabrera</a>
  * @version $Revision$ $Date$
  */
 public class Logger {
 
-    static protected HashMap _loggers = new HashMap();
+    protected static final HashMap _loggers = new HashMap();
     protected Category       _logger  = null;
     public    I18N           i18n     = null;
-    
+
     private static Properties props;
-    
+
     public static void initialize(Properties props)
     {
         Log4jConfigUtils log4j = new Logger.Log4jConfigUtils(props);
@@ -88,10 +88,10 @@ public class Logger {
 
     /**
      * Returns a shared instance of Logger.
-     * 
+     *
      * @param class   the class whose name log4j category will use
      * @param name    the name log4j category will use
-     * 
+     *
      * @return Instance of logger.
      */
     static public Logger getInstance( String category, String resourceName ) {
@@ -127,18 +127,18 @@ public class Logger {
     /**
      * Protected constructor.  Users must invoke getInstance() to
      * an instance of Logger.
-     * 
+     *
      * @param name   the name of the log4j category to use
-     * 
+     *
      * @see getInstance()
      */
     protected Logger( String resourceName ) {
 	i18n = new I18N( resourceName );
     }
-    
+
     /**
      * Wrapper function for log4j's isDebugEnabled() method.
-     * 
+     *
      * @return if debug is enabled.
      */
     public boolean isDebugEnabled() {
@@ -147,7 +147,7 @@ public class Logger {
 
     /**
      * Check to see if error messages are enabled.
-     * 
+     *
      * @return if error messages are enabled.
      */
     public boolean isErrorEnabled() {
@@ -156,7 +156,7 @@ public class Logger {
 
     /**
      * Check to see if fatal messages are enabled.
-     * 
+     *
      * @return if fatal messages are enabled.
      */
     public boolean isFatalEnabled() {
@@ -165,39 +165,39 @@ public class Logger {
 
     /**
      * Wrapper function for log4j's isInfoEnabled() method.
-     * 
+     *
      * @return if info messages are enabled.
      */
     public boolean isInfoEnabled() {
 	return _logger.isInfoEnabled();
     }
-    
+
 
     /**
      * Check to see if warning messages are enabled.
-     * 
+     *
      * @return if warning messages are enabled.
      */
     public boolean isWarningEnabled() {
 	return _logger.isEnabledFor( Level.WARN );
     }
-    
+
 
     /**
      * A wrapper call to log4j's debug method
-     * 
+     *
      * @param message   The debug message to be logged.
      */
     public void debug( String message ) {
 	if ( isDebugEnabled() ) _logger.debug( message );
     }
-    
+
     /**
      * An wrapper call to log4j's debug method
-     * 
+     *
      * @param message   The debug message to be logged.
      * @param t      the exception to log, including its stack trace
-     * 
+     *
      * @see org.openejb.util.Messages
      */
     public void debug( String message, Throwable t ) {
@@ -206,82 +206,82 @@ public class Logger {
 
     /**
      * A wrapper call to log4j's error method
-     * 
+     *
      * @param message   The error message to be logged.
      */
     public void error( String message ) {
 	if ( isErrorEnabled() ) _logger.error( message );
     }
-    
+
     /**
      * An wrapper call to log4j's error method
-     * 
+     *
      * @param message   The error message to be logged.
      * @param t      the exception to log, including its stack trace
-     * 
+     *
      * @see org.openejb.util.Messages
      */
     public void error( String message, Throwable t ) {
 	if ( isErrorEnabled() ) _logger.error( message, t );
     }
-    
+
     /**
      * A wrapper call to log4j's error method
-     * 
+     *
      * @param message   The fatal message to be logged.
      */
     public void fatal( String message ) {
 	if ( isFatalEnabled() ) _logger.fatal( message );
     }
-    
+
     /**
      * An wrapper call to log4j's fatal method
-     * 
+     *
      * @param message   The fatal message to be logged.
      * @param t      the exception to log, including its stack trace
-     * 
+     *
      * @see org.openejb.util.Messages
      */
     public void fatal( String message, Throwable t ) {
 	if ( isFatalEnabled() ) _logger.fatal( message, t );
     }
-    
+
     /**
      * A wrapper call to log4j's error method
-     * 
+     *
      * @param message   The info message to be logged.
      */
     public void info( String message ) {
 	if ( isInfoEnabled() ) _logger.info( message );
     }
-    
+
     /**
      * An wrapper call to log4j's info method
-     * 
+     *
      * @param message   The info message to be logged.
      * @param t      the exception to log, including its stack trace
-     * 
+     *
      * @see org.openejb.util.Messages
      */
     public void info( String message, Throwable t ) {
 	if ( isInfoEnabled() ) _logger.info( message, t );
     }
-        
+
     /**
      * A wrapper call to log4j's warning method
-     * 
+     *
      * @param message   The warning message to be logged.
      */
     public void warning( String message ) {
 	if ( isWarningEnabled() ) _logger.warn( message );
     }
-    
+
     /**
      * An wrapper call to log4j's warning method
-     * 
+     *
      * @param message   The warning message to be logged.
      * @param t      the exception to log, including its stack trace
-     * 
+     *
      * @see org.openejb.util.Messages
      */
     public void warning( String message, Throwable t ) {
@@ -296,37 +296,37 @@ public class Logger {
 	protected I18N( String resourceName ) {
 	    _messages = new Messages( resourceName );
 	}
-	
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized.
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code ) {
 	    if ( isInfoEnabled() ) _logger.info( _messages.message( code ) );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized.
 	 * @param t      the exception to log, including its stack trace
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Throwable t ) {
 	    if ( isInfoEnabled() ) _logger.info( _messages.message( code ), t );
 	}
-    
-    
+
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Object arg0 ) {
@@ -335,14 +335,14 @@ public class Logger {
 		info( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Throwable t, Object arg0 ) {
@@ -351,14 +351,14 @@ public class Logger {
 		info( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Object arg0, Object arg1 ) {
@@ -367,15 +367,15 @@ public class Logger {
 		info( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Throwable t, Object arg0, Object arg1 ) {
@@ -384,15 +384,15 @@ public class Logger {
 		info( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Object arg0, Object arg1, Object arg2 ) {
@@ -401,16 +401,16 @@ public class Logger {
 		info( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Throwable t, Object arg0, Object arg1, Object arg2 ) {
@@ -419,16 +419,16 @@ public class Logger {
 		info( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Object arg0, Object arg1, Object arg2, Object arg3 ) {
@@ -437,17 +437,17 @@ public class Logger {
 		info( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3 ) {
@@ -456,17 +456,17 @@ public class Logger {
 		info( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
@@ -475,10 +475,10 @@ public class Logger {
 		info( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
@@ -486,7 +486,7 @@ public class Logger {
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
@@ -495,10 +495,10 @@ public class Logger {
 		info( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
@@ -506,7 +506,7 @@ public class Logger {
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
 	 * @param arg5   Sixth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
@@ -515,10 +515,10 @@ public class Logger {
 		info( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
@@ -527,7 +527,7 @@ public class Logger {
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
 	 * @param arg5   Sixth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
@@ -536,61 +536,61 @@ public class Logger {
 		info( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param args   An array of arguments to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Object[] args ) {
 	    _logger.info( _messages.format( code, args ) );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's info method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param args   An array of arguments to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void info( String code, Throwable t,  Object[] args ) {
 		_logger.info( _messages.format( code, args ), t );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized.
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code ) {
 	    if ( isWarningEnabled() ) _logger.warn( _messages.message( code ) );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized.
 	 * @param t      the exception to log, including its stack trace
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Throwable t ) {
 	    if ( isWarningEnabled() ) _logger.warn( _messages.message( code ), t );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Object arg0 ) {
@@ -599,14 +599,14 @@ public class Logger {
 		warning( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Throwable t, Object arg0 ) {
@@ -615,14 +615,14 @@ public class Logger {
 		warning( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Object arg0, Object arg1 ) {
@@ -631,15 +631,15 @@ public class Logger {
 		warning( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Throwable t, Object arg0, Object arg1 ) {
@@ -648,15 +648,15 @@ public class Logger {
 		warning( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Object arg0, Object arg1, Object arg2 ) {
@@ -665,16 +665,16 @@ public class Logger {
 		warning( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Throwable t, Object arg0, Object arg1, Object arg2 ) {
@@ -683,16 +683,16 @@ public class Logger {
 		warning( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Object arg0, Object arg1, Object arg2, Object arg3 ) {
@@ -701,17 +701,17 @@ public class Logger {
 		warning( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3 ) {
@@ -720,29 +720,29 @@ public class Logger {
 		warning( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
-	    if ( isWarningEnabled() ) {    
+	    if ( isWarningEnabled() ) {
 		Object[] args = { arg0, arg1, arg2, arg3, arg4 };
 		warning( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
@@ -750,7 +750,7 @@ public class Logger {
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
@@ -759,10 +759,10 @@ public class Logger {
 		warning( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
@@ -770,7 +770,7 @@ public class Logger {
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
 	 * @param arg5   Sixth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
@@ -779,10 +779,10 @@ public class Logger {
 		warning( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
@@ -791,7 +791,7 @@ public class Logger {
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
 	 * @param arg5   Sixth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
@@ -800,62 +800,62 @@ public class Logger {
 		warning( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param args   An array of arguments to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Object[] args ) {
 	    _logger.warn( _messages.format( code, args ) );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's warning method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param args   An array of arguments to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void warning( String code, Throwable t, Object[] args ) {
 	    _logger.warn( _messages.format( code, args ), t );
 	}
-    
-    
+
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized.
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code ) {
 	    if ( isErrorEnabled() ) _logger.error( _messages.message( code ) );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized.
 	 * @param t      the exception to log, including its stack trace
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Throwable t ) {
 	    if ( isErrorEnabled() ) _logger.error( _messages.message( code ), t );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Object arg0 ) {
@@ -864,30 +864,30 @@ public class Logger {
 		error( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Throwable t, Object arg0 ) {
 	    if ( isErrorEnabled() ) {
 		Object[] args = { arg0 };
-		error( code, t, args ); 
+		error( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Object arg0, Object arg1 ) {
@@ -896,15 +896,15 @@ public class Logger {
 		error( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Throwable t, Object arg0, Object arg1 ) {
@@ -913,15 +913,15 @@ public class Logger {
 		error( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Object arg0, Object arg1, Object arg2 ) {
@@ -930,16 +930,16 @@ public class Logger {
 		error( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Throwable t, Object arg0, Object arg1, Object arg2 ) {
@@ -948,16 +948,16 @@ public class Logger {
 		error( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Object arg0, Object arg1, Object arg2, Object arg3 ) {
@@ -966,17 +966,17 @@ public class Logger {
 		error( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3 ) {
@@ -985,17 +985,17 @@ public class Logger {
 		error( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
@@ -1004,10 +1004,10 @@ public class Logger {
 		error( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
@@ -1015,7 +1015,7 @@ public class Logger {
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
@@ -1024,10 +1024,10 @@ public class Logger {
 		error( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
@@ -1035,7 +1035,7 @@ public class Logger {
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
 	 * @param arg5   Sixth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
@@ -1044,10 +1044,10 @@ public class Logger {
 		error( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
@@ -1056,7 +1056,7 @@ public class Logger {
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
 	 * @param arg5   Sixth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
@@ -1065,195 +1065,195 @@ public class Logger {
 		error( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param args   An array of arguments to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Object[] args ) {
 	    _logger.error( _messages.format( code, args ) );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's error method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param args   An array of arguments to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void error( String code, Throwable t, Object[] args ) {
 	    _logger.error( _messages.format( code, args ), t );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized.
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code ) {
 	    _logger.fatal( _messages.message( code ) );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized.
 	 * @param t      the exception to log, including its stack trace
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Throwable t ) {
 	    _logger.fatal( _messages.message( code ), t );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Object arg0 ) {
 	    Object[] args = { arg0 };
 	    fatal( code, args );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Throwable t, Object arg0 ) {
 	    Object[] args = { arg0 };
 	    fatal( code, t, args );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Object arg0, Object arg1 ) {
 	    Object[] args = { arg0, arg1 };
 	    fatal( code, args );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Throwable t, Object arg0, Object arg1 ) {
 	    Object[] args = { arg0, arg1 };
 	    fatal( code, t, args );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Object arg0, Object arg1, Object arg2 ) {
 	    Object[] args = { arg0, arg1, arg2 };
 	    fatal( code, args );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Throwable t, Object arg0, Object arg1, Object arg2 ) {
 	    Object[] args = { arg0, arg1, arg2 };
 	    fatal( code, t, args );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Object arg0, Object arg1, Object arg2, Object arg3 ) {
 	    Object[] args = { arg0, arg1, arg2, arg3 };
 	    fatal( code, args );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3 ) {
 	    Object[] args = { arg0, arg1, arg2, arg3 };
 	    fatal( code, t, args );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
 	    Object[] args = { arg0, arg1, arg2, arg3, arg4 };
 	    fatal( code, args );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
@@ -1261,17 +1261,17 @@ public class Logger {
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
 	    Object[] args = { arg0, arg1, arg2, arg3, arg4 };
 	    fatal( code, t, args );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
@@ -1279,17 +1279,17 @@ public class Logger {
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
 	 * @param arg5   Sixth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
 	    Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
 	    fatal( code, args );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
@@ -1298,69 +1298,69 @@ public class Logger {
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
 	 * @param arg5   Sixth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
 	    Object[] args = { arg0, arg1, arg2, arg3, arg4, arg5 };
 	    fatal( code, t, args );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param args   An array of arguments to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Object[] args ) {
 	    _logger.fatal( _messages.format( code, args ) );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's fatal method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param args   An array of arguments to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void fatal( String code, Throwable t, Object[] args ) {
 	    _logger.fatal( _messages.format( code, args ), t );
 	}
-    
-    
+
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized.
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code ) {
 	    if ( isDebugEnabled() ) _logger.debug( _messages.message( code ) );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized.
 	 * @param t      the exception to log, including its stack trace
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Throwable t ) {
 	    if ( isDebugEnabled() ) _logger.debug( _messages.message( code ), t );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Object arg0 ) {
@@ -1369,14 +1369,14 @@ public class Logger {
 		debug( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Throwable t, Object arg0 ) {
@@ -1385,14 +1385,14 @@ public class Logger {
 		debug( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Object arg0, Object arg1 ) {
@@ -1401,15 +1401,15 @@ public class Logger {
 		debug( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Throwable t, Object arg0, Object arg1 ) {
@@ -1418,15 +1418,15 @@ public class Logger {
 		debug( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Object arg0, Object arg1, Object arg2 ) {
@@ -1435,16 +1435,16 @@ public class Logger {
 		debug( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Throwable t, Object arg0, Object arg1, Object arg2 ) {
@@ -1453,16 +1453,16 @@ public class Logger {
 		debug( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Object arg0, Object arg1, Object arg2, Object arg3 ) {
@@ -1471,17 +1471,17 @@ public class Logger {
 		debug( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3 ) {
@@ -1490,17 +1490,17 @@ public class Logger {
 		debug( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
@@ -1509,10 +1509,10 @@ public class Logger {
 		debug( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
@@ -1520,7 +1520,7 @@ public class Logger {
 	 * @param arg2   Third argument to the i18n message
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4 ) {
@@ -1529,10 +1529,10 @@ public class Logger {
 		debug( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param arg0   First argument to the i18n message
 	 * @param arg1   Second argument to the i18n message
@@ -1540,7 +1540,7 @@ public class Logger {
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
 	 * @param arg5   Sixth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
@@ -1549,10 +1549,10 @@ public class Logger {
 		debug( code, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param arg0   First argument to the i18n message
@@ -1561,7 +1561,7 @@ public class Logger {
 	 * @param arg3   Fourth argument to the i18n message
 	 * @param arg4   Fifth argument to the i18n message
 	 * @param arg5   Sixth argument to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Throwable t, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5 ) {
@@ -1570,26 +1570,26 @@ public class Logger {
 		debug( code, t, args );
 	    }
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param args   An array of arguments to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Object[] args ) {
 	    _logger.debug( _messages.format( code, args ) );
 	}
-    
+
 	/**
 	 * An internationalized wrapper call to log4j's debug method
-	 * 
+	 *
 	 * @param code   The code to be internationalized
 	 * @param t      the exception to log, including its stack trace
 	 * @param args   An array of arguments to the i18n message
-	 * 
+	 *
 	 * @see org.openejb.util.Messages
 	 */
 	public void debug( String code, Throwable t, Object[] args ) {
@@ -1600,12 +1600,12 @@ public class Logger {
     static class Log4jConfigUtils {
 
         Properties props;
-        
+
         public Log4jConfigUtils(Properties props)
         {
             this.props = props;
         }
-        
+
         public void configure(){
             String config = props.getProperty( "log4j.configuration" );
             if (config == null) {
@@ -1640,7 +1640,7 @@ public class Logger {
         /**
          * Replace log4j file-related settings to reflect OpenEJB configuration
          * (openejb.home and openejb.base)
-         * 
+         *
          * @param props log4j initialization properties
          * @return properties with log4j File properties changed
          */

@@ -57,7 +57,7 @@ public class ThreadContext implements Cloneable {
     /**
      * TODO: Add comment
      */
-    protected static FastThreadLocal threadStorage = new FastThreadLocal();
+    protected static final FastThreadLocal threadStorage = new FastThreadLocal();
     /**
      * TODO: Add comment
      */
@@ -84,7 +84,7 @@ public class ThreadContext implements Cloneable {
      */
     protected Object securityIdentity;
     /**
-     * Unspecified is any object that a customer container may want to 
+     * Unspecified is any object that a customer container may want to
      * attach to the current thread context. (e.g. CastorCMP11_EntityContainer
      * attaches a JDO Database object to the thread.
      */
@@ -110,14 +110,14 @@ public class ThreadContext implements Cloneable {
     }
     /**
      * TODO: Add comment
-     * 
-     * @return 
+     *
+     * @return
      */
     protected static ThreadContext newThreadContext() {
         try {
             return(ThreadContext)implClass.newInstance();
         } catch ( Exception e ) {
-            // this error is so serious that the system shouldn't even be running if 
+            // this error is so serious that the system shouldn't even be running if
             // you can't get a ThreadContext implemented.
             e.printStackTrace();
             throw new RuntimeException("ThreadContext implemenation class could not be instantiated. Class type = "+implClass+" exception message = "+e.getMessage());
@@ -126,8 +126,8 @@ public class ThreadContext implements Cloneable {
 
     /**
      * TODO: Add comment
-     * 
-     * @return 
+     *
+     * @return
      */
     public static boolean isValid() {
         ThreadContext tc = (ThreadContext)threadStorage.get();
@@ -158,7 +158,7 @@ public class ThreadContext implements Cloneable {
 
     /**
      * TODO: Add comment
-     * 
+     *
      * @param tc
      */
     public static void setThreadContext(ThreadContext tc) {
@@ -171,8 +171,8 @@ public class ThreadContext implements Cloneable {
     }
     /**
      * TODO: Add comment
-     * 
-     * @return 
+     *
+     * @return
      */
     public static ThreadContext getThreadContext( ) {
         ThreadContext tc = (ThreadContext)threadStorage.get();
@@ -184,40 +184,40 @@ public class ThreadContext implements Cloneable {
     }
     /**
      * TODO: Add comment
-     * 
-     * @return 
+     *
+     * @return
      */
     public byte getCurrentOperation( ) {
         return currentOperation;
     }
     /**
      * TODO: Add comment
-     * 
-     * @return 
+     *
+     * @return
      */
     public Object getPrimaryKey( ) {
         return primaryKey;
     }
     /**
      * TODO: Add comment
-     * 
-     * @return 
+     *
+     * @return
      */
     public DeploymentInfo getDeploymentInfo() {
         return deploymentInfo;
     }
     /**
      * TODO: Add comment
-     * 
-     * @return 
+     *
+     * @return
      */
     public Object getSecurityIdentity( ) {
         return securityIdentity;
     }
     /**
      * TODO: Add comment
-     * 
-     * @return 
+     *
+     * @return
      */
     public Object getUnspecified() {
         return unspecified;
@@ -225,7 +225,7 @@ public class ThreadContext implements Cloneable {
 
     /**
      * TODO: Add comment
-     * 
+     *
      * @param di
      * @param primKey
      * @param securityIdentity
@@ -238,7 +238,7 @@ public class ThreadContext implements Cloneable {
     }
     /**
      * TODO: Add comment
-     * 
+     *
      * @param op
      */
     public void setCurrentOperation(byte op) {
@@ -247,7 +247,7 @@ public class ThreadContext implements Cloneable {
     }
     /**
      * TODO: Add comment
-     * 
+     *
      * @param primKey
      */
     public void setPrimaryKey(Object primKey) {
@@ -256,7 +256,7 @@ public class ThreadContext implements Cloneable {
     }
     /**
      * TODO: Add comment
-     * 
+     *
      * @param identity
      */
     public void setSecurityIdentity(Object identity) {
@@ -265,7 +265,7 @@ public class ThreadContext implements Cloneable {
     }
     /**
      * TODO: Add comment
-     * 
+     *
      * @param info
      */
     public void setDeploymentInfo(DeploymentInfo info) {
@@ -273,7 +273,7 @@ public class ThreadContext implements Cloneable {
     }
     /**
      * TODO: Add comment
-     * 
+     *
      * @param obj
      */
     public void setUnspecified(Object obj) {
@@ -282,8 +282,8 @@ public class ThreadContext implements Cloneable {
 
     /**
      * TODO: Add comment
-     * 
-     * @return 
+     *
+     * @return
      */
     public boolean valid() {
         return valid;
@@ -293,5 +293,3 @@ public class ThreadContext implements Cloneable {
         return super.clone();
     }
 }
-
-

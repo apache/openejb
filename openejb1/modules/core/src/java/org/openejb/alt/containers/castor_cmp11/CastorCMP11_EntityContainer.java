@@ -97,7 +97,7 @@ import org.openejb.util.Stack;
  */
 public class CastorCMP11_EntityContainer
 implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFactory {
-    
+
 
     /*
      * Bean instances that are currently in use are placed in the txReadyPoolMap indexed
@@ -222,7 +222,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
     protected HashMap resetMap;
 
     private Properties props;
-    
+
     //DMB:TODO:1: make logger for life cycle info.
 
     /**
@@ -370,24 +370,24 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
                  * held by the deployment descriptor. The container is required to generate this query
                  * automatically, which is what this code does.
                  */
-                String findByPrimarKeyQuery = "SELECT e FROM " + di.getBeanClass().getName() + " e WHERE ";
+                StringBuffer findByPrimarKeyQuery = new StringBuffer("SELECT e FROM " + di.getBeanClass().getName() + " e WHERE ");
 
                 if ( kg.isKeyComplex() ) {
 
                     Field[] pkFields = di.getPrimaryKeyClass().getFields();
                     for ( int i = 1; i <= pkFields.length; i++ ) {
-                        findByPrimarKeyQuery += "e." + pkFields[i - 1].getName() + " = $" + i;
+                        findByPrimarKeyQuery.append("e." + pkFields[i - 1].getName() + " = $" + i);
                         if ( ( i + 1 ) <= pkFields.length )
-                            findByPrimarKeyQuery += " AND ";
+                            findByPrimarKeyQuery.append(" AND ");
                     }
 
                 } else {
-                    findByPrimarKeyQuery += "e." + di.getPrimaryKeyField().getName() + " = $1";
+                    findByPrimarKeyQuery.append("e." + di.getPrimaryKeyField().getName() + " = $1");
                 }
 
                 Method findByPrimaryKeyMethod = di.getHomeInterface().getMethod( "findByPrimaryKey", new Class[]{di.getPrimaryKeyClass()} );
 
-                di.addQuery( findByPrimaryKeyMethod, findByPrimarKeyQuery );
+                di.addQuery( findByPrimaryKeyMethod, findByPrimarKeyQuery.toString() );
             } catch ( Exception e ) {
                 throw new org.openejb.SystemException( "Could not generate a query statement for the findByPrimaryKey method of the deployment = " + di.getDeploymentID(), e );
             }
@@ -402,7 +402,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         resetMap.put( float.class, new Float( 0 ) );
         resetMap.put( double.class, new Double( 0.0 ) );
     }
-    
+
     boolean initialized;
     protected void postInit() {
         if (initialized) return;
@@ -515,7 +515,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
             // process home interface methods
             Class declaringClass = callMethod.getDeclaringClass();
             String methodName = callMethod.getName();
-            
+
     		if (EJBHome.class.isAssignableFrom(declaringClass) || EJBLocalHome.class.isAssignableFrom(declaringClass) ){
 				if ( declaringClass != EJBHome.class ) {
                     // Its a home interface method, which is declared by the bean provider, but not a EJBHome method.
@@ -1558,7 +1558,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
     public void updated( Object object ) {
     }
 
-    public class Key {
+    public static class Key {
         Object deploymentID, primaryKey;
         Transaction transaction;
 

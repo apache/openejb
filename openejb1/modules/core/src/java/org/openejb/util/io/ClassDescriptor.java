@@ -521,7 +521,7 @@ public class ClassDescriptor implements java.io.Serializable, ObjectStreamConsta
     //
     //
     //====
-    private class AccessibleFieldInitializer implements PrivilegedAction{
+    private static class AccessibleFieldInitializer implements PrivilegedAction{
 
         ClassDescriptor desc;
 

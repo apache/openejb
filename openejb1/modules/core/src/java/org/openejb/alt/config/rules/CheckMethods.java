@@ -147,7 +147,7 @@ public class CheckMethods implements ValidationRule {
                 //set.addFailure( new ValidationFailure("no.busines.method", interfaceMethods[i].toString(), "remote", intrface.getName(), beanClass.getName()));
             }
         }
-		
+
 	}
 
 
@@ -392,19 +392,19 @@ public class CheckMethods implements ValidationRule {
 
     private String getParameters(Method method){
         Class[] params = method.getParameterTypes();
-        String paramString = "";
+        StringBuffer paramString = new StringBuffer(512);
 
         if (params.length > 0) {
-            paramString = params[0].getName();
+            paramString.append(params[0].getName());
         }
 
         for (int i=1; i < params.length; i++){
-            paramString += ", "+params[i];
+            paramString.append(", ");
+			paramString.append(params[i]);
         }
 
-        return paramString;
+        return paramString.toString();
     }
 }
-
 
 

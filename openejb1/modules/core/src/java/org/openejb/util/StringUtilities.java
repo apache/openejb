@@ -49,7 +49,7 @@ import java.util.StringTokenizer;
 
 /**
  * A simple string utilities class.
- * 
+ *
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class StringUtilities {
@@ -77,7 +77,7 @@ public class StringUtilities {
 	}
 
 	/**
-	 * Checks a String to see if it's value is null, 
+	 * Checks a String to see if it's value is null,
 	 * and if so returns a blank string.
 	 * @param stringToCheckForNull - the string to check for null
 	 * @return the checked string
@@ -85,7 +85,7 @@ public class StringUtilities {
 	public static String nullToBlankString(String stringToCheckForNull) {
 		return (stringToCheckForNull == null) ? "" : stringToCheckForNull;
 	}
-	
+
 	/**
 	 * Checks a String to see if it's value is null or blank
 	 * @param stringToCheck - the string to check for blank or null
@@ -94,22 +94,22 @@ public class StringUtilities {
 	public static boolean checkNullBlankString(String stringToCheck) {
 		return (stringToCheck == null || "".equals(stringToCheck.trim()));
 	}
-	
+
 	/**
-	 * Checks a String to see if it's blank, 
+	 * Checks a String to see if it's blank,
 	 * and if so returns null (the opposite of <code>nullToBlankString</code>.
 	 * @param stringToCheckForNull - the string to check for blank
 	 * @return the checked string or null
 	 */
 	public static String blankToNullString(String stringToCheckForBlank) {
-		if(stringToCheckForBlank != null) stringToCheckForBlank.trim();
+		if(stringToCheckForBlank != null) stringToCheckForBlank = stringToCheckForBlank.trim();
 		return ("".equals(stringToCheckForBlank)) ? null : stringToCheckForBlank;
 	}
 
 	/**
-	 * Checks a String to see if it's value is null or blank, 
+	 * Checks a String to see if it's value is null or blank,
 	 * and if so returns a non-breaking space.
-	 * @param stringToCheckForNull - the string to check for null or blank 
+	 * @param stringToCheckForNull - the string to check for null or blank
 	 * @return the checked string
 	 */
 	public static String replaceNullOrBlankStringWithNonBreakingSpace(String stringToCheckForNull) {
@@ -125,7 +125,7 @@ public class StringUtilities {
 	 * <br>
 	 * <code>
 	 * myMethod(String, String) throws Exception
-	 * </code> 
+	 * </code>
 	 * <br>
 	 * @param method - the reflection method
 	 * @param lineBreak - the type of line break usually \n or &lt;br&gt;
