@@ -70,32 +70,6 @@ public class RmiIiopCmpBean implements javax.ejb.EntityBean{
     //    
     
     /**
-     * Maps to RmiIiopCmpHome.findEmptyCollection
-     * 
-     * @param primaryKey
-     * @return 
-     * @exception javax.ejb.FinderException
-     * @see RmiIiopCmpHome.sum
-     */
-    public java.util.Collection ejbFindEmptyCollection()
-    throws javax.ejb.FinderException, java.rmi.RemoteException {
-        return new java.util.Vector();
-    }
-
-    /**
-     * Maps to RmiIiopCmpHome.findByPrimaryKey
-     * 
-     * @param primaryKey
-     * @return 
-     * @exception javax.ejb.FinderException
-     * @see RmiIiopCmpHome.sum
-     */
-    public Integer ejbFindByPrimaryKey(Integer primaryKey)
-    throws javax.ejb.FinderException{
-        return primaryKey;
-    }
-
-    /**
      * Maps to RmiIiopCmpHome.create
      * 
      * @param name
