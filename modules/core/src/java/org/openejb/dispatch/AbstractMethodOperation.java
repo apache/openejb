@@ -57,6 +57,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 import net.sf.cglib.reflect.FastClass;
+
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
@@ -66,7 +67,7 @@ import org.openejb.EJBOperation;
  *
  * @version $Revision$ $Date$
  */
-public abstract class AbstractMethodOperation implements VirtualOperation, Serializable  {
+public abstract class AbstractMethodOperation implements VirtualOperation, Serializable {
     private final Class beanClass;
     private final MethodSignature signature;
 
@@ -77,15 +78,6 @@ public abstract class AbstractMethodOperation implements VirtualOperation, Seria
         this.beanClass = beanClass;
         this.signature = signature;
         initializeCGLIBFields();
-    }
-
-    public AbstractMethodOperation(FastClass fastClass, int methodIndex) {
-        this.fastClass = fastClass;
-        this.methodIndex = methodIndex;
-
-        //@todo this constructor should not be used
-        beanClass = null;
-        signature = null;
     }
 
     protected InvocationResult invoke(EJBInvocation invocation, EJBOperation operation) throws Throwable {
@@ -112,7 +104,7 @@ public abstract class AbstractMethodOperation implements VirtualOperation, Seria
     private void initializeCGLIBFields() {
         fastClass = FastClass.create(beanClass);
         Method javaMethod = signature.getMethod(beanClass);
-        if(javaMethod == null) {
+        if (javaMethod == null) {
             throw new IllegalArgumentException("Bean class does not implement method:" +
                     " beanClass=" + beanClass.getName() + " method=" + signature);
         }
