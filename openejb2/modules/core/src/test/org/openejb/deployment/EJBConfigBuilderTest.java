@@ -61,8 +61,8 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.jar.JarOutputStream;
 import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
@@ -91,7 +91,7 @@ import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.ContainerIndex;
 import org.openejb.DeploymentHelper;
-import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
+import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -150,8 +150,8 @@ public class EJBConfigBuilderTest extends TestCase {
         try {
             Thread.currentThread().setContextClassLoader(cl);
             //     ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor().getMethodPermissionArray(),
-            OpenejbOpenejbJarDocument openEJBDoc = (OpenejbOpenejbJarDocument) configBuilder.getDeploymentPlan(ejbJarFile.toURL());
-            EJBModule module = new EJBModule("TestModule", URI.create("TestModule"), JarUtil.createJarFile(ejbJarFile), "/", ejbJar, openEJBDoc.getOpenejbJar(), null);
+            OpenejbOpenejbJarType openEJB = (OpenejbOpenejbJarType) configBuilder.getDeploymentPlan(JarUtil.createJarFile(ejbJarFile));
+            EJBModule module = new EJBModule("TestModule", URI.create("TestModule"), JarUtil.createJarFile(ejbJarFile), "/", ejbJar, openEJB, null);
             configBuilder.getSessionBuilder().createBean(earContext, module, "containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, null, cl);
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
@@ -196,10 +196,11 @@ public class EJBConfigBuilderTest extends TestCase {
 
         Thread.currentThread().setContextClassLoader(cl);
 
-        XmlObject plan = moduleBuilder.getDeploymentPlan(ejbJarFile.toURL());
+        JarFile jarFile = JarUtil.createJarFile(ejbJarFile);
+        XmlObject plan = moduleBuilder.getDeploymentPlan(jarFile);
         URI parentId = moduleBuilder.getParentId(plan);
         URI configId = moduleBuilder.getConfigId(plan);
-        Module module = moduleBuilder.createModule(configId.toString(), JarUtil.createJarFile(ejbJarFile), plan);
+        Module module = moduleBuilder.createModule(configId.toString(), jarFile, plan);
 
         File carFile = File.createTempFile("OpenEJBTest", ".car");
         try {
@@ -263,8 +264,9 @@ public class EJBConfigBuilderTest extends TestCase {
                     null // kernel
             );
 
-            XmlObject plan = earConfigBuilder.getDeploymentPlan(earFile.toURL());
-            earConfigBuilder.buildConfiguration(carFile, null, earFile, plan);
+            JarFile jarFile = new JarFile(earFile);
+            XmlObject plan = earConfigBuilder.getDeploymentPlan(jarFile);
+            earConfigBuilder.buildConfiguration(carFile, null, jarFile, plan);
 
             File tempdir = new File(System.getProperty("java.io.tmpdir"));
             File unpackedDir = new File(tempdir, "OpenEJBTest-ear-Unpacked");
@@ -305,8 +307,9 @@ public class EJBConfigBuilderTest extends TestCase {
                     null // kernel
             );
 
-            XmlObject plan = earConfigBuilder.getDeploymentPlan(earFile.toURL());
-            earConfigBuilder.buildConfiguration(carFile, null, earFile, plan);
+            JarFile jarFile = JarUtil.createJarFile(earFile);
+            XmlObject plan = earConfigBuilder.getDeploymentPlan(jarFile);
+            earConfigBuilder.buildConfiguration(carFile, null, jarFile, plan);
 
             File tempdir = new File(System.getProperty("java.io.tmpdir"));
             File unpackedDir = new File(tempdir, "OpenEJBTest-ear-Unpacked");
