@@ -365,7 +365,14 @@ public class EjbValidator {
                 }
             }
                         
-            v.displayResults(v.getEjbSets());
+            EjbSet[] sets = v.getEjbSets();
+            v.displayResults(sets);
+
+            for (int i=0; i < sets.length; i++){
+                if (sets[i].hasErrors() || sets[i].hasFailures()){
+                    System.exit(1);
+                }
+            }
         } catch ( Exception e ) {
             System.out.println(e.getMessage());
             //e.printStackTrace();

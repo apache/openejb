@@ -59,7 +59,7 @@ _command_deploy()
 _command_validate()
 {
    shift
-   java $OPTIONS -cp $OPENEJB_HOME/lib/openejb-core-*.jar org.openejb.util.Launcher org.openejb.alt.config.Validator $@
+   java $OPTIONS -cp $OPENEJB_HOME/lib/openejb-core-*.jar org.openejb.util.Launcher org.openejb.alt.config.EjbValidator $@
 }
 #============================================================
 _command_start()

@@ -91,7 +91,9 @@ public class ConfigUtils  {
         Reader reader = null;
         try {
             reader = new FileReader(confFile);
-            obj = (Openejb)Openejb.unmarshal(reader);
+            Unmarshaller unmarshaller = new Unmarshaller(Openejb.class);
+            unmarshaller.setWhitespacePreserve(true);
+            obj = (Openejb) unmarshaller.unmarshal(reader);
         } catch ( FileNotFoundException e ) {
             handleException("conf.1900", confFile, e.getLocalizedMessage());
         } catch ( MarshalException e ) {
