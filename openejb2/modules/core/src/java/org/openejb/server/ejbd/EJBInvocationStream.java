@@ -135,6 +135,7 @@ public class EJBInvocationStream extends EJBRequest implements EJBInvocation {
         readClientIdentity(in);
 
         switch (super.getRequestMethod()){
+            case EJB_HOME_METHOD:
             case EJB_HOME_CREATE:
             case EJB_HOME_FIND:
             case EJB_HOME_GET_EJB_META_DATA:
