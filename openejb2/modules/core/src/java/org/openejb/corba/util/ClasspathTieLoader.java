@@ -49,10 +49,7 @@ import org.omg.PortableServer.Servant;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
-import org.openejb.EJBContainer;
 import org.openejb.corba.CORBAException;
-import org.openejb.corba.TSSBean;
-import org.openejb.proxy.ProxyInfo;
 
 
 /**
@@ -63,9 +60,7 @@ import org.openejb.proxy.ProxyInfo;
  */
 public class ClasspathTieLoader implements TieLoader {
 
-    public Servant loadTieClass(Class itf, ProxyInfo pi) throws CORBAException {
-        EJBContainer container = TSSBean.getContainer(pi.getContainerID());
-
+    public Servant loadTieClass(Class itf, ClassLoader cl) throws CORBAException {
         String name = itf.getName();
         try {
             int namepos = name.lastIndexOf('.');
@@ -80,7 +75,7 @@ public class ClasspathTieLoader implements TieLoader {
             }
             String stubName = packagename + "_" + classname + "_Tie";
 
-            return (Servant) container.getClassLoader().loadClass(stubName).newInstance();
+            return (Servant) cl.loadClass(stubName).newInstance();
         } catch (InstantiationException e) {
             throw new CORBAException(e);
         } catch (IllegalAccessException e) {
@@ -95,7 +90,7 @@ public class ClasspathTieLoader implements TieLoader {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ClasspathTieLoader.class);
 
-        infoFactory.addOperation("loadTieClass", new Class[]{Class.class, ProxyInfo.class});
+        infoFactory.addOperation("loadTieClass", new Class[]{Class.class, ClassLoader.class});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -32,7 +32,7 @@
         </ant:copy>
         <deploy:startRemoteServer
             geronimoTarget="${maven.build.dir}/openejb"
-            vmArgs="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xmx512m -XX:MaxPermSize=128m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl"
+            vmArgs="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xmx512m -XX:MaxPermSize=128m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl -Djavax.rmi.CORBA.UtilClass=org.openejb.corba.util.UtilDelegateImpl -Dorg.openejb.corba.UtilDelegateClass=org.openorb.orb.rmi.UtilDelegateImpl -Dorg.omg.CORBA.ORBClass=org.openorb.orb.core.ORB -Dorg.omg.CORBA.ORBSingletonClass=org.openorb.orb.core.ORBSingleton "
             configs="org/openejb/Security"/>
         <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
         <deploy:waitForStarted
@@ -63,6 +63,15 @@
             <metainf dir="${basedir}/src/scenarios/002" includes="*.xml"/>
         </ant:jar>
 
+        <ant:jar destfile="${basedir}/target/openejb-security-003.jar">
+            <fileset dir="${basedir}/target/classes">
+                <include name="**/interop/**/*.class"/>
+                <include name="**/security/slsb/BasicStatelessHome.class"/>
+                <include name="**/security/slsb/BasicStateless.class"/>
+            </fileset>
+            <metainf dir="${basedir}/src/scenarios/003" includes="*.xml"/>
+        </ant:jar>
+
         <deploy:distribute
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
@@ -75,6 +84,12 @@
             password="manager"
             module="${basedir}/target/openejb-security-002.jar"
             />
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            module="${basedir}/target/openejb-security-003.jar"
+            />
         <deploy:start
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
@@ -85,6 +100,11 @@
             username="system"
             password="manager"
             id="org/openejb/scenario002"/>
+        <deploy:start
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario003"/>
     </preGoal>
 
     <preGoal name="itest:teardown">
@@ -92,6 +112,16 @@
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
+            id="org/openejb/scenario003"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario003"/>
+        <deploy:stop
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
             id="org/openejb/scenario002"/>
         <deploy:undeploy
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
@@ -99,11 +129,6 @@
             password="manager"
             id="org/openejb/scenario002"/>
         <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-            username="system"
-            password="manager"
-            id="org/openejb/scenario001"/>
-        <deploy:undeploy
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
@@ -129,7 +154,7 @@
     <goal name="svr:start">
         <deploy:startRemoteServer
             geronimoTarget="${maven.build.dir}/openejb"
-            vmArgs="-Xmx512m -XX:MaxPermSize=128m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl"
+            vmArgs="-Xmx512m -XX:MaxPermSize=128m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl -Djavax.rmi.CORBA.UtilClass=org.openejb.corba.util.UtilDelegateImpl -Dorg.openejb.corba.UtilDelegateClass=org.openorb.orb.rmi.UtilDelegateImpl -Dorg.omg.CORBA.ORBClass=org.openorb.orb.core.ORB -Dorg.omg.CORBA.ORBSingletonClass=org.openorb.orb.core.ORBSingleton "
             configs="org/openejb/Security"/>
         <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
         <deploy:waitForStarted
@@ -159,6 +184,16 @@
             password="manager"
             module="${basedir}/target/openejb-security-001.jar"
             />
+        <ant:jar destfile="${basedir}/target/openejb-security-003.jar">
+            <fileset dir="${basedir}/target/classes" includes="**/security/**/*.class"/>
+            <metainf dir="${basedir}/src/scenarios/001" includes="*.xml"/>
+        </ant:jar>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            module="${basedir}/target/openejb-security-003.jar"
+            />
         <deploy:start
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
@@ -172,6 +207,11 @@
             username="system"
             password="manager"
             id="org/openejb/scenario001"/>
+        <deploy:stop
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario003"/>
         <deploy:undeploy
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"

@@ -16,8 +16,6 @@
  */
 package org.openejb.test.security.slsb;
 
-import javax.rmi.PortableRemoteObject;
-
 import org.openejb.test.security.BaseSecurityTestClient;
 
 

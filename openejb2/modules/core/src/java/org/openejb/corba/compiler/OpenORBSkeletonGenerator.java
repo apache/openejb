@@ -58,7 +58,6 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Jar;
 import org.openorb.compiler.CompilerHost;
 import org.openorb.compiler.object.IdlObject;
-import org.openorb.compiler.object.IdlRoot;
 import org.openorb.compiler.orb.Configurator;
 import org.openorb.compiler.rmi.RmiCompilerProperties;
 import org.openorb.compiler.rmi.generator.Javatoidl;
@@ -71,6 +70,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.system.main.ToolsJarHack;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
+import org.openejb.corba.proxy.StubGenerator;
 import org.openejb.util.JarUtils;
 
 
@@ -122,13 +122,16 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
 
 
             TEMPDIR = DeploymentUtil.createTempDir();
-            File SRCDIR = new File(TEMPDIR, "JAVA");
-            File CLASSESDIR = new File(TEMPDIR, "classes");
+//            File SRCDIR = new File(TEMPDIR, "JAVA");
+//            File CLASSESDIR = new File(TEMPDIR, "classes");
+            File SRCDIR = new File(TEMPDIR, "adc");
+            File CLASSESDIR = new File(TEMPDIR, "adc");
             SRCDIR.mkdirs();
             CLASSESDIR.mkdirs();
 
             RmiCompilerProperties rcp = new RmiCompilerProperties();
             rcp.setClassloader(cl);
+            rcp.setM_portableHelper(true);
             rcp.setM_verbose(verbose);
             rcp.setM_destdir(SRCDIR);
             rcp.getM_includeList().add(new URL("resource:/org/openorb/idl/"));
@@ -147,11 +150,20 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
 
                 IdlObject compilationGraph = parser.getIdlTreeRoot();
                 Javatoidl toIDL = new Javatoidl(rcp, this);
+
+                StubGenerator sg = new StubGenerator(rcp, this);
+
                 int end = parser.getCompilationTree().size();
                 for (int i = start; i < end; i++) {
-                    toIDL.translateRMITie((IdlRoot) parser.getCompilationTree().get(i));
+                    IdlObject object = (IdlObject) parser.getCompilationTree().get(i);
+
+                    toIDL.translateRMITie(object);
+                    toIDL.translateRMIStub(object);
                 }
+
                 toIDL.translateRMITie(compilationGraph);
+                toIDL.translateRMIStub(compilationGraph);
+                sg.translateData(compilationGraph, "");
 
                 start = end;
 
@@ -172,6 +184,7 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
             jar.setUpdate(true);
             jar.execute();
         } catch (Exception e) {
+            e.printStackTrace();
             /**
              * Convert the msg to string so that we don't try to serialize
              * anything that is unserializable in a cause exception

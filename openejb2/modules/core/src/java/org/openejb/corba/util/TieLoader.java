@@ -58,6 +58,6 @@ import org.openejb.proxy.ProxyInfo;
  */
 public interface TieLoader {
 
-    public Servant loadTieClass(Class itf, ProxyInfo pi) throws CORBAException;
+    public Servant loadTieClass(Class itf, ClassLoader cl) throws CORBAException;
 
 }

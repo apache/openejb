@@ -49,6 +49,7 @@ import javax.rmi.CORBA.Tie;
 
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
+import org.omg.CORBA.SetOverrideType;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
@@ -88,7 +89,7 @@ public final class AdapterStateless extends Adapter {
 
             poa.the_POAManager().activate();
 
-            Servant servant = tieLoader.loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getProxyInfo());
+            Servant servant = tieLoader.loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
             AdapterProxyFactory factory = new AdapterProxyFactory(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
             Remote remote = (Remote) factory.create(container.getEJBObject(null));
 

@@ -52,6 +52,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
@@ -71,8 +73,10 @@ import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import org.openejb.EJBContainer;
+import org.openejb.corba.security.ServerPolicyFactory;
+import org.openejb.corba.security.config.tss.TSSConfig;
+import org.openejb.corba.security.config.tss.TSSNULLTransportConfig;
 import org.openejb.corba.util.TieLoader;
-import org.openejb.corba.util.UtilDelegateImpl;
 
 
 /**
@@ -88,6 +92,7 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
     private final TieLoader tieLoader;
     private POA localPOA;
     private NamingContextExt initialContext;
+    private TSSConfig tssConfig;
     private Collection containers = Collections.EMPTY_SET;
     private Map adapters = new HashMap();
     private static final Map containerMap = new HashMap();
@@ -98,8 +103,6 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
         this.POAName = POAName;
         this.server = server;
         this.tieLoader = tieLoader;
-
-        UtilDelegateImpl.setTieLoader(tieLoader);
     }
 
     public CORBABean getServer() {
@@ -108,6 +111,15 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
 
     public String getPOAName() {
         return POAName;
+    }
+
+    public TSSConfig getTssConfig() {
+        return tssConfig;
+    }
+
+    public void setTssConfig(TSSConfig tssConfig) {
+        if (tssConfig == null) tssConfig = new TSSConfig();
+        this.tssConfig = tssConfig;
     }
 
     public Collection getContainers() {
@@ -134,9 +146,14 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
 
+            ORB orb = server.getORB();
             POA rootPOA = server.getRootPOA();
 
+            Any any = orb.create_any();
+            any.insert_Value(createCSIv2Config());
+
             Policy[] policies = new Policy[]{
+                orb.create_policy(ServerPolicyFactory.POLICY_TYPE, any),
                 rootPOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
                 rootPOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_ACTIVE_OBJECT_MAP_ONLY),
                 rootPOA.create_servant_retention_policy(ServantRetentionPolicyValue.RETAIN),
@@ -164,7 +181,7 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
             Thread.currentThread().setContextClassLoader(savedLoader);
         }
 
-        log.info("Started CORBA Target Security Server in POA " + POAName);
+        log.info("Started CORBA Target Security Service in POA " + POAName);
     }
 
     public void doStop() throws Exception {
@@ -183,11 +200,30 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
             localPOA.the_POAManager().deactivate(true, true);
             localPOA = null;
         }
-        log.info("Stopped CORBA Target Security Server in POA " + POAName);
+        log.info("Stopped CORBA Target Security Service in POA " + POAName);
     }
 
     public void doFail() {
-        log.info("Failed CORBA Target Security Server in POA " + POAName);
+        log.info("Failed CORBA Target Security Service in POA " + POAName);
+    }
+
+    private TSSConfig createCSIv2Config() {
+        if (tssConfig == null) return null;
+        if (tssConfig.isInherit()) return server.getTssConfig();
+
+        TSSConfig config = new TSSConfig();
+
+        if (server.getTssConfig() != null)
+            config.setTransport_mech(server.getTssConfig().getTransport_mech());
+        else
+            config.setTransport_mech(new TSSNULLTransportConfig());
+
+        config.getMechListConfig().setStateful(tssConfig.getMechListConfig().isStateful());
+        for (int i = 0; i < tssConfig.getMechListConfig().size(); i++) {
+            config.getMechListConfig().add(tssConfig.getMechListConfig().mechAt(i));
+        }
+
+        return config;
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -198,6 +234,7 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("POAName", String.class, true);
         infoFactory.addReference("Server", CORBABean.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addAttribute("tssConfig", TSSConfig.class, true);
         infoFactory.addReference("Containers", EJBContainer.class);//many types
         infoFactory.addReference("TieLoader", TieLoader.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.setConstructor(new String[]{"classLoader", "POAName", "Server", "TieLoader"});

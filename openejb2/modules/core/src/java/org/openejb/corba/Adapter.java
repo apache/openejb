@@ -46,6 +46,7 @@ package org.openejb.corba;
 
 import java.rmi.Remote;
 import javax.rmi.CORBA.Tie;
+import javax.rmi.CORBA.Util;
 
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.NameComponent;
@@ -85,13 +86,15 @@ public abstract class Adapter implements RefGenerator {
             org.omg.CORBA.Object obj = orb.resolve_initial_references("NameService");
             initialContext = NamingContextExtHelper.narrow(obj);
 
-            Servant servant = tieLoader.loadTieClass(container.getProxyInfo().getHomeInterface(), container.getProxyInfo());
+
+            Servant servant = tieLoader.loadTieClass(container.getProxyInfo().getHomeInterface(),  container.getClassLoader());
             AdapterProxyFactory factory = new AdapterProxyFactory(container.getProxyInfo().getHomeInterface(), container.getClassLoader());
             Remote remote = (Remote) factory.create(container.getEJBHome());
 
             if (servant instanceof Tie) {
                 ((Tie) servant).setTarget(remote);
             }
+
             parentPOA.activate_object_with_id(home_id, servant);
             homeReference = parentPOA.servant_to_reference(servant);
 

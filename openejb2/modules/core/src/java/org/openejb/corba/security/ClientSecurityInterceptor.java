@@ -44,60 +44,67 @@
  */
 package org.openejb.corba.security;
 
+import java.util.List;
+
 import org.omg.CORBA.LocalObject;
+import org.omg.IOP.ServiceContext;
+import org.omg.IOP.TAG_CSI_SEC_MECH_LIST;
+import org.omg.IOP.TaggedComponent;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
-import org.omg.PortableInterceptor.ForwardRequest;
+import org.openorb.orb.net.AbstractServerRequest;
+
+import org.openejb.corba.security.config.css.CSSCompoundSecMechConfig;
+import org.openejb.corba.security.config.css.CSSConfig;
+import org.openejb.corba.security.config.tss.TSSCompoundSecMechListConfig;
+import org.openejb.corba.util.Util;
 
 
 /**
  * @version $Revision$ $Date$
  */
-class ClientSecurityInterceptor extends LocalObject implements ClientRequestInterceptor {
+final class ClientSecurityInterceptor extends LocalObject implements ClientRequestInterceptor {
 
-    private final int slotId;
-
-    public ClientSecurityInterceptor(int slotId) {
-        this.slotId = slotId;
+    public ClientSecurityInterceptor() {
+        AbstractServerRequest.disableServiceContextExceptions();
     }
 
-    public void receive_exception(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void receive_exception(ClientRequestInfo ri) {
     }
 
-    public void receive_other(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void receive_other(ClientRequestInfo ri) {
     }
 
     public void receive_reply(ClientRequestInfo ri) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void send_poll(ClientRequestInfo ri) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void send_request(ClientRequestInfo ri) throws ForwardRequest {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void send_request(ClientRequestInfo ri) {
+        try {
+            TaggedComponent tc = ri.get_effective_component(TAG_CSI_SEC_MECH_LIST.value);
+            TSSCompoundSecMechListConfig csml = TSSCompoundSecMechListConfig.decodeIOR(Util.getCodec(), tc);
+
+            ClientPolicy policy = (ClientPolicy) ri.get_request_policy(ClientPolicyFactory.POLICY_TYPE);
+            if (policy.getConfig() == null) return;
+
+            CSSConfig config = policy.getConfig();
+            List compat = config.findCompatibleSet(csml);
+
+            if (compat.size() == 0) return;
+
+            ServiceContext context = ((CSSCompoundSecMechConfig) compat.get(0)).generateServiceContext();
+
+            ri.add_request_service_context(context, true);
+        } catch (Exception ue) {
+        }
     }
 
     public void destroy() {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    /**
-     * Returns the name of the interceptor.
-     * <p/>
-     * Each Interceptor may have a name that may be used administratively
-     * to order the lists of Interceptors. Only one Interceptor of a given
-     * name can be registered with the ORB for each Interceptor type. An
-     * Interceptor may be anonymous, i.e., have an empty string as the name
-     * attribute. Any number of anonymous Interceptors may be registered with
-     * the ORB.
-     *
-     * @return the name of the interceptor.
-     */
     public String name() {
-        return "ClientSecurityInterceptor";
+        return "org.openejb.corba.security.ClientSecurityInterceptor";
     }
 }

@@ -47,6 +47,7 @@ package org.openejb.corba;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.ORB;
@@ -56,9 +57,10 @@ import org.omg.PortableServer.POAHelper;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import EDU.oswego.cs.dl.util.concurrent.Executor;
+
+import org.openejb.corba.security.config.ConfigAdapter;
+import org.openejb.corba.security.config.tss.TSSConfig;
 
 
 /**
@@ -70,6 +72,8 @@ public class CORBABean implements GBeanLifecycle {
 
     private final ClassLoader classLoader;
     private final Executor threadPool;
+    private final ConfigAdapter configAdapter;
+    private TSSConfig tssConfig;
     private ORB orb;
     private POA rootPOA;
     private ArrayList args = new ArrayList();
@@ -78,11 +82,22 @@ public class CORBABean implements GBeanLifecycle {
     public CORBABean() {
         this.classLoader = null;
         this.threadPool = null;
+        this.configAdapter = null;
     }
 
-    public CORBABean(ClassLoader classLoader, Executor threadPool) {
+    public CORBABean(ClassLoader classLoader, Executor threadPool, String configAdapter) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         this.classLoader = classLoader;
         this.threadPool = threadPool;
+        this.configAdapter = (ConfigAdapter) classLoader.loadClass(configAdapter).newInstance();
+    }
+
+    public TSSConfig getTssConfig() {
+        return tssConfig;
+    }
+
+    public void setTssConfig(TSSConfig config) {
+        if (config == null) config = new TSSConfig();
+        this.tssConfig = config;
     }
 
     public ORB getORB() {
@@ -115,7 +130,10 @@ public class CORBABean implements GBeanLifecycle {
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
 
-            orb = ORB.init((String[]) args.toArray(new String[args.size()]), props);
+            Properties properties = configAdapter.translateToProps(tssConfig);
+            properties.putAll(props);
+
+            orb = ORB.init((String[]) args.toArray(new String[args.size()]), properties);
 
             org.omg.CORBA.Object obj = orb.resolve_initial_references("RootPOA");
 
@@ -149,12 +167,14 @@ public class CORBABean implements GBeanLifecycle {
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addAttribute("configAdapter", String.class, true);
+        infoFactory.addAttribute("tssConfig", TSSConfig.class, true);
         infoFactory.addAttribute("ORB", ORB.class, false);
         infoFactory.addAttribute("rootPOA", POA.class, false);
         infoFactory.addAttribute("args", ArrayList.class, true);
         infoFactory.addAttribute("props", Properties.class, true);
 
-        infoFactory.setConstructor(new String[]{"classLoader", "ThreadPool"});
+        infoFactory.setConstructor(new String[]{"classLoader", "ThreadPool", "configAdapter"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
