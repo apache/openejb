@@ -85,10 +85,10 @@ public class MessageEndpointInterceptor implements MethodInterceptor, EJBInterce
      * @param signatures the signatures of the virtual methods
      * @param mdbInterface the class of the MDB's messaging interface (e.g. javax.jmx.MessageListner)
      */
-    public MessageEndpointInterceptor(MDBContainer container, MethodSignature[] signatures, Class mdbInterface) {
+    public MessageEndpointInterceptor(MDBContainer container, MethodSignature[] signatures, Class mdbInterface, ClassLoader classLoader) {
         this.container = container;
 
-        objectFactory = new CglibEJBProxyFactory(MessageEndpointProxy.class, new Class[]{mdbInterface, MessageEndpoint.class});
+        objectFactory = new CglibEJBProxyFactory(MessageEndpointProxy.class, new Class[]{mdbInterface, MessageEndpoint.class}, classLoader);
 //        operationMap = EJBProxyHelper.getOperationMap(EJBInterfaceType.LOCAL, objectFactory.getType(), signatures);
         operationMap = null;
     }

@@ -51,16 +51,16 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import javax.ejb.SessionContext;
 
+import org.apache.geronimo.gbean.jmx.GBeanMBean;
+
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
 import org.openejb.EJBContainer;
-import org.openejb.GenericEJBContainer;
 import org.openejb.InterceptorBuilder;
 import org.openejb.cache.InstancePool;
+import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
-import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.slsb.BusinessMethod;
 import org.openejb.proxy.EJBProxyFactory;
 
 /**
@@ -72,14 +72,22 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
     }
 
     public EJBContainer createContainer() throws Exception {
+        return (EJBContainer) buildIt(true);
+    }
+
+    public GBeanMBean createConfiguration() throws Exception {
+        return (GBeanMBean) buildIt(false);
+    }
+
+    private Object buildIt(boolean buildContainer) throws Exception {
         // get the bean class
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader classLoader = getClassLoader();
         Class beanClass = classLoader.loadClass(getBeanClassName());
 
         // build the vop table
         LinkedHashMap vopMap = buildVopMap(beanClass);
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
-        VirtualOperation[] vtable = (VirtualOperation[])vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
+        VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
 
         EJBProxyFactory proxyFactory = createProxyFactory(signatures);
 
@@ -93,17 +101,11 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
 
-        // construct the container
-        return new GenericEJBContainer(
-                getContainerId(),
-                getEJBName(),
-                proxyFactory,
-                signatures,
-                interceptorBuilder,
-                pool,
-                getUserTransaction(),
-                getTransactionManager(),
-                getTrackedConnectionAssociator());
+        if (buildContainer) {
+            return createContainer(proxyFactory, signatures, interceptorBuilder, pool);
+        } else {
+            return createConfiguration(proxyFactory, signatures, interceptorBuilder, pool);
+        }
     }
 
     protected LinkedHashMap buildVopMap(Class beanClass) {

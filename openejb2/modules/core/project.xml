@@ -58,6 +58,15 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>DEV</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
             <version>DEV</version>
             <properties>
@@ -104,6 +113,15 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
+            <version>DEV</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
             <version>DEV</version>
             <properties>
                 <runtime>true</runtime>
@@ -263,8 +281,10 @@
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
             <version>DEV</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
         </dependency>
-
     </dependencies>
 
     <!-- =================== -->
@@ -272,8 +292,8 @@
     <!-- =================== -->
 
     <build>
-    	<sourceDirectory>src/java</sourceDirectory>
-    	<unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+        <sourceDirectory>src/java</sourceDirectory>
+        <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
         <resources>
             <resource>
                 <directory>${basedir}/src/java</directory>

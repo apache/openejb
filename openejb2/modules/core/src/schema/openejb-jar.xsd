@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ================================================================
+ Redistribution and use of this software and associated documentation
+ ("Software"), with or without modification, are permitted provided
+ that the following conditions are met:
+
+ 1. Redistributions of source code must retain copyright
+    statements and notices.  Redistributions must also contain a
+    copy of this document.
+
+ 2. Redistributions in binary form must reproduce this list of
+    conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+
+ 3. The name "OpenEJB" must not be used to endorse or promote
+    products derived from this Software without prior written
+    permission of The OpenEJB Group.  For written permission,
+    please contact openejb-group@openejb.sf.net.
+
+ 4. Products derived from this Software may not be called "OpenEJB"
+    nor may "OpenEJB" appear in their names without prior written
+    permission of The OpenEJB Group. OpenEJB is a registered
+    trademark of The OpenEJB Group.
+
+ 5. Due credit should be given to the OpenEJB Project
+    (http://openejb.org/).
+
+ THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
+ ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
+ NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
+ THE OPENEJB GROUP OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ ====================================================================
+
+ This software consists of voluntary contributions made by many
+ individuals on behalf of the OpenEJB Project.  For more information
+ please see <http://openejb.org/>.
+
+ ================================================================ -->
+
+<xs:schema
+    xmlns:openejb="http://www.openejb.org/xml/ns/openejb-jar"
+    targetNamespace="http://www.openejb.org/xml/ns/openejb-jar"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="1.0">
+
+    <xs:include schemaLocation="geronimo-naming.xsd"/>
+    <xs:include schemaLocation="geronimo-common.xsd"/>
+
+    <!--
+    todo for some reason this has to be redeclared with a different name just to make name resolution happy....
+    -->
+    <xs:group name="openejb-jndiEnvironmentRefsGroup">
+        <xs:sequence>
+            <xs:element name="ejb-ref" type="openejb:remote-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="ejb-local-ref" type="openejb:local-refType" minOccurs="0" maxOccurs="unbounded"/>
+
+            <!-- leave web services out until I know what they do -->
+            <!--xs:group ref="service-refGroup"/-->
+
+            <xs:element name="resource-ref" type="openejb:local-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="resource-env-ref" type="openejb:local-refType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="message-destination-ref" type="openejb:remote-refType" minOccurs="0" maxOccurs="unbounded"/>
+
+            <!--xs:element name="security" type="sec:securityType" minOccurs="0"/-->
+        </xs:sequence>
+    </xs:group>
+
+
+    <xs:element name="openejb-jar" type="openejb:openejb-jarType"/>
+
+    <xs:complexType name="openejb-jarType">
+        <xs:sequence>
+            <xs:element name="enterprise-beans">
+                <xs:complexType>
+                    <xs:choice maxOccurs="unbounded">
+                        <xs:element name="session" type="openejb:session-beanType"/>
+                        <xs:element name="entity" type="openejb:entity-beanType"/>
+                        <xs:element name="message-driven" type="openejb:message-driven-beanType"/>
+                    </xs:choice>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="gbean" type="openejb:gbeanType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="configId" type="xs:string" use="required"/>
+        <xs:attribute name="parentId" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="session-beanType">
+        <xs:sequence>
+            <xs:element name="ejb-name" type="xs:string"/>
+            <xs:element name="jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="local-jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID"/>
+    </xs:complexType>
+
+    <xs:complexType name="entity-beanType">
+        <xs:sequence>
+            <xs:element name="ejb-name" type="xs:string"/>
+            <xs:element name="jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="local-jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID"/>
+    </xs:complexType>
+
+    <xs:complexType name="message-driven-beanType">
+        <xs:sequence>
+            <xs:element name="ejb-name" type="xs:string"/>
+
+            <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID"/>
+    </xs:complexType>
+
+</xs:schema>

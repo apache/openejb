@@ -73,15 +73,21 @@ public class CglibEJBProxyFactory {
     public CglibEJBProxyFactory(Class superClass, Class clientInterface, EJBInterfaceType type, MethodSignature[] signatures) {
         this(superClass, clientInterface);
     }
+
     public CglibEJBProxyFactory(Class superClass, Class clientInterface) {
-        this(superClass, new Class[]{clientInterface});
+        this(superClass, clientInterface, clientInterface.getClassLoader());
+    }
+
+    public CglibEJBProxyFactory(Class superClass, Class clientInterface, ClassLoader classLoader) {
+        this(superClass, new Class[]{clientInterface}, classLoader);
     }
 
     
-    public CglibEJBProxyFactory(Class superClass, Class[] clientInterfaces) {
+    public CglibEJBProxyFactory(Class superClass, Class[] clientInterfaces, ClassLoader classLoader) {
         assert superClass != null;
         assert clientInterfaces != null;
         enhancer = new Enhancer();
+        enhancer.setClassLoader(classLoader);
         enhancer.setSuperclass(superClass);
         enhancer.setInterfaces(clientInterfaces);
         enhancer.setCallbackFilter(new NoOverrideCallbackFilter(superClass));

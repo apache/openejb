@@ -228,21 +228,21 @@ public class GenericEJBContainer implements EJBContainer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(GenericEJBContainer.class.getName(), AbstractEJBContainer.GBEAN_INFO);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(GenericEJBContainer.class);
 
         infoFactory.setConstructor(
-                new String[]{"containerId", "ejbName", "proxyFactory", "signatures", "interceptorBuilder", "pool", "transactionManager", "trackedConnectionAssociator"},
-                new Class[]{Object.class, String.class, EJBProxyFactory.class, InterfaceMethodSignature[].class, EntityInterceptorBuilder.class, InstancePool.class, TransactionManager.class, TrackedConnectionAssociator.class});
+                new String[]{"containerId", "ejbName", "proxyFactory", "signatures", "interceptorBuilder", "pool", "userTransaction", "transactionManager", "trackedConnectionAssociator"},
+                new Class[]{Object.class, String.class, EJBProxyFactory.class, InterfaceMethodSignature[].class, InterceptorBuilder.class, InstancePool.class, EJBUserTransaction.class, TransactionManager.class, TrackedConnectionAssociator.class});
 
-        infoFactory.addAttribute("containerId", true);
         infoFactory.addAttribute("containerId", true);
         infoFactory.addAttribute("ejbName", true);
         infoFactory.addAttribute("proxyFactory", true);
         infoFactory.addAttribute("signatures", true);
         infoFactory.addAttribute("interceptorBuilder", true);
         infoFactory.addAttribute("pool", true);
-        infoFactory.addAttribute("transactionManager", true);
-        infoFactory.addAttribute("trackedConnectionAssociator", true);
+        infoFactory.addAttribute("userTransaction", true);
+        infoFactory.addReference("transactionManager", TransactionManager.class);
+        infoFactory.addReference("trackedConnectionAssociator", TrackedConnectionAssociator.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -152,7 +152,7 @@ public class StatelessContextTest extends TestCase {
         config.localHomeInterfaceName = MockLocalHome.class.getName();
         config.remoteInterfaceName = MockRemote.class.getName();
         config.localInterfaceName = MockLocal.class.getName();
-        config.transactionPolicySource = TransactionPolicyHelper.StatelessBeanPolicySource;
+        config.transactionPolicySource = TransactionPolicyHelper.StatelessBMTPolicySource;
     }
 
     protected void tearDown() throws Exception {

@@ -55,47 +55,47 @@ import org.openejb.transaction.BeanPolicy;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
 
-public class DeploymentInfoTxPolicySource implements TransactionPolicySource {    private final CoreDeploymentInfo deployment;
+public class DeploymentInfoTxPolicySource implements TransactionPolicySource {
     private final Map policyMap = new HashMap();
 
     public DeploymentInfoTxPolicySource(CoreDeploymentInfo deployment) {
-        this.deployment = deployment;
         Class remote = deployment.getRemoteInterface();
-        policyMap.put("Remote", buildRemotePolicyMap(remote));
+        policyMap.put("Remote", buildRemotePolicyMap(deployment, remote));
 
         Class home = deployment.getHomeInterface();
-        policyMap.put("Home", buildHomePolicyMap(home));
+        policyMap.put("Home", buildHomePolicyMap(deployment, home));
     }
 
     public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
         Map policies = (Map)policyMap.get(methodIntf);
         return (policies == null)? null: (TransactionPolicy)policies.get(signature);
     }
-    private Map buildRemotePolicyMap(Class remoteInterface) {
+
+    private static Map buildRemotePolicyMap(CoreDeploymentInfo deployment, Class remoteInterface) {
         Map policies = new HashMap();
 
         Method[] methods = remoteInterface.getMethods();
 
         for (int i = 0; i < methods.length; i++) {
             InterfaceMethodSignature signature = new InterfaceMethodSignature(methods[i], false);
-            policies.put(signature, getTransactionPolicy(methods[i]));
+            policies.put(signature, getTransactionPolicy(deployment, methods[i]));
         }
         return policies;
     }
 
-    private Map buildHomePolicyMap(Class homeInterface) {
+    private static Map buildHomePolicyMap(CoreDeploymentInfo deployment, Class homeInterface) {
         Map policies = new HashMap();
 
         Method[] methods = homeInterface.getMethods();
 
         for (int i = 0; i < methods.length; i++) {
             InterfaceMethodSignature signature = new InterfaceMethodSignature(methods[i], true);
-            policies.put(signature, getTransactionPolicy(methods[i]));
+            policies.put(signature, getTransactionPolicy(deployment, methods[i]));
         }
         return policies;
     }
 
-    private TransactionPolicy getTransactionPolicy(Method method) {
+    private static TransactionPolicy getTransactionPolicy(CoreDeploymentInfo deployment, Method method) {
         switch (deployment.getTransactionAttribute(method)) {
             case CoreDeploymentInfo.TX_MANDITORY: return ContainerPolicy.Mandatory;
             case CoreDeploymentInfo.TX_NEVER: return ContainerPolicy.Never;
