@@ -76,7 +76,7 @@ public class StatefulInterceptorBuilder extends AbstractInterceptorBuilder {
 
         Interceptor firstInterceptor;
         firstInterceptor = new DispatchInterceptor(vtable);
-        if (setIdentityEnabled) {
+        if (doAsCurrentCaller) {
             firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
         }
         firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
@@ -90,7 +90,7 @@ public class StatefulInterceptorBuilder extends AbstractInterceptorBuilder {
         if (runAs != null) {
             firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);
         }
-        if (securityEnabled) {
+        if (useContextHandler) {
             firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
         }
         firstInterceptor = new StatefulInstanceInterceptor(firstInterceptor, containerId, instanceFactory, instanceCache);

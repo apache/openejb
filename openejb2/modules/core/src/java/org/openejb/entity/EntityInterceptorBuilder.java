@@ -78,12 +78,8 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
 
         Interceptor firstInterceptor;
         firstInterceptor = new DispatchInterceptor(vtable);
-        if (setIdentityEnabled) {
+        if (doAsCurrentCaller) {
             firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
-        }
-        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
-        if (trackedConnectionAssociator != null) {
-            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
         }
         Interceptor systemChain = firstInterceptor;
         if (securityEnabled) {
@@ -92,8 +88,12 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
         if (runAs != null) {
             firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);
         }
-        if (securityEnabled) {
+        if (useContextHandler) {
             firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
+        }
+        firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
+        if (trackedConnectionAssociator != null) {
+            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
         }
         firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, instancePool);
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);

@@ -76,12 +76,12 @@ public class StatelessInterceptorBuilder extends AbstractInterceptorBuilder {
 
         Interceptor firstInterceptor;
         firstInterceptor = new DispatchInterceptor(vtable);
-        if (setIdentityEnabled) {
-            firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
-        }
         firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
         if (trackedConnectionAssociator != null) {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
+        }
+        if (doAsCurrentCaller) {
+            firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);
         }
         Interceptor systemChain = firstInterceptor;
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
@@ -91,9 +91,10 @@ public class StatelessInterceptorBuilder extends AbstractInterceptorBuilder {
         if (runAs != null) {
             firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);
         }
-        if (securityEnabled) {
+        if (useContextHandler) {
             firstInterceptor = new PolicyContextHandlerEJBInterceptor(firstInterceptor);
         }
+        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
         firstInterceptor = new StatelessInstanceInterceptor(firstInterceptor, instancePool);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
         return new TwoChains(firstInterceptor, systemChain);
