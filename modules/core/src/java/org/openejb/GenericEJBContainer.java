@@ -68,6 +68,7 @@ import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.timer.ThreadPooledTimer;
+import org.apache.geronimo.timer.PersistenceException;
 import org.apache.geronimo.kernel.Kernel;
 import org.openejb.cache.InstancePool;
 import org.openejb.client.EJBObjectHandler;
@@ -76,7 +77,7 @@ import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
-import org.openejb.timer.TimerServiceImpl;
+import org.openejb.timer.BasicTimerService;
 
 /**
  * @version $Revision$ $Date$
@@ -93,7 +94,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
     private final String[] jndiNames;
     private final String[] localJndiNames;
-    private final TimerServiceImpl timerService;
+    private final BasicTimerService timerService;
 
 
     public GenericEJBContainer(
@@ -148,7 +149,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
         contextFactory.setSystemChain(chains.getSystemChain());
         if (timer != null) {
-            timerService = new TimerServiceImpl(systemMethodIndices, interceptor, timer, objectName, kernel.getKernelName(), ObjectName.getInstance(objectName), transactionContextManager);
+            timerService = new BasicTimerService(systemMethodIndices, interceptor, timer, objectName, kernel.getKernelName(), ObjectName.getInstance(objectName), transactionContextManager);
             contextFactory.setTimerService(timerService);
         } else {
             timerService = null;
@@ -276,14 +277,19 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         }
     }
 
-    public void doStop() {
+    public void doStop() throws PersistenceException {
         if (timerService != null) {
             timerService.doStop();
         }
     }
 
     public void doFail() {
-        doStop();
+        try {
+            doStop();
+        } catch (PersistenceException e) {
+            //todo fix this
+            throw new RuntimeException(e);
+        }
     }
 
     private static String[] copyNames(String[] names) {

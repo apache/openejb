@@ -117,6 +117,15 @@ public class BasicBMPEntityContainerTest extends TestCase {
         assertEquals(new Integer(1), local.getPrimaryKey());
     }
 
+    public void testTimeout() throws Exception {
+        MockLocalHome localHome = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
+        MockLocal local = localHome.create(new Integer(1), null);
+        local.startTimer();
+        Thread.currentThread().sleep(400L);
+        int timeoutCount = local.getTimeoutCount();
+        assertEquals(1, timeoutCount);
+    }
+
     public void testLocalRemove() throws Exception {
         MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
         home.remove(new Integer(1));
@@ -154,6 +163,7 @@ public class BasicBMPEntityContainerTest extends TestCase {
         //start the ejb container
         container.setReferencePatterns("TransactionContextManager", Collections.singleton(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME));
         container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME));
+        container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
         start(CONTAINER_NAME, container);
     }
 

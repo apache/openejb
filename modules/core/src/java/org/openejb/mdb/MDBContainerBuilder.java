@@ -63,7 +63,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.openejb.ResourceEnvironmentBuilder;
-import org.openejb.timer.TimerServiceImpl;
+import org.openejb.timer.BasicTimerService;
 import org.openejb.mdb.dispatch.SetMessageDrivenContextOperation;
 import org.openejb.dispatch.EJBTimeoutOperation;
 import org.openejb.cache.InstancePool;

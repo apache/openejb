@@ -133,8 +133,8 @@ public final class SystemMethodIndices implements EJBTimeoutInvocationFactory {
         return new EJBInvocationImpl(unsetContext, null, instanceContext);
     }
 
-    public EJBInvocation getEJBTimeoutInvocation(TimerImpl timer) {
-        return new EJBInvocationImpl(EJBInterfaceType.TIMEOUT, ejbTimeout, new Object[] {timer});
+    public EJBInvocation getEJBTimeoutInvocation(Object id, TimerImpl timer) {
+        return new EJBInvocationImpl(EJBInterfaceType.TIMEOUT, id, ejbTimeout, new Object[] {timer});
     }
 
 }

@@ -91,14 +91,10 @@ public final class EntityInstanceInterceptor implements Interceptor {
             context.setId(id);
             try {
                 context.ejbActivate();
-//                context.setOperation(EJBOperation.EJBACTIVATE);
-//                instance.ejbActivate();
             } catch (Throwable t) {
                 // problem activating instance - discard it and throw the problem (will cause rollback)
                 pool.remove(context);
                 throw t;
-//            } finally {
-//                context.setOperation(EJBOperation.INACTIVE);
             }
 
             // associate this instance with the TransactionContext
@@ -131,18 +127,14 @@ public final class EntityInstanceInterceptor implements Interceptor {
             if (id != null) {
                 // always passivate on the way out...
                 try {
-//                    context.setOperation(EJBOperation.EJBLOAD);
                     context.flush();
                     context.ejbPassivate();
-//                    context.setOperation(EJBOperation.EJBACTIVATE);
-//                    instance.ejbPassivate();
                 } catch (Throwable t) {
                     // problem passivating instance - discard it and throw the problem (will cause rollback)
                     pool.remove(context);
                     // throw this exception only if we are not already throwing a business exception
                     if (!threwException) throw t;
                 } finally {
-//                    context.setOperation(EJBOperation.INACTIVE);
                     context.setTransactionContext(null);
                     transactionContext.unassociate(context.getContainerId(), id);
                 }

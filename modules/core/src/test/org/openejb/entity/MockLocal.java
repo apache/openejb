@@ -63,4 +63,8 @@ public interface MockLocal extends EJBLocalObject {
     String getValue();
 
     void setValue(String value);
+
+    void startTimer();
+
+    int getTimeoutCount();
 }

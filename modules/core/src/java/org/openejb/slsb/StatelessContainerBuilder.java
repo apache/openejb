@@ -59,7 +59,7 @@ import org.openejb.EJBComponentType;
 import org.openejb.InterceptorBuilder;
 import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.ContainerPolicy;
-import org.openejb.timer.TimerServiceImpl;
+import org.openejb.timer.BasicTimerService;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.MethodHelper;

@@ -58,7 +58,7 @@ import org.apache.geronimo.transaction.InstanceContext;
 import org.openejb.EJBInstanceFactory;
 import org.openejb.EJBInstanceFactoryImpl;
 import org.openejb.InstanceContextFactory;
-import org.openejb.timer.TimerServiceImpl;
+import org.openejb.timer.BasicTimerService;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
@@ -76,7 +76,7 @@ public class BMPInstanceContextFactory implements InstanceContextFactory, Serial
     private transient EJBProxyFactory proxyFactory;
     private transient Interceptor systemChain;
     private transient SystemMethodIndices systemMethodIndices;
-    private TimerServiceImpl timerService;
+    private BasicTimerService timerService;
 
 
     public BMPInstanceContextFactory(Object containerId, Class beanClass, Set unshareableResources, Set applicationManagedSecurityResources) {
@@ -99,7 +99,7 @@ public class BMPInstanceContextFactory implements InstanceContextFactory, Serial
         return systemMethodIndices;
     }
 
-    public void setTimerService(TimerServiceImpl timerService) {
+    public void setTimerService(BasicTimerService timerService) {
         this.timerService = timerService;
     }
 
