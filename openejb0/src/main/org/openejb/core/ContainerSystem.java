@@ -51,6 +51,8 @@ import javax.ejb.EJBContext;
 import org.openejb.core.ivm.naming.IvmContext;
 import org.openejb.core.ivm.naming.NameNode;
 import org.openejb.core.ivm.naming.ParsedName;
+import org.openejb.core.ivm.naming.Reference;
+import org.openejb.core.ivm.naming.ObjectReference;
 
 public class ContainerSystem implements org.openejb.spi.ContainerSystem{
 
@@ -126,17 +128,22 @@ public class ContainerSystem implements org.openejb.spi.ContainerSystem{
 
 
     /**
-     * Adds a DeploymentInof object to the list of those that are registered by this container System.
-     * If a DeploymentInfo object previously existed with the same id it will be replaced.
-     *
-     * Also adds deployment to OpenEJB's global JNDI Name Space under the context java:openejb/ejb/<i>deployment-id</i>
+     * Adds a DeploymentInfo object to the list of those that are registered 
+     * by this container System.
+     * 
+     * If a DeploymentInfo object previously existed with the same id it will 
+     * be replaced.
+     * 
+     * Also adds deployment to OpenEJB's global JNDI Name Space under the context
+     *   java:openejb/ejb/<i>deployment-id</i>
+     * 
      * The global JNDI name space contains bindings for all enterprise bean
      * EJBHome object deployed in the entire container system.  EJBHome objects
      * are bound using their deployment-id under the java:openejb/ejb/ namespace.
      * For example, an enterprise bean with the deployment id = 55555 would be
      * have its EJBHome bound to the name "java:openejb/ejb/55555"
-     *
-     * @param the DeploymentInfo to register
+     * 
+     * @param deployment
      * @see org.openejb.DeploymentInfo
      */
     public void addDeployment(org.openejb.core.DeploymentInfo deployment){
@@ -146,13 +153,13 @@ public class ContainerSystem implements org.openejb.spi.ContainerSystem{
 
         // add deployment to OpenEJB JNDI Name Space
         javax.ejb.EJBHome ejbHome = deployment.getEJBHome();
-        Object ref = ejbHome;
+        Reference ref = new ObjectReference( ejbHome );
         if(deployment.getComponentType()== DeploymentInfo.STATEFUL)
-            ref = new org.openejb.core.stateful.EncReference(ejbHome);
+            ref = new org.openejb.core.stateful.EncReference( ref );
         else if(deployment.getComponentType()== DeploymentInfo.STATELESS)
-            ref = new org.openejb.core.stateless.EncReference(ejbHome);
+            ref = new org.openejb.core.stateless.EncReference( ref );
         else
-            ref = new org.openejb.core.entity.EncReference(ejbHome);
+            ref = new org.openejb.core.entity.EncReference( ref );
         try{
 
         String bindName = deployment.getDeploymentID().toString();
