@@ -67,19 +67,7 @@ public class IvmTestServer implements TestServer {
     }
     
     public void create(Properties props){
-        //System.out.println("[IntraVM] "+props.getProperty(OPENEJB_CONFIG_FILE));
-        //props.setProperty(org.openejb.EnvProps.CONFIGURATION,props.getProperty(OPENEJB_CONFIG_FILE));
         properties = props;
-
-
-        /* [DMB] Temporary fix  */
-        try{
-            //System.setSecurityManager(new TestSecurityManager());
-            //System.setSecurityManager(new SecurityManager());
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        /* [DMB] Temporary fix  */
     }
     
     public void destroy(){
@@ -100,9 +88,7 @@ public class IvmTestServer implements TestServer {
     }
 
     public Properties getContextEnvironment(){
-        Properties properties = new Properties();
-        properties.put(Context.INITIAL_CONTEXT_FACTORY, "org.openejb.core.ivm.naming.InitContextFactory");
-        return properties;
+        return (Properties)properties.clone();
     }
 
 }

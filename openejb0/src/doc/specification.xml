@@ -1,16 +1,9 @@
 <?xml version="1.0"?>
-<document url="http://openejb.exolab.org/index.xml">
+<document url="http://openejb.sf.net/specification.xml">
   <body>
     <title>OpenEJB Specification, Jalapeño Version</title>
-
-    <header>
-      <p> 
-	</p>
-    </header>
-
- 
+    
     <section title="">
-
         <p>
         OpenEJB represents a revolution in application server design, a view that application servers should be modular, not monolithic. A modular application server is built from subsystems rather than constructed as one huge, tightly coupled platform. Modularization of application server software allows vendors to focus on their core competencies instead of reinventing every subsystem from scratch to create a complete platform. Not only is modularization possible, OpenEJB makes it a reality.
         </p>
@@ -31,9 +24,9 @@
         <p>
         Download the OpenEJB 1.1 Specification Draft 0.7
         <UL>
-        <LI><a href="ftp://ftp.exolab.org/pub/openejb/spec/OpenEJB_Specification.doc">OpenEJB_Specification.doc</a></LI>
-        <LI><a href="ftp://ftp.exolab.org/pub/openejb/spec/OpenEJB_Specification.pdf">OpenEJB_Specification.pdf</a></LI>
-        <LI><a href="ftp://ftp.exolab.org/pub/openejb/spec/OpenEJB_Specification.ps"> OpenEJB_Specification.ps</a></LI>
+        <LI><a href="spec/OpenEJB_Specification.doc">OpenEJB_Specification.doc</a></LI>
+        <LI><a href="spec/OpenEJB_Specification.pdf">OpenEJB_Specification.pdf</a></LI>
+        <LI><a href="spec/OpenEJB_Specification.ps"> OpenEJB_Specification.ps</a></LI>
         </UL>
         </p>
 

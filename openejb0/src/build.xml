@@ -19,7 +19,6 @@
   <property name="src.doc.dir" value="${docs.src}"/>
   <property name="dest.doc.dir" value="${docs.dest}"/>
   <property name="dest.javadoc.dir" value="${javadoc.destdir}"/>
-  <property name="src.test.dir" value="test"/>
   <property name="final.name" value="${project}-${version}"/>
   <property name="final.dir" value="dist/${final.name}/"/>
   <property name="reports.tests.dir" value="test/reports"/>
@@ -33,6 +32,7 @@
   <path id="project.classpath">
     <pathelement location="${jrefactory.jar}"/>
     <pathelement location="${castor.home}/${castor.jar}"/>
+    <pathelement location="${castor.home}/${castor.xml.jar}"/>
     <pathelement location="${ejb11.jar}"/>
     <pathelement location="${ejb20.jar}"/>
     <pathelement location="${jaas.home}/${jaas.jar}"/>
@@ -95,9 +95,10 @@
 
     <echo message="jrefactory.jar         = ${jrefactory.jar}"/>
     <echo message="castor.jar             = ${castor.home}/${castor.jar}"/>
+    <echo message="castor.xml.jar         = ${castor.home}/${castor.xml.jar}"/>
     <echo message="ejb11.jar              = ${ejb11.jar}"/>
     <echo message="ejb20.jar              = ${ejb20.jar}"/>
-    <echo message="jaas.jar               = ${jaas.home}/lib/${jaas.jar}"/>
+    <echo message="jaas.jar               = ${jaas.home}/${jaas.jar}"/>
     <echo message="jca.jar                = ${jca.jar}"/>
     <echo message="jdbcext.jar            = ${jdbcext.jar}"/>
     <echo message="jdk12proxy.jar         = ${jdk12proxy.jar}"/>
@@ -659,24 +660,45 @@
           depends="prepare"
           description="--> generates documentation from XML files via XSLT">
 
-    <copy todir="${docs.dest}/html/ann">
-        <fileset dir="${docs.src}/ann" />
-    </copy>
-    <copy todir="${docs.dest}/html/faqs">
-        <fileset dir="${docs.src}/faqs" />
-    </copy>
-    <copy todir="${docs.dest}/html/guides">
-        <fileset dir="${docs.src}/guides" />
-    </copy>
     <copy todir="${docs.dest}/html/spec">
         <fileset dir="${docs.src}/spec" />
     </copy>
     
+    <copy todir="build/src/javadoc">
+        <fileset dir="src/main" includes="**/**.java,**/**.html" excludes="**/CVS/**"/>
+        <fileset dir="src/facilities" includes="**/**.java,**/**.html" excludes="**/modern/**,**/ui/**,**/sp/**,**/CVS/**"/>
+    </copy>
+    
+    <mkdir dir="${docs.dest}/html/javadoc"/>
+          
+    <javadoc packagenames="org.openejb.*"
+             sourcepath="build/src/javadoc"
+             destdir="${docs.dest}/html/javadoc"
+             doctitle="${name} JavaDoc"
+             windowtitle="${name} JavaDoc"
+		     package="true"
+		     author="false"
+             version="true"
+             noindex="true"
+             classpathref="project.classpath"/>
+    
     <style basedir="${docs.src}" 
         destdir="${docs.dest}/html" 
-        style="src/doc/style/exolab.xsl"
-        includes="**/**.xml" 
+        style="src/doc/style/sysdesign.xsl"
+        includes="**/design_*.xml" 
         excludes="style/**,project.xml"
+        processor="xslp">           
+      
+        <classpath>
+            <path refid="project.classpath"/>
+        </classpath>
+           
+    </style>
+    <style basedir="${docs.src}" 
+        destdir="${docs.dest}/html" 
+        style="src/doc/style/website.xsl"
+        includes="**/**.xml" 
+        excludes="style/**,src/doc/design_**,project.xml"
         processor="xslp">           
       
         <classpath>
@@ -697,7 +719,11 @@
     <copy todir="${docs.dest}/html">
         <fileset dir="${docs.src}" includes="license.txt,document.dtd,*.pdf"/>
     </copy>
+    <copy todir="${docs.dest}/html">
+        <fileset dir="${docs.src}" includes="*.ppt"/>
+    </copy>
   </target>
+
   
   <!-- ================================================================== -->
   <!-- Cleans up the build directory                                      -->
@@ -911,7 +937,6 @@
       <property name="src.doc.dir" value="${src.doc.dir}"/>
       <property name="dest.doc.dir" value="${dest.doc.dir}"/>
       <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="src.test.dir" value="${src.test.dir}"/>
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
@@ -925,7 +950,6 @@
       <property name="src.doc.dir" value="${src.doc.dir}"/>
       <property name="dest.doc.dir" value="${dest.doc.dir}"/>
       <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="src.test.dir" value="${src.test.dir}"/>
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
@@ -939,7 +963,6 @@
       <property name="src.doc.dir" value="${src.doc.dir}"/>
       <property name="dest.doc.dir" value="${dest.doc.dir}"/>
       <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="src.test.dir" value="${src.test.dir}"/>
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
@@ -953,7 +976,6 @@
       <property name="src.doc.dir" value="${src.doc.dir}"/>
       <property name="dest.doc.dir" value="${dest.doc.dir}"/>
       <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="src.test.dir" value="${src.test.dir}"/>
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
@@ -967,11 +989,10 @@
       <property name="src.doc.dir" value="${src.doc.dir}"/>
       <property name="dest.doc.dir" value="${dest.doc.dir}"/>
       <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
-      <property name="src.test.dir" value="${src.test.dir}"/>
       <property name="final.name" value="${final.name}"/>
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
-          
+    
   </target>
   
 </project>

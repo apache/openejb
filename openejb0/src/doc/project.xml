@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<project topSelected="2">
+<project topSelected="1">
 
   <title>The OpenEJB Project</title>
   <logo>./images/logo_ejb.gif</logo>
   <repository>OpenEJB</repository>
-  <href>http://openejb.exolab.org</href>
+  <href>http://openejb.sf.net</href>
 
   <topNav>
     <navLink>
       <url>http://openejb.sf.net</url>
-      <display>OpenEJB</display>
+      <display>OpenEJB at SourceForge</display>
     </navLink>
 
     <navLink>
-      <url>http://openorb.sf.net</url>
-      <display>OpenORB</display>
+      <url>http://openejb.exolab.org</url>
+      <display>OpenEJB at Exolab</display>
     </navLink>
  
   </topNav>
@@ -26,62 +26,61 @@
         <url>index.xml</url>
         <display>Welcome!</display>
       </navLink>
-
-    </section>
-
-    <section name="OpenEJB">
       <navLink>
         <url>datasheet.xml</url>
-        <display>Datasheet</display>
+        <display>Overview</display>
       </navLink>
-
-      <navLink>
-        <url>specification.xml</url>
-        <display>Specification</display>
-      </navLink>
-
-    </section>
-
-    <section name="Project">
-      <navLink>
-        <url>guides-index.xml</url>
-        <display>Getting Started</display>
-      </navLink>
-      
       <navLink>
         <url>lists.xml</url>
         <display>Mailing Lists</display>
       </navLink>
       
       <navLink>
-        <url>documentation.xml</url>
-        <display>Documentation</display>
-      </navLink>
-      
-      <navLink>
         <url>cvs.xml</url>
         <display>CVS</display>
       </navLink>
-    
       <navLink>
         <url>contributors.xml</url>
-        <display>Contributors</display>
+        <display>The Team</display>
       </navLink>
-    
-    </section>
-
-    <section name="Resources">
       <navLink>
-        <url>library.xml</url>
-        <display>Library</display>
+        <url>http://sourceforge.net/projects/openejb/</url>
+        <display>SourceForge</display>
       </navLink>
     </section>
 
+    <section name="Users">
+      <navLink>
+        <url>quickstart.xml</url>
+        <display>Quickstart</display>
+      </navLink>
+      <navLink>
+        <url>http://sourceforge.net/tracker/?group_id=44351&amp;atid=439275</url>
+        <display>Support</display>
+      </navLink>
+    </section>
+
+    <section name="Integrators">
+      <navLink>
+        <url>whyopenejb.xml</url>
+        <display>Why OpenEJB</display>
+      </navLink>
+      <navLink>
+        <url>design_openejb.xml</url>
+        <display>Design</display>
+      </navLink>
+      <navLink>
+        <url>specification.xml</url>
+        <display>Specification</display>
+      </navLink>
+      <navLink>
+        <url>OpenEJB_presentaion.ppt</url>
+        <display>Presentation</display>
+      </navLink>
+    </section>
+    
   </navSections>
 
-  <notice>
-    Copyright © 1999-2001 <a href="http://www.exolab.org">ExoLab Group</a>.  All rights reserved.  
-  </notice>
   <notice>
     Java, EJB, JDBC, JNDI, JTA, Sun, Sun Microsystems are trademarks or registered
     trademarks of Sun Microsystems, Inc. in the United States and in other

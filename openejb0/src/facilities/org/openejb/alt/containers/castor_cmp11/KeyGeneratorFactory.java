@@ -8,25 +8,37 @@ import java.util.Vector;
 import org.openejb.util.proxy.ProxyClassLoader;
 
 public abstract class KeyGeneratorFactory {
-        
+
     public final static ProxyClassLoader loader = new ProxyClassLoader();
-    
-    public static boolean DELETE_DEFINITIONS = false;
-    public static boolean CREATE_PACKAGE_DIRECTORIES = true;
-    
-    public static File  PROXY_OUTPUT_DIRECTORY = null;
-    
-    static{
-        try{
-        PROXY_OUTPUT_DIRECTORY = new File(System.getProperty("user.dir"));
-        }catch(Exception e){}
+
+    private static boolean DELETE_DEFINITIONS         = false;
+    private static boolean CREATE_PACKAGE_DIRECTORIES = true;
+    private static File    KEY_OUTPUT_DIRECTORY       = null;
+    private static String  defaultDirectory           = "keys";
+
+    protected static void setKeyOutputDirectory(String path) throws IOException{
+        try {
+            if ( path == null ) {
+                path = "keys";
+            }
+            File dir = new File(path);
+
+            if ( !dir.exists() ) {
+                dir.mkdirs();
+            } else if ( dir.exists() && !dir.isDirectory() ) {
+                throw new IOException("The path specified is not a valid directory: "+dir.getAbsolutePath());
+            }
+            KEY_OUTPUT_DIRECTORY = dir;
+        } catch ( Exception e ) {
+            throw new IOException("Cannot create the output directory for generated keys"+e.getMessage());
+        }
     }
-    
+
     public static KeyGenerator createKeyGenerator(DeploymentInfo di)
     throws java.lang.InstantiationException, java.lang.IllegalAccessException{
-        
+
         StringBuffer source = new StringBuffer();
-        
+
         appendPackage(di, source);
         appendImports(di, source);
         appendClassDeclaration(di, source);
@@ -37,17 +49,18 @@ public abstract class KeyGeneratorFactory {
         newLine(source);
         newLine(source);
         source.append('}');
-        
+
         //System.out.println(source);
-        String className = "org.openejb.alt.containers.castor_cmp11."+getClassName(di);
-        return (KeyGenerator)getKeyGeneratorClass(source.toString(), className).newInstance();
-        
+        //String className = "org.openejb.alt.containers.castor_cmp11."+getClassName(di);
+        String className = getClassName(di);
+        return(KeyGenerator)getKeyGeneratorClass(source.toString(), className).newInstance();
+
     }
-    protected static void appendPackage(DeploymentInfo di, StringBuffer source){
-        newLine(source);
-        source.append("package org.openejb.alt.containers.castor_cmp11;");
+    protected static void appendPackage(DeploymentInfo di, StringBuffer source) {
+        //newLine(source);
+        //source.append("package org.openejb.alt.containers.castor_cmp11;");
     }
-    protected static void appendImports(DeploymentInfo di, StringBuffer source){
+    protected static void appendImports(DeploymentInfo di, StringBuffer source) {
         newLine(source);
         newLine(source);
         source.append("import org.exolab.castor.persist.spi.Complex;");
@@ -56,14 +69,14 @@ public abstract class KeyGeneratorFactory {
         newLine(source);
         newLine(source);
         // Add all beans imports (necessary when no package is specified for the classes
-        source.append("import "+di.getBeanClass().getName()+";");
+        source.append("import ").append(di.getBeanClass().getName()).append(';');
         newLine(source);
-        source.append("import "+di.getPrimaryKeyClass().getName()+";");
+        source.append("import ").append(di.getPrimaryKeyClass().getName()).append(';');
         newLine(source);
         newLine(source);
-        
+
     }
-    protected static void appendClassDeclaration(DeploymentInfo di, StringBuffer source){
+    protected static void appendClassDeclaration(DeploymentInfo di, StringBuffer source) {
         newLine(source);
         newLine(source);
         source.append("public class ");
@@ -75,56 +88,56 @@ public abstract class KeyGeneratorFactory {
         '`', '~', '!', '@', '#', '%', '^', '&',
         '*', '(', ')', '-', '+', '=', '[', ']',
         '{', '}', ' ', '|', ';', ':', '<', '>',
-        ',', '?', '/', '"', '\\', '\''
+        ',', '?', '/', '"', '\\', '\'','.'
     };
-    protected static String getClassName(DeploymentInfo di){
+    protected static String getClassName(DeploymentInfo di) {
         String name = ""+di.getDeploymentID();
-        for (int i=0; i < illegalClassNameCharacters.length; i++){
-            //System.out.println(illegalClassNameCharacters[i]);
+        for ( int i=0; i < illegalClassNameCharacters.length; i++ ) {
             name = name.replace(illegalClassNameCharacters[i], '_');
         }
         return "KeyGenerator_"+name;   
     }
-    protected static void appendMethod_getPrimaryKey(DeploymentInfo di, StringBuffer source){
+
+    protected static void appendMethod_getPrimaryKey(DeploymentInfo di, StringBuffer source) {
         newLine(source);
         newLine(source);
-        
-        
+
+
         tab(source, 1);
-        
+
         //  public Object getPrimaryKey(EntityBean bean) {
-        source.append("public Object getPrimaryKey(EntityBean bean){");
-        
+        source.append("public java.lang.Object getPrimaryKey(javax.ejb.EntityBean bean){");
+
         //      CustomerBean entityBean = (CustomerBean)bean;
         newLine(source); tab(source, 2);
         source.append(di.getBeanClass().getName());
         source.append(" entityBean = (");
         source.append(di.getBeanClass().getName());
         source.append(")bean;");
-        
-        if(di.getPrimaryKeyField()==null){// key is complex
-        
+
+        if ( di.getPrimaryKeyField()==null ) {// key is complex
+
             //      CustomerPK primaryKey = new CustomerPK();
             newLine(source); tab(source, 2);
             source.append(di.getPrimaryKeyClass().getName());
             source.append(" primaryKey = new ");
             source.append(di.getPrimaryKeyClass().getName());
             source.append("();");
-            
-            
+
+
             //      primaryKey.id = entityBean.id;
-            java.lang.reflect.Field [] keyFields = di.getPrimaryKeyClass().getFields();
-            java.lang.reflect.Field [] beanFields = di.getBeanClass().getFields();
-            
-            for(int i = 0; i < keyFields.length; i++){
-                
+            java.lang.reflect.Field[] keyFields  = di.getPrimaryKeyClass().getFields();
+            java.lang.reflect.Field[] beanFields = di.getBeanClass().getFields();
+
+            for ( int i = 0; i < keyFields.length; i++ ) {
+
                 java.lang.reflect.Field keyField = keyFields[i];
-                
-                for(int x = 0; x < beanFields.length; x++){
+
+                for ( int x = 0; x < beanFields.length; x++ ) {
                     java.lang.reflect.Field beanField = beanFields[x];
-                    
-                    if(keyField.getClass()== beanField.getClass() && keyField.getName().equals(beanField.getName())){
-                        
+
+                    if ( keyField.getClass()== beanField.getClass() && keyField.getName().equals(beanField.getName()) ) {
+
                         newLine(source); tab(source, 2);
                         source.append("primaryKey.");
                         source.append(keyField.getName());
@@ -132,163 +145,162 @@ public abstract class KeyGeneratorFactory {
                         source.append(beanField.getName());
                         source.append(';');
                         break;
-                        
+
                     }
-                    
+
                 }
-                
+
             }
             // return primaryKey;
             newLine(source);tab(source,2);
             source.append("return primaryKey;");
-            
-        }else{// simple primary key
-             java.lang.reflect.Field field = di.getPrimaryKeyField();
-             Class fieldType = field.getType();
-             
-             newLine(source); tab(source,2);
-             
-             if(fieldType.isPrimitive()){
+
+        } else {// simple primary key
+            java.lang.reflect.Field field = di.getPrimaryKeyField();
+            Class fieldType = field.getType();
+
+            newLine(source); tab(source,2);
+
+            if ( fieldType.isPrimitive() ) {
                 // return new java.lang.Integer(entityBean.id);
                 source.append("return new ");
-                
+
                 // java.lang.Integer
                 appendPrimitiveWrapperName(source,fieldType);
-                
+
                 source.append("(entityBean.");
                 source.append(field.getName());
                 source.append(");");
-             }else if(fieldType == String.class || 
-                      java.lang.Number.class.isAssignableFrom(fieldType) || 
-                      fieldType == java.lang.Boolean.class )
-             {
+            } else if ( fieldType == String.class || 
+                        java.lang.Number.class.isAssignableFrom(fieldType) || 
+                        fieldType == java.lang.Boolean.class ) {
                 // return entityBean.id;
                 source.append("return entityBean.");
                 source.append(field.getName());
-                source.append(";");
-             }else{
+                source.append(';');
+            } else {
                 // return entityBean.id.clone();
                 newLine(source); tab(source,2);
                 source.append("return entityBean.");
                 source.append(field.getName());
                 source.append(".clone();");
-             }
-            
+            }
+
         }
-        
+
         //  }
         newLine(source);tab(source,1);
         source.append('}');
     }
-    protected static void appendPrimitiveWrapperName(StringBuffer source, Class fieldType){
-        if(fieldType == Integer.TYPE){
+    protected static void appendPrimitiveWrapperName(StringBuffer source, Class fieldType) {
+        if ( fieldType == Integer.TYPE ) {
             source.append("java.lang.Integer");                    
-        }else if(fieldType == Long.TYPE){
+        } else if ( fieldType == Long.TYPE ) {
             source.append("java.lang.Long");  
-        }else if(fieldType == Double.TYPE){
+        } else if ( fieldType == Double.TYPE ) {
             source.append("java.lang.Double"); 
-        }else if(fieldType == Float.TYPE){
+        } else if ( fieldType == Float.TYPE ) {
             source.append("java.lang.Float");
-        }else if(fieldType == Short.TYPE){
+        } else if ( fieldType == Short.TYPE ) {
             source.append("java.lang.Short");
-        }else if(fieldType == Byte.TYPE){
+        } else if ( fieldType == Byte.TYPE ) {
             source.append("java.lang.Byte");
-        }else if(fieldType == Character.TYPE){
+        } else if ( fieldType == Character.TYPE ) {
             source.append("java.lang.Character");
-        }else if(fieldType == Boolean.TYPE){
+        } else if ( fieldType == Boolean.TYPE ) {
             source.append("java.lang.Boolean");
         }
     }
-    protected static void appendMethod_getJdoComplex(DeploymentInfo di, StringBuffer source){
+    protected static void appendMethod_getJdoComplex(DeploymentInfo di, StringBuffer source) {
         newLine(source);
         newLine(source);tab(source,1);
-        
+
         // public Complex getJdoComplex(Object primaryKey){
-        source.append("public Complex getJdoComplex(Object primaryKey){");
-        
-        if(di.getPrimaryKeyField()==null){// key is complex
-            
+        source.append("public org.exolab.castor.persist.spi.Complex getJdoComplex(java.lang.Object primaryKey){");
+
+        if ( di.getPrimaryKeyField()==null ) {// key is complex
+
             //      CustomerPK key = (CustomerPK)primaryKey;
             newLine(source); tab(source,2);
             source.append(di.getPrimaryKeyClass().getName());
             source.append(" key = (");
             source.append(di.getPrimaryKeyClass().getName());
             source.append(")primaryKey;");
-            
+
             //      Object args = new Object[2];
             newLine(source); tab(source, 2);
-            
+
             // only fields that are shared between the key and bean are considered primary key fields
             java.lang.reflect.Field [] keyFields = di.getPrimaryKeyClass().getFields();
             java.lang.reflect.Field [] beanFields = di.getBeanClass().getFields();
             java.util.Vector commonFields = new java.util.Vector();
-        
-            for(int i = 0; i < keyFields.length; i++){
-                
+
+            for ( int i = 0; i < keyFields.length; i++ ) {
+
                 java.lang.reflect.Field keyField = keyFields[i];
-                for(int x = 0; x < beanFields.length; x++){
+                for ( int x = 0; x < beanFields.length; x++ ) {
                     java.lang.reflect.Field beanField = beanFields[x];
-                    if(keyField.getClass()== beanField.getClass() && keyField.getName().equals(beanField.getName())){
+                    if ( keyField.getClass()== beanField.getClass() && keyField.getName().equals(beanField.getName()) ) {
                         commonFields.add(keyField);
                     }
                 }
             }
-        
-            source.append("Object [] args = new Object[");
+
+            source.append("java.lang.Object [] args = new java.lang.Object[");
             source.append(commonFields.size());
             source.append("];");
-            
+
             //      args[1] = new java.util.Integer(key.id);  
             //      args[2] = key.date;
-            for(int i = 0; i < commonFields.size(); i++){
+            for ( int i = 0; i < commonFields.size(); i++ ) {
                 newLine(source); tab(source,2);
                 source.append("args[");
                 source.append(i);
                 source.append("] = ");
                 boolean wrappered = applyWrapper(source, (java.lang.reflect.Field)commonFields.elementAt(i));
-                source.append("key."+((java.lang.reflect.Field)commonFields.elementAt(i)).getName());
-                if(wrappered)source.append(")");
+                source.append("key.").append(((java.lang.reflect.Field)commonFields.elementAt(i)).getName());
+                if ( wrappered )source.append(')');
                 source.append(';');
             }
-            
+
             // return new Complex(args.length, args);
             newLine(source); tab(source, 2);
-            source.append("return new Complex(args.length, args);");
-        }else{
+            source.append("return new org.exolab.castor.persist.spi.Complex(args.length, args);");
+        } else {
             // make complex for simply key
             newLine(source); tab(source, 2);
-            source.append("return new Complex(primaryKey);");
-            
+            source.append("return new org.exolab.castor.persist.spi.Complex(primaryKey);");
+
         }
-        
+
         //  }
         newLine(source);tab(source,1);
         source.append('}');
-        
+
     }
-    protected static boolean applyWrapper(StringBuffer source, java.lang.reflect.Field field){
-        if(field.getType().isPrimitive()){
+    protected static boolean applyWrapper(StringBuffer source, java.lang.reflect.Field field) {
+        if ( field.getType().isPrimitive() ) {
             source.append("new ");
             appendPrimitiveWrapperName(source,field.getType());
-            source.append("(");
+            source.append('(');
             return true;
-        }else
+        } else
             return false;
-        
+
     }
-    protected static void appendMethod_isKeyComplex(DeploymentInfo di, StringBuffer source){
+    protected static void appendMethod_isKeyComplex(DeploymentInfo di, StringBuffer source) {
         // public boolean isKeyComplex( ){
         newLine(source);
         newLine(source); tab(source,1);
- 
+
         source.append("public boolean isKeyComplex( ){");
-        
+
         // return true; return false;
         newLine(source); tab(source,2);
         source.append("return ");
         source.append((di.getPrimaryKeyField()==null?true:false));
         source.append(';');
-        
+
         //  }
         newLine(source);tab(source,1);
         source.append('}');
@@ -296,26 +308,28 @@ public abstract class KeyGeneratorFactory {
     protected static boolean isPrimaryKeyComplex(DeploymentInfo di){
         return (di.getPrimaryKeyField()==null)? true:false;
     }*/
-    protected static void newLine(StringBuffer source){source.append('\n');}
-    
-    protected static void tab(StringBuffer source, int count){
-        for(int i = 0; i < count; i++){
+    protected static void newLine(StringBuffer source) {
+        source.append('\n');
+    }
+
+    protected static void tab(StringBuffer source, int count) {
+        for ( int i = 0; i < count; i++ ) {
             source.append('\t');
         }
     }
-    
-    protected static Class getKeyGeneratorClass(String source, String className){
-        try {            
-            return loader.defineClass( className , generateProxyByteCode( source, className ) );
-        } catch ( ClassFormatError cfe ){
+
+    protected static Class getKeyGeneratorClass(String source, String className) {
+        try {
+            return loader.defineClass( className , generateKeyByteCode( source, className ) );
+        } catch ( ClassFormatError cfe ) {
             //cfe.printStackTrace();
             throw new IllegalArgumentException(cfe.getMessage());
-        } catch ( IllegalAccessException iae ){
+        } catch ( IllegalAccessException iae ) {
             //iae.printStackTrace();
             throw new IllegalArgumentException(iae.getMessage());
-        } 
+        }
     }
-    protected static byte[] generateProxyByteCode(String source, String className) throws IllegalAccessException {
+    protected static byte[] generateKeyByteCode(String source, String className) throws IllegalAccessException {
         byte[] byteCode = null;
         // write source code to file
         try {
@@ -346,27 +360,34 @@ public abstract class KeyGeneratorFactory {
             throw new IllegalAccessException("Cant compile. SecurityManager restriction: "+se.getMessage());
         } catch ( IOException io ) {
             //io.printStackTrace();
-            throw new IllegalAccessException("Cant write generated proxy: "+io.getMessage());
+            throw new IllegalAccessException("Cant write generated key: "+io.getMessage());
         }
         return byteCode;
     }
-    
+
     protected static File compileSourceCode(String sourceCode, String className) throws IllegalAccessException{
         File classFile = null;
-
+        File outputDir = null;
+        File javaFile  = null;
+        File keyDir    = KEY_OUTPUT_DIRECTORY;
+        
         try {
-            File outputDir = null;
 
-            if ( CREATE_PACKAGE_DIRECTORIES ) {
+            //Not supported at the moment.
+            //if ( CREATE_PACKAGE_DIRECTORIES ) {
+            if ( false ) {
                 //System.out.println(className);
                 String packageName = parsePackageName(className);
                 //System.out.println(packageName);
-                outputDir = new File(PROXY_OUTPUT_DIRECTORY, packageName.replace('.', File.separatorChar));
-            } else outputDir = PROXY_OUTPUT_DIRECTORY;
+                outputDir = new File(keyDir, packageName.replace('.', File.separatorChar));
+            } else {
+                String packageName = parsePackageName(className);
+                outputDir = keyDir;
+            }
 
             String partialClassName = parsePartialClassName( className );
             outputDir.mkdirs();
-            File javaFile = new File(outputDir, partialClassName + ".java");
+            javaFile  = new File(outputDir, partialClassName + ".java");
             classFile = new File(outputDir, partialClassName + ".class");
 
             //=======================
@@ -377,7 +398,7 @@ public abstract class KeyGeneratorFactory {
                 fos.flush();
                 fos.close();
             } catch ( IOException io ) {
-                throw new IllegalAccessException("Can't write generated proxy source code to file:\n" + io.getMessage());          
+                throw new IllegalAccessException("Can't write generated key source code to file:\n" + io.getMessage());          
             }
 
             //======================
@@ -386,7 +407,7 @@ public abstract class KeyGeneratorFactory {
             //cargs.addElement("-d");
             //cargs.addElement(getSourcePath());
             cargs.addElement("-classpath");
-            cargs.addElement( PROXY_OUTPUT_DIRECTORY.getAbsolutePath() + System.getProperty("path.separator")+ System.getProperty("java.class.path"));
+            cargs.addElement( keyDir.getAbsolutePath() + File.pathSeparator + System.getProperty("java.class.path"));
             // cargs.addElement("-g");  debug off by default
             cargs.addElement("-O"); //optimize
             cargs.addElement(""+javaFile.getAbsoluteFile());
@@ -403,18 +424,23 @@ public abstract class KeyGeneratorFactory {
 
         } catch ( SecurityException se ) {
             throw new IllegalAccessException("SecurityManager restriction. Can't compile "+classFile.getAbsoluteFile());
+        } catch ( NoClassDefFoundError no ) {
+            System.err.println("The java compiler class from JAVA_HOME/lib/tools.jar is missing. Please add it to the classpath.");
+            throw no;
         }
         return classFile;
     }
-    
+
     protected static String parsePartialClassName(String className) {
         if ( className.indexOf('.') < 1 ) return className;
         return className.substring( className.lastIndexOf('.')+1 );
     }
+
     protected static String parsePackageName(String className) {
         if ( className.indexOf('.') < 1 ) return null;
         return className.substring( 0, className.lastIndexOf('.') );
     }
-    
-    
+
+
 }
+

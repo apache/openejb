@@ -1,10 +1,11 @@
 package org.openejb.test.stateless;
 
-//
-// Interface definition : EncStatelessHome
-//
-// @author OpenORB Compiler
-//
+/**
+ * Interface definition : EncStatelessHome
+ * 
+ * @author OpenORB Compiler
+ */
+
 public class _EncStatelessHome_Tie extends org.omg.PortableServer.Servant
 		implements javax.rmi.CORBA.Tie
 {
@@ -97,8 +98,9 @@ public class _EncStatelessHome_Tie extends org.omg.PortableServer.Servant
 	//
 	// Invoke method ( for remote call )
 	//
-	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream _is, org.omg.CORBA.portable.ResponseHandler handler)
+	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream is, org.omg.CORBA.portable.ResponseHandler handler)
 	{
+		org.omg.CORBA_2_3.portable.InputStream _is = (org.omg.CORBA_2_3.portable.InputStream)is;
 		org.omg.CORBA_2_3.portable.OutputStream _output = null;
 		try
 		{
@@ -115,7 +117,7 @@ public class _EncStatelessHome_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.CreateException _exception )
 				{
-					String exid = "RMI:javax.ejb.CreateException:0000000000348197:0000000000000000";
+					String exid = "IDL:javax/ejb/CreateEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);
@@ -152,7 +154,7 @@ public class _EncStatelessHome_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.RemoveException _exception )
 				{
-					String exid = "RMI:javax.ejb.RemoveException:000000000064C34E:0000000000000000";
+					String exid = "IDL:javax/ejb/RemoveEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);
@@ -173,7 +175,7 @@ public class _EncStatelessHome_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.RemoveException _exception )
 				{
-					String exid = "RMI:javax.ejb.RemoveException:000000000064C34E:0000000000000000";
+					String exid = "IDL:javax/ejb/RemoveEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);

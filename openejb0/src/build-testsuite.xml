@@ -4,17 +4,19 @@
   			Daniel S. Haischt <sirabyss@gmx.net>
   	-->
 
-  <property name="build.testsuite.src" value="${build.src}/testsuite"/>
+  <property name="build.testsuite.src" value="${build.src}/tests-ejb"/>
   <property name="build.testsuite.dest" value="${build.dest}/testsuite"/>
+  <property name="src.test.dir" value="${src.dir}/tests-ejb"/>
   <property name="dest.testsuite.javadoc.dir" value="${dest.javadoc.dir}/testsuite"/>
   
   <!-- Build classpath -->
   <path id="project.classpath">
     <pathelement location="${jrefactory.jar}"/>
-    <pathelement location="${castor.home}/dist/${castor.jar}"/>
+    <pathelement location="${castor.home}/${castor.jar}"/>
+    <pathelement location="${castor.home}/${castor.xml.jar}"/>
     <pathelement location="${ejb11.jar}"/>
     <pathelement location="${ejb20.jar}"/>
-    <pathelement location="${jaas.home}/lib/${jaas.jar}"/>
+    <pathelement location="${jaas.home}/${jaas.jar}"/>
     <pathelement location="${jca.jar}"/>
     <pathelement location="${jdbcext.jar}"/>
     <pathelement location="${jdk12proxy.jar}"/>
@@ -25,19 +27,21 @@
     <pathelement location="${jta.jar}"/>
     <pathelement location="${log4j.jar}"/>
     <pathelement location="${minerva.jar}"/>
-    <pathelement location="${openorb.home}/dist/${openorb.jar}"/>
-    <pathelement location="${openorb.home}/dist/${openorb.rmi.jar}"/>
-    <pathelement location="${openorb.home}/dist/${openorb.tools.jar}"/>
+    <pathelement location="${openorb.home}/${openorb.jar}"/>
+    <pathelement location="${openorb.home}/${openorb.rmi.jar}"/>
+    <pathelement location="${openorb.home}/${openorb.tools.jar}"/>
     <pathelement location="${jts.jar}"/>
-    <pathelement location="${tyrex.home}/dist/${tyrex.jar}"/>
-    <pathelement location="${tyrex.home}/dist/${tyrex.iiop.jar}"/>
+    <pathelement location="${tyrex.home}/${tyrex.jar}"/>
+    <pathelement location="${tyrex.home}/${tyrex.iiop.jar}"/>
     <pathelement location="${jaxp.home}/jaxp.jar"/>
     <pathelement location="${jaxp.home}/${jaxp.parser.jar}"/>
     <pathelement location="${jaxp.home}/${jaxp.xsltprocessor.jar}"/>
     <pathelement location="${jaxp.home}/${jaxp.xalan1compat.jar}"/>
     <pathelement location="${junit.jar}"/>
+    <pathelement location="${jakarta.regexp.jar}"/>
     <pathelement location="${xslp.jar}"/>
   </path>
+  
   
   <!-- ================================================================== -->
   <!-- Prepares the build directory                                       -->
@@ -52,7 +56,7 @@
     
     <copy todir="${build.testsuite.src}">
     
-      <fileset dir="${src.test.dir}/src" >
+      <fileset dir="${src.test.dir}" >
         <exclude name="**/CVS/**"/>
         <exclude name="**/javax/**"/>
         <exclude name="**/*.class"/>
@@ -73,7 +77,7 @@
         <include name="**/README"/>
       </fileset>
 
-      <fileset dir="${src.test.dir}/conf" >
+      <fileset dir="${src.test.dir}" >
         <include name="ejb-jar.xml"/>
         <include name="openejb-jar.xml"/>
       </fileset>
@@ -82,7 +86,7 @@
 
     <copy todir="${build.testsuite.dest}/META-INF">
     
-      <fileset dir="${src.test.dir}/conf" >
+      <fileset dir="${src.test.dir}" >
         <include name="ejb-jar.xml"/>
         <include name="openejb-jar.xml"/>
       </fileset>
@@ -103,7 +107,7 @@
           
     <javac srcdir="${build.testsuite.src}"
            destdir="${build.testsuite.dest}"
-           excludes="**/*_Tie.*"
+           excludes="**/*_Foo.*"
            debug="${debug}"
            deprecation="${deprecation}">
            
@@ -124,7 +128,7 @@
           depends="compile, copy.manifest"
           description="--> generates all java archives (default)">
           
-    <jar jarfile="dist/${project}_testsuite-${version}.jar"
+    <jar jarfile="dist/${project}_ejb_tests-${version}.jar"
          basedir="${build.testsuite.dest}"
          manifest="${build.testsuite.dest}/MANIFEST.MF"/>
     
@@ -145,7 +149,7 @@
                    META-INF/openejb-jar.xml"
          manifest="${build.testsuite.dest}/MANIFEST.MF"/>
 
-    <jar jarfile="dist/beans/${project}_test_ejbs-${version}.jar"
+    <jar jarfile="dist/beans/${project}_ejb_tests-${version}.jar"
          basedir="${build.testsuite.dest}"
          includes="org/openejb/test/beans/**,
                    org/openejb/test/entity/bmp/**,

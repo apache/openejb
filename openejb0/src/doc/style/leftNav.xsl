@@ -29,8 +29,8 @@
             </xsl:variable>
             <tr>
               <td valign="top" align="left">
-		&#160;&#160;
-                <a href="{$url}"><span class="subMenuOff"><xsl:value-of select="display"/></span></a>
+                <a href="{$url}"><span class="subMenuOff">&#160;&#160;&#160;
+                <xsl:value-of select="display"/></span></a>
               </td>
             </tr>
           </xsl:for-each>

@@ -1,10 +1,11 @@
 package org.openejb.test.beans;
 
-//
-// Interface definition : CalculatorHome
-//
-// @author OpenORB Compiler
-//
+/**
+ * Interface definition : CalculatorHome
+ * 
+ * @author OpenORB Compiler
+ */
+
 public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 		implements CalculatorHome
 {
@@ -30,6 +31,8 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -45,7 +48,7 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
+					java.lang.String _exception_id = _exception.getId();
 					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
@@ -56,6 +59,27 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("create",_opsClass);
+				if ( _so == null )
+				   return create();
+				try
+				{
+					org.openejb.test.beans.Calculator _arg_ret = ((org.openejb.test.beans.CalculatorHome)_so.servant).create();
+					return (org.openejb.test.beans.Calculator)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -67,6 +91,8 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -82,7 +108,7 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					java.lang.String _exception_id = _exception.getId();
-					throw new org.omg.CORBA.UNKNOWN("Unexcepected User Exception: "+ _exception_id);
+					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
 				{
@@ -92,6 +118,27 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("_get_EJBMetaData",_opsClass);
+				if ( _so == null )
+				   return getEJBMetaData();
+				try
+				{
+					javax.ejb.EJBMetaData _arg_ret = ((org.openejb.test.beans.CalculatorHome)_so.servant).getEJBMetaData();
+					return (javax.ejb.EJBMetaData)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -103,6 +150,8 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -118,7 +167,7 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					java.lang.String _exception_id = _exception.getId();
-					throw new org.omg.CORBA.UNKNOWN("Unexcepected User Exception: "+ _exception_id);
+					throw new java.rmi.UnexpectedException(_exception_id);
 				}
 				catch( org.omg.CORBA.SystemException _exception )
 				{
@@ -128,6 +177,27 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("_get_homeHandle",_opsClass);
+				if ( _so == null )
+				   return getHomeHandle();
+				try
+				{
+					javax.ejb.HomeHandle _arg_ret = ((org.openejb.test.beans.CalculatorHome)_so.servant).getHomeHandle();
+					return (javax.ejb.HomeHandle)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -139,6 +209,8 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -154,10 +226,11 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:javax.ejb.RemoveException:00000000000DF503:0000000000000000") )
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:javax/ejb/RemoveEx:1.0") )
 					{
-						throw ( javax.ejb.RemoveException ) _input.read_value();
+						_input.read_string();
+						throw ( javax.ejb.RemoveException ) _input.read_value(javax.ejb.RemoveException.class);
 					}
 
 					throw new java.rmi.UnexpectedException(_exception_id);
@@ -170,6 +243,31 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("remove__javax_ejb_Handle",_opsClass);
+				if ( _so == null )
+				   remove( arg0);
+				try
+				{
+					javax.ejb.Handle arg0Copy = (javax.ejb.Handle)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					((org.openejb.test.beans.CalculatorHome)_so.servant).remove( arg0Copy);
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof javax.ejb.RemoveException )
+						throw ( javax.ejb.RemoveException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 
@@ -181,6 +279,8 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 	{
 		while( true )
 		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
 				org.omg.CORBA_2_3.portable.InputStream _input = null;
 				try
 				{
@@ -196,10 +296,11 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 				catch( org.omg.CORBA.portable.ApplicationException _exception )
 				{
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
-					java.lang.String _exception_id = _input.read_string();
-					if ( _exception_id.equals("RMI:javax.ejb.RemoveException:00000000000DF503:0000000000000000") )
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:javax/ejb/RemoveEx:1.0") )
 					{
-						throw ( javax.ejb.RemoveException ) _input.read_value();
+						_input.read_string();
+						throw ( javax.ejb.RemoveException ) _input.read_value(javax.ejb.RemoveException.class);
 					}
 
 					throw new java.rmi.UnexpectedException(_exception_id);
@@ -212,6 +313,31 @@ public class _CalculatorHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					this._releaseReply(_input);
 				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("remove__java_lang_Object",_opsClass);
+				if ( _so == null )
+				   remove( arg0);
+				try
+				{
+					java.lang.Object arg0Copy = (java.lang.Object)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					((org.openejb.test.beans.CalculatorHome)_so.servant).remove( arg0Copy);
+					return;
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof javax.ejb.RemoveException )
+						throw ( javax.ejb.RemoveException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
 		}
 	}
 

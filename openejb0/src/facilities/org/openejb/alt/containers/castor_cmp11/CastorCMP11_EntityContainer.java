@@ -96,8 +96,11 @@ import org.openejb.util.Stack;
  * @version $Revision$ $Date$
  */
 public class CastorCMP11_EntityContainer 
-implements org.openejb.RpcContainer, TransactionContainer,
-org.exolab.castor.persist.spi.CallbackInterceptor {
+	implements org.openejb.RpcContainer, 
+		TransactionContainer,
+		org.exolab.castor.persist.spi.CallbackInterceptor,
+		org.exolab.castor.persist.spi.InstanceFactory
+{
 
     /*
      * Bean instances that are currently in use are placed in the txReadyPoolMap indexed
@@ -122,12 +125,14 @@ org.exolab.castor.persist.spi.CallbackInterceptor {
      * Contains all the KeyGenerator objects for each Deployment, indexed by deployment id.
      * The KeyGenerator objects provide quick extraction of primary keys from entity bean
      * classes and conversion between a primary key and a Castor Complex identity.
+        DMB: Instead of looking up an KeyGenerator for the deployment, we could attach it 
+        to the DeploymentInfo, or a new DeploymentInfo subclass for the CMP container.
      */
-    protected HashMap keyGeneratorMap = new HashMap();
+//    protected HashMap keyGeneratorMap = new HashMap();
 
     /* 
-     * contains a collection of LinkListStacks indexed by deployment id. Each indexed stack 
-     * represents the method ready pool of for that class. 
+     * contains a collection of LinkListStacks indexed by deployment id. Each 
+     * indexed stack represents the method ready pool of for that class. 
      */
     protected HashMap methodReadyPoolMap = new HashMap();
 
@@ -244,22 +249,31 @@ org.exolab.castor.persist.spi.CallbackInterceptor {
 
         SafeToolkit toolkit = SafeToolkit.getToolkit("CastorCMP11_EntityContainer");
         SafeProperties safeProps = toolkit.getSafeProperties(properties);
-        poolsize = safeProps.getPropertyAsInt("PoolSize", 100);
-
+        
+        poolsize           = safeProps.getPropertyAsInt("PoolSize", 100);
         Global_TX_Database = safeProps.getProperty("Global_TX_Database");
-        Local_TX_Database = safeProps.getProperty("Local_TX_Database");
+        Local_TX_Database  = safeProps.getProperty("Local_TX_Database");
 
         String globalTxLogName = safeProps.getProperty("Global_TX_Log", "castor_global_tx.log");
-        String localTxLogName  = safeProps.getProperty("Local_TX_Log", "castor_local_tx.log");
+        String localTxLogName  = safeProps.getProperty("Local_TX_Log",  "castor_local_tx.log");
+        String keyDirectory    = safeProps.getProperty("KeyDirectory",  "keys");
 
         try {
             globalTransactionLogWriter = new java.io.PrintWriter( new java.io.FileWriter( globalTxLogName ) );         
             localTransactionLogWriter  = new java.io.PrintWriter( new java.io.FileWriter( localTxLogName  ) ); 
         } catch ( java.io.IOException e ) {
-            // TODO:1: Log this warning.
-            // log( "Warning: Cannot open the log files "+localTxLogName+" and "+globalTxLogName+", using system out instead." );
+            logger.warn("Cannot open the log files "+localTxLogName+" and "+globalTxLogName+", using system out instead." );
             globalTransactionLogWriter = new java.io.PrintWriter( new java.io.OutputStreamWriter( System.out ) );
             localTransactionLogWriter  = new java.io.PrintWriter( new java.io.OutputStreamWriter( System.out ) );
+        }
+        
+        try {
+            KeyGeneratorFactory.setKeyOutputDirectory( keyDirectory );
+        } catch ( java.io.IOException e ) {
+            logger.warn("Cannot set the KeyDirectory to "+ keyDirectory + "using the current working directory instead." );
+            try {
+                KeyGeneratorFactory.setKeyOutputDirectory( System.getProperty("user.dir") );
+            } catch ( Exception x ) {}
         }
 
         /*
@@ -294,6 +308,7 @@ org.exolab.castor.persist.spi.CallbackInterceptor {
         jdo_ForGlobalTransaction.setConfiguration(Global_TX_Database);
         jdo_ForGlobalTransaction.setDatabaseName("Global_TX_Database");
         jdo_ForGlobalTransaction.setCallbackInterceptor(this);
+        jdo_ForGlobalTransaction.setInstanceFactory(this);
 
         // Make sure the DB is registered as a as synchronization object before the transaction begins.
         jdo_ForLocalTransaction = new JDO();
@@ -303,16 +318,18 @@ org.exolab.castor.persist.spi.CallbackInterceptor {
         jdo_ForLocalTransaction.setConfiguration(Local_TX_Database);
         jdo_ForLocalTransaction.setDatabaseName("Local_TX_Database");
         jdo_ForLocalTransaction.setCallbackInterceptor(this);
+        jdo_ForLocalTransaction.setInstanceFactory(this);
 
 
         /*
-         * This block of code is necessary to avoid a chicken and egg problem. The DeploymentInfo
-         * objects must have a reference to their container during this assembly process, but the
-         * container is created after the DeploymentInfo necessitating this loop to assign all
-         * deployment info object's their containers.
+         * This block of code is necessary to avoid a chicken and egg problem. 
+         * The DeploymentInfo objects must have a reference to their container 
+         * during this assembly process, but the container is created after the 
+         * DeploymentInfo necessitating this loop to assign all deployment info 
+         * object's their containers.
          *
-         * In addition the loop is leveraged for other oprations like creating the method ready pool
-         * and the keyGenerator pool.
+         * In addition the loop is leveraged for other oprations like creating 
+         * the method ready pool and the keyGenerator pool.
          */
         org.openejb.DeploymentInfo [] deploys = this.deployments();
 
@@ -330,7 +347,7 @@ org.exolab.castor.persist.spi.CallbackInterceptor {
             KeyGenerator kg = null;
             try {
                 kg = KeyGeneratorFactory.createKeyGenerator(di);
-                keyGeneratorMap.put(di.getDeploymentID(), kg);
+                di.setKeyGenerator( kg );
             } catch ( Exception e ) {
                 e.printStackTrace();
                 throw new org.openejb.SystemException("Unable to create KeyGenerator for deployment id = "+di.getDeploymentID(), e);
@@ -767,13 +784,13 @@ org.exolab.castor.persist.spi.CallbackInterceptor {
             }
 
             /*
-            Each bean deployment has a unique KeyGenerator that is responsible for two operations.
-            1. Convert EJB developer defined complex primary keys to Castor JDO Complex objects
+            Each bean deployment has a unique KeyGenerator that is responsible 
+            for two operations.
+            1. Convert EJB developer defined complex primary keys to Castor 
+               JDO Complex objects
             2. Extract a primary key object from a loaded Entity bean instance.
-            DMB: Instead of looking up an KeyGenerator for the deployment, we could attach it 
-                 to the DeploymentInfo, or a new DeploymentInfo subclass for the CMP container.
             */
-            KeyGenerator kg = (KeyGenerator)keyGeneratorMap.get(deploymentInfo.getDeploymentID()); 
+            KeyGenerator kg = deploymentInfo.getKeyGenerator(); 
 
             /* 
             The KeyGenerator creates a new primary key and populates its fields with the 
@@ -927,7 +944,7 @@ org.exolab.castor.persist.spi.CallbackInterceptor {
 
             if ( callMethod.getName().equals("findByPrimaryKey") ) {
                 // bind complex primary key to query
-                KeyGenerator kg = (KeyGenerator)keyGeneratorMap.get(deploymentInfo.getDeploymentID());
+                KeyGenerator kg = deploymentInfo.getKeyGenerator();
                 
                 if ( kg.isKeyComplex() ) {
                     /*
@@ -995,7 +1012,7 @@ org.exolab.castor.persist.spi.CallbackInterceptor {
             1. Convert EJB developer defined complex primary keys to Castor JDO Complex objects
             2. Extract a primary key object from a loaded Entity bean instance.
             */
-            KeyGenerator kg = (KeyGenerator)keyGeneratorMap.get(deploymentInfo.getDeploymentID());         
+            KeyGenerator kg = deploymentInfo.getKeyGenerator();
 
             Object primaryKey = null;
 
@@ -1232,14 +1249,14 @@ org.exolab.castor.persist.spi.CallbackInterceptor {
           
           2. Extract a primary key object from a loaded Entity bean instance.
         */
-        KeyGenerator kg = (KeyGenerator)keyGeneratorMap.get(callContext.getDeploymentInfo().getDeploymentID());
+        KeyGenerator kg = callContext.getDeploymentInfo().getKeyGenerator();
 
         /* 
             obtains a bean instance from the method ready pool, or 
             instantiates a new one calling setEntityContext. 
             Also places the bean instance in the tx method ready pool.
         */
-        EntityBean bean = fetchFreeInstance(callContext);
+        EntityBean bean = null;
 
         /*
             Castor JDO doesn't recognize EJB complex primary keys, so if the 
@@ -1339,6 +1356,33 @@ org.exolab.castor.persist.spi.CallbackInterceptor {
     ******************************************************************************/
 
     /**
+     * Called to indicate that an object needs to be instatiated.
+     * <p>
+     * The parameters are ignored.  Data is obtained from the deployment info
+     * which has been obtained, in turn, from the current call context.
+     *
+     * @return an instance of the object needs to be instatiated
+     * @param The name of the class of the object to be created
+     * @param The class loader to use when creating the object
+     */
+    public Object newInstance( String className, ClassLoader loader ) {
+		
+		Object obj =null;
+
+		try {
+			obj = fetchFreeInstance( ThreadContext.getThreadContext() );
+		} catch (IllegalAccessException iae) {
+            throw new RuntimeException( iae.getLocalizedMessage() );
+		} catch (InvocationTargetException ite) {
+            throw new RuntimeException( ite.getLocalizedMessage() );
+		} catch (InstantiationException ie) {
+            throw new RuntimeException( ie.getLocalizedMessage() );
+		}
+
+		return obj;
+	}
+    
+	/**
      * Called to indicate that the object has been loaded from persistent
      * storage.
      *

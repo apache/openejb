@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<document url="http://openejb.sf.net/quickstart.xml" toc="numeric">
+  <body>
+    <title>OpenEJB QuickStart Guide</title>
+
+    <section title="Join the mailing list" ref-id="joinlist">
+        
+    <p>
+    The OpenEJB User list is where the general OpenEJB community goes to ask 
+    questions, make suggestions, chat with other users, and keep a finger on 
+    the pulse of the project.
+    </p>
+            
+    <p>
+    Please feel free to ask as many questions as you need while becoming 
+    familiar with the project.  We believe the perspective of those who are new 
+    the project is very valuable and we rely on your feedback to make the 
+    project easier to use and understand for everyone.  If you have any 
+    suggestions on ways we can help those that are new to the project get up to 
+    speed more quickly, we are more than willing to listen.
+    </p>
+        
+    <p>
+    <a href="http://lists.sourceforge.net/lists/listinfo/openejb-user">Subscribe</a>/<a href="http://www.geocrawler.com/redir-sf.php3?list=openejb-user">View Archive</a>        
+    </p>
+    
+    </section>
+    
+    <section title="Get the source" ref-id="getsource">
+    
+    <p>
+    Getting involved in any Open Source project requires the source.  The 
+    standard tool for managing source code in open source projects is CVS. 
+    If you are not familiar with CVS, take a moment to read our 
+    <a href="cvs-faq.html">CVS FAQ</a>.
+    </p>
+
+    
+    <p>    
+    If you have cvs already installed and are ready to go, the following two commands
+    are all you need to get the source. The first command logs you into the system, when 
+    it prompts you for the CVS password, simply hit the Enter key.
+    </p>    
+    <p>    
+    <command>cvs -d:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb login</command>
+    </p>    
+    <p>    
+    <command>cvs -z3 -d:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb co openejb</command>
+    </p>    
+      
+    <p>    
+    NOTE: The 'cvs ....' commands above should be on one line and executed as one command. 
+    </p>    
+
+    <p>    
+    If you are a new user to cvs, the above steps may seem overly simplistic to you.
+    For a more detailed explanation of the login/checkout process, <a href="quickstart-cvs.html">click here</a>.
+    </p>    
+      
+    </section>
+    
+    <section title="Building OpenEJB" ref-id="buildsource">
+    <p>
+    After doing the checkout, there should be a new directory named 'openejb', 
+    change to that directory and execute the following command:
+    </p>
+    
+    <p>
+    Windows:<br></br>
+    <command>[prompt] build.bat jar</command>
+    </p>
+    <p>  
+    Unix/Linux:<br></br>
+    <command>[prompt] ./build.sh jar</command>
+    </p>
+    <p>    
+    NOTE: You must execute the build script in the same directory
+    where it is located.
+    </p>
+    </section>
+    
+    <section title="Run the test suite" ref-id="runtests">
+    <p>
+    Now that you have built OpenEJB and other needed jars, it's a
+    good to run the test suite and verify that everything is setup.
+    Execute the following commands:
+    </p>
+    
+    <p>
+    Windows:<br></br>
+    <command>[prompt] test.bat</command>
+    </p>
+    <p>  
+    Unix/Linux:<br></br>
+    <command>[prompt] ./test.sh</command>
+    </p>
+    
+    <p>    
+    NOTE: You must execute the build and test scripts in the same directory
+    where they are located.
+    </p>
+    </section>
+    
+    <section title="Deploy your ejb-jar" ref-id="deployjar">
+    <p>
+    OpenEJB comes with a command-line tool to help guide you through deploying
+    your jars in OpenEJB.  The options are as follows:
+    </p>
+    
+    <p>
+    Windows:<br></br>
+    <command>[prompt] deploy.bat <i>config-file</i> <i>jar-file</i></command>
+    </p>
+    <p>  
+    Unix/Linux:<br></br>
+    <command>[prompt] ./deploy.sh <i>config-file</i> <i>jar-file</i></command>
+    </p>
+    
+    <p>    
+    <i>config-file</i> is the location of the configuration file used to start OpenEJB.
+    </p>
+    <p>  
+    <i>jar-file</i> is the location of the EJB jar file containing the beans you would like to deploy.<br/><br/>
+    </p>
+    <p>
+    Windows Example:<br></br>
+    <command>[prompt] deploy.bat conf\default.openejb.conf dist\beans\undeployedBeans.jar</command>
+    </p>
+    <p>  
+    Unix/Linux Example:<br></br>
+    <command>[prompt] ./deploy.sh conf/default.openejb.conf dist/beans/undeployedBeans.jar</command>
+    </p>
+    <p>    
+    NOTE: The text above should be on one line and executed as one command. 
+    </p>    
+    <p>    
+    The above examples actually work!  Go ahead and try them out, you must execute them
+    in the same directory you build the source in.  Note, the undeployedBeans.jar was built
+    when you ran the build script earlier.
+    </p>
+    </section>
+
+  </body>
+</document>

@@ -1,10 +1,11 @@
 package org.openejb.test.entity.bmp;
 
-//
-// Interface definition : EncBmpObject
-//
-// @author OpenORB Compiler
-//
+/**
+ * Interface definition : EncBmpObject
+ * 
+ * @author OpenORB Compiler
+ */
+
 public class _EncBmpObject_Tie extends org.omg.PortableServer.Servant
 		implements javax.rmi.CORBA.Tie
 {
@@ -97,71 +98,12 @@ public class _EncBmpObject_Tie extends org.omg.PortableServer.Servant
 	//
 	// Invoke method ( for remote call )
 	//
-	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream _is, org.omg.CORBA.portable.ResponseHandler handler)
+	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream is, org.omg.CORBA.portable.ResponseHandler handler)
 	{
+		org.omg.CORBA_2_3.portable.InputStream _is = (org.omg.CORBA_2_3.portable.InputStream)is;
 		org.omg.CORBA_2_3.portable.OutputStream _output = null;
 		try
 		{
-			if ( opName.equals("lookupBooleanEntry") )
-			{
-
-				try
-				{
-					target.lookupBooleanEntry();
-
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-
-				}
-				catch ( org.openejb.test.TestFailureException _exception )
-				{
-					String exid = "RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000";
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
-					_output.write_string(exid);
-					_output.write_value(_exception);
-				}
-				return _output;
-			}
-			else
-			if ( opName.equals("lookupByteEntry") )
-			{
-
-				try
-				{
-					target.lookupByteEntry();
-
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-
-				}
-				catch ( org.openejb.test.TestFailureException _exception )
-				{
-					String exid = "RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000";
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
-					_output.write_string(exid);
-					_output.write_value(_exception);
-				}
-				return _output;
-			}
-			else
-			if ( opName.equals("lookupDoubleEntry") )
-			{
-
-				try
-				{
-					target.lookupDoubleEntry();
-
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-
-				}
-				catch ( org.openejb.test.TestFailureException _exception )
-				{
-					String exid = "RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000";
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
-					_output.write_string(exid);
-					_output.write_value(_exception);
-				}
-				return _output;
-			}
-			else
 			if ( opName.equals("lookupEntityBean") )
 			{
 
@@ -174,107 +116,7 @@ public class _EncBmpObject_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( org.openejb.test.TestFailureException _exception )
 				{
-					String exid = "RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000";
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
-					_output.write_string(exid);
-					_output.write_value(_exception);
-				}
-				return _output;
-			}
-			else
-			if ( opName.equals("lookupFloatEntry") )
-			{
-
-				try
-				{
-					target.lookupFloatEntry();
-
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-
-				}
-				catch ( org.openejb.test.TestFailureException _exception )
-				{
-					String exid = "RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000";
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
-					_output.write_string(exid);
-					_output.write_value(_exception);
-				}
-				return _output;
-			}
-			else
-			if ( opName.equals("lookupIntegerEntry") )
-			{
-
-				try
-				{
-					target.lookupIntegerEntry();
-
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-
-				}
-				catch ( org.openejb.test.TestFailureException _exception )
-				{
-					String exid = "RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000";
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
-					_output.write_string(exid);
-					_output.write_value(_exception);
-				}
-				return _output;
-			}
-			else
-			if ( opName.equals("lookupLongEntry") )
-			{
-
-				try
-				{
-					target.lookupLongEntry();
-
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-
-				}
-				catch ( org.openejb.test.TestFailureException _exception )
-				{
-					String exid = "RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000";
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
-					_output.write_string(exid);
-					_output.write_value(_exception);
-				}
-				return _output;
-			}
-			else
-			if ( opName.equals("lookupResource") )
-			{
-
-				try
-				{
-					target.lookupResource();
-
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-
-				}
-				catch ( org.openejb.test.TestFailureException _exception )
-				{
-					String exid = "RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000";
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
-					_output.write_string(exid);
-					_output.write_value(_exception);
-				}
-				return _output;
-			}
-			else
-			if ( opName.equals("lookupShortEntry") )
-			{
-
-				try
-				{
-					target.lookupShortEntry();
-
-					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
-
-				}
-				catch ( org.openejb.test.TestFailureException _exception )
-				{
-					String exid = "RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000";
+					String exid = "IDL:org/openejb/test/TestFailureEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);
@@ -294,7 +136,7 @@ public class _EncBmpObject_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( org.openejb.test.TestFailureException _exception )
 				{
-					String exid = "RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000";
+					String exid = "IDL:org/openejb/test/TestFailureEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);
@@ -314,7 +156,27 @@ public class _EncBmpObject_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( org.openejb.test.TestFailureException _exception )
 				{
-					String exid = "RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000";
+					String exid = "IDL:org/openejb/test/TestFailureEx:1.0";
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
+					_output.write_string(exid);
+					_output.write_value(_exception);
+				}
+				return _output;
+			}
+			else
+			if ( opName.equals("lookupResource") )
+			{
+
+				try
+				{
+					target.lookupResource();
+
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
+
+				}
+				catch ( org.openejb.test.TestFailureException _exception )
+				{
+					String exid = "IDL:org/openejb/test/TestFailureEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);
@@ -334,7 +196,147 @@ public class _EncBmpObject_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( org.openejb.test.TestFailureException _exception )
 				{
-					String exid = "RMI:org.openejb.test.TestFailureException:000000000045F743:0000000000000000";
+					String exid = "IDL:org/openejb/test/TestFailureEx:1.0";
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
+					_output.write_string(exid);
+					_output.write_value(_exception);
+				}
+				return _output;
+			}
+			else
+			if ( opName.equals("lookupDoubleEntry") )
+			{
+
+				try
+				{
+					target.lookupDoubleEntry();
+
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
+
+				}
+				catch ( org.openejb.test.TestFailureException _exception )
+				{
+					String exid = "IDL:org/openejb/test/TestFailureEx:1.0";
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
+					_output.write_string(exid);
+					_output.write_value(_exception);
+				}
+				return _output;
+			}
+			else
+			if ( opName.equals("lookupLongEntry") )
+			{
+
+				try
+				{
+					target.lookupLongEntry();
+
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
+
+				}
+				catch ( org.openejb.test.TestFailureException _exception )
+				{
+					String exid = "IDL:org/openejb/test/TestFailureEx:1.0";
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
+					_output.write_string(exid);
+					_output.write_value(_exception);
+				}
+				return _output;
+			}
+			else
+			if ( opName.equals("lookupFloatEntry") )
+			{
+
+				try
+				{
+					target.lookupFloatEntry();
+
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
+
+				}
+				catch ( org.openejb.test.TestFailureException _exception )
+				{
+					String exid = "IDL:org/openejb/test/TestFailureEx:1.0";
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
+					_output.write_string(exid);
+					_output.write_value(_exception);
+				}
+				return _output;
+			}
+			else
+			if ( opName.equals("lookupIntegerEntry") )
+			{
+
+				try
+				{
+					target.lookupIntegerEntry();
+
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
+
+				}
+				catch ( org.openejb.test.TestFailureException _exception )
+				{
+					String exid = "IDL:org/openejb/test/TestFailureEx:1.0";
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
+					_output.write_string(exid);
+					_output.write_value(_exception);
+				}
+				return _output;
+			}
+			else
+			if ( opName.equals("lookupShortEntry") )
+			{
+
+				try
+				{
+					target.lookupShortEntry();
+
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
+
+				}
+				catch ( org.openejb.test.TestFailureException _exception )
+				{
+					String exid = "IDL:org/openejb/test/TestFailureEx:1.0";
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
+					_output.write_string(exid);
+					_output.write_value(_exception);
+				}
+				return _output;
+			}
+			else
+			if ( opName.equals("lookupBooleanEntry") )
+			{
+
+				try
+				{
+					target.lookupBooleanEntry();
+
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
+
+				}
+				catch ( org.openejb.test.TestFailureException _exception )
+				{
+					String exid = "IDL:org/openejb/test/TestFailureEx:1.0";
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
+					_output.write_string(exid);
+					_output.write_value(_exception);
+				}
+				return _output;
+			}
+			else
+			if ( opName.equals("lookupByteEntry") )
+			{
+
+				try
+				{
+					target.lookupByteEntry();
+
+					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createReply();
+
+				}
+				catch ( org.openejb.test.TestFailureException _exception )
+				{
+					String exid = "IDL:org/openejb/test/TestFailureEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);
@@ -378,7 +380,7 @@ public class _EncBmpObject_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.RemoveException _exception )
 				{
-					String exid = "RMI:javax.ejb.RemoveException:000000000064C34E:0000000000000000";
+					String exid = "IDL:javax/ejb/RemoveEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);

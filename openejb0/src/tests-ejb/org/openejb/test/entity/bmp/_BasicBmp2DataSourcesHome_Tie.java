@@ -1,10 +1,11 @@
 package org.openejb.test.entity.bmp;
 
-//
-// Interface definition : BasicBmp2DataSourcesHome
-//
-// @author OpenORB Compiler
-//
+/**
+ * Interface definition : BasicBmp2DataSourcesHome
+ * 
+ * @author OpenORB Compiler
+ */
+
 public class _BasicBmp2DataSourcesHome_Tie extends org.omg.PortableServer.Servant
 		implements javax.rmi.CORBA.Tie
 {
@@ -97,8 +98,9 @@ public class _BasicBmp2DataSourcesHome_Tie extends org.omg.PortableServer.Servan
 	//
 	// Invoke method ( for remote call )
 	//
-	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream _is, org.omg.CORBA.portable.ResponseHandler handler)
+	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream is, org.omg.CORBA.portable.ResponseHandler handler)
 	{
+		org.omg.CORBA_2_3.portable.InputStream _is = (org.omg.CORBA_2_3.portable.InputStream)is;
 		org.omg.CORBA_2_3.portable.OutputStream _output = null;
 		try
 		{

@@ -163,7 +163,7 @@ public class StatefulBeanTxTests extends org.openejb.test.NamedTestCase{
      * the environment entry java:comp/UserTransaction
      * </P>
      */
-    public void BUG_test02_java_comp_UserTransaction(){
+    public void test02_java_comp_UserTransaction(){
         try{
             Transaction t = ejbObject.jndiUserTransaction();
             assertNotNull("UserTransaction is null. Could not retreive a UserTransaction from the bean's JNDI namespace.", t);

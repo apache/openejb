@@ -104,9 +104,10 @@ public class Server
 		
 		try
 		{
-			java.io.FileInputStream input = new java.io.FileInputStream(args[0]);
 			java.util.Properties props = new java.util.Properties();
-			props.load(input);
+                        props = System.getProperties();
+                      //java.io.FileInputStream input = new java.io.FileInputStream(args[0]);
+                      //props.load(input);
 		
 			initializer.run( props );
 		}
