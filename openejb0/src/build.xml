@@ -591,7 +591,9 @@
     <mkdir dir="${dest.javadoc.dir}"/>
     <mkdir dir="./beans"/>
     <mkdir dir="./logs"/>
-    
+    <mkdir dir="./httpd"/> <!--Added by Jeremy Whitlock (jcscoobyrs) on 10/22/03 12:37:44 PM-->
+    <mkdir dir="./httpd/EJBGenerator"/> <!--Added by Jeremy Whitlock (jcscoobyrs) on 10/22/03 12:37:44 PM-->
+    <mkdir dir="./httpd/EJBGenerator/BeanSources"/> <!--Added by Jeremy Whitlock (jcscoobyrs) on 10/22/03 12:37:44 PM-->
     <style
         style="src/doc/style/changelog.xsl"
         in="${docs.src}/CHANGELOG.xml"
