@@ -70,6 +70,7 @@ import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
+import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
@@ -159,12 +160,38 @@ public class EJBConfigBuilderTest extends TestCase {
         }
     }
 
-    public void testBuildModule() throws Exception {
+    public void testBuildUnpackedModule() throws Exception {
+        InstallAction action = new InstallAction() {
+            private File ejbJarFile = new File("target/test-ejb-jar");
+            public File getEjbJarFile() {
+                return ejbJarFile;
+            }
+            public void install(OpenEJBModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
+                moduleBuilder.installModule(ejbJarFile, earContext, module);
+            }
+        };
+        executeTestBuildModule(action);
+    }
+ 
+    public void testBuildPackedModule() throws Exception {
+        InstallAction action = new InstallAction() {
+            private File ejbJarFile = new File("target/test-ejb-jar.jar");
+            public File getEjbJarFile() {
+                return ejbJarFile;
+            }
+            public void install(OpenEJBModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
+                moduleBuilder.installModule(new JarFile(ejbJarFile), earContext, module);
+            }
+        };
+        executeTestBuildModule(action);
+    }
+    
+    private void executeTestBuildModule(InstallAction action) throws Exception {
         String j2eeApplicationName = "null";
         String j2eeModuleName = "org/openejb/deployment/test";
 
-        ModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
-        File ejbJarFile = new File("target/test-ejb-jar.jar");
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(kernel);
+        File ejbJarFile = action.getEjbJarFile();
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         ClassLoader cl = new URLClassLoader(new URL[]{ejbJarFile.toURL()}, oldCl);
@@ -192,7 +219,7 @@ public class EJBConfigBuilderTest extends TestCase {
                     DeploymentHelper.NONTRANSACTIONALTIMER_NAME
             );
 
-            moduleBuilder.installModule(new JarFile(ejbJarFile), earContext, module);
+            action.install(moduleBuilder, earContext, module);
             earContext.getClassLoader(null);
             moduleBuilder.initContext(earContext, module, cl);
             moduleBuilder.addGBeans(earContext, module, cl);
@@ -200,6 +227,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
             File tempdir = new File(System.getProperty("java.io.tmpdir"));
             File unpackedDir = new File(tempdir, "OpenEJBTest-Unpacked");
+            FileUtil.recursiveDelete(unpackedDir);
             LocalConfigStore.unpack(unpackedDir, new FileInputStream(carFile));
 
             verifyDeployment(unpackedDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName);
@@ -338,7 +366,7 @@ public class EJBConfigBuilderTest extends TestCase {
             Object statelessLocalHome = kernel.getAttribute(statelessBeanName, "ejbLocalHome");
             Object statelessLocal = statelessLocalHome.getClass().getMethod("create", null).invoke(statelessLocalHome, null);
             statelessLocal.getClass().getMethod("startTimer", null).invoke(statelessLocal, null);
-            Thread.currentThread().sleep(200L);
+            Thread.sleep(200L);
             assertEquals(new Integer(1), statelessLocal.getClass().getMethod("getTimeoutCount", null).invoke(statelessLocal, null));
 
             // STATEFUL
@@ -451,4 +479,10 @@ public class EJBConfigBuilderTest extends TestCase {
         DeploymentHelper.tearDownAdapter(kernel);
         kernel.shutdown();
     }
+    
+    private interface InstallAction {
+        public File getEjbJarFile();
+        public void install(OpenEJBModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception;
+    }
+
 }

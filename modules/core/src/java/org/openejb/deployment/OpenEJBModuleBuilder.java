@@ -69,6 +69,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.Permission;
 import java.security.Permissions;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -98,6 +100,7 @@ import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.connector.ActivationSpecInfo;
 import org.apache.geronimo.deployment.DeploymentException;
 import org.apache.geronimo.deployment.service.GBeanHelper;
+import org.apache.geronimo.deployment.util.FileUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -221,10 +224,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
 
         EjbJarType ejbJar = ejbJarDoc.getEjbJar();
-
-        OpenejbOpenejbJarDocument openejbJarDocument = OpenejbOpenejbJarDocument.Factory.newInstance();
-        OpenejbOpenejbJarType openejbEjbJar = openejbJarDocument.addNewOpenejbJar();
-        openejbEjbJar.setParentId("org/apache/geronimo/Server");
         String id = ejbJar.getId();
         if (id == null) {
             id = moduleBase.getFile();
@@ -234,10 +233,25 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             if (id.endsWith(".jar")) {
                 id = id.substring(0, id.length() - 4);
             }
+            if ( id.endsWith("/") ) {
+                id = id.substring(0, id.length() - 1);
+            }
             id = id.substring(id.lastIndexOf('/') + 1);
         }
-        openejbEjbJar.setConfigId(id);
 
+        return newOpenejbJarDocument(ejbJar, id);
+    }
+
+    private OpenejbOpenejbJarDocument newOpenejbJarDocument(EjbJarType ejbJar, String id) {
+        OpenejbOpenejbJarDocument openejbJarDocument = OpenejbOpenejbJarDocument.Factory.newInstance();
+        OpenejbOpenejbJarType openejbEjbJar = openejbJarDocument.addNewOpenejbJar();
+        openejbEjbJar.setParentId("org/apache/geronimo/Server");
+        if ( null != ejbJar.getId() ) {
+            openejbEjbJar.setConfigId(ejbJar.getId());
+        } else {
+            openejbEjbJar.setConfigId(id);
+        }
+        openejbEjbJar.addNewEnterpriseBeans();
         return openejbJarDocument;
     }
 
@@ -281,32 +295,57 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         return configID;
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module ejbModule) throws DeploymentException {
-        try {
-            // get an input stream for the ejb-jar and the target location in the earContext
-            InputStream in = null;
-            URI ejbJarModuleLocation;
-            if (!ejbModule.getURI().equals(URI.create("/"))) {
-                ZipEntry ejbJarEntry = earFile.getEntry(ejbModule.getURI().toString());
-                in = earFile.getInputStream(ejbJarEntry);
-                ejbJarModuleLocation = ejbModule.getURI();
-            } else {
-                in = new FileInputStream(earFile.getName());
-                ejbJarModuleLocation = URI.create("ejb.jar");
+    public void installModule(File earFolder, EARContext earContext, Module ejbModule) throws DeploymentException {
+        File ejbFolder = new File(earFolder, ejbModule.getURI().toString());
+        
+        // Unpacked EAR modules can define via application.xml either
+        // (standard) packed or unpacked modules
+        InstallCallback callback;
+        if ( ejbFolder.isDirectory() ) {
+            callback = new UnPackedInstallCallback(ejbModule, ejbFolder);
+        } else {
+            JarFile jarFile;
+            try {
+                jarFile = new JarFile(ejbFolder);
+            } catch (IOException e) {
+                throw new DeploymentException("Can not create EJB JAR file " + ejbFolder, e);
             }
+            callback = new PackedInstallCallback(ejbModule, jarFile);
+        }
+        installModule(callback, earContext, ejbModule);
+    }
 
-            // copy the ejb jar file into the earContext and add it to the earContext class loader
-            File tempFile = earContext.addStreamInclude(ejbJarModuleLocation, in);
-            JarFile ejbJarFile = new JarFile(tempFile);
+    public void installModule(JarFile earFile, EARContext earContext, Module ejbModule) throws DeploymentException {
+        JarFile ejbJarFile;
+        try {
+            if (!ejbModule.getURI().equals(URI.create("/"))) {
+                ZipEntry jarEntry = earFile.getEntry(ejbModule.getURI().toString());
+                // Unpack the nested JAR.
+                File tempFile = FileUtil.toTempFile(earFile.getInputStream(jarEntry));
+                ejbJarFile = new JarFile(tempFile);
+            } else {
+                ejbJarFile = earFile;
+            }
+        } catch (IOException e) {
+            throw new DeploymentException("Problem deploying jar", e);
+        }
+        InstallCallback callback = new PackedInstallCallback(ejbModule, ejbJarFile);
+        installModule(callback, earContext, ejbModule);
+    }
 
+    private void installModule(InstallCallback callback, EARContext earContext, Module ejbModule) throws DeploymentException {
+        URI ejbJarModuleLocation;
+        if (!ejbModule.getURI().equals(URI.create("/"))) {
+            ejbJarModuleLocation = ejbModule.getURI();
+        } else {
+            ejbJarModuleLocation = URI.create("ejb.jar");
+        }
+        try {
             // load the ejb-jar.xml file
             EjbJarType ejbJar;
             try {
-                JarEntry ejbJarEntry = ejbJarFile.getJarEntry("META-INF/ejb-jar.xml");
-                if (ejbJarEntry == null) {
-                    throw new DeploymentException("No META-INF/ejb-jar.xml in module [" + ejbModule.getName() + "]");
-                }
-                XmlObject dd = SchemaConversionUtils.parse(ejbJarFile.getInputStream(ejbJarEntry));
+                InputStream ddInputStream = callback.getEjbJarDD();
+                XmlObject dd = SchemaConversionUtils.parse(ddInputStream);
                 EjbJarDocument doc = SchemaConversionUtils.convertToEJBSchema(dd);
                 ejbJar = doc.getEjbJar();
                 ejbModule.setSpecDD(ejbJar);
@@ -318,11 +357,13 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             OpenejbOpenejbJarType openEjbJar = (OpenejbOpenejbJarType) ejbModule.getVendorDD();
             if (openEjbJar == null) {
                 try {
-                    JarEntry openEjbJarEntry = ejbJarFile.getJarEntry("META-INF/openejb-jar.xml");
-                    if (openEjbJarEntry == null) {
-                        throw new DeploymentException("No META-INF/openejb-jar.xml in module [" + ejbModule.getName() + "]");
+                    InputStream openejbDDInputStream = callback.getOpenejbJarDD();
+                    OpenejbOpenejbJarDocument doc;
+                    if (openejbDDInputStream != null) {
+                        doc = (OpenejbOpenejbJarDocument) XmlBeansUtil.parse(openejbDDInputStream, OpenejbOpenejbJarDocument.type);
+                    } else {
+                        doc = newOpenejbJarDocument(ejbJar, ejbJarModuleLocation.toString());
                     }
-                    OpenejbOpenejbJarDocument doc = (OpenejbOpenejbJarDocument) XmlBeansUtil.parse(ejbJarFile.getInputStream(openEjbJarEntry), OpenejbOpenejbJarDocument.type);
                     openEjbJar = doc.getOpenejbJar();
                     ejbModule.setVendorDD(openEjbJar);
                 } catch (XmlException e) {
@@ -330,9 +371,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
                 }
             }
 
-            assert openEjbJar != null: "openejb-jar.xml not defined";
-            ejbModule.setVendorDD(openEjbJar);
-
+            callback.installInEARContext(earContext, ejbJarModuleLocation);
+            
             // add the dependencies declared in the openejb-jar.xml file
             OpenejbDependencyType[] dependencies = openEjbJar.getDependencyArray();
             for (int i = 0; i < dependencies.length; i++) {
@@ -342,7 +382,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Unable to deploy ejb module [" + ejbModule.getName() + "]", e);
         }
     }
-
+    
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         org.apache.geronimo.j2ee.deployment.EJBModule ejbModule = (org.apache.geronimo.j2ee.deployment.EJBModule) module;
         EjbJarType ejbJar = (EjbJarType) ejbModule.getSpecDD();
@@ -1662,6 +1702,107 @@ public class OpenEJBModuleBuilder implements ModuleBuilder {
         }
 
         return result;
+    }
+
+    private interface InstallCallback {
+
+        /**
+         * Installs in the specified EARContext and based on the provided URI
+         * a module.
+         */
+        public void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException;
+        
+        /**
+         * @return the ejb-jar.xml file as an InputStream.
+         */
+        public InputStream getEjbJarDD() throws DeploymentException, IOException;
+
+        /**
+         * @return the openejb-jar.xml file as an InputStream. If this file
+         *  does not exist, then null is returned.
+         */
+        public InputStream getOpenejbJarDD() throws DeploymentException, IOException;
+
+    }
+
+    private static class UnPackedInstallCallback implements InstallCallback {
+
+        private final File ejbFolder;
+        
+        private final Module ejbModule;
+        
+        private UnPackedInstallCallback(Module ejbModule, File ejbFolder) {
+            this.ejbFolder = ejbFolder;
+            this.ejbModule = ejbModule;
+        }
+
+        public void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException {
+            try {
+                moduleBase = new URI(moduleBase.toString() + "/");
+            } catch (URISyntaxException e) {
+                throw new DeploymentException(e);
+            }
+            URI baseURI = ejbFolder.toURI();
+            Collection files = new ArrayList();
+            FileUtil.listRecursiveFiles(ejbFolder, files);
+            for (Iterator iter = files.iterator(); iter.hasNext();) {
+                File file = (File) iter.next();
+                URI path = baseURI.relativize(file.toURI());
+                URI target = moduleBase.resolve(path);
+                earContext.addFile(target, file);
+            }
+            earContext.addToClassPath(moduleBase, ejbFolder.toURL());
+        }
+
+        public InputStream getEjbJarDD() throws DeploymentException, IOException {
+            File ejbJarFile = new File(ejbFolder, "META-INF/ejb-jar.xml");
+            if ( !ejbJarFile.exists() ) {
+                throw new DeploymentException("No META-INF/ejb-jar.xml in module [" + ejbModule.getName() + "]");
+            }
+            return new FileInputStream(ejbJarFile);
+        }
+
+        public InputStream getOpenejbJarDD() throws DeploymentException, IOException {
+            File openejbEjbJarFile = new File(ejbFolder, "META-INF/openejb-jar.xml");
+            if ( openejbEjbJarFile.exists() ) {
+                return new FileInputStream(openejbEjbJarFile);
+            }
+            return null;
+        }
+        
+    }
+    
+    private static class PackedInstallCallback implements InstallCallback {
+
+        private final Module ejbModule;
+        
+        private final JarFile ejbJarFile;
+        
+        private PackedInstallCallback(Module ejbModule, JarFile ejbJarFile) {
+            this.ejbModule = ejbModule;
+            this.ejbJarFile = ejbJarFile;
+        }
+        
+        public void installInEARContext(EARContext earContext, URI moduleBase) throws DeploymentException, IOException {
+            earContext.addStreamInclude(moduleBase, new FileInputStream(ejbJarFile.getName()));
+        }
+
+        public InputStream getEjbJarDD() throws DeploymentException, IOException {
+            JarEntry entry = ejbJarFile.getJarEntry("META-INF/ejb-jar.xml");
+            if (entry == null) {
+                throw new DeploymentException("No META-INF/ejb-jar.xml in module [" + ejbModule.getName() + "]");
+            }
+            return ejbJarFile.getInputStream(entry);
+        }
+
+        public InputStream getOpenejbJarDD() throws DeploymentException, IOException {
+            JarEntry entry = ejbJarFile.getJarEntry("META-INF/openejb-jar.xml");
+            if (entry != null) {
+                return ejbJarFile.getInputStream(entry);
+            }
+            return null;
+        }
+        
     }
 
     public static final GBeanInfo GBEAN_INFO;
