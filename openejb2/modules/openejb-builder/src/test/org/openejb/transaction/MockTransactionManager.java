@@ -58,11 +58,8 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
 import org.apache.geronimo.transaction.ExtendedTransactionManager;
-import org.openejb.*;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class MockTransactionManager implements ExtendedTransactionManager {

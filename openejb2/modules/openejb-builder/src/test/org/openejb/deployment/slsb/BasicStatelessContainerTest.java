@@ -49,12 +49,12 @@ package org.openejb.deployment.slsb;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.HashMap;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.StatelessContainerBuilder;
@@ -168,7 +168,7 @@ public class BasicStatelessContainerTest extends TestCase {
             }
         });
         builder.setSecurityConfiguration(new SecurityConfiguration());
-        builder.setComponentContext(new ReadOnlyContext());
+        builder.setComponentContext(new HashMap());
         container = builder.createConfiguration();
 
         //start the ejb container

@@ -54,6 +54,7 @@ import java.sql.Connection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.HashMap;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
@@ -69,7 +70,6 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.context.ContainerTransactionContext;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
@@ -238,7 +238,7 @@ public abstract class AbstractCMRTest extends TestCase {
         builder.setEJBSchema(ejbSchema);
         builder.setSQLSchema(sqlSchema);
         builder.setGlobalSchema(cacheSchema);
-        builder.setComponentContext(new ReadOnlyContext());
+        builder.setComponentContext(new HashMap());
         builder.setTransactionManagerDelegate(tmDelegate);
 
         GBeanData container = builder.createConfiguration();

@@ -48,15 +48,9 @@
 package org.openejb.mdb;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import javax.ejb.MessageDrivenBean;
 
-import net.sf.cglib.reflect.FastClass;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.naming.java.RootContext;
-import org.openejb.EJBOperation;
 import org.openejb.cache.InstanceFactory;
 
 /**
@@ -65,91 +59,42 @@ import org.openejb.cache.InstanceFactory;
 public class MDBInstanceFactory implements InstanceFactory, Serializable {
     private static final Log log = LogFactory.getLog(MDBInstanceFactory.class);
 
-    private final ReadOnlyContext componentContext;
     private final MDBInstanceContextFactory factory;
-    private final Class beanClass;
 
-    private transient final int createIndex;
-    private transient final FastClass implClass;
-
-    public MDBInstanceFactory(ReadOnlyContext componentContext, MDBInstanceContextFactory factory, Class beanClass) {
-        this.componentContext = componentContext;
+    public MDBInstanceFactory(MDBInstanceContextFactory factory) {
         this.factory = factory;
-        this.beanClass = beanClass;
-
-        implClass = FastClass.create(beanClass);
-        createIndex = implClass.getIndex("ejbCreate", new Class[0]);
     }
 
     public Object createInstance() throws Exception {
-        ReadOnlyContext oldContext = RootContext.getComponentContext();
-
         try {
-            // Disassociate from JNDI Component Context whilst creating instance
-            RootContext.setComponentContext(null);
-
-            // create the StatelessInstanceContext which contains the instance
             MDBInstanceContext ctx = (MDBInstanceContext) factory.newInstance();
-
-            try {
-                ctx.setContext();
-            } catch (Throwable t) {
-                //TODO check this error handling
-                if (t instanceof Exception) {
-                    throw (Exception) t;
-                } else {
-                    throw (Error) t;
-                }
-            }
-            MessageDrivenBean instance = (MessageDrivenBean) ctx.getInstance();
-            assert(instance != null);
-
-            // Activate this components JNDI Component Context
-            RootContext.setComponentContext(componentContext);
-
-            //TODO make ejbcreate go through the stack also!
-            ctx.setOperation(EJBOperation.EJBCREATE);
-            try {
-                implClass.invoke(createIndex, instance, null);
-            } catch (InvocationTargetException ite) {
-                Throwable t = ite.getTargetException();
-                if (t instanceof Exception) {
-                    throw (Exception) t;
-                } else {
-                    throw (Error) t;
-                }
-            } finally {
-                ctx.setOperation(EJBOperation.INACTIVE);
-            }
-
+            ctx.setContext();
+            ctx.ejbCreate();
             return ctx;
-        } finally {
-            RootContext.setComponentContext(oldContext);
+        } catch (Throwable t) {
+            if (t instanceof Exception) {
+                throw (Exception) t;
+            } else if (t instanceof Error) {
+                throw (Error) t;
+            } else {
+                throw new Error("Unexpected throwable", t);
+            }
         }
     }
 
     public void destroyInstance(Object instance) {
-        MDBInstanceContext ctx = (MDBInstanceContext) instance;
-        MessageDrivenBean beanInstance = (MessageDrivenBean) ctx.getInstance();
-
-        ctx.setOperation(EJBOperation.EJBREMOVE);
-
         // Activate this components JNDI Component Context
-        ReadOnlyContext oldContext = RootContext.getComponentContext();
-        RootContext.setComponentContext(componentContext);
         try {
-            beanInstance.ejbRemove();
+            MDBInstanceContext ctx = (MDBInstanceContext) instance;
+            ctx.ejbRemove();
         } catch (Throwable t) {
             // We're destroying this instance, so just log and continue
             log.warn("Unexpected error removing Message Driven instance", t);
-        } finally {
-            ctx.setOperation(EJBOperation.INACTIVE);
-            RootContext.setComponentContext(oldContext);
         }
-        //TODO shouldn't we call setMessageDrivenContext(null);
+        // No should not we call setMessageDrivenContext(null);
     }
 
     private Object readResolve() {
-        return new MDBInstanceFactory(componentContext, factory, beanClass);
+        return new MDBInstanceFactory(factory);
     }
 }

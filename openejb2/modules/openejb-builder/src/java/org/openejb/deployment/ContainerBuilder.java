@@ -44,11 +44,11 @@
  */
 package org.openejb.deployment;
 
+import java.util.Map;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
@@ -56,8 +56,6 @@ import org.openejb.EJBContainer;
 import org.openejb.transaction.TransactionPolicySource;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public interface ContainerBuilder extends ResourceEnvironmentBuilder, SecureBuilder {
@@ -97,9 +95,9 @@ public interface ContainerBuilder extends ResourceEnvironmentBuilder, SecureBuil
 
     void setPrimaryKeyClassName(String primaryKeyClassName);
 
-    ReadOnlyContext getComponentContext();
+    Map getComponentContext();
 
-    void setComponentContext(ReadOnlyContext componentContext);
+    void setComponentContext(Map componentContext);
 
     UserTransactionImpl getUserTransaction();
 

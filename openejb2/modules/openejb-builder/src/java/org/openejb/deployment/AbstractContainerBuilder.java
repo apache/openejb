@@ -48,6 +48,7 @@
 package org.openejb.deployment;
 
 import java.util.Set;
+import java.util.Map;
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.management.ObjectName;
@@ -55,7 +56,6 @@ import javax.security.auth.Subject;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
@@ -96,7 +96,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private boolean securityEnabled = false;
     private boolean useContextHandler = false;
     private SecurityConfiguration securityConfiguration;
-    private ReadOnlyContext componentContext;
+    private Map componentContext;
     private Set unshareableResources;
     private Set applicationManagedSecurityResources;
     private UserTransactionImpl userTransaction;
@@ -238,11 +238,11 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         this.securityConfiguration = securityConfiguration;
     }
 
-    public ReadOnlyContext getComponentContext() {
+    public Map getComponentContext() {
         return componentContext;
     }
 
-    public void setComponentContext(ReadOnlyContext componentContext) {
+    public void setComponentContext(Map componentContext) {
         this.componentContext = componentContext;
     }
 
@@ -346,7 +346,6 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         interceptorBuilder.setDoAsCurrentCaller(doAsCurrentCaller);
         interceptorBuilder.setSecurityEnabled(securityEnabled);
         interceptorBuilder.setUseContextHandler(useContextHandler);
-        interceptorBuilder.setComponentContext(componentContext);
         interceptorBuilder.setTransactionPolicyManager(new TransactionPolicyManager(transactionPolicySource, signatures));
         interceptorBuilder.setPermissionManager(new PermissionManager(ejbName, signatures));
         return interceptorBuilder;
@@ -394,6 +393,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 contextFactory,
                 interceptorBuilder,
                 pool,
+                getComponentContext(),
                 getUserTransaction(),
                 getJndiNames(),
                 getLocalJndiNames(),
@@ -421,6 +421,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         gbean.setAttribute("ContextFactory", contextFactory);
         gbean.setAttribute("InterceptorBuilder", interceptorBuilder);
         gbean.setAttribute("Pool", pool);
+        gbean.setAttribute("componentContext", getComponentContext());
         gbean.setAttribute("UserTransaction", getUserTransaction());
         gbean.setAttribute("JndiNames", getJndiNames());
         gbean.setAttribute("LocalJndiNames", getLocalJndiNames());

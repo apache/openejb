@@ -48,15 +48,15 @@
 package org.openejb.deployment.entity;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import javax.ejb.EJBObject;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.deployment.BMPContainerBuilder;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -119,7 +119,7 @@ public class BasicBMPEntityContainerTest extends TestCase {
         MockLocalHome localHome = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
         MockLocal local = localHome.create(new Integer(1), null);
         local.startTimer();
-        Thread.currentThread().sleep(400L);
+        Thread.sleep(400L);
         int timeoutCount = local.getTimeoutCount();
         assertEquals(1, timeoutCount);
     }
@@ -156,7 +156,7 @@ public class BasicBMPEntityContainerTest extends TestCase {
             }
         });
         builder.setSecurityConfiguration(new SecurityConfiguration());
-        builder.setComponentContext(new ReadOnlyContext());
+        builder.setComponentContext(new HashMap());
         container = builder.createConfiguration();
 
         //start the ejb container

@@ -59,12 +59,10 @@ import javax.security.auth.Subject;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.EJBTimeoutOperation;
 import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
 import org.openejb.mdb.BusinessMethod;
@@ -74,7 +72,8 @@ import org.openejb.mdb.MDBInstanceFactory;
 import org.openejb.mdb.MDBInterceptorBuilder;
 import org.openejb.mdb.dispatch.SetMessageDrivenContextOperation;
 import org.openejb.security.SecurityConfiguration;
-import org.openejb.slsb.CreateMethod;
+import org.openejb.slsb.EJBCreateMethod;
+import org.openejb.slsb.RemoveMethod;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicySource;
@@ -85,6 +84,7 @@ import org.openejb.util.SoftLimitedInstancePool;
  * @version $Revision$ $Date$
  */
 public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBuilder {
+    private static final MethodSignature SET_MESSAGE_DRIVEN_CONTEXT = new MethodSignature("setMessageDrivenContext", new String[]{"javax.ejb.MessageDrivenContext"});
 
     private String containerId;
     private String ejbName;
@@ -96,7 +96,7 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
     private boolean securityEnabled = false;
     private boolean useContextHandler = false;
     private SecurityConfiguration securityConfiguration;
-    private ReadOnlyContext componentContext;
+    private Map componentContext;
     private Set unshareableResources;
     private Set applicationManagedSecurityResources;
     private UserTransactionImpl userTransaction;
@@ -194,11 +194,11 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
         this.securityConfiguration = securityConfiguration;
     }
 
-    public ReadOnlyContext getComponentContext() {
+    public Map getComponentContext() {
         return componentContext;
     }
 
-    public void setComponentContext(ReadOnlyContext componentContext) {
+    public void setComponentContext(Map componentContext) {
         this.componentContext = componentContext;
     }
 
@@ -270,7 +270,7 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
 
         // build the instance factory
         MDBInstanceContextFactory contextFactory = new MDBInstanceContextFactory(containerId, beanClass, userTransaction, unshareableResources, applicationManagedSecurityResources);
-        MDBInstanceFactory instanceFactory = new MDBInstanceFactory(componentContext, contextFactory, beanClass);
+        MDBInstanceFactory instanceFactory = new MDBInstanceFactory(contextFactory);
 
         // build the pool
         InstancePool pool = new SoftLimitedInstancePool(instanceFactory, 1);
@@ -280,7 +280,6 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
         interceptorBuilder.setEJBName(ejbName);
         interceptorBuilder.setVtable(vtable);
         interceptorBuilder.setRunAs(runAs);
-        interceptorBuilder.setComponentContext(componentContext);
         interceptorBuilder.setInstancePool(pool);
 
         boolean[] deliveryTransacted = new boolean[signatures.length];
@@ -314,6 +313,7 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
         gbean.setAttribute("deliveryTransacted", deliveryTransacted);
         gbean.setAttribute("contextFactory", contextFactory);
         gbean.setAttribute("interceptorBuilder", interceptorBuilder);
+        gbean.setAttribute("componentContext", getComponentContext());
         gbean.setAttribute("instancePool", pool);
         gbean.setAttribute("userTransaction", userTransaction);
         gbean.setReferencePattern("Timer", timerName);
@@ -325,20 +325,16 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
     protected LinkedHashMap buildVopMap(Class beanClass) throws Exception {
         LinkedHashMap vopMap = new LinkedHashMap();
 
-        Method setMessageDrivenContext = null;
-        try {
-            Class messageDrivenContextClass = getClassLoader().loadClass("javax.ejb.MessageDrivenContext");
-            setMessageDrivenContext = beanClass.getMethod("setMessageDrivenContext", new Class[]{messageDrivenContextClass});
-        } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException("Bean does not implement setMessageDrivenContext(javax.ejb.MessageDrivenContext)");
-        }
+        boolean isBMT = (getUserTransaction() != null);
+        // ejbCreate... this is the method called by the pool to create a new instance
+        vopMap.put(new InterfaceMethodSignature("ejbCreate", false), new EJBCreateMethod(beanClass, isBMT));
+        // ejbRemove... this is the method called by the pool to destroy an instance
+        vopMap.put(new InterfaceMethodSignature("ejbRemove", false), new RemoveMethod(beanClass, isBMT));
+        // ejbTimeout
         if (TimedObject.class.isAssignableFrom(beanClass)) {
-            MethodSignature signature = new MethodSignature("ejbTimeout", new Class[]{Timer.class});
-            vopMap.put(MethodHelper.translateToInterface(signature)
-                       , EJBTimeoutOperation.INSTANCE);
+            vopMap.put(new InterfaceMethodSignature("ejbTimeout", new String[]{Timer.class.getName()}, false),
+                EJBTimeoutOperation.INSTANCE);
         }
-        // add the create method
-        vopMap.put(new InterfaceMethodSignature("create", true), new CreateMethod());
 
         // add the business methods
         Method[] beanMethods = beanClass.getMethods();
@@ -347,20 +343,23 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
             if (Object.class == beanMethod.getDeclaringClass()) {
                 continue;
             }
-            String name = beanMethod.getName();
+
+            if (beanMethod.getName().startsWith("ejb")) {
+                continue;
+            }
+
+            // match set message driven context down here since it can not be easily ignored like ejb* methods
             MethodSignature signature = new MethodSignature(beanMethod);
-            if (setMessageDrivenContext.equals(beanMethod)) {
-                vopMap.put(MethodHelper.translateToInterface(signature)
-                           , SetMessageDrivenContextOperation.INSTANCE);
-                continue;
+            if (SET_MESSAGE_DRIVEN_CONTEXT.equals(signature)) {
+                vopMap.put(new InterfaceMethodSignature("setMessageDrivenContext", new String[]{"javax.ejb.MessageDrivenContext"}, false),
+                        SetMessageDrivenContextOperation.INSTANCE);
+            } else {
+                vopMap.put(new InterfaceMethodSignature(signature, false),
+                        new BusinessMethod(beanClass, signature));
             }
-            if (name.startsWith("ejb")) {
-                continue;
-            }
-            vopMap.put(new InterfaceMethodSignature(signature, false),
-                       new BusinessMethod(beanClass, signature));
         }
 
         return vopMap;
     }
+
 }

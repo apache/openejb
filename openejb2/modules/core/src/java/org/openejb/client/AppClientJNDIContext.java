@@ -50,7 +50,6 @@ import javax.naming.NamingException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.kernel.Kernel;
 import org.openejb.client.naming.java.javaURLContextFactory;
@@ -71,8 +70,6 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
     }
 
     public void startClient(ObjectName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception {
-
-        Context context;
         try {
             ServerMetaData serverMetaData = new ServerMetaData(host, port);
             JNDIResponse res = new JNDIResponse(serverMetaData);
@@ -92,7 +89,7 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
             throw new IllegalStateException("Server returned a null JNDI context");
         }
 
-        RootContext.setComponentContext((ReadOnlyContext) context);
+        RootContext.setComponentContext(context);
 
         System.setProperty(Context.URL_PKG_PREFIXES, "org.openejb.client.naming");
         System.setProperty(Context.INITIAL_CONTEXT_FACTORY, javaURLContextFactory.class.getName());

@@ -17,12 +17,11 @@
 package org.openejb;
 
 import javax.security.auth.Subject;
+import javax.naming.Context;
 import java.io.Serializable;
 
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.kernel.Kernel;
 
 import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstanceFactory;
@@ -36,10 +35,6 @@ import org.openejb.transaction.TransactionPolicyManager;
  * @version $Revision$ $Date$
  */
 public interface InterceptorBuilder extends Serializable {
-    void setKernel(Kernel kernel);
-
-    void setClassLoader(ClassLoader classLoader);
-
     void setContainerId(Object contextId);
 
     void setEJBName(String ejbName);
@@ -48,7 +43,7 @@ public interface InterceptorBuilder extends Serializable {
 
     void setRunAs(Subject runAs);
 
-    void setComponentContext(ReadOnlyContext componentContext);
+    void setComponentContext(Context componentContext);
 
     void setTransactionPolicyManager(TransactionPolicyManager transactionPolicyManager);
 

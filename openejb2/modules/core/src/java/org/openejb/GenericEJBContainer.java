@@ -52,6 +52,7 @@ import java.rmi.RemoteException;
 import java.security.Permissions;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Map;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -62,6 +63,7 @@ import javax.security.auth.Subject;
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
+import javax.naming.Context;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -80,6 +82,9 @@ import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
+import org.apache.geronimo.naming.reference.KernelAwareReference;
+import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.openejb.cache.InstancePool;
 import org.openejb.client.EJBObjectHandler;
 import org.openejb.client.EJBObjectProxy;
@@ -123,6 +128,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
                                InstanceContextFactory contextFactory,
                                InterceptorBuilder interceptorBuilder,
                                InstancePool pool,
+                               Map componentContext,
                                UserTransactionImpl userTransaction,
                                String[] jndiNames,
                                String[] localJndiNames,
@@ -137,6 +143,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
         assert (containerId != null);
         assert (ejbName != null && ejbName.length() > 0);
+        assert (componentContext != null);
         assert (signatures != null);
         assert (interceptorBuilder != null);
         assert (jndiNames != null);
@@ -156,14 +163,28 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         this.proxyInfo = proxyInfo;
         this.proxyFactory = new EJBProxyFactory(this);
 
+        // create ReadOnlyContext
+        Context enc = null;
+        if (componentContext != null) {
+            for (Iterator iterator = componentContext.values().iterator(); iterator.hasNext();) {
+                Object value = iterator.next();
+                if (value instanceof KernelAwareReference) {
+                    ((KernelAwareReference) value).setKernel(kernel);
+                }
+                if (value instanceof ClassLoaderAwareReference) {
+                    ((ClassLoaderAwareReference) value).setClassLoader(classLoader);
+                }
+            }
+            enc = new SimpleReadOnlyContext(componentContext);
+        }
+        interceptorBuilder.setComponentContext(enc);
+
         // give the contextFactory a reference to the proxyFactory
         // after this there is no reason to hold on to a reference to the contextFactory
         contextFactory.setProxyFactory(proxyFactory);
         SystemMethodIndices systemMethodIndices = contextFactory.setSignatures(getSignatures());
 
         // build the interceptor chain
-        interceptorBuilder.setKernel(kernel);
-        interceptorBuilder.setClassLoader(classLoader);
         interceptorBuilder.setTransactionContextManager(transactionContextManager);
         interceptorBuilder.setTrackedConnectionAssociator(trackedConnectionAssociator);
         interceptorBuilder.setInstancePool(pool);
@@ -430,6 +451,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addAttribute("ContextFactory", InstanceContextFactory.class, true);
         infoFactory.addAttribute("InterceptorBuilder", InterceptorBuilder.class, true);
         infoFactory.addAttribute("Pool", InstancePool.class, true);
+        infoFactory.addAttribute("componentContext", Map.class, true);
         infoFactory.addAttribute("UserTransaction", UserTransactionImpl.class, true);
         infoFactory.addAttribute("JndiNames", String[].class, true);
         infoFactory.addAttribute("LocalJndiNames", String[].class, true);
@@ -466,6 +488,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
             "ContextFactory",
             "InterceptorBuilder",
             "Pool",
+            "componentContext",
             "UserTransaction",
             "JndiNames",
             "LocalJndiNames",

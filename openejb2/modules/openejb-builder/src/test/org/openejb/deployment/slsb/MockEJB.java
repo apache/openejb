@@ -54,18 +54,37 @@ import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
 
-
 /**
- *
- *
- *
  * @version $Revision$ $Date$
  */
 public class MockEJB implements SessionBean, TimedObject {
+    private static final Object lock = new Object();
+    private static boolean hasWaiter = false;
 
     private int timeoutCount = 0;
 
     private SessionContext sessionContext;
+
+    public boolean createCalled = false;
+    public boolean removeCalled = false;
+
+    public MockEJB waitForSecondThread(long timeout) {
+        synchronized (lock) {
+            if (!hasWaiter) {
+                try {
+                    hasWaiter = true;
+                    lock.wait(timeout);
+                } catch (InterruptedException e) {
+                    // don't care
+                } finally {
+                    hasWaiter = false;
+                }
+            } else {
+                lock.notifyAll();
+            }
+            return this;
+        }
+    }
 
     public int intMethod(int i) {
         return i + 1;
@@ -97,6 +116,7 @@ public class MockEJB implements SessionBean, TimedObject {
     }
 
     public void ejbCreate() throws CreateException {
+        createCalled = true;
     }
 
     public void ejbActivate() {
@@ -106,6 +126,7 @@ public class MockEJB implements SessionBean, TimedObject {
     }
 
     public void ejbRemove() {
+        removeCalled = true;
     }
 
     public void ejbTimeout(Timer timer) {

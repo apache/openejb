@@ -53,7 +53,7 @@ import javax.ejb.SessionContext;
 import junit.framework.TestCase;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
-import org.openejb.slsb.MockEJB;
+import org.openejb.deployment.slsb.MockEJB;
 
 /**
  *

@@ -49,9 +49,10 @@ package org.openejb.sfsb;
 
 import java.io.Serializable;
 
+import javax.naming.Context;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.openejb.InstanceContextFactory;
 import org.openejb.cache.InstanceFactory;
@@ -75,7 +76,7 @@ public class StatefulInstanceFactory implements InstanceFactory, Serializable {
     }
 
     public Object createInstance() throws Exception {
-        ReadOnlyContext oldContext = RootContext.getComponentContext();
+        Context oldContext = RootContext.getComponentContext();
 
         try {
             // Disassociate from JNDI Component Context whilst creating instance

@@ -50,9 +50,10 @@ package org.openejb.mdb;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-
 import javax.management.ObjectName;
+import javax.naming.Context;
 import javax.resource.spi.UnavailableException;
 import javax.resource.spi.endpoint.MessageEndpoint;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
@@ -65,15 +66,18 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.timer.ThreadPooledTimer;
+import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
+import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
+import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.geronimo.timer.PersistenceException;
+import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
 import org.openejb.TwoChains;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -102,8 +106,10 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
             String endpointInterfaceName,
             InterfaceMethodSignature[] signatures,
             boolean[] deliveryTransacted,
-            MDBInstanceContextFactory contextFactory, MDBInterceptorBuilder interceptorBuilder,
-            InstancePool instancePool, UserTransactionImpl userTransaction,
+            MDBInstanceContextFactory contextFactory,
+            MDBInterceptorBuilder interceptorBuilder,
+            InstancePool instancePool,
+            Map componentContext, UserTransactionImpl userTransaction,
             ActivationSpecWrapper activationSpecWrapper,
             TransactionContextManager transactionContextManager,
             TrackedConnectionAssociator trackedConnectionAssociator,
@@ -132,6 +138,22 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         this.activationSpecWrapper = activationSpecWrapper;
         Class endpointInterface = classLoader.loadClass(endpointInterfaceName);
         endpointFactory = new EndpointFactory(this, endpointInterface, classLoader);
+
+        // create ReadOnlyContext
+        Context enc = null;
+        if (componentContext != null) {
+            for (Iterator iterator = componentContext.values().iterator(); iterator.hasNext();) {
+                Object value = iterator.next();
+                if (value instanceof KernelAwareReference) {
+                    ((KernelAwareReference) value).setKernel(kernel);
+                }
+                if (value instanceof ClassLoaderAwareReference) {
+                    ((ClassLoaderAwareReference) value).setClassLoader(classLoader);
+                }
+            }
+            enc = new SimpleReadOnlyContext(componentContext);
+        }
+        interceptorBuilder.setComponentContext(enc);
 
         // build the interceptor chain
         interceptorBuilder.setInstancePool(instancePool);
@@ -256,6 +278,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         infoFactory.addAttribute("contextFactory", MDBInstanceContextFactory.class, true);
         infoFactory.addAttribute("interceptorBuilder", MDBInterceptorBuilder.class, true);
         infoFactory.addAttribute("instancePool", InstancePool.class, true);
+        infoFactory.addAttribute("componentContext", Map.class, true);
         infoFactory.addAttribute("userTransaction", UserTransactionImpl.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
@@ -276,6 +299,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
             "contextFactory",
             "interceptorBuilder",
             "instancePool",
+            "componentContext",
             "userTransaction",
             "ActivationSpecWrapper",
             "TransactionContextManager",

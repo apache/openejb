@@ -47,17 +47,11 @@
  */
 package org.openejb.slsb;
 
-import java.lang.reflect.InvocationTargetException;
 import java.io.Serializable;
-import javax.ejb.SessionBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.apache.geronimo.naming.java.RootContext;
 
-import net.sf.cglib.reflect.FastClass;
-import org.openejb.EJBOperation;
 import org.openejb.cache.InstanceFactory;
 
 
@@ -67,90 +61,42 @@ import org.openejb.cache.InstanceFactory;
 public class StatelessInstanceFactory implements InstanceFactory, Serializable {
     private static final Log log = LogFactory.getLog(StatelessInstanceFactory.class);
 
-    private final ReadOnlyContext componentContext;
     private final StatelessInstanceContextFactory factory;
-    private final Class beanClass;
 
-    private transient final int createIndex;
-    private transient final FastClass implClass;
-
-    public StatelessInstanceFactory(ReadOnlyContext componentContext, StatelessInstanceContextFactory factory, Class beanClass) {
-        this.componentContext = componentContext;
+    public StatelessInstanceFactory(StatelessInstanceContextFactory factory) {
         this.factory = factory;
-        this.beanClass = beanClass;
-
-        implClass = FastClass.create(beanClass);
-        createIndex = implClass.getIndex("ejbCreate", new Class[0]);
     }
 
     public Object createInstance() throws Exception {
-        ReadOnlyContext oldContext = RootContext.getComponentContext();
-
+        StatelessInstanceContext ctx = (StatelessInstanceContext) factory.newInstance();
         try {
-            // Disassociate from JNDI Component Context whilst creating instance
-            RootContext.setComponentContext(null);
-
-            // create the StatelessInstanceContext which contains the instance
-            StatelessInstanceContext ctx = (StatelessInstanceContext) factory.newInstance();
-            try {
-                ctx.setContext();
-            } catch (Throwable t) {
-                //TODO check this error handling
-                if (t instanceof Exception) {
-                    throw (Exception) t;
-                } else {
-                    throw (Error) t;
-                }
-            }
-            SessionBean instance = (SessionBean) ctx.getInstance();
-            assert(instance != null);
-
-            // Activate this components JNDI Component Context
-            RootContext.setComponentContext(componentContext);
-
-            //TODO make ejbCreate go through the stack also
-            ctx.setOperation(EJBOperation.EJBCREATE);
-            try {
-                implClass.invoke(createIndex, instance, null);
-            } catch (InvocationTargetException ite) {
-                Throwable t = ite.getTargetException();
-                if (t instanceof Exception) {
-                    throw (Exception) t;
-                } else {
-                    throw (Error) t;
-                }
-            } finally {
-                ctx.setOperation(EJBOperation.INACTIVE);
-            }
-
+            ctx.setContext();
+            ctx.ejbCreate();
             return ctx;
-        } finally {
-            RootContext.setComponentContext(oldContext);
+        } catch (Throwable t) {
+            if (t instanceof Exception) {
+                throw (Exception) t;
+            } else if (t instanceof Error) {
+                throw (Error) t;
+            } else {
+                throw new Error("Unexpected throwable", t);
+            }
         }
     }
 
     public void destroyInstance(Object instance) {
         StatelessInstanceContext ctx = (StatelessInstanceContext) instance;
-        SessionBean beanInstance = (SessionBean) ctx.getInstance();
-
-        ctx.setOperation(EJBOperation.EJBREMOVE);
-
-        // Activate this components JNDI Component Context
-        ReadOnlyContext oldContext = RootContext.getComponentContext();
-        RootContext.setComponentContext(componentContext);
         try {
-            beanInstance.ejbRemove();
+            ctx.ejbRemove();
         } catch (Throwable t) {
             // We're destroying this instance, so just log and continue
             log.warn("Unexpected error removing Stateless instance", t);
-        } finally {
-            ctx.setOperation(EJBOperation.INACTIVE);
-            RootContext.setComponentContext(oldContext);
         }
+        // No should not we call setSessionContext(null);
     }
 
     private Object readResolve() {
-        return new StatelessInstanceFactory(componentContext, factory, beanClass);
+        return new StatelessInstanceFactory(factory);
     }
 }
 

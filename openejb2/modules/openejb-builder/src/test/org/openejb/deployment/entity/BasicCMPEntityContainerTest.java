@@ -54,6 +54,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.HashMap;
 
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
@@ -68,7 +69,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
@@ -430,7 +430,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         builder.setEJBSchema(ejbSchema);
         builder.setSQLSchema(sqlSchema);
         builder.setGlobalSchema(globalSchema);
-        builder.setComponentContext(new ReadOnlyContext());
+        builder.setComponentContext(new HashMap());
 //        builder.setConnectionFactoryName("defaultDatasource");
 
         EJBProxyFactory proxyFactory = new EJBProxyFactory(CONTAINER_NAME.getCanonicalName(), false, MockRemote.class, MockHome.class, MockLocal.class, MockLocalHome.class);

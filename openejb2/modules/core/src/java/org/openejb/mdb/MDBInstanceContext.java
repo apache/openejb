@@ -56,6 +56,7 @@ import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBOperation;
+import org.openejb.EJBInvocation;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.timer.BasicTimerService;
 
@@ -67,11 +68,15 @@ import org.openejb.timer.BasicTimerService;
 public final class MDBInstanceContext extends AbstractInstanceContext {
     private final Object containerId;
     private final MDBContext mdbContext;
+    private final EJBInvocation ejbCreateInvocation;
+    private final EJBInvocation ejbRemoveInvocation;
 
     public MDBInstanceContext(Object containerId, MessageDrivenBean instance, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction, SystemMethodIndices systemMethodIndices, Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, BasicTimerService timerService) {
         super(systemMethodIndices, systemChain, unshareableResources, applicationManagedSecurityResources, instance, null, timerService);
         this.containerId = containerId;
         this.mdbContext = new MDBContext(this, transactionContextManager, userTransaction);
+        ejbCreateInvocation = systemMethodIndices.getEJBCreateInvocation(this);
+        ejbRemoveInvocation = systemMethodIndices.getEJBRemoveInvocation(this);
         setContextInvocation = systemMethodIndices.getSetContextInvocation(this, mdbContext);
         unsetContextInvocation = systemMethodIndices.getSetContextInvocation(this, null);
     }
@@ -98,5 +103,15 @@ public final class MDBInstanceContext extends AbstractInstanceContext {
 
     public void setOperation(EJBOperation operation) {
         mdbContext.setState(operation);
+    }
+
+    public void ejbCreate() throws Throwable {
+        assert(getInstance() != null);
+        systemChain.invoke(ejbCreateInvocation);
+    }
+
+    public void ejbRemove() throws Throwable {
+        assert(getInstance() != null);
+        systemChain.invoke(ejbRemoveInvocation);
     }
 }

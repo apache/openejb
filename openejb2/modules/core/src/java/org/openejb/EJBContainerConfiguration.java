@@ -50,14 +50,12 @@ package org.openejb;
 import java.util.Set;
 
 import javax.security.auth.Subject;
+import javax.naming.Context;
 
-import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.openejb.transaction.TransactionPolicySource;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class EJBContainerConfiguration {
@@ -72,7 +70,7 @@ public class EJBContainerConfiguration {
     public String messageEndpointInterfaceName;
     public TransactionDemarcation txnDemarcation;
     public UserTransactionImpl userTransaction;
-    public ReadOnlyContext componentContext;
+    public Context componentContext;
     public Set unshareableResources;
     public TransactionPolicySource transactionPolicySource;
     public String contextId;
