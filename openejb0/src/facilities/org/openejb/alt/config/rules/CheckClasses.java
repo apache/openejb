@@ -111,8 +111,8 @@ public class CheckClasses implements ValidationRule {
             # 2 - Bean name
             */
 
-            ValidationFailure failure = new ValidationFailure("s.missing.class");
-            failure.setDetails("d.missing.class", clazz, type, b.getEjbName());
+            ValidationFailure failure = new ValidationFailure("missing.class");
+            failure.setDetails( clazz, type, b.getEjbName());
             failure.setBean( b );
 
             set.addFailure( failure );
@@ -128,8 +128,8 @@ public class CheckClasses implements ValidationRule {
         } catch ( OpenEJBException e ) {}
 
         if ( class1 != null && !class2.isAssignableFrom( class1 ) ) {
-            ValidationFailure failure = new ValidationFailure("s.wrong.class.type");
-            failure.setDetails("d.wrong.class.type", clazz1, class2.getName());
+            ValidationFailure failure = new ValidationFailure("wrong.class.type");
+            failure.setDetails( clazz1, class2.getName());
             failure.setBean( b );
 
             set.addFailure( failure );

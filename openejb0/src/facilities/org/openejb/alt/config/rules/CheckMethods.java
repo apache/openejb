@@ -89,12 +89,13 @@ public class CheckMethods implements ValidationRule {
                 Class[] params = interfaceMethods[i].getParameterTypes();
                 Method beanMethod = beanClass.getMethod( name, params );
             }catch(NoSuchMethodException nsme){
-                //  1 - method name                   
+                //  0 - method name                   
+                //  1 - full method name                   
                 //  2 - remote|home                   
                 //  3 - interface name                
                 //  4 - EJB Class name                
-                ValidationFailure failure = new ValidationFailure("s.no.busines.method");
-                failure.setDetails("d.no.busines.method", interfaceMethods[i].toString(), "remote", intrface.getName(), beanClass.getName());
+                ValidationFailure failure = new ValidationFailure("no.busines.method");
+                failure.setDetails( interfaceMethods[i].getName(),interfaceMethods[i].toString(), "remote", intrface.getName(), beanClass.getName());
                 failure.setBean( b );
 
                 set.addFailure( failure );
@@ -142,8 +143,8 @@ public class CheckMethods implements ValidationRule {
         if ( !hasCreateMethod ) {
             // 1 - home interface
             // 2 - remote interface
-            ValidationFailure failure = new ValidationFailure("s.no.home.create");
-            failure.setDetails("d.no.home.create", b.getHome(), b.getRemote());
+            ValidationFailure failure = new ValidationFailure("no.home.create");
+            failure.setDetails( b.getHome(), b.getRemote());
             failure.setBean( b );
 
             set.addFailure( failure );
@@ -185,8 +186,8 @@ public class CheckMethods implements ValidationRule {
                     // 1 - EJB Class name
                     // 2 - primary key class
                     // 3 - create params
-                    ValidationFailure failure = new ValidationFailure("s.entity.no.ejb.create");
-                    failure.setDetails("d.entity.no.ejb.create", b.getEjbClass(), entity.getPrimaryKey(), paramString);
+                    ValidationFailure failure = new ValidationFailure("entity.no.ejb.create");
+                    failure.setDetails( b.getEjbClass(), entity.getPrimaryKey(), paramString);
                     failure.setBean( b );
 
                     set.addFailure( failure );
@@ -194,8 +195,8 @@ public class CheckMethods implements ValidationRule {
                 } else {
                     // 1 - EJB Class name
                     // 2 - create params
-                    ValidationFailure failure = new ValidationFailure("s.session.no.ejb.create");
-                    failure.setDetails("d.session.no.ejb.create", b.getEjbClass(), paramString);
+                    ValidationFailure failure = new ValidationFailure("session.no.ejb.create");
+                    failure.setDetails( b.getEjbClass(), paramString);
                     failure.setBean( b );
 
                     set.addFailure( failure );
@@ -240,8 +241,8 @@ public class CheckMethods implements ValidationRule {
                 // 1 - EJB Class name
                 // 2 - primary key class
                 // 3 - create params
-                ValidationFailure failure = new ValidationFailure("s.no.ejb.post.create");
-                failure.setDetails("d.no.ejb.post.create", b.getEjbClass(), paramString);
+                ValidationFailure failure = new ValidationFailure("no.ejb.post.create");
+                failure.setDetails( b.getEjbClass(), paramString);
                 failure.setBean( b );
 
                 set.addFailure( failure );
@@ -280,8 +281,8 @@ public class CheckMethods implements ValidationRule {
                 // 1 - bean class
                 // 2 - create params
                 // 3 - home interface
-                ValidationWarning warning = new ValidationWarning("s.unused.ejb.create");
-                warning.setDetails("d.unused.ejb.create", b.getEjbClass(), paramString, home.getName());
+                ValidationWarning warning = new ValidationWarning("unused.ejb.create");
+                warning.setDetails( b.getEjbClass(), paramString, home.getName());
                 warning.setBean( b );
 
                 set.addWarning( warning );
