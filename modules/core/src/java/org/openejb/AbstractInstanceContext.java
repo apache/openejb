@@ -20,15 +20,14 @@ package org.openejb;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import javax.ejb.EnterpriseBean;
 import javax.ejb.TimerService;
 
 import org.apache.geronimo.core.service.Interceptor;
-import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.timer.BasicTimerService;
 import org.openejb.timer.TimerServiceImpl;
+import org.openejb.timer.BasicTimerService;
+import org.openejb.timer.UnavailableTimerService;
 
 
 /**
@@ -49,16 +48,20 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
     protected EJBInvocation setContextInvocation;
     protected EJBInvocation unsetContextInvocation;
     protected final Interceptor systemChain;
+    private final BasicTimerService activeTimer;
     private final TimerService timerService;
 
+    private BasicTimerService timerState = UnavailableTimerService.INSTANCE;
 
-    public AbstractInstanceContext(Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, EnterpriseBean instance, EJBProxyFactory proxyFactory, BasicTimerService timerService) {
+
+    public AbstractInstanceContext(Interceptor systemChain, Set unshareableResources, Set applicationManagedSecurityResources, EnterpriseBean instance, EJBProxyFactory proxyFactory, BasicTimerService basicTimerService) {
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.instance = instance;
         this.proxyFactory = proxyFactory;
         this.systemChain = systemChain;
-        this.timerService = new TimerServiceImpl(timerService, this);
+        this.activeTimer = basicTimerService;
+        this.timerService = basicTimerService == null? null: new TimerServiceImpl(this);
     }
 
     public Object getId() {
@@ -114,6 +117,18 @@ public abstract class AbstractInstanceContext implements EJBInstanceContext {
 
     public TimerService getTimerService() {
         return timerService;
+    }
+
+    public BasicTimerService getBasicTimerService() {
+        return timerState;
+    }
+
+    public void setTimerServiceAvailable(boolean available) {
+        if (available) {
+            timerState = activeTimer;
+        } else {
+            timerState = UnavailableTimerService.INSTANCE;
+        }
     }
 
 }

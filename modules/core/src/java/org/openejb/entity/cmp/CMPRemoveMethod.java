@@ -62,6 +62,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
+import org.openejb.timer.TimerState;
 import org.openejb.dispatch.AbstractMethodOperation;
 import org.openejb.dispatch.MethodSignature;
 import org.tranql.cache.CacheTable;
@@ -119,10 +120,20 @@ public class CMPRemoveMethod extends AbstractMethodOperation {
         if (result.isNormal()) {
             //cancel timers
             TimerService timerService = ctx.getTimerService();
-            Collection timers = timerService.getTimers();
-            for (Iterator iterator = timers.iterator(); iterator.hasNext();) {
-                Timer timer = (Timer) iterator.next();
-                timer.cancel();
+            if (timerService != null) {
+                boolean oldTimerMethodAvailable = TimerState.getTimerState();
+                ctx.setTimerServiceAvailable(true);
+                TimerState.setTimerState(true);
+                try {
+                    Collection timers = timerService.getTimers();
+                    for (Iterator iterator = timers.iterator(); iterator.hasNext();) {
+                        Timer timer = (Timer) iterator.next();
+                        timer.cancel();
+                    }
+                } finally {
+                    ctx.setTimerServiceAvailable(false);
+                    TimerState.setTimerState(oldTimerMethodAvailable);
+                }
             }
 
             InTxCache cache = invocation.getTransactionContext().getInTxCache();

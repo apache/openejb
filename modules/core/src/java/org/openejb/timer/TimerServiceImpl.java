@@ -47,16 +47,15 @@
  */
 package org.openejb.timer;
 
-import java.util.Date;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
-import java.io.Serializable;
-
-import javax.ejb.TimerService;
-import javax.ejb.Timer;
+import java.util.Date;
 import javax.ejb.EJBException;
+import javax.ejb.Timer;
+import javax.ejb.TimerService;
 
-import org.openejb.AbstractInstanceContext;
+import org.openejb.EJBInstanceContext;
 
 
 /**
@@ -67,33 +66,42 @@ import org.openejb.AbstractInstanceContext;
  * */
 public class TimerServiceImpl implements TimerService {
 
-    private final BasicTimerService timerService;
-    private final AbstractInstanceContext context;
+    private final EJBInstanceContext context;
 
-    public TimerServiceImpl(BasicTimerService timerService, AbstractInstanceContext context) {
-        this.timerService = timerService;
+    public TimerServiceImpl(EJBInstanceContext context) {
         this.context = context;
     }
 
     public Timer createTimer(Date initialExpiration, long intervalDuration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException {
-        return timerService.createTimer(context.getId(), initialExpiration, intervalDuration, info);
+        checkState();
+        return context.getBasicTimerService().createTimer(context.getId(), initialExpiration, intervalDuration, info);
     }
 
     public Timer createTimer(Date expiration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException {
-        return timerService.createTimer(context.getId(), expiration, info);
+        checkState();
+        return context.getBasicTimerService().createTimer(context.getId(), expiration, info);
     }
 
     public Timer createTimer(long initialDuration, long intervalDuration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException {
-        return timerService.createTimer(context.getId(), initialDuration, intervalDuration, info);
+        checkState();
+        return context.getBasicTimerService().createTimer(context.getId(), initialDuration, intervalDuration, info);
     }
 
     public Timer createTimer(long duration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException {
-        return timerService.createTimer(context.getId(), duration, info);
+        checkState();
+        return context.getBasicTimerService().createTimer(context.getId(), duration, info);
     }
 
     public Collection getTimers() throws IllegalStateException, EJBException {
+        checkState();
         //TODO this check is here because entity bean remove calls this to get the list of timers to cancel.
         //Possibly there is a better place to check that the entity bean is a timed object.
-        return timerService == null? Collections.EMPTY_SET: timerService.getTimers(context.getId());
+        return context.getBasicTimerService() == null? Collections.EMPTY_SET: context.getBasicTimerService().getTimers(context.getId());
+    }
+
+    private void checkState() throws IllegalStateException {
+        if (!TimerState.getTimerState()) {
+            throw new IllegalStateException("Timer methods not available");
+        }
     }
 }

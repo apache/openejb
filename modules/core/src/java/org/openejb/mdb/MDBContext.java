@@ -62,6 +62,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
+import org.openejb.timer.TimerState;
 
 /**
  * Implementation of MessageDrivenContext using the State pattern to determine
@@ -87,6 +88,13 @@ public class MDBContext extends EJBContextImpl implements MessageDrivenContext {
                 userTransaction.setOnline(false);
             }
         }
+        context.setTimerServiceAvailable(timerServiceAvailable[operation.getOrdinal()]);
+    }
+
+    public boolean setTimerState(EJBOperation operation) {
+        boolean oldTimerState = TimerState.getTimerState();
+        TimerState.setTimerState(timerMethodsAvailable[operation.getOrdinal()]);
+        return oldTimerState;
     }
 
     public MessageContext getMessageContext() throws IllegalStateException {
@@ -239,4 +247,22 @@ public class MDBContext extends EJBContextImpl implements MessageDrivenContext {
         states[EJBOperation.ENDPOINT.getOrdinal()] = BIZ_WSENDPOINT;
         states[EJBOperation.TIMEOUT.getOrdinal()] = EJBTIMEOUT;
     }
+    //spec p 344
+    private static final boolean timerServiceAvailable[] = new boolean[EJBOperation.MAX_ORDINAL];
+
+    static {
+        timerServiceAvailable[EJBOperation.EJBCREATE.getOrdinal()] = true;
+        timerServiceAvailable[EJBOperation.EJBREMOVE.getOrdinal()] = true;
+        timerServiceAvailable[EJBOperation.BIZMETHOD.getOrdinal()] = true;
+        timerServiceAvailable[EJBOperation.ENDPOINT.getOrdinal()] = true;
+        timerServiceAvailable[EJBOperation.TIMEOUT.getOrdinal()] = true;
+    }
+
+    private static final boolean timerMethodsAvailable[] = new boolean[EJBOperation.MAX_ORDINAL];
+
+    static {
+        timerMethodsAvailable[EJBOperation.BIZMETHOD.getOrdinal()] = true;
+        timerMethodsAvailable[EJBOperation.TIMEOUT.getOrdinal()] = true;
+    }
+
 }

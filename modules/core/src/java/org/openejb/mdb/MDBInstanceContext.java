@@ -105,6 +105,10 @@ public final class MDBInstanceContext extends AbstractInstanceContext {
         mdbContext.setState(operation);
     }
 
+    public boolean setTimerState(EJBOperation operation) {
+        return mdbContext.setTimerState(operation);
+    }
+
     public void ejbCreate() throws Throwable {
         assert(getInstance() != null);
         systemChain.invoke(ejbCreateInvocation);

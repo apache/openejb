@@ -56,6 +56,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
+import org.openejb.timer.TimerState;
 import org.openejb.dispatch.AbstractMethodOperation;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.entity.EntityInstanceContext;
@@ -76,11 +77,22 @@ public class BMPRemoveMethod extends AbstractMethodOperation {
             EntityInstanceContext ctx = (EntityInstanceContext) invocation.getEJBInstanceContext();
             //cancel timers
             TimerService timerService = ctx.getTimerService();
-            Collection timers = timerService.getTimers();
-            for (Iterator iterator = timers.iterator(); iterator.hasNext();) {
-                Timer timer = (Timer) iterator.next();
-                timer.cancel();
+            if (timerService != null) {
+                boolean oldTimerMethodAvailable = TimerState.getTimerState();
+                TimerState.setTimerState(true);
+                ctx.setTimerServiceAvailable(true);
+                try {
+                    Collection timers = timerService.getTimers();
+                    for (Iterator iterator = timers.iterator(); iterator.hasNext();) {
+                        Timer timer = (Timer) iterator.next();
+                        timer.cancel();
+                    }
+                } finally {
+                    ctx.setTimerServiceAvailable(false);
+                    TimerState.setTimerState(oldTimerMethodAvailable);
+                }
             }
+                
             // clear id as we are no longer associated
             ctx.setId(null);
         }

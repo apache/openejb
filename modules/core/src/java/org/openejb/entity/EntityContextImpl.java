@@ -62,11 +62,10 @@ import javax.transaction.UserTransaction;
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
+import org.openejb.timer.TimerState;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class EntityContextImpl extends EJBContextImpl implements EntityContext {
@@ -76,7 +75,14 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
 
     public void setState(EJBOperation operation) {
         state = states[operation.getOrdinal()];
-        assert (state != null) : "Invalid EJBOperation for Stateless SessionBean, ordinal=" + operation.getOrdinal();
+        assert (state != null) : "Invalid EJBOperation for EntityBean, ordinal=" + operation.getOrdinal();
+        context.setTimerServiceAvailable(timerServiceAvailable[operation.getOrdinal()]);
+    }
+
+    public boolean setTimerState(EJBOperation operation) {
+        boolean oldTimerState = TimerState.getTimerState();
+        TimerState.setTimerState(timerMethodsAvailable[operation.getOrdinal()]);
+        return oldTimerState;
     }
 
     public Object getPrimaryKey() throws IllegalStateException {
@@ -197,10 +203,6 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
         public Object getPrimaryKey(EJBInstanceContext context) {
             throw new IllegalStateException("getPrimaryKey() cannot be called from ejbHome");
         }
-
-        public TimerService getTimerService(EJBInstanceContext context) {
-            throw new IllegalStateException("getTimerService() cannot be called from set/unsetEntityContext");
-        }
     };
 
     public static EntityContextState EJBPOSTCREATE = new EntityContextState() {
@@ -238,10 +240,6 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
 
         public Object getPrimaryKey(EJBInstanceContext context) {
             throw new IllegalStateException("getPrimaryKey() cannot be called from ejbHome");
-        }
-
-        public TimerService getTimerService(EJBInstanceContext context) {
-            throw new IllegalStateException("getTimerService() cannot be called from set/unsetEntityContext");
         }
     };
 
@@ -287,4 +285,29 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
         states[EJBOperation.BIZMETHOD.getOrdinal()] = BIZ_INTERFACE;
         states[EJBOperation.TIMEOUT.getOrdinal()] = EJBTIMEOUT;
     }
+
+    private static final boolean timerServiceAvailable[] = new boolean[EJBOperation.MAX_ORDINAL];
+
+    static {
+        timerServiceAvailable[EJBOperation.EJBCREATE.getOrdinal()] = true;
+        timerServiceAvailable[EJBOperation.EJBPOSTCREATE.getOrdinal()] = true;
+        timerServiceAvailable[EJBOperation.EJBREMOVE.getOrdinal()] = true;
+        timerServiceAvailable[EJBOperation.EJBFIND.getOrdinal()] = true;//TODO ??? don't know
+        timerServiceAvailable[EJBOperation.EJBHOME.getOrdinal()] = true;
+        timerServiceAvailable[EJBOperation.EJBACTIVATE.getOrdinal()] = true;
+        timerServiceAvailable[EJBOperation.EJBLOAD.getOrdinal()] = true;
+        timerServiceAvailable[EJBOperation.BIZMETHOD.getOrdinal()] = true;
+        timerServiceAvailable[EJBOperation.TIMEOUT.getOrdinal()] = true;
+    }
+
+    private static final boolean timerMethodsAvailable[] = new boolean[EJBOperation.MAX_ORDINAL];
+
+    static {
+        timerMethodsAvailable[EJBOperation.EJBPOSTCREATE.getOrdinal()] = true;
+        timerMethodsAvailable[EJBOperation.EJBREMOVE.getOrdinal()] = true;
+        timerMethodsAvailable[EJBOperation.EJBLOAD.getOrdinal()] = true;
+        timerMethodsAvailable[EJBOperation.BIZMETHOD.getOrdinal()] = true;
+        timerMethodsAvailable[EJBOperation.TIMEOUT.getOrdinal()] = true;
+    }
+
 }

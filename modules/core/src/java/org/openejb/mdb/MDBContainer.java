@@ -83,7 +83,7 @@ import org.openejb.TwoChains;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
-import org.openejb.timer.BasicTimerService;
+import org.openejb.timer.BasicTimerServiceImpl;
 
 /**
  * @version $Revision$ $Date$
@@ -100,7 +100,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
     private final boolean[] deliveryTransacted;
     private final TransactionContextManager transactionContextManager;
     private final Map methodIndexMap;
-    private final BasicTimerService timerService;
+    private final BasicTimerServiceImpl timerService;
 
     public MDBContainer(String containerId,
             String ejbName,
@@ -167,7 +167,7 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         contextFactory.setSystemChain(chains.getSystemChain());
         contextFactory.setTransactionContextManager(transactionContextManager);
         if (timer != null) {
-            timerService = new BasicTimerService(systemMethodIndices, interceptor, timer, objectName, kernel.getKernelName(), ObjectName.getInstance(objectName), transactionContextManager, classLoader);
+            timerService = new BasicTimerServiceImpl(systemMethodIndices, interceptor, timer, objectName, kernel.getKernelName(), ObjectName.getInstance(objectName), transactionContextManager, classLoader);
             contextFactory.setTimerService(timerService);
         } else {
             timerService = null;

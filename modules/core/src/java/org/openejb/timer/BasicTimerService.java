@@ -45,222 +45,28 @@
  *
  * ====================================================================
  */
+
 package org.openejb.timer;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
-
-import javax.ejb.EJBException;
+import java.util.Collection;
+import java.io.Serializable;
 import javax.ejb.Timer;
-import javax.ejb.NoSuchObjectLocalException;
-import javax.management.ObjectName;
-import javax.transaction.RollbackException;
-import javax.transaction.Status;
-import javax.transaction.Synchronization;
-import javax.transaction.SystemException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.timer.PersistenceException;
-import org.apache.geronimo.timer.PersistentTimer;
-import org.apache.geronimo.timer.ThreadPooledTimer;
-import org.apache.geronimo.timer.UserTaskFactory;
-import org.apache.geronimo.timer.WorkInfo;
-import org.apache.geronimo.transaction.context.TransactionContext;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.openejb.EJBInvocation;
+import javax.ejb.EJBException;
 
 /**
- *
- *
- * @version $Revision$ $Date$
- *
- * */
-public class BasicTimerService {
+ * @version $Rev:  $ $Date$
+ */
+public interface BasicTimerService {
+    Timer createTimer(Object id, Date initialExpiration, long intervalDuration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException;
 
-    private static final Log log = LogFactory.getLog(EJBInvokeTask.class);
+    Timer createTimer(Object id, Date expiration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException;
 
-    private final EJBTimeoutInvocationFactory invocationFactory;
-    private final Interceptor stack;
-    private final PersistentTimer persistentTimer;
-    private final String key;
-    private final UserTaskFactory userTaskFactory;
-    private final String kernelName;
-    private final ObjectName timerSourceName;
-    private final TransactionContextManager transactionContextManager;
+    Timer createTimer(Object id, long initialDuration, long intervalDuration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException;
 
-    public BasicTimerService(EJBTimeoutInvocationFactory invocationFactory, Interceptor stack, ThreadPooledTimer timer, String key, String kernelName, ObjectName timerSourceName, TransactionContextManager transactionContextManager, ClassLoader classLoader) throws PersistenceException {
-        this.invocationFactory = invocationFactory;
-        this.stack = stack;
-        this.persistentTimer = timer;
-        this.key = key;
-        this.kernelName = kernelName;
-        this.timerSourceName = timerSourceName;
-        this.transactionContextManager = transactionContextManager;
-        userTaskFactory = new EJBInvokeTaskFactory(this, classLoader);
-    }
+    Timer createTimer(Object id, long duration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException;
 
-    public void doStart() throws PersistenceException {
-        //reconstruct saved timers.
-        Collection workInfos = persistentTimer.playback(key, userTaskFactory);
-        for (Iterator iterator = workInfos.iterator(); iterator.hasNext();) {
-            WorkInfo workInfo = (WorkInfo) iterator.next();
-            newTimer(workInfo);
-        }
-    }
+    Collection getTimers(Object id) throws IllegalStateException, EJBException;
 
-    public void doStop() throws PersistenceException {
-        Collection ids = persistentTimer.getIdsByKey(key, null);
-        persistentTimer.cancelTimerTasks(ids);
-    }
-
-
-    public Timer createTimer(Object id, Date initialExpiration, long intervalDuration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException {
-        try {
-            WorkInfo workInfo = persistentTimer.scheduleAtFixedRate(key, userTaskFactory, id, info, initialExpiration, intervalDuration);
-            return newTimer(workInfo);
-        } catch (PersistenceException e) {
-            throw new EJBException(e);
-        } catch (RollbackException e) {
-            throw new EJBException(e);
-        } catch (SystemException e) {
-            throw new EJBException(e);
-        }
-    }
-
-    public Timer createTimer(Object id, Date expiration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException {
-        try {
-            WorkInfo workInfo = persistentTimer.schedule(key, userTaskFactory, id, info, expiration);
-            return newTimer(workInfo);
-        } catch (PersistenceException e) {
-            throw new EJBException(e);
-        } catch (RollbackException e) {
-            throw new EJBException(e);
-        } catch (SystemException e) {
-            throw new EJBException(e);
-        }
-    }
-
-    public Timer createTimer(Object id, long initialDuration, long intervalDuration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException {
-        try {
-            WorkInfo workInfo = persistentTimer.scheduleAtFixedRate(key, userTaskFactory, id, info, initialDuration, intervalDuration);
-            return newTimer(workInfo);
-        } catch (PersistenceException e) {
-            throw new EJBException(e);
-        } catch (RollbackException e) {
-            throw new EJBException(e);
-        } catch (SystemException e) {
-            throw new EJBException(e);
-        }
-    }
-
-    public Timer createTimer(Object id, long duration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException {
-        try {
-            WorkInfo workInfo = persistentTimer.schedule(userTaskFactory, key, id, info, duration);
-            return newTimer(workInfo);
-        } catch (PersistenceException e) {
-            throw new EJBException(e);
-        } catch (RollbackException e) {
-            throw new EJBException(e);
-        } catch (SystemException e) {
-            throw new EJBException(e);
-        }
-    }
-
-    public Collection getTimers(Object id) throws IllegalStateException, EJBException {
-        Collection ids = null;
-        try {
-            ids = persistentTimer.getIdsByKey(key, id);
-        } catch (PersistenceException e) {
-            throw new EJBException(e);
-        }
-        Collection timers = new ArrayList();
-        for (Iterator iterator = ids.iterator(); iterator.hasNext();) {
-            Long timerId = (Long) iterator.next();
-            TimerImpl timer = getTimerById(timerId);
-            timers.add(timer);
-        }
-        return timers;
-    }
-
-    public TimerImpl getTimerById(Long id) {
-        WorkInfo workInfo = persistentTimer.getWorkInfo(id);
-        if (workInfo != null) {
-            TimerImpl timer = (TimerImpl) workInfo.getClientHandle();
-            return timer;
-        } else {
-            throw new NoSuchObjectLocalException("No timer");
-        }
-    }
-
-    void registerCancelSynchronization(Synchronization cancelSynchronization) throws RollbackException, SystemException {
-        TransactionContext transactionContext = transactionContextManager.getContext();
-        if (transactionContext != null && transactionContext.isActive()) {
-            transactionContext.getTransaction().registerSynchronization(cancelSynchronization);
-        } else {
-            cancelSynchronization.afterCompletion(Status.STATUS_COMMITTED);
-        }
-    }
-
-    private Timer newTimer(WorkInfo workInfo) {
-        Timer timer = new TimerImpl(workInfo, this, kernelName, timerSourceName);
-        workInfo.setClientHandle(timer);
-        return timer;
-    }
-
-    private Interceptor getStack() {
-        return stack;
-    }
-
-    private static class EJBInvokeTask implements Runnable {
-
-        private final BasicTimerService timerService;
-        private final long timerId;
-        private final ClassLoader classLoader;
-
-        public EJBInvokeTask(BasicTimerService timerService, long id, ClassLoader classLoader) {
-            this.timerService = timerService;
-            this.timerId = id;
-            this.classLoader = classLoader;
-        }
-
-        public void run() {
-            TimerImpl timerImpl = timerService.getTimerById(new Long(timerId));
-            Object id = timerImpl.getUserId();
-            EJBInvocation invocation = timerService.invocationFactory.getEJBTimeoutInvocation(id, timerImpl);
-
-            Thread currentThread = Thread.currentThread();
-            ClassLoader oldClassLoader = currentThread.getContextClassLoader();
-            try {
-                currentThread.setContextClassLoader(classLoader);
-                timerService.getStack().invoke(invocation);
-            } catch (Throwable throwable) {
-                log.info(throwable);
-            } finally {
-                currentThread.setContextClassLoader(oldClassLoader);
-            }
-        }
-
-    }
-
-    private static class EJBInvokeTaskFactory implements UserTaskFactory {
-
-        private final BasicTimerService timerService;
-        private final ClassLoader classLoader;
-
-        public EJBInvokeTaskFactory(BasicTimerService timerService, ClassLoader classLoader) {
-            this.timerService = timerService;
-            this.classLoader = classLoader;
-        }
-
-        public Runnable newTask(long id) {
-            return new EJBInvokeTask(timerService, id, classLoader);
-        }
-
-    }
-
+    TimerImpl getTimerById(Long id);
 }

@@ -45,33 +45,26 @@
  *
  * ====================================================================
  */
-package org.openejb;
 
-import javax.ejb.EnterpriseBean;
-import javax.ejb.TimerService;
-
-import org.apache.geronimo.transaction.InstanceContext;
-import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.timer.BasicTimerService;
+package org.openejb.timer;
 
 /**
- * @version $Revision$ $Date$
+ * @version $Rev:  $ $Date$
  */
-public interface EJBInstanceContext extends InstanceContext {
+public class TimerState {
 
-    EnterpriseBean getInstance();
+    private static final ThreadLocal timerState = new ThreadLocal() {
+        protected Object initialValue() {
+            return Boolean.FALSE;
+        }
+    };
 
-    void setOperation(EJBOperation operation);
+    public static final boolean getTimerState() {
+        return ((Boolean)timerState.get()).booleanValue();
+    }
 
-    EJBProxyFactory getProxyFactory();
-
-    TimerService getTimerService();
-
-    BasicTimerService getBasicTimerService();
-
-    void setTimerServiceAvailable(boolean available);
-
-    //sets timer method availability based on operation, returns old availability
-    boolean setTimerState(EJBOperation operation);
+    public static final void setTimerState(boolean state) {
+        timerState.set(Boolean.valueOf(state));
+    }
 
 }

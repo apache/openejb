@@ -47,17 +47,16 @@
  */
 package org.openejb.timer;
 
-import java.util.Date;
 import java.io.Serializable;
-
-import javax.ejb.Timer;
+import java.util.Date;
 import javax.ejb.EJBException;
 import javax.ejb.NoSuchObjectLocalException;
+import javax.ejb.Timer;
 import javax.ejb.TimerHandle;
 import javax.management.ObjectName;
-import javax.transaction.Synchronization;
-import javax.transaction.Status;
 import javax.transaction.RollbackException;
+import javax.transaction.Status;
+import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 
 import org.apache.geronimo.timer.WorkInfo;
@@ -71,12 +70,12 @@ import org.apache.geronimo.timer.WorkInfo;
 public class TimerImpl implements Timer {
 
     private final WorkInfo workInfo;
-    private final BasicTimerService timerService;
+    private final BasicTimerServiceImpl timerService;
     private final String kernelName;
     private final ObjectName timerSourceName;
     private boolean cancelled = false;
 
-    public TimerImpl(WorkInfo workInfo, BasicTimerService timerService, String kernelName, ObjectName timerSourceName) {
+    public TimerImpl(WorkInfo workInfo, BasicTimerServiceImpl timerService, String kernelName, ObjectName timerSourceName) {
         this.workInfo = workInfo;
         this.timerService = timerService;
         this.kernelName = kernelName;
@@ -123,6 +122,9 @@ public class TimerImpl implements Timer {
     }
 
     private void checkState() throws NoSuchObjectLocalException {
+        if (!TimerState.getTimerState()) {
+            throw new IllegalStateException("Timer methods not available");
+        }
         if (cancelled) {
             throw new NoSuchObjectLocalException("Timer is cancelled");
         }

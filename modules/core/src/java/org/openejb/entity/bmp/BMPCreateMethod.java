@@ -59,6 +59,7 @@ import net.sf.cglib.reflect.FastClass;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
+import org.openejb.timer.TimerState;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
 import org.openejb.entity.EntityInstanceContext;
@@ -111,6 +112,7 @@ public class BMPCreateMethod implements VirtualOperation, Serializable {
 
         // call the create method
         Object id;
+        boolean oldTimerMethodAvailable = ctx.setTimerState(EJBOperation.EJBCREATE);
         try {
             ctx.setOperation(EJBOperation.EJBCREATE);
             id = fastBeanClass.invoke(createIndex, instance, args);
@@ -125,6 +127,7 @@ public class BMPCreateMethod implements VirtualOperation, Serializable {
             }
         } finally {
             ctx.setOperation(EJBOperation.INACTIVE);
+            TimerState.setTimerState(oldTimerMethodAvailable);
         }
 
         // assign the context the new id
@@ -136,6 +139,7 @@ public class BMPCreateMethod implements VirtualOperation, Serializable {
         // call the post create method
         try {
             ctx.setOperation(EJBOperation.EJBPOSTCREATE);
+            ctx.setTimerState(EJBOperation.EJBPOSTCREATE);
             fastBeanClass.invoke(postCreateIndex, instance, args);
         } catch (InvocationTargetException ite) {
             Throwable t = ite.getTargetException();
@@ -148,6 +152,7 @@ public class BMPCreateMethod implements VirtualOperation, Serializable {
             }
         } finally {
             ctx.setOperation(EJBOperation.INACTIVE);
+            TimerState.setTimerState(oldTimerMethodAvailable);
         }
 
 
