@@ -44,14 +44,15 @@
  */
 package org.openejb.admin.web.ejbgen;
 
-import java.io.*;
-import java.net.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import org.openejb.admin.web.HttpRequest;
 import org.openejb.admin.web.HttpResponse;
 import org.openejb.admin.web.WebAdminBean;
-import org.openejb.util.HtmlUtilities;
 import org.openejb.util.FileUtils;
+import org.openejb.util.HtmlUtilities;
 
 /** Page for user to input needed data to build EJB Skeleton.
  * @author <a href="mailto:jcscoobyrs@developerkb.com">Jeremy Whitlock</a>
@@ -278,6 +279,24 @@ public class EJBGenBean extends WebAdminBean
 		String ejbsloc = request.getFormParameter("ejbsloc");
 		String ejbstyp = request.getFormParameter("ejbstyp");
 		String generate = request.getFormParameter("generate");
+		String namehelp = "This is the name of your EJB.  It will be appended to all of your source " +
+		                  "files.  For example, if your EJB Name was Foo, your Bean.java file would be " +
+		                  "&QUOT;FooBean.java&QUOT;.";
+		String deschelp = "This has not been implemented yet but it will end up being in your JavaDoc " +
+						  "information describing your bean and the bean&#8217;s purpose.";
+		String authhelp = "This puts your name in the JavaDoc information.";
+		String packhelp = "This will build the proper package for your EJB.  For example.  If your package " +
+						  " was foo.bar, your .java files for your EJB would be put in the foo/bar/ directory.";
+		String typehelp = "This is to determine which EJB to build for you.";
+		String styphelp = "This is very important as it can keep you from reaching your source if not used " +
+						  "properly.  If you are accessing the WebAdmin module from http://localhost:4203, you " +
+						  "should always select &QUOT;local&QUOT;.  If the server you are accessing has been setup to " +
+						  "be accessed remotely the you should select remote.";
+		String slochelp = "This is where your actual files will be created.  If you are accessing locally, your " +
+						  "directory structure is already setup and there is no need to download the " +
+						  "zip file.  Just go to your EJB Save Location and you&#8217;ll see a folder with your EJB " +
+						  "Name.  Inside of it will be your META-INF folder and the top level of your EJB&#8217;s " +
+						  "package.";
 			
 		if(ejbname == null)
 		{
@@ -310,33 +329,34 @@ public class EJBGenBean extends WebAdminBean
 
 		body.println("Welcome to the EJB Generator!  This tool will help trim development");
 		body.println("time by building the skeleton for your EJB.  Fill out all ");
-		body.println("information and submit.");
+		body.println("information and submit.  For a brief explanation, click the column with the name of the field.");
+		body.println("<br>");
 		body.println("<br>");
 		body.println("<h2>General EJB Information</h2>");
 		body.println("<form action=\"EJBGenerator\" method=\"post\" enctype=\"multipart/form-data\" onsubmit=\"return validate(this)\">");
 		body.println("<table width=\"100%\" border=\"1\">");
 		body.println("<tr bgcolor=\"#5A5CB8\">");
-		body.println("<td><font face=\"arial\" color=\"white\">EJB Name:&nbsp;&nbsp;&nbsp;</font></td><td>" +
+		body.println("<td onclick=\"popupMsg(\'" + namehelp + "\')\"><font face=\"arial\" color=\"white\">EJB Name:&nbsp;&nbsp;&nbsp;</font></td><td>" +
 			"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + 
 			HtmlUtilities.createTextFormField("ejbname",ejbname,40,0) + "</td>");
 		body.println("</tr>");
 		body.println("<tr bgcolor=\"#5A5CB8\">");
-		body.println("<td><font face=\"arial\" color=\"white\">EJB <br> Description:&nbsp;&nbsp;&nbsp;</font></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" 
+		body.println("<td onclick=\"popupMsg(\'" + deschelp + "\')\"><font face=\"arial\" color=\"white\">EJB <br> Description:&nbsp;&nbsp;&nbsp;</font></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" 
 			+ "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + 
 			HtmlUtilities.createTextArea("ejbdesc",ejbdesc,3,30,"","","") + "</td>");
 		body.println("</tr>");
 		body.println("<tr bgcolor=\"#5A5CB8\">");
-		body.println("<td><font face=\"arial\" color=\"white\">Author:&nbsp;&nbsp;&nbsp;</font></td><td>" +
+		body.println("<td onclick=\"popupMsg(\'" + authhelp + "\')\"><font face=\"arial\" color=\"white\">Author:&nbsp;&nbsp;&nbsp;</font></td><td>" +
 			"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + 
 			HtmlUtilities.createTextFormField("ejbauth",ejbauth,40,0) + "</td>");
 		body.println("</tr>");
 		body.println("<tr bgcolor=\"#5A5CB8\">");
-			body.println("<td><font face=\"arial\" color=\"white\">Package:&nbsp;&nbsp;&nbsp;</font></td><td>" +
-			"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + 
-			HtmlUtilities.createTextFormField("ejbpack",ejbpack,40,0) + "</td>");
+		body.println("<td onclick=\"popupMsg(\'" + packhelp + "\')\"><font face=\"arial\" color=\"white\">Package:&nbsp;&nbsp;&nbsp;</font></td><td>" +
+		"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + 
+		HtmlUtilities.createTextFormField("ejbpack",ejbpack,40,0) + "</td>");
 		body.println("</tr>");
 		body.println("<tr bgcolor=\"#5A5CB8\">");
-		body.println("<td><font face=\"arial\" color=\"white\">EJB Type:&nbsp;&nbsp;&nbsp;</font></td><td>" +
+		body.println("<td onclick=\"popupMsg(\'" + typehelp + "\')\"><font face=\"arial\" color=\"white\">EJB Type:&nbsp;&nbsp;&nbsp;</font></td><td>" +
 			"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + 
 			HtmlUtilities.createSelectFormField("ejbtype",""));
 		if(ejbtype.equals("BMP") || ejbtype.equals(""))
@@ -376,13 +396,13 @@ public class EJBGenBean extends WebAdminBean
 		body.println("</td>");
 		body.println("</tr>");
 		body.println("<tr bgcolor=\"#5A5CB8\">");
-		body.println("<td><font face=\"arial\" color=\"white\">Access Type:</font></td>");
+		body.println("<td onclick=\"popupMsg(\'" + styphelp + "\')\"><font face=\"arial\" color=\"white\">Access Type:</font></td>");
 		body.println("<td><center><font face=\"arial\" color=\"white\">");
 		body.println("Local&nbsp;&nbsp;&nbsp;" + HtmlUtilities.createInputFormField("radio","ejbstyp","local",0,0,"","","","",true,false,true) + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 		body.println("Remote&nbsp;&nbsp;&nbsp;" + HtmlUtilities.createInputFormField("radio","ejbstyp","remote",0,0,"","","","",false,false,true));
 		body.println("</font></center></td>");
 		body.println("<tr bgcolor=\"#5A5CB8\">");
-		body.println("<td><font face=\"arial\" color=\"white\">Source<br>Location:&nbsp;&nbsp;&nbsp;</font></td><td>" +
+		body.println("<td onclick=\"popupMsg(\'" + slochelp + "\')\"><font face=\"arial\" color=\"white\">Source<br>Location:&nbsp;&nbsp;&nbsp;</font></td><td>" +
 			"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + 
 			HtmlUtilities.createTextFormField("ejbsloc",ejbsloc,40,0) + "</td>");
 		body.println("</tr>");

@@ -47,7 +47,7 @@ package org.openejb.admin.web.ejbgen;
 /** BMP Entity Bean Template extending EJBTemplate
  * @author <a href="mailto:jcscoobyrs@developerkb.com">Jeremy Whitlock</a>
  */
-import java.io.*;
+import java.io.File;
 
 public class BMPBean extends EJBTemplate
 {

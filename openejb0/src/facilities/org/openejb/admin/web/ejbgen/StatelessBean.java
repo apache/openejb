@@ -47,7 +47,7 @@ package org.openejb.admin.web.ejbgen;
 /** Stateless Session Bean Template extending EJBTemplate
  * @author <a href="mailto:jcscoobyrs@developerkb.com">Jeremy Whitlock</a>
  */
-import java.io.*;
+import java.io.File;
 
 public class StatelessBean extends EJBTemplate
 {
