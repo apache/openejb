@@ -8,7 +8,7 @@
                 <span class="newsTitle"><xsl:value-of select="title"/></span><br/><br/>
                 <span class="newsSummary"><xsl:apply-templates select="summary"/><br/><br/>
                 <div align="center"><a href="{url}">[Read More/Comment]</a></div><br/>
-                Submitted by <a href="http://sourceforge.net/users/{author}"><xsl:value-of select="author"/></a>, 
+                Submitted by <a href="http://www.codehaus.org/users/{author}"><xsl:value-of select="author"/></a>, 
                 on <xsl:value-of select="date"/> @ <xsl:value-of select="time"/>
                 </span>
         </td></tr></table></td></tr></table>

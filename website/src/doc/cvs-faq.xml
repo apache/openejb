@@ -19,7 +19,7 @@
     
     <p>
     All the OpenEJB source code, documentation, and other files are in a CVS
-    repository on a server at SourceForge.  To access the repository and 
+    repository on a server at Codehaus.  To access the repository and 
     download the source code and other files, you need a cvs client.
     </p>
     </section> 
@@ -70,9 +70,9 @@
 
     <p>
     To set the CVSROOT variable on a Windows machine so that it points toward
-    the OpenEJB cvs at SourceForge, execute the following command in a command 
+    the OpenEJB cvs at Codehaus, execute the following command in a command 
     prompt.<br/><br/>
-    <command>set CVSROOT=:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb</command>
+    <command>set CVSROOT=:pserver:anon@cvs.openejb.codehaus.org:/scm/openejb</command>
     </p>    
     </section>
 

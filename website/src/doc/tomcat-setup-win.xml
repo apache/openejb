@@ -304,8 +304,8 @@ variable that we set may not have gotten picked up by Tomcat.<br/>
 to where you installed OpenEJB.<br/>
 3. Check C:\Program Files\Apache Group\Tomcat 4.1 to see if there is
 an openejb.log file.<br/>
-4. Send an email to the email list <a href="mailto:openejb-user@lists.sourceforge.net">
-openejb-user@lists.sourceforge.net</a> and give a thorough explain the problem.
+4. Send an email to the email list <a href="mailto:user@openejb.org">
+user@openejb.org</a> and give a thorough explain the problem.
 </p>
 </section>
 

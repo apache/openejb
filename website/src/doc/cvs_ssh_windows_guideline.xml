@@ -154,16 +154,16 @@
             within six hours to the following systems.
         
             <ul>
-              <li>The OpenEJB SF server (www.openejb.org)</li>
+              <li>The OpenEJB home server (www.openejb.org)</li>
               <li>The SF shell server (shell.sf.net)</li>
-              <li>The OpenEJB CVS server at SF (cvs.openejb.sf.net)</li>
+              <li>The OpenEJB CVS server at Codehaus (cvs.openejb.codehaus.org)</li>
             </ul>
             </p>
             
             <p>
             <img src="images/sf_key_upload.gif" alt="installing the public key using the SF upload page" border="0"/>
     
-            <body-note>Figure 5: Here we go - The allready mentioned SF upload page for public keys.</body-note>
+            <body-note>Figure 5: Here we go - The already mentioned SF upload page for public keys.</body-note>
             </p>
           </section>
         </section>

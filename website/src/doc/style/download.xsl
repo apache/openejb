@@ -110,8 +110,8 @@
             </span></p>
             
             <p><span class="bodyBlack">
-            Be sure to check OpenEJB's <a href="http://sourceforge.net/project/showfiles.php?group_id=44351">download 
-            page</a> at SourceForge for new releases. Or <a href="http://sourceforge.net/project/filemodule_monitor.php?filemodule_id=36829">sign up to be notified of new releases</a>.
+            Be sure to check OpenEJB's <a href="http://www.openejb.org">download 
+            page</a> at Codehaus for new releases.
             </span></p>
             <p><span class="bodyBlack">Current and previous releases that are available:<br/>
             <xsl:for-each select="./ChangeLog/Version">
@@ -249,14 +249,14 @@
           <xsl:when test="@bug">
             <xsl:variable name="aid" select="@bug"/>
               [<xsl:element name="a">
-                <xsl:attribute name="href"><xsl:value-of select="concat('http://sourceforge.net/tracker/index.php?func=detail&amp;aid=', $aid, '&amp;group_id=', $group_id, '&amp;atid=', $bug_id)"/></xsl:attribute>
+                <xsl:attribute name="href"><xsl:value-of select="concat('http://jira.codehaus.org/browse/', $bug_id)"/></xsl:attribute>
                 <xsl:value-of select="@bug"/>
               </xsl:element>] <xsl:value-of select="."/>
           </xsl:when>
           <xsl:when test="@task">
             <xsl:variable name="aid" select="@task"/>
               [<xsl:element name="a">
-                <xsl:attribute name="href"><xsl:value-of select="concat('http://sourceforge.net/tracker/index.php?func=detail&amp;aid=', $aid, '&amp;group_id=', $group_id, '&amp;atid=', $task_id)"/></xsl:attribute>
+                <xsl:attribute name="href"><xsl:value-of select="concat('http://jira.codehaus.org/browse/', $task_id)"/></xsl:attribute>
                 <xsl:value-of select="@task"/>
               </xsl:element>] <xsl:value-of select="."/>
           </xsl:when>

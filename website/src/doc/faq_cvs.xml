@@ -77,9 +77,9 @@
         
             <p>
             To set the CVSROOT variable on a Windows machine so that it points toward
-            the OpenEJB cvs at SourceForge, execute the following command in a command 
+            the OpenEJB cvs at CodeHaus, execute the following command in a command 
             prompt.<br/><br/>
-            <command>set CVSROOT=:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb</command>
+            <command>set CVSROOT=:pserver:anon@cvs.openejb.codehaus.org:/scm/openejb</command>
             </p>    
     
             <h3>Set the HOME variable</h3>

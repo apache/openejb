@@ -17,13 +17,21 @@
     If you have cvs already installed and are ready to go, the following two commands
     are all you need to get the source. The first command logs you into the system, when 
     it prompts you for the CVS password, simply hit the Enter key.
-    </p>    
-    <p>    
-    <command>cvs -d:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb login</command>
-    </p>    
-    <p>    
-    <command>cvs -z3 -d:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb co openejb</command>
-    </p>    
+    </p>
+    <p>
+    <command>cvs -d:pserver:anon@cvs.openejb.codehaus.org:/scm/openejb login</command>
+    </p>
+    <p>
+    <command>cvs -d:pserver:anon@cvs.openejb.codehaus.org:/scm/openejb co <I>MODULE</I></command>
+    </p>
+    <p>
+    where MODULE may become:
+    <ul>
+        <li><b>openejb</b> - OpenEJB 2.0 (Apache Geronimo-oriented version with EJB 2.x support)</li>
+        <li><b>openejb1</b> - OpenEJB 1.0 (EJB 1.x support)</li>
+        <li><b>website</b> - OpenEJB web site</li>
+    </ul>
+    </p>
       
     <p>    
     NOTE: The 'cvs ....' commands above should be on one line and executed as one command. 

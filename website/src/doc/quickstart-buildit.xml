@@ -21,10 +21,10 @@
     it prompts you for the CVS password, simply hit the Enter key.
     </p>    
     <p>    
-    <command>cvs -d:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb login</command>
+    <command>cvs -d:pserver:anon@cvs.openejb.codehaus.org:/scm/openejb login</command>
     </p>    
     <p>    
-    <command>cvs -z3 -d:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb co openejb</command>
+    <command>cvs -qz3 -d:pserver:anon@cvs.openejb.codehaus.org:/scm/openejb co openejb</command>
     </p>    
       
     <note>

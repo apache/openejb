@@ -19,7 +19,7 @@
     </section>
         
     <section title="Login" ref-id="login">
-        <command>[user@host tmp]# export CVSROOT=':pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb'</command> 
+        <command>[user@host tmp]# export CVSROOT=':pserver:anon@cvs.openejb.codehaus.org:/scm/openejb'</command> 
         <br/>
         <command>[user@host tmp]# cvs login</command> 
         <br/>

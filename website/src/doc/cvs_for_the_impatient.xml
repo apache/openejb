@@ -35,13 +35,13 @@
       
       <p>
       <pre><![CDATA[
-      cvs -d:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb login
+      cvs -d:pserver:anon@cvs.openejb.codehaus.org:/scm/openejb login
       ]]></pre>
       </p>
       
       <p>
       <pre><![CDATA[
-      cvs -d:pserver:anonymous@cvs.openejb.sf.net:/cvsroot/openejb checkout openejb
+      cvs -d:pserver:anon@cvs.openejb.codehaus.org:/scm/openejb checkout openejb
       ]]></pre>
       </p>
     </section>
