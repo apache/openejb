@@ -5,51 +5,65 @@
 <project default="default"
     xmlns:j="jelly:core"
     xmlns:ant="jelly:ant"
+    xmlns:deploy="geronimo:deploy"
     xmlns:maven="jelly:maven"
-    xmlns:xdoclet="common:xdoclet">
+    >
+
+    <!-- Determine what the top-level project root is -->
+    <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
+
+    <!-- Determine where geronimo is installed (from assembly module) -->
+    <j:set var="geronimoTarget" value="${project.root}/target/${pom.groupId}-${pom.currentVersion}"/>
+    <!--j:set var="geronimoTarget" value="${project.root}/target/assembly"/-->
+    <!--j:set var="geronimoTarget" value="/Users/david/geronimo/geronimo/1geronimo/target/geronimo-1.0-SNAPSHOT"/-->
 
     <preGoal name="xdoc:jelly-transform">
         <attainGoal name="html2xdoc"/>
     </preGoal>
 
-    <postGoal name="jar:jar">
-        <ant:jar destfile="${basedir}/target/openejb-itests-beans.jar">
-            <ant:fileset dir="${basedir}/target/classes"
-                includes="org/openejb/test/beans/**,
-                                org/openejb/test/entity/bmp/**,
-                                org/openejb/test/entity/cmp/**,
-                                org/openejb/test/object/**,
-                                org/openejb/test/stateful/**,
-                                org/openejb/test/stateless/**,
-                                org/openejb/test/ApplicationException.class,
-                                org/openejb/test/TestFailureException.class,
-                                META-INF/*.xml"
-                excludes="org/openejb/test/entity/bmp/*Test*.class,
-                                org/openejb/test/entity/cmp/*Test*.class,
-                                org/openejb/test/stateful/*Test*.class,
-                                org/openejb/test/stateless/*Test*.class"/>
 
-            <zipfileset dir="${basedir}/src/etc" prefix="META-INF"/>
-        </ant:jar>
+    <preGoal name="test:test">
+        <ant:echo message="Trying to start server at: ${geronimoTarget}"/>
+        <deploy:startRemoteServer
+            geronimoTarget="${geronimoTarget}"
+            configs="org/apache/geronimo/DefaultDatabase"/>
+        <deploy:waitForStarted
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/DefaultDatabase"/>
+        <echo message="server has started"/>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            home="${basedir}"
+            module="${maven.repo.local}/openejb/ejbs/openejb-itests-ejb-${pom.currentVersion}.jar"
+            />
+        <echo message="distributed ejbs"/>
+        <deploy:start
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/Itests"/>
+        <j:set var="maven.test.failure.ignore" value="true"/>
+    </preGoal>
 
-        <ant:jar destfile="${basedir}/target/openejb-itests-beans2.jar">
-            <ant:fileset dir="${basedir}/target/classes"
-                includes="org/openejb/test/beans/**,
-                                org/openejb/test/entity/bmp/**,
-                                org/openejb/test/entity/cmp/**,
-                                org/openejb/test/object/**,
-                                org/openejb/test/stateful/**,
-                                org/openejb/test/stateless/**,
-                                org/openejb/test/ApplicationException.class,
-                                org/openejb/test/TestFailureException.class,
-                                META-INF/*.xml"
-                excludes="org/openejb/test/entity/bmp/*Test*.class,
-                                org/openejb/test/entity/cmp/*Test*.class,
-                                org/openejb/test/stateful/*Test*.class,
-                                org/openejb/test/stateless/*Test*.class"/>
-
-            <zipfileset dir="${basedir}/src/etc2" prefix="META-INF"/>
-        </ant:jar>
-
+    <postGoal name="test:test">
+        <deploy:stop
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/Itests"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/Itests"/>
+        <deploy:stopRemoteServer
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"/>
     </postGoal>
+
 </project>
