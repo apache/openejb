@@ -45,14 +45,17 @@
 
 package org.openejb.server.ejbd;
 
-import javax.security.auth.Subject;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
 import java.util.Collection;
+import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.IdentificationPrincipal;
 import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
 import org.openejb.InvalidateReferenceException;
@@ -62,10 +65,6 @@ import org.openejb.client.RequestMethods;
 import org.openejb.client.ResponseCodes;
 import org.openejb.proxy.BaseEJB;
 import org.openejb.proxy.ProxyInfo;
-
-import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.IdentificationPrincipal;
 
 
 class EjbRequestHandler implements ResponseCodes, RequestMethods {

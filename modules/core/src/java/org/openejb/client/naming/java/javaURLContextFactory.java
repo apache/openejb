@@ -44,25 +44,21 @@
  */
 package org.openejb.client.naming.java;
 
-import org.apache.geronimo.kernel.Kernel;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.Name;
+import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
+import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.ObjectFactory;
-import java.util.Hashtable;
 
-public class javaURLContextFactory implements ObjectFactory {
-    private static final ObjectName JNDI_PROVIDER;
+import org.apache.geronimo.naming.java.RootContext;
 
-    static {
-        try {
-            JNDI_PROVIDER = ObjectName.getInstance("client:type=JNDIProvider");
-        } catch (MalformedObjectNameException e) {
-            throw new RuntimeException(e);
-        }
+public class javaURLContextFactory implements ObjectFactory, InitialContextFactory {
+
+    public Context getInitialContext(Hashtable environment) throws NamingException {
+        return new RootContext(environment);
+
     }
 
     public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable environment) throws Exception {
@@ -73,7 +69,7 @@ public class javaURLContextFactory implements ObjectFactory {
         /* A null obj ref means the NamingManager is requesting
         * a Context that can resolve the 'java:' schema
         */
-        return Kernel.getSingleKernel().getAttribute(JNDI_PROVIDER, "context");
+        return getInitialContext(environment);
     }
 
 

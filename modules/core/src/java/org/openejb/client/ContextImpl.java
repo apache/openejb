@@ -44,12 +44,12 @@
  */
 package org.openejb.client;
 
-import org.apache.geronimo.naming.java.ReadOnlyContext;
-
-import javax.naming.NamingException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import javax.naming.NamingException;
+
+import org.apache.geronimo.naming.java.ReadOnlyContext;
 
 class ContextImpl extends ReadOnlyContext {
 

@@ -44,13 +44,12 @@
  */
 package org.openejb.client;
 
-import javax.naming.Binding;
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import javax.naming.*;
+
+import org.openejb.proxy.ProxyObjectFactory;
 
 /**
  *
@@ -109,7 +108,7 @@ public class JNDIResponse implements Response {
      */
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         responseCode = in.readByte();
-        //System.out.println("responseCode "+responseCode );
+        System.out.println("C: responseCode "+responseCode );
 
         switch (responseCode) {
             case JNDI_OK:
@@ -129,6 +128,7 @@ public class JNDIResponse implements Response {
             case JNDI_CONTEXT_TREE:
                 result = readContextTree(in);
                 break;
+            default: throw new IOException("Invalid response code: "+responseCode);
         }
     }
 
@@ -143,12 +143,14 @@ public class JNDIResponse implements Response {
             switch (type) {
                 case CONTEXT:
                     name = in.readUTF();
+                    System.out.println("name "+name);
                     obj = readContextTree(in);
                     break;
                 case END:
                     break CONTEXT_LOOP;
                 default:
                     name = in.readUTF();
+                    System.out.println("name "+name);
                     obj = in.readObject();
             }
 
@@ -182,7 +184,7 @@ public class JNDIResponse implements Response {
      * @exception IOException Includes any I/O exceptions that may occur
      */
     public void writeExternal(ObjectOutput out) throws IOException {
-        //System.out.println("responseCode "+responseCode );
+        System.out.println("S: responseCode "+responseCode );
         out.writeByte((byte)responseCode);
 
         switch (responseCode) {
@@ -222,6 +224,16 @@ public class JNDIResponse implements Response {
                     out.write(CONTEXT);
                     out.writeUTF(name);
                     writeContextTree(out, (Context)obj);
+                } else if ( obj instanceof Reference ){
+                    Reference reference = (Reference) obj;
+                    String factoryClassName = reference.getFactoryClassName();
+                    if (ProxyObjectFactory.class.getName().equals(factoryClassName)){
+                        ProxyObjectFactory factory = new ProxyObjectFactory();
+                        obj = factory.getObjectInstance(reference,null,context,null);
+                    }
+                    out.write(OBJECT);
+                    out.writeUTF(name);
+                    out.writeObject(obj);
                 } else {
                     out.write(OBJECT);
                     out.writeUTF(name);
@@ -231,6 +243,10 @@ public class JNDIResponse implements Response {
             out.write(END);
         } catch (NamingException e) {
             IOException ioException = new IOException("Unable to pull data from JNDI: "+name);
+            ioException.initCause(e);
+            throw ioException;
+        } catch (Exception e) {
+            IOException ioException = new IOException("Unable to resolve proxy object instance: "+name);
             ioException.initCause(e);
             throw ioException;
         }

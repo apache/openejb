@@ -49,7 +49,6 @@ import java.util.Properties;
 
 
 /**
- * 
  * @since 11/25/2001
  */
 public class ConnectionManager {
@@ -59,21 +58,21 @@ public class ConnectionManager {
     private static String factoryName;
 
     static {
-        try{
-            installFactory( defaultFactoryClass.getName());
-        } catch (Exception e) {
-            // Don't care.
+        try {
+            installFactory(defaultFactoryClass);
+        } catch (Throwable e) {
+            throw (IllegalStateException) new IllegalStateException("ConnectionFactory could not be installed").initCause(e);
         }
     }
 
-    public static Connection getConnection(ServerMetaData server) throws IOException{
+    public static Connection getConnection(ServerMetaData server) throws IOException {
         return factory.getConnection(server);
     }
 
-    public static void setFactory(String factoryName) throws IOException{
+    public static void setFactory(String factoryName) throws IOException {
         installFactory(factoryName);
     }
-    
+
     public static ConnectionFactory getFactory() {
         return factory;
     }
@@ -82,44 +81,47 @@ public class ConnectionManager {
         return factoryName;
     }
 
-    private static void installFactory(String factoryName) throws IOException{
-       
+    private static void installFactory(String factoryName) throws IOException {
+
         Class factoryClass = null;
-        ConnectionFactory factory = null;
-        
+
         try {
             ClassLoader cl = getContextClassLoader();
             factoryClass = Class.forName(factoryName, true, cl);
-        } catch ( Exception e ) {
-            throw new IOException("No ConnectionFactory Can be installed. Unable to load the class "+factoryName);
+        } catch (Exception e) {
+            throw (IOException) new IOException("No ConnectionFactory Can be installed. Unable to load the class " + factoryName).initCause(e);
+        }
+
+        installFactory(factoryClass);
+
+    }
+
+    private static void installFactory(Class factoryClass) throws IOException {
+        ConnectionFactory factory;
+        try {
+            factory = (ConnectionFactory) factoryClass.newInstance();
+        } catch (Exception e) {
+            throw (IOException) new IOException("No ConnectionFactory Can be installed. Unable to instantiate the class " + factoryName).initCause(e);
         }
 
         try {
-            factory = (ConnectionFactory)factoryClass.newInstance();
-        } catch ( Exception e ) {
-            throw new IOException("No ConnectionFactory Can be installed. Unable to instantiate the class "+factoryName);
-        }
-        
-        try {
             // TODO:3: At some point we may support a mechanism for
             //         actually specifying properties for the Factories
-            factory.init( new Properties() );
-        } catch ( Exception e ) {
-            throw new IOException("No ConnectionFactory Can be installed. Unable to initialize the class "+factoryName);
+            factory.init(new Properties());
+        } catch (Exception e) {
+            throw (IOException) new IOException("No ConnectionFactory Can be installed. Unable to initialize the class " + factoryName).initCause(e);
         }
-        
+
         ConnectionManager.factory = factory;
-        ConnectionManager.factoryName = factoryName;
+        ConnectionManager.factoryName = factoryClass.getName();
     }
-    
+
     public static ClassLoader getContextClassLoader() {
-        return (ClassLoader) java.security.AccessController.doPrivileged(
-            new java.security.PrivilegedAction() {
-                public Object run() {
-                    return Thread.currentThread().getContextClassLoader();
-                }
+        return (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+            public Object run() {
+                return Thread.currentThread().getContextClassLoader();
             }
-        );
+        });
     }
 
 }

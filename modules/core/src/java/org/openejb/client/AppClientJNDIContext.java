@@ -50,6 +50,9 @@ import javax.naming.NamingException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.naming.java.RootContext;
+import org.openejb.client.naming.java.javaURLContextFactory;
 
 /**
  * @version $Revision$ $Date$
@@ -58,6 +61,7 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
 
     private final String host;
     private final int port;
+
     private Context context;
 
     public AppClientJNDIContext(String host, int port) {
@@ -66,26 +70,39 @@ public class AppClientJNDIContext implements org.apache.geronimo.client.AppClien
     }
 
     public void startClient(ObjectName appClientModuleName) throws Exception {
+
+        Context context;
         try {
             ServerMetaData serverMetaData = new ServerMetaData(host, port);
-
             JNDIResponse res = new JNDIResponse(serverMetaData);
             JNDIRequest req = new JNDIRequest(JNDIRequest.JNDI_LOOKUP, appClientModuleName.toString(), "");
 
             Client.request(req, res, serverMetaData);
 
             context = (Context) res.getResult();
+
         } catch (Exception e) {
             NamingException namingException = new NamingException("Unable to retrieve J2EE AppClient's JNDI Context");
             namingException.initCause(e);
             throw namingException;
         }
 
-        System.setProperty("java.naming.factory.initial", "com.sun.jndi.rmi.registry.RegistryContextFactory");
-        System.setProperty("java.naming.factory.url.pkgs", "org.openejb.client.naming");
+        if ( context == null ) {
+            throw new IllegalStateException("Server returned a null JNDI context");
+        }
+
+        RootContext.setComponentContext((ReadOnlyContext) context);
+
+        System.setProperty(Context.URL_PKG_PREFIXES, "org.openejb.client.naming");
+        System.setProperty(Context.INITIAL_CONTEXT_FACTORY, javaURLContextFactory.class.getName());
     }
 
     public void stopClient(ObjectName appClientModuleName) throws Exception {
+        RootContext.setComponentContext(null);
+    }
+
+    public Context getContext() {
+        return context;
     }
 
     public static final GBeanInfo GBEAN_INFO;

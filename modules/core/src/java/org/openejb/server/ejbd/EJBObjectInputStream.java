@@ -72,7 +72,12 @@ public class EJBObjectInputStream extends ObjectInputStream {
     protected Class resolveClass(ObjectStreamClass desc)
         throws IOException, ClassNotFoundException {
         if (ejbClassLoader == null) {
-            return super.resolveClass(desc);
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            try {
+                return contextClassLoader.loadClass(desc.getName());
+            } catch (ClassNotFoundException e) {
+                return super.resolveClass(desc);
+            }
         }
         try {
             return ejbClassLoader.loadClass(desc.getName());
