@@ -49,6 +49,7 @@
 package org.openejb;
 
 import java.util.Set;
+import java.util.Collections;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
@@ -67,22 +68,25 @@ public class ConnectionTrackingInterceptor implements Interceptor {
     private final Interceptor next;
     private final TrackedConnectionAssociator trackedConnectionAssociator;
     private final Set unshareableResources;
+    private final Set applicationManagedSecurityResources;
 
     public ConnectionTrackingInterceptor(
             final Interceptor next,
             final TrackedConnectionAssociator trackedConnectionAssociator,
-            final Set unshareableResources) {
+            final Set unshareableResources, Set applicationManagedSecurityResources) {
 
         assert unshareableResources != null: "unshareableResources is null";
+        assert applicationManagedSecurityResources != null: "applicationManagedSecurityResources is null";
         this.next = next;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
         this.unshareableResources = unshareableResources;
+        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
     }
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         EJBInvocation ejbInvocation = (EJBInvocation) invocation;
         InstanceContext enteringInstanceContext = ejbInvocation.getEJBInstanceContext();
-        TrackedConnectionAssociator.ConnectorContextInfo leavingConnectorContext = trackedConnectionAssociator.enter(enteringInstanceContext, unshareableResources);
+        TrackedConnectionAssociator.ConnectorContextInfo leavingConnectorContext = trackedConnectionAssociator.enter(enteringInstanceContext, unshareableResources, applicationManagedSecurityResources);
         try {
             return next.invoke(invocation);
         } finally {

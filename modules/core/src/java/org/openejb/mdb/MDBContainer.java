@@ -49,6 +49,8 @@ package org.openejb.mdb;
 
 import java.lang.reflect.Method;
 import java.util.Set;
+import java.util.HashSet;
+
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.UnavailableException;
@@ -101,6 +103,7 @@ public class MDBContainer implements MessageEndpointFactory, GBean {
     private final ReadOnlyContext componentContext;
     private final UserTransactionImpl userTransaction;
     private final Set unshareableResources;
+    private final Set applicationManagedSecurityResources;
     private final TransactionPolicySource transactionPolicySource;
     private final String contextId;
     private final Subject runAs;
@@ -128,6 +131,8 @@ public class MDBContainer implements MessageEndpointFactory, GBean {
         userTransaction = config.userTransaction;
         componentContext = config.componentContext;
         unshareableResources = config.unshareableResources;
+        //todo this whole class needs refactoring, so I'm not going to worry about this little bit of nonsense.
+        applicationManagedSecurityResources = new HashSet();
         transactionPolicySource = config.transactionPolicySource;
         contextId = config.contextId;
         runAs = config.runAs;
@@ -157,7 +162,7 @@ public class MDBContainer implements MessageEndpointFactory, GBean {
         Interceptor firstInterceptor;
         firstInterceptor = new DispatchInterceptor(vtable);
         if (trackedConnectionAssociator != null) {
-            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources);
+            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources, applicationManagedSecurityResources);
         }
 //        firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, new TransactionPolicyManager(transactionPolicySource, signatures));
         if (setIdentity) {

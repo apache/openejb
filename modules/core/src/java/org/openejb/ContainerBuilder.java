@@ -108,4 +108,8 @@ public interface ContainerBuilder {
     EJBContainer createContainer() throws Exception;
 
     GBeanMBean createConfiguration() throws Exception;
+
+    Set getApplicationManagedSecurityResources();
+
+    void setApplicationManagedSecurityResources(Set applicationManagedSecurityResources);
 }

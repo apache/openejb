@@ -75,7 +75,7 @@ public class StatefulInterceptorBuilder extends AbstractInterceptorBuilder {
         Interceptor firstInterceptor;
         firstInterceptor = new DispatchInterceptor(vtable);
         if (trackedConnectionAssociator != null) {
-            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources);
+            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources, applicationManagedSecurityResources);
         }
         if (setIdentityEnabled) {
             firstInterceptor = new EJBIdentityInterceptor(firstInterceptor);

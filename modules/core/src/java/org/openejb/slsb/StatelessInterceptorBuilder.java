@@ -75,7 +75,7 @@ public class StatelessInterceptorBuilder extends AbstractInterceptorBuilder {
         Interceptor firstInterceptor;
         firstInterceptor = new DispatchInterceptor(vtable);
         if (trackedConnectionAssociator != null) {
-            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources);
+            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources, applicationManagedSecurityResources);
         }
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionManager, transactionPolicyManager);
         if (setIdentityEnabled) {

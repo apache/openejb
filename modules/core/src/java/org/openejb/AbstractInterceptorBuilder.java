@@ -75,6 +75,7 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
     protected TransactionPolicyManager transactionPolicyManager;
     protected PermissionManager permissionManager;
     protected Set unshareableResources;
+    protected Set applicationManagedSecurityResources;
     protected boolean setIdentityEnabled = false;
     protected boolean securityEnabled = false;
     protected transient TransactionManager transactionManager;
@@ -120,6 +121,10 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
 
     public void setUnshareableResources(Set unshareableResources) {
         this.unshareableResources = unshareableResources;
+    }
+
+    public void setApplicationManagedSecurityResources(Set applicationManagedSecurityResources) {
+        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
     }
 
     public void setSetIdentityEnabled(boolean setIdentityEnabled) {

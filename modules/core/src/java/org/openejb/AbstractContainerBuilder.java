@@ -47,8 +47,9 @@
  */
 package org.openejb;
 
-import java.util.Set;
 import java.util.Collections;
+import java.util.Set;
+
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
 
@@ -57,13 +58,11 @@ import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
-
 import org.openejb.cache.InstanceFactory;
 import org.openejb.cache.InstancePool;
 import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.VirtualOperation;
-import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.security.PermissionManager;
 import org.openejb.transaction.TransactionPolicyManager;
@@ -87,6 +86,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private Subject runAs;
     private ReadOnlyContext componentContext;
     private Set unshareableResources;
+    private Set applicationManagedSecurityResources;
     private UserTransactionImpl userTransaction;
     private TransactionPolicySource transactionPolicySource;
     private String[] jndiNames;
@@ -190,6 +190,14 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         this.unshareableResources = unshareableResources;
     }
 
+    public Set getApplicationManagedSecurityResources() {
+        return applicationManagedSecurityResources;
+    }
+
+    public void setApplicationManagedSecurityResources(Set applicationManagedSecurityResources) {
+        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
+    }
+
     public UserTransactionImpl getUserTransaction() {
         return userTransaction;
     }
@@ -262,6 +270,11 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
             interceptorBuilder.setUnshareableResources(Collections.EMPTY_SET);
         } else {
             interceptorBuilder.setUnshareableResources(unshareableResources);
+        }
+        if(applicationManagedSecurityResources == null) {
+            interceptorBuilder.setApplicationManagedSecurityResources(Collections.EMPTY_SET);
+        } else {
+            interceptorBuilder.setApplicationManagedSecurityResources(applicationManagedSecurityResources);
         }
         return interceptorBuilder;
     }
