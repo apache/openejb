@@ -346,6 +346,16 @@ by the server.
         <reference name="Compiler"><gbean-name>openejb.CORBA:type=Compiler,vendor=Ant</gbean-name></reference>
     </gbean>
 
+    <gbean gbeanName="openejb.CORBA:type=StubGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBStubGenerator">
+        <reference name="Compiler"><gbean-name>openejb.CORBA:type=Compiler,vendor=Ant</gbean-name></reference>
+    </gbean>
+
+    <gbean gbeanName="openejb.CORBA:type=StubClassLoader,vendor=OpenORB" class="org.openejb.corba.util.OpenORBStubClassLoader">
+        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="StubGenerator"><gbean-name>openejb.CORBA:type=StubGenerator,vendor=OpenORB</gbean-name></reference>
+        <attribute name="cacheDir">var/caches</attribute>
+    </gbean>
+
     <!-- end deployment block -->
 
     <gbean gbeanName="openejb.CORBA:type=Server" class="org.openejb.corba.CORBABean">
