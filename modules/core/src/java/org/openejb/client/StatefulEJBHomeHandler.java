@@ -45,6 +45,7 @@
 package org.openejb.client;
 
 import java.lang.reflect.Method;
+import java.rmi.NoSuchObjectException;
 import javax.ejb.RemoveException;
 
 import org.apache.geronimo.security.ContextManager;
@@ -131,6 +132,10 @@ public class StatefulEJBHomeHandler extends EJBHomeHandler {
         
         EJBObjectHandler handler = handle.handler;
         Object primKey = handler.primaryKey;
+
+        if (handler.isInvalidReference) {
+            throw new NoSuchObjectException("Handle has been invalidated due to removal or system exception");
+        }
 
         // TODO:1: Check that this is exactly spec compliant
         if ( !handler.ejb.deploymentID.equals(this.ejb.deploymentID) ){
