@@ -38,6 +38,9 @@ public class BasicStatelessBean implements SessionBean {
     }
 
     public String highSecurityMethod(String argument1) {
+//        if (!sessionContext.isCallerInRole("HIGH")) {
+//            throw new EJBException("Should have been in role HIGH");
+//        }
         return argument1;
     }
 
