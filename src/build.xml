@@ -1012,7 +1012,11 @@
       </fileset>
     
     </copy>
+    
     <chmod dir="${final.dir}" perm="ugo+rx" includes="**/*.sh"/>
+    
+    <fixcrlf srcdir="${final.dir}" eol="lf" eof="remove" includes="**/*.sh" />
+
   
     <copy todir="${final.dir}">
     
