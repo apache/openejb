@@ -308,16 +308,6 @@ public class EntityInstanceManager {
             // that specifies the setEntityContext on the EntityBean interface with 
             // one argument, entity context
             
-            
-            Transaction currentTx = null;
-            try{
-            currentTx = OpenEJB.getTransactionManager().getTransaction();
-            }catch(javax.transaction.SystemException se){
-                logger.error("Transaction Manager getTransaction() failed.", se);
-                throw new org.openejb.SystemException("TransactionManager failure");
-            }
-            
-            
             byte currentOp = callContext.getCurrentOperation();
             callContext.setCurrentOperation(org.openejb.core.Operations.OP_SET_CONTEXT);
 
