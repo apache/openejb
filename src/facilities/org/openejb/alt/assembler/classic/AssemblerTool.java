@@ -863,8 +863,6 @@ public class AssemblerTool {
                 Normally exception handling should not be a part of business logic, but server start up doesn't need to be
                 as peformant as server runtime, so its allowed.
                 */
-            }finally{
-                return;
             }
         }else{// no paramters specified so may be several methods
             Method [] ms = intrface.getMethods();
