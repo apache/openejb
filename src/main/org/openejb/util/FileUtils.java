@@ -38,6 +38,24 @@ public class FileUtils{
         return dir;
     }	
 
+    public static File getFile(String path) throws java.io.IOException{
+        File file = null;
+        
+        if ( home == null ) resolveOpenEjbHome();
+        
+        file = new File(home, path);
+        file = file.getCanonicalFile();
+
+
+        if( !file.exists() ) {
+            throw new IOException("The path specified is not a valid file: "+file.getPath());
+        } else if ( file.isDirectory() ) {
+            throw new IOException("The path specified is a directory, not a file: "+file.getPath());
+        }
+
+        return file;
+    }	
+
     public static File createTempDirectory(String pathPrefix) throws java.io.IOException{
 	for(int maxAttempts=100; maxAttempts>0; --maxAttempts){
 	    String path=pathPrefix+_random.nextLong();

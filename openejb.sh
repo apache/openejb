@@ -29,10 +29,11 @@ function command_build () {
 #================================================
 function command_test () {
    case     $2 in
-   "intravm" ) test_intravm ;;
-   "corba"   ) test_corba   ;;
-   "help"    ) cat ./bin/test.txt    | sed 's/openejb /openejb.sh /';;
-   ""        ) test_noargs  ;;
+   "intravm"   ) test_intravm ;;
+   "ejbserver" ) test_server  ;;
+   "corba"     ) test_corba   ;;
+   "help"      ) cat ./bin/test.txt    | sed 's/openejb /openejb.sh /';;
+   ""          ) test_noargs  ;;
    esac
 }
 #================================================
@@ -42,11 +43,18 @@ function command_deploy  () {
 #================================================
 function command_start  () {
    case     $2 in
-   "intra-vm" ) start_intravm ;;
-   "intravm" ) start_intravm ;;
-   "corba"    ) start_corba   ;;
-   ""         ) start_corba   ;;
+   "intra-vm"  ) start_intravm ;;
+   "intravm"   ) start_intravm ;;
+   "corba"     ) start_corba   ;;
+   "ejbserver" ) start_server  ;;
+   "server"    ) start_server  ;;
+   ""          ) start_server  ;;
    esac
+}
+#================================================
+function start_server () {
+   echo "Starting OpenEJB Server..."
+   ./bin/ejbserver.sh $2 $3 $4 $5 $6 $7
 }
 #================================================
 function start_corba () {
@@ -64,21 +72,43 @@ function start_intravm () {
 #================================================
 function test_noargs () {
    test_intravm
+   test_server
    test_corba
 }
 #================================================
 function test_intravm () {
+   echo "_________________________________________________"
+   echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
+   echo " "
    echo "Running EJB compliance tests on IntraVM Server"
+   echo "_________________________________________________"
    ./bin/test.sh
 }
 #================================================
+function test_server () {
+   echo "_________________________________________________"
+   echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
+   echo " "
+   echo "Running EJB compliance tests on EJB Server"
+   echo "_________________________________________________"
+   echo " 1. Starting OpenEJB Server..."
+   ./bin/ejbserver.sh &> ejb.server.log &
+   sleep 4
+   echo " 2. Starting test EJB client..."
+   ./bin/ejbclient.sh
+}
+#================================================
 function test_corba () {
+   echo "_________________________________________________"
+   echo "|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|"
+   echo " "
    echo "Running EJB compliance tests on CORBA Server"
+   echo "_________________________________________________"
    echo " 1. Starting OpenORB JNDI Server..."
-   ./bin/launch_jndi.sh -default &> jndi.log &
+   ./bin/launch_jndi.sh -default &> corba.jndi.log &
    sleep 2
    echo " 2. Starting OpenEJB CORBA Server with OpenORB..."
-   ./bin/launch_server.sh &> server.log &
+   ./bin/launch_server.sh &> corba.server.log &
    sleep 6
    echo " 3. Starting test client..."
    ./bin/launch_client.sh

@@ -954,6 +954,19 @@
       <property name="final.dir" value="${final.dir}/"/>
     </ant>
     
+    <ant antfile="src/build-openejb-server.xml" target="${target.name}">
+      <property file="build.properties"/>
+      
+      <property name="build.src" value="${build.src}"/>
+      <property name="build.dest" value="${build.dest}"/>
+      <property name="src.java.dir" value="${src.java.dir}"/>
+      <property name="src.doc.dir" value="${src.doc.dir}"/>
+      <property name="dest.doc.dir" value="${dest.doc.dir}"/>
+      <property name="dest.javadoc.dir" value="${dest.javadoc.dir}"/>
+      <property name="final.name" value="${final.name}"/>
+      <property name="final.dir" value="${final.dir}/"/>
+    </ant>
+    
     <ant antfile="src/build-corba.xml" target="${target.name}">
       <property file="build.properties"/>
       
