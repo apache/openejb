@@ -76,15 +76,7 @@ import org.apache.geronimo.xbeans.j2ee.MethodType;
 import org.apache.geronimo.xbeans.j2ee.RoleNameType;
 import org.apache.geronimo.xbeans.j2ee.SecurityIdentityType;
 import org.apache.geronimo.xbeans.j2ee.SecurityRoleRefType;
-import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
-import org.apache.geronimo.xbeans.geronimo.security.GerDefaultPrincipalType;
-import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
-import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
-import org.apache.geronimo.xbeans.geronimo.security.GerRealmType;
-import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
-
 import org.openejb.security.SecurityConfiguration;
-import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 
 
 class SecurityBuilder {
@@ -96,64 +88,6 @@ class SecurityBuilder {
         this.moduleBuilder = moduleBuilder;
     }
 
-
-    public Security buildSecurityConfig(OpenejbOpenejbJarType openejbEjbJar) {
-        Security security = null;
-
-        GerSecurityType securityType = openejbEjbJar.getSecurity();
-        if (securityType != null) {
-            security = new Security();
-
-            security.setDoAsCurrentCaller(securityType.getDoasCurrentCaller());
-            security.setUseContextHandler(securityType.getUseContextHandler());
-            security.setDefaultRole(securityType.getDefaultRole());
-
-            GerDefaultPrincipalType defaultPrincipalType = securityType.getDefaultPrincipal();
-            DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
-
-            defaultPrincipal.setRealmName(defaultPrincipalType.getRealmName());
-            defaultPrincipal.setPrincipal(buildPrincipal(defaultPrincipalType.getPrincipal()));
-
-            security.setDefaultPrincipal(defaultPrincipal);
-
-            GerRoleMappingsType roleMappingsType = securityType.getRoleMappings();
-            if (roleMappingsType != null) {
-                for (int i = 0; i < roleMappingsType.sizeOfRoleArray(); i++) {
-                    GerRoleType roleType = roleMappingsType.getRoleArray(i);
-                    Role role = new Role();
-
-                    role.setRoleName(roleType.getRoleName());
-
-                    for (int j = 0; j < roleType.sizeOfRealmArray(); j++) {
-                        GerRealmType realmType = roleType.getRealmArray(j);
-                        Realm realm = new Realm();
-
-                        realm.setRealmName(realmType.getRealmName());
-
-                        for (int k = 0; k < realmType.sizeOfPrincipalArray(); k++) {
-                            realm.getPrincipals().add(buildPrincipal(realmType.getPrincipalArray(k)));
-                        }
-
-                        role.getRealms().add(realm);
-                    }
-
-                    security.getRoleMappings().add(role);
-                }
-            }
-        }
-
-        return security;
-    }
-
-    private Principal buildPrincipal(GerPrincipalType principalType) {
-        Principal principal = new Principal();
-
-        principal.setClassName(principalType.getClass1());
-        principal.setPrincipalName(principalType.getName());
-        principal.setDesignatedRunAs(principalType.isSetDesignatedRunAs());
-
-        return principal;
-    }
 
     /**
      * Fill the container moduleBuilder with the security information that it needs
