@@ -154,12 +154,6 @@ Use the OpenEJB <a href="deploy.html">Deploy Tool</a> to deploy your jar.
 
 </section>
 
-<section title="Package the EJB" ref-id="jar">
-<p>
-<command>C:\my\app> jar cvf myHelloEjb.jar org META-INF</command>
-</p> 
-</section>
-
 <section title="A basic client application" ref-id="deploy">
 
 <p>
