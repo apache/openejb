@@ -77,7 +77,7 @@ public final class EntityInstanceInterceptor extends AbstractInterceptor {
         ejbInvocation.setEJBInstanceContext(ctx);
         try {
             InvocationResult result = getNext().invoke(invocation);
-            releaseInstance(ejbInvocation, ctx);
+            releaseInstance(ctx);
             return result;
         } finally {
             ejbInvocation.setEJBInstanceContext(null);
@@ -100,26 +100,17 @@ public final class EntityInstanceInterceptor extends AbstractInterceptor {
                 pool.remove(context);
                 throw t;
             }
-            context.setStateValid(false);
+
+            // associate this instance with the TransactionContext
+            ejbInvocation.getTransactionContext().associate(context);
         }
         return context;
     }
 
-    private void releaseInstance(EJBInvocation ejbInvocation, EntityInstanceContext context) throws Throwable {
-        if (context.getId() != null) {
-            EntityBean instance = (EntityBean) context.getInstance();
-            try {
-                context.setOperation(EJBOperation.EJBACTIVATE);
-                instance.ejbPassivate();
-                context.setOperation(EJBOperation.INACTIVE);
-            } catch (Throwable t) {
-                // problem passivating instance - discard it and throw
-                pool.remove(context);
-                throw t;
-            }
-            context.setId(null);
-            context.setStateValid(false);
+    private void releaseInstance(EntityInstanceContext context) throws Throwable {
+        if (context.getId() == null) {
+            // we are done with this instance, return it to the pool
+            pool.release(context);
         }
-        pool.release(context);
     }
 }

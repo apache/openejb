@@ -86,6 +86,10 @@ public final class StatelessInstanceContext implements EJBInstanceContext {
         throw new AssertionError("Cannot set identity for a Stateless Context");
     }
 
+    public void flush() {
+        throw new AssertionError("Cannot flush Stateless Context");
+    }
+
     public StatelessSessionContext getSessionContext() {
         return sessionContext;
     }
@@ -93,5 +97,14 @@ public final class StatelessInstanceContext implements EJBInstanceContext {
     public void setOperation(EJBOperation operation) {
         sessionContext.setState(operation);
         // todo enable UserTransaction
+    }
+
+    public void associate() {
+    }
+
+    public void beforeCommit() {
+    }
+
+    public void afterCommit(boolean status) {
     }
 }

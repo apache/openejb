@@ -52,7 +52,7 @@ import net.sf.cglib.reflect.FastClass;
 
 import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.EJBOperation;
-import org.openejb.nova.entity.BusinessMethod;
+import org.openejb.nova.dispatch.AbstractMethodOperation;
 import org.openejb.nova.entity.EntityInstanceContext;
 
 /**
@@ -60,20 +60,16 @@ import org.openejb.nova.entity.EntityInstanceContext;
  *
  * @version $Revision$ $Date$
  */
-public class BMPRemoveMethod extends BusinessMethod {
+public class BMPRemoveMethod extends AbstractMethodOperation {
     public BMPRemoveMethod(FastClass fastClass, int methodIndex) {
         super(fastClass, methodIndex);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        EntityInstanceContext ctx = (EntityInstanceContext) invocation.getEJBInstanceContext();
-        if (!ctx.isStateValid()) {
-            notifyLoaded(ctx);
-        }
         InvocationResult result = invoke(invocation, EJBOperation.EJBREMOVE);
-
         if (result.isNormal()) {
             // clear id as we are no longer associated
+            EntityInstanceContext ctx = (EntityInstanceContext) invocation.getEJBInstanceContext();
             ctx.setId(null);
         }
         return result;

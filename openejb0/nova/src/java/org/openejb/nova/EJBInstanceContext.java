@@ -65,4 +65,12 @@ public interface EJBInstanceContext {
     EnterpriseBean getInstance();
 
     void setOperation(EJBOperation operation);
+
+    void associate() throws Exception;
+
+    void flush();
+
+    void beforeCommit() throws Exception;
+
+    void afterCommit(boolean status) throws Exception;
 }

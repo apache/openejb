@@ -52,8 +52,8 @@ import net.sf.cglib.reflect.FastClass;
 
 import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.EJBOperation;
+import org.openejb.nova.dispatch.AbstractMethodOperation;
 import org.openejb.nova.persistence.UpdateCommand;
-import org.openejb.nova.entity.BusinessMethod;
 import org.openejb.nova.entity.EntityInstanceContext;
 
 /**
@@ -61,7 +61,7 @@ import org.openejb.nova.entity.EntityInstanceContext;
  *
  * @version $Revision$ $Date$
  */
-public class CMPRemoveMethod extends BusinessMethod {
+public class CMPRemoveMethod extends AbstractMethodOperation {
     private final UpdateCommand updateCommand;
 
     public CMPRemoveMethod(FastClass fastClass, int methodIndex, UpdateCommand updateCommand) {
@@ -71,9 +71,6 @@ public class CMPRemoveMethod extends BusinessMethod {
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         EntityInstanceContext ctx = (EntityInstanceContext) invocation.getEJBInstanceContext();
-        if (!ctx.isStateValid()) {
-            notifyLoaded(ctx);
-        }
         InvocationResult result = invoke(invocation, EJBOperation.EJBREMOVE);
 
         if (result.isNormal()) {

@@ -47,7 +47,10 @@
  */
 package org.openejb.nova.entity;
 
+import java.rmi.RemoteException;
+import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
+import javax.ejb.EJBException;
 
 import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBInstanceContext;
@@ -95,5 +98,37 @@ public abstract class EntityInstanceContext implements EJBInstanceContext {
 
     public void setStateValid(boolean stateValid) {
         this.stateValid = stateValid;
+    }
+
+    public void associate() throws Exception {
+        if (id != null && !stateValid) {
+            try {
+                setOperation(EJBOperation.EJBLOAD);
+                ((EntityBean) getInstance()).ejbLoad();
+            } finally {
+                setOperation(EJBOperation.INACTIVE);
+            }
+            stateValid = true;
+        }
+    }
+
+    public void beforeCommit() throws Exception {
+    }
+
+    public void flush() {
+        if (id != null) {
+            assert (stateValid) : "Trying to invoke ejbStore for invalid instance";
+            try {
+                setOperation(EJBOperation.EJBLOAD);
+                ((EntityBean) getInstance()).ejbStore();
+            } catch (RemoteException e) {
+                throw new EJBException(e);
+            } finally {
+                setOperation(EJBOperation.INACTIVE);
+            }
+        }
+    }
+
+    public void afterCommit(boolean status) {
     }
 }

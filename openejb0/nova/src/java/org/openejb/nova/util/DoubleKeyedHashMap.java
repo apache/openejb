@@ -49,21 +49,38 @@ package org.openejb.nova.util;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collection;
 
 /**
  * <b>Really</b> stupid implementation of a double keyed map.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public final class DoubleKeyedHashMap {
     private final Map map = new HashMap();
 
-    public void put(Object key1, Object key2, Object value) {
-        map.put(new Key(key1, key2), value);
+    public Object put(Object key1, Object key2, Object value) {
+        return map.put(new Key(key1, key2), value);
     }
 
     public Object get(Object key1, Object key2) {
         return map.get(new Key(key1, key2));
+    }
+
+    public Object remove(Object key1, Object key2) {
+        return map.remove(new Key(key1, key2));
+    }
+
+    public Collection values() {
+        return map.values();
+    }
+
+    public void clear() {
+        map.clear();
+    }
+
+    public boolean isEmpty() {
+        return map.isEmpty();
     }
 
     private final static class Key {

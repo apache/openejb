@@ -47,12 +47,17 @@
  */
 package org.openejb.nova.transaction;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBInstanceContext;
@@ -66,6 +71,7 @@ import org.openejb.nova.util.DoubleKeyedHashMap;
  * @version $Revision$ $Date$
  */
 public abstract class TransactionContext {
+    protected static final Log log = LogFactory.getLog(TransactionContext.class);
     private static ThreadLocal CONTEXT = new ThreadLocal();
 
     public static TransactionContext getContext() {
@@ -76,7 +82,9 @@ public abstract class TransactionContext {
         CONTEXT.set(context);
     }
 
-    private final DoubleKeyedHashMap contextCache = new DoubleKeyedHashMap();
+    private EJBInstanceContext currentContext;
+    private final DoubleKeyedHashMap associatedContexts = new DoubleKeyedHashMap();
+    private final DoubleKeyedHashMap dirtyContexts = new DoubleKeyedHashMap();
     private final DoubleKeyedHashMap instanceDataCache = new DoubleKeyedHashMap();
 
     public abstract void begin() throws SystemException, NotSupportedException;
@@ -89,12 +97,41 @@ public abstract class TransactionContext {
 
     public abstract void rollback() throws SystemException;
 
-    public final void putContext(EJBContainer container, Object id, EJBInstanceContext context) {
-        contextCache.put(container, id, context);
+    public final void associate(EJBInstanceContext context) throws Exception {
+        if (associatedContexts.put(context.getContainer(), context.getId(), context) == null) {
+            context.associate();
+        }
+    }
+
+    public final EJBInstanceContext beginInvocation(EJBInstanceContext context) {
+        if (context.getId() != null) {
+            dirtyContexts.put(context.getContainer(), context.getId(), context);
+        }
+        EJBInstanceContext caller = currentContext;
+        currentContext = context;
+        return caller;
+    }
+
+    public final void endInvocation(EJBInstanceContext caller) {
+        currentContext = caller;
+    }
+
+    public final void flushState() {
+        while (dirtyContexts.isEmpty() == false) {
+            ArrayList toFlush = new ArrayList(dirtyContexts.values());
+            dirtyContexts.clear();
+            for (Iterator i = toFlush.iterator(); i.hasNext();) {
+                EJBInstanceContext context = (EJBInstanceContext) i.next();
+                context.flush();
+            }
+        }
+        if (currentContext != null && currentContext.getId() != null) {
+            dirtyContexts.put(currentContext.getContainer(), currentContext.getId(), currentContext);
+        }
     }
 
     public final EJBInstanceContext getContext(EJBContainer container, Object id) {
-        return (EJBInstanceContext) contextCache.get(container, id);
+        return (EJBInstanceContext) associatedContexts.get(container, id);
     }
 
     public final void putInstanceData(EJBContainer container, Object id, InstanceData data) {

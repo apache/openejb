@@ -64,6 +64,7 @@ public class UnspecifiedTransactionContext extends TransactionContext {
     }
 
     public void commit() {
+        flushState();
     }
 
     public void rollback() {

@@ -85,6 +85,16 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
     }
 
     public void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException {
+        try {
+            flushState();
+        } catch (Throwable t) {
+            try {
+                txnManager.rollback();
+            } catch (Throwable t1) {
+                log.error("Unable to roll back transaction", t1);
+            }
+            throw (RollbackException) new RollbackException("Could not flush state before commit").initCause(t);
+        }
         txnManager.commit();
     }
 
