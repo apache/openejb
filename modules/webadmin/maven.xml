@@ -38,13 +38,23 @@
   </preGoal>
 
   <preGoal name="jar:jar">
-    <ant:war destfile="${basedir}/target/openejb-loader-${pom.currentVersion}.war" webxml="${basedir}/src/webapp/WEB-INF/web.xml">
-      <fileset dir="${basedir}/src/webapp"/>
+    <mkdir dir="${basedir}/target/resources"/>
+    <copy file="${basedir}/src/webapp/WEB-INF/web.xml" todir="${basedir}/target/resources"/>
+    <replace file="${basedir}/target/resources/web.xml" token="@OPENEJB_HOME@" 
+             value="${basedir}/../../target/openejb-${pom.currentVersion}"/>
+
+    <war destfile="${basedir}/target/openejb-webadmin.war" webxml="${basedir}/target/resources/web.xml">
+      <fileset dir="${basedir}/src/webapp">
+        <exclude name="WEB-INF/web.xml"/>
+      </fileset>
       <lib dir="${basedir}/../core/target/">
         <include name="openejb-loader-${pom.currentVersion}.jar"/>
       </lib>
-    </ant:war>
+    </war>
+    
+    <delete dir="${basedir}/target/resources"/>
   </preGoal>
+  
 <!--
   <postGoal name="jar:jar">
     <ant:delete file="${basedir}/target/openejb-webadmin-${pom.currentVersion}.jar"/>
