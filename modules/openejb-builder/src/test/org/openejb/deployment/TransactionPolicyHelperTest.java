@@ -56,9 +56,8 @@ import org.apache.geronimo.xbeans.j2ee.ContainerTransactionType;
 import org.apache.geronimo.xbeans.j2ee.MethodParamsType;
 import org.apache.geronimo.xbeans.j2ee.MethodType;
 import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.transaction.ContainerPolicy;
-import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.transaction.TransactionPolicyType;
 
 /**
  *
@@ -118,28 +117,28 @@ public class TransactionPolicyHelperTest extends TestCase {
     }
 
     public void testDefault() throws Exception {
-        TransactionPolicy policy = transactionPolicySource.getTransactionPolicy("Home", new InterfaceMethodSignature("foo2", new String[]{}, true));
-        assertEquals("Expected Mandatory default", ContainerPolicy.Mandatory, policy);
+        TransactionPolicyType policy = transactionPolicySource.getTransactionPolicy("Home", new InterfaceMethodSignature("foo2", new String[]{}, true));
+        assertEquals("Expected Mandatory default", TransactionPolicyType.Mandatory, policy);
     }
 
     public void testInterfaceOverride() throws Exception {
-        TransactionPolicy policy = transactionPolicySource.getTransactionPolicy("Remote", new InterfaceMethodSignature("foo2", new String[]{}, false));
-        assertEquals("Expected Supports", ContainerPolicy.Supports, policy);
+        TransactionPolicyType policy = transactionPolicySource.getTransactionPolicy("Remote", new InterfaceMethodSignature("foo2", new String[]{}, false));
+        assertEquals("Expected Supports", TransactionPolicyType.Supports, policy);
     }
 
     public void testMethodNoInterfaceOverride() throws Exception {
-        TransactionPolicy policy = transactionPolicySource.getTransactionPolicy("LocalHome", new InterfaceMethodSignature("foo", new String[]{"bar"}, true));
-        assertEquals("Expected Supports", ContainerPolicy.RequiresNew, policy);
+        TransactionPolicyType policy = transactionPolicySource.getTransactionPolicy("LocalHome", new InterfaceMethodSignature("foo", new String[]{"bar"}, true));
+        assertEquals("Expected Supports", TransactionPolicyType.RequiresNew, policy);
     }
 
     public void testMethodInterfaceOverride() throws Exception {
-        TransactionPolicy policy = transactionPolicySource.getTransactionPolicy("Local", new InterfaceMethodSignature("bar", new String[]{"foo"}, false));
-        assertEquals("Expected Supports", ContainerPolicy.Never, policy);
+        TransactionPolicyType policy = transactionPolicySource.getTransactionPolicy("Local", new InterfaceMethodSignature("bar", new String[]{"foo"}, false));
+        assertEquals("Expected Supports", TransactionPolicyType.Never, policy);
     }
 
     public void testMethodInterfaceTwoParamOverride() throws Exception {
-        TransactionPolicy policy = transactionPolicySource.getTransactionPolicy("Local", new InterfaceMethodSignature("foo", new String[]{"foo", "foo"}, false));
-        assertEquals("Expected Supports", ContainerPolicy.NotSupported, policy);
+        TransactionPolicyType policy = transactionPolicySource.getTransactionPolicy("Local", new InterfaceMethodSignature("foo", new String[]{"foo", "foo"}, false));
+        assertEquals("Expected Supports", TransactionPolicyType.NotSupported, policy);
     }
 }
 

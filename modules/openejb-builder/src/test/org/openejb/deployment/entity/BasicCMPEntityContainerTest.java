@@ -53,9 +53,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.HashMap;
-
+import java.util.HashSet;
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
 import javax.management.ObjectName;
@@ -63,13 +62,12 @@ import javax.sql.DataSource;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.gbean.GBeanData;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
 import org.openejb.deployment.CMPContainerBuilder;
@@ -78,9 +76,8 @@ import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.security.SecurityConfiguration;
-import org.openejb.transaction.ContainerPolicy;
-import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.transaction.TransactionPolicyType;
 import org.tranql.cache.CacheSlot;
 import org.tranql.cache.CacheTable;
 import org.tranql.cache.GlobalSchema;
@@ -420,8 +417,8 @@ public class BasicCMPEntityContainerTest extends TestCase {
         builder.setLocalJndiNames(new String[0]);
         builder.setUnshareableResources(new HashSet());
         builder.setTransactionPolicySource(new TransactionPolicySource() {
-            public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-                return ContainerPolicy.Required;
+            public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
+                return TransactionPolicyType.Required;
             }
         });
         builder.setSecurityConfiguration(new SecurityConfiguration());

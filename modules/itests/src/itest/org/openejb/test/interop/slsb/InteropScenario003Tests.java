@@ -59,6 +59,9 @@ public class InteropScenario003Tests extends InteropTestClient {
 
         assertEquals("FOO", interop.callAllAccess("FOO"));
 
+        interop.callAllAccessTx("BAR");
+
         interop.remove();
     }
+
 }

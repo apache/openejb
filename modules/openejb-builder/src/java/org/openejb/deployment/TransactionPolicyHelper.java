@@ -61,10 +61,8 @@ import org.apache.geronimo.xbeans.j2ee.JavaTypeType;
 import org.apache.geronimo.xbeans.j2ee.MethodIntfType;
 import org.apache.geronimo.xbeans.j2ee.MethodType;
 import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.transaction.BeanPolicy;
-import org.openejb.transaction.ContainerPolicy;
-import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.transaction.TransactionPolicyType;
 
 /**
  * @version $Revision$ $Date$
@@ -72,8 +70,8 @@ import org.openejb.transaction.TransactionPolicySource;
 public class TransactionPolicyHelper {
 
     public final static TransactionPolicySource BMTPolicySource = new TransactionPolicySource() {
-        public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-            return BeanPolicy.INSTANCE;
+        public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
+            return TransactionPolicyType.Bean;
         }
     };
 
@@ -124,15 +122,15 @@ public class TransactionPolicyHelper {
             this.transactionPolicies = transactionPolicies;
         }
 
-        public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
+        public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
             for (Iterator iterator = transactionPolicies.iterator(); iterator.hasNext();) {
                 MethodTransaction methodTransaction = (MethodTransaction) iterator.next();
                 if (methodTransaction.matches(methodIntf, signature.getMethodName(), signature.getParameterTypes())) {
-                    return methodTransaction.getTransactionPolicy();
+                    return methodTransaction.getTransactionPolicyType();
                 }
             }
             //default
-            return ContainerPolicy.Required;
+            return TransactionPolicyType.Required;
         }
     }
 
@@ -144,23 +142,23 @@ public class TransactionPolicyHelper {
 
         static {
             transactionPolicyMap = new HashMap();
-            transactionPolicyMap.put("NotSupported", ContainerPolicy.NotSupported);
-            transactionPolicyMap.put("Required", ContainerPolicy.Required);
-            transactionPolicyMap.put("Supports", ContainerPolicy.Supports);
-            transactionPolicyMap.put("RequiresNew", ContainerPolicy.RequiresNew);
-            transactionPolicyMap.put("Mandatory", ContainerPolicy.Mandatory);
-            transactionPolicyMap.put("Never", ContainerPolicy.Never);
-            transactionPolicyMap.put("Stateless", BeanPolicy.INSTANCE);
-            transactionPolicyMap.put("Stateful", BeanPolicy.INSTANCE);
+            transactionPolicyMap.put("NotSupported", TransactionPolicyType.NotSupported);
+            transactionPolicyMap.put("Required", TransactionPolicyType.Required);
+            transactionPolicyMap.put("Supports", TransactionPolicyType.Supports);
+            transactionPolicyMap.put("RequiresNew", TransactionPolicyType.RequiresNew);
+            transactionPolicyMap.put("Mandatory", TransactionPolicyType.Mandatory);
+            transactionPolicyMap.put("Never", TransactionPolicyType.Never);
+            transactionPolicyMap.put("Stateless", TransactionPolicyType.Bean);
+            transactionPolicyMap.put("Stateful", TransactionPolicyType.Bean);
         }
 
-        private final TransactionPolicy transactionPolicy;
+        private final TransactionPolicyType transactionPolicyType;
         private final String methodIntf;
         private final String methodName;
         private final String[] parameterTypes;
 
         public MethodTransaction(MethodType method, String transactionAttribute) {
-            transactionPolicy = (TransactionPolicy) transactionPolicyMap.get(transactionAttribute);
+            transactionPolicyType = (TransactionPolicyType) transactionPolicyMap.get(transactionAttribute);
 
             // interface type
             MethodIntfType methodInterface = method.getMethodIntf();
@@ -186,8 +184,8 @@ public class TransactionPolicyHelper {
 
         }
 
-        public TransactionPolicy getTransactionPolicy() {
-            return transactionPolicy;
+        public TransactionPolicyType getTransactionPolicyType() {
+            return transactionPolicyType;
         }
 
         public String getMethodIntf() {
@@ -315,7 +313,7 @@ public class TransactionPolicyHelper {
                     result.append(parameterType).append(", ");
                 }
             }
-            result.append("transaction attribute: ").append(transactionPolicy);
+            result.append("transaction attribute: ").append(transactionPolicyType);
             return result.toString();
         }
 

@@ -48,8 +48,8 @@
 package org.openejb.deployment.slsb;
 
 import java.rmi.RemoteException;
-import java.util.HashSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBMetaData;
@@ -67,9 +67,8 @@ import org.openejb.deployment.MockTransactionManager;
 import org.openejb.deployment.StatelessContainerBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.security.SecurityConfiguration;
-import org.openejb.transaction.ContainerPolicy;
-import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.transaction.TransactionPolicyType;
 
 /**
  *
@@ -241,8 +240,8 @@ public class StatelessClientContainerTest extends TestCase {
         builder.setLocalJndiNames(new String[0]);
         builder.setUnshareableResources(new HashSet());
         builder.setTransactionPolicySource(new TransactionPolicySource() {
-            public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-                return ContainerPolicy.Required;
+            public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
+                return TransactionPolicyType.Required;
             }
         });
         builder.setSecurityConfiguration(new SecurityConfiguration());

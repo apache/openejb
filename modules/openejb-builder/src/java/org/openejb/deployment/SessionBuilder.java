@@ -80,9 +80,8 @@ import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.transaction.ContainerPolicy;
-import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 
 
@@ -226,6 +225,7 @@ class SessionBuilder extends BeanBuilder {
                 builder.setTransactionPolicySource(new StatefulTransactionPolicySource(transactionPolicySource));
             }
         }
+        builder.setTransactionImportPolicyBuilder(getModuleBuilder().getTransactionImportPolicyBuilder());
 
         processEnvironmentRefs(builder, earContext, ejbModule, sessionBean, openejbSessionBean, userTransaction, cl);
 
@@ -287,12 +287,12 @@ class SessionBuilder extends BeanBuilder {
             this.transactionPolicySource = transactionPolicySource;
         }
 
-        public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
+        public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
             if ("Home".equals(methodIntf)) {
-                return ContainerPolicy.NotSupported;
+                return TransactionPolicyType.NotSupported;
             }
             if ("LocalHome".equals(methodIntf)) {
-                return ContainerPolicy.NotSupported;
+                return TransactionPolicyType.NotSupported;
             }
             return transactionPolicySource.getTransactionPolicy(methodIntf, signature);
         }

@@ -57,14 +57,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
-
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -88,9 +86,8 @@ import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.OpenEJBModuleBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.security.SecurityConfiguration;
-import org.openejb.transaction.ContainerPolicy;
-import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.tranql.cache.GlobalSchema;
@@ -246,8 +243,8 @@ public class EJBQLTest extends TestCase {
         builder.setLocalJndiNames(new String[0]);
         builder.setUnshareableResources(new HashSet());
         builder.setTransactionPolicySource(new TransactionPolicySource() {
-            public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-                return ContainerPolicy.Required;
+            public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
+                return TransactionPolicyType.Required;
             }
         });
 

@@ -25,8 +25,8 @@
                 <ejb-ref-type>Session</ejb-ref-type>
                 <home>org.openejb.test.security.slsb.BasicStatelessHome</home>
                 <remote>org.openejb.test.security.slsb.BasicStateless</remote>
-           </ejb-ref>
-       </session>
+            </ejb-ref>
+        </session>
 
     </enterprise-beans>
 
@@ -39,38 +39,38 @@
 
 
         <method-permission>
-           <description>The description</description>
-           <unchecked/>
-           <method>
-               <description>The description</description>
-               <ejb-name>InteropBean</ejb-name>
-               <method-name>callNoAccess</method-name>
-           </method>
-           <method>
-               <description>The description</description>
-               <ejb-name>InteropBean</ejb-name>
-               <method-name>callHighAccess</method-name>
-           </method>
-           <method>
-               <description>The description</description>
-               <ejb-name>InteropBean</ejb-name>
-               <method-name>callAllAccess</method-name>
-           </method>
-           <method>
-               <description>The description</description>
-               <ejb-name>InteropBean</ejb-name>
-               <method-name>callMedAccess</method-name>
-           </method>
-           <method>
-               <description>The description</description>
-               <ejb-name>InteropBean</ejb-name>
-               <method-name>callLowAccess</method-name>
-           </method>
-           <method>
-               <description>The description</description>
-               <ejb-name>InteropBean</ejb-name>
-               <method-name>callAllAccess</method-name>
-           </method>
+            <description>The description</description>
+            <unchecked/>
+            <method>
+                <description>The description</description>
+                <ejb-name>InteropBean</ejb-name>
+                <method-name>callNoAccess</method-name>
+            </method>
+            <method>
+                <description>The description</description>
+                <ejb-name>InteropBean</ejb-name>
+                <method-name>callHighAccess</method-name>
+            </method>
+            <method>
+                <description>The description</description>
+                <ejb-name>InteropBean</ejb-name>
+                <method-name>callAllAccess</method-name>
+            </method>
+            <method>
+                <description>The description</description>
+                <ejb-name>InteropBean</ejb-name>
+                <method-name>callMedAccess</method-name>
+            </method>
+            <method>
+                <description>The description</description>
+                <ejb-name>InteropBean</ejb-name>
+                <method-name>callLowAccess</method-name>
+            </method>
+            <method>
+                <description>The description</description>
+                <ejb-name>InteropBean</ejb-name>
+                <method-name>callAllAccess</method-name>
+            </method>
             <method>
                 <description>The description</description>
                 <ejb-name>InteropBean</ejb-name>
@@ -86,14 +86,26 @@
                 <ejb-name>InteropBean</ejb-name>
                 <method-name>remove</method-name>
             </method>
-       </method-permission>
+            <method>
+                <description>The description</description>
+                <ejb-name>InteropBean</ejb-name>
+                <method-name>callAllAccessTx</method-name>
+            </method>
+        </method-permission>
 
-       <container-transaction>
+        <container-transaction>
             <method>
                 <ejb-name>InteropBean</ejb-name>
                 <method-name>*</method-name>
             </method>
             <trans-attribute>Supports</trans-attribute>
+        </container-transaction>
+        <container-transaction>
+            <method>
+                <ejb-name>InteropBean</ejb-name>
+                <method-name>callAllAccessTx</method-name>
+            </method>
+            <trans-attribute>Required</trans-attribute>
         </container-transaction>
 
     </assembly-descriptor>

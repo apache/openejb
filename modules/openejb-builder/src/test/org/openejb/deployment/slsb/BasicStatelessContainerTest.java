@@ -48,23 +48,22 @@
 package org.openejb.deployment.slsb;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.gbean.GBeanData;
+import org.openejb.ContainerIndex;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.StatelessContainerBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.security.SecurityConfiguration;
-import org.openejb.transaction.ContainerPolicy;
-import org.openejb.transaction.TransactionPolicy;
-import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.proxy.EJBProxyReference;
-import org.openejb.ContainerIndex;
+import org.openejb.security.SecurityConfiguration;
+import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.transaction.TransactionPolicyType;
 
 /**
  * @version $Revision$ $Date$
@@ -177,8 +176,8 @@ public class BasicStatelessContainerTest extends TestCase {
         builder.setLocalJndiNames(new String[0]);
         builder.setUnshareableResources(new HashSet());
         builder.setTransactionPolicySource(new TransactionPolicySource() {
-            public TransactionPolicy getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
-                return ContainerPolicy.Required;
+            public TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature) {
+                return TransactionPolicyType.Required;
             }
         });
         builder.setSecurityConfiguration(new SecurityConfiguration());

@@ -77,6 +77,7 @@ import org.openejb.slsb.RemoveMethod;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.util.SoftLimitedInstancePool;
 
 
@@ -285,15 +286,15 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
         boolean[] deliveryTransacted = new boolean[signatures.length];
         for (int i = 0; i < signatures.length; i++) {
             InterfaceMethodSignature signature = signatures[i];
-            TransactionPolicy transactionPolicy = transactionPolicySource.getTransactionPolicy("local", signature);
-            deliveryTransacted[i] = transactionPolicy == ContainerPolicy.Required;
+            TransactionPolicyType transactionPolicyType = transactionPolicySource.getTransactionPolicy("local", signature);
+            deliveryTransacted[i] = transactionPolicyType == TransactionPolicyType.Required;
         }
 
         ObjectName timerName = null;
         if (TimedObject.class.isAssignableFrom(beanClass)) {
             InterfaceMethodSignature signature = new InterfaceMethodSignature("ejbTimeout", new Class[]{Timer.class}, false);
-            TransactionPolicy transactionPolicy = transactionPolicySource.getTransactionPolicy("timeout", signature);
-            Boolean isTransacted = (Boolean) isTransactedMap.get(transactionPolicy);
+            TransactionPolicyType transactionPolicy = transactionPolicySource.getTransactionPolicy("timeout", signature);
+            Boolean isTransacted = (Boolean) isTransactedMap[transactionPolicy.getIndex()];
             if (isTransacted != null) {
                 if (isTransacted.booleanValue()) {
                     timerName = transactedTimerName;
@@ -323,15 +324,15 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
         return gbean;
     }
 
-    private static Map isTransactedMap = new HashMap();
+    private static Boolean[] isTransactedMap = new Boolean[TransactionPolicyType.size()];
 
     static {
-        isTransactedMap.put(ContainerPolicy.Mandatory, Boolean.TRUE);//this won't work, of course
-        isTransactedMap.put(ContainerPolicy.Never, Boolean.FALSE);
-        isTransactedMap.put(ContainerPolicy.NotSupported, Boolean.FALSE);
-        isTransactedMap.put(ContainerPolicy.Required, Boolean.TRUE);
-        isTransactedMap.put(ContainerPolicy.RequiresNew, Boolean.TRUE);
-        isTransactedMap.put(ContainerPolicy.Supports, Boolean.FALSE);
+        isTransactedMap[TransactionPolicyType.Mandatory.getIndex()] = Boolean.TRUE;//this won't work, of course
+        isTransactedMap[TransactionPolicyType.Never.getIndex()] = Boolean.FALSE;
+        isTransactedMap[TransactionPolicyType.NotSupported.getIndex()] = Boolean.FALSE;
+        isTransactedMap[TransactionPolicyType.Required.getIndex()] = Boolean.TRUE;
+        isTransactedMap[TransactionPolicyType.RequiresNew.getIndex()] = Boolean.TRUE;
+        isTransactedMap[TransactionPolicyType.Supports.getIndex()] = Boolean.FALSE;
     }
 
     protected LinkedHashMap buildVopMap(Class beanClass) throws Exception {

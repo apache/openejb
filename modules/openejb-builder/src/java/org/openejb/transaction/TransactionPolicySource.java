@@ -1,4 +1,4 @@
-/**
+/* ====================================================================
  * Redistribution and use of this software and associated documentation
  * ("Software"), with or without modification, are permitted provided
  * that the following conditions are met:
@@ -7,10 +7,9 @@
  *    statements and notices.  Redistributions must also contain a
  *    copy of this document.
  *
- * 2. Redistributions in binary form must reproduce the
- *    above copyright notice, this list of conditions and the
- *    following disclaimer in the documentation and/or other
- *    materials provided with the distribution.
+ * 2. Redistributions in binary form must reproduce this list of
+ *    conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
@@ -23,7 +22,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://openejb.sf.net/).
+ *    (http://openejb.org/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -38,30 +37,25 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2005 (C) The OpenEJB Group. All Rights Reserved.
+ * ====================================================================
  *
- * $Id$
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the OpenEJB Project.  For more information
+ * please see <http://openejb.org/>.
+ *
+ * ====================================================================
  */
-package org.openejb.test.interop.slsb;
+package org.openejb.transaction;
 
-import java.rmi.RemoteException;
-import javax.ejb.EJBObject;
-
+import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.transaction.TransactionPolicy;
 
 /**
+ *
+ *
  * @version $Revision$ $Date$
- */
-public interface Interop extends EJBObject {
-
-    String callNoAccess(String argument1) throws RemoteException;
-
-    String callLowAccess(String argument1) throws RemoteException;
-
-    String callMedAccess(String argument1) throws RemoteException;
-
-    String callHighAccess(String argument1) throws RemoteException;
-
-    String callAllAccess(String argument1) throws RemoteException;
-
-    String callAllAccessTx(String argument1) throws RemoteException;
+ *
+ * */
+public interface TransactionPolicySource {
+    TransactionPolicyType getTransactionPolicy(String methodIntf, InterfaceMethodSignature signature);
 }

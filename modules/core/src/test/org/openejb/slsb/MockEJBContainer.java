@@ -47,6 +47,7 @@ package org.openejb.slsb;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.io.Serializable;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -180,6 +181,14 @@ public class MockEJBContainer implements EJBContainer {
     }
 
     public Subject getDefaultSubject() {
+        return null;
+    }
+
+    public Serializable getHomeTxPolicyConfig() {
+        return null;
+    }
+
+    public Serializable getRemoteTxPolicyConfig() {
         return null;
     }
 

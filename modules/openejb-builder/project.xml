@@ -38,12 +38,12 @@
             <version>${xmlbeans_version}</version>
         </dependency>
 
-       <dependency>
+        <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>
@@ -74,7 +74,7 @@
             <version>${geronimo_version}</version>
         </dependency>
 
-    <!-- should be removed once we figure out where DConfigBeans will live -->
+        <!-- should be removed once we figure out where DConfigBeans will live -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deploy-tool</artifactId>
@@ -92,7 +92,7 @@
             <artifactId>geronimo-j2ee-builder</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
-            
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-axis-builder</artifactId>
@@ -105,45 +105,45 @@
             <version>${geronimo_version}</version>
         </dependency>
 
-	<!--
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-remoting</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-	-->
+        <!--
+<dependency>
+<groupId>geronimo</groupId>
+<artifactId>geronimo-remoting</artifactId>
+<version>${geronimo_version}</version>
+</dependency>
+        -->
 
         <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
             <version>${activeio_version}</version>
-        </dependency>	
+        </dependency>
 
         <dependency>
-             <groupId>geronimo</groupId>
-             <artifactId>geronimo-security</artifactId>
-             <version>${geronimo_version}</version>
-         </dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
 
         <dependency>
-             <groupId>geronimo</groupId>
-             <artifactId>geronimo-security-builder</artifactId>
-             <version>${geronimo_version}</version>
-            <properties>
-                <xmlbeans>true</xmlbeans>
-            </properties>
-         </dependency>
-
-        <dependency>
-             <groupId>geronimo</groupId>
-             <artifactId>geronimo-service-builder</artifactId>
-             <version>${geronimo_version}</version>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
+            <version>${geronimo_version}</version>
             <properties>
                 <xmlbeans>true</xmlbeans>
             </properties>
         </dependency>
 
-         <dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-timer</artifactId>
             <version>${geronimo_version}</version>
@@ -161,7 +161,7 @@
             <version>${geronimo_version}</version>
         </dependency>
 
-       <dependency>
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${geronimo_version}</version>
@@ -169,7 +169,7 @@
                 <xmlbeans>true</xmlbeans>
             </properties>
         </dependency>
-            
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
@@ -281,7 +281,7 @@
                 <runtime>true</runtime>
             </properties>
         </dependency>
-        
+
         <dependency>
             <groupId>oro</groupId>
             <artifactId>oro</artifactId>
@@ -378,51 +378,51 @@
         </dependency>
         
         <!-- CORBA -->
-	<dependency>
-	    <groupId>openorb</groupId>
-	    <artifactId>openorb-orb</artifactId>
-	    <version>${openorb_version}</version>
-	    <properties>
-		<runtime>true</runtime>
-	    </properties>
-	</dependency>
-	
-	<dependency>
-	    <groupId>openorb</groupId>
-	    <artifactId>openorb-ins</artifactId>
-	    <version>${openorb_version}</version>
-	    <properties>
-		<runtime>true</runtime>
-	    </properties>
-	</dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
 
-	<dependency>
-	    <groupId>openorb</groupId>
-	    <artifactId>openorb-pss</artifactId>
-	    <version>${openorb_version}</version>
-	    <properties>
-		<runtime>true</runtime>
-	    </properties>
-	</dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-ins</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
 
-	<dependency>
-	    <groupId>openorb</groupId>
-	    <artifactId>openorb-orb-tools</artifactId>
-	    <version>${openorb_version}</version>
-	    <properties>
-		<runtime>true</runtime>
-	    </properties>
-	</dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-pss</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
 
-	<dependency>
-	    <groupId>openorb</groupId>
-	    <artifactId>openorb-orb-omg</artifactId>
-	    <version>${openorb_version}</version>
-	    <properties>
-		<runtime>true</runtime>
-	    </properties>
-	</dependency>
-	
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb-tools</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-orb-omg</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
         <dependency>
             <groupId>openorb</groupId>
             <artifactId>openorb-ssl</artifactId>
@@ -432,21 +432,30 @@
             </properties>
         </dependency>
 
-	<dependency>
-	    <groupId>openorb</groupId>
-	    <artifactId>openorb-tools</artifactId>
-	    <version>${openorb_version}</version>
-	    <properties>
-		<runtime>true</runtime>
-	    </properties>
-	</dependency>
+        <dependency>
+            <groupId>openorb</groupId>
+            <artifactId>openorb-tools</artifactId>
+            <version>${openorb_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
 
         <dependency>
             <groupId>avalon</groupId>
             <artifactId>avalon-framework</artifactId>
             <version>${avalon_framework_version}</version>
             <properties>
-               <repository>true</repository>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>avalon</groupId>
+            <artifactId>avalon-logkit</artifactId>
+            <version>${avalon_logkit_version}</version>
+            <properties>
+                <repository>true</repository>
             </properties>
         </dependency>
 
