@@ -335,6 +335,7 @@ public class SafeToolkit{
     }
 
     public static void unloadTempCodebase( String codebase ) {
+        //TODO Delete temp jar
 	_tempcodebases.remove( codebase );
     }
 
