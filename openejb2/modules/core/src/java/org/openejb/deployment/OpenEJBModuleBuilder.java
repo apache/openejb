@@ -415,16 +415,19 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
         // create an index of the openejb ejb configurations by ejb-name
         Map openejbBeans = new HashMap();
+        //TODO NPE if enterprise-beans or session is missing
         OpenejbSessionBeanType[] openejbSessionBeans = openejbEjbJar.getEnterpriseBeans().getSessionArray();
         for (int i = 0; i < openejbSessionBeans.length; i++) {
             OpenejbSessionBeanType sessionBean = openejbSessionBeans[i];
             openejbBeans.put(sessionBean.getEjbName(), sessionBean);
         }
+        //TODO NPE as above
         OpenejbEntityBeanType[] openejbEntityBeans = openejbEjbJar.getEnterpriseBeans().getEntityArray();
         for (int i = 0; i < openejbEntityBeans.length; i++) {
             OpenejbEntityBeanType entityBean = openejbEntityBeans[i];
             openejbBeans.put(entityBean.getEjbName(), entityBean);
         }
+        //TODO NPE as above
         OpenejbMessageDrivenBeanType[] openejbMessageDrivenBeans = openejbEjbJar.getEnterpriseBeans().getMessageDrivenArray();
         for (int i = 0; i < openejbMessageDrivenBeans.length; i++) {
             OpenejbMessageDrivenBeanType messageDrivenBean = openejbMessageDrivenBeans[i];
