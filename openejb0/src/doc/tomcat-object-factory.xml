@@ -106,7 +106,7 @@
     <ejb-ref-name>ejb/hello</ejb-ref-name>
     <ejb-ref-type>Session</ejb-ref-type>
     <home>org.acme.HelloHome</home>
-    <remotel>org.acme.Hello</remote>
+    <remote>org.acme.Hello</remote>
 </ejb-ref>]]></code-block>
             <p>
                 Here goes a JSP that uses the ejb-ref-name to get a reference to the declared bean.
