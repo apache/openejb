@@ -70,9 +70,9 @@ import javax.ejb.EJBHome;
  */
 public abstract class EJBInvocationHandler implements InvocationHandler, Serializable, ResponseCodes, RequestMethods  {
     
-    protected static final Method EQUALS	= getMethod(Object.class, "equals", null);
-    protected static final Method HASHCODE	= getMethod(Object.class, "hashCode", null);
-    protected static final Method TOSTRING	= getMethod(Object.class, "toString", null);
+    protected static final Method EQUALS    = getMethod(Object.class, "equals", null);
+    protected static final Method HASHCODE  = getMethod(Object.class, "hashCode", null);
+    protected static final Method TOSTRING  = getMethod(Object.class, "toString", null);
     
     /**
      * Keeps track of live EJBInvocationHandler in this VM. So that 
@@ -219,48 +219,35 @@ public abstract class EJBInvocationHandler implements InvocationHandler, Seriali
         // TODO:  Think of a better exception type and message
         if ( server == null ) throw new Exception("No server");
         
-        Socket       socket    = null;
-        
-        OutputStream socketOut = null;        
-        InputStream  socketIn  = null;        
-        
-        ObjectOutput objectOut = null;        
-        ObjectInput  objectIn  = null;        
-        
+        ObjectOutput objectOut = null;
+        ObjectInput  objectIn  = null;
+        Connection   conn      = null;
         EJBResponse  res       = null;
+        
         try{
-            /*-----------------------*/
-            /* Open socket to server */
-            /*-----------------------*/
+            /*----------------------------*/
+            /* Get a connection to server */
+            /*----------------------------*/
             try{
-                // TODO:3: Look for optimizations in opening sockets
-                socket = new Socket(server.address, server.port);
-                // TODO:2: Implement connection pooling with a max poolsize
-                // and a max time to keep unused connections alive.
-                // TODO:1: Priorotize TODOs
+                conn = ConnectionManager.getConnection( server );
             } catch (IOException e){
                 throw new RemoteException("Cannot access server: "+server.address+":"+server.port+" Exception: ", e );
-            
-            } catch (SecurityException e){
-                throw new RemoteException("Cannot access server: "+server.address+":"+server.port+" due to security restrictions in the current VM: ", e );
-            
             } catch (Throwable e){
                 throw new RemoteException("Cannot access server: "+server.address+":"+server.port+" due to an unkown exception in the OpenEJB client: ", e );
             }
             
             /*----------------------------------*/
-            /* Openning output streams          */
+            /* Get output streams               */
             /*----------------------------------*/
             try{
                 
-                socketOut = socket.getOutputStream();
-                objectOut = new ObjectOutputStream(socketOut);
+                objectOut = new ObjectOutputStream(conn.getOuputStream());
             
             } catch (IOException e){
-                throw new RemoteException("Cannot open output stream to server: " , e );
+                throw new RemoteException("Cannot open object output stream to server: " , e );
             
             } catch (Throwable e){
-                throw new RemoteException("Cannot open output stream to server: " , e );
+                throw new RemoteException("Cannot open object output stream to server: " , e );
             } 
             
             
@@ -282,28 +269,23 @@ public abstract class EJBInvocationHandler implements InvocationHandler, Seriali
                 throw new IllegalArgumentException("Object is not serializable: "+ e.getMessage());
             
             } catch (IOException e){
-                throw new RemoteException("Cannot open output stream to server: " , e );
+                throw new RemoteException("Cannot write the request to the server: " , e );
             
             } catch (Throwable e){
-                throw new RemoteException("Cannot open output stream to server: " , e );
+                throw new RemoteException("Cannot write the request to the server: " , e );
             } 
             
             /*----------------------------------*/
-            /* Open input streams               */
+            /* Get input streams               */
             /*----------------------------------*/
             try{
-                
-                socketIn = socket.getInputStream();
-                objectIn = new ObjectInputStream(socketIn);
-            
-            } catch (StreamCorruptedException e){
-                throw new RemoteException("Cannot open input stream to server, the stream has been corrupted: " , e );
-            
+
+                objectIn = new ObjectInputStream(conn.getInputStream());
             } catch (IOException e){
-                throw new RemoteException("Cannot open input stream to server: " , e );
+                throw new RemoteException("Cannot open object input stream to server: " , e );
             
             } catch (Throwable e){
-                throw new RemoteException("Cannot open output stream to server: " , e );
+                throw new RemoteException("Cannot open object input stream to server: " , e );
             } 
             
             /*----------------------------------*/
@@ -328,11 +310,7 @@ public abstract class EJBInvocationHandler implements InvocationHandler, Seriali
         
         } finally {
             try {
-                if (objectOut != null) objectOut.close();
-                if (socketOut != null) socketOut.close();
-                if (objectIn  != null) objectIn.close();
-                if (socketIn  != null) socketIn.close();
-                if (socket    != null) socket.close();
+                conn.close();
             } catch (Throwable t){
                 //TODO:2: Log this
                 System.out.println("Error closing connection with server: "+t.getMessage() );
