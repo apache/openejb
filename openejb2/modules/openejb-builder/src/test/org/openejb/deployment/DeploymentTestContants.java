@@ -72,8 +72,8 @@ import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 public interface DeploymentTestContants {
     public static final ObjectName CONFIGURATION_OBJECT_NAME = IGNORE.createConfigurationObjectName();
     public static final ObjectName CONNECTION_OBJECT_NAME = IGNORE.createConnectionObjectName();
-    public static final String DOMAIN_NAME = "test";
-    public static final String SERVER_NAME = "bar";
+    public static final String DOMAIN_NAME = DeploymentHelper.j2eeDomainName;
+    public static final String SERVER_NAME = DeploymentHelper.j2eeServerName;
 
     public static final ResourceReferenceBuilder resourceReferenceBuilder = new ResourceReferenceBuilder() {
         public Reference createResourceRef(String containerId, Class iface) {
