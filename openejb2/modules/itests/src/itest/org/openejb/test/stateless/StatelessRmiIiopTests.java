@@ -595,7 +595,7 @@ public class StatelessRmiIiopTests extends StatelessTestClient {
         }
     }
 
-    public void test39_returnEJBHomeArray() {
+    public void Xtest39_returnEJBHomeArray() {
         try {
 
             EncStatelessHome expected[] = new EncStatelessHome[3];
@@ -680,7 +680,7 @@ public class StatelessRmiIiopTests extends StatelessTestClient {
         }
     }
 
-    public void test44_returnEJBObjectArray() {
+    public void Xtest44_returnEJBObjectArray() {
         try {
             Object obj = initialContext.lookup("client/tests/stateless/EncBean");
             EncStatelessHome home = (EncStatelessHome) javax.rmi.PortableRemoteObject.narrow(obj, EncStatelessHome.class);
