@@ -147,35 +147,43 @@ public abstract class EJBContextImpl {
 
     public abstract static class EJBContextState {
         public EJBHome getEJBHome(EJBInstanceContext context) {
-            EJBHome home = context.getProxyFactory().getEJBHome();
-            if (home == null) {
-                throw new IllegalStateException("getEJBHome is not allowed if no home interface is defined");
+            if( context.getProxyFactory() !=null ) {
+                EJBHome home = context.getProxyFactory().getEJBHome();
+                if (home != null) {
+                    return home;
+                }
             }
-            return home;
+            throw new IllegalStateException("getEJBHome is not allowed if no home interface is defined");
         }
 
         public EJBLocalHome getEJBLocalHome(EJBInstanceContext context) {
-            EJBLocalHome localHome = context.getProxyFactory().getEJBLocalHome();
-            if (localHome == null) {
-                throw new IllegalStateException("getEJBLocalHome is not allowed if no local localHome interface is defined");
+            if( context.getProxyFactory() !=null ) {
+                EJBLocalHome localHome = context.getProxyFactory().getEJBLocalHome();
+                if (localHome != null) {
+                    return localHome;
+                }
             }
-            return localHome;
+            throw new IllegalStateException("getEJBLocalHome is not allowed if no local localHome interface is defined");
         }
 
         public EJBObject getEJBObject(EJBInstanceContext context) {
-            EJBObject remote = context.getProxyFactory().getEJBObject(context.getId());
-            if (remote == null) {
-                throw new IllegalStateException("getEJBObject is not allowed if no remote interface is defined");
+            if( context.getProxyFactory() !=null ) {
+                EJBObject remote = context.getProxyFactory().getEJBObject(context.getId());
+                if (remote != null) {
+                    return remote;
+                }
             }
-            return remote;
+            throw new IllegalStateException("getEJBObject is not allowed if no remote interface is defined");
         }
 
         public EJBLocalObject getEJBLocalObject(EJBInstanceContext context) {
-            EJBLocalObject local = context.getProxyFactory().getEJBLocalObject(context.getId());
-            if (local == null) {
-                throw new IllegalStateException("getEJBLocalObject is not allowed if no local interface is defined");
+            if( context.getProxyFactory() !=null ) {
+                EJBLocalObject local = context.getProxyFactory().getEJBLocalObject(context.getId());
+                if (local != null) {
+                    return local;
+                }
             }
-            return local;
+            throw new IllegalStateException("getEJBLocalObject is not allowed if no local interface is defined");
         }
 
         public Principal getCallerPrincipal() {
@@ -183,7 +191,10 @@ public abstract class EJBContextImpl {
         }
 
         public boolean isCallerInRole(String s, EJBInstanceContext context) {
-            return ContextManager.isCallerInRole(context.getProxyFactory().getEJBName(), s);
+            if( context.getProxyFactory() !=null ) {
+                return ContextManager.isCallerInRole(context.getProxyFactory().getEJBName(), s);
+            }
+            throw new IllegalStateException("isCallerInRole is not allowed if no local or remote interface is defined");
         }
 
         public UserTransaction getUserTransaction(UserTransaction userTransaction) {
