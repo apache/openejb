@@ -190,8 +190,6 @@ public class StatelessAllowedOperationsTests extends BasicStatelessTestClient{
             policy.allow( policy.Context_getEJBHome );
             policy.allow( policy.Context_getEJBObject );
             policy.allow( policy.JNDI_access_to_java_comp_env );
-            policy.dontCare( policy.Resource_manager_access );
-            policy.dontCare( policy.Enterprise_bean_access );
             
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("ejbCreate");

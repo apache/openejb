@@ -68,45 +68,20 @@ public class OperationsPolicy implements java.io.Externalizable {
     public static final int Resource_manager_access      = 9;      
     public static final int Enterprise_bean_access       = 10;
 
-
-    private static final short DONT_CARE = 0;       
-    private static final short ALLOW = 1;       
-    private static final short DISALLOW = 2;       
-
-
-    private short[] allowedOperations = new short[11];
+    private boolean[] allowedOperations = new boolean[11];
 
     public OperationsPolicy() {
-	init();
     }
 
     public OperationsPolicy(int[] operations) {
-	init();
-
         for (int i=0; i < operations.length; i++) {
             allow( operations[i] );
         }
     }
 
-    private void init() {
-        for (int i=0; i < allowedOperations.length; i++) {
-            allowedOperations[i] = DISALLOW;
-        }
-    }
-    
-    public void dontCare(int i) {
-        if (i < 0 || i > allowedOperations.length - 1 ) return;
-        allowedOperations[i] = DONT_CARE;
-    }
-    
     public void allow(int i) {
         if (i < 0 || i > allowedOperations.length - 1 ) return;
-        allowedOperations[i] = ALLOW;
-    }
-
-    public void disallow(int i) {
-        if (i < 0 || i > allowedOperations.length - 1 ) return;
-        allowedOperations[i] = DISALLOW;
+        allowedOperations[i] = true;
     }
 
     public boolean equals(Object object) {
@@ -114,9 +89,7 @@ public class OperationsPolicy implements java.io.Externalizable {
 
         OperationsPolicy that = (OperationsPolicy)object;
         for (int i=0; i < allowedOperations.length; i++) {
-            if (this.allowedOperations[i] != DONT_CARE
-		&& that.allowedOperations[i] != DONT_CARE
-		&& this.allowedOperations[i] != that.allowedOperations[i]) return false;
+            if (this.allowedOperations[i] != that.allowedOperations[i]) return false;
         }
 
         return true;
@@ -124,32 +97,23 @@ public class OperationsPolicy implements java.io.Externalizable {
 
     public void writeExternal(ObjectOutput out) throws IOException {
         for (int i=0; i < allowedOperations.length; i++) {
-            out.writeShort( allowedOperations[i] );
+            out.writeBoolean( allowedOperations[i] );
         }
     }
     
     public void readExternal(ObjectInput in) throws IOException,ClassNotFoundException {
         for (int i=0; i < allowedOperations.length; i++) {
-            allowedOperations[i] = in.readShort();
+            allowedOperations[i] = in.readBoolean();
         }
     }
 
     public String toString() {
         String str = "[";
         for (int i=0; i < allowedOperations.length; i++) {
-	    switch (allowedOperations[i]) {
-	    case DONT_CARE:
-		str += "*";
-		break;
-	    case ALLOW:
-		str += "1";
-		break;
-	    case DISALLOW:
-		str += "0";
-		break;
-	    }
+            str += (allowedOperations[i])? "1": "0";
         }
         str += "]";
         return str;
+
     }
 }

@@ -306,7 +306,9 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient{
         OperationsPolicy policy = new OperationsPolicy();
         policy.allow( policy.Context_getEJBHome );
         policy.allow( policy.Context_getCallerPrincipal );
+        //TODO:0:policy.allow( policy.Context_getRollbackOnly );
         policy.allow( policy.Context_isCallerInRole );
+        //TODO:0:policy.allow( policy.Context_setRollbackOnly );
         policy.allow( policy.JNDI_access_to_java_comp_env );
         policy.allow( policy.Resource_manager_access );
         policy.allow( policy.Enterprise_bean_access );
@@ -346,7 +348,9 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient{
         OperationsPolicy policy = new OperationsPolicy();
         policy.allow( policy.Context_getEJBHome );
         policy.allow( policy.Context_getCallerPrincipal );
+        //TODO:0:policy.allow( policy.Context_getRollbackOnly );
         policy.allow( policy.Context_isCallerInRole );
+        //TODO:0:policy.allow( policy.Context_setRollbackOnly );
         policy.allow( policy.Context_getEJBObject );
         policy.allow( policy.Context_getPrimaryKey );
         policy.allow( policy.JNDI_access_to_java_comp_env );
@@ -388,7 +392,9 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient{
         OperationsPolicy policy = new OperationsPolicy();
         policy.allow( policy.Context_getEJBHome );
         policy.allow( policy.Context_getCallerPrincipal );
+        //TODO:0:policy.allow( policy.Context_getRollbackOnly );
         policy.allow( policy.Context_isCallerInRole );
+        //TODO:0:policy.allow( policy.Context_setRollbackOnly );
         policy.allow( policy.Context_getEJBObject );
         policy.allow( policy.Context_getPrimaryKey );
         policy.allow( policy.JNDI_access_to_java_comp_env );
@@ -428,7 +434,9 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient{
         OperationsPolicy policy = new OperationsPolicy();
         policy.allow( policy.Context_getEJBHome );
         policy.allow( policy.Context_getCallerPrincipal );
+        //TODO:0:policy.allow( policy.Context_getRollbackOnly );
         policy.allow( policy.Context_isCallerInRole );
+        //TODO:0:policy.allow( policy.Context_setRollbackOnly );
         policy.allow( policy.JNDI_access_to_java_comp_env );
         policy.allow( policy.Resource_manager_access );
         policy.allow( policy.Enterprise_bean_access );
@@ -466,7 +474,9 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient{
         OperationsPolicy policy = new OperationsPolicy();
         policy.allow( policy.Context_getEJBHome );
         policy.allow( policy.Context_getCallerPrincipal );
+        //TODO:0:policy.allow( policy.Context_getRollbackOnly );
         policy.allow( policy.Context_isCallerInRole );
+        //TODO:0:policy.allow( policy.Context_setRollbackOnly );
         policy.allow( policy.JNDI_access_to_java_comp_env );
         policy.allow( policy.Resource_manager_access );
         policy.allow( policy.Enterprise_bean_access );
@@ -504,7 +514,9 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient{
         OperationsPolicy policy = new OperationsPolicy();
         policy.allow( policy.Context_getEJBHome );
         policy.allow( policy.Context_getCallerPrincipal );
+        //TODO:0:policy.allow( policy.Context_getRollbackOnly );
         policy.allow( policy.Context_isCallerInRole );
+        //TODO:0:policy.allow( policy.Context_setRollbackOnly );
         policy.allow( policy.JNDI_access_to_java_comp_env );
         policy.allow( policy.Resource_manager_access );
         policy.allow( policy.Enterprise_bean_access );
@@ -544,7 +556,9 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient{
         OperationsPolicy policy = new OperationsPolicy();
         policy.allow( policy.Context_getEJBHome );
         policy.allow( policy.Context_getCallerPrincipal );
+        //TODO:0:policy.allow( policy.Context_getRollbackOnly );
         policy.allow( policy.Context_isCallerInRole );
+        //TODO:0:policy.allow( policy.Context_setRollbackOnly );
         policy.allow( policy.Context_getEJBObject );
         policy.allow( policy.Context_getPrimaryKey );
         policy.allow( policy.JNDI_access_to_java_comp_env );
@@ -650,7 +664,9 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient{
         OperationsPolicy policy = new OperationsPolicy();
         policy.allow( policy.Context_getEJBHome );
         policy.allow( policy.Context_getCallerPrincipal );
+        //TODO:0:policy.allow( policy.Context_getRollbackOnly );
         policy.allow( policy.Context_isCallerInRole );
+        //TODO:0:policy.allow( policy.Context_setRollbackOnly );
         policy.allow( policy.Context_getEJBObject );
         policy.allow( policy.Context_getPrimaryKey );
         policy.allow( policy.JNDI_access_to_java_comp_env );
@@ -692,7 +708,9 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient{
         OperationsPolicy policy = new OperationsPolicy();
         policy.allow( policy.Context_getEJBHome );
         policy.allow( policy.Context_getCallerPrincipal );
+        //TODO:0:policy.allow( policy.Context_getRollbackOnly );
         policy.allow( policy.Context_isCallerInRole );
+        //TODO:0:policy.allow( policy.Context_setRollbackOnly );
         policy.allow( policy.Context_getEJBObject );
         policy.allow( policy.Context_getPrimaryKey );
         policy.allow( policy.JNDI_access_to_java_comp_env );
@@ -734,7 +752,9 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient{
         OperationsPolicy policy = new OperationsPolicy();
         policy.allow( policy.Context_getEJBHome );
         policy.allow( policy.Context_getCallerPrincipal );
+        //TODO:0:policy.allow( policy.Context_getRollbackOnly );
         policy.allow( policy.Context_isCallerInRole );
+        //TODO:0:policy.allow( policy.Context_setRollbackOnly );
         policy.allow( policy.Context_getEJBObject );
         policy.allow( policy.Context_getPrimaryKey );
         policy.allow( policy.JNDI_access_to_java_comp_env );

@@ -57,9 +57,11 @@ session beans.
 */
 public interface PassivationStrategy {
     
-    public void init(Properties props);
+    /** @throws org.openejb.SystemException if an argument is invalid, e.g. a non-existing directory for passivation
+     */
+    public void init(Properties props) throws org.openejb.SystemException;
     
-    /*
+    /**
         If the PassivationStrategy operates is own thread for serializing
         beans to disk, then it must use the IntraVmCopyMonitor.prePassivationOperation() and
         IntraVmCopyMonitor.postPassivationOperation() methods to demarcate the start and 
@@ -68,7 +70,7 @@ public interface PassivationStrategy {
     public void passivate(Hashtable stateTable)
     throws org.openejb.SystemException;
         
-    /*
+    /**
         The implementation must NOT use a separate thread to deserialize or otherwise 
         retrieve the instance when this method is called. It must use the current thread,
         OR associate the calling thread's ThreadContext with the new thread that is 

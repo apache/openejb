@@ -218,6 +218,9 @@ public class CastorCMP11_EntityContainer
     // manages the transactional scope according to the bean's transaction attributes
     //CastorTransactionScopeHandler txScopeHandle;
 
+    // Manages the synchronization wrappers
+    java.util.Hashtable syncWrappers = new java.util.Hashtable();
+    
     protected java.io.PrintWriter globalTransactionLogWriter; 
     protected java.io.PrintWriter localTransactionLogWriter;  
 
@@ -646,7 +649,20 @@ public class CastorCMP11_EntityContainer
 
             bean = fetchAndLoadBean(callContext, db);
             logger.debug("Invoking business method on "+bean);
+	    if ( OpenEJB.getTransactionManager().getTransaction() != null )
+	    {
+            try {
+            Key key = new Key( OpenEJB.getTransactionManager().getTransaction(), 
+                               callContext.getDeploymentInfo().getDeploymentID(), 
+                               callContext.getPrimaryKey());
+            SynchronizationWrapper sync = new SynchronizationWrapper( ((javax.ejb.EntityBean)bean), key );
 
+            ( ( org.openejb.core.TransactionManagerWrapper.TransactionWrapper ) OpenEJB.getTransactionManager().getTransaction() ).registerSynchronization( sync, 1 );
+
+            syncWrappers.put( key, sync );
+            } catch ( Exception ex ) { ex.printStackTrace(); }
+	   }
+ 
             returnValue = runMethod.invoke(bean, args);
 
         } catch ( java.lang.reflect.InvocationTargetException ite ) {
@@ -1036,7 +1052,10 @@ public class CastorCMP11_EntityContainer
                     /*   create a new ProxyInfo based on the deployment info and primary key and add it to the vector */
                     proxies.addElement(new ProxyInfo(deploymentInfo, primaryKey, deploymentInfo.getRemoteInterface(), this));
                 }
-                returnValue = proxies;
+		if ( callMethod.getReturnType() == java.util.Enumeration.class )
+	                returnValue = new org.openejb.util.Enumerator(proxies);
+		else
+			returnValue = proxies;
             } else {
                 /*  Fetch the entity bean from the query results */
                 if ( !results.hasMore() )
@@ -1493,6 +1512,56 @@ public class CastorCMP11_EntityContainer
      * @param object The object
      */
     public void updated( Object object ) {
+    }
+
+    public class Key {
+        Object deploymentID, primaryKey;
+        Transaction transaction;
+
+        public Key(Transaction tx, Object depID, Object prKey){
+            transaction = tx;
+            deploymentID = depID;
+            primaryKey = prKey;
+        }
+        public int hashCode( ){
+            return transaction.hashCode()^deploymentID.hashCode()^primaryKey.hashCode();
+        }
+        public boolean equals(Object other){
+            if(other != null && other.getClass() == CastorCMP11_EntityContainer.Key.class){
+                Key otherKey = (Key)other;
+                if(otherKey.transaction.equals(transaction) && otherKey.deploymentID.equals(deploymentID) && otherKey.primaryKey.equals(
+primaryKey))
+                    return true;
+            }
+            return false;
+        }
+    }
+
+    public  class SynchronizationWrapper
+    implements javax.transaction.Synchronization{
+         EntityBean bean;
+         Key myIndex; 
+         public SynchronizationWrapper(EntityBean ebean, Key key){
+                bean = ebean; 
+                myIndex = key;
+         }
+         public void beforeCompletion(){ 
+                try{
+                    bean.ejbStore();
+                }catch(Exception re){
+                    javax.transaction.TransactionManager txmgr = OpenEJB.getTransactionManager();
+                    try{
+                    txmgr.setRollbackOnly(); 
+                    }catch(javax.transaction.SystemException se){
+                        // log the exception
+                    }
+ 
+                }
+         }
+         public void afterCompletion(int status){
+                syncWrappers.remove( myIndex );
+         }
+ 
     }
 
 }

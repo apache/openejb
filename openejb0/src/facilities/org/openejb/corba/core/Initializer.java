@@ -94,10 +94,27 @@ public class Initializer
 	}
 
 	/**
+ 	 * This operation returns the ContainerAdapter that manages the CORBA object whom the object id is
+	 * passed as parameter
+	 */
+	public ContainerAdapter getContainerAdapter( byte [] corba_id )
+	{
+		for ( int i=0; i<adapters.size(); i++ )
+		{
+			ContainerAdapter adapter = ( ContainerAdapter ) adapters.elementAt( i );
+
+			if ( adapter.beans_from_corba_id( corba_id ) != null )
+			  	return adapter;
+		}
+
+		return null;
+	}
+
+	/**
 	 * This operation starts the OpenEJB container system. Then it creates a container adapter for each
 	 * container.
 	 */
-	public void run( java.util.Properties props )
+	public void run( java.util.Properties props ) throws org.openejb.OpenEJBException
 	{
 		// -- Creates the serializer extension --
 		
@@ -135,11 +152,14 @@ public class Initializer
 			// -- Unable to initialize OpenEJB --
 			
 			org.openejb.corba.util.Verbose.fatal( "Initializer::run", ex.toString() );			
+			return;
 		}				
 					
 		// -- Creates all Container Adapters --
 		
                 org.openejb.Container [] cntrs = org.openejb.OpenEJB.containers();
+                
+		if(cntrs==null) throw new org.openejb.OpenEJBException("Unable to configure OpenEJB.");
                 
                 for ( int i=0; i<cntrs.length; i++ )
                     adapters.addElement( createContainerAdapter( cntrs[i] ) );

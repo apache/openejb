@@ -118,6 +118,19 @@ public class BeanProfile
 	{
 		return proxy;
 	}
+
+	/** 
+	 * Return the bean reference
+	 */
+	public org.omg.CORBA.Object getReference()
+	{
+		try {
+			return poa.servant_to_reference( getServant() );
+		} catch ( Exception ex ) {	
+			Verbose.exception( "BeanProfile", "Unable to get a bean reference", ex );
+			return null;
+		}		
+	}
 	
 	/** 
 	 * Return the bean primary key
@@ -170,7 +183,7 @@ public class BeanProfile
 		}
 		catch ( java.lang.Exception ex )
 		{
-			Verbose.exception( "HomeProfile", "Unable to retrieve the bean servant id", ex );
+			Verbose.exception( "BeanProfile", "Unable to retrieve the bean servant id", ex );
 		}
 		
 		return null;

@@ -72,6 +72,8 @@ public class EJBHomeProxyHandler implements java.lang.reflect.InvocationHandler
 	 */
 	public java.lang.Object invoke( java.lang.Object proxy, java.lang.reflect.Method method, java.lang.Object[] args ) throws Throwable
 	{
+		try
+		{
 		Verbose.print( "EJBHomeProxyHandler", "New invocation for : " + method.getName());
 		
 		// -- Retreive HomeProfile --
@@ -96,7 +98,7 @@ public class EJBHomeProxyHandler implements java.lang.reflect.InvocationHandler
 		{ 
 			Verbose.fatal("EJBHomeProxyHandler", "Unable to retrieve the POACurrent object");
 		}
-		
+	  
 		// -- check if the invoked operation is served here --
 		
 		String operation = method.getName();
@@ -111,6 +113,17 @@ public class EJBHomeProxyHandler implements java.lang.reflect.InvocationHandler
 		// -- Invoke the container --
 		
 		return org.openejb.corba.core.Invoker.invoke( adapter, home.deploymentID(), method, args, null, principal() );	 	
+		} catch ( Throwable t )
+		{
+			Verbose.exception("EJBHomeProxyHandler", "Invoke", t );
+			throw t;
+		}
+                finally 
+                {
+                   // Dissociate the transaction with the thread.
+                   // TODO:0: Needs to be moved to the corba package
+                   //org.openejb.util.ThreadTxAssociation.freeAssociation(); 
+                }    
 	}		
 	
 	/**
@@ -153,6 +166,7 @@ public class EJBHomeProxyHandler implements java.lang.reflect.InvocationHandler
 			javax.ejb.EJBObject ejb = handle.getEJBObject();
 				
 			java.lang.Object primaryKey = null;
+			byte [] bean_id = null;
 			try
 			{
 				org.omg.PortableServer.Servant servant = adapter.poa().reference_to_servant( ( org.omg.CORBA.Object ) ejb );
@@ -173,6 +187,7 @@ public class EJBHomeProxyHandler implements java.lang.reflect.InvocationHandler
 					{
 		    
 						primaryKey = bean.getPrimaryKey();
+						bean_id = bean.getBeanID();
 						break;
 					}
 							 
@@ -181,7 +196,6 @@ public class EJBHomeProxyHandler implements java.lang.reflect.InvocationHandler
 			}
 			catch ( java.lang.Exception ex )
 			{ 
-		  ex.printStackTrace();
 				Verbose.fatal("EJBHomeProxyHandler", "Unexpected exception");
 			}
 						
@@ -189,12 +203,6 @@ public class EJBHomeProxyHandler implements java.lang.reflect.InvocationHandler
 			
 			// -- Remove the BeanProfile association --
 						
-			byte [] bean_id = null;
-			if ( primaryKey != null )
-				bean_id = ( home.deploymentID().toString() + '#' + primaryKey.toString() ).getBytes();
-			else
-				bean_id = ( home.deploymentID().toString() + '#' ).getBytes();
-				
 			org.openejb.corba.core.BeanProfile bean = ( org.openejb.corba.core.BeanProfile ) adapter.beans_from_ejb_id( adapter.container(), bean_id );
 			
 			adapter.removeBeanProfile( bean );
@@ -213,13 +221,12 @@ public class EJBHomeProxyHandler implements java.lang.reflect.InvocationHandler
 			
 			byte [] bean_id = null;
 			if ( args[0] != null )
-				bean_id = ( home.deploymentID().toString() + '#' + args[0].toString() ).getBytes();
-			else
-				bean_id = ( home.deploymentID().toString() + '#' ).getBytes();
-				
-			org.openejb.corba.core.BeanProfile bean = ( org.openejb.corba.core.BeanProfile ) adapter.beans_from_ejb_id( adapter.container(), bean_id );
-			
-			adapter.removeBeanProfile( bean );
+			{
+				bean_id = ( home.deploymentID().toString() + '#' + args[0].hashCode() ).getBytes();
+				org.openejb.corba.core.BeanProfile bean = ( org.openejb.corba.core.BeanProfile ) adapter.beans_from_ejb_id( adapter.container(), bean_id );
+				if ( bean.getDeploymentInfo().getComponentType() != org.openejb.DeploymentInfo.STATELESS )
+					adapter.removeBeanProfile( bean );
+			}				
 		}
 		
 		return null; // No return type

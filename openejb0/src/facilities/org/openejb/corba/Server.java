@@ -73,19 +73,42 @@ public class Server
 	 * Bind the Tyrex TM to Naming Service
 	 */
 	private static boolean doTyrexBind = false;    
+
+	/**
+	 * Reference to the Initializer
+	 */
+	private static org.openejb.corba.core.Initializer initializer;
 											  
 	/**
 	 * The server entry point.
 	 */
-	public static void main( String [] args )
+	public static org.omg.CORBA.ORB initialize( String [] args )
+	  throws org.openejb.OpenEJBException
 	{
+		orb = org.omg.CORBA.ORB.init( args, null );
+		
+		initialize(args, orb);
+		
+                return orb;
+	}
+
+    public static void initialize( String [] args, org.omg.CORBA.ORB neworb ) 
+	throws org.openejb.OpenEJBException 
+	{
+     
+
 		// -- Scan arguments --
 		
-		scan_arguments( args );
+	orb = neworb;
+
+ 	    scan_arguments( args );
+                
+		// Added for Interceptors use
+                org.openejb.corba.services.transaction.ThreadTxAssociation.useFlag = true;
+                org.openejb.corba.services.transaction.ThreadTxAssociation.setParams(orb, 
+                    org.openejb.corba.services.transaction.Initializer.getSlotId());
 		
 		// -- CORBA Initializations ( ORB + POA ) --
-		
-		orb = org.omg.CORBA.ORB.init( args, null );
 		
 		try
 		{
@@ -100,20 +123,23 @@ public class Server
 		
 		// -- Create and run the CORBA Adapter Initializer --				
 		
-		org.openejb.corba.core.Initializer initializer = new org.openejb.corba.core.Initializer( orb, rootPOA, domainPath, doTyrexBind );
+		initializer = new org.openejb.corba.core.Initializer( orb, rootPOA, domainPath, doTyrexBind );
 		
 		try
 		{
-			java.util.Properties props = new java.util.Properties();
-                        props = System.getProperties();
-                      //java.io.FileInputStream input = new java.io.FileInputStream(args[0]);
-                      //props.load(input);
+			//java.io.FileInputStream input = new java.io.FileInputStream(args[0]);
+                        java.util.Properties props = System.getProperties();
+			//java.util.Properties props = new java.util.Properties();
+			//props.load(input);
 		
 			initializer.run( props );
 		}
+		catch ( org.openejb.OpenEJBException ex )
+		{
+		 	throw ex;
+		}
 		catch ( java.lang.Exception ex )
 		{ 
-		 ex.printStackTrace();
 			org.openejb.corba.util.Verbose.fatal("Server", "Unable to load the property file");
 		}
 		
@@ -122,36 +148,49 @@ public class Server
 		try
 		{
 			rootPOA.the_POAManager().activate();
-			
-			System.out.println("OpenEJB over CORBA is now ready...");
-			
-			orb.run();
 		}
 		catch ( java.lang.Exception ex )
-		{ }
+		{
+		    org.openejb.corba.util.Verbose.fatal("Server", "The POAManager reported an exception:"+ex);
+		}
 	}
+
+    public static void main(String[] args) {
+	    try{
+		orb = initialize(args);
+		System.out.println("OpenEJB over CORBA is now ready...");
+		orb.run();
+	    }catch (org.openejb.OpenEJBException ex) {
+		System.err.println("Unable to start OpenEJB over CORBA");
+	    }catch(IllegalArgumentException e) {
+		usage();
+	    }
+    }
 	
+    private static void usage() {
+	System.out.println("Usage :");
+	System.out.println();
+	System.out.println("\tjava org.openejb.corba.Server [ properties file name ] [ options ]");
+	System.out.println();
+	System.out.println("Options :");
+	System.out.println("\t-domain <domain file path>");
+	System.out.println("\t\tSpecify a domain configuration file for Tyrex");
+	System.out.println("\t-naming");
+	System.out.println("\t\tBind the Tyrex TM to the Naming Service");
+	System.out.println("\t-verbose");
+	System.out.println("\t\tEnable verbose mode");
+	System.out.println("\t-ORBInitRef");
+	System.out.println("\t\tTo specify with CORBA URL references to naming service, transaction service and security service");
+    }	
 	/**
 	 * Scan the command line arguments
+	 * @throws IllegalArgumentException if an argument is unknown, or the number of arguments is zero
 	 */
 	private static void scan_arguments( String [] args )
 	{
 		if ( args.length == 0 )
 		{
-			System.out.println("Usage :");
-			System.out.println();
-			System.out.println("\tjava org.openejb.corba.Server [ properties file name ] [ options ]");
-			System.out.println();
-			System.out.println("Options :");
-			System.out.println("\t-domain <domain file path>");
-			System.out.println("\t\tSpecify a domain configuration file for Tyrex");
-			System.out.println("\t-naming");
-			System.out.println("\t\tBind the Tyrex TM to the Naming Service");
-			System.out.println("\t-verbose");
-			System.out.println("\t\tEnable verbose mode");
-			System.out.println("\t-ORBInitRef");
-			System.out.println("\t\tTo specify with CORBA URL references to naming service, transaction service and security service");
-			System.exit(0);
+		    throw new IllegalArgumentException();
 		}	
 		
 		for ( int i=0; i<args.length; i++ )
@@ -168,6 +207,7 @@ public class Server
 			}
 			else
 			if( args[i].equals("-naming") ) doTyrexBind = true; 
+			// ignore unknown arguments, e.g. -ORBXXX
 		}
 	}
 	
@@ -185,5 +225,13 @@ public class Server
 	public static org.omg.PortableServer.POA getPOA()
 	{
 		return rootPOA;
+	}
+
+	/**
+	 * This operation returns the Container Adapter associated to a bean / home.
+	 */
+	public static org.openejb.corba.core.ContainerAdapter getContainerAdapter( byte [] corba_id )
+	{
+		return initializer.getContainerAdapter( corba_id );	
 	}
 }

@@ -88,7 +88,7 @@ public class Verbose
 	/**
 	 * Display a log message for an exception
 	 */
-	public static void exception( String className, String message, java.lang.Exception ex )
+	public static void exception( String className, String message, java.lang.Throwable ex )
 	{
 		if ( verbose )
 		{
@@ -132,11 +132,14 @@ public class Verbose
 		catch(java.io.IOException ex) {
 			System.out.println(ex);
 		}
-		System.exit(1);
+	        // The following code was removed on behalf of bugzilla 988	
+                // At this point, the error must be printed but the application must not
+                // terminate. Only the request was unable to complete. 
+                // System.exit(1);
 	
 		out.println("***************************************************************************************");
-		out.println();
-		out.println("Please send this message by mail to bugreport@openorg.org");
-		out.println();
+		// out.println();
+		// out.println("Please send this message by mail to bugreport@openorg.org");
+		// out.println();
 	}
 }

@@ -105,6 +105,11 @@ public class TransactionManagerWrapper  implements TransactionManager {
     public TransactionManagerWrapper(TransactionManager txMngr) {
         transactionManager = txMngr;
     }
+    
+    public javax.transaction.TransactionManager getTxManager() {
+        return transactionManager;    
+    }
+
     /**
      * Delegates the call to the Transaction Manager 
      * passed into the constructor.
@@ -210,6 +215,11 @@ public class TransactionManagerWrapper  implements TransactionManager {
      */
     public Transaction getTxWrapper(Transaction tx)throws javax.transaction.SystemException{
         if ( tx == null )return null;
+        
+        if(tx.getStatus()==javax.transaction.Status.STATUS_COMMITTED||
+           tx.getStatus()==javax.transaction.Status.STATUS_ROLLEDBACK)
+          return null;
+
         TransactionWrapper txW = (TransactionWrapper)wrapperMap.get(tx);
         if ( txW==null ) {
             txW = new TransactionWrapper(tx);
@@ -289,6 +299,10 @@ public class TransactionManagerWrapper  implements TransactionManager {
             return false;
         }       
 
+        public String toString(){
+            return transaction.toString();
+        } 
+
         /**
          * TODO: Add comment
          * 
@@ -362,7 +376,8 @@ public class TransactionManagerWrapper  implements TransactionManager {
             } else if ( transaction.getStatus() == Status.STATUS_ROLLEDBACK || transaction.getStatus() == Status.STATUS_MARKED_ROLLBACK || transaction.getStatus()== Status.STATUS_ROLLING_BACK )
                 throw new javax.transaction.RollbackException();
             else {
-                throw new java.lang.IllegalStateException();
+                throw new java.lang.IllegalStateException(Thread.currentThread() + " The status of " + transaction + " is " + TransactionManagerWrapper.getStatus(transaction.getStatus()));
+
             }
 
         }
@@ -395,7 +410,6 @@ public class TransactionManagerWrapper  implements TransactionManager {
                         Synchronization sync = (Synchronization)enum.nextElement();
                         sync.beforeCompletion();
                     } catch ( RuntimeException re ) {
-                        re.printStackTrace();
                     }
                 }
             }
@@ -414,7 +428,7 @@ public class TransactionManagerWrapper  implements TransactionManager {
                         Synchronization sync = (Synchronization)enum.nextElement();
                         sync.afterCompletion(status);
                     } catch ( RuntimeException re ) {
-                        re.printStackTrace();
+                        //TODO:2: Log the callback system exception
                     }
                 }
                 synchronizations.clear();
@@ -424,4 +438,59 @@ public class TransactionManagerWrapper  implements TransactionManager {
         }          
 
     }// End Innerclass: TransctionWrapper
+
+    /**
+     * Returns the readable name for the specified status.
+     *
+     * @param status The status
+     * @return The status
+     */
+    private static String getStatus( int status )
+    {
+        StringBuffer buffer;
+
+        buffer = new StringBuffer();
+        switch ( status ) {
+        case Status.STATUS_ACTIVE:
+            buffer.append( "STATUS_ACTIVE: " );
+            buffer.append( "A transaction is associated with the target object and it is in the active state." );
+            break;
+        case Status.STATUS_COMMITTED:
+            buffer.append( "STATUS_COMMITTED: " );
+            buffer.append( "A transaction is associated with the target object and it has been committed." );
+            break;
+        case Status.STATUS_COMMITTING:
+            buffer.append( "STATUS_COMMITTING: " );
+            buffer.append( "A transaction is associated with the target object and it is in the process of committing." );
+            break;
+        case Status.STATUS_MARKED_ROLLBACK:
+            buffer.append( "STATUS_MARKED_ROLLBACK: " );
+            buffer.append( "A transaction is associated with the target object and it has been marked for rollback, perhaps as a result of a setRollbackOnly operation." );
+            break;
+        case Status.STATUS_NO_TRANSACTION:
+            buffer.append( "STATUS_NO_TRANSACTION: " );
+            buffer.append( "No transaction is currently associated with the target object." );
+            break;
+        case Status.STATUS_PREPARED:
+            buffer.append( "STATUS_PREPARED: " );
+            buffer.append( "A transaction is associated with the target object and it has been prepared, i.e." );
+            break;
+        case Status.STATUS_PREPARING:
+            buffer.append( "STATUS_PREPARING: " );
+            buffer.append( "A transaction is associated with the target object and it is in the process of preparing." );
+            break;           
+        case Status.STATUS_ROLLEDBACK:
+            buffer.append( "STATUS_ROLLEDBACK: " );
+            buffer.append( "A transaction is associated with the target object and the outcome has been determined as rollback." );
+            break;
+        case Status.STATUS_ROLLING_BACK:
+            buffer.append( "STATUS_ROLLING_BACK: " );
+            buffer.append( "A transaction is associated with the target object and it is in the process of rolling back." );
+            break;
+        default:
+            buffer.append( "Unknown status " + status );
+            break;
+        }
+        return buffer.toString();
+    }
 }

@@ -59,8 +59,9 @@ import org.openejb.core.Operations;
 */
 public abstract class ENCReference implements Reference{
     Object reference;
-    String jndiName;
+    protected String jndiName;
     String openEJBContext;
+    boolean checking = true;
     javax.naming.Context linkedContext;
     
     /*
@@ -103,11 +104,15 @@ public abstract class ENCReference implements Reference{
         this.reference = reference;
     }
     
+    public void setChecking( boolean value ) {
+	checking = value;
+    }
+    
     /*
     * Obtains the referenced object.
     */
     public Object getObject( ) throws javax.naming.NamingException{
-        if(ThreadContext.isValid()){
+        if(ThreadContext.isValid() && checking){
             ThreadContext cntx = ThreadContext.getThreadContext();
             byte operation = cntx.getCurrentOperation();
             checkOperation(operation);

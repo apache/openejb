@@ -119,10 +119,18 @@ public class ApplicationServer implements org.openejb.spi.ApplicationServer
 			
 			org.openejb.corba.core.BeanProfile bean = ( org.openejb.corba.core.BeanProfile ) adapter.beans_from_ejb_id( pinfo.getBeanContainer(), bean_id );						
 			
-			if ( bean == null )
-				org.openejb.corba.util.Verbose.fatal( "ApplicationServer", "Bean reference is null in the lookup" );
-															
-			return bean.getProxy();					
+			if ( bean == null ) {
+                          try {
+                            bean = adapter.createBeanProfile(pinfo, bean_id);
+		          }
+                          catch(java.rmi.RemoteException ex) {
+                            org.openejb.corba.util.Verbose.fatal("ApplicationServer", "Invalid bean reference..." );
+                          } 
+                        }													
+			//if ( !proxy )
+			//   return ( java.lang.Object ) javax.rmi.PortableRemoteObject.narrow( bean.getReference(), bean.getDeploymentInfo().getRemoteInterface() );					
+			//else
+			return bean.getProxy();
 		}
 		else
 		{
@@ -182,7 +190,9 @@ public class ApplicationServer implements org.openejb.spi.ApplicationServer
 			String id = pinfo.getDeploymentInfo().getDeploymentID().toString() + "#";
 			
 			if ( pinfo.getPrimaryKey() != null )			
-				id = id + pinfo.getPrimaryKey().toString();
+				id = id + "" + pinfo.getPrimaryKey().hashCode();
+			else
+				id = id + "" + pinfo.hashCode();	
 			
 			return id.getBytes();
 		}

@@ -92,7 +92,7 @@ public class EncStatelessBean implements javax.ejb.SessionBean{
             InitialContext ctx = new InitialContext();
             Assert.assertNotNull("The InitialContext is null", ctx );
             
-            BasicBmpHome home = (BasicBmpHome)ctx.lookup("java:comp/env/stateless/beanReferences/bmp_entity");
+            BasicBmpHome home = (BasicBmpHome) javax.rmi.PortableRemoteObject.narrow( ctx.lookup("java:comp/env/stateless/beanReferences/bmp_entity"), BasicBmpHome.class );
             Assert.assertNotNull("The EJBHome looked up is null",home);
 
             BasicBmpObject object = home.create("Enc Bean");
@@ -111,7 +111,7 @@ public class EncStatelessBean implements javax.ejb.SessionBean{
             InitialContext ctx = new InitialContext();
             Assert.assertNotNull("The InitialContext is null", ctx );
             
-            BasicStatefulHome home = (BasicStatefulHome)ctx.lookup("java:comp/env/stateless/beanReferences/stateful");
+            BasicStatefulHome home = (BasicStatefulHome) javax.rmi.PortableRemoteObject.narrow( ctx.lookup("java:comp/env/stateless/beanReferences/stateful"), BasicStatefulHome.class );
             Assert.assertNotNull("The EJBHome looked up is null",home);
 
             BasicStatefulObject object = home.create("Enc Bean");
@@ -130,7 +130,7 @@ public class EncStatelessBean implements javax.ejb.SessionBean{
             InitialContext ctx = new InitialContext();
             Assert.assertNotNull("The InitialContext is null", ctx );
             
-            BasicStatelessHome home = (BasicStatelessHome)ctx.lookup("java:comp/env/stateless/beanReferences/stateless");
+            BasicStatelessHome home = (BasicStatelessHome) javax.rmi.PortableRemoteObject.narrow( ctx.lookup("java:comp/env/stateless/beanReferences/stateless"), BasicStatelessHome.class );
             Assert.assertNotNull("The EJBHome looked up is null",home);
 
             BasicStatelessObject object = home.create();

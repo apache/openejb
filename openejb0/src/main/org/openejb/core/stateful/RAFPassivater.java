@@ -70,7 +70,7 @@ public class RAFPassivater implements PassivationStrategy{
         }
     }
     
-    public void init(Properties props){}
+    public void init(Properties props) throws org.openejb.SystemException {}
     
     
     public synchronized void passivate(Hashtable stateTable)

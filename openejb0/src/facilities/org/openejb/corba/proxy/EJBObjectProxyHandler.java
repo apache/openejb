@@ -73,6 +73,7 @@ public class EJBObjectProxyHandler implements java.lang.reflect.InvocationHandle
 	 */
 	public java.lang.Object invoke( java.lang.Object proxy, java.lang.reflect.Method method, java.lang.Object[] args ) throws Throwable
 	{
+		try {
 		// -- Retreive BeanProfile --
 		
 		org.openejb.corba.core.BeanProfile bean= null;
@@ -88,14 +89,14 @@ public class EJBObjectProxyHandler implements java.lang.reflect.InvocationHandle
 					
 			if ( bean == null )
 			{
-				Verbose.fatal( "EJBObjectProxyHandler" ,"No bean found..." );
+				throw new java.rmi.NoSuchObjectException("EJBObjectProxyHandler: No bean found.");
 			}
 		}
 		catch ( org.omg.CORBA.ORBPackage.InvalidName ex )
 		{ 
 			Verbose.fatal("EJBObjectProxyHandler", "Unable to retrieve the POACurrent object");
 		}
-					
+		
 		// -- check if the invoked operation is served here --						
 		
 		String operation = method.getName();
@@ -114,7 +115,19 @@ public class EJBObjectProxyHandler implements java.lang.reflect.InvocationHandle
 		// -- Invoke the container --
 		
 		return org.openejb.corba.core.Invoker.invoke( adapter, bean.deploymentID(), method, args, bean.getPrimaryKey(), principal() );
-	}
+                } 
+		catch ( Throwable t )
+		{ 
+			Verbose.exception("EJB Object Proxy Handler", "Thrown during service ( " + method.getName() + " )", t );
+			throw t; 
+		}
+                finally 
+                {
+                   // Dissociate the transaction with the thread.
+                   //TODO:0: Move ThreadTxAssociation to the corba package
+                   //org.openejb.util.ThreadTxAssociation.freeAssociation(); 
+                }    
+       }
 	
 	/**
 	 * Return the EJB Object handle

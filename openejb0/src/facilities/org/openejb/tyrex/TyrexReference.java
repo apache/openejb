@@ -9,8 +9,13 @@ public class TyrexReference implements org.openejb.core.ivm.naming.Reference {
     }
     
     public Object getObject( ) throws javax.naming.NamingException {
-        Resource resource = (Resource)encReference.getObject();
-        return resource.getClientFactory();
+	synchronized ( encReference )
+	{
+		encReference.setChecking(false);
+        	Resource resource = (Resource)encReference.getObject();
+		encReference.setChecking(true);
+        	return resource.getClientFactory();
+	}
     }
     
     

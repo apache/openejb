@@ -109,6 +109,7 @@ public abstract class EjbObjectProxyHandler extends BaseEjbProxyHandler {
          */
         
         try{
+
             String method = m.getName();
             
             if(method.equals("getHandle"))          retValue = getHandle(m,a,p);

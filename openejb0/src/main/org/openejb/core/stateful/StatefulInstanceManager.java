@@ -466,6 +466,8 @@ public class StatefulInstanceManager {
              lruQUE.remove(entry);// remove from que
         }
         
+	if ( entry == null )
+		return null;
 
         // bean instanance and entry should be dereferenced and ready for garbage collection
         return entry.bean;
@@ -686,6 +688,8 @@ public class StatefulInstanceManager {
                 }
                 front = last;
                 last.beforeMe = null;
+                //DMB: added per fix x
+		count -= size;
                 return first;
             }
 

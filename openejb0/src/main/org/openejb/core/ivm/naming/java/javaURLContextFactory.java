@@ -103,12 +103,17 @@ public class javaURLContextFactory implements ObjectFactory,  InitialContextFact
 	}
 	    
     public Context getContext(){
-    	if(ThreadContext.isValid()){
-    	    DeploymentInfo di = ThreadContext.getThreadContext().getDeploymentInfo();
-    	    return di.getJndiEnc();
-    	}else{
-    	    return org.openejb.OpenEJB.getJNDIContext();
-    	}
+        Context jndiCtx = null;
+        
+    	if( !ThreadContext.isValid() ){
+            return org.openejb.OpenEJB.getJNDIContext();
+        }
+    	    
+        DeploymentInfo di = ThreadContext.getThreadContext().getDeploymentInfo();
+        if ( di != null ) {
+            return di.getJndiEnc();
+        } else {
+            return org.openejb.OpenEJB.getJNDIContext();
+        }
     }
-
 }

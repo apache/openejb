@@ -296,7 +296,6 @@ public class EntityInstanceManager {
                     throw new org.openejb.ApplicationException(new javax.transaction.TransactionRolledbackException(re.getMessage()));
                 }
                   
-                
                 byte orginalOperation = callContext.getCurrentOperation();
                 callContext.setCurrentOperation(org.openejb.core.Operations.OP_LOAD);
                 try{
@@ -306,7 +305,6 @@ public class EntityInstanceManager {
                     throw new org.openejb.OpenEJBException(e);
                 }
                 callContext.setCurrentOperation(orginalOperation);
-                                  
                 txReadyPool.put(key, wrapper);
 
                 return bean;
@@ -365,8 +363,10 @@ public class EntityInstanceManager {
                 * to do.
                 */
                 this.SET_ENTITY_CONTEXT_METHOD.invoke(bean, new javax.ejb.EntityContext []{(javax.ejb.EntityContext)callContext.getDeploymentInfo().getEJBContext()});
-                return bean;
+                //return bean;
             }catch(java.lang.Exception e){
+		System.out.println("========= FROM INSTANCE MGR ======");
+		e.printStackTrace();
                 /*
                 * The EJB 1.1 specification does not specify how exceptions thrown by setEntityContext impact the 
                 * transaction, if there is one.  In this case we choose the least disruptive operation, throwing an 
@@ -378,7 +378,11 @@ public class EntityInstanceManager {
             }
             
             
-        }else if(callContext.getCurrentOperation()== org.openejb.core.Operations.OP_BUSINESS){
+        }
+
+	if( ( callContext.getCurrentOperation()== org.openejb.core.Operations.OP_BUSINESS) ||
+	    ( callContext.getCurrentOperation()== org.openejb.core.Operations.OP_REMOVE ) )
+	{
             /*
             * When a bean is retrieved from the bean pool to service a client's business method request it must be 
             * notified that its about to enter service by invoking its ejbActivate( ) method. A bean instance 
@@ -572,6 +576,8 @@ public class EntityInstanceManager {
             throw new org.openejb.SystemException("TransactionManager failure");
         }
         if(currentTx != null){
+	    if ( callContext.getPrimaryKey() == null )
+		return;
             // a freed bean instance that is part of a tx must be removed from the 
             // tx ready pool and discarded.
             Key key = (Key)keyPool.pop();
@@ -617,9 +623,7 @@ public class EntityInstanceManager {
             * we don't want the TransactionScopeHandler commiting the transaction in afterInvoke() which is what it would attempt 
             * to do.
             */
-            if ( bean != null ) {
                 this.UNSET_ENTITY_CONTEXT_METHOD.invoke(bean, new javax.ejb.EntityContext []{(javax.ejb.EntityContext)callContext.getDeploymentInfo().getEJBContext()});
-            }
         }catch(java.lang.Exception e){
             /*
             * The EJB 1.1 specification does not specify how exceptions thrown by setEntityContext impact the 
@@ -649,6 +653,10 @@ public class EntityInstanceManager {
             deploymentID = depID;
             primaryKey = prKey;
         }
+	public Object getPK()
+	{
+		return primaryKey;
+	}
         public int hashCode( ){
             return transaction.hashCode()^deploymentID.hashCode()^primaryKey.hashCode();
         }
@@ -708,8 +716,12 @@ public class EntityInstanceManager {
          public void beforeCompletion(){
             if(isAssociated){
                 try{
+                    //DMB: You can't change the PK of the thread without caching the old pk 
+                    // and restoring it after the operation
+		    // ThreadContext.getThreadContext().setPrimaryKey( myIndex.getPK() );
                     bean.ejbStore();
                 }catch(Exception re){
+                    // TODO: Use spec compliant callback exception cleanup.
                     javax.transaction.TransactionManager txmgr = OpenEJB.getTransactionManager();
                     try{
                     txmgr.setRollbackOnly();

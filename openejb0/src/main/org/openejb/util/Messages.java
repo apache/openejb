@@ -136,10 +136,6 @@ public class Messages
         }
     }
 
-    protected Messages()
-    {
-    }
-
 
     static
     {
