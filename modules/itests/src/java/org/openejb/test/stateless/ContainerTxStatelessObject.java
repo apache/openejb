@@ -44,11 +44,7 @@
  */
 package org.openejb.test.stateless;
 
-import java.rmi.RemoteException;
-
-import javax.transaction.RollbackException;
-
-import org.openejb.test.object.Account;
+import java.rmi.RemoteException;import javax.transaction.RollbackException;import org.openejb.test.object.Account;
 
 /**
  * 

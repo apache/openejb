@@ -44,15 +44,7 @@
  */
 package org.openejb.test.stateless;
 
-import java.util.Properties;
-
-import javax.ejb.EJBMetaData;
-import javax.ejb.Handle;
-import javax.ejb.HomeHandle;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-
-import org.openejb.test.TestManager;
+import java.util.Properties;import javax.ejb.EJBMetaData;import javax.ejb.Handle;import javax.ejb.HomeHandle;import javax.naming.Context;import javax.naming.InitialContext;import org.openejb.test.TestManager;
 
 /**
  * [1] Should be run as the first test suite of the StatelessTestClients
