@@ -50,6 +50,7 @@ package org.openejb.entity.cmp;
 import java.lang.reflect.Method;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.EntityBean;
+import javax.ejb.NoSuchObjectLocalException;
 
 import org.apache.geronimo.transaction.TransactionContext;
 
@@ -60,8 +61,10 @@ import org.openejb.proxy.EJBProxyFactory;
 import org.tranql.cache.CacheRow;
 import org.tranql.cache.CacheTable;
 import org.tranql.cache.InTxCache;
+import org.tranql.cache.CacheRowState;
 import org.tranql.identity.IdentityTransform;
 import org.tranql.identity.GlobalIdentity;
+import org.tranql.identity.IdentityDefiner;
 
 /**
  *
@@ -71,15 +74,17 @@ import org.tranql.identity.GlobalIdentity;
 public final class CMPInstanceContext extends EntityInstanceContext implements MethodInterceptor {
     private final EntityBean instance;
     private final InstanceOperation[] itable;
+    private final IdentityDefiner identityDefiner;
     private final IdentityTransform primaryKeyTransform;
     private CacheRow cacheRow;
     private TransactionContext transactionContext;
     private final CacheTable cacheTable;
 
-    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, InstanceOperation[] itable, CacheTable cacheTable, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory) throws Exception {
+    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, InstanceOperation[] itable, CacheTable cacheTable, IdentityDefiner identityDefiner, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory) throws Exception {
         super(containerId, proxyFactory);
         this.itable = itable;
         this.cacheTable = cacheTable;
+        this.identityDefiner = identityDefiner;
         this.primaryKeyTransform = primaryKeyTransform;
         instance = contextFactory.createCMPBeanInstance(this);
     }
@@ -117,8 +122,13 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
             GlobalIdentity globalId = primaryKeyTransform.getGlobalIdentity(id);
             InTxCache inTxCache = transactionContext.getInTxCache();
             cacheRow = inTxCache.get(globalId);
-            if (cacheRow == null) {
+            if (cacheRow != null) {
+                if(cacheRow.getState() == CacheRowState.REMOVED) {
+                    throw new NoSuchObjectLocalException("Entity has been reomved");
+                }
+            } else {
                 cacheRow = cacheTable.newRow(globalId);
+                identityDefiner.injectIdentity(cacheRow);
                 inTxCache.associate(cacheRow);
             }
         }

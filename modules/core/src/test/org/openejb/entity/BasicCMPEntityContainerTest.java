@@ -49,10 +49,13 @@ package org.openejb.entity;
 
 import java.sql.Connection;
 import java.sql.Statement;
+import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.HashSet;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
+import javax.ejb.NoSuchObjectLocalException;
+import javax.ejb.ObjectNotFoundException;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
@@ -62,6 +65,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TransactionManagerProxy;
 
 import junit.framework.TestCase;
+import junit.framework.AssertionFailedError;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.MockTransactionManager;
 import org.openejb.deployment.TransactionPolicySource;
@@ -88,57 +92,111 @@ public class BasicCMPEntityContainerTest extends TestCase {
         MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
         assertEquals(2, home.intMethod(1));
 
-//        MockLocal local = home.findByPrimaryKey(new Integer(1));
         Integer pk = new Integer(33);
         String value = "Thirty-Three";
-        MockLocal local = home.create(pk, value);
         int number = 44;
+
+        MockLocal local = home.create(pk, value);
+        assertEquals(1 + number + pk.intValue(), local.intMethod(number));
+        assertEquals(pk, local.getPrimaryKey());
+        assertEquals(value, local.getValue());
+
+        local = home.findByPrimaryKey(pk);
         assertEquals(1 + number + pk.intValue(), local.intMethod(number));
         assertEquals(pk, local.getPrimaryKey());
         assertEquals(value, local.getValue());
     }
 
     public void testFields() throws Exception {
-//        Connection c = initDatabase();
-//        Statement s = c.createStatement();
-//        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
-//        MockLocal local = home.findByPrimaryKey(new Integer(1));
-//        assertEquals("Hello", local.getValue());
-//        local.setValue("World");
-//        ResultSet rs = s.executeQuery("SELECT VALUE FROM MOCK WHERE ID=1");
-//        assertTrue(rs.next());
-//        assertEquals("World", rs.getString(1));
-//
-//        assertEquals("World", local.getValue());
-//
-//        s.close();
-//        c.close();
+        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
+        MockLocal local = home.findByPrimaryKey(new Integer(1));
+        assertEquals("Hello", local.getValue());
+        local.setValue("World");
+        assertEquals("World", local.getValue());
+
+        Connection c = ds.getConnection();
+        Statement s = c.createStatement();
+        ResultSet rs = s.executeQuery("SELECT VALUE FROM MOCK WHERE ID=1");
+        assertTrue(rs.next());
+        assertEquals("World", rs.getString(1));
+        s.close();
+        c.close();
+
+        assertEquals("World", local.getValue());
     }
 
     public void testLifeCycle() throws Exception {
-//        Connection c = initDatabase();
-//        MockLocalHome home = (MockLocalHome) mbServer.invoke(CONTAINER_NAME, "getEJBLocalHome", null, null);
-//
-//        Statement s = c.createStatement();
-//        ResultSet rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
-//        assertFalse(rs.next());
-//        rs.close();
-//
-//        MockLocal local = home.create(new Integer(2), "Hello");
-//        rs = s.executeQuery("SELECT VALUE FROM MOCK WHERE ID=2");
-//        assertTrue(rs.next());
-//        assertEquals("Hello", rs.getString(1));
-//        rs.close();
-//
-//        local = home.findByPrimaryKey(new Integer(2));
-//        assertEquals("Hello", local.getValue());
-//
-//        local.remove();
-//        rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
-//        assertFalse(rs.next());
-//        rs.close();
-//        s.close();
-//        c.close();
+        Connection c = ds.getConnection();
+        Statement s = c.createStatement();
+        ResultSet rs;
+
+        // check that it is not there
+        rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
+        assertFalse(rs.next());
+        rs.close();
+
+        // add new
+        MockLocalHome home = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "EJBLocalHome");
+        MockLocal local = home.create(new Integer(2), "Hello");
+        rs = s.executeQuery("SELECT VALUE FROM MOCK WHERE ID=2");
+        assertTrue(rs.next());
+        assertEquals("Hello", rs.getString(1));
+        rs.close();
+
+        // find it
+        local = home.findByPrimaryKey(new Integer(2));
+        assertEquals("Hello", local.getValue());
+
+        // check that it is actually in the database
+        rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
+        assertTrue(rs.next());
+        rs.close();
+
+        // remove it
+        local.remove();
+
+        // verify it is really gone
+        rs = s.executeQuery("SELECT ID FROM MOCK WHERE ID=2");
+        assertFalse(rs.next());
+
+        try {
+            local.intMethod(33);
+            // todo this does not throw an exception because we are not verifying that the row exists in ejbLoad and intMethod does not access any persistent data
+//            fail("Expected NoSuchObjectLocalException, but no exception was thrown");
+        } catch(AssertionFailedError e) {
+            throw e;
+        } catch(NoSuchObjectLocalException e) {
+            // expected
+        } catch(Throwable e) {
+            fail("Expected NoSuchObjectLocalException, but got " + e.getClass().getName());
+        }
+
+        try {
+            local.getValue();
+            fail("Expected NoSuchObjectLocalException, but no exception was thrown");
+        } catch(AssertionFailedError e) {
+            throw e;
+        } catch(NoSuchObjectLocalException e) {
+            // expected
+        } catch(Throwable e) {
+            e.printStackTrace();
+            fail("Expected NoSuchObjectLocalException, but got " + e.getClass().getName());
+        }
+
+        try {
+            local = home.findByPrimaryKey(new Integer(2));
+            fail("Expected ObjectNotFoundException, but no exception was thrown");
+        } catch(AssertionFailedError e) {
+            throw e;
+        } catch(ObjectNotFoundException e) {
+            // expected
+        } catch(Throwable e) {
+            fail("Expected ObjectNotFoundException, but got " + e.getClass().getName());
+        }
+
+        rs.close();
+        s.close();
+        c.close();
     }
 
     public void testSelect() throws Exception {

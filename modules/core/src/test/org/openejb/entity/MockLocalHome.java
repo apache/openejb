@@ -60,7 +60,7 @@ import javax.ejb.FinderException;
 public interface MockLocalHome extends EJBLocalHome {
     MockLocal create(Integer i, String value) throws CreateException;
 
-    MockLocal findByPrimaryKey(Object o) throws FinderException;
+    MockLocal findByPrimaryKey(Integer o) throws FinderException;
 
     int intMethod(int i);
 
