@@ -66,8 +66,12 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import junit.framework.TestCase;
+
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.axis.builder.AxisServiceBuilder;
 import org.apache.axis.description.JavaServiceDesc;
 import org.openejb.server.StandardServiceStackGBean;
@@ -106,11 +110,13 @@ public class WSContainerTest extends TestCase {
         ObjectName listener = SoapHttpListenerGBean.addGBean(kernel, "HTTPSOAP");
         ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, listener, new URI("/test/service"), wsdlURI, serviceDesc);
         ObjectName server = HttpServerGBean.addGBean(kernel, "HTTPSOAP", listener);
-        ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTPSOAP", 0, InetAddress.getByName("localhost"), null, 1, 5, null, null, server);
+        ObjectName executor = buildExecutor(kernel);
+        ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTPSOAP", 0, InetAddress.getByName("localhost"), null, null, null, executor, server);
 
         assertRunning(kernel, ejbContainer);
         assertRunning(kernel, wsContainer);
         assertRunning(kernel, listener);
+        assertRunning(kernel, executor);
         assertRunning(kernel, server);
         assertRunning(kernel, stack);
 
@@ -156,11 +162,13 @@ public class WSContainerTest extends TestCase {
         ObjectName listener = SoapHttpListenerGBean.addGBean(kernel, "HTTPSOAP");
         ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, listener, new URI("/services/Simple"), wsdlURI, serviceDesc);
         ObjectName server = HttpServerGBean.addGBean(kernel, "HTTPSOAP", listener);
-        ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTPSOAP", 0, InetAddress.getByName("localhost"), null, 1, 5, null, null, server);
+        ObjectName executor = buildExecutor(kernel);
+        ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTPSOAP", 0, InetAddress.getByName("localhost"), null, null, null, executor, server);
 
         assertRunning(kernel, ejbContainer);
         assertRunning(kernel, wsContainer);
         assertRunning(kernel, listener);
+        assertRunning(kernel, executor);
         assertRunning(kernel, server);
         assertRunning(kernel, stack);
 
@@ -219,6 +227,19 @@ public class WSContainerTest extends TestCase {
         return handler.result;
     }
 
+    private ObjectName buildExecutor(Kernel kernel) throws Exception {
+        ClassLoader cl = ThreadPool.class.getClassLoader();
+        ObjectName executor = JMXUtil.getObjectName("openejb:name=ThreadPool");
+        GBeanData gbean = new GBeanData(executor, ThreadPool.GBEAN_INFO);
+        gbean.setAttribute("poolSize", new Integer(1));
+        gbean.setAttribute("poolName", "Test");
+        gbean.setAttribute("keepAliveTime", new Long(1000));
+        gbean.setAttribute("classLoader", cl);
+        kernel.loadGBean(gbean, cl);
+        kernel.startGBean(executor);
+        return executor;
+    }
+    
     private static class TestHandler extends DefaultHandler {
         String result;
         boolean found;

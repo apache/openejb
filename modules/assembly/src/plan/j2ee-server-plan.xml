@@ -266,10 +266,9 @@ by the server.
         <attribute name="port">4201</attribute>
         <attribute name="address">127.0.0.1</attribute>
         <attribute name="allowHosts">127.0.0.1</attribute>
-        <attribute name="priority">5</attribute>
-        <attribute name="threads">20</attribute>
         <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
         <attribute name="logOnFailure">HOST,NAME</attribute>
+        <reference name="Executor"><name>DefaultThreadPool</name></reference>
         <reference name="Server">
             <gbean-name>openejb.server:name=EJBServer,*</gbean-name>
         </reference>
@@ -301,10 +300,9 @@ by the server.
         <attribute name="port">8000</attribute>
         <attribute name="address">127.0.0.1</attribute>
         <attribute name="allowHosts">127.0.0.1</attribute>
-        <attribute name="priority">5</attribute>
-        <attribute name="threads">5</attribute>
         <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
         <attribute name="logOnFailure">HOST,NAME</attribute>
+        <reference name="Executor"><name>DefaultThreadPool</name></reference>
         <reference name="Server">
             <gbean-name>openejb:type=Server,name=HTTPSOAP</gbean-name>
         </reference>

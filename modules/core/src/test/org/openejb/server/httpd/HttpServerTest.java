@@ -47,9 +47,11 @@ package org.openejb.server.httpd;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
+
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -58,8 +60,12 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.log4j.BasicConfigurator;
-import org.openejb.server.*;
+import org.apache.geronimo.pool.ThreadPool;
+import org.openejb.server.ServerService;
+import org.openejb.server.ServiceDaemon;
+import org.openejb.server.StandardServiceStack;
+import org.openejb.server.StandardServiceStackGBean;
+import org.openejb.server.SynchChannelServerDaemon;
 
 public class HttpServerTest extends TestCase {
 
@@ -114,7 +120,10 @@ public class HttpServerTest extends TestCase {
 
     public void testServiceStack() throws Exception {
         ServerService service = new HttpServer(new TestHttpListener());
-        StandardServiceStack serviceStack = new StandardServiceStack("HTTP", 0, InetAddress.getByName("localhost"), null, 1, 5, null, null, service);
+
+        ThreadPool threadPool = new ThreadPool(1, "Test", 1000, getClass().getClassLoader());
+        
+        StandardServiceStack serviceStack = new StandardServiceStack("HTTP", 0, InetAddress.getByName("localhost"), null, null, null, threadPool, service);
         HttpURLConnection connection = null;
 
         try {
@@ -141,7 +150,9 @@ public class HttpServerTest extends TestCase {
         ObjectName server = HttpServerGBean.addGBean(kernel, "HTTP", listener);
         ServerService service = (ServerService) kernel.getProxyManager().createProxy(server, ServerService.class);
 
-        StandardServiceStack serviceStack = new StandardServiceStack("HTTP", 0, InetAddress.getByName("localhost"), null, 1, 5, null, null, service);
+        ThreadPool threadPool = new ThreadPool(1, "Test", 1000, getClass().getClassLoader());
+
+        StandardServiceStack serviceStack = new StandardServiceStack("HTTP", 0, InetAddress.getByName("localhost"), null, null, null, threadPool, service);
         HttpURLConnection connection = null;
 
         try {
@@ -167,7 +178,18 @@ public class HttpServerTest extends TestCase {
 
         ObjectName listener = TestHttpListener.addGBean(kernel, "HTTP");
         ObjectName server = HttpServerGBean.addGBean(kernel, "HTTP", listener);
-        ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTP", 0, InetAddress.getByName("localhost"), null, 1, 5, null, null, server);
+        
+        ClassLoader cl = ThreadPool.class.getClassLoader();
+        ObjectName executor = JMXUtil.getObjectName("openejb:name=ThreadPool");
+        GBeanData gbean = new GBeanData(executor, ThreadPool.GBEAN_INFO);
+        gbean.setAttribute("poolSize", new Integer(1));
+        gbean.setAttribute("poolName", "Test");
+        gbean.setAttribute("keepAliveTime", new Long(1000));
+        gbean.setAttribute("classLoader", cl);
+        kernel.loadGBean(gbean, cl);
+        kernel.startGBean(executor);
+
+        ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTP", 0, InetAddress.getByName("localhost"), null, null, null, executor, server);
 
         assertRunning(kernel, listener);
         assertRunning(kernel, server);

@@ -44,12 +44,17 @@
  */
 package org.openejb.server;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import org.openejb.*;
-import org.apache.commons.logging.LogFactory;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Properties;
+
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import EDU.oswego.cs.dl.util.concurrent.Executor;
+import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
+import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
+import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 
 /**
  *  The Server will call the following methods.
@@ -64,52 +69,75 @@ import org.apache.commons.logging.Log;
  * 
  */
 public class ServicePool implements ServerService {
-
     private static final Log log = LogFactory.getLog(ServicePool.class);
 
     private final ServerService next;
-    private final int threads;
-    private final int priority;
+    private final Executor executor;
 
-    public ServicePool(String name, ServerService next, int threads, int priority){
+    public ServicePool(ServerService next, final String name, final int threads, final long keepAliveTime){
         this.next = next;
-        this.threads = threads;
-        this.priority = priority;
+
+        PooledExecutor p = new PooledExecutor(new LinkedQueue(), threads);
+        p.setKeepAliveTime(keepAliveTime);
+        p.setMinimumPoolSize(threads);
+        p.setThreadFactory(new ThreadFactory() {
+            private volatile int id = 0;
+            public Thread newThread(Runnable arg0) {
+                Thread thread = new Thread(arg0, name + " " + getNextID());
+                return thread;
+            }
+            private int getNextID() {
+                return id++;
+            }
+
+        });
+        executor = p;
     }
 
+    public ServicePool(ServerService next, Executor executor){
+        this.next = next;
+        this.executor = executor;
+    }
 
     public void service(final Socket socket) throws ServiceException, IOException{
-        // This isn't a pool now, but will be someday
-        Thread d = new Thread(new Runnable() {
+        final Runnable service = new Runnable() {
             public void run() {
                 try {
                     next.service(socket);
                 } catch (SecurityException e) {
-                    log.error( "Security error: "+ e.getMessage() );
+                    log.error( "Security error: "+ e.getMessage(), e);
                 } catch (Throwable e) {
-                    log.error( "Unexpected error", e );
-
+                    log.error( "Unexpected error", e);
                 } finally {
                     try {
-                        if (socket != null)
+                        if (socket != null) {
                             socket.close();
+                        }
                     } catch (Throwable t) {
-                        //logger.error("Encountered problem while closing
-                        // connection with client: "+t.getMessage());
+                        log.warn("Error while closing connection with client", t);
                     }
                 }
             }
-        });
-        d.setDaemon(true);
-        d.start();
-    }
+        };
 
-    public int getThreads() {
-        return threads;
-    }
-
-    public int getPriority() {
-        return priority;
+        final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        Runnable ctxCL = new Runnable() {
+            public void run() {
+                ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                Thread.currentThread().setContextClassLoader(tccl);
+                try {
+                    service.run();
+                } finally {
+                    Thread.currentThread().setContextClassLoader(cl);
+                }
+            }
+        };
+        
+        try {
+            executor.execute(ctxCL);
+        } catch (InterruptedException e) {
+            log.error("Error while executing service", e);
+        }
     }
 
     /**
