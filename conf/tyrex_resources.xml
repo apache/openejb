@@ -18,7 +18,7 @@ here.
         -->
         <dataSource>
             <name>Default JDBC Database</name> 
-            <jar>test/lib/idb_3.26.jar</jar>
+            <jar>lib/idb_3.26.jar</jar>
             <class>tyrex.resource.jdbc.xa.EnabledDataSource</class>
             <config>
         		<driverClassName>org.enhydra.instantdb.jdbc.idbDriver</driverClassName>
