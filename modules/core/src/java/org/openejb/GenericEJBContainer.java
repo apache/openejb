@@ -49,6 +49,7 @@ package org.openejb;
 
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
+import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.util.Iterator;
 import java.util.Map;
@@ -68,6 +69,7 @@ import javax.security.jacc.PolicyContextException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
@@ -86,6 +88,7 @@ import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+
 import org.openejb.cache.InstancePool;
 import org.openejb.client.EJBObjectHandler;
 import org.openejb.client.EJBObjectProxy;
@@ -402,6 +405,12 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
                     }
                 }
 
+                Map references = securityConfiguration.getRoleReferences();
+                for (Iterator links = references.keySet().iterator(); links.hasNext();) {
+                    String roleLink = (String) links.next();
+
+                    policyConfiguration.addToRole(roleLink, (PermissionCollection) references.get(roleLink));
+                }
 
                 policyConfiguration.commit();
             } catch (ClassNotFoundException e) {
@@ -484,9 +493,9 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.addOperation("getMethodIndex", new Class[] {Method.class});
-        infoFactory.addOperation("getEJBObject", new Class[] {Object.class});
-        infoFactory.addOperation("getEJBLocalObject", new Class[] {Object.class});
+        infoFactory.addOperation("getMethodIndex", new Class[]{Method.class});
+        infoFactory.addOperation("getEJBObject", new Class[]{Object.class});
+        infoFactory.addOperation("getEJBLocalObject", new Class[]{Object.class});
 
         infoFactory.addOperation("invoke", new Class[]{Invocation.class});
         infoFactory.addOperation("invoke", new Class[]{Method.class, Object[].class, Object.class});
