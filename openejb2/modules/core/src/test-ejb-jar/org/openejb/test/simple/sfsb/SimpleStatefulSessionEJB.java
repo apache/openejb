@@ -45,73 +45,44 @@
  *
  * ====================================================================
  */
-package org.openejb.sfsb;
+package org.openejb.test.simple.sfsb;
 
-import java.io.Serializable;
+import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
-
-import org.apache.geronimo.transaction.InstanceContext;
-
-import org.openejb.EJBInstanceFactory;
-import org.openejb.EJBInstanceFactoryImpl;
-import org.openejb.InstanceContextFactory;
-import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.transaction.EJBUserTransaction;
+import javax.ejb.SessionContext;
 
 /**
  * 
  * 
  * @version $Revision$ $Date$
  */
-public class StatefulInstanceContextFactory implements InstanceContextFactory, Serializable {
-    private final Object containerId;
-    private final EJBProxyFactory proxyFactory;
-    private final EJBInstanceFactory factory;
-    private final EJBUserTransaction userTransaction;
+public class SimpleStatefulSessionEJB implements SessionBean {
+    private String value;
 
-    public StatefulInstanceContextFactory(Object containerId, EJBProxyFactory proxyFactory, Class beanClass, EJBUserTransaction userTransaction) {
-        this.containerId = containerId;
-        this.proxyFactory = proxyFactory;
-        this.factory = new EJBInstanceFactoryImpl(beanClass);
-        this.userTransaction = userTransaction;
+    public SimpleStatefulSessionEJB() {
+        value = "nothing";
     }
 
-    public InstanceContext newInstance() throws Exception {
-        return new StatefulInstanceContext(
-                containerId,
-                proxyFactory,
-                (SessionBean) factory.newInstance(),
-                createInstanceId(),
-                userTransaction);
+    public String getValue() {
+        return value;
     }
 
-    private static int nextId;
-    private StatefulInstanceId createInstanceId() {
-        synchronized(this) {
-            return new StatefulInstanceId(nextId++);
-        }
+    public void setValue(String value) {
+        this.value = value;
     }
 
-    private static class StatefulInstanceId implements Serializable {
-        private final int id;
+    public void ejbCreate() {
+    }
 
-        public StatefulInstanceId(int id) {
-            this.id = id;
-        }
+    public void ejbActivate() throws EJBException {
+    }
 
-        public int hashCode() {
-            return id;
-        }
+    public void ejbPassivate() throws EJBException {
+    }
 
-        public boolean equals(Object object) {
-            if (object instanceof StatefulInstanceId) {
-                return id == ((StatefulInstanceId) object).id;
-            }
-            return false;
-        }
+    public void ejbRemove() throws EJBException {
+    }
 
-        public String toString() {
-            return "StatefulInstanceId: " + id;
-        }
+    public void setSessionContext(SessionContext ctx) throws EJBException {
     }
 }

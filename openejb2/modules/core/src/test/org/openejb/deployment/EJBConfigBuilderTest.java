@@ -155,14 +155,36 @@ public class EJBConfigBuilderTest extends TestCase {
             ObjectName moduleName = ObjectName.getInstance("openejb:j2eeType=EJBModule,J2EEServer=null,J2EEApplication=null,name=org/openejb/itests");
             assertRunning(kernel, moduleName);
 
-            ObjectName sessionBeanName = ObjectName.getInstance("openejb:j2eeType=StatelessSessionBean,J2EEServer=null,J2EEApplication=null,J2EEModule=org/openejb/itests,name=SimpleStatelessSession");
-            assertRunning(kernel, sessionBeanName);
+            // STATELESS
+            ObjectName statelessBeanName = ObjectName.getInstance("openejb:j2eeType=StatelessSessionBean,J2EEServer=null,J2EEApplication=null,J2EEModule=org/openejb/itests,name=SimpleStatelessSession");
+            assertRunning(kernel, statelessBeanName);
 
-            // use reflection to invoke a method on the session bean, becuase we don't have access to the classes here
-            Object home = kernel.getAttribute(sessionBeanName, "EJBHome");
-            assertTrue("Home is not an instance of EJBHome", home instanceof EJBHome);
-            Object session = home.getClass().getMethod("create", null).invoke(home, null);
-            assertEquals("TestResult", session.getClass().getMethod("echo", new Class[] {String.class}).invoke(session, new Object[] {"TestResult"}));
+            // use reflection to invoke a method on the stateless bean, becuase we don't have access to the classes here
+            Object statelessHome = kernel.getAttribute(statelessBeanName, "EJBHome");
+            assertTrue("Home is not an instance of EJBHome", statelessHome instanceof EJBHome);
+            Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
+            assertEquals("TestResult", stateless.getClass().getMethod("echo", new Class[] {String.class}).invoke(stateless, new Object[] {"TestResult"}));
+
+
+            // STATEFUL
+            ObjectName statefulBeanName = ObjectName.getInstance("openejb:j2eeType=StatefulSessionBean,J2EEServer=null,J2EEApplication=null,J2EEModule=org/openejb/itests,name=SimpleStatefulSession");
+            assertRunning(kernel, statefulBeanName);
+
+            Object statefulHome = kernel.getAttribute(statefulBeanName, "EJBHome");
+            assertTrue("Home is not an instance of EJBHome", statefulHome instanceof EJBHome);
+            Object stateful = statefulHome.getClass().getMethod("create", null).invoke(statefulHome, null);
+            stateful.getClass().getMethod("setValue", new Class[] {String.class}).invoke(stateful, new Object[] {"SomeValue"});
+            assertEquals("SomeValue", stateful.getClass().getMethod("getValue", null).invoke(stateful, null));
+
+            // ENTITY
+            ObjectName bmpBeanName = ObjectName.getInstance("openejb:j2eeType=EntityBean,J2EEServer=null,J2EEApplication=null,J2EEModule=org/openejb/itests,name=SimpleBMPEntity");
+            assertRunning(kernel, bmpBeanName);
+
+            Object bmpHome = kernel.getAttribute(bmpBeanName, "EJBHome");
+            assertTrue("Home is not an instance of EJBHome", bmpHome instanceof EJBHome);
+            Object bmp = bmpHome.getClass().getMethod("create", null).invoke(bmpHome, null);
+            bmp.getClass().getMethod("setName", new Class[] {String.class}).invoke(bmp, new Object[] {"MyNameValue"});
+            assertEquals("MyNameValue", bmp.getClass().getMethod("getName", null).invoke(bmp, null));
 
             kernel.stopGBean(objectName);
             kernel.stopGBean(connectionTrackerObjectName);

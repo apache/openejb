@@ -54,15 +54,13 @@ import javax.ejb.Handle;
 
 import org.openejb.AbstractContainerBuilder;
 import org.openejb.EJBComponentType;
-import org.openejb.EJBContainer;
-import org.openejb.GenericEJBContainer;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
 import org.openejb.cache.InstancePool;
+import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
-import org.openejb.dispatch.MethodHelper;
-import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.entity.BusinessMethod;
 import org.openejb.entity.EntityInstanceFactory;
 import org.openejb.entity.EntityInterceptorBuilder;
@@ -79,10 +77,9 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
         return EJBComponentType.BMP_ENTITY;
     }
 
-    public EJBContainer createContainer() throws Exception {
+    protected Object buildIt(boolean buildContainer) throws Exception {
         // get the bean class
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        Class beanClass = classLoader.loadClass(getBeanClassName());
+        Class beanClass = getClassLoader().loadClass(getBeanClassName());
 
         // build the vop table
         LinkedHashMap vopMap = buildVopMap(beanClass);
@@ -101,17 +98,11 @@ public class BMPContainerBuilder extends AbstractContainerBuilder {
         // build the pool
         InstancePool pool = createInstancePool(instanceFactory);
 
-        // construct the container
-        return new GenericEJBContainer(
-                getContainerId(),
-                getEJBName(),
-                proxyFactory,
-                signatures,
-                interceptorBuilder,
-                pool,
-                getUserTransaction(),
-                getTransactionManager(),
-                getTrackedConnectionAssociator());
+        if (buildContainer) {
+            return createContainer(proxyFactory, signatures, interceptorBuilder, pool);
+        } else {
+            return createConfiguration(proxyFactory, signatures, interceptorBuilder, pool);
+        }
     }
 
     protected LinkedHashMap buildVopMap(final Class beanClass) {

@@ -80,7 +80,7 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
     protected transient TransactionManager transactionManager;
     protected transient TrackedConnectionAssociator trackedConnectionAssociator;
     protected transient InstancePool instancePool;
-    protected transient InstanceCache instanceCache;
+    protected InstanceCache instanceCache;
     protected InstanceFactory instanceFactory;
 
 

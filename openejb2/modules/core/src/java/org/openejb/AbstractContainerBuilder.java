@@ -74,7 +74,7 @@ import org.openejb.util.SoftLimitedInstancePool;
  *
  * @version $Revision$ $Date$
  */
-public abstract class AbstractContainerBuilder {
+public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private ClassLoader classLoader;
     private Object containerId;
     private String ejbName;
@@ -226,7 +226,15 @@ public abstract class AbstractContainerBuilder {
 
     protected abstract int getEJBComponentType();
 
-    public abstract EJBContainer createContainer() throws Exception;
+    public EJBContainer createContainer() throws Exception {
+        return (EJBContainer) buildIt(true);
+    }
+
+    public GBeanMBean createConfiguration() throws Exception {
+        return (GBeanMBean) buildIt(false);
+    }
+
+    protected abstract Object buildIt(boolean buildContainer) throws Exception;
 
     protected InterceptorBuilder initializeInterceptorBuilder(InterceptorBuilder interceptorBuilder, InterfaceMethodSignature[] signatures, VirtualOperation[] vtable) {
         interceptorBuilder.setContainerId(containerId);

@@ -47,6 +47,7 @@
  */
 package org.openejb.entity.bmp;
 
+import java.io.Serializable;
 import javax.ejb.EntityBean;
 
 import org.apache.geronimo.transaction.InstanceContext;
@@ -61,7 +62,7 @@ import org.openejb.proxy.EJBProxyFactory;
  * 
  * @version $Revision$ $Date$
  */
-public class BMPInstanceContextFactory implements InstanceContextFactory {
+public class BMPInstanceContextFactory implements InstanceContextFactory, Serializable {
     private final Object containerId;
     private final EJBProxyFactory proxyFactory;
     private final EJBInstanceFactory factory;

@@ -66,6 +66,7 @@ import java.util.jar.JarOutputStream;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.transaction.UserTransaction;
+import javax.naming.NamingException;
 
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
@@ -86,11 +87,18 @@ import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
+import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
+import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
+import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
 
 import org.openejb.EJBModule;
+import org.openejb.ContainerBuilder;
+import org.openejb.sfsb.StatefulContainerBuilder;
+import org.openejb.entity.bmp.BMPContainerBuilder;
+import org.openejb.entity.cmp.CMPContainerBuilder;
 import org.openejb.slsb.StatelessContainerBuilder;
 import org.openejb.transaction.EJBUserTransaction;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
@@ -132,13 +140,9 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
                 moduleBase = new URL("jar:" + module.toString() + "!/");
             }
             XmlObject plan = XmlBeansUtil.getXmlObject(new URL(moduleBase, "META-INF/openejb-jar.xml"), OpenejbOpenejbJarDocument.type);
-// todo needs generic web XMLBeans
+// todo should be able to deploy a naked EAR
 //            if (plan == null) {
-//                plan = getPlan(new URL(moduleBase, "WEB-INF/geronimo-web.xml"));
-//            }
-// todo should be able to deploy a naked WAR
-//            if (plan == null) {
-//                plan = getPlan(new URL(moduleBase, "WEB-INF/web.xml"), WebAppDocument.type);
+//                plan = getPlan(new URL(moduleBase, "META-INF/ejb-jar.xml"), EjbJarDocument.type);
 //            }
             return plan;
         } catch (MalformedURLException e) {
@@ -277,12 +281,37 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
             GBeanMBean sessionGBean = createSessionBean(sessionObjectName, sessionBean, openejbSessionBean, txPolicySource, cl);
             context.addGBean(sessionObjectName, sessionGBean);
         }
+
+
+        // Entity Beans
+        EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
+        for (int i = 0; i < entityBeans.length; i++) {
+            EntityBeanType entityBean = entityBeans[i];
+            String ejbName = entityBean.getEjbName().getStringValue();
+            OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType)openejbBeans.get(ejbName);
+            TransactionPolicySource txPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);
+
+            ObjectName entityObjectName = createEntityObjectName(
+                    entityBean,
+                    "openejb",
+                    "null",
+                    "null",
+                    ejbModuleName);
+
+            GBeanMBean entityGBean = createEntityBean(entityObjectName, entityBean, openejbEntityBean, txPolicySource, cl);
+            context.addGBean(entityObjectName, entityGBean);
+        }
     }
 
     public GBeanMBean createSessionBean(Object containerId, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicySource transactionPolicySource, ClassLoader cl) throws DeploymentException {
         String ejbName = sessionBean.getEjbName().getStringValue();
 
-        StatelessContainerBuilder builder = new StatelessContainerBuilder();
+        ContainerBuilder builder = null;
+        if ("Stateless".equals(sessionBean.getSessionType().getStringValue())) {
+            builder = new StatelessContainerBuilder();
+        } else {
+            builder = new StatefulContainerBuilder();
+        }
         builder.setClassLoader(cl);
         builder.setContainerId(containerId);
         builder.setEJBName(ejbName);
@@ -332,6 +361,54 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         return createEJBObjectName(type, domainName, serverName, applicationName, moduleName, ejbName);
     }
 
+    public GBeanMBean createEntityBean(Object containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, TransactionPolicySource transactionPolicySource, ClassLoader cl) throws DeploymentException {
+        String ejbName = entityBean.getEjbName().getStringValue();
+
+        ContainerBuilder builder = null;
+        if ("Container".equals(entityBean.getPersistenceType().getStringValue())) {
+            builder = new CMPContainerBuilder();
+        } else {
+            builder = new BMPContainerBuilder();
+        }
+        builder.setClassLoader(cl);
+        builder.setContainerId(containerId);
+        builder.setEJBName(ejbName);
+        builder.setBeanClassName(entityBean.getEjbClass().getStringValue());
+        builder.setHomeInterfaceName(getJ2eeStringValue(entityBean.getHome()));
+        builder.setRemoteInterfaceName(getJ2eeStringValue(entityBean.getRemote()));
+        builder.setLocalHomeInterfaceName(getJ2eeStringValue(entityBean.getLocalHome()));
+        builder.setLocalInterfaceName(getJ2eeStringValue(entityBean.getLocal()));
+        builder.setTransactionPolicySource(transactionPolicySource);
+
+        try {
+            ReadOnlyContext compContext = buildComponentContext(entityBean, openejbEntityBean, null, cl);
+            builder.setComponentContext(compContext);
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to create EJB jndi environment: ejbName" + ejbName, e);
+        }
+
+        try {
+            GBeanMBean gbean = builder.createConfiguration();
+            gbean.setReferencePatterns("transactionManager", Collections.singleton(new ObjectName("*:type=TransactionManager,*")));
+            gbean.setReferencePatterns("trackedConnectionAssociator", Collections.singleton(new ObjectName("*:type=ConnectionTracker,*")));
+            return gbean;
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName" + ejbName, e);
+        }
+    }
+
+    private ObjectName createEntityObjectName(
+            EntityBeanType entityBean,
+            String domainName,
+            String serverName,
+            String applicationName,
+            String moduleName) throws DeploymentException {
+
+        String ejbName = entityBean.getEjbName().getStringValue();
+
+        return createEJBObjectName("EntityBean", domainName, serverName, applicationName, moduleName, ejbName);
+    }
+
     private ObjectName createEJBObjectName(
             String type,
             String domainName,
@@ -355,13 +432,56 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
     }
 
     private ReadOnlyContext buildComponentContext(SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, UserTransaction userTransaction, ClassLoader cl) throws Exception {
+        // env entries
+        EnvEntryType[] envEntries = sessionBean.getEnvEntryArray();
+
+        // resource refs
+        ResourceRefType[] resourceRefs = sessionBean.getResourceRefArray();
+        OpenejbLocalRefType[] openejbResourceRefs = null;
+        if (openejbSessionBean != null) {
+            openejbResourceRefs = openejbSessionBean.getResourceRefArray();
+        }
+
+        // resource env refs
+        ResourceEnvRefType[] resourceEnvRefs = sessionBean.getResourceEnvRefArray();
+        OpenejbLocalRefType[] openejbResourceEnvRefs = null;
+        if (openejbSessionBean != null) {
+            openejbResourceEnvRefs = openejbSessionBean.getResourceEnvRefArray();
+        }
+
+        return buildComponentContext(envEntries, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, userTransaction, cl);
+
+    }
+
+    private ReadOnlyContext buildComponentContext(EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, UserTransaction userTransaction, ClassLoader cl) throws Exception {
+        // env entries
+        EnvEntryType[] envEntries = entityBean.getEnvEntryArray();
+
+        // resource refs
+        ResourceRefType[] resourceRefs = entityBean.getResourceRefArray();
+        OpenejbLocalRefType[] openejbResourceRefs = null;
+        if (openejbEntityBean != null) {
+            openejbResourceRefs = openejbEntityBean.getResourceRefArray();
+        }
+
+        // resource env refs
+        ResourceEnvRefType[] resourceEnvRefs = entityBean.getResourceEnvRefArray();
+        OpenejbLocalRefType[] openejbResourceEnvRefs = null;
+        if (openejbEntityBean != null) {
+            openejbResourceEnvRefs = openejbEntityBean.getResourceEnvRefArray();
+        }
+
+        return buildComponentContext(envEntries, resourceRefs, openejbResourceRefs, resourceEnvRefs, openejbResourceEnvRefs, userTransaction, cl);
+
+    }
+
+    private static ReadOnlyContext buildComponentContext(EnvEntryType[] envEntries, ResourceRefType[] resourceRefs, OpenejbLocalRefType[] openejbResourceRefs, ResourceEnvRefType[] resourceEnvRefs, OpenejbLocalRefType[] openejbResourceEnvRefs, UserTransaction userTransaction, ClassLoader cl) throws NamingException, DeploymentException {
         ComponentContextBuilder builder = new ComponentContextBuilder(new JMXReferenceFactory());
 
         if (userTransaction != null) {
             builder.addUserTransaction(userTransaction);
         }
 
-        EnvEntryType[] envEntries = sessionBean.getEnvEntryArray();
         ENCConfigBuilder.addEnvEntries(envEntries, builder);
 
         // todo ejb-ref
@@ -369,30 +489,40 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         // todo ejb-local-ref
 
         // resource-ref
-        if(openejbSessionBean != null) {
-            Map resourceRefMap = new HashMap();
-            OpenejbLocalRefType[] openejbResourceRefs = openejbSessionBean.getResourceRefArray();
-            for (int i = 0; i < openejbResourceRefs.length; i++) {
-                OpenejbLocalRefType jettyResourceRef = openejbResourceRefs[i];
-                resourceRefMap.put(jettyResourceRef.getRefName(), new OpenEJBRefAdapter(jettyResourceRef));
-            }
-            ENCConfigBuilder.addResourceRefs(sessionBean.getResourceRefArray(), cl, resourceRefMap, builder);
+        if(openejbResourceRefs != null) {
+            addResourceRefs(resourceRefs, openejbResourceRefs, cl, builder);
         }
 
         // resource-env-ref
-        if(openejbSessionBean != null) {
-            Map resourceEnvRefMap = new HashMap();
-            OpenejbLocalRefType[] openejbResourceEnvRefs = openejbSessionBean.getResourceEnvRefArray();
-            for (int i = 0; i < openejbResourceEnvRefs.length; i++) {
-                OpenejbLocalRefType openejbResourceEnvRef = openejbResourceEnvRefs[i];
-                resourceEnvRefMap.put(openejbResourceEnvRef.getRefName(), new OpenEJBRefAdapter(openejbResourceEnvRef));
-            }
-            ENCConfigBuilder.addResourceEnvRefs(sessionBean.getResourceEnvRefArray(), cl, resourceEnvRefMap, builder);
+        if(openejbResourceEnvRefs != null) {
+            addResourceEnvRefs(resourceEnvRefs, openejbResourceEnvRefs, cl, builder);
         }
 
         // todo message-destination-ref
 
         return builder.getContext();
+    }
+
+    private static void addResourceEnvRefs(ResourceEnvRefType[] resourceEnvRefs, OpenejbLocalRefType[] openejbResourceEnvRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+        Map resourceEnvRefMap = new HashMap();
+        if (openejbResourceEnvRefs != null) {
+            for (int i = 0; i < openejbResourceEnvRefs.length; i++) {
+                OpenejbLocalRefType openejbResourceEnvRef = openejbResourceEnvRefs[i];
+                resourceEnvRefMap.put(openejbResourceEnvRef.getRefName(), new OpenEJBRefAdapter(openejbResourceEnvRef));
+            }
+        }
+        ENCConfigBuilder.addResourceEnvRefs(resourceEnvRefs, cl, resourceEnvRefMap, builder);
+    }
+
+    private static void addResourceRefs(ResourceRefType[] resourceRefs, OpenejbLocalRefType[] openejbResourceRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+        Map resourceRefMap = new HashMap();
+        if (openejbResourceRefs != null) {
+            for (int i = 0; i < openejbResourceRefs.length; i++) {
+                OpenejbLocalRefType openejbResourceRef = openejbResourceRefs[i];
+                resourceRefMap.put(openejbResourceRef.getRefName(), new OpenEJBRefAdapter(openejbResourceRef));
+            }
+        }
+        ENCConfigBuilder.addResourceRefs(resourceRefs, cl, resourceRefMap, builder);
     }
 
 
