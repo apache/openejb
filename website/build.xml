@@ -1,4 +1,4 @@
-<project name="OpenEJB" default="jar" basedir=".">
+<project name="OpenEJB web site" default="docs" basedir=".">
   <!-- 
   		Contributions by:
   			Daniel S. Haischt <sirabyss@gmx.net>
