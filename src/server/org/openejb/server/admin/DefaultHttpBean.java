@@ -130,12 +130,12 @@ public class DefaultHttpBean implements HttpBean {
 					response.setContentType("text/javascript");
 				} else if (ext.equalsIgnoreCase(".txt")) {
 					response.setContentType("text/plain");
-				} else if (ext.equalsIgnoreCase(".java")) { //Added by Jeremy Whitlock (jcscoobyrs) 10/20/03 02:09:32 PM
-					response.setContentType("text/plain");  //Added by Jeremy Whitlock (jcscoobyrs) 10/20/03 02:09:32 PM
-				} else if (ext.equalsIgnoreCase(".xml")) {  //Added by Jeremy Whitlock (jcscoobyrs) 10/20/03 02:09:32 PM
-					response.setContentType("text/plain");  //Added by Jeremy Whitlock (jcscoobyrs) 10/20/03 02:09:32 PM
-				} else if (ext.equalsIgnoreCase(".zip")) {  //Added by Jeremy Whitlock (jcscoobyrs) 10/22/03 08:48:51 AM
-					response.setContentType("application/zip");  //Added by Jeremy Whitlock (jcscoobyrs) 10/22/03 08:48:51 AM
+				} else if (ext.equalsIgnoreCase(".java")) {
+					response.setContentType("text/plain");
+				} else if (ext.equalsIgnoreCase(".xml")) {
+					response.setContentType("text/plain");
+				} else if (ext.equalsIgnoreCase(".zip")) {
+					response.setContentType("application/zip");
 				}
 			}
 
