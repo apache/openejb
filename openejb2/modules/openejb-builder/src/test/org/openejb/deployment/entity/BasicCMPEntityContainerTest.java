@@ -446,7 +446,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         sqlSchema.addTable(table);
 
         SchemaMapper mapper = new SchemaMapper(sqlSchema);
-        EJBQueryBuilder queryBuilder = new EJBQueryBuilder(ejbSchema, new IdentityDefinerBuilder(globalSchema));
+        EJBQueryBuilder queryBuilder = new EJBQueryBuilder(new IdentityDefinerBuilder(ejbSchema, globalSchema));
         UpdateCommand createCommand = mapper.transform(queryBuilder.buildCreate("MockEJB"));
         UpdateCommand storeCommand = mapper.transform(queryBuilder.buildStore("MockEJB"));
         UpdateCommand removeCommand = mapper.transform(queryBuilder.buildRemove("MockEJB"));

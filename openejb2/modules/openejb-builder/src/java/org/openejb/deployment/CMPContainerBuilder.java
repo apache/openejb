@@ -212,8 +212,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
         EJBProxyFactory proxyFactory = (EJBProxyFactory) ejb.getProxyFactory();
 
-        IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(globalSchema);
-        EJBQueryBuilder queryBuilder = new EJBQueryBuilder(ejbSchema, identityDefinerBuilder);
+        IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
+        EJBQueryBuilder queryBuilder = new EJBQueryBuilder(identityDefinerBuilder);
         CommandTransform mapper = new SchemaMapper(sqlSchema);
         CacheTable cacheTable = (CacheTable) globalSchema.getEntity(getEJBName());
 
@@ -341,7 +341,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     }
 
     private LinkedHashMap createCMRFieldAccessors() throws Exception {
-        IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(globalSchema);
+        IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
         IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(ejb);
 
         SchemaMapper mapper = new SchemaMapper(sqlSchema);
@@ -396,7 +396,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
     }
 
     private FaultHandler buildFaultHandler(AssociationEndFaultHandlerBuilder handlerBuilder, CMRField field, int slot) throws UndefinedIdentityException, QueryException {
-        IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(globalSchema);
+        IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
         Association association = field.getAssociation();
         CMRField relatedField = (CMRField) association.getOtherEnd(field);
         EJB relatedEJB = (EJB) field.getEntity();
