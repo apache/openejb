@@ -1,0 +1,174 @@
+/**
+ * Redistribution and use of this software and associated documentation
+ * ("Software"), with or without modification, are permitted provided
+ * that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain copyright
+ *    statements and notices.  Redistributions must also contain a
+ *    copy of this document.
+ *
+ * 2. Redistributions in binary form must reproduce the
+ *    above copyright notice, this list of conditions and the
+ *    following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
+ *
+ * 3. The name "Exolab" must not be used to endorse or promote
+ *    products derived from this Software without prior written
+ *    permission of Exoffice Technologies.  For written permission,
+ *    please contact info@exolab.org.
+ *
+ * 4. Products derived from this Software may not be called "Exolab"
+ *    nor may "Exolab" appear in their names without prior written
+ *    permission of Exoffice Technologies. Exolab is a registered
+ *    trademark of Exoffice Technologies.
+ *
+ * 5. Due credit should be given to the Exolab Project
+ *    (http://www.exolab.org/).
+ *
+ * THIS SOFTWARE IS PROVIDED BY EXOFFICE TECHNOLOGIES AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
+ * EXOFFICE TECHNOLOGIES OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Copyright 1999 (C) Exoffice Technologies Inc. All Rights Reserved.
+ *
+ * $Id$
+ */
+package org.openejb.core.ivm;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.ObjectStreamException;
+import java.util.HashMap;
+import org.openejb.util.FastThreadLocal;
+
+/**
+ * This class represents all artifacts of the IntraVM in a stream.
+ * 
+ * Classes create this object in the writeReplace method.
+ * 
+ * When the object is serialized, the writeReplace method is invoked
+ * and this artifact is written to the stream instead.  The original
+ * object instance is placed in a HashMap and not serialized.
+ * 
+ * During deserialization, it is this object that is deserialized.
+ * This class implements the readResolve method of the serialization API.
+ * In the readResolve method, the original object instance is retrieved
+ * from the HashMap and returned instead.
+ * 
+ * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
+ * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
+ */
+public class IntraVmArtifact implements Externalizable {
+
+    /**
+     * A handle created using information about the object
+     * instance for which this IntraVMArtifact was created.
+     */
+    private String instanceHandle;
+    
+    /**
+     * Holds a list of threads.  Each thread gets a HashMap to store 
+     * instances artifacts of the intra-vm.  The instances are not serialized,
+     * instead, a key for the object is serialized to the stream.
+     * 
+     * At deserialization, the key is used to get the original object
+     * instance from the HashMap
+     */
+    public static FastThreadLocal thread = new FastThreadLocal();
+    
+    /**
+     * Error detailing that the HashMap for this Thread can not be found.
+     */
+    private static final String NO_MAP_ERROR = "There is no HashMap stored in the thread.  This object may have been moved outside the Virtual Machine.";
+    
+    /**
+     * Error detailing that the object instance can not be found in the thread's HashMap.
+     */
+    private static final String NO_ARTIFACT_ERROR = "The artifact this object represents could not be found.";
+
+    /**
+     * Used to creat an IntraVmArtifact object that can represent
+     * the true intra-vm artifact in a stream.
+     * 
+     * @param obj    The object instance this class should represent in the stream.
+     */
+    public IntraVmArtifact(Object obj) {
+        try {
+            instanceHandle = ""+obj.getClass()+obj.hashCode();
+            HashMap map = (HashMap)thread.get();
+            if (map == null) {
+                map = new HashMap();
+                thread.set(map);
+            }
+
+            map.put(instanceHandle, obj);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * This class is Externalizable and this public, no-arg, constructor is required.
+     * 
+     * This constructor should only be used by the deserializing stream.
+     */
+    public IntraVmArtifact() {
+    }
+
+    /**
+     * Writes the instanceHandle to the stream.
+     * 
+     * @param out
+     * @exception IOException
+     */
+    public void writeExternal(ObjectOutput out) throws IOException{
+        out.writeUTF(instanceHandle);                                            
+    }
+
+    /**
+     * Reads the instanceHandle from the stream
+     * 
+     * @param in
+     * @exception IOException
+     */
+    public void readExternal(ObjectInput in) throws IOException{
+        instanceHandle = in.readUTF();
+    }
+
+    /**
+     * During deserialization, it is this object that is deserialized.
+     * This class implements the readResolve method of the serialization API.
+     * In the readResolve method, the original object instance is retrieved
+     * from the HashMap and returned instead.
+     * 
+     * @return 
+     * @exception ObjectStreamException
+     */
+    private Object readResolve() throws ObjectStreamException{
+        Object artifact = null;
+        try {
+            HashMap map = (HashMap)thread.get();
+            if (map == null) throw new InvalidObjectException(NO_MAP_ERROR);
+
+            artifact = map.remove(instanceHandle);
+            if (artifact == null) throw new InvalidObjectException(NO_ARTIFACT_ERROR);
+
+        } catch (Exception e) {
+            throw new InvalidObjectException(NO_ARTIFACT_ERROR);
+        }
+        return artifact;
+    }
+
+}
