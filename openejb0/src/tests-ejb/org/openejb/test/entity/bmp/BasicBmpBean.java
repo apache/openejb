@@ -71,7 +71,7 @@ import org.openejb.test.stateless.BasicStatelessObject;
  */
 public class BasicBmpBean implements javax.ejb.EntityBean {
 
-    public static int keys = 1;
+    //public static int keys = 100;
     public int primaryKey;
     public String firstName;
     public String lastName;

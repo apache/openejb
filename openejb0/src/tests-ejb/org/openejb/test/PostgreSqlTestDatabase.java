@@ -20,16 +20,27 @@ public class PostgreSqlTestDatabase implements TestDatabase{
 
     private static String _createAccount = "CREATE TABLE account ( ssn CHAR(11), first_name CHAR(20), last_name CHAR(20), balance INT, Constraint \"account_pkey\" Primary Key (\"ssn\"))";
     private static String _dropAccount   = "DROP TABLE account";
-    private static String _createEntity  = "CREATE TABLE entity ( id INT NOT NULL, first_name CHAR(20), last_name CHAR(20), Constraint \"entity_pkey\" Primary Key (\"id\") )";
+    //private static String _createEntity  = "CREATE TABLE entity ( id INT NOT NULL, first_name CHAR(20), last_name CHAR(20), Constraint \"entity_pkey\" Primary Key (\"id\") )";
+    private static String _createEntity  = "CREATE TABLE entity ( id INT DEFAULT nextval('entity_id_seq') , first_name CHAR(20), last_name CHAR(20), Constraint \"entity_pkey\" Primary Key (\"id\") )";
     private static String _dropEntity    = "DROP TABLE entity";
         
     public void createEntityTable() throws java.sql.SQLException {
         try{
-            try{
-                database.execute(_dropEntity);
-            } catch (Exception e){
-                // not concerned
-            }
+            database.execute("DROP SEQUENCE entity_id_seq");
+        } catch (Exception e){
+            // not concerned
+        }
+        try{
+            database.execute(_dropEntity);
+        } catch (Exception e){
+            // not concerned
+        }
+        try{
+            database.execute("CREATE SEQUENCE entity_id_seq");
+        } catch (Exception e){
+            // not concerned
+        }
+        try{
             database.execute(_createEntity);
         } catch (RemoteException re){
             if (re.detail != null && re.detail instanceof java.sql.SQLException) {
@@ -40,6 +51,11 @@ public class PostgreSqlTestDatabase implements TestDatabase{
         }
     }
     public void dropEntityTable() throws java.sql.SQLException {
+        try{
+            database.execute("DROP SEQUENCE entity_id_seq");
+        } catch (Exception e){
+            // not concerned
+        }
         try {
             database.execute(_dropEntity);
         } catch (RemoteException re){
