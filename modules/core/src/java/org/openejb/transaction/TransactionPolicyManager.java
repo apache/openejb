@@ -49,7 +49,7 @@ package org.openejb.transaction;
 
 import org.openejb.EJBInterfaceType;
 import org.openejb.deployment.TransactionPolicySource;
-import org.openejb.dispatch.MethodSignature;
+import org.openejb.dispatch.InterfaceMethodSignature;
 
 /**
  * @version $Revision$ $Date$
@@ -57,7 +57,7 @@ import org.openejb.dispatch.MethodSignature;
 public final class TransactionPolicyManager {
     private final TransactionPolicy[][] transactionPolicy = new TransactionPolicy[EJBInterfaceType.MAX_ORDINAL][];
 
-    public TransactionPolicyManager(TransactionPolicySource transactionPolicySource, MethodSignature[] signatures) {
+    public TransactionPolicyManager(TransactionPolicySource transactionPolicySource, InterfaceMethodSignature[] signatures) {
         transactionPolicy[EJBInterfaceType.HOME.getOrdinal()] = mapPolicies("Home", signatures, transactionPolicySource);
         transactionPolicy[EJBInterfaceType.REMOTE.getOrdinal()] = mapPolicies("Remote", signatures, transactionPolicySource);
         transactionPolicy[EJBInterfaceType.LOCALHOME.getOrdinal()] = mapPolicies("LocalHome", signatures, transactionPolicySource);
@@ -66,16 +66,14 @@ public final class TransactionPolicyManager {
     }
 
     public TransactionPolicy getTransactionPolicy(EJBInterfaceType invocationType, int operationIndex) {
-//        System.out.println("[tx-op] "+operationIndex);
         return transactionPolicy[invocationType.getOrdinal()][operationIndex];
     }
 
-    private static TransactionPolicy[] mapPolicies(String intfName, MethodSignature[] signatures, TransactionPolicySource transactionPolicySource) {
+    private static TransactionPolicy[] mapPolicies(String intfName, InterfaceMethodSignature[] signatures, TransactionPolicySource transactionPolicySource) {
         TransactionPolicy[] policies = new TransactionPolicy[signatures.length];
         for (int index = 0; index < signatures.length; index++) {
-            MethodSignature signature = signatures[index];
+            InterfaceMethodSignature signature = signatures[index];
             policies[index] = transactionPolicySource.getTransactionPolicy(intfName, signature);
-//            if (intfName.equals("Home")) System.out.println("[ops] "+index+" "+signature+" "+policies[index]);
         }
         return policies;
     }

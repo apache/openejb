@@ -47,12 +47,16 @@
  */
 package org.openejb.dispatch;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
-import net.sf.cglib.reflect.FastClass;
 
+import net.sf.cglib.reflect.FastClass;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
@@ -62,13 +66,26 @@ import org.openejb.EJBOperation;
  *
  * @version $Revision$ $Date$
  */
-public abstract class AbstractMethodOperation implements VirtualOperation {
-    protected final FastClass fastClass;
-    protected final int methodIndex;
+public abstract class AbstractMethodOperation implements VirtualOperation, Serializable  {
+    private final Class beanClass;
+    private final MethodSignature signature;
+
+    private transient FastClass fastClass;
+    private transient int methodIndex;
+
+    public AbstractMethodOperation(Class beanClass, MethodSignature signature) {
+        this.beanClass = beanClass;
+        this.signature = signature;
+        initializeCGLIBFields();
+    }
 
     public AbstractMethodOperation(FastClass fastClass, int methodIndex) {
         this.fastClass = fastClass;
         this.methodIndex = methodIndex;
+
+        //@todo this constructor should not be used
+        beanClass = null;
+        signature = null;
     }
 
     protected InvocationResult invoke(EJBInvocation invocation, EJBOperation operation) throws Throwable {
@@ -91,4 +108,20 @@ public abstract class AbstractMethodOperation implements VirtualOperation {
             ctx.setOperation(EJBOperation.INACTIVE);
         }
     }
+
+    private void initializeCGLIBFields() {
+        fastClass = FastClass.create(beanClass);
+        Method javaMethod = signature.getMethod(beanClass);
+        if(javaMethod == null) {
+            throw new IllegalArgumentException("Bean class does not implement method:" +
+                    " beanClass=" + beanClass.getName() + " method=" + signature);
+        }
+        methodIndex = fastClass.getIndex(javaMethod.getName(), javaMethod.getParameterTypes());
+    }
+
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        initializeCGLIBFields();
+    }
+
 }

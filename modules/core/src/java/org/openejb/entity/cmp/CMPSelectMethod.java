@@ -58,8 +58,9 @@ package org.openejb.entity.cmp;
 import javax.ejb.EJBException;
 import javax.ejb.FinderException;
 
-import org.openejb.EJBContainer;
-import org.openejb.persistence.QueryCommand;
+import org.tranql.cache.InTxCache;
+import org.tranql.cache.QueryCommand;
+import org.tranql.ql.QueryException;
 
 /**
  *
@@ -68,23 +69,22 @@ import org.openejb.persistence.QueryCommand;
  * @version $Revision$ $Date$
  */
 public class CMPSelectMethod implements InstanceOperation {
-    private final CMPQueryMethod query;
-    private final boolean local;
+    private final QueryCommand query;
 
-    public CMPSelectMethod(EJBContainer container, QueryCommand command, boolean multiValue, boolean local) {
-        this.query = new CMPQueryMethod(command, multiValue, container);
-        this.local = local;
+    public CMPSelectMethod(QueryCommand query) {
+        this.query = query;
     }
 
-    public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception{
+    public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
         try {
-            return query.execute(local, args);
-        } catch (FinderException e) {
-            throw e;
+            InTxCache inTxCache = ctx.getTransactionContext().getInTxCache();
+            return query.execute(inTxCache, args);
+        } catch (QueryException e) {
+            throw (FinderException) new FinderException().initCause(e);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new EJBException(e.getMessage(), e);
+            throw new EJBException(e);
         }
     }
 }

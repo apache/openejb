@@ -47,54 +47,92 @@
  */
 package org.openejb.entity.cmp;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import javax.ejb.CreateException;
+import javax.ejb.DuplicateKeyException;
+import javax.ejb.EJBLocalObject;
+import javax.ejb.EJBObject;
 import javax.ejb.EntityBean;
 
-import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
-import org.openejb.EJBContainer;
-import org.openejb.EJBInterfaceType;
+import org.apache.geronimo.transaction.TransactionContext;
+
+import net.sf.cglib.reflect.FastClass;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
+import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
-import org.openejb.persistence.UpdateCommand;
+import org.tranql.cache.CacheRow;
+import org.tranql.cache.CacheTable;
+import org.tranql.cache.DuplicateIdentityException;
+import org.tranql.cache.IdentityTransform;
+import org.tranql.cache.IdentityTransformException;
+import org.tranql.cache.UndefinedIdentityException;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public class CMPCreateMethod implements VirtualOperation {
-    private final EJBContainer container;
-    private final FastClass beanClass;
-    private final int createIndex;
-    private final int postCreateIndex;
-    private final UpdateCommand updateCommand;
-    private final int slots;
-    private final PrimaryKeyFactory pkFactory;
+public class CMPCreateMethod implements VirtualOperation, Serializable {
+    private final Class beanClass;
+    private final MethodSignature createSignature;
+    private final MethodSignature postCreateSignature;
+    private final CacheTable cacheTable;
+    private final IdentityTransform localProxyTransform;
+    private final IdentityTransform remoteProxyTransform;
 
-    public CMPCreateMethod(EJBContainer container, FastClass beanClass, int createIndex, int postCreateIndex, UpdateCommand updateCommand, int slots, PrimaryKeyFactory pkFactory) {
-        this.container = container;
+    private final transient FastClass fastBeanClass;
+    private final transient int createIndex;
+    private final transient int postCreateIndex;
+
+    public CMPCreateMethod(
+            Class beanClass,
+            MethodSignature createSignature,
+            MethodSignature postCreateSignature,
+            CacheTable cacheTable,
+            IdentityTransform localProxyTransform,
+            IdentityTransform remoteProxyTransform) {
+
         this.beanClass = beanClass;
-        this.createIndex = createIndex;
-        this.postCreateIndex = postCreateIndex;
-        this.updateCommand = updateCommand;
-        this.slots = slots;
-        this.pkFactory = pkFactory;
+        this.createSignature = createSignature;
+        this.postCreateSignature = postCreateSignature;
+        this.cacheTable = cacheTable;
+        this.localProxyTransform = localProxyTransform;
+        this.remoteProxyTransform = remoteProxyTransform;
+
+        fastBeanClass = FastClass.create(beanClass);
+        Method createMethod = createSignature.getMethod(beanClass);
+        if (createMethod == null) {
+            throw new IllegalArgumentException("Bean class does not implement create method:" +
+                    " beanClass=" + beanClass.getName() + " method=" + createSignature);
+        }
+        createIndex = fastBeanClass.getIndex(createMethod.getName(), createMethod.getParameterTypes());
+
+        Method postCreateMethod = postCreateSignature.getMethod(beanClass);
+        if (postCreateMethod == null) {
+            throw new IllegalArgumentException("Bean class does not implement post create method:" +
+                    " beanClass=" + beanClass.getName() + " method=" + postCreateSignature);
+        }
+        postCreateIndex = fastBeanClass.getIndex(postCreateMethod.getName(), postCreateMethod.getParameterTypes());
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         CMPInstanceContext ctx = (CMPInstanceContext) invocation.getEJBInstanceContext();
-        InstanceData instanceData = new InstanceData(slots);
-        ctx.setInstanceData(instanceData);
 
+        // Assign a new row to the context before calling the create method
+        CacheRow cacheRow = cacheTable.newRow();
+        ctx.setCacheRow(cacheRow);
+
+        // call the create method
         EntityBean instance = (EntityBean) ctx.getInstance();
         Object[] args = invocation.getArguments();
-
         try {
             ctx.setOperation(EJBOperation.EJBCREATE);
-            beanClass.invoke(createIndex, instance, args);
+            fastBeanClass.invoke(createIndex, instance, args);
         } catch (InvocationTargetException ite) {
             Throwable t = ite.getTargetException();
             if (t instanceof Exception && t instanceof RuntimeException == false) {
@@ -108,14 +146,45 @@ public class CMPCreateMethod implements VirtualOperation {
             ctx.setOperation(EJBOperation.INACTIVE);
         }
 
-        ctx.setId(pkFactory.getPrimaryKey(instanceData));
-        Object[] values = new Object[slots];
-        instanceData.store(values);
-        updateCommand.executeUpdate(values);
+        // cache insert
+        Object proxy;
+        try {
+            TransactionContext transactionContext = invocation.getTransactionContext();
+//            InTxCache cache = transactionContext.getInTxCache();
 
+            // add the row to the cache (returning a new row containing identity)
+//            IdentityDefiner pkDefiner = null;
+//            cacheRow = cacheTable.addRow(cache, pkDefiner.defineIdentity(cacheRow), cacheRow);
+            ctx.setCacheRow(cacheRow);
+
+            // convert the global identity into a pk and assign the pk into the context
+            if (invocation.getType().isLocal()) {
+                EJBLocalObject localProxy = (EJBLocalObject) localProxyTransform.getDomainIdentity(cacheRow.getId());
+                ctx.setId(localProxy.getPrimaryKey());
+                proxy = localProxy;
+            } else {
+                EJBObject remoteProxy = (EJBObject) remoteProxyTransform.getDomainIdentity(cacheRow.getId());
+                ctx.setId(remoteProxy.getPrimaryKey());
+                proxy = remoteProxy;
+            }
+
+            // associate the new cmp instance with the tx context
+            transactionContext.associate(ctx);
+        } catch (UndefinedIdentityException e) {
+            return new SimpleInvocationResult(false,
+                    new CreateException("Could not create a primary key").initCause(e));
+        } catch (DuplicateIdentityException e) {
+            return new SimpleInvocationResult(false,
+                    new DuplicateKeyException("Cache already contains an Entity with the key").initCause(e));
+        } catch (IdentityTransformException e) {
+            return new SimpleInvocationResult(false,
+                    new CreateException("Could not create a primary key instance").initCause(e));
+        }
+
+        // call the post create method
         try {
             ctx.setOperation(EJBOperation.EJBPOSTCREATE);
-            beanClass.invoke(postCreateIndex, instance, args);
+            fastBeanClass.invoke(postCreateIndex, instance, args);
         } catch (InvocationTargetException ite) {
             Throwable t = ite.getTargetException();
             if (t instanceof Exception && t instanceof RuntimeException == false) {
@@ -129,15 +198,11 @@ public class CMPCreateMethod implements VirtualOperation {
             ctx.setOperation(EJBOperation.INACTIVE);
         }
 
-        EJBInterfaceType type = invocation.getType();
-        return new SimpleInvocationResult(true, getReference(type.isLocal(), container, ctx.getId()));
+        // return a new proxy
+        return new SimpleInvocationResult(true, proxy);
     }
 
-    private Object getReference(boolean local, EJBContainer container, Object id) {
-        if (local) {
-            return container.getEJBLocalObject(id);
-        } else {
-            return container.getEJBObject(id);
-        }
+    private Object readResolve() {
+        return new CMPCreateMethod(beanClass, createSignature, postCreateSignature, cacheTable, localProxyTransform, remoteProxyTransform);
     }
 }

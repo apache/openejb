@@ -59,7 +59,7 @@ public abstract class EJBObjectImpl extends BaseEJB implements EJBObject {
     }
 
     public EJBHome getEJBHome() throws RemoteException {
-        return getEjbContainer().getEJBHome();
+        return getProxyFactory().getEJBHome();
     }
 
     public Handle getHandle() throws RemoteException {

@@ -70,7 +70,7 @@ import org.openejb.EJBOperation;
  */
 public class EntityContextImpl extends EJBContextImpl implements EntityContext {
     public EntityContextImpl(EntityInstanceContext context) {
-        super(context);
+        super(context, null);
     }
 
     public void setState(EJBOperation operation) {
@@ -129,12 +129,12 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
             throw new IllegalStateException("getCallerPrincipal() cannot be called when inactive");
         }
 
-        public boolean isCallerInRole(String s) {
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called when inactive");
         }
 
-        public UserTransaction getUserTransaction(EJBInstanceContext context) {
-            throw new IllegalStateException("getUserTransaction() cannot be called when inactive");
+        public UserTransaction getUserTransaction(UserTransaction userTransaction) {
+            throw new IllegalStateException("getUserTransaction() is not allowed on an Entity bean");
         }
 
         public void setRollbackOnly(EJBInstanceContext context) {
@@ -167,7 +167,7 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
             throw new IllegalStateException("getCallerPrincipal() cannot be called from set/unsetEntityContext");
         }
 
-        public boolean isCallerInRole(String s) {
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called from set/unsetEntityContext");
         }
 
@@ -241,7 +241,7 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
             throw new IllegalStateException("getCallerPrincipal() cannot be called from ejbActivate/ejbPassivate");
         }
 
-        public boolean isCallerInRole(String s) {
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called from ejbActivate/ejbPassivate");
         }
 
@@ -265,7 +265,7 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
             throw new IllegalStateException("getCallerPrincipal() cannot be called from ejbActivate/ejbPassivate");
         }
 
-        public boolean isCallerInRole(String s) {
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called from ejbActivate/ejbPassivate");
         }
     };

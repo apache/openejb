@@ -47,19 +47,21 @@
  */
 package org.openejb.sfsb;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import javax.ejb.SessionBean;
 
-import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.apache.geronimo.transaction.TransactionContext;
 
-import org.openejb.EJBContainer;
+import net.sf.cglib.reflect.FastClass;
+import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
-import org.openejb.TransactionDemarcation;
-import org.apache.geronimo.transaction.TransactionContext;
+import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
 
 /**
@@ -67,15 +69,26 @@ import org.openejb.dispatch.VirtualOperation;
  *
  * @version $Revision$ $Date$
  */
-public class CreateMethod implements VirtualOperation {
-    private final StatefulContainer container;
-    private final FastClass beanClass;
-    private final int createIndex;
+public class CreateMethod implements VirtualOperation, Serializable {
+    private final Class beanClass;
+    private final MethodSignature createSignature;
+    private final boolean isBMT;
 
-    public CreateMethod(StatefulContainer container, FastClass beanClass, int createIndex) {
-        this.container = container;
+    private final transient FastClass fastClass;
+    private final transient int createIndex;
+
+    public CreateMethod(Class beanClass, MethodSignature signature, boolean isBMT) {
         this.beanClass = beanClass;
-        this.createIndex = createIndex;
+        this.createSignature = signature;
+        this.isBMT = isBMT;
+
+        fastClass = FastClass.create(beanClass);
+        Method javaMethod = signature.getMethod(beanClass);
+        if(javaMethod == null) {
+            throw new IllegalArgumentException("Bean class does not implement create method:" +
+                    " beanClass=" + beanClass.getName() + " method=" + signature);
+        }
+        createIndex = fastClass.getIndex(javaMethod.getName(), javaMethod.getParameterTypes());
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
@@ -86,11 +99,8 @@ public class CreateMethod implements VirtualOperation {
         Object[] args = invocation.getArguments();
         try {
             ctx.setOperation(EJBOperation.EJBCREATE);
-            beanClass.invoke(createIndex, instance, args);
+            fastClass.invoke(createIndex, instance, args);
         } catch (InvocationTargetException ite) {
-            // the create method failed so this instance should not exist
-            ctx.die();
-
             Throwable t = ite.getTargetException();
             if (t instanceof Exception && t instanceof RuntimeException == false) {
                 // checked exception - which we simply include in the result
@@ -101,25 +111,29 @@ public class CreateMethod implements VirtualOperation {
             }
         } finally {
             ctx.setOperation(EJBOperation.INACTIVE);
-            if(container.getDemarcation() == TransactionDemarcation.BEAN) {
+            if(isBMT) {
                 // we need to update the invocation cache of the transaction context
                 // because they may have used UserTransaction to push a new context
                 invocation.setTransactionContext(TransactionContext.getContext());
             }
         }
-        TransactionContext transactionContext = TransactionContext.getContext();
-        transactionContext.associate(ctx);
+        // associate the new sfsb with the tx cache
+        invocation.getTransactionContext().associate(ctx);
 
         // return a ref
         EJBInterfaceType type = invocation.getType();
-        return new SimpleInvocationResult(true, getReference(type.isLocal(), container, ctx.getId()));
+        return new SimpleInvocationResult(true, getReference(type.isLocal(), ctx, ctx.getId()));
     }
 
-    private Object getReference(boolean local, EJBContainer container, Object id) {
+    private Object getReference(boolean local, EJBInstanceContext ctx, Object id) {
         if (local) {
-            return container.getEJBLocalObject(id);
+            return ctx.getProxyFactory().getEJBLocalObject(id);
         } else {
-            return container.getEJBObject(id);
+            return ctx.getProxyFactory().getEJBObject(id);
         }
+    }
+
+    private Object readResolve() {
+        return new CreateMethod(beanClass, createSignature, isBMT);
     }
 }

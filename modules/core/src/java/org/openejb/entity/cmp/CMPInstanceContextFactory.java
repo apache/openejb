@@ -47,28 +47,92 @@
  */
 package org.openejb.entity.cmp;
 
-import net.sf.cglib.proxy.Enhancer;
+import java.io.InvalidClassException;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Iterator;
+import java.util.Map;
+import javax.ejb.EntityBean;
 
-import org.openejb.EJBContainer;
-import org.openejb.entity.EntityInstanceContext;
-import org.openejb.entity.EntityInstanceContextFactory;
+import org.apache.geronimo.transaction.InstanceContext;
+
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.CallbackFilter;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.NoOp;
+import net.sf.cglib.reflect.FastClass;
+import org.openejb.dispatch.MethodHelper;
+import org.openejb.dispatch.MethodSignature;
+import org.openejb.InstanceContextFactory;
+import org.openejb.proxy.EJBProxyFactory;
+import org.tranql.cache.IdentityTransform;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public class CMPInstanceContextFactory implements EntityInstanceContextFactory {
-    private final EJBContainer container;
-    private final Enhancer enhancer;
+public class CMPInstanceContextFactory implements InstanceContextFactory, Serializable {
+    private final Object containerId;
+    private final EJBProxyFactory proxyFactory;
+    private final IdentityTransform primaryKeyTransform;
+    private final Class beanClass;
+    private final Map imap;
+    private final InstanceOperation[] itable;
+    private transient final Enhancer enhancer;
 
-    public CMPInstanceContextFactory(EJBContainer container, Enhancer enhancer) {
-        this.container = container;
-        this.enhancer = enhancer;
+    public CMPInstanceContextFactory(Object containerId, EJBProxyFactory proxyFactory, IdentityTransform primaryKeyTransform, Class beanClass, Map imap) throws ClassNotFoundException {
+        this.containerId = containerId;
+        this.proxyFactory = proxyFactory;
+        this.primaryKeyTransform = primaryKeyTransform;
+        this.beanClass = beanClass;
+        this.imap = imap;
+
+        // create a factory to generate concrete subclasses of the abstract cmp implementation class
+        enhancer = new Enhancer();
+        enhancer.setSuperclass(beanClass);
+        enhancer.setCallbackTypes(new Class[]{NoOp.class, MethodInterceptor.class});
+        enhancer.setCallbackFilter(FILTER);
+        enhancer.setUseFactory(false);
+        Class enhancedClass = enhancer.createClass();
+
+        FastClass fastClass = FastClass.create(enhancedClass);
+
+        itable = new InstanceOperation[fastClass.getMaxIndex() + 1];
+        for (Iterator iterator = imap.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            MethodSignature signature = (MethodSignature) entry.getKey();
+            InstanceOperation iop = (InstanceOperation) entry.getValue();
+            itable[MethodHelper.getSuperIndex(enhancedClass, signature)] = iop;
+        }
     }
 
-    public synchronized EntityInstanceContext newInstance() throws Exception {
-        return new CMPInstanceContext(container, enhancer);
+    public synchronized InstanceContext newInstance() throws Exception {
+        return new CMPInstanceContext(containerId, proxyFactory, itable, primaryKeyTransform, this);
     }
 
+    public synchronized EntityBean createCMPBeanInstance(CMPInstanceContext instanceContext) {
+        enhancer.setCallbacks(new Callback[]{NoOp.INSTANCE, instanceContext});
+        return (EntityBean) enhancer.create();
+    }
+
+    private static final CallbackFilter FILTER = new CallbackFilter() {
+        public int accept(Method method) {
+            if (Modifier.isAbstract(method.getModifiers())) {
+                return 1;
+            }
+            return 0;
+        }
+    };
+
+    private Object readResolve() throws ObjectStreamException {
+        try {
+            return new CMPInstanceContextFactory(containerId, proxyFactory, primaryKeyTransform, beanClass, imap);
+        } catch (ClassNotFoundException e) {
+            throw (InvalidClassException) new InvalidClassException("Cound not load method argument class").initCause(e);
+        }
+    }
 }

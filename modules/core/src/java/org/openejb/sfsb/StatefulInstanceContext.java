@@ -51,10 +51,12 @@ import javax.ejb.EnterpriseBean;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionSynchronization;
 
-import org.openejb.EJBContainer;
+import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
+
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
-import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
+import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.transaction.EJBUserTransaction;
 
 /**
  *
@@ -62,21 +64,27 @@ import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.Def
  * @version $Revision$ $Date$
  */
 public class StatefulInstanceContext extends DefaultComponentContext implements EJBInstanceContext {
-    private final StatefulContainer container;
+    private final Object containerId;
+    private final EJBProxyFactory proxyFactory;
     private final SessionBean instance;
     private final Object id;
     private final StatefulSessionContext statefulContext;
     private boolean dead = false;
 
-    public StatefulInstanceContext(StatefulContainer container, SessionBean instance, Object id) {
-        this.container = container;
+    public StatefulInstanceContext(Object containerId, EJBProxyFactory proxyFactory, SessionBean instance, Object id, EJBUserTransaction userTransaction) {
+        this.containerId = containerId;
+        this.proxyFactory = proxyFactory;
         this.instance = instance;
         this.id = id;
-        statefulContext = new StatefulSessionContext(this);
+        statefulContext = new StatefulSessionContext(this, userTransaction);
     }
 
-    public Object getContainer() {
-        return container;
+    public Object getContainerId() {
+        return containerId;
+    }
+
+    public EJBProxyFactory getProxyFactory() {
+        return proxyFactory;
     }
 
     public void setOperation(EJBOperation operation) {
@@ -100,14 +108,12 @@ public class StatefulInstanceContext extends DefaultComponentContext implements 
         dead = true;
     }
 
+    public boolean isDead() {
+        return dead;
+    }
+
     public StatefulSessionContext getSessionContext() {
         return statefulContext;
-    }
-
-    public void associate() throws Exception {
-    }
-
-    public void flush() {
     }
 
     public void afterBegin() throws Exception {
@@ -140,7 +146,8 @@ public class StatefulInstanceContext extends DefaultComponentContext implements 
 
     public void afterCommit(boolean committed) throws Exception {
         if (!dead) {
-            container.getInstanceCache().putInactive(id, this);
+            // @todo fix me
+//            container.getInstanceCache().putInactive(id, this);
         }
         if (instance instanceof SessionSynchronization) {
             ((SessionSynchronization) instance).afterCompletion(committed);

@@ -47,60 +47,39 @@
  */
 package org.openejb.slsb;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import javax.ejb.SessionContext;
+import java.io.Serializable;
+import javax.ejb.SessionBean;
 
-import net.sf.cglib.reflect.FastClass;
+import org.apache.geronimo.transaction.InstanceContext;
 
-import org.openejb.dispatch.AbstractOperationFactory;
-import org.openejb.dispatch.MethodSignature;
-import org.openejb.dispatch.VirtualOperation;
+import org.openejb.EJBInstanceFactory;
+import org.openejb.EJBInstanceFactoryImpl;
+import org.openejb.InstanceContextFactory;
+import org.openejb.proxy.EJBProxyFactory;
+import org.openejb.transaction.EJBUserTransaction;
 
 /**
  * @version $Revision$ $Date$
  */
-public class StatelessOperationFactory extends AbstractOperationFactory {
-    public static StatelessOperationFactory newInstance(StatelessContainer container) {
-        Class beanClass = container.getBeanClass();
-        FastClass fastClass = FastClass.create(beanClass);
+public class StatelessInstanceContextFactory implements InstanceContextFactory, Serializable {
+    private final Object containerId;
+    private final EJBProxyFactory proxyFactory;
+    private final EJBInstanceFactory factory;
+    private final EJBUserTransaction userTransaction;
 
-        Method[] methods = beanClass.getMethods();
-        Method setSessionContext = null;
-        try {
-            setSessionContext = beanClass.getMethod("setSessionContext", new Class[]{SessionContext.class});
-        } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException("Bean does not implement setSessionContext(javax.ejb.SessionContext)");
-        }
-        ArrayList sigList = new ArrayList(methods.length);
-        ArrayList vopList = new ArrayList(methods.length);
-
-        sigList.add(new MethodSignature("ejbCreate"));
-        vopList.add(new CreateMethod(container));
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
-            if (Object.class == method.getDeclaringClass()) {
-                continue;
-            }
-            if (setSessionContext.equals(method)) {
-                continue;
-            }
-            String name = method.getName();
-            if (name.startsWith("ejb")) {
-                continue;
-            }
-            MethodSignature sig = new MethodSignature(method);
-            sigList.add(sig);
-            vopList.add(new BusinessMethod(fastClass, fastClass.getIndex(method.getName(), method.getParameterTypes())));
-        }
-        MethodSignature[] signatures = (MethodSignature[]) sigList.toArray(new MethodSignature[0]);
-        VirtualOperation[] vtable = (VirtualOperation[]) vopList.toArray(new VirtualOperation[0]);
-
-        return new StatelessOperationFactory(vtable, signatures);
+    public StatelessInstanceContextFactory(Object containerId, EJBProxyFactory proxyFactory, Class beanClass, EJBUserTransaction userTransaction) {
+        this.containerId = containerId;
+        this.proxyFactory = proxyFactory;
+        this.userTransaction = userTransaction;
+        this.factory = new EJBInstanceFactoryImpl(beanClass);
     }
 
-    private StatelessOperationFactory(VirtualOperation[] vtable, MethodSignature[] signatures) {
-        super(vtable, signatures);
+    public InstanceContext newInstance() throws Exception {
+        return new StatelessInstanceContext(
+                containerId,
+                (SessionBean) factory.newInstance(),
+                proxyFactory,
+                userTransaction
+        );
     }
-
 }

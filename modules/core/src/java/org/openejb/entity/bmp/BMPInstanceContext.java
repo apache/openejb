@@ -50,8 +50,8 @@ package org.openejb.entity.bmp;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.EntityBean;
 
-import org.openejb.EJBContainer;
 import org.openejb.entity.EntityInstanceContext;
+import org.openejb.proxy.EJBProxyFactory;
 
 /**
  *
@@ -61,8 +61,8 @@ import org.openejb.entity.EntityInstanceContext;
 public final class BMPInstanceContext extends EntityInstanceContext {
     private final EntityBean instance;
 
-    public BMPInstanceContext(EJBContainer container, EntityBean instance) throws Exception {
-        super(container);
+    public BMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, EntityBean instance) throws Exception {
+        super(containerId, proxyFactory);
         this.instance = instance;
     }
 

@@ -48,7 +48,7 @@ package org.openejb.proxy;
 public class ProxyInfo {
     
     private final int componentType;
-    private final Object containerID;
+    private final Object containerId;
     private final Object primaryKey;
     
     private final Class remoteInterface;
@@ -59,12 +59,12 @@ public class ProxyInfo {
     
 
     public ProxyInfo(ProxyInfo info, Object primaryKey) {
-        this(info.componentType,info.containerID, info.homeInterface, info.remoteInterface, info.primaryKeyClass, primaryKey);
+        this(info.componentType,info.containerId, info.homeInterface, info.remoteInterface, info.primaryKeyClass, primaryKey);
     }
-        
-    public ProxyInfo(int componentType, Object deploymentID, Class homeInterface, Class remoteInterface, Class primaryKeyClass, Object primaryKey) {
+
+    public ProxyInfo(int componentType, Object containerId, Class homeInterface, Class remoteInterface, Class primaryKeyClass, Object primaryKey) {
         this.componentType = componentType;
-        this.containerID = deploymentID;
+        this.containerId = containerId;
         this.primaryKey = primaryKey;
         this.homeInterface = homeInterface;
         this.primaryKeyClass = primaryKeyClass;
@@ -73,6 +73,25 @@ public class ProxyInfo {
         this.localObjectInterface = null; //TODO: add these to constructor
     }
     
+    public ProxyInfo(
+            int componentType,
+            Object deploymentID,
+            Class homeInterface,
+            Class remoteInterface,
+            Class localHomeInterface,
+            Class localObjectInterface,
+            Class primaryKeyClass) {
+
+        this.componentType = componentType;
+        this.containerId = deploymentID;
+        this.primaryKey = null;
+        this.homeInterface = homeInterface;
+        this.primaryKeyClass = primaryKeyClass;
+        this.remoteInterface = remoteInterface;
+        this.localHomeInterface = localHomeInterface;
+        this.localObjectInterface = localObjectInterface;
+    }
+
     public Class getHomeInterface() {
         return homeInterface;
     }
@@ -98,7 +117,7 @@ public class ProxyInfo {
     }
     
     public Object getContainerID() {
-        return containerID;
+        return containerId;
     }
 
     // TODO: Kill this method

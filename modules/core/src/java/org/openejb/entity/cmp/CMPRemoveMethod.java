@@ -48,13 +48,14 @@
 package org.openejb.entity.cmp;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import net.sf.cglib.reflect.FastClass;
 
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
 import org.openejb.dispatch.AbstractMethodOperation;
-import org.openejb.persistence.UpdateCommand;
-import org.openejb.entity.EntityInstanceContext;
+import org.openejb.dispatch.MethodSignature;
+import org.tranql.cache.GlobalIdentity;
+import org.tranql.cache.IdentityTransform;
+import org.tranql.cache.InTxCache;
 
 /**
  * Virtual operation handling removal of an instance.
@@ -62,21 +63,26 @@ import org.openejb.entity.EntityInstanceContext;
  * @version $Revision$ $Date$
  */
 public class CMPRemoveMethod extends AbstractMethodOperation {
-    private final UpdateCommand updateCommand;
+    private final IdentityTransform primaryKeyTransform;
 
-    public CMPRemoveMethod(FastClass fastClass, int methodIndex, UpdateCommand updateCommand) {
-        super(fastClass, methodIndex);
-        this.updateCommand = updateCommand;
+    public CMPRemoveMethod(Class beanClass, MethodSignature signature, IdentityTransform primaryKeyTransform) {
+        super(beanClass, signature);
+        this.primaryKeyTransform = primaryKeyTransform;
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        EntityInstanceContext ctx = (EntityInstanceContext) invocation.getEJBInstanceContext();
+        CMPInstanceContext ctx = (CMPInstanceContext) invocation.getEJBInstanceContext();
         InvocationResult result = invoke(invocation, EJBOperation.EJBREMOVE);
 
         if (result.isNormal()) {
-            updateCommand.executeUpdate(new Object[] {ctx.getId()});
-            // clear id as we are no longer associated
+            // delete this row in the persistence engine
+            InTxCache cache = invocation.getTransactionContext().getInTxCache();
+            GlobalIdentity globalId = primaryKeyTransform.getGlobalIdentity(ctx.getId());
+//            cache.remove(globalId);
+
+            // clear id and row data from the instance
             ctx.setId(null);
+            ctx.setCacheRow(null);
         }
         return result;
     }

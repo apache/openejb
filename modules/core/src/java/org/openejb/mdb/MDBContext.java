@@ -70,13 +70,23 @@ import org.openejb.EJBOperation;
  */
 public class MDBContext extends EJBContextImpl implements MessageDrivenContext {
     public MDBContext(MDBInstanceContext context) {
-        super(context);
+        // todo add user transaction
+        super(context, null);
         state = MDBContext.INACTIVE;
     }
 
     void setState(EJBOperation operation) {
         state = states[operation.getOrdinal()];
         assert (state != null) : "Invalid EJBOperation for MDB, ordinal=" + operation.getOrdinal();
+
+        if(userTransaction != null) {
+            if (operation == EJBOperation.BIZMETHOD ||
+                    operation == EJBOperation.TIMEOUT) {
+                userTransaction.setOnline(true);
+            } else {
+                userTransaction.setOnline(false);
+            }
+        }
     }
 
     public MessageContext getMessageContext() throws IllegalStateException {
@@ -110,11 +120,11 @@ public class MDBContext extends EJBContextImpl implements MessageDrivenContext {
             throw new IllegalStateException("getCallerPrincipal() cannot be called when inactive");
         }
 
-        public boolean isCallerInRole(String s) {
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called when inactive");
         }
 
-        public UserTransaction getUserTransaction(EJBInstanceContext context) {
+        public UserTransaction getUserTransaction(UserTransaction userTransaction) {
             throw new IllegalStateException("getUserTransaction() cannot be called when inactive");
         }
 
@@ -148,11 +158,11 @@ public class MDBContext extends EJBContextImpl implements MessageDrivenContext {
             throw new IllegalStateException("getCallerPrincipal() cannot be called from setMessageDrivenContext(MessageDrivenContext)");
         }
 
-        public boolean isCallerInRole(String s) {
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called from setMessageDrivenContext(MessageDrivenContext)");
         }
 
-        public UserTransaction getUserTransaction(EJBInstanceContext context) {
+        public UserTransaction getUserTransaction(UserTransaction userTransaction) {
             throw new IllegalStateException("getUserTransaction() cannot be called from setMessageDrivenContext(MessageDrivenContext)");
         }
 
@@ -178,7 +188,7 @@ public class MDBContext extends EJBContextImpl implements MessageDrivenContext {
             throw new IllegalStateException("getCallerPrincipal() cannot be called from ejbCreate/ejbRemove");
         }
 
-        public boolean isCallerInRole(String s) {
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called from ejbCreate/ejbRemove");
         }
 
@@ -207,7 +217,7 @@ public class MDBContext extends EJBContextImpl implements MessageDrivenContext {
             throw new IllegalStateException("getCallerPrincipal() cannot be called in a business method invocation from a web-service endpoint");
         }
 
-        public boolean isCallerInRole(String s) {
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called in a business method invocation from a web-service endpoint");
         }
     };
@@ -217,7 +227,7 @@ public class MDBContext extends EJBContextImpl implements MessageDrivenContext {
             throw new IllegalStateException("getCallerPrincipal() cannot be called from ejbTimeout");
         }
 
-        public boolean isCallerInRole(String s) {
+        public boolean isCallerInRole(String s, EJBInstanceContext context) {
             throw new IllegalStateException("isCallerInRole(String) cannot be called from ejbTimeout");
         }
 

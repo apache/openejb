@@ -54,6 +54,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.Def
 
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
+import org.openejb.proxy.EJBProxyFactory;
 
 /**
  * Wrapper for a MDB.
@@ -75,7 +76,12 @@ public final class MDBInstanceContext extends DefaultComponentContext implements
         return instance;
     }
 
-    public Object getContainer() {
+    public EJBProxyFactory getProxyFactory() {
+        return null;
+    }
+
+    public Object getContainerId() {
+        // @todo this shoul return the true container id
         return container;
     }
 
@@ -97,14 +103,5 @@ public final class MDBInstanceContext extends DefaultComponentContext implements
 
     public void setOperation(EJBOperation operation) {
         mdbContext.setState(operation);
-    }
-
-    public void associate() {
-    }
-
-    public void beforeCommit() {
-    }
-
-    public void afterCommit(boolean status) {
     }
 }

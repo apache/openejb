@@ -47,20 +47,26 @@
  */
 package org.openejb.entity.bmp;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 
+import javax.ejb.EntityBean;
+
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
-import org.openejb.EJBContainer;
+import net.sf.cglib.reflect.FastClass;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
-import org.openejb.entity.EntityInstanceContext;
+import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
+import org.openejb.entity.EntityInstanceContext;
+import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.util.SerializableEnumeration;
 
 /**
@@ -68,59 +74,80 @@ import org.openejb.util.SerializableEnumeration;
  *
  * @version $Revision$ $Date$
  */
-public class BMPFinderMethod implements VirtualOperation {
-    private final Method finderMethod;
+public class BMPFinderMethod implements VirtualOperation, Serializable  {
+    private final Class beanClass;
+    private final MethodSignature finderSignature;
 
-    public BMPFinderMethod(Method finderMethod) {
-        this.finderMethod = finderMethod;
+    private transient FastClass fastClass;
+    private transient int finderIndex;
+
+    public BMPFinderMethod(Class beanClass, MethodSignature finderSignature) {
+        this.beanClass = beanClass;
+        this.finderSignature = finderSignature;
+
+        fastClass = FastClass.create(beanClass);
+        Method javaMethod = finderSignature.getMethod(beanClass);
+        if(javaMethod == null) {
+            throw new IllegalArgumentException("Bean class does not implement finder method:" +
+                    " beanClass=" + beanClass.getName() + " method=" + finderSignature);
+        }
+        finderIndex = fastClass.getIndex(javaMethod.getName(), javaMethod.getParameterTypes());
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         EntityInstanceContext ctx = (EntityInstanceContext) invocation.getEJBInstanceContext();
-        Object instance = ctx.getInstance();
 
+        EntityBean instance = (EntityBean) ctx.getInstance();
+        Object[] args = invocation.getArguments();
         Object finderResult;
         try {
             ctx.setOperation(EJBOperation.EJBFIND);
-            finderResult = finderMethod.invoke(instance, invocation.getArguments());
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            return new SimpleInvocationResult(false, e);
-        } finally {
-            ctx.setOperation(EJBOperation.INACTIVE);
+            finderResult = fastClass.invoke(finderIndex, instance, args);
+        } catch (InvocationTargetException ite) {
+            Throwable t = ite.getTargetException();
+            if (t instanceof Exception && t instanceof RuntimeException == false) {
+                // checked exception - which we simply include in the result
+                return new SimpleInvocationResult(false, t);
+            } else {
+                // unchecked Exception - just throw it to indicate an abnormal completion
+                throw t;
+            }
         }
 
         boolean local = invocation.getType().isLocal();
-        EJBContainer container = (EJBContainer)ctx.getContainer();
+        EJBProxyFactory proxyFactory = ctx.getProxyFactory();
 
         if (finderResult instanceof Enumeration) {
             Enumeration e = (Enumeration) finderResult;
             ArrayList values = new ArrayList();
             while (e.hasMoreElements()) {
-                values.add(getReference(local, container, e.nextElement()));
+                values.add(getReference(local, proxyFactory, e.nextElement()));
             }
             return new SimpleInvocationResult(true, new SerializableEnumeration(values.toArray()));
         } else if (finderResult instanceof Collection) {
             Collection c = (Collection) finderResult;
             ArrayList result = new ArrayList(c.size());
             for (Iterator i = c.iterator(); i.hasNext();) {
-                result.add(getReference(local, container, i.next()));
+                result.add(getReference(local, proxyFactory, i.next()));
             }
             return new SimpleInvocationResult(true, result);
         } else {
-            return new SimpleInvocationResult(true, getReference(local, container, finderResult));
+            return new SimpleInvocationResult(true, getReference(local, proxyFactory, finderResult));
         }
     }
 
-    private Object getReference(boolean local, EJBContainer container, Object id) {
+    private Object getReference(boolean local, EJBProxyFactory proxyFactory, Object id) {
         if (id == null) {
             // yes, finders can return null
             return null;
         } else if (local) {
-            return container.getEJBLocalObject(id);
+            return proxyFactory.getEJBLocalObject(id);
         } else {
-            return container.getEJBObject(id);
+            return proxyFactory.getEJBObject(id);
         }
+    }
+
+    private Object readResolve() {
+        return new BMPFinderMethod(beanClass, finderSignature);
     }
 }

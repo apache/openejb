@@ -46,31 +46,30 @@ package org.openejb.proxy;
 
 import java.io.IOException;
 import java.io.ObjectStreamException;
-import java.lang.reflect.Method;
 import java.rmi.MarshalledObject;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
+
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
-
 
 
 /**
  *
  */
 public class SerializationHanlder implements EJBInterceptor {
-    
+
     private static InheritableThreadLocal serializationState = new InheritableThreadLocal();
-    
+
     private final EJBInterceptor next;
-    
-    public SerializationHanlder(EJBInterceptor next){
+
+    public SerializationHanlder(EJBInterceptor next) {
         this.next = next;
     }
-    
-    
-    public InvocationResult invoke(EJBInvocation ejbInvocation) throws Throwable{
+
+
+    public InvocationResult invoke(EJBInvocation ejbInvocation) throws Throwable {
         Object[] args = ejbInvocation.getArguments();
         if (args != null && args.length > 0) {
             try {
@@ -82,71 +81,54 @@ public class SerializationHanlder implements EJBInterceptor {
             }
         }
 
-        
-        
-        InvocationResult result = next.invoke(ejbInvocation);
-        
-        if (result.getResult() == null) {
-            return result;
+
+        InvocationResult invocationResult = next.invoke(ejbInvocation);
+
+        boolean normal = invocationResult.isNormal();
+        Object returnObj;
+        if (normal) {
+            returnObj = invocationResult.getResult();
+        } else {
+            returnObj = invocationResult.getException();
         }
 
-        Object returnObj = result.getResult();
-        
+        // no need to copy just to return a null
+        if (returnObj == null) {
+            return invocationResult;
+        }
+
         try {
             setStrategy(ReplacementStrategy.COPY);
             returnObj = copyObj(returnObj);
         } finally {
             setStrategy(null);
-            result = new SimpleInvocationResult(returnObj);
+            invocationResult = new SimpleInvocationResult(normal, returnObj);
         }
-        
-        return result;
+
+        return invocationResult;
     }
-    
-    
-//    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-//        if (args != null && args.length > 0) {
-//            try {
-//                setStrategy(ReplacementStrategy.COPY);
-//                args = copyArgs(args);
-//            } finally {
-//                setStrategy(null);
-//            }
-//        }
-//        
-//        Object returnObj = next.invoke(proxy,method,args);
-//        
-//        try {
-//            setStrategy(ReplacementStrategy.COPY);
-//            returnObj = copyObj(returnObj);
-//        } finally {
-//            setStrategy(null);
-//        }
-//        
-//        return returnObj;
-//    }
-    
+
     /**
-     * This method is public so it can be called by other parts of the 
-     * container during their serialization operations, namely session 
+     * This method is public so it can be called by other parts of the
+     * container during their serialization operations, namely session
      * passivation
-     * 
+     *
      * @param strategy
      */
-    public static void setStrategy(ReplacementStrategy strategy){
+    public static void setStrategy(ReplacementStrategy strategy) {
         serializationState.set(strategy);
     }
-    
-    private static ReplacementStrategy getStrategy(){
-        ReplacementStrategy strategy = (ReplacementStrategy)serializationState.get();
-        if( strategy == null){
+
+    private static ReplacementStrategy getStrategy() {
+        ReplacementStrategy strategy = (ReplacementStrategy) serializationState.get();
+        if (strategy == null) {
             return ReplacementStrategy.REPLACE;
         }
         return strategy;
     }
-        
-    private Object[] copyArgs(Object[] objects) throws IOException, ClassNotFoundException{
-        for (int i=0; i < objects.length; i++){
+
+    private Object[] copyArgs(Object[] objects) throws IOException, ClassNotFoundException {
+        for (int i = 0; i < objects.length; i++) {
             objects[i] = copyObj(objects[i]);
         }
         return objects;
@@ -156,7 +138,7 @@ public class SerializationHanlder implements EJBInterceptor {
         MarshalledObject obj = new MarshalledObject(object);
         return obj.get();
     }
-    
+
     public static Object writeReplace(Object object, ProxyInfo proxyInfo) throws ObjectStreamException {
         return getStrategy().writeReplace(object, proxyInfo);
     }

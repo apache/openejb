@@ -48,18 +48,16 @@
 package org.openejb.sfsb;
 
 import java.rmi.NoSuchObjectException;
-
-import javax.ejb.EJBException;
 import javax.ejb.NoSuchObjectLocalException;
+
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.transaction.TransactionContext;
 
 import org.openejb.EJBInvocation;
 import org.openejb.cache.InstanceCache;
 import org.openejb.cache.InstanceFactory;
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
-
-import org.apache.geronimo.transaction.TransactionContext;
 
 /**
  * Interceptor for Stateful Session EJBs that acquires an instance for execution.
@@ -70,13 +68,13 @@ import org.apache.geronimo.transaction.TransactionContext;
  */
 public final class StatefulInstanceInterceptor implements Interceptor {
     private final Interceptor next;
-    private final StatefulContainer container;
+    private final Object containerId;
     private final InstanceFactory factory;
     private final InstanceCache cache;
 
-    public StatefulInstanceInterceptor(Interceptor next, StatefulContainer container, InstanceFactory factory, InstanceCache cache) {
+    public StatefulInstanceInterceptor(Interceptor next, Object containerId, InstanceFactory factory, InstanceCache cache) {
         this.next = next;
-        this.container = container;
+        this.containerId = containerId;
         this.factory = factory;
         this.cache = cache;
     }
@@ -99,7 +97,7 @@ public final class StatefulInstanceInterceptor implements Interceptor {
         } else {
             // first check the transaction cache
             TransactionContext transactionContext = ejbInvocation.getTransactionContext();
-            ctx = (StatefulInstanceContext) transactionContext.getContext(container, id);
+            ctx = (StatefulInstanceContext) transactionContext.getContext(containerId, id);
             if (ctx == null) {
                 // next check the main cache
                 ctx = (StatefulInstanceContext) cache.get(id);
@@ -113,6 +111,14 @@ public final class StatefulInstanceInterceptor implements Interceptor {
                 }
                 transactionContext.associate(ctx);
             }
+
+            if (ctx.isDead()) {
+                if (ejbInvocation.getType().isLocal()) {
+                    throw new NoSuchObjectLocalException("Instance has been removed or threw a system exception: id=" + id.toString());
+                } else {
+                    throw new NoSuchObjectException("Instance has been removed or threw a system exception: id=" + id.toString());
+                }
+            }
         }
 
         // initialize the context and set it into the invocation
@@ -120,7 +126,14 @@ public final class StatefulInstanceInterceptor implements Interceptor {
 
         try {
             return next.invoke(invocation);
+        } catch(Throwable t) {
+            ctx.die();
+            throw t;
         } finally {
+            if (ctx.isDead()) {
+                cache.remove(id);
+            }
+
             // remove the reference to the context from the invocation
             ejbInvocation.setEJBInstanceContext(null);
         }

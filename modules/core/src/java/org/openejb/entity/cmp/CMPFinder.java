@@ -47,32 +47,42 @@
  */
 package org.openejb.entity.cmp;
 
+import java.io.Serializable;
 import javax.ejb.FinderException;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
-import org.openejb.EJBContainer;
+
 import org.openejb.EJBInvocation;
 import org.openejb.dispatch.VirtualOperation;
-import org.openejb.persistence.QueryCommand;
+import org.tranql.cache.InTxCache;
+import org.tranql.cache.QueryCommand;
+import org.tranql.ql.QueryException;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public class CMPFinder implements VirtualOperation {
-    private final CMPQueryMethod query;
+public class CMPFinder implements VirtualOperation, Serializable {
+    private final QueryCommand localQuery;
+    private final QueryCommand remoteQuery;
 
-    public CMPFinder(EJBContainer container, QueryCommand command, boolean multiValue) {
-        this.query = new CMPQueryMethod(command, multiValue, container);
+    public CMPFinder(QueryCommand localQuery, QueryCommand remoteQuery) {
+        this.localQuery = localQuery;
+        this.remoteQuery = remoteQuery;
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+        InTxCache inTxCache = invocation.getTransactionContext().getInTxCache();
         try {
-            return new SimpleInvocationResult(true, query.execute(invocation.getType().isLocal(), invocation.getArguments()));
-        } catch (FinderException e) {
-            return new SimpleInvocationResult(false, e);
+            if (invocation.getType().isLocal()) {
+                return new SimpleInvocationResult(true, localQuery.execute(inTxCache, invocation.getArguments()));
+            } else {
+                return new SimpleInvocationResult(true, remoteQuery.execute(inTxCache, invocation.getArguments()));
+            }
+        } catch (QueryException e) {
+            return new SimpleInvocationResult(false, new FinderException().initCause(e));
         }
     }
 }

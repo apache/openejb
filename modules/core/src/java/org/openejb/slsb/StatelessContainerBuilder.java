@@ -45,35 +45,82 @@
  *
  * ====================================================================
  */
-package org.openejb.sfsb;
+package org.openejb.slsb;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import javax.ejb.SessionContext;
 
-import net.sf.cglib.reflect.FastClass;
-import org.openejb.dispatch.AbstractOperationFactory;
+import org.openejb.AbstractContainerBuilder;
+import org.openejb.EJBComponentType;
+import org.openejb.EJBContainer;
+import org.openejb.GenericEJBContainer;
+import org.openejb.InterceptorBuilder;
+import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.dispatch.VirtualOperation;
+import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.slsb.BusinessMethod;
+import org.openejb.proxy.EJBProxyFactory;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
-public class StatefulOperationFactory extends AbstractOperationFactory {
-    public static StatefulOperationFactory newInstance(StatefulContainer container, Class beanClass) {
-        FastClass fastClass = FastClass.create(beanClass);
+public class StatelessContainerBuilder extends AbstractContainerBuilder {
+    protected int getEJBComponentType() {
+        return EJBComponentType.STATELESS;
+    }
 
-        Method[] beanMethods = beanClass.getMethods();
+    public EJBContainer createContainer() throws Exception {
+        // get the bean class
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        Class beanClass = classLoader.loadClass(getBeanClassName());
+
+        // build the vop table
+        LinkedHashMap vopMap = buildVopMap(beanClass);
+        InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
+        VirtualOperation[] vtable = (VirtualOperation[])vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
+
+        EJBProxyFactory proxyFactory = createProxyFactory(signatures);
+
+        // create and intitalize the interceptor builder
+        InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new StatelessInterceptorBuilder(), signatures, vtable);
+
+        // build the instance factory
+        StatelessInstanceContextFactory contextFactory = new StatelessInstanceContextFactory(getContainerId(), proxyFactory, beanClass, getUserTransaction());
+        StatelessInstanceFactory instanceFactory = new StatelessInstanceFactory(getComponentContext(), contextFactory, beanClass);
+
+        // build the pool
+        InstancePool pool = createInstancePool(instanceFactory);
+
+        // construct the container
+        return new GenericEJBContainer(
+                getContainerId(),
+                getEJBName(),
+                proxyFactory,
+                signatures,
+                interceptorBuilder,
+                pool,
+                getUserTransaction(),
+                getTransactionManager(),
+                getTrackedConnectionAssociator());
+    }
+
+    protected LinkedHashMap buildVopMap(Class beanClass) {
+        LinkedHashMap vopMap = new LinkedHashMap();
+
         Method setSessionContext = null;
         try {
             setSessionContext = beanClass.getMethod("setSessionContext", new Class[]{SessionContext.class});
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Bean does not implement setSessionContext(javax.ejb.SessionContext)");
         }
-        ArrayList sigList = new ArrayList(beanMethods.length);
-        ArrayList vopList = new ArrayList(beanMethods.length);
+
+        // add the create method
+        vopMap.put(new InterfaceMethodSignature("create", true), new CreateMethod());
+
+        // add the business methods
+        Method[] beanMethods = beanClass.getMethods();
         for (int i = 0; i < beanMethods.length; i++) {
             Method beanMethod = beanMethods[i];
             if (Object.class == beanMethod.getDeclaringClass()) {
@@ -82,29 +129,16 @@ public class StatefulOperationFactory extends AbstractOperationFactory {
             if (setSessionContext.equals(beanMethod)) {
                 continue;
             }
-            // create a VitrualOperation for the method (if the method is understood)
             String name = beanMethod.getName();
-            int index = fastClass.getIndex(name, beanMethod.getParameterTypes());
-            VirtualOperation vop;
-            if (!name.startsWith("ejb")) {
-                vop = new BusinessMethod(container, fastClass, index);
-            } else if (name.startsWith("ejbCreate")) {
-                vop = new CreateMethod(container, fastClass, index);
-            } else if (name.equals("ejbRemove")) {
-                vop = new RemoveMethod(container, fastClass, index);
-            } else {
+            if (name.startsWith("ejb")) {
                 continue;
             }
-            sigList.add(new MethodSignature(beanMethod));
-            vopList.add(vop);
+            MethodSignature signature = new MethodSignature(beanMethod);
+            vopMap.put(
+                    new InterfaceMethodSignature(signature, false),
+                    new BusinessMethod(beanClass, signature));
         }
-        MethodSignature[] signatures = (MethodSignature[]) sigList.toArray(new MethodSignature[0]);
-        VirtualOperation[] vtable = (VirtualOperation[]) vopList.toArray(new VirtualOperation[0]);
 
-        return new StatefulOperationFactory(vtable, signatures);
-    }
-
-    private StatefulOperationFactory(VirtualOperation[] vtable, MethodSignature[] signatures) {
-        super(vtable, signatures);
+        return vopMap;
     }
 }

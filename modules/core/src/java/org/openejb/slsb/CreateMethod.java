@@ -47,6 +47,8 @@
  */
 package org.openejb.slsb;
 
+import java.io.Serializable;
+
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 
@@ -56,18 +58,13 @@ import org.openejb.dispatch.VirtualOperation;
 /**
  * @version $Revision$ $Date$
  */
-public class CreateMethod implements VirtualOperation {
-    private final StatelessContainer container;
-
-    public CreateMethod(StatelessContainer container) {
-        this.container = container;
-    }
-
+public class CreateMethod implements VirtualOperation, Serializable {
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+        StatelessInstanceContext ctx = (StatelessInstanceContext) invocation.getEJBInstanceContext();
         if (invocation.getType().isLocal()) {
-            return new SimpleInvocationResult(true, container.getEJBLocalObject(null));
+            return new SimpleInvocationResult(true, ctx.getProxyFactory().getEJBLocalObject(null));
         } else {
-            return new SimpleInvocationResult(true, container.getEJBObject(null));
+            return new SimpleInvocationResult(true, ctx.getProxyFactory().getEJBObject(null));
         }
     }
 }

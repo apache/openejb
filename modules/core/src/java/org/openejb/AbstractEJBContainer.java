@@ -50,7 +50,6 @@ package org.openejb;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.Map;
-
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -70,15 +69,11 @@ import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
+
 import org.openejb.dispatch.MethodHelper;
 import org.openejb.dispatch.MethodSignature;
-import org.openejb.dispatch.VirtualOperation;
-import org.openejb.dispatch.VirtualOperationFactory;
-import org.openejb.entity.bmp.BMPOperationFactory;
-import org.openejb.entity.cmp.CMPOperationFactory;
-import org.openejb.transaction.EJBUserTransaction;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.proxy.ProxyInfo;
+import org.openejb.transaction.EJBUserTransaction;
 
 /**
  * @version $Revision$ $Date$
@@ -207,29 +202,25 @@ public abstract class AbstractEJBContainer implements EJBContainer, GBean {
     }
 
     public void doStart() throws WaitingException, Exception {
-        if (userTransaction != null) {
-            userTransaction.setOnline(true);
-        }
+//        if (userTransaction != null) {
+//            userTransaction.setOnline(true);
+//        }
     }
 
     public void doStop() throws WaitingException, Exception {
-        if (userTransaction != null) {
-            userTransaction.setOnline(false);
-        }
+//        if (userTransaction != null) {
+//            userTransaction.setOnline(false);
+//        }
     }
 
     public void doFail() {
-        if (userTransaction != null) {
-            userTransaction.setOnline(false);
-        }
+//        if (userTransaction != null) {
+//            userTransaction.setOnline(false);
+//        }
     }
 
     public String getEJBName() {
         return ejbName;
-    }
-
-    public Class getBeanClass() {
-        return beanClass;
     }
 
     public Class getHomeInterface() {
@@ -268,14 +259,6 @@ public abstract class AbstractEJBContainer implements EJBContainer, GBean {
         return transactionDemarcation;
     }
 
-    public EJBUserTransaction getUserTransaction() {
-        return userTransaction;
-    }
-    
-
-    public ReadOnlyContext getComponentContext() {
-        return componentContext;
-    }
 
     public Object getContainerID() {
         return containerID;

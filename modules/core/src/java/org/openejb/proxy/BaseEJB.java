@@ -47,8 +47,6 @@ package org.openejb.proxy;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
-import org.openejb.EJBContainer;
-
 public class BaseEJB implements Serializable {
     
     EJBMethodInterceptor ejbHandler;
@@ -57,14 +55,14 @@ public class BaseEJB implements Serializable {
         ejbHandler = handler;
     }
     
-    public org.openejb.proxy.ProxyInfo getProxyInfo(){
+    public ProxyInfo getProxyInfo(){
         return ejbHandler.getProxyInfo();
     }
-    
-    public EJBContainer getEjbContainer(){
-        return ejbHandler.getEjbContainer();
+
+    public EJBProxyFactory getProxyFactory() {
+        return ejbHandler.getProxyFactory();
     }
-    
+
     protected Object writeReplace() throws ObjectStreamException{
         return SerializationHanlder.writeReplace(this, getProxyInfo());
     }

@@ -51,14 +51,15 @@ import java.lang.reflect.Method;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.EntityBean;
 
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.Enhancer;
+import org.apache.geronimo.transaction.TransactionContext;
+
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import net.sf.cglib.proxy.NoOp;
-
-import org.openejb.EJBContainer;
 import org.openejb.entity.EntityInstanceContext;
+import org.openejb.proxy.EJBProxyFactory;
+import org.tranql.cache.CacheRow;
+import org.tranql.cache.GlobalIdentity;
+import org.tranql.cache.IdentityTransform;
 
 /**
  *
@@ -67,46 +68,57 @@ import org.openejb.entity.EntityInstanceContext;
  */
 public final class CMPInstanceContext extends EntityInstanceContext implements MethodInterceptor {
     private final EntityBean instance;
-    private InstanceData instanceData;
+    private final InstanceOperation[] itable;
+    private final IdentityTransform primaryKeyTransform;
+    private CacheRow cacheRow;
+    private TransactionContext transactionContext;
 
-    public CMPInstanceContext(EJBContainer container, Enhancer enhancer) throws Exception {
-        super(container);
-        enhancer.setCallbacks(new Callback[]{NoOp.INSTANCE, this});
-        instance = (EntityBean) enhancer.create();
+    public CMPInstanceContext(Object containerId, EJBProxyFactory proxyFactory, InstanceOperation[] itable, IdentityTransform primaryKeyTransform, CMPInstanceContextFactory contextFactory) throws Exception {
+        super(containerId, proxyFactory);
+        this.itable = itable;
+        this.primaryKeyTransform = primaryKeyTransform;
+        instance = contextFactory.createCMPBeanInstance(this);
     }
 
     public EnterpriseBean getInstance() {
         return instance;
     }
 
-    public InstanceData getInstanceData() {
-        return instanceData;
+    public CacheRow getCacheRow() {
+        return cacheRow;
     }
 
-    public void setInstanceData(InstanceData instanceData) {
-        this.instanceData = instanceData;
+    public void setCacheRow(CacheRow cacheRow) {
+        this.cacheRow = cacheRow;
+    }
+
+    public TransactionContext getTransactionContext() {
+        return transactionContext;
+    }
+
+    public void setTransactionContext(TransactionContext transactionContext) {
+        this.transactionContext = transactionContext;
     }
 
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
         int index = methodProxy.getSuperIndex();
-
-        InstanceOperation iop = ((CMPEntityContainer) container).getITable()[index];
+        InstanceOperation iop = itable[index];
         return iop.invokeInstance(this, objects);
     }
 
     public void associate() throws Exception {
+        Object id = getId();
         if (id != null && !isStateValid()) {
-            instanceData = ((CMPEntityContainer) container).getInstanceData(id);
+            // locate the cache row for this instance
+            GlobalIdentity globalId = primaryKeyTransform.getGlobalIdentity(id);
+            cacheRow = transactionContext.getInTxCache().get(globalId);
         }
         super.associate();
     }
 
-    public void flush() throws Exception {
-        super.flush();
-        if (id != null) {
-            assert (isStateValid()) : "Attempting to flush instance without valid state";
-            ((CMPEntityContainer) container).setInstanceData(id, instanceData);
-        }
+    public void afterCommit(boolean status) {
+        transactionContext = null;
+        super.afterCommit(status);
     }
 
     public void addRelation(int slot, Object primaryKey) {
