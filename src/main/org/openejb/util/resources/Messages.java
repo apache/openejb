@@ -67,7 +67,7 @@ public class Messages extends ListResourceBundle{
 
  	static final Object[][] contents = {
  	// LOCALIZE THIS
-{"ge0001", "FATAL ERROR: Unknown error in {0}.  Please send the following stack trace and this message to openejb-bugs@exolab.org :\n {1}"},
+{"ge0001", "FATAL ERROR: Unknown error in {0}.  Please send the following stack trace and this message to openejb-user@lists.sf.net :\n {1}"},
 {"ge0002", "The required properties object needed by {0} is null ."},// param 0 is the part of the system that needs the Properties object.
 {"ge0003", "Properties file {0} for {1} not found."}, //param 0 is the properties file name, param 1 is the part of the system that needs the properties file.
 {"ge0004", "Environment entry {0} not found in {1}."}, //param 0 is the property name, param 1 is the properties file name.
