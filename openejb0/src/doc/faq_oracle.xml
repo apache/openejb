@@ -8,15 +8,17 @@
         <answer id="configigure">
 
 <p>
+I used the Oracle Thin JDBC driver for my configuration.  The driver is found in classes12.jar
+for JDK 1.2 and 1.3 and ojdbc14.jar for JDK 1.4.
 The SQL statement used to create the employee table was:
 </p>
 <p>
 <code>
 create table employee (<br/>
-    id number primary key,<br/>
-    first_name varchar2(15),<br/>
-    last_name varchar2(15),<br/>
-    email varchar2(30));<br/>
+   id number primary key,<br/>
+   first_name varchar2(15),<br/>
+   last_name varchar2(15),<br/>
+   email varchar2(30));<br/>
 create sequence employee_seq;
 </code>
 </p>
@@ -25,19 +27,20 @@ create sequence employee_seq;
 <?xml version="1.0"?>
 
 <openejb>
-  <Container id="Oracle CMP Container" ctype="CMP_ENTITY">
-    Global_TX_Database c:/java/hello_world_cmp/conf/hello.cmp_global_database.xml
-    Local_TX_Database  c:/java/hello_world_cmp/conf/hello.cmp_local_database.xml
-  </Container>
-  <Deployments jar="c:/java/hello_world_cmp/employee.jar"/>
-  <Connector id="Oracle JDBC Database">
-    JdbcDriver  oracle.jdbc.OracleDriver
-    JdbcUrl     jdbc:oracle:thin:@server:1521:database
-    UserName    username
-    Password    password
-  </Connector>
-  <SecurityService id="Default Security Service"/>
-  <TransactionService id="Default Transaction Manager"/> </openejb>
+   <Container id="Oracle CMP Container" ctype="CMP_ENTITY">
+      Global_TX_Database c:/java/hello_world_cmp/conf/hello.cmp_global_database.xml
+      Local_TX_Database  c:/java/hello_world_cmp/conf/hello.cmp_local_database.xml
+   </Container>
+   <Deployments jar="c:/java/hello_world_cmp/employee.jar"/>
+   <Connector id="Oracle JDBC Database">
+      JdbcDriver  oracle.jdbc.OracleDriver
+      JdbcUrl     jdbc:oracle:thin:@server:1521:database
+      UserName    username
+      Password    password
+   </Connector>
+   <SecurityService id="Default Security Service"/>
+   <TransactionService id="Default Transaction Manager"/>
+</openejb>
 ]]>
 </file>
 </p>
@@ -46,8 +49,8 @@ create sequence employee_seq;
 <?xml version="1.0"?>
 
 <database name="Global_TX_Database" engine="oracle">
-    <jndi name="java:comp/env/jdbc/oracle"/>
-    <mapping href="c:/java/hello_world_cmp/conf/hello.cmp_or_mapping.xml"/>
+   <jndi name="java:comp/env/jdbc/oracle"/>
+   <mapping href="c:/java/hello_world_cmp/conf/hello.cmp_or_mapping.xml"/>
 </database>
 ]]>
 </file>
@@ -57,13 +60,13 @@ create sequence employee_seq;
 <?xml version="1.0"?>
 
 <database name="Local_TX_Database" engine="oracle">
-    <driver class-name="oracle.jdbc.OracleDriver"
-            url="jdbc:oracle:thin:@server:1521:database">
+   <driver class-name="oracle.jdbc.OracleDriver"
+           url="jdbc:oracle:thin:@server:1521:database">
       <param name="user" value="user"/>
       <param name="password" value="password"/>
-    </driver>
+   </driver>
 
-    <mapping href="c:/java/hello_world_cmp/conf/hello.cmp_or_mapping.xml"/>
+   <mapping href="c:/java/hello_world_cmp/conf/hello.cmp_or_mapping.xml"/>
 </database>
 ]]>
 </file>
@@ -73,21 +76,21 @@ create sequence employee_seq;
 <?xml version="1.0"?>
 
 <mapping>
-  <class name="org.acme.employee.EmployeeBean" identity="id" key-generator="SEQUENCE">
-    <map-to table="employee"/>
-    <field name="id" type="integer" direct="true">
-      <sql name="id" type="integer"/>
-    </field>
-    <field name="firstname" type="string" direct="true">
-      <sql name="first_name" type="varchar" dirty="check"/>
-    </field>
-    <field name="lastname" type="string" direct="true">
-      <sql name="last_name" type="varchar" dirty="check"/>
-    </field>
-    <field name="email" type="string" direct="true">
-      <sql name="email" type="varchar" dirty="check"/>
-    </field>
-  </class>
+   <class name="org.acme.employee.EmployeeBean" identity="id" key-generator="SEQUENCE">
+      <map-to table="employee"/>
+      <field name="id" type="integer" direct="true">
+         <sql name="id" type="integer"/>
+      </field>
+      <field name="firstname" type="string" direct="true">
+         <sql name="first_name" type="varchar" dirty="check"/>
+      </field>
+      <field name="lastname" type="string" direct="true">
+         <sql name="last_name" type="varchar" dirty="check"/>
+      </field>
+      <field name="email" type="string" direct="true">
+         <sql name="email" type="varchar" dirty="check"/>
+      </field>
+   </class>
 </mapping>
 ]]>
 </file>
