@@ -216,7 +216,7 @@ class EntityBuilder extends BeanBuilder {
                 ENCConfigBuilder.assureEJBHomeInterface(home, cl);
 
                 String objectName = entityObjectName.getCanonicalName();
-                earContext.getEJBRefContext().addEJBRemoteId(module.getModuleURI(), ejbName, objectName);
+                earContext.getEJBRefContext().addEJBRemoteId(module.getModuleURI(), ejbName, objectName, false, home, remote);
             }
 
             // ejb-local-ref
@@ -228,7 +228,7 @@ class EntityBuilder extends BeanBuilder {
                 ENCConfigBuilder.assureEJBLocalHomeInterface(localHome, cl);
 
                 String objectName = entityObjectName.getCanonicalName();
-                earContext.getEJBRefContext().addEJBLocalId(module.getModuleURI(), ejbName, objectName);
+                earContext.getEJBRefContext().addEJBLocalId(module.getModuleURI(), ejbName, objectName, false, localHome, local);
             }
         }
     }

@@ -237,7 +237,7 @@ class SessionBuilder extends BeanBuilder {
                 ENCConfigBuilder.assureEJBHomeInterface(home, cl);
 
                 String objectName = sessionObjectName.getCanonicalName();
-                earContext.getEJBRefContext().addEJBRemoteId(module.getModuleURI(), ejbName, objectName);
+                earContext.getEJBRefContext().addEJBRemoteId(module.getModuleURI(), ejbName, objectName, true, home, remote);
             }
 
             // ejb-local-ref
@@ -249,7 +249,7 @@ class SessionBuilder extends BeanBuilder {
                 ENCConfigBuilder.assureEJBLocalHomeInterface(localHome, cl);
 
                 String objectName = sessionObjectName.getCanonicalName();
-                earContext.getEJBRefContext().addEJBLocalId(module.getModuleURI(), ejbName, objectName);
+                earContext.getEJBRefContext().addEJBLocalId(module.getModuleURI(), ejbName, objectName, true, localHome, local);
             }
         }
     }
