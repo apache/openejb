@@ -53,6 +53,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;
+import org.omg.CORBA.PolicyManager;
+import org.omg.CORBA.PolicyManagerHelper;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.SetOverrideType;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
@@ -64,6 +69,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import org.openejb.corba.security.config.ConfigAdapter;
 import org.openejb.corba.security.config.css.CSSConfig;
+import org.openejb.corba.security.ClientPolicyFactory;
 
 
 /**
@@ -95,19 +101,7 @@ public class CSSBean implements GBeanLifecycle {
     public CSSBean(ClassLoader classLoader, Executor threadPool, String configAdapter) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         this.classLoader = classLoader;
         this.threadPool = threadPool;
-        log.info("LOADING - " + configAdapter);
-        try {
-            this.configAdapter = (ConfigAdapter) classLoader.loadClass(configAdapter).newInstance();
-        } catch (InstantiationException e) {
-            log.info("ERROR - " , e);
-            throw e;
-        } catch (IllegalAccessException e) {
-            log.info("ERROR - " , e);
-            throw e;
-        } catch (ClassNotFoundException e) {
-            log.info("ERROR - " , e);
-            throw e;
-        }
+        this.configAdapter = (ConfigAdapter) classLoader.loadClass(configAdapter).newInstance();
     }
 
     public String getDescription() {
@@ -192,7 +186,6 @@ public class CSSBean implements GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
-        log.info("Starting CORBA Client Security Server - " + description);
 
         if (nssConfig == null) nssConfig = cssConfig;
         if (nssArgs == null) nssArgs = cssArgs;
@@ -203,24 +196,27 @@ public class CSSBean implements GBeanLifecycle {
 
             Properties properties = configAdapter.translateToProps(nssConfig);
             properties.putAll(nssProps);
-            log.info("S1 CORBA Client Security Server - " + description);
 
             nssORB = ORB.init((String[]) nssArgs.toArray(new String[nssArgs.size()]), properties);
-            log.info("S2 CORBA Client Security Server - " + description);
 
             threadPool.execute(new Runnable() {
                 public void run() {
                     nssORB.run();
                 }
             });
-            log.info("S3 CORBA Client Security Server - " + description);
 
             properties = configAdapter.translateToProps(cssConfig);
             properties.putAll(cssProps);
-            log.info("S4 CORBA Client Security Server - " + description);
 
             cssORB = ORB.init((String[]) cssArgs.toArray(new String[cssArgs.size()]), properties);
-            log.info("S5 CORBA Client Security Server - " + description);
+
+            org.omg.CORBA.Object ref = cssORB.resolve_initial_references("ORBPolicyManager");
+            PolicyManager pm = PolicyManagerHelper.narrow(ref);
+
+            Any any = cssORB.create_any();
+            any.insert_Value(cssConfig);
+
+            pm.set_policy_overrides(new Policy[]{cssORB.create_policy(ClientPolicyFactory.POLICY_TYPE, any)}, SetOverrideType.ADD_OVERRIDE);
 
             threadPool.execute(new Runnable() {
                 public void run() {
@@ -235,6 +231,7 @@ public class CSSBean implements GBeanLifecycle {
     }
 
     public void doStop() throws Exception {
+
         nssORB.shutdown(true);
         cssORB.shutdown(true);
         log.info("Stopped CORBA Client Security Server - " + description);

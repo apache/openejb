@@ -96,6 +96,7 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
     private Collection containers = Collections.EMPTY_SET;
     private Map adapters = new HashMap();
     private static final Map containerMap = new HashMap();
+    private Policy securityPolicy;
 
 
     public TSSBean(ClassLoader classLoader, String POAName, CORBABean server, TieLoader tieLoader) {
@@ -152,8 +153,9 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
             Any any = orb.create_any();
             any.insert_Value(createCSIv2Config());
 
+            securityPolicy = orb.create_policy(ServerPolicyFactory.POLICY_TYPE, any);
             Policy[] policies = new Policy[]{
-                orb.create_policy(ServerPolicyFactory.POLICY_TYPE, any),
+                securityPolicy,
                 rootPOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
                 rootPOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_ACTIVE_OBJECT_MAP_ONLY),
                 rootPOA.create_servant_retention_policy(ServantRetentionPolicyValue.RETAIN),
@@ -170,7 +172,7 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
             for (Iterator iter = adapters.keySet().iterator(); iter.hasNext();) {
                 AdapterWrapper adapterWrapper = (AdapterWrapper) adapters.get(iter.next());
                 try {
-                    adapterWrapper.start(server.getORB(), localPOA, initialContext, tieLoader);
+                    adapterWrapper.start(server.getORB(), localPOA, initialContext, tieLoader, securityPolicy);
                     log.info("Linked container " + adapterWrapper.getContainer().getContainerID());
                 } catch (CORBAException e) {
                     log.error("Unable to link container " + adapterWrapper.getContainer().getContainerID());
@@ -248,20 +250,14 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
 
     public void memberAdded(ReferenceCollectionEvent event) {
         EJBContainer container = (EJBContainer) event.getMember();
-        ClassLoader cl1 = container.getProxyInfo().getHomeInterface().getClassLoader();
-        ClassLoader cl2 = container.getClassLoader();
-        if (cl1 != cl2) {
-            log.info("differeing classloaders! for container: " + container.getContainerID() + " home interface: " + cl1 + " container: " + cl2);
-        } else {
-            log.info("same classloaders! container: " + container.getContainerID());
-        }
+
         containerMap.put(container.getContainerID(), container);
 
         if (localPOA != null) {
             try {
                 AdapterWrapper adapterWrapper = new AdapterWrapper(container);
 
-                adapterWrapper.start(server.getORB(), localPOA, initialContext, tieLoader);
+                adapterWrapper.start(server.getORB(), localPOA, initialContext, tieLoader, securityPolicy);
                 adapters.put(container.getContainerID(), adapterWrapper);
 
                 log.info("Linked container " + container.getContainerID());

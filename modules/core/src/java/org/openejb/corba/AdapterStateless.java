@@ -49,7 +49,6 @@ import javax.rmi.CORBA.Tie;
 
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
-import org.omg.CORBA.SetOverrideType;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
@@ -74,11 +73,12 @@ public final class AdapterStateless extends Adapter {
     private final byte[] object_id;
     private final org.omg.CORBA.Object objectReference;
 
-    public AdapterStateless(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader) throws CORBAException {
+    public AdapterStateless(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader, Policy securityPolicy) throws CORBAException {
         super(container, orb, parentPOA, tieLoader);
 
         try {
             Policy[] policies = new Policy[]{
+                securityPolicy,
                 parentPOA.create_lifespan_policy(LifespanPolicyValue.TRANSIENT),
                 parentPOA.create_request_processing_policy(RequestProcessingPolicyValue.USE_ACTIVE_OBJECT_MAP_ONLY),
                 parentPOA.create_servant_retention_policy(ServantRetentionPolicyValue.RETAIN),

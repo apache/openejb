@@ -62,7 +62,108 @@
     <xsd:complexType name="cssType">
         <xsd:sequence>
             <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="compoundSecMechTypeList" minOccurs="0">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="compoundSecMech" type="css:compoundSecMechType" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                    <xsd:attribute name="stateful" type="xsd:boolean" use="optional" default="false"/>
+                </xsd:complexType>
+            </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
+
+    <xsd:complexType name="compoundSecMechType">
+        <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:group ref="css:transportMechGroup" minOccurs="0"/>
+            <!-- xsd:group ref="css:asMechGroup" minOccurs="0"/>
+            <xsd:element name="sasMech" type="css:sasMechType" minOccurs="0"/ -->
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:group name="transportMechGroup">
+        <xsd:choice>
+            <xsd:element name="SSL" type="css:SSLType"/>
+            <xsd:element name="SECIOP" type="css:SECIOPType"/>
+        </xsd:choice>
+    </xsd:group>
+
+    <xsd:complexType name="SSLType">
+        <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="supports" type="css:associationOptionList"/>
+            <xsd:element name="requires" type="css:associationOptionList"/>
+            <xsd:group ref="css:trustGroup" minOccurs="0"/>
+        </xsd:sequence>
+        <xsd:attribute name="handshakeTimeout" type="xsd:short"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="SECIOPType">
+        <xsd:sequence>
+            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="supports" type="css:associationOptionList"/>
+            <xsd:element name="requires" type="css:associationOptionList"/>
+            <xsd:group ref="css:trustGroup"/>
+        </xsd:sequence>
+        <xsd:attribute name="mechOID" type="xsd:string"/>
+        <xsd:attribute name="targetName" type="xsd:string"/>
+    </xsd:complexType>
+
+    <xsd:group name="trustGroup">
+        <xsd:choice>
+            <xsd:element name="trustEveryone" type="css:trustEveryoneType"/>
+            <xsd:element name="trustNoone" type="css:trustNooneType"/>
+            <xsd:element name="trustList">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="entity" type="css:entityType" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:choice>
+    </xsd:group>
+
+    <xsd:complexType name="trustEveryoneType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="trustNooneType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="entityType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType">
+                <xsd:attribute name="hostname" type="xsd:string" use="optional"/>
+                <xsd:attribute name="distinguishedName" type="xsd:string" use="optional"/>
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:simpleType name="associationOption">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="NoProtection"/>
+            <xsd:enumeration value="Integrity"/>
+            <xsd:enumeration value="Confidentiality"/>
+            <xsd:enumeration value="DetectReplay"/>
+            <xsd:enumeration value="DetectMisordering"/>
+            <xsd:enumeration value="EstablishTrustInTarget"/>
+            <xsd:enumeration value="EstablishTrustInClient"/>
+            <xsd:enumeration value="NoDelegation"/>
+            <xsd:enumeration value="SimpleDelegation"/>
+            <xsd:enumeration value="CompositeDelegation"/>
+            <xsd:enumeration value="IdentityAssertion"/>
+            <xsd:enumeration value="DelegationByClient"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="associationOptionList">
+        <xsd:list itemType="css:associationOption"/>
+    </xsd:simpleType>
 
 </xsd:schema>

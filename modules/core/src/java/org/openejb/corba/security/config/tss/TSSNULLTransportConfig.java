@@ -47,6 +47,10 @@
  */
 package org.openejb.corba.security.config.tss;
 
+import javax.net.ssl.SSLSession;
+import javax.security.auth.Subject;
+
+import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.ORB;
 import org.omg.CSIIOP.TAG_NULL_TAG;
 import org.omg.IOP.Codec;
@@ -75,5 +79,9 @@ public class TSSNULLTransportConfig extends TSSTransportMechConfig {
         result.component_data = new byte[0];
 
         return result;
+    }
+
+    public Subject check(SSLSession session) throws NO_PERMISSION {
+        return new Subject();
     }
 }

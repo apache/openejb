@@ -44,12 +44,19 @@
  */
 package org.openejb.corba.security;
 
+import javax.security.auth.Subject;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.LocalObject;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 import org.omg.PortableInterceptor.ORBInitializer;
+
+import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.security.PrimaryRealmPrincipal;
+import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
@@ -91,14 +98,49 @@ public class SecurityInitializer extends LocalObject implements ORBInitializer {
      *             operations by which Interceptors can be registered.
      */
     public void post_init(ORBInitInfo info) {
+
+        Subject defaultSubject = null;
+        String[] strings = info.arguments();
+        for (int i = 0; i < strings.length; i++) {
+            String arg = strings[i];
+            if (arg.startsWith("default-principal::")) {
+                defaultSubject = generateDefaultSubject(arg);
+                break;
+            }
+        }
+
         try {
             info.add_client_request_interceptor(new ClientSecurityInterceptor());
-            info.add_server_request_interceptor(new ServerSecurityInterceptor());
+            info.add_server_request_interceptor(new ServerSecurityInterceptor(info.allocate_slot_id(), defaultSubject));
             info.add_ior_interceptor(new IORSecurityInterceptor());
         } catch (DuplicateName dn) {
             log.error("Error registering interceptor", dn);
         }
+
         info.register_policy_factory(ClientPolicyFactory.POLICY_TYPE, new ClientPolicyFactory());
         info.register_policy_factory(ServerPolicyFactory.POLICY_TYPE, new ServerPolicyFactory());
+    }
+
+    private Subject generateDefaultSubject(String argument) {
+        Subject defaultSubject = new Subject();
+
+        String[] tokens = argument.substring(19).split(":");
+        String realm = tokens[0];
+        String className = tokens[1];
+        String principalName = tokens[2];
+
+        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(className, principalName, realm);
+        if (realmPrincipal == null) {
+            throw new GeronimoSecurityException("Unable to create realm principal");
+        }
+        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(className, principalName, realm);
+        if (primaryRealmPrincipal == null) {
+            throw new GeronimoSecurityException("Unable to create primary realm principal");
+        }
+
+        defaultSubject.getPrincipals().add(realmPrincipal);
+        defaultSubject.getPrincipals().add(primaryRealmPrincipal);
+
+        return defaultSubject;
     }
 }

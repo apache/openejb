@@ -268,13 +268,11 @@ class ContainerSecurityBuilder {
         DefaultPrincipal defaultPrincipal = security.getDefaultPrincipal();
         Subject defaultSubject = new Subject();
 
-        //todo: needs a proper login domain name to go with the realm name
-        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName(), defaultPrincipal.getRealmName());
+        RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
         if (realmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create realm principal");
         }
-        //todo: needs a proper login domain name to go with the realm name
-        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName(), defaultPrincipal.getRealmName());
+        PrimaryRealmPrincipal primaryRealmPrincipal = ConfigurationUtil.generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
         if (primaryRealmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create primary realm principal");
         }
@@ -347,7 +345,7 @@ class ContainerSecurityBuilder {
                     Principal principal = (Principal) principals.next();
 
                     //todo: needs a proper login domain name to go with the realm name
-                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName(), realm.getRealmName());
+                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
 
                     if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
 
