@@ -645,30 +645,30 @@ public class ConfigUtils  {
     public static void logWarning(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3 ) {
         Object[] args = { arg0, arg1, arg2, arg3 };
         OpenEJBException e = new OpenEJBException(errorCode, args);
-        logger.warning("Warning: "+ e.getMessage() );
+        logger.warn("Warning: "+ e.getMessage() );
     }
 
     public static void logWarning(String errorCode, Object arg0, Object arg1, Object arg2 ) {
         Object[] args = { arg0, arg1, arg2 };
         OpenEJBException e = new OpenEJBException(errorCode, args);
-        logger.warning("Warning: "+ e.getMessage() );
+        logger.warn("Warning: "+ e.getMessage() );
     }
     
     public static void logWarning(String errorCode, Object arg0, Object arg1 ) {
         Object[] args = { arg0, arg1 };
         OpenEJBException e = new OpenEJBException(errorCode, args);
-        logger.warning("Warning: "+ e.getMessage() );
+        logger.warn("Warning: "+ e.getMessage() );
     }
 
     public static void logWarning(String errorCode, Object arg0 ) {
         Object[] args = { arg0 };
         OpenEJBException e = new OpenEJBException(errorCode, args);
-        logger.warning("Warning: "+ e.getMessage() );
+        logger.warn("Warning: "+ e.getMessage() );
     }
 
     public static void logWarning(String errorCode ) {
         OpenEJBException e = new OpenEJBException(errorCode);
-        logger.warning( "Warning: "+ e.getMessage() );
+        logger.warn( "Warning: "+ e.getMessage() );
     }
 
 }
