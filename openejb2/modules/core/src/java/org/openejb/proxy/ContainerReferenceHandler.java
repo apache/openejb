@@ -46,20 +46,28 @@ package org.openejb.proxy;
 
 import org.apache.geronimo.core.service.InvocationResult;
 
+import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
 import org.openejb.EJBInvocation;
 
-public class ContainerHandler implements EJBInterceptor {
+public class ContainerReferenceHandler implements EJBInterceptor {
 
-    EJBContainer container;
+    private final Object containerId;
+    private EJBInterceptor next;
     
-    public ContainerHandler(EJBContainer container){
-        this.container = container;
+    public ContainerReferenceHandler(Object containerId){
+        this.containerId = containerId;
     }
 
-    
     public InvocationResult invoke(EJBInvocation ejbInvocation) throws Throwable{
-        return container.invoke(ejbInvocation);
+        if (next == null) {
+            EJBContainer container = ContainerIndex.getInstance().getContainer((String)containerId); 
+            if (container == null){
+                throw new IllegalStateException("The EJBContainer with the following ID is not yet online: "+containerId);
+            }
+            next = new ContainerHandler(container);
+        }
+        return next.invoke(ejbInvocation);
     }
     
 }
