@@ -265,13 +265,6 @@
             <version>DEV</version>
         </dependency>
 
-		<dependency>
-			<id>hsqldb+jdk1.4</id>
-			<version>1.7.1</version>
-			<properties>
-				<runtime>true</runtime>
-			</properties>
-		</dependency>
     </dependencies>
 
     <!-- =================== -->
