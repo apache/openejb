@@ -98,7 +98,6 @@ import org.tranql.ql.Query;
 import org.tranql.ql.QueryBuilder;
 import org.tranql.ql.QueryException;
 import org.tranql.ql.QueryTransformer;
-import org.tranql.query.ParamRemapper;
 import org.tranql.query.QueryCommand;
 import org.tranql.query.UpdateCommand;
 import org.tranql.schema.Attribute;
@@ -232,9 +231,15 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         Query loadQuery = QueryBuilder.buildSelectById(ejb, false).getQuery();
         SQLQuery loadSQLQuery = (SQLQuery) queryTransformer.transform(loadQuery);
         InputBinding[] loadBindings = BindingFactory.getInputBindings(loadSQLQuery.getParamTypes());
+
+        // todo this should come from the query transform
+        FieldTransform[] loadTransforms = new FieldTransform[loadBindings.length];
+        for (int i=0; i < loadTransforms.length; i++) {
+            loadTransforms[i] = new FieldAccessor(i);
+        }
         // todo there should be an easier way to create the results bindings
         ResultBinding[] resultBindings = createResultsBindings(ejb);
-        QueryCommand loadCommand = new JDBCQueryCommand(ds, loadSQLQuery.getSQLText(), loadBindings, resultBindings);
+        QueryCommand loadCommand = new JDBCQueryCommand(ds, loadSQLQuery.getSQLText(), loadBindings, loadTransforms, resultBindings);
         // todo this is lame... should be the default slot mapping
         int[] slotMap = new int[resultBindings.length];
         for (int i = 0; i < slotMap.length; i++) {
@@ -251,15 +256,20 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         SQLQuery createSQLQuery = (SQLQuery) queryTransformer.transform(createQuery);
         // todo shouldn't UpdateCommand take a query directly?
         InputBinding[] createBindings = BindingFactory.getInputBindings(createSQLQuery.getParamTypes());
-        UpdateCommand createCommand = new JDBCUpdateCommand(ds, createSQLQuery.getSQLText(), createBindings);
+
+        // todo this should be obtained from the query
+        FieldTransform[] createTransforms = new FieldTransform[createBindings.length];
+        for (int i = 0; i < createTransforms.length; i++) {
+            createTransforms[i] = new FieldAccessor(i);
+        }
+        UpdateCommand createCommand = new JDBCUpdateCommand(ds, createSQLQuery.getSQLText(), createBindings, createTransforms);
 
         // UPDATE
         Query updateQuery = QueryBuilder.buildUpdate(ejb).getQuery();
         SQLQuery updateSQLQuery = (SQLQuery) queryTransformer.transform(updateQuery);
         InputBinding[] updateBindings = BindingFactory.getInputBindings(updateSQLQuery.getParamTypes());
-        UpdateCommand updateCommand = new JDBCUpdateCommand(ds, updateSQLQuery.getSQLText(), updateBindings);
 
-        // todo shouldn't query builder do this transform?
+        // todo this should be obtained from the query
         List attributes = ejb.getAttributes();
         List updateParamsList = new ArrayList(attributes.size() * 2);
         List pkParamsList = new ArrayList(1);
@@ -274,13 +284,12 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
         updateParamsList.addAll(pkParamsList);
         FieldTransform[] updateTransforms = (FieldTransform[]) updateParamsList.toArray(new FieldTransform[updateParamsList.size()]);
-        updateCommand = new ParamRemapper(updateCommand, updateTransforms);
+        UpdateCommand updateCommand = new JDBCUpdateCommand(ds, updateSQLQuery.getSQLText(), updateBindings, updateTransforms);
 
         // DELETE
         Query removeQuery = QueryBuilder.buildDelete(ejb).getQuery();
         SQLQuery removeSQLQuery = (SQLQuery) queryTransformer.transform(removeQuery);
         InputBinding[] removeBindings = BindingFactory.getInputBindings(removeSQLQuery.getParamTypes());
-        UpdateCommand removeCommand = new JDBCUpdateCommand(ds, removeSQLQuery.getSQLText(), removeBindings);
 
         // todo shouldn't query builder do this transform?
         List removeParamsList = new ArrayList(1);
@@ -291,7 +300,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             }
         }
         FieldTransform[] removeTransforms = (FieldTransform[]) removeParamsList.toArray(new FieldTransform[removeParamsList.size()]);
-        removeCommand = new ParamRemapper(removeCommand, removeTransforms);
+        UpdateCommand removeCommand = new JDBCUpdateCommand(ds, removeSQLQuery.getSQLText(), removeBindings, removeTransforms);
 
         // defaults
         Object[] defaults = createDefaults(ejb);
