@@ -50,7 +50,7 @@ package org.openejb.deployment.mdb;
 import java.util.HashSet;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.openejb.deployment.DeploymentHelper;
@@ -65,7 +65,7 @@ import org.openejb.transaction.TransactionPolicySource;
  */
 public class BasicMDBContainerTest extends TestCase {
     private Kernel kernel;
-    private GBeanMBean container;
+    private GBeanData container;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -88,12 +88,14 @@ public class BasicMDBContainerTest extends TestCase {
         });
         builder.setComponentContext(new ReadOnlyContext());
         container = builder.createConfiguration();
+        container.setName(DeploymentHelper.CONTAINER_NAME);
 
        //start the ejb container
         container.setReferencePattern("TransactionContextManager", DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME);
         container.setReferencePattern("TrackedConnectionAssociator", DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME);
         container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
-        DeploymentHelper.start(kernel, DeploymentHelper.CONTAINER_NAME, container);
+        kernel.loadGBean(container, getClass().getClassLoader());
+        kernel.startGBean(DeploymentHelper.CONTAINER_NAME);
     }
 
     protected void tearDown() throws Exception {

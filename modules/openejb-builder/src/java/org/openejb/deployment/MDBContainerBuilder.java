@@ -57,7 +57,7 @@ import javax.ejb.Timer;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
@@ -258,7 +258,8 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
         this.nonTransactedTimerName = nonTransactedTimerName;
     }
 
-    public GBeanMBean createConfiguration() throws Exception {
+    // todo this created GBeanDatas without and object name, which is a bad idea
+    public GBeanData createConfiguration() throws Exception {
         // get the bean class
         Class beanClass = classLoader.loadClass(beanClassName);
 
@@ -303,9 +304,8 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
             }
         }
 
-
         // create and initialize the GBean
-        GBeanMBean gbean = new GBeanMBean(MDBContainer.GBEAN_INFO, classLoader);
+        GBeanData gbean = new GBeanData(MDBContainer.GBEAN_INFO);
         gbean.setAttribute("containerId", containerId);
         gbean.setAttribute("ejbName", ejbName);
         gbean.setReferencePattern("ActivationSpecWrapper", activationSpecName);
