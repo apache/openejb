@@ -1,18 +1,18 @@
-package org.openejb.test.stateless;
+package org.openejb.test.entity.cmp;
 
 /**
- * Interface definition : EncStatelessHome
+ * Interface definition : RmiIiopCmpHome
  * 
  * @author OpenORB Compiler
  */
 
-public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
-		implements EncStatelessHome
+public class _RmiIiopCmpHome_Stub extends javax.rmi.CORBA.Stub
+		implements RmiIiopCmpHome
 {
 
 	static final String[] _ids_list =
 	{
-		"RMI:org.openejb.test.stateless.EncStatelessHome:0000000000000000", 
+		"RMI:org.openejb.test.entity.cmp.RmiIiopCmpHome:0000000000000000", 
 		"RMI:javax.ejb.EJBHome:0000000000000000"
 	};
 
@@ -21,12 +21,12 @@ public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
 		return _ids_list;
 	}
 
-	final public static java.lang.Class _opsClass = EncStatelessHome.class;
+	final public static java.lang.Class _opsClass = RmiIiopCmpHome.class;
 
 	//
 	// Operation create
 	//
-	public org.openejb.test.stateless.EncStatelessObject create()
+	public org.openejb.test.entity.cmp.RmiIiopCmpObject create(String arg0)
 		throws javax.ejb.CreateException, java.rmi.RemoteException
 	{
 		while( true )
@@ -37,8 +37,9 @@ public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
 				try
 				{
 					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("create",true);
+					_output.write_value((java.io.Serializable)arg0,String.class);
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
-					org.openejb.test.stateless.EncStatelessObject _arg_ret = ( org.openejb.test.stateless.EncStatelessObject ) javax.rmi.PortableRemoteObject.narrow(_input.read_Object(), org.openejb.test.stateless.EncStatelessObject.class);
+					org.openejb.test.entity.cmp.RmiIiopCmpObject _arg_ret = ( org.openejb.test.entity.cmp.RmiIiopCmpObject ) javax.rmi.PortableRemoteObject.narrow(_input.read_Object(), org.openejb.test.entity.cmp.RmiIiopCmpObject.class);
 					return _arg_ret;
 				}
 				catch( org.omg.CORBA.portable.RemarshalException _exception )
@@ -70,17 +71,158 @@ public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
 			{
 				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("create",_opsClass);
 				if ( _so == null )
-				   return create();
+				   return create( arg0);
 				try
 				{
-					org.openejb.test.stateless.EncStatelessObject _arg_ret = ((org.openejb.test.stateless.EncStatelessHome)_so.servant).create();
-					return (org.openejb.test.stateless.EncStatelessObject)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+					String arg0Copy = (String)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					org.openejb.test.entity.cmp.RmiIiopCmpObject _arg_ret = ((org.openejb.test.entity.cmp.RmiIiopCmpHome)_so.servant).create( arg0Copy);
+					return (org.openejb.test.entity.cmp.RmiIiopCmpObject)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
 				}
 				catch ( Throwable ex )
 				{
 					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
 					if ( ex2 instanceof javax.ejb.CreateException )
 						throw ( javax.ejb.CreateException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
+		}
+	}
+
+	//
+	// Operation findByPrimaryKey
+	//
+	public org.openejb.test.entity.cmp.RmiIiopCmpObject findByPrimaryKey(java.lang.Integer arg0)
+		throws javax.ejb.FinderException, java.rmi.RemoteException
+	{
+		while( true )
+		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
+				org.omg.CORBA_2_3.portable.InputStream _input = null;
+				try
+				{
+					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("findByPrimaryKey",true);
+					_output.write_value((java.io.Serializable)arg0,java.lang.Integer.class);
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
+					org.openejb.test.entity.cmp.RmiIiopCmpObject _arg_ret = ( org.openejb.test.entity.cmp.RmiIiopCmpObject ) javax.rmi.PortableRemoteObject.narrow(_input.read_Object(), org.openejb.test.entity.cmp.RmiIiopCmpObject.class);
+					return _arg_ret;
+				}
+				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				{
+					continue;
+				}
+				catch( org.omg.CORBA.portable.ApplicationException _exception )
+				{
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:javax/ejb/FinderEx:1.0") )
+					{
+						_input.read_string();
+						throw ( javax.ejb.FinderException ) _input.read_value(javax.ejb.FinderException.class);
+					}
+
+					throw new java.rmi.UnexpectedException(_exception_id);
+				}
+				catch( org.omg.CORBA.SystemException _exception )
+				{
+					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+				}
+				finally
+				{
+					this._releaseReply(_input);
+				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("findByPrimaryKey",_opsClass);
+				if ( _so == null )
+				   return findByPrimaryKey( arg0);
+				try
+				{
+					java.lang.Integer arg0Copy = (java.lang.Integer)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
+					org.openejb.test.entity.cmp.RmiIiopCmpObject _arg_ret = ((org.openejb.test.entity.cmp.RmiIiopCmpHome)_so.servant).findByPrimaryKey( arg0Copy);
+					return (org.openejb.test.entity.cmp.RmiIiopCmpObject)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof javax.ejb.FinderException )
+						throw ( javax.ejb.FinderException ) ex2;
+
+					throw javax.rmi.CORBA.Util.wrapException(ex2);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+			}
+		}
+	}
+
+	//
+	// Operation findEmptyCollection
+	//
+	public java.util.Collection findEmptyCollection()
+		throws javax.ejb.FinderException, java.rmi.RemoteException
+	{
+		while( true )
+		{
+			if (!javax.rmi.CORBA.Util.isLocal(this) )
+			{
+				org.omg.CORBA_2_3.portable.InputStream _input = null;
+				try
+				{
+					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("findEmptyCollection",true);
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
+					java.util.Collection _arg_ret = ( java.util.Collection )((org.omg.CORBA_2_3.portable.InputStream)_input).read_value(java.util.Collection.class);
+					return _arg_ret;
+				}
+				catch( org.omg.CORBA.portable.RemarshalException _exception )
+				{
+					continue;
+				}
+				catch( org.omg.CORBA.portable.ApplicationException _exception )
+				{
+					_input = ( org.omg.CORBA_2_3.portable.InputStream ) _exception.getInputStream();
+					java.lang.String _exception_id = _exception.getId();
+					if ( _exception_id.equals("IDL:javax/ejb/FinderEx:1.0") )
+					{
+						_input.read_string();
+						throw ( javax.ejb.FinderException ) _input.read_value(javax.ejb.FinderException.class);
+					}
+
+					throw new java.rmi.UnexpectedException(_exception_id);
+				}
+				catch( org.omg.CORBA.SystemException _exception )
+				{
+					throw javax.rmi.CORBA.Util.mapSystemException(_exception);
+				}
+				finally
+				{
+					this._releaseReply(_input);
+				}
+			}
+			else
+			{
+				org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke("findEmptyCollection",_opsClass);
+				if ( _so == null )
+				   return findEmptyCollection();
+				try
+				{
+					java.util.Collection _arg_ret = ((org.openejb.test.entity.cmp.RmiIiopCmpHome)_so.servant).findEmptyCollection();
+					return (java.util.Collection)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+				}
+				catch ( Throwable ex )
+				{
+					Throwable ex2 = ( Throwable ) javax.rmi.CORBA.Util.copyObject(ex, _orb());
+					if ( ex2 instanceof javax.ejb.FinderException )
+						throw ( javax.ejb.FinderException ) ex2;
 
 					throw javax.rmi.CORBA.Util.wrapException(ex2);
 				}
@@ -135,7 +277,7 @@ public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
 				   return getEJBMetaData();
 				try
 				{
-					javax.ejb.EJBMetaData _arg_ret = ((org.openejb.test.stateless.EncStatelessHome)_so.servant).getEJBMetaData();
+					javax.ejb.EJBMetaData _arg_ret = ((org.openejb.test.entity.cmp.RmiIiopCmpHome)_so.servant).getEJBMetaData();
 					return (javax.ejb.EJBMetaData)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
 				}
 				catch ( Throwable ex )
@@ -194,7 +336,7 @@ public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
 				   return getHomeHandle();
 				try
 				{
-					javax.ejb.HomeHandle _arg_ret = ((org.openejb.test.stateless.EncStatelessHome)_so.servant).getHomeHandle();
+					javax.ejb.HomeHandle _arg_ret = ((org.openejb.test.entity.cmp.RmiIiopCmpHome)_so.servant).getHomeHandle();
 					return (javax.ejb.HomeHandle)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
 				}
 				catch ( Throwable ex )
@@ -261,7 +403,7 @@ public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
 				try
 				{
 					javax.ejb.Handle arg0Copy = (javax.ejb.Handle)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
-					((org.openejb.test.stateless.EncStatelessHome)_so.servant).remove( arg0Copy);
+					((org.openejb.test.entity.cmp.RmiIiopCmpHome)_so.servant).remove( arg0Copy);
 					return;
 				}
 				catch ( Throwable ex )
@@ -331,7 +473,7 @@ public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
 				try
 				{
 					java.lang.Object arg0Copy = (java.lang.Object)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
-					((org.openejb.test.stateless.EncStatelessHome)_so.servant).remove( arg0Copy);
+					((org.openejb.test.entity.cmp.RmiIiopCmpHome)_so.servant).remove( arg0Copy);
 					return;
 				}
 				catch ( Throwable ex )

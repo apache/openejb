@@ -1,10 +1,11 @@
 package org.openejb.test.entity.bmp;
 
-//
-// Interface definition : EncBmpHome
-//
-// @author OpenORB Compiler
-//
+/**
+ * Interface definition : EncBmpHome
+ * 
+ * @author OpenORB Compiler
+ */
+
 public class _EncBmpHome_Tie extends org.omg.PortableServer.Servant
 		implements javax.rmi.CORBA.Tie
 {
@@ -97,14 +98,15 @@ public class _EncBmpHome_Tie extends org.omg.PortableServer.Servant
 	//
 	// Invoke method ( for remote call )
 	//
-	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream _is, org.omg.CORBA.portable.ResponseHandler handler)
+	public org.omg.CORBA.portable.OutputStream _invoke(String opName, org.omg.CORBA.portable.InputStream is, org.omg.CORBA.portable.ResponseHandler handler)
 	{
+		org.omg.CORBA_2_3.portable.InputStream _is = (org.omg.CORBA_2_3.portable.InputStream)is;
 		org.omg.CORBA_2_3.portable.OutputStream _output = null;
 		try
 		{
 			if ( opName.equals("create") )
 			{
-				java.lang.String arg0_in = ( java.lang.String )((org.omg.CORBA_2_3.portable.InputStream)_is).read_value(java.lang.String.class);
+				String arg0_in = ( String )((org.omg.CORBA_2_3.portable.InputStream)_is).read_value(String.class);
 
 				try
 				{
@@ -116,7 +118,7 @@ public class _EncBmpHome_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.CreateException _exception )
 				{
-					String exid = "RMI:javax.ejb.CreateException:0000000000280A69:0000000000000000";
+					String exid = "IDL:javax/ejb/CreateEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);
@@ -138,7 +140,7 @@ public class _EncBmpHome_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.FinderException _exception )
 				{
-					String exid = "RMI:javax.ejb.FinderException:00000000001360E2:0000000000000000";
+					String exid = "IDL:javax/ejb/FinderEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);
@@ -159,7 +161,7 @@ public class _EncBmpHome_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.FinderException _exception )
 				{
-					String exid = "RMI:javax.ejb.FinderException:00000000001360E2:0000000000000000";
+					String exid = "IDL:javax/ejb/FinderEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);
@@ -196,7 +198,7 @@ public class _EncBmpHome_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.RemoveException _exception )
 				{
-					String exid = "RMI:javax.ejb.RemoveException:000000000064C34E:0000000000000000";
+					String exid = "IDL:javax/ejb/RemoveEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);
@@ -217,7 +219,7 @@ public class _EncBmpHome_Tie extends org.omg.PortableServer.Servant
 				}
 				catch ( javax.ejb.RemoveException _exception )
 				{
-					String exid = "RMI:javax.ejb.RemoveException:000000000064C34E:0000000000000000";
+					String exid = "IDL:javax/ejb/RemoveEx:1.0";
 					_output = ( org.omg.CORBA_2_3.portable.OutputStream ) handler.createExceptionReply();
 					_output.write_string(exid);
 					_output.write_value(_exception);

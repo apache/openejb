@@ -1,18 +1,18 @@
 package org.openejb.test.stateless;
 
 /**
- * Interface definition : EncStatelessHome
+ * Interface definition : RmiIiopStatelessHome
  * 
  * @author OpenORB Compiler
  */
 
-public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
-		implements EncStatelessHome
+public class _RmiIiopStatelessHome_Stub extends javax.rmi.CORBA.Stub
+		implements RmiIiopStatelessHome
 {
 
 	static final String[] _ids_list =
 	{
-		"RMI:org.openejb.test.stateless.EncStatelessHome:0000000000000000", 
+		"RMI:org.openejb.test.stateless.RmiIiopStatelessHome:0000000000000000", 
 		"RMI:javax.ejb.EJBHome:0000000000000000"
 	};
 
@@ -21,12 +21,12 @@ public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
 		return _ids_list;
 	}
 
-	final public static java.lang.Class _opsClass = EncStatelessHome.class;
+	final public static java.lang.Class _opsClass = RmiIiopStatelessHome.class;
 
 	//
 	// Operation create
 	//
-	public org.openejb.test.stateless.EncStatelessObject create()
+	public org.openejb.test.stateless.RmiIiopStatelessObject create()
 		throws javax.ejb.CreateException, java.rmi.RemoteException
 	{
 		while( true )
@@ -38,7 +38,7 @@ public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
 				{
 					org.omg.CORBA_2_3.portable.OutputStream _output = ( org.omg.CORBA_2_3.portable.OutputStream ) this._request("create",true);
 					_input = ( org.omg.CORBA_2_3.portable.InputStream ) this._invoke(_output);
-					org.openejb.test.stateless.EncStatelessObject _arg_ret = ( org.openejb.test.stateless.EncStatelessObject ) javax.rmi.PortableRemoteObject.narrow(_input.read_Object(), org.openejb.test.stateless.EncStatelessObject.class);
+					org.openejb.test.stateless.RmiIiopStatelessObject _arg_ret = ( org.openejb.test.stateless.RmiIiopStatelessObject ) javax.rmi.PortableRemoteObject.narrow(_input.read_Object(), org.openejb.test.stateless.RmiIiopStatelessObject.class);
 					return _arg_ret;
 				}
 				catch( org.omg.CORBA.portable.RemarshalException _exception )
@@ -73,8 +73,8 @@ public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
 				   return create();
 				try
 				{
-					org.openejb.test.stateless.EncStatelessObject _arg_ret = ((org.openejb.test.stateless.EncStatelessHome)_so.servant).create();
-					return (org.openejb.test.stateless.EncStatelessObject)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
+					org.openejb.test.stateless.RmiIiopStatelessObject _arg_ret = ((org.openejb.test.stateless.RmiIiopStatelessHome)_so.servant).create();
+					return (org.openejb.test.stateless.RmiIiopStatelessObject)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
 				}
 				catch ( Throwable ex )
 				{
@@ -135,7 +135,7 @@ public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
 				   return getEJBMetaData();
 				try
 				{
-					javax.ejb.EJBMetaData _arg_ret = ((org.openejb.test.stateless.EncStatelessHome)_so.servant).getEJBMetaData();
+					javax.ejb.EJBMetaData _arg_ret = ((org.openejb.test.stateless.RmiIiopStatelessHome)_so.servant).getEJBMetaData();
 					return (javax.ejb.EJBMetaData)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
 				}
 				catch ( Throwable ex )
@@ -194,7 +194,7 @@ public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
 				   return getHomeHandle();
 				try
 				{
-					javax.ejb.HomeHandle _arg_ret = ((org.openejb.test.stateless.EncStatelessHome)_so.servant).getHomeHandle();
+					javax.ejb.HomeHandle _arg_ret = ((org.openejb.test.stateless.RmiIiopStatelessHome)_so.servant).getHomeHandle();
 					return (javax.ejb.HomeHandle)javax.rmi.CORBA.Util.copyObject(_arg_ret, _orb());
 				}
 				catch ( Throwable ex )
@@ -261,7 +261,7 @@ public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
 				try
 				{
 					javax.ejb.Handle arg0Copy = (javax.ejb.Handle)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
-					((org.openejb.test.stateless.EncStatelessHome)_so.servant).remove( arg0Copy);
+					((org.openejb.test.stateless.RmiIiopStatelessHome)_so.servant).remove( arg0Copy);
 					return;
 				}
 				catch ( Throwable ex )
@@ -331,7 +331,7 @@ public class _EncStatelessHome_Stub extends javax.rmi.CORBA.Stub
 				try
 				{
 					java.lang.Object arg0Copy = (java.lang.Object)javax.rmi.CORBA.Util.copyObject(arg0, _orb());
-					((org.openejb.test.stateless.EncStatelessHome)_so.servant).remove( arg0Copy);
+					((org.openejb.test.stateless.RmiIiopStatelessHome)_so.servant).remove( arg0Copy);
 					return;
 				}
 				catch ( Throwable ex )
