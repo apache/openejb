@@ -300,6 +300,9 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
                 } else {
                     timerName = nonTransactedTimerName;
                 }
+            } else {
+                //bean managed tx , so it could do stuff in a tx.
+                timerName = transactedTimerName;
             }
         }
 
@@ -321,6 +324,15 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
     }
 
     private static Map isTransactedMap = new HashMap();
+
+    static {
+        isTransactedMap.put(ContainerPolicy.Mandatory, Boolean.TRUE);//this won't work, of course
+        isTransactedMap.put(ContainerPolicy.Never, Boolean.FALSE);
+        isTransactedMap.put(ContainerPolicy.NotSupported, Boolean.FALSE);
+        isTransactedMap.put(ContainerPolicy.Required, Boolean.TRUE);
+        isTransactedMap.put(ContainerPolicy.RequiresNew, Boolean.TRUE);
+        isTransactedMap.put(ContainerPolicy.Supports, Boolean.FALSE);
+    }
 
     protected LinkedHashMap buildVopMap(Class beanClass) throws Exception {
         LinkedHashMap vopMap = new LinkedHashMap();
