@@ -46,38 +46,82 @@ package org.openejb;
 
 import java.util.HashMap;
 import java.util.Collection;
+import java.util.Arrays;
+import java.util.Iterator;
 
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.WaitingException;
 
 
 /**
  * This class is a bit crufty.  Need something like this, but not static
  * and more along the lines of a collection of containers registered as gbeans
  */
-public class ContainerIndex {
-    // TODO: Should be an array list or something
-    private EJBContainer[] containers = new EJBContainer[1];
-
-    private final HashMap index = new HashMap();
-
+public class ContainerIndex implements ReferenceCollectionListener, GBean {
+    // todo delete me
     private static final ContainerIndex containerIndex = new ContainerIndex();
-
-    private ReferenceCollection ejbContainers;
-
     public static ContainerIndex getInstance() {
         return containerIndex;
     }
+
+    /**
+     * The container lookup table.
+     */
+    private EJBContainer[] containers = new EJBContainer[1];
+
+    /**
+     * Index from the container id to the index (Integer) number in the containers lookup table
+     */
+    private final HashMap index = new HashMap();
+
+    /**
+     * GBean reference collection that we watch for new containers to register
+     */
+    private ReferenceCollection ejbContainers;
 
     private ContainerIndex() {
     }
 
     public ContainerIndex(Collection ejbContainers) {
         this.ejbContainers = (ReferenceCollection) ejbContainers;
+        this.ejbContainers.addReferenceCollectionListener(this);
     }
 
-    public void addContainer(EJBContainer container) {
+    public void setGBeanContext(GBeanContext context) {
+    }
+
+    public void doStart() throws WaitingException, Exception {
+        containers = new EJBContainer[ejbContainers.size() + 1];
+        Iterator iterator = ejbContainers.iterator();
+        for (int i = 1; i < containers.length && iterator.hasNext(); i++) {
+            EJBContainer container = (EJBContainer) iterator.next();
+            containers[i] = container;
+            index.put(container.getContainerID(), new Integer(i));
+        }
+    }
+
+    public void doStop() throws WaitingException, Exception {
+        index.clear();
+        Arrays.fill(containers, null);
+    }
+
+    public void doFail() {
+        index.clear();
+        Arrays.fill(containers, null);
+    }
+
+    public synchronized void addContainer(EJBContainer container) {
+        Object containerID = container.getContainerID();
+        if(index.containsKey(containerID)) {
+            return;
+        }
+
         int i = containers.length;
 
         EJBContainer[] newArray = new EJBContainer[i + 1];
@@ -85,32 +129,47 @@ public class ContainerIndex {
         containers = newArray;
 
         containers[i] = container;
-        index.put(container.getContainerID(), new Integer(i));
+        index.put(containerID, new Integer(i));
     }
 
-    public int length() {
+    public synchronized void removeContainer(EJBContainer container) {
+        int i = getContainerIndex(container.getContainerID());
+        if(i > 0) {
+            containers[i] = null;
+        }
+    }
+
+    public void memberAdded(ReferenceCollectionEvent event) {
+        addContainer((EJBContainer) event.getMember());
+    }
+
+    public void memberRemoved(ReferenceCollectionEvent event) {
+        removeContainer((EJBContainer) event.getMember());
+    }
+
+    public synchronized int length() {
         return containers.length;
     }
 
-    public int getContainerIndex(Object containerID) {
+    public synchronized int getContainerIndex(Object containerID) {
         return getContainerIndex((String) containerID);
     }
 
-    public int getContainerIndex(String containerID) {
+    public synchronized int getContainerIndex(String containerID) {
         Integer idCode = (Integer) index.get(containerID);
 
         return (idCode == null) ? -1 : idCode.intValue();
     }
 
-    public EJBContainer getContainer(String containerID) {
+    public synchronized EJBContainer getContainer(String containerID) {
         return getContainer(getContainerIndex(containerID));
     }
 
-    public EJBContainer getContainer(Integer index) {
+    public synchronized EJBContainer getContainer(Integer index) {
         return (index == null) ? null : getContainer(index.intValue());
     }
 
-    public EJBContainer getContainer(int index) {
+    public synchronized EJBContainer getContainer(int index) {
         return containers[index];
     }
 
@@ -120,7 +179,7 @@ public class ContainerIndex {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ContainerIndex.class);
 
         infoFactory.setConstructor(
-                new String[]{ "ejbContainers" },
+                new String[]{ "EJBContainers" },
                 new Class[]{ Collection.class });
 
         infoFactory.addOperation("getContainerIndex", new Class[]{Object.class});
@@ -129,7 +188,7 @@ public class ContainerIndex {
         infoFactory.addOperation("getContainer", new Class[]{Integer.class});
         infoFactory.addOperation("getContainer", new Class[]{Integer.TYPE});
 
-        infoFactory.addReference("ejbContainers", EJBContainer.class);
+        infoFactory.addReference("EJBContainers", EJBContainer.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

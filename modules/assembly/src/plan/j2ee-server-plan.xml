@@ -80,7 +80,13 @@ by the server.
 
     <gbean name="geronimo.server:type=TransactionManager" class="org.apache.geronimo.transaction.TransactionManagerProxy"/>
 
-    <gbean name="geronimo.server:type=ContainerIndex" class="org.openejb.ContainerIndex"/>
+    <gbean name="geronimo.server:type=ContainerIndex" class="org.openejb.ContainerIndex">
+        <references name="EJBContainers">
+            <pattern>openejb:j2eeType=StatelessSessionBean,*</pattern>
+            <pattern>openejb:j2eeType=StatefulSessionBean,*</pattern>
+            <pattern>openejb:j2eeType=EntityBean,*</pattern>
+        </references>
+    </gbean>
 
     <!-- JSR77 Management Objects -->
     <gbean name="geronimo.server:type=J2EEDomain,name=geronimo.server" class="org.apache.geronimo.j2ee.management.impl.DomainImpl">
