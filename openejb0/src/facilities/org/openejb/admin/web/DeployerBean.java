@@ -86,6 +86,10 @@ import org.openejb.util.StringUtilities;
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class DeployerBean implements javax.ejb.SessionBean {
+	public static final String ALL_FIELDS_REQUIRED_ERROR =
+		"All fields (except OQL parameters) are required, "
+			+ "please hit your back button and fill out the required fields.";
+
 	//private boolean values
 	/*  key for boolean values:
 	 *  AUTO_ASSIGN              0
@@ -212,7 +216,7 @@ public class DeployerBean implements javax.ejb.SessionBean {
 		Query query;
 		MethodParams methodParams;
 		QueryMethod queryMethod;
-		String[] methodArray;
+		String[] parameterArray;
 
 		for (int i = 0; i < deployDataArray.length; i++) {
 			if (this.usedBeanNames.contains(deployDataArray[i].getDeploymentIdValue())) {
@@ -220,6 +224,8 @@ public class DeployerBean implements javax.ejb.SessionBean {
 					"The deployment id: "
 						+ deployDataArray[i].getDeploymentIdValue()
 						+ " is already being used by another bean, please choose another deployment id.");
+			} else if ("".equals(deployDataArray[i].getDeploymentIdValue())) {
+				throw new OpenEJBException(ALL_FIELDS_REQUIRED_ERROR);
 			}
 
 			deployment = new EjbDeployment();
@@ -232,6 +238,10 @@ public class DeployerBean implements javax.ejb.SessionBean {
 			deployment.setDeploymentId(deployDataArray[i].getDeploymentIdValue());
 			deploymentHTML.append("<td>").append(deployDataArray[i].getDeploymentIdValue()).append(
 				"</td>\n");
+
+			if ("".equals(deployDataArray[i].getContainerIdValue())) {
+				throw new OpenEJBException(ALL_FIELDS_REQUIRED_ERROR);
+			}
 			deployment.setContainerId(deployDataArray[i].getContainerIdValue());
 			deploymentHTML.append("<td>").append(deployDataArray[i].getContainerIdValue()).append(
 				"</td>\n");
@@ -251,8 +261,17 @@ public class DeployerBean implements javax.ejb.SessionBean {
 				//set the resource references
 				referenceDataArray = deployDataArray[i].getReferenceDataArray();
 				for (int j = 0; j < referenceDataArray.length; j++) {
+					if ("".equals(referenceDataArray[j].getReferenceIdValue())) {
+						throw new OpenEJBException(ALL_FIELDS_REQUIRED_ERROR);
+					}
+
+					if ("".equals(referenceDataArray[j].getReferenceValue())) {
+						throw new OpenEJBException(ALL_FIELDS_REQUIRED_ERROR);
+					}
+
 					link = new ResourceLink();
 					link.setResId(referenceDataArray[j].getReferenceIdValue());
+
 					link.setResRefName(referenceDataArray[j].getReferenceValue());
 					deploymentHTML.append("<tr>\n<td>").append(
 						referenceDataArray[j].getReferenceValue()).append(
@@ -272,36 +291,45 @@ public class DeployerBean implements javax.ejb.SessionBean {
 			oqlDataArray = deployDataArray[i].getOqlDataArray();
 			if (oqlDataArray.length > 0) {
 				deploymentHTML.append("<tr>\n<td colspan=\"4\">&nbsp;</td>\n</tr>\n");
-				deploymentHTML.append("<tr>\n<td colspan=\"2\">").append(deployDataArray[i].getEjbName()).append(" - ");
+				deploymentHTML.append("<tr>\n<td colspan=\"2\">").append(
+					deployDataArray[i].getEjbName()).append(
+					" - ");
 				deploymentHTML.append(
 					"Method</td>\n<td>OQL Statement</td>\n<td>OQL Parameters (comma seperated)</td>\n</tr>\n");
 			}
 
 			for (int j = 0; j < oqlDataArray.length; j++) {
+				if ("".equals(oqlDataArray[j].getOqlStatementValue())) {
+					throw new OpenEJBException(ALL_FIELDS_REQUIRED_ERROR);
+				}
+
 				//create the new instances
 				query = new Query();
 				methodParams = new MethodParams();
 				queryMethod = new QueryMethod();
-				
+
 				queryMethod.setMethodName(oqlDataArray[j].getMethodName());
 				query.setObjectQl(oqlDataArray[j].getOqlStatementValue());
-				
+
 				deploymentHTML.append("<tr>\n<td colspan=\"2\">");
 				deploymentHTML.append(oqlDataArray[j].getMethodString()).append("</td>\n");
-				deploymentHTML.append("<td>").append(oqlDataArray[j].getOqlStatementValue()).append("</td>\n");
+				deploymentHTML.append("<td>").append(
+					oqlDataArray[j].getOqlStatementValue()).append(
+					"</td>\n");
 				deploymentHTML.append("<td>");
-				
-				//get the list of methods
-				methodArray = (String[]) oqlDataArray[j].getOqlParameterValueList().toArray(new String[0]);
-				for (int k = 0; k < methodArray.length; k++) {
-					deploymentHTML.append(k+1).append(". ").append(methodArray[k]).append("<br>");
-					methodParams.addMethodParam(k, methodArray[k]);
+
+				//get the list of parameters
+				parameterArray =
+					(String[]) oqlDataArray[j].getOqlParameterValueList().toArray(new String[0]);
+				for (int k = 0; k < parameterArray.length; k++) {
+					deploymentHTML.append(k + 1).append(". ").append(parameterArray[k]).append("<br>");
+					methodParams.addMethodParam(k, parameterArray[k]);
 				}
-				
-				if(methodArray.length == 0) {
+
+				if (parameterArray.length == 0) {
 					deploymentHTML.append("N/A");
 				}
-				
+
 				queryMethod.setMethodParams(methodParams);
 				query.setQueryMethod(queryMethod);
 				deployment.addQuery(query);
