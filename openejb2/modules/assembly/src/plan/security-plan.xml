@@ -42,7 +42,7 @@ Configuration for the CORBA server.
         <reference name="SubsystemRouter">geronimo.remoting:router=SubsystemRouter</reference>
     </gbean>
 
-    <gbean name="geronimo.remoting:target=LoginServiceStub" class="org.apache.geronimo.security.remoting.jmx.LoginServiceStub">
+    <gbean name="geronimo.remoting:target=JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">
         <reference name="Router">geronimo.remoting:router=JMXRouter</reference>
     </gbean>
 
