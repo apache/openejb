@@ -362,8 +362,8 @@ public class AssemblerTool {
                 
                 /*[3.1.2.2] map the finder methods to the query statements. */
                 if(ebi.queries != null){
-                    Vector finderMethods = new Vector();
                     for(int i = 0; i < ebi.queries.length; i++){
+                    Vector finderMethods = new Vector();
                         resolveMethods(finderMethods, deployment.getHomeInterface(), ebi.queries[i].method);
                         for(int j =0; j<finderMethods.size(); j++){
                             deployment.addQuery((Method)finderMethods.elementAt(j), ebi.queries[i].queryStatement);       
@@ -579,6 +579,7 @@ public class AssemblerTool {
     * then applies these mappings to the bean through the DeploymentInfo.setMethodTransationAttribute().
     * At run time the container will get the transaction attribute associated with a client call from the
     * DeploymentInfo object by invoking its getTransactionAttribute(Method) method.
+    * See page 251 EJB 1.1 for an explanation of the method attribute.
     *
     * @param deploymentInfo the deployment to which the transaction attributes are applied
     * @param MethodTransactionInfo describes the transaction attributes for the enterprise bean(s)
@@ -598,31 +599,31 @@ public class AssemblerTool {
                MethodInfo methodInfo = mis[z];
                // IF no deployment was specified OR this deployment was specified
                if(mis[z].ejbDeploymentId==null || mis[z].ejbDeploymentId.equals(deploymentInfo.getDeploymentID())){
-                    if((deploymentInfo.getComponentType()==DeploymentInfo.STATEFUL || deploymentInfo.getComponentType()==DeploymentInfo.STATELESS)){
-                        if(!deploymentInfo.isBeanManagedTransaction()){// if its not Bean Managed transaction type
+                    if ( !deploymentInfo.isBeanManagedTransaction() ) {
+                        // if its not Bean Managed transaction type
                             Vector methodVect = new Vector();
-                            Class remote = deploymentInfo.getRemoteInterface();
-                            if(methodInfo.methodIntf==null || !methodInfo.methodIntf.equals("Home"))//If remote methods are specified
-                                resolveMethods(methodVect,remote,methodInfo);
-                                        
+    
+                        if ( methodInfo.methodIntf==null ) {
+                            // => attribute applies to both home and remote interface methods
+                            resolveMethods(methodVect,deploymentInfo.getRemoteInterface(),methodInfo);
+                            resolveMethods(methodVect,deploymentInfo.getHomeInterface(),methodInfo);
+                        } else if ( methodInfo.methodIntf.equals("Home") ) {
+                            resolveMethods(methodVect,deploymentInfo.getHomeInterface(),methodInfo);
+                        } else if ( methodInfo.methodIntf.equals("Remote") ) {
+                            resolveMethods(methodVect,deploymentInfo.getRemoteInterface(),methodInfo);
+                        } else {
+                            // wrong string constant
+                        }
+    
                             for(int x = 0; x < methodVect.size(); x++){
                                 Method method = (Method)methodVect.elementAt(x);
+    
                                 // filter out all EJBObject and EJBHome methods that are not remove() methods
-                                if(method.getDeclaringClass()==javax.ejb.EJBObject.class)
-                                    continue;// its an EJBObject method skip it
-                                       
-                                deploymentInfo.setMethodTransactionAttribute(method,transInfo.transAttribute);
+                            if ( (method.getDeclaringClass()==javax.ejb.EJBObject.class ||
+                                  method.getDeclaringClass()==javax.ejb.EJBHome.class) &&
+                                 method.getName().equals("remove")==false ) {
+                                continue;   //skip it
                             }
-                        }
-                    }else{// EntityBeans
-                        java.lang.reflect.Method [] methods = resolveMethodInfo(methodInfo,deploymentInfo);
-                        for(int x = 0; x < methods.length; x++){
-                            Method method = methods[x];
-                                    
-                            // filter out all EJBObject and EJBHome methods that are not remove() methods
-                            if((method.getDeclaringClass()==javax.ejb.EJBHome.class || method.getDeclaringClass()==javax.ejb.EJBObject.class) && !method.getName().equals("remove"))
-                                continue;// its an EJBObject or EJBHome method, and its not remove( ) skip it
-                                    
                             deploymentInfo.setMethodTransactionAttribute(method,transInfo.transAttribute);
                         }
                     }
