@@ -110,7 +110,9 @@ public class JNDIResponse implements Response {
             case JNDI_NOT_FOUND:
                 break;
             case JNDI_EJBHOME:
-                result = in.readObject();
+                EJBMetaDataImpl m = new EJBMetaDataImpl();
+                m.readExternal(in);
+                result = m;
                 break;
         }
     }
@@ -145,7 +147,8 @@ public class JNDIResponse implements Response {
             case JNDI_NOT_FOUND:
                 break;
             case JNDI_EJBHOME:
-                out.writeObject(result);
+                EJBMetaDataImpl m = (EJBMetaDataImpl)result;
+                m.writeExternal(out);
                 break;
 
         }

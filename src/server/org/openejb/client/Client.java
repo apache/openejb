@@ -124,7 +124,7 @@ public class Client {
             try{
 
                 // Write the request data.
-                objectOut.writeObject( req );
+                req.writeExternal( objectOut );
                 objectOut.flush();
 
             } catch (java.io.NotSerializableException e){
@@ -157,7 +157,7 @@ public class Client {
             /*----------------------------------*/
             try{
                 // Read the response from the server
-                res = (Response)objectIn.readObject();
+                res.readExternal( objectIn );
             } catch (ClassNotFoundException e){
                 throw new RemoteException("Cannot read the response from the server.  The class for an object being returned is not located in this system:" , e );
 

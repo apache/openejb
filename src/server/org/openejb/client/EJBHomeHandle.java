@@ -94,7 +94,7 @@ public class EJBHomeHandle implements java.io.Externalizable, javax.ejb.HomeHand
     public void writeExternal(ObjectOutput out) throws IOException{
 
         // Write the full proxy data
-        out.writeObject( handler.client );
+        handler.client.writeExternal( out );
 
         EJBMetaDataImpl ejb = handler.ejb;
         out.writeObject( ejb.homeClass );
@@ -103,7 +103,7 @@ public class EJBHomeHandle implements java.io.Externalizable, javax.ejb.HomeHand
         out.writeByte(   ejb.type );
         out.writeUTF(    ejb.deploymentID );
         out.writeShort(  ejb.deploymentCode );
-        out.writeObject( handler.server );
+        handler.server.writeExternal( out );
     }
 
     /**
@@ -113,11 +113,11 @@ public class EJBHomeHandle implements java.io.Externalizable, javax.ejb.HomeHand
      * @exception IOException
      */
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException{
-        ClientMetaData client = null;
+        ClientMetaData client = new ClientMetaData();
         EJBMetaDataImpl   ejb = new EJBMetaDataImpl();
-        ServerMetaData server = null;
+        ServerMetaData server = new ServerMetaData();        
 
-        client = (ClientMetaData)in.readObject();
+        client.readExternal( in );
 
         ejb.homeClass      = (Class) in.readObject();
         ejb.remoteClass    = (Class) in.readObject();
@@ -126,7 +126,7 @@ public class EJBHomeHandle implements java.io.Externalizable, javax.ejb.HomeHand
         ejb.deploymentID   = in.readUTF();
         ejb.deploymentCode = in.readShort();
 
-        server = (ServerMetaData)in.readObject();
+        server.readExternal( in );
 
         handler = EJBHomeHandler.createEJBHomeHandler(ejb, server, client);
         ejbHomeProxy = handler.createEJBHomeProxy();
