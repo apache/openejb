@@ -32,7 +32,7 @@ Local Server access:
     Properties properties = new Properties();
     
     properties.put(Context.INITIAL_CONTEXT_FACTORY, 
-        "org.openejb.core.ivm.naming.InitContextFactory");
+        "org.openejb.client.LocalInitialContextFactory");
     
     InitialContext ctx = new InitialContext(properties);
     
@@ -91,7 +91,7 @@ Remote Server access:
   ...
   try{
     Properties p = new Properties();
-    p.put("java.naming.factory.initial", "org.openejb.client.JNDIContext");
+    p.put("java.naming.factory.initial", "org.openejb.client.RemoteInitialContextFactory");
     p.put("java.naming.provider.url", "25.14.3.92:4201");
     p.put("java.naming.security.principal", "myuser");
     p.put("java.naming.security.credentials", "mypass");
