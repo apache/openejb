@@ -44,15 +44,13 @@
  */
 package org.openejb.test.entity.bmp;
 
-import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Properties;
-
-import javax.ejb.EJBException;
+import java.util.Vector;
+import javax.ejb.CreateException;
 import javax.ejb.EntityContext;
-import javax.ejb.RemoveException;
+import javax.ejb.FinderException;
 import javax.naming.InitialContext;
-import javax.sql.DataSource;
 
 import org.openejb.test.object.OperationsPolicy;
 
@@ -61,9 +59,6 @@ import org.openejb.test.object.OperationsPolicy;
  */
 public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
     
-    private int primaryKey;
-    private String firstName;
-    private String lastName;
     private EntityContext ejbContext;
     private static Hashtable allowedOperationsTable = new Hashtable();
     
@@ -76,11 +71,6 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * Maps to BasicBmpHome.sum
      * 
      * Adds x and y and returns the result.
-     * 
-     * @param one
-     * @param two
-     * @return x + y
-     * @see BasicBmpHome.sum
      */
     public int ejbHomeSum(int x, int y) {
         testAllowedOperations("ejbHome");
@@ -89,59 +79,38 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
     
     /**
      * Maps to BasicBmpHome.findEmptyCollection
-     * 
-     * @param primaryKey
-     * @return 
-     * @exception javax.ejb.FinderException
-     * @see BasicBmpHome.sum
      */
-    public java.util.Collection ejbFindEmptyCollection()
-    throws javax.ejb.FinderException, java.rmi.RemoteException {
-        return new java.util.Vector();
+    public java.util.Collection ejbFindEmptyCollection() throws FinderException{
+        return new Vector();
     }
 
-    public java.util.Enumeration ejbFindEmptyEnumeration()
-    throws javax.ejb.FinderException
+    public java.util.Enumeration ejbFindEmptyEnumeration() throws FinderException
     {
-        return (new java.util.Vector()).elements();
+        return (new Vector()).elements();
     }
 
-    public java.util.Collection ejbFindByLastName(String lastName)
-    throws javax.ejb.FinderException{
-        return new java.util.Vector();
+    public java.util.Collection ejbFindByLastName(String lastName) throws FinderException{
+        return new Vector();
     }
 
     /**
      * Maps to BasicBmpHome.findByPrimaryKey
-     * 
-     * @param primaryKey
-     * @return 
-     * @exception javax.ejb.FinderException
-     * @see BasicBmpHome.sum
      */
-    public Integer ejbFindByPrimaryKey(Integer primaryKey)
-    throws javax.ejb.FinderException{
+    public Integer ejbFindByPrimaryKey(Integer primaryKey) throws FinderException{
         testAllowedOperations("ejbFind");
         return new Integer(-1);
     }
 
     /**
      * Maps to BasicBmpHome.create
-     * 
-     * @param name
-     * @return 
-     * @exception javax.ejb.CreateException
-     * @see BasicBmpHome.create
      */
-    public Integer ejbCreate(String name)
-    throws javax.ejb.CreateException{
+    public Integer ejbCreate(String name) throws CreateException{
         testAllowedOperations("ejbCreate");
                 
         return new Integer(-1);
     }
     
-    public void ejbPostCreate(String name)
-    throws javax.ejb.CreateException{
+    public void ejbPostCreate(String name) {
     }
 
     //    
@@ -155,9 +124,6 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
     
     /**
      * Maps to BasicBmpObject.businessMethod
-     * 
-     * @return 
-     * @see BasicBmpObject.businessMethod
      */
     public String businessMethod(String text){
         testAllowedOperations("businessMethod");
@@ -190,9 +156,6 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * 
      * Returns a report of the bean's
      * runtime permissions
-     * 
-     * @return 
-     * @see BasicBmpObject.getPermissionsReport
      */
     public Properties getPermissionsReport(){
         /* TO DO: */
@@ -206,8 +169,6 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * for one of the bean's methods.
      * 
      * @param methodName The method for which to get the allowed opperations report
-     * @return 
-     * @see BasicBmpObject.getAllowedOperationsReport
      */
     public OperationsPolicy getAllowedOperationsReport(String methodName){
         return (OperationsPolicy) allowedOperationsTable.get(methodName);
@@ -227,7 +188,7 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * instance to synchronize its state by loading it state from the
      * underlying database.
      */
-    public void ejbLoad() throws EJBException,RemoteException {
+    public void ejbLoad() {
         testAllowedOperations("ejbLoad");
     }
     
@@ -235,7 +196,7 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * Set the associated entity context. The container invokes this method
      * on an instance after the instance has been created.
      */
-    public void setEntityContext(EntityContext ctx) throws EJBException,RemoteException {
+    public void setEntityContext(EntityContext ctx) {
         ejbContext = ctx;
         testAllowedOperations("setEntityContext");
     }
@@ -244,7 +205,7 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * Unset the associated entity context. The container calls this method
      * before removing the instance.
      */
-    public void unsetEntityContext() throws EJBException,RemoteException {
+    public void unsetEntityContext() {
         testAllowedOperations("unsetEntityContext");
     }
     
@@ -253,7 +214,7 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * instance to synchronize its state by storing it to the underlying
      * database.
      */
-    public void ejbStore() throws EJBException,RemoteException {
+    public void ejbStore() {
         testAllowedOperations("ejbStore");
     }
     
@@ -265,7 +226,7 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * This method transitions the instance from the ready state to the pool
      * of available instances.
      */
-    public void ejbRemove() throws RemoveException,EJBException,RemoteException {
+    public void ejbRemove() {
         testAllowedOperations("ejbRemove");
     }
     
@@ -275,7 +236,7 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * with a specific EJB object. This method transitions the instance to
      * the ready state.
      */
-    public void ejbActivate() throws EJBException,RemoteException {
+    public void ejbActivate() {
         testAllowedOperations("ejbActivate");
     }
     
@@ -285,8 +246,7 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * completes, the container will place the instance into the pool of
      * available instances.
      */
-    public void ejbPassivate() throws EJBException,RemoteException {
-
+    public void ejbPassivate() {
         testAllowedOperations("ejbPassivate");
     }
     //    
@@ -359,7 +319,7 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
 		try {
 			InitialContext jndiContext = new InitialContext();            
 	
-			String actual = (String)jndiContext.lookup("java:comp/env/stateless/references/JNDI_access_to_java_comp_env");
+			jndiContext.lookup("java:comp/env/entity/references/JNDI_access_to_java_comp_env");
 	
 			policy.allow( policy.JNDI_access_to_java_comp_env );
 		} catch (IllegalStateException ise) {
@@ -370,7 +330,7 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
 		try {
 			InitialContext jndiContext = new InitialContext( ); 
 	
-			DataSource ds = (DataSource)jndiContext.lookup("java:comp/env/stateless/references/Resource_manager_access");
+			jndiContext.lookup("java:comp/env/entity/references/Resource_manager_access");
 	
 			policy.allow( policy.Resource_manager_access );
 		} catch (IllegalStateException ise) {
@@ -381,7 +341,7 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
 		try {
 			InitialContext jndiContext = new InitialContext( ); 
 	
-			Object obj = jndiContext.lookup("java:comp/env/stateless/beanReferences/Enterprise_bean_access");
+			jndiContext.lookup("java:comp/env/entity/beanReferences/Enterprise_bean_access");
 	
 			policy.allow( policy.Enterprise_bean_access );
 		} catch (IllegalStateException ise) {

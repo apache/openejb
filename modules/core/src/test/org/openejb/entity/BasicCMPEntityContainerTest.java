@@ -51,8 +51,10 @@ import java.rmi.NoSuchObjectException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.HashMap;
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ObjectNotFoundException;
 import javax.management.ObjectName;
@@ -330,6 +332,11 @@ public class BasicCMPEntityContainerTest extends TestCase {
         ds = new AxionDataSource("jdbc:axiondb:testdb");
         Connection c = ds.getConnection();
         Statement s = c.createStatement();
+        try {
+            s.execute("DROP TABLE");
+        } catch (SQLException e) {
+            // ignore
+        }
         s.execute("CREATE TABLE MOCK(ID INTEGER, VALUE VARCHAR(50))");
         s.execute("INSERT INTO MOCK(ID, VALUE) VALUES(1, 'Hello')");
         s.close();
@@ -394,6 +401,8 @@ public class BasicCMPEntityContainerTest extends TestCase {
         ejb.addCMPField(new CMPField("value", String.class, false));
         ejb.addCMPField(new CMPField("id", Integer.class, true));
         builder.setEJB(ejb);
+
+        builder.setQueries(new HashMap());
 
         container = builder.createConfiguration();
 

@@ -51,11 +51,6 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import javax.ejb.EJBHome;
-import javax.ejb.EJBLocalHome;
-import javax.ejb.EJBObject;
-import javax.ejb.EJBLocalObject;
-
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
@@ -128,9 +123,9 @@ public final class InterfaceMethodSignature implements Serializable {
     }
 
     public boolean match(Method method) {
-        if (!isCorrectType(method.getDeclaringClass())) {
-            return false;
-        }
+//        if (!isCorrectType(method.getDeclaringClass())) {
+//            return false;
+//        }
 
         if(!methodName.equals(method.getName())) {
             return false;
@@ -148,7 +143,7 @@ public final class InterfaceMethodSignature implements Serializable {
     }
 
     public Method getMethod(Class clazz) {
-        if (!isCorrectType(clazz)) {
+        if (clazz == null) { // || !isCorrectType(clazz)) {
             return null;
         }
 
@@ -194,16 +189,16 @@ public final class InterfaceMethodSignature implements Serializable {
         return types;
     }
 
-    private boolean isCorrectType(Class clazz) {
-        if (isHomeMethod) {
-            if(!EJBHome.class.isAssignableFrom(clazz) && !EJBLocalHome.class.isAssignableFrom(clazz)) {
-                return false;
-            }
-        } else {
-            if(!EJBObject.class.isAssignableFrom(clazz) && !EJBLocalObject.class.isAssignableFrom(clazz)) {
-                return false;
-            }
-        }
-        return true;
-    }
+//    private boolean isCorrectType(Class clazz) {
+//        if (isHomeMethod) {
+//            if(!EJBHome.class.isAssignableFrom(clazz) && !EJBLocalHome.class.isAssignableFrom(clazz)) {
+//                return false;
+//            }
+//        } else {
+//            if(!EJBObject.class.isAssignableFrom(clazz) && !EJBLocalObject.class.isAssignableFrom(clazz)) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
 }

@@ -460,7 +460,7 @@ public class BasicBmpBean implements EntityBean {
         try {
             InitialContext jndiContext = new InitialContext();
 
-            jndiContext.lookup("java:comp/env/stateless/references/JNDI_access_to_java_comp_env");
+            jndiContext.lookup("java:comp/env/entity/references/JNDI_access_to_java_comp_env");
 
             policy.allow(policy.JNDI_access_to_java_comp_env);
         } catch (IllegalStateException ise) {
@@ -471,7 +471,7 @@ public class BasicBmpBean implements EntityBean {
         try {
             InitialContext jndiContext = new InitialContext();
 
-            jndiContext.lookup("java:comp/env/stateless/references/Resource_manager_access");
+            jndiContext.lookup("java:comp/env/entity/references/Resource_manager_access");
 
             policy.allow(policy.Resource_manager_access);
         } catch (IllegalStateException ise) {
@@ -482,7 +482,7 @@ public class BasicBmpBean implements EntityBean {
         try {
             InitialContext jndiContext = new InitialContext();
 
-            jndiContext.lookup("java:comp/env/stateless/beanReferences/Enterprise_bean_access");
+            jndiContext.lookup("java:comp/env/entity/beanReferences/Enterprise_bean_access");
 
             policy.allow(policy.Enterprise_bean_access);
         } catch (IllegalStateException ise) {

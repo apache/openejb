@@ -89,7 +89,7 @@ public class CMPFinder implements VirtualOperation, Serializable {
 
             Object returnValue = resultsFactory.createQueryResults(result);
             if (returnValue != null) {
-                return new SimpleInvocationResult(true, result.getValues().get(0));
+                return new SimpleInvocationResult(true, returnValue);
             } else {
                 return new SimpleInvocationResult(false, new ObjectNotFoundException());
             }

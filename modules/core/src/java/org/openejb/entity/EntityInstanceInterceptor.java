@@ -132,6 +132,8 @@ public final class EntityInstanceInterceptor implements Interceptor {
                 try {
                     context.setOperation(EJBOperation.EJBACTIVATE);
                     instance.ejbPassivate();
+                    context.setOperation(EJBOperation.EJBLOAD);
+                    context.flush();
                 } catch (Throwable t) {
                     // problem passivating instance - discard it and throw the problem (will cause rollback)
                     pool.remove(context);
