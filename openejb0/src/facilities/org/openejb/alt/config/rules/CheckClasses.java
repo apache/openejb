@@ -103,7 +103,7 @@ public class CheckClasses implements ValidationRule {
     
     private void lookForClass(Bean b, String clazz, String type){
         try {
-            SafeToolkit.loadClass( clazz, set.getJarPath() );
+            SafeToolkit.loadClass( clazz, set.getJarPath(), false );
         } catch ( OpenEJBException e ) {
             /*
             # 0 - Class name
@@ -124,7 +124,7 @@ public class CheckClasses implements ValidationRule {
     private void compareTypes(Bean b, String clazz1, Class class2 ){
         Class class1 = null;
         try {
-            class1 = SafeToolkit.loadClass( clazz1 , set.getJarPath() );
+            class1 = SafeToolkit.loadClass( clazz1 , set.getJarPath(), false );
         } catch ( OpenEJBException e ) {}
 
         if ( class1 != null && !class2.isAssignableFrom( class1 ) ) {
