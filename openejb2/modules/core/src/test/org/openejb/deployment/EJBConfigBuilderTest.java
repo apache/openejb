@@ -151,7 +151,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
             EJBModule module = new EJBModule("TestModule", URI.create("/"));
             module.setSpecDD(ejbJar);
-            configBuilder.createSessionBean(earContext, module, "containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, null, cl);
+            configBuilder.getSessionBuilder().createBean(earContext, module, "containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, null, cl);
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }
