@@ -47,7 +47,7 @@ package org.openejb.corba.security;
 import java.util.Hashtable;
 import java.util.Map;
 
-import org.apache.geronimo.interop.CSI.SASContextBody;
+import org.omg.CSI.SASContextBody;
 
 
 /**

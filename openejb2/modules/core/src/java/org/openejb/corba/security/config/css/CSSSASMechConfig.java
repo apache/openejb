@@ -50,13 +50,12 @@ package org.openejb.corba.security.config.css;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-
-import org.apache.geronimo.interop.CSI.ITTAbsent;
-import org.apache.geronimo.interop.CSI.ITTPrincipalName;
-import org.apache.geronimo.interop.CSI.AuthorizationElement;
-import org.apache.geronimo.interop.CSI.IdentityToken;
-import org.apache.geronimo.interop.CSIIOP.DelegationByClient;
-import org.apache.geronimo.interop.CSIIOP.IdentityAssertion;
+import org.omg.CSI.AuthorizationElement;
+import org.omg.CSI.ITTAbsent;
+import org.omg.CSI.ITTPrincipalName;
+import org.omg.CSI.IdentityToken;
+import org.omg.CSIIOP.DelegationByClient;
+import org.omg.CSIIOP.IdentityAssertion;
 
 import org.openejb.corba.security.config.tss.TSSSASMechConfig;
 import org.openejb.corba.security.config.tss.TSSServiceConfigurationConfig;

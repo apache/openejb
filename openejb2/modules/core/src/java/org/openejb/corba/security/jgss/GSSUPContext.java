@@ -60,13 +60,13 @@ import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.MessageProp;
 import org.ietf.jgss.Oid;
+import org.omg.GSSUP.InitialContextToken;
 import sun.security.jgss.spi.GSSContextSpi;
 import sun.security.jgss.spi.GSSCredentialSpi;
 import sun.security.jgss.spi.GSSNameSpi;
 
 import org.apache.geronimo.security.jaas.UsernamePasswordCallback;
 import org.apache.geronimo.security.jaas.UsernamePasswordCredential;
-import org.apache.geronimo.interop.GSSUP.InitialContextToken;
 
 import org.openejb.corba.util.Util;
 

@@ -55,9 +55,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.geronimo.interop.CSIIOP.Confidentiality;
-import org.apache.geronimo.interop.CSIIOP.EstablishTrustInTarget;
-import org.apache.geronimo.interop.CSIIOP.NoProtection;
+import org.omg.CSIIOP.Confidentiality;
+import org.omg.CSIIOP.EstablishTrustInTarget;
+import org.omg.CSIIOP.NoProtection;
 
 
 /**

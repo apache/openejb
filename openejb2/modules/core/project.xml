@@ -203,6 +203,15 @@
 
         <dependency>
             <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-corba</artifactId>
+            <version>${geronimo_spec_corba_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
             <version>${geronimo_spec_jta_version}</version>
             <properties>

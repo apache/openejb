@@ -51,12 +51,11 @@ import java.io.Serializable;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.UserException;
+import org.omg.CSI.EstablishContext;
+import org.omg.CSI.SASContextBody;
+import org.omg.CSI.SASContextBodyHelper;
 import org.omg.IOP.SecurityAttributeService;
 import org.omg.IOP.ServiceContext;
-
-import org.apache.geronimo.interop.CSI.EstablishContext;
-import org.apache.geronimo.interop.CSI.SASContextBody;
-import org.apache.geronimo.interop.CSI.SASContextBodyHelper;
 
 import org.openejb.corba.security.config.tss.TSSCompoundSecMechConfig;
 import org.openejb.corba.util.Util;

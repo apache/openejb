@@ -48,11 +48,10 @@
 package org.openejb.corba.security.config.tss;
 
 import org.omg.CORBA.ORB;
+import org.omg.CSIIOP.AS_ContextSec;
+import org.omg.CSIIOP.EstablishTrustInClient;
+import org.omg.GSSUP.GSSUPMechOID;
 import org.omg.IOP.Codec;
-
-import org.apache.geronimo.interop.CSIIOP.AS_ContextSec;
-import org.apache.geronimo.interop.CSIIOP.EstablishTrustInClient;
-import org.apache.geronimo.interop.GSSUP.GSSUPMechOID;
 
 import org.openejb.corba.util.Util;
 

@@ -45,18 +45,26 @@
 package org.openejb.corba.security;
 
 import java.util.Set;
-import javax.security.auth.Subject;
 import javax.security.auth.DestroyFailedException;
+import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.INV_POLICY;
 import org.omg.CORBA.LocalObject;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.ORB;
-import org.omg.CORBA.BAD_PARAM;
+import org.omg.CSI.CompleteEstablishContext;
+import org.omg.CSI.ContextError;
+import org.omg.CSI.MTCompleteEstablishContext;
+import org.omg.CSI.MTContextError;
+import org.omg.CSI.MTEstablishContext;
+import org.omg.CSI.MTMessageInContext;
+import org.omg.CSI.SASContextBody;
+import org.omg.CSI.SASContextBodyHelper;
 import org.omg.IOP.CodecPackage.FormatMismatch;
 import org.omg.IOP.CodecPackage.InvalidTypeForEncoding;
 import org.omg.IOP.CodecPackage.TypeMismatch;
@@ -66,14 +74,6 @@ import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
 
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.interop.CSI.SASContextBodyHelper;
-import org.apache.geronimo.interop.CSI.SASContextBody;
-import org.apache.geronimo.interop.CSI.MTEstablishContext;
-import org.apache.geronimo.interop.CSI.ContextError;
-import org.apache.geronimo.interop.CSI.CompleteEstablishContext;
-import org.apache.geronimo.interop.CSI.MTCompleteEstablishContext;
-import org.apache.geronimo.interop.CSI.MTContextError;
-import org.apache.geronimo.interop.CSI.MTMessageInContext;
 
 import org.openejb.corba.security.config.tss.TSSConfig;
 import org.openejb.corba.util.Util;
