@@ -107,6 +107,9 @@ by the server.
         <uri>openorb/jars/openorb-orb-${openorb_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>openorb/jars/openorb-tools-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>openorb/jars/openorb-ins-${openorb_version}.jar</uri>
     </dependency>
     <dependency>
@@ -144,6 +147,12 @@ by the server.
     </dependency>
     <dependency>
          <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+         <uri>xfire/jars/xfire-${xfire_version}.jar</uri>
+    </dependency>
+    <dependency>
+         <uri>xfire/jars/xfire-java-${xfire_version}.jar</uri>
     </dependency>
 
 
