@@ -145,8 +145,7 @@ public abstract class EjbObjectProxyHandler extends BaseEjbProxyHandler {
          */
         }catch ( org.openejb.InvalidateReferenceException ire ) {
             invalidateAllHandlers(getRegistryId());
-            // TODO:3: Shouldn't we throw this instead of returning it?
-            return ire.getRootCause();
+            throw ire.getRootCause();
         /*
          * Application exceptions must be reported dirctly to the client. They
          * do not impact the viability of the proxy.
