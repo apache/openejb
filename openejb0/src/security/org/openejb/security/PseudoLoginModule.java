@@ -99,7 +99,7 @@ public class PseudoLoginModule implements javax.security.auth.spi.LoginModule {
             return false;
         } else {
             SecurityRealmSpi securityRealm = (SecurityRealmSpi)_options.get( SecurityRealmSpi.SECURITY_REALM );
-//	    PseudoPrincipal principal = new PseudoPrincipal( securityRealm.getSecurityRealmName(), "PSEUDO" );
+	    
 	    RealmPrincipal principal = new RealmPrincipal( securityRealm.getSecurityRealmName(), new PseudoPrincipal( "PSEUDO" ) );
             if ( !_subject.getPrincipals().contains( principal ) ) {
 		_subject.getPrincipals().add( principal );

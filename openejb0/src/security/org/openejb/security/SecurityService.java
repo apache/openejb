@@ -136,7 +136,7 @@ public class SecurityService
      */   
     public boolean isCallerAuthorized( Object securityIdentity, String [] roleNames ) {
 
-        if (securityIdentity == null) return false;
+        if (securityIdentity == null) return true;
 
         if (roleNames == null) return true;
 
