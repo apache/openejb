@@ -4,30 +4,20 @@
             Daniel S. Haischt <sirabyss@gmx.net>
     -->
 
-  <!-- Give user a chance to override without editing this file
-       (and without typing -D each time they invoke a target) -->
-
-  <!-- Allow any user specific values to override the defaults -->
   <property file="${user.home}/build.properties" />
-
-  <!-- Set default values for the build -->
-  <property file="./build.properties" />
+  <property file="build.properties" />
 
   <property name="build.src" value="${build.dir}/src"/>
   <property name="build.dest" value="${build.dir}/classes"/>
   
-  <!-- Build classpath -->
   <path id="project.classpath">
     <pathelement location="${ejb11.jar}"/>
     <pathelement location="${jndi.jar}"/>
     <pathelement location="${tomcat.dir}/server/lib/catalina.jar"/>
   </path>
     
-  <!-- ================================================================== -->
-  <!-- Prints useful build environment values                             -->
-  <!-- ================================================================== -->
-  
-  <target name="env" depends="check_available">
+  <target name="env" depends="set_properties"
+          description="--> prints useful build environment values">
     <tstamp/>
 
     <echo message="version                = ${version}"/>
@@ -44,23 +34,15 @@
     
   </target>
 
-  <!-- ================================================================== -->
-  <!-- Help on usage                                                      -->
-  <!-- ================================================================== -->
-  
-  <target name="usage">
-    <echo message="use -projecthelp to see the available targets"/>
+  <target name="check_integrity"
+          depends="env,
+                   check.ejb11,
+                   check.jndi,
+                   check.tomcat"
+          description="--> ensures that required dependencies are available">
   </target>
   
-  <target name="targets">
-    <echo message="use -projecthelp to see the available targets"/>
-  </target>
-  
-  <!-- ================================================================== -->
-  <!-- Check to see what optional dependencies are available              -->
-  <!-- ================================================================== -->
-  
-  <target name="check_available">
+  <target name="set_properties">
     
     <available 
       file="${ejb11.jar}"
@@ -124,14 +106,17 @@
       +----------------------------------------------------------------+
       + F A I L E D  R E Q U I R E M E N T                             |
       +----------------------------------------------------------------+
-      | You must define the following property in order                |
-      | to build OpenEJB:                                              |
+      | You must define the following property                         |
+      | in order to build OpenEJB.                                     |
+      |                                                                |
+      | Now, the value is wrong or not set.                            |
       |                                                                |
       | ${name} = ${value}
       |                                                                |
-      | You can set this property in the provided build.properties     |
-      | file, or you may set this property in your                     |
-      | ${user.home}/build.properties file.                            
+      | You can set this property in one of the following ways:        |
+      |  o in ${user.dir}/build.properties file
+      |  o in ${user.home}/build.properties file
+      |  o ant -D${name}=YOUR_VALUE TARGET
       +----------------------------------------------------------------+
     </echo>
     <fail message="Failed Requirement"/>
@@ -145,10 +130,7 @@
   <!-- ================================================================== -->
   
   <target name="prepare"
-          depends="env,
-                   check.ejb11,
-                   check.jndi,
-                   check.tomcat"
+          depends="check_integrity"
           description="--> prepares the build environment">
           
     <mkdir dir="${build.src}"/>
@@ -208,31 +190,22 @@
   <target name="clean"
           description="--> cleans up the build directory">
     <delete dir="${build.dir}"/>
-
-    <antcall target="delegate">
-        <param name="target.name" value="clean"/>
-    </antcall>    
   </target>
           
-  <target name="delegate">
-  
+  <target name="delegate">  
     <antcall target="pre-delegate">
         <param name="module" value="ejb"/>
-    </antcall>    
-    
+    </antcall>        
     <antcall target="pre-delegate">
         <param name="module" value="web"/>
     </antcall>    
-
-
   </target>
   
   <target name="pre-delegate">
     <available
       property="build-${module}.present"
       file="build-${module}.xml"
-    />
-    
+    />    
     <antcall target="post-delegate" />
   </target>
 
@@ -240,6 +213,7 @@
     <echo message="${target.name}   ${module}"/>
     
     <ant antfile="build-${module}.xml" target="${target.name}">
+      <property file="${user.home}/build.properties" />
       <property file="build.properties"/>
       
       <property name="build.src" value="${build.src}"/>
