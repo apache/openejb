@@ -47,49 +47,31 @@
  */
 package org.openejb.mdb;
 
-import java.util.Set;
-import javax.ejb.MessageDrivenBean;
+import javax.resource.spi.endpoint.MessageEndpoint;
 
-import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.openejb.AbstractInstanceContext;
-import org.openejb.EJBOperation;
+import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.proxy.CglibEJBProxyFactory;
+import org.openejb.proxy.EJBProxyHelper;
 
 /**
- * Wrapper for a MDB.
- *
  * @version $Revision$ $Date$
  */
-public final class MDBInstanceContext extends AbstractInstanceContext {
-    private final Object containerId;
-    private final MDBContext mdbContext;
+public class EndpointFactory {
+    private final MDBContainer mdbContainer;
+    private final CglibEJBProxyFactory endpointFactory;
+    private final int[] operationMap;
 
-    public MDBInstanceContext(Object containerId, MessageDrivenBean instance, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
-        super(unshareableResources, applicationManagedSecurityResources, instance, null);
-        this.containerId = containerId;
-        this.mdbContext = new MDBContext(this, userTransaction);
+    public EndpointFactory(MDBContainer mdbContainer, Class mdbInterface, ClassLoader classLoader) {
+        this.mdbContainer = mdbContainer;
+        InterfaceMethodSignature[] signatures = mdbContainer.getSignatures();
+        endpointFactory = new CglibEJBProxyFactory(EndpointProxy.class, new Class[]{mdbInterface, MessageEndpoint.class}, classLoader);
+        operationMap = EJBProxyHelper.getOperationMap(endpointFactory.getType(), signatures);
     }
 
-    public Object getContainerId() {
-        return containerId;
-    }
-
-    public Object getId() {
-        return null;
-    }
-
-    public void setId(Object id) {
-        throw new AssertionError("Cannot set identity for a MDB Context");
-    }
-
-    public void flush() {
-        throw new AssertionError("Cannot flush a MDB Context");
-    }
-
-    public MDBContext getMessageDrivenContext() {
-        return mdbContext;
-    }
-
-    public void setOperation(EJBOperation operation) {
-        mdbContext.setState(operation);
+    public MessageEndpoint getMessageEndpoint(Object primaryKey) {
+        EndpointHandler handler = new EndpointHandler(mdbContainer, operationMap);
+        return (MessageEndpoint) endpointFactory.create(handler,
+                new Class[]{EndpointHandler.class},
+                new Object[]{handler});
     }
 }

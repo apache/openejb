@@ -47,49 +47,38 @@
  */
 package org.openejb.mdb;
 
+import java.io.Serializable;
 import java.util.Set;
 import javax.ejb.MessageDrivenBean;
 
+import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.UserTransactionImpl;
-import org.openejb.AbstractInstanceContext;
-import org.openejb.EJBOperation;
+import org.openejb.EJBInstanceFactory;
+import org.openejb.EJBInstanceFactoryImpl;
 
 /**
- * Wrapper for a MDB.
- *
  * @version $Revision$ $Date$
  */
-public final class MDBInstanceContext extends AbstractInstanceContext {
+public class MDBInstanceContextFactory implements Serializable {
     private final Object containerId;
-    private final MDBContext mdbContext;
+    private final EJBInstanceFactory factory;
+    private final UserTransactionImpl userTransaction;
+    private final Set unshareableResources;
+    private final Set applicationManagedSecurityResources;
 
-    public MDBInstanceContext(Object containerId, MessageDrivenBean instance, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
-        super(unshareableResources, applicationManagedSecurityResources, instance, null);
+    public MDBInstanceContextFactory(Object containerId, Class beanClass, UserTransactionImpl userTransaction, Set unshareableResources, Set applicationManagedSecurityResources) {
         this.containerId = containerId;
-        this.mdbContext = new MDBContext(this, userTransaction);
+        this.userTransaction = userTransaction;
+        this.factory = new EJBInstanceFactoryImpl(beanClass);
+        this.unshareableResources = unshareableResources;
+        this.applicationManagedSecurityResources = applicationManagedSecurityResources;
     }
 
-    public Object getContainerId() {
-        return containerId;
-    }
-
-    public Object getId() {
-        return null;
-    }
-
-    public void setId(Object id) {
-        throw new AssertionError("Cannot set identity for a MDB Context");
-    }
-
-    public void flush() {
-        throw new AssertionError("Cannot flush a MDB Context");
-    }
-
-    public MDBContext getMessageDrivenContext() {
-        return mdbContext;
-    }
-
-    public void setOperation(EJBOperation operation) {
-        mdbContext.setState(operation);
+    public InstanceContext newInstance() throws Exception {
+        return new MDBInstanceContext(containerId,
+                (MessageDrivenBean) factory.newInstance(),
+                userTransaction,
+                unshareableResources,
+                applicationManagedSecurityResources);
     }
 }

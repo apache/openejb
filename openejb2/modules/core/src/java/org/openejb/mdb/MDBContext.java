@@ -48,7 +48,6 @@
 package org.openejb.mdb;
 
 import java.security.Principal;
-
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -58,6 +57,7 @@ import javax.ejb.TimerService;
 import javax.transaction.UserTransaction;
 import javax.xml.rpc.handler.MessageContext;
 
+import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
@@ -69,9 +69,8 @@ import org.openejb.EJBOperation;
  * @version $Revision$ $Date$
  */
 public class MDBContext extends EJBContextImpl implements MessageDrivenContext {
-    public MDBContext(MDBInstanceContext context) {
-        // todo add user transaction
-        super(context, null);
+    public MDBContext(MDBInstanceContext context, UserTransactionImpl userTransaction) {
+        super(context, userTransaction);
         state = MDBContext.INACTIVE;
     }
 
