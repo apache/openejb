@@ -57,6 +57,34 @@
         </entity>
     </enterprise-beans>
     <assembly-descriptor>
+        <method-permission>
+            <unchecked/>
+            <method>
+                <ejb-name>SimpleStatelessSession</ejb-name>
+                <method-name>*</method-name>
+            </method>
+        </method-permission>
+        <method-permission>
+            <unchecked/>
+            <method>
+                <ejb-name>SimpleStatefulSession</ejb-name>
+                <method-name>*</method-name>
+            </method>
+        </method-permission>
+        <method-permission>
+            <unchecked/>
+            <method>
+                <ejb-name>SimpleBMPEntity</ejb-name>
+                <method-name>*</method-name>
+            </method>
+        </method-permission>
+        <method-permission>
+            <unchecked/>
+            <method>
+                <ejb-name>SimpleCMPEntity</ejb-name>
+                <method-name>*</method-name>
+            </method>
+        </method-permission>
         <container-transaction>
             <description>Transaction attributes for 'SimpleStatelessSession' methods</description>
             <method>
@@ -89,33 +117,6 @@
             </method>
             <trans-attribute>Required</trans-attribute>
         </container-transaction>
-        <method-permission>
-            <method>
-                <ejb-name>SimpleStatelessSession</ejb-name>
-                <method-name>*</method-name>
-            </method>
-            <unchecked/>
-        </method-permission>
-        <method-permission>
-            <method>
-                <ejb-name>SimpleStatefulSession</ejb-name>
-                <method-name>*</method-name>
-            </method>
-            <unchecked/>
-        </method-permission>
-        <method-permission>
-            <method>
-                <ejb-name>SimpleBMPEntity</ejb-name>
-                <method-name>*</method-name>
-            </method>
-            <unchecked/>
-        </method-permission>
-        <method-permission>
-            <method>
-                <ejb-name>SimpleCMPEntity</ejb-name>
-                <method-name>*</method-name>
-            </method>
-            <unchecked/>
-        </method-permission>
     </assembly-descriptor>
+
 </ejb-jar>
