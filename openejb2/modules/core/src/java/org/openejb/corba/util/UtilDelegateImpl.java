@@ -76,6 +76,7 @@ public final class UtilDelegateImpl implements UtilDelegate {
 
     private final Log log = LogFactory.getLog(UtilDelegateImpl.class);
     private final UtilDelegate delegate;
+    private static ClassLoader classLoader;
 
     private final static String DELEGATE_NAME = "org.openejb.corba.UtilDelegateClass";
 
@@ -88,6 +89,10 @@ public final class UtilDelegateImpl implements UtilDelegate {
 
         if (log.isDebugEnabled()) log.debug("Set delegate " + value);
         delegate = (UtilDelegate) Class.forName(value).newInstance();
+    }
+
+    static void setClassLoader(ClassLoader classLoader) {
+        UtilDelegateImpl.classLoader = classLoader;
     }
 
     public void unexportObject(Remote target) throws NoSuchObjectException {
@@ -159,11 +164,20 @@ public final class UtilDelegateImpl implements UtilDelegate {
     }
 
     public Class loadClass(String className, String remoteCodebase, ClassLoader loader) throws ClassNotFoundException {
-        if (log.isDebugEnabled()) log.debug("loadClass: " + className + ", " + remoteCodebase + ", " + loader);
+        if (log.isDebugEnabled()) log.debug("Load class: " + className + ", " + remoteCodebase + ", " + loader);
 
-        Class result = delegate.loadClass(className, remoteCodebase, loader);
-        if (result == null) {
-            
+        Class result = null;
+        try {
+            result = delegate.loadClass(className, remoteCodebase, loader);
+        } catch (ClassNotFoundException e) {
+            if (log.isDebugEnabled()) log.debug("Unable to load class from delegate");
+        }
+        if (result == null && classLoader != null) {
+            if (log.isDebugEnabled()) log.debug("Attempting to load " + className + " from the static class loader");
+
+            result = classLoader.loadClass(className);
+
+            if (log.isDebugEnabled()) log.debug("result: " + (result == null ? "NULL" : result.getName()));
         }
 
         return result;

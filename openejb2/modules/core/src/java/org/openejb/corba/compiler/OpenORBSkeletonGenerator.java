@@ -67,10 +67,9 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.system.main.ToolsJarHack;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.system.main.ToolsJarHack;
 
-import org.openejb.corba.proxy.StubGenerator;
 import org.openejb.util.JarUtils;
 
 
@@ -122,10 +121,8 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
 
 
             TEMPDIR = DeploymentUtil.createTempDir();
-//            File SRCDIR = new File(TEMPDIR, "JAVA");
-//            File CLASSESDIR = new File(TEMPDIR, "classes");
-            File SRCDIR = new File(TEMPDIR, "adc");
-            File CLASSESDIR = new File(TEMPDIR, "adc");
+            File SRCDIR = new File(TEMPDIR, "SKEL");
+            File CLASSESDIR = new File(TEMPDIR, "SKEL");
             SRCDIR.mkdirs();
             CLASSESDIR.mkdirs();
 
@@ -151,19 +148,14 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
                 IdlObject compilationGraph = parser.getIdlTreeRoot();
                 Javatoidl toIDL = new Javatoidl(rcp, this);
 
-                StubGenerator sg = new StubGenerator(rcp, this);
-
                 int end = parser.getCompilationTree().size();
                 for (int i = start; i < end; i++) {
                     IdlObject object = (IdlObject) parser.getCompilationTree().get(i);
 
                     toIDL.translateRMITie(object);
-                    toIDL.translateRMIStub(object);
                 }
 
                 toIDL.translateRMITie(compilationGraph);
-                toIDL.translateRMIStub(compilationGraph);
-                sg.translateData(compilationGraph, "");
 
                 start = end;
 
