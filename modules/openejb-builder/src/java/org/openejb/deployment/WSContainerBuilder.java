@@ -78,7 +78,7 @@ import org.apache.geronimo.webservices.*;
 import org.apache.geronimo.validator.ValidationContext;
 import org.apache.geronimo.validator.ValidationError;
 import org.apache.geronimo.validator.ValidationFailure;
-import org.openejb.server.soap.WSContainerGBean;
+import org.openejb.server.xfire.WSContainerGBean;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 
 public class WSContainerBuilder {
