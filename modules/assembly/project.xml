@@ -766,33 +766,6 @@
 
         <dependency>
             <groupId>axis</groupId>
-            <artifactId>axis-jaxrpc</artifactId>
-            <version>${axis_jaxrpc_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis-saaj</artifactId>
-            <version>${axis_saaj_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis-wsdl4j</artifactId>
-            <version>${axis_wsdl4j_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>axis</groupId>
             <artifactId>commons-discovery</artifactId>
             <version>${axis_commons_discovery_version}</version>
             <properties>
