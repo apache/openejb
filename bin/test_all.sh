@@ -24,16 +24,31 @@ fi
 JAVA=$JAVA_HOME/bin/java
 TEST_HOME=test/conf
 
+# ============ BEGIN OS TYPE TESTS ============
+
+if [ -n "$OS" ]; then
+    if [ "$OS" = "Windows_NT" ]; then
+        OSTYPE="Windows_NT"
+    fi
+fi
+
 if [ -z "$OSTYPE" ] ; then
   echo "OSTYPE environment variable is not set.  Cannot determine the host operating system!" 
   exit 1
 fi
 
 # PS stands for PATH_SEPARATOR 
-PS=':'
- if [ $OSTYPE = "cygwin32" ] || [ $OSTYPE = "cygwin" ] ; then
-    PS=';'
- fi
+PS=":"
+
+if [ "$OSTYPE" = "cygwin32" ]; then
+    PS=";"
+elif [ "$OSTYPE" = "Windows_NT" ]; then
+    PS=";"
+elif [ "$OSTYPE" = "cygwin" ]; then
+    PS=";"
+fi
+
+# ============= END OS TYPE TESTS =============
 
 # Setup Classpath
 
