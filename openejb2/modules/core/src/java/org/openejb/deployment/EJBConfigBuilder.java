@@ -303,7 +303,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
                     "null",
                     ejbModuleName);
 
-            GBeanMBean sessionGBean = createSessionBean(sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper, cl);
+            GBeanMBean sessionGBean = createSessionBean(sessionObjectName.getCanonicalName(), sessionBean, openejbSessionBean, transactionPolicyHelper, cl);
             context.addGBean(sessionObjectName, sessionGBean);
         }
 
@@ -322,7 +322,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
                     "null",
                     ejbModuleName);
 
-            GBeanMBean entityGBean = createEntityBean(entityObjectName, entityBean, openejbEntityBean, transactionPolicyHelper, cl);
+            GBeanMBean entityGBean = createEntityBean(entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, transactionPolicyHelper, cl);
             context.addGBean(entityObjectName, entityGBean);
         }
     }
@@ -331,7 +331,8 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         String ejbName = sessionBean.getEjbName().getStringValue();
 
         ContainerBuilder builder = null;
-        if ("Stateless".equals(sessionBean.getSessionType().getStringValue())) {
+        boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue());
+        if (isStateless) {
             builder = new StatelessContainerBuilder();
         } else {
             builder = new StatefulContainerBuilder();
@@ -349,7 +350,11 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         if ("Bean".equals(sessionBean.getTransactionType().getStringValue())) {
             userTransaction = new UserTransactionImpl();
             builder.setUserTransaction(userTransaction);
-            builder.setTransactionPolicySource(TransactionPolicyHelper.StatelessBMTPolicySource);
+            if (isStateless) {
+                builder.setTransactionPolicySource(TransactionPolicyHelper.StatelessBMTPolicySource);
+            } else {
+                builder.setTransactionPolicySource(TransactionPolicyHelper.StatefulBMTPolicySource);
+            }
         } else {
             userTransaction = null;
             TransactionPolicySource transactionPolicySource = transactionPolicyHelper.getTransactionPolicySource(ejbName);
