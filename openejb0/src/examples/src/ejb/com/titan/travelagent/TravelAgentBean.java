@@ -1,13 +1,12 @@
 package com.titan.travelagent;
 
-import com.titan.cabin.CabinRemote;
-import com.titan.cabin.CabinHomeRemote;
-import java.rmi.RemoteException;
-import javax.naming.InitialContext;
-import javax.naming.Context;
-import javax.ejb.EJBException;
-import java.util.Properties;
 import java.util.Vector;
+
+import javax.ejb.EJBException;
+import javax.naming.InitialContext;
+
+import com.titan.cabin.CabinHomeRemote;
+import com.titan.cabin.CabinRemote;
 
 public class TravelAgentBean implements javax.ejb.SessionBean 
 {

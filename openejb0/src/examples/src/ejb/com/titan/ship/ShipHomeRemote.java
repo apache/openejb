@@ -1,10 +1,10 @@
 package com.titan.ship;
 
-import javax.ejb.EJBHome;
-import javax.ejb.CreateException;
-import javax.ejb.FinderException;
 import java.rmi.RemoteException;
 import java.util.Collection;
+
+import javax.ejb.CreateException;
+import javax.ejb.FinderException;
 
 public interface ShipHomeRemote extends javax.ejb.EJBHome {
 

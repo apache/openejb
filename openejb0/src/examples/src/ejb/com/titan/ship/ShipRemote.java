@@ -1,6 +1,5 @@
 package com.titan.ship;
 
-import javax.ejb.EJBObject;
 import java.rmi.RemoteException;
 
 public interface ShipRemote extends javax.ejb.EJBObject {

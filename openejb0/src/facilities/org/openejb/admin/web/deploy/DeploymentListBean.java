@@ -46,7 +46,6 @@ package org.openejb.admin.web.deploy;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
 

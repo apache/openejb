@@ -44,7 +44,8 @@
  */
 package org.openejb.alt.assembler.modern.jar;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * OpenEJB-specific metadata for a security role listed in an EJB JAR.  This

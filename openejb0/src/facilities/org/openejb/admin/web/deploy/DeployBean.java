@@ -52,8 +52,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -62,9 +60,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.rmi.PortableRemoteObject;
 
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
-import org.openejb.OpenEJBException;
 import org.openejb.admin.web.HttpRequest;
 import org.openejb.admin.web.HttpResponse;
 import org.openejb.admin.web.WebAdminBean;

@@ -63,15 +63,12 @@ import org.exolab.castor.jdo.conf.Driver;
 import org.exolab.castor.jdo.conf.Jndi;
 import org.exolab.castor.jdo.conf.Mapping;
 import org.exolab.castor.jdo.conf.Param;
-import org.exolab.castor.mapping.xml.MappingRoot;
 import org.exolab.castor.xml.ValidationException;
 import org.openejb.admin.web.HttpRequest;
 import org.openejb.admin.web.HttpResponse;
 import org.openejb.admin.web.WebAdminBean;
 import org.openejb.core.EnvProps;
 import org.openejb.util.FileUtils;
-import org.openejb.util.HtmlUtilities;
-import org.openejb.util.StringUtilities;
 
 /**
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>

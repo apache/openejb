@@ -44,10 +44,18 @@
  */
 package org.openejb.alt.assembler.modern.services;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import javax.naming.*;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+
 import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.alt.assembler.modern.AssemblerUtilities;

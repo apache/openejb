@@ -44,19 +44,12 @@
  */
 package org.openejb.test.stateless;
 
-import junit.framework.*;
-import javax.ejb.*;
-import java.util.Properties;
-import javax.naming.InitialContext;
-
 import org.openejb.test.entity.bmp.EncBmpHome;
 import org.openejb.test.entity.bmp.EncBmpObject;
 import org.openejb.test.entity.cmp.EncCmpHome;
 import org.openejb.test.entity.cmp.EncCmpObject;
 import org.openejb.test.stateful.EncStatefulHome;
 import org.openejb.test.stateful.EncStatefulObject;
-import org.openejb.test.stateless.EncStatelessHome;
-import org.openejb.test.stateless.EncStatelessObject;
 
 /**
  *

@@ -44,11 +44,13 @@
  */
 package org.acme.clients;
 
-import javax.rmi.*;
-import javax.naming.*;
-import java.util.*;
+import java.util.Properties;
 
-import org.acme.hello.*;
+import javax.naming.InitialContext;
+import javax.rmi.PortableRemoteObject;
+
+import org.acme.hello.HelloHome;
+import org.acme.hello.HelloObject;
 
 
 public class HelloWorld {

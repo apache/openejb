@@ -44,9 +44,6 @@
  */
 package org.openejb.admin.web.cmp.mapping;
 
-import java.rmi.RemoteException;
-
-import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 

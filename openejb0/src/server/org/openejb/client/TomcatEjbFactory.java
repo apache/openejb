@@ -44,15 +44,16 @@
  */
 package org.openejb.client;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Properties;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.Name;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
-import java.util.Hashtable;
-import java.util.Properties;
-import java.util.Enumeration;
 
 /**
  * Tomcat EJB factory. The factory allows a web application deployed in Tomcat to look up a bean deployed in OpenEJB.

@@ -59,10 +59,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.StringTokenizer;
 
-import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -71,7 +69,6 @@ import org.openejb.admin.web.HttpRequest;
 import org.openejb.admin.web.HttpSession;
 import org.openejb.core.stateful.StatefulEjbObjectHandler;
 import org.openejb.util.FileUtils;
-import org.openejb.util.StringUtilities;
 
 /** A class to take care of HTTP Requests.  It parses headers, content, form and url
  * parameters.
