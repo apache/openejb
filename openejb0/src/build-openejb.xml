@@ -184,15 +184,6 @@ time=${TSTAMP}</echo>
          basedir="${build.openejb.dest}"
          manifest="${build.openejb.dest}/MANIFEST.MF"/>
           
-    <!-- 
-         java.net.URLStreamHandler implementations have to be in 
-         the system classpath in order to be found. 
-    --> 
-    <jar jarfile="dist/${project}-handler-${version}.jar"
-         basedir="${build.openejb.dest}"
-         manifest="${build.openejb.dest}/MANIFEST.MF" >
-        <include name="org/openejb/util/urlhandler/**"/>
-    </jar>
             
     <copy todir="${build.openejb.dest}">
       <fileset dir="src/schema"
