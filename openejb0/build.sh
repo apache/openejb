@@ -36,7 +36,7 @@ CP=
 #==================================
 # PUT *.jar file to $CP
 for i in lib/*.jar ; do 
-    if [ -e $i ]; then
+    if [ -f $i ]; then
     	CP=$i${PS}$CP
     fi
 done
@@ -44,7 +44,7 @@ unset i
 #==================================
 # put *.zip file to $CP
 for i in lib/*.zip ; do 
-    if [ -e $i ]; then
+    if [ -f $i ]; then
     	CP=$i${PS}$CP
     fi
 done
