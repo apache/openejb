@@ -315,8 +315,11 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         String str = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
         if (str == null)
             str = ":org.apache.geronimo.naming";
-        else
-            str = str + ":org.apache.geronimo.naming";
+        else {
+            if (str.indexOf(":org.apache.geronimo.naming") < 0) {
+                str = str + ":org.apache.geronimo.naming";
+            }
+        }
         System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, str);
     }
 
@@ -349,7 +352,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
                     policyConfiguration.addToRole(role, (Permissions) securityConfiguration.getRolePolicies().get(role));
                 }
 
-                //            ((JettyXMLConfiguration) this.getConfiguration()).configure(policyConfiguration, securityConfig);
                 policyConfiguration.commit();
             } catch (ClassNotFoundException e) {
                 // do nothing
