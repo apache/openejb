@@ -177,18 +177,17 @@ public class EJBModuleImpl implements GBean {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(EJBModuleImpl.class);
         infoFactory.addReference("J2EEServer", J2EEServer.class);
         infoFactory.addReference("J2EEApplication", J2EEApplication.class);
-        infoFactory.addAttribute("deploymentDescriptor", true);
+
+        infoFactory.addAttribute("deploymentDescriptor", String.class, true);
         infoFactory.addReference("ConnectionFactory", ConnectionProxyFactory.class);
-        infoFactory.addAttribute("Delegate", true);
+        infoFactory.addAttribute("Delegate", ConnectionFactoryDelegate.class, true);
 
-        infoFactory.addAttribute("server", false);
-        infoFactory.addAttribute("application", false);
-        infoFactory.addAttribute("javaVMs", false);
-        infoFactory.addAttribute("ejbs", false);
+        infoFactory.addAttribute("server", String.class, false);
+        infoFactory.addAttribute("application", String.class, false);
+        infoFactory.addAttribute("javaVMs", String[].class, false);
+        infoFactory.addAttribute("ejbs", String[].class, false);
 
-        infoFactory.setConstructor(
-                new String[]{"J2EEServer", "J2EEApplication", "deploymentDescriptor", "Delegate", "ConnectionFactory"},
-                new Class[]{J2EEServer.class, J2EEApplication.class, String.class, ConnectionFactoryDelegate.class, ConnectionProxyFactory.class});
+        infoFactory.setConstructor(new String[]{"J2EEServer", "J2EEApplication", "deploymentDescriptor", "Delegate", "ConnectionFactory"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

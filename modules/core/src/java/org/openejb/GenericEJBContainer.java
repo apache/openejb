@@ -276,27 +276,38 @@ public class GenericEJBContainer implements EJBContainer {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(GenericEJBContainer.class);
 
-        infoFactory.setConstructor(
-                new String[]{"ContainerID", "EJBName", "ProxyInfo", "Signatures", "ContextFactory", "InterceptorBuilder", "Pool", "UserTransaction", "JndiNames", "LocalJndiNames", "TransactionManager", "TrackedConnectionAssociator"},
-                new Class[]{Object.class, String.class, ProxyInfo.class, InterfaceMethodSignature[].class, InstanceContextFactory.class, InterceptorBuilder.class, InstancePool.class, UserTransactionImpl.class, String[].class, String[].class, TransactionManager.class, TrackedConnectionAssociator.class});
+        infoFactory.addAttribute("ContainerID", Object.class, true);
+        infoFactory.addAttribute("EJBName", String.class, true);
+        infoFactory.addAttribute("ProxyInfo", ProxyInfo.class, true);
+        infoFactory.addAttribute("Signatures", InterfaceMethodSignature[].class, true);
+        infoFactory.addAttribute("ContextFactory", InstanceContextFactory.class, true);
+        infoFactory.addAttribute("InterceptorBuilder", InterceptorBuilder.class, true);
+        infoFactory.addAttribute("Pool", InstancePool.class, true);
+        infoFactory.addAttribute("UserTransaction", UserTransactionImpl.class, true);
+        infoFactory.addAttribute("JndiNames", String[].class, true);
+        infoFactory.addAttribute("LocalJndiNames", String[].class, true);
 
-        infoFactory.addAttribute("ContainerID", true);
-        infoFactory.addAttribute("EJBName", true);
-        infoFactory.addAttribute("ProxyInfo", true);
-        infoFactory.addAttribute("Signatures", true);
-        infoFactory.addAttribute("ContextFactory", true);
-        infoFactory.addAttribute("InterceptorBuilder", true);
-        infoFactory.addAttribute("Pool", true);
-        infoFactory.addAttribute("UserTransaction", true);
-        infoFactory.addAttribute("JndiNames", true);
-        infoFactory.addAttribute("LocalJndiNames", true);
         infoFactory.addReference("TransactionManager", TransactionManager.class);
         infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
 
-        infoFactory.addAttribute("ProxyFactory", false);
-        infoFactory.addAttribute("EJBHome", false);
-        infoFactory.addAttribute("EJBLocalHome", false);
-        infoFactory.addAttribute("UnmanagedReference", false);
+        infoFactory.addAttribute("ProxyFactory", EJBProxyFactory.class, false);
+        infoFactory.addAttribute("EJBHome", EJBHome.class, false);
+        infoFactory.addAttribute("EJBLocalHome", EJBLocalHome.class, false);
+        infoFactory.addAttribute("UnmanagedReference", EJBContainer.class, false);
+
+        infoFactory.setConstructor(new String[]{
+            "ContainerID",
+            "EJBName",
+            "ProxyInfo",
+            "Signatures",
+            "ContextFactory",
+            "InterceptorBuilder",
+            "Pool",
+            "UserTransaction",
+            "JndiNames",
+            "LocalJndiNames",
+            "TransactionManager",
+            "TrackedConnectionAssociator"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
