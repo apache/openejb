@@ -20,7 +20,7 @@ if [ -z "$OPENEJB_HOME" ]; then
   OPENEJB_HOME=$PWD
 fi
 
-OPTIONS="-Dopenejb.home=$OPENEJB_HOME"
+OPTIONS="-ea -Dopenejb.home=$OPENEJB_HOME"
 
 #============================================================
 _command_help()

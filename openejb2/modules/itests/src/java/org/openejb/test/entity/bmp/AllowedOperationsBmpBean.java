@@ -65,7 +65,7 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
     private String firstName;
     private String lastName;
     private EntityContext ejbContext;
-    private Hashtable allowedOperationsTable = new Hashtable();
+    private static Hashtable allowedOperationsTable = new Hashtable();
     
     
     //=============================

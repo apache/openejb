@@ -102,7 +102,7 @@ public class StatefulEjbMetaDataTests extends BasicStatefulTestClient{
         try{
             Class clazz = ejbMetaData.getPrimaryKeyClass();
             assertNull("Should not return a primary key.  Method should throw an java.lang.RuntimeException", clazz );
-        } catch (UnsupportedOperationException e){
+        } catch (RuntimeException e){
             assertTrue( true );
             return;
         } catch (Exception e){

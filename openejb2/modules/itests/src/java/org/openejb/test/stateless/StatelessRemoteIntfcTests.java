@@ -86,6 +86,7 @@ public class StatelessRemoteIntfcTests extends BasicStatelessTestClient{
             //Good.  This is the correct behaviour
             return;
         } catch (Throwable e){
+            System.err.println("Received Exception "+e.getClass()+ " : "+e.getMessage());
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
         fail("An ApplicationException should have been thrown.");
