@@ -1123,6 +1123,7 @@ public class StubGenerator extends Javatoidl {
                 abstract_object = true;
 
             if (abstract_object) {
+                output.println(tab + "/**");
                 output.println(tab + " * Narrow CORBA::Object to " + obj.name());
                 output.println(tab + " * @param obj the CORBA Object");
                 output.println(tab + " * @return " + obj.name() + " Object");
