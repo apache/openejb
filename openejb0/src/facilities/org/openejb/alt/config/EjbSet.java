@@ -54,23 +54,30 @@ public class EjbSet {
     
     protected Vector failures = new Vector();
     protected Vector warnings = new Vector();
+    protected Vector errors   = new Vector();
     
     protected Bean[] beans;
     protected EjbJar jar;
     protected String jarPath;
     
-    public EjbSet(EjbJar jar, String jarPath){
-        this.jar = jar;
+    public EjbSet(String jarPath){
         this.jarPath = jarPath;
-        this.beans = EjbJarUtils.getBeans( jar );
     }
 
+    public void setEjbJar(EjbJar jar){
+        this.jar = jar;
+        this.beans = EjbJarUtils.getBeans( jar );
+    }
     public void addWarning( ValidationWarning warning ) {
         warnings.addElement( warning );
     }
     
     public void addFailure(ValidationFailure failure) {
         failures.addElement( failure );
+    }
+
+    public void addError(ValidationError error) {
+        errors.addElement( error );
     }
 
     public ValidationFailure[] getFailures() {
@@ -85,6 +92,25 @@ public class EjbSet {
         return tmp;
     }
     
+    public ValidationError[] getErrors() {
+        ValidationError[] tmp = new ValidationError[errors.size()];
+        errors.copyInto( tmp );
+        return tmp;
+    }
+
+    public boolean hasWarnings(){
+        return warnings.size() > 0;
+    }
+
+    public boolean hasFailures(){
+        return failures.size() > 0;
+    }
+    
+    public boolean hasErrors(){
+        return errors.size() > 0;
+    }
+
+
     public Bean[] getBeans(){
         return beans;
     }
