@@ -47,6 +47,11 @@
  */
 package org.openejb.entity.bmp;
 
+import java.util.Collection;
+import java.util.Iterator;
+import javax.ejb.TimerService;
+import javax.ejb.Timer;
+
 import org.apache.geronimo.core.service.InvocationResult;
 
 import org.openejb.EJBInvocation;
@@ -68,8 +73,15 @@ public class BMPRemoveMethod extends AbstractMethodOperation {
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         InvocationResult result = invoke(invocation, EJBOperation.EJBREMOVE);
         if (result.isNormal()) {
-            // clear id as we are no longer associated
             EntityInstanceContext ctx = (EntityInstanceContext) invocation.getEJBInstanceContext();
+            //cancel timers
+            TimerService timerService = ctx.getTimerService();
+            Collection timers = timerService.getTimers();
+            for (Iterator iterator = timers.iterator(); iterator.hasNext();) {
+                Timer timer = (Timer) iterator.next();
+                timer.cancel();
+            }
+            // clear id as we are no longer associated
             ctx.setId(null);
         }
         return result;

@@ -55,6 +55,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ejb.EJBLocalObject;
+import javax.ejb.TimerService;
+import javax.ejb.Timer;
 
 import org.apache.geronimo.core.service.InvocationResult;
 
@@ -115,6 +117,14 @@ public class CMPRemoveMethod extends AbstractMethodOperation {
         InvocationResult result = invoke(invocation, EJBOperation.EJBREMOVE);
 
         if (result.isNormal()) {
+            //cancel timers
+            TimerService timerService = ctx.getTimerService();
+            Collection timers = timerService.getTimers();
+            for (Iterator iterator = timers.iterator(); iterator.hasNext();) {
+                Timer timer = (Timer) iterator.next();
+                timer.cancel();
+            }
+
             InTxCache cache = invocation.getTransactionContext().getInTxCache();
             CacheRow cacheRow = ctx.getCacheRow();
 
