@@ -1,0 +1,422 @@
+/**
+ * Redistribution and use of this software and associated documentation
+ * ("Software"), with or without modification, are permitted provided
+ * that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain copyright
+ *    statements and notices.  Redistributions must also contain a
+ *    copy of this document.
+ *
+ * 2. Redistributions in binary form must reproduce the
+ *    above copyright notice, this list of conditions and the
+ *    following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
+ *
+ * 3. The name "Exolab" must not be used to endorse or promote
+ *    products derived from this Software without prior written
+ *    permission of Exoffice Technologies.  For written permission,
+ *    please contact info@exolab.org.
+ *
+ * 4. Products derived from this Software may not be called "Exolab"
+ *    nor may "Exolab" appear in their names without prior written
+ *    permission of Exoffice Technologies. Exolab is a registered
+ *    trademark of Exoffice Technologies.
+ *
+ * 5. Due credit should be given to the Exolab Project
+ *    (http://www.exolab.org/).
+ *
+ * THIS SOFTWARE IS PROVIDED BY EXOFFICE TECHNOLOGIES AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
+ * EXOFFICE TECHNOLOGIES OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Copyright 1999 (C) Exoffice Technologies Inc. All Rights Reserved.
+ *
+ * $Id$
+ */
+
+
+package org.openejb.core.ivm;
+
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.rmi.RemoteException;
+import java.security.Principal;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+import javax.ejb.EJBHome;
+
+import org.openejb.DeploymentInfo;
+import org.openejb.InvalidateReferenceException;
+import org.openejb.OpenEJB;
+import org.openejb.OpenEJBException;
+import org.openejb.ProxyInfo;
+import org.openejb.RpcContainer;
+import org.openejb.core.ThreadContext;
+import org.openejb.util.proxy.InvalidatedReferenceHandler;
+import org.openejb.util.proxy.InvocationHandler;
+import org.openejb.util.proxy.ProxyManager;
+
+/**
+ * This is an InvocationHandler that is used only for handling requests from an
+ * EJBHome stub.  The EjbHomeProxyHandler handles all in-VM requests from the EJBHome stub.
+ * The EjbHomeProxyHandler is different from the EjbObjectProxyHandler in that it does not need to be synchronized.
+ * One instance of the EjbHomeProxyHandler can be used by all instances of the EJBObject stub in the
+ * same VM as the bean deployment they represent.
+ * This InvocationHandler and its proxy are serializable and can be used by
+ * HomeHandle, Handle, and MetaData to persist and revive handles to the EJBHome. It maintains
+ * its original client identity which allows the container to be more discerning about
+ * allowing the revieed proxy to be used. See StatefulContainer manager for more details.
+ * 
+ * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
+ * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
+ * @see org.openejb.core.ivm.EjbObjectProxyHandler
+ * @see org.openejb.core.stateful.StatefulContainer
+ */
+public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
+    
+    /**
+     * Constructs an EjbHomeProxyHandler to handle invocations from an EJBHome stub/proxy.  
+     * 
+     * @param container The Container that the bean deployment this stub hanlder represents is deployed in.
+     * @param pk        The primary key of the bean deployment or null if the deployment is a bean type that doesn't require a primary key.
+     * @param depID     The unique id of the bean deployment that this stub handler will represent.
+     */
+    public EjbHomeProxyHandler(RpcContainer container, Object pk, Object depID) {
+        super(container, pk, depID);
+    }
+
+    protected Object createProxy(ProxyInfo proxyInfo){
+        
+        if (proxyInfo instanceof SpecialProxyInfo) {
+            Object proxy = ((SpecialProxyInfo)proxyInfo).getProxy();
+            if (proxy == null) throw new RuntimeException("Could not create IVM proxy for "+proxyInfo.getInterface()+" interface");
+            return proxy;
+        }
+        
+        Object newProxy = null;
+        try {
+            EjbObjectProxyHandler handler = newEjbObjectHandler(proxyInfo.getBeanContainer(), proxyInfo.getPrimaryKey(), proxyInfo.getDeploymentInfo().getDeploymentID());
+            Class[] interfaces = new Class[]{ proxyInfo.getInterface(), IntraVmProxy.class };
+            newProxy = ProxyManager.newProxyInstance( interfaces , handler );
+        } catch (IllegalAccessException iae) {
+            throw new RuntimeException("Could not create IVM proxy for "+proxyInfo.getInterface()+" interface");
+        }
+        if (newProxy == null) throw new RuntimeException("Could not create IVM proxy for "+proxyInfo.getInterface()+" interface");
+    
+        return newProxy;
+    }
+
+    protected abstract EjbObjectProxyHandler newEjbObjectHandler(RpcContainer container, Object pk, Object depID);
+    
+    protected Object _invoke(Object proxy, Method method, Object[] args) throws Throwable{
+
+        String methodName = method.getName();
+        
+        try{
+
+        /*-------------------------------------------------------*/
+        //         Process the specific method invoked           //
+
+                
+        /*-- CREATE ------------- <HomeInterface>.create(<x>) ---*/
+            if ( methodName.equals("create") ) {
+                return create(method, args, proxy);
+                
+        /*-- FIND X --------------- <HomeInterface>.find<x>() ---*/
+            } else if ( methodName.startsWith("find") ){
+                return findX(method, args, proxy);
+                
+                    
+        /*-- GET EJB METADATA ------ EJBHome.getEJBMetaData() ---*/
+
+            } else if ( methodName.equals("getEJBMetaData") ) {
+                return getEJBMetaData(method, args, proxy);
+
+
+        /*-- GET HOME HANDLE -------- EJBHome.getHomeHandle() ---*/
+
+            } else if ( methodName.equals("getHomeHandle") ) {
+                return getHomeHandle(method, args, proxy);
+
+
+        /*-- REMOVE ------------------------ EJBHome.remove() ---*/
+
+            } else if ( methodName.equals("remove") ) {
+
+                Class [] types = method.getParameterTypes();
+
+            /*-- HANDLE ------- EJBHome.remove(Handle handle) ---*/
+                if ( types[0] == javax.ejb.Handle.class ) 
+                        return removeWithHandle(method, args, proxy);
+
+            /*-- PRIMARY KEY ----- EJBHome.remove(Object key) ---*/
+                else return removeByPrimaryKey(method, args, proxy);
+
+        /*-- UNKOWN ---------------------------------------------*/
+            } else {
+
+                // Cannot return null.  Must throw and exception instead.
+                throw new UnsupportedOperationException("Unkown method: "+method);
+
+            }
+        /*
+         * The ire is thrown by the container system and propagated by
+         * the server to the stub.
+         */
+        }catch ( org.openejb.InvalidateReferenceException ire ) {
+            invalidateReference();
+            return ire.getRootCause();
+        /*
+         * Application exceptions must be reported dirctly to the client. They
+         * do not impact the viability of the proxy.
+         */
+        } catch ( org.openejb.ApplicationException ae ) {
+            throw ae.getRootCause();
+        /*
+         * A system exception would be highly unusual and would indicate a sever
+         * problem with the container system.
+         */
+        } catch ( org.openejb.SystemException se ) {
+            invalidateReference();
+            throw new RemoteException("Container has suffered a SystemException",se.getRootCause());
+        } catch ( org.openejb.OpenEJBException oe ) {
+            throw new RemoteException("Unknown Container Exception",oe.getRootCause());
+        }  
+        
+            
+    }
+
+    /*-------------------------------------------------*/
+    /*  Home interface methods                         */  
+    /*-------------------------------------------------*/
+    
+    /**
+     * <P>
+     * Creates a new EJBObject and returns it to the 
+     * caller.  The EJBObject is a new proxy with a 
+     * new handler. This implementation should not be
+     * sent outside the virtual machine.
+     * </P>
+     * <P>
+     * This method propogates to the container
+     * system.
+     * </P>
+     * <P>
+     * The create method is required to be defined
+     * by the bean's home interface.
+     * </P>
+     * 
+     * @param method
+     * @param args
+     * @param proxy
+     * @return Returns an new EJBObject proxy and handler
+     * @exception Throwable
+     */
+    protected Object create(Method method, Object[] args, Object proxy) throws Throwable{
+        ProxyInfo proxyInfo = (ProxyInfo) container.invoke(deploymentID,method,args,null, getThreadSpecificSecurityIdentity());
+        return createProxy(proxyInfo);
+    }
+
+    /**
+     * <P>
+     * Locates and returns a new EJBObject or a collection
+     * of EJBObjects.  The EJBObject(s) is a new proxy with
+     * a new handler. This implementation should not be
+     * sent outside the virtual machine.
+     * </P>
+     * <P>
+     * This method propogates to the container
+     * system.
+     * </P>
+     * <P>
+     * The find method is required to be defined
+     * by the bean's home interface of Entity beans.
+     * </P>
+     * 
+     * @param method
+     * @param args
+     * @param proxy
+     * @return Returns an new EJBObject proxy and handler
+     * @exception Throwable
+     */
+    protected abstract Object findX(Method method, Object[] args, Object proxy) throws Throwable;
+
+    /*-------------------------------------------------*/
+    /*  EJBHome methods                                */  
+    /*-------------------------------------------------*/
+
+    /**
+     * <P>
+     * Returns an EJBMetaData implementation that is
+     * valid inside this virtual machine.  This
+     * implementation should not be sent outside the
+     * virtual machine.
+     * </P>
+     * <P>
+     * This method does not propogate to the container
+     * system.
+     * </P>
+     * <P>
+     * getMetaData is a method of javax.ejb.EJBHome
+     * </P>
+     * <P>
+     * Checks if the caller is authorized to invoke the
+     * javax.ejb.EJBHome.getMetaData on the EJBHome of the
+     * deployment.
+     * </P>
+     * 
+     * @return Returns an IntraVmMetaData
+     * @exception Throwable
+     * @see IntraVmMetaData
+     * @see javax.ejb.EJBHome
+     * @see javax.ejb.EJBHome#getEJBMetaData
+     */
+    protected abstract Object getEJBMetaData(Method method, Object[] args, Object proxy) throws Throwable;
+    
+
+    /**
+     * <P>
+     * Returns a HomeHandle implementation that is
+     * valid inside this virtual machine.  This
+     * implementation should not be sent outside the
+     * virtual machine.
+     * </P>
+     * <P>
+     * This method does not propogate to the container
+     * system.
+     * </P>
+     * <P>
+     * getHomeHandle is a method of javax.ejb.EJBHome
+     * </P>
+     * <P>
+     * Checks if the caller is authorized to invoke the
+     * javax.ejb.EJBHome.getHomeHandle on the EJBHome of the
+     * deployment.
+     * </P>
+     * 
+     * @param proxy
+     * @return Returns an IntraVmHandle
+     * @exception Throwable
+     * @see IntraVmHandle
+     * @see javax.ejb.EJBHome
+     * @see javax.ejb.EJBHome#getHomeHandle
+     */
+    protected Object getHomeHandle(Method method, Object[] args, Object proxy) throws Throwable{
+        checkAuthorization(method);
+        return new IntraVmHandle(proxy);
+    }
+    public org.openejb.ProxyInfo getProxyInfo(){
+        return new org.openejb.ProxyInfo(deploymentInfo, null, deploymentInfo.getHomeInterface(), container);
+    }
+    
+    /**
+     * The writeReplace method is invoked on the proxy when it enters the 
+     * serialization process.  The call is passed to the handler, then delegated 
+     * to this method.
+     * 
+     * If the proxy is being copied between bean instances in a RPC
+     * call we use the IntraVmArtifact.  This object is immutable and does not 
+     * need to be dereferenced; therefore, we have no need to actually serialize
+     * this object.
+     * 
+     * If the proxy is referenced by a stateful bean that is being
+     * passivated by the container we allow this object to be serialized.
+     * 
+     * If the proxy is being serialized in any other context, we know that its
+     * destination is outside the core container system.  This is the 
+     * responsibility of the Application Server and one of its proxies is 
+     * serialized to the stream in place of the IntraVmProxy.
+     * 
+     * @param proxy
+     * @return 
+     * @exception ObjectStreamException
+     */
+    protected Object _writeReplace(Object proxy) throws ObjectStreamException{
+        /*
+         * If the proxy is being  copied between bean instances in a RPC
+         * call we use the IntraVmArtifact
+         */
+        if(IntraVmCopyMonitor.isIntraVmCopyOperation()){
+            return new IntraVmArtifact( proxy );
+        /* 
+         * If the proxy is referenced by a stateful bean that is  being
+         * passivated by the container we allow this object to be serialized.
+         */
+        }else if(IntraVmCopyMonitor.isStatefulPassivationOperation()){
+            return proxy;
+        /*
+         * If the proxy is serialized outside the core container system,
+         * we allow the application server to handle it.
+         */
+        } else{
+            return org.openejb.OpenEJB.getApplicationServer().getEJBHome(this.getProxyInfo());
+        }
+    }
+    
+    /**
+     * <P>
+     * Attempts to remove an EJBObject from the
+     * container system.  The EJBObject to be removed
+     * is represented by the javax.ejb.Handle object passed
+     * into the remove method in the EJBHome.
+     * </P>
+     * <P>
+     * This method propogates to the container system.
+     * </P>
+     * <P>
+     * remove(Handle handle) is a method of javax.ejb.EJBHome
+     * </P>
+     * <P>
+     * Checks if the caller is authorized to invoke the
+     * javax.ejb.EJBHome.remove on the EJBHome of the
+     * deployment.
+     * </P>
+     * 
+     * @param method
+     * @param args
+     * @return Returns null
+     * @exception Throwable
+     * @see javax.ejb.EJBHome
+     * @see javax.ejb.EJBHome#remove
+     */
+    protected abstract Object removeWithHandle(Method method, Object[] args, Object proxy) throws Throwable;
+
+    /**
+     * <P>
+     * Attempts to remove an EJBObject from the
+     * container system.  The EJBObject to be removed
+     * is represented by the primaryKey passed
+     * into the remove method of the EJBHome.
+     * </P>
+     * <P>
+     * This method propogates to the container system.
+     * </P>
+     * <P>
+     * remove(Object primary) is a method of javax.ejb.EJBHome
+     * </P>
+     * <P>
+     * Checks if the caller is authorized to invoke the
+     * javax.ejb.EJBHome.remove on the EJBHome of the
+     * deployment.
+     * </P>
+     * 
+     * @param method
+     * @param args
+     * @return Returns null
+     * @exception Throwable
+     * @see javax.ejb.EJBHome
+     * @see javax.ejb.EJBHome#remove
+     */
+    protected abstract Object removeByPrimaryKey(Method method, Object[] args, Object proxy) throws Throwable;
+}
