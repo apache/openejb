@@ -87,7 +87,7 @@ public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle
     private final URL wsdlURL;
     private final DefaultJavaService service;
     private final SoapHandler soapHandler;
-    private final Object wsdlMutext = new Object();
+    private final Byte wsdlMutext = new Byte((byte)0);
     
     private transient WSDLWriter wsdlWriter;
     private transient Definition definition;
