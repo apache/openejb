@@ -201,22 +201,32 @@ public class ServiceManager {
     }
 
     public synchronized void start() throws ServiceException {
-        System.out.println("  ** Starting Services **");
-        printRow("NAME", "IP", "PORT");
+        boolean display = System.getProperty( "openejb.nobanner" ) == null;
+            
+        
+        if (display){
+            System.out.println("  ** Starting Services **");
+            printRow("NAME", "IP", "PORT");
+        }
         
         for (int i=0; i < daemons.length; i++){
             ServerService d = daemons[i];
             try{
                 d.start();
-                printRow(d.getName(), d.getIP(), d.getPort()+"");
+                if (display){
+                    printRow(d.getName(), d.getIP(), d.getPort()+"");
+                }
             } catch (Exception e){
                 logger.error(d.getName()+" "+d.getIP()+" "+d.getPort()+": "+e.getMessage());
-                printRow(d.getName(), "----", "FAILED");
+                if (display){
+                    printRow(d.getName(), "----", "FAILED");
+                }
             }
         }
-
-        System.out.println("-------");
-        System.out.println("Ready!");
+        if (display){
+            System.out.println("-------");
+            System.out.println("Ready!");
+        }
         /*
          * This will cause the user thread (the thread that keeps the
          *  vm alive) to go into a state of constant waiting.
