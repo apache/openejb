@@ -50,12 +50,12 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 /**
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @since 11/25/2001
  */
 public class JNDIResponse implements Response {
-    
+
     private transient int responseCode = -1;
     private transient Object result;
 
@@ -70,19 +70,19 @@ public class JNDIResponse implements Response {
     public int getResponseCode(){
         return responseCode;
     }
-    
+
     public Object getResult(){
         return result;
     }
-    
+
     public void setResponseCode(int responseCode){
         this.responseCode = responseCode;
     }
-    
+
     public void setResult(Object result){
         this.result = result;
     }
-    
+
     /**
      * The object implements the readExternal method to restore its
      * contents by calling the methods of DataInput for primitive
@@ -110,13 +110,11 @@ public class JNDIResponse implements Response {
             case JNDI_NOT_FOUND:
                 break;
             case JNDI_EJBHOME:
-                EJBMetaDataImpl m = new EJBMetaDataImpl();
-                m.readExternal(in);
-                result = m;
+                result = in.readObject();
                 break;
         }
     }
-    
+
     /**
      * The object implements the writeExternal method to save its contents
      * by calling the methods of DataOutput for its primitive values or
@@ -135,7 +133,7 @@ public class JNDIResponse implements Response {
     public void writeExternal(ObjectOutput out) throws IOException {
         //System.out.println("responseCode "+responseCode );
         out.writeByte((byte)responseCode);
-        
+
         switch (responseCode) {
             case JNDI_OK:
             case JNDI_NAMING_EXCEPTION:
@@ -147,8 +145,7 @@ public class JNDIResponse implements Response {
             case JNDI_NOT_FOUND:
                 break;
             case JNDI_EJBHOME:
-                EJBMetaDataImpl m = (EJBMetaDataImpl)result;
-                m.writeExternal(out);
+                out.writeObject(result);
                 break;
 
         }

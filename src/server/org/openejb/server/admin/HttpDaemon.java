@@ -51,6 +51,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.NotSerializableException;
 import java.io.WriteAbortedException;
 import java.lang.reflect.Method;
@@ -183,7 +185,7 @@ public class HttpDaemon implements Runnable{
 //      res.setResponse(EJB_ERROR, re);
 //      try
 //      {
-//          res.writeExternal(out);
+//          out.writeObject( res );
 //      }
 //      catch (java.io.IOException ie)
 //      {
@@ -191,30 +193,27 @@ public class HttpDaemon implements Runnable{
 //      }
     }
 
-    public void processRequest(InputStream in, OutputStream out) {
+    public void processRequest(InputStream i, OutputStream o) {
 
-        HttpRequest req = new HttpRequest();
+        HttpRequest req = null;
         HttpResponse res = new HttpResponse();
 
         try {
-            req.readExternal( in );
-        } catch (Throwable t) {
-	    //replyWithFatalError(out, t, "Error caught during request processing");
-            t.printStackTrace();
-            return;
-        }
 
-        java.io.PrintWriter body = res.getPrintWriter();
+			ObjectInputStream  in  = new ObjectInputStream(i);
+			ObjectOutputStream out = new ObjectOutputStream(o);
+            req = (HttpRequest)in.readObject();
 
-        body.println("<html>");
-        body.println("<body>");
-        body.println("<br><br><br><br>");
-        body.println("<h1>Hello World</h1>");
-        body.println("</body>");
-        body.println("</html>");
+			java.io.PrintWriter body = res.getPrintWriter();
 
-        try {
-            res.writeExternal( out );
+			body.println("<html>");
+			body.println("<body>");
+			body.println("<br><br><br><br>");
+			body.println("<h1>Hello World</h1>");
+			body.println("</body>");
+			body.println("</html>");
+
+            out.writeObject( res );
         } catch (Throwable t) {
 	    //replyWithFatalError(out, t, "Error caught during request processing");
             t.printStackTrace();

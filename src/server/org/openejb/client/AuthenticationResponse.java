@@ -50,7 +50,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 /**
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @since 11/25/2001
  */
@@ -70,27 +70,27 @@ public class AuthenticationResponse implements Response {
     public int getResponseCode(){
         return responseCode;
     }
-    
+
     public ClientMetaData getIdentity(){
         return identity;
     }
-    
+
     public ServerMetaData getServer(){
         return server;
     }
-    
+
     public void setResponseCode(int responseCode){
         this.responseCode = responseCode;
     }
-    
+
     public void setIdentity(ClientMetaData identity){
         this.identity = identity;
     }
-    
+
     public void setServer(ServerMetaData server){
         this.server = server;
     }
-    
+
     /**
      * The object implements the readExternal method to restore its
      * contents by calling the methods of DataInput for primitive
@@ -106,21 +106,18 @@ public class AuthenticationResponse implements Response {
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         responseCode = in.readByte();
         switch (responseCode) {
-            case AUTH_GRANTED: 
-                identity = new ClientMetaData();
-                identity.readExternal(in);
+            case AUTH_GRANTED:
+                identity = (ClientMetaData)in.readObject();
                 break;
-            case AUTH_REDIRECT: 
-                identity = new ClientMetaData();
-                identity.readExternal(in);
-                server   = new ServerMetaData();
-                server.readExternal( in );
+            case AUTH_REDIRECT:
+                identity = (ClientMetaData)in.readObject();
+                server = (ServerMetaData)in.readObject();
                 break;
             case AUTH_DENIED:
                 break;
         }
     }
-    
+
     /**
      * The object implements the writeExternal method to save its contents
      * by calling the methods of DataOutput for its primitive values or
@@ -139,10 +136,10 @@ public class AuthenticationResponse implements Response {
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeByte((byte)responseCode);
         switch (responseCode) {
-            case AUTH_GRANTED: 
+            case AUTH_GRANTED:
                 out.writeObject(identity);
                 break;
-            case AUTH_REDIRECT: 
+            case AUTH_REDIRECT:
                 out.writeObject(identity);
                 out.writeObject(server);
                 break;
