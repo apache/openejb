@@ -47,10 +47,6 @@
  */
 package org.openejb;
 
-import java.lang.reflect.Method;
-import java.rmi.RemoteException;
-import java.security.Permissions;
-import java.util.Iterator;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -61,9 +57,15 @@ import javax.security.auth.Subject;
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyConfigurationFactory;
 import javax.security.jacc.PolicyContextException;
+import java.lang.reflect.Method;
+import java.rmi.RemoteException;
+import java.security.Permissions;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
@@ -74,10 +76,12 @@ import org.apache.geronimo.gbean.WaitingException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+
 import org.openejb.cache.InstancePool;
 import org.openejb.client.EJBObjectHandler;
 import org.openejb.client.EJBObjectProxy;
@@ -93,6 +97,7 @@ import org.openejb.timer.BasicTimerService;
  * @version $Revision$ $Date$
  */
 public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
+
     private static Log log = LogFactory.getLog(GenericEJBContainer.class);
 
     private final ClassLoader classLoader;
@@ -114,23 +119,23 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
 
     public GenericEJBContainer(Object containerId,
-            String ejbName,
-            ProxyInfo proxyInfo,
-            InterfaceMethodSignature[] signatures,
-            InstanceContextFactory contextFactory,
-            InterceptorBuilder interceptorBuilder,
-            InstancePool pool,
-            UserTransactionImpl userTransaction,
-            String[] jndiNames,
-            String[] localJndiNames,
-            TransactionContextManager transactionContextManager,
-            TrackedConnectionAssociator trackedConnectionAssociator,
-            ThreadPooledTimer timer,
-            String objectName,
-            Kernel kernel,
-            SecurityConfiguration securityConfiguration,
-            Subject defaultSubject,
-            ClassLoader classLoader) throws Exception {
+                               String ejbName,
+                               ProxyInfo proxyInfo,
+                               InterfaceMethodSignature[] signatures,
+                               InstanceContextFactory contextFactory,
+                               InterceptorBuilder interceptorBuilder,
+                               InstancePool pool,
+                               UserTransactionImpl userTransaction,
+                               String[] jndiNames,
+                               String[] localJndiNames,
+                               TransactionContextManager transactionContextManager,
+                               TrackedConnectionAssociator trackedConnectionAssociator,
+                               ThreadPooledTimer timer,
+                               String objectName,
+                               Kernel kernel,
+                               SecurityConfiguration securityConfiguration,
+                               Subject defaultSubject,
+                               ClassLoader classLoader) throws Exception {
 
         assert (containerId != null);
         assert (ejbName != null && ejbName.length() > 0);
@@ -163,7 +168,11 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         interceptorBuilder.setTrackedConnectionAssociator(trackedConnectionAssociator);
         interceptorBuilder.setInstancePool(pool);
         TwoChains chains = interceptorBuilder.buildInterceptorChains();
-        interceptor = chains.getUserChain();
+        if (defaultSubject != null) {
+            interceptor = new DefaultSubjectInterceptor(chains.getUserChain());
+        } else {
+            interceptor = chains.getUserChain();
+        }
 
         contextFactory.setSystemChain(chains.getSystemChain());
         if (timer != null) {
@@ -185,7 +194,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
         setupJndi();
     }
-
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         return interceptor.invoke(invocation);
@@ -331,7 +339,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
         if (defaultSubject != null) ContextManager.registerSubject(defaultSubject);
 
-        if (this.securityConfiguration != null) {
+        if (securityConfiguration != null) {
             /**
              * Get the JACC policy configuration that's associated with this
              * EJB container and configure it with the geronimo security
@@ -351,6 +359,16 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
 
                     policyConfiguration.addToRole(role, (Permissions) securityConfiguration.getRolePolicies().get(role));
                 }
+
+                if (policyConfiguration instanceof RoleMappingConfiguration) {
+                    Iterator iter = securityConfiguration.getRoleMapping().keySet().iterator();
+                    while (iter.hasNext()) {
+                        String roleName = (String) iter.next();
+                        Set principalSet = (Set) securityConfiguration.getRoleMapping().get(roleName);
+                        ((RoleMappingConfiguration) policyConfiguration).addRoleMapping(roleName, principalSet);
+                    }
+                }
+
 
                 policyConfiguration.commit();
             } catch (ClassNotFoundException e) {
@@ -461,4 +479,30 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         return GBEAN_INFO;
     }
 
+    private class DefaultSubjectInterceptor implements Interceptor {
+
+        private final Interceptor interceptor;
+
+        public DefaultSubjectInterceptor(Interceptor interceptor) {
+            this.interceptor = interceptor;
+        }
+
+        public InvocationResult invoke(Invocation invocation) throws Throwable {
+            boolean clearCurrentCaller = false;
+
+            if (ContextManager.getCurrentCaller() == null) {
+                ContextManager.setCurrentCaller(defaultSubject);
+                ContextManager.setNextCaller(defaultSubject);
+                clearCurrentCaller = true;
+            }
+            try {
+                return interceptor.invoke(invocation);
+            } finally {
+                if (clearCurrentCaller) {
+                    ContextManager.setCurrentCaller(null);
+                    ContextManager.setNextCaller(null);
+                }
+            }
+        }
+    }
 }
