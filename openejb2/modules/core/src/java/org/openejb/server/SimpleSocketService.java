@@ -68,10 +68,10 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(SimpleSocketService.class);
     private final ServerService server;
 
-    public SimpleSocketService(String serviceClassName, InetAddress[] onlyFrom, ContainerIndex containerIndex) throws Exception {
+    public SimpleSocketService(String serviceClassName, InetAddress[] onlyFrom, ContainerIndex containerIndex, ClassLoader cl) throws Exception {
         ServerService service;
 
-        Class serviceClass = ClassLoading.loadClass(serviceClassName);
+        Class serviceClass = ClassLoading.loadClass(serviceClassName, cl);
         if (!serviceClass.isAssignableFrom(serviceClass)) {
             throw new ServiceException("Server service class does not implement " + ServerService.class.getName() + ": " + serviceClassName);
         }
@@ -124,13 +124,14 @@ public class SimpleSocketService implements SocketService, GBeanLifecycle {
 
         infoFactory.addAttribute("serviceClassName", String.class, true);
         infoFactory.addAttribute("onlyFrom", InetAddress[].class, true);
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("name", String.class, false);
 
         infoFactory.addReference("ContainerIndex", ContainerIndex.class);
 
         infoFactory.addInterface(SocketService.class);
 
-        infoFactory.setConstructor(new String[]{"serviceClassName", "onlyFrom", "ContainerIndex"});
+        infoFactory.setConstructor(new String[]{"serviceClassName", "onlyFrom", "ContainerIndex", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
