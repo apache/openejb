@@ -25,6 +25,7 @@ set CP=%OPENEJB_HOME%\lib\xalan-2.4.D1.jar;%CP%
 set CP=%OPENEJB_HOME%\lib\xercesImpl-2.0.2.jar;%CP%
 set CP=%OPENEJB_HOME%\lib\xmlParserAPIs-2.0.2.jar;%CP%
 set CP=%OPENEJB_HOME%\lib\xml-apis-2.4.D1.jar;%CP%
+set CP=%OPENEJB_HOME%\lib\ots-jts_1.0.jar;%CP%
 
 set CP=%JAVA_HOME%\lib\tools.jar;%CP%
 
