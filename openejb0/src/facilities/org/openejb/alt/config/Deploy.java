@@ -153,6 +153,11 @@ public class Deploy {
             in  = new DataInputStream(System.in); 
             out = System.out;
 
+	    // Set log4j's configuration (Note the URL's form)
+	    if( System.getProperty( "log4j.configuration" ) == null ) {
+		System.setProperty( "log4j.configuration", "resource:/default.logging.conf" );
+	    }
+            
             configFile = openejbConfigFile;
             if (configFile == null) {
                 try{
