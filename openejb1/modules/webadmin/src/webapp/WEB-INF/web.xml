@@ -16,7 +16,7 @@
     <init-param>
       
       <param-name>openejb.home</param-name>
-      <param-value>C:\openejb-$VERSION$</param-value>
+      <param-value>@OPENEJB_HOME@</param-value>
       
       <description>
         Set this to the exact path where OpenEJB is installed.
