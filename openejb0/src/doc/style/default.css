@@ -26,6 +26,14 @@ A:active {
 	color: #666666;
 }
 
+.pageSubTitle {
+	font-size: 15px; 
+	font-family: arial, "Helvetica", "Arial", "sans-serif"; 
+	line-height: 40px; 
+	font-weight: bold; 
+	color: #444444;
+}
+
 .bodyGrey { 
 	font-size: 11px; 
 	font-family: "Tahoma", "Helvetica", "Arial", "sans-serif";

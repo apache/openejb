@@ -61,9 +61,9 @@
           width="1" height="1"/></td>
         <td width="40" valign="top" align="left"><img
           src="images/dotTrans.gif" width="40" height="6" border="0"/></td>
-        <td width="430" valign="top" align="left"><img
+        <td width="430" valign="top" align="left" bgcolor="#5A5CB8"><img
           src="images/top_2.gif"  width="430" height="6" border="0"/></td>
-        <td width="120" valign="top" align="left"><xsl:element
+        <td width="120" valign="top" align="left" bgcolor="#E24717"><xsl:element
           name="img"><xsl:attribute name="src">images/top_3.gif</xsl:attribute>
         <xsl:attribute name="width">120</xsl:attribute>
         <xsl:attribute name="height">6</xsl:attribute>
@@ -277,6 +277,8 @@
       </td>
       <td width="120" height="5" valign="top"
         align="left">
+        <xsl:apply-templates select="document/body/sideimg"/>
+        
         <!--
         <a href="http://www.exolab.org"><img
         src="images/logo_exolab.gif" hspace="0" vspace="10" width="77" height="20" border="0"/></a>
@@ -435,6 +437,15 @@
 
   <xsl:template match="header">
     <xsl:apply-templates select="*"/>
+  </xsl:template>
+
+  <xsl:template match="sideimg">
+     <xsl:element name="img">
+        <xsl:attribute name="src"><xsl:value-of select="@src"/></xsl:attribute>
+        <xsl:attribute name="width"><xsl:value-of select="@width"/></xsl:attribute>
+        <xsl:attribute name="height"><xsl:value-of select="@height"/></xsl:attribute>
+        <xsl:attribute name="border">0</xsl:attribute>
+      </xsl:element><br/>
   </xsl:template>
 
 
