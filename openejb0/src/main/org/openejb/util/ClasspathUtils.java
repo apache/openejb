@@ -88,6 +88,7 @@ public class ClasspathUtils{
     }       
 
     public static void addJarsToPath(final File dir) throws Exception {
+        if ( dir == null ) return;
         getLoader().addJarsToPath( dir );
     }       
     
