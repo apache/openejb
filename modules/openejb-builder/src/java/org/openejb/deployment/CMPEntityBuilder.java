@@ -740,22 +740,7 @@ class CMPEntityBuilder extends EntityBuilder {
         builder.setTransactionManagerDelegate(tmDelegate);
 
         try {
-            GBeanData gbean;
-            try {
-                gbean = builder.createConfiguration();
-            } catch (QueryException e) {
-                log.error("Deployment exception.", e);
-                Throwable exception = e;
-                StringBuffer message = new StringBuffer();
-                while (null != exception) {
-                    message.append('\t');
-                    message.append(exception.getMessage());
-                    message.append('\n');
-                    exception = exception.getCause();
-                }
-                throw new DeploymentException("A stack-trace has been provided on the server-side.\n" +
-                        "Message\n" + message.toString());
-            }
+            GBeanData gbean = builder.createConfiguration();
             gbean.setName(containerObjectName);
             gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
             gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
