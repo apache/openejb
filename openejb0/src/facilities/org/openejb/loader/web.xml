@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+  <display-name>OpenEJB Loader Application</display-name>
+
+  <!-- OpenEJB Loader Servlet Configuration -->
+  <servlet>
+    <servlet-name>loader</servlet-name>
+    <jsp-file>/loader.jsp</jsp-file>
+    
+    <!--
+    <init-param>
+      
+      <param-name>openejb.home</param-name>
+      <param-value>C:\anypath\openejb</param-value>
+      
+      <description>
+        Set this to the exact path where OpenEJB is installed.
+        
+        If you are using Tomcat, setting this variable means you no 
+        longer will need to set the CATALINA_OPTS or JAVA_OPTS system 
+        variable to include the OPENEJB_HOME variable.
+      </description>
+    
+    </init-param>
+    -->
+    
+    <load-on-startup>0</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>loader</servlet-name>
+    <url-pattern>*.do</url-pattern>
+  </servlet-mapping>
+
+</web-app>
