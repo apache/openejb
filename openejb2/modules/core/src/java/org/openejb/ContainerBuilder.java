@@ -37,10 +37,6 @@ public interface ContainerBuilder extends ResourceEnvironmentBuilder, SecureBuil
 
     void setClassLoader(ClassLoader classLoader);
 
-    String getContainerId();
-
-    void setContainerId(String containerId);
-
     String getEJBName();
 
     void setEJBName(String ejbName);
