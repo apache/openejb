@@ -80,8 +80,7 @@
         <ant:mkdir dir="${distDir}/repository"/>
         <ant:copy todir="${distDir}/repository">
             <ant:fileset dir="${maven.repo.local}">
-                <ant:include name="openejb/**"/>
-
+<!--                <ant:include name="openejb/**"/>-->
                 <j:forEach var="artifact" items="${pom.artifacts}">
                     <j:set var="dependency" value="${artifact.dependency}"/>
                     <j:if test="${dependency.getProperty('repository') == 'true'}">
@@ -145,7 +144,15 @@
         </ant:java>
 
         <!-- build the itests configuration -->
-        <ant:echo>Building server configuration</ant:echo>
+        <ant:echo>Building default database configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:arg value="--install"/>
+            <ant:arg value="--module"/>
+            <ant:arg value="${project.root}/modules/connector/target/jdbc.rar"/>
+        </ant:java>
+
+        <!-- build the itests configuration -->
+        <ant:echo>Building itests configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
             <ant:arg value="--install"/>
             <ant:arg value="--module"/>
