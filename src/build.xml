@@ -629,6 +629,7 @@
     <mkdir dir="${build.dest}"/>
     <mkdir dir="${dest.doc.dir}"/>
     <mkdir dir="${dest.javadoc.dir}"/>
+    <mkdir dir="./beans"/>
     
     <style
         style="src/doc/style/changelog.xsl"
