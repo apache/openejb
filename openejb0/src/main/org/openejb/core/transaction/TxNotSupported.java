@@ -60,7 +60,7 @@ public class TxNotSupported extends TransactionPolicy {
 
         if ( context.clientTx != null ) {
             try{
-                getTxMngr( ).resume( context.currentTx );
+                getTxMngr( ).resume( context.clientTx );
             }catch(javax.transaction.InvalidTransactionException ite){
                 // TODO:3: Localize the message; add to Messages.java
                 logger.error("Could not resume the client's transaction, the transaction is no longer valid: "+ite.getMessage());
