@@ -92,60 +92,49 @@ import java.util.Properties;
  * @version $Revision$ $Date$
  */
 public class CastorCMP11_EntityContainer
-        implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFactory
-{
-    protected static class CMPLogger implements LogInterceptor
-    {
+implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFactory {
+    protected static class CMPLogger implements LogInterceptor {
+        
         protected final Logger logger = Logger.getInstance( "OpenEJB.CastorCMP", "org.openejb.alt.util.resources" );
         protected final String db;
 
-        public CMPLogger( String db )
-        {
+        public CMPLogger( String db ) {
             this.db = db + ": ";
         }
 
-        public void loading( java.lang.Object objClass, java.lang.Object identity )
-        {
+        public void loading( java.lang.Object objClass, java.lang.Object identity ) {
             logger.debug( db + "Loading an instance of " + objClass + " with identity \"" + identity + "\"" );
         }
 
-        public void creating( java.lang.Object objClass, java.lang.Object identity )
-        {
+        public void creating( java.lang.Object objClass, java.lang.Object identity ) {
             logger.debug( db + "Creating an instance of " + objClass + " with identity \"" + identity + "\"" );
         }
 
-        public void removing( java.lang.Object objClass, java.lang.Object identity )
-        {
+        public void removing( java.lang.Object objClass, java.lang.Object identity ) {
             logger.debug( db + "Removing an instance of " + objClass + " with identity \"" + identity + "\"" );
         }
 
-        public void storing( java.lang.Object objClass, java.lang.Object identity )
-        {
+        public void storing( java.lang.Object objClass, java.lang.Object identity ) {
             logger.debug( db + "Storing an instance of " + objClass + " with identity \"" + identity + "\"" );
         }
 
-        public void storeStatement( java.lang.String statement )
-        {
+        public void storeStatement( java.lang.String statement ) {
             logger.debug( db + statement );
         }
 
-        public void queryStatement( java.lang.String statement )
-        {
+        public void queryStatement( java.lang.String statement ) {
             logger.debug( db + statement );
         }
 
-        public void message( java.lang.String message )
-        {
+        public void message( java.lang.String message ) {
             logger.info( db + "JDO message:" + message );
         }
 
-        public void exception( java.lang.Exception ex )
-        {
+        public void exception( java.lang.Exception ex ) {
             logger.info( db + "JDO exception:", ex );
         }
 
-        public java.io.PrintWriter getPrintWriter()
-        {
+        public java.io.PrintWriter getPrintWriter() {
             return null;
         }
     }
@@ -216,16 +205,12 @@ public class CastorCMP11_EntityContainer
      * This static block sets up the EJB_PASSIVATE_METHOD, EJB_LOAD_METHOD, SET_ENTITY_CONTEXT_METHOD static methods, which are used
      * in the poolInstance() and obtainInstance() methods of this type. Saves method lookup cycles at runtime.
      */
-    static
-    {
-        try
-        {
+    static {
+        try {
             SET_ENTITY_CONTEXT_METHOD = javax.ejb.EntityBean.class.getMethod( "setEntityContext", new Class[]{javax.ejb.EntityContext.class} );
             UNSET_ENTITY_CONTEXT_METHOD = javax.ejb.EntityBean.class.getMethod( "unsetEntityContext", null );
             EJB_REMOVE_METHOD = javax.ejb.EntityBean.class.getMethod( "ejbRemove", null );
-        }
-        catch ( NoSuchMethodException nse )
-        {
+        } catch ( NoSuchMethodException nse ) {
         }
     }
 
@@ -294,8 +279,7 @@ public class CastorCMP11_EntityContainer
      * @see org.openejb.Container
      */
     public void init( Object id, HashMap registry, Properties properties )
-            throws org.openejb.OpenEJBException
-    {
+    throws org.openejb.OpenEJBException {
         containerID = id;
         deploymentRegistry = registry;
 
@@ -311,20 +295,14 @@ public class CastorCMP11_EntityContainer
 
         File gTxDb = null;
         File lTxDb = null;
-        try
-        {
+        try {
             gTxDb = org.openejb.util.FileUtils.getFile( Global_TX_Database );
-        }
-        catch ( Exception e )
-        {
+        } catch ( Exception e ) {
             throw new OpenEJBException( "Cannot locate the Global_TX_Database file. " + e.getMessage() );
         }
-        try
-        {
+        try {
             lTxDb = org.openejb.util.FileUtils.getFile( Local_TX_Database );
-        }
-        catch ( Exception e )
-        {
+        } catch ( Exception e ) {
             throw new OpenEJBException( "Cannot locate the Local_TX_Database file. " + e.getMessage() );
         }
 
@@ -390,46 +368,35 @@ public class CastorCMP11_EntityContainer
          * time it used. The same Reference is shared by all deployments, which is not a problem.
          */
         JndiTxReference txReference = new JndiTxReference();
-        for ( int x = 0; x < deploys.length; x++ )
-        {
+        for ( int x = 0; x < deploys.length; x++ ) {
             org.openejb.core.DeploymentInfo di = ( org.openejb.core.DeploymentInfo ) deploys[x];
             di.setContainer( this );
 
             // also added this line to create the Method Ready Pool for each deployment
             methodReadyPoolMap.put( di.getDeploymentID(), new LinkedListStack( poolsize / 2 ) );
             KeyGenerator kg = null;
-            try
-            {
+            try {
                 kg = KeyGeneratorFactory.createKeyGenerator( di );
                 di.setKeyGenerator( kg );
-            }
-            catch ( Exception e )
-            {
+            } catch ( Exception e ) {
                 logger.error( "Unable to create KeyGenerator for deployment id = " + di.getDeploymentID(), e );
                 throw new org.openejb.SystemException( "Unable to create KeyGenerator for deployment id = " + di.getDeploymentID(), e );
             }
 
             // bind the TransactionManager to the dynamically generated JNDI name
-            try
-            {
-                if ( di instanceof org.openejb.tyrex.TyrexDeploymentInfo )
-                {
+            try {
+                if ( di instanceof org.openejb.tyrex.TyrexDeploymentInfo ) {
                     ( ( javax.naming.Context ) di.getJndiEnc().lookup( "java:comp" ) ).bind( "comp/" + transactionManagerJndiNameTyrex, txReference );
-                }
-                else
-                {
+                } else {
                     di.getJndiEnc().bind( transactionManagerJndiName, txReference );
                     jdo_ForGlobalTransaction.setTransactionManager( transactionManagerJndiName );
                 }
-            }
-            catch ( Exception e )
-            {
+            } catch ( Exception e ) {
                 logger.error( "Unable to bind TransactionManager to deployment id = " + di.getDeploymentID() + " using JNDI name = \"" + transactionManagerJndiName + "\"", e );
                 throw new org.openejb.SystemException( "Unable to bind TransactionManager to deployment id = " + di.getDeploymentID() + " using JNDI name = \"" + transactionManagerJndiName + "\"", e );
             }
 
-            try
-            {
+            try {
                 /**
                  * The following code adds a findByPrimaryKey query-statement to the list of queries
                  * held by the deployment descriptor. The container is required to generate this query
@@ -437,29 +404,23 @@ public class CastorCMP11_EntityContainer
                  */
                 String findByPrimarKeyQuery = "SELECT e FROM " + di.getBeanClass().getName() + " e WHERE ";
 
-                if ( kg.isKeyComplex() )
-                {
+                if ( kg.isKeyComplex() ) {
 
                     Field[] pkFields = di.getPrimaryKeyClass().getFields();
-                    for ( int i = 1; i <= pkFields.length; i++ )
-                    {
+                    for ( int i = 1; i <= pkFields.length; i++ ) {
                         findByPrimarKeyQuery += "e." + pkFields[i - 1].getName() + " = $" + i;
                         if ( ( i + 1 ) <= pkFields.length )
                             findByPrimarKeyQuery += " AND ";
                     }
 
-                }
-                else
-                {
+                } else {
                     findByPrimarKeyQuery += "e." + di.getPrimaryKeyField().getName() + " = $1";
                 }
 
                 Method findByPrimaryKeyMethod = di.getHomeInterface().getMethod( "findByPrimaryKey", new Class[]{di.getPrimaryKeyClass()} );
 
                 di.addQuery( findByPrimaryKeyMethod, findByPrimarKeyQuery );
-            }
-            catch ( Exception e )
-            {
+            } catch ( Exception e ) {
                 throw new org.openejb.SystemException( "Could not generate a query statement for the findByPrimaryKey method of the deployment = " + di.getDeploymentID(), e );
             }
         }
@@ -485,9 +446,8 @@ public class CastorCMP11_EntityContainer
      * @see org.openejb.DeploymentInfo
      * @see org.openejb.Container#deployments()
      */
-    public DeploymentInfo[] deployments()
-    {
-        return ( DeploymentInfo[] ) deploymentRegistry.values().toArray( new DeploymentInfo[deploymentRegistry.size()] );
+    public DeploymentInfo[] deployments() {
+        return( DeploymentInfo[] ) deploymentRegistry.values().toArray( new DeploymentInfo[deploymentRegistry.size()] );
     }
 
     /**
@@ -500,9 +460,8 @@ public class CastorCMP11_EntityContainer
      * @see org.openejb.Container#getDeploymentInfo(Object)
      * @see org.openejb.DeploymentInfo#getDeploymentID()
      */
-    public DeploymentInfo getDeploymentInfo( Object deploymentID )
-    {
-        return ( DeploymentInfo ) deploymentRegistry.get( deploymentID );
+    public DeploymentInfo getDeploymentInfo( Object deploymentID ) {
+        return( DeploymentInfo ) deploymentRegistry.get( deploymentID );
     }
 
     /**
@@ -510,8 +469,7 @@ public class CastorCMP11_EntityContainer
      *
      * @return id type bean container
      */
-    public int getContainerType()
-    {
+    public int getContainerType() {
         return Container.ENTITY;
     }
 
@@ -521,8 +479,7 @@ public class CastorCMP11_EntityContainer
      * @return the id of this container.
      * @see org.openejb.Container#getContainerID
      */
-    public Object getContainerID()
-    {
+    public Object getContainerID() {
         return containerID;
     }
 
@@ -534,8 +491,7 @@ public class CastorCMP11_EntityContainer
      *      Occurs when the container is not able to deploy the bean for some
      *      reason.
      */
-    public void deploy( Object deploymentID, DeploymentInfo info ) throws OpenEJBException
-    {
+    public void deploy( Object deploymentID, DeploymentInfo info ) throws OpenEJBException {
         HashMap registry = ( HashMap ) deploymentRegistry.clone();
         registry.put( deploymentID, info );
         deploymentRegistry = registry;
@@ -555,10 +511,8 @@ public class CastorCMP11_EntityContainer
      * @see org.openejb.core.stateful.StatefulContainer#invoke StatefulContainer.invoke
      */
     public Object invoke( Object deployID, Method callMethod, Object[] args, Object primKey, Object securityIdentity )
-            throws org.openejb.OpenEJBException
-    {
-        try
-        {
+    throws org.openejb.OpenEJBException {
+        try {
             org.openejb.core.DeploymentInfo deployInfo = ( org.openejb.core.DeploymentInfo ) this.getDeploymentInfo( deployID );
 
             ThreadContext callContext = ThreadContext.getThreadContext();
@@ -571,37 +525,26 @@ public class CastorCMP11_EntityContainer
                 throw new org.openejb.ApplicationException( new RemoteException( "Unauthorized Access by Principal Denied" ) );
 
             // process home interface methods
-            if ( EJBHome.class.isAssignableFrom( callMethod.getDeclaringClass() ) )
-            {
+            if ( EJBHome.class.isAssignableFrom( callMethod.getDeclaringClass() ) ) {
 
-                if ( callMethod.getDeclaringClass() != EJBHome.class )
-                {
+                if ( callMethod.getDeclaringClass() != EJBHome.class ) {
                     // Its a home interface method, which is declared by the bean provider, but not a EJBHome method.
                     // only create() and find<METHOD>( ) are declared by the bean provider.
-                    if ( callMethod.getName().equals( "create" ) )
-                    {
+                    if ( callMethod.getName().equals( "create" ) ) {
                         // create( ) method called, execute ejbCreate() method
                         return createEJBObject( callMethod, args, callContext );
-                    }
-                    else if ( callMethod.getName().startsWith( "find" ) )
-                    {
+                    } else if ( callMethod.getName().startsWith( "find" ) ) {
                         // find<METHOD> called, execute ejbFind<METHOD>
                         return findEJBObject( callMethod, args, callContext );
-                    }
-                    else
-                    {
+                    } else {
                         // home method called, execute ejbHome method
                         throw new org.openejb.InvalidateReferenceException( new java.rmi.RemoteException( "Invalid method " + callMethod.getName() + " only find<METHOD>( ) and create( ) method are allowed in EJB 1.1 container-managed persistence" ) );
                     }
-                }
-                else if ( callMethod.getName().equals( "remove" ) )
-                {
+                } else if ( callMethod.getName().equals( "remove" ) ) {
                     removeEJBObject( callMethod, args, callContext );
                     return null;
                 }
-            }
-            else if ( EJBObject.class == callMethod.getDeclaringClass() )
-            {
+            } else if ( EJBObject.class == callMethod.getDeclaringClass() ) {
                 removeEJBObject( callMethod, args, callContext );
                 return null;
             }
@@ -618,9 +561,7 @@ public class CastorCMP11_EntityContainer
             return deployInfo.convertIfLocalReference( callMethod, retValue );
 
 
-        }
-        finally
-        {
+        } finally {
             /*
                 The thread context must be stripped from the thread before returning or throwing an exception
                 so that an object outside the container does not have access to a
@@ -651,8 +592,7 @@ public class CastorCMP11_EntityContainer
      * @param bean
      * @param threadContext
      */
-    public void discardInstance( EnterpriseBean bean, ThreadContext threadContext )
-    {
+    public void discardInstance( EnterpriseBean bean, ThreadContext threadContext ) {
         if ( bean != null ) txReadyPoolMap.remove( bean );
     }
 
@@ -671,8 +611,7 @@ public class CastorCMP11_EntityContainer
      * @exception java.lang.reflect.InvocationTargetException
      * @exception java.lang.InstantiationException
      */
-    public EntityBean fetchFreeInstance( ThreadContext callContext ) throws IllegalAccessException, InvocationTargetException, InstantiationException
-    {
+    public EntityBean fetchFreeInstance( ThreadContext callContext ) throws IllegalAccessException, InvocationTargetException, InstantiationException {
 
         org.openejb.core.DeploymentInfo deploymentInfo = callContext.getDeploymentInfo();
 
@@ -681,8 +620,7 @@ public class CastorCMP11_EntityContainer
         */
         Stack methodReadyPool = ( Stack ) methodReadyPoolMap.get( deploymentInfo.getDeploymentID() );
 
-        if ( methodReadyPool == null )
-        {
+        if ( methodReadyPool == null ) {
             // TODO:3: Localize this message
             throw new java.lang.RuntimeException( "Invalid deployment id " + deploymentInfo.getDeploymentID() + " for this container" );
         }
@@ -694,11 +632,9 @@ public class CastorCMP11_EntityContainer
         // any instances to the stack.  What is the point of this pool?
         EntityBean bean = ( EntityBean ) methodReadyPool.pop();
 
-        if ( bean == null )
-        {
+        if ( bean == null ) {
             byte currentOperation = callContext.getCurrentOperation();
-            try
-            {
+            try {
                 bean = ( EntityBean ) deploymentInfo.getBeanClass().newInstance();
                 /*
                 setEntityContext executes in an unspecified transactional context.
@@ -709,14 +645,10 @@ public class CastorCMP11_EntityContainer
                 Object[] params = new javax.ejb.EntityContext[]{( javax.ejb.EntityContext ) deploymentInfo.getEJBContext()};
                 //logger.debug(bean + ".setEntityContext("+params[0]+")");
                 this.SET_ENTITY_CONTEXT_METHOD.invoke( bean, params );
-            }
-            finally
-            {
+            } finally {
                 callContext.setCurrentOperation( currentOperation );
             }
-        }
-        else
-        {
+        } else {
             // Here we need to reset all fields to their default values ( 0 for primitive types, null for pointers )
             resetBeanFields( bean, deploymentInfo );
         }
@@ -737,8 +669,7 @@ public class CastorCMP11_EntityContainer
      * @exception org.openejb.OpenEJBException
      */
     protected Object businessMethod( Method callMethod, Method runMethod, Object[] args, ThreadContext callContext )
-            throws org.openejb.OpenEJBException
-    {
+    throws org.openejb.OpenEJBException {
 
         EntityBean bean = null;
 
@@ -748,17 +679,14 @@ public class CastorCMP11_EntityContainer
         txPolicy.beforeInvoke( bean, txContext );
 
         Object returnValue = null;
-        try
-        {
+        try {
 
             Database db = getDatabase( callContext );
 
             bean = fetchAndLoadBean( callContext, db );
             //logger.debug("Invoking business method on "+bean);
-            if ( OpenEJB.getTransactionManager().getTransaction() != null )
-            {
-                try
-                {
+            if ( OpenEJB.getTransactionManager().getTransaction() != null ) {
+                try {
                     Key key = new Key( OpenEJB.getTransactionManager().getTransaction(),
                                        callContext.getDeploymentInfo().getDeploymentID(),
                                        callContext.getPrimaryKey() );
@@ -767,77 +695,56 @@ public class CastorCMP11_EntityContainer
                     OpenEJB.getTransactionManager().getTransaction().registerSynchronization( sync );
 
                     syncWrappers.put( key, sync );
-                }
-                catch ( Exception ex )
-                {
+                } catch ( Exception ex ) {
                     ex.printStackTrace();
                 }
             }
 
             returnValue = runMethod.invoke( bean, args );
 
-        }
-        catch ( java.lang.reflect.InvocationTargetException ite )
-        {
+        } catch ( java.lang.reflect.InvocationTargetException ite ) {
             // handle enterprise bean exceptions
-            if ( ite.getTargetException() instanceof RuntimeException )
-            {
+            if ( ite.getTargetException() instanceof RuntimeException ) {
                 /* System Exception ****************************/
                 txPolicy.handleSystemException( ite.getTargetException(), bean, txContext );
 
-            }
-            else
-            {
+            } else {
                 /* Application Exception ***********************/
                 txPolicy.handleApplicationException( ite.getTargetException(), txContext );
             }
-        }
-        catch ( org.exolab.castor.jdo.DuplicateIdentityException e )
-        {
+        } catch ( org.exolab.castor.jdo.DuplicateIdentityException e ) {
             /* Application Exception ***********************/
             //TODO:3: Localize this message
             Exception re = new javax.ejb.DuplicateKeyException( "Attempt to update an entity bean (DeploymentID=\"" + callContext.getDeploymentInfo().getDeploymentID() + "\") with an primary key that already exsists. Castor nested exception message = " + e.getMessage() );
             txPolicy.handleSystemException( re, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.ClassNotPersistenceCapableException e )
-        {
+        } catch ( org.exolab.castor.jdo.ClassNotPersistenceCapableException e ) {
             /* System Exception ****************************/
             //TODO:3: Localize this message
             RemoteException re = new RemoteException( "Attempt to update an entity bean (DeploymentID=\"" + txContext.callContext.getDeploymentInfo().getDeploymentID() + "\") that can not be persisted.", e );
             txPolicy.handleSystemException( re, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.TransactionAbortedException e )
-        {
+        } catch ( org.exolab.castor.jdo.TransactionAbortedException e ) {
             /* System Exception ****************************/
             //TODO:3: Localize this message
             RemoteException re = new RemoteException( "Attempt to update an entity bean (DeploymentID=\"" + txContext.callContext.getDeploymentInfo().getDeploymentID() + "\") failed because transaction was aborted.", e );
             txPolicy.handleSystemException( re, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.TransactionNotInProgressException e )
-        {
+        } catch ( org.exolab.castor.jdo.TransactionNotInProgressException e ) {
             /* System Exception ****************************/
             //TODO:3: Localize this message
             RemoteException re = new RemoteException( "Attempt to update an entity bean (DeploymentID=\"" + txContext.callContext.getDeploymentInfo().getDeploymentID() + "\") failed because a transaction didn't exist.", e );
             txPolicy.handleSystemException( re, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.DatabaseNotFoundException e )
-        {
+        } catch ( org.exolab.castor.jdo.DatabaseNotFoundException e ) {
             /* System Exception ****************************/
             txPolicy.handleSystemException( e, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.PersistenceException e )
-        {
+        } catch ( org.exolab.castor.jdo.PersistenceException e ) {
             /* System Exception ****************************/
             txPolicy.handleSystemException( e, bean, txContext );
 
-        }
-        catch ( Throwable e )
-        {// handle reflection exception
+        } catch ( Throwable e ) {// handle reflection exception
             /*
               Any exception thrown by reflection; not by the enterprise bean. Possible
               Exceptions are:
@@ -850,9 +757,7 @@ public class CastorCMP11_EntityContainer
             /* System Exception ****************************/
             txPolicy.handleSystemException( e, bean, txContext );
 
-        }
-        finally
-        {
+        } finally {
             txPolicy.afterInvoke( bean, txContext );
         }
 
@@ -875,8 +780,7 @@ public class CastorCMP11_EntityContainer
      * @exception org.openejb.OpenEJBException
      */
     protected ProxyInfo createEJBObject( Method callMethod, Object[] args, ThreadContext callContext )
-            throws org.openejb.OpenEJBException
-    {
+    throws org.openejb.OpenEJBException {
         org.openejb.core.DeploymentInfo deploymentInfo = callContext.getDeploymentInfo();
 
         EntityBean bean = null;
@@ -888,8 +792,7 @@ public class CastorCMP11_EntityContainer
         txPolicy.beforeInvoke( bean, txContext );
 
 
-        try
-        {
+        try {
 
             /*
               Obtain a bean instance from the method ready pool
@@ -912,8 +815,7 @@ public class CastorCMP11_EntityContainer
             ejbCreateMethod.invoke( bean, args );
 
             int txStatus = OpenEJB.getTransactionManager().getStatus();
-            if ( txStatus == Status.STATUS_ACTIVE || txStatus == Status.STATUS_NO_TRANSACTION )
-            {
+            if ( txStatus == Status.STATUS_ACTIVE || txStatus == Status.STATUS_NO_TRANSACTION ) {
 
                 /*
                   Get the JDO database for this deployment
@@ -984,63 +886,44 @@ public class CastorCMP11_EntityContainer
             */
             callContext.setPrimaryKey( null );
 
-        }
-        catch ( java.lang.reflect.InvocationTargetException ite )
-        {// handle enterprise bean exceptions
-            if ( ite.getTargetException() instanceof RuntimeException )
-            {
+        } catch ( java.lang.reflect.InvocationTargetException ite ) {// handle enterprise bean exceptions
+            if ( ite.getTargetException() instanceof RuntimeException ) {
                 /* System Exception ****************************/
                 txPolicy.handleSystemException( ite.getTargetException(), bean, txContext );
-            }
-            else
-            {
+            } else {
                 /* Application Exception ***********************/
                 txPolicy.handleApplicationException( ite.getTargetException(), txContext );
             }
-        }
-        catch ( org.exolab.castor.jdo.DuplicateIdentityException e )
-        {
+        } catch ( org.exolab.castor.jdo.DuplicateIdentityException e ) {
             /* Application Exception ***********************/
             Exception re = new javax.ejb.DuplicateKeyException( "Attempt to create an entity bean (DeploymentID=\"" + callContext.getDeploymentInfo().getDeploymentID() + "\") with an primary key that already exsists. Castor nested exception message = " + e.getMessage() );
             txPolicy.handleSystemException( re, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.ClassNotPersistenceCapableException e )
-        {
+        } catch ( org.exolab.castor.jdo.ClassNotPersistenceCapableException e ) {
             /* System Exception ****************************/
             RemoteException re = new RemoteException( "Attempt to create an entity bean (DeploymentID=\"" + txContext.callContext.getDeploymentInfo().getDeploymentID() + "\") that can not be persisted.", e );
             txPolicy.handleSystemException( re, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.TransactionAbortedException e )
-        {
+        } catch ( org.exolab.castor.jdo.TransactionAbortedException e ) {
             /* System Exception ****************************/
             //TransactionRolledbackException re = new TransactionRolledbackException("Attempt to create an entity bean (DeploymentID=\""+ThreadContext.getThreadContext().getDeploymentInfo().getDeploymentID()+"\") failed because transaction was aborted. Nested exception message = "+tae.getMessage()));
             RemoteException re = new RemoteException( "Attempt to create an entity bean (DeploymentID=\"" + txContext.callContext.getDeploymentInfo().getDeploymentID() + "\") failed because transaction was aborted.", e );
             txPolicy.handleSystemException( re, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.TransactionNotInProgressException e )
-        {
+        } catch ( org.exolab.castor.jdo.TransactionNotInProgressException e ) {
             /* System Exception ****************************/
             RemoteException re = new RemoteException( "Attempt to create an entity bean (DeploymentID=\"" + txContext.callContext.getDeploymentInfo().getDeploymentID() + "\") failed because a transaction didn't exist.", e );
             txPolicy.handleSystemException( re, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.DatabaseNotFoundException e )
-        {
+        } catch ( org.exolab.castor.jdo.DatabaseNotFoundException e ) {
             /* System Exception ****************************/
             txPolicy.handleSystemException( e, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.PersistenceException e )
-        {
+        } catch ( org.exolab.castor.jdo.PersistenceException e ) {
             /* System Exception ****************************/
             txPolicy.handleSystemException( e, bean, txContext );
 
-        }
-        catch ( Throwable e )
-        {// handle reflection exception
+        } catch ( Throwable e ) {// handle reflection exception
             /*
               Any exception thrown by reflection; not by the enterprise bean. Possible
               Exceptions are:
@@ -1052,9 +935,7 @@ public class CastorCMP11_EntityContainer
             */
             /* System Exception ****************************/
             txPolicy.handleSystemException( e, bean, txContext );
-        }
-        finally
-        {
+        } finally {
             txPolicy.afterInvoke( bean, txContext );
         }
 
@@ -1077,8 +958,7 @@ public class CastorCMP11_EntityContainer
      * @return
      * @exception org.openejb.OpenEJBException
      */
-    protected Object findEJBObject( Method callMethod, Object[] args, ThreadContext callContext ) throws org.openejb.OpenEJBException
-    {
+    protected Object findEJBObject( Method callMethod, Object[] args, ThreadContext callContext ) throws org.openejb.OpenEJBException {
 
         org.openejb.core.DeploymentInfo deploymentInfo = callContext.getDeploymentInfo();
 
@@ -1096,8 +976,7 @@ public class CastorCMP11_EntityContainer
         txPolicy.beforeInvoke( bean, txContext );
 
 
-        try
-        {
+        try {
 
             /*
               Get the JDO database for this deployment
@@ -1115,13 +994,11 @@ public class CastorCMP11_EntityContainer
             OQLQuery query = db.getOQLQuery( queryString );
 
 
-            if ( callMethod.getName().equals( "findByPrimaryKey" ) )
-            {
+            if ( callMethod.getName().equals( "findByPrimaryKey" ) ) {
                 // bind complex primary key to query
                 KeyGenerator kg = deploymentInfo.getKeyGenerator();
 
-                if ( kg.isKeyComplex() )
-                {
+                if ( kg.isKeyComplex() ) {
                     /*
                     * This code moves the fields of the primary key into a JDO Complex object
                     * which can then be used in the database.bind operation
@@ -1136,10 +1013,8 @@ public class CastorCMP11_EntityContainer
 
             if ( args == null ) args = noArgs;
 
-            for ( int i = 0; i < args.length; i++ )
-            {
-                if ( args[i] instanceof javax.ejb.EJBObject )
-                {
+            for ( int i = 0; i < args.length; i++ ) {
+                if ( args[i] instanceof javax.ejb.EJBObject ) {
                     /*
                     Its possible that the finder method's arguments are actually EJBObject reference in
                     which case the EJBObject reference is replaced with the EJB object's primary key.
@@ -1154,12 +1029,9 @@ public class CastorCMP11_EntityContainer
                     "SELECT t FROM Thing t WHERE t.customer_id = $1"
 
                     */
-                    try
-                    {
+                    try {
                         args[i] = ( ( javax.ejb.EJBObject ) args[i] ).getPrimaryKey();
-                    }
-                    catch ( java.rmi.RemoteException re )
-                    {
+                    } catch ( java.rmi.RemoteException re ) {
                         //TODO:3: Localize this message
                         throw new javax.ejb.FinderException( "Could not extract primary key from EJBObject reference; argument number " + i );
                     }
@@ -1202,11 +1074,9 @@ public class CastorCMP11_EntityContainer
             of ProxyInfo objects will be returned. If its a single-value find operation then a
             single ProxyInfo object is returned.
             */
-            if ( callMethod.getReturnType() == java.util.Collection.class || callMethod.getReturnType() == java.util.Enumeration.class )
-            {
+            if ( callMethod.getReturnType() == java.util.Collection.class || callMethod.getReturnType() == java.util.Enumeration.class ) {
                 java.util.Vector proxies = new java.util.Vector();
-                while ( results.hasMore() )
-                {
+                while ( results.hasMore() ) {
                     /*  Fetch the next entity bean from the query results */
                     bean = ( EntityBean ) results.next();
 
@@ -1222,9 +1092,7 @@ public class CastorCMP11_EntityContainer
                     returnValue = new org.openejb.util.Enumerator( proxies );
                 else
                     returnValue = proxies;
-            }
-            else
-            {
+            } else {
                 /*  Fetch the entity bean from the query results */
                 if ( !results.hasMore() )
                     throw new javax.ejb.ObjectNotFoundException( "A Enteprise bean with deployment_id = " + deploymentInfo.getDeploymentID() + " and primarykey = " + args[0] + " Does not exist" );
@@ -1239,43 +1107,31 @@ public class CastorCMP11_EntityContainer
                 returnValue = new ProxyInfo( deploymentInfo, primaryKey, deploymentInfo.getRemoteInterface(), this );
             }
 
-        }
-        catch ( javax.ejb.FinderException fe )
-        {
+        } catch ( javax.ejb.FinderException fe ) {
             /* Application Exception *********************** thrown when attempting to extract EJBObject argument */
             txPolicy.handleApplicationException( fe, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.QueryException qe )
-        {
+        } catch ( org.exolab.castor.jdo.QueryException qe ) {
             /* Application Exception ***********************/
             javax.ejb.FinderException fe = new javax.ejb.FinderException( "Castor JDO could not execute query for this finder method. QueryException: " + qe.getMessage() );
             // TODO:3: Localize this message
             txPolicy.handleApplicationException( fe, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.TransactionNotInProgressException e )
-        {
+        } catch ( org.exolab.castor.jdo.TransactionNotInProgressException e ) {
             /* System Exception ****************************/
             // TODO:3: Localize this message
             RemoteException re = new RemoteException( "Attempt to create an entity bean (DeploymentID=\"" + callContext.getDeploymentInfo().getDeploymentID() + "\") failed because a transaction didn't exist.", e );
             txPolicy.handleSystemException( re, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.DatabaseNotFoundException e )
-        {
+        } catch ( org.exolab.castor.jdo.DatabaseNotFoundException e ) {
             /* System Exception ****************************/
             txPolicy.handleSystemException( e, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.PersistenceException e )
-        {
+        } catch ( org.exolab.castor.jdo.PersistenceException e ) {
             /* System Exception ****************************/
             txPolicy.handleSystemException( e, bean, txContext );
 
-        }
-        catch ( Throwable e )
-        {// handle reflection exception
+        } catch ( Throwable e ) {// handle reflection exception
             /*
               Any exception thrown by reflection; not by the enterprise bean. Possible
               Exceptions are:
@@ -1287,9 +1143,7 @@ public class CastorCMP11_EntityContainer
             */
             /* System Exception ****************************/
             txPolicy.handleSystemException( e, bean, txContext );
-        }
-        finally
-        {
+        } finally {
             if ( results != null ) results.close();
             txPolicy.afterInvoke( bean, txContext );
         }
@@ -1306,20 +1160,17 @@ public class CastorCMP11_EntityContainer
      * @exception org.openejb.OpenEJBException
      */
     protected void removeEJBObject( Method callMethod, Object[] args, ThreadContext callContext )
-            throws org.openejb.OpenEJBException
-    {
+    throws org.openejb.OpenEJBException {
         EntityBean bean = null;
         TransactionContext txContext = new TransactionContext( callContext );
         TransactionPolicy txPolicy = callContext.getDeploymentInfo().getTransactionPolicy( callMethod );
 
         txPolicy.beforeInvoke( bean, txContext );
 
-        try
-        {
+        try {
             int status = OpenEJB.getTransactionManager().getStatus();
             // are the other statuses possible here ?
-            if ( status == Status.STATUS_ACTIVE || status == Status.STATUS_NO_TRANSACTION )
-            {
+            if ( status == Status.STATUS_ACTIVE || status == Status.STATUS_NO_TRANSACTION ) {
 
                 /*
                   Get the JDO database for this deployment
@@ -1338,68 +1189,49 @@ public class CastorCMP11_EntityContainer
 
                 db.remove( bean );
             }
-        }
-        catch ( java.lang.reflect.InvocationTargetException ite )
-        {
+        } catch ( java.lang.reflect.InvocationTargetException ite ) {
             // handle enterprise bean exceptions
-            if ( ite.getTargetException() instanceof RuntimeException )
-            {
+            if ( ite.getTargetException() instanceof RuntimeException ) {
                 /* System Exception ****************************/
                 txPolicy.handleSystemException( ite.getTargetException(), bean, txContext );
-            }
-            else
-            {
+            } else {
                 /* Application Exception ***********************/
                 txPolicy.handleApplicationException( ite.getTargetException(), txContext );
             }
-        }
-        catch ( org.exolab.castor.jdo.DuplicateIdentityException e )
-        {
+        } catch ( org.exolab.castor.jdo.DuplicateIdentityException e ) {
             /* Application Exception ***********************/
             // TODO:3: Localize this message
             Exception re = new javax.ejb.DuplicateKeyException( "Attempt to remove an entity bean (DeploymentID=\"" + callContext.getDeploymentInfo().getDeploymentID() + "\") with an primary key that already exsists. Castor nested exception message = " + e.getMessage() );
             txPolicy.handleSystemException( re, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.ClassNotPersistenceCapableException e )
-        {
+        } catch ( org.exolab.castor.jdo.ClassNotPersistenceCapableException e ) {
             /* System Exception ****************************/
             // TODO:3: Localize this message
             RemoteException re = new RemoteException( "Attempt to remove an entity bean (DeploymentID=\"" + txContext.callContext.getDeploymentInfo().getDeploymentID() + "\") that can not be persisted.", e );
             txPolicy.handleSystemException( re, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.TransactionAbortedException e )
-        {
+        } catch ( org.exolab.castor.jdo.TransactionAbortedException e ) {
             /* System Exception ****************************/
             //TransactionRolledbackException re = new TransactionRolledbackException("Attempt to remove an entity bean (DeploymentID=\""+ThreadContext.getThreadContext().getDeploymentInfo().getDeploymentID()+"\") failed because transaction was aborted. Nested exception message = "+tae.getMessage()));
             // TODO:3: Localize this message
             RemoteException re = new RemoteException( "Attempt to remove an entity bean (DeploymentID=\"" + txContext.callContext.getDeploymentInfo().getDeploymentID() + "\") failed because transaction was aborted.", e );
             txPolicy.handleSystemException( re, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.TransactionNotInProgressException e )
-        {
+        } catch ( org.exolab.castor.jdo.TransactionNotInProgressException e ) {
             /* System Exception ****************************/
             // TODO:3: Localize this message
             RemoteException re = new RemoteException( "Attempt to remove an entity bean (DeploymentID=\"" + txContext.callContext.getDeploymentInfo().getDeploymentID() + "\") failed because a transaction didn't exist.", e );
             txPolicy.handleSystemException( re, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.DatabaseNotFoundException e )
-        {
+        } catch ( org.exolab.castor.jdo.DatabaseNotFoundException e ) {
             /* System Exception ****************************/
             txPolicy.handleSystemException( e, bean, txContext );
 
-        }
-        catch ( org.exolab.castor.jdo.PersistenceException e )
-        {
+        } catch ( org.exolab.castor.jdo.PersistenceException e ) {
             /* System Exception ****************************/
             txPolicy.handleSystemException( e, bean, txContext );
 
-        }
-        catch ( Throwable e )
-        {// handle reflection exception
+        } catch ( Throwable e ) {// handle reflection exception
             /*
 
               Any exception thrown by reflection; not by the enterprise bean.
@@ -1425,9 +1257,7 @@ public class CastorCMP11_EntityContainer
             */
             /* System Exception ****************************/
             txPolicy.handleSystemException( e, bean, txContext );
-        }
-        finally
-        {
+        } finally {
             txPolicy.afterInvoke( bean, txContext );
         }
     }
@@ -1454,11 +1284,10 @@ public class CastorCMP11_EntityContainer
      * @exception java.lang.IllegalAccessException
      */
     protected EntityBean fetchAndLoadBean( ThreadContext callContext, Database db )
-            throws org.exolab.castor.jdo.PersistenceException, org.exolab.castor.jdo.ObjectNotFoundException,
-            org.exolab.castor.jdo.TransactionNotInProgressException, org.exolab.castor.jdo.LockNotGrantedException,
-            java.lang.InstantiationException, java.lang.reflect.InvocationTargetException,
-            java.lang.IllegalAccessException
-    {
+    throws org.exolab.castor.jdo.PersistenceException, org.exolab.castor.jdo.ObjectNotFoundException,
+    org.exolab.castor.jdo.TransactionNotInProgressException, org.exolab.castor.jdo.LockNotGrantedException,
+    java.lang.InstantiationException, java.lang.reflect.InvocationTargetException,
+    java.lang.IllegalAccessException {
         /*
           Each bean deployment has a unique KeyGenerator that is responsible
           for two operations.
@@ -1482,8 +1311,7 @@ public class CastorCMP11_EntityContainer
             key is complex it must be marshalled into a Castor JDO Complex
             object in order to perform a load operation.
         */
-        if ( kg.isKeyComplex() )
-        {
+        if ( kg.isKeyComplex() ) {
             Complex complexIdentity = kg.getJdoComplex( callContext.getPrimaryKey() );
             /*
              * yip: Castor JDO bases on and maintains one instance of object of
@@ -1497,9 +1325,7 @@ public class CastorCMP11_EntityContainer
                                            complexIdentity/*,
                                        bean*/ );
 
-        }
-        else
-        {
+        } else {
             bean = ( EntityBean ) db.load( callContext.getDeploymentInfo().getBeanClass(),
                                            callContext.getPrimaryKey()/*,
                                        bean*/ );
@@ -1527,10 +1353,9 @@ public class CastorCMP11_EntityContainer
      * @exception javax.transaction.SystemException
      */
     protected Database getDatabase( ThreadContext callContext )
-            throws org.exolab.castor.jdo.DatabaseNotFoundException,
-            org.exolab.castor.jdo.PersistenceException,
-            javax.transaction.SystemException
-    {
+    throws org.exolab.castor.jdo.DatabaseNotFoundException,
+    org.exolab.castor.jdo.PersistenceException,
+    javax.transaction.SystemException {
         /*
          If their is no transaction the CastorTransactionScopeManager.begin()
          method would have set the unspecified value of the ThreadContext to a
@@ -1545,12 +1370,9 @@ public class CastorCMP11_EntityContainer
          */
         Database db = ( Database ) callContext.getUnspecified();
 
-        if ( db != null )
-        {
+        if ( db != null ) {
             return db;
-        }
-        else
-        {
+        } else {
             /*
              BIG PROBLEM: Transacitons should use the same Database object.
              If Thomas won't put this into JDO then I'll have to put into the
@@ -1580,23 +1402,18 @@ public class CastorCMP11_EntityContainer
      defaults (e.g. 0 for integer, null for pointers) prior to invoking an ejbCreate(...) method on an
      instance."
      */
-    protected void resetBeanFields( java.lang.Object bean, org.openejb.core.DeploymentInfo info )
-    {
+    protected void resetBeanFields( java.lang.Object bean, org.openejb.core.DeploymentInfo info ) {
         final String[] cmFields = info.getCmrFields();
         final Class beanClass = bean.getClass();
 
-        try
-        {
-            for ( int i = 0; i < cmFields.length; i++ )
-            {
+        try {
+            for ( int i = 0; i < cmFields.length; i++ ) {
                 Field field = beanClass.getDeclaredField( cmFields[i] );
                 Object value = resetMap.get( field.getType() );
 //                System.out.println("Setting field "+cmFields[i]+" to "+value);
                 field.set( bean, value );
             }
-        }
-        catch ( Exception e )
-        {
+        } catch ( Exception e ) {
             // NoSuchFieldException or IllegalAccessException
             // internal inconistency. This should have been handled at start time.
             logger.error( "Internal inconsistency accessing the fields of a CMP entity bean" + bean + ":" + e );
@@ -1619,25 +1436,17 @@ public class CastorCMP11_EntityContainer
      * @param className The name of the class of the object to be created
      * @param loader The class loader to use when creating the object
      */
-    public Object newInstance( String className, ClassLoader loader )
-    {
+    public Object newInstance( String className, ClassLoader loader ) {
 
         Object obj = null;
 
-        try
-        {
+        try {
             obj = fetchFreeInstance( ThreadContext.getThreadContext() );
-        }
-        catch ( IllegalAccessException iae )
-        {
+        } catch ( IllegalAccessException iae ) {
             throw new RuntimeException( iae.getLocalizedMessage() );
-        }
-        catch ( InvocationTargetException ite )
-        {
+        } catch ( InvocationTargetException ite ) {
             throw new RuntimeException( ite.getLocalizedMessage() );
-        }
-        catch ( InstantiationException ie )
-        {
+        } catch ( InstantiationException ie ) {
             throw new RuntimeException( ie.getLocalizedMessage() );
         }
 
@@ -1652,8 +1461,7 @@ public class CastorCMP11_EntityContainer
      * reload the object of the given class with the same identity.
      * @param object The object
      */
-    public Class loaded( Object object, short accessMode )
-    {
+    public Class loaded( Object object, short accessMode ) {
         return null;
     }
 
@@ -1665,8 +1473,7 @@ public class CastorCMP11_EntityContainer
      * @param object The object
      * @param modified Is the object modified?
      */
-    public void storing( Object object, boolean modified )
-    {
+    public void storing( Object object, boolean modified ) {
     }
 
     /**
@@ -1676,8 +1483,7 @@ public class CastorCMP11_EntityContainer
      * @param object The object
      * @param db The database in which this object will be created
      */
-    public void creating( Object object, Database db )
-    {
+    public void creating( Object object, Database db ) {
     }
 
 
@@ -1686,8 +1492,7 @@ public class CastorCMP11_EntityContainer
      *
      * @param object The object
      */
-    public void created( Object object )
-    {
+    public void created( Object object ) {
     }
 
 
@@ -1699,8 +1504,7 @@ public class CastorCMP11_EntityContainer
      *
      * @param object The object
      */
-    public void removing( Object object )
-    {
+    public void removing( Object object ) {
     }
 
 
@@ -1711,8 +1515,7 @@ public class CastorCMP11_EntityContainer
      *
      * @param object The object
      */
-    public void removed( Object object )
-    {
+    public void removed( Object object ) {
     }
 
 
@@ -1726,8 +1529,7 @@ public class CastorCMP11_EntityContainer
      * @param committed True if the object has been commited, false
      *  if rollback or otherwise cancelled
      */
-    public void releasing( Object object, boolean committed )
-    {
+    public void releasing( Object object, boolean committed ) {
         /*
         Every time a bean instance is fetched using fetchFreeInstance( ) it is
         automatically added to the txReadyPoolMap indexed by the bean instance
@@ -1749,8 +1551,7 @@ public class CastorCMP11_EntityContainer
      * @param object The object
      * @param db The database to which this object belongs
      */
-    public void using( Object object, Database db )
-    {
+    public void using( Object object, Database db ) {
     }
 
 
@@ -1760,34 +1561,28 @@ public class CastorCMP11_EntityContainer
      *
      * @param object The object
      */
-    public void updated( Object object )
-    {
+    public void updated( Object object ) {
     }
 
-    public class Key
-    {
+    public class Key {
         Object deploymentID, primaryKey;
         Transaction transaction;
 
-        public Key( Transaction tx, Object depID, Object prKey )
-        {
+        public Key( Transaction tx, Object depID, Object prKey ) {
             transaction = tx;
             deploymentID = depID;
             primaryKey = prKey;
         }
 
-        public int hashCode()
-        {
+        public int hashCode() {
             return transaction.hashCode() ^ deploymentID.hashCode() ^ primaryKey.hashCode();
         }
 
-        public boolean equals( Object other )
-        {
-            if ( other != null && other.getClass() == CastorCMP11_EntityContainer.Key.class )
-            {
+        public boolean equals( Object other ) {
+            if ( other != null && other.getClass() == CastorCMP11_EntityContainer.Key.class ) {
                 Key otherKey = ( Key ) other;
                 if ( otherKey.transaction.equals( transaction ) && otherKey.deploymentID.equals( deploymentID ) && otherKey.primaryKey.equals(
-                        primaryKey ) )
+                                                                                                                                             primaryKey ) )
                     return true;
             }
             return false;
@@ -1795,46 +1590,33 @@ public class CastorCMP11_EntityContainer
     }
 
     public class SynchronizationWrapper
-            implements javax.transaction.Synchronization
-    {
+    implements javax.transaction.Synchronization {
         EntityBean bean;
         Key myIndex;
 
-        public SynchronizationWrapper( EntityBean ebean, Key key )
-        {
+        public SynchronizationWrapper( EntityBean ebean, Key key ) {
             bean = ebean;
             myIndex = key;
         }
 
-        public void beforeCompletion()
-        {
-            try
-            {
+        public void beforeCompletion() {
+            try {
                 bean.ejbStore();
-            }
-            catch ( Exception re )
-            {
+            } catch ( Exception re ) {
                 javax.transaction.TransactionManager txmgr = OpenEJB.getTransactionManager();
-                try
-                {
+                try {
                     txmgr.setRollbackOnly();
-                }
-                catch ( javax.transaction.SystemException se )
-                {
+                } catch ( javax.transaction.SystemException se ) {
                     // log the exception
                 }
 
             }
         }
 
-        public void afterCompletion( int status )
-        {
+        public void afterCompletion( int status ) {
             syncWrappers.remove( myIndex );
         }
 
     }
 
 }
-
-
-
