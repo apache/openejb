@@ -58,11 +58,11 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
 import org.tranql.cache.CacheRow;
 import org.tranql.cache.InTxCache;
-import org.tranql.field.FieldAccessor;
 import org.tranql.identity.GlobalIdentity;
 import org.tranql.pkgenerator.AutoIncrementTablePrimaryKeyGenerator;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorException;
+import org.tranql.ql.QueryBindingImpl;
 import org.tranql.sql.jdbc.binding.BindingFactory;
 
 /**
@@ -86,7 +86,7 @@ public class AutoIncrementTablePrimaryKeyGeneratorWrapper implements PrimaryKeyG
     
     public void doStart() throws WaitingException, Exception {
         DataSource dataSource = (DataSource) connectionFactoryWrapper.$getResource();
-        delegate = new AutoIncrementTablePrimaryKeyGenerator(dataSource, sql, BindingFactory.getResultBinding(1, new FieldAccessor(0, returnType)));
+        delegate = new AutoIncrementTablePrimaryKeyGenerator(dataSource, sql, BindingFactory.getResultBinding(1, new QueryBindingImpl(0, returnType)));
     }
 
     public void doStop() throws WaitingException, Exception {

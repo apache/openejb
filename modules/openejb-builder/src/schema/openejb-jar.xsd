@@ -141,6 +141,8 @@
                             <xs:element name="cmp-field-name" type="xs:string"/>
                             <xs:element name="cmp-field-class" type="xs:string" minOccurs="0"/>
                             <xs:element name="table-column" type="xs:string"/>
+                            <xs:element name="sql-type" type="xs:string" minOccurs="0"/>
+                            <xs:element name="type-converter" type="xs:string" minOccurs="0"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>

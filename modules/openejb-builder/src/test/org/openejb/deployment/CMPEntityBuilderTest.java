@@ -283,7 +283,7 @@ public class CMPEntityBuilderTest extends TestCase {
                 }
             }
         }
-        
+
         List pkEnds = leftEntity.getAssociationEnds();
         List fkEnds = rightEntity.getAssociationEnds();
         assertEquals(1, pkEnds.size());

@@ -125,6 +125,8 @@ import org.tranql.identity.IdentityTransform;
 import org.tranql.identity.UndefinedIdentityException;
 import org.tranql.identity.UserDefinedIdentity;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
+import org.tranql.ql.QueryBinding;
+import org.tranql.ql.QueryBindingImpl;
 import org.tranql.ql.QueryException;
 import org.tranql.query.AssociationEndFaultHandlerBuilder;
 import org.tranql.query.CommandTransform;
@@ -251,19 +253,19 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
             // Parameters
             String[] parameterTypes = signature.getParameterTypes();
-            FieldTransform[] parameterTransforms = new FieldTransform[parameterTypes.length];
+            QueryBinding[] parameterTransforms = new QueryBinding[parameterTypes.length];
             for (int i = 0; i < parameterTransforms.length; i++) {
-                parameterTransforms[i] = new FieldAccessor(i, ClassLoading.loadClass(parameterTypes[i], classLoader));
+                parameterTransforms[i] = new QueryBindingImpl(i, ClassLoading.loadClass(parameterTypes[i], classLoader));
             }
 
             // Local Proxy Results
             FieldTransform localResultsTransform;
             localResultsTransform = new FieldAccessor(0, proxyFactory.getLocalInterfaceClass());
             localResultsTransform = new IdAsEJBLocalObjectTransform(localResultsTransform, proxyFactory, ejb.getPrimaryKeyClass());
-
+            
             QueryCommand localProxyLoad = sqlSchema.getCommandFactory().createQuery(sql,
                     parameterTransforms,
-                    new FieldTransform[]{localResultsTransform});
+                    new QueryBinding[]{new QueryBindingImpl(localResultsTransform)});
             QueryCommandView localProxyLoadView = new QueryCommandView(localProxyLoad, new FieldTransform[] {new FieldAccessor(0, null)});
 
             // Remote Proxy Results
@@ -273,7 +275,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
             QueryCommand remoteProxyLoad = sqlSchema.getCommandFactory().createQuery(sql,
                     parameterTransforms,
-                    new FieldTransform[]{remoteResultsTransform});
+                    new QueryBinding[]{new QueryBindingImpl(remoteResultsTransform)});
             QueryCommandView remoteProxyLoadView = new QueryCommandView(remoteProxyLoad, new FieldTransform[] {new FieldAccessor(0, null)});
             
             queryCommands.put(new InterfaceMethodSignature(signature, true),
