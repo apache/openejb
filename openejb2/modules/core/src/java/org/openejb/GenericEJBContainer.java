@@ -225,13 +225,17 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         EJBInterfaceType invocationType = null;
         int index = proxyFactory.getMethodIndex(method);
 
+        Class serviceEndpointInterface = this.getProxyInfo().getServiceEndpointInterface();
+
         Class clazz = method.getDeclaringClass();
         if (EJBHome.class.isAssignableFrom(clazz)) {
             invocationType = EJBInterfaceType.HOME;
         } else if (EJBObject.class.isAssignableFrom(clazz)) {
             invocationType = EJBInterfaceType.REMOTE;
+        } else if (serviceEndpointInterface != null && serviceEndpointInterface.isAssignableFrom(clazz)) {
+            invocationType = EJBInterfaceType.WEB_SERVICE;
         } else {
-            throw new IllegalArgumentException("Legacy invoke interface only supports remote interfaces: " + clazz);
+            throw new IllegalArgumentException("Legacy invoke interface only supports remote and service-endpoint interfaces: " + clazz);
         }
 
         // extract the primary key from home ejb remove invocations

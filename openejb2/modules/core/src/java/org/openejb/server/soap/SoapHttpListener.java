@@ -50,7 +50,12 @@ import java.io.OutputStream;
 import java.io.InputStream;
 import java.net.URL;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamException;
+
 import org.codehaus.xfire.MessageContext;
+import org.codehaus.xfire.java.DefaultJavaService;
 import org.openejb.server.httpd.HttpListener;
 import org.openejb.server.httpd.HttpRequest;
 import org.openejb.server.httpd.HttpResponse;
@@ -65,8 +70,6 @@ public class SoapHttpListener implements HttpListener {
 
     public void onMessage(HttpRequest req, HttpResponse res) throws IOException {
 
-        MessageContext context = new MessageContext("not-used", null, res.getOutputStream(), null, req.getURI().toString());
-        context.setRequestStream(req.getInputStream());
 
         String path = req.getURI().getPath();
         WSContainer container = containerIndex.getContainer(path);
@@ -79,28 +82,49 @@ public class SoapHttpListener implements HttpListener {
         res.setContentType("text/xml");
 
         if (req.getQueryParameter("wsdl") != null){
-            URL wsdlURL = container.getWsdlURL();
-            InputStream in = null;
-            OutputStream out = null;
-            try {
-                in = wsdlURL.openStream();
-                out = res.getOutputStream();
-                byte[] buffer = new byte[1024];
-                for (int read = in.read(buffer); read > 0; read = in.read(buffer) ) {
-                    System.out.write(buffer, 0, read);
-                    out.write(buffer, 0 ,read);
-                }
-            } finally {
-                if (in != null) {
-                    in.close();
-                }
-                if (out != null) {
-                    out.flush();
-                    out.close();
-                }
-            }
+            doWSDLRequest(container, res);
         } else {
+            doInvoke(res, req, container);
+        }
+
+    }
+
+    private void doInvoke(HttpResponse res, HttpRequest req, WSContainer container) throws IOException {
+        //  We have to set the context classloader or the StAX API
+        //  won't be able to find it's implementation.
+        Thread thread = Thread.currentThread();
+        ClassLoader originalClassLoader = thread.getContextClassLoader();
+
+        try {
+            thread.setContextClassLoader(container.getClass().getClassLoader());
+            MessageContext context = new MessageContext("not-used", null, res.getOutputStream(), null, req.getURI().toString());
+            context.setRequestStream(req.getInputStream());
             container.invoke(context);
+        } finally {
+            thread.setContextClassLoader(originalClassLoader);
+        }
+    }
+
+    private void doWSDLRequest(WSContainer container, HttpResponse res) throws IOException {
+        URL wsdlURL = container.getWsdlURL();
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            in = wsdlURL.openStream();
+            out = res.getOutputStream();
+            byte[] buffer = new byte[1024];
+            for (int read = in.read(buffer); read > 0; read = in.read(buffer) ) {
+                System.out.write(buffer, 0, read);
+                out.write(buffer, 0 ,read);
+            }
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.flush();
+                out.close();
+            }
         }
     }
 

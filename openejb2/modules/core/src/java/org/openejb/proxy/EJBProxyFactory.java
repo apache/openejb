@@ -156,6 +156,7 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
         addLegacyMethods(map, proxyInfo.getHomeInterface(), signatures);
         addLegacyMethods(map, proxyInfo.getLocalInterface(), signatures);
         addLegacyMethods(map, proxyInfo.getLocalHomeInterface(), signatures);
+        addLegacyMethods(map, proxyInfo.getServiceEndpointInterface(), signatures);
         legacyMethodMap = Collections.unmodifiableMap(map);
 
         remoteMap = createOperationsMap(remoteFactory, signatures);
