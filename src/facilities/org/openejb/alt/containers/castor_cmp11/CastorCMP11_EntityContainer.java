@@ -102,6 +102,50 @@ public class CastorCMP11_EntityContainer
 		org.exolab.castor.persist.spi.InstanceFactory
 {
 
+
+    protected static class CMPLogger implements org.exolab.castor.persist.spi.LogInterceptor {
+        protected final Logger logger = new Logger("CastorCMP");
+        protected final String db;
+
+        public CMPLogger(String db) {
+            this.db=db+": ";
+        }
+        public void loading(java.lang.Object objClass, java.lang.Object identity) {
+            logger.info(db+"Loading an instance of "+objClass+" with identity \""+identity+"\"");
+        }
+        public void creating(java.lang.Object objClass, java.lang.Object identity) {
+            logger.info(db+"Creating an instance of "+objClass+" with identity \""+identity+"\"");
+        }
+
+        public void removing(java.lang.Object objClass, java.lang.Object identity) {
+            logger.info(db+"Removing an instance of "+objClass+" with identity \""+identity+"\"");
+        }
+
+        public void storing(java.lang.Object objClass, java.lang.Object identity) {
+            logger.info(db+"Storing an instance of "+objClass+" with identity \""+identity+"\"");
+        }
+
+        public void storeStatement(java.lang.String statement)  {
+            logger.debug(db+statement);
+        }
+
+        public void queryStatement(java.lang.String statement) {
+            logger.debug(db+statement);
+        }
+
+        public void message(java.lang.String message) {
+            logger.info(db+"JDO message:"+message);
+        }
+
+        public void exception(java.lang.Exception ex) {
+            logger.info(db+"JDO exception:", ex);
+        }
+
+        public java.io.PrintWriter getPrintWriter() {
+            return null;
+        }
+    }
+    
     /*
      * Bean instances that are currently in use are placed in the txReadyPoolMap indexed
      * by their object instance with a reference to deployment's methodReadyPoolMap entry
@@ -221,9 +265,6 @@ public class CastorCMP11_EntityContainer
     // Manages the synchronization wrappers
     java.util.Hashtable syncWrappers = new java.util.Hashtable();
     
-    protected java.io.PrintWriter globalTransactionLogWriter; 
-    protected java.io.PrintWriter localTransactionLogWriter;  
-
     // this map contains the Java language initial values for all all data types
     protected HashMap resetMap;
 
@@ -259,29 +300,7 @@ public class CastorCMP11_EntityContainer
         poolsize           = safeProps.getPropertyAsInt("PoolSize", 100);
         Global_TX_Database = safeProps.getProperty("Global_TX_Database");
         Local_TX_Database  = safeProps.getProperty("Local_TX_Database");
-
-        String globalTxLogName = safeProps.getProperty("Global_TX_Log", "castor_global_tx.log");
-        String localTxLogName  = safeProps.getProperty("Local_TX_Log",  "castor_local_tx.log");
-        String keyDirectory    = safeProps.getProperty("KeyDirectory",  "keys");
-
-        try {
-            globalTransactionLogWriter = new java.io.PrintWriter( new java.io.FileWriter( globalTxLogName ) );         
-            localTransactionLogWriter  = new java.io.PrintWriter( new java.io.FileWriter( localTxLogName  ) ); 
-        } catch ( java.io.IOException e ) {
-            logger.warning("Cannot open the log files "+localTxLogName+" and "+globalTxLogName+", using system out instead." );
-            globalTransactionLogWriter = new java.io.PrintWriter( new java.io.OutputStreamWriter( System.out ) );
-            localTransactionLogWriter  = new java.io.PrintWriter( new java.io.OutputStreamWriter( System.out ) );
-        }
         
-        try {
-            KeyGeneratorFactory.setKeyOutputDirectory( keyDirectory );
-        } catch ( java.io.IOException e ) {
-            logger.warning("Cannot set the KeyDirectory to "+ keyDirectory + "using the current working directory instead." );
-            try {
-                KeyGeneratorFactory.setKeyOutputDirectory( System.getProperty("user.dir") );
-            } catch ( Exception x ) {}
-        }
-
         /*
          * Castor JDO obtains a reference to the TransactionManager throught the InitialContext.
          * The new InitialContext will use the deployment's JNDI Context, which is normal inside 
@@ -306,7 +325,6 @@ public class CastorCMP11_EntityContainer
          * and which is not. The following code configures both.
          */
         jdo_ForGlobalTransaction = new JDO();
-        jdo_ForGlobalTransaction.setLogWriter( globalTransactionLogWriter );
 
         // Assign the TransactionManager JNDI name to the dynamically generated JNDI name
         jdo_ForGlobalTransaction.setTransactionManager("java:comp/"+transactionManagerJndiNameTyrex);
@@ -315,16 +333,17 @@ public class CastorCMP11_EntityContainer
         jdo_ForGlobalTransaction.setDatabaseName("Global_TX_Database");
         jdo_ForGlobalTransaction.setCallbackInterceptor(this);
         jdo_ForGlobalTransaction.setInstanceFactory(this);
+        jdo_ForGlobalTransaction.setLogInterceptor(new CMPLogger("Global_TX_Database"));
 
         // Make sure the DB is registered as a as synchronization object before the transaction begins.
         jdo_ForLocalTransaction = new JDO();
-        jdo_ForLocalTransaction.setLogWriter( localTransactionLogWriter );
 
 
         jdo_ForLocalTransaction.setConfiguration(Local_TX_Database);
         jdo_ForLocalTransaction.setDatabaseName("Local_TX_Database");
         jdo_ForLocalTransaction.setCallbackInterceptor(this);
         jdo_ForLocalTransaction.setInstanceFactory(this);
+        jdo_ForLocalTransaction.setLogInterceptor(new CMPLogger("Local_TX_Database"));
 
 
         /*
@@ -355,7 +374,7 @@ public class CastorCMP11_EntityContainer
                 kg = KeyGeneratorFactory.createKeyGenerator(di);
                 di.setKeyGenerator( kg );
             } catch ( Exception e ) {
-                e.printStackTrace();
+                logger.error("Unable to create KeyGenerator for deployment id = "+di.getDeploymentID(), e);
                 throw new org.openejb.SystemException("Unable to create KeyGenerator for deployment id = "+di.getDeploymentID(), e);
             }
 
@@ -368,7 +387,7 @@ public class CastorCMP11_EntityContainer
                     jdo_ForGlobalTransaction.setTransactionManager(transactionManagerJndiName);
                 }
             } catch ( Exception e ) {
-                e.printStackTrace();
+                logger.error("Unable to bind TransactionManager to deployment id = "+di.getDeploymentID()+" using JNDI name = \""+transactionManagerJndiName+"\"", e);
                 throw new org.openejb.SystemException("Unable to bind TransactionManager to deployment id = "+di.getDeploymentID()+" using JNDI name = \""+transactionManagerJndiName+"\"", e);
             }
 
