@@ -32,6 +32,8 @@ Running the Examples
  To run the examples you need to do three things:
  
  - create the database tables on your favorite database server
+ - update the mssql.titan_local_database.xml and mssqql.openejb.xml
+   files with the proper driver configuration.
  - start the OpenEJB server in its own window
  - start the RunIt script
  
@@ -40,6 +42,11 @@ Running the Examples
  
  First, you can create the database tables using the script in
  the scripts directory.  Here, you would use the mssql.sql script.
+ 
+ Second, you need to update the mssql.titan_local_database.xml and 
+ mssqql.openejb.xml files with the proper JDBC driver configuration.  
+ This is very site and driver specific but, if you need some help, 
+ contact the user list mentioned below.
  
  Next, you start the OpenEJB server in its own window.  Open a command
  window and move to the OPENEJB_HOME directory, the directory where 

@@ -161,9 +161,9 @@
     <TransactionService id="Default Transaction Manager"/>
     <Connector id="Default JDBC Database">
         JdbcDriver com.ddtek.jdbc.sqlserver.SQLServerDriver
-        JdbcUrl jdbc:datadirect:sqlserver://GEORGE:1433
-        UserName toolazy
-        Password dogs
+        JdbcUrl jdbc:datadirect:sqlserver://SERVER:1433
+        UserName user
+        Password password
     </Connector>
     <Deployments dir="beans/" />
 </openejb>
