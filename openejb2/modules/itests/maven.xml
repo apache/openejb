@@ -101,7 +101,6 @@
         </j:if>
 
     </goal>
-
     <goal name="itest:itest"
         description="Run Application Integration Tests"
         prereqs="itest:compile">
@@ -188,12 +187,13 @@
         <deploy:startRemoteServer
             geronimoTarget="${maven.build.dir}/openejb"
             vmArgs="-Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.rmi.RMIClassLoaderSpiImpl"
-            configs="org/apache/geronimo/DefaultDatabase"/>
+            configs="org/openejb/Security"/>
+        <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
         <deploy:waitForStarted
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
-            id="org/apache/geronimo/DefaultDatabase"/>
+            id="org/openejb/Security"/>
         <echo message="server has started"/>
         <deploy:distribute
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
@@ -233,7 +233,7 @@
         description="Copy any resources that must be present for the integration tests to run"
         prereqs="itest:prepare-filesystem">
 
-        <j:if test="${itest.skip != 'true' and itest.resources != null}">
+        <j:if test="${itest.skip != 'true' and context.getVariable('itest.resources') != null}">
             <ant:copy todir="${itest.dest}">
                 <u:tokenize var="resources" delim=", ">${itest.resources}</u:tokenize>
                 <j:forEach var="resource" items="${resources}">
@@ -250,5 +250,69 @@
         </j:if>
     </goal>
 
+
+
+    <preGoal name="itest:itest">
+      <ant:jar destfile="${basedir}/target/openejb-security-001.jar">
+        <fileset dir="${basedir}/target/classes" includes="**/security/**/*.class"/>
+        <metainf dir="${basedir}/src/scenarios/001" includes="*.xml"/>
+      </ant:jar>
+
+      <ant:jar destfile="${basedir}/target/openejb-security-002.jar">
+        <fileset dir="${basedir}/target/classes" includes="**/security/**/*.class"/>
+        <metainf dir="${basedir}/src/scenarios/002" includes="*.xml"/>
+      </ant:jar>
+    </preGoal>
+
+
+    <postGoal name="itest:setup">
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            home="${basedir}"
+            module="${basedir}/target/openejb-security-001.jar"
+            />
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            home="${basedir}"
+            module="${basedir}/target/openejb-security-002.jar"
+            />
+        <deploy:start
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario001"/>
+        <deploy:start
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario002"/>
+    </postGoal>
+
+    <preGoal name="itest:teardown">
+        <deploy:stop
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario002"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario002"/>
+        <deploy:stop
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario001"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/scenario001"/>
+    </preGoal>
 
 </project>

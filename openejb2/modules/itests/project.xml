@@ -38,6 +38,24 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>&geronimo-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>&geronimo-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-remoting</artifactId>
+            <version>&geronimo-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>&geronimo-version;</version>
         </dependency>
@@ -105,6 +123,18 @@
             <properties>
                 <classloader>root</classloader>
             </properties>
+        </dependency>
+        
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>&commons-logging-version;</version>
+        </dependency>
+
+        <dependency>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>&concurrent-version;</version>
         </dependency>
     </dependencies>
 </project>

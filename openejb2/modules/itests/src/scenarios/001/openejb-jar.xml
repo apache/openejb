@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+
+<openejb-jar
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+    configId="org/openejb/scenario001"
+    parentId="org/openejb/Security">
+
+    <dependency>
+        <uri>junit/jars/junit-3.8.jar</uri>
+    </dependency>
+
+    <enterprise-beans>
+        <!--
+        ########################################################
+        Stateless
+        ########################################################
+        -->
+        <session>
+            <ejb-name>BasicStatelessBean</ejb-name>
+            <jndi-name>security/001/BasicStatelessHome</jndi-name>
+        </session>
+
+    </enterprise-beans>
+
+    <security default-role="UNASSIGNED" doas-current-caller="true">
+        <default-principal realm-name="public-properties-realm">
+            <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="guest"/>
+        </default-principal>
+
+        <role-mappings>
+            <role role-name="UNASSIGNED">
+                <realm realm-name="public-properties-realm">
+                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="guest" designated-run-as="true"/>
+                </realm>
+            </role>
+
+            <role role-name="LOW">
+                <realm realm-name="public-properties-realm">
+                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal" name="acct" designated-run-as="true"/>
+                </realm>
+            </role>
+
+            <role role-name="MEDIUM">
+                <realm realm-name="public-properties-realm">
+                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal" name="it"/>
+                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="george" designated-run-as="true"/>
+                </realm>
+            </role>
+
+            <role role-name="HIGH">
+                <realm realm-name="public-properties-realm">
+                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileGroupPrincipal" name="mgmt" designated-run-as="true"/>
+                </realm>
+                <realm realm-name="black-properties-realm">
+                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="dain"/>
+                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="david"/>
+                </realm>
+            </role>
+        </role-mappings>
+    </security>
+
+</openejb-jar>

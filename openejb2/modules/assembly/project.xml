@@ -82,6 +82,7 @@
             <properties>
                 <lib>true</lib>
                 <server>true</server>
+                <deploy>true</deploy>
                 <repository>true</repository>
             </properties>
         </dependency>
@@ -141,6 +142,9 @@
             <artifactId>geronimo-remoting</artifactId>
             <version>&geronimo-version;</version>
             <properties>
+                <lib>true</lib>
+                <server>true</server>
+                <deploy>true</deploy>
                 <repository>true</repository>
             </properties>
         </dependency>
@@ -352,6 +356,7 @@
             <properties>
                 <lib>true</lib>
                 <server>true</server>
+                <deploy>true</deploy>
                 <repository>true</repository>
             </properties>
         </dependency>
