@@ -51,9 +51,9 @@ import javax.ejb.RemoveException;
 /**
  *
  */
-public abstract class StatelessEJBLocalHome extends EJBLocalHomeImpl {
+public abstract class SessionEJBLocalHome extends EJBLocalHomeImpl {
 
-    public StatelessEJBLocalHome(EJBMethodInterceptor handler) {
+    public SessionEJBLocalHome(EJBMethodInterceptor handler) {
         super(handler);
     }
 

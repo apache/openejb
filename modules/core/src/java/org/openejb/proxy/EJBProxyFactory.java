@@ -62,8 +62,8 @@ import org.openejb.dispatch.InterfaceMethodSignature;
 public class EJBProxyFactory implements Serializable {
 
     private static final Class[][] baseClasses = new Class[][]{
-       {StatefulEJBObject.class, StatefulEJBHome.class, StatefulEJBLocalObject.class, StatefulEJBLocalHome.class}, // STATEFUL  
-       {StatelessEJBObject.class, StatelessEJBHome.class, StatelessEJBLocalObject.class, StatelessEJBLocalHome.class}, // STATELESS 
+       {StatefulEJBObject.class, SessionEJBHome.class, StatefulEJBLocalObject.class, SessionEJBLocalHome.class}, // STATEFUL  
+       {StatelessEJBObject.class, SessionEJBHome.class, StatelessEJBLocalObject.class, SessionEJBLocalHome.class}, // STATELESS 
        {EntityEJBObject.class, EntityEJBHome.class, EntityEJBLocalObject.class, EntityEJBLocalHome.class}, // BMP_ENTITY
        {EntityEJBObject.class, EntityEJBHome.class, EntityEJBLocalObject.class, EntityEJBLocalHome.class}, // CMP_ENTITY
     };

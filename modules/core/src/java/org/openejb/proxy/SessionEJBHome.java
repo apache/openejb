@@ -44,20 +44,38 @@
  */
 package org.openejb.proxy;
 
-import javax.ejb.EJBException;
+import java.rmi.RemoteException;
+
+import javax.ejb.EJBObject;
+import javax.ejb.Handle;
 import javax.ejb.RemoveException;
 
 
 /**
  *
  */
-public abstract class StatefulEJBLocalHome extends EJBLocalHomeImpl{
+public abstract class SessionEJBHome extends EJBHomeImpl{
 
-    public StatefulEJBLocalHome(EJBMethodInterceptor handler) {
+    public SessionEJBHome(EJBMethodInterceptor handler) {
         super(handler);
     }
-
-    public void remove(Object primaryKey) throws RemoveException, EJBException {
+    
+    public void remove(Handle handle) throws RemoteException, RemoveException {
+        if (getEJBMetaData().isStatelessSession()){
+            if (handle == null) {
+                throw new RemoveException("Handle is null");
+            }
+            Class remoteInterface = ejbHandler.getProxyInfo().getRemoteInterface();
+            if (!remoteInterface.isInstance(handle.getEJBObject())) {
+                throw new RemoteException("Handle does not hold a " + remoteInterface.getName());
+            }
+        } else {
+            EJBObject ejbObject = handle.getEJBObject();
+            ejbObject.remove();
+        }
+    }
+    
+    public void remove(Object primaryKey) throws RemoteException, RemoveException {
         throw new RemoveException("Session objects are private resources and do not have primary keys");
     }
 }
