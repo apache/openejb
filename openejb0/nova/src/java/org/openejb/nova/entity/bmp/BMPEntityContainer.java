@@ -53,6 +53,7 @@ import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 import org.apache.geronimo.core.service.Interceptor;
 
 import org.openejb.nova.AbstractEJBContainer;
+import org.openejb.nova.EJBInstanceFactoryImpl;
 import org.openejb.nova.dispatch.DispatchInterceptor;
 import org.openejb.nova.dispatch.VirtualOperationFactory;
 import org.openejb.nova.entity.EntityClientContainerFactory;
@@ -84,7 +85,7 @@ public class BMPEntityContainer extends AbstractEJBContainer implements BMPEntit
         VirtualOperationFactory vopFactory = BMPOperationFactory.newInstance(beanClass);
         vtable = vopFactory.getVTable();
 
-        pool = new SoftLimitedInstancePool(new EntityInstanceFactory(this), 1);
+        pool = new SoftLimitedInstancePool(new EntityInstanceFactory(componentContext, new BMPInstanceContextFactory(this)), 1);
 
         Interceptor firstInterceptor = new TransactionContextInterceptor(txnManager);
         addInterceptor(firstInterceptor);

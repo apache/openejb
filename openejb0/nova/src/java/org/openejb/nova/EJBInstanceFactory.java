@@ -50,8 +50,8 @@ package org.openejb.nova;
 import javax.ejb.EnterpriseBean;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Revision$ $Date$
  */
 public interface EJBInstanceFactory {

@@ -47,20 +47,19 @@
  */
 package org.openejb.nova.entity.cmp;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import javax.ejb.EntityBean;
 
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
+import net.sf.cglib.reflect.FastClass;
 
 import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.EJBInvocationType;
 import org.openejb.nova.EJBOperation;
-import org.openejb.nova.persistence.UpdateCommand;
 import org.openejb.nova.dispatch.VirtualOperation;
 import org.openejb.nova.entity.EntityInstanceContext;
+import org.openejb.nova.persistence.UpdateCommand;
 
 /**
  *
@@ -69,14 +68,16 @@ import org.openejb.nova.entity.EntityInstanceContext;
  */
 public class CMPCreateMethod implements VirtualOperation {
     private final EJBContainer container;
-    private final Method createMethod;
-    private final Method postCreateMethod;
+    private final FastClass beanClass;
+    private final int createIndex;
+    private final int postCreateIndex;
     private final UpdateCommand updateCommand;
 
-    public CMPCreateMethod(EJBContainer container, Method createMethod, Method postCreateMethod, UpdateCommand updateCommand) {
-        this.createMethod = createMethod;
-        this.postCreateMethod = postCreateMethod;
+    public CMPCreateMethod(EJBContainer container, FastClass beanClass, int createIndex, int postCreateIndex, UpdateCommand updateCommand) {
         this.container = container;
+        this.beanClass = beanClass;
+        this.createIndex = createIndex;
+        this.postCreateIndex = postCreateIndex;
         this.updateCommand = updateCommand;
     }
 
@@ -89,18 +90,13 @@ public class CMPCreateMethod implements VirtualOperation {
         Object id;
         try {
             ctx.setOperation(EJBOperation.EJBCREATE);
-            id = createMethod.invoke(instance, args);
-        } catch (InvocationTargetException e) {
+            id = beanClass.invoke(createIndex, instance, args);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            return new SimpleInvocationResult(false, e);
+        } finally {
             ctx.setOperation(EJBOperation.INACTIVE);
-            // unwrap the exception
-            Throwable t = e.getTargetException();
-            if (t instanceof Exception && t instanceof RuntimeException == false) {
-                // checked exception - which we simply include in the result
-                return new SimpleInvocationResult(false, t);
-            } else {
-                // unchecked Exception - just throw it to indicate an abnormal completion
-                throw t;
-            }
         }
 
         ctx.setId(id);
@@ -108,17 +104,11 @@ public class CMPCreateMethod implements VirtualOperation {
 
         try {
             ctx.setOperation(EJBOperation.EJBPOSTCREATE);
-            postCreateMethod.invoke(instance, args);
-        } catch (InvocationTargetException e) {
-            // unwrap the exception
-            Throwable t = e.getTargetException();
-            if (t instanceof Exception && t instanceof RuntimeException == false) {
-                // checked exception - which we simply include in the result
-                return new SimpleInvocationResult(false, t);
-            } else {
-                // unchecked Exception - just throw it to indicate an abnormal completion
-                throw t;
-            }
+            beanClass.invoke(postCreateIndex, instance, args);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            return new SimpleInvocationResult(false, e);
         } finally {
             ctx.setOperation(EJBOperation.INACTIVE);
         }

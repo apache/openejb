@@ -68,6 +68,18 @@ public final class MethodHelper {
      * Gets the super index of the specified method on the proxyImpl.  This is the number returned by
      * MethodProxy.getSuperIndex() when the specifiec method is intercepted.
      * @param proxyImpl the enhanced proxy class; this is the generated sub class of your interface
+     * @param method the method that will be intercepted
+     * @return the number that MethodProxy.getSuperIndex() will return when the specifiec method is
+     * intercepted or -1 if the method can not be intercepted (i.e., it was not enhanced)
+     */
+    public static int getSuperIndex(FastClass proxyImpl, Method method) {
+        return getSuperIndex(proxyImpl, method.getName(), method.getParameterTypes());
+    }
+
+    /**
+     * Gets the super index of the specified method on the proxyImpl.  This is the number returned by
+     * MethodProxy.getSuperIndex() when the specifiec method is intercepted.
+     * @param proxyImpl the enhanced proxy class; this is the generated sub class of your interface
      * @param methodName the name of the method that will be intercepted
      * @param methodParameters the parameter types of the method that will be intercepted
      * @return the number that MethodProxy.getSuperIndex() will return when the specifiec method is
@@ -133,8 +145,8 @@ public final class MethodHelper {
      * @param proxyImpl the implementation of the proxy class
      * @return a map from the superIndex to the index of the corresponding method signature
      */
-    public static int[] getBeanMap(MethodSignature[] signatures, FastClass proxyImpl) {
-        return getMap(translateBean(signatures), proxyImpl);
+    public static int[] getObjectMap(MethodSignature[] signatures, FastClass proxyImpl) {
+        return getMap(translateObject(signatures), proxyImpl);
     }
 
     private static int[] getMap(MethodKey[] translated, FastClass proxyImpl) {
@@ -159,7 +171,7 @@ public final class MethodHelper {
     }
 
     private static MethodKey[] translateHome(MethodSignature[] signatures) {
-        MethodKey[] translated = new MethodKey[signatures];
+        MethodKey[] translated = new MethodKey[signatures.length];
         for (int i = 0; i < signatures.length; i++) {
             MethodSignature signature = signatures[i];
             String name = signature.getMethodName();
@@ -168,7 +180,7 @@ public final class MethodHelper {
             } else if (name.startsWith("ejbFind")) {
                 translated[i] = new MethodKey("f" + name.substring(4), signature.getParameterTypes());
             } else if (name.startsWith("ejbHome")) {
-                String translatedName = Character.toUpperCase(name.charAt(7)) + name.substring(8);
+                String translatedName = Character.toLowerCase(name.charAt(7)) + name.substring(8);
                 translated[i] = new MethodKey(translatedName, signature.getParameterTypes());
             } else if (name.startsWith("ejbRemove")) {
                 translated[i] = new MethodKey("remove", signature.getParameterTypes());
@@ -177,8 +189,8 @@ public final class MethodHelper {
         return translated;
     }
 
-    private static MethodKey[] translateBean(MethodSignature[] signatures) {
-        MethodKey[] translated = new MethodKey[signatures];
+    private static MethodKey[] translateObject(MethodSignature[] signatures) {
+        MethodKey[] translated = new MethodKey[signatures.length];
         for (int i = 0; i < signatures.length; i++) {
             MethodSignature signature = signatures[i];
             String name = signature.getMethodName();
@@ -213,7 +225,7 @@ public final class MethodHelper {
                 String realName = shadowName.substring(ACCESS_PREFIX.length(), lastUnderscore);
                 Class[] parameterTypes = methods[i].getParameterTypes();
                 try {
-                    int shadowIndex = enhancedClass.getIndex(realName, parameterTypes);
+                    int shadowIndex = enhancedClass.getIndex(shadowName, parameterTypes);
                     MethodKey realSignature = new MethodKey(realName, parameterTypes);
                     shadowMap.put(realSignature, new Integer(shadowIndex));
                 } catch (Exception e) {

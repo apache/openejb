@@ -45,45 +45,28 @@
  *
  * ====================================================================
  */
-package org.openejb.nova;
+package org.openejb.nova.entity.bmp;
 
-import java.lang.reflect.InvocationTargetException;
 import javax.ejb.EnterpriseBean;
+import javax.ejb.EntityBean;
 
-import net.sf.cglib.reflect.FastClass;
+import org.openejb.nova.EJBContainer;
+import org.openejb.nova.entity.EntityInstanceContext;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public class EJBInstanceFactoryImpl implements EJBInstanceFactory {
-    private final FastClass implClass;
+public class BMPInstanceContext extends EntityInstanceContext {
+    private final EntityBean instance;
 
-    public EJBInstanceFactoryImpl(Class beanClass) {
-        implClass = FastClass.create(beanClass);
+    public BMPInstanceContext(EJBContainer container, EntityBean instance) throws Exception {
+        super(container);
+        this.instance = instance;
     }
 
-    public EJBInstanceFactoryImpl(FastClass implClass) {
-        this.implClass = implClass;
-    }
-
-    public FastClass getImplClass() {
-        return implClass;
-    }
-
-    public EnterpriseBean newInstance() throws Exception {
-        try {
-            return (EnterpriseBean) implClass.newInstance();
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getTargetException();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
-            } else {
-                throw e;
-            }
-        }
+    public EnterpriseBean getInstance() {
+        return instance;
     }
 }

@@ -50,10 +50,7 @@ package org.openejb.nova.slsb;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import javax.ejb.EJBException;
-import javax.ejb.EJBLocalObject;
-import javax.ejb.EJBObject;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
@@ -90,36 +87,9 @@ public class OperationFactoryTest extends TestCase {
         }
     }
 
-    public void testObjectInterface() throws Exception {
-        MethodSignature[] signatures = factory.getSignatures();
-        Map map = factory.getObjectMap(EJB1Remote.class);
-        assertEquals(1, map.size());
-        Integer i = (Integer) map.get(EJB1Remote.class.getMethod("method2", new Class[]{Integer.TYPE, Integer.class}));
-        assertNotNull(i);
-        assertEquals(signatures[i.intValue()], EJB1.sigs[1]);
-    }
-
-    public void testLocalObjectInterface() throws Exception {
-        MethodSignature[] signatures = factory.getSignatures();
-        Map map = factory.getLocalObjectMap(EJB1Local.class);
-        assertEquals(2, map.size());
-        assertEquals(signatures[((Integer) map.get(EJB1Local.class.getMethod("method2", new Class[]{Integer.TYPE, Integer.class}))).intValue()], EJB1.sigs[1]);
-        assertEquals(signatures[((Integer) map.get(EJB1Local.class.getMethod("method3", new Class[]{Integer.class}))).intValue()], EJB1.sigs[2]);
-    }
-
     protected void setUp() throws Exception {
         super.setUp();
         factory = StatelessOperationFactory.newInstance(EJB1.class);
-    }
-
-    private interface EJB1Remote extends EJBObject {
-        void method2(int i, Integer j) throws RemoteException;
-    }
-
-    private interface EJB1Local extends EJBLocalObject {
-        void method2(int i, Integer j);
-
-        void method3(Integer j);
     }
 
     private static class EJB1 implements SessionBean {

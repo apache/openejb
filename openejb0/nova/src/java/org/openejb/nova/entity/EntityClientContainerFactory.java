@@ -48,7 +48,6 @@
 package org.openejb.nova.entity;
 
 import java.net.URI;
-import java.util.Map;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.remoting.InterVMRoutingInterceptor;
@@ -74,9 +73,7 @@ public class EntityClientContainerFactory implements ClientContainerFactory {
 
     public EntityClientContainerFactory(Class pkClass, VirtualOperationFactory vopFactory, URI uri, Class home, Class remote, Interceptor localEndpoint, Class localHome, Class local) {
         if (localHome != null) {
-            Map localHomeMap = vopFactory.getLocalHomeMap(localHome);
-            Map localMap = vopFactory.getLocalObjectMap(local);
-            localContainer = new EntityLocalClientContainer(localHomeMap, localHome, localMap, local);
+            localContainer = new EntityLocalClientContainer(vopFactory.getSignatures(), localHome, local);
             localContainer.addInterceptor(localEndpoint);
         } else {
             localContainer = null;
@@ -89,7 +86,7 @@ public class EntityClientContainerFactory implements ClientContainerFactory {
             InterVMRoutingInterceptor remoteRouter = new InterVMRoutingInterceptor(transport, localRouter);
             Interceptor demarshaller = InterceptorRegistry.instance.lookup(remoteId);
 
-            remoteContainer = new EntityRemoteClientContainer(pkClass, vopFactory.getHomeMap(home), home, vopFactory.getObjectMap(remote), remote);
+            remoteContainer = new EntityRemoteClientContainer(vopFactory.getSignatures(), home, remote, pkClass);
             remoteContainer.addInterceptor(remoteRouter);
             remoteContainer.addInterceptor(localRouter);
             remoteContainer.addInterceptor(new MarshalingInterceptor());

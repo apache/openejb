@@ -49,8 +49,6 @@ package org.openejb.nova.entity;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.Iterator;
-import java.util.Map;
 import javax.ejb.EJBException;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -70,6 +68,8 @@ import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.EJBInvocationImpl;
 import org.openejb.nova.EJBInvocationType;
 import org.openejb.nova.EJBLocalClientContainer;
+import org.openejb.nova.dispatch.MethodHelper;
+import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.method.EJBCallbackFilter;
 
 /**
@@ -92,51 +92,42 @@ public class EntityLocalClientContainer implements EJBLocalClientContainer {
 
     private Interceptor firstInterceptor;
 
-    private final int[] localHomeIndexMap;
-    private final EJBLocalHome localHomeProxy;
+    private final int[] homeMap;
+    private final EJBLocalHome homeProxy;
 
     private final int removeIndex;
-    private final int[] localIndexMap;
+    private final int[] objectMap;
     private final Factory proxyFactory;
 
-    public EntityLocalClientContainer(Map localHomeMap, Class localHome, Map objectMap, Class local) {
-        // build mapping from LocalHome FastClass to VOP indexes
-        FastClass homeClass = FastClass.create(localHome);
-        localHomeIndexMap = mapMethods(localHomeMap, homeClass);
-
-        // Map remove(Object) on LocalHome to remove() VOP
-        try {
-            removeIndex = ((Integer) objectMap.get(local.getMethod("remove", null))).intValue();
-        } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException("No remove method defined on local interface");
-        }
+    public EntityLocalClientContainer(MethodSignature[] signatures, Class localHome, Class local) {
+        SimpleCallbacks callbacks;
+        Enhancer enhancer;
+        Factory factory;
 
         // Create LocalHome proxy
-        SimpleCallbacks callbacks = new SimpleCallbacks();
+        callbacks = new SimpleCallbacks();
         callbacks.setCallback(Callbacks.INTERCEPT, new EntityLocalHomeCallback());
-        Enhancer enhancer = getEnhancer(localHome, EntityLocalHomeImpl.class, callbacks);
-        Factory factory = enhancer.create(new Class[]{EntityLocalClientContainer.class}, new Object[]{this});
-        this.localHomeProxy = (EJBLocalHome) factory.newInstance(new Class[]{EntityLocalClientContainer.class}, new Object[]{this}, callbacks);
-
-        // build mappingd for LocalObject methods
-        FastClass objectClass = FastClass.create(local);
-        localIndexMap = mapMethods(objectMap, objectClass);
+        enhancer = getEnhancer(localHome, EntityLocalHomeImpl.class, callbacks);
+        factory = enhancer.create(new Class[]{EntityLocalClientContainer.class}, new Object[]{this});
+        this.homeProxy = (EJBLocalHome) factory.newInstance(new Class[]{EntityLocalClientContainer.class}, new Object[]{this}, callbacks);
+        homeMap = MethodHelper.getHomeMap(signatures, FastClass.create(homeProxy.getClass()));
 
         // Create LocalObject Proxy
         enhancer = getEnhancer(local, EntityLocalObjectImpl.class, PROXY_CALLBACK);
         proxyFactory = enhancer.create(CONSTRUCTOR, new Object[]{this, null});
-    }
+        objectMap = MethodHelper.getObjectMap(signatures, FastClass.create(proxyFactory.getClass()));
 
-    private static int[] mapMethods(Map MethodMap, FastClass fastClass) {
-        int[] indexMap = new int[fastClass.getMaxIndex() + 1];
-        for (Iterator iterator = MethodMap.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            Method m = (Method) entry.getKey();
-            int vopIndex = ((Integer) entry.getValue()).intValue();
-            int index = fastClass.getIndex(m.getName(), m.getParameterTypes());
-            indexMap[index] = vopIndex;
+        // Get VOP index for ejbRemove method
+        int index = -1;
+        for (int i = 0; i < signatures.length; i++) {
+            MethodSignature signature = signatures[i];
+            if ("ejbRemove".equals(signature.getMethodName())) {
+                index = i;
+                break;
+            }
         }
-        return indexMap;
+        assert (index != -1) : "No ejbRemove VOP defined";
+        removeIndex = index;
     }
 
     private static Enhancer getEnhancer(Class local, Class baseClass, SimpleCallbacks callbacks) {
@@ -161,7 +152,7 @@ public class EntityLocalClientContainer implements EJBLocalClientContainer {
     }
 
     public EJBLocalHome getEJBLocalHome() {
-        return localHomeProxy;
+        return homeProxy;
     }
 
     public EJBLocalObject getEJBLocalObject(Object primaryKey) {
@@ -228,7 +219,7 @@ public class EntityLocalClientContainer implements EJBLocalClientContainer {
     private static class EntityLocalHomeCallback implements MethodInterceptor {
         public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
             EntityLocalClientContainer container = ((EntityLocalHomeImpl) o).container;
-            int vopIndex = container.localHomeIndexMap[methodProxy.getIndex()];
+            int vopIndex = container.homeMap[methodProxy.getSuperIndex()];
             return container.invoke(new EJBInvocationImpl(EJBInvocationType.LOCALHOME, vopIndex, objects));
         }
     }
@@ -277,7 +268,7 @@ public class EntityLocalClientContainer implements EJBLocalClientContainer {
         public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
             EntityLocalObjectImpl entityLocalObject = ((EntityLocalObjectImpl)o);
             EntityLocalClientContainer container = entityLocalObject.container;
-            int vopIndex = container.localIndexMap[methodProxy.getIndex()];
+            int vopIndex = container.objectMap[methodProxy.getSuperIndex()];
             return container.invoke(new EJBInvocationImpl(EJBInvocationType.LOCAL, entityLocalObject.id, vopIndex, args));
         }
     }

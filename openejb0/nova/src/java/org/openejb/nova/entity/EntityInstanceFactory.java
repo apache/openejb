@@ -55,15 +55,12 @@ import org.apache.geronimo.cache.InstanceFactory;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.RootContext;
 
-import org.openejb.nova.EJBContainer;
-import org.openejb.nova.EJBInstanceFactory;
-import org.openejb.nova.EJBInstanceFactoryImpl;
 import org.openejb.nova.EJBOperation;
 
 /**
  * Factory for EntityInstanceContexts.
  * This factory will create a bean instance, perform initialization by calling
- * setEntityContext and then wrap the instance in a EntityInstanceContext
+ * setEntityContext and then wrap the instance in a BMPInstanceContext
  * ready for insertion into a pool or use by an Invocation.
  *
  * @version $Revision$ $Date$
@@ -71,36 +68,27 @@ import org.openejb.nova.EJBOperation;
 public class EntityInstanceFactory implements InstanceFactory {
     private static final Log log = LogFactory.getLog(EntityInstanceFactory.class);
 
-    private final EJBContainer container;
     private final ReadOnlyContext componentContext;
-    private final EJBInstanceFactory factory;
+    private final EntityInstanceContextFactory factory;
 
-    public EntityInstanceFactory(EJBContainer container) {
-        this(container, new EJBInstanceFactoryImpl(container.getBeanClass()));
-    }
-
-    public EntityInstanceFactory(EJBContainer container, EJBInstanceFactory factory) {
-        this.container = container;
+    public EntityInstanceFactory(ReadOnlyContext componentContext, EntityInstanceContextFactory factory) {
+        this.componentContext = componentContext;
         this.factory = factory;
-        componentContext = container.getComponentContext();
     }
 
     public Object createInstance() throws Exception {
-        EntityBean instance;
         ReadOnlyContext oldContext = RootContext.getComponentContext();
 
         try {
             // Disassociate from JNDI Component Context whilst creating instance
             RootContext.setComponentContext(null);
 
-            // create the instance
-            instance = (EntityBean) factory.newInstance();
+            // create an EJBInstanceContext wrapping the raw instance
+            EntityInstanceContext ctx = factory.newInstance();
+            EntityBean instance = (EntityBean) ctx.getInstance();
 
             // Activate this components JNDI Component Context
             RootContext.setComponentContext(componentContext);
-
-            // wrap the instance in an enterprise context
-            EntityInstanceContext ctx = new EntityInstanceContext(container, instance);
 
             // initialize the instance
             ctx.setOperation(EJBOperation.SETCONTEXT);

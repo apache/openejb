@@ -49,7 +49,6 @@ package org.openejb.nova.slsb;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Map;
 import javax.ejb.SessionContext;
 
 import net.sf.cglib.reflect.FastClass;
@@ -90,23 +89,16 @@ public class StatelessOperationFactory extends AbstractOperationFactory {
             }
             MethodSignature sig = new MethodSignature(beanClass.getName(), method);
             sigList.add(sig);
-            vopList.add(new BusinessMethod(fastClass, fastClass.getIndex(name, method.getParameterTypes())));
+            vopList.add(new BusinessMethod(fastClass, fastClass.getIndex(method.getName(), method.getParameterTypes())));
         }
         MethodSignature[] signatures = (MethodSignature[]) sigList.toArray(new MethodSignature[0]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopList.toArray(new VirtualOperation[0]);
 
-        return new StatelessOperationFactory(beanClass, vtable, signatures);
+        return new StatelessOperationFactory(vtable, signatures);
     }
 
-    private StatelessOperationFactory(Class beanClass, VirtualOperation[] vtable, MethodSignature[] signatures) {
-        super(beanClass, vtable, signatures);
+    private StatelessOperationFactory(VirtualOperation[] vtable, MethodSignature[] signatures) {
+        super(vtable, signatures);
     }
 
-    public Map getHomeMap(Class interfaceClass) {
-        throw new UnsupportedOperationException("Cannot get home interface map for Stateless SessionBean");
-    }
-
-    public Map getLocalHomeMap(Class interfaceClass) {
-        throw new UnsupportedOperationException("Cannot get localhome interface map for Stateless SessionBean");
-    }
 }

@@ -47,38 +47,30 @@
  */
 package org.openejb.nova.entity;
 
-import javax.ejb.EnterpriseBean;
-import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
 
-import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBInstanceContext;
+import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBOperation;
 
 /**
- *
- *
+ * 
+ * 
  * @version $Revision$ $Date$
  */
-public class EntityInstanceContext implements EJBInstanceContext {
-    private final EJBContainer container;
-    private final EntityBean instance;
-    private final EntityContextImpl entityContext;
+public abstract class EntityInstanceContext implements EJBInstanceContext {
+    protected final EJBContainer container;
+    protected final EntityContextImpl entityContext;
     private Object id;
     private boolean stateValid;
 
-    public EntityInstanceContext(EJBContainer container, EntityBean instance) {
+    public EntityInstanceContext(EJBContainer container) {
         this.container = container;
-        this.instance = instance;
-        this.entityContext = new EntityContextImpl(this);
+        entityContext = new EntityContextImpl(this);
     }
 
     public EJBContainer getContainer() {
         return container;
-    }
-
-    public EnterpriseBean getInstance() {
-        return instance;
     }
 
     public Object getId() {

@@ -45,45 +45,23 @@
  *
  * ====================================================================
  */
-package org.openejb.nova;
-
-import java.lang.reflect.InvocationTargetException;
-import javax.ejb.EnterpriseBean;
-
-import net.sf.cglib.reflect.FastClass;
+package org.openejb.nova.entity.cmp;
 
 /**
- *
- *
+ * 
+ * 
  * @version $Revision$ $Date$
  */
-public class EJBInstanceFactoryImpl implements EJBInstanceFactory {
-    private final FastClass implClass;
+public class CMPFieldSetter implements InstanceOperation {
+    private final int slot;
 
-    public EJBInstanceFactoryImpl(Class beanClass) {
-        implClass = FastClass.create(beanClass);
+    public CMPFieldSetter(int slot) {
+        this.slot = slot;
     }
 
-    public EJBInstanceFactoryImpl(FastClass implClass) {
-        this.implClass = implClass;
-    }
-
-    public FastClass getImplClass() {
-        return implClass;
-    }
-
-    public EnterpriseBean newInstance() throws Exception {
-        try {
-            return (EnterpriseBean) implClass.newInstance();
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getTargetException();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
-            } else {
-                throw e;
-            }
-        }
+    public Object invokeInstance(CMPInstanceContext ctx, Object[] args) {
+        InstanceData data = ctx.getInstanceData();
+        data.set(slot, args[0]);
+        return null;
     }
 }

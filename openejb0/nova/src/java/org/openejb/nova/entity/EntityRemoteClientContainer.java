@@ -48,25 +48,33 @@
 package org.openejb.nova.entity;
 
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.rmi.RemoteException;
-import java.util.Map;
+import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBMetaData;
 import javax.ejb.EJBObject;
+import javax.ejb.Handle;
 import javax.ejb.HomeHandle;
+import javax.ejb.RemoveException;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.InvocationResult;
+import net.sf.cglib.proxy.Callbacks;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+import net.sf.cglib.proxy.SimpleCallbacks;
+import net.sf.cglib.reflect.FastClass;
 
 import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.EJBInvocationImpl;
 import org.openejb.nova.EJBInvocationType;
 import org.openejb.nova.EJBRemoteClientContainer;
-import org.openejb.nova.method.EJBInterfaceMethods;
+import org.openejb.nova.dispatch.MethodHelper;
+import org.openejb.nova.dispatch.MethodSignature;
+import org.openejb.nova.method.EJBCallbackFilter;
 
 /**
  *
@@ -75,32 +83,76 @@ import org.openejb.nova.method.EJBInterfaceMethods;
  * @version $Revision$ $Date$
  */
 public class EntityRemoteClientContainer implements EJBRemoteClientContainer {
+    private static final Class[] CONSTRUCTOR = new Class[]{EntityRemoteClientContainer.class, Object.class};
+    private static final SimpleCallbacks PROXY_CALLBACK;
+
+    static {
+        PROXY_CALLBACK = new SimpleCallbacks();
+        PROXY_CALLBACK.setCallback(Callbacks.INTERCEPT, new EntityObjectCallback());
+    }
+
+    private Interceptor firstInterceptor;
+
     private final Class pkClass;
     private final Class home;
     private final Class remote;
-    private final Constructor remoteFactory;
+
+    private final Factory proxyFactory;
+
+    private final int[] homeMap;
     private final EJBHome homeProxy;
+
+    private final int removeIndex;
+    private final int[] objectMap;
+
     private final EJBMetaData ejbMetadata;
     private final HomeHandle homeHandle;
-    private Interceptor firstInterceptor;
-    private final Map localMap;
-    private final Map localHomeMap;
 
-    public EntityRemoteClientContainer(Class pkClass, Map homeMap, Class home, Map objectMap, Class remote) {
+    public EntityRemoteClientContainer(MethodSignature[] signatures, Class home, Class remote, Class pkClass) {
         this.pkClass = pkClass;
         this.home = home;
         this.remote = remote;
-        this.homeProxy = (EJBHome) Proxy.newProxyInstance(home.getClassLoader(), new Class[]{home}, new EntityHomeProxy());
-        try {
-            this.remoteFactory = Proxy.getProxyClass(remote.getClassLoader(), new Class[]{remote}).getConstructor(new Class[]{InvocationHandler.class});
-        } catch (Exception e) {
-            throw new AssertionError("Unable to locate constructor for Proxy");
-        }
-        this.ejbMetadata = new EntityMetaData();
-        this.homeHandle = null;
 
-        localHomeMap = homeMap;
-        localMap = objectMap;
+        SimpleCallbacks callbacks;
+        Enhancer enhancer;
+        Factory factory;
+
+        // Create LocalHome proxy
+        callbacks = new SimpleCallbacks();
+        callbacks.setCallback(Callbacks.INTERCEPT, new EntityHomeCallback());
+        enhancer = getEnhancer(home, EntityHomeImpl.class, callbacks);
+        factory = enhancer.create(new Class[]{EntityRemoteClientContainer.class}, new Object[]{this});
+        homeProxy = (EJBHome) factory.newInstance(new Class[]{EntityRemoteClientContainer.class}, new Object[]{this}, callbacks);
+        homeMap = MethodHelper.getHomeMap(signatures, FastClass.create(homeProxy.getClass()));
+
+        // Create LocalObject Proxy
+        enhancer = getEnhancer(remote, EntityObjectImpl.class, PROXY_CALLBACK);
+        proxyFactory = enhancer.create(CONSTRUCTOR, new Object[]{this, null});
+        objectMap = MethodHelper.getObjectMap(signatures, FastClass.create(proxyFactory.getClass()));
+
+        // Get VOP index for ejbRemove method
+        int index = -1;
+        for (int i = 0; i < signatures.length; i++) {
+            MethodSignature signature = signatures[i];
+            if ("ejbRemove".equals(signature.getMethodName())) {
+                index = i;
+                break;
+            }
+        }
+        assert (index != -1) : "No ejbRemove VOP defined";
+        removeIndex = index;
+
+        ejbMetadata = new EntityMetaData();
+        homeHandle = null;
+    }
+
+    private static Enhancer getEnhancer(Class local, Class baseClass, SimpleCallbacks callbacks) {
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(baseClass);
+        enhancer.setInterfaces(new Class[]{local});
+        enhancer.setCallbackFilter(new EJBCallbackFilter(baseClass));
+        enhancer.setCallbacks(callbacks);
+        return enhancer;
     }
 
     public void addInterceptor(Interceptor interceptor) {
@@ -120,97 +172,132 @@ public class EntityRemoteClientContainer implements EJBRemoteClientContainer {
     }
 
     public EJBObject getEJBObject(Object primaryKey) {
+        return (EJBObject) proxyFactory.newInstance(CONSTRUCTOR, new Object[]{this, primaryKey}, PROXY_CALLBACK);
+    }
+
+    private void remove(Object id) throws RemoveException, RemoteException {
+        InvocationResult result;
         try {
-            return (EJBObject) remoteFactory.newInstance(new Object[]{new EntityObjectProxy(primaryKey)});
-        } catch (Exception e) {
-            throw new IllegalStateException("Unable to instantiate proxy implementation");
+            EJBInvocation invocation = new EJBInvocationImpl(EJBInvocationType.REMOTE, id, removeIndex, null);
+            result = firstInterceptor.invoke(invocation);
+        } catch (RemoteException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new RemoteException(t.getMessage(), t);
+        }
+        if (result.isException()) {
+            throw (RemoveException) result.getException();
         }
     }
 
-    private class EntityHomeProxy implements InvocationHandler {
-        private EntityHomeProxy() {
-        }
-
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (EJBInterfaceMethods.HOME_GET_EJBMETADATA.equals(method)) {
-                return ejbMetadata;
-            } else if (EJBInterfaceMethods.HOME_GET_HOMEHANDLE.equals(method)) {
-                return homeHandle;
-            } else if (EJBInterfaceMethods.HOME_REMOVE_OBJECT.equals(method)) {
-                EJBObject object = getEJBObject(args[0]);
-                object.remove();
-                return null;
-            } else if (EJBInterfaceMethods.HOME_REMOVE_HANDLE.equals(method)) {
-                throw new UnsupportedOperationException();
-            } else {
-                Integer index = (Integer) localHomeMap.get(method);
-                EJBInvocation invocation = new EJBInvocationImpl(EJBInvocationType.HOME, index.intValue(), args);
-                return EntityRemoteClientContainer.this.invoke(invocation);
-            }
-        }
-    }
-
-    private class EntityObjectProxy implements InvocationHandler, Serializable {
-        private final Object id;
-
-        public EntityObjectProxy(Object id) {
-            this.id = id;
-        }
-
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (EJBInterfaceMethods.OBJECT_GET_PRIMARYKEY.equals(method)) {
-                return id;
-            } else if (EJBInterfaceMethods.OBJECT_GET_HOME.equals(method)) {
-                return homeProxy;
-            } else if (EJBInterfaceMethods.OBJECT_GET_HANDLE.equals(method)) {
-                throw new UnsupportedOperationException();
-            } else if (EJBInterfaceMethods.OBJECT_ISIDENTICAL.equals(method)) {
-                return isIdentical((EJBObject) args[0]);
-            } else {
-                Integer index = (Integer) localMap.get(method);
-                EJBInvocation invocation = new EJBInvocationImpl(EJBInvocationType.REMOTE, id, index.intValue(), args);
-                return EntityRemoteClientContainer.this.invoke(invocation);
-            }
-        }
-
-        private Boolean isIdentical(EJBObject other) {
-            // get the InvocationHandler backing the Proxy
-            InvocationHandler otherHandler;
-            try {
-                otherHandler = Proxy.getInvocationHandler(other);
-            } catch (IllegalArgumentException e) {
-                // other object was not a Proxy
-                return Boolean.FALSE;
-            }
-
-            if (otherHandler instanceof EntityObjectProxy == false) {
-                // other Proxy is not an Entity Proxy
-                return Boolean.FALSE;
-            }
-            EntityObjectProxy otherProxy = (EntityObjectProxy) otherHandler;
-            return Boolean.valueOf(EntityRemoteClientContainer.this == otherProxy.getContainer() && id.equals(otherProxy.id));
-        }
-
-        private EntityRemoteClientContainer getContainer() {
-            return EntityRemoteClientContainer.this;
-        }
-    }
-
-    private Object invoke(EJBInvocation invocation) throws Exception {
+    private Object invoke(EJBInvocation invocation) throws Throwable {
         InvocationResult result;
         try {
             result = firstInterceptor.invoke(invocation);
-        } catch (RemoteException e) {
-            // pass RemoteException's through
-            throw e;
         } catch (Throwable t) {
-            // System exception from interceptor chain - throw as a RemoteException
-            throw new RemoteException(t.getMessage(), t);
+            // System exception from interceptor chain - throw as is or wrapped in an EJBException
+            if (t instanceof Exception && t instanceof RuntimeException == false) {
+                t = new EJBException((Exception) t);
+            }
+            throw t;
         }
         if (result.isNormal()) {
             return result.getResult();
         } else {
             throw result.getException();
+        }
+    }
+
+    /**
+     * Base class for EJBHome proxies.
+     * Owns a reference to the container.
+     */
+    private abstract static class EntityHomeImpl implements EJBHome {
+        private final EntityRemoteClientContainer container;
+
+        public EntityHomeImpl(EntityRemoteClientContainer container) {
+            this.container = container;
+        }
+
+        public EJBMetaData getEJBMetaData() throws RemoteException {
+            return container.ejbMetadata;
+        }
+
+        public HomeHandle getHomeHandle() throws RemoteException {
+            return container.homeHandle;
+        }
+
+        public void remove(Handle handle) throws RemoteException, RemoveException {
+            throw new UnsupportedOperationException();
+        }
+
+        public void remove(Object primaryKey) throws RemoveException, RemoteException {
+            container.remove(primaryKey);
+        }
+    }
+
+    /**
+     * Callback handler for EJBHome that handles methods not directly
+     * implemented by the base class.
+     */
+    private static class EntityHomeCallback implements MethodInterceptor {
+        public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+            EntityRemoteClientContainer container = ((EntityHomeImpl) o).container;
+            int vopIndex = container.homeMap[methodProxy.getSuperIndex()];
+            return container.invoke(new EJBInvocationImpl(EJBInvocationType.HOME, vopIndex, objects));
+        }
+    }
+
+    /**
+     * Base class for EJBLocalObject proxies.
+     * Owns a reference to the container and the id of the Entity.
+     * Implements EJBLocalObject methods, such as getPrimaryKey(), that do
+     * not require a trip to the server.
+     */
+    private abstract static class EntityObjectImpl implements EJBObject {
+        private final EntityRemoteClientContainer container;
+        private final Object id;
+
+        public EntityObjectImpl(EntityRemoteClientContainer container, Object id) {
+            this.container = container;
+            this.id = id;
+        }
+
+        public EJBHome getEJBHome() throws EJBException {
+            return container.getEJBHome();
+        }
+
+        public Object getPrimaryKey() throws EJBException {
+            return id;
+        }
+
+        public boolean isIdentical(EJBObject obj) throws EJBException {
+            if (obj instanceof EntityObjectImpl) {
+                EntityObjectImpl other = (EntityObjectImpl) obj;
+                return other.container == container && other.id.equals(id);
+            }
+            return false;
+        }
+
+        public Handle getHandle() throws RemoteException {
+            throw new UnsupportedOperationException();
+        }
+
+        public void remove() throws RemoveException, RemoteException {
+            container.remove(id);
+        }
+    }
+
+    /**
+     * Callback handler for EJBLocalObject that handles methods not directly
+     * implemented by the base class.
+     */
+    private static class EntityObjectCallback implements MethodInterceptor {
+        public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+            EntityObjectImpl entityObject = ((EntityObjectImpl) o);
+            EntityRemoteClientContainer container = entityObject.container;
+            int vopIndex = container.objectMap[methodProxy.getSuperIndex()];
+            return container.invoke(new EJBInvocationImpl(EJBInvocationType.REMOTE, entityObject.id, vopIndex, args));
         }
     }
 

@@ -59,11 +59,4 @@ public interface VirtualOperationFactory {
 
     VirtualOperation[] getVTable();
 
-    Map getHomeMap(Class interfaceClass);
-
-    Map getLocalHomeMap(Class interfaceClass);
-
-    Map getObjectMap(Class interfaceClass);
-
-    Map getLocalObjectMap(Class interfaceClass);
 }

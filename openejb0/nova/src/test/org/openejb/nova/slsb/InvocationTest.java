@@ -57,6 +57,7 @@ import net.sf.cglib.reflect.FastClass;
 import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.EJBInvocationImpl;
 import org.openejb.nova.EJBInvocationType;
+import org.openejb.nova.dispatch.MethodHelper;
 
 /**
  *

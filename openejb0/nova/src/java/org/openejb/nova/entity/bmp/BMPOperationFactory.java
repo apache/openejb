@@ -49,7 +49,6 @@ package org.openejb.nova.entity.bmp;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Map;
 import javax.ejb.EntityContext;
 
 import net.sf.cglib.reflect.FastClass;
@@ -84,7 +83,6 @@ public class BMPOperationFactory extends AbstractOperationFactory {
         Method[] beanMethods = beanClass.getMethods();
         ArrayList sigList = new ArrayList(beanMethods.length);
         ArrayList vopList = new ArrayList(beanMethods.length);
-        Integer remove = null;
         for (int i = 0; i < beanMethods.length; i++) {
             Method beanMethod = beanMethods[i];
 
@@ -119,7 +117,6 @@ public class BMPOperationFactory extends AbstractOperationFactory {
                 vop = new HomeMethod(fastClass, index);
             } else if (name.equals("ejbRemove")) {
                 vop = new BMPRemoveMethod(fastClass, index);
-                remove = new Integer(sigList.size());
             } else {
                 continue;
             }
@@ -129,47 +126,11 @@ public class BMPOperationFactory extends AbstractOperationFactory {
         MethodSignature[] signatures = (MethodSignature[]) sigList.toArray(new MethodSignature[0]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopList.toArray(new VirtualOperation[0]);
 
-        return new BMPOperationFactory(beanClass, vtable, signatures, remove);
+        return new BMPOperationFactory(vtable, signatures);
     }
 
-    /**
-     * Index of the remove method in the vop table.  This gets special handling in entity, because
-     * the parent class ignores the remove method.
-     */
-    private final Integer remove;
-
-    private BMPOperationFactory(Class beanClass, VirtualOperation[] vtable, MethodSignature[] signatures, Integer remove) {
-        super(beanClass, vtable, signatures);
-        this.remove = remove;
+    private BMPOperationFactory(VirtualOperation[] vtable, MethodSignature[] signatures) {
+        super(vtable, signatures);
     }
 
-    /**
-     * Builds a map from java.lang.reflect.Method vop index (Integer) for the Remote interface
-     * @param interfaceClass the class to build the map for
-     * @return the map from Method to Integer index
-     */
-    public Map getObjectMap(Class interfaceClass) {
-        Map map = super.getObjectMap(interfaceClass);
-        try {
-            map.put(interfaceClass.getMethod("remove", null), remove);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Bean does not define ejbRemove");
-        }
-        return map;
-    }
-
-    /**
-     * Builds a map from java.lang.reflect.Method vop index (Integer) for the Local interface
-     * @param interfaceClass the class to build the map for
-     * @return the map from Method to Integer index
-     */
-    public Map getLocalObjectMap(Class interfaceClass) {
-        Map map = super.getLocalObjectMap(interfaceClass);
-        try {
-            map.put(interfaceClass.getMethod("remove", null), remove);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Bean does not define ejbRemove");
-        }
-        return map;
-    }
 }

@@ -49,8 +49,6 @@ package org.openejb.nova.slsb;
 
 import java.net.URI;
 import java.rmi.RemoteException;
-import java.util.HashMap;
-import java.util.Map;
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBMetaData;
@@ -59,16 +57,15 @@ import javax.ejb.Handle;
 import javax.ejb.RemoveException;
 import javax.rmi.PortableRemoteObject;
 
-import org.apache.geronimo.core.service.AbstractInterceptor;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 import junit.framework.TestCase;
 
-import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.EJBLocalClientContainer;
 import org.openejb.nova.EJBRemoteClientContainer;
+import org.openejb.nova.dispatch.MethodSignature;
 
 /**
  *
@@ -193,9 +190,8 @@ public class StatelessClientContainerTest extends TestCase {
     }
 
     public void XtestProxySpeed() throws Exception {
-        Map map = new HashMap();
-        map.put(MockLocal.class.getMethod("intMethod", new Class[]{Integer.TYPE}), new Integer(0));
-        StatelessLocalClientContainer localContainer = new StatelessLocalClientContainer(MockLocalHome.class, map, MockLocal.class);
+        MethodSignature[] signatures = {new MethodSignature(MockEJB.class.getName(), "intMethod", new Class[]{Integer.TYPE})};
+        StatelessLocalClientContainer localContainer = new StatelessLocalClientContainer(signatures, MockLocalHome.class, MockLocal.class);
         localContainer.addInterceptor(new Interceptor() {
             public Interceptor getNext() {
                 return null;
@@ -229,19 +225,5 @@ public class StatelessClientContainerTest extends TestCase {
         StatelessClientContainerFactory clientFactory = new StatelessClientContainerFactory(vopFactory, uri, MockHome.class, MockRemote.class, null, MockLocalHome.class, MockLocal.class);
         remoteContainer = clientFactory.getRemoteClient();
         localContainer = clientFactory.getLocalClient();
-    }
-
-    private class MockInterceptor extends AbstractInterceptor {
-        public InvocationResult invoke(Invocation invocation) throws Throwable {
-            EJBInvocation ejbInvocation = (EJBInvocation) invocation;
-            int index = ejbInvocation.getMethodIndex();
-            if (index == 1) {
-                return new SimpleInvocationResult(true, new Integer(2));
-            } else if (index == 2) {
-                return new SimpleInvocationResult(false, new AppException("App Exception"));
-            } else {
-                throw new RuntimeException();
-            }
-        }
     }
 }

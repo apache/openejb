@@ -48,13 +48,19 @@
 package org.openejb.nova.entity.cmp;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Map;
 import javax.ejb.EntityContext;
 
+import net.sf.cglib.proxy.CallbackFilter;
+import net.sf.cglib.proxy.Callbacks;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
+import net.sf.cglib.proxy.SimpleCallbacks;
 import net.sf.cglib.reflect.FastClass;
 
 import org.openejb.nova.dispatch.AbstractOperationFactory;
+import org.openejb.nova.dispatch.MethodHelper;
 import org.openejb.nova.dispatch.MethodSignature;
 import org.openejb.nova.dispatch.VirtualOperation;
 import org.openejb.nova.entity.BusinessMethod;
@@ -66,9 +72,14 @@ import org.openejb.nova.entity.HomeMethod;
  * @version $Revision$ $Date$
  */
 public class CMPOperationFactory extends AbstractOperationFactory {
-    public static CMPOperationFactory newInstance(CMPEntityContainer container, CMPQuery[] queries, CMPCommandFactory persistenceFactory) {
+    private final InstanceOperation itable[];
+
+    public static CMPOperationFactory newInstance(CMPEntityContainer container, CMPQuery[] queries, CMPCommandFactory persistenceFactory, String[] fieldNames) {
         Class beanClass = container.getBeanClass();
-        FastClass fastClass = FastClass.create(beanClass);
+        Factory factory = Enhancer.create(beanClass, new Class[0], FILTER, new SimpleCallbacks());
+        Class enhancedClass = factory.getClass();
+
+        FastClass fastClass = FastClass.create(enhancedClass);
         String beanClassName = beanClass.getName();
 
         // get the context set unset method objects
@@ -85,7 +96,6 @@ public class CMPOperationFactory extends AbstractOperationFactory {
         Method[] beanMethods = beanClass.getMethods();
         ArrayList sigList = new ArrayList(beanMethods.length);
         ArrayList vopList = new ArrayList(beanMethods.length);
-        Integer remove = null;
         for (int i = 0; i < beanMethods.length; i++) {
             Method beanMethod = beanMethods[i];
 
@@ -107,18 +117,13 @@ public class CMPOperationFactory extends AbstractOperationFactory {
             VirtualOperation vop;
 
             if (name.startsWith("ejbCreate")) {
-                try {
-                    // ejbCreate vop needs a reference to the ejbPostCreate method
-                    Method postCreate = beanClass.getMethod("ejbPostCreate" + name.substring(9), beanMethod.getParameterTypes());
-                    vop = new CMPCreateMethod(container, beanMethod, postCreate, persistenceFactory.getUpdateCommand(signature));
-                } catch (NoSuchMethodException e) {
-                    throw new IllegalStateException("No ejbPostCreate method found matching " + beanMethod);
-                }
+                // ejbCreate vop needs a reference to the ejbPostCreate method
+                int postCreateIndex = fastClass.getIndex("ejbPostCreate" + name.substring(9), beanMethod.getParameterTypes());
+                vop = new CMPCreateMethod(container, fastClass, index, postCreateIndex, persistenceFactory.getUpdateCommand(signature));
             } else if (name.startsWith("ejbHome")) {
                 vop = new HomeMethod(fastClass, index);
             } else if (name.equals("ejbRemove")) {
                 vop = new CMPRemoveMethod(fastClass, index, persistenceFactory.getUpdateCommand(signature));
-                remove = new Integer(sigList.size());
             } else if (name.startsWith("ejb")) {
                 continue;
             } else {
@@ -141,47 +146,45 @@ public class CMPOperationFactory extends AbstractOperationFactory {
         MethodSignature[] signatures = (MethodSignature[]) sigList.toArray(new MethodSignature[0]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopList.toArray(new VirtualOperation[0]);
 
-        return new CMPOperationFactory(beanClass, vtable, signatures, remove);
-    }
+        InstanceOperation[] itable = new InstanceOperation[fastClass.getMaxIndex() + 1];
+        for (int i = 0; i < fieldNames.length; i++) {
+            String fieldName = fieldNames[i];
+            try {
+                String baseName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+                Method getter = beanClass.getMethod("get"+baseName, null);
+                int index = MethodHelper.getSuperIndex(fastClass, getter);
+                itable[index] = new CMPFieldGetter(i);
 
-    /**
-     * Index of the remove method in the vop table.  This gets special handling in entity, because
-     * the parent class ignores the remove method.
-     */
-    private final Integer remove;
-
-    private CMPOperationFactory(Class beanClass, VirtualOperation[] vtable, MethodSignature[] signatures, Integer remove) {
-        super(beanClass, vtable, signatures);
-        this.remove = remove;
-    }
-
-    /**
-     * Builds a map from java.lang.reflect.Method vop index (Integer) for the Remote interface
-     * @param interfaceClass the class to build the map for
-     * @return the map from Method to Integer index
-     */
-    public Map getObjectMap(Class interfaceClass) {
-        Map map = super.getObjectMap(interfaceClass);
-        try {
-            map.put(interfaceClass.getMethod("remove", null), remove);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Bean does not define ejbRemove");
+                Method setter = beanClass.getMethod("set"+baseName, new Class[] {getter.getReturnType()});
+                index = MethodHelper.getSuperIndex(fastClass, setter);
+                itable[index] = new CMPFieldSetter(i);
+            } catch (NoSuchMethodException e) {
+                throw new IllegalArgumentException("Missing accessor for field "+fieldName);
+            }
         }
-        return map;
+        CMPInstanceContextFactory contextFactory = new CMPInstanceContextFactory(container, factory);
+        return new CMPOperationFactory(vtable, signatures, itable, contextFactory);
     }
 
-    /**
-     * Builds a map from java.lang.reflect.Method vop index (Integer) for the Local interface
-     * @param interfaceClass the class to build the map for
-     * @return the map from Method to Integer index
-     */
-    public Map getLocalObjectMap(Class interfaceClass) {
-        Map map = super.getLocalObjectMap(interfaceClass);
-        try {
-            map.put(interfaceClass.getMethod("remove", null), remove);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Bean does not define ejbRemove");
-        }
-        return map;
+    public InstanceOperation[] getITable() {
+        return itable;
     }
+
+    private CMPOperationFactory(VirtualOperation[] vtable, MethodSignature[] signatures, InstanceOperation[] itable, CMPInstanceContextFactory contextFactory) {
+        super(vtable, signatures);
+        this.itable = itable;
+        this.contextFactory = contextFactory;
+    }
+
+    private final CMPInstanceContextFactory contextFactory;
+
+    public CMPInstanceContextFactory getInstanceContextFactory() {
+        return contextFactory;
+    }
+
+    private static final CallbackFilter FILTER = new CallbackFilter() {
+        public int accept(Method method) {
+            return (Modifier.isAbstract(method.getModifiers())) ? Callbacks.INTERCEPT : Callbacks.NO_OP;
+        }
+    };
 }

@@ -47,41 +47,28 @@
  */
 package org.openejb.nova.entity.cmp;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import javax.ejb.EnterpriseBean;
-
-import net.sf.cglib.proxy.CallbackFilter;
-import net.sf.cglib.proxy.Callbacks;
-import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.SimpleCallbacks;
 
-import org.openejb.nova.EJBInstanceFactory;
+import org.openejb.nova.EJBContainer;
+import org.openejb.nova.entity.EntityInstanceContext;
+import org.openejb.nova.entity.EntityInstanceContextFactory;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public class CMPInstanceFactory implements EJBInstanceFactory {
+public class CMPInstanceContextFactory implements EntityInstanceContextFactory {
+    private final EJBContainer container;
     private final Factory factory;
-    private final MethodInterceptor handler;
 
-    public CMPInstanceFactory(Class beanClass) {
-        handler = null;
-        Callbacks callbacks = new SimpleCallbacks();
-        factory = Enhancer.create(beanClass, new Class[0], FILTER, callbacks);
+    public CMPInstanceContextFactory(EJBContainer container, Factory factory) {
+        this.container = container;
+        this.factory = factory;
     }
 
-    public EnterpriseBean newInstance() throws Exception {
-        return (EnterpriseBean) factory.newInstance(handler);
+    public EntityInstanceContext newInstance() throws Exception {
+        return new CMPInstanceContext(container, factory);
     }
 
-    private static final CallbackFilter FILTER = new CallbackFilter() {
-        public int accept(Method method) {
-            return (Modifier.isAbstract(method.getModifiers())) ? Callbacks.INTERCEPT : Callbacks.NO_OP;
-        }
-    };
 }

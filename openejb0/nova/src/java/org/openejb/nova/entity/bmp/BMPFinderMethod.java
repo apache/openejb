@@ -59,9 +59,9 @@ import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.EJBOperation;
+import org.openejb.nova.entity.EntityInstanceContext;
 import org.openejb.nova.util.SerializableEnumeration;
 import org.openejb.nova.dispatch.VirtualOperation;
-import org.openejb.nova.entity.EntityInstanceContext;
 
 /**
  *

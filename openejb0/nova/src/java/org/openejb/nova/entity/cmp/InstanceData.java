@@ -45,45 +45,48 @@
  *
  * ====================================================================
  */
-package org.openejb.nova;
+package org.openejb.nova.entity.cmp;
 
-import java.lang.reflect.InvocationTargetException;
-import javax.ejb.EnterpriseBean;
-
-import net.sf.cglib.reflect.FastClass;
+import java.util.Arrays;
 
 /**
- *
- *
+ * 
+ * 
  * @version $Revision$ $Date$
  */
-public class EJBInstanceFactoryImpl implements EJBInstanceFactory {
-    private final FastClass implClass;
+public final class InstanceData {
+    private final Object[] values;
+    private final boolean[] modified;
 
-    public EJBInstanceFactoryImpl(Class beanClass) {
-        implClass = FastClass.create(beanClass);
+    public InstanceData(int length) {
+        values = new Object[length];
+        modified = new boolean[length];
     }
 
-    public EJBInstanceFactoryImpl(FastClass implClass) {
-        this.implClass = implClass;
+    public void load(Object[] newValues) {
+        assert (values.length == newValues.length) : "Array size mismatch";
+        System.arraycopy(newValues, 0, values, 0, newValues.length);
+        Arrays.fill(modified, false);
     }
 
-    public FastClass getImplClass() {
-        return implClass;
+    public void reset() {
+        Arrays.fill(modified, false);
     }
 
-    public EnterpriseBean newInstance() throws Exception {
-        try {
-            return (EnterpriseBean) implClass.newInstance();
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getTargetException();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
-            } else {
-                throw e;
-            }
-        }
+    public void set(int index, Object value) {
+        values[index] = value;
+        modified[index] = true;
+    }
+
+    public Object get(int index) {
+        return values[index];
+    }
+
+    public int getSize() {
+        return values.length;
+    }
+
+    public boolean isModified(int index) {
+        return modified[index];
     }
 }

@@ -64,21 +64,12 @@ import org.openejb.nova.method.EJBInterfaceMethods;
  * @version $Revision$ $Date$
  */
 public class AbstractOperationFactory implements VirtualOperationFactory {
-    private final Class beanClass;
     private final MethodSignature[] signatures;
-    private final Map sigMap;
     private final VirtualOperation[] vtable;
 
-    protected AbstractOperationFactory(Class beanClass, VirtualOperation[] vtable, MethodSignature[] signatures) {
-        this.beanClass = beanClass;
+    protected AbstractOperationFactory(VirtualOperation[] vtable, MethodSignature[] signatures) {
         this.vtable = vtable;
         this.signatures = signatures;
-
-        this.sigMap = new HashMap(signatures.length);
-        for (int i = 0; i < signatures.length; i++) {
-            MethodSignature signature = signatures[i];
-            sigMap.put(signature, new Integer(i));
-        }
     }
 
     public MethodSignature[] getSignatures() {
@@ -87,71 +78,5 @@ public class AbstractOperationFactory implements VirtualOperationFactory {
 
     public VirtualOperation[] getVTable() {
         return vtable;
-    }
-
-    public Map getHomeMap(Class interfaceClass) {
-        assert (interfaceClass.isInterface());
-        assert (EJBHome.class.isAssignableFrom(interfaceClass)) : interfaceClass.getName() + " does not extend EJBHome";
-
-        return mapHomeInterface(interfaceClass, EJBInterfaceMethods.HOME_METHODS);
-    }
-
-    public Map getLocalHomeMap(Class interfaceClass) {
-        assert (interfaceClass.isInterface());
-        assert (EJBLocalHome.class.isAssignableFrom(interfaceClass)) : interfaceClass.getName() + " does not extend EJBLocalHome";
-
-        return mapHomeInterface(interfaceClass, EJBInterfaceMethods.LOCALHOME_METHODS);
-    }
-
-    public Map getObjectMap(Class interfaceClass) {
-        assert (interfaceClass.isInterface());
-        assert (EJBObject.class.isAssignableFrom(interfaceClass)) : interfaceClass.getName() + " does not extend EJBObject";
-
-        return mapObjectInterface(interfaceClass, EJBInterfaceMethods.OBJECT_METHODS);
-    }
-
-    public Map getLocalObjectMap(Class interfaceClass) {
-        assert (interfaceClass.isInterface());
-        assert (EJBLocalObject.class.isAssignableFrom(interfaceClass)) : interfaceClass.getName() + " does not extend EJBLocalObject";
-
-        return mapObjectInterface(interfaceClass, EJBInterfaceMethods.LOCALOBJECT_METHODS);
-    }
-
-    private Map mapObjectInterface(Class interfaceClass, Set excludes) {
-        Method[] ifMethods = interfaceClass.getMethods();
-        Map map = new HashMap(ifMethods.length);
-        for (int i = 0; i < ifMethods.length; i++) {
-            Method ifMethod = ifMethods[i];
-            if (excludes.contains(ifMethod)) {
-                continue;
-            }
-            MethodSignature sig = new MethodSignature(beanClass.getName(), ifMethod);
-            Integer index = (Integer) sigMap.get(sig);
-            map.put(ifMethod, index);
-        }
-        return map;
-    }
-
-    private Map mapHomeInterface(Class interfaceClass, Set excludes) {
-        Method[] ifMethods = interfaceClass.getMethods();
-        Map map = new HashMap(ifMethods.length);
-        for (int i = 0; i < ifMethods.length; i++) {
-            Method ifMethod = ifMethods[i];
-            if (excludes.contains(ifMethod)) {
-                continue;
-            }
-            String methodName = ifMethod.getName();
-            if (methodName.startsWith("create")) {
-                methodName = "ejbCreate" + methodName.substring(6);
-            } else if (methodName.startsWith("find")) {
-                methodName = "ejbFind" + methodName.substring(4);
-            } else {
-                methodName = "ejbHome" + Character.toUpperCase(methodName.charAt(0)) + methodName.substring(1);
-            }
-            MethodSignature sig = new MethodSignature(beanClass.getName(), methodName, ifMethod.getParameterTypes());
-            Integer index = (Integer) sigMap.get(sig);
-            map.put(ifMethod, index);
-        }
-        return map;
     }
 }

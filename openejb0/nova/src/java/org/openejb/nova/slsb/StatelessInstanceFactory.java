@@ -57,7 +57,6 @@ import org.apache.geronimo.naming.java.RootContext;
 import net.sf.cglib.reflect.FastClass;
 
 import org.openejb.nova.EJBContainer;
-import org.openejb.nova.EJBInstanceFactory;
 import org.openejb.nova.EJBInstanceFactoryImpl;
 import org.openejb.nova.EJBOperation;
 
@@ -73,6 +72,7 @@ public class StatelessInstanceFactory implements InstanceFactory {
     private final EJBContainer container;
     private final ReadOnlyContext componentContext;
     private final int createIndex;
+    private final EJBInstanceFactoryImpl factory;
     private final FastClass implClass;
 
     public StatelessInstanceFactory(EJBContainer container) {
@@ -81,24 +81,22 @@ public class StatelessInstanceFactory implements InstanceFactory {
 
         implClass = FastClass.create(container.getBeanClass());
         createIndex = implClass.getIndex("ejbCreate", new Class[0]);
+        factory = new EJBInstanceFactoryImpl(implClass);
     }
 
     public Object createInstance() throws Exception {
-        SessionBean instance;
         ReadOnlyContext oldContext = RootContext.getComponentContext();
 
         try {
             // Disassociate from JNDI Component Context whilst creating instance
             RootContext.setComponentContext(null);
 
-            // create the instance
-            instance = (SessionBean) implClass.newInstance();
+            // create the instance and wrap in a StatelessInstanceContext
+            SessionBean instance = (SessionBean) factory.newInstance();
+            StatelessInstanceContext ctx = new StatelessInstanceContext(container, instance);
 
             // Activate this components JNDI Component Context
             RootContext.setComponentContext(componentContext);
-
-            // wrap the instance in an enterprise context
-            StatelessInstanceContext ctx = new StatelessInstanceContext(container, instance);
 
             // initialize the instance
             ctx.setOperation(EJBOperation.SETCONTEXT);

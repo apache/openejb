@@ -79,8 +79,8 @@ public abstract class MockCMPEJB implements EntityBean {
         return field;
     }
 
-    public abstract String getString();
-    public abstract void setString(String string);
+    public abstract String getValue();
+    public abstract void setValue(String string);
 
     private EntityContext context;
 

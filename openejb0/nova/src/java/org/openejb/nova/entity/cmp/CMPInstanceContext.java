@@ -45,45 +45,49 @@
  *
  * ====================================================================
  */
-package org.openejb.nova;
+package org.openejb.nova.entity.cmp;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import javax.ejb.EnterpriseBean;
+import javax.ejb.EntityBean;
 
-import net.sf.cglib.reflect.FastClass;
+import net.sf.cglib.proxy.Factory;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+
+import org.openejb.nova.EJBContainer;
+import org.openejb.nova.entity.EntityInstanceContext;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public class EJBInstanceFactoryImpl implements EJBInstanceFactory {
-    private final FastClass implClass;
+public class CMPInstanceContext extends EntityInstanceContext implements MethodInterceptor {
+    private final EntityBean instance;
+    private InstanceData instanceData;
 
-    public EJBInstanceFactoryImpl(Class beanClass) {
-        implClass = FastClass.create(beanClass);
+    public CMPInstanceContext(EJBContainer container, Factory factory) throws Exception {
+        super(container);
+        instance = (EntityBean) factory.newInstance(this);
     }
 
-    public EJBInstanceFactoryImpl(FastClass implClass) {
-        this.implClass = implClass;
+    public EnterpriseBean getInstance() {
+        return instance;
     }
 
-    public FastClass getImplClass() {
-        return implClass;
+    public InstanceData getInstanceData() {
+        return instanceData;
     }
 
-    public EnterpriseBean newInstance() throws Exception {
-        try {
-            return (EnterpriseBean) implClass.newInstance();
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getTargetException();
-            if (cause instanceof Exception) {
-                throw (Exception) cause;
-            } else if (cause instanceof Error) {
-                throw (Error) cause;
-            } else {
-                throw e;
-            }
-        }
+    public void setInstanceData(InstanceData instanceData) {
+        this.instanceData = instanceData;
+    }
+
+    public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+        int index = methodProxy.getSuperIndex();
+
+        InstanceOperation iop = ((CMPEntityContainer) container).getITable()[index];
+        return iop.invokeInstance(this, objects);
     }
 }

@@ -53,9 +53,7 @@ import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 
 import org.openejb.nova.AbstractEJBContainer;
-import org.openejb.nova.EJBInstanceFactory;
 import org.openejb.nova.dispatch.DispatchInterceptor;
-import org.openejb.nova.dispatch.VirtualOperationFactory;
 import org.openejb.nova.entity.EntityClientContainerFactory;
 import org.openejb.nova.entity.EntityContainerConfiguration;
 import org.openejb.nova.entity.EntityInstanceFactory;
@@ -73,12 +71,15 @@ public class CMPEntityContainer extends AbstractEJBContainer implements CMPEntit
     private final String pkClassName;
     private final CMPCommandFactory persistenceFactory;
     private final CMPQuery[] queries;
+    private InstanceOperation[] itable;
+    private final String[] cmpFieldNames;
 
-    public CMPEntityContainer(EntityContainerConfiguration config, CMPCommandFactory persistenceFactory, CMPQuery[] queries) {
+    public CMPEntityContainer(EntityContainerConfiguration config, CMPCommandFactory persistenceFactory, CMPQuery[] queries, String[] cmpFieldNames) {
         super(config);
         pkClassName = config.pkClassName;
         this.persistenceFactory = persistenceFactory;
         this.queries = queries;
+        this.cmpFieldNames = cmpFieldNames;
     }
 
     protected void doStart() throws Exception {
@@ -86,11 +87,11 @@ public class CMPEntityContainer extends AbstractEJBContainer implements CMPEntit
 
         Class pkClass = classLoader.loadClass(pkClassName);
 
-        VirtualOperationFactory vopFactory = CMPOperationFactory.newInstance(this, queries, persistenceFactory);
+        CMPOperationFactory vopFactory = CMPOperationFactory.newInstance(this, queries, persistenceFactory, cmpFieldNames);
         vtable = vopFactory.getVTable();
+        itable = vopFactory.getITable();
 
-        EJBInstanceFactory implFactory = new CMPInstanceFactory(beanClass);
-        pool = new SoftLimitedInstancePool(new EntityInstanceFactory(this, implFactory), 1);
+        pool = new SoftLimitedInstancePool(new EntityInstanceFactory(componentContext, vopFactory.getInstanceContextFactory()), 1);
 
         Interceptor firstInterceptor = new TransactionContextInterceptor(txnManager);
         addInterceptor(firstInterceptor);
@@ -119,5 +120,9 @@ public class CMPEntityContainer extends AbstractEJBContainer implements CMPEntit
         localClientContainer = null;
         pool = null;
         super.doStop();
+    }
+
+    InstanceOperation[] getITable() {
+        return itable;
     }
 }
