@@ -52,10 +52,10 @@ import java.util.HashSet;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.StatelessContainerBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -70,7 +70,7 @@ import org.openejb.transaction.TransactionPolicySource;
 public class BasicStatelessContainerTest extends TestCase {
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
     private Kernel kernel;
-    private GBeanMBean container;
+    private GBeanData container;
 
     public void testRemoteInvocation() throws Throwable {
         MockHome home = (MockHome) kernel.getAttribute(CONTAINER_NAME, "ejbHome");
@@ -90,7 +90,7 @@ public class BasicStatelessContainerTest extends TestCase {
         MockLocalHome localHome = (MockLocalHome) kernel.getAttribute(CONTAINER_NAME, "ejbLocalHome");
         MockLocal local = localHome.create();
         local.startTimer();
-        Thread.currentThread().sleep(200L);
+        Thread.sleep(200L);
         int timeoutCount = local.getTimeoutCount();
         assertEquals(1, timeoutCount);
     }
@@ -183,8 +183,9 @@ public class BasicStatelessContainerTest extends TestCase {
         kernel.shutdown();
     }
 
-    private void start(ObjectName name, GBeanMBean instance) throws Exception {
-        kernel.loadGBean(name, instance);
+    private void start(ObjectName name, GBeanData instance) throws Exception {
+        instance.setName(name);
+        kernel.loadGBean(instance, this.getClass().getClassLoader());
         kernel.startGBean(name);
     }
 

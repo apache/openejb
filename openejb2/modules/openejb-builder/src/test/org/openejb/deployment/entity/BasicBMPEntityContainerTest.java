@@ -53,10 +53,10 @@ import javax.ejb.EJBObject;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.deployment.BMPContainerBuilder;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.dispatch.InterfaceMethodSignature;
@@ -71,7 +71,7 @@ import org.openejb.transaction.TransactionPolicySource;
 public class BasicBMPEntityContainerTest extends TestCase {
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
     private Kernel kernel;
-    private GBeanMBean container;
+    private GBeanData container;
 
 
     public void testSimpleConfig() throws Throwable {
@@ -171,8 +171,9 @@ public class BasicBMPEntityContainerTest extends TestCase {
         kernel.shutdown();
     }
 
-    private void start(ObjectName name, GBeanMBean instance) throws Exception {
-        kernel.loadGBean(name, instance);
+    private void start(ObjectName name, GBeanData instance) throws Exception {
+        instance.setName(name);
+        kernel.loadGBean(instance, this.getClass().getClassLoader());
         kernel.startGBean(name);
     }
 

@@ -62,7 +62,6 @@ import java.util.Set;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
@@ -76,6 +75,7 @@ import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
 import org.apache.geronimo.xbeans.j2ee.JavaTypeType;
 import org.apache.geronimo.xbeans.j2ee.QueryType;
+import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbEjbRelationType;
@@ -127,9 +127,9 @@ class CMPEntityBuilder extends EntityBuilder {
             OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(getString(entityBean.getEjbName()));
             ObjectName entityObjectName = super.createEJBObjectName(moduleJ2eeContext, entityBean);
 
-            GBeanMBean entityGBean = createBean(earContext, ejbModule, entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, ejbSchema, sqlSchema, globalSchema, transactionPolicyHelper, security, cl, tmDelegate);
+            GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, ejbSchema, sqlSchema, globalSchema, transactionPolicyHelper, security, cl, tmDelegate);
 
-            earContext.addGBean(entityObjectName, entityGBean);
+            earContext.addGBean(entityGBean);
         }
     }
     
@@ -216,17 +216,17 @@ class CMPEntityBuilder extends EntityBuilder {
                 PrimaryKeyGeneratorDelegate keyGeneratorDelegate = (PrimaryKeyGeneratorDelegate) keyGenerators.get(generatorName);
                 if ( null == keyGeneratorDelegate ) {
                     keyGeneratorDelegate = new PrimaryKeyGeneratorDelegate();
-                    ObjectName wrapperGeneratorObjectName;
-                    GBeanMBean keyGenerator = new GBeanMBean(PrimaryKeyGeneratorWrapper.GBEAN_INFO, cl);
+                    GBeanData keyGenerator;
                     try {
                         ObjectName generatorObjectName = new ObjectName(generatorName);
-                        wrapperGeneratorObjectName = new ObjectName(generatorName + ",isWrapper=true");
+                        ObjectName wrapperGeneratorObjectName = new ObjectName(generatorName + ",isWrapper=true");
+                        keyGenerator = new GBeanData(wrapperGeneratorObjectName, PrimaryKeyGeneratorWrapper.GBEAN_INFO);
                         keyGenerator.setReferencePatterns("PrimaryKeyGenerator", Collections.singleton(generatorObjectName));
                         keyGenerator.setAttribute("primaryKeyGeneratorDelegate", keyGeneratorDelegate);
                     } catch (Exception e) {
                         throw new DeploymentException("Unable to initialize PrimaryKeyGeneratorWrapper GBean", e);
                     }
-                    earContext.addGBean(wrapperGeneratorObjectName, keyGenerator);
+                    earContext.addGBean(keyGenerator);
                     
                     keyGenerators.put(generatorName, keyGeneratorDelegate);
                 }
@@ -606,11 +606,11 @@ class CMPEntityBuilder extends EntityBuilder {
     }
 
 
-    public GBeanMBean createBean(EARContext earContext, EJBModule ejbModule, String containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, TransactionPolicyHelper transactionPolicyHelper, Security security, ClassLoader cl, TransactionManagerDelegate tmDelegate) throws DeploymentException {
+    public GBeanData createBean(EARContext earContext, EJBModule ejbModule, ObjectName containerObjectName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, TransactionPolicyHelper transactionPolicyHelper, Security security, ClassLoader cl, TransactionManagerDelegate tmDelegate) throws DeploymentException {
         String ejbName = getString(entityBean.getEjbName());
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(cl);
-        builder.setContainerId(containerId);
+        builder.setContainerId(containerObjectName.getCanonicalName());
         builder.setEJBName(ejbName);
         builder.setBeanClassName(getString(entityBean.getEjbClass()));
         builder.setHomeInterfaceName(getString(entityBean.getHome()));
@@ -646,7 +646,8 @@ class CMPEntityBuilder extends EntityBuilder {
         builder.setTransactionManagerDelegate(tmDelegate);
 
         try {
-            GBeanMBean gbean = builder.createConfiguration();
+            GBeanData gbean = builder.createConfiguration();
+            gbean.setName(containerObjectName);
             gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
             gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
             return gbean;

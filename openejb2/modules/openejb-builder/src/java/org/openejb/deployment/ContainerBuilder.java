@@ -46,7 +46,7 @@ package org.openejb.deployment;
 
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
@@ -127,7 +127,7 @@ public interface ContainerBuilder extends ResourceEnvironmentBuilder, SecureBuil
 
     EJBContainer createContainer() throws Exception;
 
-    GBeanMBean createConfiguration() throws Exception;
+    GBeanData createConfiguration() throws Exception;
 
     ObjectName getTransactedTimerName();
 

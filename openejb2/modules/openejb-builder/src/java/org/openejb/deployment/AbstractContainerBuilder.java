@@ -53,12 +53,12 @@ import javax.ejb.Timer;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.EJBContainer;
 import org.openejb.GenericEJBContainer;
 import org.openejb.InstanceContextFactory;
@@ -332,8 +332,8 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         return (EJBContainer) buildIt(true);
     }
 
-    public GBeanMBean createConfiguration() throws Exception {
-        return (GBeanMBean) buildIt(false);
+    public GBeanData createConfiguration() throws Exception {
+        return (GBeanData) buildIt(false);
     }
 
     protected abstract Object buildIt(boolean buildContainer) throws Exception;
@@ -407,13 +407,13 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 Thread.currentThread().getContextClassLoader());
     }
 
-    protected GBeanMBean createConfiguration(ClassLoader cl, InterfaceMethodSignature[] signatures,
+    protected GBeanData createConfiguration(ClassLoader cl, InterfaceMethodSignature[] signatures,
             InstanceContextFactory contextFactory,
             InterceptorBuilder interceptorBuilder,
             InstancePool pool,
             ObjectName timerName) throws Exception {
 
-        GBeanMBean gbean = new GBeanMBean(GenericEJBContainer.GBEAN_INFO, cl);
+        GBeanData gbean = new GBeanData(GenericEJBContainer.GBEAN_INFO);
         gbean.setAttribute("ContainerID", getContainerId());
         gbean.setAttribute("EJBName", getEJBName());
         gbean.setAttribute("ProxyInfo", createProxyInfo());

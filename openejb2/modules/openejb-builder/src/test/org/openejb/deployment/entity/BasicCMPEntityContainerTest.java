@@ -63,13 +63,13 @@ import javax.sql.DataSource;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.gbean.GBeanData;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
 import org.openejb.deployment.CMPContainerBuilder;
@@ -105,7 +105,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("openejb.server:ejb=Mock");
     private static final ObjectName CI_NAME = JMXUtil.getObjectName("openejb.server:role=ContainerIndex");
     private Kernel kernel;
-    private GBeanMBean container;
+    private GBeanData container;
 
     private DataSource ds;
 
@@ -458,13 +458,13 @@ public class BasicCMPEntityContainerTest extends TestCase {
         
         container = builder.createConfiguration();
 
-        GBeanMBean containerIndex = new GBeanMBean(ContainerIndex.GBEAN_INFO);
+        GBeanData containerIndex = new GBeanData(ContainerIndex.GBEAN_INFO);
         containerIndex.setReferencePatterns("EJBContainers", Collections.singleton(CONTAINER_NAME));
         start(CI_NAME, containerIndex);
 
-        GBeanMBean connectionProxyFactoryGBean = new GBeanMBean(MockConnectionProxyFactory.GBEAN_INFO);
         ObjectName connectionProxyFactoryObjectName = NameFactory.getResourceComponentName(null, null, null, "jcamodule", "testcf", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
-        kernel.loadGBean(connectionProxyFactoryObjectName, connectionProxyFactoryGBean);
+        GBeanData connectionProxyFactoryGBean = new GBeanData(connectionProxyFactoryObjectName, MockConnectionProxyFactory.GBEAN_INFO);
+        kernel.loadGBean(connectionProxyFactoryGBean, this.getClass().getClassLoader());
         kernel.startGBean(connectionProxyFactoryObjectName);
 
         //start the ejb container
@@ -482,8 +482,9 @@ public class BasicCMPEntityContainerTest extends TestCase {
         c.createStatement().execute("SHUTDOWN");
     }
 
-    private void start(ObjectName name, GBeanMBean instance) throws Exception {
-        kernel.loadGBean(name, instance);
+    private void start(ObjectName name, GBeanData instance) throws Exception {
+        instance.setName(name);
+        kernel.loadGBean(instance, this.getClass().getClassLoader());
         kernel.startGBean(name);
     }
 

@@ -70,7 +70,6 @@ import junit.framework.TestCase;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -129,7 +128,7 @@ public class EJBConfigBuilderTest extends TestCase {
         }
     };
 
-    private J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, NameFactory.NULL, "testejbmodule",  "testapp", NameFactory.J2EE_APPLICATION);
+    private J2eeContext j2eeContext = new J2eeContextImpl(j2eeDomainName, j2eeServerName, NameFactory.NULL, "testejbmodule", "testapp", NameFactory.J2EE_APPLICATION);
     private URI defaultParentId;
 
 //    public void testCreateResourceAdapterNameQuery() throws Exception {
@@ -161,11 +160,11 @@ public class EJBConfigBuilderTest extends TestCase {
     public void testBuildUnpackedModule() throws Exception {
         executeTestBuildModule(new File("target/test-ejb-jar"));
     }
- 
+
     public void testBuildPackedModule() throws Exception {
         executeTestBuildModule(new File("target/test-ejb-jar.jar"));
     }
-    
+
     private void executeTestBuildModule(File ejbJarFile) throws Exception {
         String j2eeApplicationName = "null";
         String j2eeModuleName = "org/openejb/deployment/test";
@@ -285,7 +284,7 @@ public class EJBConfigBuilderTest extends TestCase {
                     DeploymentHelper.TRANSACTIONALTIMER_NAME,
                     DeploymentHelper.NONTRANSACTIONALTIMER_NAME,
                     null, // Repository
-                    moduleBuilder, 
+                    moduleBuilder,
                     moduleBuilder,
                     null, null, resourceReferenceBuilder, // web
                     // connector
@@ -306,22 +305,24 @@ public class EJBConfigBuilderTest extends TestCase {
     private void verifyDeployment(File tempDir, ClassLoader cl, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName) throws Exception {
         DataSource ds = null;
         try {
-            GBeanMBean config = loadConfig(tempDir, cl);
+            ObjectName objectName = ObjectName.getInstance("test:configuration=test-ejb-jar");
+            GBeanData config = loadConfig(tempDir);
+            config.setName(objectName);
 
-            GBeanMBean containerIndexGBean = new GBeanMBean(ContainerIndex.GBEAN_INFO);
             ObjectName containerIndexObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ContainerIndex");
+            GBeanData containerIndexGBean = new GBeanData(containerIndexObjectName, ContainerIndex.GBEAN_INFO);
             Set ejbContainerNames = new HashSet();
             ejbContainerNames.add(ObjectName.getInstance(j2eeDomainName + ":j2eeType=StatelessSessionBean,*"));
             ejbContainerNames.add(ObjectName.getInstance(j2eeDomainName + ":j2eeType=StatefulSessionBean,*"));
             ejbContainerNames.add(ObjectName.getInstance(j2eeDomainName + ":j2eeType=EntityBean,*"));
             containerIndexGBean.setReferencePatterns("EJBContainers", ejbContainerNames);
-            kernel.loadGBean(containerIndexObjectName, containerIndexGBean);
+            kernel.loadGBean(containerIndexGBean, cl);
             kernel.startGBean(containerIndexObjectName);
             assertRunning(kernel, containerIndexObjectName);
 
-            GBeanMBean connectionProxyFactoryGBean = new GBeanMBean(MockConnectionProxyFactory.GBEAN_INFO);
             ObjectName connectionProxyFactoryObjectName = NameFactory.getResourceComponentName(null, null, NameFactory.NULL, "org/apache/geronimo/DefaultDatabase", "DefaultDatasource", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
-            kernel.loadGBean(connectionProxyFactoryObjectName, connectionProxyFactoryGBean);
+            GBeanData connectionProxyFactoryGBean = new GBeanData(connectionProxyFactoryObjectName, MockConnectionProxyFactory.GBEAN_INFO);
+            kernel.loadGBean(connectionProxyFactoryGBean, cl);
             kernel.startGBean(connectionProxyFactoryObjectName);
             assertRunning(kernel, connectionProxyFactoryObjectName);
 
@@ -338,8 +339,7 @@ public class EJBConfigBuilderTest extends TestCase {
             }
 
             // load the configuration
-            ObjectName objectName = ObjectName.getInstance("test:configuration=test-ejb-jar");
-            kernel.loadGBean(objectName, config);
+            kernel.loadGBean(config, cl);
             kernel.setAttribute(objectName, "baseURL", tempDir.toURL());
 
             // start the configuration
@@ -433,13 +433,12 @@ public class EJBConfigBuilderTest extends TestCase {
         assertEquals("should be running: " + objectName, State.RUNNING_INDEX, state);
     }
 
-    private GBeanMBean loadConfig(File unpackedCar, ClassLoader classLoader) throws Exception {
+    private GBeanData loadConfig(File unpackedCar) throws Exception {
         InputStream in = new FileInputStream(new File(unpackedCar, "META-INF/config.ser"));
         try {
             ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(in));
-            GBeanData gbeanData = new GBeanData();
-            gbeanData.readExternal(ois);
-            GBeanMBean config = new GBeanMBean(gbeanData, classLoader);
+            GBeanData config = new GBeanData();
+            config.readExternal(ois);
             return config;
         } finally {
             in.close();
@@ -448,6 +447,7 @@ public class EJBConfigBuilderTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
+        ClassLoader cl = getClass().getClassLoader();
         defaultParentId = new URI("org/apache/geronimo/Server");
         String str = System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
         if (str == null) {
@@ -460,17 +460,17 @@ public class EJBConfigBuilderTest extends TestCase {
         kernel = DeploymentHelper.setUpKernelWithTransactionManager("EJBConfigBuilderTest");
         DeploymentHelper.setUpTimer(kernel);
 
-        GBeanMBean serverInfoGBean = new GBeanMBean(ServerInfo.GBEAN_INFO);
-        serverInfoGBean.setAttribute("baseDirectory", ".");
         ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ServerInfo");
-        kernel.loadGBean(serverInfoObjectName, serverInfoGBean);
+        GBeanData serverInfoGBean = new GBeanData(serverInfoObjectName, ServerInfo.GBEAN_INFO);
+        serverInfoGBean.setAttribute("baseDirectory", ".");
+        kernel.loadGBean(serverInfoGBean, cl);
         kernel.startGBean(serverInfoObjectName);
         assertRunning(kernel, serverInfoObjectName);
 
-        GBeanMBean j2eeServerGBean = new GBeanMBean(J2EEServerImpl.GBEAN_INFO);
-        j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoObjectName));
         ObjectName j2eeServerObjectName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName);
-        kernel.loadGBean(j2eeServerObjectName, j2eeServerGBean);
+        GBeanData j2eeServerGBean = new GBeanData(j2eeServerObjectName, J2EEServerImpl.GBEAN_INFO);
+        j2eeServerGBean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfoObjectName));
+        kernel.loadGBean(j2eeServerGBean, cl);
         kernel.startGBean(j2eeServerObjectName);
         assertRunning(kernel, j2eeServerObjectName);
 
