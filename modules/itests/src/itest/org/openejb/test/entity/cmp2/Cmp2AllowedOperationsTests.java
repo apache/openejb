@@ -217,7 +217,7 @@ public class Cmp2AllowedOperationsTests extends BasicCmp2TestClient {
         // Change the object... ejbStore
 //      ejbObject.setLastName("Changed");
 
-//      ejbHome.sum(1, 2);
+      ejbHome.sum(1, 2);
     }
 
     //=====================================
@@ -342,7 +342,7 @@ public class Cmp2AllowedOperationsTests extends BasicCmp2TestClient {
      * ______________________|__________________________________________________
      * </PRE>
      */
-    public void TODO_test04_ejbPostCreate() {
+    public void test04_ejbPostCreate() {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
@@ -518,7 +518,7 @@ public class Cmp2AllowedOperationsTests extends BasicCmp2TestClient {
      * ______________________|__________________________________________________
      * </PRE>
      */
-    public void TODO_test08_ejbHome() {
+    public void test08_ejbHome() {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
@@ -717,7 +717,7 @@ public class Cmp2AllowedOperationsTests extends BasicCmp2TestClient {
      * ______________________|__________________________________________________
      * </PRE>
      */
-    public void TODO_test13_ejbStore() {
+    public void test13_ejbStore() {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();

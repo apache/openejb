@@ -201,15 +201,12 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
 
         ejbHome.findByPrimaryKey(null);
 
-        // TO BE FIXED LATER IN PROXIES
-        /*try {
-          ejbHome.sum(1, 2);
-        }catch( java.lang.Exception e ) {e.printStackTrace();} */
+        ejbHome.sum(1, 2);
 
         ejbObject = (BasicBmpObject) javax.rmi.PortableRemoteObject.narrow(ejbHandle.getEJBObject(), BasicBmpObject.class);
 
         ejbHome.findByPrimaryKey((Integer) ejbObject.getPrimaryKey());
-        ejbHome.remove((Integer) ejbObject.getPrimaryKey());
+        ejbHome.remove(ejbObject.getPrimaryKey());
 
         ejbObject = ejbHome.create("Fourth Bean");
         ejbHome.findEmptyCollection();
@@ -233,8 +230,8 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow(policy.Context_getEJBHome);
-            policy.allow(policy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
 
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("setEntityContext");
@@ -263,8 +260,8 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
 
             /* TO DO:  This test needs unique functionality to work */
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow(policy.Context_getEJBHome);
-            policy.allow(policy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
 
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("unsetEntityContext");
@@ -298,14 +295,14 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow(policy.Context_getEJBHome);
-            policy.allow(policy.Context_getCallerPrincipal);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.Context_getCallerPrincipal);
             //TODO:0:policy.allow( policy.Context_getRollbackOnly );
-            policy.allow(policy.Context_isCallerInRole);
+            policy.allow(OperationsPolicy.Context_isCallerInRole);
             //TODO:0:policy.allow( policy.Context_setRollbackOnly );
-            policy.allow(policy.JNDI_access_to_java_comp_env);
-            policy.allow(policy.Resource_manager_access);
-            policy.allow(policy.Enterprise_bean_access);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.Resource_manager_access);
+            policy.allow(OperationsPolicy.Enterprise_bean_access);
 
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("ejbCreate");
@@ -341,16 +338,16 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow(policy.Context_getEJBHome);
-            policy.allow(policy.Context_getCallerPrincipal);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.Context_getCallerPrincipal);
             //TODO:0:policy.allow( policy.Context_getRollbackOnly );
-            policy.allow(policy.Context_isCallerInRole);
+            policy.allow(OperationsPolicy.Context_isCallerInRole);
             //TODO:0:policy.allow( policy.Context_setRollbackOnly );
-            policy.allow(policy.Context_getEJBObject);
-            policy.allow(policy.Context_getPrimaryKey);
-            policy.allow(policy.JNDI_access_to_java_comp_env);
-            policy.allow(policy.Resource_manager_access);
-            policy.allow(policy.Enterprise_bean_access);
+            policy.allow(OperationsPolicy.Context_getEJBObject);
+            policy.allow(OperationsPolicy.Context_getPrimaryKey);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.Resource_manager_access);
+            policy.allow(OperationsPolicy.Enterprise_bean_access);
 
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("ejbPostCreate");
@@ -386,16 +383,16 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow(policy.Context_getEJBHome);
-            policy.allow(policy.Context_getCallerPrincipal);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.Context_getCallerPrincipal);
             //TODO:0:policy.allow( policy.Context_getRollbackOnly );
-            policy.allow(policy.Context_isCallerInRole);
+            policy.allow(OperationsPolicy.Context_isCallerInRole);
             //TODO:0:policy.allow( policy.Context_setRollbackOnly );
-            policy.allow(policy.Context_getEJBObject);
-            policy.allow(policy.Context_getPrimaryKey);
-            policy.allow(policy.JNDI_access_to_java_comp_env);
-            policy.allow(policy.Resource_manager_access);
-            policy.allow(policy.Enterprise_bean_access);
+            policy.allow(OperationsPolicy.Context_getEJBObject);
+            policy.allow(OperationsPolicy.Context_getPrimaryKey);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.Resource_manager_access);
+            policy.allow(OperationsPolicy.Enterprise_bean_access);
 
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("ejbRemove");
@@ -429,14 +426,14 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow(policy.Context_getEJBHome);
-            policy.allow(policy.Context_getCallerPrincipal);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.Context_getCallerPrincipal);
             //TODO:0:policy.allow( policy.Context_getRollbackOnly );
-            policy.allow(policy.Context_isCallerInRole);
+            policy.allow(OperationsPolicy.Context_isCallerInRole);
             //TODO:0:policy.allow( policy.Context_setRollbackOnly );
-            policy.allow(policy.JNDI_access_to_java_comp_env);
-            policy.allow(policy.Resource_manager_access);
-            policy.allow(policy.Enterprise_bean_access);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.Resource_manager_access);
+            policy.allow(OperationsPolicy.Enterprise_bean_access);
 
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("ejbFind");
@@ -470,14 +467,14 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow(policy.Context_getEJBHome);
-            policy.allow(policy.Context_getCallerPrincipal);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.Context_getCallerPrincipal);
             //TODO:0:policy.allow( policy.Context_getRollbackOnly );
-            policy.allow(policy.Context_isCallerInRole);
+            policy.allow(OperationsPolicy.Context_isCallerInRole);
             //TODO:0:policy.allow( policy.Context_setRollbackOnly );
-            policy.allow(policy.JNDI_access_to_java_comp_env);
-            policy.allow(policy.Resource_manager_access);
-            policy.allow(policy.Enterprise_bean_access);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.Resource_manager_access);
+            policy.allow(OperationsPolicy.Enterprise_bean_access);
 
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("ejbSelect");
@@ -507,18 +504,18 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
      * ______________________|__________________________________________________
      * </PRE>
      */
-    public void TODO_test08_ejbHome() {
+    public void test08_ejbHome() {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow(policy.Context_getEJBHome);
-            policy.allow(policy.Context_getCallerPrincipal);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.Context_getCallerPrincipal);
             //TODO:0:policy.allow( policy.Context_getRollbackOnly );
-            policy.allow(policy.Context_isCallerInRole);
+            policy.allow(OperationsPolicy.Context_isCallerInRole);
             //TODO:0:policy.allow( policy.Context_setRollbackOnly );
-            policy.allow(policy.JNDI_access_to_java_comp_env);
-            policy.allow(policy.Resource_manager_access);
-            policy.allow(policy.Enterprise_bean_access);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.Resource_manager_access);
+            policy.allow(OperationsPolicy.Enterprise_bean_access);
 
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("ejbHome");
@@ -554,16 +551,16 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow(policy.Context_getEJBHome);
-            policy.allow(policy.Context_getCallerPrincipal);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.Context_getCallerPrincipal);
             //TODO:0:policy.allow( policy.Context_getRollbackOnly );
-            policy.allow(policy.Context_isCallerInRole);
+            policy.allow(OperationsPolicy.Context_isCallerInRole);
             //TODO:0:policy.allow( policy.Context_setRollbackOnly );
-            policy.allow(policy.Context_getEJBObject);
-            policy.allow(policy.Context_getPrimaryKey);
-            policy.allow(policy.JNDI_access_to_java_comp_env);
-            policy.allow(policy.Resource_manager_access);
-            policy.allow(policy.Enterprise_bean_access);
+            policy.allow(OperationsPolicy.Context_getEJBObject);
+            policy.allow(OperationsPolicy.Context_getPrimaryKey);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.Resource_manager_access);
+            policy.allow(OperationsPolicy.Enterprise_bean_access);
 
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("ejbSelectInEntity");
@@ -593,10 +590,10 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow(policy.Context_getEJBHome);
-            policy.allow(policy.Context_getEJBObject);
-            policy.allow(policy.Context_getPrimaryKey);
-            policy.allow(policy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.Context_getEJBObject);
+            policy.allow(OperationsPolicy.Context_getPrimaryKey);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
 
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("ejbActivate");
@@ -626,10 +623,10 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow(policy.Context_getEJBHome);
-            policy.allow(policy.Context_getEJBObject);
-            policy.allow(policy.Context_getPrimaryKey);
-            policy.allow(policy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.Context_getEJBObject);
+            policy.allow(OperationsPolicy.Context_getPrimaryKey);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
 
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("ejbPassivate");
@@ -665,16 +662,16 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow(policy.Context_getEJBHome);
-            policy.allow(policy.Context_getCallerPrincipal);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.Context_getCallerPrincipal);
             //TODO:0:policy.allow( policy.Context_getRollbackOnly );
-            policy.allow(policy.Context_isCallerInRole);
+            policy.allow(OperationsPolicy.Context_isCallerInRole);
             //TODO:0:policy.allow( policy.Context_setRollbackOnly );
-            policy.allow(policy.Context_getEJBObject);
-            policy.allow(policy.Context_getPrimaryKey);
-            policy.allow(policy.JNDI_access_to_java_comp_env);
-            policy.allow(policy.Resource_manager_access);
-            policy.allow(policy.Enterprise_bean_access);
+            policy.allow(OperationsPolicy.Context_getEJBObject);
+            policy.allow(OperationsPolicy.Context_getPrimaryKey);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.Resource_manager_access);
+            policy.allow(OperationsPolicy.Enterprise_bean_access);
 
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("ejbLoad");
@@ -710,16 +707,16 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow(policy.Context_getEJBHome);
-            policy.allow(policy.Context_getCallerPrincipal);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.Context_getCallerPrincipal);
             //TODO:0:policy.allow( policy.Context_getRollbackOnly );
-            policy.allow(policy.Context_isCallerInRole);
+            policy.allow(OperationsPolicy.Context_isCallerInRole);
             //TODO:0:policy.allow( policy.Context_setRollbackOnly );
-            policy.allow(policy.Context_getEJBObject);
-            policy.allow(policy.Context_getPrimaryKey);
-            policy.allow(policy.JNDI_access_to_java_comp_env);
-            policy.allow(policy.Resource_manager_access);
-            policy.allow(policy.Enterprise_bean_access);
+            policy.allow(OperationsPolicy.Context_getEJBObject);
+            policy.allow(OperationsPolicy.Context_getPrimaryKey);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.Resource_manager_access);
+            policy.allow(OperationsPolicy.Enterprise_bean_access);
 
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("ejbStore");
@@ -755,16 +752,16 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient {
         try {
 
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow(policy.Context_getEJBHome);
-            policy.allow(policy.Context_getCallerPrincipal);
+            policy.allow(OperationsPolicy.Context_getEJBHome);
+            policy.allow(OperationsPolicy.Context_getCallerPrincipal);
             //TODO:0:policy.allow( policy.Context_getRollbackOnly );
-            policy.allow(policy.Context_isCallerInRole);
+            policy.allow(OperationsPolicy.Context_isCallerInRole);
             //TODO:0:policy.allow( policy.Context_setRollbackOnly );
-            policy.allow(policy.Context_getEJBObject);
-            policy.allow(policy.Context_getPrimaryKey);
-            policy.allow(policy.JNDI_access_to_java_comp_env);
-            policy.allow(policy.Resource_manager_access);
-            policy.allow(policy.Enterprise_bean_access);
+            policy.allow(OperationsPolicy.Context_getEJBObject);
+            policy.allow(OperationsPolicy.Context_getPrimaryKey);
+            policy.allow(OperationsPolicy.JNDI_access_to_java_comp_env);
+            policy.allow(OperationsPolicy.Resource_manager_access);
+            policy.allow(OperationsPolicy.Enterprise_bean_access);
 
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("businessMethod");

@@ -112,6 +112,7 @@ public class AllowedOperationsCmpBean implements EntityBean {
     }
 
     public void ejbPostCreate(String name) {
+        testAllowedOperations("ejbPostCreate");
     }
 
     //

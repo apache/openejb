@@ -103,6 +103,7 @@ public abstract class AllowedOperationsCmp2Bean implements EntityBean {
     }
 
     public void ejbPostCreate(String name) {
+        testAllowedOperations("ejbPostCreate");
     }
 
     //
