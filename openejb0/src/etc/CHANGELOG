@@ -86,7 +86,7 @@ CVS-TAG: v0_8beta2
 
 Version 0.8beta3  Release Date: June 22nd, 2002
 ----------------------------------------------
-CVS-TAG: v0_8beta2
+CVS-TAG: v0_8beta3
 
 - SourceForge bugs fixed:
   [ 563891 ] Bad client-side error messages
@@ -97,5 +97,7 @@ CVS-TAG: v0_8beta2
   [ 566966 ] Need a sample client run script
   [ 566967 ] sun.tools.javac.Main deprecated
   [ 566974 ] openejb.bat help screen fails on NT
-- ejbserver scripts now include OPENEJB_HOME\beans in classpath
-
+- Scripts now pass OPENEJB_HOME to OpenEJB
+- Scripts now include OPENEJB_HOME\beans in classpath
+- If your OpenEJB configuration isn't found, one will be created for you.
+- ProxyFactory element in the openejb.conf is now optional
