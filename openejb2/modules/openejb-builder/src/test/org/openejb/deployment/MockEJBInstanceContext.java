@@ -23,6 +23,7 @@ import javax.ejb.TimerService;
 
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBOperation;
+import org.openejb.timer.BasicTimerService;
 import org.openejb.proxy.EJBProxyFactory;
 
 /**
@@ -45,6 +46,18 @@ public class MockEJBInstanceContext implements EJBInstanceContext {
 
     public TimerService getTimerService() {
         return null;
+    }
+
+    public BasicTimerService getBasicTimerService() {
+        return null;
+    }
+
+    public void setTimerServiceAvailable(boolean available) {
+
+    }
+
+    public boolean setTimerState(EJBOperation operation) {
+        return false;
     }
 
     public Object getId() {
