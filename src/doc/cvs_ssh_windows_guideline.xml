@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document url="http://openejb.sf.net/cvs_ssh_windows_guideline.xml">
+  <body>
+    <title>Working CVS and SSH under Windows</title>
+    
+    <section title="Abstract">
+    </section>
+    
+    <section title="Installing the PuTTY program">
+      <p>
+      PuTTY is a fully featured SSH client for Windows operation systems.
+      PuTTY is available from the PuTTY <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">web site</a>.
+      </p>
+      
+      <p>
+      Note: You need a couple of binaries, the PuTTY program itself
+      is not enough.
+      <ul>
+        <li>PuTTY.exe - The SSH client</li>
+        <li>PSCP.exe - A secure copy program</li>
+        <li>PLINK.exe - a command-line interface to the PuTTY back ends</li>
+        <li>PAGEANT.exe - an SSH authentication agent for PuTTY, PSCP and Plink</li>
+      </ul>
+      </p>
+      
+      <section title="Including your PuTTY binaries in your default PATH">
+        <p>
+        You have to include the PuTTY binaries mentioned above in
+        your system's default PATH. To do so add a file like the
+        following the your system's PATH environment variable.
+        
+        <pre><![CDATA[
+        set PATH=C:\PROGRAM FILES\PUTTY;%PATH%
+        ]]></pre>
+        
+        Note: This is just an example!
+        </p>
+        
+        <p>
+        To test your PuTTY installation, you can try to type the following
+        command at the command prompt of a dos box.
+        
+        <pre><![CDATA[
+        plink [developername]@shell.sourceforge.net
+        ]]></pre>
+        
+        Change [developername] to your SF developer name. If the command
+        succeeds you should be able to login to the SF system.
+        </p>        
+      </section>
+      
+      <section title="How to generate your public/private RSA key">
+        <p>
+        SSH works with private/public asymetric key scheme like it does
+        PGP or other asymetric krypto systems. This fact requires that
+        you generate a public/private key pair to use WinCVS with SSH (PuTTY).
+        </p>
+        
+        <p>
+        Generating these keys using the PuTTY key generator (PUTTYGEN.exe) is pretty easy.
+        Just press 'generate' and move your mouse over the blank area until the key
+        gets generated.
+        </p>
+        
+        <p>
+        After the procedure has finished you have to save the private/public key
+        pair in a _SECURE_ place on your system by using the 'save public/private'
+        buttons.
+        </p>
+        
+        <p>
+        Usually the private key is named ...
+        
+        <pre><![CDATA[
+        identity
+        ]]></pre>
+        
+        and the public key is named ...
+        
+        <pre><![CDATA[
+        identity.pub
+        ]]></pre>
+        </p>
+        
+        <section title="A word from the wise (security note)">
+        <p>
+        The private key should _NEVER_ leave your system! Keep it as private
+        as possible!
+        </p>
+        </section>
+        
+        <section title="How to install the public key on the SF system">
+        <p>
+        </p>
+        </section>
+        
+        <section title="How to start and configure the PuTTY SSH agent">
+          <p>
+          </p>
+          
+          <section title="How to add a private key to the PuTTY SSH agent">
+          </section>
+        </section>
+      </section>
+    </section>
+    
+    <section title="Configuring WinCVS to work with SSH (PuTTY)">
+      <p>
+      </p>
+      
+      <section title="Making changes to the CVSROOT variable">
+      </section>
+      
+      <section title="Additional but important WinCVS options">
+      </section>
+    </section>
+  </body>
+</document>
