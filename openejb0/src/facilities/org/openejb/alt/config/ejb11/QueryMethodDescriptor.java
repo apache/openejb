@@ -26,7 +26,7 @@ import org.exolab.castor.xml.validators.*;
  * 
  * @version $Revision$ $Date$
 **/
-public class MethodParamsDescriptor extends org.exolab.castor.xml.util.XMLClassDescriptorImpl {
+public class QueryMethodDescriptor extends org.exolab.castor.xml.util.XMLClassDescriptorImpl {
 
 
       //--------------------------/
@@ -46,10 +46,10 @@ public class MethodParamsDescriptor extends org.exolab.castor.xml.util.XMLClassD
      //- Constructors -/
     //----------------/
 
-    public MethodParamsDescriptor() {
+    public QueryMethodDescriptor() {
         super();
-        nsURI = "http://www.openejb.org/ejb-jar/1.1";
-        xmlName = "method-params";
+        nsURI = "http://www.openejb.org/openejb-jar/1.1";
+        xmlName = "query-method";
         XMLFieldDescriptorImpl  desc           = null;
         XMLFieldHandler         handler        = null;
         FieldValidator          fieldValidator = null;
@@ -58,57 +58,24 @@ public class MethodParamsDescriptor extends org.exolab.castor.xml.util.XMLClassD
         setCompositorAsSequence();
         //-- initialize attribute descriptors
         
-        //-- _id
-        desc = new XMLFieldDescriptorImpl(java.lang.String.class, "_id", "id", NodeType.Attribute);
-        this.identity = desc;
-        handler = (new XMLFieldHandler() {
-            public java.lang.Object getValue( java.lang.Object object ) 
-                throws IllegalStateException
-            {
-                MethodParams target = (MethodParams) object;
-                return target.getId();
-            }
-            public void setValue( java.lang.Object object, java.lang.Object value) 
-                throws IllegalStateException, IllegalArgumentException
-            {
-                try {
-                    MethodParams target = (MethodParams) object;
-                    target.setId( (java.lang.String) value);
-                }
-                catch (Exception ex) {
-                    throw new IllegalStateException(ex.toString());
-                }
-            }
-            public java.lang.Object newInstance( java.lang.Object parent ) {
-                return new java.lang.String();
-            }
-        } );
-        desc.setHandler(handler);
-        desc.setNameSpaceURI("http://www.openejb.org/ejb-jar/1.1");
-        addFieldDescriptor(desc);
-        
-        //-- validation code for: _id
-        fieldValidator = new FieldValidator();
-        desc.setValidator(fieldValidator);
-        
         //-- initialize element descriptors
         
-        //-- _methodParamList
-        desc = new XMLFieldDescriptorImpl(java.lang.String.class, "_methodParamList", "method-param", NodeType.Element);
+        //-- _methodName
+        desc = new XMLFieldDescriptorImpl(java.lang.String.class, "_methodName", "method-name", NodeType.Element);
         desc.setImmutable(true);
         handler = (new XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                MethodParams target = (MethodParams) object;
-                return target.getMethodParam();
+                QueryMethod target = (QueryMethod) object;
+                return target.getMethodName();
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    MethodParams target = (MethodParams) object;
-                    target.addMethodParam( (java.lang.String) value);
+                    QueryMethod target = (QueryMethod) object;
+                    target.setMethodName( (java.lang.String) value);
                 }
                 catch (Exception ex) {
                     throw new IllegalStateException(ex.toString());
@@ -119,12 +86,14 @@ public class MethodParamsDescriptor extends org.exolab.castor.xml.util.XMLClassD
             }
         } );
         desc.setHandler(handler);
-        desc.setNameSpaceURI("http://www.openejb.org/ejb-jar/1.1");
-        desc.setMultivalued(true);
+        desc.setNameSpaceURI("http://www.openejb.org/openejb-jar/1.1");
+        desc.setRequired(true);
+        desc.setMultivalued(false);
         addFieldDescriptor(desc);
         
-        //-- validation code for: _methodParamList
+        //-- validation code for: _methodName
         fieldValidator = new FieldValidator();
+        fieldValidator.setMinOccurs(1);
         { //-- local scope
             StringValidator sv = new StringValidator();
             sv.setWhiteSpace("preserve");
@@ -132,7 +101,42 @@ public class MethodParamsDescriptor extends org.exolab.castor.xml.util.XMLClassD
         }
         desc.setValidator(fieldValidator);
         
-    } //-- org.openejb.alt.config.ejb11.MethodParamsDescriptor()
+        //-- _methodParams
+        desc = new XMLFieldDescriptorImpl(MethodParams.class, "_methodParams", "method-params", NodeType.Element);
+        handler = (new XMLFieldHandler() {
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                QueryMethod target = (QueryMethod) object;
+                return target.getMethodParams();
+            }
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    QueryMethod target = (QueryMethod) object;
+                    target.setMethodParams( (MethodParams) value);
+                }
+                catch (Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            public java.lang.Object newInstance( java.lang.Object parent ) {
+                return new MethodParams();
+            }
+        } );
+        desc.setHandler(handler);
+        desc.setNameSpaceURI("http://www.openejb.org/openejb-jar/1.1");
+        desc.setRequired(true);
+        desc.setMultivalued(false);
+        addFieldDescriptor(desc);
+        
+        //-- validation code for: _methodParams
+        fieldValidator = new FieldValidator();
+        fieldValidator.setMinOccurs(1);
+        desc.setValidator(fieldValidator);
+        
+    } //-- org.openejb.alt.config.ejb11.QueryMethodDescriptor()
 
 
       //-----------/
@@ -164,7 +168,7 @@ public class MethodParamsDescriptor extends org.exolab.castor.xml.util.XMLClassD
     **/
     public java.lang.Class getJavaClass()
     {
-        return org.openejb.alt.config.ejb11.MethodParams.class;
+        return org.openejb.alt.config.ejb11.QueryMethod.class;
     } //-- java.lang.Class getJavaClass() 
 
     /**

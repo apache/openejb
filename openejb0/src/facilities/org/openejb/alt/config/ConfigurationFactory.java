@@ -56,6 +56,7 @@ import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.alt.assembler.classic.*;
 import org.openejb.alt.config.ejb11.*;
+import org.openejb.alt.config.ejb11.Query;
 import org.openejb.alt.config.sys.*;
 import org.openejb.util.FileUtils;
 import org.openejb.util.Messages;
@@ -889,7 +890,27 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         for ( int i=0; i < bean.cmpFieldNames.length; i++ ) {
             bean.cmpFieldNames[i] = e.getCmpField(i).getFieldName();
         }
+        
+        if (bean.persistenceType.equals("Container")) {
+            
+            Query[]     q  = d.getQuery();
+            QueryInfo[] qi = new QueryInfo[q.length];
+            
+            for (int i=0; i < q.length; i++){
+                QueryInfo query      = new QueryInfo();
+                query.description    = q[i].getDescription();
+                query.queryStatement = q[i].getObjectQl().trim();
 
+                MethodInfo method    = new MethodInfo();
+                QueryMethod qm       = q[i].getQueryMethod();
+                method.methodName    = qm.getMethodName();
+                method.methodParams  = qm.getMethodParams().getMethodParam();
+
+                query.method = method;
+                qi[i] = query;
+            }
+            bean.queries = qi;
+        }
         return bean;
     }
 
