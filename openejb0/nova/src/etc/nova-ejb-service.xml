@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision$ $Date$ -->
+
+<components>
+    <class-space name="geronimo.system:role=ClassSpace,name=System">
+        <codebase url="file:../lib/">
+            <archive name="openejb-nova-DEV.jar"/>
+        </codebase>
+    </class-space>
+
+
+    <mbean descriptor="org.openejb.nova.deployment.EJBModuleDeploymentPlanner"
+           name="geronimo.deployment:role=DeploymentPlanner,type=EJBModule">
+    </mbean>
+
+</components>
