@@ -44,23 +44,22 @@
  */
 package org.openejb.deployment;
 
-import java.util.jar.JarFile;
-import java.net.URL;
 import java.net.URI;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.jar.JarFile;
+
 import javax.management.ObjectName;
 
+import org.apache.axis.description.JavaServiceDesc;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.axis.builder.AxisServiceBuilder;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
-import org.apache.geronimo.axis.builder.AxisServiceBuilder;
-import org.apache.axis.description.JavaServiceDesc;
 import org.openejb.server.axis.WSContainerGBean;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 
@@ -91,13 +90,18 @@ public class AxisWebServiceContainerBuilder {
     }
 
     public GBeanData buildGBeanData(ObjectName sessionObjectName, ObjectName listener, String ejbName, String serviceEndpointName, JarFile jarFile, ClassLoader cl) throws DeploymentException {
-        JavaServiceDesc ejbServiceDesc = AxisServiceBuilder.createEJBServiceDesc(jarFile, ejbName, cl);
-
-        URL wsdlURL = null;
+        JavaServiceDesc ejbServiceDesc = AxisServiceBuilder.createEJBServiceDesc(jarFile, ejbName, cl);    
+        
+        // Strip the jar file path from the WSDL file since jar file location may change at runtime.
+        String wsdlFile = ejbServiceDesc.getWSDLFile();
+        wsdlFile = wsdlFile.substring(wsdlFile.indexOf("!")+2);
+        
+        URI wsdlURI = null;
         try {
-            wsdlURL = new URL(ejbServiceDesc.getWSDLFile());
-        } catch (MalformedURLException e) {
-            throw new DeploymentException("Invalid WSDL URL: "+ ejbServiceDesc.getWSDLFile(), e);
+            wsdlURI = new URI(wsdlFile);
+        }
+        catch (URISyntaxException e) {
+            throw new DeploymentException("Invalid WSDL URI: "+ wsdlFile, e);
         }
         URI location = null;
         try {
@@ -106,7 +110,7 @@ public class AxisWebServiceContainerBuilder {
             throw new DeploymentException("Invalid address location URI: "+ejbServiceDesc.getEndpointURL(), e);
         }
 
-        GBeanData gBean = WSContainerGBean.createGBean(ejbName,sessionObjectName,listener, location, wsdlURL, ejbServiceDesc);
+        GBeanData gBean = WSContainerGBean.createGBean(ejbName,sessionObjectName,listener, location, wsdlURI, ejbServiceDesc);
         return gBean;
     }
 }

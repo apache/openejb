@@ -59,7 +59,7 @@ public class WSContainer {
     protected WSContainer() {
     }
 
-    public WSContainer(EJBContainer ejbContainer, URI location, URL wsdlURL, SoapHandler soapHandler, JavaServiceDesc serviceDesc) throws Exception {
+    public WSContainer(EJBContainer ejbContainer, URI location, URI wsdlURI, SoapHandler soapHandler, JavaServiceDesc serviceDesc) throws Exception {
         try {
 
             RPCProvider provider = new EJBContainerProvider(ejbContainer);
@@ -70,7 +70,13 @@ public class WSContainer {
             service.setOption("className", serviceEndpointInterface.getName());
             serviceDesc.setImplClass(serviceEndpointInterface);
 
-            AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURL, service, ejbContainer.getClassLoader());
+            ClassLoader classLoader = ejbContainer.getClassLoader();
+            String wsdlResource = wsdlURI.toString();
+            URL wsdlURL = classLoader.getResource(wsdlResource);
+            if( wsdlURL==null )
+                throw new RuntimeException("Could not locate wsdl: "+wsdlURI);
+            
+            AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURL, service, classLoader);
             if (soapHandler != null) {
                 soapHandler.addWebService(location.getPath(), axisContainer);
             }

@@ -47,25 +47,21 @@ package org.openejb.server.httpd;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.URL;
 import java.net.URI;
 import java.util.Properties;
-import javax.naming.Context;
-import javax.naming.InitialContext;
 
+import javax.naming.Context;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.openejb.ContainerIndex;
+import org.openejb.OpenEJBException;
 import org.openejb.server.ServerService;
 import org.openejb.server.ServiceException;
 import org.openejb.server.SocketService;
-import org.openejb.util.Logger;
-import org.openejb.OpenEJBException;
-import org.openejb.ContainerIndex;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanLifecycle;
+
 import sun.net.www.protocol.http.HttpURLConnection;
 
 /**
@@ -98,9 +94,10 @@ public class HttpServer implements SocketService, ServerService, GBeanLifecycle 
          */
         OutputStream out = socket.getOutputStream();
 
-
         try {
-            processRequest(in, out);
+            //TODO: if ssl change to https
+            URI socketURI = new URI("http://"+socket.getLocalAddress().getHostName()+":"+socket.getLocalPort() );
+            processRequest(socketURI, in, out);
         } catch (Throwable e) {
             log.error("Unexpected error", e);
         } finally {
@@ -161,14 +158,15 @@ public class HttpServer implements SocketService, ServerService, GBeanLifecycle 
 
     /**
      * takes care of processing requests and creating the webadmin ejb's
+     * @param socket 
      *
      * @param in  the input stream from the browser
      * @param out the output stream to the browser
      */
-    private void processRequest(InputStream in, OutputStream out) {
+    private void processRequest(URI socketURI, InputStream in, OutputStream out) {
         HttpResponseImpl response = null;
         try {
-            response = process(in);
+            response = process(socketURI, in);
 
         } catch (Throwable t) {
             response = HttpResponseImpl.createError(t.getMessage(), t);
@@ -182,8 +180,9 @@ public class HttpServer implements SocketService, ServerService, GBeanLifecycle 
 
     }
 
-    private HttpResponseImpl process(InputStream in) throws OpenEJBException {
-        HttpRequestImpl req = new HttpRequestImpl();
+    private HttpResponseImpl process(URI socketURI, InputStream in) throws OpenEJBException {
+        
+        HttpRequestImpl req = new HttpRequestImpl(socketURI);
         HttpResponseImpl res = new HttpResponseImpl();
 
         try {

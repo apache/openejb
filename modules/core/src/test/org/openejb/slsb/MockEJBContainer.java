@@ -224,5 +224,16 @@ public class MockEJBContainer implements EJBContainer {
         kernel.startGBean(gbean.getName());
         return gbean.getName();
     }
+    
+    public static ObjectName addGBean(Kernel kernel, String name, ClassLoader cl) throws GBeanAlreadyExistsException, GBeanNotFoundException {
+        ObjectName gbeanName = JMXUtil.getObjectName("openejb:j2eeType=StatelessSessionBean,name=" + name);
+
+        GBeanData gbean1 = new GBeanData(gbeanName, MockEJBContainer.GBEAN_INFO);
+
+        GBeanData gbean = gbean1;
+        kernel.loadGBean(gbean, cl);
+        kernel.startGBean(gbean.getName());
+        return gbean.getName();
+    }
 
 }
