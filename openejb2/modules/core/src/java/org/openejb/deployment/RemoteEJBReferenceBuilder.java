@@ -2,11 +2,11 @@ package org.openejb.deployment;
 
 import javax.naming.Reference;
 
-import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.openejb.client.naming.RemoteEJBRefAddr;
+import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.openejb.client.naming.RemoteEJBObjectFactory;
+import org.openejb.client.naming.RemoteEJBRefAddr;
 
 /**
  */

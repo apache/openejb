@@ -51,14 +51,14 @@ package org.openejb.deployment;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
 import org.apache.geronimo.xbeans.j2ee.ContainerTransactionType;
 import org.apache.geronimo.xbeans.j2ee.MethodParamsType;
 import org.apache.geronimo.xbeans.j2ee.MethodType;
-
-import junit.framework.TestCase;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
+import org.openejb.transaction.TransactionPolicySource;
 
 /**
  *

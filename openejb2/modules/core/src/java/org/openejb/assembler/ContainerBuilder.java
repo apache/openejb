@@ -61,9 +61,10 @@ import org.openejb.EJBComponentType;
 import org.openejb.EJBContainer;
 import org.openejb.GenericEJBContainer;
 import org.openejb.OpenEJBException;
-import org.openejb.entity.bmp.BMPContainerBuilder;
-import org.openejb.sfsb.StatefulContainerBuilder;
-import org.openejb.slsb.StatelessContainerBuilder;
+import org.openejb.deployment.BMPContainerBuilder;
+import org.openejb.deployment.StatefulContainerBuilder;
+import org.openejb.deployment.StatefulContainerBuilder;
+import org.openejb.deployment.StatelessContainerBuilder;
 
 public class ContainerBuilder implements RpcContainer {
 

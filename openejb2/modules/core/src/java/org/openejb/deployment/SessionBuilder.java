@@ -76,12 +76,10 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
-import org.openejb.ContainerBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.sfsb.StatefulContainerBuilder;
-import org.openejb.slsb.StatelessContainerBuilder;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
+import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 
 

@@ -56,25 +56,24 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
-
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.deployment.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.schema.Association;
+import org.tranql.schema.Association.JoinDefinition;
 import org.tranql.schema.AssociationEnd;
 import org.tranql.schema.Attribute;
 import org.tranql.schema.Entity;
 import org.tranql.schema.FKAttribute;
-import org.tranql.schema.Association.JoinDefinition;
 import org.tranql.sql.Table;
 import org.tranql.sql.sql92.SQL92Schema;
 

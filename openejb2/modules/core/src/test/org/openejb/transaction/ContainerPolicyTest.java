@@ -60,7 +60,6 @@ import junit.framework.TestCase;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
 import org.openejb.EJBInterfaceType;
-import org.openejb.MockTransactionManager;
 
 /**
  *

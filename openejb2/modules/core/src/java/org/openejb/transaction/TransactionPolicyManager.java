@@ -51,7 +51,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import org.openejb.EJBInterfaceType;
-import org.openejb.deployment.TransactionPolicySource;
 import org.openejb.dispatch.InterfaceMethodSignature;
 
 /**

@@ -49,7 +49,6 @@
 package org.openejb.deployment;
 
 import org.apache.geronimo.deployment.service.GBeanAdapter;
-
 import org.openejb.xbeans.ejbjar.OpenejbGbeanType;
 
 /**

@@ -52,8 +52,8 @@ import java.util.Set;
 import javax.security.auth.Subject;
 
 import org.apache.geronimo.naming.java.ReadOnlyContext;
-import org.openejb.deployment.TransactionPolicySource;
 import org.apache.geronimo.transaction.UserTransactionImpl;
+import org.openejb.transaction.TransactionPolicySource;
 
 /**
  *

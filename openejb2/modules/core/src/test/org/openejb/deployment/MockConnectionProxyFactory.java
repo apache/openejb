@@ -49,9 +49,8 @@ package org.openejb.deployment;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-
-import org.openejb.entity.cmp.ConnectionProxyFactory;
 import org.axiondb.jdbc.AxionDataSource;
+import org.openejb.entity.cmp.ConnectionProxyFactory;
 
 /**
  * 
