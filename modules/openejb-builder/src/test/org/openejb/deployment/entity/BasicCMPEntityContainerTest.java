@@ -462,7 +462,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         containerIndex.setReferencePatterns("EJBContainers", Collections.singleton(CONTAINER_NAME));
         start(CI_NAME, containerIndex);
 
-        ObjectName connectionProxyFactoryObjectName = NameFactory.getResourceComponentName(null, null, null, "jcamodule", "testcf", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
+        ObjectName connectionProxyFactoryObjectName = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, "jcamodule", "testcf", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
         GBeanData connectionProxyFactoryGBean = new GBeanData(connectionProxyFactoryObjectName, MockConnectionProxyFactory.GBEAN_INFO);
         kernel.loadGBean(connectionProxyFactoryGBean, this.getClass().getClassLoader());
         kernel.startGBean(connectionProxyFactoryObjectName);

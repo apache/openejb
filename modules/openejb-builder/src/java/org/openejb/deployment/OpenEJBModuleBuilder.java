@@ -483,9 +483,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         }
         //construct name from components
         try {
-            return NameFactory.getResourceComponentName(resourceLocator.getDomain(),
+            return NameFactory.getComponentName(resourceLocator.getDomain(),
                     resourceLocator.getServer(),
                     resourceLocator.getApplication(),
+                    NameFactory.JCA_RESOURCE,
                     resourceLocator.getModule(),
                     resourceLocator.getName(),
                     //todo determine type from iface class

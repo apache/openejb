@@ -124,7 +124,7 @@ public interface DeploymentTestContants {
         private static ObjectName createConnectionObjectName() {
             try {
                 J2eeContext j2eeContext = new J2eeContextImpl(DOMAIN_NAME, SERVER_NAME, NameFactory.NULL, NameFactory.RESOURCE_ADAPTER_MODULE, "testejbmodule", "testapp", NameFactory.J2EE_APPLICATION);
-                return NameFactory.getResourceComponentName(null, null, NameFactory.NULL, "org/apache/geronimo/DefaultDatabase", "DefaultDatasource", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
+                return NameFactory.getComponentName(null, null, NameFactory.NULL, NameFactory.JCA_RESOURCE, "org/apache/geronimo/DefaultDatabase", "DefaultDatasource", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
             } catch (MalformedObjectNameException e) {
                 return null;
             }
