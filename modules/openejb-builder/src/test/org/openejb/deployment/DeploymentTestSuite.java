@@ -148,12 +148,12 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
         DeploymentHelper.setUpResourceAdapter(kernel);
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-        applicationClassLoader = new URLClassLoader(new URL[]{moduleFile.toURL()}, oldCl);
+        ClassLoader cl = new URLClassLoader(new URL[]{moduleFile.toURL()}, oldCl);
 
-        Thread.currentThread().setContextClassLoader(applicationClassLoader);
+        Thread.currentThread().setContextClassLoader(cl);
 
         try {
-            OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator(applicationClassLoader);
+            OpenORBSkeletonGenerator skeletonGenerator = new OpenORBSkeletonGenerator(cl);
             skeletonGenerator.doStart();
             OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, skeletonGenerator, null);
 
@@ -205,12 +205,12 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             ejbContainerNames.add(ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=StatefulSessionBean,*"));
             ejbContainerNames.add(ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,*"));
             containerIndexGBean.setReferencePatterns("EJBContainers", ejbContainerNames);
-            kernel.loadGBean(containerIndexGBean, applicationClassLoader);
+            kernel.loadGBean(containerIndexGBean, cl);
             kernel.startGBean(containerIndexObjectName);
             assertRunning(kernel, containerIndexObjectName);
 
             GBeanData connectionProxyFactoryGBean = new GBeanData(CONNECTION_OBJECT_NAME, MockConnectionProxyFactory.GBEAN_INFO);
-            kernel.loadGBean(connectionProxyFactoryGBean, applicationClassLoader);
+            kernel.loadGBean(connectionProxyFactoryGBean, cl);
             kernel.startGBean(CONNECTION_OBJECT_NAME);
             assertRunning(kernel, CONNECTION_OBJECT_NAME);
 
@@ -227,12 +227,13 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             }
 
             // load the configuration
-            kernel.loadGBean(config, applicationClassLoader);
+            kernel.loadGBean(config, cl);
 
             // start the configuration
             kernel.startRecursiveGBean(CONFIGURATION_OBJECT_NAME);
 
             assertRunning(kernel, CONFIGURATION_OBJECT_NAME);
+            applicationClassLoader = (ClassLoader) kernel.getAttribute(CONFIGURATION_OBJECT_NAME, "configurationClassLoader");
         } catch (Error e) {
             DeploymentUtil.recursiveDelete(tempDir);
             throw e;
