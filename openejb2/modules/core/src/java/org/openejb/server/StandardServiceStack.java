@@ -45,6 +45,8 @@
 package org.openejb.server;
 
 import java.net.InetAddress;
+import java.net.SocketException;
+import java.io.IOException;
 
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
@@ -60,13 +62,17 @@ public class StandardServiceStack implements GBeanLifecycle {
     private ServerService server;
 
     public StandardServiceStack(String name, int port, InetAddress address, InetAddress[] allowHosts, int threads, int priority, String[] logOnSuccess, String[] logOnFailure, ServerService server) {
-        this.name = name;
         this.server = server;
-
+        this.name = name;
         this.pool = new ServicePool(name, server, threads, priority);
         this.hba = new ServiceAccessController(name, pool, allowHosts);
         this.logger = new ServiceLogger(name, hba, logOnSuccess, logOnFailure);
         this.daemon = new ServiceDaemon(name, logger, address, port);
+
+    }
+
+    public String getName() {
+        return name;
     }
 
     public InetAddress getAddress() {
@@ -75,6 +81,14 @@ public class StandardServiceStack implements GBeanLifecycle {
 
     public int getPort() {
         return daemon.getPort();
+    }
+
+    public int getSoTimeout() throws IOException {
+        return daemon.getSoTimeout();
+    }
+
+    public void setSoTimeout(int timeout) throws SocketException {
+        daemon.setSoTimeout(timeout);
     }
 
     public String[] getLogOnSuccess() {
@@ -112,6 +126,4 @@ public class StandardServiceStack implements GBeanLifecycle {
     public void doFail() {
         daemon.doFail();
     }
-
-
 }

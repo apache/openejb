@@ -48,6 +48,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import org.openejb.*;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
 
 /**
  *  The Server will call the following methods.
@@ -62,7 +64,9 @@ import org.openejb.*;
  * 
  */
 public class ServicePool implements ServerService {
-    
+
+    private static final Log log = LogFactory.getLog(ServicePool.class);
+
     private final ServerService next;
     private final int threads;
     private final int priority;
@@ -81,9 +85,9 @@ public class ServicePool implements ServerService {
                 try {
                     next.service(socket);
                 } catch (SecurityException e) {
-                    //logger.error( "Security error: "+ e.getMessage() );
+                    log.error( "Security error: "+ e.getMessage() );
                 } catch (Throwable e) {
-                    //logger.error( "Unexpected error", e );
+                    log.error( "Unexpected error", e );
 
                 } finally {
                     try {

@@ -55,11 +55,16 @@ import javax.naming.InitialContext;
 
 import org.openejb.server.ServerService;
 import org.openejb.server.ServiceException;
+import org.openejb.server.SocketService;
 import org.openejb.util.Logger;
 import org.openejb.OpenEJBException;
 import org.openejb.ContainerIndex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.WaitingException;
 
 /**
  * This is the main class for the web administration.  It takes care of the
@@ -67,14 +72,19 @@ import org.apache.commons.logging.LogFactory;
  *
  * @since 11/25/2001
  */
-public class HttpServer implements ServerService {
+public class HttpServer implements SocketService, ServerService, GBeanLifecycle {
 
-    Log log = LogFactory.getLog(HttpServer.class);
+    private static Log log = LogFactory.getLog(HttpServer.class);
+    private HttpListener listener;
 
     public HttpServer(ContainerIndex index){
-
     }
+
     public HttpServer(){}
+
+    public HttpServer(HttpListener listener){
+        this.listener = listener;
+    }
 
     public void service(Socket socket) throws ServiceException, IOException {
         /**
@@ -126,6 +136,10 @@ public class HttpServer implements ServerService {
         return "";
     }
 
+    public HttpListener getListener() {
+        return listener;
+    }
+
 
     /**
      * Initalizes this instance and takes care of starting things up
@@ -160,7 +174,7 @@ public class HttpServer implements ServerService {
             try {
                 response.writeMessage(out);
             } catch (Throwable t2) {
-                System.out.println("Could not write response");
+                log.error("Could not write response", t2);
             }
         }
 
@@ -208,7 +222,15 @@ public class HttpServer implements ServerService {
     }
 
     private HttpListener getHttpListener(String uri) {
-        return null;
+        return listener;
     }
 
+    public void doStart() throws WaitingException, Exception {
+    }
+
+    public void doStop() throws WaitingException, Exception {
+    }
+
+    public void doFail() {
+    }
 }
