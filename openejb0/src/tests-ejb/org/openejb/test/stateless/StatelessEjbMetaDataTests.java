@@ -52,7 +52,7 @@ import javax.naming.InitialContext;
 
 /**
  * [8] Should be run as the eigth test suite of the BasicStatelessTestClients
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
@@ -61,7 +61,7 @@ public class StatelessEjbMetaDataTests extends BasicStatelessTestClient{
     public StatelessEjbMetaDataTests(){
         super("EJBMetaData.");
     }
-    
+
     protected void setUp() throws Exception{
         super.setUp();
         Object obj = initialContext.lookup("client/tests/stateless/BasicStatelessHome");
@@ -74,7 +74,7 @@ public class StatelessEjbMetaDataTests extends BasicStatelessTestClient{
     //
     public void test01_getEJBHome(){
         try{
-        
+
         EJBHome home = ejbMetaData.getEJBHome();
         assertNotNull( "The EJBHome is null", home );
         } catch (Exception e){
@@ -93,13 +93,13 @@ public class StatelessEjbMetaDataTests extends BasicStatelessTestClient{
     }
     /**
      * 5.5 Session object identity
-     * 
+     *
      * Session objects are intended to be private resources used only by the
-     * client that created them. For this reason, session objects, from the 
+     * client that created them. For this reason, session objects, from the
      * client’s perspective, appear anonymous. In contrast to entity objects,
      * which expose their identity as a primary key, session objects hide their
-     * identity. As a result, the EJBObject.getPrimaryKey() and 
-     * EJBHome.remove(Object primaryKey) methods result in a java.rmi.RemoteException 
+     * identity. As a result, the EJBObject.getPrimaryKey() and
+     * EJBHome.remove(Object primaryKey) methods result in a java.rmi.RemoteException
      * if called on a session bean. If the EJBMetaData.getPrimaryKeyClass()
      * method is invoked on a EJBMetaData object for a Session bean, the method throws
      * the java.lang.RuntimeException.
@@ -109,12 +109,12 @@ public class StatelessEjbMetaDataTests extends BasicStatelessTestClient{
             Class clazz = ejbMetaData.getPrimaryKeyClass();
             assertNull("Should not return a primary key.  Method should throw an java.lang.RuntimeException", clazz );
         } catch (UnsupportedOperationException e){
-            assert( true );
+            assertTrue( true );
             return;
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
-        assert( "Method should throw an java.lang.RuntimeException", false );
+        assertTrue( "Method should throw an java.lang.RuntimeException", false );
     }
 
     public void test04_getRemoteInterfaceClass(){
@@ -129,7 +129,7 @@ public class StatelessEjbMetaDataTests extends BasicStatelessTestClient{
 
     public void test05_isSession(){
         try{
-        assert( "EJBMetaData says this is not a session bean", ejbMetaData.isSession() );
+        assertTrue( "EJBMetaData says this is not a session bean", ejbMetaData.isSession() );
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
@@ -137,7 +137,7 @@ public class StatelessEjbMetaDataTests extends BasicStatelessTestClient{
 
     public void test06_isStatelessSession(){
         try{
-        assert( "EJBMetaData says this is not a stateless session bean", ejbMetaData.isStatelessSession() );
+        assertTrue( "EJBMetaData says this is not a stateless session bean", ejbMetaData.isStatelessSession() );
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }

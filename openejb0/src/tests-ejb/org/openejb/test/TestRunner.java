@@ -44,164 +44,58 @@
  */
 package org.openejb.test;
 
-import junit.framework.TestFailure;
-import junit.framework.TestResult;
-import java.io.PrintStream;
-import java.util.Enumeration;
-
 /**
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
-public class TestRunner extends junit.textui.TestRunner{
-    /**
-     * This method was created in VisualAge.
-     * @param writer java.io.PrintStream
-     */
-    public TestRunner() {
+public class TestRunner extends junit.textui.TestRunner
+{
+    public TestRunner()
+    {
         super();
     }
-    
+
     /**
      * main entry point.
      */
-    public static void main(String args[]) {
-        TestRunner aTestRunner= new TestRunner();
+    public static void main( String args[] )
+    {
         try
         {
-         aTestRunner.start(args);
-        }
-        catch ( Exception ex )
-        { }
-    }
+            org.openejb.util.ClasspathUtils.addJarsToSystemPath("lib");
+            org.openejb.util.ClasspathUtils.addJarsToSystemPath("dist");
+            org.openejb.util.ClasspathUtils.addJarsToSystemPath("beans");
 
-    protected TestResult start(String args[]) throws Exception {
-        TestResult result = new TestResult();
-        try{
-            result =  super.start(args);
-        } catch (Exception e){
+            TestManager.init(null);
+            TestManager.start();
         }
-        return result;
-    }
+        catch (Exception e)
+        {
+            System.out.println("Cannot initialize the test environment: " + e.getClass().getName() + " " + e.getMessage());
+            e.printStackTrace();
+            System.exit(-1);
+        }
 
-    /**
-     * Prints the header of the report
-     */
-    public void printHeader(TestResult result) {
-        if (result.wasSuccessful()) {
-            writer().println();
-            writer().print("OK");
-            writer().println (" (" + result.runCount() + " tests)");
-    
-        } else {
-            writer().println();
-            writer().println("FAILURES!!!");
-            writer().println("~~ Test Results ~~~~~~~~~~~~");
-            writer().println("      Run: "+result.runCount());
-            writer().println(" Failures: "+result.failureCount());
-            writer().println("   Errors: "+result.errorCount());
+        TestRunner aTestRunner = new TestRunner();
+        try
+        {
+            aTestRunner.start(args);
         }
-    }
-    
-    /**
-     * Prints the errors to the standard output
-     */
-    public void printErrors(TestResult result) {
-        if (result.errorCount() != 0) {
-            writer().println("\n~~ Error Results ~~~~~~~~~~~\n");
-            if (result.errorCount() == 1)
-                writer().println("There was "+result.errorCount()+" error:");
-            else
-                writer().println("There were "+result.errorCount()+" errors:");
-    
-            writer().println("\nError Summary:");
-            int i = 1;
-            for (Enumeration e= result.errors(); e.hasMoreElements(); i++) {
-                TestFailure failure= (TestFailure) e.nextElement();
-                writer().println(i + ") " + failure.failedTest());
+        catch (Exception ex)
+        {
+        }
+        finally
+        {
+            try
+            {
+                TestManager.stop();
             }
-            writer().println("\nError Details:");
-            i = 1;
-            for (Enumeration e= result.errors(); e.hasMoreElements(); i++) {
-                TestFailure failure= (TestFailure)e.nextElement();
-                writer().println(i+") "+failure.failedTest());
-                String trace = getRelevantStackTrace(failure.thrownException());
-                writer().println(trace);
+            catch (Exception e)
+            {
+                ;   // ignore it
             }
         }
+        System.exit(0);
     }
-    
-    /**
-     * Prints failures to the standard output
-     */
-    public void printFailures(TestResult result) {
-        if (result.failureCount() != 0) {
-            writer().println("\n~~ Failure Results ~~~~~~~~~\n");
-            if (result.failureCount() == 1)
-                writer().println("There was " + result.failureCount() + " failure:");
-            else
-                writer().println("There were " + result.failureCount() + " failures:");
-            
-            int i = 1;
-            writer().println("\nFailure Summary:");
-            for (Enumeration e= result.failures(); e.hasMoreElements(); i++) {
-                TestFailure failure= (TestFailure) e.nextElement();
-                writer().println(i + ") " + failure.failedTest());
-            }
-            i = 1;
-            writer().println("\nFailure Details:");
-            for (Enumeration e= result.failures(); e.hasMoreElements(); i++) {
-                TestFailure failure= (TestFailure) e.nextElement();
-                writer().println("\n"+ i + ") " + failure.failedTest());
-                Throwable t= failure.thrownException();
-                if (t.getMessage() != null)
-                    writer().println("\t\"" + t.getMessage() + "\"");
-                else {
-                    writer().println();
-                    failure.thrownException().printStackTrace();
-                }
-            }
-        }
-    }
-
-    protected PrintStream writer() {
-        return System.out;
-    }
-
-    /**
-     * TO DO
-     * 
-     * @param t
-     * @return 
-     */
-    public String getRelevantStackTrace(Throwable t){
-        StringBuffer trace = new StringBuffer();
-        
-        try{
-            // Cut the stack trace after "at junit.framework" is found
-            // Return just the first part.
-            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-            java.io.PrintWriter pw = new java.io.PrintWriter(bos);
-            t.printStackTrace(pw);
-            pw.close();
-    
-            java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.StringReader(bos.toString()));
-            String line = reader.readLine();
-            while(line != null) {
-                if (line.indexOf("at junit.framework") != -1) break;
-                if (line.indexOf("at org.openejb.test.NumberedTestCase") != -1) break;
-                if (line.indexOf("at org.openejb.test.TestSuite") != -1) break;
-                
-                trace.append(line).append('\n');
-                line = reader.readLine();
-            }
-        } catch(Exception e){
-        }
-        
-        return trace.toString();
-    }
-
-
-
 }

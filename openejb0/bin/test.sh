@@ -58,22 +58,21 @@ do
     CP=$i${PS}$CP
 done
 
+CP=./lib/junit_3.8.1.jar${PS}${CP}
 CP=$JAVA_HOME/lib/tools.jar${PS}${CP}
 
 # Setup options for testsuite execution
 #  Test suite properties
-SERVER="-Dopenejb.test.server=org.openejb.test.IvmTestServer"
+PROPERTIES="-Dopenejb.testsuite.properties=$1"
+SERVER="-Dopenejb.test.server=$2"
 DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
-OPTIONS="$SERVER $DATABASE -Dopenejb.home=$OPENEJB_HOME"
+OPTIONS="$SERVER $DATABASE $PROPERTIES -Dopenejb.home=$OPENEJB_HOME"
 
 echo "--------------SUPPORT INFO-------------"
 echo "`uname -srv`"
 echo "Using JAVA_HOME:     $JAVA_HOME"
 echo "Using OPENEJB_HOME:  $OPENEJB_HOME"
-echo "."
-#echo "Using OPTIONS:       $OPTIONS"
-#echo "Using CLASSPATH:     $CP"
+echo "Using OPTIONS:       $OPTIONS"
+echo "--------------SUPPORT INFO-------------"
 
-#$JAVA $OPTIONS -classpath $CLASSPATH org.openejb.test.Main -s test/conf/IvmServer_config.properties org.openejb.test.ClientTestSuite
-$JAVA $OPTIONS -classpath $CP org.openejb.test.Main -s src/tests-ejb/IvmServer_config.properties org.openejb.test.ClientTestSuite
-
+$JAVA $OPTIONS -classpath $CP org.openejb.test.TestRunner org.openejb.test.ClientTestSuite

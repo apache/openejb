@@ -88,7 +88,7 @@ public class StatelessHandleTests extends BasicStatelessTestClient{
             EJBObject object = ejbHandle.getEJBObject();
             assertNotNull( "The EJBObject is null", object );
             // Wait until isIdentical is working.
-            //assert("EJBObjects are not identical", object.isIdentical(ejbObject));
+            //assertTrue("EJBObjects are not identical", object.isIdentical(ejbObject));
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
@@ -101,7 +101,7 @@ public class StatelessHandleTests extends BasicStatelessTestClient{
      * not exist. Attempted invocations on a session object
      * that does not exist result in java.rmi.NoSuchObjectException.
      * </P>
-     * 
+     *
      * <P>
      * This remove method of the EJBHome is placed hear as it
      * is more a test on the handle then on the remove method
@@ -113,9 +113,9 @@ public class StatelessHandleTests extends BasicStatelessTestClient{
             ejbHome.remove(ejbHandle);
             try{
                 ejbObject.businessMethod("Should throw an exception");
-                assert( "Calling business method after removing the EJBObject does not throw an exception", false );
+                assertTrue( "Calling business method after removing the EJBObject does not throw an exception", false );
             } catch (Exception e){
-                assert( true );
+                assertTrue( true );
                 return;
             }
         } catch (Exception e){

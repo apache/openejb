@@ -9,18 +9,21 @@ if "%OPENEJB_HOME%"=="" set OPENEJB_HOME=%CD%
 set JAVA=%JAVA_HOME%\bin\java
 
 set CP=
-for %%i in (%OPENEJB_HOME%\dist\openejb*.jar) do call cp.bat %%i
+for %%i in (%OPENEJB_HOME%\dist\*.jar) do call cp.bat %%i
+
+set CP=%OPENEJB_HOME%\lib\junit_3.8.1.jar;%CP%
 set CP=%JAVA_HOME%\lib\tools.jar;%CP%
 
-set SERVER=-Dopenejb.test.server=org.openejb.test.IvmTestServer
+set PROPERTIES=-Dopenejb.testsuite.properties=%1
+set SERVER=-Dopenejb.test.server=%2
 set DATABASE=-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase
-set OPTIONS=%SERVER% %DATABASE%
+set OPTIONS=%DATABASE% %SERVER% %PROPERTIES% -Dopenejb.home=%OPENEJB_HOME%
 
 echo --------------SUPPORT INFO-------------
 echo %OS%
 echo Using JAVA_HOME:     %JAVA_HOME%
 echo Using OPENEJB_HOME:  %OPENEJB_HOME%
-echo .
+echo OPTIONS:             %OPTIONS%
+echo --------------SUPPORT INFO-------------
 
-%JAVA% %OPTIONS% -classpath %CP% org.openejb.test.Main -s src\tests-ejb\IvmServer_config.properties org.openejb.test.ClientTestSuite
-
+%JAVA% %OPTIONS% -classpath %CP% org.openejb.test.TestRunner org.openejb.test.ClientTestSuite

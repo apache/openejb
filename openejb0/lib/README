@@ -56,7 +56,7 @@ jta_1.0.1.jar           Java Transaction API   1.0.1              http://java.su
                                                                                                                         parties involved in a distributed
                                                                                                                         transaction system.
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-junit_3.5.jar           JUnit test framework   3.5                http://www.junit.org/               3.8.1             JUnit is a simple framework to write      EJB Tests
+junit_3.8.1.jar         JUnit test framework   3.8.1              http://www.junit.org/               none              JUnit is a simple framework to write      EJB Tests
                                                                                                                         repeatable tests. It is an instance of
                                                                                                                         the xUnit architecture for unit testing
                                                                                                                         frameworks.

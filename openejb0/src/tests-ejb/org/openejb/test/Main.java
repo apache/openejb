@@ -57,8 +57,8 @@ public class Main{
         } catch (Exception e){
             e.printStackTrace();
         }
-        
-        ClientTestRunner.main( args );
+
+        TestRunner.main( args );
     }
 
 }

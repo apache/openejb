@@ -52,7 +52,7 @@ import javax.naming.InitialContext;
 
 /**
  * [8] Should be run as the eigth test suite of the BasicCmpTestClients
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
@@ -61,7 +61,7 @@ public class CmpEjbMetaDataTests extends BasicCmpTestClient{
     public CmpEjbMetaDataTests(){
         super("EJBMetaData.");
     }
-    
+
     protected void setUp() throws Exception{
         super.setUp();
         Object obj = initialContext.lookup("client/tests/entity/cmp/BasicCmpHome");
@@ -113,7 +113,7 @@ public class CmpEjbMetaDataTests extends BasicCmpTestClient{
 
     public void test05_isSession(){
         try{
-        assert( "EJBMetaData says this is a session bean", !ejbMetaData.isSession() );
+        assertTrue( "EJBMetaData says this is a session bean", !ejbMetaData.isSession() );
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
@@ -121,7 +121,7 @@ public class CmpEjbMetaDataTests extends BasicCmpTestClient{
 
     public void test06_isStatelessSession(){
         try{
-        assert( "EJBMetaData says this is a stateless session bean", !ejbMetaData.isStatelessSession() );
+        assertTrue( "EJBMetaData says this is a stateless session bean", !ejbMetaData.isStatelessSession() );
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }

@@ -51,7 +51,7 @@ import javax.naming.InitialContext;
 
 /**
  * [4] Should be run as the fourth test suite of the BasicStatelessTestClients
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  */
@@ -67,7 +67,7 @@ public class StatelessEjbObjectTests extends BasicStatelessTestClient{
         ejbHome = (BasicStatelessHome)javax.rmi.PortableRemoteObject.narrow( obj, BasicStatelessHome.class);
         ejbObject = ejbHome.create();
     }
-    
+
     protected void tearDown() throws Exception {
         try {
             //ejbObject.remove();
@@ -77,7 +77,7 @@ public class StatelessEjbObjectTests extends BasicStatelessTestClient{
             super.tearDown();
         }
     }
-    
+
     //===============================
     // Test ejb object methods
     //
@@ -89,15 +89,15 @@ public class StatelessEjbObjectTests extends BasicStatelessTestClient{
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
     }
-    
+
     public void test02_isIdentical(){
         try{
-            assert( "The EJBObjects are not identical", ejbObject.isIdentical(ejbObject) );
+            assertTrue( "The EJBObjects are not identical", ejbObject.isIdentical(ejbObject) );
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
     }
-    
+
     public void test03_getEjbHome(){
         try{
             EJBHome home = ejbObject.getEJBHome();
@@ -106,16 +106,16 @@ public class StatelessEjbObjectTests extends BasicStatelessTestClient{
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
         }
     }
-    
+
     /**
      * 5.5 Session object identity
-     * 
+     *
      * Session objects are intended to be private resources used only by the
-     * client that created them. For this reason, session objects, from the 
+     * client that created them. For this reason, session objects, from the
      * client’s perspective, appear anonymous. In contrast to entity objects,
      * which expose their identity as a primary key, session objects hide their
-     * identity. As a result, the EJBObject.getPrimaryKey() and 
-     * EJBHome.remove(Object primaryKey) methods result in a java.rmi.RemoteException 
+     * identity. As a result, the EJBObject.getPrimaryKey() and
+     * EJBHome.remove(Object primaryKey) methods result in a java.rmi.RemoteException
      * if called on a session bean. If the EJBMetaData.getPrimaryKeyClass()
      * method is invoked on a EJBMetaData object for a Session bean, the method throws
      * the java.lang.RuntimeException.
@@ -124,7 +124,7 @@ public class StatelessEjbObjectTests extends BasicStatelessTestClient{
         try{
             Object key = ejbObject.getPrimaryKey();
         } catch (java.rmi.RemoteException e){
-            assert(true);
+            assertTrue(true);
             return;
         } catch (Exception e){
             fail("A RuntimeException should have been thrown.  Received Exception "+e.getClass()+ " : "+e.getMessage());
@@ -137,9 +137,9 @@ public class StatelessEjbObjectTests extends BasicStatelessTestClient{
             ejbObject.remove();
             try{
                 ejbObject.businessMethod("Should throw an exception");
-                assert( "Calling business method after removing the EJBObject does not throw an exception", false );
+                assertTrue( "Calling business method after removing the EJBObject does not throw an exception", false );
             } catch (Exception e){
-                assert( true );
+                assertTrue( true );
                 return;
             }
         } catch (Exception e){

@@ -106,7 +106,7 @@ _test_intravm()
    echo " "
    echo "Running EJB compliance tests on IntraVM Server"
    echo "_________________________________________________"
-   ./bin/test.sh
+   ./bin/test.sh src/tests-ejb/IvmServer_config.properties org.openejb.test.IvmTestServer
 }
 #================================================
 _test_server()
@@ -117,9 +117,9 @@ _test_server()
    echo "Running EJB compliance tests on EJB Server"
    echo "_________________________________________________"
    echo " 1. Starting OpenEJB Server..."
-   sh ./bin/ejbserver.sh &> ejb.server.log &
+   sh ./bin/ejbserver.sh > ejb.server.log &
    echo " 2. Starting test EJB client..."
-   ./bin/ejbclient.sh
+   ./bin/test.sh src/tests-ejb/OpenEjbServer_config.properties org.openejb.test.OpenEjbTestServer
 }
 #============================================================
 _test_corba()
@@ -130,10 +130,10 @@ _test_corba()
    echo "Running EJB compliance tests on CORBA Server"
    echo "_________________________________________________"
    echo " 1. Starting OpenORB JNDI Server..."
-   sh ./bin/launch_jndi.sh -default &> corba.jndi.log
+   sh ./bin/launch_jndi.sh -default > corba.jndi.log &
    sleep 2
    echo " 2. Starting OpenEJB CORBA Server with OpenORB..."
-   sh ./bin/launch_server.sh &> corba.server.log
+   sh ./bin/launch_server.sh > corba.server.log &
    sleep 6
    echo " 3. Starting test client..."
    ./bin/launch_client.sh
