@@ -91,6 +91,11 @@
         
         <section title="How to install the public key on the SF system">
         <p>
+        The following section is just to demonstrate how the SSH
+        public/private key system works. To get the public key installed
+        on the SF OpenEJB CVS server you have to use SF's web based form
+        for submiting public RSA keys. This form can be found at your
+        account options page of your SF personal page.
         </p>
         </section>
         
