@@ -44,13 +44,10 @@
  */
 package org.openejb.client;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.rmi.RemoteException;
+
+import org.openejb.server.ejbd.EJBObjectInputStream;
 
 /**
  *
@@ -66,7 +63,7 @@ public class Client {
         ObjectInput  objectIn  = null;
         Connection   conn      = null;
 
-        try{
+        try {
             /*----------------------------*/
             /* Get a connection to server */
             /*----------------------------*/
@@ -147,7 +144,8 @@ public class Client {
             /*----------------------------------*/
             try{
 
-                objectIn = new ObjectInputStream(conn.getInputStream());
+                objectIn = new EJBObjectInputStream(conn.getInputStream());
+
             } catch (IOException e){
                 throw new RemoteException("Cannot open object input stream to server: " , e );
 
@@ -170,9 +168,6 @@ public class Client {
             } catch (Throwable e){
                 throw new RemoteException("Error reading response from server: " , e );
             }
-
-        } catch ( Throwable error ) {
-            throw new RemoteException("Error while communicating with server: " , error );
 
         } finally {
             try {

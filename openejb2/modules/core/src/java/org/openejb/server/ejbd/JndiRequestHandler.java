@@ -50,6 +50,8 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
@@ -59,34 +61,67 @@ import org.openejb.proxy.ProxyInfo;
 /**
  */
 class JndiRequestHandler implements ResponseCodes, RequestMethods {
+
     private final ContainerIndex containerIndex;
+    private static final Log log = LogFactory.getLog(JndiRequestHandler.class);
 
     JndiRequestHandler(ContainerIndex containerIndex) throws NamingException {
         this.containerIndex = containerIndex;
     }
 
-    public void processRequest(ObjectInputStream in, ObjectOutputStream out) throws Exception {
+    public void processRequest(ObjectInputStream in, ObjectOutputStream out) {
         JNDIRequest req = new JNDIRequest();
         JNDIResponse res = new JNDIResponse();
-        req.readExternal(in);
 
         // We are assuming that the request method is JNDI_LOOKUP
         // TODO: Implement the JNDI_LIST and JNDI_LIST_BINDINGS methods
 
-        switch (req.getRequestMethod()) {
-            case JNDI_LOOKUP:
-                doLookup(req, res);
-                break;
-            case JNDI_LIST:
-                doList(req, res);
-                break;
-            case JNDI_LIST_BINDINGS:
-                doListBindings(req, res);
-                break;
-            default: throw new UnsupportedOperationException("Request method not supported: "+req.getRequestMethod());
+
+        try {
+            req.readExternal(in);
+        } catch (Throwable e) {
+            replyWithFatalError(out, e, "Failed to read request");
+            return;
         }
 
-        res.writeExternal(out);
+        Thread thread = Thread.currentThread();
+        ClassLoader contextClassLoader = thread.getContextClassLoader();
+
+        try {
+            ObjectName objectName = new ObjectName(req.getClientModuleID());
+            ClassLoader classLoader = (ClassLoader)Kernel.getSingleKernel().getAttribute(objectName, "classLoader");
+            thread.setContextClassLoader(classLoader);
+        } catch (Throwable e) {
+            replyWithFatalError(out, e, "Failed to set the correct classloader");
+            return;
+        }
+
+        try {
+            switch (req.getRequestMethod()) {
+                case JNDI_LOOKUP:
+                    doLookup(req, res);
+                    break;
+                case JNDI_LIST:
+                    doList(req, res);
+                    break;
+                case JNDI_LIST_BINDINGS:
+                    doListBindings(req, res);
+                    break;
+                default: throw new UnsupportedOperationException("Request method not supported: "+req.getRequestMethod());
+            }
+        } catch (Exception e) {
+            log.error("JNDI request error", e);
+            res.setResponseCode(JNDI_ERROR);
+            res.setResult(e);
+        } finally {
+            try {
+                res.writeExternal(out);
+            } catch (Throwable t) {
+                log.error("Failed to write to JNDIResponse", t);
+            }
+            thread.setContextClassLoader(contextClassLoader);
+        }
+
     }
 
     private void doListBindings(JNDIRequest req, JNDIResponse res) {
@@ -108,7 +143,11 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
         if (req.getClientModuleID() != null) {
             try {
                 ObjectName objectName = new ObjectName(req.getClientModuleID());
-                Kernel.getSingleKernel().getAttribute(objectName, "componentContext");
+                Object context = Kernel.getSingleKernel().getAttribute(objectName, "componentContext");
+
+                res.setResponseCode(JNDI_CONTEXT_TREE);
+                res.setResult(context);
+
             } catch (MalformedObjectNameException e) {
                 throw (Exception)new NamingException("Invalid client module id in request: "+req.getClientModuleID()).initCause(e);
             } catch (Exception e) {
@@ -132,6 +171,16 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
                 res.setResponseCode(JNDI_NOT_FOUND);
             }
 
+        }
+    }
+    private void replyWithFatalError(ObjectOutputStream out, Throwable error, String message) {
+        log.error(message, error);
+
+        JNDIResponse res = new  JNDIResponse(JNDI_ERROR, error);
+        try {
+            res.writeExternal(out);
+        } catch (java.io.IOException ie) {
+            log.error("Failed to write JNDIResponse", ie);
         }
     }
 }
