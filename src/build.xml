@@ -821,6 +821,8 @@
     
       <fileset dir="dist" >
         <include name="openejb-${version}.jar"/>
+        <include name="openejb_client-${version}.jar"/>
+        <include name="openejb_server-${version}.jar"/>
         <include name="openejb_corba-${version}.jar"/>
         <include name="openejb_ejb_tests-${version}.jar"/>
       </fileset>
@@ -861,7 +863,6 @@
         <include name="**/*.properties"/>
         <include name="**/*.xml"/>
         <include name="**/*.conf"/>
-        <include name="**/*.jar"/>
       </fileset>
     
     </copy>
