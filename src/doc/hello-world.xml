@@ -152,6 +152,16 @@ Use the OpenEJB <a href="deploy.html">Deploy Tool</a> to deploy your jar.
 <command>C:\openejb> openejb.bat deploy -a -m c:\my\app\myHelloEjb.jar</command>
 </p> 
 
+<p>
+<note>
+Since the OpenEJB deployment tool writes to your jar file, make sure that 
+no other programs are using it when you deploy (i.e. if you use an editor 
+such as Forte for Java to create the jar file, that editor may still be 
+using it). If you get an error such as "Error in writing existing jar 
+file" close any programs that may be using the jar and try deploying 
+again. 
+</note>
+</p>
 </section>
 
 <section title="A basic client application" ref-id="deploy">
