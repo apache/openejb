@@ -96,6 +96,7 @@ import org.tranql.ejb.Relationship;
 import org.tranql.ejb.SelectEJBQLQuery;
 import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
+import org.tranql.schema.Association;
 import org.tranql.schema.Association.JoinDefinition;
 import org.tranql.sql.Column;
 import org.tranql.sql.EndTable;
@@ -415,11 +416,6 @@ class CMPEntityBuilder extends EntityBuilder {
                 }
             }
 
-            OpenejbEjbRelationshipRoleType[] openEjbRoles = openEjbRelation.getEjbRelationshipRoleArray();
-            for (int j = 0; j < openEjbRoles.length; j++) {
-                extractJoinInfo(roleInfo, openEjbRoles[j]);
-            }
-            
             String mtmTableName = null;
             if ( !roleInfo[0].isOne && !roleInfo[1].isOne ) {
                 if ( !openEjbRelation.isSetManyToManyTableName() ) {
@@ -427,6 +423,11 @@ class CMPEntityBuilder extends EntityBuilder {
                             " is misconfigured: no many to many table defined by OpenEJB DD.");
                 }
                 mtmTableName = openEjbRelation.getManyToManyTableName();
+            }
+
+            OpenejbEjbRelationshipRoleType[] openEjbRoles = openEjbRelation.getEjbRelationshipRoleArray();
+            for (int j = 0; j < openEjbRoles.length; j++) {
+                extractJoinInfo(roleInfo, mtmTableName, ejbSchema, sqlSchema, openEjbRoles[j]);
             }
             
             buildSchemaForJoin(roleInfo, mtmTableName, ejbSchema, sqlSchema, i);
@@ -451,7 +452,7 @@ class CMPEntityBuilder extends EntityBuilder {
         return roleInfo;
     }
 
-    private void extractJoinInfo(RoleInfo[] roleInfo, OpenejbEjbRelationshipRoleType role) throws DeploymentException {
+    private void extractJoinInfo(RoleInfo[] roleInfo, String mtmEntityName, EJBSchema ejbSchema, SQL92Schema sqlSchema, OpenejbEjbRelationshipRoleType role) throws DeploymentException {
         String ejbName = role.getRelationshipRoleSource().getEjbName();
         String cmrFieldName = null;
         if ( role.isSetCmrField() ) {
@@ -501,8 +502,23 @@ class CMPEntityBuilder extends EntityBuilder {
             pkToFkMapTable.put(att, column);
         }
 
-        mappedRoleInfo[0].ejbJDef = new JoinDefinition(mappedRoleInfo[0].ejb, mappedRoleInfo[1].ejb, pkToFkMapEJB);
-        mappedRoleInfo[0].tableJDef = new JoinDefinition(mappedRoleInfo[0].table, mappedRoleInfo[1].table, pkToFkMapTable);
+        EJB fkEJB = mappedRoleInfo[1].ejb;
+        Table fkTable = mappedRoleInfo[1].table;
+        if (null != mtmEntityName) {
+            fkEJB = ejbSchema.getEJB(mtmEntityName);
+            if (null == fkEJB) {
+                fkEJB = new EJB(mtmEntityName, mtmEntityName);
+                ejbSchema.addEJB(fkEJB);
+            }
+            fkTable = sqlSchema.getTable(mtmEntityName);
+            if (null == fkTable) {
+                fkTable = new Table(mtmEntityName);
+                sqlSchema.addTable(fkTable);
+            }
+        }
+        
+        mappedRoleInfo[0].ejbJDef = new JoinDefinition(mappedRoleInfo[0].ejb, fkEJB, pkToFkMapEJB);
+        mappedRoleInfo[0].tableJDef = new JoinDefinition(mappedRoleInfo[0].table, fkTable, pkToFkMapTable);
     }
 
     private void buildSchemaForJoin(RoleInfo[] roleInfo, String mtmEntityName, EJBSchema ejbSchema, SQL92Schema sqlSchema, int id) {
@@ -517,12 +533,10 @@ class CMPEntityBuilder extends EntityBuilder {
                 joinTable = new JoinTable(roleInfo[1].tableJDef);
             }
         } else {
-            EJB mtmEJB = new EJB(mtmEntityName, mtmEntityName);
+            EJB mtmEJB = ejbSchema.getEJB(mtmEntityName);
             relationship = new Relationship(mtmEJB, roleInfo[0].ejbJDef, roleInfo[1].ejbJDef);
-            Table mtmTable = new Table(mtmEntityName);
+            Table mtmTable = sqlSchema.getTable(mtmEntityName);
             joinTable = new JoinTable(mtmTable, roleInfo[0].tableJDef, roleInfo[1].tableJDef);
-            ejbSchema.addEJB(mtmEJB);
-            sqlSchema.addTable(mtmTable);
         }
 
         boolean isVirtual = null == roleInfo[0].cmrFieldName;
