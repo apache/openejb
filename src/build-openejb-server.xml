@@ -116,6 +116,7 @@
 		  <classpath>
 			<path refid="project.classpath"/>
 			<pathelement location="${build.dest}/openejb"/>
+			<pathelement location="${build.dest}/loader"/>
 		  </classpath>
 
 		</javac>
@@ -132,6 +133,7 @@
 		  <classpath>
 			<path refid="project.classpath"/>
 			<pathelement location="${build.dest}/openejb"/>
+			<pathelement location="${build.dest}/loader"/>
 		  </classpath>
 
 		</javac>

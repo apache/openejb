@@ -1069,6 +1069,10 @@
     </antcall>    
     
     <antcall target="pre-delegate">
+        <param name="module" value="openejb-loader"/>
+    </antcall>    
+    
+    <antcall target="pre-delegate">
         <param name="module" value="openejb-server"/>
     </antcall>    
     
