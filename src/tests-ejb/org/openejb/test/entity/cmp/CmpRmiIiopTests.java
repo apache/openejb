@@ -549,7 +549,7 @@ public class CmpRmiIiopTests extends CmpTestClient{
             EncCmpHome expected = (EncCmpHome)javax.rmi.PortableRemoteObject.narrow( obj, EncCmpHome.class);
             assertNotNull("The EJBHome returned from JNDI is null", expected);
 
-            EncCmpHome actual = (EncCmpHome)ejbObject.returnEJBHome(expected);
+            EncCmpHome actual = (EncCmpHome)javax.rmi.PortableRemoteObject.narrow(ejbObject.returnEJBHome(expected), EncCmpHome.class);
             assertNotNull("The EJBHome returned is null", actual);
 
         } catch (Exception e){
@@ -576,7 +576,7 @@ public class CmpRmiIiopTests extends CmpTestClient{
             ObjectGraph graph = ejbObject.returnObjectGraph(new ObjectGraph(expected));
             assertNotNull("The ObjectGraph is null", graph);
 
-            EncCmpHome actual = (EncCmpHome)graph.getObject();
+            EncCmpHome actual = (EncCmpHome)javax.rmi.PortableRemoteObject.narrow( graph.getObject(), EncCmpHome.class);
             assertNotNull("The EJBHome returned is null", actual);
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
@@ -588,7 +588,7 @@ public class CmpRmiIiopTests extends CmpTestClient{
             ObjectGraph graph = ejbObject.returnNestedEJBHome();
             assertNotNull("The ObjectGraph is null", graph);
 
-            EncCmpHome actual = (EncCmpHome)graph.getObject();
+            EncCmpHome actual = (EncCmpHome)javax.rmi.PortableRemoteObject.narrow( graph.getObject(), EncCmpHome.class);
             assertNotNull("The EJBHome returned is null", actual);
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
@@ -605,7 +605,7 @@ public class CmpRmiIiopTests extends CmpTestClient{
                 assertNotNull("The EJBHome returned from JNDI is null", expected[i]);
             }
 
-            EncCmpHome[] actual = (EncCmpHome[])ejbObject.returnEJBHomeArray(expected);
+            EJBHome[] actual = ejbObject.returnEJBHomeArray(expected);
             assertNotNull("The EJBHome array returned is null", actual);
             assertEquals(expected.length, actual.length);
 
@@ -628,7 +628,7 @@ public class CmpRmiIiopTests extends CmpTestClient{
             EncCmpObject expected = home.create("test_40 CmpBean");
             assertNotNull("The EJBObject created is null", expected);
 
-            EncCmpObject actual = (EncCmpObject)ejbObject.returnEJBObject(expected);
+            EncCmpObject actual = (EncCmpObject)javax.rmi.PortableRemoteObject.narrow( ejbObject.returnEJBObject(expected), EncCmpObject.class);
             assertNotNull("The EJBObject returned is null", actual);
 
             assertTrue("The EJBObejcts are not identical", expected.isIdentical(actual));
@@ -639,7 +639,7 @@ public class CmpRmiIiopTests extends CmpTestClient{
 
     public void test41_returnEJBObject2() {
         try{
-            EncCmpObject actual = (EncCmpObject)ejbObject.returnEJBObject();
+            EncCmpObject actual = (EncCmpObject)javax.rmi.PortableRemoteObject.narrow(ejbObject.returnEJBObject(), EncCmpObject.class);
             assertNotNull("The EJBObject returned is null", actual);
 
         } catch (Exception e){
@@ -659,7 +659,7 @@ public class CmpRmiIiopTests extends CmpTestClient{
             ObjectGraph graph = ejbObject.returnObjectGraph(new ObjectGraph(expected));
             assertNotNull("The ObjectGraph is null", graph);
 
-            EncCmpObject actual = (EncCmpObject)graph.getObject();
+            EncCmpObject actual = (EncCmpObject)javax.rmi.PortableRemoteObject.narrow(graph.getObject(), EncCmpObject.class);
             assertNotNull("The EJBObject returned is null", actual);
 
             assertTrue("The EJBObejcts are not identical", expected.isIdentical(actual));
@@ -673,7 +673,7 @@ public class CmpRmiIiopTests extends CmpTestClient{
             ObjectGraph graph = ejbObject.returnNestedEJBObject();
             assertNotNull("The ObjectGraph is null", graph);
 
-            EncCmpObject actual = (EncCmpObject)graph.getObject();
+            EncCmpObject actual = (EncCmpObject)javax.rmi.PortableRemoteObject.narrow(graph.getObject(), EncCmpObject.class);
             assertNotNull("The EJBHome returned is null", actual);
         } catch (Exception e){
             fail("Received Exception "+e.getClass()+ " : "+e.getMessage());
@@ -692,7 +692,7 @@ public class CmpRmiIiopTests extends CmpTestClient{
                 assertNotNull("The EJBObject created is null", expected[i]);
             }
 
-            EncCmpObject[] actual = (EncCmpObject[])ejbObject.returnEJBObjectArray(expected);
+            EJBObject[] actual = ejbObject.returnEJBObjectArray(expected);
             assertNotNull("The EJBObject array returned is null", actual);
             assertEquals(expected.length, actual.length);
 

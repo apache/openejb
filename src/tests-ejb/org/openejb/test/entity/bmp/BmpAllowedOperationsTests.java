@@ -214,7 +214,7 @@ public class BmpAllowedOperationsTests extends BasicBmpTestClient{
         ejbHome.sum(1, 2); 
       }catch( java.lang.Exception e ) {e.printStackTrace();} */
                 
-      ejbObject = (BasicBmpObject)ejbHandle.getEJBObject();
+      ejbObject = (BasicBmpObject)javax.rmi.PortableRemoteObject.narrow(ejbHandle.getEJBObject(), BasicBmpObject.class);
      
       ejbHome.findByPrimaryKey((Integer)ejbObject.getPrimaryKey());
       ejbHome.remove((Integer)ejbObject.getPrimaryKey());
