@@ -1,0 +1,195 @@
+<?xml version="1.0"?>
+<document url="http://openejb.sf.net/embedded.xml">
+  <body>
+    <title>Accessing EJBs Remotely</title>
+<sideimg src="images/diagram-remote-server.gif" width="240" height="500"/>
+
+<section title="Short version" ref-id="remote.access">
+<p>
+Using OpenEJB's default remote server implementation is pretty straight forward.  
+You simply need to:
+<ol>
+<li>Deploy your bean.</li>
+<li>Start the server on the IP and Port you want, 25.14.3.92 and 4201 for example.</li>
+<li>Use that information in your client to create an initial context</li>
+<li>Add the right jars to your client's classpath</li>
+</ol>
+</p>
+
+<p>
+So, here it is in short.  Deploy your bean:
+</p>
+
+<p>
+<command>c:\openejb> openejb.bat deploy cont\default.openejb.conf beans\myBean.jar</command>
+</p>
+<p>
+Start the server:
+</p>
+<p>
+<command>c:\openejb> openejb.bat start -h 25.14.3.92 -p 4201</command>
+</p>
+<p>
+Create an initial context in your client as such:
+</p>
+<code-block>
+Properties p = new Properties();
+p.put("java.naming.factory.initial", "org.openejb.client.JNDIContext");
+p.put("java.naming.provider.url", "25.14.3.92:4201");
+p.put("java.naming.security.principal", "myuser");
+p.put("java.naming.security.credentials", "mypass");
+    
+InitialContext ctx = new InitialContext(p);
+</code-block>
+<p>
+Add the following libraries to your clients classpath:
+<ul>
+<li>openejb-x.x.x.jar</li>
+<li>openejb_client-x.x.x.jar</li>
+</ul>
+Both can be found in the lib directory where you installed OpenEJB.
+</p>
+</section>
+
+
+
+
+<section title="An Example: Hello World!" ref-id="example">
+    
+<p>
+This example assumes you have already downloaded and installed OpenEJB in the 
+directory c:\openejb. Refer to the <a href="quickstart.html">QuickStart Guide</a> if you 
+haven't yet installed OpenEJB.
+</p>
+<p>We also assume that you running your client from the directory c:\my\app.</p>
+
+
+<section title="Create the bean class" ref-id="example">
+<p>
+First create the package where we will place our ejb and application files.
+</p>
+
+<command>c:\my\app> mkdir org</command><br/>
+<command>c:\my\app> mkdir org\acme</command>
+
+<p>
+In your favorite editor, create the file below.
+</p>
+<p>
+<file name="c:\my\app\org\acme\HelloBean.java">
+package org.acme;
+
+import java.rmi.RemoteException;
+import javax.ejb.*;
+
+public class HelloBean implements SessionBean {
+  private SessionContext sessionContext;
+  public void ejbCreate() {
+  }
+  public void ejbRemove() {
+  }
+  public void ejbActivate() {
+  }
+  public void ejbPassivate() {
+  }
+  public void setSessionContext(SessionContext sessionContext) {
+    this.sessionContext = sessionContext;
+  }
+  public String sayHello() throws java.rmi.RemoteException {
+    return "Hello";
+  }
+}
+</file>
+</p> 
+</section>
+
+
+<section title="Create the EJB Home interface" ref-id="example">
+<p>
+<file name="c:\my\app\org\acme\HelloHome.java">
+package org.acme;
+
+import java.rmi.*;
+import javax.ejb.*;
+import java.util.*;
+
+public interface HelloHome extends EJBHome {
+  public Hello create() throws RemoteException, CreateException;
+}
+</file>
+</p> 
+</section>
+
+<section title="Create the EJB Object interface" ref-id="example">
+<p>
+<file name="c:\my\app\org\acme\HelloObject.java">
+package org.acme;
+
+import java.rmi.*;
+import javax.ejb.*;
+import java.util.*;
+
+public interface Hello extends EJBObject {
+  public String sayHello() throws RemoteException;
+}
+</file>
+</p> 
+</section>
+
+
+<section title="Create the ejb-jar.xml" ref-id="example">
+<p>
+<command>c:\my\app> mkdir META-INF</command>
+</p>
+<p>
+<file name="c:\my\app\META-INF\ejb-jar.xml">
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;ejb-jar&gt;
+  &lt;enterprise-beans&gt;
+    &lt;session&gt;
+      &lt;ejb-name&gt;Hello&lt;/ejb-name&gt;
+      &lt;home&gt;org.acme.HelloHome&lt;/home&gt;
+      &lt;remote&gt;org.acme.HelloObject&lt;/remote&gt;
+      &lt;ejb-class&gt;org.acme.HelloBean&lt;/ejb-class&gt;
+      &lt;session-type&gt;Stateless&lt;/session-type&gt;
+      &lt;transaction-type&gt;Container&lt;/transaction-type&gt;
+    &lt;/session&gt;
+  &lt;/enterprise-beans&gt;
+  &lt;assembly-descriptor&gt;
+    &lt;container-transaction&gt;
+      &lt;method&gt;
+        &lt;ejb-name&gt;Hello&lt;/ejb-name&gt;
+        &lt;method-name&gt;*&lt;/method-name&gt;
+      &lt;/method&gt;
+      &lt;trans-attribute&gt;Required&lt;/trans-attribute&gt;
+    &lt;/container-transaction&gt;
+  &lt;/assembly-descriptor&gt;
+&lt;/ejb-jar&gt;
+</file>
+</p> 
+</section>
+
+<section title="Compile the EJB" ref-id="example">
+<p>
+<command>C:\my\app> javac ...</command>
+</p> 
+</section>
+
+<section title="Package the EJB" ref-id="example">
+<p>
+<command>C:\my\app> jar cvf myHelloEjb.jar org META-INF</command>
+</p> 
+</section>
+
+<section title="Deploy the EJB jar" ref-id="example">
+<p>
+<command>C:\my\app> cd C:\openejb</command><br/>
+<command>C:\openejb> openejb.bat deploy -a -m c:\my\app\myHelloEjb.jar</command>
+</p> 
+</section>
+
+
+</section>
+</body>
+</document>
+
