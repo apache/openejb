@@ -18,7 +18,6 @@ if [ -z "$JAVA_HOME" ] ; then
 fi
 
 JAVA=$JAVA_HOME/bin/java
-TEST_HOME=test/conf
 
 if [ -z "$OSTYPE" ] ; then
   echo "OSTYPE environment variable is not set.  Cannot determine the host operating system!" 
@@ -32,7 +31,6 @@ PS=':'
  fi
 
 # Setup Classpath
-
 CP=
 #==================================
 # PUT *.jar file to $CP
@@ -54,7 +52,10 @@ unset i
 CP=lib/xerces-J_1.3.1.jar${PS}${CP}
 
 # Setup options for testsuite execution
-OPTIONS="-Dlog4j.configuration=file:conf/default.logging.conf"
+#  Test suite properties
+SERVER="-Dopenejb.test.server=org.openejb.test.IvmTestServer"
+DATABASE="-Dopenejb.test.database=org.openejb.test.InstantDbTestDatabase"
+OPTIONS="-Dlog4j.configuration=file:conf/default.logging.conf $SERVER $DATABASE"
 
 CLASSPATH=${CP}
 #$JAVA $OPTIONS -classpath $CLASSPATH org.openejb.test.ClientTestRunner -s test/conf/IvmServer_config.properties org.openejb.test.ClientTestSuite
