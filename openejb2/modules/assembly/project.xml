@@ -159,6 +159,16 @@
         </dependency>
 
         <dependency>
+             <groupId>howl</groupId>
+            <artifactId>howl-logger</artifactId>
+            <version>GERONIMO-PRIVATE-0.1</version>
+            <url>http://forge.objectweb.org/projects/howl</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee</artifactId>
             <version>1.4-rc1</version>
