@@ -94,7 +94,7 @@
                 <runtime>true</runtime>
             </properties>
         </dependency>
-
+	<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-remoting</artifactId>
@@ -103,6 +103,15 @@
                 <runtime>true</runtime>
             </properties>
         </dependency>
+	-->
+        <dependency>
+            <groupId>activeio</groupId>
+            <artifactId>activeio</artifactId>
+            <version>${activeio_version}</version>
+            <properties>
+                <runtime>true</runtime>
+            </properties>
+        </dependency>	
 
         <dependency>
             <groupId>geronimo</groupId>

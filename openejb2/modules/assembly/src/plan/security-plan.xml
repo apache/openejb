@@ -27,23 +27,15 @@ Configuration for the CORBA server.
     >
 
     <dependency>
+        <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>
     </dependency>
 
-    <!-- Provide access to the login service -->
-    <gbean name="geronimo.remoting:router=SubsystemRouter" class="org.apache.geronimo.remoting.router.SubsystemRouter"/>
-
-    <gbean name="geronimo.remoting:transport=async" class="org.apache.geronimo.remoting.transport.TransportLoader">
-        <attribute name="bindURI" type="java.net.URI">async://0.0.0.0:4242</attribute>
-        <reference name="Router">geronimo.remoting:router=SubsystemRouter</reference>
-    </gbean>
-
-    <gbean name="geronimo.remoting:router=JMXRouter" class="org.apache.geronimo.remoting.router.JMXRouter">
-        <reference name="SubsystemRouter">geronimo.remoting:router=SubsystemRouter</reference>
-    </gbean>
-
     <gbean name="geronimo.remoting:target=JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">
-        <reference name="Router">geronimo.remoting:router=JMXRouter</reference>
+        <attribute name="bindURI" type="java.net.URI">tcp://0.0.0.0:4242</attribute>
+        <reference name="loginService">geronimo.security:type=JaasLoginService</reference>
     </gbean>
 
     <!-- public security realm -->
