@@ -55,9 +55,11 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.geronimo.deployment.model.ejb.ContainerTransaction;
-import org.apache.geronimo.deployment.model.ejb.Method;
 import org.apache.geronimo.deployment.DeploymentException;
+import org.apache.geronimo.xbeans.j2ee.ContainerTransactionType;
+import org.apache.geronimo.xbeans.j2ee.MethodType;
+import org.apache.geronimo.xbeans.j2ee.JavaTypeType;
+import org.apache.geronimo.xbeans.j2ee.MethodIntfType;
 import org.openejb.dispatch.MethodSignature;
 import org.openejb.transaction.BeanPolicy;
 import org.openejb.transaction.ContainerPolicy;
@@ -85,14 +87,14 @@ public class TransactionPolicyHelper {
 
     private final Map ejbNameToTransactionAttributesMap = new HashMap();
 
-    public TransactionPolicyHelper(ContainerTransaction[] containerTransactions) {
+    public TransactionPolicyHelper(ContainerTransactionType[] containerTransactions) {
         for (int i = 0; i < containerTransactions.length; i++) {
-            ContainerTransaction containerTransaction = containerTransactions[i];
-            String transactionAttribute = containerTransaction.getTransAttribute();
-            Method[] methods = containerTransaction.getMethod();
+            ContainerTransactionType containerTransaction = containerTransactions[i];
+            String transactionAttribute = containerTransaction.getTransAttribute().getStringValue();
+            MethodType[] methods = containerTransaction.getMethodArray();
             for (int j = 0; j < methods.length; j++) {
-                Method method = methods[j];
-                String ejbName = method.getEjbName();
+                MethodType method = methods[j];
+                String ejbName = method.getEjbName().getStringValue();
                 MethodTransaction methodTransaction = new MethodTransaction(method, transactionAttribute);
                 putMethodTransaction(ejbName, methodTransaction);
             }
@@ -158,11 +160,25 @@ public class TransactionPolicyHelper {
         private final String methodName;
         private final String[] parameterTypes;
 
-        public MethodTransaction(Method method, String transactionAttribute) {
-            this.transactionPolicy = (TransactionPolicy) transactionPolicyMap.get(transactionAttribute);
-            this.methodIntf = method.getMethodIntf();
-            this.methodName = method.getMethodName();
-            this.parameterTypes = method.getMethodParam();
+        public MethodTransaction(MethodType method, String transactionAttribute) {
+            transactionPolicy = (TransactionPolicy) transactionPolicyMap.get(transactionAttribute);
+            MethodIntfType methodInterface = method.getMethodIntf();
+            if (methodInterface != null) {
+                methodIntf = methodInterface.getStringValue();
+            } else {
+                methodIntf = null;
+            }
+            methodName = method.getMethodName().getStringValue();
+            if (method.getMethodParams() != null) {
+                JavaTypeType[] methodParams = method.getMethodParams().getMethodParamArray();
+                parameterTypes = new String[methodParams.length];
+                for (int i = 0; i < methodParams.length; i++) {
+                    parameterTypes[i] = methodParams[i].getStringValue();
+                }
+            } else {
+                parameterTypes = null;
+            }
+
         }
 
         public TransactionPolicy getTransactionPolicy() {
