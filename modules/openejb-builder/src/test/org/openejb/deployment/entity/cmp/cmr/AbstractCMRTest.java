@@ -61,7 +61,6 @@ import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
@@ -74,6 +73,7 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.transaction.context.ContainerTransactionContext;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.xmlbeans.XmlObject;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
@@ -191,16 +191,16 @@ public abstract class AbstractCMRTest extends TestCase {
 
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
             builder.buildCMPSchema(earContext, j2eeContext, ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, cacheSchema);
-            GBeanMBean containerIndex = new GBeanMBean(ContainerIndex.GBEAN_INFO);
+            GBeanData containerIndex = new GBeanData(ContainerIndex.GBEAN_INFO);
             Set patterns = new HashSet();
             patterns.add(C_NAME_A);
             patterns.add(C_NAME_B);
             containerIndex.setReferencePatterns("EJBContainers", patterns);
             start(CI_NAME, containerIndex);
 
-            GBeanMBean connectionProxyFactoryGBean = new GBeanMBean(MockConnectionProxyFactory.GBEAN_INFO);
             ObjectName connectionProxyFactoryObjectName = NameFactory.getResourceComponentName(null, null, null, "jcamodule", "testcf", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
-            kernel.loadGBean(connectionProxyFactoryObjectName, connectionProxyFactoryGBean);
+            GBeanData connectionProxyFactoryGBean = new GBeanData(connectionProxyFactoryObjectName, MockConnectionProxyFactory.GBEAN_INFO);
+            kernel.loadGBean(connectionProxyFactoryGBean, this.getClass().getClassLoader());
             kernel.startGBean(connectionProxyFactoryObjectName);
 
             setUpContainer(ejbSchema.getEJB("A"), getA().bean, getA().home, getA().local, C_NAME_A, tmDelegate);
@@ -242,7 +242,7 @@ public abstract class AbstractCMRTest extends TestCase {
         builder.setComponentContext(new ReadOnlyContext());
         builder.setTransactionManagerDelegate(tmDelegate);
 
-        GBeanMBean container = builder.createConfiguration();
+        GBeanData container = builder.createConfiguration();
 
         container.setReferencePatterns("TransactionContextManager", Collections.singleton(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME));
         container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME));
@@ -257,8 +257,9 @@ public abstract class AbstractCMRTest extends TestCase {
         c.createStatement().execute("SHUTDOWN");
     }
 
-    private void start(ObjectName name, GBeanMBean instance) throws Exception {
-        kernel.loadGBean(name, instance);
+    private void start(ObjectName name, GBeanData instance) throws Exception {
+        instance.setName(name);
+        kernel.loadGBean(instance, this.getClass().getClassLoader());
         kernel.startGBean(name);
     }
 

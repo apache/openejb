@@ -70,7 +70,7 @@ import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
@@ -385,28 +385,28 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         SQL92Schema sqlSchema = new SQL92Schema(module.getName(), delegate);
         GlobalSchema globalSchema = new GlobalSchema(module.getName(), flushStrategyFactory);
 
-        GBeanMBean ejbModuleGBean = new GBeanMBean(EJBModuleImpl.GBEAN_INFO, cl);
+        GBeanData ejbModuleGBeanData = new GBeanData(ejbModuleObjectName, EJBModuleImpl.GBEAN_INFO);
         try {
-            ejbModuleGBean.setReferencePattern("J2EEServer", earContext.getServerObjectName());
+            ejbModuleGBeanData.setReferencePattern("J2EEServer", earContext.getServerObjectName());
             if (!earContext.getJ2EEApplicationName().equals("null")) {
-                ejbModuleGBean.setReferencePattern("J2EEApplication", earContext.getApplicationObjectName());
+                ejbModuleGBeanData.setReferencePattern("J2EEApplication", earContext.getApplicationObjectName());
             }
 
-            ejbModuleGBean.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
+            ejbModuleGBeanData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
 
             if (connectionFactoryLocator != null) {
                 ObjectName connectionFactoryObjectName = getResourceContainerId(ejbModule.getModuleURI(), connectionFactoryLocator, earContext.getRefContext(), earContext.getJ2eeContext());
                 //TODO this uses connection factory rather than datasource for the type.
-                ejbModuleGBean.setReferencePattern("ConnectionFactory", connectionFactoryObjectName);
-                ejbModuleGBean.setAttribute("Delegate", delegate);
+                ejbModuleGBeanData.setReferencePattern("ConnectionFactory", connectionFactoryObjectName);
+                ejbModuleGBeanData.setAttribute("Delegate", delegate);
             }
 
-            ejbModuleGBean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
-            ejbModuleGBean.setAttribute("TMDelegate", tmDelegate);
+            ejbModuleGBeanData.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
+            ejbModuleGBeanData.setAttribute("TMDelegate", tmDelegate);
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize EJBModule GBean", e);
         }
-        earContext.addGBean(ejbModuleObjectName, ejbModuleGBean);
+        earContext.addGBean(ejbModuleGBeanData);
 
         // @todo need a better schema name
         cmpEntityBuilder.buildCMPSchema(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema, globalSchema);

@@ -56,7 +56,6 @@ import javax.management.MalformedObjectNameException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
@@ -78,6 +77,7 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
+import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.ContainerPolicy;
 import org.openejb.transaction.TransactionPolicy;
@@ -163,7 +163,7 @@ class SessionBuilder extends BeanBuilder {
     private void addEJBContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, Security security) throws DeploymentException {
         String ejbName = sessionBean.getEjbName().getStringValue();
 
-        GBeanMBean result;
+        GBeanData result;
         ContainerBuilder builder = null;
         Permissions toBeChecked = new Permissions();
         ContainerSecurityBuilder containerSecurityBuilder = getModuleBuilder().getSecurityBuilder();
@@ -221,15 +221,16 @@ class SessionBuilder extends BeanBuilder {
         processEnvironmentRefs(builder, earContext, ejbModule, sessionBean, openejbSessionBean, userTransaction, cl);
 
         try {
-            GBeanMBean gbean = builder.createConfiguration();
+            GBeanData gbean = builder.createConfiguration();
+            gbean.setName(sessionObjectName);
             gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
             gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
             result = gbean;
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName" + ejbName, e);
         }
-        GBeanMBean sessionGBean = result;
-        earContext.addGBean(sessionObjectName, sessionGBean);
+        GBeanData sessionGBean = result;
+        earContext.addGBean(sessionGBean);
     }
 
     public void initContext(EARContext earContext, J2eeContext moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans, Set interfaces) throws DeploymentException {

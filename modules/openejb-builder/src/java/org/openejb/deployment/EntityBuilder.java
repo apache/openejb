@@ -56,7 +56,6 @@ import javax.management.MalformedObjectNameException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
@@ -77,6 +76,7 @@ import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
+import org.apache.geronimo.gbean.GBeanData;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 
@@ -99,17 +99,17 @@ class EntityBuilder extends BeanBuilder {
             OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(entityBean.getEjbName().getStringValue());
             ObjectName entityObjectName = createEJBObjectName(moduleJ2eeContext, entityBean);
 
-            GBeanMBean entityGBean = createBean(earContext, ejbModule, entityObjectName.getCanonicalName(), entityBean, openejbEntityBean, transactionPolicyHelper, security, cl);
-            earContext.addGBean(entityObjectName, entityGBean);
+            GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, transactionPolicyHelper, security, cl);
+            earContext.addGBean( entityGBean);
         }
     }
 
-    public GBeanMBean createBean(EARContext earContext, EJBModule ejbModule, String containerId, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, TransactionPolicyHelper transactionPolicyHelper, Security security, ClassLoader cl) throws DeploymentException {
+    public GBeanData createBean(EARContext earContext, EJBModule ejbModule, ObjectName containerObjectName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, TransactionPolicyHelper transactionPolicyHelper, Security security, ClassLoader cl) throws DeploymentException {
         String ejbName = entityBean.getEjbName().getStringValue();
 
         BMPContainerBuilder builder = new BMPContainerBuilder();
         builder.setClassLoader(cl);
-        builder.setContainerId(containerId);
+        builder.setContainerId(containerObjectName.getCanonicalName());
         builder.setEJBName(ejbName);
         builder.setBeanClassName(entityBean.getEjbClass().getStringValue());
         builder.setHomeInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(entityBean.getHome()));
@@ -139,7 +139,8 @@ class EntityBuilder extends BeanBuilder {
         processEnvironmentRefs(builder, earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
 
         try {
-            GBeanMBean gbean = builder.createConfiguration();
+            GBeanData gbean = builder.createConfiguration();
+            gbean.setName(containerObjectName);
             gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
             gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
             return gbean;
