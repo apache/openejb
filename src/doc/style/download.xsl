@@ -7,7 +7,7 @@
   <xsl:variable name="group_id" select="$project/group_id"/>
   <xsl:variable name="bug_id" select="$project/bug_id"/>
   <xsl:variable name="task_id" select="$project/task_id"/>
-  <xsl:variable name="current_release" select="./ChangeLog/Version[attribute::release_id][position()=last()]"/>
+  <xsl:variable name="current_release" select="./ChangeLog/Version[attribute::release_id][1]"/>
 
   <xsl:include href="util.xsl"/>
   <xsl:include href="topNav.xsl"/>
@@ -116,7 +116,9 @@
             </span></p>
             <p><span class="bodyBlack">Current and previous releases that are available:<br/>
             <xsl:for-each select="./ChangeLog/Version">
+              <!--
               <xsl:sort select="attribute::release_id" order="descending"/>
+              -->
               <xsl:if test="@release_id">
                 <span class="toc">
                   <a href="#{@id}"><xsl:value-of select="@id"/> - <xsl:value-of select="@releaseDate"/></a><br/>
@@ -130,7 +132,9 @@
 
         <!-- now show the sections themselves -->
         <xsl:apply-templates select="ChangeLog/Version">
+            <!--
             <xsl:sort select="attribute::release_id" order="descending"/>
+            -->
         </xsl:apply-templates>
       </td>
       <td width="120" height="5" valign="top"
