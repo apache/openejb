@@ -3,15 +3,83 @@
   <body>
     <title>OpenEJB QuickStart Guide</title>
 
-    <section title="Abstract" ref-id="abstract">
-        
+    <section title="Installation" ref-id="getopenejb">
+    
+<p>To install OpenEJB, simply <a 
+href="http://openejb.sf.net/download.html">download the latest release</a> 
+and unpack your zip or tar.gz into the directory where you want OpenEJB to 
+live.</p>  
+
+<p>Windows users can download the zip and unpack it with the WinZip 
+program.</p> <p>Linux users can download the tar.gz and unpack it with the 
+following command:</p> 
+
+<p><command>
+tar xzvf openejb-0.8.3.tar.gz
+</command></p>
+
+<p>Congradulations, you've installed OpenEJB.</p>
+
+<note>If you are on Mac OS X and have downloaded the tar.gz, don't 
+bother trying to unpack it with anything other than the above tar 
+command, it won't work.</note>
     <p>
-    This document is a slightly verbose quickstart, if you are not interested in all
-    the chat and simply want the bare minimum, we offer a 
-    <a href="commands-only-windows.html">Commands-Only Guide for Windows Users</a> and a 
-    <a href="commands-only-linux.html">Commands-Only Guide for Linux/Unix/Mac OS X Users</a>
+ If you've unpacked OpenEJB into the directory C:\openejb, for example, 
+ than this directory is your OPENEJB_HOME directory.  The OPENEJB_HOME
+ directory is refered to in various parts of the documentation, so it's
+ good to remeber where it is.
     </p>
-            
+</section>
+    
+<section title="Using OpenEJB" ref-id="getopenejb">
+    <p>
+ Now all you need to do is move to the OPENEJB_HOME directory, the 
+ directory where OpenEJB was unpacked, and type:
+</p>
+<p><command>openejb help</command></p>
+ 
+ For Windows users, that looks like this:
+  
+<p><command>C:\openejb> openejb help</command></p>
+   
+ 
+<p>
+ For UNIX/Linux/Mac OS X users, that looks like this:
+</p>
+ 
+<p><command>[user@host openejb]# ./openejb.sh help</command></p>
+   
+ 
+<p>
+ You really only need to know two commands to use OpenEJB, deploy
+ and start.  Both are completely documented and have examples.
+</p>
+ 
+<p>
+ For help information and command options, try this:
+</p>
+ 
+<p><command>openejb deploy -help</command><br/>
+   <command>openejb start -help</command></p>
+   
+   
+ 
+<p>
+ For examples on using the command and options, try this:
+</p>
+ 
+<p><command>openejb deploy -examples</command><br/>
+   <command>openejb start -examples</command></p>
+ 
+<p>
+ That's it!
+</p>
+
+<p>
+If you don't have any EJBs or clients to run, try the ubiquitous 
+<a href="hello-world.html">Hello World</a> example.
+</p>
+    
     </section>
     
     <section title="Join the mailing list" ref-id="joinlist">
@@ -37,55 +105,5 @@
     
     </section>
     
-    <section title="Get OpenEJB" ref-id="getopenejb">
-    
-    <p>
-    <a href="download.html">Download</a> and unpack the latest release. Or,
-    checkout the source from CVS and <a href="quickstart-buildit.html">build it</a>.
-    </p>
-    </section>
-    
-    <section title="Run the test suite (optional)" ref-id="runtests">
-    <p>
-    Now that you have download or built OpenEJB, it's a
-    good to run the test suite and verify that everything is setup.
-    Execute the following commands:
-    </p>
-    
-    <p>
-    Windows:<br></br>
-    <command>C:\somewhere> cd c:\openejb</command><br/>
-    <command>C:\openejb> openejb test</command>
-    </p>
-    <p>  
-    Unix/Linux/Mac OS X:<br></br>
-    <command>[user@host somewhere]# cd /openejb </command><br/>
-    <command>[user@host openejb]#  ./openejb.sh test</command>
-    </p>
-    
-    </section>
-    
-    <section title="Deploy your ejb-jar" ref-id="deployjar">
-    <p>
-    OpenEJB comes with a command-line tool to help guide you through deploying
-    your jars in OpenEJB.  The options are as follows:
-    </p>
-    
-    <p>
-    Windows:<br></br>
-    <command>C:\openejb> openejb deploy <i>yourEjb.jar</i></command>
-    </p>
-    
-    <p>  
-    Unix/Linux/Mac OS X:<br></br>
-    <command>[user@host openejb]# ./openejb.sh deploy <i>yourEjb.jar</i></command>
-    </p>
-    
-    <p>
-    If you don't have any EJBs or clients to run, try the ubiquitous 
-    <a href="hello-world.html">Hello World</a> example.
-    </p>
-    </section>
-
   </body>
 </document>

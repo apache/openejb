@@ -44,65 +44,99 @@
  */
 package org.openejb.client;
 
-import org.openejb.EnvProps;
-import org.openejb.core.ivm.naming.NamingException;
-
 import java.util.Hashtable;
-import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.spi.InitialContextFactory;
-
+import org.openejb.loader.Loader;
 
 /**
  * LocalInitialContextFactory
  * 
- * @author David Blevins
- * @author Richard Monson-Haefel
+ * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @since 10/5/2002
  */
 public class LocalInitialContextFactory implements javax.naming.spi.InitialContextFactory {
 
+    static Context intraVmContext;
+
     public Context getInitialContext( Hashtable env ) throws javax.naming.NamingException {
-
-        if ( !org.openejb.OpenEJB.isInitialized() ) {
-            initializeOpenEJB(env);
+        if ( intraVmContext == null ) {
+        try { 
+                getLoader(env).load(env);
+        } catch( Exception e ) {
+                throw new  javax.naming.NamingException("Attempted to load OpenEJB. "+e.getMessage());
+            }
+            intraVmContext = getIntraVmContext( env );
         }
+        return intraVmContext;
+    }
 
-        Context context = org.openejb.OpenEJB.getJNDIContext();
-        context = (Context)context.lookup( "java:openejb/ejb" );
+    private Loader getLoader(Hashtable env) throws Exception {
+        Loader loader = null;
+        String type = (String)env.get("openejb.loader");
+
+        try{
+            if (type == null || type.equals("context")) {
+                loader = instantiateLoader("org.openejb.loader.EmbeddingLoader");                
+            } else if ( type.equals("embed")) {
+                loader = instantiateLoader("org.openejb.loader.EmbeddingLoader");                
+            } else if ( type.equals("system")) {
+                loader = instantiateLoader("org.openejb.loader.SystemLoader");                
+            } else if ( type.equals("bootstrap")) {
+                loader = instantiateLoader("org.openejb.loader.SystemLoader");                
+            } else if ( type.equals("noload")) {
+                loader = instantiateLoader("org.openejb.loader.EmbeddedLoader");                
+            } else if ( type.equals("embedded")) {
+                loader = instantiateLoader("org.openejb.loader.EmbeddedLoader");                
+            } // other loaders here
+        } catch (Exception e){
+            throw new Exception( "Loader "+type+". "+ e.getMessage() );
+        }
+        return loader;
+    }
+
+    private ClassLoader getClassLoader(){
+        try{
+            return Thread.currentThread().getContextClassLoader();
+        } catch (Exception e){
+            //e.printStackTrace();
+        }
+        return null;
+    }
+
+    private Loader instantiateLoader(String loaderName) throws Exception{
+        Loader loader = null;
+        try{
+            ClassLoader cl = getClassLoader();
+            Class loaderClass = Class.forName(loaderName, true, cl );
+            loader = (Loader)loaderClass.newInstance();
+        } catch (Exception e){
+            throw new Exception(
+                "Could not instantiate the Loader "+loaderName+". Exception "+
+                e.getClass().getName()+" "+ e.getMessage());
+        } 
+        return loader;
+    }
+    
+    
+    private Context getIntraVmContext( Hashtable env ) throws javax.naming.NamingException {
+        Context context = null;
+        try{
+            InitialContextFactory factory = null;
+            ClassLoader cl = getClassLoader();
+            Class ivmFactoryClass = Class.forName( "org.openejb.core.ivm.naming.InitContextFactory", true, cl );
+            
+            factory = (InitialContextFactory)ivmFactoryClass.newInstance();
+            context = factory.getInitialContext( env );
+        } catch (Exception e){
+            throw new javax.naming.NamingException( 
+                "Cannot instantiate an IntraVM InitialContext. Exception: "+
+                e.getClass().getName()+" "+ e.getMessage());
+        }
 
         return context;
-
     }
 
-    private void initializeOpenEJB( Hashtable env ) throws javax.naming.NamingException {
-        try { 
-	    Properties props = new Properties();
-    
-	    //  Prepare defaults
-	    /* DMB: We should get the defaults from the functionality 
-	     *      Alan is working on.  This is temporary.
-	     *      When that logic is finished, this block should
-	     *      probably just be deleted.
-	     */
-	    props.put( EnvProps.ASSEMBLER, "org.openejb.alt.assembler.classic.Assembler" );
-	    props.put( EnvProps.CONFIGURATION_FACTORY, "org.openejb.alt.config.ConfigurationFactory" );
-	    props.put( EnvProps.CONFIGURATION, "conf/default.openejb.conf" );
-    
-	    //  Override defaults with System properties
-	    props.putAll( System.getProperties() );
-    
-	    //  Override defauls again with JNDI Env properties
-	    props.putAll( env );
-    
-	    org.openejb.OpenEJB.init( props );
-
-        } catch( org.openejb.OpenEJBException e ) {
-            throw new NamingException( "Cannot initailize OpenEJB", e );
-        } catch( Exception e ) {
-            throw new NamingException( "Cannot initailize OpenEJB", e );
-        }
-    }
 }
 
  

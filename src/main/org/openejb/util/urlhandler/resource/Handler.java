@@ -49,8 +49,6 @@
 
 package org.openejb.util.urlhandler.resource;
 
-import org.openejb.util.Logger;
-
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -59,14 +57,9 @@ import java.net.URLConnection;
  * @author  Chris Wood <a href="mailto:wood@intalio.com">&lt;wood@intalio.com&gt;</a>
  * @version $Revision$ $Date$ 
  */
-
-public class Handler extends java.net.URLStreamHandler
-{
-    static Logger _logger = Logger.getInstance( "OpenEJB", "org.openejb.util.resources" );
-
-    protected URLConnection openConnection( URL url )
-        throws java.io.IOException
-    {
+public class Handler extends java.net.URLStreamHandler {
+    
+    protected URLConnection openConnection( URL url ) throws java.io.IOException {
         String cln = url.getHost();
 
         String resrce = url.getFile().substring( 1 );
@@ -75,21 +68,22 @@ public class Handler extends java.net.URLStreamHandler
 
         if ( cln != null && cln.length() != 0 ) {
             Class clz;
+            ClassLoader cl = getContextClassLoader();
 
             try {
-                clz = Class.forName( cln );
+                //clz = Class.forName( cln );
+                clz = Class.forName( cln, true, cl );
             } catch ( ClassNotFoundException ex ) {
-                _logger.info( getClass().getName()+".openConnection: Class " + cln + " cannot be found." );
-
                 throw new java.net.MalformedURLException( "Class " + cln + " cannot be found (" + ex + ")" );
             }
 
-            realURL = clz.getResource( resrce );
+            realURL = cl.getResource( resrce );
 
             if ( realURL == null )
                 throw new java.io.FileNotFoundException( "Class resource " + resrce + " of class " + cln + " cannot be found" );
         } else {
-            realURL = ClassLoader.getSystemResource( resrce );
+            ClassLoader cl = getContextClassLoader();
+            realURL = cl.getResource( resrce );
 
             if ( realURL == null )
                 throw new java.io.FileNotFoundException( "System resource " + resrce + " cannot be found" );
@@ -97,4 +91,15 @@ public class Handler extends java.net.URLStreamHandler
 
         return realURL.openConnection();
     }
+
+    public static ClassLoader getContextClassLoader() {
+        return (ClassLoader) java.security.AccessController.doPrivileged(
+            new java.security.PrivilegedAction() {
+                public Object run() {
+                    return Thread.currentThread().getContextClassLoader();
+                }
+            }
+        );
+    }
+
 }

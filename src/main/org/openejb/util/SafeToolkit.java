@@ -98,7 +98,8 @@ public class SafeToolkit{
      * @throws OpenEJBExcption if the class cannot be found.
      */
     public Class forName(String className, String codebase) throws OpenEJBException{
-        ClassLoader cl = Class.class.getClassLoader();
+        //ClassLoader cl = Class.class.getClassLoader();
+        ClassLoader cl = getContextClassLoader();
 
         // If the codebase is present, then the classloader variable cl
         // is replaced by a URLClassLoader that can load the class
@@ -263,4 +264,15 @@ public class SafeToolkit{
 	}
 	return codebase.toString();
     }
+
+    public static ClassLoader getContextClassLoader() {
+        return (ClassLoader) java.security.AccessController.doPrivileged(
+            new java.security.PrivilegedAction() {
+                public Object run() {
+                    return Thread.currentThread().getContextClassLoader();
+                }
+            }
+        );
+    }
+
 }
