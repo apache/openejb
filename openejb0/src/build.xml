@@ -928,17 +928,12 @@
     <copy todir="${final.dir}/src">
     
       <fileset dir="src" >
-        <include name="doc/**"/>
-		<include name="etc/CHANGELOG"/>
-		<include name="etc/LICENSE"/>
-		<include name="etc/MANIFEST.MF"/>
-		<include name="etc/README"/>
-        <include name="**/*.java"/>
-        <include name="**/*.xsd"/>
-        <include name="**/*.dtd"/>
-        <include name="**/*.properties"/>
-        <include name="**/build*.xml"/>
+        <include name="**/**"/>
         <exclude name="**/build-corba.xml"/>
+        <exclude name="**/ObjectAA"/>
+        <exclude name="**/ObjectBB"/>
+        <exclude name="**/ObjectCC"/>
+        <exclude name="**/ObjectDD"/>
       </fileset>
     
     </copy>
