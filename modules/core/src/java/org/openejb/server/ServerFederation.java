@@ -47,6 +47,7 @@ package org.openejb.server;
 import org.openejb.ProxyInfo;
 import org.openejb.util.FastThreadLocal;
 
+import org.openejb.core.ivm.IntraVmServer;
 import org.openejb.spi.ApplicationServer;
 
 import javax.ejb.Handle;
@@ -159,11 +160,12 @@ public class ServerFederation implements ApplicationServer {
      * @return 
      */
     public static ApplicationServer getApplicationServer( ) {
-        Object obj = threadStorage.get();
+        ApplicationServer server = (ApplicationServer)threadStorage.get();
         //System.out.println("[] Get App Server "+obj);
-        return (ApplicationServer)obj;
+        return (server == null)? localServer: server;
     }
-
+    
+    private static final IntraVmServer localServer = new IntraVmServer();
 }
 
 
