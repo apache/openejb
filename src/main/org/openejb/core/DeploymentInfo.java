@@ -58,6 +58,7 @@ import org.openejb.OpenEJB;
 import org.openejb.RpcContainer;
 import org.openejb.alt.containers.castor_cmp11.CastorCMP11_EntityContainer;
 import org.openejb.alt.containers.castor_cmp11.CastorCmpEntityTxPolicy;
+import org.openejb.alt.containers.castor_cmp11.KeyGenerator;
 import org.openejb.core.entity.EntityEjbHomeHandler;
 import org.openejb.core.ivm.BaseEjbProxyHandler;
 import org.openejb.core.ivm.EjbHomeProxyHandler;
@@ -102,6 +103,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     private Class     remoteInterface;
     private Class     beanClass;
     private Class     pkClass;
+        
     private boolean   isBeanManagedTransaction;
     private boolean   isReentrant;
     private Container container;
@@ -110,8 +112,6 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     
     private Context   jndiContextRoot;
     
-    private Field     primKeyField;
-    private String[]  cmrFields;
     
     /**
      * Stateless session beans only have one create method. The getCreateMethod is
@@ -140,15 +140,6 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     private HashMap securityRoleReferenceMap     = new HashMap();
     private HashSet methodsWithRemoteReturnTypes = null;
     
-    /**
-    *  Each query method, ejbFind or ejbSelect(EJB 2.0), can be mapped to 
-    *  query string which describes the behavior of the method. For example,
-    *  with the Castor JDO CMP container for EJB 1.1, every ejbFind method
-    *  for each Deployment maps to a specific OQL statement which Castor JDO
-    *  uses to access the object cache.
-    */  
-    private HashMap queryMethodMap               = new HashMap();
-
     /**
      * Creates an empty DeploymentInfo instance.
      */
@@ -291,13 +282,6 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
 
     }
     
-    public void setPrimKeyField(String fieldName)
-    throws java.lang.NoSuchFieldException{
-        if(componentType == this.CMP_ENTITY){
-            
-            primKeyField = beanClass.getField(fieldName);            
-        }
-    }
 
     /**
      * Container must have its Container set explicitly by the Assembler to avoid
@@ -558,20 +542,6 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
         isReentrant = reentrant;
     }
     
-    
-    /**
-     * Returns the names of the bean's container-managed fields. Used for 
-     * container-managed persistence only.
-     * 
-     * @return 
-     */
-    public String [] getCmrFields( ){
-        return cmrFields;
-    }
-    public void setCmrFields(String [] cmrFields){
-        this.cmrFields = cmrFields;   
-    }
-    
     /**
      * Business methods that return EJBHome or EJBObject references to local beans
      * (beans in the same container system) must have the return value converted 
@@ -794,22 +764,6 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
         methodTransactionAttributes.put( method, byteValue );
         methodTransactionPolicies.put( method, policy );
     }
-    
-    /**
-     * Gets the Field of the CMP entity bean class which corresponds to the simple
-     * primary key.  Entity beans that have complex primary keys (keys with several
-     * fields) will not have a primkey-field.
-     * 
-     * Useful for Container-Managed Persistence (CMP) Entity beans with Simple 
-     * Primary Keys.
-     * 
-     * @return the EntityBean field that corresponds to the simple primary key.
-     *         return null if the bean is not a CMP Entity bean with a simple Primary key
-     */
-    public Field getPrimaryKeyField( ){
-        return primKeyField;
-    }
-    
 
     //
     // end accessors & mutators for this implementation
@@ -981,31 +935,108 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
         return (Method)this.postCreateMethodMap.get(createMethod);
     }
     
+    //
+    // End DeploymentInfo Initialization
+    //==================================
+
+
+    //==================================
+    // Castor CMP Container Specific
+    //
+    private KeyGenerator keyGenerator;
+    private Field     primKeyField;
+    private String[]  cmrFields;
+    
+    
     /**
-    *  This method maps a query method (ejbFind) to a query string.
-    *
-    *  Each query method, ejbFind or ejbSelect(EJB 2.0), can be mapped to 
-    *  query string which describes the behavior of the method. For example,
-    *  with the Castor JDO CMP container for EJB 1.1, every ejbFind method
-    *  for each Deployment maps to a specific OQL statement which Castor JDO
-    *  uses to access the object cache.
-    */
+     * Each query method, ejbFind or ejbSelect(EJB 2.0), can be mapped to
+     * query string which describes the behavior of the method. For example,
+     * with the Castor JDO CMP container for EJB 1.1, every ejbFind method
+     * for each Deployment maps to a specific OQL statement which Castor JDO
+     * uses to access the object cache.
+     */
+    private HashMap queryMethodMap               = new HashMap();
+
+    
+    /**
+     * Gets the Field of the CMP entity bean class which corresponds to the simple
+     * primary key.  Entity beans that have complex primary keys (keys with several
+     * fields) will not have a primkey-field.
+     * <P>
+     * Useful for Container-Managed Persistence (CMP) Entity beans with Simple
+     * Primary Keys.
+     * </P>
+     * 
+     * @return the EntityBean field that corresponds to the simple primary key.
+     *         return null if the bean is not a CMP Entity bean with a simple Primary key
+     */
+    public Field getPrimaryKeyField( ){
+        return primKeyField;
+    }
+    
+    public void setPrimKeyField(String fieldName)
+    throws java.lang.NoSuchFieldException{
+        if(componentType == this.CMP_ENTITY){
+            
+            primKeyField = beanClass.getField(fieldName);            
+        }
+    }
+    
+    /**
+     * Returns the names of the bean's container-managed fields. Used for
+     * container-managed persistence only.
+     * 
+     * @return 
+     */
+    public String [] getCmrFields( ){
+        return cmrFields;
+    }
+    
+    public void setCmrFields(String [] cmrFields){
+        this.cmrFields = cmrFields;   
+    }
+    
+    public KeyGenerator getKeyGenerator(){
+        return keyGenerator;
+    }
+    
+    public void setKeyGenerator(KeyGenerator keyGenerator){
+        this.keyGenerator = keyGenerator;
+    }
+
+    /**
+     * This method maps a query method (ejbFind) to a query string.
+     * <P>
+     * Each query method, ejbFind or ejbSelect(EJB 2.0), can be mapped to
+     * query string which describes the behavior of the method. For example,
+     * with the Castor JDO CMP container for EJB 1.1, every ejbFind method
+     * for each Deployment maps to a specific OQL statement which Castor JDO
+     * uses to access the object cache.
+     * </P>
+     * 
+     * @param queryMethod
+     * @param queryString
+     */
     public void addQuery(Method queryMethod, String queryString){
         queryMethodMap.put(queryMethod, queryString);
     }
-   /**
-    *  This method retrieves the query string associated with the query method.
-    *
-    *  Each query method, ejbFind or ejbSelect(EJB 2.0), can be mapped to 
-    *  query string which describes the behavior of the method. For example,
-    *  with the Castor JDO CMP container for EJB 1.1, every ejbFind method
-    *  for each Deployment maps to a specific OQL statement which Castor JDO
-    *  uses to access the object cache.
-    */  
+    /**
+     * This method retrieves the query string associated with the query method.
+     * <P>
+     * Each query method, ejbFind or ejbSelect(EJB 2.0), can be mapped to
+     * query string which describes the behavior of the method. For example,
+     * with the Castor JDO CMP container for EJB 1.1, every ejbFind method
+     * for each Deployment maps to a specific OQL statement which Castor JDO
+     * uses to access the object cache.
+     * </P>
+     * 
+     * @param queryMethod
+     * @return 
+     */
     public String getQuery(Method queryMethod){
         return (String)queryMethodMap.get(queryMethod);
     }
     //
-    // End DeploymentInfo Initialization
+    // Castor CMP Container Specific
     //==================================
 }
