@@ -1102,6 +1102,10 @@
     </antcall>    
     
     <antcall target="pre-delegate">
+        <param name="module" value="webadmin"/>
+    </antcall>    
+    
+    <antcall target="pre-delegate">
         <param name="module" value="openejb-server"/>
     </antcall>    
 
@@ -1118,6 +1122,7 @@
         <param name="module" value="ri-server"/>
     </antcall>    
 -->    
+    
     <antcall target="pre-delegate">
         <param name="module" value="testsuite"/>
     </antcall>    
