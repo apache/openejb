@@ -44,33 +44,17 @@
  */
 package org.openejb.alt.config;
 
-import org.openejb.alt.config.sys.*;
-import org.openejb.alt.config.rules.*;
-import org.openejb.alt.config.ejb11.*;
-import org.openejb.OpenEJBException;
-import org.openejb.util.Messages;
-import org.openejb.util.FileUtils;
-import org.openejb.util.SafeToolkit;
-import java.util.Enumeration;
-import java.util.Vector;
-import java.io.PrintStream;
-import java.io.DataInputStream;
-import java.io.File;
-
-//import org.openejb.util.Messages;
-//import org.openejb.util.FileUtils;
-import org.openejb.util.JarUtils;
-//import java.util.Vector;
-import java.util.Properties;
-//import java.io.PrintStream;
-//import java.io.DataInputStream;
-//import java.io.File;
-//import java.io.FileInputStream;
-//import java.io.FileNotFoundException;
-//import java.io.FileOutputStream;
 import java.io.InputStream;
-//import java.io.IOException;
 import java.net.URL;
+import java.util.Properties;
+import java.util.Vector;
+
+import org.openejb.OpenEJBException;
+import org.openejb.alt.config.ejb11.EjbJar;
+import org.openejb.alt.config.rules.CheckClasses;
+import org.openejb.alt.config.rules.CheckMethods;
+import org.openejb.util.JarUtils;
+import org.openejb.util.Messages;
 
 
 /**

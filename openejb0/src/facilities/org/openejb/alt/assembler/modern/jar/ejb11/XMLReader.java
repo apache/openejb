@@ -45,9 +45,10 @@
 package org.openejb.alt.assembler.modern.jar.ejb11;
 
 import org.openejb.alt.assembler.modern.xml.XMLUtils;
-
-import java.util.*;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Loads a set of metadata classes from a DOM tree.

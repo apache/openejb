@@ -45,14 +45,14 @@
 package org.openejb.test.stateless;
 
 import java.util.Properties;
-import javax.ejb.*;
-import javax.naming.*;
+
+import javax.ejb.EJBMetaData;
+import javax.ejb.Handle;
+import javax.ejb.HomeHandle;
+import javax.naming.Context;
 import javax.naming.InitialContext;
-import junit.framework.*;
-import javax.transaction.RollbackException;
+
 import org.openejb.test.TestManager;
-import org.openejb.test.object.Transaction;
-import org.openejb.test.object.Account;
 
 /**
  * [1] Should be run as the first test suite of the StatelessTestClients

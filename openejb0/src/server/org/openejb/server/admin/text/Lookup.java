@@ -44,17 +44,18 @@
  */
 package org.openejb.server.admin.text;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import org.openejb.OpenEJB;
-import org.openejb.*;
-import org.openejb.core.ivm.naming.IvmContext;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+
+import javax.ejb.EJBHome;
 import javax.naming.Context;
 import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
 import javax.naming.NameNotFoundException;
-import javax.ejb.EJBHome;
+import javax.naming.NamingEnumeration;
+
+import org.openejb.OpenEJB;
+import org.openejb.core.ivm.naming.IvmContext;
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>

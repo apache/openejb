@@ -50,11 +50,10 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
+
 import javax.ejb.EJBHome;
-import javax.ejb.EJBObject;
-import javax.ejb.EJBMetaData;
-import javax.ejb.HomeHandle;
 import javax.ejb.Handle;
+
 import org.openejb.client.proxy.ProxyManager;
 
 /**

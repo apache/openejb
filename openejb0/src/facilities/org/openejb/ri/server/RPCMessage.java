@@ -44,13 +44,12 @@
  */
 package org.openejb.ri.server;
 
-import java.lang.reflect.Method;
-import java.rmi.Remote;
+import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.Externalizable;
 import java.io.Serializable;
-import java.io.IOException;
+import java.lang.reflect.Method;
+
 import org.openejb.util.Messages;
 
 

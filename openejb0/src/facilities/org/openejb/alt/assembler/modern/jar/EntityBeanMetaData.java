@@ -44,8 +44,6 @@
  */
 package org.openejb.alt.assembler.modern.jar;
 
-import java.util.List;
-import java.util.LinkedList;
 import org.openejb.alt.assembler.modern.jar.ejb11.BeanMetaData;
 
 /**

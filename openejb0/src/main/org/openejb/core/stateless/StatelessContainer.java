@@ -47,42 +47,27 @@
 package org.openejb.core.stateless;
 
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Properties;
-import javax.ejb.EJBException;
+
 import javax.ejb.EJBHome;
-import javax.ejb.EJBMetaData;
 import javax.ejb.EJBObject;
 import javax.ejb.EnterpriseBean;
-import javax.ejb.Handle;
-import javax.ejb.HomeHandle;
 import javax.ejb.SessionBean;
-import javax.transaction.Status;
-import javax.transaction.Status;
-import javax.transaction.Transaction;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-import javax.transaction.TransactionRequiredException;
-import javax.transaction.UserTransaction;
+
 import org.openejb.Container;
 import org.openejb.DeploymentInfo;
-import org.openejb.InvalidateReferenceException;
 import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.ProxyInfo;
-import org.openejb.SystemException;
 import org.openejb.core.EnvProps;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
-import org.openejb.core.transaction.TransactionPolicy;
-import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionContainer;
+import org.openejb.core.transaction.TransactionContext;
+import org.openejb.core.transaction.TransactionPolicy;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 

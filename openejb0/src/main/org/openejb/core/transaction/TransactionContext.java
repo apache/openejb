@@ -44,8 +44,8 @@
  */
 package org.openejb.core.transaction;
 
-import javax.ejb.EnterpriseBean;
 import javax.transaction.Transaction;
+
 import org.openejb.core.ThreadContext;
 
 /**

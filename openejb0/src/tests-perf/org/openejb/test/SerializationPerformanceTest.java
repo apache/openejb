@@ -44,10 +44,13 @@
  */
 package org.openejb.test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.DataOutputStream;
-import java.io.*;
-//import org.openejb.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.Date;
 
 public class SerializationPerformanceTest{

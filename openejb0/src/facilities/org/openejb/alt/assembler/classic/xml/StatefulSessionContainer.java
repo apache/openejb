@@ -47,8 +47,8 @@ package org.openejb.alt.assembler.classic.xml;
 
 
 import org.openejb.OpenEJBException;
-import org.openejb.alt.assembler.classic.StatefulSessionContainerInfo;
 import org.openejb.alt.assembler.classic.EnterpriseBeanInfo;
+import org.openejb.alt.assembler.classic.StatefulSessionContainerInfo;
 import org.w3c.dom.Node;
 
 /**

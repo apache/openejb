@@ -47,13 +47,15 @@
 package org.openejb.core.stateless;
 
 
-import java.io.*;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Properties;
+
 import javax.ejb.EnterpriseBean;
 import javax.ejb.SessionBean;
-import org.openejb.ApplicationException;
+
+import org.apache.log4j.Category;
 import org.openejb.OpenEJBException;
 import org.openejb.SystemException;
 import org.openejb.core.DeploymentInfo;
@@ -63,7 +65,6 @@ import org.openejb.core.ThreadContext;
 import org.openejb.util.LinkedListStack;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
-import org.apache.log4j.Category;
 import org.openejb.util.Stack;
 
 /**

@@ -44,9 +44,14 @@
  */
 package org.openejb.test.beans;
 
-import java.sql.*;
-import javax.naming.*;
-import javax.ejb.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+import javax.ejb.EntityContext;
+import javax.ejb.FinderException;
+import javax.naming.InitialContext;
 
 public class EmployeeBean implements javax.ejb.EntityBean {
     int id;

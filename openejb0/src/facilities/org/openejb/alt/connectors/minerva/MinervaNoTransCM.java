@@ -88,10 +88,9 @@
  */
 package org.openejb.alt.connectors.minerva;
 
-import java.util.*;
 import javax.resource.ResourceException;
-import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ManagedConnectionFactory;
+
 import org.openejb.spi.OpenEJBConnectionManager;
 import org.opentools.minerva.connector.NoTransConnectionManager;
 

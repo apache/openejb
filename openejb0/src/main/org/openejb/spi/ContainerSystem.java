@@ -45,9 +45,8 @@
 
 package org.openejb.spi;
 
-import javax.ejb.EJBContext;
-import org.openejb.DeploymentInfo;
 import org.openejb.Container;
+import org.openejb.DeploymentInfo;
 
 /**
  * The ContainerSystem interface represents a complete OpenEJB container system including

@@ -44,50 +44,52 @@
  */
 package org.openejb.server;
 
-import java.util.Collection;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.NotSerializableException;
-import java.io.WriteAbortedException;
-import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.rmi.RemoteException;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.StringTokenizer;
 import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.Vector;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import javax.naming.*;
-import org.openejb.client.*;
-import org.openejb.client.proxy.*;
-import org.openejb.Container;
+import javax.naming.Context;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingException;
+
 import org.openejb.DeploymentInfo;
-import org.openejb.EnvProps;
-import org.openejb.spi.SecurityService;
-import org.openejb.InvalidateReferenceException;
 import org.openejb.OpenEJB;
-import org.openejb.OpenEJBException;
 import org.openejb.ProxyInfo;
 import org.openejb.RpcContainer;
-import org.openejb.util.SafeProperties;
-import org.openejb.util.SafeToolkit;
-import org.openejb.util.FileUtils;
+import org.openejb.client.AuthenticationRequest;
+import org.openejb.client.AuthenticationResponse;
+import org.openejb.client.ClientMetaData;
+import org.openejb.client.EJBHomeHandle;
+import org.openejb.client.EJBHomeHandler;
+import org.openejb.client.EJBMetaDataImpl;
+import org.openejb.client.EJBObjectHandle;
+import org.openejb.client.EJBObjectHandler;
+import org.openejb.client.EJBRequest;
+import org.openejb.client.EJBResponse;
+import org.openejb.client.JNDIRequest;
+import org.openejb.client.JNDIResponse;
+import org.openejb.client.RequestMethods;
+import org.openejb.client.ResponseCodes;
+import org.openejb.client.ServerMetaData;
+import org.openejb.server.admin.text.TextConsole;
+import org.openejb.spi.SecurityService;
 import org.openejb.util.JarUtils;
 import org.openejb.util.Logger;
 import org.openejb.util.Messages;
-import org.openejb.server.admin.text.*;
+import org.openejb.util.SafeProperties;
+import org.openejb.util.SafeToolkit;
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>

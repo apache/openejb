@@ -44,10 +44,9 @@
  */
 package org.openejb.core.stateful;
 
-import javax.ejb.EJBHome;
 import javax.naming.NameNotFoundException;
+
 import org.openejb.core.Operations;
-import org.openejb.core.ThreadContext;
 import org.openejb.core.ivm.naming.Reference;
 
 /**

@@ -44,14 +44,14 @@
  */
 package org.openejb.resource.jdbc;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.resource.spi.ConnectionEvent;
 import javax.resource.spi.ConnectionEventListener;
 import javax.resource.spi.ConnectionRequestInfo;
-import java.util.HashSet;
-import javax.resource.spi.LocalTransaction;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ManagedConnectionMetaData;
-import java.util.Set;
 
 public class JdbcManagedConnection implements ManagedConnection {
     

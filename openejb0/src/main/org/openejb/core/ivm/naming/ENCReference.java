@@ -44,11 +44,9 @@
  */
 package org.openejb.core.ivm.naming;
 
-import org.openejb.core.ivm.naming.Reference;
 import javax.naming.NameNotFoundException;
+
 import org.openejb.core.ThreadContext;
-import org.openejb.core.Operations;
-import javax.naming.Context;
 
 /*
   This class is a wrapper for an Intra-VM EJB or Connector references in the 

@@ -45,17 +45,20 @@
 package org.openejb.client;
 
 import java.io.Serializable;
-import javax.naming.*;
-import javax.naming.Context;
-import javax.naming.spi.InitialContextFactory;
-import java.io.IOException;
-import java.io.*;
-import java.util.Hashtable;
-import java.net.URL;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.net.InetAddress;
-import org.openejb.client.proxy.ProxyManager;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.Hashtable;
+
+import javax.naming.ConfigurationException;
+import javax.naming.Context;
+import javax.naming.InvalidNameException;
+import javax.naming.Name;
+import javax.naming.NameNotFoundException;
+import javax.naming.NameParser;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.spi.InitialContextFactory;
 /**
  * JNDI client
  * 

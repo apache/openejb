@@ -44,13 +44,10 @@
  */
 package org.openejb.test.stateful;
 
-import javax.ejb.*;
-import java.util.Properties;
-import org.openejb.test.object.OperationsPolicy;
-import javax.transaction.RollbackException;
 import java.rmi.RemoteException;
-import org.openejb.test.object.Transaction;
+
 import org.openejb.test.object.Account;
+import org.openejb.test.object.Transaction;
 
 /**
  * 

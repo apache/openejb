@@ -44,8 +44,8 @@
  */
 package org.openejb.spi;
 
-import javax.resource.spi.ConnectionManager;
 import javax.resource.ResourceException;
+import javax.resource.spi.ConnectionManager;
 
 /**
  * OpenEJB extensions to J2EE Connector ConnectionManager.  This allows the

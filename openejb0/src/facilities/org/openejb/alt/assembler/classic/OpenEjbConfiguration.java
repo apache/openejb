@@ -45,9 +45,6 @@
 
 package org.openejb.alt.assembler.classic;
 
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
-import org.openejb.OpenEJBException;
 
 /**
  * The OpenEjbConfiguration object structure provides the information about the 

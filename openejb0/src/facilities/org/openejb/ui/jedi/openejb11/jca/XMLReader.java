@@ -44,9 +44,9 @@
  */
 package org.openejb.ui.jedi.openejb11.jca;
 
-import java.util.*;
-import org.w3c.dom.*;
 import org.opentools.deployer.plugins.XMLUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Loads metadata from an XML file using DOM.

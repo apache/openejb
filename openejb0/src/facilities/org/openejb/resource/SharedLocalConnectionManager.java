@@ -44,18 +44,17 @@
  */
  package org.openejb.resource;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.resource.spi.ConnectionEvent;
 import javax.resource.spi.ConnectionRequestInfo;
-import java.util.HashSet;
 import javax.resource.spi.LocalTransaction;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ManagedConnectionFactory;
-import java.util.Set;
-import java.util.Hashtable;
-import java.util.HashMap;
-import javax.transaction.TransactionManager;
 import javax.transaction.Transaction;
-import javax.security.auth.Subject;
+
 import org.openejb.OpenEJB;
 /**
  * This ConnectionManager provides a simple algorithm for managing <i>shared-local</i> transactions for multiple

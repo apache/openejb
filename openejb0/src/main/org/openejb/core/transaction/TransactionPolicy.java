@@ -45,13 +45,12 @@
 package org.openejb.core.transaction;
 
 import java.rmi.RemoteException;
+
 import javax.ejb.EnterpriseBean;
-import javax.transaction.Status;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import javax.transaction.TransactionRolledbackException;
+
 import org.openejb.ApplicationException;
-import org.openejb.Container;
 import org.openejb.InvalidateReferenceException;
 import org.openejb.OpenEJB;
 import org.openejb.SystemException;

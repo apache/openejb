@@ -46,21 +46,20 @@
 
 package org.openejb;
 
-import java.security.Permission;
 import java.net.URL;
+import java.security.Permission;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Properties;
-import java.util.Vector;
+
 import javax.transaction.TransactionManager;
+
 import org.openejb.spi.ApplicationServer;
 import org.openejb.spi.Assembler;
-import org.openejb.spi.AssemblerFactory;
 import org.openejb.spi.ContainerSystem;
 import org.openejb.spi.SecurityService;
+import org.openejb.util.JarUtils;
 import org.openejb.util.Logger;
 import org.openejb.util.Messages;
-import org.openejb.util.JarUtils;
 import org.openejb.util.SafeToolkit;
 
 

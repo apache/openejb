@@ -44,9 +44,6 @@
  */
 package org.openejb.test.stateless;
 
-import javax.ejb.*;
-import java.util.Properties;
-import javax.naming.InitialContext;
 import org.openejb.test.TestFailureException;
 import org.openejb.test.TestManager;
 

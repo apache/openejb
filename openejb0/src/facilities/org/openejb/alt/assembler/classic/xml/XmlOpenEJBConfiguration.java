@@ -45,11 +45,9 @@
 
 package org.openejb.alt.assembler.classic.xml;
 
-import org.openejb.alt.assembler.classic.OpenEjbConfiguration;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
 import org.openejb.OpenEJBException;
+import org.openejb.alt.assembler.classic.OpenEjbConfiguration;
+import org.w3c.dom.Node;
 
 /**
  * 

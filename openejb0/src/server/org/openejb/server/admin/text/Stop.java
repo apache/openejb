@@ -44,10 +44,11 @@
  */
 package org.openejb.server.admin.text;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import org.openejb.util.Logger;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.InetAddress;
+
 import org.openejb.server.EjbDaemon;
 
 /**

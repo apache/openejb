@@ -46,8 +46,6 @@ package org.openejb.util.proxy;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import org.opentools.proxies.Proxy;
-import org.openejb.util.proxy.ProxyFactory;
 
 /**
  * Implementation of JDK 1.3 InvocationHandler for JDK 1.3 Proxies.

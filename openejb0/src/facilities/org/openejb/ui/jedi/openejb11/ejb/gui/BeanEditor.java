@@ -44,11 +44,17 @@
  */
 package org.openejb.ui.jedi.openejb11.ejb.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.event.*;
-import javax.swing.*;
-import javax.swing.text.JTextComponent;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
 
 /**
  * GUI for editing EJB properties.

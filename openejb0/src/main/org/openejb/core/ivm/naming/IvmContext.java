@@ -47,7 +47,7 @@
 package org.openejb.core.ivm.naming;
 
 
-import com.sun.naming.internal.ResourceManager;
+import java.io.ObjectStreamException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,23 +55,21 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
+
 import javax.naming.Binding;
 import javax.naming.CompositeName;
-import javax.naming.CompoundName;
 import javax.naming.Context;
-import javax.naming.InvalidNameException;
 import javax.naming.Name;
-import javax.naming.NameAlreadyBoundException;
 import javax.naming.NameClassPair;
 import javax.naming.NameNotFoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.NotContextException;
-import javax.naming.OperationNotSupportedException;
 import javax.naming.spi.ObjectFactory;
-import java.io.ObjectStreamException;
+
 import org.openejb.core.ThreadContext;
+
+import com.sun.naming.internal.ResourceManager;
 
 /*
 * This class wrappers a specific NameNode which is the data model for the JNDI

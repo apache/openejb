@@ -45,8 +45,8 @@
 
 package org.openejb.alt.assembler.classic.xml;
 
-import org.openejb.alt.assembler.classic.TransactionServiceInfo;
 import org.openejb.OpenEJBException;
+import org.openejb.alt.assembler.classic.TransactionServiceInfo;
 import org.w3c.dom.Node;
 
 /**

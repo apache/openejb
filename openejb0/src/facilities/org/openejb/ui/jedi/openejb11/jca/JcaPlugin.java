@@ -44,7 +44,11 @@
  */
 package org.openejb.ui.jedi.openejb11.jca;
 
-import org.opentools.deployer.plugins.*;
+import org.opentools.deployer.plugins.Category;
+import org.opentools.deployer.plugins.ClassDescriptor;
+import org.opentools.deployer.plugins.FileDescriptor;
+import org.opentools.deployer.plugins.MetaData;
+import org.opentools.deployer.plugins.Plugin;
 
 /**
  * The main Plugin for OpenEJB RARs.  This class provides the name to

@@ -47,19 +47,21 @@ package org.openejb.alt.connectors.minerva;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Properties;
+
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
-import org.opentools.minerva.pool.PoolParameters;
-import org.opentools.minerva.connector.BaseConnectionManager;
-import org.opentools.minerva.connector.ServerSecurityManager;
-import org.opentools.minerva.connector.ServerTransactionManager;
+
 import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.spi.ConnectionManagerConfig;
 import org.openejb.spi.ConnectionManagerFactory;
 import org.openejb.spi.OpenEJBConnectionManager;
 import org.openejb.util.proxy.ProxyManager;
+import org.opentools.minerva.connector.BaseConnectionManager;
+import org.opentools.minerva.connector.ServerSecurityManager;
+import org.opentools.minerva.connector.ServerTransactionManager;
+import org.opentools.minerva.pool.PoolParameters;
 
 /**
  * Abstract base class for Minerva connection manager factories.  The logic is

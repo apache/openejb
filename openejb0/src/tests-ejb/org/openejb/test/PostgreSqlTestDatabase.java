@@ -1,13 +1,18 @@
 package org.openejb.test;
 
+import java.rmi.RemoteException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
-import java.util.Hashtable;
+
 import javax.naming.InitialContext;
+
 import org.openejb.test.beans.Database;
 import org.openejb.test.beans.DatabaseHome;
-import java.rmi.RemoteException;
-import javax.sql.*;
-import java.sql.*;
 /**
  * 
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>

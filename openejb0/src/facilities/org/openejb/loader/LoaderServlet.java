@@ -45,10 +45,12 @@
 package org.openejb.loader;
 
 import java.util.Properties;
-import javax.naming.InitialContext;
+
 import javax.naming.Context;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import javax.naming.InitialContext;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>

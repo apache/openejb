@@ -33,13 +33,13 @@
 
 package org.openejb.corba.core;
 
+import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.MARSHAL;
 import org.openejb.ProxyInfo;
 import org.openejb.core.ivm.BaseEjbProxyHandler;
 import org.openejb.core.ivm.EjbHomeProxyHandler;
 import org.openejb.core.ivm.EjbObjectProxyHandler;
 import org.openejb.util.proxy.ProxyManager;
-import org.omg.CORBA.MARSHAL;
-import org.omg.CORBA.CompletionStatus;
 
 /**
  * This class is used to intercept the automatic remote object activation that will
@@ -82,7 +82,7 @@ public class UtilDelegateImpl implements javax.rmi.CORBA.UtilDelegate {
     }
     
     public static void setAppServer(org.openejb.spi.ApplicationServer server) {
-        _instance._server=server;
+        UtilDelegateImpl._server=server;
     }
     public static void setDelegate(javax.rmi.CORBA.UtilDelegate delegate) {
         _delegate=delegate;

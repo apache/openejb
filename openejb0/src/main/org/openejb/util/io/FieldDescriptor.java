@@ -3,17 +3,7 @@ package org.openejb.util.io;
 
 import java.io.IOException;
 import java.io.InvalidClassException;
-import java.io.ObjectOutput;
-import java.io.ObjectStreamClass;
-import java.io.ObjectStreamConstants;
-import java.io.ObjectStreamField;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Arrays;
 
 public class FieldDescriptor implements java.io.Serializable, Comparable {
 

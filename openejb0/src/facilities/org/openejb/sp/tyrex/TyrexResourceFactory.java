@@ -3,16 +3,17 @@ package org.openejb.sp.tyrex;
 
 import java.util.Hashtable;
 import java.util.Iterator;
+
 import javax.naming.Context;
-import javax.naming.spi.InitialContextFactory;
 import javax.naming.NamingException;
-import tyrex.tm.TransactionDomain;
-import tyrex.resource.Resources;
+
+import org.openejb.core.ivm.naming.IvmContext;
+import org.openejb.core.ivm.naming.NameNode;
+import org.openejb.core.ivm.naming.ParsedName;
+
 import tyrex.resource.Resource;
-import java.util.Properties;
-import org.openejb.core.EnvProps;
-import org.openejb.OpenEJBException;
-import org.openejb.core.ivm.naming.*;
+import tyrex.resource.Resources;
+import tyrex.tm.TransactionDomain;
 
 
 /**

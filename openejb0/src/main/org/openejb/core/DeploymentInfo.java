@@ -48,13 +48,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
+
 import javax.ejb.EJBContext;
 import javax.ejb.EJBHome;
 import javax.ejb.SessionSynchronization;
 import javax.naming.Context;
-import javax.naming.Name;
+
 import org.openejb.Container;
-import org.openejb.OpenEJB;
 import org.openejb.RpcContainer;
 import org.openejb.alt.containers.castor_cmp11.CastorCMP11_EntityContainer;
 import org.openejb.alt.containers.castor_cmp11.CastorCmpEntityTxPolicy;
@@ -62,7 +62,6 @@ import org.openejb.alt.containers.castor_cmp11.KeyGenerator;
 import org.openejb.core.entity.EntityEjbHomeHandler;
 import org.openejb.core.ivm.BaseEjbProxyHandler;
 import org.openejb.core.ivm.EjbHomeProxyHandler;
-import org.openejb.core.ivm.EjbObjectProxyHandler;
 import org.openejb.core.ivm.SpecialProxyInfo;
 import org.openejb.core.stateful.SessionSynchronizationTxPolicy;
 import org.openejb.core.stateful.StatefulBeanManagedTxPolicy;

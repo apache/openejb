@@ -45,13 +45,14 @@
 package org.openejb.alt.assembler.modern.jar;
 
 import org.openejb.alt.assembler.modern.ContainerMetaData;
-
-import java.util.*;
-import org.w3c.dom.*;
 import org.openejb.alt.assembler.modern.LoadException;
 import org.openejb.alt.assembler.modern.jar.ejb11.BeanMetaData;
 import org.openejb.alt.assembler.modern.jar.ejb11.EJB11MetaData;
 import org.openejb.alt.assembler.modern.xml.XMLUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Creates metadata objects from a DOM tree.  You first load the standard

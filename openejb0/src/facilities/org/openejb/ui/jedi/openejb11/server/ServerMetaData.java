@@ -44,8 +44,8 @@
  */
 package org.openejb.ui.jedi.openejb11.server;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The metadata for the Intra-VM Server.  Metadata is loaded by the XMLReader,

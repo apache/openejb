@@ -44,8 +44,15 @@
  */
 package org.openejb.util.proxy;
 
-import java.net.*;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
 
 /**
  * ClassLoader for dynamically generating byte-code and loading classes.

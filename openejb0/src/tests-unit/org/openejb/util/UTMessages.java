@@ -44,9 +44,12 @@
  */
 package org.openejb.util;
 
+import java.text.MessageFormat;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 import org.openejb.test.NamedTestCase;
-import java.text.*;
-import java.util.*;
 
 /**
  *

@@ -44,15 +44,8 @@
  */
 package org.openejb.alt.containers.castor_cmp11;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.openejb.test.NamedTestCase;
 import org.openejb.core.DeploymentInfo;
-import org.exolab.castor.persist.spi.Complex;
-import java.io.*;
-import java.util.Properties;
-import java.util.Vector;
-import org.openejb.util.proxy.ProxyClassLoader;
+import org.openejb.test.NamedTestCase;
 
 
 /**

@@ -46,8 +46,8 @@ package org.openejb.client;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+
 import javax.ejb.EJBHome;
-import javax.ejb.EJBObject;
 
 /**
  * 

@@ -47,14 +47,15 @@ package org.openejb.ri.sp;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import javax.transaction.RollbackException;
 import javax.transaction.Status;
-import javax.transaction.Synchronization;
 import javax.transaction.Synchronization;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import javax.transaction.RollbackException;
 import javax.transaction.UserTransaction;
 import javax.transaction.xa.XAResource;
+
 import org.openejb.spi.TransactionService;
 
 public class PseudoTransactionService implements TransactionService {

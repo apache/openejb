@@ -33,8 +33,13 @@
 
 package org.openejb.corba.core;
 
-import org.omg.PortableServer.*;
-import org.omg.CORBA.*;
+import org.omg.CORBA.Policy;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
 
 
 /**

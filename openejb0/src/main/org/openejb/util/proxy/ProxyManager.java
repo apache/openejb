@@ -46,10 +46,7 @@
 
 package org.openejb.util.proxy;
 
-import java.lang.IllegalStateException;
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
+import java.util.HashMap;
 
 
 /**

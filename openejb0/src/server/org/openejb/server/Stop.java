@@ -44,9 +44,12 @@
  */
 package org.openejb.server;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.URL;
+import java.util.Properties;
+
 import org.openejb.util.JarUtils;
 
 /**

@@ -44,7 +44,11 @@
  */
 package org.openejb.alt.config;
 
-import org.openejb.alt.config.ejb11.*;
+import org.openejb.alt.config.ejb11.EjbRef;
+import org.openejb.alt.config.ejb11.EnvEntry;
+import org.openejb.alt.config.ejb11.ResourceRef;
+import org.openejb.alt.config.ejb11.SecurityRoleRef;
+import org.openejb.alt.config.ejb11.Session;
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>

@@ -45,8 +45,6 @@
 
 package org.openejb.alt.assembler.classic;
 
-import org.w3c.dom.Node;
-import org.openejb.OpenEJBException;
 
 /**
  * ContainerSystemInfo is part of the OpenEjbConfiguration object structure that provides

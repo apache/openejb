@@ -44,8 +44,6 @@
  */
 package org.openejb.ui.jedi.openejb11.ejb;
 
-import java.util.*;
-import org.opentools.deployer.plugins.MetaData;
 import org.opentools.deployer.plugins.Category;
 import org.opentools.deployer.plugins.EditAction;
 import org.opentools.deployer.plugins.Entry;

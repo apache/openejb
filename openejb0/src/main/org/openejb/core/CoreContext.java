@@ -44,10 +44,9 @@
  */
 package org.openejb.core;
 
-import java.security.Principal;
-import javax.ejb.EJBContext;
 import javax.ejb.EJBHome;
 import javax.transaction.Status;
+
 import org.openejb.OpenEJB;
 import org.openejb.RpcContainer;
 import org.openejb.core.ivm.EjbObjectProxyHandler;

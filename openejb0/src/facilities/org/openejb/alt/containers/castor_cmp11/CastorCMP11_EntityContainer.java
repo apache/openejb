@@ -45,26 +45,21 @@
 package org.openejb.alt.containers.castor_cmp11;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Properties;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.EntityBean;
 import javax.transaction.Status;
 import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-import javax.transaction.TransactionRequiredException;
-import javax.transaction.TransactionRolledbackException;
-import javax.transaction.UserTransaction;
+
 import org.exolab.castor.jdo.Database;
 import org.exolab.castor.jdo.JDO;
 import org.exolab.castor.jdo.OQLQuery;
@@ -72,22 +67,19 @@ import org.exolab.castor.jdo.QueryResults;
 import org.exolab.castor.persist.spi.Complex;
 import org.openejb.Container;
 import org.openejb.DeploymentInfo;
-import org.openejb.InvalidateReferenceException;
 import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.ProxyInfo;
-import org.openejb.SystemException;
-import org.openejb.core.EnvProps;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
 import org.openejb.core.transaction.TransactionContainer;
 import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionPolicy;
 import org.openejb.util.LinkedListStack;
+import org.openejb.util.Logger;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.Stack;
-import org.openejb.util.Logger;
 
 /**
  * Container-Managed Persistence EntityBean container

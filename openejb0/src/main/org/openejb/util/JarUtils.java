@@ -49,9 +49,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.SecurityException;
 import java.net.URL;
 import java.util.jar.JarFile;
+
 import org.openejb.OpenEJBException;
 
 /**

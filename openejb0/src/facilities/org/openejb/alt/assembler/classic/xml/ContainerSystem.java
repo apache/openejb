@@ -45,11 +45,9 @@
 
 package org.openejb.alt.assembler.classic.xml;
 
-import org.openejb.alt.assembler.classic.ConnectionManagerInfo;
-
 import org.openejb.OpenEJBException;
-import org.openejb.alt.assembler.classic.ContainerSystemInfo;
 import org.openejb.alt.assembler.classic.ContainerInfo;
+import org.openejb.alt.assembler.classic.ContainerSystemInfo;
 import org.w3c.dom.Node;
 
 /**

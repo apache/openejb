@@ -46,16 +46,17 @@
 
 package org.openejb.core.stateful;
 
-import java.io.*;
-import java.lang.reflect.*;
 import java.rmi.RemoteException;
-import java.util.*;
+import java.util.Hashtable;
+import java.util.Properties;
+
 import javax.ejb.EJBException;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.SessionBean;
 import javax.transaction.Status;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+
 import org.openejb.ApplicationException;
 import org.openejb.InvalidateReferenceException;
 import org.openejb.OpenEJB;

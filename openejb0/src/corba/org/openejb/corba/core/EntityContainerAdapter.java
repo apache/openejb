@@ -32,16 +32,16 @@
 
 package org.openejb.corba.core;
 
-import org.omg.CosNaming.*;
-import org.omg.PortableServer.*;
-import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
 import org.omg.CORBA.Policy;
-import org.openejb.util.proxy.ProxyManager;
-import org.openejb.core.entity.EntityEjbObjectHandler;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
 import org.openejb.core.entity.EntityEjbHomeHandler;
+import org.openejb.core.entity.EntityEjbObjectHandler;
 import org.openejb.util.proxy.InvocationHandler;
-import java.io.*;
-import java.util.HashMap;
 
 /**
  * This class manages CORBA references and dispatches method on behalf of an entity container.

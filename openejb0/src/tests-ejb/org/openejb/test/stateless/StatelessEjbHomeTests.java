@@ -44,10 +44,7 @@
  */
 package org.openejb.test.stateless;
 
-import junit.framework.*;
-import javax.ejb.*;
-import java.util.Properties;
-import javax.naming.InitialContext;
+import javax.ejb.EJBMetaData;
 
 /**
  * [3] Should be run as the third test suite of the BasicStatelessTestClients

@@ -44,14 +44,23 @@
  */
 package org.openejb.ui.jedi.openejb11.ejb.gui;
 
-import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Set;
+import java.util.Vector;
+
+import javax.swing.JComponent;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.AbstractTableModel;
 
 /**
  * GUI for Editing a list of values.  All values are expected to be Strings.

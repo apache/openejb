@@ -44,11 +44,11 @@
  */
 package org.openejb.test.entity.bmp;
 
-import junit.framework.Test;
-import javax.naming.*;
-import java.sql.*;
-import javax.sql.*;
 import java.util.Properties;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+
 import org.openejb.test.TestManager;
 
 /**

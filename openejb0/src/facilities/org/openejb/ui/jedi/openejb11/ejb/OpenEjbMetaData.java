@@ -44,17 +44,27 @@
  */
 package org.openejb.ui.jedi.openejb11.ejb;
 
-import java.io.*;
-import java.util.*;
-import javax.xml.parsers.*;
-import org.xml.sax.InputSource;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.opentools.deployer.plugins.LoadException;
+import org.opentools.deployer.plugins.MetaData;
+import org.opentools.deployer.plugins.SaveException;
+import org.opentools.deployer.xml.DTDResolver;
+import org.opentools.deployer.xml.DocumentWriter;
+import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-import org.w3c.dom.Document;
-import org.opentools.deployer.plugins.*;
-import org.opentools.deployer.xml.DocumentWriter;
-import org.opentools.deployer.xml.DTDResolver;
 
 /**
  * The main metadata structure for all OpenEJB EJB JAR information.  This

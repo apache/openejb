@@ -44,10 +44,8 @@
  */
 package org.openejb.test.stateless;
 
-import junit.framework.*;
-import javax.ejb.*;
-import java.util.Properties;
-import javax.naming.InitialContext;
+import javax.ejb.EJBObject;
+
 import org.openejb.test.object.OperationsPolicy;
 
 /**
@@ -157,8 +155,8 @@ public class StatelessAllowedOperationsTests extends BasicStatelessTestClient{
     public void test01_setSessionContext(){
         try {
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow( policy.Context_getEJBHome );
-            policy.allow( policy.JNDI_access_to_java_comp_env );
+            policy.allow( OperationsPolicy.Context_getEJBHome );
+            policy.allow( OperationsPolicy.JNDI_access_to_java_comp_env );
             
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("setSessionContext");
@@ -187,9 +185,9 @@ public class StatelessAllowedOperationsTests extends BasicStatelessTestClient{
 	// it does not.  Someone should see why it does not fail.
         try {
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow( policy.Context_getEJBHome );
-            policy.allow( policy.Context_getEJBObject );
-            policy.allow( policy.JNDI_access_to_java_comp_env );
+            policy.allow( OperationsPolicy.Context_getEJBHome );
+            policy.allow( OperationsPolicy.Context_getEJBObject );
+            policy.allow( OperationsPolicy.JNDI_access_to_java_comp_env );
             
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("ejbCreate");
@@ -216,9 +214,9 @@ public class StatelessAllowedOperationsTests extends BasicStatelessTestClient{
         try {
             /* TO DO:  This test needs unique functionality to work */
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow( policy.Context_getEJBHome );
-            policy.allow( policy.Context_getEJBObject );
-            policy.allow( policy.JNDI_access_to_java_comp_env );
+            policy.allow( OperationsPolicy.Context_getEJBHome );
+            policy.allow( OperationsPolicy.Context_getEJBObject );
+            policy.allow( OperationsPolicy.JNDI_access_to_java_comp_env );
         
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("ejbRemove");
@@ -251,15 +249,15 @@ public class StatelessAllowedOperationsTests extends BasicStatelessTestClient{
     public void TODO_test04_businessMethod(){
         try {
             OperationsPolicy policy = new OperationsPolicy();
-            policy.allow( policy.Context_getEJBHome );
-            policy.allow( policy.Context_getCallerPrincipal );
-            policy.allow( policy.Context_getRollbackOnly );
-            policy.allow( policy.Context_isCallerInRole );
-            policy.allow( policy.Context_setRollbackOnly );
-            policy.allow( policy.Context_getEJBObject );
-            policy.allow( policy.JNDI_access_to_java_comp_env );
-            policy.allow( policy.Resource_manager_access );
-            policy.allow( policy.Enterprise_bean_access );
+            policy.allow( OperationsPolicy.Context_getEJBHome );
+            policy.allow( OperationsPolicy.Context_getCallerPrincipal );
+            policy.allow( OperationsPolicy.Context_getRollbackOnly );
+            policy.allow( OperationsPolicy.Context_isCallerInRole );
+            policy.allow( OperationsPolicy.Context_setRollbackOnly );
+            policy.allow( OperationsPolicy.Context_getEJBObject );
+            policy.allow( OperationsPolicy.JNDI_access_to_java_comp_env );
+            policy.allow( OperationsPolicy.Resource_manager_access );
+            policy.allow( OperationsPolicy.Enterprise_bean_access );
         
             Object expected = policy;
             Object actual = ejbObject.getAllowedOperationsReport("businessMethod");

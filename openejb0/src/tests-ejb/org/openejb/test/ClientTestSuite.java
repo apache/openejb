@@ -44,13 +44,12 @@
  */
 package org.openejb.test;
 
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import junit.framework.Test;
-import org.openejb.test.stateless.StatelessTestSuite;
-import org.openejb.test.stateful.StatefulTestSuite;
+
 import org.openejb.test.entity.bmp.BmpTestSuite;
 import org.openejb.test.entity.cmp.CmpTestSuite;
+import org.openejb.test.stateful.StatefulTestSuite;
+import org.openejb.test.stateless.StatelessTestSuite;
 
 /**
  * 

@@ -11,16 +11,10 @@ package org.openejb.alt.config.ejb11;
  //- Imported classes and packages -/
 //---------------------------------/
 
-import org.exolab.castor.mapping.AccessMode;
-import org.exolab.castor.mapping.ClassDescriptor;
-import org.exolab.castor.mapping.FieldDescriptor;
-import org.exolab.castor.xml.*;
 import org.exolab.castor.xml.FieldValidator;
-import org.exolab.castor.xml.TypeValidator;
-import org.exolab.castor.xml.XMLFieldDescriptor;
-import org.exolab.castor.xml.handlers.*;
+import org.exolab.castor.xml.NodeType;
+import org.exolab.castor.xml.XMLFieldHandler;
 import org.exolab.castor.xml.util.XMLFieldDescriptorImpl;
-import org.exolab.castor.xml.validators.*;
 
 /**
  * 

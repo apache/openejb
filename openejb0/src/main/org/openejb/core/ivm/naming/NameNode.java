@@ -44,7 +44,6 @@
  */
 package org.openejb.core.ivm.naming;
 
-import java.util.HashMap; // testing only
 
 /**
  * This class is a combination linked list and binary tree for resolving name-object lookups

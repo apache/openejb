@@ -44,10 +44,6 @@
  */
 package org.openejb.test.entity.bmp;
 
-import junit.framework.*;
-import javax.ejb.*;
-import java.util.Properties;
-import javax.naming.InitialContext;
 
 /**
  * [5] Should be run as the fifth test suite of the BasicBmpTestClients

@@ -2,10 +2,12 @@ package org.openejb.alt.connectors.minerva;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+
 import javax.resource.spi.ConnectionRequestInfo;
-import org.opentools.minerva.connector.AuthenticationRequestInfoWrapper;
+
 import org.openejb.spi.OpenEJBConnectionManager;
 import org.openejb.util.proxy.InvocationHandler;
+import org.opentools.minerva.connector.AuthenticationRequestInfoWrapper;
 
 /**
  * Proxy handler to translate normal JCA calls to modified ones that include

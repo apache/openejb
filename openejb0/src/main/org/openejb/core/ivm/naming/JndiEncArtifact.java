@@ -1,7 +1,7 @@
 package org.openejb.core.ivm.naming;
 
-import org.openejb.core.ThreadContext;
 import org.openejb.core.DeploymentInfo;
+import org.openejb.core.ThreadContext;
 /*
   This class is used as a replacement when a IvmContext referenced by a stateful bean 
   is being serialized for passivation along with the bean.  It ensures that the entire

@@ -44,17 +44,15 @@
  */
 package org.openejb.test.stateful;
 
-import javax.ejb.*;
+import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Properties;
-import java.util.StringTokenizer;
-import java.rmi.RemoteException;
-import javax.sql.*;
-import java.sql.*;
-import org.openejb.test.object.OperationsPolicy;
-import org.openejb.test.TestFailureException;
+
+import javax.ejb.EJBException;
+import javax.ejb.SessionContext;
+
 import org.openejb.test.ApplicationException;
-import javax.naming.InitialContext;
+import org.openejb.test.object.OperationsPolicy;
 
 /**
  * A Stateful SessionBean with bean-managed transaction demarcation

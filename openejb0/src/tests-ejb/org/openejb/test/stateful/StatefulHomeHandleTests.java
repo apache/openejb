@@ -44,10 +44,7 @@
  */
 package org.openejb.test.stateful;
 
-import junit.framework.*;
-import javax.ejb.*;
-import java.util.Properties;
-import javax.naming.InitialContext;
+import javax.ejb.EJBHome;
 
 /**
  * [6] Should be run as the sixth test suite of the BasicStatefulTestClients

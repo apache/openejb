@@ -45,25 +45,10 @@
 package org.openejb.core.ivm;
 
 import java.io.ObjectStreamException;
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.security.Principal;
-import java.util.Hashtable;
 
-import javax.ejb.EJBHome;
-
-import org.openejb.DeploymentInfo;
-import org.openejb.InvalidateReferenceException;
-import org.openejb.OpenEJB;
-import org.openejb.OpenEJBException;
-import org.openejb.ProxyInfo;
 import org.openejb.RpcContainer;
-import org.openejb.Container;
-import org.openejb.core.ThreadContext;
-import org.openejb.util.proxy.InvalidatedReferenceHandler;
-import org.openejb.util.proxy.InvocationHandler;
-import org.openejb.util.proxy.ProxyManager;
 
 /**
  * This InvocationHandler and its proxy are serializable and can be used by

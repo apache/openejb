@@ -47,6 +47,7 @@
 package org.openejb.ri.server;
 
 import java.util.Properties;
+
 import javax.naming.CompoundName;
 import javax.naming.Name;
 import javax.naming.NameParser;

@@ -45,8 +45,8 @@
  */
 package org.openejb.test.stateful;
 
-import junit.framework.TestSuite;
 import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * 

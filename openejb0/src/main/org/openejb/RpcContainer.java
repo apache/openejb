@@ -47,8 +47,6 @@ package org.openejb;
 
 
 import java.lang.reflect.Method;
-import java.security.Principal;
-import org.openejb.ProxyInfo;
 
 /**
  * The RpcContainer manages enterprise beans at runtime. The RpcContainer is responsible

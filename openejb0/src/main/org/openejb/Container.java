@@ -45,8 +45,8 @@
 
 package org.openejb;
 
-import java.util.Properties;
 import java.util.HashMap;
+import java.util.Properties;
 
 /**
  * The Container manages one or more bean deployments at runtime. There are two

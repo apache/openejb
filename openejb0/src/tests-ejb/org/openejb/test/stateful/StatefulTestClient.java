@@ -45,11 +45,13 @@
 package org.openejb.test.stateful;
 
 import java.util.Properties;
-import javax.ejb.*;
-import javax.naming.InitialContext;
+
+import javax.ejb.EJBMetaData;
+import javax.ejb.Handle;
+import javax.ejb.HomeHandle;
 import javax.naming.Context;
-import junit.framework.*;
-import java.net.URL;
+import javax.naming.InitialContext;
+
 import org.openejb.test.TestManager;
 
 /**

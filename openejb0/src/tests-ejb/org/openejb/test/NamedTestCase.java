@@ -44,8 +44,6 @@
  */
 package org.openejb.test;
 
-import junit.framework.*;
-import java.lang.reflect.*;
 
 /**
  * 

@@ -44,14 +44,12 @@
  */
 package org.openejb.client;
 
-import javax.ejb.EJBHome;
-import javax.ejb.EJBObject;
-import java.rmi.RemoteException;
+import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.Externalizable;
-import java.io.Serializable;
-import java.io.IOException;
+import java.rmi.RemoteException;
+
+import javax.ejb.EJBHome;
 
 /**
  *

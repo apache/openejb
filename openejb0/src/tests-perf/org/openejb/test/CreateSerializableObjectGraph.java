@@ -44,8 +44,10 @@
  */
 package org.openejb.test;
 
-import java.io.*;
-import java.util.*;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class CreateSerializableObjectGraph {
 

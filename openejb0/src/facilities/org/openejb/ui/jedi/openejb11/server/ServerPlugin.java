@@ -45,7 +45,15 @@
 package org.openejb.ui.jedi.openejb11.server;
 
 import javax.swing.ImageIcon;
-import org.opentools.deployer.plugins.*;
+
+import org.opentools.deployer.plugins.Category;
+import org.opentools.deployer.plugins.ClassDescriptor;
+import org.opentools.deployer.plugins.Entry;
+import org.opentools.deployer.plugins.FileDescriptor;
+import org.opentools.deployer.plugins.MetaData;
+import org.opentools.deployer.plugins.Plugin;
+import org.opentools.deployer.plugins.PluginUtils;
+import org.opentools.deployer.plugins.ToolBarCommand;
 import org.opentools.deployer.plugins.j2ee12.ejb11.EJB11Plugin;
 
 /**

@@ -44,10 +44,11 @@
  */
 package org.openejb.server.admin.text;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import org.openejb.server.EjbDaemon;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.URL;
+import java.util.Properties;
 
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>

@@ -44,12 +44,9 @@
  */
 package org.openejb.ui.jedi.openejb11.server;
 
-import java.util.*;
-import org.opentools.deployer.plugins.MetaData;
 import org.opentools.deployer.plugins.Category;
 import org.opentools.deployer.plugins.EditAction;
 import org.opentools.deployer.plugins.Entry;
-import org.openejb.ui.jedi.openejb11.ejb.MetaDataContainer;
 
 /**
  * The tree category for Connection Managers.  A Category represents a group of

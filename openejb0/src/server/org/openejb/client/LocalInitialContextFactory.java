@@ -45,8 +45,10 @@
 package org.openejb.client;
 
 import java.util.Hashtable;
+
 import javax.naming.Context;
 import javax.naming.spi.InitialContextFactory;
+
 import org.openejb.loader.Loader;
 
 /**

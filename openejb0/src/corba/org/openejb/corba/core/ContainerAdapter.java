@@ -33,10 +33,14 @@
 
 package org.openejb.corba.core;
 
-import org.omg.CosNaming.*;
-import org.omg.PortableServer.*;
-import org.openejb.util.proxy.ProxyManager;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContext;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextHelper;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.Servant;
 import org.openejb.util.proxy.InvocationHandler;
+import org.openejb.util.proxy.ProxyManager;
 
 /**
  * This is a common base class for derived classes that wrap an RPCContainer.
