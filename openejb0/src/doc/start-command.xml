@@ -117,6 +117,12 @@ Default number of threads is 20.
 <option flag="-help">Print this help message.</option>
 
 <option flag="-examples">Show examples of how to use the options.</option>
+
+<option flag="--admin-ip">
+  A comma delimited list of hosts and IP addresses that
+            are allowed to administer this server.
+</option>
+
 </options>
 </p>
 </section>
@@ -222,7 +228,7 @@ Default number of threads is 20.
 
 </section>
 
-<section title="Using -conf file" ref-id="using.-conf file">
+<section title="Using -conf file" ref-id="using.-conf">
   <p>
  <command>openejb start -conf C:\openejb\conf\mytest.conf</command>
   </p>
@@ -235,6 +241,49 @@ Default number of threads is 20.
   </p>
 
 </section>
+
+<section title="Using --admin-ip addresses" ref-id="using.--admin-ip">
+
+  <p>
+ <command>openejb start --admin-ip 192.168.1.12</command>
+  </p>
+
+  <p>
+ Adds 192.168.1.12 to the list of IP addresses that are 
+ authorized to shutdown the server or access the server
+ via a telnet client.  The host that this server was 
+ started on is always allowed to administer the server.
+  </p>
+
+  <p>
+ Multiple hosts can be given administrative access to
+ this server by listing all the host names separated
+ by commas as such:
+  </p>
+
+  <p>
+ <command>openejb start --admin-ip 192.168.1.12,joe.foo.com,robert</command> 
+  </p>
+
+  <p>
+ The first host in the string names the host explicitly 
+ using an IP address (192.168.1.12). 
+  </p>
+
+  <p>
+ The second host in uses a DNS name (joe.foo.com) to refer
+ to the hosts IP address.  The DNS name will be resolved 
+ and the IP will be added to the admin list. 
+  </p>
+
+  <p>
+ The third address refers to a the host by a name (robert)
+ that the opperating system is able to resolve into a valid
+ IP address.  This is usually done via a hosts file, interal
+ DNS server, or Windows Domain Server. 
+  </p>
+ </section>
+
 </section>
 
 
