@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <document url="http://openejb.sf.net/cmp_entity_postgresql.xml" toc="numeric">
-	<properties>
-		<title>Hello OpenEJB World!</title>
-		<sub-title>A basic CMP entity bean example</sub-title>
-	</properties>
-	<body>
+    <properties>
+        <title>Hello OpenEJB World!</title>
+        <sub-title>A basic CMP entity bean example</sub-title>
+    </properties>
+    <body>
     <section title="Abstract" ref-id="abstract">
     <p>
     The aim of this document is to help you out with deploying 
@@ -150,7 +150,7 @@ public class EmployeeBean implements EntityBean
 </file>
 </p>
 </section>
-		
+        
 <section title="Create the entity bean's home interface" ref-id="ejbhome">
 <p>
 In your favorite editor, create the file below.
@@ -176,7 +176,7 @@ public interface EmployeeHome extends EJBHome
 </file>
 </p>
 </section>
-		
+        
 <section title="Create the entity bean's remote interface" ref-id="ejbremote">
 <p>
 In your favorite editor, create the file below.
@@ -197,7 +197,7 @@ public interface Employee extends EJBObject
 </file>
 </p>
 </section>
-		
+        
 <section title="Create the ejb-jar.xml" ref-id="ejb-jar.xml">
 <p>
 <command>C:\my\app> mkdir META-INF</command>
@@ -258,13 +258,13 @@ In your favorite editor, create the file below.
 </file>
 </p>
 </section>
-		
+        
 <section title="Compile the EJB" ref-id="compile">
 <p>
-<command>C:\my\app> javac -d . -classpath %OPENEJB_HOME%\lib\ejb-2.0.jar org\acme\employee\*.java</command>
+<command>C:\my\app> javac -d . -classpath %OPENEJB_HOME%\lib\ejb-1.0.jar org\acme\employee\*.java</command>
 </p>
 </section>
-		
+        
 <section title="Package the EJB" ref-id="jar">
 <p>
 <command>C:\my\app> jar -cvMf employee.jar org/acme/employee/*.class META-INF</command>
@@ -297,14 +297,14 @@ username</command>) and run the following SQL scripts:
 
 <code>
 create table employee (
-	id integer primary key, 
-	first_name varchar(15), 
-	last_name varchar(15),
-	email varchar(30));	
+    id integer primary key, 
+    first_name varchar(15), 
+    last_name varchar(15),
+    email varchar(30)); 
 create sequence employee_seq;
 </code>
 </section>
-		
+        
 <section title="Configure the data source" ref-id="datasource">
 <p>
 Having done everything up to that point has showed you really nothing 
@@ -328,7 +328,7 @@ our own configuration file. We're doing it because:
 Thus, here goes the configuration file - openejb.xml - which will satisfy 
 the aforementioned requirements. 
 </p>
-			
+            
 <p>
 Create the file in the conf directory.
 </p>
@@ -428,7 +428,7 @@ the SecurityService or TransactionService lines in your config
 files unless there is some part of them that you wish to configure.
 </note>
 </p>
-			
+            
 <p>
 Create the following files in the conf directory using your favorite 
 editor. 
@@ -517,7 +517,7 @@ again.
 </note>
 </p>
 </section>
-		
+        
 <section title="A basic client application" ref-id="client">
 <p>
 Create the basic client application to access your Employee entity bean. 
@@ -528,18 +528,18 @@ EJBObject managed by OpenEJB. The following lines show invocation of the
 bussines method - <i>says</i> - and at the end removes the bean's 
 representation from the table. 
 </p>
-			
+            
 <p>
 Please refer to the <a href="hello-world.html">basic EJB example</a> to 
 choose proper InitialContext environment variables. 
 </p>
-			
+            
 <p><command>C:\openejb> cd c:\my\app</command></p>
-			
+            
 <p>
 Create the file in your favorite editor.
 </p>
-			
+            
 <p>
 <file name="C:\my\app\org\acme\employee\EmployeeClient.java">
 package org.acme.employee;
@@ -590,7 +590,7 @@ public class EmployeeClient
 <command>C:\my\app> javac -d . -classpath .;%OPENEJB_HOME%/lib/ejb-1.0.jar;%OPENEJB_HOME%/lib/jndi_1.2.1.jar org\acme\employee\EmployeeClient.java</command>
 </p>
 </section>
-		
+        
 <section title="Run it!" ref-id="run.it">
 <p>
 Create the file in your favorite editor.
@@ -622,13 +622,13 @@ command:
 <p>
 <command>C:\> cd %OPENEJB_HOME%</command>
 <br/>
-<command>C:\openejb> start openejb start -conf c:\my\app\conf\openejb.xml</command>				
+<command>C:\openejb> start openejb start -conf c:\my\app\conf\openejb.xml</command>             
 </p>
 
 <p>
 Now run the script!
 </p>
-			
+            
 <p>
 <command>C:\> cd \my\app</command>
 <br/>
@@ -664,14 +664,14 @@ To log into the admin console, telnet to:
 Ready!
 [FirstName LastName(1) OpenEJB-1029465232802@SF.net] Hello OpenEJB World !</code>
 </section>
-		
+        
 <section title="What if it didn't work" ref-id="problems">
 <p>
 If you ran into any problems, first check your openejb.log file at 
 %OPENEJB_HOME%\openejb.log. Look for any lines that begin with 
 <term>"WARN"</term>, <term>"ERROR"</term>, or <term>"FATAL"</term>. 
 </p>
-			
+            
 <p>
 There is a list of the most common problems with possible solutions: 
 <ul>
