@@ -80,8 +80,8 @@ public class EJBInvocationImpl extends SimpleInvocation implements EJBInvocation
     }
 
     public EJBInvocationImpl(EJBInterfaceType type, int index, Object[] arguments) {
-        assert type != null;
-        assert index >= 0;
+        assert type != null : "Interface type may not be null";
+        assert index >= 0 : "Invalid method index: "+index;
         this.type = type;
         this.index = index;
         this.arguments = arguments;
@@ -89,8 +89,8 @@ public class EJBInvocationImpl extends SimpleInvocation implements EJBInvocation
     }
 
     public EJBInvocationImpl(EJBInterfaceType type, Object id, int index, Object[] arguments) {
-        assert type != null;
-        assert index >= 0;
+        assert type != null : "Interface type may not be null";
+        assert index >= 0 : "Invalid method index: "+index;
         this.type = type;
         this.index = index;
         this.arguments = arguments;
@@ -98,7 +98,7 @@ public class EJBInvocationImpl extends SimpleInvocation implements EJBInvocation
     }
 
     public EJBInvocationImpl(int index, Object[] arguments, EJBInstanceContext instanceContext) {
-        assert index >= 0;
+        assert index >= 0 : "Invalid method index: "+index;
         assert instanceContext != null;
         this.type = EJBInterfaceType.LIFECYCLE;
         this.index = index;
