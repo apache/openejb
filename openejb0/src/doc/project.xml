@@ -58,13 +58,24 @@
         <url>http://sourceforge.net/tracker/?group_id=44351&amp;atid=439275</url>
         <display>Support</display>
       </navLink>
-    
     </section>
 
     <section name="Integrators">
       <navLink>
+        <url>whyopenejb.xml</url>
+        <display>Why OpenEJB</display>
+      </navLink>
+      <navLink>
+        <url>design_openejb.xml</url>
+        <display>Design</display>
+      </navLink>
+      <navLink>
         <url>specification.xml</url>
         <display>Specification</display>
+      </navLink>
+      <navLink>
+        <url>OpenEJB_presentaion.ppt</url>
+        <display>Presentaion</display>
       </navLink>
     </section>
     
