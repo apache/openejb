@@ -369,7 +369,7 @@ by the server.
 
     <gbean name="openejb.CORBA:type=Server" class="org.openejb.corba.CORBABean">
         <reference name="ThreadPool">openejb.server:name=DefaultThreadPool,*</reference>
-        <attribute name="args">-ORBPort, 2001, -ORBInitRef, NameService=corbaloc::localhost:1050/NameService, -ORBCSIv2, -ORBGSSClientUser, "user1,a"</attribute>
+        <attribute name="args">-ORBPort, 2001, -ORBInitRef, NameService=corbaloc::localhost:1050/NameService</attribute>
         <attribute name="props">
 
             org.omg.CORBA.ORBClass=org.openorb.orb.core.ORB
@@ -380,8 +380,8 @@ by the server.
 
             org.omg.CORBA.ORBClass=org.openorb.orb.core.ORB
             org.omg.CORBA.ORBSingletonClass=org.openorb.orb.core.ORBSingleton
-            openorb.debug.level=HIGH
-            openorb.debug.trace=DEBUG
+            Xopenorb.debug.level=HIGH
+            Xopenorb.debug.trace=DEBUG
             javax.net.debug=all
             javax.net.ssl.keyStore=var/certstores/keystore
             javax.net.ssl.keyStorePassword=password
@@ -411,7 +411,7 @@ by the server.
 
     </gbean>
 
-    <gbean name="openejb.CORBA:type=POA,domain=org/openejb/Itests" class="org.openejb.corba.POABean">
+    <gbean name="openejb.CORBA:type=TSS,domain=org/openejb/Itests" class="org.openejb.corba.TSSBean">
         <attribute name="POAName">org/openejb/POA</attribute>
         <reference name="Server">openejb.CORBA:type=Server</reference>
         <reference name="Containers">openejb.server:EJBModule=org/openejb/scenario001,*</reference>

@@ -51,7 +51,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 import org.openejb.EJBContainer;
 import org.openejb.corba.CORBAException;
-import org.openejb.corba.POABean;
+import org.openejb.corba.TSSBean;
 import org.openejb.proxy.ProxyInfo;
 
 
@@ -64,7 +64,7 @@ import org.openejb.proxy.ProxyInfo;
 public class ClasspathTieLoader implements TieLoader {
 
     public Servant loadTieClass(Class itf, ProxyInfo pi) throws CORBAException {
-        EJBContainer container = POABean.getContainer(pi.getContainerID());
+        EJBContainer container = TSSBean.getContainer(pi.getContainerID());
 
         String name = itf.getName();
         try {
