@@ -58,6 +58,7 @@ import javax.ejb.EJBObject;
 import javax.ejb.TimerService;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
+import javax.security.auth.Subject;
 
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.transaction.context.TransactionContext;
@@ -74,12 +75,21 @@ public abstract class EJBContextImpl {
     protected final EJBInstanceContext context;
     protected final UserTransactionImpl userTransaction;
     private final TransactionContextManager transactionContextManager;
+    private Subject callerSubject;
     protected EJBContextState state;
 
     public EJBContextImpl(EJBInstanceContext context, TransactionContextManager transactionContextManager, UserTransactionImpl userTransaction) {
         this.context = context;
         this.userTransaction = userTransaction;
         this.transactionContextManager = transactionContextManager;
+    }
+
+    public Subject getCallerSubject() {
+        return callerSubject;
+    }
+
+    public void setCallerSubject(Subject callerSubject) {
+        this.callerSubject = callerSubject;
     }
 
     public EJBHome getEJBHome() {
@@ -99,7 +109,7 @@ public abstract class EJBContextImpl {
     }
 
     public Principal getCallerPrincipal() {
-        return state.getCallerPrincipal();
+        return state.getCallerPrincipal(callerSubject);
     }
 
     public boolean isCallerInRole(String s) {
@@ -177,8 +187,8 @@ public abstract class EJBContextImpl {
             throw new IllegalStateException("getEJBLocalObject is not allowed if no local interface is defined");
         }
 
-        public Principal getCallerPrincipal() {
-            return ContextManager.getCurrentPrincipal();
+        public Principal getCallerPrincipal(Subject callerSubject) {
+            return ContextManager.getCurrentPrincipal(callerSubject);
         }
 
         public boolean isCallerInRole(String s, EJBInstanceContext context) {

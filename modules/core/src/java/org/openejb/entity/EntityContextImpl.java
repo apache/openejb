@@ -58,6 +58,7 @@ import javax.ejb.EJBObject;
 import javax.ejb.EntityContext;
 import javax.ejb.TimerService;
 import javax.transaction.UserTransaction;
+import javax.security.auth.Subject;
 
 import org.openejb.EJBContextImpl;
 import org.openejb.EJBInstanceContext;
@@ -132,7 +133,7 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
             throw new IllegalStateException("getPrimaryKey() cannot be called when inactive");
         }
 
-        public Principal getCallerPrincipal() {
+        public Principal getCallerPrincipal(Subject callerSubject) {
             throw new IllegalStateException("getCallerPrincipal() cannot be called when inactive");
         }
 
@@ -170,7 +171,7 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
             throw new IllegalStateException("getPrimaryKey() cannot be called from set/unsetEntityContext");
         }
 
-        public Principal getCallerPrincipal() {
+        public Principal getCallerPrincipal(Subject callerSubject) {
             throw new IllegalStateException("getCallerPrincipal() cannot be called from set/unsetEntityContext");
         }
 
@@ -244,7 +245,7 @@ public class EntityContextImpl extends EJBContextImpl implements EntityContext {
     };
 
     public static EntityContextState EJBACTIVATE = new EntityContextState() {
-        public Principal getCallerPrincipal() {
+        public Principal getCallerPrincipal(Subject callerSubject) {
             throw new IllegalStateException("getCallerPrincipal() cannot be called from ejbActivate/ejbPassivate");
         }
 

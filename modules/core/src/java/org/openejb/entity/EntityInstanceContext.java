@@ -57,6 +57,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.openejb.AbstractInstanceContext;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBOperation;
+import org.openejb.EJBContextImpl;
 import org.openejb.cache.InstancePool;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
@@ -110,6 +111,10 @@ public abstract class EntityInstanceContext extends AbstractInstanceContext {
 
     public boolean setTimerState(EJBOperation operation) {
         return entityContext.setTimerState(operation);
+    }
+
+    public EJBContextImpl getEJBContextImpl() {
+        return entityContext;
     }
 
     public EntityContext getEntityContext() {

@@ -68,7 +68,7 @@ import javax.security.auth.Subject;
  * <code>Subject</code>.
  * @version $Revision$ $Date$
  */
-public class EJBRunAsInterceptor implements Interceptor {
+public final class EJBRunAsInterceptor implements Interceptor {
     private final Interceptor next;
     private final Subject subject;
 

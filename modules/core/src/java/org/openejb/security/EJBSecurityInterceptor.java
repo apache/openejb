@@ -61,6 +61,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.security.ContextManager;
 
 import org.openejb.EJBInvocation;
+import org.openejb.EJBContextImpl;
 
 
 /**
@@ -83,9 +84,12 @@ public final class EJBSecurityInterceptor implements Interceptor {
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         EJBInvocation ejbInvocation = ((EJBInvocation) invocation);
+        EJBContextImpl context =  ejbInvocation.getEJBInstanceContext().getEJBContextImpl();
 
+        Subject oldCaller = context.getCallerSubject();
         Subject subject = ContextManager.getCurrentCaller();
         String oldPolicyContextID = PolicyContext.getContextID();
+
         try {
             PolicyContext.setContextID(contextId);
             AccessControlContext accessContext = ContextManager.getCurrentContext();
@@ -94,6 +98,7 @@ public final class EJBSecurityInterceptor implements Interceptor {
                 if (permission != null) accessContext.checkPermission(permission);
             }
 
+            context.setCallerSubject(subject);
             ContextManager.setCurrentCaller(ContextManager.getNextCaller());
 
             return next.invoke(invocation);
@@ -106,6 +111,7 @@ public final class EJBSecurityInterceptor implements Interceptor {
         } finally {
             PolicyContext.setContextID(oldPolicyContextID);
             ContextManager.setCurrentCaller(subject);
+            context.setCallerSubject(oldCaller);
         }
     }
 }

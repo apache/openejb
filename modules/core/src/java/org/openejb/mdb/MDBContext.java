@@ -56,6 +56,7 @@ import javax.ejb.MessageDrivenContext;
 import javax.ejb.TimerService;
 import javax.transaction.UserTransaction;
 import javax.xml.rpc.handler.MessageContext;
+import javax.security.auth.Subject;
 
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
@@ -124,7 +125,7 @@ public class MDBContext extends EJBContextImpl implements MessageDrivenContext {
             throw new IllegalStateException("getEJBLocalObject() cannot be called when inactive");
         }
 
-        public Principal getCallerPrincipal() {
+        public Principal getCallerPrincipal(Subject callerSubject) {
             throw new IllegalStateException("getCallerPrincipal() cannot be called when inactive");
         }
 
@@ -162,7 +163,7 @@ public class MDBContext extends EJBContextImpl implements MessageDrivenContext {
             throw new IllegalStateException("getEJBLocalObject() cannot be called from setMessageDrivenContext(MessageDrivenContext)");
         }
 
-        public Principal getCallerPrincipal() {
+        public Principal getCallerPrincipal(Subject callerSubject) {
             throw new IllegalStateException("getCallerPrincipal() cannot be called from setMessageDrivenContext(MessageDrivenContext)");
         }
 
@@ -192,7 +193,7 @@ public class MDBContext extends EJBContextImpl implements MessageDrivenContext {
     };
 
     public static final MDBContextState EJBCREATEREMOVE = new MDBContextState() {
-        public Principal getCallerPrincipal() {
+        public Principal getCallerPrincipal(Subject callerSubject) {
             throw new IllegalStateException("getCallerPrincipal() cannot be called from ejbCreate/ejbRemove");
         }
 
