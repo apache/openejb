@@ -164,7 +164,7 @@ public abstract class AbstractEJBContainer
                 localInterface = null;
             }
         } catch (ClassNotFoundException e) {
-            throw new AssertionError();
+            throw new AssertionError(e);
         }
     }
 
