@@ -400,7 +400,7 @@ class CMPEntityBuilder extends EntityBuilder {
                     }
                 }
 
-                boolean flushCacheBeforeQuery = openejbQueryType.isSetFlushCacheBeforeQuery();
+                boolean flushCacheBeforeQuery = !openejbQueryType.isSetNoCacheFlush();
                 String ejbQL = null;
                 if (openejbQueryType.isSetEjbQl()) {
                     ejbQL = openejbQueryType.getEjbQl();

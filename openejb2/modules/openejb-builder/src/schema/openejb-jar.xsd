@@ -187,7 +187,7 @@
             </xs:element>
             <xs:element name="result-type-mapping" minOccurs="0" type="xs:string"/>
             <xs:element name="ejb-ql" type="xs:string" minOccurs="0"/>
-            <xs:element name="flush-cache-before-query" minOccurs="0"/>
+            <xs:element name="no-cache-flush" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 
