@@ -42,7 +42,7 @@
  *
  * $Id$
  */
-package org.openejb.server;
+package org.openejb.test;
 
 
 /**
@@ -58,7 +58,7 @@ public class Main{
             e.printStackTrace();
         }
         
-        EjbDaemon.main( args );
+        ClientTestRunner.main( args );
     }
 
 }

@@ -801,7 +801,6 @@ public class Deploy {
         try{
             org.openejb.util.ClasspathUtils.addJarsToSystemPath("lib");
             org.openejb.util.ClasspathUtils.addJarsToSystemPath("dist");
-            org.openejb.util.ClasspathUtils.addJarsToSystemPath("beans");
         } catch (Exception e){
             e.printStackTrace();
         }
