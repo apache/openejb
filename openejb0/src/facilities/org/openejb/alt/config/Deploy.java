@@ -97,8 +97,7 @@ import org.openejb.util.StringUtilities;
  */
 public class Deploy {
 
-	static protected Messages _messages =
-		new Messages("org.openejb.alt.util.resources");
+	static protected Messages _messages = new Messages("org.openejb.alt.util.resources");
 
 	private final String DEPLOYMENT_ID_HELP =
 		"\nDeployment ID ----- \n\nA name for the ejb that is unique not only in this jar, but \nin all the jars in the container system.  This name will \nallow OpenEJB to place the bean in a global index and \nreference the bean quickly.  OpenEJB will also use this name \nas the global JNDI name for the Remote Server and the Local \nServer.  Clients of the Remote or Local servers can use this\nname to perform JNDI lookups.\n\nThe other EJB Server's using OpenEJB as the EJB Container \nSystem may also use this name to as part of a global JNDI \nnamespace available to remote application clients.\n\nExample: /my/acme/bugsBunnyBean\n\nSee http://openejb.sf.net/deploymentids.html for details.\n";
@@ -226,8 +225,7 @@ public class Deploy {
 	/*------------------------------------------------------*/
 	/*    Constructors                                      */
 	/*------------------------------------------------------*/
-	public Deploy() throws OpenEJBException {
-	}
+	public Deploy() throws OpenEJBException {}
 
 	public void init(String openejbConfigFile) throws OpenEJBException {
 		try {
@@ -243,8 +241,7 @@ public class Deploy {
 			if (configFile == null) {
 				try {
 					configFile = System.getProperty("openejb.configuration");
-				} catch (Exception e) {
-				}
+				} catch (Exception e) {}
 			}
 			if (configFile == null) {
 				configFile = ConfigUtils.searchForConfiguration();
@@ -311,16 +308,13 @@ public class Deploy {
 
 	}
 
-	private EjbDeployment deployBean(Bean bean, String jarLocation)
-		throws OpenEJBException {
+	private EjbDeployment deployBean(Bean bean, String jarLocation) throws OpenEJBException {
 		EjbDeployment deployment = new EjbDeployment();
 		Class tempBean = SafeToolkit.loadTempClass(bean.getHome(), jarLocation);
 
-		out.println(
-			"\n-----------------------------------------------------------");
+		out.println("\n-----------------------------------------------------------");
 		out.println("Deploying bean: " + bean.getEjbName());
-		out.println(
-			"-----------------------------------------------------------");
+		out.println("-----------------------------------------------------------");
 		deployment.setEjbName(bean.getEjbName());
 
 		if (GENERATE_DEPLOYMENT_ID) {
@@ -338,8 +332,7 @@ public class Deploy {
 		ResourceRef[] refs = bean.getResourceRef();
 		if (refs.length > 0) {
 			out.println("\n==--- Step 3 ---==");
-			out.println(
-				"\nThis bean contains the following references to external \nresources:");
+			out.println("\nThis bean contains the following references to external \nresources:");
 
 			out.println("\nName\t\t\tType\n");
 
@@ -366,9 +359,7 @@ public class Deploy {
 		return deployment;
 	}
 
-	private void promptForOQLForEntityBeans(
-		Class bean,
-		EjbDeployment deployment)
+	private void promptForOQLForEntityBeans(Class bean, EjbDeployment deployment)
 		throws OpenEJBException {
 		org.openejb.alt.config.ejb11.Query query;
 		QueryMethod queryMethod;
@@ -399,37 +390,7 @@ public class Deploy {
 				}
 
 				out.print("Method: ");
-				parameterList = methods[i].getParameterTypes();
-				exceptionList = methods[i].getExceptionTypes();
-
-				out.print(methods[i].getName() + "(");
-
-				for (int j = 0; j < parameterList.length; j++) {
-					out.print(
-						StringUtilities.getLastToken(
-							parameterList[j].getName(),
-							"."));
-
-					if (j != (parameterList.length - 1)) {
-						out.print(", ");
-					}
-				}
-				out.print(") ");
-
-				if (exceptionList.length > 0) {
-					out.print("throws ");
-				}
-
-				for (int j = 0; j < exceptionList.length; j++) {
-					out.print(
-						StringUtilities.getLastToken(
-							exceptionList[j].getName(),
-							"."));
-
-					if (j != (exceptionList.length - 1)) {
-						out.print(", ");
-					}
-				}
+				out.print(StringUtilities.createMethodString(methods[i], "\n"));
 
 				out.println();
 
@@ -445,8 +406,7 @@ public class Deploy {
 						}
 					}
 
-					out.println(
-						"Please enter a comma seperated list of parameters.");
+					out.println("Please enter a comma seperated list of parameters.");
 					out.print("\nOQL Parameters: ");
 					parameters = in.readLine();
 				} catch (Exception e) {
@@ -472,8 +432,7 @@ public class Deploy {
 
 					deployment.addQuery(query);
 
-					out.println(
-						"\nYour OQL statement was successfully added to the jar.\n");
+					out.println("\nYour OQL statement was successfully added to the jar.\n");
 				}
 			}
 		}
@@ -516,8 +475,7 @@ public class Deploy {
 	private String autoAssignDeploymentId(Bean bean) throws OpenEJBException {
 		String answer = bean.getEjbName();
 		out.println("\n==--- Step 1 ---==");
-		out.println(
-			"\nAuto assigning the ejb-name as the deployment id for this bean.");
+		out.println("\nAuto assigning the ejb-name as the deployment id for this bean.");
 		out.print("\nDeployment ID: " + answer);
 
 		return answer;
@@ -647,8 +605,7 @@ public class Deploy {
 	/*------------------------------------------------------*/
 	/*    Methods for connection(resource) mapping          */
 	/*------------------------------------------------------*/
-	private ResourceLink resolveResourceRef(ResourceRef ref)
-		throws OpenEJBException {
+	private ResourceLink resolveResourceRef(ResourceRef ref) throws OpenEJBException {
 		String answer = null;
 		boolean replied = false;
 
@@ -660,8 +617,7 @@ public class Deploy {
 			 * 2) Something more creative
 			 * 3) Some ultra flexible combination of 1 and 2.
 			 */
-			out.println(
-				"!! There are no resources declared in " + configFile + " !!");
+			out.println("!! There are no resources declared in " + configFile + " !!");
 			out.println(
 				"A resource connector must be declared and configured in \nyour configuration file before this jar can be deployed.");
 			System.exit(-2);
@@ -717,10 +673,8 @@ public class Deploy {
 		}
 	}
 
-	private void saveChanges(String jarFile, OpenejbJar openejbJar)
-		throws OpenEJBException {
-		out.println(
-			"\n-----------------------------------------------------------");
+	private void saveChanges(String jarFile, OpenejbJar openejbJar) throws OpenEJBException {
+		out.println("\n-----------------------------------------------------------");
 		out.println("Done collecting deployment information!");
 
 		out.print("Creating the openejb-jar.xml file...");
@@ -740,8 +694,7 @@ public class Deploy {
 			out.println("done");
 		}
 
-		out.println(
-			"\nCongratulations! Your jar is ready to use with OpenEJB.");
+		out.println("\nCongratulations! Your jar is ready to use with OpenEJB.");
 		out.println(
 			"\nIf the OpenEJB remote server is already running, you will\nneed to restart it in order for OpenEJB to recognize your bean.");
 		out.println(
@@ -846,11 +799,8 @@ public class Deploy {
 		try {
 			JarUtils.setHandlerSystemProperty();
 			versionInfo.load(
-				new URL("resource:/openejb-version.properties")
-					.openConnection()
-					.getInputStream());
-		} catch (java.io.IOException e) {
-		}
+				new URL("resource:/openejb-version.properties").openConnection().getInputStream());
+		} catch (java.io.IOException e) {}
 
 		System.out.println(
 			"OpenEJB Deploy Tool "
@@ -868,29 +818,23 @@ public class Deploy {
 			JarUtils.setHandlerSystemProperty();
 			Properties versionInfo = new Properties();
 			versionInfo.load(
-				new URL("resource:/openejb-version.properties")
-					.openConnection()
-					.getInputStream());
+				new URL("resource:/openejb-version.properties").openConnection().getInputStream());
 			header += versionInfo.get("version");
-		} catch (java.io.IOException e) {
-		}
+		} catch (java.io.IOException e) {}
 
 		System.out.println(header);
 
 		// Internationalize this
 		try {
 			InputStream in =
-				new URL("resource:/openejb/deploy.txt")
-					.openConnection()
-					.getInputStream();
+				new URL("resource:/openejb/deploy.txt").openConnection().getInputStream();
 
 			int b = in.read();
 			while (b != -1) {
 				System.out.write(b);
 				b = in.read();
 			}
-		} catch (java.io.IOException e) {
-		}
+		} catch (java.io.IOException e) {}
 	}
 
 	private static void printExamples() {
@@ -899,29 +843,23 @@ public class Deploy {
 			JarUtils.setHandlerSystemProperty();
 			Properties versionInfo = new Properties();
 			versionInfo.load(
-				new URL("resource:/openejb-version.properties")
-					.openConnection()
-					.getInputStream());
+				new URL("resource:/openejb-version.properties").openConnection().getInputStream());
 			header += versionInfo.get("version");
-		} catch (java.io.IOException e) {
-		}
+		} catch (java.io.IOException e) {}
 
 		System.out.println(header);
 
 		// Internationalize this
 		try {
 			InputStream in =
-				new URL("resource:/openejb/deploy-examples.txt")
-					.openConnection()
-					.getInputStream();
+				new URL("resource:/openejb/deploy-examples.txt").openConnection().getInputStream();
 
 			int b = in.read();
 			while (b != -1) {
 				System.out.write(b);
 				b = in.read();
 			}
-		} catch (java.io.IOException e) {
-		}
+		} catch (java.io.IOException e) {}
 	}
 
 	/*------------------------------------------------------*/
@@ -944,7 +882,6 @@ public class Deploy {
 	}
 
 	private void addDeploymentEntryToConfig(String jarLocation) {
-		configChanged =
-			ConfigUtils.addDeploymentEntryToConfig(jarLocation, config);
+		configChanged = ConfigUtils.addDeploymentEntryToConfig(jarLocation, config);
 	}
 }

@@ -43,27 +43,83 @@
  */
 package org.openejb.admin.web;
 
-import java.rmi.RemoteException;
-
-import javax.ejb.EJBObject;
-
-import org.openejb.OpenEJBException;
+import java.io.Serializable;
 
 /**
- *
- * @author  <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
+ * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
-public interface DeployerObject extends EJBObject {
-	//action methods
-	public void setBooleanValues(boolean[] booleanValues) throws RemoteException;
-	public boolean[] getBooleanValues() throws RemoteException;
-	public void setJarFile(String jarFile) throws RemoteException;
-	public String getJarFile() throws RemoteException;
-	public void startDeployment() throws RemoteException, OpenEJBException;
-	public void finishDeployment() throws RemoteException, OpenEJBException;
-	public String getDeploymentHTML() throws RemoteException;
-	public DeployData[] getDeployDataArray() throws RemoteException;
-	public String createIdTable() throws RemoteException, OpenEJBException;
-	public void setDeployAndContainerIds(DeployData[] deployDataArray)
-		throws RemoteException, OpenEJBException;
+public class DeployData implements Serializable {
+	private String ejbName;
+	private String deploymentIdName;
+	private String deploymentIdValue;
+	private String containerIdName;
+	private String containerIdValue;
+	private OQLData[] oqlDataArray;
+	private ReferenceData[] referenceDataArray;
+
+	public DeployData() {
+		super();
+		this.deploymentIdName = "";
+		this.deploymentIdValue = "";
+		this.containerIdName = "";
+		this.containerIdValue = "";
+		this.oqlDataArray = new OQLData[0];
+		this.referenceDataArray = new ReferenceData[0];
+	}
+	
+	public String getContainerIdName() {
+		return containerIdName;
+	}
+
+	public String getContainerIdValue() {
+		return containerIdValue;
+	}
+
+	public String getDeploymentIdName() {
+		return deploymentIdName;
+	}
+
+	public String getDeploymentIdValue() {
+		return deploymentIdValue;
+	}
+
+	public OQLData[] getOqlDataArray() {
+		return oqlDataArray;
+	}
+
+	public void setContainerIdName(String string) {
+		containerIdName = string;
+	}
+
+	public void setContainerIdValue(String string) {
+		containerIdValue = string;
+	}
+
+	public void setDeploymentIdName(String string) {
+		deploymentIdName = string;
+	}
+
+	public void setDeploymentIdValue(String string) {
+		deploymentIdValue = string;
+	}
+
+	public void setOqlDataArray(OQLData[] informations) {
+		oqlDataArray = informations;
+	}
+	public String getEjbName() {
+		return ejbName;
+	}
+
+	public void setEjbName(String string) {
+		ejbName = string;
+	}
+
+	public ReferenceData[] getReferenceDataArray() {
+		return referenceDataArray;
+	}
+
+	public void setReferenceDataArray(ReferenceData[] datas) {
+		referenceDataArray = datas;
+	}
+
 }

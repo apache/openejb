@@ -451,7 +451,7 @@ public abstract class WebAdminBean implements HttpBean {
      * @throws EJBException if an exeption is thrown
      * @throws RemoteException if an exception is thrown
      */    
-    public void ejbActivate() throws javax.ejb.EJBException, java.rmi.RemoteException {}
+    public void ejbActivate() {}
 
     /** called on a stateful sessionbean before the bean is 
      * removed from memory and serialized to a temporary store.  
@@ -459,20 +459,20 @@ public abstract class WebAdminBean implements HttpBean {
      * @throws EJBException if an exception is thrown
      * @throws RemoteException if an exception is thrown
      */    
-    public void ejbPassivate() throws javax.ejb.EJBException, java.rmi.RemoteException {}
+    public void ejbPassivate() {}
 
     /** called when the bean is about to be garbage collected
      * @throws EJBException if an exception is thrown
      * @throws RemoteException if an exception is thrown
      */    
-    public void ejbRemove() throws javax.ejb.EJBException, java.rmi.RemoteException {}
+    public void ejbRemove() {}
 
     /** sets the session context
      * @param sessionContext the session context
      * @throws EJBException if an exception is thrown
      * @throws RemoteException if an exception is thrown
      */    
-    public void setSessionContext(javax.ejb.SessionContext sessionContext) throws javax.ejb.EJBException, java.rmi.RemoteException {
+    public void setSessionContext(javax.ejb.SessionContext sessionContext) {
         ejbContext = sessionContext;
         if (navSections == null) {
             initNavSections();

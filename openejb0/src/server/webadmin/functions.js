@@ -4,6 +4,7 @@
 * Date: 11/23/2002
 *******************************************************************/
 
+//checks to make sure the jar file form field is filled in
 function checkDeploy(form)
 {
     //set up local variables
@@ -24,4 +25,30 @@ function checkDeploy(form)
     }
     
     return true;
+}
+
+//checks to make sure the second page of the deploy is filled out
+function checkDeployValues(form)
+{
+	//convience variables
+	var formName;
+	var formValue;
+	
+	//loop through all elements of the array
+	for(var i=0; i<form.elements.length; i++)
+	{
+		formName = form.elements[i].name;
+		formValue = form.elements[i].value;
+		
+		if(formName.indexOf("Parameters") == -1)
+		{
+			if(formValue == "")
+			{
+				alert("All form variables (except OQL parameters) are required.");
+				return false;
+			}
+		}
+	}
+	
+	return true;
 }
