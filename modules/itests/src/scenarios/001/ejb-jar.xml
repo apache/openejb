@@ -117,6 +117,10 @@
                 <role-name>LOW_ROLE_REF</role-name>
                 <role-link>LOW</role-link>
             </security-role-ref>
+            <security-role-ref>
+                <role-name>HIGH_ROLE_REF</role-name>
+                <role-link>HIGH</role-link>
+            </security-role-ref>
         </session>
 
         <session>
