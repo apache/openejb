@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,9 +61,10 @@ public class ServiceDaemon implements GBeanLifecycle {
 
     private final SocketService socketService;
     private final InetAddress address;
-    private final int port;
+    private int port;
 
     private SocketListener socketListener;
+    private int timeout;
 
     public ServiceDaemon(SocketService socketService, InetAddress address, int port) {
         this(null, socketService, address, port);
@@ -85,6 +87,8 @@ public class ServiceDaemon implements GBeanLifecycle {
         ServerSocket serverSocket;
         try {
             serverSocket = new ServerSocket(port, 20, address);
+            port = serverSocket.getLocalPort();
+            serverSocket.setSoTimeout(timeout);
         } catch (Exception e) {
             throw new ServiceException("Service failed to open socket", e);
         }
@@ -105,6 +109,13 @@ public class ServiceDaemon implements GBeanLifecycle {
 
     public void doFail() {
         doStop();
+    }
+
+    public void setSoTimeout(int timeout) throws SocketException {
+        this.timeout = timeout;
+        if (socketListener != null){
+            socketListener.setSoTimeout(timeout);
+        }
     }
 
     public String getServiceName() {
@@ -170,6 +181,10 @@ public class ServiceDaemon implements GBeanLifecycle {
                 serverSocket = null;
             }
             serverService = null;
+        }
+
+        public void setSoTimeout(int timeout) throws SocketException {
+            serverSocket.setSoTimeout(timeout);
         }
     }
 
