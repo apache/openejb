@@ -14,6 +14,7 @@ import org.openejb.OpenEJBException;
 import org.openejb.alt.assembler.classic.*;
 import org.openejb.alt.config.ejb11.*;
 import org.openejb.alt.config.sys.*;
+import org.openejb.util.FileUtils;
 
 /*------------------------------------------------------*/
 /* Utility method for reading and writing config files  */
@@ -608,7 +609,38 @@ public class ConfigUtils  {
         return defaults;
     }
         
+    /**
+     * Search for the config file.
+     * 
+     * OPENJB_HOME/conf/openejb.conf
+     * OPENJB_HOME/conf/default.openejb.conf
+     * 
+     * @return 
+     */
+    public static String searchForConfiguration() throws OpenEJBException{
+        File file = null;
+        try{
+            try{
+                file = FileUtils.getFile("conf/openejb.conf");
+            } catch (java.io.FileNotFoundException e){
+            }
+            if (file == null) {
+                try{
+                    file = FileUtils.getFile("conf/default.openejb.conf");
+                } catch (java.io.FileNotFoundException e){
+                }
+            }
+        } catch (java.io.IOException e){
+            throw new OpenEJBException("Could not locate config file: ", e);
+        }
         
+        /*TODO:2: Check these too.
+        * OPENJB_HOME/lib/openejb-x.x.x.jar
+        * OPENJB_HOME/dist/openejb-x.x.x.jar
+        */
+        return (file == null)? null: file.getAbsolutePath() ;
+    }
+
 
     /*------------------------------------------------------*/
     /*    Methods for easy exception handling               */
@@ -670,5 +702,6 @@ public class ConfigUtils  {
         OpenEJBException e = new OpenEJBException(errorCode);
         logger.warn( e.getMessage() );
     }
+
 
 }
