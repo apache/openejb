@@ -232,7 +232,7 @@ public class AssemblerTool {
     use a message number. Message numbers allow the message text to
     be internationalized.
     */
-    public  InitialContext assembleRemoteJndiContext(JndiContextInfo context)
+    public static InitialContext assembleRemoteJndiContext(JndiContextInfo context)
      throws org.openejb.OpenEJBException{
         try{
             InitialContext ic = new InitialContext(context.properties);
@@ -408,8 +408,8 @@ public class AssemblerTool {
     * @return the ConnectionManager instance assembled.
     * @see org.openejb.alt.assembler.classic.ConnectionManagerInfo
     */
-    public  ConnectionManager assembleConnectionManager(ConnectionManagerInfo cmInfo)
-    throws OpenEJBException, java.lang.Exception{
+    public static ConnectionManager assembleConnectionManager(ConnectionManagerInfo cmInfo)
+    throws OpenEJBException {
         /*TODO: Add better exception handling, this method throws java.lang.Exception,
          which is not very specific. Only a very specific OpenEJBException should be
          thrown.
@@ -421,8 +421,13 @@ public class AssemblerTool {
         ConnectionManager connectionManager = (ConnectionManager)toolkit.newInstance(managerClass);
 
         // a container manager has either properties or configuration information or nothing at all
-        if(cmInfo.properties !=null)
-            applyProperties(connectionManager, cmInfo.properties);
+        if(cmInfo.properties !=null) {
+            try {
+                applyProperties(connectionManager, cmInfo.properties);
+            } catch(Exception e) {
+                throw new OpenEJBException("Unable to apply connection manager properties",e);
+            }
+        }
 
         return connectionManager;
     }
@@ -433,8 +438,8 @@ public class AssemblerTool {
     * @return the ManagedConnecitonFactory assembled.
     * @see org.openejb.alt.assembler.classic.ManagedConnectionFactoryInfo
     */
-    public  ManagedConnectionFactory assembleManagedConnectionFactory(ManagedConnectionFactoryInfo mngedConFactInfo)
-    throws org.openejb.OpenEJBException, java.lang.Exception {
+    public static ManagedConnectionFactory assembleManagedConnectionFactory(ManagedConnectionFactoryInfo mngedConFactInfo)
+    throws org.openejb.OpenEJBException {
 
         ManagedConnectionFactory managedConnectionFactory = null;
         try{
@@ -467,8 +472,8 @@ public class AssemblerTool {
     * @return the SecurityService object that was assembled.
     * @see org.openejb.alt.assembler.classic.SecurityServiceInfo
     */
-    public  SecurityService assembleSecurityService(SecurityServiceInfo securityInfo)
-    throws org.openejb.OpenEJBException, java.lang.Exception{
+    public static SecurityService assembleSecurityService(SecurityServiceInfo securityInfo)
+    throws org.openejb.OpenEJBException {
         /*TODO: Add better exception handling, this method throws java.lang.Exception,
          which is not very specific. Only a very specific OpenEJBException should be
          thrown.
@@ -480,8 +485,13 @@ public class AssemblerTool {
         SecurityService securityService = (SecurityService)toolkit.newInstance(serviceClass);
 
         // a SecurityService has either properties or configuration information or nothing at all
-        if(securityInfo.properties !=null)
-            applyProperties(securityService, securityInfo.properties);
+        if(securityInfo.properties !=null) {
+            try {
+                applyProperties(securityService, securityInfo.properties);
+            } catch(Exception e) {
+                throw new OpenEJBException("Unable to configure security service", e);
+            }
+        }
 
         return securityService;
     }
@@ -493,8 +503,8 @@ public class AssemblerTool {
     * @return the TranactionManager instance that was obtained from the assembled TransactionService
     * @see org.openejb.alt.assembler.classic.TransactionServiceInfo
     */
-    public  javax.transaction.TransactionManager assembleTransactionManager(TransactionServiceInfo txInfo)
-    throws org.openejb.OpenEJBException, java.lang.Exception{
+    public static javax.transaction.TransactionManager assembleTransactionManager(TransactionServiceInfo txInfo)
+    throws org.openejb.OpenEJBException {
         /*TODO: Add better exception handling, this method throw java.lang.Exception,
          which is not very specific.  If something is wrong, we should at least say
          "Cannot initialize the TransactionManager, because X happened."
@@ -507,8 +517,13 @@ public class AssemblerTool {
         TransactionService txService = (TransactionService)toolkit.newInstance(serviceClass);
 
         // a TransactionService has either properties or configuration information or nothing at all
-        if(txInfo.properties !=null)
-            applyProperties(txService, txInfo.properties);
+        if(txInfo.properties !=null) {
+            try {
+                applyProperties(txService, txInfo.properties);
+            } catch(Exception e) {
+                throw new OpenEJBException("Unable to set properties for the transaction manager",e);
+            }
+        }
 
 
         // TransactionManagerWrapper must be used to allow proper synchronization by ConnectionManager and persistence manager.
@@ -523,10 +538,9 @@ public class AssemblerTool {
     * should be processed before anything else is done in the deployment process.
     *
     * @param ivmInfo the IntraVmServerInfo configuration object that describes the ProxyFactory
-    * @return void
     * @see org.openejb.alt.assembler.classic.IntraVmServerInfo
     */
-    public  void applyProxyFactory(IntraVmServerInfo ivmInfo) throws OpenEJBException{
+    public static void applyProxyFactory(IntraVmServerInfo ivmInfo) throws OpenEJBException{
         Class factoryClass = toolkit.loadClass(ivmInfo.proxyFactoryClassName, ivmInfo.codebase);
 
         checkImplementation(PROXY_FACTORY, factoryClass, "ProxyFactory", ivmInfo.factoryName);
@@ -548,7 +562,7 @@ public class AssemblerTool {
      * @exception java.lang.IllegalAccessException
      * @exception java.lang.NoSuchMethodException
      */
-    public  void applyProperties(Object target, Properties props)
+    public static void applyProperties(Object target, Properties props)
     throws java.lang.reflect.InvocationTargetException,
            java.lang.IllegalAccessException,java.lang.NoSuchMethodException  {
         if(props != null /*&& props.size()>0*/){
@@ -1047,7 +1061,7 @@ public class AssemblerTool {
         return name;
     }
 
-    protected  void checkImplementation(Class intrfce, Class factory, String serviceType, String serviceName) throws OpenEJBException{
+    protected static void checkImplementation(Class intrfce, Class factory, String serviceType, String serviceName) throws OpenEJBException{
         if ( !intrfce.isAssignableFrom(factory) ){
             handleException("init.0100", serviceType, serviceName, factory.getName(), intrfce.getName());
         }
@@ -1087,23 +1101,23 @@ public class AssemblerTool {
     /*------------------------------------------------------*/
     /*    Methods for easy exception handling               */
     /*------------------------------------------------------*/
-    public  void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3 ) throws OpenEJBException{
+    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3 ) throws OpenEJBException{
         throw new OpenEJBException( messages.format( errorCode, arg0, arg1, arg2, arg3 ) );
     }
 
-    public  void handleException(String errorCode, Object arg0, Object arg1, Object arg2 ) throws OpenEJBException{
+    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2 ) throws OpenEJBException{
         throw new OpenEJBException( messages.format( errorCode, arg0, arg1, arg2 ) );
     }
 
-    public  void handleException(String errorCode, Object arg0, Object arg1 ) throws OpenEJBException{
+    public static void handleException(String errorCode, Object arg0, Object arg1 ) throws OpenEJBException{
         throw new OpenEJBException( messages.format( errorCode, arg0, arg1 ) );
     }
 
-    public  void handleException(String errorCode, Object arg0 ) throws OpenEJBException{
+    public static void handleException(String errorCode, Object arg0 ) throws OpenEJBException{
         throw new OpenEJBException( messages.format( errorCode, arg0 ) );
     }
 
-    public  void handleException(String errorCode ) throws OpenEJBException{
+    public static void handleException(String errorCode ) throws OpenEJBException{
         throw new OpenEJBException( messages.format( errorCode ) );
     }
 

@@ -110,7 +110,7 @@ public class Assembler extends AssemblerTool implements org.openejb.spi.Assemble
     //==================================
     // Error messages
     
-    private String INVALID_CONNECTION_MANAGER_ERROR = "Invalid connection manager specified for connector identity = ";
+    public final static String INVALID_CONNECTION_MANAGER_ERROR = "Invalid connection manager specified for connector identity = ";
     
     // Error messages
     //==================================
