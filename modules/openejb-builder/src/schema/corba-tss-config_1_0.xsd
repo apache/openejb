@@ -87,7 +87,7 @@
             <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="supports" type="tss:associationOptionList"/>
             <xsd:element name="requires" type="tss:associationOptionList"/>
-            <xsd:group ref="tss:trustGroup"/>
+            <xsd:group ref="tss:trustGroup" minOccurs="0"/>
         </xsd:sequence>
         <xsd:attribute name="port" type="xsd:short" use="required"/>
         <xsd:attribute name="hostname" type="xsd:string" use="required"/>

@@ -64,6 +64,24 @@
         <uri>openorb/jars/openorb-tools-${openorb_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>openorb/jars/openorb-ins-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>openorb/jars/openorb-pss-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>openorb/jars/openorb-ssl-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>openorb/jars/openorb-orb-omg-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>openorb/jars/openorb-ots-${openorb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>bouncycastle/jars/bcprov-${bouncycastle_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>avalon/jars/avalon-framework-${avalon_framework_version}.jar</uri>
     </dependency>
     <dependency>

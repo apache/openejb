@@ -106,30 +106,6 @@ by the server.
         <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
     </dependency>
 
-    <dependency>
-        <uri>openorb/jars/openorb-orb-${openorb_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>openorb/jars/openorb-tools-${openorb_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>openorb/jars/openorb-ins-${openorb_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>openorb/jars/openorb-pss-${openorb_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>openorb/jars/openorb-ssl-${openorb_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>openorb/jars/openorb-orb-omg-${openorb_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>openorb/jars/openorb-ots-${openorb_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>bouncycastle/jars/bcprov-${bouncycastle_version}.jar</uri>
-    </dependency>
 
     <!-- required for rar 1.5 to load realms -->
     <dependency>
@@ -323,6 +299,9 @@ by the server.
         <reference name="XmlAttributeBuilders"><name>*</name></reference>
     </gbean>
 
+    <gbean name="CSSAttributeBuilder" class="org.openejb.corba.security.config.css.CSSConfigEditor"/>
+    <gbean name="TSSAttributeBuilder" class="org.openejb.corba.security.config.tss.TSSConfigEditor"/>
+
     <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="transactionContextManagerObjectName">openejb.server:name=TransactionContextManager,*</attribute>
@@ -391,26 +370,23 @@ by the server.
             secure.server.allowUnsecure=false
 
         </attribute>
-        <attribute name="tssConfig">
-            <![CDATA[
-
-            <tss xmlns="http://www.openejb.org/xml/ns/corba-tss-config_1_0">
-                <SSL port="684" hostname="localhost" SSLContextFinderClass="org.openorb.orb.ssl.JSSEContextFinder">
-                    <supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</supports>
-                    <requires>Integrity Confidentiality EstablishTrustInClient</requires>
-                </SSL>
-                <compoundSecMechTypeList>
-                    <compoundSecMech>
-                        <GSSUP targetName="geronimo-properties-realm"/>
-                        <sasMech>
-                            <identityTokenTypes>ITTAbsent ITTAnonymous ITTPrincipalName</identityTokenTypes>
-                        </sasMech>
-                    </compoundSecMech>
-                </compoundSecMechTypeList>
-            </tss>
-
-            ]]>
-        </attribute>
+        <xml-attribute name="tssConfig">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config_1_0">
+                <tss:SSL port="684" hostname="localhost">
+<!--                     SSLContextFinderClass="org.openorb.orb.ssl.JSSEContextFinder"-->
+                    <tss:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</tss:supports>
+                    <tss:requires>Integrity Confidentiality EstablishTrustInClient</tss:requires>
+                </tss:SSL>
+                <tss:compoundSecMechTypeList>
+                    <tss:compoundSecMech>
+                        <tss:GSSUP targetName="geronimo-properties-realm"/>
+                        <tss:sasMech>
+                            <tss:identityTokenTypes>ITTAbsent ITTAnonymous ITTPrincipalName</tss:identityTokenTypes>
+                        </tss:sasMech>
+                    </tss:compoundSecMech>
+                </tss:compoundSecMechTypeList>
+            </tss:tss>
+        </xml-attribute>
     </gbean>
 
     <gbean gbeanName="openejb.CORBA:type=NameServer" class="org.openejb.corba.OpenORBNameBean">
@@ -427,13 +403,9 @@ by the server.
         <reference name="Server"><gbean-name>openejb.CORBA:type=Server</gbean-name></reference>
         <reference name="Containers"><gbean-name>openejb.server:EJBModule=org/openejb/scenario001,*</gbean-name></reference>
         <reference name="TieLoader"><gbean-name>openejb.CORBA:type=TieLoader,name=ClasspathTieLoader</gbean-name></reference>
-        <attribute name="tssConfig">
-            <![CDATA[
-
-            <tss inherit="true" xmlns="http://www.openejb.org/xml/ns/corba-tss-config_1_0"/>
-
-            ]]>
-        </attribute>
+        <xml-attribute name="tssConfig">
+            <tss:tss inherit="true" xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config_1_0"/>
+        </xml-attribute>
     </gbean>
 
     <gbean gbeanName="openejb.CORBA:type=CSS,domain=IOR7" class="org.openejb.corba.CSSBean">
@@ -459,13 +431,9 @@ by the server.
             secure.server.allowUnsecure=false
 
         </attribute>
-        <attribute name="cssConfig">
-            <![CDATA[
-
-            <css xmlns="http://www.openejb.org/xml/ns/corba-css-config_1_0"/>
-
-            ]]>
-        </attribute>
+        <xml-attribute name="cssConfig">
+            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config_1_0"/>
+        </xml-attribute>
     </gbean>
 
     <gbean gbeanName="openejb.CORBA:type=OpenORBUtil" class="org.openejb.corba.util.OpenORBUtil">
