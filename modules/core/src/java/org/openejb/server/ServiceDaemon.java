@@ -44,164 +44,157 @@
  */
 package org.openejb.server;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import org.openejb.*;
-import org.openejb.util.SafeProperties;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 
-/**
- *  The Server will call the following methods.
- * 
- *    newInstance()
- *    init( port, properties)
- *    start()
- *    stop()
- * 
- * All ServerService implementations must have a no argument 
- * constructor.
- * 
- */
-public class ServiceDaemon implements ServerService, Runnable {
-    
-    ServerService next;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 
-    Properties props;
-    String ip;
-    int port;
+public class ServiceDaemon implements GBean {
+    private static final Log log = LogFactory.getLog(ServiceDaemon.class);
 
-    ServerSocket serverSocket;
+    private final ServerService serverService;
+    private final String inetAddress;
+    private final int port;
 
-    /**
-     * We start out in a "stopped" state until someone
-     * calls the start method.
-     */
-    boolean stop = true;
+    private SocketDaemon socketDaemon;
 
-    public ServiceDaemon(ServerService next){
-        this.next = next;
+    public ServiceDaemon(ServerService serverService, String inetAddress, int port) {
+        this.serverService = serverService;
+        this.inetAddress = inetAddress;
+        this.port = port;
     }
 
-    /**
-     * Pulls out the access log information
-     * 
-     * @param props
-     * 
-     * @exception ServiceException
-     */
-    public void init(Properties props) throws Exception{
-        // Do our stuff
-        this.props = props;
-
-        String p = props.getProperty("port");
-        ip   = props.getProperty("bind");
-
-        port = Integer.parseInt(p);
-        // Then call the next guy
-        next.init(props);
+    public void setGBeanContext(GBeanContext context) {
     }
-    
-    public void start() throws ServiceException{
-        synchronized (this){
-            // Don't bother if we are already started/starting
-            if (!stop) return;
 
-            stop = false;
-            // Do our stuff
-            try{
-                serverSocket = new ServerSocket(port, 20, InetAddress.getByName(ip));
-                Thread d = new Thread(this);
-                d.setName("service."+next.getName()+"@"+d.hashCode());
-                d.setDaemon(true);
-                d.start();
-            } catch (Exception e){
-                throw new ServiceException("Service failed to start.",e);
-                //e.printStackTrace();
-            }
-            
-            // Then call the next guy
-            next.start();
+    public synchronized void doStart() throws ServiceException {
+        // Don't bother if we are already started/starting
+        if (socketDaemon != null) {
+            return;
         }
+
+        ServerSocket serverSocket;
+        try {
+            serverSocket = new ServerSocket(port, 20, InetAddress.getByName(inetAddress));
+        } catch (Exception e) {
+            throw new ServiceException("Service failed to open socket", e);
+        }
+
+        socketDaemon = new SocketDaemon(serverService, serverSocket);
+        Thread thread = new Thread(socketDaemon);
+        thread.setName("service." + serverService.getName() + "@" + socketDaemon.hashCode());
+        thread.setDaemon(true);
+        thread.start();
     }
-    
-    public void stop() throws ServiceException{
-        // Do our stuff
-        synchronized (this){
-            // Don't bother if we are already stopped/stopping
-            if (stop) return;
-            
-            //System.out.println("[] sending stop signal");
-            stop = true;
-            try{
-                this.notifyAll();
-            } catch (Throwable t){
-                t.printStackTrace();
-                //logger.error("Unable to notify the server thread to stop. Received exception: "+t.getClass().getName()+" : "+t.getMessage());
-            }
-            // Then call the next guy
-            next.stop();
+
+    public synchronized void doStop() {
+        if (socketDaemon != null) {
+            socketDaemon.stop();
+            socketDaemon = null;
         }
     }
 
-    public void service(Socket socket) throws ServiceException, IOException{
-        // Do our stuff
-        // Check authorization
+    public void doFail() {
+        doStop();
+    }
 
-        // Then call the next guy
-        next.service(socket);
+    public String getServiceName() {
+        return serverService.getName();
     }
 
     /**
-     * Gets the name of the service.
-     * Used for display purposes only
-     */ 
-    public String getName(){
-        return next.getName();
-    }
-
-    /**
-     * Gets the ip number that the 
+     * Gets the inetAddress number that the
      * daemon is listening on.
      */
-    public String getIP(){
-        return ip;
+    public String getInetAddress() {
+        return inetAddress;
     }
-    
+
     /**
-     * Gets the port number that the 
+     * Gets the port number that the
      * daemon is listening on.
      */
-    public int getPort(){
+    public int getPort() {
         return port;
     }
 
+    private static class SocketDaemon implements Runnable {
+        private ServerService serverService;
+        private ServerSocket serverSocket;
+        private boolean stopped;
 
-    public void run() {
-
-        Socket socket = null;
-        
-        while ( !stop ) {
-            try {
-                
-                socket = serverSocket.accept();
-                
-                if (!stop) service(socket);
-            
-            } catch ( SecurityException e ) {
-                //logger.error( "Security error: "+ e.getMessage() );
-            } catch ( Throwable e ) {
-                //logger.error( "Unexpected error", e );
-
-            } finally {
-                try {
-                    if ( socket != null ) socket.close();
-                } catch ( Throwable t ){
-                    //logger.error("Encountered problem while closing connection with client: "+t.getMessage());
-                }
-            }
+        public SocketDaemon(ServerService serverService, ServerSocket serverSocket) {
+            this.serverService = serverService;
+            this.serverSocket = serverSocket;
+            stopped = false;
         }
 
+        public synchronized void stop() {
+            stopped = true;
+        }
+
+        private synchronized boolean shouldStop() {
+            return stopped;
+        }
+
+        public void run() {
+            while (!shouldStop()) {
+                Socket socket = null;
+                try {
+                    socket = serverSocket.accept();
+                    if (!shouldStop()) {
+                        serverService.service(socket);
+                    }
+                } catch (Throwable e) {
+                    log.error("Unexpected error", e);
+                } finally {
+                    if (socket != null) {
+                        try {
+                            socket.close();
+                        } catch (Throwable t) {
+                            log.error("Encountered problem while closing connection with client: " + t.getMessage());
+                        }
+                    }
+                }
+            }
+
+            if (serverSocket != null) {
+                try {
+                    serverSocket.close();
+                } catch (IOException ioException) {
+                    log.debug("Error cleaning up socked", ioException);
+                }
+                serverSocket = null;
+            }
+            serverService = null;
+        }
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(ServiceDaemon.class);
+
+        infoFactory.setConstructor(
+                new String[]{"ServerService", "InetAddress", "Port"},
+                new Class[]{ServerService.class, String.class, Integer.TYPE});
+
+        infoFactory.addReference("ServerService", ServerService.class);
+        infoFactory.addAttribute("InetAddress", true);
+        infoFactory.addAttribute("Port", true);
+
+        infoFactory.addAttribute("ServiceName", false);
+
+        GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
 
 }
+
