@@ -257,9 +257,19 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         remoteProxyLoadView = new QueryCommandView(remoteProxyLoad, remoteProxyLoadView.getView());
 
         FinderEJBQLQuery pkFinder = new FinderEJBQLQuery("findByPrimaryKey", new Class[] {ejb.getPrimaryKeyClass()}, "UNDEFINED");
-        FinderEJBQLQuery previousPkFinder = (FinderEJBQLQuery) finders.put(pkFinder, new QueryCommandView[]{localProxyLoadView, remoteProxyLoadView});
-        if (null != previousPkFinder) {
-            pkFinder.setFlushCacheBeforeQuery(previousPkFinder.isFlushCacheBeforeQuery());
+        QueryCommandView views[] = new QueryCommandView[]{localProxyLoadView, remoteProxyLoadView};
+        boolean found = false;
+        for (Iterator iter = finders.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            FinderEJBQLQuery query = (FinderEJBQLQuery) entry.getKey();
+            if (query.equals(pkFinder)) {
+                entry.setValue(views);
+                found = true;
+                break;
+            }
+        }
+        if (false == found) {
+            finders.put(pkFinder, views);
         }
 
         // build the instance factory
