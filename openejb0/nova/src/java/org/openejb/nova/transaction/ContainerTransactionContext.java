@@ -52,6 +52,7 @@ import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
+import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
@@ -84,41 +85,67 @@ public class ContainerTransactionContext extends InheritableTransactionContext {
         tx = null;
     }
 
+    /**
+     * TODO the exceptions thrown here are not all correct.  Don't throw a RollbackException after
+     * a successful commit...??
+     *
+     * @throws HeuristicMixedException
+     * @throws HeuristicRollbackException
+     * @throws RollbackException
+     * @throws SystemException
+     */
     public void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException {
         try {
-            flushState();
-        } catch (Throwable t) {
             try {
-                txnManager.rollback();
-            } catch (Throwable t1) {
-                log.error("Unable to roll back transaction", t1);
+                flushState();
+            } catch (Throwable t) {
+                try {
+                    txnManager.rollback();
+                } catch (Throwable t1) {
+                    log.error("Unable to roll back transaction", t1);
+                }
+                throw (RollbackException) new RollbackException("Could not flush state before commit").initCause(t);
             }
-            throw (RollbackException) new RollbackException("Could not flush state before commit").initCause(t);
-        }
-        try {
-            beforeCommit();
-        } catch (Exception e) {
             try {
-                txnManager.rollback();
-            } catch (Throwable t1) {
-                log.error("Unable to roll back transaction", t1);
+                beforeCommit();
+            } catch (Exception e) {
+                try {
+                    txnManager.rollback();
+                } catch (Throwable t1) {
+                    log.error("Unable to roll back transaction", t1);
+                }
+                throw (RollbackException) new RollbackException("Could not flush state before commit").initCause(e);
             }
-            throw (RollbackException) new RollbackException("Could not flush state before commit").initCause(e);
-        }
-        txnManager.commit();
-        try {
-            afterCommit(true);
-        } catch (Exception e) {
+            txnManager.commit();
             try {
-                txnManager.rollback();
-            } catch (Throwable t1) {
-                log.error("Unable to roll back transaction", t1);
+                afterCommit(true);
+            } catch (Exception e) {
+                try {
+                    txnManager.rollback();
+                } catch (Throwable t1) {
+                    log.error("Unable to roll back transaction", t1);
+                }
+                throw (RollbackException) new RollbackException("Could not flush state before commit").initCause(e);
             }
-            throw (RollbackException) new RollbackException("Could not flush state before commit").initCause(e);
+        } finally {
+            connectorAfterCommit();
         }
     }
 
     public void rollback() throws SystemException {
-        txnManager.rollback();
+        try {
+            txnManager.rollback();
+        } finally {
+            connectorAfterCommit();
+        }
+    }
+
+    //Geronimo connector framework support
+    public boolean isActive() {
+        try {
+            return txnManager.getStatus() == Status.STATUS_ACTIVE;
+        } catch (SystemException e) {
+            return false;
+        }
     }
 }

@@ -50,6 +50,9 @@ package org.openejb.nova;
 import java.security.Identity;
 import java.security.Principal;
 import java.util.Properties;
+import java.util.Map;
+import java.util.HashMap;
+
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
@@ -59,6 +62,7 @@ import javax.ejb.TimerService;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
+import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
 
 /**
  * Implementation of EJBContext that uses the State pattern to determine

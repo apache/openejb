@@ -51,6 +51,8 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
+
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -65,6 +67,7 @@ import org.apache.geronimo.kernel.service.GeronimoMBeanTarget;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.remoting.DeMarshalingInterceptor;
 import org.apache.geronimo.remoting.InterceptorRegistry;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 
 import org.openejb.nova.dispatch.MethodHelper;
 import org.openejb.nova.dispatch.MethodSignature;
@@ -90,8 +93,11 @@ public abstract class AbstractEJBContainer
     protected final String messageEndpointClassName;
     protected final TransactionDemarcation txnDemarcation;
     protected TransactionManager txnManager;         //not final until Endpoints can be Constructor args.
+    protected TrackedConnectionAssociator trackedConnectionAssociator; //not final until Endpoints can be Constructor args.
     protected final ReadOnlyContext componentContext;
     protected final EJBUserTransaction userTransaction;
+    protected final Set unshareableResources;
+
 
     protected ClassLoader classLoader;
     protected Class beanClass;
@@ -124,6 +130,8 @@ public abstract class AbstractEJBContainer
         txnManager = config.txnManager;
         userTransaction = config.userTransaction;
         componentContext = config.componentContext;
+        trackedConnectionAssociator = config.trackedConnectionAssociator;
+        unshareableResources = config.unshareableResources;
     }
 
     public void setTransactionManager(TransactionManager txnManager) {
@@ -132,6 +140,14 @@ public abstract class AbstractEJBContainer
 
     public void setMBeanContext(GeronimoMBeanContext context) {
         this.context = context;
+    }
+
+    public TrackedConnectionAssociator getTrackedConnectionAssociator() {
+        return trackedConnectionAssociator;
+    }
+
+    public void setTrackedConnectionAssociator(TrackedConnectionAssociator trackedConnectionAssociator) {
+        this.trackedConnectionAssociator = trackedConnectionAssociator;
     }
 
     public boolean canStart() {

@@ -55,6 +55,7 @@ import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 import org.openejb.nova.AbstractEJBContainer;
 import org.openejb.nova.EJBContainerConfiguration;
 import org.openejb.nova.SystemExceptionInterceptor;
+import org.openejb.nova.ConnectionTrackingInterceptor;
 import org.openejb.nova.dispatch.DispatchInterceptor;
 import org.openejb.nova.transaction.TransactionContextInterceptor;
 import org.openejb.nova.util.SoftLimitedInstancePool;
@@ -79,6 +80,9 @@ public class StatelessContainer extends AbstractEJBContainer {
         // set up server side interceptors
         Interceptor firstInterceptor;
         firstInterceptor = new DispatchInterceptor(vtable);
+        if (trackedConnectionAssociator != null) {
+            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources);
+        }
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, txnManager);
         firstInterceptor = new StatelessInstanceInterceptor(firstInterceptor, pool);
         firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);

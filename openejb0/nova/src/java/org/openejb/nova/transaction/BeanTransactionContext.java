@@ -47,14 +47,21 @@
  */
 package org.openejb.nova.transaction;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
+import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+
+import org.apache.geronimo.connector.outbound.ConnectionReleaser;
+import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
 
 /**
  *
@@ -65,6 +72,8 @@ public class BeanTransactionContext extends InheritableTransactionContext {
     private final TransactionManager txnManager;
     private final UnspecifiedTransactionContext oldContext;
     private Transaction tx;
+
+    private Map managedConnections;
 
     public BeanTransactionContext(TransactionManager txnManager, UnspecifiedTransactionContext oldContext) {
         this.txnManager = txnManager;
@@ -92,19 +101,37 @@ public class BeanTransactionContext extends InheritableTransactionContext {
 
     public void commit() throws HeuristicMixedException, HeuristicRollbackException, RollbackException, SystemException {
         try {
-            flushState();
-        } catch (Throwable t) {
             try {
-                txnManager.rollback();
-            } catch (Throwable t1) {
-                log.error("Unable to roll back transaction", t1);
+                flushState();
+            } catch (Throwable t) {
+                try {
+                    txnManager.rollback();
+                } catch (Throwable t1) {
+                    log.error("Unable to roll back transaction", t1);
+                }
+                throw (RollbackException) new RollbackException("Could not flush state before commit").initCause(t);
             }
-            throw (RollbackException) new RollbackException("Could not flush state before commit").initCause(t);
+            txnManager.commit();
+        } finally {
+            connectorAfterCommit();
         }
-        txnManager.commit();
     }
 
     public void rollback() throws SystemException {
-        txnManager.rollback();
+        try {
+            txnManager.rollback();
+        } finally {
+            connectorAfterCommit();
+        }
+    }
+
+    //Geronimo connector framework support
+
+    public boolean isActive() {
+        try {
+            return txnManager.getStatus() == Status.STATUS_ACTIVE;
+        } catch (SystemException e) {
+            return false;
+        }
     }
 }

@@ -53,13 +53,14 @@ import javax.ejb.SessionBean;
 import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBInstanceContext;
 import org.openejb.nova.EJBOperation;
+import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
 
 /**
  * Wrapper for a Stateless SessionBean.
  *
  * @version $Revision$ $Date$
  */
-public final class StatelessInstanceContext implements EJBInstanceContext {
+public final class StatelessInstanceContext extends DefaultComponentContext implements EJBInstanceContext {
     private final EJBContainer container;
     private final SessionBean instance;
     private final StatelessSessionContext sessionContext;

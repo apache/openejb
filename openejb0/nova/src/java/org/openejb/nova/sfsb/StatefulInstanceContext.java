@@ -54,13 +54,14 @@ import javax.ejb.SessionSynchronization;
 import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBInstanceContext;
 import org.openejb.nova.EJBOperation;
+import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
 
 /**
  *
  *
  * @version $Revision$ $Date$
  */
-public class StatefulInstanceContext implements EJBInstanceContext {
+public class StatefulInstanceContext extends DefaultComponentContext implements EJBInstanceContext {
     private final StatefulContainer container;
     private final SessionBean instance;
     private final Object id;

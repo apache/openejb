@@ -47,15 +47,13 @@
  */
 package org.openejb.nova.mdb;
 
+import java.util.HashSet;
+
 import javax.jms.MessageListener;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.resource.spi.ResourceAdapterInternalException;
 
 import junit.framework.TestCase;
-
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.nova.EJBContainerConfiguration;
 import org.openejb.nova.MockTransactionManager;
 import org.openejb.nova.mdb.mockra.MockActivationSpec;
@@ -69,8 +67,6 @@ import org.openejb.nova.mdb.mockra.MockResourceAdapter;
  * @version $Revision$ $Date$
  */
 public class BasicMDBContainerTest extends TestCase {
-    private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
-    private MBeanServer mbServer;
     private EJBContainerConfiguration config;
     private MDBContainer container;
     private MockResourceAdapter resourceAdapter;
@@ -87,6 +83,8 @@ public class BasicMDBContainerTest extends TestCase {
         config.txnDemarcation = TransactionDemarcation.CONTAINER;
         config.txnManager = new MockTransactionManager();
         config.messageEndpointInterfaceName = MessageListener.class.getName();
+        config.trackedConnectionAssociator = new ConnectionTrackingCoordinator();
+        config.unshareableResources = new HashSet();
 
         resourceAdapter = new MockResourceAdapter();
         resourceAdapter.start(new MockBootstrapContext() );

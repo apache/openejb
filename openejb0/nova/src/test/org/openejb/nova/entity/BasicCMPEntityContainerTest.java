@@ -55,12 +55,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+
 import javax.ejb.ObjectNotFoundException;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.hsqldb.jdbcDataSource;
 import org.openejb.nova.MockTransactionManager;
 import org.openejb.nova.dispatch.MethodSignature;
@@ -186,6 +189,8 @@ public class BasicCMPEntityContainerTest extends TestCase {
         config.txnDemarcation = TransactionDemarcation.CONTAINER;
         config.txnManager = new MockTransactionManager();
         config.pkClassName = Integer.class.getName();
+        config.trackedConnectionAssociator = new ConnectionTrackingCoordinator();
+        config.unshareableResources = new HashSet();
 
         SimpleCommandFactory persistenceFactory = new SimpleCommandFactory(ds);
         ArrayList queries = new ArrayList();

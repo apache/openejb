@@ -48,7 +48,10 @@
 package org.openejb.nova.transaction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
@@ -58,7 +61,9 @@ import javax.transaction.SystemException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
+import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
+import org.apache.geronimo.connector.outbound.ConnectionReleaser;
 import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBInstanceContext;
 import org.openejb.nova.entity.cmp.InstanceData;
@@ -70,9 +75,10 @@ import org.openejb.nova.util.DoubleKeyedHashMap;
  *
  * @version $Revision$ $Date$
  */
-public abstract class TransactionContext {
+public abstract class TransactionContext implements ConnectorTransactionContext{
     protected static final Log log = LogFactory.getLog(TransactionContext.class);
     private static ThreadLocal CONTEXT = new ThreadLocal();
+    private Map managedConnections;
 
     public static TransactionContext getContext() {
         return (TransactionContext) CONTEXT.get();
@@ -159,4 +165,35 @@ public abstract class TransactionContext {
     public final InstanceData getInstancedata(EJBContainer container, Object id) {
         return (InstanceData) instanceDataCache.get(container, id);
     }
+
+    //Geronimo connector framework support
+    public void setManagedConnectionInfo(ConnectionReleaser key, ManagedConnectionInfo info) {
+        if (managedConnections == null) {
+            managedConnections = new HashMap();
+        }
+        managedConnections.put(key, info);
+    }
+
+    public ManagedConnectionInfo getManagedConnectionInfo(ConnectionReleaser key) {
+        if (managedConnections == null) {
+            return null;
+        }
+        return (ManagedConnectionInfo) managedConnections.get(key);
+    }
+
+    public abstract boolean isActive();
+
+    protected void connectorAfterCommit() {
+        if (managedConnections != null) {
+            for (Iterator entries = managedConnections.entrySet().iterator(); entries.hasNext();) {
+                Map.Entry entry = (Map.Entry) entries.next();
+                ConnectionReleaser key = (ConnectionReleaser) entry.getKey();
+                key.afterCompletion((ManagedConnectionInfo)entry.getValue());
+            }
+            //If BeanTransactionContext never reuses the same instance for sequential BMT, this
+            //clearing is unnecessary.
+            managedConnections.clear();
+        }
+    }
+
 }

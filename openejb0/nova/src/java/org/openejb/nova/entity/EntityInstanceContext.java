@@ -47,11 +47,10 @@
  */
 package org.openejb.nova.entity;
 
-import java.rmi.RemoteException;
 import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
-import javax.ejb.EJBException;
 
+import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
 import org.openejb.nova.EJBContainer;
 import org.openejb.nova.EJBInstanceContext;
 import org.openejb.nova.EJBOperation;
@@ -61,7 +60,7 @@ import org.openejb.nova.EJBOperation;
  *
  * @version $Revision$ $Date$
  */
-public abstract class EntityInstanceContext implements EJBInstanceContext {
+public abstract class EntityInstanceContext extends DefaultComponentContext implements EJBInstanceContext {
     protected final EJBContainer container;
     protected Object id;
     protected final EntityContextImpl entityContext;

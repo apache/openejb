@@ -54,6 +54,7 @@ import org.apache.geronimo.naming.java.ComponentContextInterceptor;
 
 import org.openejb.nova.AbstractEJBContainer;
 import org.openejb.nova.SystemExceptionInterceptor;
+import org.openejb.nova.ConnectionTrackingInterceptor;
 import org.openejb.nova.dispatch.DispatchInterceptor;
 import org.openejb.nova.dispatch.VirtualOperationFactory;
 import org.openejb.nova.entity.EntityClientContainerFactory;
@@ -93,6 +94,9 @@ public class BMPEntityContainer extends AbstractEJBContainer {
 
         Interceptor firstInterceptor;
         firstInterceptor = new DispatchInterceptor(vtable);
+        if (trackedConnectionAssociator != null) {
+            firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator, unshareableResources);
+        }
         firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, pool);
         firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, txnManager);

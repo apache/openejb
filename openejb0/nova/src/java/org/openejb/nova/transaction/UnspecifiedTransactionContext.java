@@ -47,6 +47,9 @@
  */
 package org.openejb.nova.transaction;
 
+import org.apache.geronimo.connector.outbound.ConnectionReleaser;
+import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
+
 
 /**
  *
@@ -72,5 +75,17 @@ public class UnspecifiedTransactionContext extends TransactionContext {
     }
 
     public void rollback() {
+    }
+
+    //Geronimo connector framework support
+    public void setManagedConnectionInfo(ConnectionReleaser key, ManagedConnectionInfo info) {
+    }
+
+    public ManagedConnectionInfo getManagedConnectionInfo(ConnectionReleaser key) {
+        return null;
+    }
+
+    public boolean isActive() {
+        return false;
     }
 }

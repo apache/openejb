@@ -48,10 +48,13 @@
 package org.openejb.nova;
 
 import java.net.URI;
+import java.util.Set;
+
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 
 import org.openejb.nova.transaction.EJBUserTransaction;
 
@@ -72,4 +75,6 @@ public class EJBContainerConfiguration {
     public EJBUserTransaction userTransaction;
     public ReadOnlyContext componentContext;
     public TransactionManager txnManager;
+    public TrackedConnectionAssociator trackedConnectionAssociator;
+    public Set unshareableResources;
 }

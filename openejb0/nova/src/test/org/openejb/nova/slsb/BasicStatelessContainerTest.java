@@ -48,20 +48,17 @@
 package org.openejb.nova.slsb;
 
 import java.net.URI;
-import javax.management.MBeanServer;
+import java.util.HashSet;
+
 import javax.management.ObjectName;
 
+import junit.framework.TestCase;
 import org.apache.geronimo.common.StopWatch;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import junit.framework.TestCase;
-
 import org.openejb.nova.EJBContainerConfiguration;
-import org.openejb.nova.EJBInvocationImpl;
-import org.openejb.nova.EJBInvocationType;
 import org.openejb.nova.MockTransactionManager;
-import org.openejb.nova.util.ServerUtil;
 
 /**
  *
@@ -71,7 +68,6 @@ import org.openejb.nova.util.ServerUtil;
  */
 public class BasicStatelessContainerTest extends TestCase {
     private static final ObjectName CONTAINER_NAME = JMXUtil.getObjectName("geronimo.test:ejb=Mock");
-    private MBeanServer mbServer;
     private EJBContainerConfiguration config;
     private StatelessContainer container;
 
@@ -151,6 +147,8 @@ public class BasicStatelessContainerTest extends TestCase {
         config.localInterfaceName = MockLocal.class.getName();
         config.txnDemarcation = TransactionDemarcation.CONTAINER;
         config.txnManager = new MockTransactionManager();
+        config.trackedConnectionAssociator = new ConnectionTrackingCoordinator();
+        config.unshareableResources = new HashSet();
 
         container = new StatelessContainer(config);
         container.doStart();

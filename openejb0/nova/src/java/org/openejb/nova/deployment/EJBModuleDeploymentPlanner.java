@@ -52,13 +52,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URL;
 import java.net.URISyntaxException;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.Collection;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -69,15 +69,15 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.model.ejb.CmpField;
 import org.apache.geronimo.deployment.model.ejb.Ejb;
 import org.apache.geronimo.deployment.model.ejb.RpcBean;
-import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelation;
-import org.apache.geronimo.deployment.model.geronimo.ejb.Relationships;
-import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelationshipRole;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelation;
+import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelationshipRole;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EnterpriseBeans;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Entity;
 import org.apache.geronimo.deployment.model.geronimo.ejb.GeronimoEjbJarDocument;
 import org.apache.geronimo.deployment.model.geronimo.ejb.MessageDriven;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Query;
+import org.apache.geronimo.deployment.model.geronimo.ejb.Relationships;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
@@ -97,7 +97,6 @@ import org.apache.geronimo.kernel.deployment.task.RegisterMBeanInstance;
 import org.apache.geronimo.kernel.deployment.task.StartMBeanInstance;
 import org.apache.geronimo.kernel.jmx.JMXKernel;
 import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.ReferenceFactory;
@@ -105,11 +104,10 @@ import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.openejb.nova.EJBContainerConfiguration;
-import org.openejb.nova.mdb.MDBContainer;
 import org.openejb.nova.entity.EntityContainerConfiguration;
 import org.openejb.nova.entity.bmp.BMPEntityContainer;
-import org.openejb.nova.entity.cmp.CMRelation;
 import org.openejb.nova.entity.cmp.CMPEntityContainer;
+import org.openejb.nova.entity.cmp.CMRelation;
 import org.openejb.nova.sfsb.StatefulContainer;
 import org.openejb.nova.slsb.StatelessContainer;
 import org.openejb.nova.transaction.EJBUserTransaction;
@@ -383,10 +381,16 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         config.uri = null;//this is local only, so this is correct.
         config.beanClassName = messageDriven.getEJBClass();
         config.messageEndpointInterfaceName = messageDriven.getMessagingType();
-        config.componentContext = getComponentContext((JNDIEnvironmentRefs)messageDriven, config.userTransaction);
+        config.componentContext = getComponentContext(messageDriven, config.userTransaction);
         config.txnDemarcation = TransactionDemarcation.valueOf(messageDriven.getTransactionType());
         config.userTransaction = config.txnDemarcation.isContainer()? null: new EJBUserTransaction();
+        config.unshareableResources = getUnshareableResources(messageDriven);
         return config;
+    }
+
+    private Set getUnshareableResources(Ejb ejb) {
+        //TODO read the unshareable resources out of the ResourceRefs.
+        return new HashSet();
     }
 
 
@@ -418,6 +422,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         config.localHomeInterfaceName = rpcBean.getLocalHome();
         config.localInterfaceName = rpcBean.getLocal();
         config.componentContext = getComponentContext((JNDIEnvironmentRefs) rpcBean, config.userTransaction);
+        config.unshareableResources = getUnshareableResources(rpcBean);
     }
 
     private ReadOnlyContext getComponentContext(JNDIEnvironmentRefs refs, UserTransaction userTransaction) throws DeploymentException {

@@ -48,20 +48,17 @@
 
 package org.openejb.nova.deployment;
 
-import javax.transaction.TransactionManager;
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.transaction.TransactionManager;
 
-import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
-import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
-import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
-import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
-import org.apache.geronimo.kernel.deployment.DeploymentException;
-import org.apache.geronimo.connector.deployment.ResourceAdapterHelper;
-import org.apache.geronimo.deployment.model.geronimo.ejb.ActivationConfig;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.deployment.model.ejb.ActivationConfigProperty;
-import org.openejb.nova.entity.bmp.BMPEntityContainer;
-import org.openejb.nova.entity.cmp.CMPEntityContainer;
+import org.apache.geronimo.deployment.model.geronimo.ejb.ActivationConfig;
+import org.apache.geronimo.kernel.service.GeronimoAttributeInfo;
+import org.apache.geronimo.kernel.service.GeronimoMBeanEndpoint;
+import org.apache.geronimo.kernel.service.GeronimoMBeanInfo;
+import org.apache.geronimo.kernel.service.GeronimoOperationInfo;
 import org.openejb.nova.EJBContainerConfiguration;
 import org.openejb.nova.mdb.MDBContainer;
 
@@ -89,7 +86,7 @@ public class EJBInfo {
         return mbeanInfo;
     }
 
-    public static GeronimoMBeanInfo getMessageDrivenGeronimoMBeanInfo(EJBContainerConfiguration config, ActivationConfig activationConfig) throws DeploymentException {
+    public static GeronimoMBeanInfo getMessageDrivenGeronimoMBeanInfo(EJBContainerConfiguration config, ActivationConfig activationConfig) {
         GeronimoMBeanInfo mbeanInfo = getSessionGeronimoMBeanInfo(MDBContainer.class.getName(), config);
 
         //set up ActivationSpec target.
@@ -136,6 +133,10 @@ public class EJBInfo {
             mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("TransactionManager",
                     TransactionManager.class.getName(),
                     ObjectName.getInstance("geronimo.transaction:role=TransactionManager"),
+                    true));
+            mbeanInfo.addEndpoint(new GeronimoMBeanEndpoint("TrackedConnectionAssociator",
+                    TrackedConnectionAssociator.class.getName(),
+                    ObjectName.getInstance("geronimo.connector:role=ConnectionTrackingCoordinator"),
                     true));
         } catch (MalformedObjectNameException e) {
             throw new AssertionError();//our o.n. is not malformed.

@@ -48,10 +48,12 @@
 package org.openejb.nova.entity;
 
 import java.net.URI;
-import javax.management.MBeanServer;
+import java.util.HashSet;
+
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.nova.MockTransactionManager;
@@ -133,6 +135,8 @@ public class BasicBMPEntityContainerTest extends TestCase {
         config.txnDemarcation = TransactionDemarcation.CONTAINER;
         config.txnManager = new MockTransactionManager();
         config.pkClassName = Integer.class.getName();
+        config.trackedConnectionAssociator = new ConnectionTrackingCoordinator();
+        config.unshareableResources = new HashSet();
 
         container = new BMPEntityContainer(config);
         container.doStart();

@@ -49,13 +49,15 @@ package org.openejb.nova;
 
 import javax.ejb.EnterpriseBean;
 
+import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
+
 /**
  *
  *
  *
  * @version $Revision$ $Date$
  */
-public interface EJBInstanceContext {
+public interface EJBInstanceContext extends ConnectorComponentContext{
     Object getId();
 
     void setId(Object id);

@@ -45,67 +45,49 @@
  *
  * ====================================================================
  */
-package org.openejb.nova.mdb;
 
-import javax.ejb.EnterpriseBean;
-import javax.ejb.MessageDrivenBean;
+package org.openejb.nova;
 
-import org.openejb.nova.EJBContainer;
-import org.openejb.nova.EJBInstanceContext;
-import org.openejb.nova.EJBOperation;
-import org.apache.geronimo.connector.outbound.connectiontracking.defaultimpl.DefaultComponentContext;
+import java.util.Set;
+
+import org.apache.geronimo.core.service.Interceptor;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
+import org.apache.geronimo.connector.outbound.ConnectorComponentContext;
+import org.apache.geronimo.connector.outbound.ConnectorTransactionContext;
 
 /**
- * Wrapper for a MDB.
+ *
  *
  * @version $Revision$ $Date$
- */
-public final class MDBInstanceContext extends DefaultComponentContext implements EJBInstanceContext {
-    private final EJBContainer container;
-    private final MessageDrivenBean instance;
-    private final MDBContext sessionContext;
+ *
+ * */
+public class ConnectionTrackingInterceptor implements Interceptor {
 
-    public MDBInstanceContext(EJBContainer container, MessageDrivenBean instance) {
-        this.container = container;
-        this.instance = instance;
-        this.sessionContext = new MDBContext(this);
+    private final Interceptor next;
+    private final TrackedConnectionAssociator trackedConnectionAssociator;
+    private final Set unshareableResources;
+
+    public ConnectionTrackingInterceptor(final Interceptor next,
+                                         final TrackedConnectionAssociator trackedConnectionAssociator,
+                                         final Set unshareableResources) {
+        this.next = next;
+        this.trackedConnectionAssociator = trackedConnectionAssociator;
+        this.unshareableResources = unshareableResources;
     }
 
-    public EnterpriseBean getInstance() {
-        return instance;
-    }
-
-    public EJBContainer getContainer() {
-        return container;
-    }
-
-    public Object getId() {
-        return null;
-    }
-
-    public void setId(Object id) {
-        throw new AssertionError("Cannot set identity for a MDB Context");
-    }
-
-    public void flush() {
-        throw new AssertionError("Cannot flush a MDB Context");
-    }
-
-    public MDBContext getMessageDrivenContext() {
-        return sessionContext;
-    }
-
-    public void setOperation(EJBOperation operation) {
-        sessionContext.setState(operation);
-        // todo enable UserTransaction
-    }
-
-    public void associate() {
-    }
-
-    public void beforeCommit() {
-    }
-
-    public void afterCommit(boolean status) {
+    public InvocationResult invoke(Invocation invocation) throws Throwable {
+        EJBInvocation ejbInvocation = (EJBInvocation)invocation;
+        ConnectorComponentContext enteringConnectorComponentContext = ejbInvocation.getEJBInstanceContext();
+        ConnectorTransactionContext enteringConnectorTransactionContext = ejbInvocation.getTransactionContext();
+        ConnectorComponentContext leavingConnectorComponentContext = trackedConnectionAssociator.enter(enteringConnectorComponentContext, unshareableResources);
+        ConnectorTransactionContext leavingConnectorTransactionContext = trackedConnectionAssociator.setConnectorTransactionContext(enteringConnectorTransactionContext);
+        try {
+            return next.invoke(invocation);
+        } finally {
+            trackedConnectionAssociator.exit(leavingConnectorComponentContext, unshareableResources);
+            trackedConnectionAssociator.setConnectorTransactionContext(leavingConnectorTransactionContext);
+        }
     }
 }
