@@ -182,6 +182,17 @@ public class StatelessInstanceManager {
         
         // allow the bean instance to be GCed.
     }
+
+    /**
+     * This methods cleans up benas that threw a system exception. EJB 2.0, page 376. note C:
+     * " Discard instance means that the Container must not invoke any business methods
+     * or container callbacks on the instance."
+     */
+    public void discardInstance(ThreadContext callContext, EnterpriseBean bean){
+        StackHolder pool = (StackHolder)poolMap.get(callContext.getDeploymentInfo().getDeploymentID());
+        pool.addToBeanCount(-1);
+        // allow the bean instance to be GCed.
+    }
     
    class StackHolder extends LinkedListStack {
 	// access to this variable MUST be synchronized, since we add values to it,

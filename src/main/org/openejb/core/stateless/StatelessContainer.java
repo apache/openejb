@@ -361,7 +361,7 @@ public class StatelessContainer implements org.openejb.RpcContainer, Transaction
     //================================================
 
     public void discardInstance(EnterpriseBean instance, ThreadContext context) {
-        instanceManager.freeInstance( context, instance );    
+        instanceManager.discardInstance( context, instance );    
     }
 
 }
