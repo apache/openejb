@@ -71,7 +71,6 @@
     <copy todir="${build.testsuite.dest}">
     
       <fileset dir="${src.java.dir}/etc" >
-        <include name="**/CHANGELOG"/>
         <include name="**/LICENSE"/>
         <include name="**/MANIFEST.MF"/>
         <include name="**/README"/>
@@ -83,6 +82,14 @@
       </fileset>
 
     </copy>
+
+	<copy todir="${build.testsuite.dest}">
+
+	  <fileset dir="${final.dir}/src/etc" >
+		<include name="**/CHANGELOG"/>
+	  </fileset>
+
+	</copy>
 
     <copy todir="${build.testsuite.dest}/META-INF">
     

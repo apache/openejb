@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <document url="http://openejb.sf.net/template.xml">
   <body>
     <td align="center" width="30">Documentation</td>
@@ -105,7 +105,7 @@
         <td align="center" width="30">PS</td>
       </tr>  
       <tr>
-        <td width="250">OpenEJB Specification - Jalapeño Version</td>
+        <td width="250">OpenEJB Specification - JalapeÃ±o Version</td>
         <td align="center" width="30">-</td>
         <td align="center" width="30">-</td>
         <td align="center" width="30"><a href="spec/OpenEJB_Specification.pdf">X</a></td>

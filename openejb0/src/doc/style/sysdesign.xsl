@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<xsl:stylesheet version="1.0" >
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
   <xsl:output method="html" indent="no"/>
+ 
+  <xsl:variable name="project" select="document('../project.xml')/project"/>
 
   <xsl:include href="leftNav.xsl"/>
   <xsl:include href="keywords.xsl"/>
@@ -9,7 +11,6 @@
 
            
   <xsl:template match="/">
-  <xsl:variable name="project" select="document('../project.xml')/project"/>
   <html>
 
   <head>
@@ -61,7 +62,7 @@
           <xsl:for-each select="/*/super">
             <span class="bodyBlack">
             <xsl:element name="a">
-            <xsl:attribute name="href"><xsl:value-of select="concat('design_', /*/super@id, '.html')"/></xsl:attribute>
+            <xsl:attribute name="href"><xsl:value-of select="concat('design_', @id, '.html')"/></xsl:attribute>
             <xsl:value-of select="."/>
             </xsl:element></span>
              <xsl:if test="not(position()=last())"><img src="images/grayDot.gif" width="20" height="13" border="0"/></xsl:if>
@@ -99,8 +100,8 @@
           <p/>
 
           <xsl:variable name="color-epsilon" select="'#a9a5de'"/>
-          <xsl:variable name="parentid" select="/component@parent"/>
-          <xsl:variable name="implof" select="/implementation@of"/>
+          <xsl:variable name="parentid" select="/component/attribute::parent"/>
+          <xsl:variable name="implof" select="/implementation/attribute::of"/>
           <table cellpadding="4" cellspacing="2" width="100%">
             <tr>
               <td><span class="name"><xsl:apply-templates select="/*/name"/></span>
@@ -108,7 +109,7 @@
                   <xsl:when test="$parentid">
                     <xsl:variable name="file" select="concat('../design_', $parentid, '.xml')"/>
                     <xsl:variable name="parentName" select="document($file)/*/name"/>
-                    
+                
                     <p><span class="super"><xsl:text>Sub-component of </xsl:text>
                     <xsl:element name="a">
                       <xsl:attribute name="href"><xsl:value-of select="concat('design_', $parentid, '.html')"/></xsl:attribute>
@@ -116,7 +117,7 @@
                     </xsl:element>
                     </span></p>
                   </xsl:when>
-                  <xsl:when test='$implof'>
+                  <xsl:when test="$implof">
                     <xsl:variable name="file" select="concat('../design_', $implof, '.xml')"/>
                     <xsl:variable name="interfaceName" select="document($file)/*/name"/>
                     <p><span class="super"><xsl:text>Implementation of </xsl:text>
@@ -298,7 +299,7 @@
               <tr>
                 <td>
                   <xsl:element name="img">
-                  <xsl:attribute name="src"><xsl:value-of select="/*/image@src"/></xsl:attribute>
+                  <xsl:attribute name="src"><xsl:value-of select="/*/image/attribute::src"/></xsl:attribute>
                   <xsl:attribute name="width">240</xsl:attribute>
                   <xsl:attribute name="height">300</xsl:attribute>
                   <xsl:attribute name="border">0</xsl:attribute>
@@ -332,12 +333,7 @@
 
       <tr height="5">
         <td width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&#160;</td>
-        <td width="95" height="5" bgcolor="#7270c2" valign="top">
-        <img src="images/dotTrans.gif" width="1" height="15" border="0"/><br/>
-        <img src="images/line_sm.gif" width="105" height="3" border="0"/>
-
-
-        </td>
+        <td width="95" height="5" bgcolor="#7270c2" valign="top">&#160;</td>
         <td width="7" height="5" bgcolor="#a9a5de" valign="top" align="left">&#160;</td>
         <td width="40" height="5" valign="top" align="left">&#160;</td>
         <td width="240" height="5" valign="top" align="left">&#160;</td>
@@ -347,18 +343,9 @@
 
       <tr>
         <td width="20" height="5" bgcolor="#7270c2" valign="top" align="left">&#160;</td>
-        <td width="95" bgcolor="#7270c2" valign="top" align="left">
-          <A href="http://sourceforge.net"> 
-            <IMG  src="http://sourceforge.net/sflogo.php?group_id=44351"
-                  width="88" height="31" border="0" alt="SourceForge Logo"/>
-          </A>
-        </td>
-        <td width="7" bgcolor="#a9a5de" valign="top" align="left">
-          <img src="images/dotTrans.gif" width="1" height="25" border="0"/>
-        </td>
-        <td width="40" valign="top" align="left">
-          <img src="images/dotTrans.gif" width="1" height="25" border="0"/>
-        </td>
+        <td width="95" bgcolor="#7270c2" valign="top" align="left">&#160;</td>
+        <td width="7" bgcolor="#a9a5de" valign="top" align="left">&#160;</td>
+        <td width="40" valign="top" align="left">&#160;</td>
         <td width="240" valign="top" align="left">&#160;</td>
       </tr>
 

@@ -5,6 +5,9 @@
   <logo>./images/logo_ejb.gif</logo>
   <repository>OpenEJB</repository>
   <href>http://openejb.sf.net</href>
+  <group_id>44351</group_id>
+  <bug_id>439274</bug_id>
+  <task_id>460291</task_id>
 
   <topNav>
     <navLink>
