@@ -50,11 +50,17 @@ package org.openejb.proxy;
 import javax.naming.RefAddr;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class ProxyRefAddr extends RefAddr {
+    public static ProxyRefAddr createRemote(String containerId, boolean sessionBean, String remoteInterfaceName, String homeInterfaceName) {
+        return new ProxyRefAddr(containerId, sessionBean, remoteInterfaceName, homeInterfaceName, null, null, false);
+    }
+
+    public static ProxyRefAddr createLocal(String containerId, boolean sessionBean, String localInterfaceName, String localHomeInterfaceName) {
+        return new ProxyRefAddr(containerId, sessionBean, null, null, localInterfaceName, localHomeInterfaceName, true);
+    }
+
     private final static String TYPE = "org.openejb.proxy.EJBType";
     private final String containerId;
     private final boolean isSessionBean;
@@ -66,7 +72,7 @@ public class ProxyRefAddr extends RefAddr {
 
     private transient EJBProxyFactory proxyFactory;
 
-    public ProxyRefAddr(String containerId, boolean sessionBean, String remoteInterfaceName, String homeInterfaceName, String localInterfaceName, String localHomeInterfaceName, boolean local) {
+    private ProxyRefAddr(String containerId, boolean sessionBean, String remoteInterfaceName, String homeInterfaceName, String localInterfaceName, String localHomeInterfaceName, boolean local) {
         super(TYPE);
         this.containerId = containerId;
         isSessionBean = sessionBean;
@@ -94,8 +100,7 @@ public class ProxyRefAddr extends RefAddr {
             Class localInterface = loadClass(cl, localInterfaceName);
             Class localHomeInterface = loadClass(cl, localHomeInterfaceName);
 
-            proxyFactory = new EJBProxyFactory(
-                    containerId,
+            proxyFactory = new EJBProxyFactory(containerId,
                     isSessionBean,
                     remoteInterface,
                     homeInterface,

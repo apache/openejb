@@ -50,32 +50,28 @@ package org.openejb;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.geronimo.gbean.GBean;
+import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.WaitingException;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.kernel.management.ManagedObject;
-
 import org.openejb.entity.cmp.ConnectionProxyFactory;
-
 import org.tranql.ejb.EJBSchema;
-import org.tranql.schema.Schema;
 import org.tranql.query.ConnectionFactoryDelegate;
+import org.tranql.schema.Schema;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
-public class EJBModule implements GBean {
+public class EJBModuleImpl implements GBean {
     private final Collection ejbs;
     private final EJBSchema ejbSchema;
     private final Schema sqlSchema;
     private final ConnectionFactoryDelegate delegate;
     private final ConnectionProxyFactory connectionFactory;
 
-    public EJBModule(Collection ejbs, EJBSchema ejbSchema, Schema sqlSchema, ConnectionFactoryDelegate delegate, ConnectionProxyFactory connectionFactory) {
+    public EJBModuleImpl(Collection ejbs, EJBSchema ejbSchema, Schema sqlSchema, ConnectionFactoryDelegate delegate, ConnectionProxyFactory connectionFactory) {
         this.ejbs = ejbs;
         this.ejbSchema = ejbSchema;
         this.sqlSchema = sqlSchema;
@@ -116,16 +112,14 @@ public class EJBModule implements GBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoFactory infoFactory = new GBeanInfoFactory(EJBModule.class);
+        GBeanInfoFactory infoFactory = new GBeanInfoFactory(EJBModuleImpl.class);
         infoFactory.addAttribute("EJBSchema", true);
         infoFactory.addAttribute("SQLSchema", true);
         infoFactory.addReference("ejbs", ManagedObject.class);
         infoFactory.addReference("ConnectionFactory", ConnectionProxyFactory.class);
         infoFactory.addAttribute("Delegate", true);
-        infoFactory.setConstructor(
-                new String[]{"ejbs", "EJBSchema", "SQLSchema", "Delegate", "ConnectionFactory"},
-                new Class[]{Collection.class, EJBSchema.class, Schema.class, ConnectionFactoryDelegate.class, ConnectionProxyFactory.class}
-        );
+        infoFactory.setConstructor(new String[]{"ejbs", "EJBSchema", "SQLSchema", "Delegate", "ConnectionFactory"},
+                new Class[]{Collection.class, EJBSchema.class, Schema.class, ConnectionFactoryDelegate.class, ConnectionProxyFactory.class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

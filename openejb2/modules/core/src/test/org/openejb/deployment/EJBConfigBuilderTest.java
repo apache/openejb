@@ -50,23 +50,32 @@ package org.openejb.deployment;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 import javax.ejb.EJBHome;
 import javax.management.ObjectName;
 import javax.sql.DataSource;
 
+import junit.framework.TestCase;
 import org.apache.geronimo.common.xml.XmlBeansUtil;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.EJBModule;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.management.State;
@@ -76,26 +85,22 @@ import org.apache.geronimo.transaction.TransactionManagerProxy;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
-
-import junit.framework.TestCase;
-import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
-import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
+import org.apache.xmlbeans.XmlObject;
 import org.openejb.ContainerIndex;
+import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
 import org.tranql.sql.jdbc.JDBCUtil;
 
 /**
- *
- *
  * @version $Revision$ $Date$
  */
 public class EJBConfigBuilderTest extends TestCase {
     public void testCreateSessionBean() throws Exception {
-        EJBConfigBuilder configBuilder = new EJBConfigBuilder(null, null);
+        OpenEJBModuleBuilder configBuilder = new OpenEJBModuleBuilder();
         File ejbJarFile = new File("target/test-ejb-jar.jar");
         assertTrue(ejbJarFile.canRead());
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-        ClassLoader cl = new URLClassLoader(new URL[] {ejbJarFile.toURL()}, oldCl);
+        ClassLoader cl = new URLClassLoader(new URL[]{ejbJarFile.toURL()}, oldCl);
         URL ejbJarXml = cl.getResource("META-INF/ejb-jar.xml");
         InputStream in = ejbJarXml.openStream();
         in.close();
@@ -114,55 +119,159 @@ public class EJBConfigBuilderTest extends TestCase {
 
         try {
             Thread.currentThread().setContextClassLoader(cl);
-            configBuilder.createSessionBean("containerId", sessionBean, openejbSessionBean, new HashMap(), transactionPolicyHelper, cl);
+            configBuilder.createSessionBean(null, new EJBModule("TestModule", URI.create("/")), "containerId", sessionBean, openejbSessionBean, transactionPolicyHelper, cl);
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }
     }
 
-    public void testBuildConfiguration() throws Exception {
-        EJBConfigBuilder configBuilder = new EJBConfigBuilder(null, null);
+    public void testBuildModule() throws Exception {
+        String j2eeDomainName = "openejb.server";
+        String j2eeServerName = "TestOpenEJBServer";
+        String j2eeApplicationName = "null";
+        String j2eeModuleName = "org/openejb/deployment/test";
+
+        ModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
         File ejbJarFile = new File("target/test-ejb-jar.jar");
 
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-        ClassLoader cl = new URLClassLoader(new URL[] {ejbJarFile.toURL()}, oldCl);
-        URL ejbJarXml = cl.getResource("META-INF/openejb-jar.xml");
+        ClassLoader cl = new URLClassLoader(new URL[]{ejbJarFile.toURL()}, oldCl);
 
-        OpenejbOpenejbJarDocument plan = (OpenejbOpenejbJarDocument) XmlBeansUtil.getXmlObject(ejbJarXml, OpenejbOpenejbJarDocument.type);
+        Thread.currentThread().setContextClassLoader(cl);
+
+        XmlObject plan = moduleBuilder.getDeploymentPlan(ejbJarFile.toURL());
+        URI parentId = moduleBuilder.getParentId(plan);
+        URI configId = moduleBuilder.getConfigId(plan);
+        Module module = moduleBuilder.createModule(configId.toString(), plan);
 
         File carFile = File.createTempFile("OpenEJBTest", ".car");
-        Kernel kernel  = null;
         try {
-            Thread.currentThread().setContextClassLoader(cl);
-            configBuilder.buildConfiguration(carFile, null, ejbJarFile, plan);
+            EARContext earContext = new EARContext(
+                    new JarOutputStream(new FileOutputStream(carFile)),
+                    configId,
+                    parentId,
+                    null,
+                    j2eeDomainName,
+                    j2eeServerName,
+                    j2eeApplicationName);
+
+            moduleBuilder.installModule(new JarFile(ejbJarFile), earContext, module);
+            earContext.getClassLoader(null);
+            moduleBuilder.initContext(earContext, module, cl);
+            moduleBuilder.addGBeans(earContext, module, cl);
+            earContext.close();
 
             File tempdir = new File(System.getProperty("java.io.tmpdir"));
             File unpackedDir = new File(tempdir, "OpenEJBTest-Unpacked");
             LocalConfigStore.unpack(unpackedDir, new FileInputStream(carFile));
 
+            verifyDeployment(unpackedDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName);
+        } finally {
+            carFile.delete();
+        }
+    }
+
+    public void testEJBJarDeploy() throws Exception {
+        String j2eeDomainName = "openejb.server";
+        String j2eeServerName = "TestOpenEJBServer";
+        String j2eeApplicationName = "null";
+        String j2eeModuleName = "org/openejb/deployment/test";
+
+        ModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
+        File earFile = new File("target/test-ejb-jar.jar");
+
+        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+        ClassLoader cl = new URLClassLoader(new URL[]{earFile.toURL()}, oldCl);
+
+        Thread.currentThread().setContextClassLoader(cl);
+
+        File carFile = File.createTempFile("OpenEJBTest", ".car");
+        try {
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(
+                    null,
+                    null,
+                    new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
+                    moduleBuilder,
+                    null, // web
+                    null); // connector
+
+            XmlObject plan = earConfigBuilder.getDeploymentPlan(earFile.toURL());
+            earConfigBuilder.buildConfiguration(carFile, null, earFile, plan);
+
+            File tempdir = new File(System.getProperty("java.io.tmpdir"));
+            File unpackedDir = new File(tempdir, "OpenEJBTest-ear-Unpacked");
+            LocalConfigStore.unpack(unpackedDir, new FileInputStream(carFile));
+
+            verifyDeployment(unpackedDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName);
+        } finally {
+            carFile.delete();
+        }
+    }
+
+    public void testEARDeploy() throws Exception {
+        String j2eeDomainName = "openejb.server";
+        String j2eeServerName = "TestOpenEJBServer";
+        String j2eeApplicationName = "org/apache/geronimo/j2ee/deployment/test";
+        String j2eeModuleName = "test-ejb-jar.jar";
+
+        ModuleBuilder moduleBuilder = new OpenEJBModuleBuilder();
+        File earFile = new File("target/test-ear.ear");
+
+        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+        ClassLoader cl = new URLClassLoader(new URL[]{earFile.toURL()}, oldCl);
+
+        Thread.currentThread().setContextClassLoader(cl);
+
+        File carFile = File.createTempFile("OpenEJBTest", ".car");
+        try {
+            EARConfigBuilder earConfigBuilder = new EARConfigBuilder(
+                    null,
+                    null,
+                    new ObjectName(j2eeDomainName + ":j2eeType=J2EEServer,name=" + j2eeServerName),
+                    moduleBuilder,
+                    null, // web
+                    null); // connector
+
+            XmlObject plan = earConfigBuilder.getDeploymentPlan(earFile.toURL());
+            earConfigBuilder.buildConfiguration(carFile, null, earFile, plan);
+
+            File tempdir = new File(System.getProperty("java.io.tmpdir"));
+            File unpackedDir = new File(tempdir, "OpenEJBTest-ear-Unpacked");
+            LocalConfigStore.unpack(unpackedDir, new FileInputStream(carFile));
+
+            verifyDeployment(unpackedDir, oldCl, j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName);
+        } finally {
+            carFile.delete();
+        }
+    }
+
+    private void verifyDeployment(File unpackedDir, ClassLoader cl, String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName) throws Exception {
+        DataSource ds = null;
+        Kernel kernel = null;
+        try {
             GBeanMBean config = loadConfig(unpackedDir);
 
             kernel = new Kernel("blah");
             kernel.boot();
 
             GBeanMBean tmGBean = new GBeanMBean(TransactionManagerProxy.GBEAN_INFO);
-            ObjectName tmObjectName = ObjectName.getInstance("openejb:type=TransactionManager");
+            ObjectName tmObjectName = ObjectName.getInstance(j2eeDomainName + ":type=TransactionManager");
             kernel.loadGBean(tmObjectName, tmGBean);
             kernel.startGBean(tmObjectName);
             assertRunning(kernel, tmObjectName);
 
             GBeanMBean connectionTrackerGBean = new GBeanMBean(ConnectionTrackingCoordinator.GBEAN_INFO);
-            ObjectName connectionTrackerObjectName = ObjectName.getInstance("openejb:type=ConnectionTracker");
+            ObjectName connectionTrackerObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ConnectionTracker");
             kernel.loadGBean(connectionTrackerObjectName, connectionTrackerGBean);
             kernel.startGBean(connectionTrackerObjectName);
             assertRunning(kernel, connectionTrackerObjectName);
 
             GBeanMBean containerIndexGBean = new GBeanMBean(ContainerIndex.GBEAN_INFO);
-            ObjectName containerIndexObjectName = ObjectName.getInstance("openejb:type=ContainerIndex");
+            ObjectName containerIndexObjectName = ObjectName.getInstance(j2eeDomainName + ":type=ContainerIndex");
             Set ejbContainerNames = new HashSet();
-            ejbContainerNames.add(ObjectName.getInstance("openejb:j2eeType=StatelessSessionBean,*"));
-            ejbContainerNames.add(ObjectName.getInstance("openejb:j2eeType=StatefulSessionBean,*"));
-            ejbContainerNames.add(ObjectName.getInstance("openejb:j2eeType=EntityBean,*"));
+            ejbContainerNames.add(ObjectName.getInstance(j2eeDomainName + ":j2eeType=StatelessSessionBean,*"));
+            ejbContainerNames.add(ObjectName.getInstance(j2eeDomainName + ":j2eeType=StatefulSessionBean,*"));
+            ejbContainerNames.add(ObjectName.getInstance(j2eeDomainName + ":j2eeType=EntityBean,*"));
             containerIndexGBean.setReferencePatterns("EJBContainers", ejbContainerNames);
             kernel.loadGBean(containerIndexObjectName, containerIndexGBean);
             kernel.startGBean(containerIndexObjectName);
@@ -174,7 +283,7 @@ public class EJBConfigBuilderTest extends TestCase {
             kernel.startGBean(connectionProxyFactoryObjectName);
             assertRunning(kernel, connectionProxyFactoryObjectName);
 
-            DataSource ds = (DataSource) kernel.getAttribute(connectionProxyFactoryObjectName, "Proxy");
+            ds = (DataSource) kernel.getAttribute(connectionProxyFactoryObjectName, "Proxy");
             Connection connection = null;
             Statement statement = null;
             try {
@@ -193,65 +302,77 @@ public class EJBConfigBuilderTest extends TestCase {
             kernel.startRecursiveGBean(objectName);
             assertRunning(kernel, objectName);
 
-            ObjectName moduleName = ObjectName.getInstance("openejb:j2eeType=EJBModule,J2EEServer=null,J2EEApplication=null,name=org/openejb/itests");
+            ObjectName moduleName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=EJBModule,J2EEServer="+j2eeServerName+",J2EEApplication="+j2eeApplicationName+",name="+j2eeModuleName);
             assertRunning(kernel, moduleName);
 
             // STATELESS
-            ObjectName statelessBeanName = ObjectName.getInstance("openejb:j2eeType=StatelessSessionBean,J2EEServer=null,J2EEApplication=null,J2EEModule=org/openejb/itests,name=SimpleStatelessSession");
+            ObjectName statelessBeanName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=StatelessSessionBean,J2EEServer="+j2eeServerName+",J2EEApplication="+j2eeApplicationName+",J2EEModule="+j2eeModuleName+",name=SimpleStatelessSession");
             assertRunning(kernel, statelessBeanName);
 
             // use reflection to invoke a method on the stateless bean, becuase we don't have access to the classes here
             Object statelessHome = kernel.getAttribute(statelessBeanName, "EJBHome");
             assertTrue("Home is not an instance of EJBHome", statelessHome instanceof EJBHome);
             Object stateless = statelessHome.getClass().getMethod("create", null).invoke(statelessHome, null);
-            assertEquals("TestResult", stateless.getClass().getMethod("echo", new Class[] {String.class}).invoke(stateless, new Object[] {"TestResult"}));
+            assertEquals("TestResult", stateless.getClass().getMethod("echo", new Class[]{String.class}).invoke(stateless, new Object[]{"TestResult"}));
 
 
             // STATEFUL
-            ObjectName statefulBeanName = ObjectName.getInstance("openejb:j2eeType=StatefulSessionBean,J2EEServer=null,J2EEApplication=null,J2EEModule=org/openejb/itests,name=SimpleStatefulSession");
+            ObjectName statefulBeanName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=StatefulSessionBean,J2EEServer="+j2eeServerName+",J2EEApplication="+j2eeApplicationName+",J2EEModule="+j2eeModuleName+",name=SimpleStatefulSession");
             assertRunning(kernel, statefulBeanName);
 
             Object statefulHome = kernel.getAttribute(statefulBeanName, "EJBHome");
             assertTrue("Home is not an instance of EJBHome", statefulHome instanceof EJBHome);
             Object stateful = statefulHome.getClass().getMethod("create", null).invoke(statefulHome, null);
-            stateful.getClass().getMethod("setValue", new Class[] {String.class}).invoke(stateful, new Object[] {"SomeValue"});
+            stateful.getClass().getMethod("setValue", new Class[]{String.class}).invoke(stateful, new Object[]{"SomeValue"});
             assertEquals("SomeValue", stateful.getClass().getMethod("getValue", null).invoke(stateful, null));
 
             // BMP
-            ObjectName bmpBeanName = ObjectName.getInstance("openejb:j2eeType=EntityBean,J2EEServer=null,J2EEApplication=null,J2EEModule=org/openejb/itests,name=SimpleBMPEntity");
+            ObjectName bmpBeanName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=EntityBean,J2EEServer="+j2eeServerName+",J2EEApplication="+j2eeApplicationName+",J2EEModule="+j2eeModuleName+",name=SimpleBMPEntity");
             assertRunning(kernel, bmpBeanName);
 
             Object bmpHome = kernel.getAttribute(bmpBeanName, "EJBHome");
             assertTrue("Home is not an instance of EJBHome", bmpHome instanceof EJBHome);
             Object bmp = bmpHome.getClass().getMethod("create", null).invoke(bmpHome, null);
-            bmp.getClass().getMethod("setName", new Class[] {String.class}).invoke(bmp, new Object[] {"MyNameValue"});
+            bmp.getClass().getMethod("setName", new Class[]{String.class}).invoke(bmp, new Object[]{"MyNameValue"});
             assertEquals("MyNameValue", bmp.getClass().getMethod("getName", null).invoke(bmp, null));
 
             // CMP
-            ObjectName cmpBeanName = ObjectName.getInstance("openejb:j2eeType=EntityBean,J2EEServer=null,J2EEApplication=null,J2EEModule=org/openejb/itests,name=SimpleCMPEntity");
+            ObjectName cmpBeanName = ObjectName.getInstance(j2eeDomainName + ":j2eeType=EntityBean,J2EEServer="+j2eeServerName+",J2EEApplication="+j2eeApplicationName+",J2EEModule="+j2eeModuleName+",name=SimpleCMPEntity");
             assertRunning(kernel, cmpBeanName);
 
             Object cmpHome = kernel.getAttribute(cmpBeanName, "EJBHome");
             assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
-            Object cmp = cmpHome.getClass().getMethod("create", new Class[] {Integer.class}).invoke(cmpHome, new Object[] {new Integer(42)});
+            Object cmp = cmpHome.getClass().getMethod("create", new Class[]{Integer.class}).invoke(cmpHome, new Object[]{new Integer(42)});
 
-            cmp.getClass().getMethod("setFirstName", new Class[] {String.class}).invoke(cmp, new Object[] {"MyFistName"});
+            cmp.getClass().getMethod("setFirstName", new Class[]{String.class}).invoke(cmp, new Object[]{"MyFistName"});
             assertEquals("MyFistName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
 
             kernel.stopGBean(objectName);
             kernel.stopGBean(connectionProxyFactoryObjectName);
             kernel.stopGBean(tmObjectName);
         } finally {
+            if (ds != null) {
+                Connection connection = null;
+                Statement statement = null;
+                try {
+                    connection = ds.getConnection();
+                    statement = connection.createStatement();
+                    statement.execute("SHUTDOWN");
+                } finally {
+                    JDBCUtil.close(statement);
+                    JDBCUtil.close(connection);
+                }
+            }
+
             if (kernel != null) {
                 kernel.shutdown();
             }
-            carFile.delete();
-            Thread.currentThread().setContextClassLoader(oldCl);
+            Thread.currentThread().setContextClassLoader(cl);
         }
     }
 
     private void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
-        int state = ((Integer)kernel.getAttribute(objectName, "state")).intValue();
+        int state = ((Integer) kernel.getAttribute(objectName, "state")).intValue();
         assertEquals(State.RUNNING_INDEX, state);
     }
 
