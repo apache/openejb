@@ -57,6 +57,7 @@ import org.openejb.spi.AssemblerFactory;
 import org.openejb.spi.ContainerSystem;
 import org.openejb.spi.SecurityService;
 import org.openejb.util.SafeToolkit;
+import org.apache.log4j.Category;
 
 /**
  * OpenEJB is the main factory for bootstrapping and obtaining a references to
@@ -108,15 +109,16 @@ import org.openejb.util.SafeToolkit;
  * @see org.openejb.spi.Assembler
  */
 
-public class OpenEJB {
+public final class OpenEJB {
 
 
-    protected static ContainerSystem containerSystem;
-    protected static SecurityService securityService;
-    protected static ApplicationServer applicationServer;
-    protected static TransactionManager transactionManager;
-    protected static Properties initProps;
-    protected static boolean initialized;
+    private static ContainerSystem    containerSystem;
+    private static SecurityService    securityService;
+    private static ApplicationServer  applicationServer;
+    private static TransactionManager transactionManager;
+    private static Properties         initProps;
+    private static boolean            initialized;
+    private static Category           logger = Category.getInstance("OpenEJB");
 
     public static void init(Properties props)
     throws OpenEJBException{
