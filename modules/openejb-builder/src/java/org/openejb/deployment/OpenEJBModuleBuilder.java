@@ -455,9 +455,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private static Set collectRoleNames(EjbJarType ejbJar) {
         Set roleNames = new HashSet();
 
-        SecurityRoleType[] securityRoles = ejbJar.getAssemblyDescriptor().getSecurityRoleArray();
-        for (int i=0; i<securityRoles.length; i++) {
-            roleNames.add(securityRoles[i].getRoleName().getStringValue());
+        if( ejbJar.isSetAssemblyDescriptor() ) {
+	        SecurityRoleType[] securityRoles = ejbJar.getAssemblyDescriptor().getSecurityRoleArray();
+	        for (int i=0; i<securityRoles.length; i++) {
+	            roleNames.add(securityRoles[i].getRoleName().getStringValue());
+	        }
         }
 
         return roleNames;
