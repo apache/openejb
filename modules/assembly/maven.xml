@@ -6,6 +6,7 @@
     xmlns:j="jelly:core"
     xmlns:ant="jelly:ant"
     xmlns:define="jelly:define"
+    xmlns:velocity="jelly:velocity"
     xmlns:bootstrap="geronimo:bootstrap">
 
     <!-- ================= -->
@@ -109,6 +110,23 @@
             <fileset dir="${project.root}" includes="*.txt,STATUS"/>
         </ant:copy>
 
+        <!-- Preprocess all plans using velocity  -->
+        <ant:mkdir dir="${basedir}/target/plan"/>
+        <fileScanner var="plans">
+            <fileset dir="${basedir}/src/plan">
+                <include name="*-plan.xml"/>
+            </fileset>
+        </fileScanner>
+
+        <j:forEach var="plan" items="${plans.iterator()}">
+            <j:set var="planName" value="${plan.name}"/>
+            <echo>Preprocessing ${planName}</echo>
+            <velocity:merge
+                basedir="${basedir}/src/plan"
+                template="${planName}"
+                name="${basedir}/target/plan/${planName}"/>
+        </j:forEach>
+
         <!-- bootstrap the deployer -->
         <ant:echo>Bootstrapping service deployer</ant:echo>
         <ant:mkdir dir="${distDir}/bin"/>
@@ -125,8 +143,8 @@
             deployerJar="${distDir}/bin/deployer.jar"
             storeDir="${distDir}/config-store"
             repositoryDir="${distDir}/repository"
-            deployerSystemPlan="${basedir}/src/plan/deployer-system-plan.xml"
-            j2eeDeployerPlan="${basedir}/src/plan/j2ee-deployer-plan.xml"
+            deployerSystemPlan="${basedir}/target/plan/deployer-system-plan.xml"
+            j2eeDeployerPlan="${basedir}/target/plan/j2ee-deployer-plan.xml"
             deployerClassPath="${deploy.classpath}"
             deployerGBean="geronimo.deployment:role=Deployer,config=org/apache/geronimo/J2EEDeployer"
             deploymentFactory="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl"
@@ -139,7 +157,7 @@
             <ant:jvmarg value="-ea"/>
             <ant:arg value="--install"/>
             <ant:arg value="--plan"/>
-            <ant:arg value="src/plan/system-plan.xml"/>
+            <ant:arg value="target/plan/system-plan.xml"/>
             <ant:arg value="--outfile"/>
             <ant:arg value="${distDir}/bin/server.jar"/>
             <ant:arg value="--mainClass"/>
@@ -155,7 +173,7 @@
             <ant:jvmarg value="-ea"/>
             <ant:arg value="--install"/>
             <ant:arg value="--plan"/>
-            <ant:arg value="src/plan/j2ee-server-plan.xml"/>
+            <ant:arg value="target/plan/j2ee-server-plan.xml"/>
         </ant:java>
 
         <!-- building tranql connector default database configuration-->
@@ -164,9 +182,9 @@
             <ant:jvmarg value="-ea"/>
             <ant:arg value="--install"/>
             <ant:arg value="--plan"/>
-            <ant:arg value="src/plan/default-database-plan.xml"/>
+            <ant:arg value="target/plan/default-database-plan.xml"/>
             <ant:arg value="--module"/>
-            <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-SNAPSHOT.rar"/>
+            <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"/>
         </ant:java>
 
    </goal>

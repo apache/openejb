@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!DOCTYPE project [
+<!ENTITY % locator SYSTEM "file:locator.ent">
+%locator;
+%versions;
+ ]>
+
 <!-- $Revision$ $Date$ -->
 
 <project>
@@ -61,7 +67,7 @@
   <!-- Versions -->
   <!-- ======== -->
 
-  <currentVersion>2.0-SNAPSHOT</currentVersion>
+  <currentVersion>&openejb-version;</currentVersion>
 
   <versions>
     <version>
