@@ -341,7 +341,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             ejbModuleGBean.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
 
             if (connectionFactoryName != null) {
-                ObjectName connectionFactoryObjectName = ObjectName.getInstance(JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + connectionFactoryName);
+                ObjectName connectionFactoryObjectName = ObjectName.getInstance("geronimo.server:J2EEServer=geronimo" + JMXReferenceFactory.BASE_MANAGED_CONNECTION_FACTORY_NAME + connectionFactoryName);
                 ejbModuleGBean.setReferencePattern("ConnectionFactory", connectionFactoryObjectName);
                 ejbModuleGBean.setAttribute("Delegate", delegate);
             }
