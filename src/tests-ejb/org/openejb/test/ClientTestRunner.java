@@ -69,6 +69,13 @@ public class ClientTestRunner extends org.openejb.test.TestRunner{
      * main entry point.
      */
     public static void main(String args[]) {
+        try{
+            org.openejb.util.ClasspathUtils.addJarsToSystemPath("lib");
+            org.openejb.util.ClasspathUtils.addJarsToSystemPath("dist");
+            org.openejb.util.ClasspathUtils.addJarsToSystemPath("beans");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
 
         TestRunner aTestRunner = new ClientTestRunner();
 
