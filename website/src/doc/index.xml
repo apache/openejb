@@ -3,7 +3,7 @@
 <!ENTITY news SYSTEM "news.xml">
 ]>
 
-<document url="http://openejb.sf.net/index.xml" toc="none" page-title="none">
+<document url="http://www.openejb.org/index.xml" toc="none" page-title="none">
 
   <body>
     <title>OpenEJB -- Welcome</title>

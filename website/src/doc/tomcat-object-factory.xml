@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<document url="http://openejb.sf.net/tomcat-object-factory.xml">
+<document url="http://www.openejb.org/tomcat-object-factory.xml">
     <properties>
         <title>Setting up Tomcat with OpenEJB</title>
         <sub-title>Leveraging J2EE JNDI principles</sub-title>
@@ -316,8 +316,8 @@ $ cp $OPENEJB_HOME/dist/openejb_loader-0.9.0.war webapps/]]></code-block>
                 example EJB to test things out. You won't
                 need to do anything differently.  Deploy
                 the myHelloEjb.jar just as described in
-                <a href="http://openejb.sourceforge.net/hello-world.html"
-                    target="_blank">http://openejb.sourceforge.net/hello-world.html</a>
+                <a href="http://www.openejb.org/hello-world.html"
+                    target="_blank">http://www.openejb.org/hello-world.html</a>
             </p>
             <p>
                 Register the factory in Tomcat by editing server.xml, i.e. add the above Ejb element declaration

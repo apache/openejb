@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<document url="http://openejb.sf.net/cmp_entity_postgresql.xml" toc="numeric">
+<document url="http://www.openejb.org/cmp_entity_postgresql.xml" toc="numeric">
     <properties>
         <title>Hello OpenEJB World!</title>
         <sub-title>A basic CMP entity bean example</sub-title>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<document url="http://openejb.sf.net/cvs_ssh_windows_guideline.xml">
+<document url="http://www.openejb.org/cvs_ssh_windows_guideline.xml">
   <body>
     <title>Working CVS and SSH under Windows</title>
     
@@ -154,7 +154,7 @@
             within six hours to the following systems.
         
             <ul>
-              <li>The OpenEJB SF server (openejb.sf.net)</li>
+              <li>The OpenEJB SF server (www.openejb.org)</li>
               <li>The SF shell server (shell.sf.net)</li>
               <li>The OpenEJB CVS server at SF (cvs.openejb.sf.net)</li>
             </ul>

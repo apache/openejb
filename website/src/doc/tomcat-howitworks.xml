@@ -45,7 +45,7 @@ at all!.  All your servlets and JSPs will have fast, network-free access to all 
 <section title="The process of embedding" ref-id="embedding">
   <p>
 This is just one of the ways OpenEJB can be embedded.  OpenEJB can be embedded into any VM!  
-<A HREF="http://openejb.sourceforge.net/embedded.html">Read here for more details.</A>
+<A HREF="http://www.openejb.org/embedded.html">Read here for more details.</A>
 </p>
 </section>
   </body>

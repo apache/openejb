@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<document url="http://openejb.sf.net/tomcat-setup.xml">
+<document url="http://www.openejb.org/tomcat-setup.xml">
   <properties>
     <title>David's notes on setting up Tomcat with OpenEJB</title>
   </properties>
@@ -89,8 +89,8 @@ $ tar xzvf jakarta-tomcat-4.1.12.tar.gz
 <section title="Install OpenEJB" ref-id="download.openejb">
 <p>
 You need OpenEJB 0.9.0 or higher, any older versions of OpenEJB will not 
-work.  You can get that here: <a href="http://openejb.sf.net/download.html" target="_blank">
-http://openejb.sf.net/download.html</a>
+work.  You can get that here: <a href="http://www.openejb.org/download.html" target="_blank">
+http://www.openejb.org/download.html</a>
 </p>
 <p>
 Unpack OpenEJB 
@@ -169,7 +169,7 @@ the myHelloEjb.jar just as described.
 </p>
 
 <p>
-<a href="http://openejb.sourceforge.net/hello-world.html" target="_blank">http://openejb.sourceforge.net/hello-world.html</a>
+<a href="http://www.openejb.org/hello-world.html" target="_blank">http://www.openejb.org/hello-world.html</a>
 </p>
 
 <p>

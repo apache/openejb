@@ -55,14 +55,14 @@
           <xsl:when test="@bug">
             <xsl:variable name="aid" select="@bug"/>
               [<xsl:element name="a">
-                <xsl:attribute name="href"><xsl:value-of select="concat('http://sourceforge.net/tracker/index.php?func=detail&amp;aid=', $aid, '&amp;group_id=', $group_id, '&amp;atid=', $bug_id)"/></xsl:attribute>
+                <xsl:attribute name="href"><xsl:value-of select="concat('http://www.openejb.org/tracker/index.php?func=detail&amp;aid=', $aid, '&amp;group_id=', $group_id, '&amp;atid=', $bug_id)"/></xsl:attribute>
                 <xsl:value-of select="@bug"/>
               </xsl:element>] <xsl:value-of select="."/>
           </xsl:when>
           <xsl:when test="@task">
             <xsl:variable name="aid" select="@task"/>
               [<xsl:element name="a">
-                <xsl:attribute name="href"><xsl:value-of select="concat('http://sourceforge.net/tracker/index.php?func=detail&amp;aid=', $aid, '&amp;group_id=', $group_id, '&amp;atid=', $task_id)"/></xsl:attribute>
+                <xsl:attribute name="href"><xsl:value-of select="concat('http://www.openejb.org/tracker/index.php?func=detail&amp;aid=', $aid, '&amp;group_id=', $group_id, '&amp;atid=', $task_id)"/></xsl:attribute>
                 <xsl:value-of select="@task"/>
               </xsl:element>] <xsl:value-of select="."/>
           </xsl:when>
