@@ -369,80 +369,82 @@ public class Deploy {
         Class[] parameterList;
         Class[] exceptionList;
         List ignoredMethods = new Vector();
-        String answer;
-
-        ignoredMethods.add("remove");
-        ignoredMethods.add("getEJBMetaData");
-        ignoredMethods.add("getHomeHandle");
-        ignoredMethods.add("findByPrimaryKey");
+        String answer = null;
 
         for (int i = 0; i < methods.length; i++) {
-            if (ignoredMethods.contains(methods[i].getName())) {
-                continue;
-            }
+            if (methods[i].getName().startsWith("find")
+                && !methods[i].getName().equals("findByPrimaryKey")) {
 
-            if (!instructionsPrinted) {
-                out.println("\n==--- Step 4 ---==");
-                out.println(
-                    "\nThis part of the application allows you to add OQL (Object\n"
-                        + "Query Language) statements to your methods.  Below is a list\n"
-                        + "of methods which you may give an optional OQL statement.  If\n"
-                        + "you do not want to add a statement, leave the prompt blank.\n");
-                
-                instructionsPrinted = true;
-            }
+                if (!instructionsPrinted) {
+                    out.println("\n==--- Step 4 ---==");
+                    out.println(
+                        "\nThis part of the application allows you to add OQL (Object\n"
+                            + "Query Language) statements to your methods.  Below is a list\n"
+                            + "of methods which you may give an optional OQL statement.  If\n"
+                            + "you do not want to add a statement, leave the prompt blank.\n");
 
-            out.print("Method: ");
-            parameterList = methods[i].getParameterTypes();
-            exceptionList = methods[i].getExceptionTypes();
-
-            out.print(methods[i].getName() + "(");
-
-            for (int j = 0; j < parameterList.length; j++) {
-                out.print(StringUtilities.getLastToken(parameterList[j].getName(), "."));
-
-                if (j != (parameterList.length - 1)) {
-                    out.print(", ");
+                    instructionsPrinted = true;
                 }
-            }
-            out.print(") ");
 
-            if (exceptionList.length > 0) {
-                out.print("throws ");
-            }
+                out.print("Method: ");
+                parameterList = methods[i].getParameterTypes();
+                exceptionList = methods[i].getExceptionTypes();
 
-            for (int j = 0; j < exceptionList.length; j++) {
-                out.print(StringUtilities.getLastToken(exceptionList[j].getName(), "."));
+                out.print(methods[i].getName() + "(");
 
-                if (j != (exceptionList.length - 1)) {
-                    out.print(", ");
+                for (int j = 0; j < parameterList.length; j++) {
+                    out.print(StringUtilities.getLastToken(parameterList[j].getName(), "."));
+
+                    if (j != (parameterList.length - 1)) {
+                        out.print(", ");
+                    }
                 }
-            }
+                out.print(") ");
 
-            out.println();
+                if (exceptionList.length > 0) {
+                    out.print("throws ");
+                }
 
-            try {
-                out.println("Please enter your OQL Statement here.");
-                out.print("\nOQL Statement: ");
-                answer = in.readLine();
-            } catch (Exception e) {
-                throw new OpenEJBException(e.getMessage());
-            }
+                for (int j = 0; j < exceptionList.length; j++) {
+                    out.print(StringUtilities.getLastToken(exceptionList[j].getName(), "."));
 
-            //create a new query and add it to the deployment
-            if (answer != null && !answer.equals("")) {
-                query = new org.openejb.alt.config.ejb11.Query();
-                methodParams = new MethodParams();
-                queryMethod = new QueryMethod();
-                
-                queryMethod.setMethodParams(methodParams);
-                queryMethod.setMethodName(methods[i].getName());
-                query.setQueryMethod(queryMethod);
-                query.setObjectQl(answer);
-                
-                deployment.addQuery(query);
+                    if (j != (exceptionList.length - 1)) {
+                        out.print(", ");
+                    }
+                }
 
-                out.println("\nYour OQL statement was successfully added to the jar.\n");
+                out.println();
+
+                try {
+                    boolean replied = false;
+
+                    while (!replied) {
+                        out.println("Please enter your OQL Statement here.");
+                        out.print("\nOQL Statement: ");
+                        answer = in.readLine();
+                        if (answer.length() > 0) {
+                            replied = true;
+                        }
+                    }
+                } catch (Exception e) {
+                    throw new OpenEJBException(e.getMessage());
+                }
+
+                //create a new query and add it to the deployment
+                if (answer != null && !answer.equals("")) {
+                    query = new org.openejb.alt.config.ejb11.Query();
+                    methodParams = new MethodParams();
+                    queryMethod = new QueryMethod();
+
+                    queryMethod.setMethodParams(methodParams);
+                    queryMethod.setMethodName(methods[i].getName());
+                    query.setQueryMethod(queryMethod);
+                    query.setObjectQl(answer);
+
+                    deployment.addQuery(query);
+
+                    out.println("\nYour OQL statement was successfully added to the jar.\n");
+                }
             }
         }
     }
