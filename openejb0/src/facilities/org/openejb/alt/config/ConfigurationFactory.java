@@ -59,6 +59,7 @@ import org.openejb.alt.config.ejb11.*;
 import org.openejb.alt.config.ejb11.Query;
 import org.openejb.alt.config.sys.*;
 import org.openejb.util.FileUtils;
+import org.openejb.util.Logger;
 import org.openejb.util.Messages;
 
 /**
@@ -74,6 +75,7 @@ import org.openejb.util.Messages;
 public class ConfigurationFactory implements OpenEjbConfigurationFactory, ProviderDefaults {
 
     public static final String DEFAULT_SECURITY_ROLE = "openejb.default.security.role";
+    protected static Logger logger = Logger.getInstance( "OpenEJB", "org.openejb.util.resources" );
     protected static Messages messages = new Messages( "org.openejb.util.resources" );
 
     Openejb openejb;
@@ -862,7 +864,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         return bean;
     }
 
-    private EnterpriseBeanInfo initEntityBean(EnterpriseBeansItem item, Map m) throws OpenEJBException{
+    private EnterpriseBeanInfo initEntityBean(EnterpriseBeansItem item, Map m) throws OpenEJBException {
         Entity e = item.getEntity();
         EntityBeanInfo bean = new EntityBeanInfo();
 
@@ -914,7 +916,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         return bean;
     }
 
-    private void assignBeansToContainers(EnterpriseBeanInfo[] beans, Map ejbds) {
+    private void assignBeansToContainers(EnterpriseBeanInfo[] beans, Map ejbds) throws OpenEJBException {
 
         for ( int i=0; i < beans.length; i++ ) {
             // Get the bean deployment object
@@ -922,6 +924,12 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
             // Get the container it was assigned to
             ContainerInfo cInfo = (ContainerInfo)containerTable.get(d.getContainerId());
+	    if ( cInfo == null ) {
+		String msg = messages.format( "config.NoContainerFound", d.getContainerId(), d.getEjbName() );
+
+		logger.fatal( msg );
+		throw new OpenEJBException( msg );
+	    }
 
             // Add the bean info object to the cotnainer's bean array
             EnterpriseBeanInfo[] oldList = cInfo.ejbeans;
