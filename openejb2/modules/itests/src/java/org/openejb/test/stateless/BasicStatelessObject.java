@@ -93,4 +93,6 @@ public interface BasicStatelessObject extends javax.ejb.EJBObject{
      * @return 
      */
     public OperationsPolicy getAllowedOperationsReport(String methodName) throws RemoteException;
+
+    public void accessBMTBean() throws RemoteException;
 }

@@ -50,10 +50,20 @@ import java.util.Properties;
 
 import javax.ejb.EJBException;
 import javax.ejb.SessionContext;
+import javax.ejb.CreateException;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
+import javax.transaction.UserTransaction;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.NotSupportedException;
 
 import org.openejb.test.ApplicationException;
+import org.openejb.test.stateful.BasicStatefulObject;
+import org.openejb.test.stateful.BasicStatefulHome;
 import org.openejb.test.object.OperationsPolicy;
 
 /**
@@ -277,7 +287,7 @@ public class BasicStatelessBean implements javax.ejb.SessionBean{
 		/*[10] Test Enterprise_bean_access ///////////////*/
 		try {
 			InitialContext jndiContext = new InitialContext( ); 
-	
+
 			Object obj = jndiContext.lookup("java:comp/env/stateless/beanReferences/Enterprise_bean_access");
 	
 			policy.allow( policy.Enterprise_bean_access );
@@ -287,5 +297,34 @@ public class BasicStatelessBean implements javax.ejb.SessionBean{
 	
 		allowedOperationsTable.put(methodName, policy);
 	}
+
+    public void accessBMTBean() throws EJBException {
+        UserTransaction ut = ejbContext.getUserTransaction();
+        try {
+            ut.begin();
+        } catch (NotSupportedException e) {
+            throw new EJBException(e);
+        } catch (SystemException e) {
+            throw new EJBException(e);
+        }
+        try {
+            BasicStatelessObject other = (BasicStatelessObject) ejbContext.getEJBObject();
+            other.businessMethod("foo");
+        } catch (RemoteException e) {
+            throw new EJBException(e);
+        }
+        try {
+            ut.commit();
+        } catch (HeuristicMixedException e) {
+            throw new EJBException(e);
+        } catch (HeuristicRollbackException e) {
+            throw new EJBException(e);
+        } catch (RollbackException e) {
+            throw new EJBException(e);
+        } catch (SystemException e) {
+            throw new EJBException(e);
+        }
+    }
+
 
 }
