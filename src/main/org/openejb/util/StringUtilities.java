@@ -56,6 +56,9 @@ public class StringUtilities {
 	/** the CRLF for use in String manipulation */
 	public static final String CRLF = "\r\n";
 
+	//we don't want anyone creating new instances
+	private StringUtilities() {}
+
 	/**
 	 * Gets the last token in a StringTokenizer.
 	 * @param tokenString - the string to get the last token from

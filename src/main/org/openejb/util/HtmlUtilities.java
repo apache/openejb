@@ -44,11 +44,15 @@
 package org.openejb.util;
 
 /**
- * A class for HTML utilities
+ * A class for HTML utilities; see 
+ * <a href="http://www.w3.org/TR/html4" target="_blank">http://www.w3.org/TR/html4</a>for more info
  * 
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class HtmlUtilities {
+	//we don't want anyone creating new instances of this class
+	private HtmlUtilities (){}
+	
 	/**
 	 * Creates the beginning of an HTML select based on the name passed in
 	 * <br>
@@ -139,9 +143,7 @@ public class HtmlUtilities {
 		return createInputFormField("submit", name, value, 0, 0, null, null, null, null, false, false, false);
 	}
 
-	/** creates an input type; see 
-	 *  <a href="http://www.w3.org/TR/html4" target="_blank">http://www.w3.org/TR/html4</a>
-	 *  for more info
+	/** creates an input type, text, radio, button submit, etc
 	 * 
 	 * @param type - the type of input
 	 * @param name - name of the input
@@ -210,5 +212,47 @@ public class HtmlUtilities {
 		}
 
 		return temp.append(">").toString();
+	}
+
+	/**
+	 * Creates an HTML textarea object<br>
+	 * <code>
+	 * &lt;textarea name="name" rows="rows" cols="columns" onfocus="onFocus" onblur="onBlur" onchange="onChange"&gt;<br>
+	 * content<br>
+	 * &lt;/textarea&gt;
+	 * </code>
+	 * 
+	 * @param name - the name of the textarea
+	 * @param content - the content of the textarea
+	 * @param rows - the number of rows of the textarea
+	 * @param columns - the numbe of columns of the textarea
+	 * @param onFocus - a javascript onfocus event (null for no onfocus)
+	 * @param onBlur - a javascript onblur event (null for no onblur)
+	 * @param onChange - a javascript onchange event (null for no onchange)
+	 * @return the constucted textarea string
+	 */
+	public static String createTextArea(
+		String name,
+		String content,
+		int rows,
+		int columns,
+		String onFocus,
+		String onBlur,
+		String onChange) {
+		StringBuffer temp = new StringBuffer(50);
+		temp.append("<textarea name=\"").append(name).append("\" rows=\"").append(rows).append("\" cols=\"").append(
+			columns).append("\"");
+
+		if (onFocus != null) {
+			temp.append(" onfocus=\"").append(onFocus).append("\"");
+		}
+		if (onBlur != null) {
+			temp.append(" onblur=\"").append(onBlur).append("\"");
+		}
+		if (onChange != null) {
+			temp.append(" onchange=\"").append(onChange).append("\"");
+		}
+
+		return temp.append(">").append(content).append("</textarea>").toString();
 	}
 }

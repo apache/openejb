@@ -54,7 +54,5 @@ import org.openejb.alt.config.sys.Openejb;
  */
 public interface ConfigurationDataObject extends EJBObject {
 	public Openejb getOpenejb() throws RemoteException;
-	public ContainerData getContainerData() throws RemoteException;
 	public void setOpenejb(Openejb config) throws RemoteException;
-	public void setContainerData(ContainerData containerData) throws RemoteException;
 }

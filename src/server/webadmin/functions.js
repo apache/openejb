@@ -60,6 +60,7 @@ function submitForm(form, action)
 	form.submit();
 }
 
+//confirms whether or not to submit the form
 function confirmSubmitForm(form, action, message)
 {
   if(confirm(message))
@@ -68,6 +69,7 @@ function confirmSubmitForm(form, action, message)
   }
 }
 
+//opens up a pop-up help window
 function popUpHelp(url)
 {
    window.open(url, "helpWindow", "width=640,height=480,resizable,scrollbars");

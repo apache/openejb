@@ -57,7 +57,6 @@ import org.openejb.alt.config.sys.Openejb;
  */
 public class ConfigurationDataBean implements SessionBean {
 	private Openejb openejb;
-	private ContainerData containerData;
 
 	public Openejb getOpenejb() {
 		return this.openejb;
@@ -65,14 +64,6 @@ public class ConfigurationDataBean implements SessionBean {
 
 	public void setOpenejb(Openejb openejb) {
 		this.openejb = openejb;
-	}
-
-	public ContainerData getContainerData() {
-		return this.containerData;
-	}
-
-	public void setContainerData(ContainerData data) {
-		this.containerData = data;
 	}
 
 	public void ejbCreate() throws CreateException {}
