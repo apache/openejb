@@ -50,6 +50,7 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBObject;
 import javax.ejb.EnterpriseBean;
 import javax.ejb.EntityBean;
@@ -240,8 +241,8 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
             throw new org.openejb.ApplicationException(new RemoteException("Unauthorized Access by Principal Denied"));
 
         // process home interface methods
-        if(EJBHome.class.isAssignableFrom(callMethod.getDeclaringClass())){
-            if(callMethod.getDeclaringClass()!= EJBHome.class){
+        if(EJBHome.class.isAssignableFrom(callMethod.getDeclaringClass()) || EJBLocalHome.class.isAssignableFrom(callMethod.getDeclaringClass()) ){
+            if(callMethod.getDeclaringClass() != EJBHome.class && callMethod.getDeclaringClass() != EJBLocalHome.class){
             // Its a home interface method, which is declared by the bean provider, but not a EJBHome method.
             // only create(), find<METHOD>( ) and home business methods are declared by the bean provider.
                 if(callMethod.getName().equals("create")){
@@ -258,7 +259,7 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
                 removeEJBObject(callMethod, args, callContext);
                 return null;
             }
-        }else if(EJBObject.class == callMethod.getDeclaringClass()){
+        } else if(EJBObject.class == callMethod.getDeclaringClass()){
             removeEJBObject(callMethod, args, callContext);
             return null;
         }
@@ -510,8 +511,13 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
             txPolicy.afterInvoke( bean, txContext );
         }
         
+        Class callingClass = callMethod.getDeclaringClass();
+		if (EJBLocalHome.class.isAssignableFrom(callingClass)) {
+            return new ProxyInfo(deploymentInfo, primaryKey, deploymentInfo.getLocalInterface(), this);
+        } else {
+            return new ProxyInfo(deploymentInfo, primaryKey, deploymentInfo.getRemoteInterface(), this);
+        }
         
-        return new ProxyInfo(deploymentInfo, primaryKey, deploymentInfo.getRemoteInterface(), this);
         
     }
     /**
