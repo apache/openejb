@@ -46,6 +46,8 @@ package org.openejb.corba.security;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.LocalObject;
 import org.omg.IOP.ServiceContext;
 import org.omg.IOP.TAG_CSI_SEC_MECH_LIST;
@@ -65,8 +67,11 @@ import org.openejb.corba.util.Util;
  */
 final class ClientSecurityInterceptor extends LocalObject implements ClientRequestInterceptor {
 
+    private final Log log = LogFactory.getLog(ClientSecurityInterceptor.class);
+
     public ClientSecurityInterceptor() {
         AbstractServerRequest.disableServiceContextExceptions();
+        if (log.isDebugEnabled()) log.debug("Registered");
     }
 
     public void receive_exception(ClientRequestInfo ri) {
@@ -82,19 +87,33 @@ final class ClientSecurityInterceptor extends LocalObject implements ClientReque
     }
 
     public void send_request(ClientRequestInfo ri) {
+
         try {
+            if (log.isDebugEnabled()) log.debug("Checking if target " + ri.operation() + " has a security policy");
+
             TaggedComponent tc = ri.get_effective_component(TAG_CSI_SEC_MECH_LIST.value);
             TSSCompoundSecMechListConfig csml = TSSCompoundSecMechListConfig.decodeIOR(Util.getCodec(), tc);
 
+            if (log.isDebugEnabled()) log.debug("Target has a security policy");
+
             ClientPolicy policy = (ClientPolicy) ri.get_request_policy(ClientPolicyFactory.POLICY_TYPE);
             if (policy.getConfig() == null) return;
+
+            if (log.isDebugEnabled()) log.debug("Client has a security policy");
 
             CSSConfig config = policy.getConfig();
             List compat = config.findCompatibleSet(csml);
 
             if (compat.size() == 0) return;
 
+            if (log.isDebugEnabled()) log.debug("Found compatible policy");
+
             ServiceContext context = ((CSSCompoundSecMechConfig) compat.get(0)).generateServiceContext();
+
+            if (log.isDebugEnabled()) {
+                log.debug("Msg context id: " + context.context_id);
+                log.debug("Encoded msg: 0x" + Util.byteToString(context.context_data));
+            }
 
             ri.add_request_service_context(context, true);
         } catch (Exception ue) {

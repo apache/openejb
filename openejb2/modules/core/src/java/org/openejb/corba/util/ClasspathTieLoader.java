@@ -44,6 +44,8 @@
  */
 package org.openejb.corba.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.omg.PortableServer.Servant;
 
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -61,8 +63,13 @@ import org.openejb.corba.CORBAException;
  */
 public class ClasspathTieLoader implements TieLoader {
 
+    private final Log log = LogFactory.getLog(ClasspathTieLoader.class);
+
     public Servant loadTieClass(Class itf, ClassLoader cl) throws CORBAException {
+
         String name = itf.getName();
+        String stubName = "";
+
         try {
             int namepos = name.lastIndexOf('.');
             String packagename, classname;
@@ -74,14 +81,20 @@ public class ClasspathTieLoader implements TieLoader {
                 packagename = name.substring(0, namepos + 1);
                 classname = name.substring(namepos + 1);
             }
-            String stubName = packagename + "_" + classname + "_Tie";
+
+            stubName = packagename + "_" + classname + "_Tie";
+
+            if (log.isDebugEnabled()) log.debug("Loading TIE class " + stubName + " for " + name);
 
             return (Servant) cl.loadClass(stubName).newInstance();
         } catch (InstantiationException e) {
+            log.error("Unable to load TIE class " + stubName + " for " + name);
             throw new CORBAException(e);
         } catch (IllegalAccessException e) {
+            log.error("Unable to load TIE class " + stubName + " for " + name);
             throw new CORBAException(e);
         } catch (ClassNotFoundException e) {
+            log.error("Unable to load TIE class " + stubName + " for " + name);
             throw new CORBAException(e);
         }
     }

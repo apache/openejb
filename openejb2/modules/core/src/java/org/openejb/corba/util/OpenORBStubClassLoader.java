@@ -134,8 +134,10 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
                         url = file.toURL();
                         nameToClassMap.put(name, url);
                     } catch (IOException e) {
+                        log.error("Unable to generate stub", e);
                         throw new ClassNotFoundException("Unable to generate stub", e);
                     } catch (CompilerException e) {
+                        log.error("Unable to generate stub", e);
                         throw new ClassNotFoundException("Unable to generate stub", e);
                     }
                 }
@@ -146,11 +148,13 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
             }
 
             result = loader.loadClass(name);
+            assert result != null;
 
-            if (log.isDebugEnabled()) log.debug("result: " + (result == null ? "NULL" : result.getName()));
+            if (log.isDebugEnabled()) log.debug("result: " + result.getName());
             return result;
 
         }
+        if (log.isDebugEnabled()) log.debug("Could not load class: " + name);
         throw new ClassNotFoundException("Could not load class: " + name);
     }
 

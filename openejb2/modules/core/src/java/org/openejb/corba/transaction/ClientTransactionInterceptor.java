@@ -44,20 +44,23 @@
  */
 package org.openejb.corba.transaction;
 
-import org.omg.CORBA.INTERNAL;
-import org.omg.CORBA.LocalObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.INTERNAL;
+import org.omg.CORBA.INV_POLICY;
+import org.omg.CORBA.LocalObject;
+import org.omg.IOP.CodecPackage.FormatMismatch;
+import org.omg.IOP.CodecPackage.TypeMismatch;
+import org.omg.IOP.TaggedComponent;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
-import org.omg.IOP.TaggedComponent;
-import org.omg.IOP.CodecPackage.FormatMismatch;
-import org.omg.IOP.CodecPackage.TypeMismatch;
 
 import org.openejb.corba.idl.CosTSInteroperation.TAG_OTS_POLICY;
-import org.openejb.corba.idl.CosTransactions.OTSPolicyValueHelper;
 import org.openejb.corba.idl.CosTransactions.ADAPTS;
+import org.openejb.corba.idl.CosTransactions.OTSPolicyValueHelper;
 import org.openejb.corba.util.Util;
 
 
@@ -66,7 +69,10 @@ import org.openejb.corba.util.Util;
  */
 class ClientTransactionInterceptor extends LocalObject implements ClientRequestInterceptor {
 
+    private final Log log = LogFactory.getLog(ClientTransactionInterceptor.class);
+
     public ClientTransactionInterceptor() {
+        if (log.isDebugEnabled()) log.debug("Registered");
     }
 
     public void receive_exception(ClientRequestInfo ri) throws ForwardRequest {
@@ -84,6 +90,8 @@ class ClientTransactionInterceptor extends LocalObject implements ClientRequestI
     public void send_request(ClientRequestInfo ri) throws ForwardRequest {
         TaggedComponent taggedComponent = null;
         try {
+            if (log.isDebugEnabled()) log.debug("Checking if target " + ri.operation() + " has a transaction policy");
+
             taggedComponent = ri.get_effective_component(TAG_OTS_POLICY.value);
         } catch (BAD_PARAM e) {
             if ((e.minor & 25) == 25) {
@@ -92,19 +100,26 @@ class ClientTransactionInterceptor extends LocalObject implements ClientRequestI
             }
             throw e;
         }
+
+        if (log.isDebugEnabled()) log.debug("Target has a transaction policy");
+
         byte[] data = taggedComponent.component_data;
         Any any = null;
         try {
             any = Util.getCodec().decode_value(data, OTSPolicyValueHelper.type());
         } catch (FormatMismatch formatMismatch) {
-            throw (INTERNAL) new INTERNAL("mismatched format").initCause(formatMismatch);
+            log.error("Mismatched format");
+            throw (INTERNAL) new INTERNAL("Mismatched format").initCause(formatMismatch);
         } catch (TypeMismatch typeMismatch) {
+            log.error("Type mismatch");
             throw (INTERNAL) new INTERNAL("Type mismatch").initCause(typeMismatch);
         }
         short value = OTSPolicyValueHelper.extract(any);
         if (value == ADAPTS.value) {
-            ClientTransactionPolicy policy = (ClientTransactionPolicy) ri.get_request_policy(ClientTransactionPolicyFactory.POLICY_TYPE);
-            if (policy == null) {
+            ClientTransactionPolicy policy = null;
+            try {
+                policy = (ClientTransactionPolicy) ri.get_request_policy(ClientTransactionPolicyFactory.POLICY_TYPE);
+            } catch (INV_POLICY e) {
                 throw new INTERNAL("No transaction policy configured");
             }
             ClientTransactionPolicyConfig clientTransactionPolicyConfig = policy.getClientTransactionPolicyConfig();
