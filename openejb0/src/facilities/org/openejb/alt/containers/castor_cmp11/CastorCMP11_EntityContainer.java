@@ -406,7 +406,7 @@ org.exolab.castor.persist.spi.InstanceFactory {
 
         String userDir = System.getProperty("user.dir");
         try{
-            System.setProperty("user.dir",System.getProperty("openejb.home"));
+            System.setProperty("user.dir",System.getProperty("openejb.base"));
             jdo_ForLocalTransaction.getDatabase();
             jdo_ForGlobalTransaction.getDatabase();
 

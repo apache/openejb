@@ -73,7 +73,7 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
 
         String userDir = System.getProperty("user.dir");
         try{
-            System.setProperty("user.dir",System.getProperty("openejb.home"));
+            System.setProperty("user.dir",System.getProperty("openejb.base"));
             // Test the connection out, problems are logged
             testDriver();
         } finally {
