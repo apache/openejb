@@ -1003,6 +1003,8 @@
         <include name="default.logging.conf"/>
         <include name="default.openejb.conf"/>
         <include name="default.service-jar.xml"/>
+        <include name="postgresql.*"/>
+        <include name="instantdb.*"/>
       </fileset>
     
     </copy>
@@ -1118,7 +1120,8 @@
     <antcall target="pre-delegate">
         <param name="module" value="openejb-server"/>
     </antcall>    
-    
+
+<!--    
     <antcall target="pre-delegate">
         <param name="module" value="corba"/>
     </antcall>    
@@ -1130,7 +1133,7 @@
     <antcall target="pre-delegate">
         <param name="module" value="ri-server"/>
     </antcall>    
-    
+-->    
     <antcall target="pre-delegate">
         <param name="module" value="testsuite"/>
     </antcall>    
