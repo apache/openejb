@@ -249,7 +249,7 @@ In your favorite editor, create the file below.
         <ejb-name>EmployeeBean</ejb-name>
         <method-name>*</method-name>
       </method>
-      <trans-attribute>Supports</trans-attribute>
+      <trans-attribute>Required</trans-attribute>
     </container-transaction>
   </assembly-descriptor>
 </ejb-jar>
@@ -267,7 +267,7 @@ In your favorite editor, create the file below.
         
 <section title="Package the EJB" ref-id="jar">
 <p>
-<command>C:\my\app> jar -cvMf employee.jar org/acme/employee/*.class META-INF</command>
+<command>C:\my\app> jar -cvf employee.jar org/acme/employee/*.class META-INF</command>
 </p>
 </section>
 
@@ -595,24 +595,19 @@ public class EmployeeClient
 <p>
 Create the file in your favorite editor.
 </p>
-<file name="C:\my\app\RunIt.bat">
+<file name="C:\my\app\runit.bat">
 @echo off
 
 set OPENEJB_HOME=C:\openejb
 set PATH=%PATH%;%OPENEJB_HOME%\bin
 
-set OLD_CLASSPATH=%CLASSPATH%
-
 set CP=
-for %%i in (%OPENEJB_HOME%\lib\*.jar) do call cp.bat %%i 
-for %%i in (%OPENEJB_HOME%\dist\*.jar) do call cp.bat %%i 
+for %%i in (%OPENEJB_HOME%\dist\openejb*.jar) do call cp.bat %%i
+set CP=%OPENEJB_HOME%\lib\ejb-1.0.jar;%CP%
 set CP=c:\my\app\employee.jar;%CP%
 
-set CLASSPATH=%JAVA_HOME%\lib\tools.jar;%CP%
-
-%JAVA_HOME%\bin\java -Dopenejb.home=%OPENEJB_HOME% org.acme.employee.EmployeeClient
-
-set CLASSPATH=%OLD_CLASSPATH%</file>
+%JAVA_HOME%\bin\java -cp %CP% -Dopenejb.home=%OPENEJB_HOME% org.acme.employee.EmployeeClient
+</file>
 
 <p>
 Open the command line window and start up OpenEJB with the following 
@@ -640,7 +635,7 @@ You will see the following sample output on the out-of-process client's console:
 </p>
 
 <code>
-C:\my\app>RunIt
+C:\my\app>runit
 Are the "create" and "find" users identical ? true</code>
 
 <p>
@@ -662,7 +657,7 @@ To log into the admin console, telnet to:
  telnet 127.0.0.1 4200
 ---------------------------------------
 Ready!
-[FirstName LastName(1) OpenEJB-1029465232802@SF.net] Hello OpenEJB World !</code>
+[Jacek Laskowski(1) OpenEJB-1029465232802@SF.net] Hello OpenEJB World !</code>
 </section>
         
 <section title="What if it didn't work" ref-id="problems">
@@ -706,3 +701,4 @@ you are using the basic CMP entity bean example.
 </section>
 </body>
 </document>
+
