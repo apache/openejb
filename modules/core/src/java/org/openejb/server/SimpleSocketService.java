@@ -54,9 +54,9 @@ import java.net.Socket;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.openejb.ContainerIndex;
 import org.openejb.OpenEJB;
@@ -64,7 +64,7 @@ import org.openejb.OpenEJB;
 /**
  * @version $Revision$ $Date$
  */
-public class SimpleSocketService implements SocketService, GBean {
+public class SimpleSocketService implements SocketService, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(SimpleSocketService.class);
     private final ServerService server;
 

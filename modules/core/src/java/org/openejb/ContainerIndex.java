@@ -49,9 +49,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.apache.geronimo.gbean.GBean;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
@@ -62,7 +62,7 @@ import org.apache.geronimo.gbean.WaitingException;
  * This class is a bit crufty.  Need something like this, but not static
  * and more along the lines of a collection of containers registered as gbeans
  */
-public class ContainerIndex implements ReferenceCollectionListener, GBean {
+public class ContainerIndex implements ReferenceCollectionListener, GBeanLifecycle {
     // todo delete me
     private static ContainerIndex containerIndex = new ContainerIndex();
 
