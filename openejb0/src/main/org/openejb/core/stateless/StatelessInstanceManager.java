@@ -63,6 +63,8 @@ import org.openejb.core.ThreadContext;
 import org.openejb.util.LinkedListStack;
 import org.openejb.util.SafeProperties;
 import org.openejb.util.SafeToolkit;
+import org.apache.log4j.Category;
+import org.openejb.util.Stack;
 
 /**
  * This instance manager has a pool limit for each bean class 
@@ -83,7 +85,9 @@ public class StatelessInstanceManager {
     
     protected PoolQueue poolQueue= null;
 
-    protected SafeToolkit toolkit = SafeToolkit.getToolkit("StatefulInstanceManager");
+    protected final SafeToolkit toolkit = SafeToolkit.getToolkit("StatefulInstanceManager");
+    protected final static Category logger = Category.getInstance("OpenEJB");
+
     /******************************************************************
                         CONSTRUCTOR METHODS
     *******************************************************************/
@@ -107,19 +111,20 @@ public class StatelessInstanceManager {
     throws OpenEJBException{
             SessionBean bean = null;
             Object deploymentId = callContext.getDeploymentInfo().getDeploymentID();
-            StackHolder pool = (StackHolder)poolMap.get(deploymentId);
+            Stack pool = (Stack)poolMap.get(deploymentId);
             if(pool==null){
-                pool = new StackHolder(poolLimit);
+                pool = new LinkedListStack(poolLimit);
                 poolMap.put(deploymentId,pool);
             }else
                 bean = (SessionBean)pool.pop();
             
             // apply strict pooling policy if used. Wait for available instance
-             while(strictPooling &&  bean == null && pool.totalBeanCount() >= poolLimit){
+             while(strictPooling &&  bean == null && pool.size() >= poolLimit){
                poolQueue.waitForAvailableInstance();
                bean = (SessionBean)pool.pop();
             }
             
+             // If it's a new bean we must call setSessionContext and ejbCreate
             if(bean==null){
                 try{
                 Class beanClass = callContext.getDeploymentInfo().getBeanClass();
@@ -133,21 +138,21 @@ public class StatelessInstanceManager {
                     // invoke the setSessionContext method
                     callContext.setCurrentOperation(Operations.OP_SET_CONTEXT);
                     DeploymentInfo deploymentInfo = callContext.getDeploymentInfo();
-                    ((SessionBean)bean).setSessionContext((javax.ejb.SessionContext)deploymentInfo.getEJBContext());
-                    
+                    bean.setSessionContext((javax.ejb.SessionContext)deploymentInfo.getEJBContext());
                     // invoke the ejbCreate method
                     callContext.setCurrentOperation(Operations.OP_CREATE);
                     Method createMethod = deploymentInfo.getCreateMethod();
                     createMethod.invoke(bean, null);
-                    
-                }catch(Exception e){
-                    //TODO:1: Should be logged instead of printed to System.out
-		    System.out.println("StatelessInstanceManager----->");
+                }catch(Throwable e){
+                    if(e instanceof java.lang.reflect.InvocationTargetException) {
+                        e = ((java.lang.reflect.InvocationTargetException)e).getTargetException();
+                    }
+                    String t = "The bean instance "+bean+" threw a system exception:"+e;
+                    logger.error(t, e);
                     throw new org.openejb.ApplicationException(new RemoteException("Can not obtain a free instance."));
                 } finally {
                     callContext.setCurrentOperation( originalOperation );
                 }
-                pool.addToBeanCount(1);
             }
             return bean;
     }
@@ -156,28 +161,26 @@ public class StatelessInstanceManager {
         if(bean == null)
             throw new SystemException("Invalid arguments");
         Object deploymentId = callContext.getDeploymentInfo().getDeploymentID();
-        StackHolder pool = (StackHolder)poolMap.get(deploymentId);
+        Stack pool = (Stack)poolMap.get(deploymentId);
         if(strictPooling){
             pool.push(bean);
             poolQueue.notifyWaitingThreads();
         }else{
-            if(pool.totalBeanCount() > poolLimit)
+            if(pool.size() > poolLimit)
                 freeInstance(callContext,bean);
             else
                 pool.push(bean);
         }
         
     }
+
     public void freeInstance(ThreadContext callContext, EnterpriseBean bean){
-        StackHolder pool = (StackHolder)poolMap.get(callContext.getDeploymentInfo().getDeploymentID());
-        pool.addToBeanCount(-1);
-        
         try{
             callContext.setCurrentOperation(Operations.OP_REMOVE);
             ((SessionBean)bean).ejbRemove();
         }catch(Throwable re){
             // not in client scope, do nothing
-            // log exception
+            logger.error("The bean instance "+bean+" threw a system exception:"+re, re);
         }
         
         // allow the bean instance to be GCed.
@@ -189,27 +192,10 @@ public class StatelessInstanceManager {
      * or container callbacks on the instance."
      */
     public void discardInstance(ThreadContext callContext, EnterpriseBean bean){
-        StackHolder pool = (StackHolder)poolMap.get(callContext.getDeploymentInfo().getDeploymentID());
-        pool.addToBeanCount(-1);
-        // allow the bean instance to be GCed.
+        // do absolutely nothing here
     }
     
-   class StackHolder extends LinkedListStack {
-	// access to this variable MUST be synchronized, since we add values to it,
-	// which is NOT an atomic operations. We avoid the infamous lost update problem.
-        private int totalBeanCount;
-
-	synchronized int totalBeanCount() {
-	    return totalBeanCount;
-	}
-
-	synchronized void addToBeanCount(int value) {
-	    totalBeanCount+=value;
-	}
-
-        public StackHolder(int initialSize){super(initialSize);}
-    }
-    class PoolQueue{
+    static class PoolQueue{
         private final long waitPeriod;
         public PoolQueue(long time){waitPeriod = time;}
         public synchronized void waitForAvailableInstance( )

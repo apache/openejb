@@ -129,61 +129,30 @@ public class StatelessEjbHomeHandler extends EjbHomeProxyHandler {
         throw new RemoteException("Session objects are private resources and do not have primary keys");        
     }
     /*
-    * This method is differnt the the stateful and entity behavior because we only want the 
-    * stateless session bean that created the proxy to be invalidated, not all the proxies. Special case
-    * for the stateless session beans.
+    * This method is different from the stateful and entity behavior because we only want the 
+    * stateless session bean that created the proxy to be invalidated, not all the proxies.
+    *
+    * TODO: this method relies on the fact that the handle implementation is a subclass
+    * of IntraVM handle, which isn't neccessarily the case for arbitrary remote protocols.
     */
     protected Object removeWithHandle(Method method, Object[] args, Object proxy) throws Throwable{
-        checkAuthorization(method);
 
         // Extract the primary key from the handle
         IntraVmHandle handle = (IntraVmHandle)args[0];
-        EjbObjectProxyHandler stub = (EjbObjectProxyHandler)ProxyManager.getInvocationHandler(handle.theProxy);
-        Object primKey = stub.primaryKey;
+        Object primKey = handle.getPrimaryKey();
+        EjbObjectProxyHandler stub;
+        try{
+            stub = (EjbObjectProxyHandler)ProxyManager.getInvocationHandler(handle.getEJBObject());
+        }catch(IllegalArgumentException e) {
+            // a remote proxy
+            stub=null;
+        }
         // invoke the remove on the container
         container.invoke(deploymentID, method, args, primKey, ThreadContext.getThreadContext().getSecurityIdentity());
+        if(stub!=null) {
         stub.invalidateReference();
+        }
         return null;
-    }
-    /*-------------------------------------------------*/
-    /*  EJBHome methods                                */  
-    /*-------------------------------------------------*/
-
-    /**
-     * <P>
-     * Returns an EJBMetaData implementation that is
-     * valid inside this virtual machine.  This
-     * implementation should not be sent outside the
-     * virtual machine.
-     * </P>
-     * <P>
-     * This method does not propogate to the container
-     * system.
-     * </P>
-     * <P>
-     * getMetaData is a method of javax.ejb.EJBHome
-     * </P>
-     * <P>
-     * Checks if the caller is authorized to invoke the
-     * javax.ejb.EJBHome.getMetaData on the EJBHome of the
-     * deployment.
-     * </P>
-     * 
-     * @return Returns an IntraVmMetaData
-     * @exception Throwable
-     * @see IntraVmMetaData
-     * @see javax.ejb.EJBHome
-     * @see javax.ejb.EJBHome#getEJBMetaData
-     */
-    protected Object getEJBMetaData(Method method, Object[] args, Object proxy) throws Throwable {
-        checkAuthorization(method);
-
-        byte compType = IntraVmMetaData.STATELESS;
-        // component type is identified outside the IntraVmMetaData so that IntraVmMetaData doesn't reference DeploymentInfo avoiding the need to load the DeploymentInfo class into the client VM.
-        IntraVmMetaData metaData = new IntraVmMetaData(deploymentInfo.getHomeInterface(), deploymentInfo.getRemoteInterface(),compType);
-        metaData.setEJBHome((EJBHome)proxy);
-        return metaData;
-
     }
     
     protected EjbObjectProxyHandler newEjbObjectHandler(RpcContainer container, Object pk, Object depID) {
