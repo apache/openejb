@@ -105,7 +105,7 @@ _test_noargs()
 {
    _test_intravm
    _test_server
-   _test_corba
+   ##_test_corba
 }
 #============================================================
 _test_intravm()
