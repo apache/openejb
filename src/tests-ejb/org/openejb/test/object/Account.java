@@ -57,15 +57,15 @@ import javax.transaction.UserTransaction;
  */
 public class Account implements java.io.Serializable{
     
-    public String ssn;
-    public String firstName;
-    public String lastName;
-    public int balance;
+    private String ssn;
+    private String firstName;
+    private String lastName;
+    private int balance;
 
     public Account(String ssn, String firstName, String lastName, int balance){
         this.ssn = ssn;      
-        this.firstName = firstName;
-        this.lastName = lastName; 
+        this.firstName = firstName.trim();
+        this.lastName = lastName.trim(); 
         this.balance = balance;     
     }
     
@@ -82,6 +82,38 @@ public class Account implements java.io.Serializable{
                 this.lastName.equals(that.lastName) &&
                 this.balance == that.balance);
     }
+
+
+    public String getSsn(){
+        return ssn;
+    }
+    
+    public void setSsn(String ssn){
+        this.ssn = ssn;
+    }
+
+    public String getFirstName(){
+        return firstName;
+    }
+    
+    public void setFirstName(String firstName){
+        this.firstName = (firstName != null)? firstName.trim():null;
+    }
+
+    public String getLastName(){
+        return lastName;
+    }
+    public void setLastName(String lastName){
+        this.lastName = (lastName != null)? lastName.trim():null;
+    }
+
+    public int getBalance(){
+        return balance;
+    }
+    public void setBalance(int balance){
+        this.balance = balance;
+    }
+
 
     public String toString(){
         return "["+ssn+"]["+firstName+"]["+lastName+"]["+balance+"]";

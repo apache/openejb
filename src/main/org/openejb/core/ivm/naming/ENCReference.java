@@ -58,11 +58,12 @@ import org.openejb.core.Operations;
   of org.openejb.core.
 */
 public abstract class ENCReference implements Reference{
-    Object reference;
-    protected String jndiName;
-    String openEJBContext;
-    boolean checking = true;
-    javax.naming.Context linkedContext;
+    
+    protected Object  reference;
+    protected String  jndiName;
+    protected String  openEJBContext;
+    protected boolean checking = true;
+    protected javax.naming.Context linkedContext;
     
     /*
     * This constructor is used when the object to be referenced is accessible through 
@@ -112,7 +113,7 @@ public abstract class ENCReference implements Reference{
     * Obtains the referenced object.
     */
     public Object getObject( ) throws javax.naming.NamingException{
-        if(ThreadContext.isValid() && checking){
+        if( ThreadContext.isValid() ){
             ThreadContext cntx = ThreadContext.getThreadContext();
             byte operation = cntx.getCurrentOperation();
             checkOperation(operation);

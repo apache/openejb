@@ -42,25 +42,10 @@ for i in lib/*.jar ; do
     fi
 done
 unset i
-#==================================
-# put *.zip file to $CP
-for i in lib/*.zip ; do 
-    if [ -e $i ]; then
-    	CP=$i${PS}$CP
-    fi
-done
-unset i
 CP=$JAVA_HOME/lib/tools.jar${PS}${CP}
 
 
 for i in dist/*.jar ; do 
-    if [ -e $i ] ; then
-    	CP=$i${PS}$CP
-    fi
-done
-unset i
-
-for i in test/lib/*.jar ; do 
     if [ -e $i ] ; then
     	CP=$i${PS}$CP
     fi

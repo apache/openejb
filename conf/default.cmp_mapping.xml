@@ -36,18 +36,18 @@ Both point to this mapping file:
          identity="primaryKey">
     <description>Simple Entity Bean</description>
     
-    <map-to table="BasicCmpEntities" />
+    <map-to table="entity" />
     
     <field name="primaryKey" type="integer" direct="true" >
-      <sql name="EntityID" type="integer"/>
+      <sql name="id" type="integer"/>
     </field>
     
     <field name="firstName" type="string" direct="true" >
-      <sql name="FIRSTNAME" type="char" dirty="check" />
+      <sql name="first_name" type="char" dirty="check" />
     </field>
   
     <field name="lastName" type="string" direct="true" >
-      <sql name="LASTNAME" type="char" dirty="check" />
+      <sql name="last_name" type="char" dirty="check" />
     </field>
   
   
@@ -58,18 +58,18 @@ Both point to this mapping file:
          identity="primaryKey">
     <description>Simple Entity Bean</description>
     
-    <map-to table="BasicCmpEntities" />
+    <map-to table="entity" />
     
     <field name="primaryKey" type="integer" direct="true" >
-      <sql name="EntityID" type="integer"/>
+      <sql name="id" type="integer"/>
     </field>
     
     <field name="firstName" type="string" direct="true" >
-      <sql name="FIRSTNAME" type="char" dirty="check" />
+      <sql name="first_name" type="char" dirty="check" />
     </field>
   
     <field name="lastName" type="string" direct="true" >
-      <sql name="LASTNAME" type="char" dirty="check" />
+      <sql name="last_name" type="char" dirty="check" />
     </field>
   
   
@@ -79,18 +79,18 @@ Both point to this mapping file:
          identity="primaryKey">
     <description>Simple Entity Bean</description>
     
-    <map-to table="BasicCmpEntities" />
+    <map-to table="entity" />
     
     <field name="primaryKey" type="integer" direct="true" >
-      <sql name="EntityID" type="integer"/>
+      <sql name="id" type="integer"/>
     </field>
     
     <field name="firstName" type="string" direct="true" >
-      <sql name="FIRSTNAME" type="char" dirty="check" />
+      <sql name="first_name" type="char" dirty="check" />
     </field>
   
     <field name="lastName" type="string" direct="true" >
-      <sql name="LASTNAME" type="char" dirty="check" />
+      <sql name="last_name" type="char" dirty="check" />
     </field>
   
   
@@ -101,18 +101,18 @@ Both point to this mapping file:
          identity="primaryKey">
     <description>Simple Entity Bean</description>
     
-    <map-to table="BasicCmpEntities" />
+    <map-to table="entity" />
     
     <field name="primaryKey" type="integer" direct="true" >
-      <sql name="EntityID" type="integer"/>
+      <sql name="id" type="integer"/>
     </field>
     
     <field name="firstName" type="string" direct="true" >
-      <sql name="FIRSTNAME" type="char" dirty="check" />
+      <sql name="first_name" type="char" dirty="check" />
     </field>
   
     <field name="lastName" type="string" direct="true" >
-      <sql name="LASTNAME" type="char" dirty="check" />
+      <sql name="last_name" type="char" dirty="check" />
     </field>
   
   

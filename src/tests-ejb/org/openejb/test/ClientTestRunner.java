@@ -73,14 +73,25 @@ public class ClientTestRunner extends org.openejb.test.TestRunner{
         TestRunner aTestRunner = new ClientTestRunner();
 
         if ( args.length > 2 && args[0].equals("-s") ) {
-            initializeServer(args[1]);
+            try {
+                TestManager.init(args[1]);
+            } catch ( Exception e ){ 
+                System.out.println("Cannot initialize the test environment: "+e.getClass().getName()+" "+e.getMessage());
+                e.printStackTrace();
+                System.exit(-1);
+            }
             String[] newArgs = new String[args.length-2];
             System.arraycopy(args, 2, newArgs, 0, newArgs.length);
             args = newArgs;
             
         } else {
-            System.out.println("Must specify a server configuration file");
-            System.exit(-1);
+            try {
+                TestManager.init(null);
+            } catch ( Exception e ){ 
+                System.out.println("Cannot initialize the test environment: "+e.getClass().getName()+" "+e.getMessage());
+                e.printStackTrace();
+                System.exit(-1);
+            }
         }
         
         try {
@@ -88,11 +99,6 @@ public class ClientTestRunner extends org.openejb.test.TestRunner{
             System.exit(0); // Added for JUNIT 3.5
         } catch ( Exception ex )
         { }
-    }
-    
-    protected static void initializeServer(String serverConfigFile){
-        TestServerManager.installServer(serverConfigFile);            
-        TestServerManager.setDefaultServer(serverConfigFile);
     }
 
     public TestResult doRun(Test suite, boolean wait) {
@@ -103,7 +109,7 @@ public class ClientTestRunner extends org.openejb.test.TestRunner{
         long runTime = 0L; 
         
         try{
-        setUpServer();
+            TestManager.start();           
         } catch (Exception e){
             e.printStackTrace();
             System.exit(-1);
@@ -116,7 +122,7 @@ public class ClientTestRunner extends org.openejb.test.TestRunner{
             endTime = System.currentTimeMillis();
             runTime = endTime-startTime;
             try{
-            tearDownServer();
+                TestManager.stop();           
             } catch (Exception e){
                 e.printStackTrace();
             }
@@ -140,11 +146,4 @@ public class ClientTestRunner extends org.openejb.test.TestRunner{
         return result;
     }
 
-    protected void setUpServer() throws Exception {
-        TestServerManager.startServer();           
-    }
-
-    protected void tearDownServer() throws Exception {
-        TestServerManager.stopServer();
-    }
 }
