@@ -43,6 +43,7 @@
  * $Id$
  */
 package org.openejb.corba.services.transaction;
+import org.omg.PortableInterceptor.Current;
 
 /**
  * This class is used to keep an associtaion between a
@@ -99,7 +100,7 @@ public class ThreadTxAssociation
         
         pctx_any.insert_string( tx.toString() );
         
-        org.openorb.PI.CurrentImpl piCurrent = (org.openorb.PI.CurrentImpl)orb.resolve_initial_references("PICurrent");
+        Current piCurrent = (Current)orb.resolve_initial_references("PICurrent");
        
         piCurrent.set_slot( getSlotId(), pctx_any);
       }
@@ -135,7 +136,7 @@ public class ThreadTxAssociation
 
         org.omg.CORBA.Any pctx_any = orb.create_any();
 
-        org.openorb.PI.CurrentImpl piCurrent = (org.openorb.PI.CurrentImpl)orb.resolve_initial_references("PICurrent");
+        Current piCurrent = (Current)orb.resolve_initial_references("PICurrent");
 
         piCurrent.set_slot( getSlotId(), pctx_any);
       }
@@ -155,7 +156,7 @@ public class ThreadTxAssociation
          return;
       try
       {
-        org.openorb.PI.CurrentImpl piCurrent = (org.openorb.PI.CurrentImpl)orb.resolve_initial_references("PICurrent");
+        Current piCurrent = (Current)orb.resolve_initial_references("PICurrent");
         
         org.omg.CORBA.Any pctx_any = piCurrent.get_slot( getSlotId());
         
