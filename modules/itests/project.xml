@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Revision$ $Date$ -->
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${basedir}/../../etc/project.xml</extend>
+
+  <!-- ===================== -->
+  <!-- Module Identification -->
+  <!-- ===================== -->
+
+  <name>OpenEJB :: Integration Tests</name>
+  <id>openejb-itests</id>
+  <shortDescription>Compliance and Integration Tests</shortDescription>
+  <description>EJB Compliance and Server Integration Tests</description>
+  <url>http://www.openejb.org</url>
+  <siteDirectory>/www/openejb.org/core</siteDirectory>
+  <distributionDirectory>/www/openejb.org//builds/core</distributionDirectory>
+
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+
+  <dependencies>
+
+    <!-- Module Dependencies -->
+
+    <dependency>
+      <groupId>openejb</groupId>
+      <artifactId>openejb-core</artifactId>
+      <version>${pom.currentVersion}</version>
+      <properties>
+        <module>true</module>
+      </properties>
+    </dependency>
+
+    <!-- Thirdparty -->
+
+    <dependency>
+      <id>junit</id>
+      <version>3.8</version>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+    
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-jta</artifactId>
+      <version>DEV</version>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-ejb</artifactId>
+      <version>DEV</version>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-servlet</artifactId>
+      <version>DEV</version>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-j2ee-connector</artifactId>
+      <version>DEV</version>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <groupId>idb</groupId>
+      <artifactId>idb</artifactId>
+      <version>3.26</version>
+      <properties>
+        <runtime>true</runtime>
+      </properties>
+    </dependency>
+  </dependencies>
+
+
+  <!-- =================== -->
+  <!-- Build Specification -->
+  <!-- =================== -->
+
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/etc</directory>
+        <includes>
+          <include>*.properties</include>
+        </includes>
+      </resource>
+    </resources>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <excludes>
+        <exclude>**/Abstract*.java</exclude>
+      </excludes>
+      <resources>
+        <resource>
+          <directory>${basedir}/src/schema</directory>
+          <includes>
+            <include>*.xsd</include>
+            <include>*.dtd</include>
+          </includes>
+        </resource>
+      </resources>
+    </unitTest>
+  </build>
+</project>
