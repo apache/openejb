@@ -32,7 +32,7 @@
         </ant:copy>
         <deploy:startRemoteServer
             geronimoTarget="${maven.build.dir}/openejb"
-            vmArgs="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xmx512m -XX:MaxPermSize=128m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl -Djavax.rmi.CORBA.UtilClass=org.openejb.corba.util.UtilDelegateImpl -Dorg.openejb.corba.UtilDelegateClass=com.sun.corba.se.internal.POA.ShutdownUtilDelegate "
+            vmArgs="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xmx512m -XX:MaxPermSize=128m ${corba.vmargs}"
             configs="org/openejb/Security"/>
         <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
         <deploy:waitForStarted
@@ -149,7 +149,7 @@
     <goal name="svr:start">
         <deploy:startRemoteServer
             geronimoTarget="${maven.build.dir}/openejb"
-            vmArgs="-Xmx512m -XX:MaxPermSize=128m -Xdebug -Xnoagent -Dcom.sun.CORBA.ORBDebug=transport,giop,subcontract,POA,naming,serviceContext -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl -Djavax.rmi.CORBA.UtilClass=org.openejb.corba.util.UtilDelegateImpl -Dorg.openejb.corba.UtilDelegateClass=com.sun.corba.se.internal.POA.ShutdownUtilDelegate "
+            vmArgs="-Xmx512m -XX:MaxPermSize=128m -Xdebug -Xnoagent -Dcom.sun.CORBA.ORBDebug=transport,giop,subcontract,POA,naming,serviceContext -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 ${corba.vmargs}"
             configs="org/openejb/Security"/>
         <ant:echo message="Waiting for server at: ${geronimoTarget}"/>
         <deploy:waitForStarted
