@@ -475,11 +475,6 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
 
     private void doEjbHome_REMOVE_BY_HANDLE(EJBRequest req, EJBResponse res) throws Throwable {
-//        Handle handle = (Handle) req.getMethodParameters()[0];
-//        EJBObjectProxy ejbObject = (EJBObjectProxy) handle.getEJBObject();
-//        EJBObjectHandler handler = ejbObject.getEJBObjectHandler();
-//        req.setPrimaryKey(handler.getRegistryId());
-//
         invoke(req);
         res.setResponse(EJB_OK, null);
     }

@@ -125,7 +125,6 @@ import org.tranql.identity.DerivedIdentity;
 import org.tranql.identity.IdentityDefiner;
 import org.tranql.identity.IdentityDefinerBuilder;
 import org.tranql.identity.IdentityTransform;
-import org.tranql.identity.UndefinedIdentityException;
 import org.tranql.identity.UserDefinedIdentity;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
 import org.tranql.ql.QueryException;
@@ -396,7 +395,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return cmrFieldAccessors;
     }
 
-    private FaultHandler buildFaultHandler(AssociationEndFaultHandlerBuilder handlerBuilder, CMRField field, int slot) throws UndefinedIdentityException, QueryException {
+    private FaultHandler buildFaultHandler(AssociationEndFaultHandlerBuilder handlerBuilder, CMRField field, int slot) throws QueryException {
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
         Association association = field.getAssociation();
         CMRField relatedField = (CMRField) association.getOtherEnd(field);
@@ -559,12 +558,12 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                         new CMPRemoveMethod(beanClass, signature, cacheTable, cmrFieldAccessors));
 
                 // ejbHome.remove(primaryKey)
-                vopMap.put(new InterfaceMethodSignature("ejbRemove", new Class[]{Object.class}, true),
+                vopMap.put(new InterfaceMethodSignature("remove", new Class[]{Object.class}, true),
                         new CMPRemoveMethod(beanClass, signature, cacheTable, cmrFieldAccessors));
 
                 // ejbHome.remove(handle)
                 Class handleClass = getClassLoader().loadClass("javax.ejb.Handle");
-                vopMap.put(new InterfaceMethodSignature("ejbRemove", new Class[]{handleClass}, true),
+                vopMap.put(new InterfaceMethodSignature("remove", new Class[]{handleClass}, true),
                         new CMPRemoveMethod(beanClass, signature, cacheTable, cmrFieldAccessors));
             } else if (name.equals("ejbActivate")) {
                 vopMap.put(MethodHelper.translateToInterface(signature)

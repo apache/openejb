@@ -93,9 +93,9 @@ public class EJBHomeHandle implements java.io.Externalizable, javax.ejb.HomeHand
 
         // Write the full proxy data
         EJBMetaDataImpl ejb = handler.ejb;
-        out.writeObject(ejb.homeClass);
-        out.writeObject(ejb.remoteClass);
-        out.writeObject(ejb.keyClass);
+        out.writeObject(getClassName(ejb.homeClass));
+        out.writeObject(getClassName(ejb.remoteClass));
+        out.writeObject(getClassName(ejb.keyClass));
         out.writeByte(ejb.type);
         out.writeUTF(ejb.deploymentID);
         out.writeShort(ejb.deploymentCode);
@@ -109,9 +109,20 @@ public class EJBHomeHandle implements java.io.Externalizable, javax.ejb.HomeHand
         EJBMetaDataImpl ejb = new EJBMetaDataImpl();
         ServerMetaData server = new ServerMetaData();
 
-        ejb.homeClass = (Class) in.readObject();
-        ejb.remoteClass = (Class) in.readObject();
-        ejb.keyClass = (Class) in.readObject();
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if (classLoader == null) {
+            classLoader = getClass().getClassLoader();
+        }
+
+        String homeClassName = (String) in.readObject();
+        ejb.homeClass = loadClass(classLoader, homeClassName);
+
+        String remoteClassName = (String) in.readObject();
+        ejb.remoteClass = loadClass(classLoader, remoteClassName);
+
+        String keyClassName = (String) in.readObject();
+        ejb.keyClass = loadClass(classLoader, keyClassName);
+
         ejb.type = in.readByte();
         ejb.deploymentID = in.readUTF();
         ejb.deploymentCode = in.readShort();
@@ -122,4 +133,17 @@ public class EJBHomeHandle implements java.io.Externalizable, javax.ejb.HomeHand
         ejbHomeProxy = handler.createEJBHomeProxy();
     }
 
+    private static String getClassName(Class clazz) {
+        if (clazz == null) {
+            return null;
+        }
+        return clazz.getName();
+    }
+
+    private static Class loadClass(ClassLoader classLoader, String homeClassName) throws ClassNotFoundException {
+        if (homeClassName == null) {
+            return null;
+        }
+        return classLoader.loadClass(homeClassName);
+    }
 }
