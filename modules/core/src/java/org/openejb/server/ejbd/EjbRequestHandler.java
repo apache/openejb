@@ -51,9 +51,11 @@ import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.core.service.InvocationResult;
 
 import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
+import org.openejb.InvalidateReferenceException;
 import org.openejb.client.EJBRequest;
 import org.openejb.client.EJBResponse;
 import org.openejb.client.RequestMethods;
@@ -66,11 +68,18 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
     private final ContainerIndex containerIndex;
 
     EjbRequestHandler(ContainerIndex containerIndex) {
+        if (containerIndex == null){
+            containerIndex = ContainerIndex.getInstance();
+        }
         this.containerIndex = containerIndex;
     }
 
-    public void processRequest(ObjectInputStream in, ObjectOutputStream out) {
-        EJBRequest req = new EJBRequest();
+    public void processRequest(ObjectInputStream input, ObjectOutputStream out) {
+
+        EJBObjectInputStream in = (EJBObjectInputStream)input;
+
+        //        EJBRequest req = new EJBRequest();
+        EJBInvocationStream req = new EJBInvocationStream();
         EJBResponse res = new EJBResponse();
 
         // TODO:2: This method can throw a large number of exceptions, we should
@@ -106,6 +115,8 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
         try {
             container = getContainer(req);
+            req.setProxyFactory(container.getProxyFactory());
+            in.setClassLoader(container.getClassLoader());
         } catch (RemoteException e) {
             replyWithFatalError
                     (out, e, "No such deployment");
@@ -214,11 +225,29 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
     private Object invoke(EJBRequest req) throws Throwable {
         CallContext call = CallContext.getCallContext();
         EJBContainer container = call.getContainer();
+        // Prepare yourself ...
+        // for you are about to enter ...
+        // the Twilight Zone.
+        InvocationResult result = null;
+        try {
+            result = container.invoke((EJBInvocationStream)req);
+        } catch (Throwable t) {
+            RemoteException re;
+            if (t instanceof RemoteException) {
+                re = (RemoteException) t;
+            } else {
+                re = new RemoteException("The bean encountered a non-application exception. method", t);
+            }
+            throw new InvalidateReferenceException(re);
+        }
 
-        return container.invoke(
-                req.getMethodInstance(),
-                req.getMethodParameters(),
-                req.getPrimaryKey());
+        if (result.isException()) {
+            throw new org.openejb.ApplicationException(result.getException());
+        } else {
+            return result.getResult();
+        }
+//        return container.invoke((EJBInvocationStream)req);
+//        return container.invoke(req.getMethodInstance(), req.getMethodParameters(), req.getPrimaryKey());        
     }
 
     protected void doEjbObject_BUSINESS_METHOD(EJBRequest req, EJBResponse res) throws Throwable {
@@ -395,7 +424,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
     private EJBContainer getContainer(EJBRequest req) throws RemoteException {
         EJBContainer container = null;
 
-        if (req.getContainerCode() > 0 && req.getContainerCode() < containerIndex.length()) {
+        if (req.getContainerCode() > 0) {
             container = containerIndex.getContainer(req.getContainerCode());
             if (container == null) {
                 throw new RemoteException("The deployement with this ID is null");
@@ -429,6 +458,7 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
     private void replyWithFatalError(ObjectOutputStream out, Throwable error, String message) {
         log.fatal(message, error);
+        error.printStackTrace();
         RemoteException re = new RemoteException("The server has encountered a fatal error: " + message + " " + error);
         EJBResponse res = new EJBResponse();
         res.setResponse(EJB_ERROR, re);

@@ -85,8 +85,6 @@ public class GenericEJBContainer implements EJBContainer {
     private final Interceptor interceptor;
     private final EJBProxyFactory proxyFactory;
 
-    private final Map legacyMethodMap;
-
     private final String[] jndiNames;
     private final String[] localJndiNames;
 
@@ -129,15 +127,6 @@ public class GenericEJBContainer implements EJBContainer {
         interceptorBuilder.setInstancePool(pool);
         interceptor = interceptorBuilder.buildInterceptorChain();
 
-        // build the legacy map
-        Map map = new HashMap();
-        ProxyInfo proxyInfo = proxyFactory.getProxyInfo();
-        addLegacyMethods(map, proxyInfo.getHomeInterface(), signatures);
-        addLegacyMethods(map, proxyInfo.getRemoteInterface(), signatures);
-        addLegacyMethods(map, proxyInfo.getLocalHomeInterface(), signatures);
-        addLegacyMethods(map, proxyInfo.getLocalInterface(), signatures);
-        legacyMethodMap = Collections.unmodifiableMap(map);
-
         // initialize the user transaction
         if (userTransaction != null) {
             userTransaction.setUp(transactionManager, trackedConnectionAssociator);
@@ -150,10 +139,7 @@ public class GenericEJBContainer implements EJBContainer {
 
     public Object invoke(Method method, Object[] args, Object primKey) throws Throwable {
         EJBInterfaceType invocationType = null;
-        Integer index = (Integer) legacyMethodMap.get(method);
-        if (index == null) {
-            index = new Integer(-1);
-        }
+        int index = proxyFactory.getMethodIndex(method);
 
         Class clazz = method.getDeclaringClass();
         if (EJBHome.class.isAssignableFrom(clazz)) {
@@ -175,7 +161,7 @@ public class GenericEJBContainer implements EJBContainer {
             }
         }
 
-        EJBInvocationImpl invocation = new EJBInvocationImpl(invocationType, primKey, index.intValue(), args);
+        EJBInvocationImpl invocation = new EJBInvocationImpl(invocationType, primKey, index, args);
 
         InvocationResult result = null;
         try {
@@ -237,20 +223,10 @@ public class GenericEJBContainer implements EJBContainer {
         return proxyFactory;
     }
 
-    private static void addLegacyMethods(Map legacyMethodMap, Class clazz, InterfaceMethodSignature[] signatures) {
-        if (clazz == null) {
-            return;
-        }
-
-        for (int i = 0; i < signatures.length; i++) {
-            InterfaceMethodSignature signature = signatures[i];
-            Method method = signature.getMethod(clazz);
-            if (method != null) {
-                legacyMethodMap.put(method, new Integer(i));
-            }
-        }
+    public EJBContainer getUnmanagedReference(){
+        return this;
     }
-
+    
     private static String[] copyNames(String[] names) {
         if(names == null) {
             return null;
@@ -284,7 +260,8 @@ public class GenericEJBContainer implements EJBContainer {
 
         infoFactory.addAttribute("EJBHome", false);
         infoFactory.addAttribute("EJBLocalHome", false);
-
+        infoFactory.addAttribute("UnmanagedReference", false);
+        
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

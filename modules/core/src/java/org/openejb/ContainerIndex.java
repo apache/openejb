@@ -106,6 +106,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
         Iterator iterator = ejbContainers.iterator();
         for (int i = 1; i < containers.length && iterator.hasNext(); i++) {
             EJBContainer container = (EJBContainer) iterator.next();
+            container = container.getUnmanagedReference();
             containers[i] = container;
             containerIdToIndex.put(container.getContainerID(), new Integer(i));
             addJNDINames(container, i);
@@ -135,6 +136,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
     }
 
     public synchronized void addContainer(EJBContainer container) {
+        container = container.getUnmanagedReference();
         Object containerID = container.getContainerID();
         if(containerIdToIndex.containsKey(containerID)) {
             return;
@@ -222,7 +224,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
         infoFactory.addOperation("getContainer", new Class[]{Integer.class});
         infoFactory.addOperation("getContainer", new Class[]{Integer.TYPE});
         infoFactory.addOperation("getContainerByJndiName", new Class[]{String.class});
-
+        
         infoFactory.addReference("EJBContainers", EJBContainer.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();

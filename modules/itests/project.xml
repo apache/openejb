@@ -38,7 +38,8 @@
         <!-- Thirdparty -->
 
         <dependency>
-            <id>junit</id>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
             <version>3.8</version>
             <properties>
                 <runtime>true</runtime>

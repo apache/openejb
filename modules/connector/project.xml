@@ -4,16 +4,19 @@
 
 <project>
     <pomVersion>3</pomVersion>
+    <extend>${basedir}/../../etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
 
     <name>OpenEJB :: Connector</name>
     <id>openejb-jca</id>
-    <shortDescription>OpenJCA wrapper</shortDescription>
-    <description>Open JCA adapter</description>
-    <url>http://openejb.org</url>
-    <siteDirectory>http://openejb.org</siteDirectory>
+    <shortDescription>OpenEJB JCA-JDBC wrapper</shortDescription>
+    <description>OpenEJB JCA-JDBC adapter</description>
+    <url>http://www.openejb.org</url>
+    <siteDirectory>http://www.openejb.org</siteDirectory>
     <distributionDirectory>http://openejb.org</distributionDirectory>
-
-    <currentVersion>DEV</currentVersion>
 
     <!-- ============ -->
     <!-- Dependencies -->
@@ -24,7 +27,8 @@
         <!-- Plugin Dependencies -->
 
         <dependency>
-            <id>commons-collections</id>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
             <version>2.1</version>
             <properties>
                 <runtime>false</runtime>
@@ -32,16 +36,14 @@
         </dependency>
 
         <dependency>
-            <id>commons-logging</id>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
             <version>1.0.3</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
             <properties>
                 <runtime>false</runtime>
             </properties>
         </dependency>
-
-
-        <!-- Module Dependencies -->
 
         <dependency>
             <groupId>geronimo-spec</groupId>

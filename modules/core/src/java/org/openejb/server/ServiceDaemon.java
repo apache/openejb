@@ -180,6 +180,7 @@ public class ServiceDaemon implements GBean {
         }
     }
 
+    //==== GBEAN METADATA ===================================================//
     public static final GBeanInfo GBEAN_INFO;
 
     static {
