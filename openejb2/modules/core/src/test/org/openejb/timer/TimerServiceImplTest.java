@@ -108,11 +108,7 @@ public class TimerServiceImplTest extends TestCase {
         TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, null, null);
         transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
         executableWorkFactory = new TransactionalExecutorTaskFactory(transactionContextManager, 1);
-        threadPool = new ThreadPool();
-        threadPool.setPoolSize(5);
-        threadPool.setKeepAliveTime(10000);
-        threadPool.setPoolName("TestPool");
-        threadPool.doStart();
+        threadPool = new ThreadPool(5, "TestPool", 10000, this.getClass().getClassLoader());
         WorkerPersistence workerPersistence = new VMWorkerPersistence();
         threadPooledTimer = new ThreadPooledTimer(executableWorkFactory, workerPersistence, threadPool, transactionContextManager);
         threadPooledTimer.doStart();
