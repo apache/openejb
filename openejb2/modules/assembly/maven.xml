@@ -160,6 +160,7 @@
             <ant:arg value="org.apache.geronimo.system.main.Daemon"/>
             <ant:arg value="--classPath"/>
             <ant:arg value="${server.classpath}"/>
+            <ant:arg value="--install"/>
             <ant:arg value="target/plan/system-plan.xml"/>
             <ant:arg value="${distDir}/bin/server.jar"/>
         </ant:java>
