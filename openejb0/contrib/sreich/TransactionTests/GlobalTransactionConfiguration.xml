@@ -1,6 +1,0 @@
-<!DOCTYPE databases PUBLIC "-//EXOLAB/Castor JDO Configuration DTD Version 1.0//EN"
-                           "http://castor.exolab.org/jdo-conf.dtd">
-<database name="Global_TX_Database" engine="oracle">
-    <jndi name="java:comp/env/jdbc/DefaultCMPDatasource" />
-    <mapping href="Contents/Resources/CMPConfiguration.xml" />
-</database>
