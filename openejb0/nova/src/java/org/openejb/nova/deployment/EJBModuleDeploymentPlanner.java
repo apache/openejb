@@ -59,10 +59,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.transaction.UserTransaction;
+import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,6 +73,7 @@ import org.apache.geronimo.deployment.model.ejb.CmpField;
 import org.apache.geronimo.deployment.model.ejb.ContainerTransaction;
 import org.apache.geronimo.deployment.model.ejb.Ejb;
 import org.apache.geronimo.deployment.model.ejb.RpcBean;
+import org.apache.geronimo.deployment.model.ejb.SecurityIdentity;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbJar;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelation;
 import org.apache.geronimo.deployment.model.geronimo.ejb.EjbRelationshipRole;
@@ -81,6 +85,10 @@ import org.apache.geronimo.deployment.model.geronimo.ejb.Query;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Relationships;
 import org.apache.geronimo.deployment.model.geronimo.ejb.Session;
 import org.apache.geronimo.deployment.model.geronimo.j2ee.JNDIEnvironmentRefs;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Security;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Role;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Realm;
+import org.apache.geronimo.deployment.model.geronimo.j2ee.Principal;
 import org.apache.geronimo.ejb.metadata.TransactionDemarcation;
 import org.apache.geronimo.kernel.deployment.AbstractDeploymentPlanner;
 import org.apache.geronimo.kernel.deployment.DeploymentException;
@@ -102,6 +110,9 @@ import org.apache.geronimo.naming.java.ReadOnlyContext;
 import org.apache.geronimo.naming.java.ReferenceFactory;
 import org.apache.geronimo.naming.jmx.JMXReferenceFactory;
 import org.apache.geronimo.security.EJBModuleConfiguration;
+import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.GeronimoSecurityException;
+import org.apache.geronimo.security.util.ContextManager;
 import org.apache.geronimo.xml.deployment.GeronimoEjbJarLoader;
 import org.apache.geronimo.xml.deployment.LoaderUtil;
 import org.openejb.nova.EJBContainerConfiguration;
@@ -203,13 +214,13 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
 
         for (int i = 0; i < enterpriseBeans.getGeronimoSession().length; i++) {
             Session session = enterpriseBeans.getGeronimoSession(i);
-            planSession(plan, session, deploymentUnitName, classSpaceMetaData, baseURI, transactionPolicyHelper.getTransactionPolicySource(session.getEJBName()));
+            planSession(plan, session, ejbJar, deploymentUnitName, classSpaceMetaData, baseURI, transactionPolicyHelper.getTransactionPolicySource(session.getEJBName()));
         }
 
         //Message driven
         for (int i = 0; i < enterpriseBeans.getGeronimoMessageDriven().length; i++) {
             MessageDriven messageDriven = enterpriseBeans.getGeronimoMessageDriven()[i];
-            planMessageDriven(plan, messageDriven, deploymentUnitName, classSpaceMetaData, baseURI, transactionPolicyHelper.getTransactionPolicySource(messageDriven.getEJBName()));
+            planMessageDriven(plan, messageDriven, ejbJar, deploymentUnitName, classSpaceMetaData, baseURI, transactionPolicyHelper.getTransactionPolicySource(messageDriven.getEJBName()));
         }
 
         //Entity
@@ -278,9 +289,9 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
                 } else {
                     cmRelation = (CMRelation[]) rels.toArray(new CMRelation[rels.size()]);
                 }
-                planCMPEntity(plan, entity, cmRelation, schemaTask, deploymentUnitName, classSpaceMetaData, baseURI, transactionPolicyHelper.getTransactionPolicySource(entity.getEJBName()));
+                planCMPEntity(plan, entity, ejbJar, cmRelation, schemaTask, deploymentUnitName, classSpaceMetaData, baseURI, transactionPolicyHelper.getTransactionPolicySource(entity.getEJBName()));
             } else {
-                planBMPEntity(plan, entity, deploymentUnitName, classSpaceMetaData, baseURI, transactionPolicyHelper.getTransactionPolicySource(entity.getEJBName()));
+                planBMPEntity(plan, entity, ejbJar, deploymentUnitName, classSpaceMetaData, baseURI, transactionPolicyHelper.getTransactionPolicySource(entity.getEJBName()));
             }
         }
         plans.add(plan);
@@ -308,6 +319,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
 
     private void planCMPEntity(DeploymentPlan plan,
                                Entity entity,
+                               EjbJar ejbJar,
                                CMRelation[] cmRelations,
                                DeploySchemaMBean schemaTask,
                                ObjectName deploymentUnitName,
@@ -316,7 +328,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
                                TransactionPolicySource transactionPolicySource) throws DeploymentException {
         MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
         ejbMetadata.setName(getContainerName(entity));
-        EntityContainerConfiguration config = getEntityConfig(entity, ejbMetadata, transactionPolicySource);
+        EntityContainerConfiguration config = getEntityConfig(entity, ejbJar, ejbMetadata, transactionPolicySource);
         ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getEntityGeronimoMBeanInfo(CMPEntityContainer.class.getName(), config));
 
         Query[] queries = entity.getGeronimoQuery();
@@ -343,10 +355,10 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
     }
 
     //BMP entity
-    private void planBMPEntity(DeploymentPlan plan, Entity entity, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI, TransactionPolicySource transactionPolicySource) throws DeploymentException {
+    private void planBMPEntity(DeploymentPlan plan, Entity entity, EjbJar ejbJar, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI, TransactionPolicySource transactionPolicySource) throws DeploymentException {
         MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
         ejbMetadata.setName(getContainerName(entity));
-        EJBContainerConfiguration config = getEntityConfig(entity, ejbMetadata, transactionPolicySource);
+        EJBContainerConfiguration config = getEntityConfig(entity, ejbJar, ejbMetadata, transactionPolicySource);
         ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getEntityGeronimoMBeanInfo(BMPEntityContainer.class.getName(), config));
 
         ejbMetadata.setConstructorArgs(new Object[]{config},
@@ -355,14 +367,14 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
     }
 
     //session
-    void planSession(DeploymentPlan plan, Session session, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI, TransactionPolicySource transactionPolicySource) throws DeploymentException {
+    void planSession(DeploymentPlan plan, Session session, EjbJar ejbJar, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI, TransactionPolicySource transactionPolicySource) throws DeploymentException {
         MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
         ejbMetadata.setName(getContainerName(session));
         if ("Bean".equals(session.getTransactionType())) {
             transactionPolicySource = session.getSessionType().equals("Stateless")?
                     TransactionPolicyHelper.StatelessBeanPolicySource: TransactionPolicyHelper.StatefulBeanPolicySource;
         }
-        EJBContainerConfiguration config = getSessionConfig(session, ejbMetadata, transactionPolicySource);
+        EJBContainerConfiguration config = getSessionConfig(session, ejbJar, ejbMetadata, transactionPolicySource);
         ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getSessionGeronimoMBeanInfo(session.getSessionType().equals("Stateless")?
                 StatelessContainer.class.getName():StatefulContainer.class.getName(), config));
 
@@ -371,13 +383,13 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         addTasks(plan, ejbMetadata);
     }
 
-    void planMessageDriven(DeploymentPlan plan, MessageDriven messageDriven, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI, TransactionPolicySource transactionPolicySource) throws DeploymentException {
+    void planMessageDriven(DeploymentPlan plan, MessageDriven messageDriven, EjbJar ejbJar, ObjectName deploymentUnitName, ClassSpaceMetadata classSpaceMetaData, URI baseURI, TransactionPolicySource transactionPolicySource) throws DeploymentException {
         MBeanMetadata ejbMetadata = getMBeanMetadata(classSpaceMetaData.getName(), deploymentUnitName, baseURI);
         ejbMetadata.setName(getContainerName(messageDriven));
         if ("Bean".equals(messageDriven.getTransactionType())) {
             transactionPolicySource = TransactionPolicyHelper.StatelessBeanPolicySource;
         }
-        EJBContainerConfiguration config = getMessageDrivenConfig(messageDriven, transactionPolicySource);
+        EJBContainerConfiguration config = getMessageDrivenConfig(messageDriven, ejbJar, transactionPolicySource);
         ejbMetadata.setGeronimoMBeanInfo(EJBInfo.getMessageDrivenGeronimoMBeanInfo(config, messageDriven.getGeronimoActivationConfig()));
 
         ObjectName resourceAdapterName;
@@ -395,8 +407,9 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         plan.addTask(new StartMBeanInstance(getServer(), ejbMetadata));
     }
 
-    EJBContainerConfiguration getMessageDrivenConfig(MessageDriven messageDriven, TransactionPolicySource transactionPolicySource) throws DeploymentException {
+    EJBContainerConfiguration getMessageDrivenConfig(MessageDriven messageDriven, EjbJar ejbJar, TransactionPolicySource transactionPolicySource) throws DeploymentException {
         EJBContainerConfiguration config = new EJBContainerConfiguration();
+        securityConfig(messageDriven, ejbJar, config);
         config.uri = null;//this is local only, so this is correct.
         config.beanClassName = messageDriven.getEJBClass();
         config.messageEndpointInterfaceName = messageDriven.getMessagingType();
@@ -405,6 +418,9 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         config.userTransaction = config.txnDemarcation.isContainer()? null: new EJBUserTransaction();
         config.unshareableResources = getUnshareableResources(messageDriven);
         config.transactionPolicySource = transactionPolicySource;
+        if (messageDriven.getBeanSecurity() != null) {
+            config.setIdentity = messageDriven.getBeanSecurity().useIdentity();
+        }
         return config;
     }
 
@@ -414,18 +430,26 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
     }
 
 
-    EJBContainerConfiguration getSessionConfig(Session session, MBeanMetadata ejbMetadata, TransactionPolicySource transactionPolicySource) throws DeploymentException {
+    EJBContainerConfiguration getSessionConfig(Session session, EjbJar ejbJar, MBeanMetadata ejbMetadata, TransactionPolicySource transactionPolicySource) throws DeploymentException {
         EJBContainerConfiguration config = new EJBContainerConfiguration();
         genericConfig(session, config, ejbMetadata, transactionPolicySource);
+        securityConfig(session, ejbJar, config);
         config.txnDemarcation = TransactionDemarcation.valueOf(session.getTransactionType());
         config.userTransaction = config.txnDemarcation.isContainer() ? null : new EJBUserTransaction();
+        if (session.getBeanSecurity() != null) {
+            config.setIdentity = session.getBeanSecurity().useIdentity();
+        }
         return config;
     }
 
-    private EntityContainerConfiguration getEntityConfig(Entity entity, MBeanMetadata ejbMetadata, TransactionPolicySource transactionPolicySource) throws DeploymentException {
+    private EntityContainerConfiguration getEntityConfig(Entity entity, EjbJar ejbJar, MBeanMetadata ejbMetadata, TransactionPolicySource transactionPolicySource) throws DeploymentException {
         EntityContainerConfiguration config = new EntityContainerConfiguration();
         genericConfig(entity, config, ejbMetadata, transactionPolicySource);
+        securityConfig(entity, ejbJar, config);
         config.pkClassName = entity.getPrimKeyClass();
+        if (entity.getBeanSecurity() != null) {
+            config.setIdentity = entity.getBeanSecurity().useIdentity();
+        }
         return config;
     }
 
@@ -436,6 +460,7 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         } catch (URISyntaxException e) {
             throw new DeploymentException("Could not construct uri for container remoting", e);
         }
+        config.ejbName = rpcBean.getEJBName();
         config.beanClassName = rpcBean.getEJBClass();
         config.homeInterfaceName = rpcBean.getHome();
         config.remoteInterfaceName = rpcBean.getRemote();
@@ -444,6 +469,59 @@ public class EJBModuleDeploymentPlanner extends AbstractDeploymentPlanner {
         config.componentContext = getComponentContext((JNDIEnvironmentRefs) rpcBean, config.userTransaction);
         config.unshareableResources = getUnshareableResources(rpcBean);
         config.transactionPolicySource = transactionPolicySource;
+    }
+
+    private void securityConfig(Ejb ejbBean, EjbJar ejbJar, EJBContainerConfiguration config) throws DeploymentException {
+        if (ejbJar.getSecurity() != null) {
+            Security security = ejbJar.getSecurity();
+            config.setSecurityInterceptor = true;
+            config.contextId = ejbJar.getModuleName();
+            config.setPolicyContextHandlerDataEJB = security.useContextHandler();
+
+            SecurityIdentity securityIdentity = ejbBean.getSecurityIdentity();
+            if (securityIdentity != null && !securityIdentity.isUseCallerIdentity()) {
+                if (security.getRoleMappings() == null) throw new DeploymentException("Missing needed role mappings");
+
+                Role[] roles = security.getRoleMappings().getRole();
+                for (int i=0; i<roles.length; i++) {
+                    if (roles[i].getRoleName().equals(securityIdentity.getRunAs().getRoleName())) {
+                        Subject subject = new Subject();
+                        Realm[] realms = roles[i].getRealm();
+
+                        for (int j = 0; j < realms.length; j++) {
+                            Realm realm = realms[j];
+                            Principal[] principals = realm.getPrincipal();
+                            for (int k = 0; k < principals.length; k++) {
+                                Principal principal = principals[k];
+                                java.security.Principal p = null;
+                                try {
+                                    Class clazz = Class.forName(principal.getClassName());
+                                    Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
+                                    p = (java.security.Principal) constructor.newInstance(new Object[]{principal.getName()});
+                                    subject.getPrincipals().add(new RealmPrincipal(realm.getRealmName(), p));
+                                } catch (InstantiationException e) {
+                                    throw new DeploymentException("unable to create run-as principal", e);
+                                } catch (IllegalAccessException e) {
+                                    throw new DeploymentException("unable to create run-as principal", e);
+                                } catch (ClassNotFoundException e) {
+                                    throw new DeploymentException("unable to create run-as principal", e);
+                                } catch (NoSuchMethodException e) {
+                                    throw new DeploymentException("unable to create run-as principal", e);
+                                } catch (InvocationTargetException e) {
+                                    throw new DeploymentException("unable to create run-as principal", e);
+                                }
+                            }
+                        }
+
+                        ContextManager.registerSubject(subject);
+                        config.runAs = subject;
+
+                        break;
+                    }
+                }
+                if (config.runAs == null) throw new DeploymentException("unable to create run-as subject");
+            }
+        }
     }
 
     private ReadOnlyContext getComponentContext(JNDIEnvironmentRefs refs, UserTransaction userTransaction) throws DeploymentException {
