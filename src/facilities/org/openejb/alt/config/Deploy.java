@@ -772,7 +772,7 @@ public class Deploy {
         }
 
         out.println("\nCongratulations! Your jar is ready to use with OpenEJB.");
-        
+        out.println("\nIf the OpenEJB remote server is already running, you will\nneed to restart it in order for OpenEJB to recognize your bean.");
         out.println("\nNOTE: If you move or rename your jar file, you will have to\nupdate the path in this jar's deployment entry in your \nOpenEJB config file.");
 
     }
