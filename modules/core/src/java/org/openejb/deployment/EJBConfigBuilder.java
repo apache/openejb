@@ -97,6 +97,7 @@ import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
 
 import org.openejb.ContainerBuilder;
 import org.openejb.EJBModule;
@@ -138,7 +139,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         return new SchemaTypeLoader[]{XmlBeans.getContextTypeLoader()};
     }
 
-    public XmlObject getDeploymentPlan(URL module) {
+    public XmlObject getDeploymentPlan(URL module)  throws XmlException {
         try {
             URL moduleBase;
             if (module.toString().endsWith("/")) {
@@ -157,7 +158,7 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    private OpenejbOpenejbJarDocument createDefaultPlan(URL module) {
+    private OpenejbOpenejbJarDocument createDefaultPlan(URL module) throws XmlException {
         EjbJarDocument ejbJarDoc = (EjbJarDocument) XmlBeansUtil.getXmlObject(module, EjbJarDocument.type);
         if (ejbJarDoc == null) {
             return null;
@@ -232,7 +233,12 @@ public class EJBConfigBuilder implements ConfigurationBuilder {
         if (ejbJarXml == null) {
             throw new DeploymentException("Module does not contain the ejb-jar.xml deployment descriptor");
         }
-        EjbJarDocument doc = (EjbJarDocument) XmlBeansUtil.getXmlObject(ejbJarXml, EjbJarDocument.type);
+        EjbJarDocument doc = null;
+        try {
+            doc = (EjbJarDocument) XmlBeansUtil.getXmlObject(ejbJarXml, EjbJarDocument.type);
+        } catch (XmlException e) {
+            throw new DeploymentException(e);
+        }
         if (doc == null) {
             throw new DeploymentException("The ejb-jar.xml deployment descriptor is not valid");
         }
