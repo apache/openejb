@@ -44,7 +44,9 @@
  */
 package org.openejb.loader;
 
-import java.util.Hashtable;import java.util.Properties;
+import java.util.Hashtable;
+import java.util.Properties;
+
 /**
  * 
  */

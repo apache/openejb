@@ -61,7 +61,6 @@ import org.xml.sax.SAXException;
  * configuration files.  This class will fail silently if the files aren't
  * available locally, and you'll end up hitting the web anyway.
  *
- * @version $Revision$
  */
 public class DTDResolver implements EntityResolver {
     public static HashMap dtds = new HashMap();
