@@ -198,10 +198,11 @@ public class FileUtils {
 			in = new FileInputStream(source);
 			out = new FileOutputStream(destination);
 
-			int aByte;
-			while ((aByte = in.read()) != -1) {
-				out.write(aByte);
-			}
+            int len;
+            byte[] buffer = new byte[4096];
+            while ((len = in.read(buffer)) != -1) {
+                out.write(buffer, 0, len);
+            }
 		} catch (java.io.IOException e) {
 			throw e;
 		} finally {

@@ -200,6 +200,11 @@
       <Entry bug="699044">bin/validate.sh use dos eol format</Entry>
       <Entry bug="675760">Entity remove() doesn't work with Supports trans attr</Entry>
     </Version>
+    
+    <Version id="1.0.0" releaseDate="TBD" cvsTag="v1_0_0" 
+        released="false">
+      <Entry task="792283">FileUtils.copyFile is slow</Entry>
+    </Version>
 
 </ChangeLog>
 
