@@ -124,9 +124,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final ContainerSecurityBuilder containerSecurityBuilder;
     private final SkeletonGenerator skeletonGenerator;
     private final Repository repository;
-    private final Kernel kernel;
 
-    public OpenEJBModuleBuilder(URI defaultParentId, SkeletonGenerator skeletonGenerator, Repository repository, Kernel kernel) {
+    public OpenEJBModuleBuilder(URI defaultParentId, SkeletonGenerator skeletonGenerator, Repository repository) {
         this.defaultParentId = defaultParentId;
         this.skeletonGenerator = skeletonGenerator;
         this.containerSecurityBuilder = new ContainerSecurityBuilder(this);
@@ -135,7 +134,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         this.entityBuilder = new EntityBuilder(this);
         this.mdbBuilder = new MdbBuilder(this);
         this.repository = repository;
-        this.kernel = kernel;
     }
 
     public ContainerSecurityBuilder getSecurityBuilder() {
@@ -169,12 +167,16 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
             specDD = DeploymentUtil.readAll(specDDUrl);
-
+        } catch (Exception e) {
+            return null;
+        }
+        //there is a file named ejb-jar.xml in META-INF.  If we can't process it, it is an error.
+        try {
             // parse it
             EjbJarDocument ejbJarDoc = SchemaConversionUtils.convertToEJBSchema(SchemaConversionUtils.parse(specDD));
             ejbJar = ejbJarDoc.getEjbJar();
-        } catch (Exception e) {
-            return null;
+        } catch (XmlException e) {
+            throw new DeploymentException("Error parsing ejb-jar.xml", e);
         }
 
         OpenejbOpenejbJarType openejbJar = getOpenejbJar(plan, moduleFile, standAlone, targetPath, ejbJar);
@@ -531,11 +533,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class);
         infoBuilder.addReference("Repository", Repository.class);
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
          infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(EJBReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[] {"defaultParentId", "SkeletonGenerator", "Repository", "kernel"});
+        infoBuilder.setConstructor(new String[] {"defaultParentId", "SkeletonGenerator", "Repository"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
