@@ -60,6 +60,35 @@
                  
         excludes="**/CVS/**,**/*.class" /> </copy>
     
+    <mkdir dir="${build.openejb.dest}/images" />
+    
+    <copy todir="${build.openejb.dest}/images" >
+      <fileset dir="${src.java.dir}/doc/images" 
+               includes="JavaCup.gif,
+                        TreeClosed.gif,
+                        TreeOpen.gif,
+                        dotTrans.gif,
+                        ejb.gif,
+                        line_light.gif,
+                        line_sm.gif,
+                        logo_ejb2.gif,
+                        pepper.gif,
+                        stripe105.gif,
+                        stripes1.gif,
+                        top_2.gif,
+                        top_3.gif"/>
+    </copy>
+
+    <copy todir="${build.openejb.dest}" >
+      <fileset dir="${src.java.dir}/doc/tomcat" 
+               includes="*.html"/>
+    </copy>
+    
+    <copy todir="${build.openejb.dest}" >
+      <fileset dir="${src.java.dir}/doc/style" 
+               includes="default.css"/>
+    </copy>
+    
     <copy todir="${build.openejb.src}" >
       <fileset dir="${src.java.dir}/server" 
                includes="org/openejb/client/LocalInitialContextFactory.java"
@@ -117,6 +146,7 @@
           
     <jar jarfile="dist/${project}_loader-${version}.jar"
          basedir="${build.openejb.dest}"
+         includes="**/*.class"
          excludes="**/*Servlet.class"
          manifest="${build.openejb.dest}/MANIFEST.MF"/>
           
@@ -130,6 +160,11 @@
         <fileset dir="${build.openejb.src}/org/openejb/loader/">
           <include name="**/*.jsp"/>
           <exclude name="**/*.java"/>
+        </fileset>
+        <fileset dir="${build.openejb.dest}">
+          <include name="images/*.gif"/>
+          <include name="*.html"/>
+          <include name="*.css"/>
         </fileset>
          <classes dir="${build.openejb.dest}">
           <include name="**/*Servlet.class"/>
