@@ -77,9 +77,9 @@ import org.openejb.corba.util.UtilDelegateImpl;
 /**
  * @version $Revision$ $Date$
  */
-public class POABean implements GBeanLifecycle, ReferenceCollectionListener {
+public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
 
-    private final Log log = LogFactory.getLog(POABean.class);
+    private final Log log = LogFactory.getLog(TSSBean.class);
 
     private final ClassLoader classLoader;
     private final String POAName;
@@ -92,7 +92,7 @@ public class POABean implements GBeanLifecycle, ReferenceCollectionListener {
     private static final Map containerMap = new HashMap();
 
 
-    public POABean(ClassLoader classLoader, String POAName, CORBABean server, TieLoader tieLoader) {
+    public TSSBean(ClassLoader classLoader, String POAName, CORBABean server, TieLoader tieLoader) {
         this.classLoader = classLoader;
         this.POAName = POAName;
         this.server = server;
@@ -163,7 +163,7 @@ public class POABean implements GBeanLifecycle, ReferenceCollectionListener {
             Thread.currentThread().setContextClassLoader(savedLoader);
         }
 
-        log.info("Started POABean");
+        log.info("Started CORBA Target Security Server in POA " + POAName);
     }
 
     public void doStop() throws Exception {
@@ -182,17 +182,17 @@ public class POABean implements GBeanLifecycle, ReferenceCollectionListener {
             localPOA.the_POAManager().deactivate(true, true);
             localPOA = null;
         }
-        log.info("Stopped POABean");
+        log.info("Stopped CORBA Target Security Server in POA " + POAName);
     }
 
     public void doFail() {
-        log.info("Failed POABean");
+        log.info("Failed CORBA Target Security Server in POA " + POAName);
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(POABean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TSSBean.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("POAName", String.class, true);
