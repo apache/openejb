@@ -49,7 +49,6 @@ package org.openejb.nova.entity.cmp;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 import javax.ejb.EntityContext;
 
