@@ -426,7 +426,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
             }
             log.debug("Using JACC policy '" + securityConfiguration.getPolicyContextId() + "'");
         }
-        log.info("GenericEJBContainer '" + containerId + "'started");
+        log.info("GenericEJBContainer '" + containerId + "' started");
     }
 
     public void doStop() throws Exception {
@@ -461,7 +461,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
             // do nothing
         }
 
-        log.info("GenericEJBContainer '" + containerId + "'failed");
+        log.info("GenericEJBContainer '" + containerId + "' failed");
     }
 
     public static final GBeanInfo GBEAN_INFO;
