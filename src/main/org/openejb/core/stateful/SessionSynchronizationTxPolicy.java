@@ -15,7 +15,7 @@ import org.openejb.core.ThreadContext;
 import org.openejb.core.transaction.TransactionContainer;
 import org.openejb.core.transaction.TransactionContext;
 import org.openejb.core.transaction.TransactionPolicy;
-
+import org.openejb.util.Logger;
 /**
  * Don't wrap the following method transaction types
  * 
@@ -35,6 +35,13 @@ public class SessionSynchronizationTxPolicy extends org.openejb.core.transaction
         this.policy     = policy;
         this.container  = policy.getContainer();
         this.policyType = policy.policyType;
+        if(container instanceof org.openejb.Container &&
+           ((org.openejb.Container)container).getContainerType()!=org.openejb.Container.STATEFUL ||
+           policyType==TransactionPolicy.Never ||
+           policyType==TransactionPolicy.NotSupported) {
+            throw new IllegalArgumentException();
+        }
+        
     }
 
     public void beforeInvoke(EnterpriseBean instance, TransactionContext context) throws org.openejb.SystemException, org.openejb.ApplicationException{

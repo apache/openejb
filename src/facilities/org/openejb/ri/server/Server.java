@@ -547,6 +547,10 @@ public class Server implements Runnable, org.openejb.spi.ApplicationServer {
         
     }
     
+    public javax.ejb.HomeHandle getHomeHandle(ProxyInfo proxyInfo){
+        return null;
+    }
+    
     public javax.ejb.Handle getHandle(ProxyInfo proxyInfo){
         javax.ejb.EJBObject ejbObject = getEJBObject(proxyInfo);
         RiBaseHandle handle = new RiBaseHandle();

@@ -44,21 +44,19 @@
  */
 package org.openejb.core.stateful;
 
-import javax.ejb.EnterpriseBean;
+import javax.ejb.SessionBean;
 import javax.transaction.Transaction;
 
 public class BeanEntry implements java.io.Serializable{
-    protected EnterpriseBean bean;
+    protected final SessionBean bean;
     protected Object primaryKey;
     protected Object ancillaryState;   
     protected transient Transaction transaction; 
     protected long timeStamp;
     protected long timeOutInterval;
-    protected BeanEntry beforeMe =null;
-    protected BeanEntry afterMe =null;
     protected boolean inQue = false;
         
-    protected BeanEntry(EnterpriseBean beanInstance, Object primKey, Object ancillary, long timeOut){
+    protected BeanEntry(SessionBean beanInstance, Object primKey, Object ancillary, long timeOut){
         bean = beanInstance;
         primaryKey = primKey;
         ancillaryState = ancillary;
@@ -70,22 +68,11 @@ public class BeanEntry implements java.io.Serializable{
         if(timeOutInterval == 0)
             return false;
         long now = System.currentTimeMillis();
-        if((now - timeStamp)> timeOutInterval)
-            return true;
-        else
-            return false;
+        return (now - timeStamp)> timeOutInterval;
     }
     protected void resetTimeOut( ){
-        if(timeOutInterval == 0) return;
+        if(timeOutInterval > 0) {
         timeStamp = System.currentTimeMillis();
     }
-    protected void removeFromChain( ){
-        if(beforeMe != null)
-            beforeMe.afterMe = afterMe;
-        if(afterMe != null)
-            afterMe.beforeMe = beforeMe;
-                
-        afterMe = null;
-        beforeMe = null;
     }
 }         

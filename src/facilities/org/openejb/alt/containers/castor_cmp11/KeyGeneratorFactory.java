@@ -5,12 +5,15 @@ import org.exolab.castor.persist.spi.Complex;
 import java.util.Properties;
 import java.util.HashMap;
 
+import org.openejb.util.Logger;
+
 public abstract class KeyGeneratorFactory {
+    protected final static Logger logger = Logger.getLogger("CastorCMP");
 
     private static class PrimitiveKey implements org.openejb.alt.containers.castor_cmp11.KeyGenerator{
         private final java.lang.reflect.Field field;
         
-        PrimitiveKey(DeploymentInfo di) {
+        PrimitiveKey(DeploymentInfo di) throws org.openejb.OpenEJBException{
             field = di.getPrimaryKeyField();
         }
 
@@ -38,7 +41,7 @@ public abstract class KeyGeneratorFactory {
         private final HashMap pkFieldMap;
         private final HashMap beanFieldMap;
         
-        ComplexKey(DeploymentInfo di) {
+        ComplexKey(DeploymentInfo di) throws org.openejb.OpenEJBException{
             pkClass = di.getPrimaryKeyClass();
             Class beanClass= di.getBeanClass();
             java.util.List v= new java.util.ArrayList();
@@ -70,7 +73,7 @@ public abstract class KeyGeneratorFactory {
                 }
                 return pk;
             }catch(Exception e) {
-                e.printStackTrace();
+                logger.error("getPrimaryKey() received exception "+e, e);
                 throw new IllegalStateException();
             }
         }
@@ -84,7 +87,7 @@ public abstract class KeyGeneratorFactory {
                 }
                 return new org.exolab.castor.persist.spi.Complex(len, args);
             }catch(Exception e) {
-                e.printStackTrace();
+                logger.error("getJdoComplex() received exception "+e, e);
                 throw new IllegalStateException();
             }
         }
@@ -95,7 +98,7 @@ public abstract class KeyGeneratorFactory {
     }
     
     public static KeyGenerator createKeyGenerator(DeploymentInfo di)
-    throws java.lang.NoSuchFieldException{
+    throws org.openejb.OpenEJBException{
 
         if(di.getPrimaryKeyField()!=null) {
             return new PrimitiveKey(di);

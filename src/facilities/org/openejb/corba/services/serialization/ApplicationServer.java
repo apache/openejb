@@ -89,6 +89,14 @@ public class ApplicationServer implements org.openejb.spi.ApplicationServer
 	{				
 		return new org.openejb.corba.core.EJBHandle( ( javax.ejb.EJBObject ) lookup( proxyInfo ) );
 	}
+
+	/**
+	 * Replaces the OpenEJB artifact for the Handle
+	 */
+	public javax.ejb.HomeHandle getHomeHandle(org.openejb.ProxyInfo proxyInfo)
+	{				
+	    return null;
+	}
 	
 	/**
 	 * Replace the OpenEJB artifact for the Object reference

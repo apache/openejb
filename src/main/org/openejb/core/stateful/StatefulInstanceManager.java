@@ -83,14 +83,14 @@ public class StatefulInstanceManager {
      * Measured as the time between method invocations.
      */
     protected long timeOUT = 0;
-    
+
     /**
      * This index keeps track of all beans that are not passivated.  A bean in the
      * method ready or "method ready in transaction" pools will be in this index. 
      * Passivated beans are not in this index.
      */
     protected Hashtable beanINDEX = new Hashtable();
-    
+
     /**
      * This colleciton keeps track of all beans that are in the method ready pool 
      * and are not passivated.  Beans that are enrolled in a current transaction 
@@ -98,7 +98,7 @@ public class StatefulInstanceManager {
      * passivated or timeout.
      */
     protected BeanEntryQue lruQUE;// que of beans for LRU algorithm
-    
+
     /**
      * The passivator is responsible for writing beans to disk at passivation time.
      * Different passivators can be used and are chosen by setting the 
@@ -108,18 +108,18 @@ public class StatefulInstanceManager {
      * responsibly is to write the bean state to disk.
      */
     protected PassivationStrategy passivator;
-    
+
     /**
      * Timeout Manager
      */
     protected int BULK_PASSIVATION_SIZE = 100;
 
     protected SafeToolkit toolkit = SafeToolkit.getToolkit("StatefulInstanceManager");
-    
+
     /**
      * CONSTRUCTOR METHODS
      */
-    public StatefulInstanceManager( ){
+    public StatefulInstanceManager( ) {
     }
 
     /**********************************************************************
@@ -140,21 +140,21 @@ public class StatefulInstanceManager {
         SafeProperties safeProps = toolkit.getSafeProperties(props);
 
         String passivatorClass=null;
-        try{
+        try {
             passivatorClass = safeProps.getProperty(EnvProps.IM_PASSIVATOR);
-        }catch(org.openejb.OpenEJBException e) {
+        } catch ( org.openejb.OpenEJBException e ) {
             // try old property name for backward compat
-            try{
+            try {
                 passivatorClass = safeProps.getProperty("org/openejb/core/InstanceManager/PASSIVATOR");
-            }catch(org.openejb.OpenEJBException e1) {
+            } catch ( org.openejb.OpenEJBException e1 ) {
                 //throw old exception
                 throw e;
             }
-        }            
+        }
 
-        try{
+        try {
             passivator = (PassivationStrategy)toolkit.newInstance(passivatorClass);
-        }catch(Exception e){
+        } catch ( Exception e ) {
             OpenEJBErrorHandler.propertyValueIsIllegal(EnvProps.IM_PASSIVATOR, passivatorClass, e.getLocalizedMessage());
         }
         passivator.init(props);
@@ -162,8 +162,8 @@ public class StatefulInstanceManager {
         int poolSize = safeProps.getPropertyAsInt(EnvProps.IM_POOL_SIZE, 100);
         int timeOutInMinutes = safeProps.getPropertyAsInt(EnvProps.IM_TIME_OUT,5);
         int bulkPassivationSize = safeProps.getPropertyAsInt(EnvProps.IM_PASSIVATE_SIZE,(int)(poolSize*.25));
-        
-        
+
+
         lruQUE = new BeanEntryQue(poolSize);
         BULK_PASSIVATION_SIZE = (bulkPassivationSize > poolSize)? poolSize: bulkPassivationSize;
         timeOUT = timeOutInMinutes*60*1000; // (minutes x 60 sec x 1000 milisec)
@@ -210,9 +210,9 @@ public class StatefulInstanceManager {
     throws OpenEJBException{
         BeanEntry entry = getBeanEntry(primaryKey);
         entry.ancillaryState = ancillaryState;
-        if(ancillaryState instanceof javax.transaction.Transaction)
+        if ( ancillaryState instanceof javax.transaction.Transaction )
             entry.transaction = (javax.transaction.Transaction)ancillaryState;
-            
+
     }
 
     /**
@@ -245,40 +245,41 @@ public class StatefulInstanceManager {
     public EnterpriseBean newInstance(Object primaryKey, Object ancillaryState, Class beanClass)
     throws OpenEJBException{
 
-            SessionBean bean = null;
+        SessionBean bean = null;
 
-            try{
+        try {
             bean = (SessionBean)toolkit.newInstance(beanClass);
-            }catch(OpenEJBException oee){
-                throw (SystemException)oee;
-            }
+        } catch ( OpenEJBException oee ) {
+            logger.error("Can't instantiate new instance of class +"+beanClass.getName()+". Received exception "+oee, oee);
+            throw (SystemException)oee;
+        }
 
-            ThreadContext thrdCntx = ThreadContext.getThreadContext();
-            byte currentOp = thrdCntx.getCurrentOperation();
-            thrdCntx.setCurrentOperation(Operations.OP_SET_CONTEXT);
-            try{
-                ((javax.ejb.SessionBean)bean).setSessionContext((javax.ejb.SessionContext)thrdCntx.getDeploymentInfo().getEJBContext());
-            }catch(Throwable callbackException){
-                /*
-                In the event of an exception, OpenEJB is required to log the exception, evict the instance,
-                and mark the transaction for rollback.  If there is a transaction to rollback, then the a
-                javax.transaction.TransactionRolledbackException must be throw to the client. Otherwise a
-                java.rmi.RemoteException is thrown to the client.
-                See EJB 1.1 specification, section 12.3.2
-                See EJB 2.0 specification, section 18.3.3
-                */
-                handleCallbackException(callbackException, bean, thrdCntx, "setSessionContext");
-            }finally{
-                thrdCntx.setCurrentOperation(currentOp);
-            }
-            
+        ThreadContext thrdCntx = ThreadContext.getThreadContext();
+        byte currentOp = thrdCntx.getCurrentOperation();
+        thrdCntx.setCurrentOperation(Operations.OP_SET_CONTEXT);
+        try {
+            bean.setSessionContext((javax.ejb.SessionContext)thrdCntx.getDeploymentInfo().getEJBContext());
+        } catch ( Throwable callbackException ) {
+            /*
+            In the event of an exception, OpenEJB is required to log the exception, evict the instance,
+            and mark the transaction for rollback.  If there is a transaction to rollback, then the a
+            javax.transaction.TransactionRolledbackException must be throw to the client. Otherwise a
+            java.rmi.RemoteException is thrown to the client.
+            See EJB 1.1 specification, section 12.3.2
+            See EJB 2.0 specification, section 18.3.3
+            */
+            handleCallbackException(callbackException, bean, thrdCntx, "setSessionContext");
+        } finally {
+            thrdCntx.setCurrentOperation(currentOp);
+        }
 
-            BeanEntry entry = new BeanEntry(bean,primaryKey, ancillaryState, timeOUT);
 
-            beanINDEX.put(primaryKey, entry);
-            
-            
-            return entry.bean;
+        BeanEntry entry = new BeanEntry(bean,primaryKey, ancillaryState, timeOUT);
+
+        beanINDEX.put(primaryKey, entry);
+
+
+        return entry.bean;
     }
 
     /**
@@ -293,18 +294,18 @@ public class StatefulInstanceManager {
      *                   if the instance has timed out
      * @see SessionKey
      */
-    public EnterpriseBean obtainInstance(Object primaryKey)throws OpenEJBException{
+    public SessionBean obtainInstance(Object primaryKey, ThreadContext callContext)throws OpenEJBException{
         if ( primaryKey == null ) {
-            throw new org.openejb.SystemException( new NullPointerException("Cannot obtain an instance of the statful session bean with a null session id"));
+            throw new org.openejb.SystemException( new NullPointerException("Cannot obtain an instance of the stateful session bean with a null session id"));
         }
-        
+
         BeanEntry entry = (BeanEntry)beanINDEX.get(primaryKey);
-        if(entry == null){
+        if ( entry == null ) {
             // if the bean is not in the beanINDEX then it must either be passivated or it doesn't exist.
             entry = activate(primaryKey);
-            if(entry != null){
+            if ( entry != null ) {
                 // the bean instance was passivated
-                if(entry.isTimedOut()){
+                if ( entry.isTimedOut() ) {
                     /* Since the bean instance hasn't had its ejbActivate() method called yet, 
                        it is still considered to be passivated at this point. Instances that timeout 
                        while passivated must be evicted WITHOUT having their ejbRemove() 
@@ -313,13 +314,12 @@ public class StatefulInstanceManager {
                     throw new org.openejb.InvalidateReferenceException(new java.rmi.NoSuchObjectException("Timed Out"));
                 }
                 // invoke ejbActivate( ) on bean
-                ThreadContext thrdCntx = ThreadContext.getThreadContext();
-                byte currentOp = thrdCntx.getCurrentOperation();
-                thrdCntx.setCurrentOperation(Operations.OP_ACTIVATE);
-                
-                try{
-                    ((SessionBean)entry.bean).ejbActivate( );
-                }catch(Throwable callbackException){
+                byte currentOp = callContext.getCurrentOperation();
+                callContext.setCurrentOperation(Operations.OP_ACTIVATE);
+
+                try {
+                    entry.bean.ejbActivate( );
+                } catch ( Throwable callbackException ) {
                     /*
                     In the event of an exception, OpenEJB is required to log the exception, evict the instance,
                     and mark the transaction for rollback.  If there is a transaction to rollback, then the a
@@ -327,83 +327,59 @@ public class StatefulInstanceManager {
                     java.rmi.RemoteException is thrown to the client.
                     See EJB 1.1 specification, section 12.3.2
                     */
-                    handleCallbackException(callbackException, entry.bean, thrdCntx, "ejbActivate");
-                }finally{
-                    thrdCntx.setCurrentOperation(currentOp);
+                    handleCallbackException(callbackException, entry.bean, callContext, "ejbActivate");
+                } finally {
+                    callContext.setCurrentOperation(currentOp);
                 }
-                
+
                 beanINDEX.put(primaryKey, entry);
                 return entry.bean;
-            }else{
+            } else {
                 throw new org.openejb.InvalidateReferenceException(new java.rmi.NoSuchObjectException("Not Found"));
             }
-        }else{// bean has been created and is pooled
-            if(entry.transaction != null){ // the bean is pooled in the "tx method ready" pool.
-            // session beans can only be accessed by one transaction at a time.
-            // session beans involved in a transaction can not time out.
-                try{
-                    if(entry.transaction.getStatus() == Status.STATUS_ACTIVE){
+        } else {// bean has been created and is pooled
+            if ( entry.transaction != null ) { // the bean is pooled in the "tx method ready" pool.
+                // session beans can only be accessed by one transaction at a time.
+                // session beans involved in a transaction can not time out.
+                try {
+                    if ( entry.transaction.getStatus() == Status.STATUS_ACTIVE ) {
+                        // Unfortunately, we can't enforce this right here, because the
+                        // calling sequence in the stateful container calls beforeInvoke AFTER
+                        // obtainInstance(), so that the transaction hasn't been resumed yet.
                         // the transaction assocaite with the thread must be the same as the trasnaction associated with the bean entry
-                        if(entry.transaction.equals(OpenEJB.getTransactionManager().getTransaction()))
-                            return entry.bean;
-                        else 
-                            throw new ApplicationException(new javax.transaction.InvalidTransactionException());
-                    }else{
+//                        if(entry.transaction.equals(OpenEJB.getTransactionManager().getTransaction()))
+                        return entry.bean;
+//                        else
+//                            throw new ApplicationException(new javax.transaction.InvalidTransactionException());
+                    } else {
                         // the tx assoc with the entry must have commited or rolledback since the last request.
                         // this means that the bean is not assicated with a live tx can can service the new thread.
                         entry.transaction = null;
                         return entry.bean;
                     }
-                }catch(javax.transaction.SystemException se){
+                } catch ( javax.transaction.SystemException se ) {
                     throw new org.openejb.SystemException(se);
-                }catch(IllegalStateException ise){
+                } catch ( IllegalStateException ise ) {
                     throw new org.openejb.SystemException(ise);
-                }catch(java.lang.SecurityException lse){
+                } catch ( java.lang.SecurityException lse ) {
                     throw new org.openejb.SystemException(lse);
                 }
-            }else{// bean is pooled in the "method ready" pool.
+            } else {// bean is pooled in the "method ready" pool.
                 // locate bean and return it
                 BeanEntry queEntry = lruQUE.remove(entry);// remove from Que so its not passivated while in use
-                if(queEntry != null){
-                    if(entry.isTimedOut()){
+                if ( queEntry != null ) {
+                    if ( entry.isTimedOut() ) {
                         // dereference bean instance for GC
                         entry = (BeanEntry)beanINDEX.remove(entry.primaryKey );// remove frm index
-                        
-                        // current operation to ejbRemove
-                        ThreadContext thrdCntx = ThreadContext.getThreadContext();
-                        byte currentOp = thrdCntx.getCurrentOperation();
-                        thrdCntx.setCurrentOperation(Operations.OP_REMOVE);
-                        
-                        // instances that timeout while in the method ready pool must have their ejbRemove() 
-                        // method invoked before being evicted. Section 6.6 of EJB 1.1 specification.
-                        try{
-                            ((javax.ejb.SessionBean)entry.bean).ejbRemove();
-                            //FIXME: log timeout
-                        }catch(Throwable callbackException){
-                            /*
-                              Exceptions are processed "quietly"; they are not reported to the client since 
-                              the timeout that caused the ejbRemove() operation did not, "technically", take 
-                              place in the context of a client call. Logically, it may have timeout sometime 
-                              before the client call.
-                            */
-                            String logMessage = "An unexpected exception occured while invoking the ejbRemove method on the timed-out Stateful SessionBean instance; "+callbackException.getClass().getName()+" "+callbackException.getMessage();
-
-                            /* [1] Log the exception or error */
-                            logger.error( logMessage );
-                            
-                        }finally{
-                            logger.info("Removing the timed-out stateful session bean instance "+queEntry.primaryKey );
-                            thrdCntx.setCurrentOperation(currentOp);
-                            throw new org.openejb.InvalidateReferenceException(new java.rmi.NoSuchObjectException("Stateful SessionBean has timed-out"));
-                        }
-                    }else{
-                        return entry.bean;
+                        handleTimeout(entry, callContext);
+                        throw new org.openejb.InvalidateReferenceException(new java.rmi.NoSuchObjectException("Stateful SessionBean has timed-out"));
                     }
-                }else {
-                    byte currentOperation = ThreadContext.getThreadContext().getCurrentOperation();
-                    if(currentOperation == Operations.OP_AFTER_COMPLETION || currentOperation == Operations.OP_BEFORE_COMPLETION){
+                    return entry.bean;
+                } else {
+                    byte currentOperation = callContext.getCurrentOperation();
+                    if ( currentOperation == Operations.OP_AFTER_COMPLETION || currentOperation == Operations.OP_BEFORE_COMPLETION ) {
                         return entry.bean;
-                    }else{
+                    } else {
                         // if the entry was not in the que and its synchronization methods are not being exeuted, then its in use and this is a concurrent call. Not allowed.
                         throw new ApplicationException(new RemoteException("Concurrent calls not allowed"));
                     }
@@ -412,6 +388,33 @@ public class StatefulInstanceManager {
         }
     }
 
+    protected void handleTimeout(BeanEntry entry, ThreadContext thrdCntx) {
+
+        // current operation to ejbRemove
+        byte currentOp = thrdCntx.getCurrentOperation();
+        thrdCntx.setCurrentOperation(Operations.OP_REMOVE);
+
+        // instances that timeout while in the method ready pool must have their ejbRemove() 
+        // method invoked before being evicted. Section 6.6 of EJB 1.1 specification.
+        try {
+            entry.bean.ejbRemove();
+        } catch ( Throwable callbackException ) {
+            /*
+              Exceptions are processed "quietly"; they are not reported to the client since 
+              the timeout that caused the ejbRemove() operation did not, "technically", take 
+              place in the context of a client call. Logically, it may have timeout sometime 
+              before the client call.
+            */
+            String logMessage = "An unexpected exception occured while invoking the ejbRemove method on the timed-out Stateful SessionBean instance; "+callbackException.getClass().getName()+" "+callbackException.getMessage();
+
+            /* [1] Log the exception or error */
+            logger.error( logMessage );
+
+        } finally {
+            logger.info("Removing the timed-out stateful session bean instance "+entry.primaryKey );
+            thrdCntx.setCurrentOperation(currentOp);
+        }
+    }
     /**
      * Hands an instance of the bean class over to this instance manager to be 
      * managed until the instace is needed again.
@@ -424,33 +427,31 @@ public class StatefulInstanceManager {
      */
     public void poolInstance(Object primaryKey, EnterpriseBean bean)
     throws OpenEJBException{
-        if(primaryKey == null || bean == null)
+        if ( primaryKey == null || bean == null )
             throw new SystemException("Invalid arguments");
 
         BeanEntry entry = (BeanEntry)beanINDEX.get(primaryKey);
-
-        if(entry == null)
-            throw new SystemException("Invalid primaryKey");
-        else if(entry.bean != bean)
+        if ( entry == null ) {
+            entry = activate(primaryKey);
+            if ( entry == null ) {
+                throw new SystemException("Invalid primaryKey:"+primaryKey);
+            }
+        } else if ( entry.bean != bean )
             throw new SystemException("Invalid ID for bean");
 
-           
-        if(entry.transaction!=null && entry.transaction == entry.ancillaryState){
+
+        if ( entry.transaction!=null && entry.transaction == entry.ancillaryState ) {
             // only Bean Managed Transaction beans will have their ancillary ...
             // ... state and transaction variable equal to the same object
             return;// don't put in LRU (method ready) pool.
-        }else{
-            try{
-            entry.transaction = OpenEJB.getTransactionManager().getTransaction();
-            }catch(javax.transaction.SystemException se){
+        } else {
+            try {
+                entry.transaction = OpenEJB.getTransactionManager().getTransaction();
+            } catch ( javax.transaction.SystemException se ) {
                 throw new org.openejb.SystemException("TransactionManager failure");
             }
-                
-            if(entry.transaction == null){// only put in LRU if no current transaction
-                if(lruQUE.isFull( )){// is the LRU QUE full?
-                    passivate();
-                }
-                entry.resetTimeOut();
+
+            if ( entry.transaction == null ) {// only put in LRU if no current transaction
                 lruQUE.add(entry);// add it to end of Que; the most reciently used bean
             }
         }
@@ -471,14 +472,14 @@ public class StatefulInstanceManager {
     throws org.openejb.SystemException{
         BeanEntry entry = null; 
         entry = (BeanEntry)beanINDEX.remove(primaryKey);// remove frm index
-        if(entry == null){
+        if ( entry == null ) {
             entry = activate(primaryKey);
-        }else{
-             lruQUE.remove(entry);// remove from que
+        } else {
+            lruQUE.remove(entry); // remove from que
         }
-        
-	if ( entry == null )
-		return null;
+
+        if ( entry == null )
+            return null;
 
         // bean instanance and entry should be dereferenced and ready for garbage collection
         return entry.bean;
@@ -490,117 +491,56 @@ public class StatefulInstanceManager {
      * @exception SystemException
      */
     protected void passivate( ) throws SystemException {
-        // bulk passivate the least receintly used methodReady session beans
-        
-        BeanEntry headEntry = null;
-        synchronized(beanINDEX){
-            
-            headEntry = lruQUE.first(BULK_PASSIVATION_SIZE);// remove chain of least recently used beans
-            BeanEntry temp = headEntry;
-            while(temp != null){
-                beanINDEX.remove(temp.primaryKey);
-                temp = temp.afterMe;
-            }
-        
-        }
-        
-        
-        BeanEntry currentEntry = null;
-        int entryCount = 0;
-        ThreadContext thrdCntx = null;
-        while(headEntry != null){
-            if(headEntry.isTimedOut()){
-                // dereference bean instance for GC
-                BeanEntry badEntry = headEntry;
-                headEntry = headEntry.afterMe;
-                badEntry.removeFromChain();// remove from que chain
-                if(thrdCntx == null)thrdCntx = ThreadContext.getThreadContext();
-                byte currentOp = thrdCntx.getCurrentOperation();
-                thrdCntx.setCurrentOperation(Operations.OP_REMOVE);
-                try{
-                    /*
-                     Technically the bean is still in the method ready pool at this point so 
-                     its ejbRemove() method must be processed before it can be evicted from memory.
-                     Section 6.6 of EJB 1.1 specification.
-                    */
-                    ((javax.ejb.SessionBean)badEntry.bean).ejbRemove();
-                    //FIXME: log timeout
-                }catch(Throwable e){
-                    /*
-                        Exceptions are processed "quietly"; they are not reported to the client since 
-                        the timeout that caused the ejbRemove() operation did not, "technically", take 
-                        place in the context of a client call.
-                    */
-                    String logMessage = "An unexpected exception occured while invoking the ejbRemove method on the timed-out Stateful SessionBean instance; "+e.getClass().getName()+" "+e.getMessage();
+        final ThreadContext thrdCntx = ThreadContext.getThreadContext();
+        Hashtable stateTable = new Hashtable(BULK_PASSIVATION_SIZE);
 
-                    /* [1] Log the exception or error */
-                    logger.error( logMessage );
+        BeanEntry currentEntry;
+        final byte currentOp = thrdCntx.getCurrentOperation();
+        try {
+            for ( int i=0; i<BULK_PASSIVATION_SIZE; ++i ) {
+                currentEntry=lruQUE.first();
+                if ( currentEntry==null )
+                    break;
+                beanINDEX.remove(currentEntry.primaryKey);
+                if ( currentEntry.isTimedOut() ) {
+                    handleTimeout(currentEntry, thrdCntx);
+                } else {
+                    thrdCntx.setCurrentOperation(Operations.OP_PASSIVATE);
+                    try {
+                        // invoke ejbPassivate on bean instance
+                        currentEntry.bean.ejbPassivate();
+                    } catch ( Throwable e ) {
+                        //FIXME: Register exception so it can thrown when client attempt to obtin this entry
+                        //WHY? A NoSuchObjectException will be thrown.
+                        String logMessage = "An unexpected exception occured while invoking the ejbPassivate method on the Stateful SessionBean instance; "+e.getClass().getName()+" "+e.getMessage();
 
-                }finally{
-                    thrdCntx.setCurrentOperation(currentOp);
-                    logger.info("Removing the timed-out stateful session bean instance "+headEntry.primaryKey );
-                }
-
-            }else{
-                if(thrdCntx == null)thrdCntx = ThreadContext.getThreadContext();
-                byte currentOp = thrdCntx.getCurrentOperation();
-                thrdCntx.setCurrentOperation(Operations.OP_PASSIVATE);
-                try{
-                    // invoke ejbPassivate on bean instance
-                    ((SessionBean)headEntry.bean).ejbPassivate();
-                    currentEntry = headEntry;
-                    headEntry = headEntry.afterMe;
-                    entryCount++;
-                }catch(Throwable e){
-                    BeanEntry badEntry = headEntry;
-                    headEntry = headEntry.afterMe;
-                    badEntry.removeFromChain();// remove from que chain
-                    //FIXME: Register exception so it can thrown when client attempt to obtin this entry
-                    //WHY? A NoSuchObjectException will be thrown.
-                    String logMessage = "An unexpected exception occured while invoking the ejbPassivate method on the Stateful SessionBean instance; "+e.getClass().getName()+" "+e.getMessage();
-                    
-                    /* [1] Log the exception or error */
-                    logger.error( logMessage );
-                
-
-                }finally{
-                    thrdCntx.setCurrentOperation(currentOp);
+                        /* [1] Log the exception or error */
+                        logger.error( logMessage );
+                    }
+                    stateTable.put(currentEntry.primaryKey,  currentEntry);
                 }
             }
+        } finally {
+            thrdCntx.setCurrentOperation(currentOp);
         }
 
-        if(entryCount>0){
-            Hashtable stateTable = new Hashtable(entryCount);
-
-
-            headEntry = currentEntry;
-            currentEntry = null;
-            while(headEntry != null){
-                stateTable.put(headEntry.primaryKey,  headEntry);
-                currentEntry = headEntry;
-                headEntry = headEntry.beforeMe;
-                currentEntry.removeFromChain();
-            }
-            
-            /*
-               the IntraVmCopyMonitor.prePssivationOperation() demarcates 
-               the begining of passivation; used by EjbHomeProxyHandler, 
-               EjbObjectProxyHandler, IntraVmMetaData, and IntraVmHandle 
-               to deterime how serialization for these artifacts.
-            */
-            try{
+        /*
+           the IntraVmCopyMonitor.prePssivationOperation() demarcates 
+           the begining of passivation; used by EjbHomeProxyHandler, 
+           EjbObjectProxyHandler, IntraVmMetaData, and IntraVmHandle 
+           to deterime how serialization for these artifacts.
+        */
+        try {
             IntraVmCopyMonitor.prePassivationOperation();
             // pass the beans to the PassivationStrategy to write to disk.
             passivator.passivate(stateTable);
-            }finally{
-                // demarcate the end of passivation.
-                IntraVmCopyMonitor.postPassivationOperation();
-            }
-                
+        } finally {
+            // demarcate the end of passivation.
+            IntraVmCopyMonitor.postPassivationOperation();
         }
     }
     protected BeanEntry activate(Object primaryKey) throws SystemException {
-         return (BeanEntry)passivator.activate(primaryKey);
+        return(BeanEntry)passivator.activate(primaryKey);
     }
 
     /**
@@ -615,20 +555,20 @@ public class StatefulInstanceManager {
 
         beanINDEX.remove(entry.primaryKey);// remove frm index
         lruQUE.remove(entry);// remove from que
-        if(entry.transaction != null){
-            try{
-            entry.transaction.setRollbackOnly();
-            }catch(javax.transaction.SystemException se){
+        if ( entry.transaction != null ) {
+            try {
+                entry.transaction.setRollbackOnly();
+            } catch ( javax.transaction.SystemException se ) {
                 throw new org.openejb.SystemException(se);
-            }catch(IllegalStateException ise){
+            } catch ( IllegalStateException ise ) {
                 throw new org.openejb.SystemException("Attempt to rollback a non-tx context",ise);
-            }catch(java.lang.SecurityException lse){
+            } catch ( java.lang.SecurityException lse ) {
                 throw new org.openejb.SystemException("Container not authorized to rollback tx",lse);
             }
             return new org.openejb.InvalidateReferenceException(new javax.transaction.TransactionRolledbackException(t.getMessage()));
-        }else if(t instanceof RemoteException)
+        } else if ( t instanceof RemoteException )
             return new org.openejb.InvalidateReferenceException(t);
-        else{
+        else {
             EJBException ejbE = (EJBException)t;
             return new org.openejb.InvalidateReferenceException(new RemoteException(ejbE.getMessage(), ejbE.getCausedByException()));
         }
@@ -650,8 +590,8 @@ public class StatefulInstanceManager {
             throw new SystemException(new NullPointerException("The primary key is null. Cannot get the bean entry"));
         }
         BeanEntry entry = (BeanEntry)beanINDEX.get(primaryKey);
-        if(entry == null){
-            EnterpriseBean bean = this.obtainInstance(primaryKey);
+        if ( entry == null ) {
+            EnterpriseBean bean = this.obtainInstance(primaryKey, ThreadContext.getThreadContext());
             this.poolInstance(primaryKey,bean);
             entry = (BeanEntry)beanINDEX.get(primaryKey);
         }
@@ -663,88 +603,37 @@ public class StatefulInstanceManager {
      * INNER CLASSS
      */
     class BeanEntryQue {
-        BeanEntry front = null;
-        BeanEntry end = null;
-        int count = 0;
-        int capacity = 0;// size can increase past capacity; error tollerent
+        private final java.util.LinkedList list;
+        private final int capacity;
 
-        protected BeanEntryQue(int preferedCapacity){
+        protected BeanEntryQue(int preferedCapacity) {
             capacity = preferedCapacity;
+            list = new java.util.LinkedList();
         }
 
-        protected synchronized BeanEntry  first( ){
-            BeanEntry temp = front;
-            front = front.afterMe;
-            return remove(temp);
+        protected synchronized BeanEntry  first( ) {
+            return(BeanEntry)list.removeFirst();
         }
-        protected synchronized BeanEntry first(int size){
-            BeanEntry first = front;
-            BeanEntry last = null;
-            if(size >= count){
-                front = null;
-                end = null;
-                count = 0;
-                last = first;
-                while(last!=null){
-                    last.inQue = false;
-                    last = last.afterMe;
-                }
-                return first;
-            }else{
-                last = first;
-                for(int i = 0; i < size; i++){
-                    if(last.afterMe == null) break;
-                    last.inQue = false;
-                    last = last.afterMe;
-                }
-                front = last;
-                last.beforeMe = null;
-                //DMB: added per fix x
-		count -= size;
-                return first;
+
+        protected synchronized void  add(BeanEntry entry) throws org.openejb.SystemException {
+            if ( list.size() >= capacity ) {// is the LRU QUE full?
+                passivate();
             }
-
-
-        }
-        protected synchronized void  add(BeanEntry entry){
-
-            if(isEmpty()){
-                front = entry;
-                end = entry;
-            }else{
-                end.afterMe = entry;
-                entry.beforeMe = end;
-                end = entry;
-            }
+            entry.resetTimeOut();
+            // add it to end of Que; the most reciently used bean
+            list.addLast(entry);
             entry.inQue = true;
-            count++;
         }
-        protected boolean isFull( ){
-            return (count >= capacity);
-        }
-        protected boolean contains(BeanEntry entry){
-            return entry.inQue;
-        }
-        protected boolean isEmpty( ){
-            return (count == 0);
-        }
-        protected synchronized BeanEntry remove(BeanEntry entry){
-            if(isEmpty() || !contains(entry))
+        protected synchronized BeanEntry remove(BeanEntry entry) {
+            if ( !entry.inQue )
                 return null;
-            
-            if(entry == front){
-                front = entry.afterMe;
+            if ( list.remove(entry)==true ) {
+                entry.inQue = false;
+                return entry;
+            } else {
+                // e.g. cleanup from freeInstance()
+                return null;
             }
-            
-            if(entry == end){
-                end = entry.beforeMe;
-            }
-            
-            entry.removeFromChain( );
-
-            entry.inQue = false;
-            count--;
-            return entry;
         }
     }
 
@@ -756,33 +645,33 @@ public class StatefulInstanceManager {
         // EJB 2.0: 18.3.3 Exceptions from container-invoked callbacks
         String remoteMessage = "An unexpected exception occured while invoking the "+callBack+" method on the Stateful SessionBean instance";
         String logMessage = remoteMessage +"; "+e.getClass().getName()+" "+e.getMessage();
-        
+
         /* [1] Log the exception or error */
         logger.error( logMessage );
-    
+
         /* [2] If the instance is in a transaction, mark the transaction for rollback. */
         Transaction tx = null;
-        try{
+        try {
             tx = getTxMngr().getTransaction();
-        } catch (Throwable t){
+        } catch ( Throwable t ) {
             logger.error("Could not retreive the current transaction from the transaction manager while handling a callback exception from the "+callBack+" method of bean "+callContext.getPrimaryKey());
         }
         if ( tx !=  null ) markTxRollbackOnly( tx );
-        
-    
+
+
         /* [3] Discard the instance */
         freeInstance( callContext.getPrimaryKey() );
-    
+
         /* [4] throw the java.rmi.RemoteException to the client */
         if ( tx == null ) {
             throw new InvalidateReferenceException( new RemoteException( remoteMessage, e ) );
         } else {
             throw new InvalidateReferenceException( new javax.transaction.TransactionRolledbackException( logMessage ) );
         }
-        
+
     }
-    
-    
+
+
     protected void markTxRollbackOnly( Transaction tx ) throws SystemException{
         try {
             if ( tx != null ) tx.setRollbackOnly();
@@ -790,10 +679,10 @@ public class StatefulInstanceManager {
             throw new org.openejb.SystemException(se);
         }
     }
-    
+
     protected TransactionManager getTxMngr( ) {
         return OpenEJB.getTransactionManager();
     }
-    
+
 }
 
