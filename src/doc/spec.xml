@@ -72,7 +72,7 @@
         specification does not define a server-container contract. This omission is
         intentional; it was done to facilitate maximum flexibility for vendors defining
         EJB server technologies. Beyond isolating the beans from the application
-        server, the container’s responsibility in the EJB system is vague. At the
+        server, the containerâ€™s responsibility in the EJB system is vague. At the
         application server level, the EJB specification defines only a bean-container
         contract and does not define the server-container contract. </p>
         
@@ -99,7 +99,7 @@
         their core competencies. Web vendors focus on managing web requests; CORBA
         vendors focus on distributed-object requests; TP monitors focus on transaction
         management. Meanwhile, the EJB container vendor focus on managing the
-        enterprise beans within the container.  Until now this separation of
+        enterprise beans within the container.Â  Until now this separation of
         responsibilities did not exist. </p>
         
         </section>
@@ -118,7 +118,7 @@
     refined set of classes and interfaces.</p>
     
         <!--1.2.1-->
-        <section title="The application server’s role" ref-id="servers.role">
+        <section title="The application serverâ€™s role" ref-id="servers.role">
         
         <p>Application servers that
         use OpenEJB are responsible for providing client applications with naming and
@@ -133,17 +133,17 @@
         
         <p>The Apache Tomcat server
         is a good example of an application server that could easily be extended using
-        OpenEJB to provide its servlets with a complete EJB container system.  Enydra
+        OpenEJB to provide its servlets with a complete EJB container system.Â  Enydra
         and OpenORB are other examples of application servers that would benefit from
         OpenEJB integration.</p>
         
         </section>
         
         <!--1.2.2-->
-        <section title="The container’s role" ref-id="containers.role">
+        <section title="The containerâ€™s role" ref-id="containers.role">
         
         <p>OpenEJB manages the
-        enterprise bean’s lifecycle and coordinates the application of transactions
+        enterprise beanâ€™s lifecycle and coordinates the application of transactions
         (distributed or local), connectors, and security as defined by the EJB 1.1
         specification. To manage these tasks in a way that is flexible and
         customizable, OpenEJB also enforces a separation of these responsibilities into
@@ -287,7 +287,7 @@
         <p>Open source exposes all
         the source code of the software to the world, providing significant advantages
         to its creators, its customers, and other developers. Unlike proprietary
-        software, open source products contain no mysteries, no hidden &quot;features.&quot; 
+        software, open source products contain no mysteries, no hidden &quot;features.&quot;Â 
         The support costs are much lower with open source than for a proprietary
         product. Customers that encounter anomalous behavior can choose to locate the
         exact source of the problem themselves and report it. Most important, open
@@ -340,9 +340,9 @@
     
     <p>The Server-Container
     Contract defines the separation of responsibilities between the application
-    server and the OpenEJB container system.  The server and container systems
+    server and the OpenEJB container system.Â  The server and container systems
     interact exclusively through the interfaces and classes in the org.openejb package[1], which are collectively refereed to
-    as the Server-Container Interface (SCI).  The sever-container contract is
+    as the Server-Container Interface (SCI).Â  The sever-container contract is
     defined by the SCI as well as the policies enumerated in this section of the
     OpenEJB specification.</p>
     
@@ -352,12 +352,12 @@
         <p>OpenEJB instantiates a
         container system at runtime. The container system is responsible for managing enterprise
         beans at runtime according to the information provided in their XML deployment
-        descriptors[2]. 
+        descriptors[2].Â 
         The container system interposes between requests made by the server and
-        serviced by enterprise beans.  The container system interposes to provide transaction,
+        serviced by enterprise beans.Â  The container system interposes to provide transaction,
         authorization security, and connector support for beans servicing requests from
-        the server.  The transaction, security, and connector services used during
-        interposition are those assigned to the container system by the configuration. 
+        the server.Â  The transaction, security, and connector services used during
+        interposition are those assigned to the container system by the configuration.Â 
         </p>
         
         <p>The container system
@@ -374,11 +374,11 @@
         <section title="Server Responsibilities" ref-id="server.resp">
         
         <p>The server is any Java
-        application that hosts the OpenEJB container system.  The server is responsible
+        application that hosts the OpenEJB container system.Â  The server is responsible
         for supporting the EJB Client API for distributed clients or some other similar
-        API (CORBA, DCOM, etc.).  The server must provide the stubs, network protocol,
+        API (CORBA, DCOM, etc.).Â  The server must provide the stubs, network protocol,
         dispatching, and naming services used to locate and communicate requests with
-        the container system.  </p>
+        the container system.Â  </p>
         
         </section>
         
@@ -386,8 +386,8 @@
         <section title="The Server-Container Interface" ref-id="contract.api">
         
         <p>The server and container
-        interact through the server-container interface (SCI).  The SCI is made up of
-        the 10 classes and interfaces defined in the org.openejb package.  Using the SCI the server
+        interact through the server-container interface (SCI).Â  The SCI is made up of
+        the 10 classes and interfaces defined in the org.openejb package.Â  Using the SCI the server
         will delegate requests to beans to the container system, which may reply with
         return values or exceptions depending on the outcome of the request and the
         type of container.</p>
@@ -402,7 +402,7 @@
             
             <p>OpenEJB is the root of the container system
             hierarchy. It is responsible for loading the configuration information and
-            manufacturing the containers. 
+            manufacturing the containers.Â 
             The OpenEJB class is a static singleton that provides access to the
             deployments, containers, transaction manager, and security service.</p>
             
@@ -418,7 +418,7 @@
             
             <p>One the OpenEJB has been
             initialized, it can be used to access the containers, deployments and primary
-            services.  OpenEJB maintains one container system per Java Virtual Machine and
+            services.Â  OpenEJB maintains one container system per Java Virtual Machine and
             can not be initialized more then once in the life of a process.</p>
             
             </section>
@@ -458,10 +458,10 @@
             the RPC container (RpcContainer)
             because it enforces the semantics the Java RMI API, but can be used with any
             RPC protocol including JRMP, RMI-IIOP, IIOP, SOAP, and, hypothetically, DCE and
-            DCOM.  The RpcContainers
+            DCOM.Â  The RpcContainers
             assume that a call is synchronous and that arguments, return values, and
             exceptions will adhere to the Java RMI-IIOP API policies defined by the EJB 1.1
-            specification -- the actual protocol can be anything.  The server is
+            specification -- the actual protocol can be anything.Â  The server is
             responsible for translating arguments, return values, and exceptions between
             the RpcContainer.invoke()
             method and the distributed object protocol used by the server.</p>
@@ -488,9 +488,9 @@
             <section title="DeploymentInfo" ref-id="deploymentinfo.api">
             
             <p>The DeploymentInfo represents a unique bean
-            deployment in the container system.  It maintains all deployment information
+            deployment in the container system.Â  It maintains all deployment information
             about the bean that may be useful to the server in determining the behavior and
-            identity of a specific bean deployment.  DeploymentInfo objects are uniquely
+            identity of a specific bean deployment.Â  DeploymentInfo objects are uniquely
             identified within the container system by their deployment-id. The
             deployment-id can be used in the getDeploymentInfo()
             method, defined in both the OpenEJB class and Container interface to obtain a
@@ -503,19 +503,19 @@
     
     If(deployID.equals(di_1) &amp;&amp;
     deployID.equals(di_2))
-        // this condition will always be true
+    Â Â Â  // this condition will always be true
 </code-block>
             
             <p>Its expected that most
             servers will associate a deployment-id with a remote reference connection,
             since the server must supply the deployment-id when invoking the RpcContainer.invoke()
-            method.  Servers can use the DeploymentInfo to obtain information about the
-            bean as well as obtaining a direct reference to the bean’s container.</p>
+            method.Â  Servers can use the DeploymentInfo to obtain information about the
+            bean as well as obtaining a direct reference to the beanâ€™s container.</p>
             
             <p>The deployment-id is
             often the same as the JNDI lookup name used by remote clients to access the
             bean. This is not a requirement, but can make it direct client requests to the
-            correct container and DeploymentInfo object.  The deployment-id can, however,
+            correct container and DeploymentInfo object.Â  The deployment-id can, however,
             be any character string as long as deployment-ids are unique with a container
             system.</p>
             
@@ -548,9 +548,9 @@
             <section title="ApplicationException" ref-id="api.applicationexception">
             
             <p>An ApplicationException is thrown when invocation
-            on the bean instance results in a  java.rmi.RemoteException
+            on the bean instance results in aÂ  java.rmi.RemoteException
             or some type of EJB application exception. The server must propagate the cause
-            of the ApplicationException to the client.  </p>
+            of the ApplicationException to the client.Â  </p>
             
             </section>
             <!--2.1.3.8-->
@@ -558,9 +558,9 @@
             
             <p>The InvalidateReferenceException is type of ApplicationException that
             is thrown when EJB 1.1 policy requires that the server invalidate the client's
-            remote reference.  The InvalidateReferenceException
+            remote reference.Â  The InvalidateReferenceException
             is only thrown for stateful session beans when an operation results in the
-            destruction of the bean instance.  The server must propagate the cause of the
+            destruction of the bean instance.Â  The server must propagate the cause of the
             InvalidateReferenceException (usually a RemoteException) and then make the
             clients remote reference inoperable.</p>
             
@@ -570,23 +570,23 @@
             
             <p>The org.openejb.SystemException is used to report a
             system failure in the container system or one of the service providers
-            (transaction, security, or connectors).  The condition that caused the
+            (transaction, security, or connectors).Â  The condition that caused the
             exception is considered a partial or complete failure of the container system
             that may be isolated to the container or service provider that caused the
             exception. </p>
             
             <p>Container may throw a
             system exception if an abnormal condition exists while handling server
-            request.  Examples of abnormal conditions include: An I/O error that occurs
+            request.Â  Examples of abnormal conditions include: An I/O error that occurs
             passivating stateful bean instances to disk; an invalid deployment-id or call
             method is used as an argument to a RpcContainer.invoke() method call.</p>
             
             <p>When a SystemException is thrown,
             the server can attempt to recover by re-executing the request, removing the
-            container from service, or removing the entire container system from service. 
+            container from service, or removing the entire container system from service.Â 
             The SystemException
             wrappers the causal exception which may be evaluated to determine the source of
-            the failure.  For example: If the causal exception is a javax.jta.SystemException the server knows that
+            the failure.Â  For example: If the causal exception is a javax.jta.SystemException the server knows that
             the exception was thrown from the transaction service provider. </p>
             
             </section>
@@ -608,31 +608,31 @@
     request is serviced. Every bean deployment has an id, called the <i>deployment-id</i>,
     that is unique within a container system. The server must provide its RPC
     clients with a naming service that maps names to deployment-ids associated with
-    RpcContainers. In many cases the naming service’s name binding may be the same
+    RpcContainers. In many cases the naming serviceâ€™s name binding may be the same
     as the deployment-id, but this is not required. When the client performs a name
     service lookup, the server will return a home reference; a proxy or stub that
     implements the bean's home interface.</p>
     
     <p>The server is responsible
     for providing the distributed communication infrastructure (proxies, network
-    protocol handlers, dispatchers, etc.)  for remote references.  Every remote
+    protocol handlers, dispatchers, etc.)Â  for remote references.Â  Every remote
     reference provided by the server is associated with a specific deployment-id,
-    which in turn maps to a specific RpcContainer. 
+    which in turn maps to a specific RpcContainer.Â 
     When the client invokes a method on a bean or home reference, the server will
     either delegate the request to reference's RpcContainer or service the request itself.</p>
     
     <p>In general, create,
-    remove, finder, and business methods are delegated to the reference's RpcContainer.  The values
-    returned or exceptions thrown are propagated to the server's clients.  The
+    remove, finder, and business methods are delegated to the reference's RpcContainer.Â  The values
+    returned or exceptions thrown are propagated to the server's clients.Â  The
     server itself services all other methods of the EJBHome and EJBObject interfaces because these methods
     require the creation of distributed communication artifacts specific to the
-    server's distributed object protocol  (i.e. Handle and EJBMetaData) or that are easily handled by the
+    server's distributed object protocolÂ  (i.e. Handle and EJBMetaData) or that are easily handled by the
     server (i.e. EJBObject.isIdentical()
     and EJBObject.getPrimaryKey()).</p>
     
     <p>The server delegates all
     RPC requests to RPC container using the RpcContainer.invoke() method. The invoke() method will either
-    return normally or throw an exception.  Normal return values are propagated to
+    return normally or throw an exception.Â  Normal return values are propagated to
     client, exceptions are handled according to the exception policies outlined in
     section &quot;2.2.1.3 Exceptions&quot;. </p>
     
@@ -641,7 +641,7 @@
         
         <p>In general requests by
         the client on bean's business methods and the home's create, and find methods
-        are delegated to the RpcContainer. 
+        are delegated to the RpcContainer.Â 
         The RpcContainer
         interface defines the invoke( )
         method which represents much of the server-container contract, which is
@@ -656,11 +656,11 @@
             
 <code-block>
     public Object invoke(Object deployID, 
-                         Method callMethod, 
-                         Object [] args, 
-                         Object primKey, 
-                         Object securityIdentity) 
-           throws OpenEJBException;
+    Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  Method callMethod, 
+    Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  Object [] args, 
+    Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  Object primKey, 
+    Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  Object securityIdentity) 
+    Â Â Â Â Â Â  throws OpenEJBException;
 </code-block>
             
                 <!--2.2.1.1.1-->
@@ -668,17 +668,17 @@
                 
                 <p>This is the deployment-id
                 of the bean to be invoked. Every bean deployment has a unique deployment-id
-                within the scope of a container system.  The deployment-id can be used to
+                within the scope of a container system.Â  The deployment-id can be used to
                 obtain the bean's DeploymentInfo object which is used by the container to
                 select the correct bean deployment to service the method request as well as
-                providing other information.  ( A container can and often does support several
-                different deployments at the same time.).  The deployment-id type is
+                providing other information.Â  ( A container can and often does support several
+                different deployments at the same time.).Â  The deployment-id type is
                 inconsequential to the container system, but is usually a String or Integer
                 type. </p>
                 
 <code-block>
 
-    String deploymentID = … get deployment id
+    String deploymentID = â€¦ get deployment id
     from request 
     
     DeploymentInfo deployment =
@@ -698,10 +698,10 @@
                 
                 <p>This is the java.lang.reflect.Method object
                 that represents the remote interface (home or remote) method that was invoked
-                by the client.  This parameter is used by the container to determine whether
+                by the client.Â  This parameter is used by the container to determine whether
                 the method should be delegated directly to the bean or run under a different
                 method (i.e. create()
-                is run as ejbCreate()). 
+                is run as ejbCreate()).Â 
                 In addition, the Method object is used as a key in the container system when
                 determining the transaction and security attributes that must be applied when
                 the operating on the bean instance.</p>
@@ -712,26 +712,26 @@
                 
                 <p>The args array is the parameter values used by the
                 client to invoke the remote reference method. The arguments must be indexed in
-                the array in the same order they are declared on the remote interface method. 
+                the array in the same order they are declared on the remote interface method.Â 
                 Primitive values (int, double, char, etc.) must be
-                substituted with their primitive wrapper counter parts (Integer, Double, Character, etc.) in the array.  The arguments
-                must be copied and not passed by reference from the client.  This will be a
+                substituted with their primitive wrapper counter parts (Integer, Double, Character, etc.) in the array.Â  The arguments
+                must be copied and not passed by reference from the client.Â  This will be a
                 natural occurrence for most distributed object systems since arguments must be marshaled
-                across the network.  Arguments that are remote references must be operational,
+                across the network.Â  Arguments that are remote references must be operational,
                 meaning that they must implement the remote interface and provide network
-                access to their respective bean.  </p>
+                access to their respective bean.Â  </p>
                 
                 </section>
                 <!--2.2.1.1.4-->
                 <section title="primKey" ref-id="rpc.invoke.primkey">
                 
                 <p>The primary key
-                identifies a unique bean in the container system.  For stateful beans the
+                identifies a unique bean in the container system.Â  For stateful beans the
                 primary key identifies a unique bean instance that maintains a conversational
-                state with a specific client.  For entity beans the primary key identifies a
-                unique bean in the database.  Stateless session beans do not use a primary key,
-                so the primKey parameter will be null for requests on stateless beans.  The primKey is usally null for invocations
-                servicing home interface methods -- home references don't have a primary key. 
+                state with a specific client.Â  For entity beans the primary key identifies a
+                unique bean in the database.Â  Stateless session beans do not use a primary key,
+                so the primKey parameter will be null for requests on stateless beans.Â  The primKey is usally null for invocations
+                servicing home interface methods -- home references don't have a primary key.Â 
                 The exception is EJBHome remove methods for which the server must provide the
                 primary key of the bean (stateful or entity) that is to be removed.</p>
                 
@@ -740,7 +740,7 @@
                 <section title="securityIdentity" ref-id="rpc.invoke.securityidentity">
                 
                 <p>The securityIdentity is the security identity
-                representing the client.  The server is responsible for providing the proper
+                representing the client.Â  The server is responsible for providing the proper
                 object for the container systems designated security service. The type and
                 implementation of the securityIdentity
                 object is immaterial to the container. It's assumed that the security service
@@ -749,8 +749,8 @@
                 <p>For example, if the
                 container's profile specifies security service provider that uses SSL
                 authentication, then the proper SSL credential may be passed as the securityIdentity
-                parameter.  If the security service provider uses Kerberos then the proper
-                Kerberos token may be passed as the securityIdentity  parameter.</p>
+                parameter.Â  If the security service provider uses Kerberos then the proper
+                Kerberos token may be passed as the securityIdentityÂ  parameter.</p>
                 
                 </section>
             </section>
@@ -759,16 +759,16 @@
             <section title="Return Values" ref-id="rpc.invoke.returnvalues">
             
             <p>The RpcContainer.invoke() method returns an Object
-            type.  The value of the return depends on the expected return type of the
+            type.Â  The value of the return depends on the expected return type of the
             remote method that was invoked; the declared return type of the home or remote
-            interface.  </p>
+            interface.Â  </p>
             
                 <!--2.2.1.2.1-->
                 <section title="void" ref-id="returnvalues.void">
                 
                 <p>If the remote interface
                 method returns a void, the invoke(
-                ) method will return a null value.  The remote reference will then
+                ) method will return a null value.Â  The remote reference will then
                 return void.</p>
                 
                 </section>
@@ -778,7 +778,7 @@
                 <p>If the remote interface
                 method returns a single primitive value (int, double, char, etc.), the invoke() method will return the corresponding
                 primitive wrapper (Integer,
-                Double, Character, etc.) object. 
+                Double, Character, etc.) object.Â 
                 The remote reference will then return the primitive value of the wrapper
                 object.</p>
                 
@@ -788,11 +788,11 @@
                 
                 <p>If the remote interface
                 method returns a serializable type, the invoke() method will return an object of that
-                type.  The remote reference returns a copy of the serializable object.</p>
+                type.Â  The remote reference returns a copy of the serializable object.</p>
                 
                 <p>The exception is java.lang.String and
                 primitive wrapper types (Integer,
-                Double, Character, ect.),  which
+                Double, Character, ect.),Â  which
                 are immutable and need not be copied.</p>
                 
                 </section>
@@ -801,7 +801,7 @@
                 
                 <p>If the remote interface
                 method returns an array, the invoke()
-                method will return an array of that type.  The remote reference returns a
+                method will return an array of that type.Â  The remote reference returns a
                 complete copy of the array including the individual elements.</p>
                 
                 </section>
@@ -810,14 +810,14 @@
                 
                 <p>If the remote interface
                 method returns a remote reference, the invoke() method will either return ProxyInfo object or the
-                actual remote reference.  ProxyInfo
+                actual remote reference.Â  ProxyInfo
                 objects are returned for local beans, which are beans managed within the
-                container system.  Remote references are returned by for non-local beans, which
+                container system.Â  Remote references are returned by for non-local beans, which
                 are beans managed by a different container system or a different EJB vendor
                 (Weblogic, WebSphere, etc.).</p>
                 
                 <p>If the method called is a
-                create or single object find method, the invoke()  method will return the ProxyInfo that represents
+                create or single object find method, the invoke()Â  method will return the ProxyInfo that represents
                 the created or found bean. If a business method returns a remote reference to a
                 local bean, the container will return a ProxyInfo object for that bean. The server
                 then, must generate the remote reference based on the ProxyInfo and returned that reference to the
@@ -833,7 +833,7 @@
                 remote reference to a non-local bean, the container will return that same
                 remote reference to the server. The assumption is that the remote reference
                 from the non-local bean (different container system or vendor) is serializable,
-                so otherwise can be transferred between address spaces and remain operational. 
+                so otherwise can be transferred between address spaces and remain operational.Â 
                 Problems can occur when the distributed object protocol used by the sever is
                 incompatible with the non-local bean reference's implementation.</p>
                 
@@ -844,16 +844,16 @@
             <section title="Exceptions" ref-id="exceptions">
             
             <p>There are three possible
-            exceptions that can be thrown by the invoke() method: ApplicationException, SystemException, or the InvalidateReferenceException.  </p>
+            exceptions that can be thrown by the invoke() method: ApplicationException, SystemException, or the InvalidateReferenceException.Â  </p>
             
                 <!--2.2.1.3.1-->
                 <section title="ApplicationException" ref-id="applicationexception">
                 
                 <p>An ApplicationException is thrown when invocation
-                on the bean instance results in a  java.rmi.RemoteException
+                on the bean instance results in aÂ  java.rmi.RemoteException
                 or some type of EJB application exception. The server must propagate the cause
                 of the ApplicationException
-                to the client.  When an ApplicationException
+                to the client.Â  When an ApplicationException
                 is thrown, the cause is considered to be normal; it does not represent a system
                 failure or require invalidation of the remote reference. The cause should be
                 propagated to the client but no other action need be taken by the server.</p>
@@ -869,11 +869,11 @@
                 a RemoteException may
                 occur while delegating a request to the bean instance. Examples include: A
                 security authorization violation (the client is not authorized to access the
-                bean method);  An attempt to propagate a transaction to a bean method declared
+                bean method);Â  An attempt to propagate a transaction to a bean method declared
                 with the Never
                 transaction attribute; An attempt to perform a loopback on an entity bean that
-                is declared as non-reentrant.  In these cases the RemoteException will be wrapped in a
-                ApplicationException by the container and thrown to the server from the invoke() method.  The
+                is declared as non-reentrant.Â  In these cases the RemoteException will be wrapped in a
+                ApplicationException by the container and thrown to the server from the invoke() method.Â  The
                 server must treat the RemoteException
                 as it would any custom application exception; the RemoteException should be propagated to the
                 client, but no other action need be taken by the server.</p>
@@ -884,20 +884,20 @@
                 
                 <p>The InvalidateReferenceException is type of ApplicationException that
                 is thrown when EJB 1.1 policy requires that the server invalidate the client's
-                remote reference.  The InvalidateReferenceException
+                remote reference.Â  The InvalidateReferenceException
                 will nest a RemoteException
                 or standard application exception (i.e. ObjectNotFoundException) that must re-thrown to
                 the client by the bean reference. The InvalidateReferenceException is only thrown for
                 stateful session beans when an operation results in the destruction of the bean
-                instance.  Examples include:  An EJBException
+                instance.Â  Examples include:Â  An EJBException
                 is thrown by a stateful bean method (business method or standard callback
                 method) and the instance is evicted; A client attempts to invoke a method on a
                 stateful bean object that no longer exists.</p>
                 
-                <p>When the invoke()  method throws an ApplicationException the
+                <p>When the invoke()Â  method throws an ApplicationException the
                 server must: First throw the nested (cause) exception to the client; Second,
                 invalidate the reference so that any subsequent method invoked on the reference
-                immediately throw a RemoteException. 
+                immediately throw a RemoteException.Â 
                 The reference is made inoperable.</p>
                 
                 </section>
@@ -924,19 +924,19 @@
         
         <p>The EJBObject is
         implemented by server specific stub that acts as a remote reference to a
-        corresponding bean in a RpcContainer.  The EJBObject stub must implement both
+        corresponding bean in a RpcContainer.Â  The EJBObject stub must implement both
         the javax.ejb.EJBObject
         interface as well as the remote interface (and all its super types) defined by
-        the bean developer.  </p>
+        the bean developer.Â  </p>
         
         <p>When an EJB client
         creates or finds a bean from a EJBHome reference, the server is responsible for
         returning a remote reference to that bean. The remote reference, the EJBObject,
         is implemented according to the server's distributed object protocol and is
-        bound to its bean's RpcContainer at the server.  How this is accomplished is up
+        bound to its bean's RpcContainer at the server.Â  How this is accomplished is up
         to the server, but it is expected that servers will maintain a mapping between
         the EJBObject's network connection or logical thread, and the correct
-        RpcContainer using the deployment-id.  For stateful and entity beans, the
+        RpcContainer using the deployment-id.Â  For stateful and entity beans, the
         EJBObject reference is mapped to a specific bean instance within a container
         using the deployment-id and primary key.</p>
         
@@ -947,7 +947,7 @@
             methods, those business methods defined by the bean developer in the remote
             interface, are delegated to the invoke()
             method of the appropriate RpcContainer
-            (the container that services the bean deployment represented by EJBObject).  Invocations on
+            (the container that services the bean deployment represented by EJBObject).Â  Invocations on
             the EJBObject stub
             are transmitted from client to the server (using the servers distributed object
             protocol) and then delegated to the appropriate RpcContainer.</p>
@@ -957,8 +957,8 @@
             <section title="EJBObject Interface Methods" ref-id="ejbobject.interface">
             
             <p>Except for the remove( ) method, all
-            EJBObject interface methods are implemented by the server.  (The remove( ) method is handled
-            by the OpenEJB RpcContainer via the invoke( ) method.)  The EJBObject methods are dependent on
+            EJBObject interface methods are implemented by the server.Â  (The remove( ) method is handled
+            by the OpenEJB RpcContainer via the invoke( ) method.)Â  The EJBObject methods are dependent on
             server specific conventions and distributed object protocol, so the responsibly
             for implementing these methods falls on the server. </p>
             
@@ -974,8 +974,8 @@
                 <section title="getHandle" ref-id="getHandle">
                 
                 <p>The getHandle( ) method is implemented by the
-                application server.  The Handle class needs to be serializable, so that it can
-                be written to file or stream.  The Handle implementation must be able to
+                application server.Â  The Handle class needs to be serializable, so that it can
+                be written to file or stream.Â  The Handle implementation must be able to
                 re-connect to the server after it is deserialized using the server's
                 distributed object protocol, and return an EJBObject stub for the appropriate
                 bean.</p>
@@ -986,7 +986,7 @@
                 
                 <p>The server may choose to
                 maintain a reference to the primary key in the stub, or to maintain it at the
-                server.  Session beans do not expose their primary keys, so the application
+                server.Â  Session beans do not expose their primary keys, so the application
                 server will need to throw a RemoteException when this method is invoked on
                 session EJBObject stubs.</p>
                 
@@ -995,9 +995,9 @@
                 <section title="isIdenticial" ref-id="isIdenticial">
                 
                 <p>The isIdenticial(EJBObject obj) method is
-                implemented by the server.  The application server should compare container and
-                deployment-ids for an exact match.   In addition, the identity (primary key)
-                for entity and stateful session beans must match as well.  The primary key and
+                implemented by the server.Â  The application server should compare container and
+                deployment-ids for an exact match.Â Â  In addition, the identity (primary key)
+                for entity and stateful session beans must match as well.Â  The primary key and
                 other identifiers may be maintained in the EJBObject stubs or on the server.</p>
                 
                 </section>
@@ -1006,7 +1006,7 @@
                 
                 <p>The remove( ) method is
                 delegated by the server to the invoke(
-                ) method of the proper RpcContainer.  When invoked on an EJBObject
+                ) method of the proper RpcContainer.Â  When invoked on an EJBObject
                 stub for a stateless bean, the server doesn't not need to delegate the
                 invocation to the container -- EJBObject.remove( ) invocations are not handled
                 by the stateless container. </p>
@@ -1017,7 +1017,7 @@
                 stub result in javax.ejb.ObjectNotFoundException
                 being thrown to the client. Subsequent requests by server on behalf of the
                 removed bean will result in the RpcContainer
-                throwing a  org.openejb.ApplicationException
+                throwing aÂ  org.openejb.ApplicationException
                 that wraps a javax.ejb.ObjectNotFoundException.</p>
                 
                 </section>
@@ -1029,18 +1029,18 @@
         
         <p>The EJBHome is implemented
         by server specific stub that acts as a remote reference to a corresponding
-        deployment in a RpcContainer.  The EJBHome stub must implement both the javax.ejb.EJBHome interface
+        deployment in a RpcContainer.Â  The EJBHome stub must implement both the javax.ejb.EJBHome interface
         as well as the home interface (and all its super types) defined by the bean
-        developer.  </p>
+        developer.Â  </p>
         
         <p>When the client uses a
         naming service to locate a bean's EJBHome reference, the server is responsible
         for returning a remote reference to that bean. The home reference, the EJBHome,
         is implemented according to the server's distributed object protocol and is
-        bound to its bean's RpcContainer at the server.  How this is accomplished is up
+        bound to its bean's RpcContainer at the server.Â  How this is accomplished is up
         to the server, but it is expected that servers will maintain a mapping between
         the EJBHome's network connection or logical thread, and the correct RpcContainer
-        using the deployment-id.  In some cases the deployment-id and the lookup name
+        using the deployment-id.Â  In some cases the deployment-id and the lookup name
         may be the same value, but this is not required and is considered a server
         specific option.</p>
         
@@ -1051,14 +1051,14 @@
             methods, those methods defined by the bean developer in the home interface, are
             delegated to the invoke()
             method of the appropriate RpcContainer
-            (the container that services the bean deployment represented by EJBHome).  Invocations on
+            (the container that services the bean deployment represented by EJBHome).Â  Invocations on
             the EJBHome stub are
             transmitted from client to the server (using the servers distributed object
             protocol) and then delegated to the appropriate RpcContainer.</p>
             
             <p>In the case of home
             interface methods, a null
-            value must be passed as the primary key argument in the RpcContainer.invoke() method.  Home interface
+            value must be passed as the primary key argument in the RpcContainer.invoke() method.Â  Home interface
             methods are not specific to one bean instance and so have no primary key
             associated with method requests. The only exception to this is the EJBHome
             remove methods which are discussed in more detail in section 2.2.3.2.</p>
@@ -1066,14 +1066,14 @@
             <p>When a home interface create method is delegated
             to the RpcContainer
             the return value will always be a ProxyInfo
-            object describing the remote reference that should be returned to the client. 
+            object describing the remote reference that should be returned to the client.Â 
             The remote reference is a distributed object stub implemented according to the
             server distributed object protocol. </p>
             
             <p>When a single-value find method (i.e. findByPrimaryKey() ) is
             delegated to the RpcContainer
             a single ProxyInfo
-            object will be returned, the same as with the create methods.  When a multi-value find method is delegated to
+            object will be returned, the same as with the create methods.Â  When a multi-value find method is delegated to
             the RpcContainer, a java.util.Collection of ProxyInfo objects is
             returned to the server. The server is then responsible for returning a Collection or Enumeration of remote
             references to the client. The collection type returned to the client depends on
@@ -1085,9 +1085,9 @@
             <section title="EJBHome Interface Methods" ref-id="ejbhome.interface">
             
             <p>Except for the remove( ) method, all EJBHome interface methods
-            are implemented by the server.  (The remove( ) method is handled by the OpenEJB
+            are implemented by the server.Â  (The remove( ) method is handled by the OpenEJB
             RpcContainer via the invoke( )
-            method.)  The EJBHome
+            method.)Â  The EJBHome
             methods are dependent on server specific conventions and distributed object
             protocol, so the responsibly for implementing these methods falls on the
             server. </p>
@@ -1096,11 +1096,11 @@
                 <section title="getEJBMetaData" ref-id="getEJBMetaData">
                 
                 <p>The getEJBMetaData( ) method is implemented by the
-                application server.  The EJBMetaData
+                application server.Â  The EJBMetaData
                 class needs to be serializable, so that it can be written to file or stream.
                 Using the deployment-id, the server can lookup the DeploymentInfo object for that bean, and use it
                 to populate the EJBMetaData
-                object.  In addition, the EJBMetaData
+                object.Â  In addition, the EJBMetaData
                 implementation must be able to re-connect to the server after it is
                 deserialized using the server's distributed object protocol, and return an EJBHome stub from the EJBMetaData.getEJBHome( )
                 method.</p>
@@ -1110,8 +1110,8 @@
                 <section title="getHomeHandle" ref-id="getHomeHandle">
                 
                 <p>The getHomeHandle( ) method is implemented by the
-                application server.  The HomeHandle
-                class needs to be serializable, so that it can be written to file or stream. 
+                application server.Â  The HomeHandle
+                class needs to be serializable, so that it can be written to file or stream.Â 
                 The HomeHandle
                 implementation must be able to re-connect to the server after it is
                 deserialized using the server's distributed object protocol, and return an
@@ -1123,11 +1123,11 @@
                 
                 <p>The remove( ) methods are delegated by the server
                 to the invoke( )
-                method of the proper RpcContainer. 
+                method of the proper RpcContainer.Â 
                 When invoked on a EJBHome
                 stub for a stateless bean, the server doesn't not need to delegate the
                 invocation to the container -- EJBHome.remove(
-                ) invocations are not handled by the stateless container – but
+                ) invocations are not handled by the stateless container â€“ but
                 doing so will not cause an error. </p>
                 
                 <p>Once a remove( ) method has been
@@ -1135,7 +1135,7 @@
                 so that subsequent invocations on that EJBObject stub result in javax.ejb.ObjectNotFoundException being thrown
                 to the client. Subsequent requests by server on behalf of the removed bean will
                 result in the RpcContainer
-                throwing a  org.openejb.ApplicationException
+                throwing aÂ  org.openejb.ApplicationException
                 that wraps a javax.ejb.ObjectNotFoundException.</p>
             
                 </section>
@@ -1151,128 +1151,128 @@
     <section title="Connector Support" ref-id="connector.support">
     
     <p>Included in the service
-    provider interface of OpenEJB is the Connector API.  The Connector API is a standard
-    J2EE API that defines a contract between the “application server” and resource
-    connectors.  Resource connectors are technology specific APIs for accessing
+    provider interface of OpenEJB is the Connector API.Â  The Connector API is a standard
+    J2EE API that defines a contract between the â€œapplication serverâ€ and resource
+    connectors.Â  Resource connectors are technology specific APIs for accessing
     backend systems like relational databases, messaging services, and ERP
-    systems.  The most familiar resource APIs are JDBC and JMS.  It is the
-    responsibility of the “application server” to manage the pooling and
+    systems.Â  The most familiar resource APIs are JDBC and JMS.Â  It is the
+    responsibility of the â€œapplication serverâ€ to manage the pooling and
     application of transactions and security services to resource connections used
-    by enterprise beans.  It's the responsibility of the connectors to provide
+    by enterprise beans.Â  It's the responsibility of the connectors to provide
     physical resource connections and the facilities for manufacturing those
-    connections.  The Connector API specifies how “application server” and the
-    connectors interact to manage resource connections.  </p>
+    connections.Â  The Connector API specifies how â€œapplication serverâ€ and the
+    connectors interact to manage resource connections.Â  </p>
     
     <p>In the case of OpenEJB
-    the role of the “application server” -- as defined by the Connector API
-    specification -- is fulfilled by the OpenEJB container system.  OpenEJB
+    the role of the â€œapplication serverâ€ -- as defined by the Connector API
+    specification -- is fulfilled by the OpenEJB container system.Â  OpenEJB
     provides a mechanism for declaring connectors and their connection managers in
-    the XML configuration file.  OpenEJB also provides connection managers with
+    the XML configuration file.Â  OpenEJB also provides connection managers with
     access to the appropriate transaction and security service at runtime through a
     standard JNDI name space. </p>
     
     <p>A connection manager is
     responsible for managing resource connections according the contracts defined
-    in the Connector API.  This includes pooling and sharing connections as well as
-    managing the transaction and security contexts of connection at runtime.  
+    in the Connector API.Â  This includes pooling and sharing connections as well as
+    managing the transaction and security contexts of connection at runtime.Â Â 
     Connection managers implement the javax.resource.spi.ConnectionManager
-    interface defined in the Connector API.    </p>
+    interface defined in the Connector API.Â Â Â  </p>
     
     <p>A resource connection
     (a.k.a. connector) is responsible for providing physical connections to a
-    backend resource such as a relational database or enterprise messaging system. 
+    backend resource such as a relational database or enterprise messaging system.Â 
     A connector must implement the SPI contracts defined by the Connector API
-    specification in addition to a technology specific API.  For example, a JDBC
+    specification in addition to a technology specific API.Â  For example, a JDBC
     connector will implement the Connector SPI as well as the JDBC API. Similarly,
-    a JMS connector will implement the Connector SPI and the JMS API.  The
+    a JMS connector will implement the Connector SPI and the JMS API.Â  The
     Connector SPI is used by the connection manager to mange the physical resource
     connections -- independent of the type of backend resource accessed by the
-    connector.  The technology specific API is used by enterprise beans to work
-    directly with the backend resource accessed by the connector.  For example, an
+    connector.Â  The technology specific API is used by enterprise beans to work
+    directly with the backend resource accessed by the connector.Â  For example, an
     enterprise bean will use the JDBC API to query, update, and delete records in a
     relational database system.</p>
     
     <p>The advantage of the
     Connector API is that it allows any Connector compliant resource to work with
-    any Connector compliant application server.  A vendor who creates a connector
+    any Connector compliant application server.Â  A vendor who creates a connector
     for a specific backend resource can be assured that their product will work
-    with any application server that supports the Connector API.  Before the
+    with any application server that supports the Connector API.Â  Before the
     introduction of the Connector API, organizations were limited to the resource
-    connections supported by their application server.  The Connector API largely
+    connections supported by their application server.Â  The Connector API largely
     eliminates this limitation. If your application server is complaint with the
     connector API, it should automatically support any existing and newly defined
     connectors.</p>
     
     <p>OpenEJB takes this
-    portability a step further by making the connection managers plugable.  In most
+    portability a step further by making the connection managers plugable.Â  In most
     application servers, the vendor will offer one or more connection manager
     options, but the selection of connection managers are fixed and proprietary --
-    they are built into the application server.  OpenEJB, on the other hand, allows
+    they are built into the application server.Â  OpenEJB, on the other hand, allows
     any third party to define a connection manager that can easily be plugged into
-    OpenEJB and used at runtime to manage connectors.   The connection manager
+    OpenEJB and used at runtime to manage connectors.Â Â  The connection manager
     defined by the third party is responsible for pooling connections and
-    interacting with connectors according to the Connector API.  OpenEJB is
+    interacting with connectors according to the Connector API.Â  OpenEJB is
     responsible for providing the connection manager with access to a JTA
-    TransactionManager and the security service.  In addition, OpenEJB provides
+    TransactionManager and the security service.Â  In addition, OpenEJB provides
     enterprise beans with access to connectors through their JNDI environment
-    naming context (ENC).  The bean uses only the resources technology specific API
+    naming context (ENC).Â  The bean uses only the resources technology specific API
     and is not aware of the connector API, which is only used by the connection
     manager.</p>
     
     <p>While developing
     connectors and connection managers is not trivial, plugging third party
-    connectors and connection managers into OpenEJB is very easy.  Both connectors
+    connectors and connection managers into OpenEJB is very easy.Â  Both connectors
     and connection managers are declared in the facilities section of OpenEJB's XML
-    configuration file.  The following example shows that multiple connectors can
-    be assigned to the same connection manager.  In this case the OpenEJB JDBC
+    configuration file.Â  The following example shows that multiple connectors can
+    be assigned to the same connection manager.Â  In this case the OpenEJB JDBC
     Connector and a JMS connector provide by the Acme corporation are assigned to
     the Connection manager provided by Blue Sky corporation.</p>
     
 <code-block>
 &lt;connectors&gt;
 &lt;connector&gt;
-    &lt;connector-id&gt;<b>OrdersDatabase</b>&lt;/connector-id&gt;
-    &lt;connection-manager-id&gt;<b>LocalShared</b>&lt;/connection-manager-id&gt;
-    &lt;managed-connection-factory&gt;
-       
+Â Â Â  &lt;connector-id&gt;<b>OrdersDatabase</b>&lt;/connector-id&gt;
+Â Â Â  &lt;connection-manager-id&gt;<b>LocalShared</b>&lt;/connection-manager-id&gt;
+Â Â Â  &lt;managed-connection-factory&gt;
+Â Â Â  Â Â Â 
 &lt;class-name&gt;org.openejb.resource.jdbc.JdbcManagedConnectionFactory
-        &lt;/class-name&gt;
-        &lt;properties&gt;
-            &lt;property&gt;
-             
+Â Â Â  Â Â Â  &lt;/class-name&gt;
+Â Â Â  Â Â Â  &lt;properties&gt;
+Â Â Â Â Â Â Â Â Â Â Â  &lt;property&gt;
+Â Â Â Â Â Â Â Â Â Â Â  Â 
 &lt;property-name&gt;setJdbcDriver&lt;/property-name&gt;
-             
+Â Â Â Â Â Â Â Â Â Â Â  Â 
 &lt;property-value&gt;sun.jdbc.odbc.JdbcOdbcDriver&lt;/property-value&gt;
-            &lt;/property&gt;
-            &lt;property&gt;
-             
+Â Â Â Â Â Â Â Â Â Â Â  &lt;/property&gt;
+Â Â Â Â Â Â Â Â Â Â Â  &lt;property&gt;
+Â Â Â Â Â Â Â Â Â Â Â  Â 
 &lt;property-name&gt;setJdbcUrl&lt;/property-name&gt;
-             
+Â Â Â Â Â Â Â Â Â Â Â  Â 
 &lt;property-value&gt;jdbc:odbc:orders&lt;/property-value&gt;
-            &lt;/property&gt;
-       &lt;/properties&gt;
-    &lt;/managed-connection-factory&gt;   
+Â Â Â Â Â Â Â Â Â Â Â  &lt;/property&gt;
+Â Â Â Â Â Â  &lt;/properties&gt;
+Â Â Â  &lt;/managed-connection-factory&gt;Â Â  
 &lt;/connector&gt;
 &lt;connector&gt;
-    &lt;connector-id&gt;<b>InventoryTopic</b>&lt;/connector-id&gt;
-    &lt;connection-manager-id&gt;<b>LocalShared</b>&lt;/connection-manager-id&gt;
-    &lt;managed-connection-factory&gt;
-         &lt;class-name&gt;com.acme.jms.TopicManagedConnectionFactory
-            &lt;/class-name&gt;
-            &lt;properties&gt;
-               &lt;property&gt;
-                
+Â Â Â  &lt;connector-id&gt;<b>InventoryTopic</b>&lt;/connector-id&gt;
+Â Â Â  &lt;connection-manager-id&gt;<b>LocalShared</b>&lt;/connection-manager-id&gt;
+Â Â Â  &lt;managed-connection-factory&gt;
+Â Â Â  Â Â  Â Â &lt;class-name&gt;com.acme.jms.TopicManagedConnectionFactory
+Â Â Â Â Â Â Â Â Â Â Â  &lt;/class-name&gt;
+Â Â Â Â Â Â Â Â Â Â Â  &lt;properties&gt;
+Â Â Â Â Â Â Â Â Â Â Â  Â Â  &lt;property&gt;
+Â Â Â Â Â Â Â Â Â Â Â  Â Â Â Â 
 &lt;property-name&gt;URL&lt;/property-name&gt;
-                 &lt;property-value&gt;jms:acme.com/mytopic&lt;/property-value&gt;
-               &lt;/property&gt;
-            &lt;/properties&gt;
-    &lt;/managed-connection-factory&gt;   
+Â Â Â Â Â Â Â Â Â Â Â  Â Â Â Â  &lt;property-value&gt;jms:acme.com/mytopic&lt;/property-value&gt;
+Â Â Â Â Â Â Â Â Â Â Â  Â Â  &lt;/property&gt;
+Â Â Â Â Â Â Â Â Â Â Â  &lt;/properties&gt;
+Â Â Â  &lt;/managed-connection-factory&gt;Â Â  
 &lt;/connector&gt;
 &lt;connection-manager&gt;
-    &lt;connection-manager-id&gt;<b>LocalShared</b>&lt;/connection-manager-id&gt;
-    &lt;class-name&gt;
-    com.blue-sky.openejb.ConnectionManager
-    &lt;/class-name&gt;
+Â Â Â  &lt;connection-manager-id&gt;<b>LocalShared</b>&lt;/connection-manager-id&gt;
+Â Â Â  &lt;class-name&gt;
+Â Â Â  com.blue-sky.openejb.ConnectionManager
+Â Â Â  &lt;/class-name&gt;
 &lt;/connection-manager&gt;
 &lt;/connectors&gt;
 </code-block>
@@ -1285,9 +1285,9 @@
     other connection manager.</p>
     
     <p>Enterprise beans access
-    connectors as resources through their JNDI ENC.  The connector-id used in the
+    connectors as resources through their JNDI ENC.Â  The connector-id used in the
     deceleration of a resource is mapped directly to connector-id of a connector in
-    the facilities section.  In the below example, the enterprise bean declares two
+    the facilities section.Â  In the below example, the enterprise bean declares two
     resources whose connector-id elements
     map to connectors shown in the previous example.</p>
     
@@ -1295,37 +1295,37 @@
 <code-block>
     
 &lt;entity-bean&gt;
-   
+Â Â Â 
 &lt;display-name&gt;EmployeeEJB&lt;/display-name&gt;
-   
+Â Â Â 
 &lt;ejb-deployment-id&gt;111111&lt;/ejb-deployment-id&gt;
-   
+Â Â Â 
 &lt;home&gt;org.openejb.test.beans.EmployeeHome&lt;/home&gt;
-   
+Â Â Â 
 &lt;remote&gt;org.openejb.test.beans.Employee&lt;/remote&gt;
-   
+Â Â Â 
 &lt;ejb-class&gt;org.openejb.test.beans.EmployeeBean&lt;/ejb-class&gt;
-   
+Â Â Â 
 &lt;primary-key&gt;java.lang.Integer&lt;/primary-key&gt;
-    &lt;jndi-enc&gt;
-        &lt;resource-ref&gt;
-           
+Â Â Â  &lt;jndi-enc&gt;
+Â Â Â Â Â Â Â  &lt;resource-ref&gt;
+Â Â Â Â Â Â Â Â Â Â Â 
 &lt;res-ref-name&gt;jdbc/orders&lt;/res-ref-name&gt;
-           
+Â Â Â Â Â Â Â Â Â Â Â 
 &lt;res-type&gt;javax.sql.DataSource&lt;/res-type&gt;
-           
+Â Â Â Â Â Â Â Â Â Â Â 
 &lt;res-auth&gt;Container&lt;/res-auth&gt;
-            <b>&lt;connector-id&gt;OrdersDatabase&lt;/connector-id&gt;</b>
-        &lt;/resource-ref&gt;
-        &lt;resource-ref&gt;
-            &lt;res-ref-name&gt;jms/inventoryTopic&lt;/res-ref-name&gt;
-           
+Â Â Â Â Â Â Â Â Â Â Â  <b>&lt;connector-id&gt;OrdersDatabase&lt;/connector-id&gt;</b>
+Â Â Â Â Â Â Â  &lt;/resource-ref&gt;
+Â Â Â Â Â Â Â  &lt;resource-ref&gt;
+Â Â Â  Â Â Â Â Â Â Â Â &lt;res-ref-name&gt;jms/inventoryTopic&lt;/res-ref-name&gt;
+Â Â Â Â Â Â Â Â Â Â Â 
 &lt;res-type&gt;javax.jms.TopicConnectionFactory&lt;/res-type&gt;
-           
+Â Â Â Â Â Â Â Â Â Â Â 
 &lt;res-auth&gt;Container&lt;/res-auth&gt;
-            <b>&lt;connector-id&gt;InventoryTopic&lt;/connector-id&gt;</b>
-        &lt;/resource-ref&gt;
-    &lt;/jndi-enc&gt;
+Â Â Â Â Â Â Â Â Â Â Â  <b>&lt;connector-id&gt;InventoryTopic&lt;/connector-id&gt;</b>
+Â Â Â Â Â Â Â  &lt;/resource-ref&gt;
+Â Â Â  &lt;/jndi-enc&gt;
 &lt;/entity-bean&gt;
 </code-block>
     
@@ -1335,50 +1335,50 @@
         <section title="Note on January 4, 2001" ref-id="connector.notes">
         
         <p>The Connector API is near
-        completion but is not yet in its final release.  As a result there are no
-        connectors currently available.  While its believed that vendors will quickly
+        completion but is not yet in its final release.Â  As a result there are no
+        connectors currently available.Â  While its believed that vendors will quickly
         release a cornucopia of connectors following the specification's final release,
         the OpenEJB project provides an interim solution: a JDBC connector that can be
         used with any JDBC driver. The JDBC connector is packaged under org.openejb.resource.jdbc.
         It can be used to wrapper any JDBC driver and make it Connector compliant
-        (limited).  The OpenEJB JDBC connector is currently limited to local
+        (limited).Â  The OpenEJB JDBC connector is currently limited to local
         transactions (see Connector specification) and does not provide support for the
-        XA interfaces and 2-phase commit.  This is likely to change in the coming
-        months.  In the mean time, organizations can use the OpenEJB JDBC connector to
-        access any JDBC compliant database within a local transaction.  </p>
+        XA interfaces and 2-phase commit.Â  This is likely to change in the coming
+        months.Â  In the mean time, organizations can use the OpenEJB JDBC connector to
+        access any JDBC compliant database within a local transaction.Â  </p>
         
         <p>OpenEJB also provides a
         connection manager, the org.openejb.resource.SharedLocalConnectionManager,
-        that can be used to manage any connector that supports local transactions.  In
+        that can be used to manage any connector that supports local transactions.Â  In
         addition the SharedLocalConnectionManager
         supports connection sharing, so that components in a chain of execution will
-        automatically share the same physical connection and local transaction.  This
+        automatically share the same physical connection and local transaction.Â  This
         makes it possible to support a transaction for a single resource that spans
-        several components in the same unit-of-work.  </p>
+        several components in the same unit-of-work.Â  </p>
         
         <p>For example, bean A calls
-        bean B which calls bean C.  All three beans access the same JDBC resource from
-        their JNDI ENC (the res-id is the same).  With connection sharing bean B and C
+        bean B which calls bean C.Â  All three beans access the same JDBC resource from
+        their JNDI ENC (the res-id is the same).Â  With connection sharing bean B and C
         will use the same physical JDBC connection used by bean A. When the
         unit-of-work is complete and all the beans have completed their work, the
-        transaction on the JDBC connection will be committed.  All the work preformed
+        transaction on the JDBC connection will be committed.Â  All the work preformed
         on that physical connection by each of the beans is committed or rollback
-        together; its atomic.  However, connection sharing does not allow different
+        together; its atomic.Â  However, connection sharing does not allow different
         resources to be enrolled in the same local transaction. If for example, beans
         A, B, and C all access JDBC and JMS resources, then the JDBC work will be
         committed together and the JMS work will be committed together, but the JDBC
-        and JMS work will be committed separately.  If the JDBC commit fails, the JMS
-        commit will still be executed.  That's the limitation of a shared local
+        and JMS work will be committed separately.Â  If the JDBC commit fails, the JMS
+        commit will still be executed.Â  That's the limitation of a shared local
         connection manager. A connection manager that supports 2-phase commit would
-        ensure that these different resources succeed or fail together.  Its likely
+        ensure that these different resources succeed or fail together.Â  Its likely
         that a connection manager that supports 2-phase commit will be provided by
         OpenEJB or some third party in the future.</p>
         
         <p>From a developers stand
-        point the connectors are a non-issue.  The developer simply declares which
+        point the connectors are a non-issue.Â  The developer simply declares which
         connectors are used with which connection managers and maps the connectors as
-        resources enterprise bean's JNDI ENC.   Its our hope that others will consider
-        developing connection managers that can be used with OpenEJB.  Over the coming
+        resources enterprise bean's JNDI ENC.Â Â  Its our hope that others will consider
+        developing connection managers that can be used with OpenEJB.Â  Over the coming
         weeks the OpenEJB-ConnectionManager interface will be refined. Currently,
         OpenEJB provides connector managers with access to the TransactionManager used
         by the bean requesting access to a resource. </p>
@@ -1405,10 +1405,10 @@
     container system that is ready to accept bean requests. Essentially, the server
     will use the static init( )
     method of the OpenEJB
-    class to bootstrap a container system.  The Properties object passed as an
+    class to bootstrap a container system.Â  The Properties object passed as an
     argument to the init( )
     method is combined with the System properties and passed to the constructor of
-    an OpenEJB instance.  </p>
+    an OpenEJB instance.Â  </p>
     
 <code-block>
     Properties props = new Properties();
@@ -1421,7 +1421,7 @@
     construction of container system by locating the correct Assembler and providing it with access to
     configuration information. The Assembler is responsible for constructing every
     artifact of the container system and preparing it to service bean requests
-    based on configuration information.  The type of Assembler and the source of
+    based on configuration information.Â  The type of Assembler and the source of
     the configuration information can be identified through properties, which can
     be declared in the Properties argument or in the system class properties. </p>
     
@@ -1429,16 +1429,16 @@
     uses the property name &quot;org/openejb/assembler_class&quot;.
     This property name is bound to the fully qualified class name of the Assembler
     class used to build the OpenEJB container system. The default implementation
-    is, which is used if an Assembler property is not specified, is the org.openejb.core.conf.Assembler. 
+    is, which is used if an Assembler property is not specified, is the org.openejb.core.conf.Assembler.Â 
     The Assembler is responsible for constructing the entire container system using
-    the configuration information.  </p>
+    the configuration information.Â  </p>
     
     <p>The configuration source
     property uses the property name &quot;org/openejb/configuration_source&quot;. This
     property identifies the source of the configuration information used to build
     the container system. The configuration source may be a local file, remote
-    location, a database table, etc.  The configuration information itself can take
-    any form as long as it works with the named Assembler.  The default Assembler expects a XML
+    location, a database table, etc.Â  The configuration information itself can take
+    any form as long as it works with the named Assembler.Â  The default Assembler expects a XML
     file that is located on the local hard drive and conforms to the <i>openejb_config.dtd</i>.</p>
     
     <p>The Assembler and
@@ -1449,28 +1449,28 @@
     package org.openejb;
     
     public class EnvProps {
-        
-        public final static String
+    Â Â Â  
+    Â Â Â  public final static String
     CONFIGURATION = &quot;org/openejb/configuration_source&quot;;
-        public final static String ASSEMBLER
+    Â Â Â  public final static String ASSEMBLER
     = &quot;org/openejb/assembler_class&quot;;
     }
 </code-block>
     
     <p>If the core OpenEJB implementation
-    is to be used, the  EnvProps.ASSEMBLER
+    is to be used, theÂ  EnvProps.ASSEMBLER
     property should not be declared since the default is to use the core Assembler
-    class.  The EnvProps.CONFIGURATION
+    class.Â  The EnvProps.CONFIGURATION
     property, however, must be set to the file location of the XML configuration
     file on the local hard drive. </p>
     
     <p>It's possible to develop
-    and use a custom Assembler class.  This would be useful if custom containers or
+    and use a custom Assembler class.Â  This would be useful if custom containers or
     other artifact are needed that can not be constructed by the default core
-    Assembler.  Some vendors may, for example, want to use a configuration schema
+    Assembler.Â  Some vendors may, for example, want to use a configuration schema
     that is different then the XML schema used with OpenEJB's core library. This
-    would require a new or modified Assembler.   If a custom Assebler is needed, it
-    can be specified in the properties along with its custom configuration.  For
+    would require a new or modified Assembler.Â Â  If a custom Assebler is needed, it
+    can be specified in the properties along with its custom configuration.Â  For
     example, an assembler might be constructed that can build an container system
     off of a Weblogic properties files. </p>
     

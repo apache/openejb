@@ -70,6 +70,14 @@
     
     </copy>
     
+    <copy todir="${build.openejb.server.dest}">
+    
+      <fileset dir="${final.dir}/src/etc" >
+        <include name="**/CHANGELOG"/>
+      </fileset>
+    
+    </copy>
+    
     <replace file="${build.openejb.server.dest}/MANIFEST.MF" token="$$VERSION$$" value="${version}"/>
   
   </target>

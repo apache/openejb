@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<ChangeLog>
+	<Version id="0.1" releaseDate="February 10, 2000" cvsTag="none" released="true" />
+	<Version id="0.7" releaseDate="June 4, 2001" cvsTag="v0_7" released="true">
+		<Entry>Full Stateful Container</Entry>
+		<Entry>Full Stateless Container</Entry>
+		<Entry>Full CMP Entity Container</Entry>
+		<Entry>Beginning of BMP Entity Container</Entry>
+		<Entry>OpenEJB/CORBA Server adapter</Entry>
+		<Entry>RI Server (a bit outdated)</Entry>
+		<Entry>Improved Intra-VM server</Entry>
+		<Entry>Full Test Suite for Stateful Container</Entry>
+		<Entry>Full Test Suite for Stateless Container</Entry>
+		<Entry>Full Test Suite for CMP Entity Container</Entry>
+		<Entry>Partial Unit Tests for org.openejb</Entry>
+		<Entry>Partial Unit Tests for org.openejb.core</Entry>
+	</Version>
+	<Version id="0.7.3" releaseDate="June 5, 2001" cvsTag="v0_7_3" released="true">
+		<Entry>Generic Entity test suite removed</Entry>
+		<Entry>CMP Entity test suite added (beans not yet deployed)</Entry>
+		<Entry>BMP Entity test suite added</Entry>
+	</Version>
+	<Version id="0.7.9" releaseDate="July 23, 2001" cvsTag="v0_7_9" released="true">
+		<Entry>CMP Entity test suite fully functional</Entry>
+		<Entry>RMI-IIOP Tests added</Entry>
+		<Entry>CMP container fixes</Entry>
+		<Entry>Docs added</Entry>
+	</Version>
+	<Version id="0.8beta1" releaseDate="May 9th, 2002" cvsTag="v0_8beta1" released="true" release_id="88725">
+		<Entry>We actually have a deploy tool</Entry>
+		<Entry>Beans are deployed from their jars</Entry>
+		<Entry>The <code>ejb-jar.xml</code> is validated using XSD</Entry>
+		<Entry>The data in an <code>ejb-jar.xml</code> is validated with regular expressions</Entry>
+		<Entry>New configuration file <code>openejb.conf</code>, similar to the Apache <code>httpd.conf</code> style</Entry>
+		<Entry>Specify a dir where your deployed jars will be loaded, then just throw 'em in</Entry>
+		<Entry>The entire configuration is validated</Entry>
+		<Entry>OpenEJB services are now packaged in jars and deployed in the <code>openejb.conf</code> file</Entry>
+		<Entry>There are default <code>openejb.conf</code> and <code>service-jar.xml</code>, etc.</Entry>
+		<Entry>Scripts for launching deploy tool</Entry>
+		<Entry>Scripts for launching the OpenEJB/CORBA server</Entry>
+		<Entry>About 50 new detailed error messages relating to your system configuration alone.  You should never get a mysterious stack trace</Entry>
+		<Entry>New modular build system</Entry>
+		<Entry>Fixed major bug in IntraVM serialization that severely affected the container-server contract</Entry>
+		<Entry>Complete rewrite of Transaction Handling, several bugs fixed</Entry>
+		<Entry>Rewrite of Exception Handling, now much more spec compliant</Entry>
+		<Entry>Added logging</Entry>
+	</Version>
+	<Version id="0.8beta2" releaseDate="May 23th, 2002" cvsTag="v0_8beta2" released="true" release_id="91035">
+		<Entry>Fixed fatal file path bug affecting UNIX/Linux/Mac OS X Users</Entry>
+		<Entry>Fixed bug that prevented the Remote Server from starting unless additional command line options were used</Entry>
+		<Entry>Improved scripts</Entry>
+		<Entry>Optimized logging</Entry>
+		<Entry>Added '-help' and '-example' options to the 'openejb deploy' command</Entry>
+		<Entry>Added '-help' and '-example' options to the 'openejb start' command</Entry>
+		<Entry>Revised all documentation</Entry>
+		<Entry>Added several new docs, including a complete "Hello World" example, Deploy Tool docs, Remote server starup docs, and a doc explaining the use of Deployment IDs</Entry>
+	</Version>
+	<Version id="0.8beta3" releaseDate="June 22nd, 2002" cvsTag="v0_8beta3" released="true" release_id="96340">
+		<Entry bug="563891">Bad client-side error messages</Entry>
+		<Entry bug="565604">Setting the handler system property</Entry>
+		<Entry bug="566953">openejb.bat on NT fails to display</Entry>
+		<Entry bug="566961">deploy doesn't overwrite</Entry>
+		<Entry bug="566966">typos in HelloWorld example</Entry>
+		<Entry bug="563891">Need a sample client run script</Entry>
+		<Entry bug="566967">sun.tools.javac.Main deprecated</Entry>
+		<Entry bug="566974">openejb.bat help screen fails on NT</Entry>
+		<Entry task="573492">Zip should innclude the openejb dir</Entry>
+		<Entry>Scripts now pass OPENEJB_HOME to OpenEJB</Entry>
+		<Entry>Scripts now include OPENEJB_HOME\beans in classpath</Entry>
+		<Entry>If your OpenEJB configuration isn't found, one will be created for you</Entry>
+		<Entry>ProxyFactory element in the openejb.conf is now optional</Entry>
+	</Version>
+	<Version id="0.8beta4" releaseDate="July 29th, 2002" cvsTag="v0_8beta4" released="false">
+		<Entry task="577453">Semi-automatically generate CHANGELOG</Entry>
+		<Entry task="578355">Refactor logging and messages for i18n</Entry>
+	</Version>
+	<Version id="0.9" releaseDate="TBD" cvsTag="TBD" released="false">
+		<Entry task="578360">Complete web administration</Entry>
+	</Version>
+</ChangeLog>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<xsl:stylesheet version="1.0">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-<xsl:variable name="navPos" select="$project/@topSelected"/>
-<xsl:template match="$project/topNav">
+<xsl:variable name="navPos" select="$project[attribute::topSelected]"/>
+<xsl:template match="project/topNav">
   <xsl:for-each select="navLink">
     <xsl:variable name="url" select="url"/>
     <xsl:choose>

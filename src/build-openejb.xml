@@ -93,14 +93,21 @@ time=${TSTAMP}</echo>
     <copy todir="${build.openejb.dest}">
     
       <fileset dir="${src.java.dir}/etc" >
-        <include name="**/CHANGELOG"/>
         <include name="**/LICENSE"/>
         <include name="**/MANIFEST.MF"/>
         <include name="**/README"/>
       </fileset>
     
     </copy>
-    
+
+	<copy todir="${build.openejb.dest}">
+
+	  <fileset dir="${final.dir}/src/etc" >
+		<include name="**/CHANGELOG"/>
+	  </fileset>
+
+	</copy>
+
     <replace file="${build.openejb.dest}/MANIFEST.MF" token="$$VERSION$$" value="${version}"/>
   
   </target>

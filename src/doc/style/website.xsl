@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<xsl:stylesheet version="1.0" >
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
   <xsl:output method="html" indent="no"/>
+
+  <xsl:variable name="project" select="document('../project.xml')/project"/>
 
   <xsl:include href="topNav.xsl"/>
   <xsl:include href="leftNav.xsl"/>
@@ -12,7 +14,6 @@
   <!-- Template for document -->
 
   <xsl:template match="/">
-  <xsl:variable name="project" select="document('../project.xml')/project"/>
   <html>
 
   <head>
@@ -142,14 +143,14 @@
 
           <!-- build the page navigation first, section by section -->
           <xsl:choose>      
-          <xsl:if test="document[@toc='none']"></xsl:if>
-          <xsl:if test="document[@toc='numeric']">
+          <xsl:when test="document[@toc='none']"></xsl:when>
+          <xsl:when test="document[@toc='numeric']">
                     
             <p/><br/>
             <xsl:for-each select="//section">
               <span class="toc">
                 <xsl:choose>
-                 <xsl:if test="@ref-id">
+                 <xsl:when test="@ref-id">
                   <xsl:variable name="level" select="count(ancestor::*)"/>
                   <xsl:choose>
                     <xsl:when test='$level=2'>
@@ -180,7 +181,7 @@
                       <xsl:value-of select="@title"/></a><br/>
                     </xsl:otherwise>
                   </xsl:choose>
-                 </xsl:if>
+                 </xsl:when>
                  <xsl:otherwise>
                   <xsl:variable name="level" select="count(ancestor::*)"/>
                   <xsl:choose>
@@ -217,13 +218,13 @@
               </span>
             </xsl:for-each>
           
-          </xsl:if>
+          </xsl:when>
           <xsl:otherwise>
             <p/><br/>
             <xsl:for-each select=".//section">
               <span class="toc">
                 <xsl:choose>
-                 <xsl:if test="@ref-id">
+                 <xsl:when test="@ref-id">
                   <xsl:variable name="level" select="count(ancestor::*)"/>
                   <xsl:choose>
                     <xsl:when test='$level=2'>
@@ -242,7 +243,7 @@
                       <a href="#{@ref-id}"><xsl:value-of select="@title"/></a><br/>
                     </xsl:otherwise>
                   </xsl:choose>
-                 </xsl:if>
+                 </xsl:when>
                  <xsl:otherwise>
                   <xsl:variable name="level" select="count(ancestor::*)"/>
                   <xsl:choose>
@@ -363,10 +364,10 @@
     <xsl:choose>
       <xsl:when test='$level=2'>
         <xsl:choose>
-          <xsl:if test="@ref-id">
+          <xsl:when test="@ref-id">
             <a name="{@ref-id}">
             <h2><xsl:value-of select="@title"/></h2></a>
-          </xsl:if>
+          </xsl:when>
           <xsl:otherwise>
             <a name="{@title}">
             <h2><xsl:value-of select="@title"/></h2></a>
@@ -375,10 +376,10 @@
       </xsl:when>
       <xsl:when test='$level=3'>
         <xsl:choose>
-          <xsl:if test="@ref-id">
+          <xsl:when test="@ref-id">
             <a name="{@ref-id}">
             <h3><xsl:value-of select="@title"/></h3></a>
-          </xsl:if>
+          </xsl:when>
           <xsl:otherwise>
             <a name="{@title}">
             <h3><xsl:value-of select="@title"/></h3></a>
@@ -387,10 +388,10 @@
       </xsl:when>
       <xsl:when test='$level=4'>
         <xsl:choose>
-          <xsl:if test="@ref-id">
+          <xsl:when test="@ref-id">
             <a name="{@ref-id}">
             <h4><xsl:value-of select="@title"/></h4></a>
-          </xsl:if>
+          </xsl:when>
           <xsl:otherwise>
             <a name="{@title}">
             <h4><xsl:value-of select="@title"/></h4></a>
@@ -399,10 +400,10 @@
       </xsl:when>
       <xsl:when test='$level=5'>
         <xsl:choose>
-          <xsl:if test="@ref-id">
+          <xsl:when test="@ref-id">
             <a name="{@ref-id}">
             <h5><xsl:value-of select="@title"/></h5></a>
-          </xsl:if>
+          </xsl:when>
           <xsl:otherwise>
             <a name="{@title}">
             <h5><xsl:value-of select="@title"/></h5></a>
@@ -411,10 +412,10 @@
       </xsl:when>
       <xsl:otherwise>
         <xsl:choose>
-          <xsl:if test="@ref-id">
+          <xsl:when test="@ref-id">
             <a name="{@ref-id}">
             <h6><xsl:value-of select="@title"/></h6></a>
-          </xsl:if>
+          </xsl:when>
           <xsl:otherwise>
             <a name="{@title}">
             <h6><xsl:value-of select="@title"/></h6></a>
@@ -761,9 +762,9 @@
                   <xsl:variable name="company-id" select="company/@id"/>
                   <xsl:variable name="company" select="../company[@id=$company-id]"/>
                   <xsl:choose>
-                    <xsl:if test="$company/url">
+                    <xsl:when test="$company/url">
                       <a href="http://{$company/url}"><xsl:value-of select="$company/name"/></a>
-                    </xsl:if>
+                    </xsl:when>
                     <xsl:otherwise>
                       <xsl:value-of select="$company/name"/>
                     </xsl:otherwise>

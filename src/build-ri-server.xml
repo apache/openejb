@@ -69,14 +69,21 @@
     <copy todir="${build.riserver.dest}">
     
       <fileset dir="${src.java.dir}/etc" >
-        <include name="**/CHANGELOG"/>
         <include name="**/LICENSE"/>
         <include name="**/MANIFEST.MF"/>
         <include name="**/README"/>
       </fileset>
     
     </copy>
-    
+
+	<copy todir="${build.riserver.dest}">
+
+	  <fileset dir="${final.dir}/src/etc" >
+		<include name="**/CHANGELOG"/>
+	  </fileset>
+
+	</copy>
+
     <replace file="${build.riserver.dest}/MANIFEST.MF" token="$$VERSION$$" value="${version}"/>
   
   </target>
