@@ -143,9 +143,16 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
 
     public ManagedConnection createManagedConnection(javax.security.auth.Subject subject,ConnectionRequestInfo cxRequestInfo)  throws javax.resource.ResourceException{
         JdbcConnectionRequestInfo rxInfo = (JdbcConnectionRequestInfo)cxRequestInfo;
+        //todo we're still ignoring the Subject!!
+        String userName = defaultUserName;
+        String password = defaultPassword;
+        if (rxInfo != null) {
+            userName = rxInfo.getUserName();
+            password = rxInfo.getPassword();
+        }
         java.sql.Connection physicalConn;
         try{
-            physicalConn = DriverManager.getConnection(jdbcUrl, rxInfo.getUserName(), rxInfo.getPassword());
+            physicalConn = DriverManager.getConnection(jdbcUrl, userName, password);
         }catch(java.sql.SQLException sqlE){
             throw (EISSystemException) new EISSystemException("Could not obtain a physical JDBC connection from the DriverManager").initCause(sqlE);
         }
