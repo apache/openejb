@@ -167,12 +167,12 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
          * The ObjectOutputStream used to send outgoing response messages to the client.
          */
         ObjectOutputStream oos = null;
-        InetAddress cleintIP = null;
+        InetAddress clientIP = null;
         while ( !stop ) {
             try {
                 socket = serverSocket.accept();
-                cleintIP = socket.getInetAddress();
-                Thread.currentThread().setName(cleintIP.getHostAddress());
+                clientIP = socket.getInetAddress();
+                Thread.currentThread().setName(clientIP.getHostAddress());
                 
                 ois = new ObjectInputStream(  socket.getInputStream() );
                 oos = new ObjectOutputStream( socket.getOutputStream() );
@@ -185,16 +185,18 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
                     case AUTH_REQUEST: processAuthRequest(ois, oos);break;
                 }
     
-                oos.flush();
                 // Exceptions should not be thrown from these methods
                 // They should handle their own exceptions and clean
                 // things up with the client accordingly.
             } catch ( Throwable e ) {
                 logger.error( "Unexpected error", e );
-                //System.out.println("ERROR: "+cleintIP.getHostAddress()+": " +e.getMessage());
+                //System.out.println("ERROR: "+clienntIP.getHostAddress()+": " +e.getMessage());
             } finally {
                 try {
-                    if ( oos != null ) oos.close();
+                    if ( oos != null ) {
+			oos.flush();
+			oos.close();
+		    }
                     if ( ois != null ) ois.close();
                     if ( socket != null ) socket.close();
                 } catch ( Throwable t ){
@@ -241,8 +243,28 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         }
         return info;
     }
+
+    private void replyWithFatalError 
+	(ObjectOutputStream out,
+	 Throwable error, 
+	 String message) 
+    {
+	logger.fatal(message, error);
+	RemoteException re = new RemoteException
+	    ("The server has encountered a fatal error: "+message+" "+error);
+	EJBResponse res = new EJBResponse();
+	res.setResponse(EJB_ERROR, re);
+	try
+	{
+	    res.writeExternal(out);
+	}
+	catch (java.io.IOException ie)
+	{
+	    logger.error("Failed to write to EJBResponse", ie);
+	}
+    }
     
-    public void processEjbRequest(ObjectInputStream in, ObjectOutputStream out) throws Exception{
+    public void processEjbRequest (ObjectInputStream in, ObjectOutputStream out) {
         
         EJBRequest req = new EJBRequest();
         EJBResponse res = new EJBResponse();
@@ -254,6 +276,8 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         //
         try {
             req.readExternal( in );
+
+	/*
         } catch (java.io.WriteAbortedException e){
             if ( e.detail instanceof java.io.NotSerializableException){
                 //TODO:1: Log this warning better. Include information on what bean is to blame
@@ -263,9 +287,15 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             }
         } catch (java.io.EOFException e) {
             throw new Exception("Reached the end of the stream before the full request could be read");
-        
         } catch (Throwable t){
             throw new Exception("Cannot read client request: "+ t.getClass().getName()+" "+ t.getMessage());
+        }
+	*/
+
+        } catch (Throwable t) {
+	    replyWithFatalError
+		(out, t, "Error caught during request processing");
+            return;            
         }
 
         CallContext  call = null;
@@ -275,18 +305,18 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
         try{
             di = getDeployment(req);
         } catch (RemoteException e){
+	    replyWithFatalError 
+		(out, e, "No such deployment");
+            return;            
+	    /*
             logger.warn( req + "No such deployment: "+e.getMessage());
             res.setResponse( EJB_SYS_EXCEPTION, e);
             res.writeExternal( out );
             return;
-        
+	    */
         } catch ( Throwable t ){
-            String message = "Unkown error occured while retreiving deployment:"+t.getMessage();
-            logger.fatal( req + message, t);
-            
-            RemoteException e = new RemoteException("The server has encountered a fatal error and must be restarted."+message);
-            res.setResponse( EJB_ERROR , e );
-            res.writeExternal( out );
+	    replyWithFatalError
+		(out, t, "Unkown error occured while retrieving deployment");
             return;            
         }
             
@@ -295,11 +325,8 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             call.setEJBRequest( req );
             call.setDeploymentInfo( di );
         } catch ( Throwable t ){
-            logger.fatal( req + "Unable to set the thread context for this request: ", t);
-            
-            RemoteException e = new RemoteException("The server has encountered a fatal error and must be restarted.");
-            res.setResponse( EJB_ERROR , e );
-            res.writeExternal( out );
+	    replyWithFatalError
+		(out, t, "Unable to set the thread context for this request");
             return;            
         }
         
@@ -373,11 +400,18 @@ public class EjbDaemon implements Runnable, org.openejb.spi.ApplicationServer, R
             logger.fatal( req+": OpenEJB encountered an unknown system error in container: ", e);
         } catch (java.lang.Throwable t){
             //System.out.println(req+": Unkown error in container: ");
-            res.setResponse(EJB_ERROR, t);
-            logger.fatal( req+": Unkown error in container: ", t);
+	    replyWithFatalError
+		(out, t, "Unknown error in container");
+	    return;
         } finally {
             logger.info( "EJB RESPONSE: "+res );
-            res.writeExternal( out );
+	    try {
+		res.writeExternal( out );
+	    }
+	    catch (java.io.IOException ie)
+	    {
+		logger.fatal("Couldn't write EjbResponse to output stream", ie);
+	    }
             call.reset();
         }
     }
