@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+
+<!ELEMENT assembly-descriptor (security-role+)>
+<!ELEMENT connection (properties)>
+<!ELEMENT container-name (#PCDATA)>
+<!ELEMENT containers (stateful-session-container|stateless-session-container|entity-container)+>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT display-name (#PCDATA)>
+<!ELEMENT entity-container (description?, display-name?, container-name, properties?)>
+<!ELEMENT ejb-deployment-id (#PCDATA)>
+<!ELEMENT ejb-name (#PCDATA)>
+<!ELEMENT ejb-ref (ejb-ref-name, ejb-ref-location)>
+<!ELEMENT ejb-ref-location (ejb-deployment-id | connection)>
+<!ELEMENT ejb-ref-name (#PCDATA)>
+<!ELEMENT enterprise-beans (session | entity)+>
+<!ELEMENT entity (ejb-name, container-name, ejb-ref*, resource-ref*)>
+<!ELEMENT openejb-jar (containers*, enterprise-beans, assembly-descriptor?)>
+<!ELEMENT physical-role-name (#PCDATA)>
+<!ELEMENT properties (property+)>
+<!ELEMENT property (property-name, property-value)>
+<!ELEMENT property-name (#PCDATA)>
+<!ELEMENT property-value (#PCDATA)>
+<!ELEMENT res-ref-name (#PCDATA)>
+<!ELEMENT resource-deployment-id (#PCDATA)>
+<!ELEMENT resource-ref (res-ref-name, resource-deployment-id)>
+<!ELEMENT role-name (#PCDATA)>
+<!ELEMENT security-role (role-name, physical-role-name+)>
+<!ELEMENT session (ejb-name, container-name, ejb-ref*, resource-ref*)>
+<!ELEMENT stateful-session-container (description?, display-name?, container-name, properties?)>
+<!ELEMENT stateless-session-container (description?, display-name?, container-name, properties?)>

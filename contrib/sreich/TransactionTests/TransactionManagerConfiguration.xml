@@ -1,0 +1,29 @@
+<domain>
+  <name>default</name>
+   <resources>
+     <dataSource>
+        <name>DefaultDatabase</name>
+        <!-- path to your database driver jar if not in the extensions directory -->
+        <jar>file:///tmp/oracle.jar</jar>
+        <class>oracle.jdbc.xa.client.OracleXADataSource</class>
+        <config>
+            <serverName></serverName>
+            <portNumber>1521</portNumber>
+            <databaseName>sqa</databaseName>
+            <driverType>thin</driverType>
+            <user>ejb</user>
+            <password>ejb</password>
+        
+        </config>
+        <limits>
+            <maximum>100</maximum>
+            <minimum>10</minimum>
+            <initial>10</initial>
+            <maxRetain>300</maxRetain>
+            <timeout>50</timeout>
+        </limits>
+    </dataSource>
+  
+    </resources>
+  
+</domain>
