@@ -48,6 +48,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.LocalObject;
 import org.omg.IOP.ServiceContext;
 import org.omg.IOP.TAG_CSI_SEC_MECH_LIST;
@@ -114,7 +115,10 @@ final class ClientSecurityInterceptor extends LocalObject implements ClientReque
             }
 
             ri.add_request_service_context(context, true);
+        } catch (BAD_PARAM bp) {
+            // do nothing
         } catch (Exception ue) {
+            log.error(ue);
         }
     }
 
