@@ -52,7 +52,6 @@ import java.net.Socket;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoFactory;
 
@@ -66,15 +65,12 @@ public class ServiceDaemon implements GBean {
     private SocketDaemon socketDaemon;
 
     public ServiceDaemon(SocketService socketService, InetAddress inetAddress, int port) {
-        if(socketService == null) {
+        if (socketService == null) {
             throw new IllegalArgumentException("socketService is null");
         }
         this.socketService = socketService;
         this.inetAddress = inetAddress;
         this.port = port;
-    }
-
-    public void setGBeanContext(GBeanContext context) {
     }
 
     public synchronized void doStart() throws ServiceException {
@@ -159,7 +155,7 @@ public class ServiceDaemon implements GBean {
                     }
                 } catch (Throwable e) {
                     log.error("Unexpected error", e);
-                } 
+                }
             }
 
             if (serverSocket != null) {

@@ -44,18 +44,17 @@
  */
 package org.openejb;
 
-import java.util.HashMap;
-import java.util.Collection;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 
-import org.apache.geronimo.gbean.GBeanInfoFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.GBean;
-import org.apache.geronimo.gbean.GBeanContext;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.WaitingException;
 
 
@@ -66,6 +65,7 @@ import org.apache.geronimo.gbean.WaitingException;
 public class ContainerIndex implements ReferenceCollectionListener, GBean {
     // todo delete me
     private static ContainerIndex containerIndex = new ContainerIndex();
+
     public static ContainerIndex getInstance() {
         return containerIndex;
     }
@@ -99,9 +99,6 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
         this.ejbContainers.addReferenceCollectionListener(this);
     }
 
-    public void setGBeanContext(GBeanContext context) {
-    }
-
     public void doStart() throws WaitingException, Exception {
         containers = new EJBContainer[ejbContainers.size() + 1];
         Iterator iterator = ejbContainers.iterator();
@@ -116,7 +113,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
 
     private void addJNDINames(EJBContainer container, int i) {
         String[] jnidNames = container.getJndiNames();
-        if(jnidNames != null) {
+        if (jnidNames != null) {
             for (int j = 0; j < jnidNames.length; j++) {
                 String jnidName = jnidNames[j];
                 jndiNameToIndex.put(jnidName, new Integer(i));
@@ -139,7 +136,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
     public synchronized void addContainer(EJBContainer container) {
         container = container.getUnmanagedReference();
         Object containerID = container.getContainerID();
-        if(containerIdToIndex.containsKey(containerID)) {
+        if (containerIdToIndex.containsKey(containerID)) {
             return;
         }
 
@@ -156,7 +153,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
 
     public synchronized void removeContainer(EJBContainer container) {
         Integer index = (Integer) containerIdToIndex.remove(container.getContainerID());
-        if(index != null) {
+        if (index != null) {
             containers[index.intValue()] = null;
         }
 
@@ -214,7 +211,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
     static {
         GBeanInfoFactory infoFactory = new GBeanInfoFactory(ContainerIndex.class);
 
-        infoFactory.setConstructor(new String[]{"EJBContainers" });
+        infoFactory.setConstructor(new String[]{"EJBContainers"});
 
         infoFactory.addOperation("getContainerIndex", new Class[]{Object.class});
         infoFactory.addOperation("getContainerIndex", new Class[]{String.class});
@@ -223,7 +220,7 @@ public class ContainerIndex implements ReferenceCollectionListener, GBean {
         infoFactory.addOperation("getContainer", new Class[]{Integer.class});
         infoFactory.addOperation("getContainer", new Class[]{Integer.TYPE});
         infoFactory.addOperation("getContainerByJndiName", new Class[]{String.class});
-        
+
         infoFactory.addReference("EJBContainers", EJBContainer.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
