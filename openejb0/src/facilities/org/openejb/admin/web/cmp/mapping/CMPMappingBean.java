@@ -63,6 +63,7 @@ import org.exolab.castor.jdo.conf.Driver;
 import org.exolab.castor.jdo.conf.Jndi;
 import org.exolab.castor.jdo.conf.Mapping;
 import org.exolab.castor.jdo.conf.Param;
+import org.exolab.castor.mapping.xml.MappingRoot;
 import org.exolab.castor.xml.ValidationException;
 import org.openejb.admin.web.HttpRequest;
 import org.openejb.admin.web.HttpResponse;
@@ -150,30 +151,32 @@ public class CMPMappingBean extends WebAdminBean {
 	 * @exception IOException if an exception is thrown
 	 */
 	public void writeBody(PrintWriter body) throws IOException {
-		CMPMappingDataObject dataObject;
-		String submitDBInfo = request.getFormParameter(CMPMappingWriter.FORM_FIELD_SUBMIT_DB_INFO);
-		String handleFile = request.getFormParameter(CMPMappingWriter.FORM_FIELD_HANDLE_FILE);
+//		CMPMappingDataObject dataObject;
+//		String submitDBInfo = request.getFormParameter(CMPMappingWriter.FORM_FIELD_SUBMIT_DB_INFO);
+//		String handleFile = request.getFormParameter(CMPMappingWriter.FORM_FIELD_HANDLE_FILE);
+//		
+//		//get or create a new handle
+//		if (handleFile == null) {
+//			dataObject = getCMPMappingDataObject();
+//			handleFile = createHandle(dataObject);
+//		} else {
+//			dataObject = getHandle(handleFile);
+//		}
+//
+//		//check for which type of action we're taking
+//		if (submitDBInfo != null && submitDatabaseInformation(body, dataObject, handleFile)) {
+//			CMPMappingWriter.printMappingInfo(body, handleFile, new MappingRoot());
+//		} else {
+//			CMPMappingWriter.printDBInfo(body, "", new DatabaseData(), handleFile);
+//		}
 
-		//get or create a new handle
-		if (handleFile == null) {
-			dataObject = getCMPMappingDataObject();
-			handleFile = createHandle(dataObject);
-		} else {
-			dataObject = getHandle(handleFile);
-		}
-
-		//check for which type of action we're taking
-		if (submitDBInfo != null) {
-			submitDatabaseInformation(body);
-		} else {
-			CMPMappingWriter.printDBInfo(body, "", new DatabaseData());
-		}
+		body.println("Coming soon...");
 	}
 
 	/**
 	 * takes care of the submission of database information
 	 */
-	private boolean submitDatabaseInformation(PrintWriter body) throws IOException {
+	private boolean submitDatabaseInformation(PrintWriter body, CMPMappingDataObject dataObject, String handleFile) throws IOException {
 		/* TODO: 
 		 * 1. Check to see if files exist
 		 * 2. Validate required fields 
@@ -191,7 +194,7 @@ public class CMPMappingBean extends WebAdminBean {
 		try {
 			databaseData.validate();
 		} catch (ValidationException e) {
-			CMPMappingWriter.printDBInfo(body, e.getMessage(), databaseData);
+			CMPMappingWriter.printDBInfo(body, e.getMessage(), databaseData, handleFile);
 			return false;
 		}
 
@@ -199,7 +202,7 @@ public class CMPMappingBean extends WebAdminBean {
 		String path =
 			FileUtils.getBase().getDirectory("conf").getAbsolutePath()
 				+ System.getProperty("file.separator")
-				+ request.getFormParameter(databaseData.getFileName());
+				+ databaseData.getFileName();
 
 		//create the file paths and names
 		String localDBFileName = path + ".cmp_local_database.xml";
@@ -249,17 +252,33 @@ public class CMPMappingBean extends WebAdminBean {
 			localDatabase.validate();
 			globalDatabase.validate();
 		} catch (ValidationException e) {
-			CMPMappingWriter.printDBInfo(body, e.getMessage(), databaseData);
+			CMPMappingWriter.printDBInfo(body, e.getMessage(), databaseData, handleFile);
 			return false;
 		}
 
 		//here we want to move the jdbc driver over to the bin dir
-		File jdbcDriverSource =
-			FileUtils.getBase().getFile(request.getFormParameter(CMPMappingWriter.FORM_FIELD_JDBC_DRIVER));
+		File jdbcDriverSource = new File(request.getFormParameter(CMPMappingWriter.FORM_FIELD_JDBC_DRIVER));
 		String libDir =
 			FileUtils.getBase().getDirectory("lib").getAbsolutePath()
 				+ System.getProperty("file.separator")
 				+ jdbcDriverSource.getName();
+		File destFile = new File(libDir);
+
+		//copy the file if it exists
+		if (jdbcDriverSource.isFile()) {
+			if (!destFile.exists() && !destFile.createNewFile()) {
+				throw new IOException("Could not create file: " + libDir);
+			}
+			
+			FileUtils.copyFile(destFile, jdbcDriverSource);
+		}
+
+		//put the data into the data object
+		dataObject.setGlobalDatabase(globalDatabase);
+		dataObject.setGlobalDatabaseFileName(globalDBFileName);
+		dataObject.setLocalDatabase(localDatabase);
+		dataObject.setLocalDatabaseFileName(localDBFileName);
+		dataObject.setMappingRootFileName(mappingFileName);
 
 		//this is part of the mapping in the next section
 		//MappingRoot root = new MappingRoot();
