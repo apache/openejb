@@ -99,7 +99,7 @@ public class EntityInterceptorBuilder extends AbstractInterceptorBuilder {
         if (trackedConnectionAssociator != null) {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
         }
-        firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, instancePool);
+        firstInterceptor = new EntityInstanceInterceptor(firstInterceptor, containerId, instancePool);
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
         return new TwoChains(firstInterceptor, systemChain);
