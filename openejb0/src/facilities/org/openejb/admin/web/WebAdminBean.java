@@ -48,7 +48,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.ejb.CreateException;
 import javax.ejb.SessionContext;
@@ -89,7 +93,7 @@ public abstract class WebAdminBean implements HttpBean {
     public static final int SUBSTITUTE = 26;
     /** the navigation sections
      */    
-    public static String[] navSections;
+    public static HashMap sections;
     /** the menu section
      */    
     protected String section = "";
@@ -200,16 +204,16 @@ public abstract class WebAdminBean implements HttpBean {
      * @exception IOException if an exception is thrown
      */
     public void writeTopNavBar(PrintWriter body) throws IOException{
-        for (int i=0; i < navSections.length; i+=2){
-            body.print("<a href=\"");
-            body.print(navSections[i]);
-            body.print("\" class=\"menuTopOff\">");
-            body.print(navSections[i+1]);
-            if(i == (navSections.length-2))
-				body.print("</a>");
-            else
-            	body.print("</a> | ");
-        }
+//        for (int i=0; i < navSections.length; i+=2){
+//            body.print("<a href=\"");
+//            body.print(navSections[i]);
+//            body.print("\" class=\"menuTopOff\">");
+//            body.print(navSections[i+1]);
+//            if(i == (navSections.length-2))
+//				body.print("</a>");
+//            else
+//            	body.print("</a> | ");
+//        }
     }
     
      /** Write the left navigation bar of the page.  This should look somthing
@@ -243,38 +247,36 @@ public abstract class WebAdminBean implements HttpBean {
       * @exception IOException if an exception is thrown
      */
     public void writeLeftNavBar(PrintWriter body) throws IOException{
-        for (int i=0; i < navSections.length; i+=2){
+        Object[] entries = sections.entrySet().toArray();
+        
+        for (int i = 0; i < entries.length; i++) {
+            Map.Entry entry = (Map.Entry)entries[i];
+            String section = (String)entry.getKey();
+            String[] subSections = (String[])entry.getValue();
+            
             body.println("<tr><td valign=\"top\" align=\"left\">");
-            body.print("<a href=\"");
-            body.print(navSections[i]);
-            body.print("\" class=\"subMenuOn\">");
-            body.print(navSections[i+1]);
-            body.print("</a></td></tr>");
-            if ( navSections[i].equals( this.section )) writeSubMenuItems(body);            
+            body.print("<span class=\"subMenuOn\">");
+            body.print(section);
+            body.print("</td></tr>");
+            
+            for (int j=0; j < subSections.length; j+=2){
+                String name = subSections[j];
+                String url = subSections[j+1];
+                
+                body.print("<tr>");
+                body.print("<td valign=\"top\" align=\"left\">");
+                body.print("<a href=\"/");
+                body.print(section);
+                body.print('/');
+                body.print(url);
+                body.print("\" class=\"subMenuOff\">");
+                body.print("&nbsp;&nbsp;&nbsp;");
+                body.print(name);
+                body.print("</a></td></tr>");
+            }
         }
     }
     
-    /** Write the sub items for this bean in the left navigation bar of
-     * the page.  This should look somthing like the one below:
-     *
-     *      <code>
-     *      &lt;tr&gt;
-     *       &lt;td valign="top" align="left"&gt;
-     *        &lt;a href="system?show=deployments"&gt;&lt;span class="subMenuOff"&gt;
-     *        &nbsp;&nbsp;&nbsp;Deployments
-     *        &lt;/span&gt;
-     *        &lt;/a&gt;&lt;/td&gt;
-     *      &lt;/tr&gt;
-     *      </code>
-     *
-     * Alternately, the bean can use the method formatSubMenuItem(..) which
-     * will create HTML like the one above
-     *
-     * @param body the output to write to
-     * @exception IOException if an exception is thrown
-     *
-     */
-    public abstract void writeSubMenuItems(PrintWriter body) throws IOException;
 
     /** formats a sub menu item for the left navigation
      * @param itemName the name for display
@@ -283,11 +285,6 @@ public abstract class WebAdminBean implements HttpBean {
      */    
     public String formatSubMenuItem(String itemName, String url){
         StringBuffer buff = new StringBuffer();
-        buff.append("<tr>");
-        buff.append("<td valign=\"top\" align=\"left\">");
-        buff.append("<a href=\"").append(url).append("\" class=\"subMenuOff\">");
-        buff.append("&nbsp;&nbsp;&nbsp;").append(itemName);
-        buff.append("</a></td></tr>");
 
         return buff.toString();
     }
@@ -356,15 +353,45 @@ public abstract class WebAdminBean implements HttpBean {
 
     /** initalizes the left and top menu navigation
      */    
-    public void initNavSections(){
+    public HashMap initNavSections(){
+        HashMap sections = new HashMap();
         try{
-            java.util.Vector sections = new java.util.Vector();
             Context ctx = org.openejb.OpenEJB.getJNDIContext();
-            NamingEnumeration enum = ctx.list("openejb/ejb/webadmin");
+            ctx = (Context) ctx.lookup("openejb/ejb");
+            NamingEnumeration enum = ctx.list("");
             //System.out.println("\n\nENUM "+enum);
             
             if ( enum == null){
-                return;
+                return sections;
+            }
+
+            while (enum.hasMore()) {
+                NameClassPair entry = (NameClassPair)enum.next();
+                //System.out.println("ITEM NAME  "+entry.getName());
+                //System.out.println("ITEM CLASS "+entry.getClassName());
+                if ( !entry.getClassName().equals("org.openejb.core.ivm.naming.IvmContext") ) {
+                    continue;
+                } 
+                
+                Context subCtx = (Context) ctx.lookup(entry.getName());
+                String[] subSections = getSubsections(subCtx);
+                if (subSections.length > 0){
+                    sections.put(entry.getName(), subSections );
+                }                                                 
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return sections;
+    }
+
+    private String[] getSubsections(Context ctx){
+        ArrayList sections = new ArrayList();
+        try{
+            NamingEnumeration enum = ctx.list("");
+            
+            if ( enum == null){
+                return new String[0];
             }
 
             while (enum.hasMore()) {
@@ -378,20 +405,19 @@ public abstract class WebAdminBean implements HttpBean {
                 if ( entry.getName().startsWith("Default") ) {
                     continue;
                 } 
-                
-                String beanName  = entry.getName();
-                sections.add(beanName);
-                sections.add(beanName);
+
+                Object obj = ctx.lookup(entry.getName());
+                if (obj instanceof HttpHome){
+                    String beanName  = entry.getName();
+                    sections.add(beanName);
+                    sections.add(beanName);
+                }
             }
-
-            navSections = new String[sections.size()];
-            sections.copyInto( navSections );
-
         } catch (Exception e){
             e.printStackTrace();
         }
+        return (String[]) sections.toArray(new String[0]);
     }
-
     /** prints a table row similar to this
      *
      * &lt;tr&gt;
@@ -477,8 +503,8 @@ public abstract class WebAdminBean implements HttpBean {
      */    
     public void setSessionContext(SessionContext sessionContext) {
         ejbContext = sessionContext;
-        if (navSections == null) {
-            initNavSections();
+        if (sections == null) {
+            sections = initNavSections();
         }
     }
 }
