@@ -1,4 +1,4 @@
-/**
+/* ====================================================================
  * Redistribution and use of this software and associated documentation
  * ("Software"), with or without modification, are permitted provided
  * that the following conditions are met:
@@ -7,10 +7,9 @@
  *    statements and notices.  Redistributions must also contain a
  *    copy of this document.
  *
- * 2. Redistributions in binary form must reproduce the
- *    above copyright notice, this list of conditions and the
- *    following disclaimer in the documentation and/or other
- *    materials provided with the distribution.
+ * 2. Redistributions in binary form must reproduce this list of
+ *    conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
@@ -23,7 +22,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://openejb.sf.net/).
+ *    (http://openejb.org/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -38,23 +37,44 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2004 (C) The OpenEJB Group. All Rights Reserved.
+ * ====================================================================
  *
- * $Id$
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the OpenEJB Project.  For more information
+ * please see <http://openejb.org/>.
+ *
+ * ====================================================================
  */
 package org.openejb.corba.compiler;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Set;
+
+import junit.framework.TestCase;
+
+import org.openejb.slsb.MockHome;
+import org.openejb.slsb.MockRemote;
 
 
 /**
- * Interface used to wrap compiler implementations.
- *
- * @version $Revision$ $Date$
+ * @version $Rev: $ $Date$
  */
-public interface Compiler {
+public class CompilerTest extends TestCase {
 
-    void compileDirectory(File srcDirectory, File destDirectory, Set classPaths) throws CompilerException;
+    public void testDummy() throws Exception {
+    }
 
+    public void testOpenORB() throws Exception {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        OpenORBSkeletonGenerator generator = new OpenORBSkeletonGenerator(cl);
+        generator.setVerbose(false);
+        generator.doStart();
+
+        Set interfaces = new HashSet();
+        interfaces.add(MockHome.class.getName());
+        interfaces.add(MockRemote.class.getName());
+        generator.generateSkeletons(interfaces, new File("./target/CORBATEST.jar"), cl);
+        generator.generateSkeletons(interfaces, new File("./target/CORBATEST.jar"), cl);
+    }
 }

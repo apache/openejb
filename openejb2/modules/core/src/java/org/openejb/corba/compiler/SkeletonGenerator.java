@@ -46,6 +46,7 @@ package org.openejb.corba.compiler;
 
 import java.io.File;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -67,7 +68,7 @@ public abstract class SkeletonGenerator {
         this.props = props;
     }
 
-    public abstract void generateSkeleton(Class iface, File destination) throws CompilerException;
+    public abstract void generateSkeletons(Set interfaces, File destination, ClassLoader cl) throws CompilerException;
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -75,6 +76,7 @@ public abstract class SkeletonGenerator {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SkeletonGenerator.class);
 
         infoFactory.addAttribute("props", Properties.class, true);
+        infoFactory.addOperation("generateSkeletons", new Class[] {Set.class, File.class, ClassLoader.class});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
