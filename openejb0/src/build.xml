@@ -36,6 +36,7 @@
     <pathelement location="${ejb11.jar}"/>
     <pathelement location="${ejb20.jar}"/>
     <pathelement location="${jaas.home}/${jaas.jar}"/>
+    <pathelement location="${jacc.jar}"/>
     <pathelement location="${jca.jar}"/>
     <pathelement location="${jdbcext.jar}"/>
     <pathelement location="${jdk12proxy.jar}"/>
@@ -107,6 +108,7 @@
     <echo message="ejb11.jar              = ${ejb11.jar}"/>
     <echo message="ejb20.jar              = ${ejb20.jar}"/>
     <echo message="jaas.jar               = ${jaas.home}/${jaas.jar}"/>
+    <echo message="jacc.jar               = ${jacc.jar}"/>
     <echo message="jca.jar                = ${jca.jar}"/>
     <echo message="jdbcext.jar            = ${jdbcext.jar}"/>
     <echo message="jdk12proxy.jar         = ${jdk12proxy.jar}"/>
@@ -183,6 +185,12 @@
     <available 
       classname="javax.security.auth.Subject"
       property="jaas.present"
+      classpathref="project.classpath"
+    />
+    
+    <available 
+      classname="javax.security.jacc.PolicyConfigurationFactory"
+      property="jacc.present"
       classpathref="project.classpath"
     />
     
@@ -368,6 +376,13 @@
     <antcall target="property-warning">
       <param name="name" value="jaas.jar"/>
       <param name="value" value="${jaas.home}/lib/${jaas.jar}"/>
+    </antcall>
+  </target>
+  
+  <target name="check.jacc" unless="jacc.present">
+    <antcall target="property-warning">
+      <param name="name" value="jacc.jar"/>
+      <param name="value" value="${jacc.jar}"/>
     </antcall>
   </target>
   
@@ -560,6 +575,7 @@
                    check.ejb11,
                    check.ejb20,
                    check.jaas,
+                   check.jacc,
                    check.jca,
                    check.jdbcext,
                    check.jdk12proxy,
