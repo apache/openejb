@@ -45,40 +45,42 @@
  *
  * ====================================================================
  */
-package org.openejb.deployment;
+package org.openejb.entity.cmp;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import javax.ejb.EntityContext;
+import java.util.HashSet;
+import java.util.Set;
 
-import junit.framework.TestCase;
-import org.openejb.deployment.entity.MockCMPEJB;
-import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.dispatch.SystemMethodIndices;
-import org.tranql.cache.CacheSlot;
-import org.tranql.cache.CacheTable;
+import javax.ejb.FinderException;
+
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
+import org.openejb.EJBInvocation;
+import org.tranql.field.Row;
+import org.tranql.ql.QueryException;
+import org.tranql.query.CollectionResultHandler;
+import org.tranql.query.QueryCommandView;
 
 /**
- *
- *
+ * 
+ * 
  * @version $Revision$ $Date$
- *
- * */
-public class CMPSystemMethodIndicesTest extends TestCase {
+ */
+public class SetValuedFinder extends CMPFinder {
 
-    public void testSystemMethodIndices() throws Exception {
-        CMPContainerBuilder builder = new CMPContainerBuilder();
-        builder.setClassLoader(MockCMPEJB.class.getClassLoader());
-        Map vopMap = builder.buildVopMap(MockCMPEJB.class, new CacheTable("mock", new CacheSlot[0], null, null, null, null), Collections.EMPTY_MAP, null, null, null, null, null, null, new HashMap(), new HashMap());
-        InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
-        SystemMethodIndices systemMethodIndices = SystemMethodIndices.createSystemMethodIndices(signatures, "setEntityContext", new String(EntityContext.class.getName()), "unsetEntityContext");
-        assertFalse(systemMethodIndices.getEjbActivateInvocation(null).getMethodIndex() == -1);
-        assertFalse(systemMethodIndices.getEjbLoadInvocation(null).getMethodIndex() == -1);
-        assertFalse(systemMethodIndices.getEjbPassivateInvocation(null).getMethodIndex() == -1);
-        assertFalse(systemMethodIndices.getEjbStoreInvocation(null).getMethodIndex() == -1);
-        assertFalse(systemMethodIndices.getSetContextInvocation(null, null).getMethodIndex() == -1);
-        assertFalse(systemMethodIndices.getUnsetContextInvocation(null).getMethodIndex() == -1);
+    public SetValuedFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView) {
+        super(localQueryView, remoteQueryView);
     }
+
+    public InvocationResult execute(EJBInvocation invocation) throws Throwable {
+        try {
+            QueryCommandView commandView = getCommand(invocation);
+            Set results = new HashSet();
+            CollectionResultHandler handler = new CollectionResultHandler(commandView.getView()[0]);
+            commandView.getQueryCommand().execute(handler, new Row(invocation.getArguments()), results);
+            return new SimpleInvocationResult(true, results);
+        } catch (QueryException e) {
+            return new SimpleInvocationResult(false, new FinderException(e.getMessage()).initCause(e));
+        }
+    }
+
 }
