@@ -147,7 +147,7 @@ class SessionBuilder extends BeanBuilder {
             ReadOnlyContext compContext = buildComponentContext(earContext, ejbModule, sessionBean, openejbSessionBean, userTransaction, cl);
             builder.setComponentContext(compContext);
         } catch (Exception e) {
-            throw new DeploymentException("Unable to create EJB jndi environment: ejbName" + ejbName, e);
+            throw new DeploymentException("Unable to create EJB jndi environment: ejbName: " + ejbName, e);
         }
 
         if (openejbSessionBean != null) {
