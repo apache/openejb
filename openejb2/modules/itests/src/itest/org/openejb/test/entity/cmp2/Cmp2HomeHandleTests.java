@@ -44,7 +44,13 @@
  */
 package org.openejb.test.entity.cmp2;
 
+import java.rmi.MarshalledObject;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
 import javax.ejb.EJBHome;
+import javax.ejb.HomeHandle;
 
 import org.openejb.test.entity.cmp.BasicCmpHome;
 
@@ -70,6 +76,38 @@ public class Cmp2HomeHandleTests extends BasicCmp2TestClient {
     public void test01_getEJBHome() {
         try {
             EJBHome home = ejbHomeHandle.getEJBHome();
+            assertNotNull("The EJBHome is null", home);
+        } catch (Exception e) {
+            fail("Received Exception " + e.getClass() + " : " + e.getMessage());
+        }
+    }
+
+    public void test02_copyHandleByMarshalledObject() {
+        try {
+            MarshalledObject obj = new MarshalledObject(ejbHomeHandle);
+            HomeHandle copy = (HomeHandle) obj.get();
+
+            assertNotNull("The HomeHandle copy is null", copy);
+            EJBHome home = copy.getEJBHome();
+            assertNotNull("The EJBHome is null", home);
+        } catch (Exception e) {
+            fail("Received Exception " + e.getClass() + " : " + e.getMessage());
+        }
+    }
+
+    public void test03_copyHandleBySerialize() {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(ejbHomeHandle);
+            oos.flush();
+            oos.close();
+            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            HomeHandle copy = (HomeHandle) ois.readObject();
+
+            assertNotNull("The HomeHandle copy is null", copy);
+            EJBHome home = copy.getEJBHome();
             assertNotNull("The EJBHome is null", home);
         } catch (Exception e) {
             fail("Received Exception " + e.getClass() + " : " + e.getMessage());

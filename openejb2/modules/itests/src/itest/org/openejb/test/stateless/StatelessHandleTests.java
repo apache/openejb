@@ -44,7 +44,13 @@
  */
 package org.openejb.test.stateless;
 
+import java.rmi.MarshalledObject;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
 import javax.ejb.EJBObject;
+import javax.ejb.Handle;
 
 /**
  * [7] Should be run as the seventh test suite of the BasicStatelessTestClients
@@ -88,6 +94,38 @@ public class StatelessHandleTests extends BasicStatelessTestClient {
         }
     }
 
+    public void test02_copyHandleByMarshalledObject() {
+        try {
+            MarshalledObject obj = new MarshalledObject(ejbHandle);
+            Handle copy = (Handle) obj.get();
+
+            EJBObject object = copy.getEJBObject();
+            assertNotNull("The EJBObject is null", object);
+            assertTrue("EJBObjects are not identical", object.isIdentical(ejbObject));
+        } catch (Exception e) {
+            fail("Received Exception " + e.getClass() + " : " + e.getMessage());
+        }
+    }
+
+    public void test03_copyHandleBySerialize() {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(ejbHandle);
+            oos.flush();
+            oos.close();
+            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            Handle copy = (Handle) ois.readObject();
+
+            EJBObject object = copy.getEJBObject();
+            assertNotNull("The EJBObject is null", object);
+            assertTrue("EJBObjects are not identical", object.isIdentical(ejbObject));
+        } catch (Exception e) {
+            fail("Received Exception " + e.getClass() + " : " + e.getMessage());
+        }
+    }
+
     /**
      * <B>5.6 Client view of session object’s life cycle</B>
      * <P>
@@ -102,16 +140,16 @@ public class StatelessHandleTests extends BasicStatelessTestClient {
      * itself.
      * </P>
      */
-    public void test02_EJBHome_remove() {
+    public void test04_EJBHome_remove() {
         try {
             ejbHome.remove(ejbHandle);
-//            try{
-//                ejbObject.businessMethod("Should throw an exception");
-//                assertTrue( "Calling business method after removing the EJBObject does not throw an exception", false );
-//            } catch (Exception e){
-//                assertTrue( true );
-//                return;
-//            }
+            try{
+                ejbObject.businessMethod("Should throw an exception");
+                assertTrue( "Calling business method after removing the EJBObject does not throw an exception", false );
+            } catch (Exception e){
+                assertTrue( true );
+                return;
+            }
         } catch (Exception e) {
             fail("Received Exception " + e.getClass() + " : " + e.getMessage());
         }
@@ -119,5 +157,4 @@ public class StatelessHandleTests extends BasicStatelessTestClient {
     //
     // Test handle methods
     //=================================
-
 }

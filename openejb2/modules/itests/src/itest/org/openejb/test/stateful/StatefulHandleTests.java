@@ -44,7 +44,13 @@
  */
 package org.openejb.test.stateful;
 
+import java.rmi.MarshalledObject;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
 import javax.ejb.EJBObject;
+import javax.ejb.Handle;
 
 /**
  * [7] Should be run as the seventh test suite of the BasicStatefulTestClients
@@ -78,12 +84,44 @@ public class StatefulHandleTests extends BasicStatefulTestClient {
         }
     }
 
+    public void test02_copyHandleByMarshalledObject() {
+        try {
+            MarshalledObject obj = new MarshalledObject(ejbHandle);
+            Handle copy = (Handle) obj.get();
+
+            EJBObject object = copy.getEJBObject();
+            assertNotNull("The EJBObject is null", object);
+            assertTrue("EJBObjects are not identical", object.isIdentical(ejbObject));
+        } catch (Exception e) {
+            fail("Received Exception " + e.getClass() + " : " + e.getMessage());
+        }
+    }
+
+    public void test03_copyHandleBySerialize() {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(ejbHandle);
+            oos.flush();
+            oos.close();
+            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            Handle copy = (Handle) ois.readObject();
+
+            EJBObject object = copy.getEJBObject();
+            assertNotNull("The EJBObject is null", object);
+            assertTrue("EJBObjects are not identical", object.isIdentical(ejbObject));
+        } catch (Exception e) {
+            fail("Received Exception " + e.getClass() + " : " + e.getMessage());
+        }
+    }
+
     /**
      * This remove method of the EJBHome is placed hear as it
      * is more a test on the handle then on the remove method
      * itself.
      */
-    public void test02_EJBHome_remove() {
+    public void test04_EJBHome_remove() {
         try {
             ejbHome.remove(ejbHandle);
             try {
@@ -100,5 +138,4 @@ public class StatefulHandleTests extends BasicStatefulTestClient {
     //
     // Test handle methods
     //=================================
-
 }
