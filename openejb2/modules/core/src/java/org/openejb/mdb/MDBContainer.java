@@ -58,6 +58,7 @@ import javax.resource.spi.UnavailableException;
 import javax.resource.spi.endpoint.MessageEndpoint;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.xa.XAResource;
+import javax.ejb.Timer;
 
 import org.apache.geronimo.connector.ActivationSpecWrapper;
 import org.apache.geronimo.core.service.Interceptor;
@@ -206,6 +207,11 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         return deliveryTransacted[methodIndex];
     }
 
+    public Timer getTimerById(Long id) {
+        assert timerService != null;
+        return timerService.getTimerById(id);
+    }
+
     public void doStart() throws Exception {
         if (timerService != null) {
             timerService.doStart();
@@ -290,6 +296,8 @@ public class MDBContainer implements MessageEndpointFactory, GBeanLifecycle {
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
+        infoFactory.addOperation("getTimerById", new Class[]{Long.class});
+        
         infoFactory.setConstructor(new String[]{
             "containerId",
             "ejbName",

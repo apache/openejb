@@ -55,6 +55,7 @@ import java.util.Iterator;
 
 import javax.ejb.EJBException;
 import javax.ejb.Timer;
+import javax.ejb.NoSuchObjectLocalException;
 import javax.management.ObjectName;
 import javax.transaction.RollbackException;
 import javax.transaction.Status;
@@ -186,10 +187,14 @@ public class BasicTimerService {
         return timers;
     }
 
-    private TimerImpl getTimerById(Long id) {
+    public TimerImpl getTimerById(Long id) {
         WorkInfo workInfo = persistentTimer.getWorkInfo(id);
-        TimerImpl timer = (TimerImpl) workInfo.getClientHandle();
-        return timer;
+        if (workInfo != null) {
+            TimerImpl timer = (TimerImpl) workInfo.getClientHandle();
+            return timer;
+        } else {
+            throw new NoSuchObjectLocalException("No timer");
+        }
     }
 
     void registerCancelSynchronization(Synchronization cancelSynchronization) throws RollbackException, SystemException {
