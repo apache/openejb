@@ -153,19 +153,13 @@ public class ServiceDaemon implements GBean {
                 try {
                     socket = serverSocket.accept();
                     if (!shouldStop()) {
+                        // the server service is responsible 
+                        // for closing the socket.
                         serverService.service(socket);
                     }
                 } catch (Throwable e) {
                     log.error("Unexpected error", e);
-                } finally {
-                    if (socket != null) {
-                        try {
-                            socket.close();
-                        } catch (Throwable t) {
-                            log.error("Encountered problem while closing connection with client: " + t.getMessage());
-                        }
-                    }
-                }
+                } 
             }
 
             if (serverSocket != null) {
