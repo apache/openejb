@@ -648,6 +648,18 @@
     <span class="command"><xsl:apply-templates/></span>
   </xsl:template>
 
+  <xsl:template match="commands">
+    <table border="0" cellpadding="0" cellspacing="0" width="440">
+    <tr>
+    <td bgcolor="#e0e0e0">
+    <span class="code-block">
+      <pre><span class="command"><xsl:apply-templates/></span></pre>
+    </span>
+    </td>
+    </tr>
+    </table>
+  </xsl:template>
+  
   <xsl:template match="mailing-lists">
     <xsl:apply-templates/>
   </xsl:template>
