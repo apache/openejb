@@ -25,15 +25,15 @@ import org.openejb.util.FileUtils;
  *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
-public class ConfigurationFactory implements OpenEjbConfigurationFactory, ProviderDefaults{
-    
+public class ConfigurationFactory implements OpenEjbConfigurationFactory, ProviderDefaults {
+
     public static final String DEFAULT_SECURITY_ROLE = "openejb.default.security.role";
 
     Openejb openejb;
     DeployedJar[] jars;
     ServicesJar openejbDefaults = null;
 
-    
+
 
     String configLocation = "";
 
@@ -51,12 +51,12 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     //
     //------------------------------------------------//
     OpenEjbConfiguration sys;
-    
+
     ContainerInfo[] cntrs;
     EntityContainerInfo[] entyCntrs;
     StatefulSessionContainerInfo[] stflCntrs;
     StatelessSessionContainerInfo[] stlsCntrs;
-    
+
     /** Hash of container info objects for quick reference */
     HashMap containerTable = new HashMap();
 
@@ -64,24 +64,24 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         if ( props == null ) props = new Properties();
 
         configLocation = props.getProperty("openejb.conf.file");
-        
+
         if ( configLocation == null ) {
             configLocation = props.getProperty("openejb.configuration");
         }
 
         configLocation = ConfigUtils.searchForConfiguration(configLocation);
-        
+
     }
 
-    public static void main(String[] args){
-        try{
-        ConfigurationFactory conf = new ConfigurationFactory();
-        conf.configLocation = args[0];        
-        conf.init(null);
-        OpenEjbConfiguration openejb = conf.getOpenEjbConfiguration();
+    public static void main(String[] args) {
+        try {
+            ConfigurationFactory conf = new ConfigurationFactory();
+            conf.configLocation = args[0];        
+            conf.init(null);
+            OpenEjbConfiguration openejb = conf.getOpenEjbConfiguration();
 
-        conf.printConf(openejb);
-        } catch (Exception e){
+            conf.printConf(openejb);
+        } catch ( Exception e ) {
             System.out.println("[OpenEJB] "+e.getMessage());
             e.printStackTrace();
         }
@@ -100,11 +100,11 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
      * Return them.
      */
     public OpenEjbConfiguration getOpenEjbConfiguration() throws OpenEJBException {
-        
+
         // Load configuration
         // Validate Configuration
         openejb = ConfigUtils.readConfig(configLocation);
-        
+
         // Resolve File Locations
         // Resolve Classes
         resolveDependencies(openejb);
@@ -116,26 +116,26 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         sys = new OpenEjbConfiguration();
         sys.containerSystem = new ContainerSystemInfo();
         sys.facilities = new FacilitiesInfo();
-        
+
         initJndiProviders(openejb, sys.facilities);
         initTransactionService(openejb, sys.facilities);
         initConnectors(openejb, sys.facilities);
         initConnectionManagers(openejb, sys.facilities);
         initProxyFactory(openejb, sys.facilities);
-        
+
         // Fills the four container info arrays
         // in this class
         initContainerInfos(openejb);
-        
+
         sys.containerSystem.containers          = cntrs;
         sys.containerSystem.entityContainers    = entyCntrs;
         sys.containerSystem.statefulContainers  = stflCntrs;
         sys.containerSystem.statelessContainers = stlsCntrs;
 
-        for (int i=0; i < jars.length; i++){
+        for ( int i=0; i < jars.length; i++ ) {
             initEnterpriseBeanInfos(jars[i]);
         }
-        
+
 
         // Add the defaults
         SecurityRoleInfo defaultRole = new SecurityRoleInfo();
@@ -152,12 +152,12 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         sRoleInfos.copyInto( sys.containerSystem.securityRoles );
         mthdPermInfos.copyInto( sys.containerSystem.methodPermissions );
         mthdTranInfos.copyInto( sys.containerSystem.methodTransactions );
-        
+
         initSecutityService(openejb, sys.facilities);
 
         return sys;
     }
-        
+
     Vector jndiProviderIds = new Vector();
     /**
      * Create the JndiContextInfo section of the OpenEJBConfiguration 
@@ -170,32 +170,32 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     private void initJndiProviders(Openejb openejb, FacilitiesInfo facilities) throws OpenEJBException{
         JndiProvider[] provider =  openejb.getJndiProvider();
 
-        if (provider == null || provider.length < 1) return;
+        if ( provider == null || provider.length < 1 ) return;
 
         JndiContextInfo[] ctxInfo = new JndiContextInfo[provider.length];
         facilities.remoteJndiContexts = ctxInfo;
 
         // Init each provider one by one
-        for (int i=0; i < provider.length; i++){
-            if (provider[i].getJar() == null) {
+        for ( int i=0; i < provider.length; i++ ) {
+            if ( provider[i].getJar() == null ) {
                 provider[i].setJar(ConfigUtils.getDefaultServiceJar().getPath());
             }
 
             ServiceProvider service = ConfigUtils.getService(provider[i].getJar(), provider[i].getId());
 
-            if (!service.getProviderType().equals("JndiProvider")) {
-                    handleException("conf.4902", provider[i].getId(), provider[i].getJar(), "JndiProvider");
+            if ( !service.getProviderType().equals("JndiProvider") ) {
+                handleException("conf.4902", provider[i].getId(), provider[i].getJar(), "JndiProvider");
             }
-	
+
             ctxInfo[i] = new JndiContextInfo();
 
             ctxInfo[i].jndiContextId = provider[i].getId();
 
             // Verify the uniqueness of the ID
-            if (jndiProviderIds.contains(provider[i].getId())) {
+            if ( jndiProviderIds.contains(provider[i].getId()) ) {
                 handleException("conf.0103",configLocation,provider[i].getId());
             }
-            
+
             jndiProviderIds.add(provider[i].getId());
 
             // Load the propterties file 
@@ -207,19 +207,19 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                                                                       service);
         }
     }
-    
+
     private void initSecutityService(Openejb openejb, FacilitiesInfo facilities) throws OpenEJBException{
         SecurityService ss = openejb.getSecurityService();
-        if (ss.getJar() == null) {
+        if ( ss.getJar() == null ) {
             ss.setJar(ConfigUtils.getDefaultServiceJar().getPath());
         }
-        
+
         SecurityServiceInfo ssi = new SecurityServiceInfo();
         ServiceProvider ssp     = ConfigUtils.getService(ss.getJar(), ss.getId());
-        
-		if (!ssp.getProviderType().equals("Security")) {
-			handleException("conf.4902", ss.getId(), ss.getJar(), "Security");
-		}
+
+        if ( !ssp.getProviderType().equals("Security") ) {
+            handleException("conf.4902", ss.getId(), ss.getJar(), "Security");
+        }
 
         ssi.codebase         = ss.getJar();
         ssi.description      = ssp.getDescription();
@@ -243,28 +243,28 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         // going to worry about role mapping until a valid
         // security service is integrated.  At that time, we
         // can take the approach that makes the most sense.
-        for (int i=0; i < r.length; i++){
+        for ( int i=0; i < r.length; i++ ) {
             r[i] = new RoleMappingInfo();
-            r[i].logicalRoleNames  = new String[]{ roles[i].roleName };
-            r[i].physicalRoleNames = new String[]{ roles[i].roleName };
+            r[i].logicalRoleNames  = new String[]{ roles[i].roleName};
+            r[i].physicalRoleNames = new String[]{ roles[i].roleName};
         }
 
         facilities.securityService = ssi;
     }
-    
+
     private void initTransactionService(Openejb openejb, FacilitiesInfo facilities) throws OpenEJBException {
         TransactionService ts      = openejb.getTransactionService();
         TransactionServiceInfo tsi = new TransactionServiceInfo();
-        
-        if (ts.getJar() == null) {
+
+        if ( ts.getJar() == null ) {
             ts.setJar(ConfigUtils.getDefaultServiceJar().getPath());
         }
-        
+
         ServiceProvider service    = ConfigUtils.getService(ts.getJar(), ts.getId());
 
-		if (!service.getProviderType().equals("Transaction")) {
-			handleException("conf.4902", ts.getId(), ts.getJar(), "Transaction");
-		}
+        if ( !service.getProviderType().equals("Transaction") ) {
+            handleException("conf.4902", ts.getId(), ts.getJar(), "Transaction");
+        }
 
         tsi.codebase         = ts.getJar();
         tsi.description      = service.getDescription();
@@ -277,9 +277,9 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                                                                  service);
         facilities.transactionService = tsi;
     }
-    
+
     Vector connectorIds = new Vector();
-    
+
     /**
      * Create the ConnectorInfo section of the OpenEJBConfiguration 
      * factory.
@@ -289,92 +289,110 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
      * @exception OpenEJBException
      */
     private void initConnectors(Openejb openejb, FacilitiesInfo facilities) throws OpenEJBException{
-        
+
         Connector[] conn =  openejb.getConnector();
-        
-        if (conn == null || conn.length < 1)  return;
+
+        if ( conn == null || conn.length < 1 )  return;
 
         ConnectorInfo[] info = new ConnectorInfo[conn.length];
         facilities.connectors = info;
 
         // Init each conn one by one
-        for (int i=0; i < conn.length; i++){
-            if (conn[i].getJar() == null) {
+        for ( int i=0; i < conn.length; i++ ) {
+            if ( conn[i].getJar() == null ) {
                 conn[i].setJar(ConfigUtils.getDefaultServiceJar().getPath());
             }
 
             ServiceProvider service = ConfigUtils.getService(conn[i].getJar(), conn[i].getId());
 
-			if (!service.getProviderType().equals("Connector")) {
-				handleException("conf.4902", conn[i].getId(), conn[i].getJar(), "Connector");
-			}
-				
-			ManagedConnectionFactoryInfo factory = new ManagedConnectionFactoryInfo();
+            if ( !service.getProviderType().equals("Connector") ) {
+                handleException("conf.4902", conn[i].getId(), conn[i].getJar(), "Connector");
+            }
+
+            ManagedConnectionFactoryInfo factory = new ManagedConnectionFactoryInfo();
 
             info[i]                     = new ConnectorInfo();
             info[i].connectorId         = conn[i].getId();
             info[i].connectionManagerId = DEFAULT_LOCAL_TX_CON_MANAGER;
             info[i].managedConnectionFactory = factory;
-                                               
+
             factory.id         = conn[i].getId();
             factory.className  = service.getClassName();
             factory.codebase   = conn[i].getJar();
             factory.properties = ConfigUtils.assemblePropertiesFor(
-                                                    "Connector", conn[i].getId(),     
-                                                    conn[i].getContent(),
-                                                    configLocation, 
-                                                    conn[i].getJar(), service);            
+                                                                  "Connector", conn[i].getId(),     
+                                                                  conn[i].getContent(),
+                                                                  configLocation, 
+                                                                  conn[i].getJar(), service);            
 
             // Verify the uniqueness of the ID
-            if (connectorIds.contains(conn[i].getId())) {
+            if ( connectorIds.contains(conn[i].getId()) ) {
                 handleException("conf.0103",configLocation,conn[i].getId());
             }
-            
+
             connectorIds.add(conn[i].getId());
         }
     }
-    
+
     private void initConnectionManagers(Openejb openejb, FacilitiesInfo facilities) throws OpenEJBException{
-            
+
         String defaultJar = ConfigUtils.getDefaultServiceJar().getPath();
 
         ConnectionManagerInfo manager = new ConnectionManagerInfo();
         ServiceProvider service = ConfigUtils.getService(defaultJar, DEFAULT_LOCAL_TX_CON_MANAGER);
 
-        if (!service.getProviderType().equals("ConnectionManager")) {
-                handleException("conf.4902", DEFAULT_LOCAL_TX_CON_MANAGER, defaultJar, "ConnectionManager");
+        if ( !service.getProviderType().equals("ConnectionManager") ) {
+            handleException("conf.4902", DEFAULT_LOCAL_TX_CON_MANAGER, defaultJar, "ConnectionManager");
         }
 
         manager.connectionManagerId = DEFAULT_LOCAL_TX_CON_MANAGER;
         manager.className           = service.getClassName();
         manager.codebase            = defaultJar;
         manager.properties          = ConfigUtils.assemblePropertiesFor(
-                                                        "ConnectionManager", 
-                                                        DEFAULT_LOCAL_TX_CON_MANAGER,
-                                                        null, configLocation,
-                                                        defaultJar, service);
+                                                                       "ConnectionManager", 
+                                                                       DEFAULT_LOCAL_TX_CON_MANAGER,
+                                                                       null, configLocation,
+                                                                       defaultJar, service);
 
 
         facilities.connectionManagers = new ConnectionManagerInfo[]{manager};
     }
-    
-    
+
+
     private void initProxyFactory(Openejb openejb, FacilitiesInfo facilities) throws OpenEJBException{
-        
+
         ProxyFactory pf = openejb.getProxyFactory();
-        if (pf.getJar() == null) {
-            pf.setJar(ConfigUtils.getDefaultServiceJar().getPath());
+        System.out.println("ProxyFactory="+pf);
+        
+        if (pf == null) {
+            pf = new ProxyFactory();
+            String version = "";
+            try {
+                version = System.getProperty("java.vm.version");
+            } catch ( Exception e ) {
+                //TODO: Better exception handling
+                throw new RuntimeException("Unable to determine the version of your VM.  No ProxyFactory Can be installed");
+            }
+            if ( version.startsWith("1.1") || version.startsWith("1.2") ) {
+                pf.setId( "Default JDK 1.2 ProxyFactory" );
+            } else {
+                pf.setId( "Default JDK 1.3 ProxyFactory" );
+            } 
         }
         
-        ServiceProvider pfp = ConfigUtils.getService(pf.getJar(), pf.getId());
-        
+        if ( pf.getJar() == null ) {
+            pf.setJar(ConfigUtils.getDefaultServiceJar().getPath());
+        }
 
-		if (!pfp.getProviderType().equals("Proxy")) {
-			handleException("conf.4902", pf.getId(), pf.getJar(), "Proxy");
-		}
-		
-		IntraVmServerInfo pfi = new IntraVmServerInfo();
-        
+        ServiceProvider pfp = ConfigUtils.getService(pf.getJar(), pf.getId());
+
+
+        if ( !pfp.getProviderType().equals("Proxy") ) {
+            handleException("conf.4902", pf.getId(), pf.getJar(), "Proxy");
+        }
+
+        IntraVmServerInfo pfi = new IntraVmServerInfo();
+
         facilities.intraVmServer  = pfi; 
         pfi.proxyFactoryClassName = pfp.getClassName();
 
@@ -403,43 +421,43 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         Vector sl = new Vector();
 
         Enumeration enum = conf.enumerateContainer();
-        while (enum.hasMoreElements()) {
+        while ( enum.hasMoreElements() ) {
             Container c             = (Container)enum.nextElement();
-            if (c.getJar() == null) {
+            if ( c.getJar() == null ) {
                 c.setJar(ConfigUtils.getDefaultServiceJar().getPath());
             }
             ServiceProvider service = ConfigUtils.getService(c.getJar(), c.getId());
-				
-			if (!service.getProviderType().equals("Container")) {
-				handleException("conf.4902", c.getId(), c.getJar(), "Container");
-			}
-			
-			ContainerInfo ci        = null;
 
-            if (c.getCtype().equals("STATELESS") ) {
+            if ( !service.getProviderType().equals("Container") ) {
+                handleException("conf.4902", c.getId(), c.getJar(), "Container");
+            }
+
+            ContainerInfo ci        = null;
+
+            if ( c.getCtype().equals("STATELESS") ) {
                 ci = new StatelessSessionContainerInfo();
                 sl.add(ci);
-            } else if (c.getCtype().equals("STATEFUL")) {
+            } else if ( c.getCtype().equals("STATEFUL") ) {
                 ci = new StatefulSessionContainerInfo();
                 sf.add(ci);
             } else {
                 ci = new EntityContainerInfo();
                 e.add(ci);
             }
-            
+
             ci.ejbeans        = new EnterpriseBeanInfo[0];
             ci.containerName  = c.getId();
             ci.className      = service.getClassName();
             ci.codebase       = c.getJar();
             ci.properties     = ConfigUtils.assemblePropertiesFor(
-                                        "Container", c.getId(), c.getContent(),
-                                        configLocation, c.getJar(), service);
-            
+                                                                 "Container", c.getId(), c.getContent(),
+                                                                 configLocation, c.getJar(), service);
+
             //// Check if ID is a Duplicate /////
-            if ( containerIds.contains(c.getId()) ){
+            if ( containerIds.contains(c.getId()) ) {
                 handleException("conf.0101",configLocation,c.getId());
             }
-            
+
             containerIds.add(c.getId());
 
         }
@@ -458,18 +476,18 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         cntrs = new ContainerInfo[e.size()];
         e.copyInto(cntrs);
 
-        for (int i=0; i < cntrs.length; i++){
+        for ( int i=0; i < cntrs.length; i++ ) {
             containerTable.put(cntrs[i].containerName, cntrs[i]);
         }
-    
+
     }
-    
+
 
     private Map getDeployments(OpenejbJar j) throws OpenEJBException{
         HashMap map = new HashMap(j.getEjbDeploymentCount());
         Enumeration enum = j.enumerateEjbDeployment();
-        
-        while (enum.hasMoreElements()) {
+
+        while ( enum.hasMoreElements() ) {
             EjbDeployment d = (EjbDeployment)enum.nextElement();
             map.put( d.getEjbName(), d);
         }
@@ -486,11 +504,11 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
      * @exception OpenEJBException
      */
     private void initEnterpriseBeanInfos(DeployedJar jar)  throws OpenEJBException{
-    
+
         int beansDeployed = jar.openejbJar.getEjbDeploymentCount();
         int beansInEjbJar = jar.ejbJar.getEnterpriseBeans().getEnterpriseBeansItemCount();
 
-        if (beansInEjbJar != beansDeployed) {
+        if ( beansInEjbJar != beansDeployed ) {
             ConfigUtils.logWarning("conf.0008",jar.jarURI,""+beansInEjbJar, ""+beansDeployed);
             // Not all ejb in this jar have been deployed.
             // This jar cannot be loaded into the system and must 
@@ -515,45 +533,45 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             } else {
                 beans[i] = initEntityBean(item, ejbds);
             }
-            
+
             // Check For Duplicate Deployment IDs
-            if (deploymentIds.contains(beans[i].ejbDeploymentId)){
+            if ( deploymentIds.contains(beans[i].ejbDeploymentId) ) {
                 ConfigUtils.logWarning("conf.0100",beans[i].ejbDeploymentId,jar.jarURI,beans[i].ejbName);
                 // No two deployments can have the same deployment ID
                 // the entire ejb jar is invalid and must be redeployed.
                 // This jar cannot be loaded into the system and must 
                 // be skipped.
                 return;                
-            } 
+            }
 
             deploymentIds.add(beans[i].ejbDeploymentId);
-            
+
             beans[i].codebase = jar.jarURI;
             infos.put(beans[i].ejbName, beans[i]);
             items.put(beans[i].ejbName, item);
-            
+
         }
 
         initJndiReferences(ejbds, infos, items);
 
-        if (jar.ejbJar.getAssemblyDescriptor() != null) {
+        if ( jar.ejbJar.getAssemblyDescriptor() != null ) {
             initSecurityRoles(jar, ejbds, infos, items);
             initMethodPermissions(jar, ejbds, infos, items);
             initMethodTransactions(jar, ejbds, infos, items);
-            
+
             // Resolve security role links
-            for (int x=0; x < beans.length; x++){
+            for ( int x=0; x < beans.length; x++ ) {
                 resolveRoleLinks( jar, beans[x], (EnterpriseBeansItem)items.get(beans[x].ejbName));
             }
         }
-        
+
         assignBeansToContainers(beans, ejbds);
-        
+
     }
 
 
     private void initJndiReferences(Map ejbds, Map infos, Map items) throws OpenEJBException{
-        
+
         Iterator i = infos.values().iterator();
         while ( i.hasNext() ) {
             EnterpriseBeanInfo bean = (EnterpriseBeanInfo)i.next();
@@ -561,7 +579,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             Enumeration ee = null;
             Enumeration er = null;
             Enumeration rr = null;
-            
+
             if ( item.getEntity() != null ) {
                 ee = item.getEntity().enumerateEnvEntry();
                 er = item.getEntity().enumerateEjbRef();
@@ -575,21 +593,21 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             Vector envRef = new Vector();
             Vector ejbRef = new Vector();
             Vector resRef = new Vector();
-            
+
             /* Build Environment entries *****************/
-            while (ee.hasMoreElements()) {
+            while ( ee.hasMoreElements() ) {
                 EnvEntry env = (EnvEntry)ee.nextElement();
                 EnvEntryInfo info = new EnvEntryInfo();
-                
+
                 info.name  = env.getEnvEntryName();
                 info.type  = env.getEnvEntryType();
                 info.value = env.getEnvEntryValue();
-                
+
                 envRef.add(info);
             }
-            
+
             /* Build EJB References **********************/
-            while (er.hasMoreElements()) {
+            while ( er.hasMoreElements() ) {
                 EjbRef ejb = (EjbRef)er.nextElement();
                 EjbReferenceInfo info = new EjbReferenceInfo();
 
@@ -607,22 +625,22 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             EjbDeployment dep  = (EjbDeployment)ejbds.get(bean.ejbName);
             Enumeration rl = dep.enumerateResourceLink();
             Map resLinks = new HashMap();
-            while (rl.hasMoreElements()) {
+            while ( rl.hasMoreElements() ) {
                 ResourceLink link = (ResourceLink)rl.nextElement();
                 resLinks.put(link.getResRefName(), link);
             }
 
-            while (rr.hasMoreElements()) {
+            while ( rr.hasMoreElements() ) {
                 ResourceRef res = (ResourceRef)rr.nextElement();
                 ResourceReferenceInfo info = new ResourceReferenceInfo();
 
                 info.referenceAuth = res.getResAuth();
                 info.referenceName = res.getResRefName();
                 info.referenceType = res.getResType();
-                
+
                 ResourceLink link = (ResourceLink)resLinks.get(res.getResRefName());
                 info.resourceID    = link.getResId();
-                
+
                 resRef.add(info);
             }
 
@@ -631,7 +649,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             jndi.envEntries     = new EnvEntryInfo[envRef.size()];
             jndi.ejbReferences  = new EjbReferenceInfo[ejbRef.size()];
             jndi.resourceRefs   = new ResourceReferenceInfo[resRef.size()];
-            
+
             envRef.copyInto(jndi.envEntries);
             ejbRef.copyInto(jndi.ejbReferences);
             resRef.copyInto(jndi.resourceRefs);
@@ -645,19 +663,19 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     private void initMethodTransactions(DeployedJar jar, Map ejbds, Map infos, Map items) throws OpenEJBException{
 
         ContainerTransaction[] cTx = jar.ejbJar.getAssemblyDescriptor().getContainerTransaction();
-        
-        if (cTx == null || cTx.length < 1 ) return;
+
+        if ( cTx == null || cTx.length < 1 ) return;
 
         MethodTransactionInfo[] mTxs = new MethodTransactionInfo[cTx.length];
 
-        for (int i=0; i < mTxs.length; i++){ 
+        for ( int i=0; i < mTxs.length; i++ ) {
             mTxs[i] = new MethodTransactionInfo();
 
             mTxs[i].description    = cTx[i].getDescription();
             mTxs[i].transAttribute = cTx[i].getTransAttribute();
             mTxs[i].methods        = getMethodInfos(cTx[i].getMethod(), ejbds);
         }
-        
+
         this.mthdTranInfos.addAll(Arrays.asList(mTxs));
     }
 
@@ -665,18 +683,18 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
 
         SecurityRole[] sr = jar.ejbJar.getAssemblyDescriptor().getSecurityRole();
-        
-        if (sr == null || sr.length < 1 ) return;
+
+        if ( sr == null || sr.length < 1 ) return;
 
         SecurityRoleInfo[] roles = new SecurityRoleInfo[sr.length];
-        for (int i=0; i < roles.length; i++){
+        for ( int i=0; i < roles.length; i++ ) {
             roles[i] = new SecurityRoleInfo();
 
             roles[i].description = sr[i].getDescription();
             roles[i].roleName    = sr[i].getRoleName();
 
-                // Check For Duplicate Container IDs
-            if ( securityRoles.contains(sr[i].getRoleName()) ){
+            // Check For Duplicate Container IDs
+            if ( securityRoles.contains(sr[i].getRoleName()) ) {
                 ConfigUtils.logWarning("conf.0102",jar.jarURI,sr[i].getRoleName());
             } else {
                 securityRoles.add(sr[i].getRoleName());
@@ -685,22 +703,22 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
         this.sRoleInfos.addAll(Arrays.asList(roles));
     }
-    
+
     private void initMethodPermissions(DeployedJar jar, Map ejbds, Map infos, Map items) throws OpenEJBException{
 
         MethodPermission[] mp = jar.ejbJar.getAssemblyDescriptor().getMethodPermission();
-        if (mp == null || mp.length < 1) return;
-        
+        if ( mp == null || mp.length < 1 ) return;
+
         MethodPermissionInfo[] perms = new MethodPermissionInfo[mp.length];
-        
-        for (int i=0; i < perms.length; i++){
+
+        for ( int i=0; i < perms.length; i++ ) {
             perms[i] = new MethodPermissionInfo();
 
             perms[i].description = mp[i].getDescription();
             perms[i].roleNames   = mp[i].getRoleName();
             perms[i].methods     = getMethodInfos(mp[i].getMethod(), ejbds);
         }
-        
+
         this.mthdPermInfos.addAll(Arrays.asList(perms));
     }
 
@@ -713,18 +731,18 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
      */
     private void resolveRoleLinks(DeployedJar jar, EnterpriseBeanInfo bean, EnterpriseBeansItem item) throws OpenEJBException{
         SecurityRoleRef[] refs = null;
-        if (item.getEntity() != null ) {
+        if ( item.getEntity() != null ) {
             refs = item.getEntity().getSecurityRoleRef();
         } else {
             refs = item.getSession().getSecurityRoleRef();
         }
 
-        if (refs == null || refs.length < 1 ) return;
-        
+        if ( refs == null || refs.length < 1 ) return;
+
         SecurityRoleReferenceInfo[] sr = new  SecurityRoleReferenceInfo[refs.length];
         bean.securityRoleReferences = sr;
 
-        for (int i=0; i < sr.length; i++){
+        for ( int i=0; i < sr.length; i++ ) {
             sr[i] = new SecurityRoleReferenceInfo();
 
             sr[i].description = refs[i].getDescription();
@@ -736,14 +754,14 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                 sr[i].roleLink = DEFAULT_SECURITY_ROLE;
             }
         }
-        
+
     }
 
-    private MethodInfo[] getMethodInfos(Method[] ms, Map ejbds){
-        if (ms == null) return null;
+    private MethodInfo[] getMethodInfos(Method[] ms, Map ejbds) {
+        if ( ms == null ) return null;
 
         MethodInfo[] mi = new MethodInfo[ms.length];
-        for (int i=0; i < mi.length; i++){
+        for ( int i=0; i < mi.length; i++ ) {
 
             mi[i] = new MethodInfo();
 
@@ -756,25 +774,25 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
             // get the method parameters
             MethodParams mp = ms[i].getMethodParams();
-            if (mp != null ) {
+            if ( mp != null ) {
                 mi[i].methodParams = mp.getMethodParam();
             }
         }
 
         return mi;
     }
-    
+
     private EnterpriseBeanInfo initSessionBean(EnterpriseBeansItem item, Map m) throws OpenEJBException{
         Session s = item.getSession();
         EnterpriseBeanInfo bean = null;
-        
-        if (s.getSessionType().equals("Stateful"))
-             bean = new StatefulBeanInfo();
+
+        if ( s.getSessionType().equals("Stateful") )
+            bean = new StatefulBeanInfo();
         else bean = new StatelessBeanInfo();
 
         EjbDeployment d = (EjbDeployment)m.get(s.getEjbName());
         bean.ejbDeploymentId = d.getDeploymentId();
-        
+
 
         bean.description     = s.getDescription();
         bean.largeIcon       = s.getLargeIcon();
@@ -789,14 +807,14 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
         return bean;
     }
-    
+
     private EnterpriseBeanInfo initEntityBean(EnterpriseBeansItem item, Map m) throws OpenEJBException{
         Entity e = item.getEntity();
         EntityBeanInfo bean = new EntityBeanInfo();
-        
+
         EjbDeployment d = (EjbDeployment)m.get(e.getEjbName());
         bean.ejbDeploymentId = d.getDeploymentId();
-        
+
 
         bean.description     = e.getDescription();
         bean.largeIcon       = e.getLargeIcon();
@@ -807,30 +825,30 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
         bean.home            = e.getHome();
         bean.remote          = e.getRemote();
         bean.transactionType = "Container";
-        
+
         bean.primKeyClass    = e.getPrimKeyClass();
         bean.primKeyField    = e.getPrimkeyField();
         bean.persistenceType = e.getPersistenceType();
         bean.reentrant       = e.getReentrant()+"";
-        
+
         bean.cmpFieldNames = new String[e.getCmpFieldCount()];
-        
-        for (int i=0; i < bean.cmpFieldNames.length; i++){ 
+
+        for ( int i=0; i < bean.cmpFieldNames.length; i++ ) {
             bean.cmpFieldNames[i] = e.getCmpField(i).getFieldName();
         }
-        
+
         return bean;
     }
-    
-    private void assignBeansToContainers(EnterpriseBeanInfo[] beans, Map ejbds){
-        
-        for (int i=0; i < beans.length; i++){
+
+    private void assignBeansToContainers(EnterpriseBeanInfo[] beans, Map ejbds) {
+
+        for ( int i=0; i < beans.length; i++ ) {
             // Get the bean deployment object
             EjbDeployment d = (EjbDeployment)ejbds.get(beans[i].ejbName);
 
             // Get the container it was assigned to
             ContainerInfo cInfo = (ContainerInfo)containerTable.get(d.getContainerId());
-            
+
             // Add the bean info object to the cotnainer's bean array
             EnterpriseBeanInfo[] oldList = cInfo.ejbeans;
             EnterpriseBeanInfo[] newList = new EnterpriseBeanInfo[oldList.length + 1];
@@ -841,7 +859,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
         // Now create the bean arrays of the specific container
         // type.
-        for (int i=0; i < entyCntrs.length; i++){
+        for ( int i=0; i < entyCntrs.length; i++ ) {
             EnterpriseBeanInfo[] b = entyCntrs[i].ejbeans;
             EntityBeanInfo[] eb = new EntityBeanInfo[b.length];
             System.arraycopy(b,0,eb,0,b.length);
@@ -854,7 +872,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
      * Resolve classes
      * TODO: Not integral now, implement later.
      */
-    private void resolveDependencies(Openejb openejb){
+    private void resolveDependencies(Openejb openejb) {
 
     }
     /**
@@ -862,7 +880,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
      * Resolve classes
      * TODO: Not integral now, implement later.
      */
-    private void resolveDependencies(EjbJar[] jars){
+    private void resolveDependencies(EjbJar[] jars) {
 
     }
 
@@ -876,61 +894,63 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
      * 
      */
     private String[] getJarLocations(Deployments[] deploy) {
-            
-        Vector jarList = new Vector(deploy.length);
-        
-        try {
-        
-        for (int i=0; i < deploy.length; i++){
-                
-            Deployments d = deploy[i];
-            
-            ///// Add Jar file  /////
-            if ( d.getDir() == null && d.getJar() != null ) {
-                File jar = null;
-                try{
-                    jar = FileUtils.getFile(d.getJar(), false);
-                } catch (Exception e){}
-                if ( !jarList.contains( jar.getAbsolutePath() ) ) {
-                    jarList.add( jar.getAbsolutePath() );
-                }
-            
-                continue;                    
-            }
-                    
-            ///// A directory /////
-                    
-            File dir = null;
-            try{
-                dir = FileUtils.getFile(d.getDir(), false);
-            } catch (Exception e){}
-                    
-            if ( !dir.isDirectory() ) continue; // Opps! Not a directory
-    
-            String[] files = dir.list();
-                    
-            for (int x=0; x < files.length; x++){
-                        
-                String f = files[x];
-                        
-                if (  !f.endsWith(".jar")  ) continue;
-                            
-                //// Found a jar in the dir ////
-                            
-                File jar = new File( dir, f );
-                            
-                if ( jarList.contains( jar.getAbsolutePath() ) ) continue;
-                jarList.add( jar.getAbsolutePath() );
-                            
-            }
 
-        }
-        } catch (SecurityException se){
+        Vector jarList = new Vector(deploy.length);
+
+        try {
+
+            for ( int i=0; i < deploy.length; i++ ) {
+
+                Deployments d = deploy[i];
+
+                ///// Add Jar file  /////
+                if ( d.getDir() == null && d.getJar() != null ) {
+                    File jar = null;
+                    try {
+                        jar = FileUtils.getFile(d.getJar(), false);
+                    } catch ( Exception e ) {
+                    }
+                    if ( !jarList.contains( jar.getAbsolutePath() ) ) {
+                        jarList.add( jar.getAbsolutePath() );
+                    }
+
+                    continue;                    
+                }
+
+                ///// A directory /////
+
+                File dir = null;
+                try {
+                    dir = FileUtils.getFile(d.getDir(), false);
+                } catch ( Exception e ) {
+                }
+
+                if ( !dir.isDirectory() ) continue; // Opps! Not a directory
+
+                String[] files = dir.list();
+
+                for ( int x=0; x < files.length; x++ ) {
+
+                    String f = files[x];
+
+                    if ( !f.endsWith(".jar") ) continue;
+
+                    //// Found a jar in the dir ////
+
+                    File jar = new File( dir, f );
+
+                    if ( jarList.contains( jar.getAbsolutePath() ) ) continue;
+                    jarList.add( jar.getAbsolutePath() );
+
+                }
+
+            }
+        } catch ( SecurityException se ) {
             //Worthless security exception
             // log it and move on
             // TODO:  Log this
         }
-        
+
         String[] locations = new String[jarList.size()];
         jarList.copyInto( locations );
 
@@ -944,40 +964,40 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
      * TODO: Not integral now, implement later.
      */
     private DeployedJar[] loadDeployments(Openejb openejb) throws OpenEJBException{
-        
+
         Vector jarsVect = new Vector();
 
         String[] jarsToLoad = getJarLocations(openejb.getDeployments());
 
         /*[1]  Put all EjbJar & OpenejbJar objects in a vector ***************/
-        for (int i=0; i < jarsToLoad.length; i++){    
-            
+        for ( int i=0; i < jarsToLoad.length; i++ ) {
+
             String jarLocation = jarsToLoad[i];
-            try{
+            try {
                 // Try to resolve path relative to openejb.home
                 jarLocation = FileUtils.getFile(jarLocation,false).getAbsolutePath();
-            } catch (java.io.IOException e){
+            } catch ( java.io.IOException e ) {
                 // The methods below have more specific exception 
                 // handling for this
             }
-            
-            try{
-            EjbJar ejbJar = ConfigUtils.readEjbJar(jarLocation);
-            /* If there is no openejb-jar.xml an exception
-             * will be thrown.
-             * TODO: This shouldn't cause such a problem.  If
-             * a jar in the path has not yet been deployed we could
-             * attempt to auto deploy it. 
-             */
-            OpenejbJar openejbJar = ConfigUtils.readOpenejbJar(jarLocation);
-            
-            /* Add it to the Vector ***************/
-            jarsVect.add(new DeployedJar(jarLocation, ejbJar, openejbJar));
-            } catch (OpenEJBException e){
+
+            try {
+                EjbJar ejbJar = ConfigUtils.readEjbJar(jarLocation);
+                /* If there is no openejb-jar.xml an exception
+                 * will be thrown.
+                 * TODO: This shouldn't cause such a problem.  If
+                 * a jar in the path has not yet been deployed we could
+                 * attempt to auto deploy it. 
+                 */
+                OpenejbJar openejbJar = ConfigUtils.readOpenejbJar(jarLocation);
+
+                /* Add it to the Vector ***************/
+                jarsVect.add(new DeployedJar(jarLocation, ejbJar, openejbJar));
+            } catch ( OpenEJBException e ) {
                 ConfigUtils.logWarning("conf.0004",jarLocation, e.getMessage());
             }
         }
-        
+
         /*[2]  Get a DeployedJar array from the vector ***************/
         DeployedJar[] jars = new DeployedJar[jarsVect.size()];
         jarsVect.copyInto(jars);
@@ -985,11 +1005,11 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
     }
 
     String[] tabs = {""," ","    ","      ","        ","          "};
-    private void printConf(OpenEjbConfiguration conf){
+    private void printConf(OpenEjbConfiguration conf) {
         out(0,"CONFIGURATION");
-        
+
         out(1,conf.containerSystem.containers.length);
-        for (int i=0; i < conf.containerSystem.containers.length; i++){
+        for ( int i=0; i < conf.containerSystem.containers.length; i++ ) {
             out(1,"className    ",conf.containerSystem.containers[i].className);
             out(1,"codebase     ",conf.containerSystem.containers[i].codebase);
             out(1,"containerName",conf.containerSystem.containers[i].containerName);
@@ -999,7 +1019,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             out(1,"properties   ");
             conf.containerSystem.containers[i].properties.list(System.out);
             out(1,"ejbeans      ",conf.containerSystem.containers[i].ejbeans.length);
-            for (int j=0; j < conf.containerSystem.containers[i].ejbeans.length; j++){
+            for ( int j=0; j < conf.containerSystem.containers[i].ejbeans.length; j++ ) {
                 EnterpriseBeanInfo bean = conf.containerSystem.containers[i].ejbeans[j];
                 out(2,"codebase       " ,bean.codebase );
                 out(2,"description    " ,bean.description );
@@ -1015,14 +1035,14 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                 out(2,"type           " ,bean.type );
                 out(2,"jndiEnc        " ,bean.jndiEnc );
                 out(2,"envEntries     " ,bean.jndiEnc.envEntries.length );
-                for (int n=0; n < bean.jndiEnc.envEntries.length; n++){                                
+                for ( int n=0; n < bean.jndiEnc.envEntries.length; n++ ) {
                     out(3,"--["+n+"]----------------------");
                     out(3,"name  " ,bean.jndiEnc.envEntries[n].name );
                     out(3,"type  " ,bean.jndiEnc.envEntries[n].type );
                     out(3,"value " ,bean.jndiEnc.envEntries[n].value );
                 }
                 out(2,"ejbReferences  " ,bean.jndiEnc.ejbReferences.length );
-                for (int n=0; n < bean.jndiEnc.ejbReferences.length; n++){                                
+                for ( int n=0; n < bean.jndiEnc.ejbReferences.length; n++ ) {
                     out(3,"--["+n+"]----------------------");
                     out(3,"homeType        " ,bean.jndiEnc.ejbReferences[n].homeType );
                     out(3,"referenceName   " ,bean.jndiEnc.ejbReferences[n].referenceName );
@@ -1033,24 +1053,24 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                     out(3,"remoteRefName   " ,bean.jndiEnc.ejbReferences[n].location.remoteRefName );
                 }
                 out(2,"resourceRefs   " ,bean.jndiEnc.resourceRefs.length );
-                for (int n=0; n < bean.jndiEnc.resourceRefs.length; n++){                                
+                for ( int n=0; n < bean.jndiEnc.resourceRefs.length; n++ ) {
                     out(3,"--["+n+"]----------------------");
                     out(3,"referenceAuth   " ,bean.jndiEnc.resourceRefs[n].referenceAuth );
                     out(3,"referenceName   " ,bean.jndiEnc.resourceRefs[n].referenceName );
                     out(3,"referenceType   " ,bean.jndiEnc.resourceRefs[n].referenceType );
-                    if (bean.jndiEnc.resourceRefs[n].location != null) {
-                    out(3,"location        " ,bean.jndiEnc.resourceRefs[n].location );
-                    out(3,"jndiContextId   " ,bean.jndiEnc.resourceRefs[n].location.jndiContextId );
-                    out(3,"remote          " ,bean.jndiEnc.resourceRefs[n].location.remote );
-                    out(3,"remoteRefName   " ,bean.jndiEnc.resourceRefs[n].location.remoteRefName );
+                    if ( bean.jndiEnc.resourceRefs[n].location != null ) {
+                        out(3,"location        " ,bean.jndiEnc.resourceRefs[n].location );
+                        out(3,"jndiContextId   " ,bean.jndiEnc.resourceRefs[n].location.jndiContextId );
+                        out(3,"remote          " ,bean.jndiEnc.resourceRefs[n].location.remote );
+                        out(3,"remoteRefName   " ,bean.jndiEnc.resourceRefs[n].location.remoteRefName );
                     }
                 }
             }
         }
 
-        if ( conf.containerSystem.securityRoles != null) {
+        if ( conf.containerSystem.securityRoles != null ) {
             out(0,"--Security Roles------------");
-            for (int i=0; i < sys.containerSystem.securityRoles.length; i++){
+            for ( int i=0; i < sys.containerSystem.securityRoles.length; i++ ) {
                 out(1,"--["+i+"]----------------------");
                 out(1,"            ", sys.containerSystem.securityRoles[i]);
                 out(1,"description ", sys.containerSystem.securityRoles[i].description);
@@ -1058,29 +1078,29 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             }
         }
 
-        if ( conf.containerSystem.methodPermissions != null) {
+        if ( conf.containerSystem.methodPermissions != null ) {
             out(0,"--Method Permissions--------");
-            for (int i=0; i < sys.containerSystem.methodPermissions.length; i++){
+            for ( int i=0; i < sys.containerSystem.methodPermissions.length; i++ ) {
                 out(1,"--["+i+"]----------------------");
                 out(1,"            ", sys.containerSystem.methodPermissions[i]);
                 out(1,"description ", sys.containerSystem.methodPermissions[i].description);
                 out(1,"roleNames   ", sys.containerSystem.methodPermissions[i].roleNames);
-                if (sys.containerSystem.methodPermissions[i].roleNames != null){
-                    for (int r=0; r < sys.containerSystem.methodPermissions[i].roleNames.length; r++){
+                if ( sys.containerSystem.methodPermissions[i].roleNames != null ) {
+                    for ( int r=0; r < sys.containerSystem.methodPermissions[i].roleNames.length; r++ ) {
                         out(1,"roleName["+r+"]   ",sys.containerSystem.methodPermissions[i].roleNames[r]);
                     }
                 }
                 out(1,"methods     ", conf.containerSystem.methodPermissions[i].methods);
-                if (conf.containerSystem.methodPermissions[i].methods != null) {
+                if ( conf.containerSystem.methodPermissions[i].methods != null ) {
                     MethodInfo[] mthds = conf.containerSystem.methodPermissions[i].methods;
-                    for (int j=0; j < mthds.length; j++){
+                    for ( int j=0; j < mthds.length; j++ ) {
                         out(2,"description    ",mthds[j].description     );
                         out(2,"ejbDeploymentId",mthds[j].ejbDeploymentId );
                         out(2,"methodIntf     ",mthds[j].methodIntf      );
                         out(2,"methodName     ",mthds[j].methodName      );
                         out(2,"methodParams   ",mthds[j].methodParams    );
-                        if (mthds[j].methodParams != null) {
-                            for (int n=0; n < mthds[j].methodParams.length; n++){
+                        if ( mthds[j].methodParams != null ) {
+                            for ( int n=0; n < mthds[j].methodParams.length; n++ ) {
                                 out(3,"param["+n+"]", mthds[j].methodParams[n]);
                             }
                         }
@@ -1090,25 +1110,25 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             }
         }
 
-        if ( conf.containerSystem.methodTransactions != null) {
+        if ( conf.containerSystem.methodTransactions != null ) {
             out(0,"--Method Transactions-------");
-            for (int i=0; i < conf.containerSystem.methodTransactions.length; i++){
-                
+            for ( int i=0; i < conf.containerSystem.methodTransactions.length; i++ ) {
+
                 out(1,"--["+i+"]----------------------");
                 out(1,"               ", conf.containerSystem.methodTransactions[i]);
                 out(1,"description    ", conf.containerSystem.methodTransactions[i].description);
                 out(1,"transAttribute ", conf.containerSystem.methodTransactions[i].transAttribute);
                 out(1,"methods        ", conf.containerSystem.methodTransactions[i].methods);
-                if (conf.containerSystem.methodTransactions[i].methods != null) {
+                if ( conf.containerSystem.methodTransactions[i].methods != null ) {
                     MethodInfo[] mthds = conf.containerSystem.methodTransactions[i].methods;
-                    for (int j=0; j < mthds.length; j++){
+                    for ( int j=0; j < mthds.length; j++ ) {
                         out(2,"description    ",mthds[j].description     );
                         out(2,"ejbDeploymentId",mthds[j].ejbDeploymentId );
                         out(2,"methodIntf     ",mthds[j].methodIntf      );
                         out(2,"methodName     ",mthds[j].methodName      );
                         out(2,"methodParams   ",mthds[j].methodParams    );
-                        if (mthds[j].methodParams != null) {
-                            for (int n=0; n < mthds[j].methodParams.length; n++){
+                        if ( mthds[j].methodParams != null ) {
+                            for ( int n=0; n < mthds[j].methodParams.length; n++ ) {
                                 out(3,"param["+n+"]", mthds[j].methodParams[n]);
                             }
                         }
@@ -1118,52 +1138,52 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             }
         }
     }
-    private void out(int t, String m){
+    private void out(int t, String m) {
         System.out.println(tabs[t]+m);
     }
-    
-    private void out(int t, String m, String n){
+
+    private void out(int t, String m, String n) {
         System.out.println(tabs[t]+m+" = "+n);
     }
-    private void out(int t, String m, boolean n){
+    private void out(int t, String m, boolean n) {
         System.out.println(tabs[t]+m+" = "+n);
     }
-    private void out(int t, String m, int n){
+    private void out(int t, String m, int n) {
         System.out.println(tabs[t]+m+" = "+n);
     }
-    private void out(int t, String m, Object n){
+    private void out(int t, String m, Object n) {
         System.out.println(tabs[t]+m+" = "+n);
     }
-    private void out(int t, int m){
+    private void out(int t, int m) {
         System.out.println(tabs[t]+m);
     }
 
     /*------------------------------------------------------*/
     /*    Methods for easy exception handling               */
     /*------------------------------------------------------*/
-	public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3) throws OpenEJBException {
-		Object[] args = { arg0, arg1, arg2, arg3};
-		throw new OpenEJBException(errorCode, args);
-	}
-	
-	public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2) throws OpenEJBException {
-		Object[] args = { arg0, arg1, arg2};
-		throw new OpenEJBException(errorCode, args);
-	}
-	
-	public static void handleException(String errorCode, Object arg0, Object arg1) throws OpenEJBException {
-		Object[] args = { arg0, arg1};
-		throw new OpenEJBException(errorCode, args);
-	}
-	
-	public static void handleException(String errorCode, Object arg0) throws OpenEJBException {
-		Object[] args = { arg0};
-		throw new OpenEJBException(errorCode, args);
-	}
-	
-	public static void handleException(String errorCode) throws OpenEJBException {
-		throw new OpenEJBException(errorCode);
-	}
+    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2, Object arg3) throws OpenEJBException {
+        Object[] args = { arg0, arg1, arg2, arg3};
+        throw new OpenEJBException(errorCode, args);
+    }
+
+    public static void handleException(String errorCode, Object arg0, Object arg1, Object arg2) throws OpenEJBException {
+        Object[] args = { arg0, arg1, arg2};
+        throw new OpenEJBException(errorCode, args);
+    }
+
+    public static void handleException(String errorCode, Object arg0, Object arg1) throws OpenEJBException {
+        Object[] args = { arg0, arg1};
+        throw new OpenEJBException(errorCode, args);
+    }
+
+    public static void handleException(String errorCode, Object arg0) throws OpenEJBException {
+        Object[] args = { arg0};
+        throw new OpenEJBException(errorCode, args);
+    }
+
+    public static void handleException(String errorCode) throws OpenEJBException {
+        throw new OpenEJBException(errorCode);
+    }
 }
 
 class DeployedJar {
@@ -1173,7 +1193,7 @@ class DeployedJar {
     String jarURI;
 
 
-    public DeployedJar(String jar, EjbJar ejbJar, OpenejbJar openejbJar){
+    public DeployedJar(String jar, EjbJar ejbJar, OpenejbJar openejbJar) {
         this.ejbJar = ejbJar;
         this.openejbJar = openejbJar;
         this.jarURI = jar;
