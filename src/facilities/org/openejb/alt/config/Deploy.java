@@ -268,7 +268,9 @@ public class Deploy {
 
     private void deploy(String jarLocation) throws OpenEJBException{
         EjbJar jar = EjbJarUtils.readEjbJar(jarLocation);
+        
         OpenejbJar openejbJar = new OpenejbJar();
+        
         Bean[] beans = getBeans(jar);
 
         listBeanNames(beans);
@@ -658,11 +660,12 @@ public class Deploy {
                 } else {
                     // We must have reached the jar list
                     d.init(null);
-                    for (int j=i; j < args.length; j++){
+                    for (; i < args.length; i++){
                         try{
-                            d.deploy( args[j] );
+                            d.deploy( args[i] );
                         } catch (Exception e){
-                            System.out.println("ERROR:");
+                            System.out.print("ERROR in ");
+                            System.out.println(args[i]);
                             System.out.println(e.getMessage());
                         }
                     }
