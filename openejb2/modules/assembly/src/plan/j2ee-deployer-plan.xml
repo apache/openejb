@@ -52,7 +52,7 @@ Configuration for the Geronimo deployer
         <uri>geronimo-spec/jars/geronimo-spec-j2eeschema-1.0-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc1.jar</uri>
+        <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc2.jar</uri>
     </dependency>
     <dependency>
         <uri>tranql/jars/tranql-1.0-SNAPSHOT.jar</uri>
