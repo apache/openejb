@@ -64,7 +64,11 @@ public class UnspecifiedTransactionContext extends TransactionContext {
     }
 
     public void commit() {
-        flushState();
+        try {
+            flushState();
+        } catch (Exception e) {
+            log.error("Unable to flush state, continuing", e);
+        }
     }
 
     public void rollback() {

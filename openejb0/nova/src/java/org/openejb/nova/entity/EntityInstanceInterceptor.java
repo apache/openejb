@@ -56,6 +56,8 @@ import org.apache.geronimo.core.service.InvocationResult;
 
 import org.openejb.nova.EJBInvocation;
 import org.openejb.nova.EJBOperation;
+import org.openejb.nova.EJBInstanceContext;
+import org.openejb.nova.transaction.TransactionContext;
 
 /**
  * Simple Instance Interceptor that does not cache instances in the ready state
@@ -72,20 +74,9 @@ public final class EntityInstanceInterceptor extends AbstractInterceptor {
 
     public InvocationResult invoke(final Invocation invocation) throws Throwable {
         EJBInvocation ejbInvocation = (EJBInvocation) invocation;
-        EntityInstanceContext ctx = acquireInstance(ejbInvocation);
-
-        ejbInvocation.setEJBInstanceContext(ctx);
-        try {
-            InvocationResult result = getNext().invoke(invocation);
-            releaseInstance(ctx);
-            return result;
-        } finally {
-            ejbInvocation.setEJBInstanceContext(null);
-        }
-    }
-
-    private EntityInstanceContext acquireInstance(EJBInvocation ejbInvocation) throws Throwable {
+        TransactionContext transactionContext = ejbInvocation.getTransactionContext();
         Object id = ejbInvocation.getId();
+
         EntityInstanceContext context = (EntityInstanceContext) pool.acquire();
 
         if (id != null) {
@@ -102,15 +93,22 @@ public final class EntityInstanceInterceptor extends AbstractInterceptor {
             }
 
             // associate this instance with the TransactionContext
-            ejbInvocation.getTransactionContext().associate(context);
+            transactionContext.associate(context);
         }
-        return context;
-    }
+        EntityInstanceContext ctx = context;
 
-    private void releaseInstance(EntityInstanceContext context) throws Throwable {
-        if (context.getId() == null) {
-            // we are done with this instance, return it to the pool
-            pool.release(context);
+        ejbInvocation.setEJBInstanceContext(ctx);
+        EJBInstanceContext oldContext = transactionContext.beginInvocation(context);
+        try {
+            InvocationResult result = getNext().invoke(invocation);
+            if (context.getId() == null) {
+                // we are done with this instance, return it to the pool
+                pool.release(context);
+            }
+            return result;
+        } finally {
+            transactionContext.endInvocation(oldContext);
+            ejbInvocation.setEJBInstanceContext(null);
         }
     }
 }

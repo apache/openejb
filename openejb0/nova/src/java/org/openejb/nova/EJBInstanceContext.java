@@ -68,7 +68,7 @@ public interface EJBInstanceContext {
 
     void associate() throws Exception;
 
-    void flush();
+    void flush() throws Exception;
 
     void beforeCommit() throws Exception;
 

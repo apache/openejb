@@ -66,7 +66,13 @@ public final class InstanceData {
     public void load(Object[] newValues) {
         assert (values.length == newValues.length) : "Array size mismatch";
         System.arraycopy(newValues, 0, values, 0, newValues.length);
-        Arrays.fill(modified, false);
+        reset();
+    }
+
+    public void store(Object[] newValues) {
+        assert (values.length == newValues.length) : "Array size mismatch";
+        System.arraycopy(values, 0, newValues, 0, newValues.length);
+        reset();
     }
 
     public void reset() {

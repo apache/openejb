@@ -88,6 +88,9 @@ public class MockBMPEJB implements EntityBean {
         return "Hello";
     }
 
+    public void setString(String s) {
+    }
+
     private EntityContext context;
 
     public void setEntityContext(EntityContext ctx) {

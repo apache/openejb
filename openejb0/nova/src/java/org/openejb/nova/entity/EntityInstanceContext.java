@@ -115,14 +115,12 @@ public abstract class EntityInstanceContext implements EJBInstanceContext {
     public void beforeCommit() throws Exception {
     }
 
-    public void flush() {
+    public void flush() throws Exception {
         if (id != null) {
             assert (stateValid) : "Trying to invoke ejbStore for invalid instance";
             try {
                 setOperation(EJBOperation.EJBLOAD);
                 ((EntityBean) getInstance()).ejbStore();
-            } catch (RemoteException e) {
-                throw new EJBException(e);
             } finally {
                 setOperation(EJBOperation.INACTIVE);
             }

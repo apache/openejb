@@ -116,7 +116,7 @@ public abstract class TransactionContext {
         currentContext = caller;
     }
 
-    public final void flushState() {
+    public final void flushState() throws Exception {
         while (dirtyContexts.isEmpty() == false) {
             ArrayList toFlush = new ArrayList(dirtyContexts.values());
             dirtyContexts.clear();

@@ -124,11 +124,18 @@ public class BasicCMPEntityContainerTest extends TestCase {
         c.close();
     }
 
-    public void XtestFields() throws Exception {
+    public void testFields() throws Exception {
         Connection c = initDatabase();
+        Statement s = c.createStatement();
         MockLocalHome home = (MockLocalHome) container.getEJBLocalHome();
         MockLocal local = home.findByPrimaryKey(new Integer(1));
         assertEquals("Hello", local.getValue());
+        local.setValue("World");
+        ResultSet rs = s.executeQuery("SELECT VALUE FROM MOCK WHERE ID=1");
+        assertTrue(rs.next());
+        assertEquals("World", rs.getString(1));
+
+        s.close();
         c.close();
     }
 
@@ -166,9 +173,9 @@ public class BasicCMPEntityContainerTest extends TestCase {
         signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbRemove", new String[0]);
         persistenceFactory.defineUpdate(signature, "DELETE FROM MOCK WHERE ID=?", new Binding[]{new IntBinding(1, 0)});
         signature = new MethodSignature(MockCMPEJB.class.getName(), "ejbStore", new String[0]);
-        persistenceFactory.defineUpdate(signature, "UPDATE MOCK SET VALUE = ? WHERE ID=?", new Binding[]{new IntBinding(1,0), new IntBinding(2, 1)});
+        persistenceFactory.defineUpdate(signature, "UPDATE MOCK SET VALUE = ? WHERE ID=?", new Binding[]{new StringBinding(1,1), new IntBinding(2, 0)});
 
-        String[] cmpFieldNames = { "value" };
+        String[] cmpFieldNames = { "id", "value" };
         container = new CMPEntityContainer(config, persistenceFactory, (CMPQuery[]) queries.toArray(new CMPQuery[0]), cmpFieldNames);
         container.doStart();
     }

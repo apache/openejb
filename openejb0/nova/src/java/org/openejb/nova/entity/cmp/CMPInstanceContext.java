@@ -93,8 +93,16 @@ public final class CMPInstanceContext extends EntityInstanceContext implements M
 
     public void associate() throws Exception {
         if (id != null && !isStateValid()) {
-            ((CMPEntityContainer) container).getInstanceData(id);
+            instanceData = ((CMPEntityContainer) container).getInstanceData(id);
         }
         super.associate();
+    }
+
+    public void flush() throws Exception {
+        super.flush();
+        if (id != null) {
+            assert (isStateValid()) : "Attempting to flush instance without valid state";
+            ((CMPEntityContainer) container).setInstanceData(id, instanceData);
+        }
     }
 }

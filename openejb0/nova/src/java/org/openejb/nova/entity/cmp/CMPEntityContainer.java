@@ -61,6 +61,7 @@ import org.openejb.nova.entity.EntityInstanceFactory;
 import org.openejb.nova.entity.EntityInstanceInterceptor;
 import org.openejb.nova.persistence.QueryCommand;
 import org.openejb.nova.persistence.Tuple;
+import org.openejb.nova.persistence.UpdateCommand;
 import org.openejb.nova.transaction.TransactionContextInterceptor;
 import org.openejb.nova.util.SoftLimitedInstancePool;
 
@@ -98,6 +99,7 @@ public class CMPEntityContainer extends AbstractEJBContainer {
         itable = vopFactory.getITable();
 
         ejbLoadCommand = persistenceFactory.getQueryCommand(new MethodSignature(ejbClassName, "ejbLoad", new String[0])); //todo remove ejbClassName and make this a constant
+        ejbStoreCommand = persistenceFactory.getUpdateCommand(new MethodSignature(ejbClassName, "ejbStore", new String[0])); //todo remove ejbClassName and make this a constant
 
         pool = new SoftLimitedInstancePool(new EntityInstanceFactory(componentContext, vopFactory.getInstanceContextFactory()), 1);
 
@@ -135,6 +137,7 @@ public class CMPEntityContainer extends AbstractEJBContainer {
     }
 
     private QueryCommand ejbLoadCommand;
+    private UpdateCommand ejbStoreCommand;
 
     InstanceData getInstanceData(Object id) throws Exception {
         List result = ejbLoadCommand.executeQuery(new Object[] {id});
@@ -143,5 +146,11 @@ public class CMPEntityContainer extends AbstractEJBContainer {
         InstanceData data = new InstanceData(values.length);
         data.load(values);
         return data;
+    }
+
+    void setInstanceData(Object id, InstanceData data) throws Exception {
+        Object[] values = new Object[data.getSize()];
+        data.store(values);
+        ejbStoreCommand.executeUpdate(values);
     }
 }
