@@ -49,7 +49,7 @@
     </p>
     <p>
     OpenEJB is targeted for other middleware platforms including another commercial 
-    application server called  <a href="www.intalio.com">n3 </a>, 
+    application server called  <a href="http://www.intalio.com">n3 </a>, 
     the <a href="http://jakarta.apache.org">Apache Tomcat</a> server, 
     and <a href="http://jakarta.apache.org/avalon/phoenix/index.html">Avalon Phoenix</a>.
     </p>
