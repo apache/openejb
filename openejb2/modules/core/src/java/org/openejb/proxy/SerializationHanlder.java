@@ -46,7 +46,12 @@ package org.openejb.proxy;
 
 import java.io.IOException;
 import java.io.ObjectStreamException;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.ByteArrayInputStream;
 import java.rmi.MarshalledObject;
+
+import org.apache.geronimo.kernel.ObjectInputStreamExt;
 
 
 public class SerializationHanlder {
@@ -82,6 +87,23 @@ public class SerializationHanlder {
 
     public static Object writeReplace(Object object, ProxyInfo proxyInfo) throws ObjectStreamException {
         return getStrategy().writeReplace(object, proxyInfo);
+    }
+
+    public static void copyArgs(ClassLoader classLoader, Object[] objects) throws IOException, ClassNotFoundException {
+        for (int i = 0; i < objects.length; i++) {
+            objects[i] = copyObj(classLoader, objects[i]);
+        }
+    }
+
+    public static Object copyObj(ClassLoader classLoader, Object object) throws IOException, ClassNotFoundException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(object);
+        oos.flush();
+        oos.close();
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStreamExt ois = new ObjectInputStreamExt(bais, classLoader);
+        return ois.readObject();
     }
 }
 
