@@ -90,6 +90,10 @@
         <url>config_containers.xml</url>
         <display>Configuration</display>
       </navLink>
+      <navLink>
+        <url>properties.xml</url>
+        <display>Properties</display>
+      </navLink>
     </section>
     
     <section name="Servers">
