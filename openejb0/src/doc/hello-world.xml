@@ -170,7 +170,7 @@ Create a basic client application to access your HelloWorld bean.
 <code name="c:\my\app\org\acme\HelloWorld.java">
 package org.acme;
 
-import java.rmi.*;
+import javax.rmi.*;
 import javax.naming.*;
 import java.util.*;
 
@@ -208,7 +208,7 @@ public class HelloWorld {
     System.out.println( message );
     
   } catch (Exception e){
-    e.printStackTRace();
+    e.printStackTrace();
   }
  }
 }
