@@ -4,6 +4,15 @@
     <name>FAQ</name>
 
     <introduction>
+       <p>
+        FAQ list:<br/>
+        <a href="faq_general.html">General FAQ</a><br/> 
+        <a href="faq_errors.html">Errors FAQ</a><br/> 
+        <a href="faq_support.html">Support FAQ</a><br/> 
+        <a href="faq_cmp.html">CMP Entity FAQ</a><br/> 
+        <a href="faq_servlets.html">Servlets FAQ</a><br/> 
+        <a href="faq_mysql.html">MySQL FAQ</a><br/> 
+        </p>
         <p>
             There are times when we all get stuck and need a little help.
             Hopefully, this FAQ will privide some assistance.  If you still
@@ -17,22 +26,6 @@
             bounce ideas off of the group.  This list is monitored by the OpenEJB team.
         </p>
     </introduction>
-    <faq>
-        <question>CMP EntityBean FAQ</question>
-        <answer id="cmp">
-            <p>
-            <a href="faq_cmp.html">CMP EntityBean FAQ.</a>
-            </p>
-        </answer>
-    </faq>
-    <faq>
-        <question>MySQL FAQ</question>
-        <answer id="mysql">
-            <p>
-            <a href="faq_mysql.html">MySQL FAQ.</a>
-            </p>
-        </answer>
-    </faq>
     <faq>
         <question>Errors</question>
         <answer id="errors">
