@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document url="http://openejb.sf.net/cvs_ssh_unix_guideline.xml">
   <body>
-    <title>Working CVS and SSH under a UNIX like operationg system</title>
+    <title>Working with CVS and SSH under a UNIX like operationg system</title>
     
     <section title="Abstract">
     </section>
