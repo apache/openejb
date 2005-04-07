@@ -156,7 +156,7 @@ public final class AdapterEntity extends Adapter {
 
                 EJBContainer container = getContainer();
                 Servant servant = getTieLoader().loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
-                Remote remote = (Remote) factory.create(container.getEJBObject(pk));
+                Remote remote = (Remote) factory.create(container.getEJBObject(pk), container.getClassLoader());
 
                 if (servant instanceof Tie) {
                     ((Tie) servant).setTarget(remote);

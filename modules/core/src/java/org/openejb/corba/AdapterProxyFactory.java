@@ -45,7 +45,6 @@
 package org.openejb.corba;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.rmi.AccessException;
 import java.rmi.MarshalException;
 import java.rmi.NoSuchObjectException;
@@ -109,8 +108,8 @@ public class AdapterProxyFactory {
         return true;
     }
 
-    public Object create(Remote delegate) {
-        return create(new Class[]{Remote.class}, new Object[]{delegate});
+    public Object create(Remote delegate, ClassLoader classLoader) {
+        return create(new Class[]{Remote.class, ClassLoader.class}, new Object[]{delegate, classLoader});
     }
 
     public synchronized Object create(Class[] types, Object[] arguments) {
@@ -121,8 +120,12 @@ public class AdapterProxyFactory {
     private final static class AdapterMethodInterceptor implements MethodInterceptor {
 
         public final Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+            ClassLoader savedCL = Thread.currentThread().getContextClassLoader();
             try {
-                return methodProxy.invoke(((AdapterDelegate) o).getDelegate(), args);
+                AdapterDelegate delegate = (AdapterDelegate) o;
+                Thread.currentThread().setContextClassLoader(delegate.getClassLoader());
+                
+                return methodProxy.invoke(delegate.getDelegate(), args);
             } catch (TransactionRolledbackException e) {
                 throw new TRANSACTION_ROLLEDBACK(e.toString());
             } catch (TransactionRequiredException e) {
@@ -140,6 +143,8 @@ public class AdapterProxyFactory {
             } catch (Throwable t) {
                 t.printStackTrace();
                 throw new UNKNOWN(t.toString());
+            } finally {
+                Thread.currentThread().setContextClassLoader(savedCL);
             }
         }
     }

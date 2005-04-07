@@ -53,12 +53,18 @@ import java.rmi.Remote;
 public class AdapterDelegate {
 
     private final Remote delegate;
+    private final ClassLoader classLoader;
 
-    public AdapterDelegate(Remote delegate) {
+    public AdapterDelegate(Remote delegate, ClassLoader classLoader) {
         this.delegate = delegate;
+        this.classLoader = classLoader;
     }
 
     final public Remote getDelegate() {
         return delegate;
+    }
+
+    final public ClassLoader getClassLoader() {
+        return classLoader;
     }
 }
