@@ -45,12 +45,11 @@
 package org.openejb.corba;
 
 import java.rmi.Remote;
-import java.util.Map;
 import javax.rmi.CORBA.Tie;
 
+import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
-import org.omg.CORBA.Any;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContext;
 import org.omg.CosNaming.NamingContextExt;
@@ -58,16 +57,16 @@ import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.CosNaming.NamingContextHelper;
 import org.omg.CosNaming.NamingContextPackage.NotEmpty;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.Servant;
-import org.omg.PortableServer.LifespanPolicyValue;
-import org.omg.PortableServer.RequestProcessingPolicyValue;
-import org.omg.PortableServer.ServantRetentionPolicyValue;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
+
 import org.openejb.EJBContainer;
-import org.openejb.corba.util.TieLoader;
 import org.openejb.corba.transaction.ServerTransactionPolicyFactory;
+import org.openejb.corba.util.TieLoader;
 import org.openejb.proxy.ProxyInfo;
 
 
@@ -76,7 +75,7 @@ import org.openejb.proxy.ProxyInfo;
  */
 public abstract class Adapter implements RefGenerator {
 
-    private final EJBContainer container;                                                        
+    private final EJBContainer container;
     private final POA parentPOA;
     protected final POA homePOA;
     private final NamingContextExt initialContext;
@@ -107,10 +106,9 @@ public abstract class Adapter implements RefGenerator {
 
             homePOA.the_POAManager().activate();
 
-
-            Servant servant = tieLoader.loadTieClass(container.getProxyInfo().getHomeInterface(),  container.getClassLoader());
+            Servant servant = tieLoader.loadTieClass(container.getProxyInfo().getHomeInterface(), container.getClassLoader());
             AdapterProxyFactory factory = new AdapterProxyFactory(container.getProxyInfo().getHomeInterface(), container.getClassLoader());
-            Remote remote = (Remote) factory.create(container.getEJBHome());
+            Remote remote = (Remote) factory.create(container.getEJBHome(), container.getClassLoader());
 
             if (servant instanceof Tie) {
                 ((Tie) servant).setTarget(remote);
