@@ -131,7 +131,7 @@ public class WSContainerTest extends TestCase {
             Definition definition = wsdlReader.readWSDL(null, new InputSource(in));
             in.close();
             assertNotNull(definition);
-            
+
             // Check to see if the WSDL address was updated.
             Service service = (Service) definition.getServices().values().iterator().next();
             assertNotNull(service);
@@ -211,7 +211,7 @@ public class WSContainerTest extends TestCase {
     }
 
     public void testFixme(){
-        
+
     }
 
     private void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
@@ -239,7 +239,7 @@ public class WSContainerTest extends TestCase {
         kernel.startGBean(executor);
         return executor;
     }
-    
+
     private static class TestHandler extends DefaultHandler {
         String result;
         boolean found;
