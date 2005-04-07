@@ -45,16 +45,15 @@
 package org.openejb.server.axis;
 
 import java.net.URI;
-import java.net.URL;
 
 import org.apache.axis.description.JavaServiceDesc;
-import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.handlers.HandlerInfoChainFactory;
+import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.axis.server.ServiceInfo;
-import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.webservices.SoapHandler;
 import org.openejb.EJBContainer;
 
 public class WSContainer implements GBeanLifecycle {
@@ -87,12 +86,7 @@ public class WSContainer implements GBeanLifecycle {
             service.setOption(org.apache.axis.Constants.ATTR_HANDLERINFOCHAIN, handlerInfoChainFactory);
 
             ClassLoader classLoader = ejbContainer.getClassLoader();
-            String wsdlResource = wsdlURI.toString();
-            URL wsdlURL = classLoader.getResource(wsdlResource);
-            if( wsdlURL==null )
-                throw new RuntimeException("Could not locate wsdl: "+wsdlURI);
-            
-            AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURL, service, classLoader);
+            AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURI.toString(), service, classLoader);
             if (soapHandler != null) {
                 soapHandler.addWebService(location.getPath(), axisContainer);
             }
