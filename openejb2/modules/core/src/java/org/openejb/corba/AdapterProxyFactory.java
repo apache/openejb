@@ -55,11 +55,13 @@ import javax.transaction.TransactionRequiredException;
 import javax.transaction.TransactionRolledbackException;
 
 import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.CallbackFilter;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import net.sf.cglib.proxy.CallbackFilter;
 import net.sf.cglib.proxy.NoOp;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.INVALID_TRANSACTION;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.NO_PERMISSION;
@@ -74,6 +76,7 @@ import org.omg.CORBA.UNKNOWN;
  */
 public class AdapterProxyFactory {
 
+    private final static Log log = LogFactory.getLog(AdapterProxyFactory.class);
     private final static AdapterMethodInterceptor interceptor = new AdapterMethodInterceptor();
     private final Enhancer enhancer;
 
@@ -124,25 +127,31 @@ public class AdapterProxyFactory {
             try {
                 AdapterDelegate delegate = (AdapterDelegate) o;
                 Thread.currentThread().setContextClassLoader(delegate.getClassLoader());
-                
+
+                if (log.isDebugEnabled()) log.debug("Calling " + method.getName());
+
                 return methodProxy.invoke(delegate.getDelegate(), args);
             } catch (TransactionRolledbackException e) {
+                log.debug("TransactionRolledbackException", e);
                 throw new TRANSACTION_ROLLEDBACK(e.toString());
             } catch (TransactionRequiredException e) {
+                log.debug("TransactionRequiredException", e);
                 throw new TRANSACTION_REQUIRED(e.toString());
             } catch (InvalidTransactionException e) {
+                log.debug("InvalidTransactionException", e);
                 throw new INVALID_TRANSACTION(e.toString());
             } catch (NoSuchObjectException e) {
+                log.debug("NoSuchObjectException", e);
                 throw new OBJECT_NOT_EXIST(e.toString());
             } catch (AccessException e) {
+                log.debug("AccessException", e);
                 throw new NO_PERMISSION(e.toString());
             } catch (MarshalException e) {
+                log.debug("MarshalException", e);
                 throw new MARSHAL(e.toString());
             } catch (RemoteException e) {
+                log.debug("RemoteException", e);
                 throw new UNKNOWN(e.toString());
-            } catch (Throwable t) {
-                t.printStackTrace();
-                throw new UNKNOWN(t.toString());
             } finally {
                 Thread.currentThread().setContextClassLoader(savedCL);
             }
@@ -152,8 +161,8 @@ public class AdapterProxyFactory {
     private static final CallbackFilter FILTER = new CallbackFilter() {
         public int accept(Method method) {
             if (method.getName().equals("finalize") &&
-                    method.getParameterTypes().length == 0 &&
-                    method.getReturnType() == Void.TYPE) {
+                method.getParameterTypes().length == 0 &&
+                method.getReturnType() == Void.TYPE) {
                 return 0;
             }
             return 1;
