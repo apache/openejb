@@ -121,6 +121,7 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
     }
 
     public void setArgs(ArrayList args) {
+        if (args == null) args = new ArrayList();
         this.args = args;
     }
 
@@ -129,6 +130,7 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
     }
 
     public void setProps(Properties props) {
+        if (props == null) props = new Properties();
         this.props = props;
     }
 
