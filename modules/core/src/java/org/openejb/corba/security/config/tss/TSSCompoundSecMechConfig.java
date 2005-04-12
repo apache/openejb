@@ -52,6 +52,10 @@ import java.io.Serializable;
 import org.omg.CORBA.ORB;
 import org.omg.CSIIOP.CompoundSecMech;
 import org.omg.IOP.Codec;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.openejb.corba.security.config.ConfigUtil;
 
 
 /**
@@ -59,6 +63,7 @@ import org.omg.IOP.Codec;
  */
 public class TSSCompoundSecMechConfig implements Serializable {
 
+    private final static Log log = LogFactory.getLog(TSSCompoundSecMechConfig.class);
     private TSSTransportMechConfig transport_mech;
     private TSSASMechConfig as_mech;
     private TSSSASMechConfig sas_mech;
@@ -115,14 +120,19 @@ public class TSSCompoundSecMechConfig implements Serializable {
         // transport mechanism
         result.transport_mech = transport_mech.encodeIOR(orb, codec);
         result.target_requires |= transport_mech.getRequires();
+        if (log.isDebugEnabled()) log.debug("transport adds: " + ConfigUtil.flags(transport_mech.getRequires()));
 
         // AS_ContextSec
         result.as_context_mech = as_mech.encodeIOR(orb, codec);
         result.target_requires |= as_mech.getRequires();
+        if (log.isDebugEnabled()) log.debug("AS adds: " + ConfigUtil.flags(as_mech.getRequires()));
 
         // SAS_ContextSec
         result.sas_context_mech = sas_mech.encodeIOR(orb, codec);
         result.target_requires |= sas_mech.getRequires();
+        if (log.isDebugEnabled()) log.debug("SAS adds: " + ConfigUtil.flags(sas_mech.getRequires()));
+
+        if (log.isDebugEnabled()) log.debug("REQUIRES: " + ConfigUtil.flags(result.target_requires));
 
         return result;
     }

@@ -45,9 +45,13 @@
 package org.openejb.corba.sunorb;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.omg.CSIIOP.EstablishTrustInClient;
 import org.omg.Security.Confidentiality;
 import org.omg.Security.EstablishTrustInTarget;
@@ -70,6 +74,8 @@ import org.openejb.corba.security.config.tss.TSSTransportMechConfig;
  */
 public class SunORBConfigAdapter implements ConfigAdapter {
 
+    private final Log log = LogFactory.getLog(SunORBConfigAdapter.class);
+
     public String[] translateToArgs(TSSConfig config, List args) throws ConfigException {
         ArrayList list = new ArrayList();
 
@@ -78,6 +84,12 @@ public class SunORBConfigAdapter implements ConfigAdapter {
         DefaultPrincipal principal = config.getDefaultPrincipal();
         if (principal != null) {
             list.add("default-principal::" + principal.getRealmName() + ":" + principal.getPrincipal().getClassName() + ":" + principal.getPrincipal().getPrincipalName());
+        }
+
+        if (log.isDebugEnabled()) {
+            for (Iterator iter = list.iterator(); iter.hasNext();) {
+                log.debug(iter.next());
+            }
         }
 
         return (String[]) list.toArray(new String[list.size()]);
@@ -99,6 +111,8 @@ public class SunORBConfigAdapter implements ConfigAdapter {
                     reqProp = "Integrity";
 
                     props.put("com.sun.CORBA.connection.ORBListenSocket", "IIOP_SSL:" + Short.toString(sslConfig.getPort()));
+//                    props.put("org.omg.CORBA.ORBInitialPort", "0");
+                    props.put("com.sun.CORBA.ORBServerPort", "0");
 
                     if ((supports & NoProtection.value) != 0) {
                         supProp += ",NoProtection";
@@ -117,6 +131,13 @@ public class SunORBConfigAdapter implements ConfigAdapter {
                             reqProp += ",EstablishTrustInClient";
                         }
                     }
+                    if ((supports & EstablishTrustInTarget.value) != 0) {
+                        supProp += ",EstablishTrustInTarget";
+
+                        if ((requires & EstablishTrustInTarget.value) != 0) {
+                            reqProp += ",EstablishTrustInTarget";
+                        }
+                    }
 
                 }
             }
@@ -128,6 +149,14 @@ public class SunORBConfigAdapter implements ConfigAdapter {
         props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
         props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
         props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.sunorb.SunORBInitializer", "");
+
+        if (log.isDebugEnabled()) {
+            log.debug("translateToProps(TSSConfig)");
+            for (Enumeration iter = props.keys(); iter.hasMoreElements();) {
+                String key = (String) iter.nextElement();
+                log.debug(key + " = " + props.getProperty(key));
+            }
+        }
 
         return props;
     }
@@ -164,6 +193,13 @@ public class SunORBConfigAdapter implements ConfigAdapter {
                     reqProp += ",Confidentiality";
                 }
             }
+            if ((supports & EstablishTrustInClient.value) != 0) {
+                supProp += ",EstablishTrustInClient";
+
+                if ((requires & EstablishTrustInClient.value) != 0) {
+                    reqProp += ",EstablishTrustInClient";
+                }
+            }
             if ((supports & EstablishTrustInTarget.value) != 0) {
                 supProp += ",EstablishTrustInTarget";
 
@@ -183,6 +219,14 @@ public class SunORBConfigAdapter implements ConfigAdapter {
         props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
         props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
         props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.sunorb.SunORBInitializer", "");
+
+        if (log.isDebugEnabled()) {
+            log.debug("translateToProps(CSSConfig)");
+            for (Enumeration iter = props.keys(); iter.hasMoreElements();) {
+                String key = (String) iter.nextElement();
+                log.debug(key + " = " + props.getProperty(key));
+            }
+        }
 
         return props;
     }
