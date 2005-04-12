@@ -85,7 +85,6 @@ import org.openejb.corba.util.Util;
  */
 public class OpenEJBSocketFactory implements ORBSocketFactory {
 
-    private final Log log = LogFactory.getLog(OpenEJBSocketFactory.class);
 
     public final static String IIOP_SSL = "IIOP_SSL";
     public final static String SOCKET_SUPPORTS = "org.openejb.corba.ssl.SocketProperties.supports";
@@ -253,6 +252,8 @@ public class OpenEJBSocketFactory implements ORBSocketFactory {
                 // do nothing
             }
         }
+
+        if (log.isDebugEnabled()) log.debug("Created plain endpoint to " + primary.getHost() + ":" + primary.getPort());
 
         return new EndPointImpl(ORBSocketFactory.IIOP_CLEAR_TEXT,
                                 primary.getPort(),
