@@ -185,8 +185,8 @@ public class TSSSSLTransportConfig extends TSSTransportMechConfig {
                 if (log.isDebugEnabled()) log.debug("Unverified peer, throwing exception");
                 throw new SASException(1);
             }
-            if (log.isDebugEnabled()) log.debug("Unverified peer, using empty subject");
-            return new Subject();
+            if (log.isDebugEnabled()) log.debug("Unverified peer, returning null");
+            return null;
         }
     }
 

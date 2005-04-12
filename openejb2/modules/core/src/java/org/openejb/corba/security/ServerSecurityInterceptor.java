@@ -96,6 +96,8 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
         this.defaultSubject = defaultSubject;
 
         if (defaultSubject != null) ContextManager.registerSubject(defaultSubject);
+
+        if (log.isDebugEnabled()) log.debug("<init>");
     }
 
     public void receive_request(ServerRequestInfo ri) {
@@ -103,14 +105,19 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
         Subject identity = null;
         long contextId = 0;
 
+        if (log.isDebugEnabled()) log.debug("receive_request(" + ri.operation() + " [" + new String(ri.object_id()) + "] ");
         try {
             ServerPolicy serverPolicy = (ServerPolicy) ri.get_server_policy(ServerPolicyFactory.POLICY_TYPE);
             if (serverPolicy == null) return;
             TSSConfig tssPolicy = serverPolicy.getConfig();
             if (tssPolicy == null) return;
 
+            if (log.isDebugEnabled()) log.debug("Found server policy");
+
             ServiceContext serviceContext = ri.get_request_service_context(SecurityAttributeService.value);
             if (serviceContext == null) return;
+
+            if (log.isDebugEnabled()) log.debug("Found service context");
 
             Any any = Util.getCodec().decode_value(serviceContext.context_data, SASContextBodyHelper.type());
             SASContextBody contextBody = SASContextBodyHelper.extract(any);
@@ -118,13 +125,17 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
             short msgType = contextBody.discriminator();
             switch (msgType) {
                 case MTEstablishContext.value:
+                    if (log.isDebugEnabled()) log.debug("   EstablishContext");
+
                     contextId = contextBody.establish_msg().client_context_id;
 
                     identity = tssPolicy.check(SSLSessionManager.getSSLSession(ri.request_id()), contextBody.establish_msg());
 
-                    ContextManager.registerSubject(identity);
-
-                    SASReplyManager.setSASReply(ri.request_id(), generateContextEstablished(identity, contextId, false));
+                    if (identity != null) {
+                        ContextManager.registerSubject(identity);
+                    } else {
+                        identity = defaultSubject;
+                    }
 
                     break;
 
@@ -143,8 +154,10 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
                     throw new SASNoContextException();
             }
         } catch (BAD_PARAM e) {
+            if (log.isDebugEnabled()) log.debug("No security service context found");
             identity = defaultSubject;
         } catch (INV_POLICY e) {
+            if (log.isDebugEnabled()) log.debug("INV_POLICY");
             identity = defaultSubject;
         } catch (TypeMismatch tm) {
             log.error("TypeMismatch thrown", tm);
@@ -161,15 +174,18 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
             throw (RuntimeException) e.getCause();
         }
 
-        if (identity != null) {
-            ContextManager.setCurrentCaller(identity);
-            ContextManager.setNextCaller(identity);
+        if (log.isDebugEnabled()) log.debug("   " + identity);
 
-            SubjectManager.setSubject(ri.request_id(), identity);
-        }
+        SASReplyManager.setSASReply(ri.request_id(), generateContextEstablished(identity, contextId, false));
+
+        ContextManager.setCurrentCaller(identity);
+        ContextManager.setNextCaller(identity);
+
+        SubjectManager.setSubject(ri.request_id(), identity);
     }
 
     public void receive_request_service_contexts(ServerRequestInfo ri) {
+        if (log.isDebugEnabled()) log.debug("receive_request_service_contexts()");
     }
 
     public void send_exception(ServerRequestInfo ri) {
@@ -177,9 +193,12 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
         if (identity != null && identity != defaultSubject) ContextManager.unregisterSubject(identity);
 
         insertServiceContext(ri);
+
+        if (log.isDebugEnabled()) log.debug("send_exception()");
     }
 
     public void send_other(ServerRequestInfo ri) {
+        if (log.isDebugEnabled()) log.debug("send_other()");
     }
 
     public void send_reply(ServerRequestInfo ri) {
@@ -187,10 +206,13 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
         if (identity != null && identity != defaultSubject) ContextManager.unregisterSubject(identity);
 
         insertServiceContext(ri);
+
+        if (log.isDebugEnabled()) log.debug("send_reply()");
     }
 
     public void destroy() {
         if (defaultSubject != null) ContextManager.unregisterSubject(defaultSubject);
+        if (log.isDebugEnabled()) log.debug("destroy()");
     }
 
     public String name() {
