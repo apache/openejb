@@ -139,7 +139,7 @@ public class WSContainerTest extends TestCase {
             assertNotNull(port2);
             SOAPAddress address = (SOAPAddress) port2.getExtensibilityElements().get(0);
             assertNotNull(address);
-            assertEquals("http://localhost:" + port + "/test/service", address.getLocationURI());
+            assertEquals("http://localhost:" + port + "/services/Simple", address.getLocationURI());
 
         } finally {
             kernel.stopGBean(stack);
