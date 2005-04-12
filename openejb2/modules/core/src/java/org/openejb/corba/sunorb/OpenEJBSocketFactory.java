@@ -85,6 +85,7 @@ import org.openejb.corba.util.Util;
  */
 public class OpenEJBSocketFactory implements ORBSocketFactory {
 
+    private final static Log log = LogFactory.getLog(OpenEJBSocketFactory.class);
 
     public final static String IIOP_SSL = "IIOP_SSL";
     public final static String SOCKET_SUPPORTS = "org.openejb.corba.ssl.SocketProperties.supports";
