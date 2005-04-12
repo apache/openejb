@@ -52,6 +52,7 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.omg.CORBA.ORB;
 import org.omg.CSIIOP.EstablishTrustInClient;
 import org.omg.Security.Confidentiality;
 import org.omg.Security.EstablishTrustInTarget;
@@ -95,8 +96,8 @@ public class SunORBConfigAdapter implements ConfigAdapter {
         return (String[]) list.toArray(new String[list.size()]);
     }
 
-    public Properties translateToProps(TSSConfig config) throws ConfigException {
-        Properties props = new Properties();
+    public Properties translateToProps(TSSConfig config, Properties props) throws ConfigException {
+        Properties result = new Properties();
 
         String supProp = "";
         String reqProp = "";
@@ -109,10 +110,6 @@ public class SunORBConfigAdapter implements ConfigAdapter {
                     short requires = sslConfig.getRequires();
                     supProp = "Integrity";
                     reqProp = "Integrity";
-
-                    props.put("com.sun.CORBA.connection.ORBListenSocket", "IIOP_SSL:" + Short.toString(sslConfig.getPort()));
-//                    props.put("org.omg.CORBA.ORBInitialPort", "0");
-                    props.put("com.sun.CORBA.ORBServerPort", "0");
 
                     if ((supports & NoProtection.value) != 0) {
                         supProp += ",NoProtection";
@@ -145,28 +142,58 @@ public class SunORBConfigAdapter implements ConfigAdapter {
         System.setProperty("org.openejb.corba.ssl.SocketProperties.supports", supProp);
         System.setProperty("org.openejb.corba.ssl.SocketProperties.requires", reqProp);
 
-        props.put("com.sun.CORBA.connection.ORBSocketFactoryClass", "org.openejb.corba.sunorb.OpenEJBSocketFactory");
-        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
-        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
-        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.sunorb.SunORBInitializer", "");
+        result.put("com.sun.CORBA.connection.ORBSocketFactoryClass", "org.openejb.corba.sunorb.OpenEJBSocketFactory");
+        result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
+        result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
+        result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.sunorb.SunORBInitializer", "");
 
         if (log.isDebugEnabled()) {
             log.debug("translateToProps(TSSConfig)");
-            for (Enumeration iter = props.keys(); iter.hasMoreElements();) {
+            for (Enumeration iter = result.keys(); iter.hasMoreElements();) {
                 String key = (String) iter.nextElement();
-                log.debug(key + " = " + props.getProperty(key));
+                log.debug(key + " = " + result.getProperty(key));
             }
         }
 
-        return props;
+        result.putAll(props);
+
+        return result;
+    }
+
+    /**
+     * This post processing is performed to override the default listening
+     * end points so that only SSL ports are opened if the TSS config is
+     * configured to use SSL
+     *
+     * @param config Target Security Server configuration
+     * @param orb    the ORB to be post processed
+     * @throws ConfigException thrown if any error occurs
+     */
+    public void postProcess(TSSConfig config, ORB orb) throws ConfigException {
+        if (config != null) {
+            TSSTransportMechConfig transportMech = config.getTransport_mech();
+            if (transportMech != null) {
+                if (transportMech instanceof TSSSSLTransportConfig) {
+                    TSSSSLTransportConfig sslConfig = (TSSSSLTransportConfig) transportMech;
+                    OpenEJBORB o = (OpenEJBORB) orb;
+
+                    try {
+                        o.getServerGIOP().getEndpoint(OpenEJBSocketFactory.IIOP_SSL, sslConfig.getPort(), null);
+                    } catch (Throwable e) {
+                        log.error(e);
+                        throw new ConfigException(e);
+                    }
+                }
+            }
+        }
     }
 
     public String[] translateToArgs(CSSConfig config, List args) throws ConfigException {
         return (String[]) args.toArray(new String[args.size()]);
     }
 
-    public Properties translateToProps(CSSConfig config) throws ConfigException {
-        Properties props = new Properties();
+    public Properties translateToProps(CSSConfig config, Properties props) throws ConfigException {
+        Properties result = new Properties();
 
         String supProp = "";
         String reqProp = "";
@@ -212,22 +239,28 @@ public class SunORBConfigAdapter implements ConfigAdapter {
             supProp = "NoProtection";
             reqProp = "NoProtection";
         }
+
         System.setProperty("org.openejb.corba.ssl.SocketProperties.supports", supProp);
         System.setProperty("org.openejb.corba.ssl.SocketProperties.requires", reqProp);
 
-        props.put("com.sun.CORBA.connection.ORBSocketFactoryClass", "org.openejb.corba.sunorb.OpenEJBSocketFactory");
-        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
-        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
-        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.sunorb.SunORBInitializer", "");
+        result.put("com.sun.CORBA.connection.ORBSocketFactoryClass", "org.openejb.corba.sunorb.OpenEJBSocketFactory");
+        result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
+        result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
+        result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.sunorb.SunORBInitializer", "");
 
         if (log.isDebugEnabled()) {
             log.debug("translateToProps(CSSConfig)");
-            for (Enumeration iter = props.keys(); iter.hasMoreElements();) {
+            for (Enumeration iter = result.keys(); iter.hasMoreElements();) {
                 String key = (String) iter.nextElement();
-                log.debug(key + " = " + props.getProperty(key));
+                log.debug(key + " = " + result.getProperty(key));
             }
         }
 
-        return props;
+        result.putAll(props);
+
+        return result;
+    }
+
+    public void postProcess(CSSConfig config, ORB orb) throws ConfigException {
     }
 }

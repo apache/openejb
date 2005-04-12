@@ -141,10 +141,8 @@ public class CORBABean implements GBeanLifecycle, ORBRef {
             Thread.currentThread().setContextClassLoader(classLoader);
 
             if (configAdapter != null) {
-                Properties properties = configAdapter.translateToProps(tssConfig);
-                properties.putAll(props);
-
-                orb = ORB.init(configAdapter.translateToArgs(tssConfig, args), properties);
+                orb = ORB.init(configAdapter.translateToArgs(tssConfig, args), configAdapter.translateToProps(tssConfig, props));
+                configAdapter.postProcess(tssConfig, orb);
             } else {
                 orb = ORB.init((String[]) args.toArray(new String[args.size()]), props);
             }
