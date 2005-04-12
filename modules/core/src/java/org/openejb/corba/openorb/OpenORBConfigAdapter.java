@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.omg.CORBA.ORB;
 import org.omg.Security.Confidentiality;
 import org.omg.Security.EstablishTrustInClient;
 import org.omg.Security.EstablishTrustInTarget;
@@ -83,8 +84,8 @@ public class OpenORBConfigAdapter implements ConfigAdapter {
         return (String[]) list.toArray(new String[list.size()]);
     }
 
-    public Properties translateToProps(TSSConfig config) throws ConfigException {
-        Properties props = new Properties();
+    public Properties translateToProps(TSSConfig config, Properties props) throws ConfigException {
+        Properties result = new Properties();
 
         if (config != null) {
             TSSTransportMechConfig transportMech = config.getTransport_mech();
@@ -96,66 +97,71 @@ public class OpenORBConfigAdapter implements ConfigAdapter {
                     String supProp = "Integrity";
                     String reqProp = "Integrity";
 
-                    props.put("ssliop.port", Short.toString(sslConfig.getPort()));
+                    result.put("ssliop.port", Short.toString(sslConfig.getPort()));
 
                     if (sslConfig.getHandshakeTimeout() > 0) {
-                        props.put("ssliop.server.handshake.timeout", Short.toString(sslConfig.getHandshakeTimeout()));
+                        result.put("ssliop.server.handshake.timeout", Short.toString(sslConfig.getHandshakeTimeout()));
                     }
 
                     if ((supports & Confidentiality.value) != 0) {
-                        props.put("ssliop.server.encrypt.support", "true");
+                        result.put("ssliop.server.encrypt.support", "true");
                         supProp += ",Confidentiality";
 
                         if ((requires & Confidentiality.value) != 0) {
-                            props.put("ssliop.server.encrypt.requires", "true");
+                            result.put("ssliop.server.encrypt.requires", "true");
                             reqProp += ",Confidentiality";
                         }
                     }
                     if ((supports & EstablishTrustInTarget.value) != 0) {
-                        props.put("ssliop.server.auth.support", "true");
+                        result.put("ssliop.server.auth.support", "true");
                         supProp += ",EstablishTrustInTarget";
 
                         if ((requires & EstablishTrustInTarget.value) != 0) {
-                            props.put("ssliop.server.auth", "true");
+                            result.put("ssliop.server.auth", "true");
                             reqProp += ",EstablishTrustInTarget";
                         }
                     }
                     if ((supports & EstablishTrustInClient.value) != 0) {
-                        props.put("ssliop.server.auth.support", "true");
+                        result.put("ssliop.server.auth.support", "true");
                         supProp += ",EstablishTrustInClient";
 
                         if ((requires & EstablishTrustInClient.value) != 0) {
-                            props.put("ssliop.server.authClient", "true");
+                            result.put("ssliop.server.authClient", "true");
                             reqProp += ",EstablishTrustInClient";
                         }
                     }
 
-                    props.put("csiv2.tss.trans.tls.supports", supProp);
-                    props.put("csiv2.tss.trans.tls.requires", reqProp);
+                    result.put("csiv2.tss.trans.tls.supports", supProp);
+                    result.put("csiv2.tss.trans.tls.requires", reqProp);
 
                 }
             }
         }
 
-        props.put("org.omg.CORBA.ORBClass", "org.openorb.orb.core.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.openorb.orb.core.ORBSingleton");
-        props.put("ssliop.server.AllowBiDir", "true");
-        props.put("ssliop.iiopport.disable", "true");
-        props.put("ssliop.SSLContextFinderClass", "org.openorb.orb.ssl.JSSEContextFinder");
-        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
-        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
-        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.openorb.OpenORBInitializer", "");
-        props.put("iiop.TransportServerInitializerClass", "org.openorb.orb.ssl.SSLTransportServerInitializer");
+        result.put("org.omg.CORBA.ORBClass", "org.openorb.orb.core.ORB");
+        result.put("org.omg.CORBA.ORBSingletonClass", "org.openorb.orb.core.ORBSingleton");
+        result.put("ssliop.server.AllowBiDir", "true");
+        result.put("ssliop.iiopport.disable", "true");
+        result.put("ssliop.SSLContextFinderClass", "org.openorb.orb.ssl.JSSEContextFinder");
+        result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
+        result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
+        result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.openorb.OpenORBInitializer", "");
+        result.put("iiop.TransportServerInitializerClass", "org.openorb.orb.ssl.SSLTransportServerInitializer");
 
-        return props;
+        result.putAll(props);
+
+        return result;
+    }
+
+    public void postProcess(TSSConfig config, ORB orb) throws ConfigException {
     }
 
     public String[] translateToArgs(CSSConfig config, List args) throws ConfigException {
         return (String[]) args.toArray(new String[args.size()]);
     }
 
-    public Properties translateToProps(CSSConfig config) throws ConfigException {
-        Properties props = new Properties();
+    public Properties translateToProps(CSSConfig config, Properties props) throws ConfigException {
+        Properties result = new Properties();
 
         if (config != null) {
             short supports = 0;
@@ -171,47 +177,52 @@ public class OpenORBConfigAdapter implements ConfigAdapter {
             String supProp = "Integrity";
             String reqProp = "Integrity";
             if ((supports & NoProtection.value) != 0) {
-                props.put("secure.client.allowUnsecure", "true");
+                result.put("secure.client.allowUnsecure", "true");
                 supProp += ",NoProtection";
             } else {
-                props.put("secure.client.allowUnsecure", "false");
+                result.put("secure.client.allowUnsecure", "false");
             }
             if ((supports & Confidentiality.value) != 0) {
-                props.put("ssliop.client.encrypt.support", "true");
+                result.put("ssliop.client.encrypt.support", "true");
                 supProp += ",Confidentiality";
 
                 if ((requires & Confidentiality.value) != 0) {
-                    props.put("ssliop.client.encrypt.requires", "true");
+                    result.put("ssliop.client.encrypt.requires", "true");
                     reqProp += ",Confidentiality";
                 }
             }
             if ((supports & EstablishTrustInTarget.value) != 0) {
-                props.put("ssliop.client.auth.support", "true");
+                result.put("ssliop.client.auth.support", "true");
                 supProp += ",EstablishTrustInTarget";
 
                 if ((requires & EstablishTrustInTarget.value) != 0) {
-                    props.put("ssliop.client.auth.requires", "true");
+                    result.put("ssliop.client.auth.requires", "true");
                     reqProp += ",EstablishTrustInTarget";
                 }
             }
             if ((supports & EstablishTrustInClient.value) != 0) {
-                props.put("ssliop.client.auth.support", "true");
+                result.put("ssliop.client.auth.support", "true");
                 supProp += ",EstablishTrustInClient";
             }
 
-            props.put("csiv2.css.trans.tls.supports", supProp);
-            props.put("csiv2.css.trans.tls.requires", reqProp);
+            result.put("csiv2.css.trans.tls.supports", supProp);
+            result.put("csiv2.css.trans.tls.requires", reqProp);
 
         }
 
-        props.put("org.omg.CORBA.ORBClass", "org.openorb.orb.core.ORB");
-        props.put("org.omg.CORBA.ORBSingletonClass", "org.openorb.orb.core.ORBSingleton");
-        props.put("ssliop.SSLContextFinderClass", "org.openorb.orb.ssl.JSSEContextFinder");
-        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
-        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
-        props.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.openorb.OpenORBInitializer", "");
-        props.put("iiop.TransportClientInitializerClass", "org.openorb.orb.ssl.SSLTransportClientInitializer");
+        result.put("org.omg.CORBA.ORBClass", "org.openorb.orb.core.ORB");
+        result.put("org.omg.CORBA.ORBSingletonClass", "org.openorb.orb.core.ORBSingleton");
+        result.put("ssliop.SSLContextFinderClass", "org.openorb.orb.ssl.JSSEContextFinder");
+        result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
+        result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
+        result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.openorb.OpenORBInitializer", "");
+        result.put("iiop.TransportClientInitializerClass", "org.openorb.orb.ssl.SSLTransportClientInitializer");
 
-        return props;
+        result.putAll(props);
+
+        return result;
+    }
+
+    public void postProcess(CSSConfig config, ORB orb) throws ConfigException {
     }
 }

@@ -212,12 +212,10 @@ public class CSSBean implements GBeanLifecycle {
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
 
-            Properties properties = configAdapter.translateToProps(nssConfig);
-            properties.putAll(nssProps);
-
             if (log.isDebugEnabled()) log.debug("Starting NameService ORB");
 
-            nssORB = ORB.init((String[]) nssArgs.toArray(new String[nssArgs.size()]), properties);
+            nssORB = ORB.init(configAdapter.translateToArgs(nssConfig, nssArgs), configAdapter.translateToProps(nssConfig, nssProps));
+            configAdapter.postProcess(nssConfig, nssORB);
 
             threadPool.execute(new Runnable() {
                 public void run() {
@@ -225,12 +223,10 @@ public class CSSBean implements GBeanLifecycle {
                 }
             });
 
-            properties = configAdapter.translateToProps(cssConfig);
-            properties.putAll(cssProps);
-
             if (log.isDebugEnabled()) log.debug("Starting CSS ORB");
 
-            cssORB = ORB.init((String[]) cssArgs.toArray(new String[cssArgs.size()]), properties);
+            cssORB = ORB.init(configAdapter.translateToArgs(cssConfig, cssArgs), configAdapter.translateToProps(cssConfig, cssProps));
+            configAdapter.postProcess(cssConfig, cssORB);
 
             threadPool.execute(new Runnable() {
                 public void run() {

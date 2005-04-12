@@ -42,33 +42,29 @@
  *
  * $Id$
  */
-package org.openejb.corba.security.config;
+package org.openejb.corba.sunorb;
 
-import java.util.List;
-import java.util.Properties;
-
-import org.omg.CORBA.ORB;
-
-import org.openejb.corba.security.config.css.CSSConfig;
-import org.openejb.corba.security.config.tss.TSSConfig;
+import com.sun.corba.se.internal.Interceptors.PIORB;
+import com.sun.corba.se.internal.POA.POAImpl;
+import com.sun.corba.se.internal.POA.POAManagerImpl;
+import com.sun.corba.se.internal.POA.Policies;
+import com.sun.corba.se.internal.orbutil.ORBConstants;
 
 
 /**
- * Translates TSS and CSS configurations into CORBA startup args and properties.
+ * This class is used to assist in the interception of IOR creation.
  *
  * @version $Revision$ $Date$
+ * @see OpenEJBPOA
  */
-public interface ConfigAdapter {
+public class OpenEJBORB extends PIORB {
 
-    public String[] translateToArgs(TSSConfig config, List args) throws ConfigException;
+    protected POAImpl makeRootPOA() {
 
-    public Properties translateToProps(TSSConfig config, Properties props) throws ConfigException;
+        POAManagerImpl poaManager = new POAManagerImpl(this);
+        POAImpl result = new OpenEJBPOA(ORBConstants.ROOT_POA_NAME, poaManager, Policies.rootPOAPolicies, null, null, this);
 
-    public void postProcess(TSSConfig config, ORB orb) throws ConfigException;
+        return result;
+    }
 
-    public String[] translateToArgs(CSSConfig config, List args) throws ConfigException;
-
-    public Properties translateToProps(CSSConfig config, Properties pros) throws ConfigException;
-
-    public void postProcess(CSSConfig config, ORB orb) throws ConfigException;
 }
