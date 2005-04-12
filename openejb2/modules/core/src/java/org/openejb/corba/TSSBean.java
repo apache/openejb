@@ -147,6 +147,11 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
         return (EJBContainer) containerMap.get(containerId);
     }
 
+    /**
+     * TODO: Security policy really shouldn't be inserted if there is not CSI
+     * config to put into it.
+     * @throws Exception
+     */
     public void doStart() throws Exception {
         ClassLoader savedLoader = Thread.currentThread().getContextClassLoader();
         try {
