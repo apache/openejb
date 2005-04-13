@@ -59,8 +59,8 @@ import org.omg.CSI.SASContextBodyHelper;
 import org.omg.IOP.SecurityAttributeService;
 import org.omg.IOP.ServiceContext;
 
-import org.openejb.corba.security.config.tss.TSSCompoundSecMechConfig;
 import org.openejb.corba.security.config.ConfigUtil;
+import org.openejb.corba.security.config.tss.TSSCompoundSecMechConfig;
 import org.openejb.corba.util.Util;
 
 
@@ -128,6 +128,9 @@ public class CSSCompoundSecMechConfig implements Serializable {
     }
 
     public ServiceContext generateServiceContext() throws UserException {
+
+        if (as_mech instanceof CSSNULLASMechConfig && sas_mech.getIdentityToken() instanceof CSSSASITTAbsent) return null;
+
         EstablishContext msg = new EstablishContext();
 
         msg.client_context_id = 0;
