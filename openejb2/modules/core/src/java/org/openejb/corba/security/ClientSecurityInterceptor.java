@@ -109,6 +109,8 @@ final class ClientSecurityInterceptor extends LocalObject implements ClientReque
 
             ServiceContext context = ((CSSCompoundSecMechConfig) compat.get(0)).generateServiceContext();
 
+            if (context == null) return;
+
             if (log.isDebugEnabled()) {
                 log.debug("Msg context id: " + context.context_id);
                 log.debug("Encoded msg: 0x" + Util.byteToString(context.context_data));
