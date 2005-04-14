@@ -142,6 +142,7 @@ public class SunORBConfigAdapter implements ConfigAdapter {
         System.setProperty("org.openejb.corba.ssl.SocketProperties.supports", supProp);
         System.setProperty("org.openejb.corba.ssl.SocketProperties.requires", reqProp);
 
+        result.put("org.omg.CORBA.ORBClass", "org.openejb.corba.sunorb.OpenEJBORB");
         result.put("com.sun.CORBA.connection.ORBSocketFactoryClass", "org.openejb.corba.sunorb.OpenEJBSocketFactory");
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
@@ -243,6 +244,7 @@ public class SunORBConfigAdapter implements ConfigAdapter {
         System.setProperty("org.openejb.corba.ssl.SocketProperties.supports", supProp);
         System.setProperty("org.openejb.corba.ssl.SocketProperties.requires", reqProp);
 
+        result.put("org.omg.CORBA.ORBClass", "org.openejb.corba.sunorb.OpenEJBORB");
         result.put("com.sun.CORBA.connection.ORBSocketFactoryClass", "org.openejb.corba.sunorb.OpenEJBSocketFactory");
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
