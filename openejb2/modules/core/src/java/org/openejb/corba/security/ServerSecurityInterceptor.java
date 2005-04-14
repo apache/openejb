@@ -137,6 +137,8 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
                         identity = defaultSubject;
                     }
 
+                    SASReplyManager.setSASReply(ri.request_id(), generateContextEstablished(identity, contextId, false));
+
                     break;
 
                 case MTCompleteEstablishContext.value:
@@ -175,8 +177,6 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
         }
 
         if (log.isDebugEnabled()) log.debug("   " + identity);
-
-        SASReplyManager.setSASReply(ri.request_id(), generateContextEstablished(identity, contextId, false));
 
         ContextManager.setCurrentCaller(identity);
         ContextManager.setNextCaller(identity);
