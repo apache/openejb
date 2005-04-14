@@ -50,6 +50,9 @@ package org.openejb.corba.security.config.tss;
 import org.omg.CORBA.ORB;
 import org.omg.CSIIOP.AS_ContextSec;
 import org.omg.IOP.Codec;
+import org.omg.GSSUP.GSSUPMechOID;
+
+import org.openejb.corba.util.Util;
 
 
 /**
@@ -65,13 +68,21 @@ public class TSSNULLASMechConfig extends TSSASMechConfig {
         return 0;
     }
 
+    /**
+     * Encode a virtually null AS context.  Since supports is zero, everything
+     * else should be ignored.
+     * @param orb
+     * @param codec
+     * @return
+     * @throws Exception
+     */
     public AS_ContextSec encodeIOR(ORB orb, Codec codec) throws Exception {
         AS_ContextSec result = new AS_ContextSec();
 
         result.target_supports = 0;
         result.target_requires = 0;
-        result.client_authentication_mech = null;
-        result.target_name = null;
+        result.client_authentication_mech = Util.encodeOID(GSSUPMechOID.value);
+        result.target_name = Util.encodeGSSExportName(GSSUPMechOID.value, "");
 
         return result;
     }
