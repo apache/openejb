@@ -71,7 +71,6 @@ import org.openejb.mdb.MDBInstanceContextFactory;
 import org.openejb.mdb.MDBInstanceFactory;
 import org.openejb.mdb.MDBInterceptorBuilder;
 import org.openejb.mdb.dispatch.SetMessageDrivenContextOperation;
-import org.openejb.security.SecurityConfiguration;
 import org.openejb.slsb.EJBCreateMethod;
 import org.openejb.slsb.RemoveMethod;
 import org.openejb.transaction.TransactionPolicySource;
@@ -94,7 +93,6 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
     private boolean doAsCurrentCaller = false;
     private boolean securityEnabled = false;
     private boolean useContextHandler = false;
-    private SecurityConfiguration securityConfiguration;
     private Map componentContext;
     private Set unshareableResources;
     private Set applicationManagedSecurityResources;
@@ -183,14 +181,6 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
 
     public void setUseContextHandler(boolean useContextHandler) {
         this.useContextHandler = useContextHandler;
-    }
-
-    public SecurityConfiguration getSecurityConfiguration() {
-        return securityConfiguration;
-    }
-
-    public void setSecurityConfiguration(SecurityConfiguration securityConfiguration) {
-        this.securityConfiguration = securityConfiguration;
     }
 
     public Map getComponentContext() {

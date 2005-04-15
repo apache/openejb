@@ -47,14 +47,11 @@
  */
 package org.openejb;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.security.PermissionCollection;
-import java.security.Permissions;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
-import java.io.Serializable;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -64,35 +61,27 @@ import javax.ejb.Timer;
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.security.auth.Subject;
-import javax.security.jacc.PolicyConfiguration;
-import javax.security.jacc.PolicyConfigurationFactory;
-import javax.security.jacc.PolicyContextException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.jacc.RoleMappingConfiguration;
-import org.apache.geronimo.security.jacc.RoleMappingConfigurationFactory;
+import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.timer.ThreadPooledTimer;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-
 import org.openejb.cache.InstancePool;
 import org.openejb.client.EJBObjectHandler;
 import org.openejb.client.EJBObjectProxy;
@@ -100,7 +89,6 @@ import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
-import org.openejb.security.SecurityConfiguration;
 import org.openejb.timer.BasicTimerServiceImpl;
 
 
@@ -123,8 +111,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
     private final String[] jndiNames;
     private final String[] localJndiNames;
 
-    private final SecurityConfiguration securityConfiguration;
-    private PolicyConfiguration policyConfiguration;
     private final Subject defaultSubject;
     private final Subject runAsSubject;
     private final BasicTimerServiceImpl timerService;
@@ -149,7 +135,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
                                ThreadPooledTimer timer,
                                String objectName,
                                Kernel kernel,
-                               SecurityConfiguration securityConfiguration,
                                DefaultPrincipal defaultPrincipal,
                                Subject runAsSubject,
                                Serializable homeTxPolicyConfig,
@@ -224,7 +209,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
             userTransaction.setUp(transactionContextManager, trackedConnectionAssociator);
         }
 
-        this.securityConfiguration = securityConfiguration;
         if (defaultPrincipal != null) {
             this.defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
         } else {
@@ -371,10 +355,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         return copy;
     }
 
-    public SecurityConfiguration getSecurityConfiguration() {
-        return securityConfiguration;
-    }
-
     public Timer getTimerById(Long id) {
         assert timerService != null;
         return timerService.getTimerById(id);
@@ -402,54 +382,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         if (defaultSubject != null) ContextManager.registerSubject(defaultSubject);
         if (runAsSubject != null) ContextManager.registerSubject(runAsSubject);
 
-        if (securityConfiguration != null) {
-            /**
-             * Get the JACC policy configuration that's associated with this
-             * EJB container and configure it with the geronimo security
-             * configuration.  The work for this is done by the class
-             * JettyXMLConfiguration.
-             */
-            try {
-                PolicyConfigurationFactory factory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
-
-                policyConfiguration = factory.getPolicyConfiguration(securityConfiguration.getPolicyContextId(), true);
-
-                policyConfiguration.addToExcludedPolicy(securityConfiguration.getExcludedPolicy());
-                policyConfiguration.addToUncheckedPolicy(securityConfiguration.getUncheckedPolicy());
-                Iterator roles = securityConfiguration.getRolePolicies().keySet().iterator();
-                while (roles.hasNext()) {
-                    String role = (String) roles.next();
-
-                    policyConfiguration.addToRole(role, (Permissions) securityConfiguration.getRolePolicies().get(role));
-                }
-
-                RoleMappingConfiguration roleMapper = RoleMappingConfigurationFactory.getRoleMappingFactory().getRoleMappingConfiguration(securityConfiguration.getPolicyContextId(), true);
-                if (roleMapper != null) {
-                    Iterator iter = securityConfiguration.getRoleMapping().keySet().iterator();
-                    while (iter.hasNext()) {
-                        String roleName = (String) iter.next();
-                        Set principalSet = (Set) securityConfiguration.getRoleMapping().get(roleName);
-                        roleMapper.addRoleMapping(roleName, principalSet);
-                    }
-                }
-
-                Map references = securityConfiguration.getRoleReferences();
-                for (Iterator links = references.keySet().iterator(); links.hasNext();) {
-                    String roleLink = (String) links.next();
-
-                    policyConfiguration.addToRole(roleLink, (PermissionCollection) references.get(roleLink));
-                }
-
-                policyConfiguration.commit();
-            } catch (ClassNotFoundException e) {
-                // do nothing
-            } catch (PolicyContextException e) {
-                // do nothing
-            } catch (GeronimoSecurityException e) {
-                // do nothing
-            }
-            log.debug("Using JACC policy '" + securityConfiguration.getPolicyContextId() + "'");
-        }
         log.info("GenericEJBContainer '" + containerId + "' started");
     }
 
@@ -461,13 +393,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         if (defaultSubject != null) ContextManager.unregisterSubject(defaultSubject);
         if (runAsSubject != null) ContextManager.unregisterSubject(runAsSubject);
 
-        if (this.securityConfiguration != null) {
-            /**
-             * Delete the policy configuration for this web application
-             */
-            if (policyConfiguration != null) policyConfiguration.delete();
-
-        }
         log.info("GenericEJBContainer '" + containerId + "' stopped");
     }
 
@@ -477,12 +402,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         } catch (Exception e) {
             //todo fix this
             throw new RuntimeException(e);
-        }
-
-        try {
-            if (policyConfiguration != null) policyConfiguration.delete();
-        } catch (PolicyContextException e) {
-            // do nothing
         }
 
         log.info("GenericEJBContainer '" + containerId + "' failed");
@@ -517,7 +436,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addAttribute("ejbLocalHome", EJBLocalHome.class, false);
         infoFactory.addAttribute("unmanagedReference", EJBContainer.class, false);
 
-        infoFactory.addAttribute("SecurityConfiguration", SecurityConfiguration.class, true);
         infoFactory.addAttribute("DefaultPrincipal", DefaultPrincipal.class, true);
         infoFactory.addAttribute("RunAsSubject", Subject.class, true);
 
@@ -552,7 +470,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
             "Timer",
             "objectName",
             "kernel",
-            "SecurityConfiguration",
             "DefaultPrincipal",
             "RunAsSubject",
             "HomeTxPolicyConfig",

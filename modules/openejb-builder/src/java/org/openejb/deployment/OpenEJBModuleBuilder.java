@@ -63,22 +63,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
 
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.tranql.cache.CacheFlushStrategyFactory;
-import org.tranql.cache.EnforceRelationshipsFlushStrategyFactory;
-import org.tranql.cache.GlobalSchema;
-import org.tranql.cache.SimpleFlushStrategyFactory;
-import org.tranql.ejb.EJBSchema;
-import org.tranql.ejb.TransactionManagerDelegate;
-import org.tranql.ejbqlcompiler.DerbyDBSyntaxtFactory;
-import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
-import org.tranql.sql.BaseSQLSchema;
-import org.tranql.sql.DBSyntaxFactory;
-import org.tranql.sql.DataSourceDelegate;
-import org.tranql.sql.EJBQLCompilerFactory;
-import org.tranql.sql.SQLSchema;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -98,21 +82,22 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
+import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
-
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.openejb.EJBModuleImpl;
-import org.openejb.deployment.corba.TransactionImportPolicyBuilder;
-import org.openejb.deployment.corba.NoDistributedTxTransactionImportPolicyBuilder;
 import org.openejb.corba.CORBAHandleDelegate;
 import org.openejb.corba.compiler.CompilerException;
 import org.openejb.corba.compiler.SkeletonGenerator;
 import org.openejb.corba.proxy.CORBAProxyReference;
+import org.openejb.deployment.corba.NoDistributedTxTransactionImportPolicyBuilder;
+import org.openejb.deployment.corba.TransactionImportPolicyBuilder;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.EJBProxyReference;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
@@ -120,6 +105,19 @@ import org.openejb.xbeans.ejbjar.OpenejbMessageDrivenBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
+import org.tranql.cache.CacheFlushStrategyFactory;
+import org.tranql.cache.EnforceRelationshipsFlushStrategyFactory;
+import org.tranql.cache.GlobalSchema;
+import org.tranql.cache.SimpleFlushStrategyFactory;
+import org.tranql.ejb.EJBSchema;
+import org.tranql.ejb.TransactionManagerDelegate;
+import org.tranql.ejbqlcompiler.DerbyDBSyntaxtFactory;
+import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
+import org.tranql.sql.BaseSQLSchema;
+import org.tranql.sql.DBSyntaxFactory;
+import org.tranql.sql.DataSourceDelegate;
+import org.tranql.sql.EJBQLCompilerFactory;
+import org.tranql.sql.SQLSchema;
 
 
 /**
@@ -133,7 +131,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final SessionBuilder sessionBuilder;
     private final EntityBuilder entityBuilder;
     private final MdbBuilder mdbBuilder;
-    private final ContainerSecurityBuilder containerSecurityBuilder;
     private final SkeletonGenerator skeletonGenerator;
     private final TransactionImportPolicyBuilder transactionImportPolicyBuilder;
     private final Repository repository;
@@ -143,16 +140,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         this.listener = listener;
         this.skeletonGenerator = skeletonGenerator;
         this.transactionImportPolicyBuilder = new NoDistributedTxTransactionImportPolicyBuilder();
-        this.containerSecurityBuilder = new ContainerSecurityBuilder(this);
         this.cmpEntityBuilder = new CMPEntityBuilder(this);
         this.sessionBuilder = new SessionBuilder(this);
         this.entityBuilder = new EntityBuilder(this);
         this.mdbBuilder = new MdbBuilder(this);
         this.repository = repository;
-    }
-
-    public ContainerSecurityBuilder getSecurityBuilder() {
-        return containerSecurityBuilder;
     }
 
     public SkeletonGenerator getSkeletonGenerator() {
@@ -328,7 +320,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
                 /**
                  * Windoze may be holding on to this
-                 */               
+                 */
                 tempJar.delete();
 
                 skeletonGenerator.generateSkeletons(interfaces, tempJar, cl);
@@ -499,19 +491,20 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         /**
          * Build the security configuration.  Attempt to auto generate role mappings.
          */
-        Security security = null;
-        //TODO fix this!
-        security = SecurityBuilder.buildSecurityConfig(openejbEjbJar.getSecurity(), collectRoleNames(ejbJar));
+        if (openejbEjbJar.isSetSecurity()) {
+            SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(openejbEjbJar.getSecurity());
+            earContext.setSecurityConfiguration(securityConfiguration);
+        }
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
-        sessionBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, security, enterpriseBeans, listener);
+        sessionBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, enterpriseBeans, listener);
 
-        entityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, security, enterpriseBeans);
+        entityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, enterpriseBeans);
 
-        cmpEntityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, ejbSchema, sqlSchema, globalSchema, openejbBeans, transactionPolicyHelper, security, enterpriseBeans, tmDelegate);
+        cmpEntityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, ejbSchema, sqlSchema, globalSchema, openejbBeans, transactionPolicyHelper, enterpriseBeans, tmDelegate);
 
-        mdbBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, security, enterpriseBeans);
+        mdbBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, enterpriseBeans);
 
         return null;
     }

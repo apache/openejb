@@ -64,7 +64,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
-import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deployment.SecurityConfiguration;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
@@ -94,7 +95,7 @@ class MdbBuilder extends BeanBuilder {
         super(builder);
     }
 
-    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, Security security, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
+    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
         // Message Driven Beans
         MessageDrivenBeanType[] messageDrivenBeans = enterpriseBeans.getMessageDrivenArray();
         for (int i = 0; i < messageDrivenBeans.length; i++) {
@@ -124,7 +125,7 @@ class MdbBuilder extends BeanBuilder {
                     openejbMessageDrivenBean.getResourceAdapter(),
                     messageDrivenBean.getMessagingType().getStringValue().trim(),
                     containerId);
-            GBeanData messageDrivenGBean = createBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, security, cl);
+            GBeanData messageDrivenGBean = createBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, cl);
             messageDrivenGBean.setName(messageDrivenObjectName);
             earContext.addGBean(messageDrivenGBean);
         }
@@ -146,14 +147,13 @@ class MdbBuilder extends BeanBuilder {
     }
 
     private GBeanData createBean(EARContext earContext,
-                                  EJBModule ejbModule,
-                                  String containerId,
-                                  MessageDrivenBeanType messageDrivenBean,
-                                  OpenejbMessageDrivenBeanType openejbMessageDrivenBean,
-                                  ObjectName activationSpecWrapperName,
-                                  TransactionPolicyHelper transactionPolicyHelper,
-                                  Security security,
-                                  ClassLoader cl) throws DeploymentException {
+                                 EJBModule ejbModule,
+                                 String containerId,
+                                 MessageDrivenBeanType messageDrivenBean,
+                                 OpenejbMessageDrivenBeanType openejbMessageDrivenBean,
+                                 ObjectName activationSpecWrapperName,
+                                 TransactionPolicyHelper transactionPolicyHelper,
+                                 ClassLoader cl) throws DeploymentException {
 
         if (openejbMessageDrivenBean == null) {
             throw new DeploymentException("openejb-jar.xml required to deploy an mdb");
@@ -170,14 +170,24 @@ class MdbBuilder extends BeanBuilder {
         builder.setTransactedTimerName(earContext.getTransactedTimerName());
         builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
 
-        Permissions toBeChecked = new Permissions();
-        getModuleBuilder().getSecurityBuilder().fillContainerBuilderSecurity(builder,
-                toBeChecked,
-                security,
-                ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
-                messageDrivenBean.getEjbName().getStringValue(),
-                messageDrivenBean.getSecurityIdentity(),
-                null);
+        SecurityConfiguration securityConfiguration = earContext.getSecurityConfiguration();
+        if (securityConfiguration != null) {
+            Permissions toBeChecked = new Permissions();
+            ContainerSecurityBuilder containerSecurityBuilder = new ContainerSecurityBuilder();
+            String defaultRole = securityConfiguration.getDefaultRole();
+            ComponentPermissions componentPermissions = containerSecurityBuilder.fillContainerBuilderSecurity(defaultRole,
+                    toBeChecked,
+                    ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
+                    ejbName,
+                    null);
+
+            //TODO go back to the commented version when possible
+//        String contextID = builder.getContainerId();
+            String contextID = builder.getContainerId().replaceAll("[, ]", "_");
+            earContext.addSecurityContext(contextID, componentPermissions);
+
+            containerSecurityBuilder.setDetails(messageDrivenBean.getSecurityIdentity(), securityConfiguration, builder);
+        }
 
         UserTransactionImpl userTransaction;
         //TODO this is probably wrong???
@@ -308,7 +318,7 @@ class MdbBuilder extends BeanBuilder {
 
         ServiceRefType[] serviceRefs = messageDrivenBean.getServiceRefArray();
         GerServiceRefType[] openejbServiceRefs = null;
-        
+
         //get arrays from openejb plan if present
         if (openejbMessageDrivenBean != null) {
             openejbEjbRefs = openejbMessageDrivenBean.getEjbRefArray();

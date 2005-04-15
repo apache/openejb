@@ -60,7 +60,6 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.openejb.deployment.BMPContainerBuilder;
 import org.openejb.deployment.DeploymentHelper;
 import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.security.SecurityConfiguration;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
 
@@ -154,7 +153,6 @@ public class BasicBMPEntityContainerTest extends TestCase {
                 return TransactionPolicyType.Required;
             }
         });
-        builder.setSecurityConfiguration(new SecurityConfiguration());
         builder.setComponentContext(new HashMap());
         container = builder.createConfiguration();
 

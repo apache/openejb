@@ -47,10 +47,10 @@
  */
 package org.openejb.deployment;
 
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
-import java.util.Arrays;
-import java.io.Serializable;
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.management.ObjectName;
@@ -58,28 +58,27 @@ import javax.security.auth.Subject;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.openejb.EJBContainer;
+import org.openejb.EJBInterfaceType;
 import org.openejb.GenericEJBContainer;
 import org.openejb.InstanceContextFactory;
 import org.openejb.InterceptorBuilder;
-import org.openejb.EJBInterfaceType;
-import org.openejb.deployment.corba.TransactionImportPolicyBuilder;
 import org.openejb.cache.InstanceFactory;
 import org.openejb.cache.InstancePool;
+import org.openejb.deployment.corba.TransactionImportPolicyBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.dispatch.VirtualOperation;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.security.PermissionManager;
-import org.openejb.security.SecurityConfiguration;
 import org.openejb.transaction.ContainerPolicy;
+import org.openejb.transaction.TransactionPolicies;
 import org.openejb.transaction.TransactionPolicy;
 import org.openejb.transaction.TransactionPolicyManager;
 import org.openejb.transaction.TransactionPolicySource;
-import org.openejb.transaction.TransactionPolicies;
 import org.openejb.util.SoftLimitedInstancePool;
 
 /**
@@ -101,7 +100,6 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private boolean doAsCurrentCaller = false;
     private boolean securityEnabled = false;
     private boolean useContextHandler = false;
-    private SecurityConfiguration securityConfiguration;
     private Map componentContext;
     private Set unshareableResources;
     private Set applicationManagedSecurityResources;
@@ -238,14 +236,6 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
 
     public void setUseContextHandler(boolean useContextHandler) {
         this.useContextHandler = useContextHandler;
-    }
-
-    public SecurityConfiguration getSecurityConfiguration() {
-        return securityConfiguration;
-    }
-
-    public void setSecurityConfiguration(SecurityConfiguration securityConfiguration) {
-        this.securityConfiguration = securityConfiguration;
     }
 
     public Map getComponentContext() {
@@ -471,7 +461,6 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 null, //timer
                 null, //objectname
                 null, //kernel
-                getSecurityConfiguration(),
                 getDefaultPrincipal(),
                 runAs,
                 getHomeTxPolicyConfig(),
@@ -499,7 +488,6 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         gbean.setAttribute("JndiNames", getJndiNames());
         gbean.setAttribute("LocalJndiNames", getLocalJndiNames());
         gbean.setReferencePattern("Timer", timerName);
-        gbean.setAttribute("SecurityConfiguration", getSecurityConfiguration());
         gbean.setAttribute("DefaultPrincipal", getDefaultPrincipal());
         gbean.setAttribute("RunAsSubject", getRunAs());
         gbean.setAttribute("HomeTxPolicyConfig", getHomeTxPolicyConfig());

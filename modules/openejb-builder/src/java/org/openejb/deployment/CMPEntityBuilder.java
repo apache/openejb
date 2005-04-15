@@ -50,14 +50,12 @@ package org.openejb.deployment;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.security.Permissions;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
@@ -68,7 +66,6 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.xbeans.j2ee.CmpFieldType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EjbNameType;
@@ -84,10 +81,10 @@ import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbEjbRelationType;
 import org.openejb.xbeans.ejbjar.OpenejbEjbRelationshipRoleType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
-import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
-import org.openejb.xbeans.ejbjar.OpenejbQueryType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.AutomaticKeyGeneration;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.CmpFieldMapping;
+import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
+import org.openejb.xbeans.ejbjar.OpenejbQueryType;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.cache.GlobalSchemaLoader;
 import org.tranql.ejb.CMPField;
@@ -100,7 +97,6 @@ import org.tranql.ejb.Relationship;
 import org.tranql.ejb.SelectEJBQLQuery;
 import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
-import org.tranql.ql.QueryException;
 import org.tranql.schema.Association.JoinDefinition;
 import org.tranql.sql.Column;
 import org.tranql.sql.EndTable;
@@ -116,13 +112,12 @@ import org.tranql.sql.jdbc.SQLTypeLoader;
  * @version $Revision$ $Date$
  */
 class CMPEntityBuilder extends EntityBuilder {
-    private static final Log log = LogFactory.getLog(CMPEntityBuilder.class);
-    
+
     public CMPEntityBuilder(OpenEJBModuleBuilder builder) {
         super(builder);
     }
 
-    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, Security security, EnterpriseBeansType enterpriseBeans, TransactionManagerDelegate tmDelegate) throws DeploymentException {
+    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, TransactionManagerDelegate tmDelegate) throws DeploymentException {
         // CMP Entity Beans
         EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
         for (int i = 0; i < entityBeans.length; i++) {
@@ -135,12 +130,12 @@ class CMPEntityBuilder extends EntityBuilder {
             OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(getString(entityBean.getEjbName()));
             ObjectName entityObjectName = super.createEJBObjectName(moduleJ2eeContext, entityBean);
 
-            GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, ejbSchema, sqlSchema, globalSchema, transactionPolicyHelper, security, cl, tmDelegate);
+            GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, ejbSchema, sqlSchema, globalSchema, transactionPolicyHelper, cl, tmDelegate);
 
             earContext.addGBean(entityGBean);
         }
     }
-    
+
 
     public void buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema) throws DeploymentException {
         try {
@@ -167,7 +162,7 @@ class CMPEntityBuilder extends EntityBuilder {
             if ( false == "Container".equals(getString(entityBean.getPersistenceType()))) {
                 continue;
             }
-            
+
             String ejbName = getString(entityBean.getEjbName());
             boolean cmp2 = isCMP2(entityBean);
 
@@ -182,9 +177,9 @@ class CMPEntityBuilder extends EntityBuilder {
             if (null == openEjbEntity) {
                 throw new DeploymentException("EJB [" + ejbName + "] is misconfigured: no CMP mapping defined by OpenEJB DD.");
             }
-                
+
             ObjectName entityObjectName = super.createEJBObjectName(moduleJ2eeContext, entityBean);
-    
+
             EJBProxyFactory proxyFactory = (EJBProxyFactory) getModuleBuilder().createEJBProxyFactory(entityObjectName.getCanonicalName(),
                     false,
                     getString(entityBean.getRemote()),
@@ -236,7 +231,7 @@ class CMPEntityBuilder extends EntityBuilder {
                         throw new DeploymentException("Unable to initialize PrimaryKeyGeneratorWrapper GBean", e);
                     }
                     earContext.addGBean(keyGenerator);
-                    
+
                     keyGenerators.put(generatorName, keyGeneratorDelegate);
                 }
             }
@@ -268,7 +263,7 @@ class CMPEntityBuilder extends EntityBuilder {
                 CmpFieldMapping mapping = mappings[j];
                 cmpFieldToMapping.put(mapping.getCmpFieldName(), mapping);
             }
-                
+
             CmpFieldType[] cmpFieldTypes = entityBean.getCmpFieldArray();
             for (int cmpFieldIndex = 0; cmpFieldIndex < cmpFieldTypes.length; cmpFieldIndex++) {
                 CmpFieldType cmpFieldType = cmpFieldTypes[cmpFieldIndex];
@@ -299,7 +294,7 @@ class CMPEntityBuilder extends EntityBuilder {
                     pkFieldNames.remove(fieldName);
                 }
             }
-            
+
             for (Iterator iter = cmpFieldToMapping.entrySet().iterator(); iter.hasNext();) {
                 Map.Entry entry = (Map.Entry) iter.next();
                 CmpFieldMapping mapping = (CmpFieldMapping) entry.getValue();
@@ -321,7 +316,7 @@ class CMPEntityBuilder extends EntityBuilder {
                     pkFieldNames.remove(fieldName);
                 }
             }
-            
+
             if (!pkFieldNames.isEmpty()) {
                 StringBuffer fields = new StringBuffer();
                 fields.append("EJB [" + ejbName + "] is misconfigured: could not find CMP fields for following pk fields:");
@@ -332,9 +327,9 @@ class CMPEntityBuilder extends EntityBuilder {
                 }
                 throw new DeploymentException(fields.toString());
             }
-            
+
             processQuery(ejb, entityBean, openEjbEntity, cl);
-            
+
             ejbSchema.addEJB(ejb);
             sqlSchema.addTable(table);
         }
@@ -342,7 +337,7 @@ class CMPEntityBuilder extends EntityBuilder {
 
     private void processQuery(EJB ejb, EntityBeanType entityBean, OpenejbEntityBeanType openEjbEntity, ClassLoader cl) throws DeploymentException {
         Map queries = new HashMap();
-        
+
         QueryType[] queryTypes = entityBean.getQueryArray();
         if (null != queryTypes) {
             for (int i = 0; i < queryTypes.length; i++) {
@@ -375,7 +370,7 @@ class CMPEntityBuilder extends EntityBuilder {
                             isLocal = false;
                         }
                     }
-                    SelectEJBQLQuery query = new SelectEJBQLQuery(methodName, parameterTypes, ejbQL, isLocal); 
+                    SelectEJBQLQuery query = new SelectEJBQLQuery(methodName, parameterTypes, ejbQL, isLocal);
                     ejb.addSelect(query);
                     queries.put(query, query);
                 } else {
@@ -383,7 +378,7 @@ class CMPEntityBuilder extends EntityBuilder {
                 }
             }
         }
-        
+
         OpenejbQueryType[] openejbQueryTypes = openEjbEntity.getQueryArray();
         if (null != openejbQueryTypes) {
             for (int i = 0; i < openejbQueryTypes.length; i++) {
@@ -411,7 +406,7 @@ class CMPEntityBuilder extends EntityBuilder {
                 } else if (false == flushCacheBeforeQuery) {
                     throw new DeploymentException("No ejb-ql defined and flush-cache-before-query not set. method " + methodName);
                 }
-                
+
                 if (methodName.startsWith("find")) {
                     FinderEJBQLQuery query = new FinderEJBQLQuery(methodName, parameterTypes, ejbQL);
                     if (null == ejbQL) {
@@ -447,14 +442,14 @@ class CMPEntityBuilder extends EntityBuilder {
             }
         }
     }
-    
+
     private void processRelationships(EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, EJBSchema ejbSchema, SQLSchema sqlSchema) throws DeploymentException {
         if ( !ejbJar.isSetRelationships() ) {
             return;
         } else if ( !openejbEjbJar.isSetRelationships() ) {
             throw new DeploymentException("Relationships are not mapped by OpenEJB DD.");
         }
-        
+
         Map openEjbRelations = new HashMap();
         OpenejbEjbRelationType[] openEJBRelations = openejbEjbJar.getRelationships().getEjbRelationArray();
         for (int i = 0; i < openEJBRelations.length; i++) {
@@ -500,7 +495,7 @@ class CMPEntityBuilder extends EntityBuilder {
             for (int j = 0; j < openEjbRoles.length; j++) {
                 extractJoinInfo(roleInfo, mtmTableName, ejbSchema, sqlSchema, openEjbRoles[j]);
             }
-            
+
             buildSchemaForJoin(roleInfo, mtmTableName, ejbSchema, sqlSchema, i);
         }
     }
@@ -591,7 +586,7 @@ class CMPEntityBuilder extends EntityBuilder {
                 sqlSchema.addTable(fkTable);
             }
         }
-        
+
         mappedRoleInfo[0].ejbJDef = new JoinDefinition(mappedRoleInfo[0].ejb, fkEJB, pkToFkMapEJB);
         mappedRoleInfo[0].tableJDef = new JoinDefinition(mappedRoleInfo[0].table, fkTable, pkToFkMapTable);
     }
@@ -618,27 +613,27 @@ class CMPEntityBuilder extends EntityBuilder {
         String endName0 = isVirtual ? "$VirtualEnd" + id : roleInfo[0].cmrFieldName;
         roleInfo[0].ejb.addCMRField(new CMRField(endName0, roleInfo[1].ejb, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, relationship, isVirtual, roleInfo[0].isOnPKSide));
         roleInfo[0].table.addEndTable(new EndTable(endName0, roleInfo[1].table, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, joinTable, isVirtual, roleInfo[0].isOnPKSide));
-        
+
         isVirtual = null == roleInfo[1].cmrFieldName;
         String endName1 = isVirtual ? "$VirtualEnd" + id : roleInfo[1].cmrFieldName;
         roleInfo[1].ejb.addCMRField(new CMRField(endName1, roleInfo[0].ejb, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, relationship, isVirtual, roleInfo[1].isOnPKSide));
         roleInfo[1].table.addEndTable(new EndTable(endName1, roleInfo[0].table, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, joinTable, isVirtual, roleInfo[1].isOnPKSide));
-        
+
         if (null != mtmEntityName) {
             EJB mtmEJB = ejbSchema.getEJB(mtmEntityName);
             Relationship mtmRelationship = new Relationship(relationship.getLeftJoinDefinition());
             mtmEJB.addCMRField(new CMRField(endName0, roleInfo[0].ejb, true, false, mtmRelationship, true, false));
             mtmRelationship.addAssociationEnd(roleInfo[0].ejb.getAssociationEnd(endName0));
-            
+
             mtmRelationship = new Relationship(relationship.getRightJoinDefinition());
             mtmEJB.addCMRField(new CMRField(endName1, roleInfo[1].ejb, true, false, mtmRelationship, true, false));
             mtmRelationship.addAssociationEnd(roleInfo[1].ejb.getAssociationEnd(endName1));
-            
+
             Table mtmTable = sqlSchema.getTable(mtmEntityName);
             JoinTable mtmJoinTable = new JoinTable(joinTable.getLeftJoinDefinition());
             mtmTable.addEndTable(new EndTable(endName0, roleInfo[0].table, true, false, mtmJoinTable, true, false));
             mtmJoinTable.addAssociationEnd(roleInfo[0].table.getAssociationEnd(endName0));
-            
+
             mtmJoinTable = new JoinTable(joinTable.getRightJoinDefinition());
             mtmTable.addEndTable(new EndTable(endName1, roleInfo[1].table, true, false, mtmJoinTable, true, false));
             mtmJoinTable.addAssociationEnd(roleInfo[1].table.getAssociationEnd(endName1));
@@ -698,7 +693,7 @@ class CMPEntityBuilder extends EntityBuilder {
     }
 
 
-    public GBeanData createBean(EARContext earContext, EJBModule ejbModule, ObjectName containerObjectName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, TransactionPolicyHelper transactionPolicyHelper, Security security, ClassLoader cl, TransactionManagerDelegate tmDelegate) throws DeploymentException {
+    public GBeanData createBean(EARContext earContext, EJBModule ejbModule, ObjectName containerObjectName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl, TransactionManagerDelegate tmDelegate) throws DeploymentException {
         String ejbName = getString(entityBean.getEjbName());
         CMPContainerBuilder builder = new CMPContainerBuilder();
         builder.setClassLoader(cl);
@@ -718,19 +713,7 @@ class CMPEntityBuilder extends EntityBuilder {
         builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
         builder.setReentrant(entityBean.getReentrant().getBooleanValue());
 
-        Permissions toBeChecked = new Permissions();
-        ContainerSecurityBuilder containerSecurityBuilder = getModuleBuilder().getSecurityBuilder();
-        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Home", builder.getHomeInterfaceName(), cl);
-        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "LocalHome", builder.getLocalHomeInterfaceName(), cl);
-        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Remote", builder.getRemoteInterfaceName(), cl);
-        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Local", builder.getLocalInterfaceName(), cl);
-        containerSecurityBuilder.fillContainerBuilderSecurity(builder,
-                toBeChecked,
-                security,
-                ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
-                ejbName,
-                entityBean.getSecurityIdentity(),
-                entityBean.getSecurityRoleRefArray());
+        addSecurity(earContext, ejbName, builder, cl, ejbModule, entityBean);
 
         processEnvironmentRefs(builder, earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
 
@@ -749,7 +732,7 @@ class CMPEntityBuilder extends EntityBuilder {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName [" + ejbName + "]", e);
         }
     }
-    
+
     private static class RoleInfo {
         private final String entityName;
         private final String cmrFieldName;

@@ -52,23 +52,15 @@ import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import javax.security.auth.Subject;
-import javax.security.auth.x500.X500Principal;
 import javax.security.jacc.EJBMethodPermission;
 import javax.security.jacc.EJBRoleRefPermission;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.deploy.DistinguishedName;
-import org.apache.geronimo.security.deploy.Principal;
-import org.apache.geronimo.security.deploy.Realm;
-import org.apache.geronimo.security.deploy.Role;
-import org.apache.geronimo.security.deploy.Security;
-import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.geronimo.security.deployment.SecurityConfiguration;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.j2ee.AssemblyDescriptorType;
 import org.apache.geronimo.xbeans.j2ee.ExcludeListType;
 import org.apache.geronimo.xbeans.j2ee.JavaTypeType;
@@ -77,18 +69,28 @@ import org.apache.geronimo.xbeans.j2ee.MethodType;
 import org.apache.geronimo.xbeans.j2ee.RoleNameType;
 import org.apache.geronimo.xbeans.j2ee.SecurityIdentityType;
 import org.apache.geronimo.xbeans.j2ee.SecurityRoleRefType;
-import org.openejb.security.SecurityConfiguration;
 
 
 class ContainerSecurityBuilder {
 
-    protected final OpenEJBModuleBuilder moduleBuilder;
-
-    public ContainerSecurityBuilder(final OpenEJBModuleBuilder moduleBuilder) {
-        super();
-        this.moduleBuilder = moduleBuilder;
+    public void setDetails(SecurityIdentityType securityIdentity, SecurityConfiguration securityConfiguration, SecureBuilder builder) throws DeploymentException {
+        builder.setSecurityEnabled(true);
+        builder.setDoAsCurrentCaller(securityConfiguration.isDoAsCurrentCaller());
+        builder.setUseContextHandler(securityConfiguration.isUseContextHandler());
+        boolean needsRunAs = (securityIdentity != null && securityIdentity.getRunAs() != null);
+        if (needsRunAs) {
+            String runAsName = (needsRunAs ? securityIdentity.getRunAs().getRoleName().getStringValue() : "");
+            Subject roleDesignate = (Subject) securityConfiguration.getRoleDesignates().get(runAsName);
+            if (roleDesignate == null) {
+                throw new DeploymentException("No role designate found for run-as name: " + runAsName);
+            }
+            builder.setRunAs(roleDesignate);
+        }
+        /**
+         * Add the default subject
+         */
+        builder.setDefaultPrincipal(securityConfiguration.getDefaultPrincipal());
     }
-
 
     /**
      * Fill the container moduleBuilder with the security information that it needs
@@ -96,43 +98,24 @@ class ContainerSecurityBuilder {
      * is also filled with permissions that need to be used to fill the JACC
      * policy configuration.
      *
-     * @param builder            the container moduleBuilder that is to be filled
      * @param notAssigned        the set of all possible permissions.  These will be
      *                           culled so that all that are left are those that have
      *                           not been assigned roles.
-     * @param security           the OpenEJB security information already parsed
-     *                           from XML descriptor into a POJO
      * @param assemblyDescriptor the assembly descriptor
      * @param EJBName            the name of the EJB
-     * @param securityIdentity   the EJB's security identity
      * @param roleReferences     the EJB's role references
      * @throws DeploymentException if any constraints are violated
      */
-    protected void fillContainerBuilderSecurity(SecureBuilder builder,
+    public ComponentPermissions fillContainerBuilderSecurity(String defaultRole,
                                                 Permissions notAssigned,
-                                                Security security,
                                                 AssemblyDescriptorType assemblyDescriptor,
                                                 String EJBName,
-                                                SecurityIdentityType securityIdentity,
                                                 SecurityRoleRefType[] roleReferences)
             throws DeploymentException {
 
-        if (security == null) return;
-
-        SecurityConfiguration securityConfiguration = new SecurityConfiguration();
-
-        //TODO go back to the commented version when possible
-//        securityConfiguration.setPolicyContextId(builder.getContainerId());
-        securityConfiguration.setPolicyContextId(builder.getContainerId().replaceAll("[, ]", "_"));
-        builder.setSecurityEnabled(true);
-        builder.setSecurityConfiguration(securityConfiguration);
-        builder.setDoAsCurrentCaller(security.isDoAsCurrentCaller());
-        builder.setUseContextHandler(security.isUseContextHandler());
-
-        /**
-         * Add the default subject
-         */
-        builder.setDefaultPrincipal(security.getDefaultPrincipal());
+        PermissionCollection uncheckedPermissions = new Permissions();
+        PermissionCollection excludedPermissions = new Permissions();
+        Map rolePermissions = new HashMap();
 
         /**
          * JACC v1.0 section 3.1.5.1
@@ -143,18 +126,17 @@ class ContainerSecurityBuilder {
                 MethodPermissionType mpt = methodPermissions[i];
                 MethodType[] methods = mpt.getMethodArray();
                 RoleNameType[] roles = mpt.getRoleNameArray();
-                boolean unchecked = (mpt.getUnchecked() != null);
+                boolean unchecked = mpt.isSetUnchecked();
 
-                Map rolePermissions = securityConfiguration.getRolePolicies();
 
                 for (int k = 0; k < methods.length; k++) {
                     MethodType method = methods[k];
 
-                    if (!EJBName.equals(method.getEjbName().getStringValue())) continue;
+                    if (!EJBName.equals(method.getEjbName().getStringValue().trim())) continue;
 
                     String methodName = OpenEJBModuleBuilder.getJ2eeStringValue(method.getMethodName());
                     String methodIntf = OpenEJBModuleBuilder.getJ2eeStringValue(method.getMethodIntf());
-                    String[] methodPara = (method.getMethodParams() != null ? toStringArray(method.getMethodParams().getMethodParamArray()) : null);
+                    String[] methodPara = (method.isSetMethodParams()? toStringArray(method.getMethodParams().getMethodParamArray()) : null);
 
                     // map EJB semantics to JACC semantics for method names
                     if ("*".equals(methodName)) methodName = null;
@@ -162,10 +144,10 @@ class ContainerSecurityBuilder {
                     EJBMethodPermission permission = new EJBMethodPermission(EJBName, methodName, methodIntf, methodPara);
                     notAssigned = cullPermissions(notAssigned, permission);
                     if (unchecked) {
-                        securityConfiguration.getUncheckedPolicy().add(permission);
+                        uncheckedPermissions.add(permission);
                     } else {
                         for (int j = 0; j < roles.length; j++) {
-                            String rolename = roles[j].getStringValue();
+                            String rolename = roles[j].getStringValue().trim();
 
                             Permissions permissions = (Permissions) rolePermissions.get(rolename);
                             if (permissions == null) {
@@ -189,15 +171,15 @@ class ContainerSecurityBuilder {
             for (int i = 0; i < methods.length; i++) {
                 MethodType method = methods[i];
 
-                if (!EJBName.equals(method.getEjbName().getStringValue())) continue;
+                if (!EJBName.equals(method.getEjbName().getStringValue().trim())) continue;
 
                 String methodName = OpenEJBModuleBuilder.getJ2eeStringValue(method.getMethodName());
                 String methodIntf = OpenEJBModuleBuilder.getJ2eeStringValue(method.getMethodIntf());
-                String[] methodPara = (method.getMethodParams() != null ? toStringArray(method.getMethodParams().getMethodParamArray()) : null);
+                String[] methodPara = (method.isSetMethodParams()? toStringArray(method.getMethodParams().getMethodParamArray()) : null);
 
                 EJBMethodPermission permission = new EJBMethodPermission(EJBName, methodName, methodIntf, methodPara);
 
-                securityConfiguration.getExcludedPolicy().add(permission);
+                excludedPermissions.add(permission);
                 notAssigned = cullPermissions(notAssigned, permission);
             }
         }
@@ -207,26 +189,20 @@ class ContainerSecurityBuilder {
          */
         if (roleReferences != null) {
             for (int i = 0; i < roleReferences.length; i++) {
-                if (roleReferences[i].getRoleLink() == null) throw new DeploymentException("Missing role-link");
+                if (!roleReferences[i].isSetRoleLink()) throw new DeploymentException("Missing role-link");
 
-                String roleName = roleReferences[i].getRoleName().getStringValue();
-                String roleLink = roleReferences[i].getRoleLink().getStringValue();
+                String roleName = roleReferences[i].getRoleName().getStringValue().trim();
+                String roleLink = roleReferences[i].getRoleLink().getStringValue().trim();
 
-                Map roleRefPermissions = securityConfiguration.getRoleReferences();
-                PermissionCollection roleLinks = (PermissionCollection) roleRefPermissions.get(roleLink);
+                PermissionCollection roleLinks = (PermissionCollection) rolePermissions.get(roleLink);
                 if (roleLinks == null) {
                     roleLinks = new Permissions();
-                    roleRefPermissions.put(roleLink, roleLinks);
+                    rolePermissions.put(roleLink, roleLinks);
 
                 }
                 roleLinks.add(new EJBRoleRefPermission(EJBName, roleName));
             }
         }
-
-        /**
-         * Set the security interceptor's run-as subject, if one has been defined.
-         */
-        addRoleMappings(securityConfiguration, builder, security, securityIdentity);
 
         /**
          * EJB v2.1 section 21.3.2
@@ -237,15 +213,14 @@ class ContainerSecurityBuilder {
          * permissions for all of the unspecified methods, either by assigning
          * them to security roles, or by marking them as <code>unchecked</code>.
          */
-        Permissions permissions;
-        if (security.getDefaultRole() == null || security.getDefaultRole().length() == 0) {
-            permissions = securityConfiguration.getUncheckedPolicy();
+        PermissionCollection permissions;
+        if (defaultRole == null) {
+            permissions = uncheckedPermissions;
         } else {
-            Map rolePermissions = securityConfiguration.getRolePolicies();
-            permissions = (Permissions) rolePermissions.get(security.getDefaultRole());
+            permissions = (PermissionCollection) rolePermissions.get(defaultRole);
             if (permissions == null) {
                 permissions = new Permissions();
-                rolePermissions.put(security.getDefaultRole(), permissions);
+                rolePermissions.put(defaultRole, permissions);
             }
         }
 
@@ -254,10 +229,13 @@ class ContainerSecurityBuilder {
             Permission p = (Permission) e.nextElement();
             permissions.add(p);
         }
+
+        ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, rolePermissions);
+        return componentPermissions;
     }
 
     /**
-     * Gernate all the possible permissions for a bean's interface.
+     * Generate all the possible permissions for a bean's interface.
      * <p/>
      * Method permissions are defined in the deployment descriptor as a binary
      * relation from the set of security roles to the set of methods of the
@@ -274,7 +252,7 @@ class ContainerSecurityBuilder {
      * @param cl              the class loader to be used in obtaining the interface class
      * @throws DeploymentException
      */
-    protected void addToPermissions(Permissions permissions,
+    public void addToPermissions(Permissions permissions,
                                     String EJBName, String methodInterface, String interfaceClass,
                                     ClassLoader cl)
             throws DeploymentException {
@@ -291,68 +269,6 @@ class ContainerSecurityBuilder {
             throw new DeploymentException(e);
         }
 
-    }
-
-    protected void addRoleMappings(SecurityConfiguration securityConfiguration,
-                                   SecureBuilder builder,
-                                   Security security,
-                                   SecurityIdentityType securityIdentity)
-            throws DeploymentException {
-
-        boolean needsRunAs = (securityIdentity != null && securityIdentity.getRunAs() != null);
-        String runAsName = (needsRunAs ? securityIdentity.getRunAs().getRoleName().getStringValue() : "");
-        Iterator rollMappings = security.getRoleMappings().values().iterator();
-        while (rollMappings.hasNext()) {
-            Role role = (Role) rollMappings.next();
-
-            String roleName = role.getRoleName();
-            Subject roleDesignate = new Subject();
-            Set principalSet = new HashSet();
-
-            Iterator realms = role.getRealms().values().iterator();
-            while (realms.hasNext()) {
-                Realm realm = (Realm) realms.next();
-
-                Iterator principals = realm.getPrincipals().iterator();
-                while (principals.hasNext()) {
-                    Principal principal = (Principal) principals.next();
-
-                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
-
-                    if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
-
-                    principalSet.add(realmPrincipal);
-                    if (principal.isDesignatedRunAs()) roleDesignate.getPrincipals().add(realmPrincipal);
-                }
-            }
-
-            for (Iterator names = role.getDNames().iterator(); names.hasNext();) {
-                DistinguishedName dn = (DistinguishedName) names.next();
-
-                X500Principal x500Principal = ConfigurationUtil.generateX500Principal(dn.getName());
-
-                principalSet.add(x500Principal);
-                if (dn.isDesignatedRunAs()) {
-                    roleDesignate.getPrincipals().add(x500Principal);
-                }
-            }
-
-            Set roleMapping = (Set) securityConfiguration.getRoleMapping().get(roleName);
-            if (roleMapping == null) {
-                roleMapping = new HashSet();
-                securityConfiguration.getRoleMapping().put(roleName, roleMapping);
-            }
-            roleMapping.addAll(principalSet);
-
-            if (roleDesignate.getPrincipals().size() > 0 && runAsName.equals(roleName)) {
-                if (builder.getRunAs() != null) {
-                    builder.getRunAs().getPrincipals().addAll(roleDesignate.getPrincipals());
-                } else {
-                    builder.setRunAs(roleDesignate);
-                }
-            }
-        }
-        if (needsRunAs && builder.getRunAs() == null) throw new DeploymentException("Role designate not found for role: " + runAsName);
     }
 
     /**
@@ -386,4 +302,5 @@ class ContainerSecurityBuilder {
         }
         return result;
     }
+
 }
