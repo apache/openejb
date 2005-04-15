@@ -62,7 +62,8 @@ import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
-import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deployment.SecurityConfiguration;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
@@ -145,7 +146,7 @@ class SessionBuilder extends BeanBuilder {
 
     }
 
-    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, Security security, EnterpriseBeansType enterpriseBeans, ObjectName listener) throws DeploymentException {
+    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, ObjectName listener) throws DeploymentException {
         // Session Beans
         SessionBeanType[] sessionBeans = enterpriseBeans.getSessionArray();
         for (int i = 0; i < sessionBeans.length; i++) {
@@ -154,28 +155,28 @@ class SessionBuilder extends BeanBuilder {
             OpenejbSessionBeanType openejbSessionBean = (OpenejbSessionBeanType) openejbBeans.get(sessionBean.getEjbName().getStringValue());
             ObjectName sessionObjectName = createEJBObjectName(moduleJ2eeContext, sessionBean);
             assert sessionObjectName != null: "StatelesSessionBean object name is null";
-            addEJBContainerGBean(earContext, ejbModule, cl, sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper, security);
-            addWSContainerGBean(earContext, ejbModule, cl, sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper, security, listener);
+            addEJBContainerGBean(earContext, ejbModule, cl, sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper);
+            addWSContainerGBean(earContext, ejbModule, cl, sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper, listener);
 
         }
     }
 
-    private void addWSContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, Security security, ObjectName listener) throws DeploymentException {
+    private void addWSContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, ObjectName listener) throws DeploymentException {
         // TODO Make these guys GBeans and delegate to them so we can plug in Axis or XFire
 //        XFireWebServiceContainerBuilder xfireWebServiceBuilder = new XFireWebServiceContainerBuilder();
 //        xfireWebServiceBuilder.addGbean(earContext, ejbModule, cl, sessionObjectName, listener, sessionBean, openejbSessionBean, transactionPolicyHelper, security);
         AxisWebServiceContainerBuilder axisWebServiceContainerBuilder = new AxisWebServiceContainerBuilder();
-        axisWebServiceContainerBuilder.addGbean(earContext, ejbModule, cl, sessionObjectName, listener, sessionBean, openejbSessionBean, transactionPolicyHelper, security);
+        axisWebServiceContainerBuilder.addGbean(earContext, ejbModule, cl, sessionObjectName, listener, sessionBean, openejbSessionBean, transactionPolicyHelper);
     }
 
-    private void addEJBContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, Security security) throws DeploymentException {
+    private void addEJBContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper) throws DeploymentException {
         String ejbName = sessionBean.getEjbName().getStringValue();
 
         GBeanData result;
         ContainerBuilder builder = null;
+        ContainerSecurityBuilder containerSecurityBuilder = new ContainerSecurityBuilder();
         Permissions toBeChecked = new Permissions();
-        ContainerSecurityBuilder containerSecurityBuilder = getModuleBuilder().getSecurityBuilder();
-        boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue());
+        boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue().trim());
         if (isStateless) {
             builder = new StatelessContainerBuilder();
             builder.setTransactedTimerName(earContext.getTransactedTimerName());
@@ -194,18 +195,33 @@ class SessionBuilder extends BeanBuilder {
         builder.setLocalHomeInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getLocalHome()));
         builder.setLocalInterfaceName(OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getLocal()));
 
-        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Home", builder.getHomeInterfaceName(), cl);
-        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "LocalHome", builder.getLocalHomeInterfaceName(), cl);
-        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Remote", builder.getRemoteInterfaceName(), cl);
-        containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Local", builder.getLocalInterfaceName(), cl);
+        SecurityConfiguration securityConfiguration = earContext.getSecurityConfiguration();
+        if (securityConfiguration != null) {
+            containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Home", builder.getHomeInterfaceName(), cl);
+            containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "LocalHome", builder.getLocalHomeInterfaceName(), cl);
+            containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Remote", builder.getRemoteInterfaceName(), cl);
+            containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Local", builder.getLocalInterfaceName(), cl);
 
-        containerSecurityBuilder.fillContainerBuilderSecurity(builder,
-                toBeChecked,
-                security,
-                ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
-                sessionBean.getEjbName().getStringValue(),
-                sessionBean.getSecurityIdentity(),
-                sessionBean.getSecurityRoleRefArray());
+            String defaultRole = securityConfiguration.getDefaultRole();
+            ComponentPermissions componentPermissions = containerSecurityBuilder.fillContainerBuilderSecurity(defaultRole,
+                    toBeChecked,
+                    ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
+                    ejbName,
+                    sessionBean.getSecurityRoleRefArray());
+
+            //TODO go back to the commented version when possible
+//          String contextID = builder.getContainerId();
+            String contextID = builder.getContainerId().replaceAll("[, ]", "_");
+            earContext.addSecurityContext(contextID, componentPermissions);
+
+            containerSecurityBuilder.setDetails(sessionBean.getSecurityIdentity(), securityConfiguration, builder);
+        }
+//        containerSecurityBuilder.fillContainerBuilderSecurity(builder,
+//                toBeChecked,
+//                ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
+//                sessionBean.getEjbName().getStringValue(),
+//                sessionBean.getSecurityIdentity(),
+//                sessionBean.getSecurityRoleRefArray());
 
         UserTransactionImpl userTransaction;
         if ("Bean".equals(sessionBean.getTransactionType().getStringValue())) {

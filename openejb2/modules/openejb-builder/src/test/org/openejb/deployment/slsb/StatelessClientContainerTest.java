@@ -66,7 +66,6 @@ import org.openejb.EJBContainer;
 import org.openejb.deployment.MockTransactionManager;
 import org.openejb.deployment.StatelessContainerBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.security.SecurityConfiguration;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
 
@@ -244,7 +243,6 @@ public class StatelessClientContainerTest extends TestCase {
                 return TransactionPolicyType.Required;
             }
         });
-        builder.setSecurityConfiguration(new SecurityConfiguration());
         builder.setComponentContext(new HashMap());
         builder.setTransactionContextManager(new TransactionContextManager(new MockTransactionManager(), null));
         builder.setTrackedConnectionAssociator(new ConnectionTrackingCoordinator());

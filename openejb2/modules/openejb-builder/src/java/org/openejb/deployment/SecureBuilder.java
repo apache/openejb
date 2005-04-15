@@ -52,7 +52,6 @@ import javax.security.auth.Subject;
 
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.openejb.security.SecurityConfiguration;
 
 
 /**
@@ -85,9 +84,5 @@ public interface SecureBuilder extends ResourceEnvironmentBuilder {
     boolean isUseContextHandler();
 
     void setUseContextHandler(boolean useContextHandler);
-
-    SecurityConfiguration getSecurityConfiguration();
-
-    void setSecurityConfiguration(SecurityConfiguration securityConfiguration);
 
 }

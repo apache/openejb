@@ -72,7 +72,6 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.geronimo.webservices.*;
 import org.apache.geronimo.validator.ValidationContext;
@@ -90,7 +89,7 @@ public class XFireWebServiceContainerBuilder {
      * The ultimate goal of this method is to create an XFireService GBean that wraps the EJBContainer with
      * the corresponding sessionObjectname and is capable of being indexed by its WSDL address location.
      */
-    public void addGbean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, ObjectName listener, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, Security security) throws DeploymentException {
+    public void addGbean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, ObjectName listener, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper) throws DeploymentException {
 
         boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue());
         String serviceEndpointName = OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getServiceEndpoint());

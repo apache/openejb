@@ -75,7 +75,6 @@ import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.proxy.EJBProxyFactory;
-import org.openejb.security.SecurityConfiguration;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
 import org.tranql.cache.CacheSlot;
@@ -421,7 +420,6 @@ public class BasicCMPEntityContainerTest extends TestCase {
                 return TransactionPolicyType.Required;
             }
         });
-        builder.setSecurityConfiguration(new SecurityConfiguration());
         EJBSchema ejbSchema = new EJBSchema("MOCK");
         SQL92Schema sqlSchema = new SQL92Schema("MOCK", ds, new DerbyEJBQLCompilerFactory());
         GlobalSchema globalSchema = new GlobalSchema("MOCK");
@@ -453,7 +451,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         slots[1] = new CacheSlot("value", String.class, null);
         CacheTable cacheTable = new CacheTable("MockEJB", slots, null, createCommand, storeCommand, removeCommand);
         globalSchema.addCacheTable(cacheTable);
-        
+
         container = builder.createConfiguration();
 
         GBeanData containerIndex = new GBeanData(ContainerIndex.GBEAN_INFO);

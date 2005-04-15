@@ -84,7 +84,6 @@ import org.openejb.deployment.KernelHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.OpenEJBModuleBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.security.SecurityConfiguration;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
@@ -234,7 +233,6 @@ public abstract class AbstractCMRTest extends TestCase {
             }
         });
 
-        builder.setSecurityConfiguration(new SecurityConfiguration());
         builder.setEJBSchema(ejbSchema);
         builder.setSQLSchema(sqlSchema);
         builder.setGlobalSchema(cacheSchema);

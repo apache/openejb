@@ -47,7 +47,6 @@ package org.openejb.deployment;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.jar.JarFile;
-
 import javax.management.ObjectName;
 
 import org.apache.axis.description.JavaServiceDesc;
@@ -59,7 +58,6 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
-import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.openejb.server.axis.WSContainerGBean;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
@@ -73,7 +71,7 @@ public class AxisWebServiceContainerBuilder {
      * The ultimate goal of this method is to create an XFireService GBean that wraps the EJBContainer with
      * the corresponding sessionObjectname and is capable of being indexed by its WSDL address location.
      */
-    public void addGbean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, ObjectName listener, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, Security security) throws DeploymentException {
+    public void addGbean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, ObjectName listener, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper) throws DeploymentException {
 
         boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue());
         String serviceEndpointName = OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getServiceEndpoint());
@@ -97,7 +95,7 @@ public class AxisWebServiceContainerBuilder {
         // Strip the jar file path from the WSDL file since jar file location may change at runtime.
         String wsdlFile = ejbServiceDesc.getWSDLFile();
         wsdlFile = wsdlFile.substring(wsdlFile.indexOf("!")+2);
-        
+
         URI wsdlURI = null;
         try {
             wsdlURI = new URI(wsdlFile);

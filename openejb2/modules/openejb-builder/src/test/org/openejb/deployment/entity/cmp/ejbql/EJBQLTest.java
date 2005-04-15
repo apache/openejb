@@ -85,7 +85,6 @@ import org.openejb.deployment.KernelHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.OpenEJBModuleBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
-import org.openejb.security.SecurityConfiguration;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarDocument;
@@ -140,7 +139,7 @@ public class EJBQLTest extends TestCase {
         ALocal a = aLocalHome.selectTest("test");
         assertEquals(new Integer(1), a.getField1());
     }
-    
+
     private void buildDBSchema(Connection c) throws Exception {
         Statement s = c.createStatement();
         try {
@@ -148,9 +147,9 @@ public class EJBQLTest extends TestCase {
         } catch (SQLException e) {
             // ignore
         }
-        
+
         s.execute("CREATE TABLE A(A1 INTEGER, A2 VARCHAR(50))");
-        
+
         s.execute("INSERT INTO A(A1, A2) VALUES(1, 'test')");
         s.close();
         c.close();
@@ -248,7 +247,6 @@ public class EJBQLTest extends TestCase {
             }
         });
 
-        builder.setSecurityConfiguration(new SecurityConfiguration());
         builder.setEJBSchema(ejbSchema);
         builder.setSQLSchema(sqlSchema);
         builder.setGlobalSchema(cacheSchema);
