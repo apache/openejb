@@ -91,6 +91,7 @@ import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.geronimo.xbeans.j2ee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbLinkType;
+import org.apache.xmlbeans.XmlException;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.slsb.HandlerChainConfiguration;
 import org.openejb.transaction.TransactionPolicySource;
@@ -267,11 +268,21 @@ class SessionBuilder extends BeanBuilder {
 
     private HandlerChainConfiguration createHandlerChainConfiguration(JarFile moduleFile, String ejbName, ClassLoader cl) throws DeploymentException {
         PortComponentHandlerType[] handlers = null;
+        String webservicesdd;
         try {
             URL webservicesURL = DeploymentUtil.createJarURL(moduleFile, "META-INF/webservices.xml");
-            WebservicesDocument webservicesDocument = WebservicesDocument.Factory.parse(webservicesURL);
+            webservicesdd = DeploymentUtil.readAll(webservicesURL);
+        } catch (Exception e) {
+            return null;//no ws dd
+        }
+        WebservicesDocument webservicesDocument = null;
+        try {
+            webservicesDocument = WebservicesDocument.Factory.parse(webservicesdd);
+        } catch (XmlException e) {
+            throw new DeploymentException("invalid webservicesdd", e);
+        }
 
-            WebserviceDescriptionType[] webserviceDescriptions = webservicesDocument.getWebservices().getWebserviceDescriptionArray();
+        WebserviceDescriptionType[] webserviceDescriptions = webservicesDocument.getWebservices().getWebserviceDescriptionArray();
             for (int i = 0; i < webserviceDescriptions.length && handlers == null; i++) {
 
                 PortComponentType[] portComponents = webserviceDescriptions[i].getPortComponentArray();
@@ -283,11 +294,6 @@ class SessionBuilder extends BeanBuilder {
                     }
                 }
             }
-        } catch (MalformedURLException e) {
-            throw new DeploymentException("Invalid URL to webservices.xml", e);
-        } catch (Exception e) {
-            throw new DeploymentException("Could not read webservices.xml", e);
-        }
 
         if (handlers != null){
             List handlerInfos = WSDescriptorParser.createHandlerInfoList(handlers, cl);
