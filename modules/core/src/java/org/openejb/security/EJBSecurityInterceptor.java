@@ -78,7 +78,7 @@ public final class EJBSecurityInterceptor implements Interceptor {
         this.next = next;
         //TODO go back to the commented version when possible
 //        this.contextId = contextId.toString();
-        this.contextId = contextId.toString().replaceAll("[, ]", "_");
+        this.contextId = contextId.toString().replaceAll("[,: ]", "_");
         this.permissionManager = permissionManager;
     }
 
