@@ -249,7 +249,7 @@ class EntityBuilder extends BeanBuilder {
 
             //TODO go back to the commented version when possible
 //        String contextID = builder.getContainerId();
-            String contextID = builder.getContainerId().replaceAll("[, ]", "_");
+            String contextID = builder.getContainerId().replaceAll("[,: ]", "_");
             earContext.addSecurityContext(contextID, componentPermissions);
 
             containerSecurityBuilder.setDetails(entityBean.getSecurityIdentity(), securityConfiguration, builder);
