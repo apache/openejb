@@ -49,7 +49,6 @@ package org.openejb.slsb;
 
 import org.apache.geronimo.core.service.Interceptor;
 import org.apache.geronimo.naming.java.ComponentContextInterceptor;
-
 import org.openejb.AbstractInterceptorBuilder;
 import org.openejb.ConnectionTrackingInterceptor;
 import org.openejb.SystemExceptionInterceptor;
@@ -66,6 +65,8 @@ import org.openejb.transaction.TransactionContextInterceptor;
  */
 public class StatelessInterceptorBuilder extends AbstractInterceptorBuilder {
 
+    private HandlerChainConfiguration handlerChainConfiguration;
+
     public TwoChains buildInterceptorChains() {
         if (transactionContextManager == null) {
             throw new IllegalStateException("Transaction manager must be set before building the interceptor chain");
@@ -76,6 +77,9 @@ public class StatelessInterceptorBuilder extends AbstractInterceptorBuilder {
 
         Interceptor firstInterceptor;
         firstInterceptor = new DispatchInterceptor(vtable);
+        if (handlerChainConfiguration != null){
+            firstInterceptor = new HandlerChainInterceptor(firstInterceptor, handlerChainConfiguration.getHandlerInfoList(), handlerChainConfiguration.getRoles());
+        }
         firstInterceptor = new ComponentContextInterceptor(firstInterceptor, componentContext);
         if (trackedConnectionAssociator != null) {
             firstInterceptor = new ConnectionTrackingInterceptor(firstInterceptor, trackedConnectionAssociator);
@@ -98,5 +102,13 @@ public class StatelessInterceptorBuilder extends AbstractInterceptorBuilder {
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
         firstInterceptor = new SystemExceptionInterceptor(firstInterceptor, ejbName);
         return new TwoChains(firstInterceptor, systemChain);
+    }
+
+    public HandlerChainConfiguration getHandlerChainConfiguration() {
+        return handlerChainConfiguration;
+    }
+
+    public void setHandlerChainConfiguration(HandlerChainConfiguration handlerChainConfiguration) {
+        this.handlerChainConfiguration = handlerChainConfiguration;
     }
 }
