@@ -67,16 +67,28 @@ import org.openejb.slsb.RemoveMethod;
 import org.openejb.slsb.StatelessInstanceContextFactory;
 import org.openejb.slsb.StatelessInstanceFactory;
 import org.openejb.slsb.StatelessInterceptorBuilder;
+import org.openejb.slsb.HandlerChainConfiguration;
 import org.openejb.slsb.dispatch.SetSessionContextOperation;
 
 /**
  * @version $Revision$ $Date$
  */
 public class StatelessContainerBuilder extends AbstractContainerBuilder {
+
     private static final MethodSignature SET_SESSION_CONTEXT = new MethodSignature("setSessionContext", new String[]{"javax.ejb.SessionContext"});
+
+    private HandlerChainConfiguration handlerChainConfiguration;
 
     protected int getEJBComponentType() {
         return EJBComponentType.STATELESS;
+    }
+
+    public HandlerChainConfiguration getHandlerChainConfiguration() {
+        return handlerChainConfiguration;
+    }
+
+    public void setHandlerChainConfiguration(HandlerChainConfiguration handlerChainConfiguration) {
+        this.handlerChainConfiguration = handlerChainConfiguration;
     }
 
     protected Object buildIt(boolean buildContainer) throws Exception {
@@ -90,7 +102,8 @@ public class StatelessContainerBuilder extends AbstractContainerBuilder {
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
 
         // create and intitalize the interceptor moduleBuilder
-        InterceptorBuilder interceptorBuilder = initializeInterceptorBuilder(new StatelessInterceptorBuilder(), signatures, vtable);
+        StatelessInterceptorBuilder interceptorBuilder = (StatelessInterceptorBuilder) initializeInterceptorBuilder(new StatelessInterceptorBuilder(), signatures, vtable);
+        interceptorBuilder.setHandlerChainConfiguration(getHandlerChainConfiguration());
 
         // build the instance factory
         StatelessInstanceContextFactory contextFactory = new StatelessInstanceContextFactory(getContainerId(), beanClass, getUserTransaction(), getUnshareableResources(), getApplicationManagedSecurityResources());
