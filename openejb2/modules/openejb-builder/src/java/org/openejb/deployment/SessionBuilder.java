@@ -47,15 +47,21 @@
  */
 package org.openejb.deployment;
 
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.security.Permissions;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.transaction.UserTransaction;
 
+import org.apache.geronimo.axis.builder.WSDescriptorParser;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
@@ -76,11 +82,17 @@ import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.j2ee.PortComponentHandlerType;
+import org.apache.geronimo.xbeans.j2ee.PortComponentType;
 import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
 import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
+import org.apache.geronimo.xbeans.j2ee.WebserviceDescriptionType;
+import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
+import org.apache.geronimo.xbeans.j2ee.EjbLinkType;
 import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.slsb.HandlerChainConfiguration;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
@@ -182,6 +194,7 @@ class SessionBuilder extends BeanBuilder {
             builder.setTransactedTimerName(earContext.getTransactedTimerName());
             builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
             builder.setServiceEndpointName(OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getServiceEndpoint()));
+            ((StatelessContainerBuilder) builder).setHandlerChainConfiguration(createHandlerChainConfiguration(ejbModule.getModuleFile(), ejbName, cl));
             containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "ServiceEndpoint", builder.getServiceEndpointName(), cl);
         } else {
             builder = new StatefulContainerBuilder();
@@ -256,6 +269,38 @@ class SessionBuilder extends BeanBuilder {
         }
         GBeanData sessionGBean = result;
         earContext.addGBean(sessionGBean);
+    }
+
+    private HandlerChainConfiguration createHandlerChainConfiguration(JarFile moduleFile, String ejbName, ClassLoader cl) throws DeploymentException {
+        PortComponentHandlerType[] handlers = null;
+        try {
+            URL webservicesURL = DeploymentUtil.createJarURL(moduleFile, "META-INF/webservices.xml");
+            WebservicesDocument webservicesDocument = WebservicesDocument.Factory.parse(webservicesURL);
+
+            WebserviceDescriptionType[] webserviceDescriptions = webservicesDocument.getWebservices().getWebserviceDescriptionArray();
+            for (int i = 0; i < webserviceDescriptions.length && handlers == null; i++) {
+
+                PortComponentType[] portComponents = webserviceDescriptions[i].getPortComponentArray();
+                for (int j = 0; j < portComponents.length && handlers == null; j++) {
+
+                    EjbLinkType ejbLink = portComponents[j].getServiceImplBean().getEjbLink();
+                    if (ejbLink != null && ejbLink.getStringValue().trim().equals(ejbName)) {
+                        handlers = portComponents[j].getHandlerArray();
+                    }
+                }
+            }
+        } catch (MalformedURLException e) {
+            throw new DeploymentException("Invalid URL to webservices.xml", e);
+        } catch (Exception e) {
+            throw new DeploymentException("Could not read webservices.xml", e);
+        }
+
+        if (handlers != null){
+            List handlerInfos = WSDescriptorParser.createHandlerInfoList(handlers, cl);
+            return new HandlerChainConfiguration(handlerInfos, new String[]{});
+        } else {
+            return null;
+        }
     }
 
     public void initContext(EARContext earContext, J2eeContext moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans, Set interfaces) throws DeploymentException {
