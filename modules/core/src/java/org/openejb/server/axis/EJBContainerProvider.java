@@ -35,8 +35,9 @@ public class EJBContainerProvider extends RPCProvider {
     protected Object invokeMethod(MessageContext msgContext, Method method, Object obj, Object[] params) throws Exception {
         int index = ejbContainer.getMethodIndex(method);
         EJBInvocation invocation = new EJBInvocationImpl(EJBInterfaceType.WEB_SERVICE, null, index, params);
-        javax.xml.rpc.handler.MessageContext messageContext = new SimpleMessageContext(new HashMap());
-        invocation.put(MessageContextInvocationKey.INSTANCE, messageContext);
+//        javax.xml.rpc.handler.MessageContext messageContext = new SimpleMessageContext(new HashMap());
+        invocation.put(MessageContextInvocationKey.INSTANCE, msgContext);
+
         try {
             InvocationResult invocationResult = ejbContainer.invoke(invocation);
             if (invocationResult.isException()) {

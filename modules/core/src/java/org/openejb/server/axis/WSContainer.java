@@ -47,7 +47,6 @@ package org.openejb.server.axis;
 import java.net.URI;
 
 import org.apache.axis.description.JavaServiceDesc;
-import org.apache.axis.handlers.HandlerInfoChainFactory;
 import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
@@ -82,66 +81,17 @@ public class WSContainer implements GBeanLifecycle {
             service.setOption("className", serviceEndpointInterface.getName());
             serviceDesc.setImplClass(serviceEndpointInterface);
 
-            HandlerInfoChainFactory handlerInfoChainFactory = new HandlerInfoChainFactory(serviceInfo.getHandlerInfos());
-            service.setOption(org.apache.axis.Constants.ATTR_HANDLERINFOCHAIN, handlerInfoChainFactory);
-
             ClassLoader classLoader = ejbContainer.getClassLoader();
             AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
             if (soapHandler != null) {
                 soapHandler.addWebService(location.getPath(), axisContainer);
             }
+            
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
-
-
-//    public WSContainer(final EJBContainer ejbContainer, Definition definition, URI location, URL wsdlURL, String namespace, String encoding, String style, WebServiceContainer webServiceContainer) throws Exception {
-//        this.webServiceContainer = webServiceContainer;
-//        this.ejbContainer = ejbContainer;
-//        this.location = location;
-//        this.wsdlURL = wsdlURL;
-//
-//        JavaServiceDesc serviceDesc = createServiceDesc();
-//
-//        RPCProvider provider = new EJBContainerProvider(ejbContainer);
-//        service = new SOAPService(null, provider, null);
-//        service.setServiceDescription(serviceDesc);
-//        service.setOption("className", "org.openejb.test.simple.slsb.SimpleStatelessSessionEJB");
-//
-//        if (webServiceContainer != null) {
-//            webServiceContainer.addWebService(location.getPath(), this);
-//        }
-//    }
-//
-//    private JavaServiceDesc createServiceDesc() {
-//        JavaServiceDesc serviceDesc = new JavaServiceDesc();
-//        serviceDesc.setName("SimpleService");
-//        serviceDesc.setStyle(Style.RPC);
-//        serviceDesc.setUse(Use.ENCODED);
-//
-//        ParameterDesc parameterDesc = new ParameterDesc();
-//        parameterDesc.setName("String_1");
-//        parameterDesc.setTypeQName(new QName(XSD_NS, "string"));
-//
-//        OperationDesc operation = new OperationDesc("echo", new ParameterDesc[]{parameterDesc}, new QName("result"));
-//        operation.setReturnType(new QName(XSD_NS, "string"));
-//        serviceDesc.addOperationDesc(operation);
-//
-//        TypeMappingRegistryImpl typeMappingRegistry = new TypeMappingRegistryImpl();
-//        typeMappingRegistry.doRegisterFromVersion("1.3");
-//        org.apache.axis.encoding.TypeMapping typeMapping = typeMappingRegistry.getOrMakeTypeMapping(Use.ENCODED_STR);
-//
-//        serviceDesc.setTypeMappingRegistry(typeMappingRegistry);
-//        serviceDesc.setTypeMapping(typeMapping);
-//
-//        SerializerFactory ser = BaseSerializerFactory.createFactory(SimpleSerializerFactory.class, String.class, new QName(XSD_NS, "string"));
-//        DeserializerFactory deser = BaseDeserializerFactory.createFactory(SimpleDeserializerFactory.class, String.class, new QName(XSD_NS, "string"));
-//        typeMapping.register(String.class, new QName(XSD_NS, "string"), ser, deser);
-//        return serviceDesc;
-//    }
-
 
     public void doStart() throws Exception {
 
