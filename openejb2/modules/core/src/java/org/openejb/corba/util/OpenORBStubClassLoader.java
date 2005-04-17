@@ -51,6 +51,7 @@ import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -81,7 +82,7 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
     private final File cacheDir;
     private final Map parentToNameToLoaderMap = new HashMap();
     private final Map nameToClassMap = new HashMap();
-    private static long jarId = 0;
+    private static Random random = new Random(System.currentTimeMillis());
 
     public OpenORBStubClassLoader(ServerInfo serverInfo, StubGenerator stubGenerator, String cacheDir) {
         this.stubGenerator = stubGenerator;
@@ -120,7 +121,10 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
                 URL url = (URL) nameToClassMap.get(name);
                 if (url == null) {
                     try {
-                        File file = new File(cacheDir, "STUB_" + (jarId++) + ".jar");
+                        File file = new File(cacheDir, "STUB_" + (random.nextLong()) + ".jar");
+                        while (file.exists()) {
+                            file = new File(cacheDir, "STUB_" + (random.nextLong()) + ".jar");
+                        }
 
                         if (log.isDebugEnabled()) log.debug("Generating stubs in " + file.toString());
 
