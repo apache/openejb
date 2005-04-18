@@ -95,7 +95,7 @@ class MdbBuilder extends BeanBuilder {
         super(builder);
     }
 
-    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
+    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, ComponentPermissions componentPermissions, String policyContextID) throws DeploymentException {
         // Message Driven Beans
         MessageDrivenBeanType[] messageDrivenBeans = enterpriseBeans.getMessageDrivenArray();
         for (int i = 0; i < messageDrivenBeans.length; i++) {
@@ -125,7 +125,7 @@ class MdbBuilder extends BeanBuilder {
                     openejbMessageDrivenBean.getResourceAdapter(),
                     messageDrivenBean.getMessagingType().getStringValue().trim(),
                     containerId);
-            GBeanData messageDrivenGBean = createBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, cl);
+            GBeanData messageDrivenGBean = createBean(earContext, ejbModule, containerId, messageDrivenBean, openejbMessageDrivenBean, activationSpecName, transactionPolicyHelper, cl, componentPermissions, policyContextID);
             messageDrivenGBean.setName(messageDrivenObjectName);
             earContext.addGBean(messageDrivenGBean);
         }
@@ -153,7 +153,9 @@ class MdbBuilder extends BeanBuilder {
                                  OpenejbMessageDrivenBeanType openejbMessageDrivenBean,
                                  ObjectName activationSpecWrapperName,
                                  TransactionPolicyHelper transactionPolicyHelper,
-                                 ClassLoader cl) throws DeploymentException {
+                                 ClassLoader cl,
+                                 ComponentPermissions componentPermissions,
+                                 String policyContextID) throws DeploymentException {
 
         if (openejbMessageDrivenBean == null) {
             throw new DeploymentException("openejb-jar.xml required to deploy an mdb");
@@ -175,18 +177,13 @@ class MdbBuilder extends BeanBuilder {
             Permissions toBeChecked = new Permissions();
             ContainerSecurityBuilder containerSecurityBuilder = new ContainerSecurityBuilder();
             String defaultRole = securityConfiguration.getDefaultRole();
-            ComponentPermissions componentPermissions = containerSecurityBuilder.fillContainerBuilderSecurity(defaultRole,
+            containerSecurityBuilder.addComponentPermissions(defaultRole,
                     toBeChecked,
                     ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
                     ejbName,
-                    null);
+                    null, componentPermissions);
 
-            //TODO go back to the commented version when possible
-//        String contextID = builder.getContainerId();
-            String contextID = builder.getContainerId().replaceAll("[,: ]", "_");
-            earContext.addSecurityContext(contextID, componentPermissions);
-
-            containerSecurityBuilder.setDetails(messageDrivenBean.getSecurityIdentity(), securityConfiguration, builder);
+            containerSecurityBuilder.setDetails(messageDrivenBean.getSecurityIdentity(), securityConfiguration, policyContextID, builder);
         }
 
         UserTransactionImpl userTransaction;

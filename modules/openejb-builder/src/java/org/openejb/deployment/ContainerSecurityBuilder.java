@@ -52,7 +52,6 @@ import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.jacc.EJBMethodPermission;
@@ -73,7 +72,7 @@ import org.apache.geronimo.xbeans.j2ee.SecurityRoleRefType;
 
 class ContainerSecurityBuilder {
 
-    public void setDetails(SecurityIdentityType securityIdentity, SecurityConfiguration securityConfiguration, SecureBuilder builder) throws DeploymentException {
+    public void setDetails(SecurityIdentityType securityIdentity, SecurityConfiguration securityConfiguration, String policyContextID, SecureBuilder builder) throws DeploymentException {
         builder.setSecurityEnabled(true);
         builder.setDoAsCurrentCaller(securityConfiguration.isDoAsCurrentCaller());
         builder.setUseContextHandler(securityConfiguration.isUseContextHandler());
@@ -90,6 +89,7 @@ class ContainerSecurityBuilder {
          * Add the default subject
          */
         builder.setDefaultPrincipal(securityConfiguration.getDefaultPrincipal());
+        builder.setPolicyContextID(policyContextID);
     }
 
     /**
@@ -104,18 +104,20 @@ class ContainerSecurityBuilder {
      * @param assemblyDescriptor the assembly descriptor
      * @param EJBName            the name of the EJB
      * @param roleReferences     the EJB's role references
+     * @param componentPermissions
      * @throws DeploymentException if any constraints are violated
      */
-    public ComponentPermissions fillContainerBuilderSecurity(String defaultRole,
-                                                Permissions notAssigned,
-                                                AssemblyDescriptorType assemblyDescriptor,
-                                                String EJBName,
-                                                SecurityRoleRefType[] roleReferences)
+    public void addComponentPermissions(String defaultRole,
+                                        Permissions notAssigned,
+                                        AssemblyDescriptorType assemblyDescriptor,
+                                        String EJBName,
+                                        SecurityRoleRefType[] roleReferences,
+                                        ComponentPermissions componentPermissions)
             throws DeploymentException {
 
-        PermissionCollection uncheckedPermissions = new Permissions();
-        PermissionCollection excludedPermissions = new Permissions();
-        Map rolePermissions = new HashMap();
+        PermissionCollection uncheckedPermissions = componentPermissions.getUncheckedPermissions();
+        PermissionCollection excludedPermissions = componentPermissions.getExcludedPermissions();
+        Map rolePermissions = componentPermissions.getRolePermissions();
 
         /**
          * JACC v1.0 section 3.1.5.1
@@ -230,8 +232,6 @@ class ContainerSecurityBuilder {
             permissions.add(p);
         }
 
-        ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, rolePermissions);
-        return componentPermissions;
     }
 
     /**

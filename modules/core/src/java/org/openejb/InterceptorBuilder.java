@@ -35,7 +35,7 @@ import org.openejb.transaction.TransactionPolicyManager;
  * @version $Revision$ $Date$
  */
 public interface InterceptorBuilder extends Serializable {
-    void setContainerId(Object contextId);
+    void setPolicyContextId(String policyContextID);
 
     void setEJBName(String ejbName);
 
@@ -66,4 +66,6 @@ public interface InterceptorBuilder extends Serializable {
     void setInstanceFactory(InstanceFactory instanceFactory);
 
     TwoChains buildInterceptorChains();
+
+    void setContainerId(Object containerID);
 }

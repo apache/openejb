@@ -90,7 +90,7 @@ public class StatelessInterceptorBuilder extends AbstractInterceptorBuilder {
         Interceptor systemChain = firstInterceptor;
         firstInterceptor = new TransactionContextInterceptor(firstInterceptor, transactionContextManager, transactionPolicyManager);
         if (securityEnabled) {
-            firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, containerId, permissionManager);
+            firstInterceptor = new EJBSecurityInterceptor(firstInterceptor, policyContextId, permissionManager);
         }
         if (runAs != null) {
             firstInterceptor = new EJBRunAsInterceptor(firstInterceptor, runAs);

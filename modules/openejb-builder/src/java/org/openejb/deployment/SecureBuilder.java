@@ -85,4 +85,5 @@ public interface SecureBuilder extends ResourceEnvironmentBuilder {
 
     void setUseContextHandler(boolean useContextHandler);
 
+    void setPolicyContextID(String policyContextID);
 }

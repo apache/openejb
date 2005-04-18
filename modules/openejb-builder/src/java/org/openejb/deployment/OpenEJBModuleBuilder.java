@@ -54,6 +54,7 @@ import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.Permissions;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -84,11 +85,11 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceLocatorType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
-import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.EJBModuleImpl;
@@ -309,8 +310,9 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
         Set interfaces = new HashSet();
-        sessionBuilder.initContext(earContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans, interfaces);
-        entityBuilder.initContext(earContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans, interfaces);
+        RefContext refContext = earContext.getRefContext();
+        sessionBuilder.initContext(refContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans, interfaces);
+        entityBuilder.initContext(refContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans, interfaces);
         mdbBuilder.initContext(cl, enterpriseBeans);
 
         if (skeletonGenerator != null) {
@@ -498,28 +500,23 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
         EnterpriseBeansType enterpriseBeans = ejbJar.getEnterpriseBeans();
 
-        sessionBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, enterpriseBeans, listener);
+        ComponentPermissions componentPermissions = new ComponentPermissions(new Permissions(), new Permissions(), new HashMap());
+        //TODO go back to the commented version when possible
+//          String contextID = ejbModuleObjectName.getCanonicalName();
+        String policyContextID = ejbModuleObjectName.getCanonicalName().replaceAll("[,: ]", "_");
 
-        entityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, enterpriseBeans);
 
-        cmpEntityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, ejbSchema, sqlSchema, globalSchema, openejbBeans, transactionPolicyHelper, enterpriseBeans, tmDelegate);
+        sessionBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, componentPermissions, openejbBeans, transactionPolicyHelper, enterpriseBeans, listener, policyContextID);
 
-        mdbBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, enterpriseBeans);
+        entityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, componentPermissions, transactionPolicyHelper, enterpriseBeans, policyContextID);
+
+        cmpEntityBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, ejbSchema, sqlSchema, globalSchema, openejbBeans, transactionPolicyHelper, enterpriseBeans, tmDelegate, componentPermissions, policyContextID);
+
+        mdbBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, enterpriseBeans, componentPermissions, policyContextID);
+
+        earContext.addSecurityContext(policyContextID, componentPermissions);
 
         return null;
-    }
-
-    private static Set collectRoleNames(EjbJarType ejbJar) {
-        Set roleNames = new HashSet();
-
-        if (ejbJar.isSetAssemblyDescriptor()) {
-            SecurityRoleType[] securityRoles = ejbJar.getAssemblyDescriptor().getSecurityRoleArray();
-            for (int i = 0; i < securityRoles.length; i++) {
-                roleNames.add(securityRoles[i].getRoleName().getStringValue());
-            }
-        }
-
-        return roleNames;
     }
 
     private static ObjectName getResourceContainerId(URI uri, GerResourceLocatorType resourceLocator, EARContext earContext) throws DeploymentException {

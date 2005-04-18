@@ -93,6 +93,7 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
     private boolean doAsCurrentCaller = false;
     private boolean securityEnabled = false;
     private boolean useContextHandler = false;
+    private String policyContextID;
     private Map componentContext;
     private Set unshareableResources;
     private Set applicationManagedSecurityResources;
@@ -181,6 +182,14 @@ public class MDBContainerBuilder implements ResourceEnvironmentBuilder, SecureBu
 
     public void setUseContextHandler(boolean useContextHandler) {
         this.useContextHandler = useContextHandler;
+    }
+
+    public void setPolicyContextID(String policyContextID) {
+        this.policyContextID = policyContextID;
+    }
+
+    public String getPolicyContextID() {
+        return policyContextID;
     }
 
     public Map getComponentContext() {
