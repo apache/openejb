@@ -47,7 +47,6 @@
  */
 package org.openejb.deployment;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.security.Permissions;
@@ -65,6 +64,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
+import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -77,6 +77,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
+import org.apache.geronimo.xbeans.j2ee.EjbLinkType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
@@ -90,7 +91,6 @@ import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.apache.geronimo.xbeans.j2ee.WebserviceDescriptionType;
 import org.apache.geronimo.xbeans.j2ee.WebservicesDocument;
-import org.apache.geronimo.xbeans.j2ee.EjbLinkType;
 import org.apache.xmlbeans.XmlException;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.slsb.HandlerChainConfiguration;
@@ -159,7 +159,7 @@ class SessionBuilder extends BeanBuilder {
 
     }
 
-    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, ObjectName listener) throws DeploymentException {
+    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, ComponentPermissions componentPermissions, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, ObjectName listener, String policyContextID) throws DeploymentException {
         // Session Beans
         SessionBeanType[] sessionBeans = enterpriseBeans.getSessionArray();
         for (int i = 0; i < sessionBeans.length; i++) {
@@ -168,7 +168,7 @@ class SessionBuilder extends BeanBuilder {
             OpenejbSessionBeanType openejbSessionBean = (OpenejbSessionBeanType) openejbBeans.get(sessionBean.getEjbName().getStringValue());
             ObjectName sessionObjectName = createEJBObjectName(moduleJ2eeContext, sessionBean);
             assert sessionObjectName != null: "StatelesSessionBean object name is null";
-            addEJBContainerGBean(earContext, ejbModule, cl, sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper);
+            addEJBContainerGBean(earContext, ejbModule, componentPermissions, cl, sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper, policyContextID);
             addWSContainerGBean(earContext, ejbModule, cl, sessionObjectName, sessionBean, openejbSessionBean, transactionPolicyHelper, listener);
 
         }
@@ -182,7 +182,7 @@ class SessionBuilder extends BeanBuilder {
         axisWebServiceContainerBuilder.addGbean(earContext, ejbModule, cl, sessionObjectName, listener, sessionBean, openejbSessionBean, transactionPolicyHelper);
     }
 
-    private void addEJBContainerGBean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper) throws DeploymentException {
+    private void addEJBContainerGBean(EARContext earContext, EJBModule ejbModule, ComponentPermissions componentPermissions, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, String policyContextID) throws DeploymentException {
         String ejbName = sessionBean.getEjbName().getStringValue();
 
         GBeanData result;
@@ -217,18 +217,13 @@ class SessionBuilder extends BeanBuilder {
             containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Local", builder.getLocalInterfaceName(), cl);
 
             String defaultRole = securityConfiguration.getDefaultRole();
-            ComponentPermissions componentPermissions = containerSecurityBuilder.fillContainerBuilderSecurity(defaultRole,
+            containerSecurityBuilder.addComponentPermissions(defaultRole,
                     toBeChecked,
                     ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
                     ejbName,
-                    sessionBean.getSecurityRoleRefArray());
+                    sessionBean.getSecurityRoleRefArray(), componentPermissions);
 
-            //TODO go back to the commented version when possible
-//          String contextID = builder.getContainerId();
-            String contextID = builder.getContainerId().replaceAll("[,: ]", "_");
-            earContext.addSecurityContext(contextID, componentPermissions);
-
-            containerSecurityBuilder.setDetails(sessionBean.getSecurityIdentity(), securityConfiguration, builder);
+            containerSecurityBuilder.setDetails(sessionBean.getSecurityIdentity(), securityConfiguration, policyContextID, builder);
         }
 
         UserTransactionImpl userTransaction;
@@ -303,7 +298,7 @@ class SessionBuilder extends BeanBuilder {
         }
     }
 
-    public void initContext(EARContext earContext, J2eeContext moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans, Set interfaces) throws DeploymentException {
+    public void initContext(RefContext refContext, J2eeContext moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans, Set interfaces) throws DeploymentException {
         // Session Beans
         SessionBeanType[] sessionBeans = enterpriseBeans.getSessionArray();
         for (int i = 0; i < sessionBeans.length; i++) {
@@ -324,7 +319,7 @@ class SessionBuilder extends BeanBuilder {
                 interfaces.add(home);
 
                 String objectName = sessionObjectName.getCanonicalName();
-                earContext.getRefContext().addEJBRemoteId(moduleUri, ejbName, objectName, true, home, remote);
+                refContext.addEJBRemoteId(moduleUri, ejbName, objectName, true, home, remote);
             }
 
             // ejb-local-ref
@@ -336,7 +331,7 @@ class SessionBuilder extends BeanBuilder {
                 ENCConfigBuilder.assureEJBLocalHomeInterface(localHome, cl);
 
                 String objectName = sessionObjectName.getCanonicalName();
-                earContext.getRefContext().addEJBLocalId(moduleUri, ejbName, objectName, true, localHome, local);
+                refContext.addEJBLocalId(moduleUri, ejbName, objectName, true, localHome, local);
             }
         }
     }

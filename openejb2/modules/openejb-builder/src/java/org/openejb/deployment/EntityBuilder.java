@@ -59,6 +59,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
+import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -88,7 +89,7 @@ class EntityBuilder extends BeanBuilder {
         super(builder);
     }
 
-    public void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans) throws DeploymentException {
+    public void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, Map openejbBeans, ComponentPermissions componentPermissions, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, String policyContextID) throws DeploymentException {
         // BMP Entity Beans
         EntityBeanType[] bmpEntityBeans = enterpriseBeans.getEntityArray();
         for (int i = 0; i < bmpEntityBeans.length; i++) {
@@ -101,12 +102,12 @@ class EntityBuilder extends BeanBuilder {
             OpenejbEntityBeanType openejbEntityBean = (OpenejbEntityBeanType) openejbBeans.get(entityBean.getEjbName().getStringValue());
             ObjectName entityObjectName = createEJBObjectName(moduleJ2eeContext, entityBean);
 
-            GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, transactionPolicyHelper, cl);
+            GBeanData entityGBean = createBean(earContext, ejbModule, entityObjectName, entityBean, openejbEntityBean, componentPermissions, transactionPolicyHelper, cl, policyContextID);
             earContext.addGBean(entityGBean);
         }
     }
 
-    public GBeanData createBean(EARContext earContext, EJBModule ejbModule, ObjectName containerObjectName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl) throws DeploymentException {
+    public GBeanData createBean(EARContext earContext, EJBModule ejbModule, ObjectName containerObjectName, EntityBeanType entityBean, OpenejbEntityBeanType openejbEntityBean, ComponentPermissions componentPermissions, TransactionPolicyHelper transactionPolicyHelper, ClassLoader cl, String policyContextID) throws DeploymentException {
         String ejbName = entityBean.getEjbName().getStringValue();
 
         BMPContainerBuilder builder = new BMPContainerBuilder();
@@ -126,7 +127,7 @@ class EntityBuilder extends BeanBuilder {
         builder.setNonTransactedTimerName(earContext.getNonTransactedTimerName());
         builder.setReentrant(entityBean.getReentrant().getBooleanValue());
 
-        addSecurity(earContext, ejbName, builder, cl, ejbModule, entityBean);
+        addSecurity(earContext, ejbName, builder, cl, ejbModule, entityBean, componentPermissions, policyContextID);
 
         processEnvironmentRefs(builder, earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
 
@@ -193,7 +194,7 @@ class EntityBuilder extends BeanBuilder {
         ENCConfigBuilder.setResourceEnvironment(earContext, ejbModule.getModuleURI(), builder, resourceRefs, openejbResourceRefs);
     }
 
-    public void initContext(EARContext earContext, J2eeContext moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans, Set interfaces) throws DeploymentException {
+    public void initContext(RefContext refContext, J2eeContext moduleJ2eeContext, URI moduleUri, ClassLoader cl, EnterpriseBeansType enterpriseBeans, Set interfaces) throws DeploymentException {
         // Entity Beans
         EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
         for (int i = 0; i < entityBeans.length; i++) {
@@ -214,7 +215,7 @@ class EntityBuilder extends BeanBuilder {
                 interfaces.add(home);
 
                 String objectName = entityObjectName.getCanonicalName();
-                earContext.getRefContext().addEJBRemoteId(moduleUri, ejbName, objectName, false, home, remote);
+                refContext.addEJBRemoteId(moduleUri, ejbName, objectName, false, home, remote);
             }
 
             // ejb-local-ref
@@ -226,12 +227,12 @@ class EntityBuilder extends BeanBuilder {
                 ENCConfigBuilder.assureEJBLocalHomeInterface(localHome, cl);
 
                 String objectName = entityObjectName.getCanonicalName();
-                earContext.getRefContext().addEJBLocalId(moduleUri, ejbName, objectName, false, localHome, local);
+                refContext.addEJBLocalId(moduleUri, ejbName, objectName, false, localHome, local);
             }
         }
     }
 
-    protected void addSecurity(EARContext earContext, String ejbName, ContainerBuilder builder, ClassLoader cl, EJBModule ejbModule, EntityBeanType entityBean) throws DeploymentException {
+    protected void addSecurity(EARContext earContext, String ejbName, ContainerBuilder builder, ClassLoader cl, EJBModule ejbModule, EntityBeanType entityBean, ComponentPermissions componentPermissions, String policyContextID) throws DeploymentException {
         SecurityConfiguration securityConfiguration = earContext.getSecurityConfiguration();
         if (securityConfiguration != null) {
             Permissions toBeChecked = new Permissions();
@@ -241,18 +242,13 @@ class EntityBuilder extends BeanBuilder {
             containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Remote", builder.getRemoteInterfaceName(), cl);
             containerSecurityBuilder.addToPermissions(toBeChecked, ejbName, "Local", builder.getLocalInterfaceName(), cl);
             String defaultRole = securityConfiguration.getDefaultRole();
-            ComponentPermissions componentPermissions = containerSecurityBuilder.fillContainerBuilderSecurity(defaultRole,
+            containerSecurityBuilder.addComponentPermissions(defaultRole,
                     toBeChecked,
                     ((EjbJarType) ejbModule.getSpecDD()).getAssemblyDescriptor(),
                     ejbName,
-                    entityBean.getSecurityRoleRefArray());
+                    entityBean.getSecurityRoleRefArray(), componentPermissions);
 
-            //TODO go back to the commented version when possible
-//        String contextID = builder.getContainerId();
-            String contextID = builder.getContainerId().replaceAll("[,: ]", "_");
-            earContext.addSecurityContext(contextID, componentPermissions);
-
-            containerSecurityBuilder.setDetails(entityBean.getSecurityIdentity(), securityConfiguration, builder);
+            containerSecurityBuilder.setDetails(entityBean.getSecurityIdentity(), securityConfiguration, policyContextID, builder);
         }
     }
 }

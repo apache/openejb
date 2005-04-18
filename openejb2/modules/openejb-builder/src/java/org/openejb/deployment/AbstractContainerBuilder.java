@@ -100,6 +100,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
     private boolean doAsCurrentCaller = false;
     private boolean securityEnabled = false;
     private boolean useContextHandler = false;
+    private String policycontextId;
     private Map componentContext;
     private Set unshareableResources;
     private Set applicationManagedSecurityResources;
@@ -238,6 +239,14 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         this.useContextHandler = useContextHandler;
     }
 
+    public void setPolicyContextID(String policyContextID) {
+        this.policycontextId = policyContextID;
+    }
+
+    public String getPolicycontextId() {
+        return policycontextId;
+    }
+
     public Map getComponentContext() {
         return componentContext;
     }
@@ -355,6 +364,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         interceptorBuilder.setDoAsCurrentCaller(doAsCurrentCaller);
         interceptorBuilder.setSecurityEnabled(securityEnabled);
         interceptorBuilder.setUseContextHandler(useContextHandler);
+        interceptorBuilder.setPolicyContextId(policycontextId);
         interceptorBuilder.setTransactionPolicyManager(new TransactionPolicyManager(buildTransactionPolicies(transactionPolicySource, signatures)));
         interceptorBuilder.setPermissionManager(new PermissionManager(ejbName, signatures));
         return interceptorBuilder;

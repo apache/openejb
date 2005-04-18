@@ -68,22 +68,23 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
     protected Object containerId;
     protected String ejbName;
     protected VirtualOperation[] vtable;
-    protected Subject runAs;
     protected Context componentContext;
     protected TransactionPolicyManager transactionPolicyManager;
     protected PermissionManager permissionManager;
+    protected Subject runAs;
     protected boolean doAsCurrentCaller = false;
     protected boolean securityEnabled = false;
     protected boolean useContextHandler = false;
+    protected String policyContextId;
     protected transient TransactionContextManager transactionContextManager;
     protected transient TrackedConnectionAssociator trackedConnectionAssociator;
     protected transient InstancePool instancePool;
     protected InstanceCache instanceCache;
     protected InstanceFactory instanceFactory;
 
-    public void setContainerId(Object containerId) {
-        assert (containerId != null) : "containerId is null";
-        this.containerId = containerId;
+    public void setContainerId(Object containerID) {
+        assert (containerID != null) : "containerID is null!";
+        this.containerId = containerID;
     }
 
     public void setEJBName(String ejbName) {
@@ -94,10 +95,6 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
     public void setVtable(VirtualOperation[] vtable) {
         assert (vtable != null && vtable.length > 0) : "vtable is null or empty";
         this.vtable = vtable;
-    }
-
-    public void setRunAs(Subject runAs) {
-        this.runAs = runAs;
     }
 
     public void setComponentContext(Context componentContext) {
@@ -117,6 +114,14 @@ public abstract class AbstractInterceptorBuilder implements InterceptorBuilder {
 
     public void setDoAsCurrentCaller(boolean doAsCurrentCaller) {
         this.doAsCurrentCaller = doAsCurrentCaller;
+    }
+
+    public void setPolicyContextId(String policyContextID) {
+        this.policyContextId = policyContextID;
+    }
+
+    public void setRunAs(Subject runAs) {
+        this.runAs = runAs;
     }
 
     public void setSecurityEnabled(boolean securityEnabled) {

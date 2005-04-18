@@ -71,14 +71,14 @@ import org.openejb.EJBContextImpl;
  */
 public final class EJBSecurityInterceptor implements Interceptor {
     private final Interceptor next;
-    private final String contextId;
+    private final String policyContextID;
     private final PermissionManager permissionManager;
 
-    public EJBSecurityInterceptor(Interceptor next, Object contextId, PermissionManager permissionManager) {
+    public EJBSecurityInterceptor(Interceptor next, String policyContextID, PermissionManager permissionManager) {
         this.next = next;
         //TODO go back to the commented version when possible
-//        this.contextId = contextId.toString();
-        this.contextId = contextId.toString().replaceAll("[,: ]", "_");
+        this.policyContextID = policyContextID;
+//        this.policyContextID = policyContextID.toString().replaceAll("[,: ]", "_");
         this.permissionManager = permissionManager;
     }
 
@@ -91,7 +91,7 @@ public final class EJBSecurityInterceptor implements Interceptor {
         String oldPolicyContextID = PolicyContext.getContextID();
 
         try {
-            PolicyContext.setContextID(contextId);
+            PolicyContext.setContextID(policyContextID);
             AccessControlContext accessContext = ContextManager.getCurrentContext();
             if (accessContext != null) {
                 Permission permission = permissionManager.getPermission(ejbInvocation.getType(), ejbInvocation.getMethodIndex());
