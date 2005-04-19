@@ -96,7 +96,9 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
             throw new ClassNotFoundException("OpenORBStubClassLoader is stopped");
         }
 
-        if (log.isDebugEnabled()) log.debug("Load class " + name);
+        if (log.isDebugEnabled()) {
+            log.debug("Load class " + name);
+        }
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         Class result = null;
@@ -104,7 +106,9 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
             result = classLoader.loadClass(name);
             return result;
         } catch (ClassNotFoundException e) {
-            if (log.isDebugEnabled()) log.debug("Unable to load class from the context class loader");
+            if (log.isDebugEnabled()) {
+                log.debug("Unable to load class from the context class loader");
+            }
         }
 
         if (name.startsWith(PACKAGE_PREFIX)) {
@@ -119,43 +123,58 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
             }
             if (loader == null) {
                 URL url = (URL) nameToClassMap.get(name);
-                if (url == null) {
+                if (url != null) {
+                    loader = new URLClassLoader(new URL[]{url}, classLoader);
+                    nameToLoaderMap.put(name, loader);
                     try {
-                        File file = new File(cacheDir, "STUB_" + (random.nextLong()) + ".jar");
-                        while (file.exists()) {
-                            file = new File(cacheDir, "STUB_" + (random.nextLong()) + ".jar");
-                        }
-
-                        if (log.isDebugEnabled()) log.debug("Generating stubs in " + file.toString());
-
-                        int begin = name.lastIndexOf('.') + 1;
-                        String iPackage = name.substring(13, begin);
-                        String iName = iPackage + name.substring(begin + 1, name.length() - 5);
-
-                        stubGenerator.generateStubs(Collections.singleton(iName), file, classLoader);
-
-                        url = file.toURL();
-                        nameToClassMap.put(name, url);
-                    } catch (IOException e) {
-                        logAndThrow(e);
-                    } catch (CompilerException e) {
-                        logAndThrow(e);
+                        return loader.loadClass(name);
+                    } catch (ClassNotFoundException e) {
+                        //file was deleted, try again
                     }
+                }
+                try {
+                    File file = new File(cacheDir, "STUB_" + (random.nextLong()) + ".jar");
+                    while (file.exists()) {
+                        file = new File(cacheDir, "STUB_" + (random.nextLong()) + ".jar");
+                    }
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("Generating stubs in " + file.toString());
+                    }
+
+                    int begin = name.lastIndexOf('.') + 1;
+                    String iPackage = name.substring(13, begin);
+                    String iName = iPackage + name.substring(begin + 1, name.length() - 5);
+
+                    stubGenerator.generateStubs(Collections.singleton(iName), file, classLoader);
+
+                    url = file.toURL();
+                    nameToClassMap.put(name, url);
+                } catch (IOException e) {
+                    logAndThrow(e);
+                } catch (CompilerException e) {
+                    logAndThrow(e);
                 }
                 loader = new URLClassLoader(new URL[]{url}, classLoader);
                 nameToLoaderMap.put(name, loader);
             } else {
-                if (log.isDebugEnabled()) log.debug("Found cached loader");
+                if (log.isDebugEnabled()) {
+                    log.debug("Found cached loader");
+                }
             }
 
             result = loader.loadClass(name);
             assert result != null;
 
-            if (log.isDebugEnabled()) log.debug("result: " + result.getName());
+            if (log.isDebugEnabled()) {
+                log.debug("result: " + result.getName());
+            }
             return result;
 
         }
-        if (log.isDebugEnabled()) log.debug("Could not load class: " + name);
+        if (log.isDebugEnabled()) {
+            log.debug("Could not load class: " + name);
+        }
         throw new ClassNotFoundException("Could not load class: " + name);
     }
 
