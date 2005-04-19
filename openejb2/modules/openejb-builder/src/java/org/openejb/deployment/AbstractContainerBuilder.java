@@ -401,7 +401,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         if (homeInterface == null) {
             return null;
         } else {
-            Serializable policy = transactionImportPolicyBuilder.buildTransactionImportPolicy("Home", homeInterface, true, transactionPolicySource);
+            Serializable policy = transactionImportPolicyBuilder.buildTransactionImportPolicy("Home", homeInterface, true, transactionPolicySource, classLoader);
             return policy;
         }
     }
@@ -415,7 +415,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         if (remoteInterface == null) {
             return null;
         } else {
-            Serializable policy = transactionImportPolicyBuilder.buildTransactionImportPolicy("Remote", remoteInterface, false, transactionPolicySource);
+            Serializable policy = transactionImportPolicyBuilder.buildTransactionImportPolicy("Remote", remoteInterface, false, transactionPolicySource, classLoader);
             return policy;
         }
     }
