@@ -44,20 +44,19 @@
  */
 package org.openejb.client;
 
+import javax.ejb.EJBObject;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import javax.ejb.EJBObject;
-
-import org.openejb.EJBComponentType;
 
 import org.apache.geronimo.security.ContextManager;
+
+import org.openejb.EJBComponentType;
 
 
 /**
  * @since 11/25/2001
  */
 public abstract class EJBObjectHandler extends EJBInvocationHandler {
-
 
     protected static final Method GETEJBHOME = getMethod(EJBObject.class, "getEJBHome", null);
     protected static final Method GETHANDLE = getMethod(EJBObject.class, "getHandle", null);
@@ -155,6 +154,7 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
         try {
 
             String methodName = m.getName();
+
             if (m.getDeclaringClass() == Object.class) {
                 if (m.equals(TOSTRING)) {
                     return "proxy=" + this;
@@ -192,7 +192,7 @@ public abstract class EJBObjectHandler extends EJBInvocationHandler {
                 } else {
                     throw new UnsupportedOperationException("Unkown method: " + m);
                 }
-            } else if (m.getDeclaringClass() == ejb.remoteClass) {
+            } else if (m.getDeclaringClass().isAssignableFrom(ejb.remoteClass)) {
                 retValue = businessMethod(m, a, p);
             } else {
                 throw new UnsupportedOperationException("Unkown method: " + m);
