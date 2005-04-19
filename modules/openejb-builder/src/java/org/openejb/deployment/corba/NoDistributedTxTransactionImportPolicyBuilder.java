@@ -17,32 +17,32 @@
 package org.openejb.deployment.corba;
 
 import java.io.Serializable;
-import java.util.Map;
 import java.util.HashMap;
-import java.lang.reflect.Method;
+import java.util.Map;
 
-import org.openejb.transaction.TransactionPolicySource;
-import org.openejb.transaction.TransactionPolicyType;
-import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.corba.transaction.MappedServerTransactionPolicyConfig;
 import org.openejb.corba.transaction.OperationTxPolicy;
 import org.openejb.corba.transaction.ServerTransactionPolicyConfig;
-import org.openejb.corba.transaction.MappedServerTransactionPolicyConfig;
 import org.openejb.corba.transaction.nodistributedtransactions.NoDTxServerTransactionPolicies;
+import org.openejb.dispatch.InterfaceMethodSignature;
+import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.transaction.TransactionPolicyType;
 
 /**
  * @version $Rev:  $ $Date$
  */
 public class NoDistributedTxTransactionImportPolicyBuilder implements TransactionImportPolicyBuilder {
 
-    public Serializable buildTransactionImportPolicy(String methodIntf, Class intf, boolean isHomeMethod, TransactionPolicySource transactionPolicySource) {
+    public Serializable buildTransactionImportPolicy(String methodIntf, Class intf, boolean isHomeMethod, TransactionPolicySource transactionPolicySource, ClassLoader classLoader) {
         Map policies = new HashMap();
-        Method[]  methods = intf.getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
-            InterfaceMethodSignature interfaceMethodSignature = new InterfaceMethodSignature(method, isHomeMethod);
+        org.apache.geronimo.interop.rmi.iiop.compiler.Compiler compiler = new org.apache.geronimo.interop.rmi.iiop.compiler.Compiler(null, classLoader);
+        org.apache.geronimo.interop.rmi.iiop.compiler.Compiler.MethodOverload[] methodOverloads = compiler.getMethodOverloads(intf, false);
+        for (int i = 0; i < methodOverloads.length; i++) {
+            org.apache.geronimo.interop.rmi.iiop.compiler.Compiler.MethodOverload methodOverload = methodOverloads[i];
+            InterfaceMethodSignature interfaceMethodSignature = new InterfaceMethodSignature(methodOverload.method, isHomeMethod);
             TransactionPolicyType transactionPolicyType = transactionPolicySource.getTransactionPolicy(methodIntf, interfaceMethodSignature);
             OperationTxPolicy operationTxPolicy = NoDTxServerTransactionPolicies.getTransactionPolicy(transactionPolicyType);
-            String IDLOperationName = getIDLOperationName(interfaceMethodSignature);
+            String IDLOperationName = methodOverload.iiop_name;
             policies.put(IDLOperationName, operationTxPolicy);
         }
         ServerTransactionPolicyConfig serverTransactionPolicyConfig = new MappedServerTransactionPolicyConfig(policies);
@@ -50,7 +50,4 @@ public class NoDistributedTxTransactionImportPolicyBuilder implements Transactio
         return serverTransactionPolicyConfig;
     }
 
-    private String getIDLOperationName(InterfaceMethodSignature interfaceMethodSignature) {
-        return interfaceMethodSignature.getMethodName();
-    }
 }

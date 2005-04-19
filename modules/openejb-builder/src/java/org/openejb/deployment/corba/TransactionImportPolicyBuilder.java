@@ -25,6 +25,6 @@ import org.openejb.transaction.TransactionPolicySource;
  */
 public interface TransactionImportPolicyBuilder {
 
-    Serializable buildTransactionImportPolicy(String methodIntf, Class intf, boolean isHomeMethod, TransactionPolicySource transactionPolicySource);
+    Serializable buildTransactionImportPolicy(String methodIntf, Class intf, boolean isHomeMethod, TransactionPolicySource transactionPolicySource, ClassLoader classLoader);
 
 }
