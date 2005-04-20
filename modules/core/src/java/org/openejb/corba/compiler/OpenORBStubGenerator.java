@@ -174,13 +174,7 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
             jar.setUpdate(true);
             jar.execute();
         } catch (Exception e) {
-            log.error("Error generating stub", e);
-
-            /**
-             * Convert the msg to string so that we don't try to serialize
-             * anything that is unserializable in a cause exception
-             */
-            throw new CompilerException(e.toString());
+            logAndThrow(e);
         } finally {
             Thread.currentThread().setContextClassLoader(savedLoader);
             FileUtils.recursiveDelete(TEMPDIR);
@@ -194,6 +188,28 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
         for (int i = 0; i < classes.length; i++) {
             collectClasspaths(set, classes[i]);
         }
+    }
+
+    private static void logAndThrow(Exception e) throws CompilerException {
+        boolean shouldLog = true;
+        StackTraceElement[] stackTrace = e.getStackTrace();
+        for (int i = 0; i < stackTrace.length; i++) {
+            StackTraceElement stackTraceElement = stackTrace[i];
+            if (stackTraceElement.getClassName().equals("org.omg.CosNaming.NamingContextExtPOA")
+                && stackTraceElement.getMethodName().equals("_invoke")) {
+                shouldLog = false;
+                break;
+            }
+        }
+        if (shouldLog) {
+            log.error("Unable to generate stub", e);
+        }
+
+        /**
+         * Convert the msg to string so that we don't try to serialize
+         * anything that is unserializable in a cause exception
+         */
+        throw new CompilerException("Unable to generate stub: " + e.toString());
     }
 
     public void doStart() throws Exception {
