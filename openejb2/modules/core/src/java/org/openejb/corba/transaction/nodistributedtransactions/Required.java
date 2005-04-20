@@ -21,6 +21,7 @@ import java.io.Serializable;
 import org.openejb.corba.transaction.OperationTxPolicy;
 import org.openejb.corba.idl.CosTransactions.PropagationContext;
 import org.omg.CORBA.INVALID_TRANSACTION;
+import org.omg.CORBA.TRANSACTION_REQUIRED;
 
 /**
  * Use for:
@@ -33,6 +34,9 @@ public class Required implements OperationTxPolicy, Serializable {
     public static final OperationTxPolicy INSTANCE = new Required();
     
     public void importTransaction(PropagationContext propagationContext) {
-        throw new INVALID_TRANSACTION("Transaction cannot be imported"); 
+        if (propagationContext == null) {
+            throw new TRANSACTION_REQUIRED("Transaction required");
+        }
+        throw new INVALID_TRANSACTION("Transaction cannot be imported");
     }
 }

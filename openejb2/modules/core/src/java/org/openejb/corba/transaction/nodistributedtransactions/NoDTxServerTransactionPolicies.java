@@ -28,7 +28,7 @@ public class NoDTxServerTransactionPolicies {
         policies[TransactionPolicyType.Mandatory.getIndex()] = Required.INSTANCE;
         policies[TransactionPolicyType.Never.getIndex()] = NotRequired.INSTANCE;
         policies[TransactionPolicyType.NotSupported.getIndex()] = Ignore.INSTANCE;
-        policies[TransactionPolicyType.Required.getIndex()] = Required.INSTANCE;
+        policies[TransactionPolicyType.Required.getIndex()] = NotRequired.INSTANCE;
         policies[TransactionPolicyType.RequiresNew.getIndex()] = Ignore.INSTANCE;
         policies[TransactionPolicyType.Supports.getIndex()] = NotRequired.INSTANCE;
         policies[TransactionPolicyType.Bean.getIndex()] = Ignore.INSTANCE;

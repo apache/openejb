@@ -63,7 +63,7 @@ public class NoDTxClientTransactionPolicyConfig implements ClientTransactionPoli
             PropagationContextHelper.insert(any, propagationContext);
             byte[] encodedPropagationContext;
             try {
-                encodedPropagationContext = codec.encode(any);
+                encodedPropagationContext = codec.encode_value(any);
             } catch (InvalidTypeForEncoding invalidTypeForEncoding) {
                 throw (INTERNAL)new INTERNAL("Could not encode propagationContext").initCause(invalidTypeForEncoding);
             }

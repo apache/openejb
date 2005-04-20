@@ -18,29 +18,28 @@ package org.openejb.corba.transaction;
 
 import java.util.Map;
 
-import org.omg.CORBA.BAD_OPERATION;
 import org.omg.CORBA.SystemException;
 import org.openejb.corba.idl.CosTransactions.PropagationContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @version $Rev:  $ $Date$
  */
 public class MappedServerTransactionPolicyConfig extends AbstractServerTransactionPolicyConfig {
+    private static Log log = LogFactory.getLog(MappedServerTransactionPolicyConfig.class);
     private final Map operationToPolicyMap;
     public MappedServerTransactionPolicyConfig(Map operationToPolicyMap) {
         this.operationToPolicyMap = operationToPolicyMap;
     }
 
     protected void importTransaction(String operation, PropagationContext propagationContext) throws SystemException {
-        //TODO TOTAL HACK WARNING FIXME!!
-        int pos = operation.indexOf("__");
-        if (pos > -1) {
-            operation = operation.substring(0, pos);
-        }
-
         OperationTxPolicy operationTxPolicy = (OperationTxPolicy) operationToPolicyMap.get(operation);
         if (operationTxPolicy == null) {
-            throw new BAD_OPERATION("Operation " + operation + " not recognized, no tx mapping");
+            //TODO figure out if there is some way to detect if the method should be mapped or shouldn't
+            //e.g. _is_a shows up but should not be mapped.
+            log.info("No tx mapping for operation: " + operation);
+            return;
         }
         operationTxPolicy.importTransaction(propagationContext);
      }
