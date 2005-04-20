@@ -20,14 +20,14 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.SystemException;
+import org.omg.CosTransactions.PropagationContext;
+import org.omg.CosTransactions.PropagationContextHelper;
 import org.omg.IOP.Codec;
 import org.omg.IOP.CodecPackage.FormatMismatch;
 import org.omg.IOP.CodecPackage.TypeMismatch;
 import org.omg.IOP.ServiceContext;
 import org.omg.IOP.TransactionService;
 import org.omg.PortableInterceptor.ServerRequestInfo;
-import org.openejb.corba.idl.CosTransactions.PropagationContext;
-import org.openejb.corba.idl.CosTransactions.PropagationContextHelper;
 import org.openejb.corba.util.Util;
 
 

@@ -16,7 +16,7 @@
  */
 package org.openejb.corba.transaction;
 
-import org.openejb.corba.idl.CosTransactions.PropagationContext;
+import org.omg.CosTransactions.PropagationContext;
 
 
 /**

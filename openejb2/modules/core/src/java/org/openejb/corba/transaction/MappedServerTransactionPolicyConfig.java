@@ -18,10 +18,10 @@ package org.openejb.corba.transaction;
 
 import java.util.Map;
 
-import org.omg.CORBA.SystemException;
-import org.openejb.corba.idl.CosTransactions.PropagationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.omg.CORBA.SystemException;
+import org.omg.CosTransactions.PropagationContext;
 
 /**
  * @version $Rev:  $ $Date$

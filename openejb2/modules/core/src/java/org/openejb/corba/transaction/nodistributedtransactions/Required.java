@@ -18,10 +18,10 @@ package org.openejb.corba.transaction.nodistributedtransactions;
 
 import java.io.Serializable;
 
-import org.openejb.corba.transaction.OperationTxPolicy;
-import org.openejb.corba.idl.CosTransactions.PropagationContext;
 import org.omg.CORBA.INVALID_TRANSACTION;
 import org.omg.CORBA.TRANSACTION_REQUIRED;
+import org.omg.CosTransactions.PropagationContext;
+import org.openejb.corba.transaction.OperationTxPolicy;
 
 /**
  * Use for:
@@ -32,7 +32,7 @@ import org.omg.CORBA.TRANSACTION_REQUIRED;
 public class Required implements OperationTxPolicy, Serializable {
 
     public static final OperationTxPolicy INSTANCE = new Required();
-    
+
     public void importTransaction(PropagationContext propagationContext) {
         if (propagationContext == null) {
             throw new TRANSACTION_REQUIRED("Transaction required");

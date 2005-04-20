@@ -16,21 +16,21 @@
  */
 package org.openejb.corba.transaction.nodistributedtransactions;
 
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.TransactionContext;
-import org.omg.PortableInterceptor.ClientRequestInfo;
-import org.omg.IOP.Codec;
-import org.omg.IOP.ServiceContext;
-import org.omg.IOP.TransactionService;
-import org.omg.IOP.CodecPackage.InvalidTypeForEncoding;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.INTERNAL;
-import org.openejb.corba.util.Util;
+import org.omg.CosTransactions.PropagationContext;
+import org.omg.CosTransactions.PropagationContextHelper;
+import org.omg.CosTransactions.TransIdentity;
+import org.omg.CosTransactions.otid_t;
+import org.omg.IOP.Codec;
+import org.omg.IOP.CodecPackage.InvalidTypeForEncoding;
+import org.omg.IOP.ServiceContext;
+import org.omg.IOP.TransactionService;
+import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.openejb.corba.transaction.ClientTransactionPolicyConfig;
-import org.openejb.corba.idl.CosTransactions.TransIdentity;
-import org.openejb.corba.idl.CosTransactions.PropagationContext;
-import org.openejb.corba.idl.CosTransactions.PropagationContextHelper;
-import org.openejb.corba.idl.CosTransactions.otid_t;
+import org.openejb.corba.util.Util;
 
 /**
  * @version $Rev:  $ $Date$

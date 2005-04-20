@@ -56,11 +56,11 @@ import org.omg.IOP.TaggedComponent;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
+import org.omg.CosTSInteroperation.TAG_OTS_POLICY;
+import org.omg.CosTransactions.OTSPolicyValueHelper;
+import org.omg.CosTransactions.ADAPTS;
 
 import org.openejb.corba.ClientContextManager;
-import org.openejb.corba.idl.CosTSInteroperation.TAG_OTS_POLICY;
-import org.openejb.corba.idl.CosTransactions.ADAPTS;
-import org.openejb.corba.idl.CosTransactions.OTSPolicyValueHelper;
 import org.openejb.corba.util.Util;
 import org.openejb.corba.util.TypeCode;
 
