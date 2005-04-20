@@ -17,15 +17,15 @@
 package org.openejb.corba.transaction;
 
 import org.omg.CORBA.Any;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.SystemException;
-import org.omg.CORBA.BAD_PARAM;
 import org.omg.IOP.Codec;
 import org.omg.IOP.CodecPackage.FormatMismatch;
+import org.omg.IOP.CodecPackage.TypeMismatch;
 import org.omg.IOP.ServiceContext;
 import org.omg.IOP.TransactionService;
 import org.omg.PortableInterceptor.ServerRequestInfo;
-
 import org.openejb.corba.idl.CosTransactions.PropagationContext;
 import org.openejb.corba.idl.CosTransactions.PropagationContextHelper;
 import org.openejb.corba.util.Util;
@@ -35,6 +35,7 @@ import org.openejb.corba.util.Util;
  * @version $Rev:  $ $Date$
  */
 public abstract class AbstractServerTransactionPolicyConfig implements ServerTransactionPolicyConfig {
+
     public void importTransaction(ServerRequestInfo serverRequestInfo) throws SystemException {
         ServiceContext serviceContext = null;
         try {
@@ -50,9 +51,11 @@ public abstract class AbstractServerTransactionPolicyConfig implements ServerTra
             Codec codec = Util.getCodec();
             Any any;
             try {
-                any = codec.decode(encoded);
+                any = codec.decode_value(encoded, PropagationContextHelper.type());
             } catch (FormatMismatch formatMismatch) {
                 throw (INTERNAL) new INTERNAL("Could not decode encoded propagation context").initCause(formatMismatch);
+            } catch (TypeMismatch typeMismatch) {
+                throw (INTERNAL) new INTERNAL("Could not decode encoded propagation context").initCause(typeMismatch);
             }
             propagationContext = PropagationContextHelper.extract(any);
         }
@@ -63,6 +66,5 @@ public abstract class AbstractServerTransactionPolicyConfig implements ServerTra
     }
 
     protected abstract void importTransaction(String operation, PropagationContext propagationContext) throws SystemException;
-
 
 }

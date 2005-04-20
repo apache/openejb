@@ -50,18 +50,16 @@ import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
 
-
 /**
  * @version $Revision$ $Date$
  */
 class ServerTransactionInterceptor extends LocalObject implements ServerRequestInterceptor {
 
-
     public ServerTransactionInterceptor() {
     }
 
     public void receive_request(ServerRequestInfo serverRequestInfo) throws ForwardRequest {
-        ServerTransactionPolicy policy = (ServerTransactionPolicy) serverRequestInfo.get_server_policy(ServerTransactionPolicyFactory.POLICY_TYPE);
+       ServerTransactionPolicy policy = (ServerTransactionPolicy) serverRequestInfo.get_server_policy(ServerTransactionPolicyFactory.POLICY_TYPE);
         if (policy == null) {
             throw new INTERNAL("No transaction policy configured");
         }
