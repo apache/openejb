@@ -58,7 +58,9 @@ import org.openejb.corba.util.Util;
  */
 public class CSSSASITTPrincipalNameStatic implements CSSSASIdentityToken {
 
-    private final IdentityToken token;
+    private final String oid;
+    private final String name;
+    private transient IdentityToken token;
 
     public CSSSASITTPrincipalNameStatic(String name) {
 
@@ -66,25 +68,27 @@ public class CSSSASITTPrincipalNameStatic implements CSSSASIdentityToken {
     }
 
     public CSSSASITTPrincipalNameStatic(String oid, String name) {
-
-        if (oid == null) oid = GSSUPMechOID.value.substring(4);
-
-        Any any = Util.getORB().create_any();
-
-        GSS_NT_ExportedNameHelper.insert(any, Util.encodeGSSExportName(oid, name));
-
-        byte[] encoding = null;
-        try {
-            encoding = Util.getCodec().encode_value(any);
-        } catch (InvalidTypeForEncoding itfe) {
-            throw new IllegalStateException("Unable to encode principal name '" + name + "' " + itfe);
-        }
-
-        token = new IdentityToken();
-        token.principal_name(encoding);
+        this.oid = (oid == null ? GSSUPMechOID.value.substring(4) : oid);
+        this.name = name;
     }
 
     public IdentityToken encodeIdentityToken() {
+
+        if (token == null) {
+            Any any = Util.getORB().create_any();
+
+            GSS_NT_ExportedNameHelper.insert(any, Util.encodeGSSExportName(oid, name));
+
+            byte[] encoding = null;
+            try {
+                encoding = Util.getCodec().encode_value(any);
+            } catch (InvalidTypeForEncoding itfe) {
+                throw new IllegalStateException("Unable to encode principal name '" + name + "' " + itfe);
+            }
+
+            token = new IdentityToken();
+            token.principal_name(encoding);
+        }
         return token;
     }
 }
