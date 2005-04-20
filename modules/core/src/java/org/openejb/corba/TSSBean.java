@@ -63,6 +63,7 @@ import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.RequestProcessingPolicyValue;
 import org.omg.PortableServer.ServantRetentionPolicyValue;
+import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -207,7 +208,11 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
                 }
             }
             adapters.clear();
-            localPOA.the_POAManager().deactivate(true, true);
+            try {
+                localPOA.the_POAManager().deactivate(true, true);
+            } catch (AdapterInactive adapterInactive) {
+                // do nothing - this may have already been deactivated.
+            }
             localPOA = null;
         }
         log.info("Stopped CORBA Target Security Service in POA " + POAName);
