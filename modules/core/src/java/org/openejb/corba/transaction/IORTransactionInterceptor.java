@@ -50,15 +50,14 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.INV_POLICY;
 import org.omg.CORBA.LocalObject;
 import org.omg.CORBA.ORB;
+import org.omg.CosTSInteroperation.TAG_INV_POLICY;
+import org.omg.CosTransactions.ADAPTS;
+import org.omg.CosTransactions.SHARED;
 import org.omg.IOP.TAG_INTERNET_IOP;
 import org.omg.IOP.TAG_OTS_POLICY;
 import org.omg.IOP.TaggedComponent;
 import org.omg.PortableInterceptor.IORInfo;
 import org.omg.PortableInterceptor.IORInterceptor;
-
-import org.openejb.corba.idl.CosTSInteroperation.TAG_INV_POLICY;
-import org.openejb.corba.idl.CosTransactions.ADAPTS;
-import org.openejb.corba.idl.CosTransactions.SHARED;
 import org.openejb.corba.util.Util;
 
 

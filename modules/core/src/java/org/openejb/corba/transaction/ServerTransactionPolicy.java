@@ -16,7 +16,6 @@
  */
 package org.openejb.corba.transaction;
 
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.omg.CORBA.LocalObject;
 import org.omg.CORBA.Policy;
 

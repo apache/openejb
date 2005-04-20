@@ -19,8 +19,8 @@ package org.openejb.corba.transaction.nodistributedtransactions;
 import java.io.Serializable;
 
 import org.openejb.corba.transaction.OperationTxPolicy;
-import org.openejb.corba.idl.CosTransactions.PropagationContext;
 import org.omg.CORBA.INVALID_TRANSACTION;
+import org.omg.CosTransactions.PropagationContext;
 
 /**
  * Use for:
@@ -32,7 +32,7 @@ import org.omg.CORBA.INVALID_TRANSACTION;
  */
 public class NotRequired implements OperationTxPolicy, Serializable {
     public static final OperationTxPolicy INSTANCE = new NotRequired();
-    
+
     public void importTransaction(PropagationContext propagationContext) {
         if (propagationContext != null) {
             throw new INVALID_TRANSACTION("Transactions cannot be imported, and might also be not allowed for this method");

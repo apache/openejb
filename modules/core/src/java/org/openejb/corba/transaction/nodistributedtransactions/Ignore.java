@@ -19,20 +19,20 @@ package org.openejb.corba.transaction.nodistributedtransactions;
 import java.io.Serializable;
 
 import org.openejb.corba.transaction.OperationTxPolicy;
-import org.openejb.corba.idl.CosTransactions.PropagationContext;
+import org.omg.CosTransactions.PropagationContext;
 
 /**
  * Use for:
  * RequiresNew
  * NotSupported
  * Bean (? client should not send a PropagationContext)
- * 
+ *
  * @version $Rev:  $ $Date$
  */
 public class Ignore implements OperationTxPolicy, Serializable {
 
     public static final OperationTxPolicy INSTANCE = new Ignore();
-    
+
     public void importTransaction(PropagationContext propagationContext) {
     }
 }
