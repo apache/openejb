@@ -75,6 +75,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import org.openejb.EJBContainer;
 import org.openejb.corba.security.ServerPolicyFactory;
+import org.openejb.corba.security.ServerPolicy;
 import org.openejb.corba.security.config.tss.TSSConfig;
 import org.openejb.corba.security.config.tss.TSSNULLTransportConfig;
 import org.openejb.corba.util.TieLoader;
@@ -162,7 +163,7 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
             POA rootPOA = server.getRootPOA();
 
             Any any = orb.create_any();
-            any.insert_Value(createCSIv2Config());
+            any.insert_Value(new ServerPolicy.Config(createCSIv2Config(), classLoader));
 
             securityPolicy = orb.create_policy(ServerPolicyFactory.POLICY_TYPE, any);
             Policy[] policies = new Policy[]{
@@ -184,9 +185,9 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
                 AdapterWrapper adapterWrapper = (AdapterWrapper) adapters.get(iter.next());
                 try {
                     adapterWrapper.start(server.getORB(), localPOA, initialContext, tieLoader, securityPolicy);
-                    log.info("Linked container " + adapterWrapper.getContainer().getContainerID());
+                    log.info(POAName + " - Linked container " + adapterWrapper.getContainer().getContainerID());
                 } catch (CORBAException e) {
-                    log.error("Unable to link container " + adapterWrapper.getContainer().getContainerID(), e);
+                    log.error(POAName + " - Unable to link container " + adapterWrapper.getContainer().getContainerID(), e);
                 }
             }
         } finally {
@@ -209,7 +210,7 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
             }
             adapters.clear();
             try {
-                localPOA.the_POAManager().deactivate(true, true);
+                localPOA.the_POAManager().deactivate(true, false);
             } catch (AdapterInactive adapterInactive) {
                 // do nothing - this may have already been deactivated.
             }
@@ -272,9 +273,9 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
                 adapterWrapper.start(server.getORB(), localPOA, initialContext, tieLoader, securityPolicy);
                 adapters.put(container.getContainerID(), adapterWrapper);
 
-                log.info("Linked container " + container.getContainerID());
+                log.info(POAName + " - Linked container " + container.getContainerID());
             } catch (CORBAException e) {
-                log.error("Unable to link container " + container.getContainerID(), e);
+                log.error(POAName + " - Unable to link container " + container.getContainerID(), e);
             }
         }
     }
@@ -288,10 +289,9 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
         if (adapterWrapper != null) {
             try {
                 adapterWrapper.stop();
-                log.info("Unlinked container " + container.getContainerID());
+                log.info(POAName + " - Unlinked container " + container.getContainerID());
             } catch (CORBAException e) {
-                log.error("Error unlinking container " + container.getContainerID());
-                log.error(e);
+                log.error(POAName + " - Error unlinking container " + container.getContainerID(), e);
             }
         }
     }

@@ -48,13 +48,16 @@
 package org.openejb.corba.security.config.tss;
 
 import java.io.Serializable;
+import javax.security.auth.Subject;
 
 import org.omg.CORBA.ORB;
+import org.omg.CSI.EstablishContext;
 import org.omg.CSIIOP.CompoundSecMech;
 import org.omg.IOP.Codec;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.openejb.corba.security.SASException;
 import org.openejb.corba.security.config.ConfigUtil;
 
 
@@ -120,19 +123,29 @@ public class TSSCompoundSecMechConfig implements Serializable {
         // transport mechanism
         result.transport_mech = transport_mech.encodeIOR(orb, codec);
         result.target_requires |= transport_mech.getRequires();
-        if (log.isDebugEnabled()) log.debug("transport adds: " + ConfigUtil.flags(transport_mech.getRequires()));
+        if (log.isDebugEnabled()) {
+            log.debug("transport adds supported: " + ConfigUtil.flags(transport_mech.getSupports()));
+            log.debug("transport adds required: " + ConfigUtil.flags(transport_mech.getRequires()));
+        }
 
         // AS_ContextSec
         result.as_context_mech = as_mech.encodeIOR(orb, codec);
         result.target_requires |= as_mech.getRequires();
-        if (log.isDebugEnabled()) log.debug("AS adds: " + ConfigUtil.flags(as_mech.getRequires()));
+        if (log.isDebugEnabled()) {
+            log.debug("AS adds supported: " + ConfigUtil.flags(as_mech.getSupports()));
+            log.debug("AS adds required: " + ConfigUtil.flags(as_mech.getRequires()));
+        }
 
         // SAS_ContextSec
         result.sas_context_mech = sas_mech.encodeIOR(orb, codec);
         result.target_requires |= sas_mech.getRequires();
-        if (log.isDebugEnabled()) log.debug("SAS adds: " + ConfigUtil.flags(sas_mech.getRequires()));
+        if (log.isDebugEnabled()) {
+            log.debug("SAS adds supported: " + ConfigUtil.flags(sas_mech.getSupports()));
+            log.debug("SAS adds required: " + ConfigUtil.flags(sas_mech.getRequires()));
 
-        if (log.isDebugEnabled()) log.debug("REQUIRES: " + ConfigUtil.flags(result.target_requires));
+            log.debug("REQUIRES: " + ConfigUtil.flags(result.target_requires));
+        }
+
 
         return result;
     }
@@ -147,4 +160,12 @@ public class TSSCompoundSecMechConfig implements Serializable {
         return result;
     }
 
+    public Subject check(EstablishContext msg) throws SASException {
+        Subject asSubject = as_mech.check(msg);
+        Subject sasSubject = sas_mech.check(msg);
+
+        if (sasSubject != null) return sasSubject;
+
+        return asSubject;
+    }
 }

@@ -47,13 +47,6 @@ package org.openejb.corba.security.config.tss;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.omg.CSI.ITTAbsent;
-import org.omg.CSI.ITTAnonymous;
-import org.omg.CSI.ITTDistinguishedName;
-import org.omg.CSI.ITTPrincipalName;
-import org.omg.CSI.ITTX509CertChain;
 import org.omg.CSIIOP.CompositeDelegation;
 import org.omg.CSIIOP.Confidentiality;
 import org.omg.CSIIOP.DetectMisordering;
@@ -64,6 +57,8 @@ import org.omg.CSIIOP.Integrity;
 import org.omg.CSIIOP.NoDelegation;
 import org.omg.CSIIOP.NoProtection;
 import org.omg.CSIIOP.SimpleDelegation;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
@@ -80,7 +75,7 @@ import org.openejb.xbeans.csiv2.tss.TSSCompoundSecMechType;
 import org.openejb.xbeans.csiv2.tss.TSSGSSUPType;
 import org.openejb.xbeans.csiv2.tss.TSSGeneralNameType;
 import org.openejb.xbeans.csiv2.tss.TSSGssExportedNameType;
-import org.openejb.xbeans.csiv2.tss.TSSIdentityTokenType;
+import org.openejb.xbeans.csiv2.tss.TSSIdentityTokenTypeList;
 import org.openejb.xbeans.csiv2.tss.TSSSSLType;
 import org.openejb.xbeans.csiv2.tss.TSSSasMechType;
 import org.openejb.xbeans.csiv2.tss.TSSTssType;
@@ -182,7 +177,6 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
 
         if (mech.isSetSasMech()) {
             result.setSas_mech(extractSASMech(mech.getSasMech()));
-
         }
 
         return result;
@@ -216,14 +210,18 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
             }
         }
 
-        if (sasMech.isSetOIDList()) {
-            String[] oids = sasMech.getOIDList().getOIDArray();
-            for (int i = 0; i < oids.length; i++) {
-                sasMechConfig.addnamingMechanism(oids[i]);
+        TSSIdentityTokenTypeList identityTokenTypes = sasMech.getIdentityTokenTypes();
+
+        if (identityTokenTypes.isSetITTAbsent()) {
+            sasMechConfig.addIdentityToken(new TSSITTAbsent());
+        } else {
+            if (identityTokenTypes.isSetITTAnonymous()) {
+                sasMechConfig.addIdentityToken(new TSSITTAnonymous());
+            }
+            if (identityTokenTypes.isSetITTPrincipalNameGSSUP()) {
+                sasMechConfig.addIdentityToken(new TSSITTPrincipalNameGSSUP());
             }
         }
-
-        sasMechConfig.setIdentityTypes(extractIdentityTokenTypes(sasMech.getIdentityTokenTypes()));
 
         return sasMechConfig;
     }
@@ -254,27 +252,6 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
                 result |= SimpleDelegation.value;
             } else if (TSSAssociationOption.COMPOSITE_DELEGATION.equals(obj)) {
                 result |= CompositeDelegation.value;
-            }
-        }
-        return result;
-    }
-
-    protected static int extractIdentityTokenTypes(List list) {
-        int result = 0;
-
-        for (Iterator iter = list.iterator(); iter.hasNext();) {
-            TSSIdentityTokenType.Enum obj = TSSIdentityTokenType.Enum.forString((String) iter.next());
-
-            if (TSSIdentityTokenType.ITT_ABSENT.equals(obj)) {
-                result |= ITTAbsent.value;
-            } else if (TSSIdentityTokenType.ITT_ANONYMOUS.equals(obj)) {
-                result |= ITTAnonymous.value;
-            } else if (TSSIdentityTokenType.ITT_DISTINGUISHED_NAME.equals(obj)) {
-                result |= ITTDistinguishedName.value;
-            } else if (TSSIdentityTokenType.ITT_PRINCIPAL_NAME.equals(obj)) {
-                result |= ITTPrincipalName.value;
-            } else if (TSSIdentityTokenType.ITTX_509_CERT_CHAIN.equals(obj)) {
-                result |= ITTX509CertChain.value;
             }
         }
         return result;

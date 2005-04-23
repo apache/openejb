@@ -185,13 +185,6 @@
                     <xsd:attribute name="required" type="xsd:boolean" use="optional" default="false"/>
                 </xsd:complexType>
             </xsd:element>
-            <xsd:element name="OIDList" minOccurs="0">
-                <xsd:complexType>
-                    <xsd:sequence>
-                        <xsd:element name="OID" type="xsd:string" maxOccurs="unbounded"/>
-                    </xsd:sequence>
-                </xsd:complexType>
-            </xsd:element>
             <xsd:element name="identityTokenTypes" type="tss:identityTokenTypeList"/>
         </xsd:sequence>
     </xsd:complexType>
@@ -241,18 +234,38 @@
         <xsd:list itemType="tss:associationOption"/>
     </xsd:simpleType>
 
-    <xsd:simpleType name="identityTokenType">
-        <xsd:restriction base="xsd:token">
-            <xsd:enumeration value="ITTAbsent"/>
-            <xsd:enumeration value="ITTAnonymous"/>
-            <xsd:enumeration value="ITTPrincipalName"/>
-            <xsd:enumeration value="ITTDistinguishedName"/>
-            <xsd:enumeration value="ITTX509CertChain"/>
-        </xsd:restriction>
-    </xsd:simpleType>
+    <xsd:complexType name="identityTokenTypeList">
+        <xsd:sequence>
+            <xsd:choice>
+                <xsd:element name="ITTAbsent" type="tss:ITTAbsentType"/>
+                <xsd:group ref="tss:ittGroup"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
 
-    <xsd:simpleType name="identityTokenTypeList">
-        <xsd:list itemType="tss:identityTokenType"/>
-    </xsd:simpleType>
+    <xsd:group name="ittGroup">
+        <xsd:sequence>
+            <xsd:element name="ITTAnonymous" type="tss:ITTAnonymousType" minOccurs="0"/>
+            <xsd:element name="ITTPrincipalNameGSSUP" type="tss:ITTPrincipalNameGSSUPType" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:group>
+
+    <xsd:complexType name="ITTAbsentType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="ITTAnonymousType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="ITTPrincipalNameGSSUPType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
 
 </xsd:schema>

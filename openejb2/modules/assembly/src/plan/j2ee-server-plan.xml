@@ -473,7 +473,7 @@ by the server.
                     <tss:compoundSecMech>
                         <tss:GSSUP targetName="geronimo-properties-realm"/>
                         <tss:sasMech>
-                            <tss:identityTokenTypes>ITTAbsent ITTAnonymous ITTPrincipalName</tss:identityTokenTypes>
+                            <tss:identityTokenTypes><tss:ITTAnonymous/><tss:ITTPrincipalNameGSSUP/></tss:identityTokenTypes>
                         </tss:sasMech>
                     </tss:compoundSecMech>
                 </tss:compoundSecMechTypeList>

@@ -49,10 +49,13 @@ package org.openejb.corba.security.config.tss;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
+import javax.security.auth.Subject;
 
 import org.omg.CORBA.ORB;
-import org.omg.CSI.ITTAbsent;
+import org.omg.CSI.EstablishContext;
 import org.omg.CSI.ITTPrincipalName;
 import org.omg.CSIIOP.DelegationByClient;
 import org.omg.CSIIOP.IdentityAssertion;
@@ -60,6 +63,7 @@ import org.omg.CSIIOP.SAS_ContextSec;
 import org.omg.CSIIOP.ServiceConfiguration;
 import org.omg.IOP.Codec;
 
+import org.openejb.corba.security.SASException;
 import org.openejb.corba.util.Util;
 
 
@@ -72,8 +76,7 @@ public class TSSSASMechConfig implements Serializable {
     private short requires;
     private boolean required;
     private final ArrayList privilegeAuthorities = new ArrayList();
-    private final ArrayList namingMechanisms = new ArrayList();
-    private int identityTypes = ITTAbsent.value;
+    private final Set idTokens = new HashSet();
 
     public TSSSASMechConfig() {
     }
@@ -89,10 +92,13 @@ public class TSSSASMechConfig implements Serializable {
 
         byte[][] n = context.supported_naming_mechanisms;
         for (int i = 0; i < n.length; i++) {
-            namingMechanisms.add(Util.decodeOID(n[i]));
+            String oid = Util.decodeOID(n[i]);
+
+            if (TSSITTPrincipalNameGSSUP.OID.equals(oid)) {
+                addIdentityToken(new TSSITTPrincipalNameGSSUP());
+            }
         }
 
-        identityTypes = context.supported_identity_types;
         supports = context.target_supports;
         requires = context.target_requires;
     }
@@ -112,28 +118,10 @@ public class TSSSASMechConfig implements Serializable {
         return privilegeAuthorities.size();
     }
 
-    public void addnamingMechanism(String mech) {
-        namingMechanisms.add(mech);
+    public void addIdentityToken(TSSSASIdentityToken token) {
+        idTokens.add(token);
 
-        identityTypes |= ITTPrincipalName.value;
-        supports |= IdentityAssertion.value;
-    }
-
-    public String namingMechanismAt(int i) {
-        return (String) namingMechanisms.get(i);
-    }
-
-    public int nmSize() {
-        return namingMechanisms.size();
-    }
-
-    public int getIdentityTypes() {
-        return identityTypes;
-    }
-
-    public void setIdentityTypes(int identityTypes) {
-        this.identityTypes = identityTypes;
-        if (identityTypes != 0) supports |= IdentityAssertion.value;
+        if (token.getType() > 0) supports |= IdentityAssertion.value;
     }
 
     public short getSupports() {
@@ -150,11 +138,11 @@ public class TSSSASMechConfig implements Serializable {
 
     public void setRequired(boolean required) {
         this.required = required;
-
-        if (required) requires = (short) (supports & DelegationByClient.value);
+        if (required) requires |= (short) (supports & DelegationByClient.value);
     }
 
     public SAS_ContextSec encodeIOR(ORB orb, Codec codec) throws Exception {
+
         SAS_ContextSec result = new SAS_ContextSec();
 
         int i = 0;
@@ -163,17 +151,32 @@ public class TSSSASMechConfig implements Serializable {
             result.privilege_authorities[i++] = ((TSSServiceConfigurationConfig) iter.next()).generateServiceConfiguration();
         }
 
-        i = 0;
-        result.supported_naming_mechanisms = new byte[namingMechanisms.size()][];
-        for (Iterator iter = namingMechanisms.iterator(); iter.hasNext();) {
-            result.supported_naming_mechanisms[i++] = Util.encodeOID((String) iter.next());
+        ArrayList list = new ArrayList();
+        for (Iterator iter = idTokens.iterator(); iter.hasNext();) {
+            TSSSASIdentityToken token = (TSSSASIdentityToken) iter.next();
+
+            if (token.getType() == ITTPrincipalName.value) {
+                list.add(token);
+            }
+            result.supported_identity_types |= token.getType();
         }
 
-        result.supported_identity_types = identityTypes;
+        i = 0;
+        result.supported_naming_mechanisms = new byte[list.size()][];
+        for (Iterator iter = list.iterator(); iter.hasNext();) {
+            TSSSASIdentityToken token = (TSSSASIdentityToken) iter.next();
+
+            result.supported_naming_mechanisms[i++] = Util.encodeOID(token.getOID());
+        }
 
         result.target_supports = supports;
         result.target_requires = requires;
 
+        return result;
+    }
+
+    public Subject check(EstablishContext msg) throws SASException {
+        Subject result = null;
 
         return result;
     }

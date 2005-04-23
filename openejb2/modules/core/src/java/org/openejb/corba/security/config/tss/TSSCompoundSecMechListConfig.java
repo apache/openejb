@@ -49,15 +49,19 @@ package org.openejb.corba.security.config.tss;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import javax.security.auth.Subject;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
+import org.omg.CSI.EstablishContext;
 import org.omg.CSIIOP.CompoundSecMech;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.CSIIOP.CompoundSecMechListHelper;
 import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
 import org.omg.IOP.Codec;
 import org.omg.IOP.TaggedComponent;
+
+import org.openejb.corba.security.SASException;
 
 
 /**
@@ -114,6 +118,17 @@ public class TSSCompoundSecMechListConfig implements Serializable {
 
         for (int i = 0; i < csml.mechanism_list.length; i++) {
             result.add(TSSCompoundSecMechConfig.decodeIOR(codec, csml.mechanism_list[i]));
+        }
+
+        return result;
+    }
+
+    public Subject check(EstablishContext msg) throws SASException {
+        Subject result = null;
+
+        for (int i = 0; i < mechs.size(); i++) {
+            result = ((TSSCompoundSecMechConfig) mechs.get(i)).check(msg);
+            if (result != null) break;
         }
 
         return result;

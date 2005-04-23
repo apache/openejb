@@ -105,8 +105,11 @@ public class TSSConfig implements Serializable {
 
     public Subject check(SSLSession session, EstablishContext msg) throws SASException {
 
-        Subject result = transport_mech.check(session);
+        Subject transportSubject = transport_mech.check(session);
+        
+        Subject mechSubject = mechListConfig.check(msg);
+        if (mechSubject != null) return mechSubject;
 
-        return result;
+        return transportSubject;
     }
 }
