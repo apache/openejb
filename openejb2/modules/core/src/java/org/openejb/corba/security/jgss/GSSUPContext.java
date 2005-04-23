@@ -240,7 +240,9 @@ public final class GSSUPContext implements GSSContextSpi {
 
             Util.decodeGSSUPToken(Util.getCodec(), buf, token);
 
-            LoginContext context = new LoginContext(Util.decodeGSSExportName(token.target_name), new UsernamePasswordCallback(new String(token.username), new String(token.password)));
+            LoginContext context = new LoginContext(Util.decodeGSSExportName(token.target_name),
+                                                    new UsernamePasswordCallback(new String(token.username, "UTF-8"),
+                                                                                 new String(token.password, "UTF-8").toCharArray()));
             context.login();
 
             there = new GSSUPUserName(token.username);
