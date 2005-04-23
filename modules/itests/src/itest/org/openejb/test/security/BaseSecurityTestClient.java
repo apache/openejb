@@ -64,39 +64,39 @@ public class BaseSecurityTestClient extends NamedTestCase {
 
         initialContext = new InitialContext(properties);
 
-        public_david_login_context = new LoginContext("public", new UsernamePasswordCallback("david", "guitar"));
+        public_david_login_context = new LoginContext("public", new UsernamePasswordCallback("david", "guitar".toCharArray()));
         public_david_login_context.login();
         public_david_subject = public_david_login_context.getSubject();
 
-        public_alan_login_context = new LoginContext("public", new UsernamePasswordCallback("alan", "cat"));
+        public_alan_login_context = new LoginContext("public", new UsernamePasswordCallback("alan", "cat".toCharArray()));
         public_alan_login_context.login();
         public_alan_subject = public_alan_login_context.getSubject();
 
-        public_dain_login_context = new LoginContext("public", new UsernamePasswordCallback("dain", "dog"));
+        public_dain_login_context = new LoginContext("public", new UsernamePasswordCallback("dain", "dog".toCharArray()));
         public_dain_login_context.login();
         public_dain_subject = public_dain_login_context.getSubject();
 
-        public_noel_login_context = new LoginContext("public", new UsernamePasswordCallback("noel", "nudge"));
+        public_noel_login_context = new LoginContext("public", new UsernamePasswordCallback("noel", "nudge".toCharArray()));
         public_noel_login_context.login();
         public_noel_subject = public_noel_login_context.getSubject();
 
-        public_geir_login_context = new LoginContext("public", new UsernamePasswordCallback("geir", "apple"));
+        public_geir_login_context = new LoginContext("public", new UsernamePasswordCallback("geir", "apple".toCharArray()));
         public_geir_login_context.login();
         public_geir_subject = public_geir_login_context.getSubject();
 
-        public_george_login_context = new LoginContext("public", new UsernamePasswordCallback("george", "bone"));
+        public_george_login_context = new LoginContext("public", new UsernamePasswordCallback("george", "bone".toCharArray()));
         public_george_login_context.login();
         public_george_subject = public_george_login_context.getSubject();
 
-        public_gracie_login_context = new LoginContext("public", new UsernamePasswordCallback("gracie", "biscuit"));
+        public_gracie_login_context = new LoginContext("public", new UsernamePasswordCallback("gracie", "biscuit".toCharArray()));
         public_gracie_login_context.login();
         public_gracie_subject = public_gracie_login_context.getSubject();
 
-        black_david_login_context = new LoginContext("black", new UsernamePasswordCallback("david", "deltaforce"));
+        black_david_login_context = new LoginContext("black", new UsernamePasswordCallback("david", "deltaforce".toCharArray()));
         black_david_login_context.login();
         black_david_subject = black_david_login_context.getSubject();
 
-        black_dain_login_context = new LoginContext("black", new UsernamePasswordCallback("dain", "secret"));
+        black_dain_login_context = new LoginContext("black", new UsernamePasswordCallback("dain", "secret".toCharArray()));
         black_dain_login_context.login();
         black_dain_subject = black_dain_login_context.getSubject();
     }
