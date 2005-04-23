@@ -262,7 +262,7 @@ public final class Util {
                             result = new String(name_arr);
                         } else {
                             System.err.print("ASN1Utils.gssImportName: Unknown OID: " + oid +
-                                    " ('" + Integer.toHexString(oid_arr[0]) + "')");
+                                             " ('" + Integer.toHexString(oid_arr[0]) + "')");
                         }
                     }
                 }
@@ -364,7 +364,7 @@ public final class Util {
                         System.arraycopy(oid_tmp_arr, 0, oid_arr, 2, oid_len);
                         String oid = decodeOID(oid_arr);
                         if (oid.equals(GSSUPMechOID.value.substring(4))) {
-                            int len = token_len - oid_len - 4;
+                            int len = token_len - oid_len;
                             byte[] init_tok_arr = new byte[len];
                             bais.read(init_tok_arr, 0, len);
                             Any a = codec.decode_value(init_tok_arr,
@@ -373,7 +373,9 @@ public final class Util {
                             if (token != null) {
                                 gssup_tok.username = token.username;
                                 gssup_tok.password = token.password;
-                                gssup_tok.target_name = token.target_name;
+                                gssup_tok.target_name = decodeGSSExportName(token.target_name).getBytes("UTF-8");
+
+                                result = true;
                             }
                         }
                     }
