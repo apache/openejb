@@ -45,63 +45,23 @@
  *
  * ====================================================================
  */
-package org.openejb.corba.security;
+package org.openejb.corba.security.config.tss;
 
-import java.io.Serializable;
-
-import org.omg.CORBA.LocalObject;
-import org.omg.CORBA.Policy;
-
-import org.openejb.corba.security.config.tss.TSSConfig;
+import org.omg.CSI.ITTAbsent;
 
 
 /**
  * @version $Rev: $ $Date$
  */
-public class ServerPolicy extends LocalObject implements Policy {
+public class TSSITTAbsent extends TSSSASIdentityToken {
 
-    private final TSSConfig TSSConfig;
-    private final ClassLoader classloader;
+    public static final String OID = "";
 
-    public ServerPolicy(Config config) {
-        this.TSSConfig = config.getTSSConfig();
-        this.classloader = config.getClassloader();
+    public short getType() {
+        return ITTAbsent.value;
     }
 
-    public TSSConfig getConfig() {
-        return TSSConfig;
-    }
-
-    public ClassLoader getClassloader() {
-        return classloader;
-    }
-
-    public int policy_type() {
-        return ServerPolicyFactory.POLICY_TYPE;
-    }
-
-    public void destroy() {
-    }
-
-    public Policy copy() {
-        return null;
-    }
-
-    public static class Config implements Serializable {
-        private final TSSConfig TSSConfig;
-        private final transient ClassLoader classloader;
-
-        public Config(TSSConfig TSSConfig, ClassLoader classloader) {
-            this.TSSConfig = TSSConfig;
-            this.classloader = classloader;
-        }
-
-        public final TSSConfig getTSSConfig() {
-            return TSSConfig;
-        }
-
-        public final ClassLoader getClassloader() {
-            return classloader;
-        }
+    public String getOID() {
+        return OID;
     }
 }

@@ -47,11 +47,15 @@
  */
 package org.openejb.corba.security.config.tss;
 
-import org.omg.CORBA.ORB;
-import org.omg.CSIIOP.AS_ContextSec;
-import org.omg.IOP.Codec;
-import org.omg.GSSUP.GSSUPMechOID;
+import javax.security.auth.Subject;
 
+import org.omg.CORBA.ORB;
+import org.omg.CSI.EstablishContext;
+import org.omg.CSIIOP.AS_ContextSec;
+import org.omg.GSSUP.GSSUPMechOID;
+import org.omg.IOP.Codec;
+
+import org.openejb.corba.security.SASException;
 import org.openejb.corba.util.Util;
 
 
@@ -71,6 +75,7 @@ public class TSSNULLASMechConfig extends TSSASMechConfig {
     /**
      * Encode a virtually null AS context.  Since supports is zero, everything
      * else should be ignored.
+     *
      * @param orb
      * @param codec
      * @return
@@ -85,5 +90,9 @@ public class TSSNULLASMechConfig extends TSSASMechConfig {
         result.target_name = Util.encodeGSSExportName(GSSUPMechOID.value, "");
 
         return result;
+    }
+
+    public Subject check(EstablishContext msg) throws SASException {
+        return null;
     }
 }

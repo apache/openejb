@@ -47,11 +47,15 @@
  */
 package org.openejb.corba.security.config.tss;
 
+import javax.security.auth.Subject;
 import java.io.Serializable;
 
 import org.omg.CORBA.ORB;
+import org.omg.CSI.EstablishContext;
 import org.omg.CSIIOP.AS_ContextSec;
 import org.omg.IOP.Codec;
+
+import org.openejb.corba.security.SASException;
 
 
 /**
@@ -76,4 +80,6 @@ public abstract class TSSASMechConfig implements Serializable {
 
         return result;
     }
+
+    public abstract Subject check(EstablishContext msg) throws SASException;
 }

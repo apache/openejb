@@ -48,8 +48,6 @@ import java.util.Set;
 import javax.security.auth.DestroyFailedException;
 import javax.security.auth.Subject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.INTERNAL;
@@ -72,6 +70,8 @@ import org.omg.IOP.SecurityAttributeService;
 import org.omg.IOP.ServiceContext;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInterceptor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.security.ContextManager;
 
@@ -106,11 +106,15 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
         long contextId = 0;
 
         if (log.isDebugEnabled()) log.debug("receive_request(" + ri.operation() + " [" + new String(ri.object_id()) + "] ");
+        ClassLoader savedCL = Thread.currentThread().getContextClassLoader();
         try {
             ServerPolicy serverPolicy = (ServerPolicy) ri.get_server_policy(ServerPolicyFactory.POLICY_TYPE);
             if (serverPolicy == null) return;
+
             TSSConfig tssPolicy = serverPolicy.getConfig();
             if (tssPolicy == null) return;
+
+            if (serverPolicy.getClassloader() != null) Thread.currentThread().setContextClassLoader(serverPolicy.getClassloader());
 
             if (log.isDebugEnabled()) log.debug("Found server policy");
 
@@ -174,6 +178,8 @@ final class ServerSecurityInterceptor extends LocalObject implements ServerReque
         } catch (Exception e) {
             log.error("Exception", e);
             throw (RuntimeException) e.getCause();
+        } finally {
+            Thread.currentThread().setContextClassLoader(savedCL);
         }
 
         if (log.isDebugEnabled()) log.debug("   " + identity);

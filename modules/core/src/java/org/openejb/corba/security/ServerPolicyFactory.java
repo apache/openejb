@@ -66,6 +66,6 @@ public class ServerPolicyFactory extends LocalObject implements PolicyFactory {
     public Policy create_policy(int type, Any value) throws PolicyError {
         if (type != POLICY_TYPE) throw new PolicyError();
 
-        return new ServerPolicy((TSSConfig) value.extract_Value());
+        return new ServerPolicy((ServerPolicy.Config) value.extract_Value());
     }
 }

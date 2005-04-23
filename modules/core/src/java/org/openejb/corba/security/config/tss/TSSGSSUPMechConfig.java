@@ -47,12 +47,22 @@
  */
 package org.openejb.corba.security.config.tss;
 
+import java.io.UnsupportedEncodingException;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
 import org.omg.CORBA.ORB;
+import org.omg.CSI.EstablishContext;
 import org.omg.CSIIOP.AS_ContextSec;
 import org.omg.CSIIOP.EstablishTrustInClient;
 import org.omg.GSSUP.GSSUPMechOID;
+import org.omg.GSSUP.InitialContextToken;
 import org.omg.IOP.Codec;
 
+import org.apache.geronimo.security.jaas.UsernamePasswordCallback;
+
+import org.openejb.corba.security.SASException;
 import org.openejb.corba.util.Util;
 
 
@@ -103,6 +113,37 @@ public class TSSGSSUPMechConfig extends TSSASMechConfig {
         result.target_requires = (required ? EstablishTrustInClient.value : 0);
         result.client_authentication_mech = Util.encodeOID(GSSUPMechOID.value);
         result.target_name = Util.encodeGSSExportName(GSSUPMechOID.value, targetName);
+
+        return result;
+    }
+
+    public Subject check(EstablishContext msg) throws SASException {
+        Subject result = null;
+
+        try {
+            if (msg.client_authentication_token != null && msg.client_authentication_token.length > 0) {
+                InitialContextToken token = new InitialContextToken();
+
+                if (!Util.decodeGSSUPToken(Util.getCodec(), msg.client_authentication_token, token)) throw new SASException(2);
+
+                if (token.target_name == null) return null;
+
+                String tokenTargetName = (token.target_name == null ? targetName : new String(token.target_name, "UTF8"));
+
+                if (!targetName.equals(tokenTargetName)) throw new SASException(2);
+
+                LoginContext context = new LoginContext(tokenTargetName,
+                                                        new UsernamePasswordCallback(new String(token.username, "UTF8"),
+                                                                                     new String(token.password, "UTF8").toCharArray()));
+                context.login();
+                result = context.getSubject();
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new SASException(1, e);
+        } catch (LoginException e) {
+            throw new SASException(1, e);
+        }
+
 
         return result;
     }
