@@ -65,12 +65,15 @@ public abstract class TSSSASIdentityToken implements Serializable {
 
         final TSSSASIdentityToken token = (TSSSASIdentityToken) o;
 
+        if (getType() != token.getType()) return false;
         if (!getOID().equals(token.getOID())) return false;
 
         return true;
     }
 
     public int hashCode() {
-        return getOID().hashCode();
+        int result = getOID().hashCode();
+        result = 29 * result + (int) getType();
+        return result;
     }
 }
