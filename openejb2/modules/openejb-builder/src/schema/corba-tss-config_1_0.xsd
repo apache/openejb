@@ -247,6 +247,8 @@
         <xsd:sequence>
             <xsd:element name="ITTAnonymous" type="tss:ITTAnonymousType" minOccurs="0"/>
             <xsd:element name="ITTPrincipalNameGSSUP" type="tss:ITTPrincipalNameGSSUPType" minOccurs="0"/>
+            <xsd:element name="ITTDistinguishedName" type="tss:ITTDistinguishedNameType" minOccurs="0"/>
+            <xsd:element name="ITTX509CertChain" type="tss:ITTX509CertChainType" minOccurs="0"/>
         </xsd:sequence>
     </xsd:group>
 
@@ -263,6 +265,18 @@
     </xsd:complexType>
 
     <xsd:complexType name="ITTPrincipalNameGSSUPType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="ITTDistinguishedNameType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="ITTX509CertChainType">
         <xsd:complexContent>
             <xsd:restriction base="xsd:anyType"/>
         </xsd:complexContent>
