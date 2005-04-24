@@ -221,6 +221,12 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
             if (identityTokenTypes.isSetITTPrincipalNameGSSUP()) {
                 sasMechConfig.addIdentityToken(new TSSITTPrincipalNameGSSUP());
             }
+            if (identityTokenTypes.isSetITTDistinguishedName()) {
+                sasMechConfig.addIdentityToken(new TSSITTDistinguishedName());
+            }
+            if (identityTokenTypes.isSetITTX509CertChain()) {
+                sasMechConfig.addIdentityToken(new TSSITTX509CertChain());
+            }
         }
 
         return sasMechConfig;
