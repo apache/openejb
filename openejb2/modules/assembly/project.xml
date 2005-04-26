@@ -206,20 +206,6 @@
             </properties>
         </dependency>
 
-	<!--
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-remoting</artifactId>
-            <version>${geronimo_version}</version>
-            <properties>
-                <lib>true</lib>
-                <server>true</server>
-                <deploy>true</deploy>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-	-->
-
         <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
