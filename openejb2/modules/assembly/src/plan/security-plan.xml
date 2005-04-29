@@ -53,11 +53,18 @@ Configuration for the CORBA server.
     <gbean name="public-properties-realm"
            class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">public-properties-realm</attribute>
-        <attribute name="loginModuleConfiguration">
-            LoginModule.1.REQUIRED=openejb.server:j2eeType=LoginModule,J2EEServer=openejb,J2EEApplication=null,J2EEModule=org/openejb/Security,name=public-login
-        </attribute>
+        <reference name="LoginModuleConfiguration">
+            <name>public-login</name>
+        </reference>
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
     </gbean>
+    <gbean name="public-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
+        <attribute name="controlFlag">REQUIRED</attribute>
+        <reference name="LoginModule">
+            <name>public-login</name>
+        </reference>
+    </gbean>
+
 
     <gbean name="public"
            class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
@@ -80,10 +87,16 @@ Configuration for the CORBA server.
     <gbean name="black-properties-realm"
            class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">black-properties-realm</attribute>
-        <attribute name="loginModuleConfiguration">
-            LoginModule.1.REQUIRED=openejb.server:j2eeType=LoginModule,J2EEServer=openejb,J2EEApplication=null,J2EEModule=org/openejb/Security,name=black-login
-        </attribute>
+        <reference name="LoginModuleConfiguration">
+            <name>black-login</name>
+        </reference>
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+    </gbean>
+    <gbean name="black-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
+        <attribute name="controlFlag">REQUIRED</attribute>
+        <reference name="LoginModule">
+            <name>black-login</name>
+        </reference>
     </gbean>
 
     <gbean name="black"
