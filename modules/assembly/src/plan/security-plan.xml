@@ -39,32 +39,22 @@ Configuration for the CORBA server.
     </gbean>
 
     <!-- public security realm -->
-    <gbean name="public-login"
-        class="org.apache.geronimo.security.jaas.LoginModuleGBean">
-        <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
-        <attribute name="serverSide">true</attribute>
-        <attribute name="options">
-            usersURI=var/security/public_users.properties
-            groupsURI=var/security/public_groups.properties
-        </attribute>
-        <attribute name="loginDomainName">public-properties-realm</attribute>
-    </gbean>
 
     <gbean name="public-properties-realm"
            class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">public-properties-realm</attribute>
-        <reference name="LoginModuleConfiguration">
-            <name>public-login</name>
-        </reference>
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <xml-reference name="LoginModuleConfiguration">
+            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig">
+                <lc:login-module control-flag="REQUIRED" server-side="true">
+                    <lc:login-domain-name>public-login</lc:login-domain-name>
+                    <lc:login-module-class>org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</lc:login-module-class>
+                    <lc:option name="usersURI">var/security/public_users.properties</lc:option>
+                    <lc:option name="groupsURI">var/security/public_groups.properties</lc:option>
+                </lc:login-module>
+            </lc:login-config>
+        </xml-reference>
     </gbean>
-    <gbean name="public-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
-        <attribute name="controlFlag">REQUIRED</attribute>
-        <reference name="LoginModule">
-            <name>public-login</name>
-        </reference>
-    </gbean>
-
 
     <gbean name="public"
            class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
@@ -87,16 +77,14 @@ Configuration for the CORBA server.
     <gbean name="black-properties-realm"
            class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">black-properties-realm</attribute>
-        <reference name="LoginModuleConfiguration">
-            <name>black-login</name>
-        </reference>
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
-    </gbean>
-    <gbean name="black-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
-        <attribute name="controlFlag">REQUIRED</attribute>
-        <reference name="LoginModule">
-            <name>black-login</name>
-        </reference>
+        <xml-reference name="LoginModuleConfiguration">
+            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig">
+                <lc:login-module-ref control-flag="REQUIRED">
+                    <lc:name>black-login</lc:name>
+                </lc:login-module-ref>
+            </lc:login-config>
+        </xml-reference>
     </gbean>
 
     <gbean name="black"
