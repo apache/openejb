@@ -35,7 +35,6 @@ public class EJBContainerProvider extends RPCProvider {
     protected Object invokeMethod(MessageContext msgContext, Method method, Object obj, Object[] params) throws Exception {
         int index = ejbContainer.getMethodIndex(method);
         EJBInvocation invocation = new EJBInvocationImpl(EJBInterfaceType.WEB_SERVICE, null, index, params);
-//        javax.xml.rpc.handler.MessageContext messageContext = new SimpleMessageContext(new HashMap());
         invocation.put(MessageContextInvocationKey.INSTANCE, msgContext);
 
         try {
@@ -50,35 +49,6 @@ public class EJBContainerProvider extends RPCProvider {
             } else {
                 throw (Error) throwable;
             }
-        }
-    }
-
-    private static class SimpleMessageContext implements javax.xml.rpc.handler.MessageContext {
-
-        private final Map properties;
-
-        public SimpleMessageContext(Map properties) {
-            this.properties = new HashMap(properties);
-        }
-
-        public boolean containsProperty(String name) {
-            return properties.containsKey(name);
-        }
-
-        public Object getProperty(String name) {
-            return properties.get(name);
-        }
-
-        public Iterator getPropertyNames() {
-            return properties.keySet().iterator();
-        }
-
-        public void removeProperty(String name) {
-            properties.remove(name);
-        }
-
-        public void setProperty(String name, Object value) {
-            properties.put(name, value);
         }
     }
 
