@@ -721,15 +721,6 @@
         </dependency>
 
         <dependency>
-            <groupId>wsdl4j</groupId>
-            <artifactId>wsdl4j</artifactId>
-            <version>${wsdl4j_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
             <groupId>stax</groupId>
             <artifactId>stax</artifactId>
             <version>${stax_version}</version>
@@ -779,15 +770,6 @@
             <groupId>axis</groupId>
             <artifactId>commons-discovery</artifactId>
             <version>${axis_commons_discovery_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>ews</groupId>
-            <artifactId>ews</artifactId>
-            <version>${ews_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
