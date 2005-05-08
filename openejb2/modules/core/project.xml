@@ -120,15 +120,6 @@
             <version>${geronimo_version}</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>geronimo</groupId>-->
-<!--            <artifactId>geronimo-naming-builder</artifactId>-->
-<!--            <version>${geronimo_version}</version>-->
-<!--            <properties>-->
-<!--                <xmlbeans>true</xmlbeans>-->
-<!--            </properties>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
@@ -301,7 +292,7 @@
             <artifactId>xmlParserAPIs</artifactId>
             <version>${xml_parser_apis_version}</version>
         </dependency>
-        
+
         <!-- CORBA -->
         <dependency>
             <groupId>tmporb</groupId>
@@ -409,17 +400,12 @@
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
             <version>${axis_version}</version>
-<!--            <properties>-->
-<!--                <module>true</module>-->
-<!--            </properties>-->
         </dependency>
+
         <dependency>
-            <groupId>axis</groupId>
+            <groupId>commons-discovery</groupId>
             <artifactId>commons-discovery</artifactId>
-            <version>${axis_commons_discovery_version}</version>
-<!--            <properties>-->
-<!--                <module>true</module>-->
-<!--            </properties>-->
+            <version>${commons_discovery_version}</version>
         </dependency>
 
         <dependency>
