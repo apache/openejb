@@ -68,6 +68,7 @@ import javax.xml.parsers.SAXParserFactory;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
@@ -96,7 +97,7 @@ public class WSContainerTest extends TestCase {
     }
 
     public void testGetWSDL() throws Exception {
-        Kernel kernel = new Kernel("wstest");
+        Kernel kernel = KernelFactory.newInstance().createKernel("wstest");
         kernel.boot();
 
         URI wsdlURI = new URI("META-INF/wsdl/test-ejb.wsdl");
@@ -148,7 +149,7 @@ public class WSContainerTest extends TestCase {
     }
 
     public void testAxisStyleMessage() throws Exception {
-        Kernel kernel = new Kernel("wstest");
+        Kernel kernel = KernelFactory.newInstance().createKernel("wstest");
         kernel.boot();
 
         URI wsdlURI = new URI("META-INF/wsdl/test-ejb.wsdl");
@@ -215,8 +216,7 @@ public class WSContainerTest extends TestCase {
     }
 
     private void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
-        int state = ((Integer) kernel.getAttribute(objectName, "state")).intValue();
-        assertEquals("should be running: " + objectName, State.RUNNING_INDEX, state);
+        assertEquals("should be running: " + objectName, State.RUNNING_INDEX, kernel.getGBeanState(objectName));
     }
 
     private String getResult(InputStream responseStream) throws ParserConfigurationException, SAXException, IOException {

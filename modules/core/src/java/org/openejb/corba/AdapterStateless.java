@@ -96,7 +96,7 @@ public final class AdapterStateless extends Adapter {
 
             Servant servant = tieLoader.loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
             AdapterProxyFactory factory = new AdapterProxyFactory(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
-            Remote remote = (Remote) factory.create(container.getEJBObject(null), container.getClassLoader());
+            Remote remote = (Remote) factory.create(container.getEjbObject(null), container.getClassLoader());
 
             if (servant instanceof Tie) {
                 ((Tie) servant).setTarget(remote);

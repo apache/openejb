@@ -59,7 +59,6 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.codehaus.xfire.MessageContext;
 import org.openejb.EJBContainer;
 
 public class WSContainerGBean {

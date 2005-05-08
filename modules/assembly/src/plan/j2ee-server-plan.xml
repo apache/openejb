@@ -338,7 +338,7 @@ by the server.
 
     <!-- JMX Remoting -->
     <gbean name="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
-        <attribute name="URL">service:jmx:rmi://localhost/jndi/rmi:/JMXConnector</attribute>
+        <attribute name="url">service:jmx:rmi://localhost/jndi/rmi:/JMXConnector</attribute>
         <attribute name="applicationConfigName">JMX</attribute>
     </gbean>
 

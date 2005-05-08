@@ -68,6 +68,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.Kernel;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
 import org.openejb.deployment.CMPContainerBuilder;
@@ -437,7 +438,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         ejbSchema.addEJB(ejb);
 
         Table table = new Table("MockEJB", "MOCK");
-        table.addColumn(new Column("id", "ID", Integer.class, true));
+        table.addColumn(new Column("id", "id", Integer.class, true));
         table.addColumn(new Column("value", "VALUE", String.class, false));
         sqlSchema.addTable(table);
 

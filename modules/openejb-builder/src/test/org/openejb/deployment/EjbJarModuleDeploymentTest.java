@@ -51,6 +51,7 @@ import java.io.File;
 
 import junit.framework.Test;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Revision$ $Date$

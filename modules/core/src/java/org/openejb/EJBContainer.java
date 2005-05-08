@@ -57,7 +57,6 @@ import javax.security.auth.Subject;
 
 import org.apache.geronimo.core.service.Interceptor;
 
-import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.dispatch.InterfaceMethodSignature;
 
@@ -81,7 +80,7 @@ public interface EJBContainer extends Interceptor {
      * Return the name of the EJB
      * @return the name of the EJB
      */
-    String getEJBName();
+    String getEjbName();
 
     /**
      * Return a proxy for the EJB's home interface. This can be passed back
@@ -89,7 +88,7 @@ public interface EJBContainer extends Interceptor {
      * call to EJBContext.getEJBHome() )
      * @return the proxy for this EJB's home interface
      */
-    EJBHome getEJBHome();
+    EJBHome getEjbHome();
 
     /**
      * Return a proxy for the EJB's remote interface. This can be passed back
@@ -97,7 +96,7 @@ public interface EJBContainer extends Interceptor {
      * call to SessionContext.getEJBObject() )
      * @return the proxy for this EJB's home interface
      */
-    EJBObject getEJBObject(Object primaryKey);
+    EJBObject getEjbObject(Object primaryKey);
 
     /**
      * Return a proxy for the EJB's local home interface. This can be
@@ -105,7 +104,7 @@ public interface EJBContainer extends Interceptor {
      * (e.g. in response to a call to EJBContext.getEJBLocalHome() )
      * @return the proxy for this EJB's local home interface
      */
-    EJBLocalHome getEJBLocalHome();
+    EJBLocalHome getEjbLocalHome();
 
     /**
      * Return a proxy for the EJB's local interface. This can be passed back
@@ -113,7 +112,7 @@ public interface EJBContainer extends Interceptor {
      * call to SessionContext.getEJBLocalObject() )
      * @return the proxy for this EJB's local interface
      */
-    EJBLocalObject getEJBLocalObject(Object primaryKey);
+    EJBLocalObject getEjbLocalObject(Object primaryKey);
 
     /**
      * Legacy invoke method for openejb 1.0 code

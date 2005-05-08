@@ -53,7 +53,7 @@ import java.util.Map;
 
 import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.MethodProxy;
-import org.objectweb.asm.Type;
+import net.sf.cglib.asm.Type;
 import org.openejb.EJBInterfaceType;
 
 /**
