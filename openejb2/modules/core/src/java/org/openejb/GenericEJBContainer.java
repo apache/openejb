@@ -286,7 +286,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         return containerId;
     }
 
-    public String getEJBName() {
+    public String getEjbName() {
         return ejbName;
     }
 
@@ -298,19 +298,19 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         return copyNames(localJndiNames);
     }
 
-    public EJBHome getEJBHome() {
+    public EJBHome getEjbHome() {
         return proxyFactory.getEJBHome();
     }
 
-    public EJBObject getEJBObject(Object primaryKey) {
+    public EJBObject getEjbObject(Object primaryKey) {
         return proxyFactory.getEJBObject(primaryKey);
     }
 
-    public EJBLocalHome getEJBLocalHome() {
+    public EJBLocalHome getEjbLocalHome() {
         return proxyFactory.getEJBLocalHome();
     }
 
-    public EJBLocalObject getEJBLocalObject(Object primaryKey) {
+    public EJBLocalObject getEjbLocalObject(Object primaryKey) {
         return proxyFactory.getEJBLocalObject(primaryKey);
     }
 
@@ -445,8 +445,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.addOperation("getMethodIndex", new Class[]{Method.class});
-        infoFactory.addOperation("getEJBObject", new Class[]{Object.class});
-        infoFactory.addOperation("getEJBLocalObject", new Class[]{Object.class});
+        infoFactory.addOperation("getEjbObject", new Class[]{Object.class});
+        infoFactory.addOperation("getEjbLocalObject", new Class[]{Object.class});
 
         infoFactory.addOperation("invoke", new Class[]{Invocation.class});
         infoFactory.addOperation("invoke", new Class[]{Method.class, Object[].class, Object.class});

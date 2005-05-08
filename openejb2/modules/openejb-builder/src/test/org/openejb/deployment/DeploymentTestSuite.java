@@ -47,11 +47,7 @@
  */
 package org.openejb.deployment;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
@@ -73,7 +69,9 @@ import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.openejb.ContainerIndex;
 import org.openejb.corba.compiler.OpenORBSkeletonGenerator;
@@ -176,10 +174,11 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             );
 
             JarFile jarFile = null;
+            ConfigurationData configurationData = null;
             try {
                 jarFile =DeploymentUtil.createJarFile(moduleFile);
                 Object plan = earConfigBuilder.getDeploymentPlan(null, jarFile);
-                earConfigBuilder.buildConfiguration(plan, jarFile, tempDir);
+                configurationData = earConfigBuilder.buildConfiguration(plan, jarFile, tempDir);
             } finally {
                 if (jarFile != null) {
                     jarFile.close();
@@ -187,18 +186,10 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
             }
 
             // start the configuration
-            GBeanData config = new GBeanData();
-            InputStream in = new FileInputStream(new File(tempDir, "META-INF/config.ser"));
-            try {
-                ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(in));
-                config.readExternal(ois);
-            } finally {
-                in.close();
-            }
-
+            GBeanData config = ExecutableConfigurationUtil.getConfigurationGBeanData(configurationData);
             config.setName(CONFIGURATION_OBJECT_NAME);
             config.setAttribute("baseURL", tempDir.toURL());
-            config.setAttribute("parentID", KernelHelper.DEFAULT_PARENTID);
+            config.setAttribute("parentId", KernelHelper.DEFAULT_PARENTID);
 
             ObjectName containerIndexObjectName = ObjectName.getInstance(DOMAIN_NAME + ":type=ContainerIndex");
             GBeanData containerIndexGBean = new GBeanData(containerIndexObjectName, ContainerIndex.GBEAN_INFO);
@@ -285,7 +276,6 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
     }
 
     private static void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
-        int state = ((Integer) kernel.getAttribute(objectName, "state")).intValue();
-        assertEquals("should be running: " + objectName, State.RUNNING_INDEX, state);
+        assertEquals("should be running: " + objectName, State.RUNNING_INDEX, kernel.getGBeanState(objectName));
     }
 }

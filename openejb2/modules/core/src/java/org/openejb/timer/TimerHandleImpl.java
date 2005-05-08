@@ -55,6 +55,7 @@ import javax.ejb.Timer;
 import javax.ejb.TimerHandle;
 import javax.management.ObjectName;
 
+import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
@@ -76,7 +77,7 @@ public class TimerHandleImpl implements TimerHandle, Serializable {
     }
 
     public Timer getTimer() throws EJBException, IllegalStateException, NoSuchObjectLocalException {
-        Kernel kernel = Kernel.getKernel(kernelName);
+        Kernel kernel = KernelRegistry.getKernel(kernelName);
         try {
             return (Timer) kernel.invoke(timerSourceName, "getTimerById", new Object[] {new Long(id)}, new String[] {Long.class.getName()});
         } catch (IllegalStateException e) {

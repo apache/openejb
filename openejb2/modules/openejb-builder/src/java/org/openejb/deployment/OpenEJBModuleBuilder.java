@@ -370,7 +370,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         return sessionBuilder;
     }
 
-    public String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         J2eeContext earJ2eeContext = earContext.getJ2eeContext();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.EJB_MODULE, module.getName());
 
@@ -515,10 +515,8 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         mdbBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, openejbBeans, transactionPolicyHelper, enterpriseBeans, componentPermissions, policyContextID);
 
         earContext.addSecurityContext(policyContextID, componentPermissions);
-
-        return null;
     }
-
+    
     private static ObjectName getResourceContainerId(URI uri, GerResourceLocatorType resourceLocator, EARContext earContext) throws DeploymentException {
         RefContext refContext = earContext.getRefContext();
         J2eeContext j2eeContext = earContext.getJ2eeContext();

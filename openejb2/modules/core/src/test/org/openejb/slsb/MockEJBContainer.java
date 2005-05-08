@@ -115,23 +115,23 @@ public class MockEJBContainer implements EJBContainer {
         return null;
     }
 
-    public String getEJBName() {
+    public String getEjbName() {
         return null;
     }
 
-    public EJBHome getEJBHome() {
+    public EJBHome getEjbHome() {
         return null;
     }
 
-    public EJBObject getEJBObject(Object primaryKey) {
+    public EJBObject getEjbObject(Object primaryKey) {
         return null;
     }
 
-    public EJBLocalHome getEJBLocalHome() {
+    public EJBLocalHome getEjbLocalHome() {
         return null;
     }
 
-    public EJBLocalObject getEJBLocalObject(Object primaryKey) {
+    public EJBLocalObject getEjbLocalObject(Object primaryKey) {
         return null;
     }
 
@@ -197,12 +197,12 @@ public class MockEJBContainer implements EJBContainer {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MockEJBContainer.class);
 
-        infoFactory.addAttribute("EJBName", String.class, true);
+        infoFactory.addAttribute("ejbName", String.class, true);
         infoFactory.addAttribute("ProxyInfo", ProxyInfo.class, true);
 
         infoFactory.addOperation("getMethodIndex", new Class[] {Method.class});
-        infoFactory.addOperation("getEJBObject", new Class[] {Object.class});
-        infoFactory.addOperation("getEJBLocalObject", new Class[] {Object.class});
+        infoFactory.addOperation("getEjbObject", new Class[] {Object.class});
+        infoFactory.addOperation("getEjbLocalObject", new Class[] {Object.class});
 
         infoFactory.addOperation("invoke", new Class[]{Invocation.class});
         infoFactory.addOperation("invoke", new Class[]{Method.class, Object[].class, Object.class});

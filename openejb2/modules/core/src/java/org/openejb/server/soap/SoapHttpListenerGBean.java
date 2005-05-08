@@ -56,7 +56,6 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.openejb.server.httpd.HttpRequest;
 import org.openejb.server.httpd.HttpResponse;
-import org.openejb.server.soap.SoapHttpListener;
 
 public class SoapHttpListenerGBean {
 

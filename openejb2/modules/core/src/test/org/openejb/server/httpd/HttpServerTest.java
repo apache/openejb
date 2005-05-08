@@ -57,6 +57,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
@@ -143,7 +144,7 @@ public class HttpServerTest extends TestCase {
     }
 
     public void testHttpServerGBean() throws Exception {
-        Kernel kernel = new Kernel("wstest");
+        Kernel kernel = KernelFactory.newInstance().createKernel("wstest");
         kernel.boot();
 
         ObjectName listener = TestHttpListener.addGBean(kernel, "HTTP");
@@ -173,7 +174,7 @@ public class HttpServerTest extends TestCase {
     }
 
     public void testGBeanServiceStack() throws Exception {
-        Kernel kernel = new Kernel("wstest");
+        Kernel kernel = KernelFactory.newInstance().createKernel("wstest");
         kernel.boot();
 
         ObjectName listener = TestHttpListener.addGBean(kernel, "HTTP");
@@ -217,8 +218,7 @@ public class HttpServerTest extends TestCase {
 
 
     private void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
-        int state = ((Integer) kernel.getAttribute(objectName, "state")).intValue();
-        assertEquals("should be running: " + objectName, State.RUNNING_INDEX, state);
+        assertEquals("should be running: " + objectName, State.RUNNING_INDEX, kernel.getGBeanState(objectName));
     }
 
     public static class TestHttpListener implements HttpListener {

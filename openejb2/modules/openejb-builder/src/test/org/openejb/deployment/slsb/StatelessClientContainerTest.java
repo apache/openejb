@@ -79,7 +79,7 @@ public class StatelessClientContainerTest extends TestCase {
     private EJBContainer container;
 
     public void testMetadata() throws Exception {
-        EJBMetaData metaData = container.getEJBHome().getEJBMetaData();
+        EJBMetaData metaData = container.getEjbHome().getEJBMetaData();
         assertTrue(metaData.isSession());
         assertTrue(metaData.isStatelessSession());
         assertEquals(MockHome.class, metaData.getHomeInterfaceClass());
@@ -104,7 +104,7 @@ public class StatelessClientContainerTest extends TestCase {
     }
 
     public void testHomeInterface() throws Exception {
-        MockHome home = (MockHome) container.getEJBHome();
+        MockHome home = (MockHome) container.getEjbHome();
         assertTrue(home.create() instanceof MockRemote);
         try {
             home.remove(new Integer(1));
@@ -136,7 +136,7 @@ public class StatelessClientContainerTest extends TestCase {
     public MockEJB mockEJB2;
 
     public void testRemove() throws Throwable {
-        MockLocalHome home = (MockLocalHome) container.getEJBLocalHome();
+        MockLocalHome home = (MockLocalHome) container.getEjbLocalHome();
         final MockLocal mock1 = home.create();
         Thread waiter = new Thread("Waiter") {
             public void run() {
@@ -157,7 +157,7 @@ public class StatelessClientContainerTest extends TestCase {
     }
 
     public void testLocalHomeInterface() {
-        MockLocalHome localHome = (MockLocalHome) container.getEJBLocalHome();
+        MockLocalHome localHome = (MockLocalHome) container.getEjbLocalHome();
         try {
             localHome.remove(new Integer(1));
             fail("Expected RemoveException, but no exception was thrown");
@@ -171,7 +171,7 @@ public class StatelessClientContainerTest extends TestCase {
     }
 
     public void testObjectInterface() throws Exception {
-        MockHome home = (MockHome) container.getEJBHome();
+        MockHome home = (MockHome) container.getEjbHome();
         MockRemote remote = home.create();
         assertTrue(remote.isIdentical(remote));
         assertTrue(remote.isIdentical(home.create()));
@@ -189,7 +189,7 @@ public class StatelessClientContainerTest extends TestCase {
     }
 
     public void testLocalInterface() throws Exception {
-        MockLocalHome localHome = (MockLocalHome) container.getEJBLocalHome();
+        MockLocalHome localHome = (MockLocalHome) container.getEjbLocalHome();
         MockLocal local = localHome.create();
         assertTrue(local.isIdentical(local));
         assertTrue(local.isIdentical(localHome.create()));
@@ -207,7 +207,7 @@ public class StatelessClientContainerTest extends TestCase {
     }
 
     public void testInvocation() throws Exception {
-        MockHome home = (MockHome) container.getEJBHome();
+        MockHome home = (MockHome) container.getEjbHome();
         MockRemote remote = home.create();
         assertEquals(2, remote.intMethod(1));
         try {

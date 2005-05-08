@@ -145,23 +145,23 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
         return objectName;
     }
 
-    public String getEJBName() {
+    public String getEjbName() {
         return ejbName;
     }
 
-    public EJBHome getEJBHome() {
+    public EJBHome getEjbHome() {
         return proxyFactory.getEJBHome();
     }
 
-    public EJBObject getEJBObject(Object primaryKey) {
+    public EJBObject getEjbObject(Object primaryKey) {
         return proxyFactory.getEJBObject(primaryKey);
     }
 
-    public EJBLocalHome getEJBLocalHome() {
+    public EJBLocalHome getEjbLocalHome() {
         return proxyFactory.getEJBLocalHome();
     }
 
-    public EJBLocalObject getEJBLocalObject(Object primaryKey) {
+    public EJBLocalObject getEjbLocalObject(Object primaryKey) {
         return proxyFactory.getEJBLocalObject(primaryKey);
     }
 
@@ -222,7 +222,7 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
         EJBInvocation ejbInvocation = (EJBInvocation) invocation;
         int methodIndex = methodMap[ejbInvocation.getMethodIndex()];
         if (methodIndex == CREATE_INDEX) {
-            return new SimpleInvocationResult(true, getEJBObject(null));
+            return new SimpleInvocationResult(true, getEjbObject(null));
         }
         try {
             return new SimpleInvocationResult(true, fastClass.invoke(methodIndex, this, ejbInvocation.getArguments()));

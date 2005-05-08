@@ -171,7 +171,6 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     }
 
     public static void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
-        int state = ((Integer) kernel.getAttribute(objectName, "state")).intValue();
-        assertEquals("should be running: " + objectName, State.RUNNING_INDEX, state);
+        assertEquals("should be running: " + objectName, State.RUNNING_INDEX, kernel.getGBeanState(objectName));
     }
 }

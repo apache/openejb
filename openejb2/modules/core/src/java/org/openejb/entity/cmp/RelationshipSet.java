@@ -111,7 +111,7 @@ public class RelationshipSet implements Set {
             }
 
             public Object next() {
-                return relatedContainer.getEJBLocalObject(iterator.next());
+                return relatedContainer.getEjbLocalObject(iterator.next());
             }
 
             public void remove() {
@@ -131,7 +131,7 @@ public class RelationshipSet implements Set {
 
         Iterator iterator = keys.iterator();
         for (int i = 0; i < a.length; i++) {
-            a[i] = relatedContainer.getEJBLocalObject(iterator.next());
+            a[i] = relatedContainer.getEjbLocalObject(iterator.next());
         }
         return a;
     }

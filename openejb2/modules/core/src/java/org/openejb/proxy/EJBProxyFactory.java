@@ -133,7 +133,7 @@ public class EJBProxyFactory implements Serializable, org.tranql.ejb.EJBProxyFac
     }
 
     public String getEJBName() {
-        return container.getEJBName();
+        return container.getEjbName();
     }
 
     EJBContainer getContainer() throws ContainerNotFoundException {

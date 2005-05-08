@@ -109,7 +109,7 @@ public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle
         Class serviceEndpointInterface = proxyInfo.getServiceEndpointInterface();
 
         service = new DefaultJavaService();
-        service.setName(ejbContainer.getEJBName());
+        service.setName(ejbContainer.getEjbName());
         service.setDefaultNamespace(namespace);
         service.setServiceClass(serviceEndpointInterface);
         service.setSoapVersion(Soap11.getInstance());

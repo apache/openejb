@@ -52,10 +52,14 @@ import javax.naming.NamingException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
 import org.openejb.ContainerIndex;
 import org.openejb.EJBContainer;
-import org.openejb.client.*;
+import org.openejb.client.EJBMetaDataImpl;
+import org.openejb.client.JNDIRequest;
+import org.openejb.client.JNDIResponse;
+import org.openejb.client.RequestMethods;
+import org.openejb.client.ResponseCodes;
 import org.openejb.proxy.ProxyInfo;
 
 /**
@@ -91,7 +95,7 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
             contextClassLoader = thread.getContextClassLoader();
             try {
                 ObjectName objectName = new ObjectName(req.getClientModuleID());
-                ClassLoader classLoader = (ClassLoader)Kernel.getSingleKernel().getAttribute(objectName, "classLoader");
+                ClassLoader classLoader = (ClassLoader)KernelRegistry.getSingleKernel().getAttribute(objectName, "classLoader");
                 thread.setContextClassLoader(classLoader);
             } catch (Throwable e) {
                 replyWithFatalError(out, e, "Failed to set the correct classloader");
@@ -148,7 +152,7 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
         if (req.getClientModuleID() != null) {
             try {
                 ObjectName objectName = new ObjectName(req.getClientModuleID());
-                Object context = Kernel.getSingleKernel().getAttribute(objectName, "componentContext");
+                Object context = KernelRegistry.getSingleKernel().getAttribute(objectName, "componentContext");
 
                 res.setResponseCode(JNDI_CONTEXT_TREE);
                 res.setResult(context);

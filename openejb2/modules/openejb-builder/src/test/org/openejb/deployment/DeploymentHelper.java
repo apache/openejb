@@ -67,6 +67,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.pool.ThreadPool;
 import org.apache.geronimo.timer.vm.VMStoreThreadPooledNonTransactionalTimer;
@@ -137,7 +138,7 @@ public class DeploymentHelper {
 
     public static void setUpTimer(Kernel kernel) throws Exception {
         GBeanData threadPoolGBean = new GBeanData(THREADPOOL_NAME, ThreadPool.GBEAN_INFO);
-        threadPoolGBean.setAttribute("keepAliveTime", new Integer(5000));
+        threadPoolGBean.setAttribute("keepAliveTime", new Long(5000));
         threadPoolGBean.setAttribute("poolSize", new Integer(5));
         threadPoolGBean.setAttribute("poolName", "DefaultThreadPool");
         start(kernel, threadPoolGBean);
