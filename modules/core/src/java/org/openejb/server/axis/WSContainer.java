@@ -65,7 +65,15 @@ public class WSContainer implements GBeanLifecycle {
         location = null;
     }
 
-    public WSContainer(EJBContainer ejbContainer, URI location, URI wsdlURI, SoapHandler soapHandler, ServiceInfo serviceInfo) throws Exception {
+    public WSContainer(EJBContainer ejbContainer,
+                       URI location,
+                       URI wsdlURI,
+                       SoapHandler soapHandler,
+                       ServiceInfo serviceInfo,
+                       String securityRealmName,
+                       String realmName,
+                       String transportGuarantee,
+                       String authMethod) throws Exception {
         try {
 
             this.soapHandler = soapHandler;
@@ -84,9 +92,9 @@ public class WSContainer implements GBeanLifecycle {
             ClassLoader classLoader = ejbContainer.getClassLoader();
             AxisWebServiceContainer axisContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
             if (soapHandler != null) {
-                soapHandler.addWebService(location.getPath(), axisContainer);
+                soapHandler.addWebService(location.getPath(), axisContainer, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);

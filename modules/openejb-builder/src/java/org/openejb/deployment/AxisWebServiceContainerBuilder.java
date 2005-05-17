@@ -61,17 +61,16 @@ import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.xbeans.j2ee.SessionBeanType;
 import org.openejb.server.axis.WSContainerGBean;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
+import org.openejb.xbeans.ejbjar.OpenejbWebServiceSecurityType;
 
 public class AxisWebServiceContainerBuilder {
 
-
-    private static final Log log = LogFactory.getLog(AxisWebServiceContainerBuilder.class);
 
     /*
      * The ultimate goal of this method is to create an XFireService GBean that wraps the EJBContainer with
      * the corresponding sessionObjectname and is capable of being indexed by its WSDL address location.
      */
-    public void addGbean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, ObjectName listener, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper) throws DeploymentException {
+    public void addGbean(EARContext earContext, EJBModule ejbModule, ClassLoader cl, ObjectName sessionObjectName, ObjectName listener, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, OpenejbWebServiceSecurityType webServiceSecurity) throws DeploymentException {
 
         boolean isStateless = "Stateless".equals(sessionBean.getSessionType().getStringValue());
         String serviceEndpointName = OpenEJBModuleBuilder.getJ2eeStringValue(sessionBean.getServiceEndpoint());
@@ -83,12 +82,12 @@ public class AxisWebServiceContainerBuilder {
 
         serviceEndpointName = serviceEndpointName.trim();
 
-        GBeanData gBean = buildGBeanData(sessionObjectName, listener, ejbName, serviceEndpointName, ejbModule.getModuleFile(), cl);
+        GBeanData gBean = buildGBeanData(sessionObjectName, listener, ejbName, serviceEndpointName, ejbModule.getModuleFile(), cl, webServiceSecurity);
 
         earContext.addGBean(gBean);
     }
 
-    public GBeanData buildGBeanData(ObjectName sessionObjectName, ObjectName listener, String ejbName, String serviceEndpointName, JarFile jarFile, ClassLoader cl) throws DeploymentException {
+    GBeanData buildGBeanData(ObjectName sessionObjectName, ObjectName listener, String ejbName, String serviceEndpointName, JarFile jarFile, ClassLoader cl, OpenejbWebServiceSecurityType webServiceSecurity) throws DeploymentException {
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(jarFile, ejbName, cl);
         JavaServiceDesc ejbServiceDesc = serviceInfo.getServiceDesc();
 
@@ -109,8 +108,25 @@ public class AxisWebServiceContainerBuilder {
         } catch (URISyntaxException e) {
             throw new DeploymentException("Invalid address location URI: "+ejbServiceDesc.getEndpointURL(), e);
         }
-
-        GBeanData gBean = WSContainerGBean.createGBean(ejbName,sessionObjectName,listener, location, wsdlURI, serviceInfo);
+        String securityRealmName = null;
+        String realmName = null;
+        String transportGuarantee = null;
+        String authMethod = null;
+        if (webServiceSecurity != null) {
+            securityRealmName = webServiceSecurity.getSecurityRealmName().trim();
+            realmName = webServiceSecurity.getRealmName().trim();
+            transportGuarantee = webServiceSecurity.getTransportGuarantee().toString();
+            authMethod = webServiceSecurity.getAuthMethod().toString();
+        }
+        GBeanData gBean = WSContainerGBean.createGBean(ejbName, 
+                sessionObjectName,
+                listener,
+                location,
+                wsdlURI,
+                serviceInfo,
+                securityRealmName,
+                realmName,
+                transportGuarantee, authMethod);
         return gBean;
     }
 }

@@ -179,7 +179,7 @@ class SessionBuilder extends BeanBuilder {
 //        XFireWebServiceContainerBuilder xfireWebServiceBuilder = new XFireWebServiceContainerBuilder();
 //        xfireWebServiceBuilder.addGbean(earContext, ejbModule, cl, sessionObjectName, listener, sessionBean, openejbSessionBean, transactionPolicyHelper, security);
         AxisWebServiceContainerBuilder axisWebServiceContainerBuilder = new AxisWebServiceContainerBuilder();
-        axisWebServiceContainerBuilder.addGbean(earContext, ejbModule, cl, sessionObjectName, listener, sessionBean, openejbSessionBean, transactionPolicyHelper);
+        axisWebServiceContainerBuilder.addGbean(earContext, ejbModule, cl, sessionObjectName, listener, sessionBean, openejbSessionBean, transactionPolicyHelper, openejbSessionBean == null? null: openejbSessionBean.getWebServiceSecurity());
     }
 
     private void addEJBContainerGBean(EARContext earContext, EJBModule ejbModule, ComponentPermissions componentPermissions, ClassLoader cl, ObjectName sessionObjectName, SessionBeanType sessionBean, OpenejbSessionBeanType openejbSessionBean, TransactionPolicyHelper transactionPolicyHelper, String policyContextID) throws DeploymentException {
