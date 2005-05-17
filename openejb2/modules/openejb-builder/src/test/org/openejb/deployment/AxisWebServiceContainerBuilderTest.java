@@ -34,7 +34,7 @@ public class AxisWebServiceContainerBuilderTest extends TestCase {
 
         String serviceEndpointName = "org.openejb.test.simple.slsb.SimpleStatelessSessionEndpoint";
         ObjectName sessionObjectName = JMXUtil.getObjectName("openejb:type=StatelessSessionBean,name=SimpleStatelessSession");
-        GBeanData gBeanData = axisWebServiceContainerBuilder.buildGBeanData(sessionObjectName, null, "SimpleStatelessSession", serviceEndpointName, jarFile, classLoader );
+        GBeanData gBeanData = axisWebServiceContainerBuilder.buildGBeanData(sessionObjectName, null, "SimpleStatelessSession", serviceEndpointName, jarFile, classLoader, null);
         Object attribute = gBeanData.getAttribute("serviceDesc");
         // serialize
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

@@ -81,7 +81,7 @@ public class SoapHttpListener implements HttpListener, SoapHandler {
         res.setContentType("text/xml");
         RequestAdapter request = new RequestAdapter(req);
         ResponseAdapter response = new ResponseAdapter(res);
-        
+
         if (req.getQueryParameter("wsdl") != null) {
             try {
                 container.getWsdl(request, response);
@@ -102,7 +102,7 @@ public class SoapHttpListener implements HttpListener, SoapHandler {
     }
 
 
-    public void addWebService(String contextPath, WebServiceContainer webServiceContainer) throws Exception {
+    public void addWebService(String contextPath, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) throws Exception {
         contextPathToWSMap.put(contextPath, webServiceContainer);
     }
 

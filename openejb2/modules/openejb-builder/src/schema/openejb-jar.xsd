@@ -124,9 +124,36 @@
 
             <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
             <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
+            <xs:element name="web-service-security" type="openejb:web-service-securityType" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute name="id" type="xs:ID"/>
     </xs:complexType>
+
+    <xs:complexType name="web-service-securityType">
+        <xs:sequence>
+            <xs:element name="security-realm-name" type="xs:string"/>
+            <xs:element name="realm-name" type="xs:string"/>
+            <xs:element name="transport-guarantee" type="openejb:transport-guaranteeType"/>
+            <xs:element name="auth-method" type="openejb:auth-methodType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="transport-guaranteeType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="NONE"/>
+            <xs:enumeration value="INTEGRAL"/>
+            <xs:enumeration value="CONFIDENTIAL"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="auth-methodType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="BASIC"/>
+            <xs:enumeration value="DIGEST"/>
+            <xs:enumeration value="CLIENT-CERT"/>
+            <xs:enumeration value="NONE"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <!--entity bean section -->
     <xs:complexType name="entity-beanType">

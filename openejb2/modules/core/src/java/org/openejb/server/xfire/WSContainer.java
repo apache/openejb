@@ -88,7 +88,7 @@ public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle
     private final DefaultJavaService service;
     private final SoapHandler soapHandler;
     private final Byte wsdlMutext = new Byte((byte)0);
-    
+
     private transient WSDLWriter wsdlWriter;
     private transient Definition definition;
 
@@ -100,7 +100,18 @@ public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle
         this.soapHandler = null;
     }
 
-    public WSContainer(EJBContainer ejbContainer, Definition definition, URI location, URL wsdlURL, String namespace, String encoding, String style, SoapHandler soapHandler) throws Exception {
+    public WSContainer(EJBContainer ejbContainer,
+                       Definition definition,
+                       URI location,
+                       URL wsdlURL,
+                       String namespace,
+                       String encoding,
+                       String style,
+                       SoapHandler soapHandler,
+                       String securityRealmName,
+                       String realmName,
+                       String transportGuarantee,
+                       String authMethod) throws Exception {
         this.ejbContainer = ejbContainer;
         this.location = location;
         this.wsdlURL = wsdlURL;
@@ -123,7 +134,8 @@ public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle
         configurator.configure();
         this.soapHandler = soapHandler;
         if (soapHandler != null) {
-            soapHandler.addWebService(location.getPath(), this);
+            ClassLoader classLoader = ejbContainer.getClassLoader();
+            soapHandler.addWebService(location.getPath(), this, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);
         }
     }
 
@@ -161,15 +173,15 @@ public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle
     }
 
     public void getWsdl(Request request, Response response) throws Exception {
-        
+
         // Avoid concurrent modification of the WSDL dom.
         synchronized(wsdlMutext) {
-            
-            // Read in the the WSDL in once. 
+
+            // Read in the the WSDL in once.
             if( definition == null ) {
                 initWSDLDom();
             }
-            
+
             // Update all the service port soap address elements.
             Map services = definition.getServices();
             for (Iterator iter1 = services.values().iterator(); iter1.hasNext();) {
@@ -181,12 +193,12 @@ public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle
                         ExtensibilityElement element = (ExtensibilityElement) iter3.next();
                         if (element instanceof SOAPAddress ) {
                             SOAPAddress soapAddress = (SOAPAddress)element;
-                            URI realLocation = request.getURI();                            
+                            URI realLocation = request.getURI();
                             // We replace the host and port here.
                             URI updated = new URI(
                                     realLocation.getScheme(),
-                                    realLocation.getUserInfo(), 
-                                    realLocation.getHost(), 
+                                    realLocation.getUserInfo(),
+                                    realLocation.getHost(),
                                     realLocation.getPort(),
                                     realLocation.getPath(), // Humm is this right?
                                     null,
@@ -196,7 +208,7 @@ public class WSContainer implements Invoker, WebServiceContainer, GBeanLifecycle
                     }
                 }
             }
-            
+
             // Dump the WSDL dom to the output stream
             OutputStream out = response.getOutputStream();
             wsdlWriter.writeWSDL(definition, out);

@@ -77,6 +77,10 @@ public class WSContainerGBean {
         infoFactory.addAttribute("namespace", String.class, true);
         infoFactory.addAttribute("encoding", String.class, true);
         infoFactory.addAttribute("style", String.class, true);
+        infoFactory.addAttribute("securityRealmName", String.class, true);
+        infoFactory.addAttribute("realmName", String.class, true);
+        infoFactory.addAttribute("transportGuarantee", String.class, true);
+        infoFactory.addAttribute("authMethod", String.class, true);
         infoFactory.addReference("WebServiceContainer", SoapHandler.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.setConstructor(new String[]{
@@ -87,7 +91,11 @@ public class WSContainerGBean {
             "namespace",
             "encoding",
             "style",
-            "WebServiceContainer"
+            "WebServiceContainer",
+            "securityRealmName",
+            "realmName",
+            "transportGuarantee",
+            "authMethod"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
