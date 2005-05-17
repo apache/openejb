@@ -100,6 +100,8 @@ import org.tranql.cache.GlobalSchema;
 import org.tranql.cache.QueryFaultHandler;
 import org.tranql.ejb.CMPFieldAccessor;
 import org.tranql.ejb.CMPFieldFaultTransform;
+import org.tranql.ejb.CMPFieldIdentityExtractorAccessor;
+import org.tranql.ejb.CMPFieldNestedRowAccessor;
 import org.tranql.ejb.CMPFieldTransform;
 import org.tranql.ejb.CMRField;
 import org.tranql.ejb.EJB;
@@ -113,6 +115,7 @@ import org.tranql.ejb.MultiValuedCMRAccessor;
 import org.tranql.ejb.MultiValuedCMRFaultHandler;
 import org.tranql.ejb.OneToManyCMR;
 import org.tranql.ejb.OneToOneCMR;
+import org.tranql.ejb.ReadOnlyCMPFieldAccessor;
 import org.tranql.ejb.RemoteProxyTransform;
 import org.tranql.ejb.SelectEJBQLQuery;
 import org.tranql.ejb.SingleValuedCMRAccessor;
@@ -133,10 +136,13 @@ import org.tranql.query.QueryCommand;
 import org.tranql.query.QueryCommandView;
 import org.tranql.query.SchemaMapper;
 import org.tranql.schema.Association;
+import org.tranql.schema.AssociationEnd;
 import org.tranql.schema.Attribute;
+import org.tranql.schema.FKAttribute;
 import org.tranql.schema.Schema;
 import org.tranql.sql.EJBQLToPhysicalQuery;
 import org.tranql.sql.SQLSchema;
+import org.tranql.sql.Table;
 
 /**
  * @version $Revision$ $Date$
@@ -274,14 +280,14 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
 
         // build the instance factory
-        LinkedHashMap cmpFieldAccessors = createCMPFieldAccessors(faultHandler);
-        LinkedHashMap cmrFieldAccessors = createCMRFieldAccessors();
+        LinkedHashMap cmrFieldAccessors[] = createCMRFieldAccessors();
+        LinkedHashMap cmpFieldAccessors = createCMPFieldAccessors(faultHandler, cmrFieldAccessors[0]);
         Map selects = createSelects(ejb);
         Map instanceMap = null;
         CMP1Bridge cmp1Bridge = null;
         if (cmp2) {
             // filter out the accessors associated to virtual CMR fields.
-            LinkedHashMap existingCMRFieldAccessors = new LinkedHashMap(cmrFieldAccessors);
+            LinkedHashMap existingCMRFieldAccessors = new LinkedHashMap(cmrFieldAccessors[1]);
             for (Iterator iter = existingCMRFieldAccessors.entrySet().iterator(); iter.hasNext();) {
                 Map.Entry entry = (Map.Entry) iter.next();
                 String name = (String) entry.getKey();
@@ -295,7 +301,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
 
         // build the vop table
-        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrFieldAccessors, cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGeneratorDelegate(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, finders);
+        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrFieldAccessors[1], cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGeneratorDelegate(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, finders);
 
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
@@ -329,7 +335,11 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return toPhysicalQuery.buildSelects(ejb);
     }
 
-    private LinkedHashMap createCMPFieldAccessors(FaultHandler faultHandler) {
+    private LinkedHashMap createCMPFieldAccessors(FaultHandler faultHandler, LinkedHashMap cmrFieldAccessors) {
+        IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
+
+        Table table = (Table) sqlSchema.getEntity(ejb.getName());
+        
         List attributes = ejb.getAttributes();
         List virtualAttributes = ejb.getVirtualCMPFields();
         LinkedHashMap cmpFieldAccessors = new LinkedHashMap(attributes.size());
@@ -339,14 +349,39 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 continue;
             }
             String name = attribute.getName();
-            CMPFieldTransform accessor = new CMPFieldAccessor(new CacheRowAccessor(i, attribute.getType()), name);
-            accessor = new CMPFieldFaultTransform(accessor, faultHandler, new int[]{i});
+            
+            CMPFieldTransform accessor;
+            String columnName = table.getAttribute(name).getPhysicalName();
+            AssociationEnd end = table.getAssociationEndDefiningFKAttribute(columnName);
+            if (null != end) {
+                accessor = (CMPFieldTransform) cmrFieldAccessors.get(end.getName());
+                IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(end.getEntity());
+                accessor = new CMPFieldIdentityExtractorAccessor(accessor, identityDefiner);
+
+                int index = 0;
+                LinkedHashMap pkToFK = end.getAssociation().getJoinDefinition().getPKToFKMapping();
+                for (Iterator iter = pkToFK.entrySet().iterator(); iter.hasNext();) {
+                    Map.Entry entry = (Map.Entry) iter.next();
+                    FKAttribute fkAttribute = (FKAttribute) entry.getValue();
+                    if (fkAttribute.getName().equals(columnName)) {
+                        accessor = new CMPFieldNestedRowAccessor(accessor, index);
+                        break;
+                    }
+                    index++;
+                }
+                
+                accessor = new ReadOnlyCMPFieldAccessor(accessor, attribute.getName());
+            }  else {
+                accessor = new CMPFieldAccessor(new CacheRowAccessor(i, attribute.getType()), name);
+                accessor = new CMPFieldFaultTransform(accessor, faultHandler, new int[]{i});
+            }
+            
             cmpFieldAccessors.put(name, accessor);
         }
         return cmpFieldAccessors;
     }
 
-    private LinkedHashMap createCMRFieldAccessors() throws QueryException {
+    private LinkedHashMap[] createCMRFieldAccessors() throws QueryException {
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
         IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(ejb);
 
@@ -354,6 +389,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         AssociationEndFaultHandlerBuilder handlerBuilder = new AssociationEndFaultHandlerBuilder(mapper);
 
         List associationEnds = ejb.getAssociationEnds();
+        LinkedHashMap cmrFaultAccessors = new LinkedHashMap(associationEnds.size());
         LinkedHashMap cmrFieldAccessors = new LinkedHashMap(associationEnds.size());
         int offset = ejb.getAttributes().size();
         for (int i = offset; i < offset + associationEnds.size(); i++) {
@@ -370,6 +406,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             FaultHandler faultHandler = buildFaultHandler(handlerBuilder, field, i);
             accessor = new CMPFieldFaultTransform(accessor, faultHandler, new int[]{i});
 
+            cmrFaultAccessors.put(name, accessor);
+            
             int relatedIndex = relatedEJB.getAttributes().size() + relatedEJB.getAssociationEnds().indexOf(relatedField);
             FaultHandler relatedFaultHandler = buildFaultHandler(handlerBuilder, relatedField, relatedIndex);
             CMPFieldTransform relatedAccessor = new CMPFieldAccessor(new CacheRowAccessor(relatedIndex, null), name);
@@ -398,7 +436,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
             cmrFieldAccessors.put(name, accessor);
         }
-        return cmrFieldAccessors;
+
+        return new LinkedHashMap[] {cmrFaultAccessors, cmrFieldAccessors};
     }
 
     private FaultHandler buildFaultHandler(AssociationEndFaultHandlerBuilder handlerBuilder, CMRField field, int slot) throws QueryException {

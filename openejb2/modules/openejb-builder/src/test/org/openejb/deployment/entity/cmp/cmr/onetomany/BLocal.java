@@ -61,7 +61,13 @@ public interface BLocal extends EJBLocalObject {
 
     public String getField2();
     public void setField2(String field2);
-    
+
+    public Integer getField3();
+    public void setField3(Integer field3);
+
+    public String getField4();
+    public void setField4(String field4);
+
     // CMR
     public ALocal getA();
     public void setA(ALocal a);

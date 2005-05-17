@@ -35,6 +35,14 @@
                 <cmp-field-name>field2</cmp-field-name>
                 <table-column>b2</table-column>
             </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>field3</cmp-field-name>
+                <table-column>fka1</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>field4</cmp-field-name>
+                <table-column>fka2</table-column>
+            </cmp-field-mapping>
         </entity>
     </enterprise-beans>
 

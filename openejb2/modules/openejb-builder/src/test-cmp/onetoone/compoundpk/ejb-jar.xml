@@ -29,7 +29,7 @@
             <local>org.openejb.deployment.entity.cmp.cmr.onetoone.BLocal</local>
             <ejb-class>org.openejb.deployment.entity.cmp.cmr.onetoone.BBean</ejb-class>
             <persistence-type>Container</persistence-type>
-            <prim-key-class>java.lang.Integer</prim-key-class>
+            <prim-key-class>org.openejb.deployment.entity.cmp.cmr.CompoundPK</prim-key-class>
             <cmp-version>2.x</cmp-version>
             <abstract-schema-name>OneToOneB</abstract-schema-name>
             <cmp-field>
@@ -38,7 +38,12 @@
             <cmp-field>
                 <field-name>field2</field-name>
             </cmp-field>
-            <primkey-field>field1</primkey-field>
+            <cmp-field>
+                <field-name>field3</field-name>
+            </cmp-field>
+            <cmp-field>
+                <field-name>field4</field-name>
+            </cmp-field>
         </entity>
     </enterprise-beans>
     <relationships>

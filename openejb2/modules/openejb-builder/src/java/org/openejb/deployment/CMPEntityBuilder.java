@@ -560,7 +560,8 @@ class CMPEntityBuilder extends EntityBuilder {
             String pkColumn = att.getPhysicalName();
             String fkColumn = (String) pkToFkMap.get(pkColumn);
             if (null == fkColumn) {
-                throw new DeploymentException("Role " + sourceRoleInfo + " is misconfigured: column [" + pkColumn + "] is not a primary key.");
+                throw new DeploymentException("Role " + sourceRoleInfo + " is misconfigured: primary key column [" + 
+                        pkColumn + "] is not mapped to a foreign key.");
             }
             pkToFkMapEJB.put(pkEJB.getAttribute(att.getName()), new FKField(fkColumn, att.getType()));
             FKColumn column = new FKColumn(fkColumn, att.getType());

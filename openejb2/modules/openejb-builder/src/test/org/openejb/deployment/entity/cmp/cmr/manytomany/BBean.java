@@ -67,7 +67,10 @@ public abstract class BBean implements EntityBean {
 
     public abstract String getField2();
     public abstract void setField2(String field2);
-    
+
+    public abstract Integer getField3();
+    public abstract void setField3(Integer field3);
+
     // CMR
     public abstract Set getA();
     public abstract void setA(Set aSet);

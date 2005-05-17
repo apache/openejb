@@ -51,6 +51,8 @@ import javax.ejb.CreateException;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.FinderException;
 
+import org.openejb.deployment.entity.cmp.cmr.CompoundPK;
+
 
 /**
  *
@@ -60,8 +62,9 @@ public interface BLocalHome extends EJBLocalHome {
 
     // Create
     public BLocal create(Integer field1) throws CreateException;
+    public BLocal create(CompoundPK primaryKey) throws CreateException;
 
     // Finder
     public BLocal findByPrimaryKey(Integer primaryKey) throws FinderException;
-
+    public BLocal findByPrimaryKey(CompoundPK primaryKey) throws FinderException;
 }

@@ -52,6 +52,8 @@ import javax.ejb.EntityBean;
 import javax.ejb.EntityContext;
 import javax.ejb.RemoveException;
 
+import org.openejb.deployment.entity.cmp.cmr.CompoundPK;
+
 /**
  *
  * @version $Revision$ $Date$
@@ -66,7 +68,13 @@ public abstract class BBean implements EntityBean {
 
     public abstract String getField2();
     public abstract void setField2(String field2);
-    
+
+    public abstract Integer getField3();
+    public abstract void setField3(Integer field3);
+
+    public abstract String getField4();
+    public abstract void setField4(String field4);
+
     // CMR
     public abstract ALocal getA();
     public abstract void setA(ALocal b);
@@ -77,6 +85,15 @@ public abstract class BBean implements EntityBean {
     }
 
     public void ejbPostCreate(Integer field1) {
+    }
+
+    public CompoundPK ejbCreate(CompoundPK primaryKey)  throws CreateException {
+        setField1(primaryKey.field1);
+        setField2(primaryKey.field2);
+        return null;
+    }
+
+    public void ejbPostCreate(CompoundPK primaryKey) {
     }
 
     public void setEntityContext(EntityContext ctx) {

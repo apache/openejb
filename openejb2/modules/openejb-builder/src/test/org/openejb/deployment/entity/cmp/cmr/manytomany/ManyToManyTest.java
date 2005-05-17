@@ -314,7 +314,7 @@ public class ManyToManyTest extends AbstractCMRTest {
         }
         
         s.execute("CREATE TABLE A(A1 INTEGER, A2 VARCHAR(50))");
-        s.execute("CREATE TABLE B(B1 INTEGER, B2 VARCHAR(50))");
+        s.execute("CREATE TABLE B(B1 INTEGER, B2 VARCHAR(50), FKA1 INTEGER)");
         s.execute("CREATE TABLE MTM(FKA1 INTEGER, FKB1 INTEGER)");
         
         s.execute("INSERT INTO A(A1, A2) VALUES(1, 'value1')");
