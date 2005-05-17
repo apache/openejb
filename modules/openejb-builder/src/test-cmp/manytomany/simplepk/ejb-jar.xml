@@ -39,6 +39,9 @@
             <cmp-field>
                 <field-name>field2</field-name>
             </cmp-field>
+            <cmp-field>
+                <field-name>field3</field-name>
+            </cmp-field>
             <primkey-field>field1</primkey-field>
         </entity>
     </enterprise-beans>

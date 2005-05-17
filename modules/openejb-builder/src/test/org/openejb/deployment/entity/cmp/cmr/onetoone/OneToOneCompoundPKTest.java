@@ -53,6 +53,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.ejb.EJBException;
+
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.deployment.entity.cmp.cmr.AbstractCMRTest;
 import org.openejb.deployment.entity.cmp.cmr.CompoundPK;
@@ -79,7 +81,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
 
     public void testBGetAExistingAB() throws Exception {
         TransactionContext ctx = newTransactionContext();
-        BLocal b = bhome.findByPrimaryKey(new Integer(11));
+        BLocal b = bhome.findByPrimaryKey(new CompoundPK(new Integer(11), "value11"));
         ALocal a = b.getA();
         assertNotNull(a);
         assertEquals(new Integer(1), a.getField1());
@@ -117,7 +119,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
      */
     public void XtestBSetADropExisting() throws Exception {
         TransactionContext ctx = newTransactionContext();
-        BLocal b = bhome.findByPrimaryKey(new Integer(11));
+        BLocal b = bhome.findByPrimaryKey(new CompoundPK(new Integer(11), "value11"));
         b.setA(null);
         ctx.commit();
 
@@ -129,8 +131,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
 
         TransactionContext ctx = newTransactionContext();
         a = ahome.create(pkA);
-        b = bhome.create(new Integer(22));
-        b.setField2("value22");
+        b = bhome.create(new CompoundPK(new Integer(22), "value22"));
         return ctx;
     }
 
@@ -172,7 +173,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
 
         TransactionContext ctx = newTransactionContext();
         a = ahome.create(pkA);
-        b = bhome.findByPrimaryKey(new Integer(11));
+        b = bhome.findByPrimaryKey(new CompoundPK(new Integer(11), "value11"));
         return ctx;
     }
     
@@ -288,7 +289,7 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
 
     public void testCascadeDelete() throws Exception {
         TransactionContext ctx = newTransactionContext();
-        BLocal b = bhome.findByPrimaryKey(new Integer(11));
+        BLocal b = bhome.findByPrimaryKey(new CompoundPK(new Integer(11), "value11"));
         b.remove();
         ctx.commit();
 
@@ -302,6 +303,30 @@ public class OneToOneCompoundPKTest extends AbstractCMRTest {
         c.close();
     }
     
+    public void testCMPMappedToForeignKeyColumn() throws Exception {
+        TransactionContext ctx = newTransactionContext();
+        BLocal b = bhome.findByPrimaryKey(new CompoundPK(new Integer(11), "value11"));
+
+        Integer field3 = b.getField3();
+        assertEquals(((CompoundPK) b.getA().getPrimaryKey()).field1, field3);
+
+        String field4 = b.getField4();
+        assertEquals(((CompoundPK) b.getA().getPrimaryKey()).field2, field4);
+        ctx.commit();
+    }
+    
+    public void testSetCMPMappedToForeignKeyColumn() throws Exception {
+        TransactionContext ctx = newTransactionContext();
+        BLocal b = bhome.findByPrimaryKey(new CompoundPK(new Integer(11), "value11"));
+
+        try {
+            b.setField3(new Integer(13));
+            fail("Cannot set the value of a CMP field mapped to a foreign key column.");
+        } catch (EJBException e) {
+        }
+        ctx.commit();
+    }
+
     protected void setUp() throws Exception {
         super.setUp();
         

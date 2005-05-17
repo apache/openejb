@@ -268,7 +268,7 @@ public class CMPEntityBuilderTest extends TestCase {
             }
         }
         attributes = rightEntity.getAttributes();
-        assertEquals(2, attributes.size());
+        assertEquals(3, attributes.size());
         for (Iterator iter = attributes.iterator(); iter.hasNext();) {
             Attribute att = (Attribute) iter.next();
             if ( rightEntity instanceof Table ) {
@@ -277,6 +277,8 @@ public class CMPEntityBuilderTest extends TestCase {
                     assertTrue(att.isIdentity());
                 } else if ( att.getName().equals("field2") ) {
                     assertTrue(att.getPhysicalName().equals("b2"));
+                } else if ( att.getName().equals("field3") ) {
+                    assertTrue(att.getPhysicalName().equals("fka1"));
                 } else {
                     fail("Unknow field.");
                 }
@@ -286,6 +288,10 @@ public class CMPEntityBuilderTest extends TestCase {
                     assertTrue(att.isIdentity());
                 } else if ( att.getName().equals("field2") ) {
                     assertTrue(att.getPhysicalName().equals("field2"));
+                } else if ( att.getName().equals("field3") ) {
+                    assertTrue(att.getPhysicalName().equals("field3"));
+                } else if ( att.getName().equals("field4") ) {
+                    assertTrue(att.getPhysicalName().equals("field4"));
                 } else {
                     fail("Unknow field.");
                 }

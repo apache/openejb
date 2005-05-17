@@ -54,7 +54,6 @@ import java.sql.Statement;
 
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.deployment.entity.cmp.cmr.AbstractCMRTest;
-import org.openejb.deployment.entity.cmp.cmr.CompoundPK;
 
 /**
  *
@@ -68,7 +67,7 @@ public class OneToManyCascadeDeleteTest extends AbstractCMRTest {
 
     public void testCascadeDelete() throws Exception {
         TransactionContext ctx = newTransactionContext();
-        ALocal a = ahome.findByPrimaryKey(new CompoundPK(new Integer(1), "value1"));
+        ALocal a = ahome.findByPrimaryKey(new Integer(1));
         a.remove();
         ctx.commit();
 
@@ -113,11 +112,11 @@ public class OneToManyCascadeDeleteTest extends AbstractCMRTest {
     }
 
     protected String getEjbJarDD() {
-        return "src/test-cmp/onetomany/compoundpk/cascade-delete-ejb-jar.xml";
+        return "src/test-cmp/onetomany/simplepk/cascade-delete-ejb-jar.xml";
     }
 
     protected String getOpenEjbJarDD() {
-        return "src/test-cmp/onetomany/compoundpk/openejb-jar.xml";
+        return "src/test-cmp/onetomany/simplepk/openejb-jar.xml";
     }
 
     protected EJBClass getA() {

@@ -55,6 +55,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.ejb.EJBException;
+
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.deployment.entity.cmp.cmr.AbstractCMRTest;
 
@@ -290,7 +292,28 @@ public class OneToManyTest extends AbstractCMRTest {
         s.close();
         c.close();
     }
+    
+    public void testCMPMappedToForeignKeyColumn() throws Exception {
+        TransactionContext ctx = newTransactionContext();
+        BLocal b = bhome.findByPrimaryKey(new Integer(11));
 
+        Integer field3 = b.getField3();
+        assertEquals(b.getA().getPrimaryKey(), field3);
+        ctx.commit();
+    }
+    
+    public void testSetCMPMappedToForeignKeyColumn() throws Exception {
+        TransactionContext ctx = newTransactionContext();
+        BLocal b = bhome.findByPrimaryKey(new Integer(11));
+
+        try {
+            b.setField3(new Integer(13));
+            fail("Cannot set the value of a CMP field mapped to a foreign key column.");
+        } catch (EJBException e) {
+        }
+        ctx.commit();
+    }
+    
     protected void setUp() throws Exception {
         super.setUp();
         
