@@ -124,6 +124,7 @@
 
             <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
             <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
+            <xs:element name="web-service-address" type="xs:string" minOccurs="0"/>
             <xs:element name="web-service-security" type="openejb:web-service-securityType" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute name="id" type="xs:ID"/>
