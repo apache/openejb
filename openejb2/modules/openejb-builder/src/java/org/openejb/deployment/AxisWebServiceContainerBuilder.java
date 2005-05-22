@@ -81,13 +81,17 @@ public class AxisWebServiceContainerBuilder {
         }
 
         serviceEndpointName = serviceEndpointName.trim();
+        String location = null;
+        if (openejbSessionBean != null && openejbSessionBean.isSetWebServiceAddress()) {
+            location = openejbSessionBean.getWebServiceAddress().trim();
+        }
 
-        GBeanData gBean = buildGBeanData(sessionObjectName, listener, ejbName, serviceEndpointName, ejbModule.getModuleFile(), cl, webServiceSecurity);
+        GBeanData gBean = buildGBeanData(sessionObjectName, listener, ejbName, serviceEndpointName, location, ejbModule.getModuleFile(), cl, webServiceSecurity);
 
         earContext.addGBean(gBean);
     }
 
-    GBeanData buildGBeanData(ObjectName sessionObjectName, ObjectName listener, String ejbName, String serviceEndpointName, JarFile jarFile, ClassLoader cl, OpenejbWebServiceSecurityType webServiceSecurity) throws DeploymentException {
+    GBeanData buildGBeanData(ObjectName sessionObjectName, ObjectName listener, String ejbName, String serviceEndpointName, String location, JarFile jarFile, ClassLoader cl, OpenejbWebServiceSecurityType webServiceSecurity) throws DeploymentException {
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(jarFile, ejbName, cl);
         JavaServiceDesc ejbServiceDesc = serviceInfo.getServiceDesc();
 
@@ -102,9 +106,9 @@ public class AxisWebServiceContainerBuilder {
         catch (URISyntaxException e) {
             throw new DeploymentException("Invalid WSDL URI: "+ wsdlFile, e);
         }
-        URI location = null;
+        URI locationURI = null;
         try {
-            location = new URI(ejbServiceDesc.getEndpointURL());
+            locationURI = new URI(location != null? location: ejbServiceDesc.getEndpointURL());
         } catch (URISyntaxException e) {
             throw new DeploymentException("Invalid address location URI: "+ejbServiceDesc.getEndpointURL(), e);
         }
@@ -118,10 +122,10 @@ public class AxisWebServiceContainerBuilder {
             transportGuarantee = webServiceSecurity.getTransportGuarantee().toString();
             authMethod = webServiceSecurity.getAuthMethod().toString();
         }
-        GBeanData gBean = WSContainerGBean.createGBean(ejbName, 
+        GBeanData gBean = WSContainerGBean.createGBean(ejbName,
                 sessionObjectName,
                 listener,
-                location,
+                locationURI,
                 wsdlURI,
                 serviceInfo,
                 securityRealmName,
