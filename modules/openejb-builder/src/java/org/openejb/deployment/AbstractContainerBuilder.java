@@ -62,6 +62,7 @@ import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.openejb.EJBContainer;
 import org.openejb.EJBInterfaceType;
 import org.openejb.GenericEJBContainer;
@@ -350,8 +351,15 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         return (EJBContainer) buildIt(true);
     }
 
-    public GBeanData createConfiguration() throws Exception {
-        return (GBeanData) buildIt(false);
+    public GBeanData createConfiguration(ObjectName containerObjectName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName tssBeanObjectName) throws Exception {
+        GBeanData gbean = (GBeanData) buildIt(false);
+        gbean.setName(containerObjectName);
+        gbean.setReferencePattern("TransactionContextManager", transactionContextManagerObjectName);
+        gbean.setReferencePattern("TrackedConnectionAssociator", connectionTrackerObjectName);
+        if (tssBeanObjectName != null) {
+            gbean.setReferencePattern("TSSBean", tssBeanObjectName);
+        }
+        return gbean;
     }
 
     protected abstract Object buildIt(boolean buildContainer) throws Exception;
@@ -473,6 +481,7 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
                 null, //kernel
                 getDefaultPrincipal(),
                 runAs,
+                null,
                 getHomeTxPolicyConfig(),
                 getRemoteTxPolicyConfig(),
                 Thread.currentThread().getContextClassLoader());
@@ -500,8 +509,8 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         gbean.setReferencePattern("Timer", timerName);
         gbean.setAttribute("DefaultPrincipal", getDefaultPrincipal());
         gbean.setAttribute("RunAsSubject", getRunAs());
-        gbean.setAttribute("HomeTxPolicyConfig", getHomeTxPolicyConfig());
-        gbean.setAttribute("RemoteTxPolicyConfig", getRemoteTxPolicyConfig());
+        gbean.setAttribute("homeTxPolicyConfig", getHomeTxPolicyConfig());
+        gbean.setAttribute("remoteTxPolicyConfig", getRemoteTxPolicyConfig());
 
         return gbean;
     }
@@ -520,4 +529,5 @@ public abstract class AbstractContainerBuilder implements ContainerBuilder {
         }
         return timerName;
     }
+
 }

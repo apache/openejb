@@ -82,6 +82,7 @@ import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
+import org.openejb.xbeans.ejbjar.OpenejbTssType;
 
 
 class EntityBuilder extends BeanBuilder {
@@ -131,15 +132,52 @@ class EntityBuilder extends BeanBuilder {
 
         processEnvironmentRefs(builder, earContext, ejbModule, entityBean, openejbEntityBean, null, cl);
 
+        ObjectName tssBeanObjectName = getTssBeanObjectName(openejbEntityBean, earContext);
+
         try {
-            GBeanData gbean = builder.createConfiguration();
-            gbean.setName(containerObjectName);
-            gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
-            gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
+            GBeanData gbean = builder.createConfiguration(containerObjectName, earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), tssBeanObjectName);
             return gbean;
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName=" + ejbName, e);
         }
+    }
+
+    protected ObjectName getTssBeanObjectName(OpenejbEntityBeanType openejbEntityBean, EARContext earContext) throws DeploymentException {
+        ObjectName tssBeanObjectName = null;
+        if (openejbEntityBean != null) {
+            if (openejbEntityBean.isSetTssName()) {
+                String tssName = openejbEntityBean.getTssName().trim();
+                try {
+                    tssBeanObjectName = ObjectName.getInstance(tssName);
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Invalid object name for tss bean", e);
+                }
+            } else if (openejbEntityBean.isSetTssLink()) {
+                String tssBeanLink = openejbEntityBean.getTssLink().trim();
+                tssBeanObjectName = earContext.getRefContext().locateComponent(tssBeanLink, NameFactory.CORBA_TSS, earContext.getJ2eeContext(), earContext, "TSS GBean");
+            } else if (openejbEntityBean.isSetTss()) {
+                OpenejbTssType tss = openejbEntityBean.getTss();
+                try {
+                    tssBeanObjectName = NameFactory.getComponentName(getStringValue(tss.getDomain()),
+                        getStringValue(tss.getServer()),
+                        getStringValue(tss.getApplication()),
+                        getStringValue(tss.getModule()),
+                        getStringValue(tss.getName()),
+                        getStringValue(NameFactory.CORBA_TSS),
+                        earContext.getJ2eeContext());
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Invalid object name for tss bean", e);
+                }
+            }
+        }
+        return tssBeanObjectName;
+    }
+
+    private String getStringValue(String in) {
+        if (in == null) {
+            return null;
+        }
+        return in.trim();
     }
 
     public ObjectName createEJBObjectName(J2eeContext moduleJ2eeContext, EntityBeanType entityBean) throws DeploymentException {

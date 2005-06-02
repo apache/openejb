@@ -90,6 +90,7 @@ import org.openejb.dispatch.SystemMethodIndices;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.ProxyInfo;
 import org.openejb.timer.BasicTimerServiceImpl;
+import org.openejb.corba.TSSBean;
 
 
 /**
@@ -114,6 +115,9 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
     private final Subject defaultSubject;
     private final Subject runAsSubject;
     private final BasicTimerServiceImpl timerService;
+
+    //corba security configuration
+    private final TSSBean tssBean;
     //corba tx import policies
     private final Serializable homeTxPolicyConfig;
     private final Serializable remoteTxPolicyConfig;
@@ -137,7 +141,7 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
                                Kernel kernel,
                                DefaultPrincipal defaultPrincipal,
                                Subject runAsSubject,
-                               Serializable homeTxPolicyConfig,
+                               TSSBean tssBean, Serializable homeTxPolicyConfig,
                                Serializable remoteTxPolicyConfig,
                                ClassLoader classLoader) throws Exception {
 
@@ -219,6 +223,8 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         // TODO maybe there is a more suitable place to do this.  Maybe not.
 
         setupJndi();
+
+        this.tssBean = tssBean;
 
         this.homeTxPolicyConfig = homeTxPolicyConfig;
         this.remoteTxPolicyConfig = remoteTxPolicyConfig;
@@ -379,13 +385,24 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
             timerService.doStart();
         }
 
-        if (defaultSubject != null) ContextManager.registerSubject(defaultSubject);
-        if (runAsSubject != null) ContextManager.registerSubject(runAsSubject);
+        if (defaultSubject != null) {
+            ContextManager.registerSubject(defaultSubject);
+        }
+        if (runAsSubject != null) {
+            ContextManager.registerSubject(runAsSubject);
+        }
+        //TODO we are giving out a direct reference, not a proxy
+        if (tssBean != null) {
+            tssBean.registerContainer(this);
+        }
 
         log.info("GenericEJBContainer '" + containerId + "' started");
     }
 
     public void doStop() throws Exception {
+        if (tssBean != null) {
+            tssBean.unregisterContainer(this);
+        }
         if (timerService != null) {
             timerService.doStop();
         }
@@ -423,10 +440,17 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addAttribute("UserTransaction", UserTransactionImpl.class, true);
         infoFactory.addAttribute("JndiNames", String[].class, true);
         infoFactory.addAttribute("LocalJndiNames", String[].class, true);
+        infoFactory.addAttribute("DefaultPrincipal", DefaultPrincipal.class, true);
+        infoFactory.addAttribute("RunAsSubject", Subject.class, true);
+
+        infoFactory.addAttribute("homeTxPolicyConfig", Serializable.class, true);
+        infoFactory.addAttribute("remoteTxPolicyConfig", Serializable.class, true);
 
         infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
         infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_RESOURCE);
         infoFactory.addReference("Timer", ThreadPooledTimer.class, NameFactory.GERONIMO_SERVICE);
+
+        infoFactory.addReference("TSSBean", TSSBean.class);
 
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
@@ -436,11 +460,6 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
         infoFactory.addAttribute("ejbLocalHome", EJBLocalHome.class, false);
         infoFactory.addAttribute("unmanagedReference", EJBContainer.class, false);
 
-        infoFactory.addAttribute("DefaultPrincipal", DefaultPrincipal.class, true);
-        infoFactory.addAttribute("RunAsSubject", Subject.class, true);
-
-        infoFactory.addAttribute("HomeTxPolicyConfig", Serializable.class, true);
-        infoFactory.addAttribute("RemoteTxPolicyConfig", Serializable.class, true);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
@@ -472,8 +491,9 @@ public class GenericEJBContainer implements EJBContainer, GBeanLifecycle {
             "kernel",
             "DefaultPrincipal",
             "RunAsSubject",
-            "HomeTxPolicyConfig",
-            "RemoteTxPolicyConfig",
+            "TSSBean",
+            "homeTxPolicyConfig",
+            "remoteTxPolicyConfig",
             "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();

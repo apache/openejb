@@ -71,6 +71,7 @@
         <session>
             <ejb-name>BasicStatelessBean</ejb-name>
             <jndi-name>security/001/BasicStatelessHome</jndi-name>
+            <tss-link>org/openejb/Itests</tss-link>
         </session>
 
         <session>

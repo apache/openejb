@@ -68,7 +68,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.Kernel;
 import org.axiondb.jdbc.AxionDataSource;
 import org.openejb.ContainerIndex;
 import org.openejb.deployment.CMPContainerBuilder;
@@ -453,7 +452,7 @@ public class BasicCMPEntityContainerTest extends TestCase {
         CacheTable cacheTable = new CacheTable("MockEJB", slots, null, createCommand, storeCommand, removeCommand);
         globalSchema.addCacheTable(cacheTable);
 
-        container = builder.createConfiguration();
+        container = builder.createConfiguration(CONTAINER_NAME, DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, null);
 
         GBeanData containerIndex = new GBeanData(ContainerIndex.GBEAN_INFO);
         containerIndex.setReferencePatterns("EJBContainers", Collections.singleton(CONTAINER_NAME));
@@ -465,8 +464,6 @@ public class BasicCMPEntityContainerTest extends TestCase {
         kernel.startGBean(connectionProxyFactoryObjectName);
 
         //start the ejb container
-        container.setReferencePatterns("TransactionContextManager", Collections.singleton(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME));
-        container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME));
         container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
 
         start(CONTAINER_NAME, container);

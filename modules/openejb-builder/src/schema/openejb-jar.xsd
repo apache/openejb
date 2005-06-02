@@ -61,7 +61,7 @@
     <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="geronimo-security.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="geronimo-config.xsd"/>
 
-<!--    <xs:include schemaLocation="geronimo-security.xsd"/>-->
+    <!--    <xs:include schemaLocation="geronimo-security.xsd"/>-->
 
     <xs:group name="openejb-jndiEnvironmentRefsGroup">
         <xs:annotation>
@@ -121,6 +121,7 @@
             <xs:element name="ejb-name" type="xs:string"/>
             <xs:element name="jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="local-jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:group ref="openejb:tssGroup" minOccurs="0"/>
 
             <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
             <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
@@ -128,6 +129,28 @@
             <xs:element name="web-service-security" type="openejb:web-service-securityType" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute name="id" type="xs:ID"/>
+    </xs:complexType>
+
+    <xs:group name="tssGroup">
+        <xs:sequence>
+            <xs:choice>
+                <xs:element name="tss-name" type="xs:string"/>
+                <xs:element name="tss-link" type="xs:string"/>
+                <xs:element name="tss" type="openejb:tssType"/>
+            </xs:choice>
+        </xs:sequence>
+    </xs:group>
+
+    <xs:complexType name="tssType">
+        <xs:sequence>
+            <!-- this is object name group from geronimo-naming.xsd -->
+            <xs:element name="domain" type="xs:string" minOccurs="0"/>
+            <xs:element name="server" type="xs:string" minOccurs="0"/>
+            <xs:element name="application" type="xs:string" minOccurs="0"/>
+            <xs:element name="module" type="xs:string" minOccurs="0"/>
+            <!--            <xs:element name="type" type="xs:string" minOccurs="0"/>-->
+            <xs:element name="name" type="xs:string"/>
+        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="web-service-securityType">
@@ -162,6 +185,7 @@
             <xs:element name="ejb-name" type="xs:string"/>
             <xs:element name="jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="local-jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:group ref="openejb:tssGroup" minOccurs="0"/>
 
             <xs:sequence minOccurs="0">
                 <xs:element name="table-name" type="xs:string"/>

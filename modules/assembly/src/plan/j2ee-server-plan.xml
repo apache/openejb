@@ -506,9 +506,9 @@ by the server.
         <reference name="Server">
             <name>Server</name>
         </reference>
-        <reference name="Containers">
-            <gbean-name>openejb.server:EJBModule=org/openejb/scenario001,*</gbean-name>
-        </reference>
+<!--        <reference name="Containers">-->
+<!--            <gbean-name>openejb.server:EJBModule=org/openejb/scenario001,*</gbean-name>-->
+<!--        </reference>-->
         <reference name="TieLoader">
             <name>ClasspathTieLoader</name>
         </reference>

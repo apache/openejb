@@ -44,14 +44,15 @@
  */
 package org.openejb.corba;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
@@ -61,21 +62,12 @@ import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.RequestProcessingPolicyValue;
 import org.omg.PortableServer.ServantRetentionPolicyValue;
-import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.gbean.ReferenceCollectionEvent;
-import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-
 import org.openejb.EJBContainer;
-import org.openejb.corba.security.ServerPolicyFactory;
 import org.openejb.corba.security.ServerPolicy;
+import org.openejb.corba.security.ServerPolicyFactory;
 import org.openejb.corba.security.config.tss.TSSConfig;
 import org.openejb.corba.security.config.tss.TSSNULLTransportConfig;
 import org.openejb.corba.util.TieLoader;
@@ -84,7 +76,7 @@ import org.openejb.corba.util.TieLoader;
 /**
  * @version $Revision$ $Date$
  */
-public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
+public class TSSBean implements GBeanLifecycle {
 
     private final Log log = LogFactory.getLog(TSSBean.class);
 
@@ -95,11 +87,18 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
     private POA localPOA;
     private NamingContextExt initialContext;
     private TSSConfig tssConfig;
-    private Collection containers = Collections.EMPTY_SET;
-    private Map adapters = new HashMap();
-    private static final Map containerMap = new HashMap();
+    private final Map adapters = new HashMap();
     private Policy securityPolicy;
 
+    /**
+     * gbean endpoint constructor
+     */
+    public TSSBean() {
+        classLoader = null;
+        POAName = null;
+        server = null;
+        tieLoader = null;
+    }
 
     public TSSBean(ClassLoader classLoader, String POAName, CORBABean server, TieLoader tieLoader) {
         this.classLoader = classLoader;
@@ -125,28 +124,8 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
         this.tssConfig = tssConfig;
     }
 
-    public Collection getContainers() {
-        return containers;
-    }
-
-    public void setContainers(Collection containers) {
-        ReferenceCollection ref = (ReferenceCollection) containers;
-        ref.addReferenceCollectionListener(this);
-
-        this.containers = containers;
-        for (Iterator iterator = ref.iterator(); iterator.hasNext();) {
-            Object o = iterator.next();
-            ReferenceCollectionEvent event = new ReferenceCollectionEvent(null, o);
-            memberAdded(event);
-        }
-    }
-
     public TieLoader getTieLoader() {
         return tieLoader;
-    }
-
-    public static EJBContainer getContainer(String containerId) {
-        return (EJBContainer) containerMap.get(containerId);
     }
 
     /**
@@ -180,16 +159,6 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
 
             org.omg.CORBA.Object obj = server.getORB().resolve_initial_references("NameService");
             initialContext = NamingContextExtHelper.narrow(obj);
-
-            for (Iterator iter = adapters.keySet().iterator(); iter.hasNext();) {
-                AdapterWrapper adapterWrapper = (AdapterWrapper) adapters.get(iter.next());
-                try {
-                    adapterWrapper.start(server.getORB(), localPOA, initialContext, tieLoader, securityPolicy);
-                    log.info(POAName + " - Linked container " + adapterWrapper.getContainer().getContainerID());
-                } catch (CORBAException e) {
-                    log.error(POAName + " - Unable to link container " + adapterWrapper.getContainer().getContainerID(), e);
-                }
-            }
         } finally {
             Thread.currentThread().setContextClassLoader(savedLoader);
         }
@@ -199,16 +168,6 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
 
     public void doStop() throws Exception {
         if (localPOA != null) {
-            for (Iterator iter = adapters.keySet().iterator(); iter.hasNext();) {
-                AdapterWrapper adapterWrapper = (AdapterWrapper) adapters.get(iter.next());
-                try {
-                    adapterWrapper.stop();
-                    log.info("Unlinked container " + adapterWrapper.getContainer().getContainerID());
-                } catch (CORBAException e) {
-                    log.error("Error unlinking container " + adapterWrapper.getContainer().getContainerID(), e);
-                }
-            }
-            adapters.clear();
             try {
                 localPOA.the_POAManager().deactivate(true, false);
             } catch (AdapterInactive adapterInactive) {
@@ -242,49 +201,16 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
         return config;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
+    public void registerContainer(EJBContainer container) throws CORBAException {
+            AdapterWrapper adapterWrapper = new AdapterWrapper(container);
 
-    static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TSSBean.class, "CORBATSS");
+            adapterWrapper.start(server.getORB(), localPOA, initialContext, tieLoader, securityPolicy);
+            adapters.put(container.getContainerID(), adapterWrapper);
 
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addAttribute("POAName", String.class, true);
-        infoFactory.addReference("Server", CORBABean.class, NameFactory.CORBA_SERVICE);
-        infoFactory.addAttribute("tssConfig", TSSConfig.class, true);
-        infoFactory.addReference("Containers", EJBContainer.class);//many types
-        infoFactory.addReference("TieLoader", TieLoader.class, NameFactory.CORBA_SERVICE);
-        infoFactory.setConstructor(new String[]{"classLoader", "POAName", "Server", "TieLoader"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
+            log.info(POAName + " - Linked container " + container.getContainerID());
     }
 
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
-    public void memberAdded(ReferenceCollectionEvent event) {
-        EJBContainer container = (EJBContainer) event.getMember();
-        containerMap.put(container.getContainerID(), container);
-
-        if (localPOA != null) {
-            try {
-                AdapterWrapper adapterWrapper = new AdapterWrapper(container);
-
-                adapterWrapper.start(server.getORB(), localPOA, initialContext, tieLoader, securityPolicy);
-                adapters.put(container.getContainerID(), adapterWrapper);
-
-                log.info(POAName + " - Linked container " + container.getContainerID());
-            } catch (CORBAException e) {
-                log.error(POAName + " - Unable to link container " + container.getContainerID(), e);
-            }
-        }
-    }
-
-    public void memberRemoved(ReferenceCollectionEvent event) {
-        EJBContainer container = (EJBContainer) event.getMember();
-
-        containerMap.remove(container.getContainerID());
-
+    public void unregisterContainer(EJBContainer container) {
         AdapterWrapper adapterWrapper = (AdapterWrapper) adapters.remove(container.getContainerID());
         if (adapterWrapper != null) {
             try {
@@ -295,4 +221,26 @@ public class TSSBean implements GBeanLifecycle, ReferenceCollectionListener {
             }
         }
     }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TSSBean.class, NameFactory.CORBA_TSS);
+
+        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoFactory.addAttribute("POAName", String.class, true);
+        infoFactory.addReference("Server", CORBABean.class, NameFactory.CORBA_SERVICE);
+        infoFactory.addAttribute("tssConfig", TSSConfig.class, true);
+        infoFactory.addReference("TieLoader", TieLoader.class, NameFactory.CORBA_SERVICE);
+        infoFactory.addOperation("registerContainer", new Class[] {EJBContainer.class});
+        infoFactory.addOperation("unregisterContainer", new Class[] {EJBContainer.class});
+        infoFactory.setConstructor(new String[]{"classLoader", "POAName", "Server", "TieLoader"});
+
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
 }

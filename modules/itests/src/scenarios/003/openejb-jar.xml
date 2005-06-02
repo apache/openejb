@@ -19,7 +19,7 @@
                 <ref-name>ejb/interop/InteropBean</ref-name>
                 <ns-corbaloc>corbaloc::localhost:2809/NameService</ns-corbaloc>
                 <name>security/001/BasicStatelessHome</name>
-                <css-name>openejb.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=openejb,j2eeType=CORBACSS,name=IOR7</css-name>
+                <css-link>IOR7</css-link>
             </ejb-ref>
         </session>
 
