@@ -97,6 +97,7 @@ import org.openejb.slsb.HandlerChainConfiguration;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
 import org.openejb.xbeans.ejbjar.OpenejbSessionBeanType;
+import org.openejb.xbeans.ejbjar.OpenejbTssType;
 
 
 class SessionBuilder extends BeanBuilder {
@@ -248,17 +249,49 @@ class SessionBuilder extends BeanBuilder {
 
         processEnvironmentRefs(builder, earContext, ejbModule, sessionBean, openejbSessionBean, userTransaction, cl);
 
+        ObjectName tssBeanObjectName = null;
+        if (openejbSessionBean != null) {
+            if (openejbSessionBean.isSetTssName()) {
+                String tssName = openejbSessionBean.getTssName().trim();
+                try {
+                    tssBeanObjectName = ObjectName.getInstance(tssName);
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Invalid object name for tss bean", e);
+                }
+            } else if (openejbSessionBean.isSetTssLink()) {
+                String tssBeanLink = openejbSessionBean.getTssLink().trim();
+                tssBeanObjectName = earContext.getRefContext().locateComponent(tssBeanLink, NameFactory.CORBA_TSS, earContext.getJ2eeContext(), earContext, "TSS GBean");
+            } else if (openejbSessionBean.isSetTss()) {
+                OpenejbTssType tss = openejbSessionBean.getTss();
+                try {
+                    tssBeanObjectName = NameFactory.getComponentName(getStringValue(tss.getDomain()),
+                        getStringValue(tss.getServer()),
+                        getStringValue(tss.getApplication()),
+                        getStringValue(tss.getModule()),
+                        getStringValue(tss.getName()),
+                        NameFactory.CORBA_TSS,
+                        earContext.getJ2eeContext());
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Invalid object name for tss bean", e);
+                }
+
+            }
+        }
+
+        GBeanData sessionGBean;
         try {
-            GBeanData gbean = builder.createConfiguration();
-            gbean.setName(sessionObjectName);
-            gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
-            gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
-            result = gbean;
+            sessionGBean = builder.createConfiguration(sessionObjectName, earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), tssBeanObjectName);
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName" + ejbName, e);
         }
-        GBeanData sessionGBean = result;
         earContext.addGBean(sessionGBean);
+    }
+
+    private String getStringValue(String in) {
+        if (in == null) {
+            return null;
+        }
+        return in.trim();
     }
 
     private HandlerChainConfiguration createHandlerChainConfiguration(JarFile moduleFile, String ejbName, ClassLoader cl) throws DeploymentException {

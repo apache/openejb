@@ -51,7 +51,6 @@ package org.openejb.deployment.entity.cmp.cmr;
 import java.io.File;
 import java.net.URI;
 import java.sql.Connection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -239,10 +238,8 @@ public abstract class AbstractCMRTest extends TestCase {
         builder.setComponentContext(new HashMap());
         builder.setTransactionManagerDelegate(tmDelegate);
 
-        GBeanData container = builder.createConfiguration();
+        GBeanData container = builder.createConfiguration(containerName, DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, null);
 
-        container.setReferencePatterns("TransactionContextManager", Collections.singleton(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME));
-        container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME));
         container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
         start(containerName, container);
     }

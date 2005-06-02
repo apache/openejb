@@ -148,7 +148,15 @@ public interface EJBContainer extends Interceptor {
      */
     Subject getDefaultSubject();
 
+    /**
+     * CORBA home transaction import policy configuration
+     * @return 
+     */
     Serializable getHomeTxPolicyConfig();
 
+    /**
+     * CORBA remote transaction import policy configuration
+     * @return
+     */
     Serializable getRemoteTxPolicyConfig();
 }

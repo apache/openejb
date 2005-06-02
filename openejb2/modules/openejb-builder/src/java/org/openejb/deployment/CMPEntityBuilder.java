@@ -58,14 +58,13 @@ import java.util.Map;
 import java.util.Set;
 import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.j2ee.CmpFieldType;
 import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.apache.geronimo.xbeans.j2ee.EjbNameType;
@@ -75,7 +74,6 @@ import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
 import org.apache.geronimo.xbeans.j2ee.JavaTypeType;
 import org.apache.geronimo.xbeans.j2ee.QueryType;
-import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.openejb.entity.cmp.PrimaryKeyGeneratorWrapper;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.transaction.TransactionPolicySource;
@@ -560,7 +558,7 @@ class CMPEntityBuilder extends EntityBuilder {
             String pkColumn = att.getPhysicalName();
             String fkColumn = (String) pkToFkMap.get(pkColumn);
             if (null == fkColumn) {
-                throw new DeploymentException("Role " + sourceRoleInfo + " is misconfigured: primary key column [" + 
+                throw new DeploymentException("Role " + sourceRoleInfo + " is misconfigured: primary key column [" +
                         pkColumn + "] is not mapped to a foreign key.");
             }
             pkToFkMapEJB.put(pkEJB.getAttribute(att.getName()), new FKField(fkColumn, att.getType()));
@@ -725,10 +723,7 @@ class CMPEntityBuilder extends EntityBuilder {
         builder.setTransactionManagerDelegate(tmDelegate);
 
         try {
-            GBeanData gbean = builder.createConfiguration();
-            gbean.setName(containerObjectName);
-            gbean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
-            gbean.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
+            GBeanData gbean = builder.createConfiguration(containerObjectName, earContext.getTransactionContextManagerObjectName(), earContext.getConnectionTrackerObjectName(), getTssBeanObjectName(openejbEntityBean, earContext));
             return gbean;
         } catch (Throwable e) {
             throw new DeploymentException("Unable to initialize EJBContainer GBean: ejbName [" + ejbName + "]", e);

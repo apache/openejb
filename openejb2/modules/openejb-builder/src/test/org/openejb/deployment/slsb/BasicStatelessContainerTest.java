@@ -47,7 +47,6 @@
  */
 package org.openejb.deployment.slsb;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import javax.management.ObjectName;
@@ -180,11 +179,9 @@ public class BasicStatelessContainerTest extends TestCase {
             }
         });
         builder.setComponentContext(new HashMap());
-        container = builder.createConfiguration();
+        container = builder.createConfiguration(CONTAINER_NAME, DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME, DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME, null);
 
         //start the ejb container
-        container.setReferencePatterns("TransactionContextManager", Collections.singleton(DeploymentHelper.TRANSACTIONCONTEXTMANAGER_NAME));
-        container.setReferencePatterns("TrackedConnectionAssociator", Collections.singleton(DeploymentHelper.TRACKEDCONNECTIONASSOCIATOR_NAME));
         container.setReferencePattern("Timer", DeploymentHelper.TRANSACTIONALTIMER_NAME);
         start(CONTAINER_NAME, container);
 
