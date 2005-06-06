@@ -124,8 +124,13 @@ public class OpenORBNameBean implements GBeanLifecycle {
     public void doStart() throws Exception {
         threadPool.execute(new Runnable() {
             public void run() {
-                Thread.currentThread().setContextClassLoader(classLoader);
-                server.run();
+                ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+                try {
+                    Thread.currentThread().setContextClassLoader(classLoader);
+                    server.run();
+                } finally {
+                    Thread.currentThread().setContextClassLoader(oldClassLoader);
+                }
             }
         });
 

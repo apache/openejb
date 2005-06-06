@@ -127,144 +127,148 @@ class EjbRequestHandler implements ResponseCodes, RequestMethods {
 
         CallContext call = null;
         EJBContainer container = null;
-
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            container = getContainer(req);
-            ClassLoader cl = container.getClassLoader();
-            Thread.currentThread().setContextClassLoader(cl);
-            in.setClassLoader(cl);
-
-            Method methodInstance = req.getMethodInstance();
-            int methodIndex = container.getMethodIndex(methodInstance);
-            req.setMethodIndex(methodIndex);
-
-            /**
-             * The identification principal contains the subject id.  Use this
-             * id to obtain the registered subject.
-             */
-            Subject subject = null;
-            IdentificationPrincipal principal = (IdentificationPrincipal) req.getClientIdentity();
-            if (principal != null && principal.getId() != null) {
-                subject = ContextManager.getRegisteredSubject(principal.getId());
-            } else {
-                subject = container.getDefaultSubject();
-            }
-
-            ContextManager.setCurrentCaller(subject);
-            ContextManager.setNextCaller(subject);
-
-            log.debug("setting cl=" + cl + " for " + container.getContainerID());
-        } catch (RemoteException e) {
-            replyWithFatalError
-                    (out, e, "No such deployment");
-            return;
-            /*
-                logger.warn( req + "No such deployment: "+e.getMessage());
-                res.setResponse( EJB_SYS_EXCEPTION, e);
-                res.writeExternal( out );
-                return;
-            */
-        } catch (Throwable t) {
-            replyWithFatalError(out, t, "Unkown error occured while retrieving deployment");
-            return;
-        }
-
-        try {
-            call = CallContext.getCallContext();
-            call.setEJBRequest(req);
-            call.setContainer(container);
-        } catch (Throwable t) {
-            replyWithFatalError(out, t, "Unable to set the thread context for this request");
-            return;
-        }
-
-        //logger.info( "EJB REQUEST : "+req );
-
-        try {
-            switch (req.getRequestMethod()) {
-                // Remote interface methods
-                case EJB_OBJECT_BUSINESS_METHOD:
-                    doEjbObject_BUSINESS_METHOD(req, res);
-                    break;
-
-                    // Home interface methods
-                case EJB_HOME_METHOD:
-                    doEjbHome_METHOD(req, res);
-                    break;
-
-                case EJB_HOME_CREATE:
-                    doEjbHome_CREATE(req, res);
-                    break;
-
-                case EJB_HOME_FIND:
-                    doEjbHome_FIND(req, res);
-                    break;
-
-                    // javax.ejb.EJBObject methods
-                case EJB_OBJECT_GET_EJB_HOME:
-                    doEjbObject_GET_EJB_HOME(req, res);
-                    break;
-
-                case EJB_OBJECT_GET_HANDLE:
-                    doEjbObject_GET_HANDLE(req, res);
-                    break;
-
-                case EJB_OBJECT_GET_PRIMARY_KEY:
-                    doEjbObject_GET_PRIMARY_KEY(req, res);
-                    break;
-
-                case EJB_OBJECT_IS_IDENTICAL:
-                    doEjbObject_IS_IDENTICAL(req, res);
-                    break;
-
-                case EJB_OBJECT_REMOVE:
-                    doEjbObject_REMOVE(req, res);
-                    break;
-
-                    // javax.ejb.EJBHome methods
-                case EJB_HOME_GET_EJB_META_DATA:
-                    doEjbHome_GET_EJB_META_DATA(req, res);
-                    break;
-
-                case EJB_HOME_GET_HOME_HANDLE:
-                    doEjbHome_GET_HOME_HANDLE(req, res);
-                    break;
-
-                case EJB_HOME_REMOVE_BY_HANDLE:
-                    doEjbHome_REMOVE_BY_HANDLE(req, res);
-                    break;
-
-                case EJB_HOME_REMOVE_BY_PKEY:
-                    doEjbHome_REMOVE_BY_PKEY(req, res);
-                    break;
-            }
-        } catch (org.openejb.InvalidateReferenceException e) {
-            res.setResponse(EJB_SYS_EXCEPTION, e.getCause());
-        } catch (org.openejb.ApplicationException e) {
-            res.setResponse(EJB_APP_EXCEPTION, e.getCause());
-        } catch (org.openejb.SystemException e) {
-            res.setResponse(EJB_ERROR, e.getCause());
-
-            // TODO:2: This means a severe error occured in OpenEJB
-            // we should restart the container system or take other
-            // aggressive actions to attempt recovery.
-            log.fatal(req + ": OpenEJB encountered an unknown system error in container: ", e);
-        } catch (java.lang.Throwable t) {
-            //System.out.println(req+": Unkown error in container: ");
-            replyWithFatalError(out, t, "Unknown error in container");
-            return;
-        } finally {
-            log.debug("EJB RESPONSE: " + res);
             try {
-                res.writeExternal(out);
-            } catch (java.io.IOException e) {
-                if (e instanceof NotSerializableException && res.getResult() != null) {
-                    log.fatal("Invocation result object is not serializable: " + res.getResult().getClass().getName(), e);
+                container = getContainer(req);
+                ClassLoader cl = container.getClassLoader();
+                Thread.currentThread().setContextClassLoader(cl);
+                in.setClassLoader(cl);
+
+                Method methodInstance = req.getMethodInstance();
+                int methodIndex = container.getMethodIndex(methodInstance);
+                req.setMethodIndex(methodIndex);
+
+                /**
+                 * The identification principal contains the subject id.  Use this
+                 * id to obtain the registered subject.
+                 */
+                Subject subject = null;
+                IdentificationPrincipal principal = (IdentificationPrincipal) req.getClientIdentity();
+                if (principal != null && principal.getId() != null) {
+                    subject = ContextManager.getRegisteredSubject(principal.getId());
                 } else {
-                    log.fatal("Couldn't write EjbResponse to output stream", e);
+                    subject = container.getDefaultSubject();
                 }
+
+                ContextManager.setCurrentCaller(subject);
+                ContextManager.setNextCaller(subject);
+
+                log.debug("setting cl=" + cl + " for " + container.getContainerID());
+            } catch (RemoteException e) {
+                replyWithFatalError
+                        (out, e, "No such deployment");
+                return;
+                /*
+                    logger.warn( req + "No such deployment: "+e.getMessage());
+                    res.setResponse( EJB_SYS_EXCEPTION, e);
+                    res.writeExternal( out );
+                    return;
+                */
+            } catch (Throwable t) {
+                replyWithFatalError(out, t, "Unkown error occured while retrieving deployment");
+                return;
             }
-            call.reset();
+
+            try {
+                call = CallContext.getCallContext();
+                call.setEJBRequest(req);
+                call.setContainer(container);
+            } catch (Throwable t) {
+                replyWithFatalError(out, t, "Unable to set the thread context for this request");
+                return;
+            }
+
+            //logger.info( "EJB REQUEST : "+req );
+
+            try {
+                switch (req.getRequestMethod()) {
+                    // Remote interface methods
+                    case EJB_OBJECT_BUSINESS_METHOD:
+                        doEjbObject_BUSINESS_METHOD(req, res);
+                        break;
+
+                        // Home interface methods
+                    case EJB_HOME_METHOD:
+                        doEjbHome_METHOD(req, res);
+                        break;
+
+                    case EJB_HOME_CREATE:
+                        doEjbHome_CREATE(req, res);
+                        break;
+
+                    case EJB_HOME_FIND:
+                        doEjbHome_FIND(req, res);
+                        break;
+
+                        // javax.ejb.EJBObject methods
+                    case EJB_OBJECT_GET_EJB_HOME:
+                        doEjbObject_GET_EJB_HOME(req, res);
+                        break;
+
+                    case EJB_OBJECT_GET_HANDLE:
+                        doEjbObject_GET_HANDLE(req, res);
+                        break;
+
+                    case EJB_OBJECT_GET_PRIMARY_KEY:
+                        doEjbObject_GET_PRIMARY_KEY(req, res);
+                        break;
+
+                    case EJB_OBJECT_IS_IDENTICAL:
+                        doEjbObject_IS_IDENTICAL(req, res);
+                        break;
+
+                    case EJB_OBJECT_REMOVE:
+                        doEjbObject_REMOVE(req, res);
+                        break;
+
+                        // javax.ejb.EJBHome methods
+                    case EJB_HOME_GET_EJB_META_DATA:
+                        doEjbHome_GET_EJB_META_DATA(req, res);
+                        break;
+
+                    case EJB_HOME_GET_HOME_HANDLE:
+                        doEjbHome_GET_HOME_HANDLE(req, res);
+                        break;
+
+                    case EJB_HOME_REMOVE_BY_HANDLE:
+                        doEjbHome_REMOVE_BY_HANDLE(req, res);
+                        break;
+
+                    case EJB_HOME_REMOVE_BY_PKEY:
+                        doEjbHome_REMOVE_BY_PKEY(req, res);
+                        break;
+                }
+            } catch (InvalidateReferenceException e) {
+                res.setResponse(EJB_SYS_EXCEPTION, e.getCause());
+            } catch (org.openejb.ApplicationException e) {
+                res.setResponse(EJB_APP_EXCEPTION, e.getCause());
+            } catch (org.openejb.SystemException e) {
+                res.setResponse(EJB_ERROR, e.getCause());
+
+                // TODO:2: This means a severe error occured in OpenEJB
+                // we should restart the container system or take other
+                // aggressive actions to attempt recovery.
+                log.fatal(req + ": OpenEJB encountered an unknown system error in container: ", e);
+            } catch (Throwable t) {
+                //System.out.println(req+": Unkown error in container: ");
+                replyWithFatalError(out, t, "Unknown error in container");
+                return;
+            } finally {
+                log.debug("EJB RESPONSE: " + res);
+                try {
+                    res.writeExternal(out);
+                } catch (java.io.IOException e) {
+                    if (e instanceof NotSerializableException && res.getResult() != null) {
+                        log.fatal("Invocation result object is not serializable: " + res.getResult().getClass().getName(), e);
+                    } else {
+                        log.fatal("Couldn't write EjbResponse to output stream", e);
+                    }
+                }
+                call.reset();
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 

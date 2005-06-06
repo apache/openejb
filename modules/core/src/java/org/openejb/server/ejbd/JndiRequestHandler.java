@@ -90,47 +90,49 @@ class JndiRequestHandler implements ResponseCodes, RequestMethods {
 
         Thread thread = Thread.currentThread();
         ClassLoader contextClassLoader = thread.getContextClassLoader();
-
-        if (req.getClientModuleID() != null) {
-            contextClassLoader = thread.getContextClassLoader();
-            try {
-                ObjectName objectName = new ObjectName(req.getClientModuleID());
-                ClassLoader classLoader = (ClassLoader)KernelRegistry.getSingleKernel().getAttribute(objectName, "classLoader");
-                thread.setContextClassLoader(classLoader);
-            } catch (Throwable e) {
-                replyWithFatalError(out, e, "Failed to set the correct classloader");
-                return;
-            }
-        }
-
         try {
-            switch (req.getRequestMethod()) {
-                case JNDI_LOOKUP:
-                    doLookup(req, res);
-                    break;
-                case JNDI_LIST:
-                    doList(req, res);
-                    break;
-                case JNDI_LIST_BINDINGS:
-                    doListBindings(req, res);
-                    break;
-                default: throw new UnsupportedOperationException("Request method not supported: "+req.getRequestMethod());
-            }
-        } catch (Exception e) {
-            log.error("JNDI request error", e);
-            res.setResponseCode(JNDI_ERROR);
-            res.setResult(e);
-        } finally {
-            try {
-                res.writeExternal(out);
-            } catch (Throwable t) {
-                log.error("Failed to write to JNDIResponse", t);
-            }
             if (req.getClientModuleID() != null) {
-                thread.setContextClassLoader(contextClassLoader);
+                contextClassLoader = thread.getContextClassLoader();
+                try {
+                    ObjectName objectName = new ObjectName(req.getClientModuleID());
+                    ClassLoader classLoader = (ClassLoader)KernelRegistry.getSingleKernel().getAttribute(objectName, "classLoader");
+                    thread.setContextClassLoader(classLoader);
+                } catch (Throwable e) {
+                    replyWithFatalError(out, e, "Failed to set the correct classloader");
+                    return;
+                }
             }
-        }
 
+            try {
+                switch (req.getRequestMethod()) {
+                    case JNDI_LOOKUP:
+                        doLookup(req, res);
+                        break;
+                    case JNDI_LIST:
+                        doList(req, res);
+                        break;
+                    case JNDI_LIST_BINDINGS:
+                        doListBindings(req, res);
+                        break;
+                    default: throw new UnsupportedOperationException("Request method not supported: "+req.getRequestMethod());
+                }
+            } catch (Exception e) {
+                log.error("JNDI request error", e);
+                res.setResponseCode(JNDI_ERROR);
+                res.setResult(e);
+            } finally {
+                try {
+                    res.writeExternal(out);
+                } catch (Throwable t) {
+                    log.error("Failed to write to JNDIResponse", t);
+                }
+                if (req.getClientModuleID() != null) {
+                    thread.setContextClassLoader(contextClassLoader);
+                }
+            }
+        } finally {
+            thread.setContextClassLoader(contextClassLoader);
+        }
     }
 
     private void doListBindings(JNDIRequest req, JNDIResponse res) {
