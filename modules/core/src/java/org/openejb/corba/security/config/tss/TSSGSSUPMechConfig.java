@@ -61,6 +61,7 @@ import org.omg.GSSUP.InitialContextToken;
 import org.omg.IOP.Codec;
 
 import org.apache.geronimo.security.jaas.UsernamePasswordCallback;
+import org.apache.geronimo.security.ContextManager;
 
 import org.openejb.corba.security.SASException;
 import org.openejb.corba.util.Util;
@@ -136,7 +137,7 @@ public class TSSGSSUPMechConfig extends TSSASMechConfig {
                                                         new UsernamePasswordCallback(new String(token.username, "UTF8"),
                                                                                      new String(token.password, "UTF8").toCharArray()));
                 context.login();
-                result = context.getSubject();
+                result = ContextManager.getServerSideSubject(context.getSubject());
             }
         } catch (UnsupportedEncodingException e) {
             throw new SASException(1, e);
