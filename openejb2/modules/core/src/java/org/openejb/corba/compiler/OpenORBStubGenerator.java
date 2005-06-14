@@ -82,6 +82,7 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
     private boolean verbose;
     private Properties props = new Properties();
     private Compiler compiler;
+    private boolean saveStubCode;
 
     public boolean isVerbose() {
         return verbose;
@@ -105,6 +106,14 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
 
     public void setCompiler(Compiler compiler) {
         this.compiler = compiler;
+    }
+
+    public boolean isSaveStubCode() {
+        return saveStubCode;
+    }
+
+    public void setSaveStubCode(boolean saveStubCode) {
+        this.saveStubCode = saveStubCode;
     }
 
     public void generateStubs(Set interfaces, File destination, ClassLoader cl) throws CompilerException {
@@ -164,7 +173,10 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
             compiler.compileDirectory(SRCDIR, CLASSESDIR, set);
 
             // delete this file since someone may be holding on to it.
-            destination.delete();
+
+            if (!saveStubCode) {
+                destination.delete();
+            }
 
             Project project = new Project();
             Jar jar = new Jar();
@@ -235,6 +247,7 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
         infoFactory.addInterface(StubGenerator.class);
         infoFactory.addAttribute("verbose", Boolean.TYPE, true);
         infoFactory.addAttribute("props", Properties.class, true);
+        infoFactory.addAttribute("saveStubCode", Boolean.TYPE, true);
         infoFactory.addReference("Compiler", Compiler.class, NameFactory.CORBA_SERVICE);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
