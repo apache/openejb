@@ -145,8 +145,8 @@ class EntityBuilder extends BeanBuilder {
     protected ObjectName getTssBeanObjectName(OpenejbEntityBeanType openejbEntityBean, EARContext earContext) throws DeploymentException {
         ObjectName tssBeanObjectName = null;
         if (openejbEntityBean != null) {
-            if (openejbEntityBean.isSetTssName()) {
-                String tssName = openejbEntityBean.getTssName().trim();
+            if (openejbEntityBean.isSetTssTargetName()) {
+                String tssName = openejbEntityBean.getTssTargetName().trim();
                 try {
                     tssBeanObjectName = ObjectName.getInstance(tssName);
                 } catch (MalformedObjectNameException e) {

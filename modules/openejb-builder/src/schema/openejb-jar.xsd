@@ -134,7 +134,7 @@
     <xs:group name="tssGroup">
         <xs:sequence>
             <xs:choice>
-                <xs:element name="tss-name" type="xs:string"/>
+                <xs:element name="tss-target-name" type="xs:string"/>
                 <xs:element name="tss-link" type="xs:string"/>
                 <xs:element name="tss" type="openejb:tssType"/>
             </xs:choice>

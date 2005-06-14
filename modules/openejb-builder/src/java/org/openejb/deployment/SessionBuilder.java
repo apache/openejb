@@ -251,8 +251,8 @@ class SessionBuilder extends BeanBuilder {
 
         ObjectName tssBeanObjectName = null;
         if (openejbSessionBean != null) {
-            if (openejbSessionBean.isSetTssName()) {
-                String tssName = openejbSessionBean.getTssName().trim();
+            if (openejbSessionBean.isSetTssTargetName()) {
+                String tssName = openejbSessionBean.getTssTargetName().trim();
                 try {
                     tssBeanObjectName = ObjectName.getInstance(tssName);
                 } catch (MalformedObjectNameException e) {
