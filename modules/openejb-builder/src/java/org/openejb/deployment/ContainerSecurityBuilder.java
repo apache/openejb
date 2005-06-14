@@ -76,9 +76,9 @@ class ContainerSecurityBuilder {
         builder.setSecurityEnabled(true);
         builder.setDoAsCurrentCaller(securityConfiguration.isDoAsCurrentCaller());
         builder.setUseContextHandler(securityConfiguration.isUseContextHandler());
-        boolean needsRunAs = (securityIdentity != null && securityIdentity.getRunAs() != null);
+        boolean needsRunAs = (securityIdentity != null && securityIdentity.isSetRunAs());
         if (needsRunAs) {
-            String runAsName = (needsRunAs ? securityIdentity.getRunAs().getRoleName().getStringValue() : "");
+            String runAsName = securityIdentity.getRunAs().getRoleName().getStringValue().trim();
             Subject roleDesignate = (Subject) securityConfiguration.getRoleDesignates().get(runAsName);
             if (roleDesignate == null) {
                 throw new DeploymentException("No role designate found for run-as name: " + runAsName);
