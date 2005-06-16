@@ -32,7 +32,7 @@
 
  *    permission of The OpenEJB Group.  For written permission,
 
- *    please contact openejb-group@openejb.sf.net.
+ *    please contact dev@openejb.org.
 
  *
 
@@ -48,7 +48,7 @@
 
  * 5. Due credit should be given to the OpenEJB Project
 
- *    (http://openejb.sf.net/).
+ *    (http://www.openejb.org/).
 
  *
 
