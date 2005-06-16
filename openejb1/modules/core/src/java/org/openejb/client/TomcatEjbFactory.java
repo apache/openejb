@@ -15,7 +15,7 @@
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
  *    permission of The OpenEJB Group.  For written permission,
- *    please contact openejb-group@openejb.sf.net.
+ *    please contact dev@openejb.org.
  *
  * 4. Products derived from this Software may not be called "OpenEJB"
  *    nor may "OpenEJB" appear in their names without prior written
@@ -23,7 +23,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://openejb.sf.net/).
+ *    (http://www.openejb.org/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -100,7 +100,7 @@ import javax.naming.spi.ObjectFactory;
  * Changing RemoteInitialContextFactory (<i>openejb.naming.factory.initial</i> parametr's value) into LocalInitialContextFactory incurs starting OpenEJB in the local mode.
  * <p>
  * Make sure to read OpenEJB documentation for more information on the factory -
- * <a href="http://openejb.sf.net">http://openejb.sf.net/tomcat.html</a>
+ * <a href="http://www.openejb.org">http://www.openejb.org/tomcat.html</a>
  *
  * @author <a href="mailto:jacek.laskowski@hp.com">Jacek Laskowski</a>
  * @since 01/12/2003
