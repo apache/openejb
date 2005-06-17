@@ -49,20 +49,20 @@ package org.openejb.corba.security.config.tss;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.Map;
 import javax.security.auth.Subject;
 
 import org.omg.CORBA.ORB;
 import org.omg.CSI.EstablishContext;
 import org.omg.CSI.ITTPrincipalName;
+import org.omg.CSI.IdentityToken;
 import org.omg.CSIIOP.DelegationByClient;
 import org.omg.CSIIOP.IdentityAssertion;
 import org.omg.CSIIOP.SAS_ContextSec;
 import org.omg.CSIIOP.ServiceConfiguration;
 import org.omg.IOP.Codec;
-
 import org.openejb.corba.security.SASException;
 import org.openejb.corba.util.Util;
 
@@ -76,7 +76,7 @@ public class TSSSASMechConfig implements Serializable {
     private short requires;
     private boolean required;
     private final ArrayList privilegeAuthorities = new ArrayList();
-    private final Set idTokens = new HashSet();
+    private final Map idTokens = new HashMap();
 
     public TSSSASMechConfig() {
     }
@@ -94,8 +94,10 @@ public class TSSSASMechConfig implements Serializable {
         for (int i = 0; i < n.length; i++) {
             String oid = Util.decodeOID(n[i]);
 
+            //TODO is this needed?
             if (TSSITTPrincipalNameGSSUP.OID.equals(oid)) {
-                addIdentityToken(new TSSITTPrincipalNameGSSUP());
+                //TODO this doesn't make sense if we plan to use this for identity check.
+                addIdentityToken(new TSSITTPrincipalNameGSSUP(null));
             }
         }
 
@@ -119,7 +121,7 @@ public class TSSSASMechConfig implements Serializable {
     }
 
     public void addIdentityToken(TSSSASIdentityToken token) {
-        idTokens.add(token);
+        idTokens.put(new Integer(token.getType()), token);
 
         if (token.getType() > 0) supports |= IdentityAssertion.value;
     }
@@ -152,7 +154,7 @@ public class TSSSASMechConfig implements Serializable {
         }
 
         ArrayList list = new ArrayList();
-        for (Iterator iter = idTokens.iterator(); iter.hasNext();) {
+        for (Iterator iter = idTokens.values().iterator(); iter.hasNext();) {
             TSSSASIdentityToken token = (TSSSASIdentityToken) iter.next();
 
             if (token.getType() == ITTPrincipalName.value) {
@@ -176,8 +178,59 @@ public class TSSSASMechConfig implements Serializable {
     }
 
     public Subject check(EstablishContext msg) throws SASException {
-        Subject result = null;
+//        Subject result = null;
 
-        return result;
+//        try {
+        if (msg.identity_token != null) {
+            IdentityToken identityToken = msg.identity_token;
+            int discriminator = identityToken.discriminator();
+            TSSSASIdentityToken tssIdentityToken = (TSSSASIdentityToken) idTokens.get(new Integer(discriminator));
+            if (tssIdentityToken == null) {
+                throw new SASException(1, new Exception("Unsupported IdentityTokenType: " + discriminator));
+            } else {
+                return tssIdentityToken.check(identityToken);
+            }
+        } else {
+            return null;
+        }
+//                switch (discriminator) {
+//                    case org.omg.CSI.ITTAbsent.value:
+//                        break;
+//                    case org.omg.CSI.ITTAnonymous.value:
+//                        //TODO implement this one or figure out if this is correct???
+//                        break;
+//                    case ITTPrincipalName.value:
+//                        byte[] principalNameToken = identityToken.principal_name();
+//                        Any any = Util.getCodec().decode_value(principalNameToken, GSS_NT_ExportedNameHelper.type());
+//                        byte[] principalNameBytes = GSS_NT_ExportedNameHelper.extract(any);
+//                        String principalName = Util.decodeGSSExportName(principalNameBytes);
+//                        Principal basePrincipal = new GeronimoUserPrincipal(principalName);
+//                        //TODO parameterize or otherwise select realm name
+//                        Principal wrappedPrincipal = new RealmPrincipal("cts-properties-realm", basePrincipal);
+//                        result = new Subject();
+//                        result.getPrincipals().add(basePrincipal);
+//                        result.getPrincipals().add(wrappedPrincipal);
+//                        break;
+//                    case org.omg.CSI.ITTX509CertChain.value:
+//                        byte[] ccChainBytes = identityToken.certificate_chain();
+//                        //TODO implement this one
+//                        throw new SASException(1, new Exception("NYI -- cert chain identity token"));
+//                    case org.omg.CSI.ITTDistinguishedName.value:
+//                        //TODO implement this one
+//                        throw new SASException(1, new Exception("NYI -- distinguished name identity token"));
+//                    default:
+//                        throw new SASException(1);
+//                }
+//
+//            }
+//        } catch (TypeMismatch typeMismatch) {
+//            throw new SASException(1, typeMismatch);
+//        } catch (FormatMismatch formatMismatch) {
+//            throw new SASException(1, formatMismatch);
+////        } catch (UnsupportedEncodingException e) {
+////            throw new SASException(1, e);
+//        }
+//
+//        return result;
     }
 }

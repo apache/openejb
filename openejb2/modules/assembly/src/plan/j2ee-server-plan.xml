@@ -484,7 +484,7 @@ by the server.
                     <tss:compoundSecMech>
                         <tss:GSSUP targetName="geronimo-properties-realm"/>
                         <tss:sasMech>
-                            <tss:identityTokenTypes><tss:ITTAnonymous/><tss:ITTPrincipalNameGSSUP/></tss:identityTokenTypes>
+                            <tss:identityTokenTypes><tss:ITTAnonymous/><tss:ITTPrincipalNameGSSUP realm-name="public-properties-realm"/></tss:identityTokenTypes>
                         </tss:sasMech>
                     </tss:compoundSecMech>
                 </tss:compoundSecMechTypeList>

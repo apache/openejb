@@ -47,7 +47,11 @@
  */
 package org.openejb.corba.security.config.tss;
 
+import javax.security.auth.Subject;
+
 import org.omg.CSI.ITTAnonymous;
+import org.omg.CSI.IdentityToken;
+import org.openejb.corba.security.SASException;
 
 
 /**
@@ -63,5 +67,10 @@ public class TSSITTAnonymous extends TSSSASIdentityToken {
 
     public String getOID() {
         return OID;
+    }
+
+    public Subject check(IdentityToken identityToken) throws SASException {
+        //TODO figure out if this is correct
+        return null;
     }
 }

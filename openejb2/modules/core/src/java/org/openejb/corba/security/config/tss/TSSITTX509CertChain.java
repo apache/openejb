@@ -47,7 +47,11 @@
  */
 package org.openejb.corba.security.config.tss;
 
+import javax.security.auth.Subject;
+
 import org.omg.CSI.ITTX509CertChain;
+import org.omg.CSI.IdentityToken;
+import org.openejb.corba.security.SASException;
 
 
 /**
@@ -56,12 +60,16 @@ import org.omg.CSI.ITTX509CertChain;
 public class TSSITTX509CertChain extends TSSSASIdentityToken {
 
     public static final String OID = "";
-    
+
     public short getType() {
         return ITTX509CertChain.value;
     }
 
     public String getOID() {
         return OID;
+    }
+
+    public Subject check(IdentityToken identityToken) throws SASException {
+        throw new SASException(1, new Exception("NYI -- cert chain identity token"));
     }
 }

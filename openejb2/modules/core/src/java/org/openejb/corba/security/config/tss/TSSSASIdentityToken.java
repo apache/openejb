@@ -48,6 +48,10 @@
 package org.openejb.corba.security.config.tss;
 
 import java.io.Serializable;
+import javax.security.auth.Subject;
+
+import org.omg.CSI.IdentityToken;
+import org.openejb.corba.security.SASException;
 
 
 /**
@@ -58,6 +62,8 @@ public abstract class TSSSASIdentityToken implements Serializable {
     public abstract short getType();
 
     public abstract String getOID();
+
+    public abstract Subject check(IdentityToken identityToken) throws SASException;
 
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -76,4 +82,5 @@ public abstract class TSSSASIdentityToken implements Serializable {
         result = 29 * result + (int) getType();
         return result;
     }
+
 }
