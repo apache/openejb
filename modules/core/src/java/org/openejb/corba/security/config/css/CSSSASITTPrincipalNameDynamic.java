@@ -48,6 +48,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Collections;
 import javax.security.auth.Subject;
 
 import org.omg.CORBA.Any;
@@ -58,6 +59,7 @@ import org.omg.IOP.CodecPackage.InvalidTypeForEncoding;
 
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.ContextManager;
 
 import org.openejb.corba.util.Util;
 
@@ -83,12 +85,13 @@ public class CSSSASITTPrincipalNameDynamic implements CSSSASIdentityToken {
 
         IdentityToken token = null;
         RealmPrincipal principal = null;
-        Set principals = (Set) AccessController.doPrivileged(new PrivilegedAction() {
-            public Object run() {
-                Subject subject = Subject.getSubject(AccessController.getContext());
-                return subject.getPrincipals(RealmPrincipal.class);
-            }
-        });
+        Subject subject = ContextManager.getCurrentCaller();
+        Set principals;
+        if (subject == null) {
+            principals = Collections.EMPTY_SET;
+        } else {
+            principals = subject.getPrincipals(RealmPrincipal.class);
+        }
 
         if (principals.size() != 0) {
             for (Iterator iter = principals.iterator(); iter.hasNext();) {

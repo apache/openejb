@@ -47,8 +47,21 @@
  */
 package org.openejb.corba.security.config.tss;
 
+import java.security.Principal;
+import javax.security.auth.Subject;
+
 import org.omg.CSI.ITTPrincipalName;
+import org.omg.CSI.IdentityToken;
+import org.omg.CSI.GSS_NT_ExportedNameHelper;
 import org.omg.GSSUP.GSSUPMechOID;
+import org.omg.CORBA.Any;
+import org.omg.IOP.CodecPackage.FormatMismatch;
+import org.omg.IOP.CodecPackage.TypeMismatch;
+import org.openejb.corba.security.SASException;
+import org.openejb.corba.util.Util;
+import org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal;
+import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.PrimaryRealmPrincipal;
 
 
 /**
@@ -57,6 +70,11 @@ import org.omg.GSSUP.GSSUPMechOID;
 public class TSSITTPrincipalNameGSSUP extends TSSSASIdentityToken {
 
     public static final String OID = GSSUPMechOID.value.substring(4);
+    private final String realmName;
+
+    public TSSITTPrincipalNameGSSUP(String realmName) {
+        this.realmName = realmName;
+    }
 
     public short getType() {
         return ITTPrincipalName.value;
@@ -64,5 +82,27 @@ public class TSSITTPrincipalNameGSSUP extends TSSSASIdentityToken {
 
     public String getOID() {
         return OID;
+    }
+
+    public Subject check(IdentityToken identityToken) throws SASException {
+        byte[] principalNameToken = identityToken.principal_name();
+        Any any = null;
+        try {
+            any = Util.getCodec().decode_value(principalNameToken, GSS_NT_ExportedNameHelper.type());
+        } catch (FormatMismatch formatMismatch) {
+            throw new SASException(1, formatMismatch);
+        } catch (TypeMismatch typeMismatch) {
+            throw new SASException(1, typeMismatch);
+        }
+        byte[] principalNameBytes = GSS_NT_ExportedNameHelper.extract(any);
+        String principalName = Util.decodeGSSExportName(principalNameBytes);
+        Principal basePrincipal = new GeronimoUserPrincipal(principalName);
+        Principal realmPrincipal = new RealmPrincipal(realmName, basePrincipal);
+        Principal primaryRealmPrincipal = new PrimaryRealmPrincipal(realmName, basePrincipal);
+        Subject subject = new Subject();
+        subject.getPrincipals().add(basePrincipal);
+        subject.getPrincipals().add(realmPrincipal);
+        subject.getPrincipals().add(primaryRealmPrincipal);
+        return subject;
     }
 }

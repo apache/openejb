@@ -47,7 +47,11 @@
  */
 package org.openejb.corba.security.config.tss;
 
+import javax.security.auth.Subject;
+
 import org.omg.CSI.ITTDistinguishedName;
+import org.omg.CSI.IdentityToken;
+import org.openejb.corba.security.SASException;
 
 
 /**
@@ -63,5 +67,9 @@ public class TSSITTDistinguishedName extends TSSSASIdentityToken {
 
     public String getOID() {
         return OID;
+    }
+
+    public Subject check(IdentityToken identityToken) throws SASException {
+        throw new SASException(1, new Exception("NYI -- distinguished name identity token"));
     }
 }
