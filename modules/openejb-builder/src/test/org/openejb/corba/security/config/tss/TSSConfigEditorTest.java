@@ -151,7 +151,7 @@ public class TSSConfigEditorTest extends TestCase {
                                             "                    <tss:compoundSecMech>\n" +
                                             "                        <tss:GSSUP targetName=\"geronimo-properties-realm\"/>\n" +
                                             "                        <tss:sasMech>\n" +
-                                            "                            <tss:identityTokenTypes><tss:ITTAnonymous/><tss:ITTPrincipalNameGSSUP/><tss:ITTDistinguishedName/><tss:ITTX509CertChain/></tss:identityTokenTypes>\n" +
+                                            "                            <tss:identityTokenTypes><tss:ITTAnonymous/><tss:ITTPrincipalNameGSSUP realm-name=\"foo\"/><tss:ITTDistinguishedName/><tss:ITTX509CertChain/></tss:identityTokenTypes>\n" +
                                             "                        </tss:sasMech>\n" +
                                             "                    </tss:compoundSecMech>\n" +
                                             "                </tss:compoundSecMechTypeList>\n" +
