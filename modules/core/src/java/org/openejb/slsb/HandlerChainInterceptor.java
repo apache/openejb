@@ -51,6 +51,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.io.ObjectStreamClass;
 import javax.xml.rpc.JAXRPCException;
 import javax.xml.rpc.handler.Handler;
 import javax.xml.rpc.handler.HandlerChain;
@@ -90,7 +91,8 @@ public class HandlerChainInterceptor implements Interceptor {
             return next.invoke(invocation);
         }
 
-        HandlerChain handlerChain = new HandlerChainImpl(handlerInfoList, roles);
+        HandlerChain handlerChain = new org.apache.axis.handlers.HandlerChainImpl(handlerInfoList);
+        // new HandlerChainImpl(handlerInfoList, roles);
 
         InvocationResult invocationResult;
         try {
