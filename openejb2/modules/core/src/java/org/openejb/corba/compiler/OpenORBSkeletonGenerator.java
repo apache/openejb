@@ -85,6 +85,7 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
     private boolean verbose;
     private Properties props = new Properties();
     private Compiler compiler;
+    private boolean saveTieCode;
 
     public OpenORBSkeletonGenerator(ClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -112,6 +113,14 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
 
     public void setCompiler(Compiler compiler) {
         this.compiler = compiler;
+    }
+
+    public boolean isSaveTieCode() {
+        return saveTieCode;
+    }
+
+    public void setSaveTieCode(boolean saveTieCode) {
+        this.saveTieCode = saveTieCode;
     }
 
     public void generateSkeletons(Set interfaces, File destination, ClassLoader cl) throws CompilerException {
@@ -166,7 +175,9 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
             compiler.compileDirectory(SRCDIR, CLASSESDIR, set);
 
             // delete this file since someone may be holding on to it.
-            destination.delete();
+            if (!saveTieCode) {
+                destination.delete();
+            }
 
             Project project = new Project();
             Jar jar = new Jar();
@@ -219,6 +230,7 @@ public class OpenORBSkeletonGenerator implements SkeletonGenerator, GBeanLifecyc
         infoFactory.addInterface(SkeletonGenerator.class);
         infoFactory.addAttribute("verbose", Boolean.TYPE, true);
         infoFactory.addAttribute("props", Properties.class, true);
+        infoFactory.addAttribute("saveTieCode", Boolean.TYPE, true);
         infoFactory.addReference("Compiler", Compiler.class, NameFactory.CORBA_SERVICE);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.setConstructor(new String[]{"classLoader"});
