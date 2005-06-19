@@ -90,7 +90,7 @@ public class AuthenticationRequest implements Request {
     /**
      * Returns the client's principle.
      * 
-     * @return 
+     * @return Object
      */
     public Object getPrinciple(){
         return principle;
@@ -99,7 +99,7 @@ public class AuthenticationRequest implements Request {
     /**
      * Returns the client's credentials.
      * 
-     * @return 
+     * @return Object
      */
     public Object getCredentials(){
         return credentials;
@@ -144,11 +144,7 @@ public class AuthenticationRequest implements Request {
      * by calling the methods of DataOutput for its primitive values or
      * calling the writeObject method of ObjectOutput for objects, strings,
      * and arrays.
-     * @serial Data Overriding methods should use this tag to describe
-     *             the data layout of this Externalizable object.
-     *             List the sequence of element types and, if possible,
-     *             relate the element to a public/protected field and/or
-     *             method of this Externalizable class.
+     *
      * @param out    the stream to write the object to
      * @exception IOException
      *                   Includes any I/O exceptions that may occur

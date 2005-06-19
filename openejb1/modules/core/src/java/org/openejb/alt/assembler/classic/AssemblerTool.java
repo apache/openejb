@@ -125,15 +125,10 @@ public class AssemblerTool {
      * are constructed using the assembleContainer() method. Once constructed
      * the container and its deployments are added to the container system.
      *
-     * Assembles and returns a {@link ContainerManager} for the {@link ContainerSystem} using the
-     * information from the {@link ContainerManagerInfo} object passed in.
-     *
      * @param containerSystem the system to which the container should be added.
      * @param containerSystemInfo defines the contain system,its containers, and deployments.
-     * @return
-     * @exception throws    Exception if there was a problem constructing the ContainerManager.
+     * @exception Exception if there was a problem constructing the ContainerManager.
      * @exception Exception
-     * @see org.openejb.core.ContainerManager
      * @see org.openejb.core.ContainerSystem
      * @see ContainerManagerInfo
      */
@@ -175,7 +170,7 @@ public class AssemblerTool {
      * @param containerInfo describes a Container and its deployments.
      * @return the Container that was constructed (StatefulContainer, StatelessContainer, EntityContainer)
      * @see org.openejb.alt.assembler.classic.ContainerInfo
-     * @see org.openejb.alt.assembler.classic.Assembler.assembleDeploymentInfo();
+     * @see org.openejb.alt.assembler.classic.Assembler#assembleDeploymentInfo(EnterpriseBeanInfo)
     */
     public  org.openejb.Container assembleContainer(ContainerInfo containerInfo)
     throws org.openejb.OpenEJBException{
@@ -197,7 +192,7 @@ public class AssemblerTool {
            try{
                 //container = (org.openejb.Container)Class.forName(containerInfo.codebase).newInstance();
                 // Support for an actual codebase.
-               Class factory = toolkit.loadClass(containerInfo.className, containerInfo.codebase);
+               Class factory = SafeToolkit.loadClass(containerInfo.className, containerInfo.codebase);
 
                checkImplementation(CONTAINER, factory,"Container",containerInfo.containerName);
 
@@ -260,7 +255,6 @@ public class AssemblerTool {
     * applyMethodPermissions(), applySecurityRoleReferences() and applyTransactionAttributes()
     *
     * @param beanInfo describes the enterprise bean deployment to be assembled.
-    * @param the DeploymentInfo object that was assembled from the beanInfo configuration.
     */
     public  DeploymentInfo assembleDeploymentInfo(EnterpriseBeanInfo beanInfo)
     throws org.openejb.SystemException, org.openejb.OpenEJBException {
@@ -293,21 +287,21 @@ public class AssemblerTool {
 
         /*[2.1] Load the bean class */
         try {
-            ejbClass = toolkit.loadClass(beanInfo.ejbClass, beanInfo.codebase);
+            ejbClass = SafeToolkit.loadClass(beanInfo.ejbClass, beanInfo.codebase);
         } catch (OpenEJBException e){
             throw new OpenEJBException( messages.format(  "cl0005", beanInfo.ejbClass, beanInfo.ejbDeploymentId, e.getMessage() ) );
         }
         if (beanInfo.home != null){
 	        /*[2.2] Load the home interface */
 	        try {
-	            home = toolkit.loadClass(beanInfo.home, beanInfo.codebase);
+	            home = SafeToolkit.loadClass(beanInfo.home, beanInfo.codebase);
 	        } catch (OpenEJBException e){
 	            throw new OpenEJBException( messages.format(  "cl0004", beanInfo.home, beanInfo.ejbDeploymentId, e.getMessage() ) );
 	        }
 
 	        /*[2.3] Load the remote interface */
 	        try {
-	            remote = toolkit.loadClass(beanInfo.remote, beanInfo.codebase);
+	            remote = SafeToolkit.loadClass(beanInfo.remote, beanInfo.codebase);
 	        } catch (OpenEJBException e){
 	            throw new OpenEJBException( messages.format(  "cl0003", beanInfo.remote, beanInfo.ejbDeploymentId, e.getMessage() ) );
 	        }
@@ -315,14 +309,14 @@ public class AssemblerTool {
         if (beanInfo.localHome != null){
 	        /*[2.4] Load the local home interface */
 	        try {
-	            localhome = toolkit.loadClass(beanInfo.localHome, beanInfo.codebase);
+	            localhome = SafeToolkit.loadClass(beanInfo.localHome, beanInfo.codebase);
 	        } catch (OpenEJBException e){
 	            throw new OpenEJBException( messages.format(  "cl0004", beanInfo.localHome, beanInfo.ejbDeploymentId, e.getMessage() ) );
 	        }
 
 	        /*[2.5] Load the local interface */
 	        try {
-	            local = toolkit.loadClass(beanInfo.local, beanInfo.codebase);
+	            local = SafeToolkit.loadClass(beanInfo.local, beanInfo.codebase);
 	        } catch (OpenEJBException e){
 	            throw new OpenEJBException( messages.format(  "cl0003", beanInfo.local, beanInfo.ejbDeploymentId, e.getMessage() ) );
 	        }
@@ -330,7 +324,7 @@ public class AssemblerTool {
         /*[2.4] Load the primary-key class */
         if (isEntity && ebi.primKeyClass != null) {
             try {
-                ejbPk = toolkit.loadClass(ebi.primKeyClass, beanInfo.codebase);
+                ejbPk = SafeToolkit.loadClass(ebi.primKeyClass, beanInfo.codebase);
             } catch (OpenEJBException e){
 		throw new OpenEJBException( messages.format(  "cl0006", ebi.primKeyClass, beanInfo.ejbDeploymentId, e.getMessage() ) );
             }
@@ -507,7 +501,7 @@ public class AssemblerTool {
          which is not very specific. Only a very specific OpenEJBException should be
          thrown.
          */
-        Class serviceClass = toolkit.loadClass(securityInfo.factoryClassName,securityInfo.codebase );
+        Class serviceClass = SafeToolkit.loadClass(securityInfo.factoryClassName,securityInfo.codebase );
 
         checkImplementation(SECURITY_SERVICE, serviceClass, "SecurityService", securityInfo.serviceName);
 
@@ -534,7 +528,7 @@ public class AssemblerTool {
          "Cannot initialize the TransactionManager, because X happened."
          */
 
-        Class serviceClass = toolkit.loadClass(txInfo.factoryClassName, txInfo.codebase);
+        Class serviceClass = SafeToolkit.loadClass(txInfo.factoryClassName, txInfo.codebase);
 
         checkImplementation(TRANSACTION_SERVICE, serviceClass, "TransactionService", txInfo.serviceName);
 
@@ -557,11 +551,10 @@ public class AssemblerTool {
     * should be processed before anything else is done in the deployment process.
     *
     * @param ivmInfo the IntraVmServerInfo configuration object that describes the ProxyFactory
-    * @return void
     * @see org.openejb.alt.assembler.classic.IntraVmServerInfo
     */
-    public  void applyProxyFactory(IntraVmServerInfo ivmInfo) throws OpenEJBException{
-        Class factoryClass = toolkit.loadClass(ivmInfo.proxyFactoryClassName, ivmInfo.codebase);
+    public void applyProxyFactory(IntraVmServerInfo ivmInfo) throws OpenEJBException{
+        Class factoryClass = SafeToolkit.loadClass(ivmInfo.proxyFactoryClassName, ivmInfo.codebase);
 
         checkImplementation(PROXY_FACTORY, factoryClass, "ProxyFactory", ivmInfo.factoryName);
 
@@ -600,11 +593,10 @@ public class AssemblerTool {
     * See page 251 EJB 1.1 for an explanation of the method attribute.
     *
     * @param deploymentInfo the deployment to which the transaction attributes are applied
-    * @param MethodTransactionInfo describes the transaction attributes for the enterprise bean(s)
+    * @param mtis describes the transaction attributes for the enterprise bean(s)
     * @see org.openejb.alt.assembler.classic.MethodTransactionInfo
-    * @see org.openejb.core.DeploymentInfo.setMethodTransactionAttribute()
     */
-    public  void applyTransactionAttributes(DeploymentInfo deploymentInfo, MethodTransactionInfo [] mtis){
+    public  void applyTransactionAttributes(DeploymentInfo deploymentInfo, MethodTransactionInfo[] mtis){
         /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!
          there is a lot of complex code here, I'm sure something could go wrong the user
          might want to know about.
@@ -660,7 +652,7 @@ public class AssemblerTool {
     * @param roleMapping the RoleMapping object which contains the logical to physical security roles.
     * @see org.openejb.alt.assembler.classic.EnterpriseBeanInfo
     * @see org.openejb.alt.assembler.classic.AssemblerTool.RoleMapping
-    * @see org.openejb.core.DepoymentInfo.addSecurityRoleReference()
+    * @see org.openejb.core.DeploymentInfo#addSecurityRoleReference(String, String[])
     */
     public  void applySecurityRoleReference(DeploymentInfo deployment, EnterpriseBeanInfo beanInfo, AssemblerTool.RoleMapping roleMapping){
         if(beanInfo.securityRoleReferences != null){
@@ -684,7 +676,7 @@ public class AssemblerTool {
     * @param deployment the DeploymentInfo object to which the Method Permissions should be applied.
     * @param permissions the Method Permission to be applied to the deployment.
     * @see org.openejb.alt.assembler.classic.MethodPermissionInfo
-    * @see org.openejb.core.DeploymentInfo.appendMethodPermissions()
+    * @see org.openejb.core.DeploymentInfo#appendMethodPermissions(java.lang.reflect.Method, String[])
     */
     public  void applyMethodPermissions(DeploymentInfo deployment, MethodPermissionInfo [] permissions){
         /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!
@@ -726,7 +718,7 @@ public class AssemblerTool {
     * @param roleMapping the encapsulation of logical roles and their corresponding physical role mappings.
     * @see org.openejb.alt.assembler.classic.MethodPermissionInfo
     * @see org.openejb.alt.assembler.classic.AssemblerTool.RoleMapping
-    * @see org.openejb.core.DeploymentInfo.appendMethodPermissions()
+    * @see org.openejb.core.DeploymentInfo#appendMethodPermissions(java.lang.reflect.Method, String[])
     */
     public  void applyMethodPermissions(DeploymentInfo deployment, MethodPermissionInfo [] permissions, AssemblerTool.RoleMapping roleMapping){
         /*TODO: Add better exception handling.  This method doesn't throws any exceptions!!
@@ -862,10 +854,9 @@ public class AssemblerTool {
                return (java.lang.reflect.Method [])methodVect.toArray(new java.lang.reflect.Method[methodVect.size()]);
     }
     /**
-     *
      * @see org.openejb.core.DeploymentInfo
      * @see MethodInfo
-     * @exeption SecurityException if
+     * @exception SecurityException
      */
     protected  void resolveMethods(Vector methods, Class intrface, MethodInfo mi)
     throws SecurityException{

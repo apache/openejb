@@ -163,6 +163,10 @@
         <modules:reactor goals="default"/>
     </goal>
 
+    <goal name="modules:sources">
+        <modules:reactor goals="sources"/>
+    </goal>
+
     <goal name="modules:build">
         <modules:reactor goals="build"/>
     </goal>
@@ -276,6 +280,13 @@
                 include="*.war"/>
         </define:tag>
 
+        <define:tag name="sources">
+            <aggregate:copy
+                source="${module.root}/src/java"
+                target="${aggregate.dir}/src"
+                include="**/*.java"/>
+        </define:tag>
+
         <define:tag name="default">
             <j:if test="${scripts == null || scripts == 'true'}">
                 <aggregate:scripts/>
@@ -378,12 +389,47 @@
                 <include name="*.cmd"/>
             </fixcrlf>
             
-		    <replace file="${aggregate.dir}/bin/openejb.bat" 
-		             token="@REPLACED-BY-MAVEN-XML@"
-		             value="${pom.currentVersion}"/>
+	    <replace file="${aggregate.dir}/bin/openejb.bat" 
+	             token="@REPLACED-BY-MAVEN-XML@"
+	             value="${pom.currentVersion}"/>
         </u:available>
+        <copy todir="${aggregate.dir}">
+            <fileset dir=".">
+                <include name="CREDITS.txt"/>
+                <include name="LICENSE.txt"/>
+                <include name="README.txt"/>
+            </fileset>
+        </copy>
     </goal>
 
+    <goal name="openejb:release"
+        description="Cuts release">
+        <attainGoal name="clean"/>
+        <attainGoal name="default"/>
+        <!-- aggregate:sources/ -->
+        <javadoc packagenames="org.openejb.*"
+            defaultexcludes="yes"
+            destdir="${aggregate.dir}/docs/api"
+            author="true"
+            version="true"
+            Use="false"
+            Splitindex="yes"
+            windowtitle="OpenEJB API Documentation"
+            doctitle="OpenEJB API Documentation"
+            bottom="Copyright &#169; 2005 The OpenEJB Group. All Rights Reserved.">
+            <sourcepath>
+                <pathelement location="modules/core/src/java/"/>
+                <pathelement location="modules/webadmin/src/java/"/>
+            </sourcepath>
+            <classpath>
+                <path>
+                    <fileset dir="${aggregate.dir}/lib">
+                        <include name="*.jar"/>
+                    </fileset>
+                </path>
+            </classpath>
+        </javadoc>
+    </goal>
 
     <!-- =============================== -->
     <!-- Module Output Aggregation Hooks -->

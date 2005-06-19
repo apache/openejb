@@ -141,7 +141,7 @@ public class ProxyManager {
      * the VM.
      *
      * @param interfaceType
-     * @return
+     * @return Class
      * @exception IllegalAccessException
      */
     public static Class getProxyClass(Class interfaceType) throws IllegalAccessException{
@@ -160,7 +160,7 @@ public class ProxyManager {
      *               A bean's home or remote interface that the Proxy
      *               object should implement.
      * @param h
-     * @return
+     * @return Object
      * @exception IllegalAccessException
      */
     public static Object newProxyInstance(Class interfaceType, InvocationHandler h) throws IllegalAccessException {
@@ -174,7 +174,7 @@ public class ProxyManager {
     /**
      *
      * @param cl
-     * @return
+     * @return boolean
      */
     public static boolean isProxyClass(Class cl) {
         checkDefaultFactory();

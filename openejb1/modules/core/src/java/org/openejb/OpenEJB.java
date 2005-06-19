@@ -105,10 +105,10 @@ import org.openejb.util.SafeToolkit;
  * <p>
  * @author Richard Monson-Haefel
  * @author David Blevins
- * @version 0.1, 3/21/2000
+ * @version $Rev$
  * @since JDK 1.2
  * @see org.openejb.EnvProps
- * @see org.openejb.core.conf.Assembler
+ * @see org.openejb.alt.assembler.classic.Assembler
  * @see org.openejb.spi.Assembler
  */
 
@@ -130,7 +130,8 @@ public final class OpenEJB {
 
     /**
      *
-     * @param props Specifies the Assembler and other properties used to build the ContainerSystem
+     * @param initProps Specifies the Assembler and other properties used to build the ContainerSystem
+     * @param appServer application server
      * @exception org.openejb.OpenEJBException Thrown if a problem occurs building the ContainerSystem
      * @since JDK 1.2
      */
@@ -200,7 +201,7 @@ public final class OpenEJB {
         SafeToolkit toolkit = SafeToolkit.getToolkit("OpenEJB");
 
         /* Uses the EnvProps.ASSEMBLER property to obtain the Assembler impl.
-           Default is org.openejb.core.conf.Assembler*/
+           Default is org.openejb.alt.assembler.classic.Assembler */
         String className = props.getProperty( EnvProps.ASSEMBLER );
         if ( className == null ) {
             className = props.getProperty( "openejb.assembler", "org.openejb.alt.assembler.classic.Assembler" );
@@ -374,9 +375,7 @@ public final class OpenEJB {
      * @param id the id of the Container
      * @return the Container associated with the id
      * @see Container
-     * @see ContainerManager#getContainer(Object) ContainerManager.getContainer
      * @see Container#getContainerID() Container.getContainerID()
-     * @see DeploymentInfo#getContainerID() DeploymentInfo.getContainerID()
      */
     public static Container getContainer(Object id){
         return containerSystem.getContainer(id);
@@ -387,7 +386,6 @@ public final class OpenEJB {
      *
      * @return an array of all the Containers
      * @see Container
-     * @see ContainerManager#containers() ContainerManager.containers()
      */
     public static Container [] containers() {
         if ( containerSystem == null ) {// Something went wrong in the configuration.

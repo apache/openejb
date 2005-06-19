@@ -154,7 +154,7 @@ public class IntraVmCopyMonitor {
      * If the IntraVmCopyMonitor has not already been 
      * create, it is instantiated.
      * 
-     * @return 
+     * @return IntraVmCopyMonitor
      */
     static IntraVmCopyMonitor getMonitor( ){
         IntraVmCopyMonitor monitor = (IntraVmCopyMonitor)threadStorage.get();
@@ -213,7 +213,7 @@ public class IntraVmCopyMonitor {
      * Returns true if the current operation is an
      * IntraVM copy.
      * 
-     * @return 
+     * @return boolean
      */
     public static boolean isIntraVmCopyOperation(){
         IntraVmCopyMonitor monitor = getMonitor();
@@ -226,7 +226,7 @@ public class IntraVmCopyMonitor {
      * Returns true if the current operation is the
      * passivation of a stateful session bean.
      * 
-     * @return 
+     * @return boolean 
      */
     public static boolean isStatefulPassivationOperation(){
         IntraVmCopyMonitor monitor = getMonitor();

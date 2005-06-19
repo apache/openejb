@@ -82,7 +82,6 @@ package org.openejb.alt.assembler.classic;
  * @see org.openejb.alt.assembler.classic.Assembler
  * @see org.openejb.alt.assembler.classic.OpenEjbConfiguration
  * @see org.openejb.alt.assembler.classic.OpenEjbConfigurationFactory
- * @see org.openejb.xmlconf.DomOpenEjbConfigurationFactory
  */
 public class RemoteJndiContextsInfo extends InfoObject{
 

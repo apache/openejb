@@ -56,28 +56,6 @@ package org.openejb.core;
 public class EnvProps {
     
     /**
-     * Property name that specifies the class name of the ConnectionBuilder a JmsContainer should use.
-     * 
-     * <p>
-     * NAME:<br>&nbsp;&nbsp;
-     * <code>org/openejb/core/jms/JmsConnectionBuilder</code>
-     * </p>
-     * 
-     * <p>
-     * EXAMPLE VALUE:<br>&nbsp;&nbsp;
-     * <code>org.example.asf.ReplacementConnectionBuilder</code>
-     * </p>
-     * 
-     * <p>
-     * USED BY:
-     * <UL>
-     * <LI>{@link org.openejb.core.jms.JmsContainer}
-     * </UL>
-     * </p>
-     */
-    public final static String CB_CLASS_NAME = "org.openejb.core.jms.JmsConnectionBuilder";
-    
-    /**
      * Property name that specifies the class name of the InstanceManager a Container should use.
      * 
      * <p>
@@ -173,7 +151,6 @@ public class EnvProps {
      * <LI>{@link org.openejb.core.entity.EntityInstanceManager}
      * <LI>{@link org.openejb.core.stateful.StatefulInstanceManager}
      * <LI>{@link org.openejb.core.stateless.StatelessInstanceManager}
-     * <LI>{@link org.openejb.core.jms.JmsContainer}
      * </UL>
      * </p>
      */

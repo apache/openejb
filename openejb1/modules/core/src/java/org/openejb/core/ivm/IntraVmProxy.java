@@ -21,7 +21,7 @@ public interface IntraVmProxy extends java.io.Serializable {
      * If the proxy is serialized outside the core container system,
      * we allow the application server to handle it.
      * 
-     * @return 
+     * @return Object 
      * @exception ObjectStreamException
      */
     public Object writeReplace() throws ObjectStreamException;

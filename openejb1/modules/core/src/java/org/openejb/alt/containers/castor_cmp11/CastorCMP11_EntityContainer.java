@@ -596,7 +596,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      * ready pool when its released from the transaction.
      *
      * @param callContext
-     * @return
+     * @return EntityBean
      * @exception java.lang.IllegalAccessException
      * @exception java.lang.reflect.InvocationTargetException
      * @exception java.lang.InstantiationException
@@ -634,7 +634,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
                 callContext.setCurrentOperation( Operations.OP_SET_CONTEXT );
                 Object[] params = new javax.ejb.EntityContext[]{( javax.ejb.EntityContext ) deploymentInfo.getEJBContext()};
                 //logger.debug(bean + ".setEntityContext("+params[0]+")");
-                this.SET_ENTITY_CONTEXT_METHOD.invoke( bean, params );
+                SET_ENTITY_CONTEXT_METHOD.invoke( bean, params );
             } finally {
                 callContext.setCurrentOperation( currentOperation );
             }
@@ -655,7 +655,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      * @param runMethod
      * @param args
      * @param callContext
-     * @return
+     * @return Object
      * @exception org.openejb.OpenEJBException
      */
     protected Object businessMethod( Method callMethod, Method runMethod, Object[] args, ThreadContext callContext )
@@ -766,7 +766,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      * @param callMethod
      * @param args
      * @param callContext
-     * @return
+     * @return ProxyInfo
      * @exception org.openejb.OpenEJBException
      */
     protected ProxyInfo createEJBObject( Method callMethod, Object[] args, ThreadContext callContext )
@@ -947,7 +947,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      * @param callMethod
      * @param args
      * @param callContext
-     * @return
+     * @return Object
      * @exception org.openejb.OpenEJBException
      */
     protected Object findEJBObject( Method callMethod, Object[] args, ThreadContext callContext ) throws org.openejb.OpenEJBException {
@@ -1268,7 +1268,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      *
      * @param callContext
      * @param db
-     * @return
+     * @return EntityBean
      * @exception org.exolab.castor.jdo.PersistenceException
      * @exception org.exolab.castor.jdo.ObjectNotFoundException
      * @exception org.exolab.castor.jdo.TransactionNotInProgressException
@@ -1341,7 +1341,7 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
      * object or a non-transaction managed database object.
      *
      * @param callContext
-     * @return
+     * @return Database
      * @exception org.exolab.castor.jdo.DatabaseNotFoundException
      * @exception org.exolab.castor.jdo.PersistenceException
      * @exception javax.transaction.SystemException

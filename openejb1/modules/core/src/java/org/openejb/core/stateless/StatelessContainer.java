@@ -103,7 +103,6 @@ public class StatelessContainer implements org.openejb.RpcContainer, Transaction
      *
      * @param id the unique id to identify this container in the ContainerSystem
      * @param registry a hashMap of bean delpoyments that this container will be responsible for
-     * @param mngr the ContainerManager for this container
      * @param properties the properties this container needs to initialize and run
      * @throws OpenEJBException if there is a problem constructing the container
      * @see org.openejb.Container
@@ -153,7 +152,6 @@ public class StatelessContainer implements org.openejb.RpcContainer, Transaction
      *
      * @return an array of DeploymentInfo objects
      * @see org.openejb.DeploymentInfo
-     * @see org.openejb.ContainerSystem#deployments() ContainerSystem.deployments()
      */
     public DeploymentInfo [] deployments(){
         return (DeploymentInfo [])deploymentRegistry.values().toArray(new DeploymentInfo[deploymentRegistry.size()]);
@@ -162,10 +160,9 @@ public class StatelessContainer implements org.openejb.RpcContainer, Transaction
     /**
      * Gets the <code>DeploymentInfo</code> object for the bean with the specified deployment id.
      *
-     * @param id the deployment id of the deployed bean.
+     * @param deploymentID the deployment id of the deployed bean.
      * @return the DeploymentInfo object associated with the bean.
      * @see org.openejb.DeploymentInfo
-     * @see org.openejb.ContainerSystem#getDeploymentInfo(Object) ContainerSystem.getDeploymentInfo
      * @see org.openejb.DeploymentInfo#getDeploymentID()
      */
     public DeploymentInfo getDeploymentInfo(Object deploymentID){
@@ -184,7 +181,6 @@ public class StatelessContainer implements org.openejb.RpcContainer, Transaction
      * Gets the id of this container.
      *
      * @return the id of this container.
-     * @see org.openejb.DeploymentInfo#getContainerID() DeploymentInfo.getContainerID()
      */
     public Object getContainerID(){
         return containerID;
@@ -192,7 +188,7 @@ public class StatelessContainer implements org.openejb.RpcContainer, Transaction
 
     /**
      * Adds a bean to this container.
-     * @param deploymentId the deployment id of the bean to deploy.
+     * @param deploymentID the deployment id of the bean to deploy.
      * @param info the DeploymentInfo object associated with the bean.
      * @throws org.openejb.OpenEJBException
      *      Occurs when the container is not able to deploy the bean for some
@@ -211,13 +207,13 @@ public class StatelessContainer implements org.openejb.RpcContainer, Transaction
      * @param callMethod the method to be called on the bean instance
      * @param args the arguments to use when invoking the specified method
      * @param primKey the primary key class of the bean or null if the bean does not need a primary key
-     * @param prncpl
+     * @param securityIdentity identity
      * @return the result of invoking the specified method on the bean instance
      * @throws org.openejb.OpenEJBException
-     * @see org.openejb.Container#invoke Container.invoke
      * @see org.openejb.core.stateful.StatefulContainer#invoke StatefulContainer.invoke
      */
-    public Object invoke(Object deployID, Method callMethod,Object [] args,Object primKey, Object securityIdentity)    throws org.openejb.OpenEJBException{
+    public Object invoke(Object deployID, Method callMethod,Object [] args,Object primKey, Object securityIdentity)
+            throws org.openejb.OpenEJBException {
         try{
 
         org.openejb.core.DeploymentInfo deployInfo = (org.openejb.core.DeploymentInfo)this.getDeploymentInfo(deployID);
@@ -340,7 +336,6 @@ public class StatelessContainer implements org.openejb.RpcContainer, Transaction
     * because instances are shared and pooled and only delegated to service a request when a call is
     * received from the client.  The ProxyInfo object will allow the server to construct an
     * appropriate remote reference that the client can use to make calls.
-     * @param callingMethod TODO
     */
     protected ProxyInfo createEJBObject(org.openejb.core.DeploymentInfo deploymentInfo, Method callMethod) {
         Class callingClass = callMethod.getDeclaringClass();

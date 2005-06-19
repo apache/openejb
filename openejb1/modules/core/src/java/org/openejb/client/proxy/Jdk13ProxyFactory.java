@@ -119,7 +119,7 @@ public class Jdk13ProxyFactory implements ProxyFactory {
      * and an array of interfaces.
      * 
      * @param interfce
-     * @return 
+     * @return Class
      * @exception IllegalArgumentException
      */
     public Class getProxyClass(Class interfce) throws IllegalArgumentException {
@@ -131,7 +131,7 @@ public class Jdk13ProxyFactory implements ProxyFactory {
      * and an array of interfaces.
      * 
      * @param interfaces
-     * @return 
+     * @return Class
      * @exception IllegalArgumentException
      */
     public Class getProxyClass(Class[] interfaces) throws IllegalArgumentException {
@@ -148,7 +148,7 @@ public class Jdk13ProxyFactory implements ProxyFactory {
      * method.
      * 
      * @param cl
-     * @return 
+     * @return boolean
      */
     public boolean isProxyClass(Class cl) {
         return Proxy.isProxyClass(cl);
@@ -159,7 +159,7 @@ public class Jdk13ProxyFactory implements ProxyFactory {
      * Creates a new proxy instance using the handler of the proxy passed in.
      * 
      * @param proxyClass
-     * @return 
+     * @return Object
      * @exception IllegalArgumentException
      */
     public Object newProxyInstance(Class proxyClass) throws IllegalArgumentException {
@@ -189,7 +189,7 @@ public class Jdk13ProxyFactory implements ProxyFactory {
      * 
      * @param interfce
      * @param h
-     * @return 
+     * @return Object
      * @exception IllegalArgumentException
      */
     public Object newProxyInstance(Class interfce, InvocationHandler h) throws IllegalArgumentException {
@@ -205,7 +205,7 @@ public class Jdk13ProxyFactory implements ProxyFactory {
      * 
      * @param interfaces
      * @param h
-     * @return 
+     * @return Object
      * @exception IllegalArgumentException
      */
     public Object newProxyInstance(Class[] interfaces, InvocationHandler h) throws IllegalArgumentException {

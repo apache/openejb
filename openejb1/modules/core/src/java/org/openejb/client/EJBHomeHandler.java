@@ -301,11 +301,9 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
      * 
      * @return Returns an IntraVmMetaData
      * @exception Throwable
-     * @see IntraVmMetaData
      * @see javax.ejb.EJBHome
      * @see javax.ejb.EJBHome#getEJBMetaData
      */
-//    protected abstract Object getEJBMetaData(Method method, Object[] args, Object proxy) throws Throwable;
     protected Object getEJBMetaData(Method method, Object[] args, Object proxy) throws Throwable{
         return ejb;
     }
@@ -333,7 +331,6 @@ public abstract class EJBHomeHandler extends EJBInvocationHandler implements Ext
      * @param proxy
      * @return Returns an IntraVmHandle
      * @exception Throwable
-     * @see IntraVmHandle
      * @see javax.ejb.EJBHome
      * @see javax.ejb.EJBHome#getHomeHandle
      */

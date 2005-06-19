@@ -77,7 +77,7 @@ public interface ProxyFactory {
      * and an array of interfaces.
      * 
      * @param interfce
-     * @return 
+     * @return Class
      * @exception IllegalArgumentException
      */
     public Class getProxyClass(Class interfce) throws IllegalArgumentException;
@@ -87,7 +87,7 @@ public interface ProxyFactory {
      * and an array of interfaces.
      * 
      * @param interfaces
-     * @return 
+     * @return Class
      * @exception IllegalArgumentException
      */
     public Class getProxyClass(Class[] interfaces) throws IllegalArgumentException;
@@ -98,7 +98,7 @@ public interface ProxyFactory {
      * method.
      * 
      * @param cl
-     * @return 
+     * @return boolean
      */
     public boolean isProxyClass(Class cl);
 
@@ -108,7 +108,7 @@ public interface ProxyFactory {
      * 
      * @param interfce
      * @param h
-     * @return 
+     * @return Object
      * @exception IllegalArgumentException
      */
     public Object newProxyInstance(Class interfce, InvocationHandler h) throws IllegalArgumentException;
@@ -119,7 +119,7 @@ public interface ProxyFactory {
      * 
      * @param interfaces
      * @param h
-     * @return 
+     * @return Object
      * @exception IllegalArgumentException
      */
     public Object newProxyInstance(Class[] interfaces, InvocationHandler h) throws IllegalArgumentException;
@@ -131,7 +131,7 @@ public interface ProxyFactory {
      * depending on the implementation.
      * 
      * @param proxyClass
-     * @return 
+     * @return Object
      * @exception java.lang.IllegalArgumentException
      *                   Occurs when the specified class is not a proxy class.
      * @exception IllegalArgumentException

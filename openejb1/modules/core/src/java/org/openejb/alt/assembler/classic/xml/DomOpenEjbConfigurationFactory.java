@@ -108,19 +108,19 @@ public class DomOpenEjbConfigurationFactory implements OpenEjbConfigurationFacto
 
     /**
      * Initializes the {@link org.openejb.alt.assembler.classic.OpenEjbConfiguration} with the 
-     * XML config file specified by the value of {@link EnvProps.CONFIGURATION} in 
+     * XML config file specified by the value of {@link org.openejb.EnvProps#CONFIGURATION} in
      * the environment variables used to construct this container system.
-     * @exeption OpenEJBException 
-     * @param props  A Properties object containing the EnvProps.CONFIGURATION entry
+     * @exception OpenEJBException
+     * @param props  A Properties object containing the EnvProps#CONFIGURATION entry
      * @exception OpenEJBException
      *                   if there was a problem parsing the XML file, the XML file is invalid or the XML file could not be found.
      * @see org.openejb.alt.assembler.classic.OpenEjbConfiguration
-     * @see org.openejb.EnvProps.CONFIGURATION
+     * @see org.openejb.EnvProps#CONFIGURATION
      */
     public void init(Properties props) throws OpenEJBException {
         SafeProperties safeProps = toolkit.getSafeProperties(props);
         configXml = safeProps.getProperty(EnvProps.CONFIGURATION);
-        java.io.File tmp = new java.io.File(configXml);
+        new java.io.File(configXml);
     }
     
     public OpenEjbConfiguration getOpenEjbConfiguration() throws OpenEJBException {
@@ -168,7 +168,7 @@ class XMLErrorHandler implements ErrorHandler{
         handleError("fatal error",exception);
     }
 
-    private void handleError(String errorType, SAXParseException e) throws SAXException{
+    private void handleError(String errorType, SAXParseException e) {
         OpenEJBErrorHandler.configurationParsingError(errorType, e.getLocalizedMessage(), e.getLineNumber()+"", e.getColumnNumber()+"");
     }
 }

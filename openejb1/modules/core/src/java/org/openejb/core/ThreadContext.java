@@ -108,11 +108,7 @@ public class ThreadContext implements Cloneable {
             }
         }
     }
-    /**
-     * TODO: Add comment
-     *
-     * @return
-     */
+
     protected static ThreadContext newThreadContext() {
         try {
             return(ThreadContext)implClass.newInstance();
@@ -124,11 +120,6 @@ public class ThreadContext implements Cloneable {
         }
     }
 
-    /**
-     * TODO: Add comment
-     *
-     * @return
-     */
     public static boolean isValid() {
         ThreadContext tc = (ThreadContext)threadStorage.get();
         if ( tc!=null )
@@ -136,9 +127,7 @@ public class ThreadContext implements Cloneable {
         else
             return false;
     }
-    /**
-     * TODO: Add comment
-     */
+
     protected void makeInvalid() {
         valid = false;
         deploymentInfo = null;
@@ -147,20 +136,13 @@ public class ThreadContext implements Cloneable {
         securityIdentity = null;
         unspecified = null;
     }
-    /**
-     * TODO: Add comment
-     */
+
     public static void invalidate() {
         ThreadContext tc = (ThreadContext)threadStorage.get();
         if ( tc!=null )
             tc.makeInvalid();
     }
 
-    /**
-     * TODO: Add comment
-     *
-     * @param tc
-     */
     public static void setThreadContext(ThreadContext tc) {
         if ( tc==null ) {
             tc = (ThreadContext)threadStorage.get();
@@ -169,11 +151,7 @@ public class ThreadContext implements Cloneable {
             threadStorage.set(tc);
         }
     }
-    /**
-     * TODO: Add comment
-     *
-     * @return
-     */
+
     public static ThreadContext getThreadContext( ) {
         ThreadContext tc = (ThreadContext)threadStorage.get();
         if ( tc==null ) {
@@ -182,109 +160,57 @@ public class ThreadContext implements Cloneable {
         }
         return tc;
     }
-    /**
-     * TODO: Add comment
-     *
-     * @return
-     */
+
     public byte getCurrentOperation( ) {
         return currentOperation;
     }
-    /**
-     * TODO: Add comment
-     *
-     * @return
-     */
+
     public Object getPrimaryKey( ) {
         return primaryKey;
     }
-    /**
-     * TODO: Add comment
-     *
-     * @return
-     */
+
     public DeploymentInfo getDeploymentInfo() {
         return deploymentInfo;
     }
-    /**
-     * TODO: Add comment
-     *
-     * @return
-     */
+
     public Object getSecurityIdentity( ) {
         return securityIdentity;
     }
-    /**
-     * TODO: Add comment
-     *
-     * @return
-     */
+
     public Object getUnspecified() {
         return unspecified;
     }
 
-    /**
-     * TODO: Add comment
-     *
-     * @param di
-     * @param primKey
-     * @param securityIdentity
-     */
     public void set(DeploymentInfo di, Object primKey, Object securityIdentity) {
         setDeploymentInfo(di);
         setPrimaryKey(primKey);
         setSecurityIdentity(securityIdentity);
         valid = true;
     }
-    /**
-     * TODO: Add comment
-     *
-     * @param op
-     */
+
     public void setCurrentOperation(byte op) {
         currentOperation = op;
         valid = true;
     }
-    /**
-     * TODO: Add comment
-     *
-     * @param primKey
-     */
+
     public void setPrimaryKey(Object primKey) {
         primaryKey = primKey;
         valid = true;
     }
-    /**
-     * TODO: Add comment
-     *
-     * @param identity
-     */
+
     public void setSecurityIdentity(Object identity) {
         securityIdentity = identity;
         valid = true;
     }
-    /**
-     * TODO: Add comment
-     *
-     * @param info
-     */
+
     public void setDeploymentInfo(DeploymentInfo info) {
         deploymentInfo = info;
     }
-    /**
-     * TODO: Add comment
-     *
-     * @param obj
-     */
+
     public void setUnspecified(Object obj) {
         unspecified = obj;
     }
 
-    /**
-     * TODO: Add comment
-     *
-     * @return
-     */
     public boolean valid() {
         return valid;
     }

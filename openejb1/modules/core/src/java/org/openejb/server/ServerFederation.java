@@ -84,7 +84,7 @@ public class ServerFederation implements ApplicationServer {
      * 
      * @param proxyInfo A proxy info instance describing the deployment
      * 
-     * @return 
+     * @return Handle
      */
     public Handle getHandle(ProxyInfo proxyInfo) {
         return getApplicationServer().getHandle(proxyInfo);
@@ -96,7 +96,7 @@ public class ServerFederation implements ApplicationServer {
      * 
      * @param proxyInfo A proxy info instance describing the deployment
      * 
-     * @return 
+     * @return EJBMetaData
      */
     public EJBMetaData getEJBMetaData(ProxyInfo proxyInfo) {
         return getApplicationServer().getEJBMetaData(proxyInfo);
@@ -108,7 +108,7 @@ public class ServerFederation implements ApplicationServer {
      * 
      * @param proxyInfo A proxy info instance describing the deployment
      * 
-     * @return 
+     * @return HomeHandle
      */
     public HomeHandle getHomeHandle(ProxyInfo proxyInfo) {
         return getApplicationServer().getHomeHandle(proxyInfo);
@@ -120,7 +120,7 @@ public class ServerFederation implements ApplicationServer {
      * 
      * @param proxyInfo A proxy info instance describing the deployment
      * 
-     * @return 
+     * @return EJBObject
      */
     public EJBObject getEJBObject(ProxyInfo proxyInfo) {
         return getApplicationServer().getEJBObject(proxyInfo);
@@ -132,7 +132,7 @@ public class ServerFederation implements ApplicationServer {
      * 
      * @param proxyInfo A proxy info instance describing the deployment
      * 
-     * @return 
+     * @return EJBHome
      */
     public EJBHome getEJBHome(ProxyInfo proxyInfo) {
         return getApplicationServer().getEJBHome(proxyInfo);
@@ -157,7 +157,7 @@ public class ServerFederation implements ApplicationServer {
      * Gets the ApplicationServer implementation associates
      * with this thread.
      * 
-     * @return 
+     * @return ApplicationServer
      */
     public static ApplicationServer getApplicationServer( ) {
         ApplicationServer server = (ApplicationServer)threadStorage.get();

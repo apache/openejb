@@ -93,7 +93,6 @@ public interface Container {
      * Gets the id of this container.
      *
      * @return the id of this container.
-     * @see DeploymentInfo#getContainerID() DeploymentInfo.getContainerID()
      */
     public Object getContainerID();
 
@@ -101,10 +100,9 @@ public interface Container {
     /**
      * Gets the <code>DeploymentInfo</code> object for the bean with the specified deployment id.
      *
-     * @param id the deployment id of the deployed bean.
+     * @param deploymentID the deployment id of the deployed bean.
      * @return the DeploymentInfo object associated with the bean.
      * @see DeploymentInfo
-     * @see ContainerSystem#getDeploymentInfo(Object) ContainerSystem.getDeploymentInfo
      * @see DeploymentInfo#getDeploymentID()
      */
     public DeploymentInfo getDeploymentInfo(Object deploymentID);
@@ -114,13 +112,12 @@ public interface Container {
      *
      * @return an array of DeploymentInfo objects
      * @see DeploymentInfo
-     * @see ContainerSystem#deployments() ContainerSystem.deployments()
      */
     public DeploymentInfo [] deployments();
 
     /**
      * Adds a bean to this container.
-     * @param deploymentId the deployment id of the bean to deploy.
+     * @param deploymentID the deployment id of the bean to deploy.
      * @param info the DeploymentInfo object associated with the bean.
      * @throws org.openejb.OpenEJBException
      *      Occurs when the container is not able to deploy the bean for some

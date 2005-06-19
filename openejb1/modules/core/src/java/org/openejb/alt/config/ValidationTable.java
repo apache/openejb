@@ -201,8 +201,8 @@ public class ValidationTable {
      * will return the last validated date regardless of
      * the validator version.
      *
-     * @param jarFile
-     * @return
+     * @param jarFileURL
+     * @return long
      */
     private long _getLastValidated(String jarFileURL){
         long validated = 0L;

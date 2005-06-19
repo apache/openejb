@@ -176,7 +176,7 @@ public class Assembler extends AssemblerTool implements org.openejb.spi.Assemble
      * This method leverage the other assemble and apply methods which
      * can be used independently.
      * 
-     * Assembles and returns the {@link ContainerSystem} using the
+     * Assembles and returns the {@link org.openejb.core.ContainerSystem} using the
      * information from the {@link OpenEjbConfiguration} object passed in.
      * <pre>
      * This method performs the following actions(in order):
@@ -191,11 +191,10 @@ public class Assembler extends AssemblerTool implements org.openejb.spi.Assemble
      * </pre>
      * 
      * @param configInfo
-     * @return 
-     * @exception throws    Exception if there was a problem constructing the ContainerSystem.
+     * @return ContainerSystem 
+     * @exception Exception if there was a problem constructing the ContainerSystem.
      * @exception Exception
      * @see OpenEjbConfiguration
-     * @see org.openejb.ContainerSystem
      */
     public org.openejb.core.ContainerSystem buildContainerSystem(OpenEjbConfiguration configInfo)throws Exception{
 

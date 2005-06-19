@@ -93,7 +93,7 @@
 <OL TYPE="I">
 <B><LI><FONT POINT-SIZE=11>The Reference Implementation (RI) Server</font></B>
     <OL type="A">
-    <B><LI> {@link org.openejb.ri.server.EjbProxyHandler}</B>
+    <B><LI> org.openejb.ri.server.EjbProxyHandler</B>
         <UL type="circle">
         <LI> Serialized and sent along with a Proxy to serve as an EJBHome or EJBObject to a remote client/bean in the network.
         <LI> Handles method invocations by serializing them and sending them over the network to the Ri Server.
@@ -133,8 +133,7 @@
 
 <!-- Put @see and @since tags down here. -->
 @see org.openejb.core.ContainerSystem
-@see org.openejb.core.ContainerManager
-@see org.openejb.core.Container
+@see org.openejb.Container
 @see org.openejb.core.DeploymentInfo
 </body>
 </html>

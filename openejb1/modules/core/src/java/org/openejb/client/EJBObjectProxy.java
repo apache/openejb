@@ -60,14 +60,14 @@ public interface EJBObjectProxy extends Serializable, EJBObject{
      * Returns the EJBObjectImpl acting as handler for
      * this proxy
      * 
-     * @return 
+     * @return EJBObjectHandler
      */
     public EJBObjectHandler getEJBObjectHandler();
 
     /**
      * Write the Handler to the stream.
      * 
-     * @return 
+     * @return Object
      * @exception ObjectStreamException
      */
     public Object writeReplace() throws ObjectStreamException;
@@ -76,7 +76,7 @@ public interface EJBObjectProxy extends Serializable, EJBObject{
      * Read the handler from the stream.  Create a new 
      * EJBObjectProxy with it, return that.
      * 
-     * @return 
+     * @return Object
      * @exception ObjectStreamException
      */
     public Object readResolve()  throws ObjectStreamException;

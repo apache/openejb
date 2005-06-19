@@ -69,7 +69,7 @@ import org.openejb.util.StringUtilities;
  * This class is a utility for the ConfigBean.  It takes care of printing
  * out all the HTML for the bean.
  * 
- * @see org.openejb.webadmin.config.ConfigBean
+ * @see org.openejb.webadmin.main.ConfigBean
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class ConfigHTMLWriter {
@@ -439,9 +439,8 @@ public class ConfigHTMLWriter {
 	 * 
 	 * @see org.openejb.alt.config.sys.Container
 	 * @param body writes the HTML to the browser
-	 * @param container the container to write the contents of
+	 * @param containerData the container to write the contents of
 	 * @param handle the location of the handle file string
-	 * @param index the index of the connector array
 	 */
 	public static void writeContainer(PrintWriter body, ContainerData containerData, String handle) throws IOException {
 		Properties properties = new Properties();

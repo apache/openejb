@@ -54,7 +54,7 @@ import org.openejb.OpenEJBException;
  * This is a stateful session bean which holds deployment information
  * for the web deployment of an EJB. 
  *
- * @see org.openejb.webadmin.deploy.DeployerBean
+ * @see org.openejb.webadmin.main.DeployerBean
  * @author  <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public interface DeployerObject extends EJBObject {

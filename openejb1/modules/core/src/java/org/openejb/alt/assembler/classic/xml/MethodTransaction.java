@@ -58,7 +58,6 @@ import org.w3c.dom.Node;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  * @see org.openejb.alt.assembler.classic.MethodTransactionInfo
- * @see #MethodTransaction.initializeFromDOM
  */
 public class MethodTransaction extends MethodTransactionInfo implements DomObject{
 

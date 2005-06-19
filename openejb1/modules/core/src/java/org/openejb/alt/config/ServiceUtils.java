@@ -137,15 +137,10 @@ import org.openejb.util.Logger;
 import org.openejb.util.Messages;
 
 /**
-
  * Utility methods for reading, writing, and  configuring services
-
  *
-
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
-
  */
-
 public class ServiceUtils {
 
 
@@ -169,25 +164,16 @@ public class ServiceUtils {
 
 
     /**
-
-     *
-
      * org.openejb#Default JDBC Connector
-
+     * <p/>
      * Default JDBC Connector
-
+     * <p/>
      * org.postgresql#JDBCService
-
      *
-
      * @param id
-
-     * @return
-
-     * @exception OpenEJBException
-
+     * @return ServiceProvider
+     * @throws OpenEJBException
      */
-
     public static ServiceProvider getServiceProvider(String id) throws OpenEJBException {
 
         String providerName = null;
@@ -251,21 +237,15 @@ public class ServiceUtils {
     }
 
     /**
-
      * Opens the specified jar file, locates the  service-jar.xml file,
-
+     * <p/>
      * unmarshals it to a java object and returns it. If there is no
-
+     * <p/>
      * service-jar.xml in the jar an exception will be thrown.
-
      *
-
-     * @param jarFile
-
-     * @return
-
-     * @exception OpenEJBException
-
+     * @param providerName
+     * @return ServicesJar
+     * @throws OpenEJBException
      */
 
     public static ServicesJar readServicesJar(String providerName) throws OpenEJBException {

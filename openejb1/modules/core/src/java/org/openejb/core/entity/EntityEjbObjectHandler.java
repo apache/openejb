@@ -150,7 +150,7 @@ public class EntityEjbObjectHandler extends EjbObjectProxyHandler {
      * @param method
      * @param args
      * @param proxy
-     * @return 
+     * @return Object 
      * @exception Throwable
      */
     protected Object isIdentical(Method method, Object[] args, Object proxy) throws Throwable{

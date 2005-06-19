@@ -285,7 +285,7 @@ public class ServiceManager {
      * 
      * @param className
      * 
-     * @return 
+     * @return Class
      * @exception ServiceException
      */
     private Class loadClass(String className) throws ServiceException{
@@ -323,7 +323,7 @@ public class ServiceManager {
      * 
      * @param clazz
      * 
-     * @return 
+     * @return ServerService 
      * @exception ServiceException
      */
     private ServerService instantiateService(Class clazz) throws ServiceException{

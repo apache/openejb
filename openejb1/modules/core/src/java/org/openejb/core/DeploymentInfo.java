@@ -160,9 +160,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * @param componentType
      *                  one of the component type constants defined in org.openejb.DeploymentInfo
      * @exception org.openejb.SystemException
-     * @see org.openejb.ContainerSystem
      * @see org.openejb.Container#getContainerID
-     * @see org.openejb.ContainerManager#getContainerManagerID
      * @see org.openejb.DeploymentInfo#STATEFUL
      * @see org.openejb.DeploymentInfo#STATELESS
      * @see org.openejb.DeploymentInfo#BMP_ENTITY
@@ -317,8 +315,6 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * Gets the id of this bean deployment.
      *
      * @return the id of of this bean deployment
-     * @see ContainerManager#getContainerManagerID() ContainerManager.getContainerManagerID()
-     * @see Container#getContainerManagerID() Container.getContainerManagerID()
      */
     public Object getDeploymentID( ){
         return deploymentId;
@@ -440,11 +436,11 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * Sets the JNDI namespace for the bean's environment.  This will be the ony
      * namespace that the bean will be able to access using the java: URL in the JNDI.
      *
-     * @param the Context of the bean's JNDI environment
+     * @param ctx the Context of the bean's JNDI environment
      * @see javax.naming.Context
      */
-    public void setJndiEnc(javax.naming.Context cntx){
-        jndiContextRoot = cntx;
+    public void setJndiEnc(Context ctx){
+        jndiContextRoot = ctx;
     }
 
     /**
@@ -462,7 +458,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     /**
      * Returns true if the bean deployment allows reenterace.
      * 
-     * @return 
+     * @return boolean
      */
     public boolean isReentrant(){
         return isReentrant;
@@ -495,7 +491,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * 
      * @param businessMethod
      * @param returnValue
-     * @return 
+     * @return Object
      */
     public Object convertIfLocalReference(Method businessMethod, Object returnValue){
         if(returnValue == null || methodsWithRemoteReturnTypes == null)
@@ -539,11 +535,8 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * The mapping is performed at assembly time by the createMethodMap( ) 
      * declared in this class.
      * 
-     * @param interfaceMethod
-     *               the Method of the home or remote interface
+     * @param interfaceMethod the Method of the home or remote interface
      * @return the Method in the bean class that maps to the method specified
-     * @see org.openejb.core.DeploymentInfo.createMethodMap()
-     * @see java.lang.reflect.Method
      */
     public Method getMatchingBeanMethod(Method interfaceMethod){
         Method mthd = (Method)methodMap.get(interfaceMethod);
@@ -596,10 +589,9 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * used to test the caller's membership in a particular role at runtime.
      * <p>
      * 
-     * @param securityRoleReference
-     *               the role used by the bean code; the security-role-ref
+     * @param securityRoleReference the role used by the bean code; the security-role-ref
      * @param physicalRoles
-     * @see #getPhysicalrole
+     * @see #getPhysicalRole(String)
      */
     public void addSecurityRoleReference(String securityRoleReference, String [] physicalRoles){
         securityRoleReferenceMap.put(securityRoleReference, physicalRoles);
@@ -612,11 +604,11 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * @see "javax.ejb.EJBContext"
      */
     public EJBContext getEJBContext( ){
-        if(componentType == this.STATEFUL)
+        if(componentType == STATEFUL)
             return new org.openejb.core.stateful.StatefulContext();
-        else if(componentType == this.STATELESS)
+        else if(componentType == STATELESS)
             return new org.openejb.core.stateless.StatelessContext();
-        else if(componentType == this.BMP_ENTITY || componentType == this.CMP_ENTITY )
+        else if(componentType == BMP_ENTITY || componentType == CMP_ENTITY )
             return new org.openejb.core.entity.EntityContext();
         else
             return null;
@@ -849,7 +841,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
                     Entity beans have a ejbCreate and ejbPostCreate methods with matching 
                     parameters. This code maps that relationship.
                     */
-                    if(this.componentType==this.BMP_ENTITY || this.componentType==this.CMP_ENTITY){
+                    if(this.componentType==BMP_ENTITY || this.componentType==CMP_ENTITY){
                         Method postCreateMethod = beanClass.getMethod("ejbPostCreate",method.getParameterTypes());
                         postCreateMethodMap.put(createMethod,postCreateMethod);
                     }
@@ -859,7 +851,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
                      * method for obtaining the ejbCreate method.
                     */
                 }else if(method.getName().startsWith("find")){
-                    if(this.componentType == this.BMP_ENTITY ){
+                    if(this.componentType == BMP_ENTITY ){
                         // CMP 1.1 beans do not define a find method in the bean class
                         String beanMethodName = "ejbF"+method.getName().substring(1);
                         beanMethod = beanClass.getMethod(beanMethodName,method.getParameterTypes());
@@ -920,7 +912,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     /**
      * Used for stateless session beans only
      * 
-     * @return 
+     * @return Method
      */
     public Method getCreateMethod( ){
         return createMethod;
@@ -929,7 +921,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * Used for entity beans only.
      * 
      * @param createMethod
-     * @return 
+     * @return Method
      */
     public Method getMatchingPostCreateMethod(Method createMethod){
         return (Method)this.postCreateMethodMap.get(createMethod);
@@ -976,7 +968,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
     
     public void setPrimKeyField(String fieldName)
     throws java.lang.NoSuchFieldException{
-        if(componentType == this.CMP_ENTITY){
+        if(componentType == CMP_ENTITY){
             
             primKeyField = beanClass.getField(fieldName);            
         }
@@ -986,7 +978,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * Returns the names of the bean's container-managed fields. Used for
      * container-managed persistence only.
      * 
-     * @return 
+     * @return String[]
      */
     public String [] getCmrFields( ){
         return cmrFields;
@@ -1031,7 +1023,7 @@ public class DeploymentInfo implements org.openejb.DeploymentInfo{
      * </P>
      * 
      * @param queryMethod
-     * @return 
+     * @return String
      */
     public String getQuery(Method queryMethod){
         return (String)queryMethodMap.get(queryMethod);

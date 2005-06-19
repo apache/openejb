@@ -82,7 +82,6 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
      *
      * @param environment
      * @exception NamingException
-     * @see NamingServer
      */
     JNDIContext(Hashtable environment) throws NamingException{
         init( environment );
@@ -111,7 +110,6 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
      *
      * @param environment
      * @exception NamingException
-     * @see NamingServer
      */
     public void init(Hashtable environment) throws NamingException{
     }
@@ -496,7 +494,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
      * Clients are not allowed to add a sub-context to the name space.
      *
      * @param name
-     * @return
+     * @return Context
      * @exception NamingException
      */
     public Context createSubcontext(String name)
@@ -510,7 +508,7 @@ public class JNDIContext implements Serializable, InitialContextFactory, Context
      * Clients are not allowed to add a sub-context to the name space.
      *
      * @param name
-     * @return
+     * @return Context
      * @exception NamingException
      */
     public Context createSubcontext(Name name) throws NamingException {

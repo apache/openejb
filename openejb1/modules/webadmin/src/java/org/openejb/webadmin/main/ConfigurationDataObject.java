@@ -65,7 +65,7 @@ public interface ConfigurationDataObject extends EJBObject {
 	
 	/**
 	 * sets the Openejb object
-	 * @param openejb the openejb object to set
+	 * @param config the openejb object to set
 	 */
 	public void setOpenejb(Openejb config) throws RemoteException;
 }

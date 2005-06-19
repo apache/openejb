@@ -82,7 +82,7 @@ public class StatefulEJBObjectHandler extends EJBObjectHandler {
      * @param method
      * @param args
      * @param proxy
-     * @return 
+     * @return Object
      * @exception Throwable
      */
     protected Object getPrimaryKey(Method method, Object[] args, Object proxy) throws Throwable{
@@ -121,7 +121,7 @@ public class StatefulEJBObjectHandler extends EJBObjectHandler {
      * @param method
      * @param args
      * @param proxy
-     * @return 
+     * @return Object 
      * @exception Throwable
      */
     protected Object isIdentical(Method method, Object[] args, Object proxy) throws Throwable{
@@ -145,7 +145,7 @@ public class StatefulEJBObjectHandler extends EJBObjectHandler {
         
         EJBResponse res = request( req );
   
-        if ( res.getResponseCode() == res.EJB_ERROR ) {
+        if ( EJB_ERROR == res.getResponseCode() ) {
             throw (Throwable)res.getResult();
         }
         

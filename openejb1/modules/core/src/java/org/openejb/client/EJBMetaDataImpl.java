@@ -76,28 +76,24 @@ public class EJBMetaDataImpl implements javax.ejb.EJBMetaData, java.io.Externali
     /**
      * The constant that will be returned from the <code>getComponentType</code>
      * method if this bean is a stateful session bean.
-     * @see #getComponentType
      */
     public static final byte STATEFUL = (byte)6;
 
     /**
      * The constant that will be returned from the <code>getComponentType</code> 
      * method if this bean is a stateless session bean.
-     * @see #getComponentType
      */
     public static final byte STATELESS = (byte)7;
 
     /**
      * The constant that will be returned from the <code>getComponentType</code> 
      * method if this bean is an enitity bean with bean-managed persistence.
-     * @see #getComponentType
      */
     public static final byte BMP_ENTITY = (byte)8;
 
     /**
      * The constant that will be returned from the <code>getComponentType</code> 
      * method if this bean is a enitity bean with container-managed persistence.
-     * @see #getComponentType
      */
     public static final byte CMP_ENTITY = (byte)9;
     
