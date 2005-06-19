@@ -179,7 +179,7 @@ public class ConfigUtils  {
      * openejb-jar.xml in the jar an exception will be thrown.
      * 
      * @param jarFile
-     * @return 
+     * @return OpenejbJar
      * @exception OpenEJBException
      */
     public static OpenejbJar readOpenejbJar(String jarFile) throws OpenEJBException{
@@ -296,7 +296,7 @@ public class ConfigUtils  {
      * OPENJB_HOME/conf/openejb.conf
      * OPENJB_HOME/conf/default.openejb.conf
      * 
-     * @return 
+     * @return String
      */
     public static String searchForConfiguration() throws OpenEJBException{
         return searchForConfiguration(System.getProperty("openejb.configuration"));

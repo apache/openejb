@@ -126,7 +126,7 @@ public class IntraVmHandle implements java.io.Serializable, javax.ejb.HomeHandle
      * If the handle is serialized outside the core container system, we
      * allow the application server to handle it.
      * 
-     * @return 
+     * @return Object 
      * @exception ObjectStreamException
      */
     protected Object writeReplace() throws ObjectStreamException{

@@ -55,7 +55,7 @@ import javax.transaction.TransactionManager;
 
 
 /**
- * Implements the bean's {@link UserTransaction} interface into the
+ * Implements the bean's {@link javax.transaction.UserTransaction} interface into the
  * transaction monitor. A bean should only obtain access to this
  * interface if the transaction is bean managed. This interface
  * prevents the bean from marking the transaction as roll back only

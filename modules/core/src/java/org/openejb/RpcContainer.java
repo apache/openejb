@@ -128,7 +128,7 @@ public interface RpcContainer extends Container{
      * @param callMethod the method to be called on the bean instance
      * @param args the arguments to use when invoking the specified method
      * @param primKey the primary key class of the bean or null if the bean does not need a primary key
-     * @param prncpl 
+     * @param securityIdentity identity
      * @return the result of invoking the specified method on the bean instance
      * @throws OpenEJBException 
      * @see org.openejb.core.stateful.StatefulContainer#invoke StatefulContainer.invoke

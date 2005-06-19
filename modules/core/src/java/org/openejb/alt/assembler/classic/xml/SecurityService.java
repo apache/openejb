@@ -58,7 +58,6 @@ import org.w3c.dom.Node;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
  * @see org.openejb.alt.assembler.classic.SecurityServiceInfo
- * @see #SecurityService.initializeFromDOM
  */
 public class SecurityService extends SecurityServiceInfo implements DomObject{
 

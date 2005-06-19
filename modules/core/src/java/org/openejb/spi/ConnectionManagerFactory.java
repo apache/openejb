@@ -85,10 +85,7 @@ public interface ConnectionManagerFactory {
      * ManagedConnectionFactories, but that is not required.
      * @param name The deployment ID of the connector, which may be used
      *             for logging, etc.
-     * @param properties The deployment properties for this combination of
-     *                   ConnectionManager and ManagedConnectionFactory,
-     *                   which includes things like connection pool
-     *                   parameters.
+     * @param config configuration
      * @param factory The ManagedConnectionFactory to configure a
      *                ConnectionManager for.
      */

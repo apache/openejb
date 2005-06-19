@@ -85,7 +85,7 @@ public class Jdk13InvocationHandler implements java.lang.reflect.InvocationHandl
     /**
      * Returns the InvocationHandler that will receive all the calls on the proxy
      * 
-     * @return 
+     * @return InvocationHandler
      */
     public InvocationHandler getInvocationHandler() {
         return delegate;
@@ -95,7 +95,7 @@ public class Jdk13InvocationHandler implements java.lang.reflect.InvocationHandl
      * Sets the InvocationHandler that will receive all the calls on the proxy
      * 
      * @param handler
-     * @return 
+     * @return InvocationHandler
      */
     public InvocationHandler setInvocationHandler(InvocationHandler handler) {
         InvocationHandler old = delegate;
@@ -110,7 +110,7 @@ public class Jdk13InvocationHandler implements java.lang.reflect.InvocationHandl
      * @param proxy
      * @param method
      * @param args
-     * @return 
+     * @return Object
      * @exception Throwable
      */
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {

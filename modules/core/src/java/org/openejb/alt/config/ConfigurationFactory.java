@@ -1313,7 +1313,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
      *
      * @param service
      * @param defaultName
-     * @return
+     * @return Service
      * @exception OpenEJBException
      */
     public Service initService(Service service, String defaultName, Class type)

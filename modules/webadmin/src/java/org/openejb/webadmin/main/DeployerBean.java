@@ -81,9 +81,10 @@ import org.openejb.util.StringUtilities;
  * This is a stateful session bean which handles the action of deployment for the
  * web administration.
  *
- * @see org.openejb.webadmin.deploy.DeployData
- * @see org.openejb.webadmin.deploy.OQLData
- * @see org.openejb.webadmin.deploy.ReferenceData
+ * @see org.openejb.webadmin.main.DeployData
+ * @see org.openejb.webadmin.main.OQLData
+ * @see org.openejb.webadmin.main.ReferenceData
+ * 
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
  */
 public class DeployerBean implements SessionBean {

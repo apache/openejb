@@ -1,15 +1,6 @@
 package org.openejb.util;
-import java.util.HashMap;
 
-/**
-* This class allows thread-specific storage (TSS) of values by key, so that object are
-* stored by thread identity as well as an application specific key.  This makes it possible 
-* have context sensitive TSS.
-* 
-* @author <a href="richard@monson-haefel.com">Richard Monson-Haefel</a>
-* @version $ $
-* @see org.openejb.core.SharedLocalConnectionManager;
-*/
+import java.util.HashMap;
 
 /*
 * This variation of ThreadLocal accomplishes thread-specific storage by thread as well
@@ -18,7 +9,7 @@ import java.util.HashMap;
 *
 * @see org.openejb.resource.SharedLocalConnectionManager
 * @author <a href="richard@monson-haefel.com">Richard Monson-Haefel</a>
-* @version $ $
+* @version $Rev$ $Id$
 */
 public class HashThreadLocal {
     HashMap keyMap = new HashMap();

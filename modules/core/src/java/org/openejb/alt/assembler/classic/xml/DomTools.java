@@ -88,7 +88,7 @@ public class DomTools{
 
 
 
-    public static Properties readProperties(Node node)throws org.openejb.OpenEJBException{
+    public static Properties readProperties(Node node) {
         Node propertiesElement = getChildElement(node, PROPERTIES);
 
         if(propertiesElement == null) return new Properties();
@@ -124,8 +124,7 @@ public class DomTools{
      * @param node  the node in the DOM containing the child elements needed.
      * @param classType  the subclass of <tt>DomObject</tt> that will parse the data in the child elements.
      * @param elementType   the name of the child element as it appears in the DTD.
-     * @returns an array of the <tt>DomObject</tt> subclasses initialized with the child elements.
-     * @see #initializeFromDOM
+     * @return an array of the <tt>DomObject</tt> subclasses initialized with the child elements.
      * @see org.w3c.dom.Node
      */
     protected static DomObject[] collectChildElementsByType(Node node, Class classType, String elementType) throws OpenEJBException{
@@ -172,8 +171,7 @@ public class DomTools{
      * @param node  the node in the DOM containing the child elements needed.
      * @param classType  the subclass of <tt>DomObject</tt> that will parse the data in the child elements.
      * @param elementType   the name of the child element as it appears in the DTD.
-     * @returns an <tt>DomObject</tt> subclass of type <tt>classType</tt> initialized with the child element.
-     * @see #initializeFromDOM
+     * @return an <tt>DomObject</tt> subclass of type <tt>classType</tt> initialized with the child element.
      * @see org.w3c.dom.Node
      */
     protected static DomObject collectChildElementByType(Node node, Class classType, String elementType) throws OpenEJBException{
@@ -219,9 +217,9 @@ public class DomTools{
      *
      * @param node  the node in the DOM containing the child element.
      * @param elementType   the name of the child element as it appears in the DTD.
-     * @returns an array of <tt>String</tt> containing the PCDATA of the child elements.
+     * @return an array of <tt>String</tt> containing the PCDATA of the child elements.
      */
-    protected static String[] getChildElementsPCData(Node node, String elementType) throws OpenEJBException{
+    protected static String[] getChildElementsPCData(Node node, String elementType) {
 
         if (debug){/*--------------------------------- * Debug Block * ------*/
             debugRecursionDepth++;
@@ -264,9 +262,9 @@ public class DomTools{
      *
      * @param node  the node in the DOM containing the child element.
      * @param elementType   the name of the child element as it appears in the DTD.
-     * @returns the PCDATA of the child elements.
+     * @return the PCDATA of the child elements.
      */
-    protected static String getChildElementPCData(Node node, String elementType) throws OpenEJBException{
+    protected static String getChildElementPCData(Node node, String elementType) {
 
         if (debug){/*--------------------------------- * Debug Block * ------*/
             debugRecursionDepth++;
@@ -300,9 +298,9 @@ public class DomTools{
      * Returns the PCDATA of the <tt>node</tt> passed in.
      *
      * @param node  the node in the DOM containing the PCDATA.
-     * @returns the PCDATA of the node.
+     * @return the PCDATA of the node.
      */
-    protected static String getElementPCData(Node node) throws OpenEJBException{
+    protected static String getElementPCData(Node node) {
         Node child = node.getFirstChild();
         if (child == null || child.getNodeType() != Node.TEXT_NODE) return null;
 
@@ -319,7 +317,7 @@ public class DomTools{
      * Returns the named attributes of the <tt>node</tt> passed in.
      *
      * @param node  the node in the DOM containing the attributes.
-     * @returns a Properties object containing the attributes of the node.
+     * @return a Properties object containing the attributes of the node.
      */
     protected static Properties getElementAttributes(Node node){
         NamedNodeMap nodeMap = node.getAttributes();
@@ -337,9 +335,9 @@ public class DomTools{
      *
      * @param node  the node in the DOM containing the PCDATA.
      * @param childName  the element name of the desired child element as defined in the DTD.
-     * @returns the desired child element. OR null if the child element is not present
+     * @return the desired child element. OR null if the child element is not present
      */
-    protected static Node getChildElement(Node node, String childName) throws OpenEJBException{
+    protected static Node getChildElement(Node node, String childName) {
 
         NodeList list = node.getChildNodes();
         Node child = null;
@@ -360,9 +358,9 @@ public class DomTools{
      *
      * @param node  the node in the DOM containing the PCDATA.
      * @param childName  the element name of the desired child element as defined in the DTD.
-     * @returns an array of <tt>Node</tt> containing all the desired child elements.
+     * @return an array of <tt>Node</tt> containing all the desired child elements.
      */
-    protected static Node[] getChildElements(Node node, String childName) throws OpenEJBException{
+    protected static Node[] getChildElements(Node node, String childName) {
 
         NodeList list = node.getChildNodes();
         Node child = null;

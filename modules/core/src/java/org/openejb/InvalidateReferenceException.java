@@ -96,7 +96,7 @@ public class InvalidateReferenceException extends ApplicationException{
     /**
      * Constructs a InvalidateReferenceException with the source of the problem that occurred.
      * 
-     * @param e
+     * @param t
      */
     public InvalidateReferenceException(Throwable t){
         super(t);

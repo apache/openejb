@@ -90,7 +90,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      * 
      * @param info
      * 
-     * @return 
+     * @return Handle
      */
     public javax.ejb.Handle getHandle(ProxyInfo info) {
         CallContext call = CallContext.getCallContext();
@@ -103,7 +103,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      * 
      * @param info
      * 
-     * @return 
+     * @return HomeHandle
      */
     public javax.ejb.HomeHandle getHomeHandle(ProxyInfo info) {
         CallContext call = CallContext.getCallContext();
@@ -116,7 +116,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      * 
      * @param info
      * 
-     * @return 
+     * @return EJBObject
      */
     public javax.ejb.EJBObject getEJBObject(ProxyInfo info) {
         CallContext call = CallContext.getCallContext();
@@ -129,7 +129,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      * 
      * @param info
      * 
-     * @return 
+     * @return EJBHome
      */
     public javax.ejb.EJBHome getEJBHome(ProxyInfo info) {
         CallContext call = CallContext.getCallContext();
@@ -143,7 +143,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      * @param call
      * @param info
      * 
-     * @return 
+     * @return EJBMetaData
      * @see org.openejb.client.EJBMetaDataImpl
      */
     protected javax.ejb.EJBMetaData _getEJBMetaData(CallContext call, ProxyInfo info) {
@@ -167,7 +167,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      * @param call
      * @param info
      * 
-     * @return 
+     * @return Handle
      * @see org.openejb.client.EJBObjectHandle
      */
     protected javax.ejb.Handle _getHandle(CallContext call, ProxyInfo info) {
@@ -202,7 +202,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      * @param call
      * @param info
      * 
-     * @return 
+     * @return HomeHandle
      * @see org.openejb.client.EJBHomeHandle
      */
     protected javax.ejb.HomeHandle _getHomeHandle(CallContext call, ProxyInfo info) {
@@ -236,7 +236,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      * @param call
      * @param info
      * 
-     * @return 
+     * @return EJBObject
      * @see org.openejb.client.EJBObjectHandler
      */
     protected javax.ejb.EJBObject _getEJBObject(CallContext call, ProxyInfo info) {
@@ -271,7 +271,7 @@ class ClientObjectFactory implements org.openejb.spi.ApplicationServer {
      * @param call
      * @param info
      * 
-     * @return 
+     * @return EJBHome 
      * @see org.openejb.client.EJBHomeHandler
      */
     protected javax.ejb.EJBHome _getEJBHome(CallContext call, ProxyInfo info) {

@@ -114,7 +114,7 @@ public class EJBHomeProxyHandle implements Externalizable{
 
     /**
      *
-     * @return
+     * @return Object
      * @exception ObjectStreamException
      */
     private Object readResolve() throws ObjectStreamException{

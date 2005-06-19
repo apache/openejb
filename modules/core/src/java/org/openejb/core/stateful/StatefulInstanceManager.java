@@ -185,9 +185,7 @@ public class StatefulInstanceManager {
      * 
      * @param primaryKey the primary key of the bean instance
      * @return the ancillary state object
-     * @exception OpenEJBException
-     *                   if there is a problem retrieving the ancillary state object
-     * @see SessionKey
+     * @exception OpenEJBException if there is a problem retrieving the ancillary state object
      */
     public Object getAncillaryState(Object primaryKey)
     throws OpenEJBException{
@@ -205,7 +203,6 @@ public class StatefulInstanceManager {
      *                   the new ancillary state of the bean instance in this instance manager
      * @exception OpenEJBException
      *                   if there is a problem setting the ancillary state object
-     * @see SessionKey
      */
     public void setAncillaryState(Object primaryKey, Object ancillaryState)
     throws OpenEJBException{
@@ -224,7 +221,6 @@ public class StatefulInstanceManager {
      * @return an new instance of the bean class
      * @exception OpenEJBException
      *                   if there is a problem initializing the bean class
-     * @see SessionKey
      */
     public EnterpriseBean newInstance(Object primaryKey, Class beanClass)
     throws OpenEJBException{
@@ -241,7 +237,6 @@ public class StatefulInstanceManager {
      * @return an new instance of the bean class
      * @exception OpenEJBException
      *                   if there is a problem initializing the bean class
-     * @see SessionKey
      */
     public EnterpriseBean newInstance(Object primaryKey, Object ancillaryState, Class beanClass)
     throws OpenEJBException{
@@ -293,7 +288,6 @@ public class StatefulInstanceManager {
      *                   if there is a problem retreiving the instance from the pool
      * @exception InvalidateReferenceException
      *                   if the instance has timed out
-     * @see SessionKey
      */
     public SessionBean obtainInstance(Object primaryKey, ThreadContext callContext)throws OpenEJBException{
         if ( primaryKey == null ) {
@@ -424,7 +418,6 @@ public class StatefulInstanceManager {
      * @param bean       an instance of the bean class
      * @exception OpenEJBException
      *                   if there is a problem adding the instance to the pool
-     * @see SessionKey
      */
     public void poolInstance(Object primaryKey, EnterpriseBean bean)
     throws OpenEJBException{
@@ -463,11 +456,9 @@ public class StatefulInstanceManager {
      * this instance manager's pool.  The primaryKey will be of type SessionKey
      * 
      * @param primaryKey the unique key that can identify the instance to be freed
-     * @return 
-     * @exception OpenEJBException
-     *                   if there is a problem removing the bean instance from the pool
+     * @return EnterpriseBean
+     * @exception SystemException if there is a problem removing the bean instance from the pool
      * @exception org.openejb.SystemException
-     * @see Sessionkey
      */
     public EnterpriseBean freeInstance(Object primaryKey)
     throws org.openejb.SystemException{
@@ -548,7 +539,7 @@ public class StatefulInstanceManager {
      * 
      * @param entry
      * @param t
-     * @return 
+     * @return InvalidateReferenceException
      * @exception org.openejb.SystemException
      */
     protected org.openejb.InvalidateReferenceException destroy(BeanEntry entry, Exception t) 
@@ -582,7 +573,7 @@ public class StatefulInstanceManager {
      * Used by get/setAncillaryState( ) methods
      * 
      * @param primaryKey
-     * @return 
+     * @return BeanEntry 
      * @exception OpenEJBException
      */
     protected BeanEntry getBeanEntry(Object primaryKey)

@@ -210,7 +210,7 @@ public class IntraVmArtifact implements Externalizable {
      * In the readResolve method, the original object instance is retrieved
      * from the List and returned instead.
      * 
-     * @return 
+     * @return Object 
      * @exception ObjectStreamException
      */
     private Object readResolve() throws ObjectStreamException{

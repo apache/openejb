@@ -162,7 +162,6 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
      * 
      * @return an array of DeploymentInfo objects
      * @see org.openejb.DeploymentInfo
-     * @see org.openejb.ContainerSystem#deployments() ContainerSystem.deployments()
      */
     public DeploymentInfo [] deployments(){
         return (DeploymentInfo [])deploymentRegistry.values().toArray(new DeploymentInfo[deploymentRegistry.size()]);
@@ -175,7 +174,6 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
      * @param deploymentID
      * @return the DeploymentInfo object associated with the bean.
      * @see org.openejb.DeploymentInfo
-     * @see org.openejb.ContainerSystem#getDeploymentInfo(Object) ContainerSystem.getDeploymentInfo
      * @see org.openejb.DeploymentInfo#getDeploymentID()
      */
     public DeploymentInfo getDeploymentInfo(Object deploymentID){
@@ -194,7 +192,6 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
      * Gets the id of this container.
      *
      * @return the id of this container.
-     * @see org.openejb.DeploymentInfo#getContainerID() DeploymentInfo.getContainerID()
      */
     public Object getContainerID(){
         return containerID;
@@ -202,7 +199,7 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
 
     /**
      * Adds a bean to this container.
-     * @param deploymentId the deployment id of the bean to deploy.
+     * @param deploymentID the deployment id of the bean to deploy.
      * @param info the DeploymentInfo object associated with the bean.
      * @throws org.openejb.OpenEJBException
      *      Occurs when the container is not able to deploy the bean for some
@@ -221,10 +218,9 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
      * @param callMethod the method to be called on the bean instance
      * @param args the arguments to use when invoking the specified method
      * @param primKey the primary key class of the bean or null if the bean does not need a primary key
-     * @param prncpl
+     * @param securityIdentity identity
      * @return the result of invoking the specified method on the bean instance
      * @throws org.openejb.OpenEJBException
-     * @see org.openejb.Container#invoke Container.invoke
      * @see org.openejb.core.stateful.StatefulContainer#invoke StatefulContainer.invoke
      */
     public Object invoke(Object deployID, Method callMethod,Object [] args,Object primKey, Object securityIdentity)    throws org.openejb.OpenEJBException{
@@ -534,7 +530,7 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
      * @param callMethod
      * @param args
      * @param callContext
-     * @return 
+     * @return Object
      * @exception org.openejb.OpenEJBException
      */
     protected Object findMethod(Method callMethod, Object [] args, ThreadContext callContext)
@@ -583,7 +579,7 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
      * @param callMethod
      * @param args
      * @param callContext
-     * @return 
+     * @return Object 
      * @exception org.openejb.OpenEJBException
      */
     protected Object homeMethod(Method callMethod, Object [] args, ThreadContext callContext)
@@ -607,8 +603,6 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
 
         EntityBean bean = null;
         txPolicy.beforeInvoke( bean, txContext );
-
-        Object returnValue = null;
 
         try{
             // this is nessary to ensure that the ejbLoad method is execute in the context of the business method
@@ -636,10 +630,8 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
 
 
     /**
-     * 
      * @param bean
      * @param threadContext
-     * @exception org.openejb.SystemException
      */
     public void discardInstance(EnterpriseBean bean, ThreadContext threadContext) {
         if ( bean != null ) {

@@ -193,7 +193,7 @@ public class IntraVmMetaData implements javax.ejb.EJBMetaData, java.io.Serializa
      * java.lang.RuntimeException.  
      * UnsupportedOperationException is a java.lang.RuntimeException
      * 
-     * @return 
+     * @return Class
      */
     public Class getPrimaryKeyClass( ) {
         if ( type == ENTITY )
@@ -206,7 +206,7 @@ public class IntraVmMetaData implements javax.ejb.EJBMetaData, java.io.Serializa
      * Returns true if this MetaData represents a bean 
      * deployment of type SessionBean.
      * 
-     * @return 
+     * @return boolean
      */
     public boolean isSession( ) {
         return(type == STATEFUL || type ==STATELESS);
@@ -216,7 +216,7 @@ public class IntraVmMetaData implements javax.ejb.EJBMetaData, java.io.Serializa
      * Returns true if this MetaData represents a bean
      * deployment that is a stateless SessionBean.
      * 
-     * @return 
+     * @return boolean
      */
     public boolean isStatelessSession() {
         return type == STATELESS;
@@ -250,7 +250,7 @@ public class IntraVmMetaData implements javax.ejb.EJBMetaData, java.io.Serializa
      * If the meta data is serialized outside the core container system,
      * we allow the application server to handle it.
      * 
-     * @return 
+     * @return Object 
      * @exception ObjectStreamException
      */
     protected Object writeReplace() throws ObjectStreamException{

@@ -60,14 +60,14 @@ public interface EJBHomeProxy extends Serializable, EJBHome{
      * Returns the Handler acting as handler for
      * this proxy
      * 
-     * @return 
+     * @return EJBHomeHandler
      */
     public EJBHomeHandler getEJBHomeHandler();
 
     /**
      * Write the Handler to the stream.
      * 
-     * @return 
+     * @return Object
      * @exception ObjectStreamException
      */
     public Object writeReplace() throws ObjectStreamException;
@@ -76,7 +76,7 @@ public interface EJBHomeProxy extends Serializable, EJBHome{
      * Read the handler from the stream.  Create a new 
      * EJBHomeProxy with it, return that.
      * 
-     * @return 
+     * @return Object
      * @exception ObjectStreamException
      */
     public Object readResolve()  throws ObjectStreamException;

@@ -83,27 +83,23 @@ import java.util.Properties;
  * @see org.openejb.alt.assembler.classic.Assembler
  * @see org.openejb.alt.assembler.classic.OpenEjbConfiguration
  * @see org.openejb.alt.assembler.classic.OpenEjbConfigurationFactory
- * @see org.openejb.xmlconf.DomOpenEjbConfigurationFactory
  */
 public abstract class ContainerInfo extends InfoObject{
     
     /**
      * The container type constant for a bean managed entity bean container, as 
      * well as CMP entity container.
-     * @see org.openejb.xmlconf.EntityContainer
      */
     public static final int ENTITY_CONTAINER = 0;
 
 
     /**
      * The container type constant for a stateful session bean container.
-     * @see org.openejb.xmlconf.StatefulSessionContainer
      */
     public static final int STATEFUL_SESSION_CONTAINER = 2;
 
     /**
      * The container type constant for a stateless session bean container.
-     * @see org.openejb.xmlconf.StateflessSessionContainer
      */
     public static final int STATELESS_SESSION_CONTAINER = 3;
 

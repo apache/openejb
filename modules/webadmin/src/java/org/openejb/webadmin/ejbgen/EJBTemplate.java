@@ -213,8 +213,7 @@ public abstract class EJBTemplate
 	 *  and files that are XML Files.
 	 * @param filename the filename in String datatype
 	 * @param code the code to be written to the filename
-	 * @see writeClass()
-	**/ 
+	 */ 
 	public void createXML(String filename, String code)
 	{
 		String location = sloc;

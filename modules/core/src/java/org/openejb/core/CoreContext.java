@@ -64,67 +64,39 @@ public abstract class CoreContext implements java.io.Serializable {
     //==========================
     // method categories
     //
-    /**
-     * TODO: Add comments
-     */
+
     public final static byte SECURITY_METHOD = (byte)1;
-    /**
-     * TODO: Add comments
-     */
+
     public final static byte USER_TRANSACTION_METHOD = (byte)2;
-    /**
-     * TODO: Add comments
-     */
+
     public final static byte ROLLBACK_METHOD = (byte)3;
-    /**
-     * TODO: Add comments
-     */
+
     public final static byte EJBOBJECT_METHOD = (byte)4;
-    /**
-     * TODO: Add comments
-     */
+
     public final static byte EJBHOME_METHOD = (byte)5;
     //
     // method categories
     //==========================
 
-    /**
-     * TODO: Add comments
-     */
+
     CoreUserTransaction userTransaction;
 
 
-    /**
-     * TODO: Add comments
-     */
+
     public CoreContext() {
         userTransaction = new CoreUserTransaction(OpenEJB.getTransactionManager());
     }
 
-    /**
-     * TODO: Add comments
-     * 
-     * @param methodCategory
-     * @exception IllegalStateException
-     */
+
     public abstract void checkBeanState(byte methodCategory) throws IllegalStateException;
 
-    /**
-     * TODO: Add comments
-     * 
-     * @return 
-     */
+
     public java.security.Principal getCallerPrincipal() {
         checkBeanState(SECURITY_METHOD);
         Object securityIdentity = ThreadContext.getThreadContext().getSecurityIdentity();
         return(java.security.Principal)OpenEJB.getSecurityService().translateTo(securityIdentity, java.security.Principal.class);
     }
-    /**
-     * TODO: Add comments
-     * 
-     * @param roleName
-     * @return 
-     */
+
     public boolean isCallerInRole(java.lang.String roleName) {
         checkBeanState(SECURITY_METHOD);
         ThreadContext threadContext = ThreadContext.getThreadContext();
@@ -133,11 +105,7 @@ public abstract class CoreContext implements java.io.Serializable {
         Object caller = threadContext.getSecurityIdentity();
         return  OpenEJB.getSecurityService().isCallerAuthorized(caller,physicalRoles);
     }
-    /**
-     * TODO: Add comments
-     * 
-     * @return 
-     */
+
     public EJBHome getEJBHome() {
         checkBeanState(EJBHOME_METHOD);
 
@@ -146,11 +114,7 @@ public abstract class CoreContext implements java.io.Serializable {
 
         return di.getEJBHome();
     }
-    /**
-     * TODO: Add comments
-     * 
-     * @return 
-     */
+
     public javax.ejb.EJBObject getEJBObject() {
         checkBeanState(EJBOBJECT_METHOD);
 
@@ -195,11 +159,7 @@ public abstract class CoreContext implements java.io.Serializable {
     public TimerService getTimerService() {
         return null; //TODO: implement this
     }
-    /**
-     * TODO: Add comments
-     * 
-     * @return 
-     */
+
     public Object getPrimaryKey( ) {
         /*
         * This method is only declared in the EntityContext interface and is therefor
@@ -211,11 +171,7 @@ public abstract class CoreContext implements java.io.Serializable {
         ThreadContext threadContext = ThreadContext.getThreadContext();
         return threadContext.getPrimaryKey();
     }
-    /**
-     * TODO: Add comments
-     * 
-     * @return 
-     */
+
     public boolean getRollbackOnly() {
 
         ThreadContext threadContext = ThreadContext.getThreadContext();
@@ -236,9 +192,7 @@ public abstract class CoreContext implements java.io.Serializable {
             throw new RuntimeException("Transaction service has thrown a SystemException");
         }
     }
-    /**
-     * TODO: Add comments
-     */
+
     public void setRollbackOnly() {
         ThreadContext threadContext = ThreadContext.getThreadContext();
         org.openejb.DeploymentInfo di = threadContext.getDeploymentInfo();
@@ -254,11 +208,7 @@ public abstract class CoreContext implements java.io.Serializable {
         }
 
     }
-    /**
-     * TODO: Add comments
-     * 
-     * @return 
-     */
+
     public javax.transaction.UserTransaction getUserTransaction() {
 
         ThreadContext threadContext = ThreadContext.getThreadContext();
@@ -274,39 +224,17 @@ public abstract class CoreContext implements java.io.Serializable {
     /* UNSUPPORTED DEPRICATED METHODS                     */
     /*----------------------------------------------------*/
 
-    /**
-     * TODO: Add comments
-     * 
-     * @param role
-     * @return 
-     */
     public boolean isCallerInRole(java.security.Identity role) {
         throw new java.lang.UnsupportedOperationException();
     }
-    /**
-     * TODO: Add comments
-     * 
-     * @return 
-     */
+
     public java.security.Identity getCallerIdentity() {
         throw new java.lang.UnsupportedOperationException();
     }
-    /**
-     * TODO: Add comments
-     * 
-     * @return 
-     */
+
     public java.util.Properties getEnvironment() {
         throw new java.lang.UnsupportedOperationException();
     }
 
-    /**
-     * TODO: Add comments
-     * 
-     * @param container
-     * @param pk
-     * @param depID
-     * @return 
-     */
     protected abstract EjbObjectProxyHandler newEjbObjectHandler(RpcContainer container, Object pk, Object depID);
 }

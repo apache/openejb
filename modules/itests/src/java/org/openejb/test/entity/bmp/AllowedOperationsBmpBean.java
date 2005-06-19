@@ -92,10 +92,8 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
     /**
      * Maps to BasicBmpHome.findEmptyCollection
      * 
-     * @param primaryKey
-     * @return 
+     * @return Collection
      * @exception javax.ejb.FinderException
-     * @see BasicBmpHome.sum
      */
     public java.util.Collection ejbFindEmptyCollection()
     throws javax.ejb.FinderException, java.rmi.RemoteException {
@@ -117,9 +115,8 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * Maps to BasicBmpHome.findByPrimaryKey
      * 
      * @param primaryKey
-     * @return 
+     * @return Integer
      * @exception javax.ejb.FinderException
-     * @see BasicBmpHome.sum
      */
     public Integer ejbFindByPrimaryKey(Integer primaryKey)
     throws javax.ejb.FinderException{
@@ -131,9 +128,8 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * Maps to BasicBmpHome.create
      * 
      * @param name
-     * @return 
+     * @return Integer
      * @exception javax.ejb.CreateException
-     * @see BasicBmpHome.create
      */
     public Integer ejbCreate(String name)
     throws javax.ejb.CreateException{
@@ -158,8 +154,7 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
     /**
      * Maps to BasicBmpObject.businessMethod
      * 
-     * @return 
-     * @see BasicBmpObject.businessMethod
+     * @return String
      */
     public String businessMethod(String text){
         testAllowedOperations("businessMethod");
@@ -193,8 +188,7 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * Returns a report of the bean's
      * runtime permissions
      * 
-     * @return 
-     * @see BasicBmpObject.getPermissionsReport
+     * @return null
      */
     public Properties getPermissionsReport(){
         /* TO DO: */
@@ -208,8 +202,7 @@ public class AllowedOperationsBmpBean implements javax.ejb.EntityBean{
      * for one of the bean's methods.
      * 
      * @param methodName The method for which to get the allowed opperations report
-     * @return 
-     * @see BasicBmpObject.getAllowedOperationsReport
+     * @return OperationsPolicy 
      */
     public OperationsPolicy getAllowedOperationsReport(String methodName){
         return (OperationsPolicy) allowedOperationsTable.get(methodName);

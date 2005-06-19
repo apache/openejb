@@ -150,7 +150,6 @@ public interface DeploymentInfo {
      * Gets the type of this bean component.
      * Will return a <code>STATEFUL</code>, <code>STATELESS</code>, <code>BMP_ENTITY</code> or <code>CMP_ENTITY</code>.
      *
-     * @param        
      * @return Returns <code>STATEFUL</code>, <code>STATELESS</code>, <code>BMP_ENTITY</code> or <code>CMP_ENTITY</code>.
      * @see #STATEFUL
      * @see #STATELESS
@@ -203,8 +202,6 @@ public interface DeploymentInfo {
      * Gets the id of this bean deployment.
      *
      * @return the id of of this bean deployment
-     * @see ContainerManager#getContainerManagerID() ContainerManager.getContainerManagerID()
-     * @see Container#getContainerManagerID() Container.getContainerManagerID()
      */
     public Object getDeploymentID( );
 
@@ -222,7 +219,6 @@ public interface DeploymentInfo {
      * Used primarily by Servers integrating OpenEJB into their platform.  Aids in implementing
      * the bean's home interface.
      *
-     * @param        
      * @return a Class object of the bean's home interface
      * @see javax.ejb.EJBHome
      */

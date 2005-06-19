@@ -353,7 +353,7 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
      * serialized to the stream in place of the IntraVmProxy.
      * 
      * @param proxy
-     * @return 
+     * @return Object 
      * @exception ObjectStreamException
      */
     protected Object _writeReplace(Object proxy) throws ObjectStreamException{
@@ -406,7 +406,7 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
      * @return Returns null
      * @exception Throwable
      * @see javax.ejb.EJBHome
-     * @see javax.ejb.EJBHome#remove
+     * @see javax.ejb.EJBHome#remove(javax.ejb.Handle)
      */
     protected Object removeWithHandle(Method method, Object[] args, Object proxy) throws Throwable{
 
@@ -457,7 +457,7 @@ public abstract class EjbHomeProxyHandler extends BaseEjbProxyHandler {
      * @return Returns null
      * @exception Throwable
      * @see javax.ejb.EJBHome
-     * @see javax.ejb.EJBHome#remove
+     * @see javax.ejb.EJBHome#remove(javax.ejb.Handle)
      */
     protected abstract Object removeByPrimaryKey(Method method, Object[] args, Object proxy) throws Throwable;
 }

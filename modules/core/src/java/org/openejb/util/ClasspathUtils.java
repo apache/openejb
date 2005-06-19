@@ -120,8 +120,7 @@ public class ClasspathUtils {
     /**
      * Appends the jar to the classpath of the classloader passed in.
      *
-     * @param url
-     *            the URL to be added to the search path of URLs
+     * @param jar the URL to be added to the search path of URLs
      */
     public static void addJarToSystemPath(String jar) throws Exception {
         addJarToSystemPath(FileUtils.getHome().getFile(jar));
@@ -130,8 +129,7 @@ public class ClasspathUtils {
     /**
      * Appends the jar to the classpath of the classloader passed in.
      *
-     * @param url
-     *            the URL to be added to the search path of URLs
+     * @param jar the URL to be added to the search path of URLs
      */
     public static void addJarToSystemPath(final File jar) throws Exception {
         addJarToSystemPath(jar.toURL());
@@ -140,8 +138,7 @@ public class ClasspathUtils {
     /**
      * Appends the jar to the classpath of the classloader passed in.
      *
-     * @param url
-     *            the URL to be added to the search path of URLs
+     * @param jar the URL to be added to the search path of URLs
      */
     public static void addJarToSystemPath(final URL jar) throws Exception {
     }
@@ -454,9 +451,7 @@ public class ClasspathUtils {
          * Tomcat integration, but doesn't require us to include or ship any
          * Tomcat libraries.
          *
-         * @param clazz
-         * @return @exception
-         *         Exception
+         * @return URLClassLoader.addURL method instance
          */
         private java.lang.reflect.Method getAddRepositoryMethod() throws Exception {
             if (addRepositoryMethod == null) {

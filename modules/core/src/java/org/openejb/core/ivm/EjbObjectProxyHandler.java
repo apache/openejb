@@ -225,7 +225,7 @@ public abstract class EjbObjectProxyHandler extends BaseEjbProxyHandler {
      * serialized to the stream in place of the IntraVmProxy.
      * 
      * @param proxy
-     * @return 
+     * @return Object 
      * @exception ObjectStreamException
      */
     protected Object _writeReplace(Object proxy) throws ObjectStreamException{

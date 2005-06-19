@@ -181,7 +181,7 @@ public class HttpResponseImpl implements HttpResponse {
     }
 
     /** Sets the response string to be sent to the browser
-     * @param responseString the response string
+     * @return the response string
      */    
     public String getResponseString(){
         return responseString;

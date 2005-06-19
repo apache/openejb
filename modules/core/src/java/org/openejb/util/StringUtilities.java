@@ -98,7 +98,7 @@ public class StringUtilities {
 	/**
 	 * Checks a String to see if it's blank,
 	 * and if so returns null (the opposite of <code>nullToBlankString</code>.
-	 * @param stringToCheckForNull - the string to check for blank
+	 * @param stringToCheckForBlank the string to check for blank
 	 * @return the checked string or null
 	 */
 	public static String blankToNullString(String stringToCheckForBlank) {

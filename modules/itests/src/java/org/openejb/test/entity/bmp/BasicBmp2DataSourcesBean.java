@@ -97,11 +97,9 @@ public class BasicBmp2DataSourcesBean implements javax.ejb.EntityBean{
     
     /**
      * Maps to BasicBmp2DataSourcesHome.findEmptyCollection
-     * 
-     * @param primaryKey
-     * @return 
+     *
+     * @return Collection
      * @exception javax.ejb.FinderException
-     * @see BasicBmp2DataSourcesHome.sum
      */
     public java.util.Collection ejbFindEmptyCollection()
     throws javax.ejb.FinderException, java.rmi.RemoteException {
@@ -112,9 +110,8 @@ public class BasicBmp2DataSourcesBean implements javax.ejb.EntityBean{
      * Maps to BasicBmp2DataSourcesHome.findByPrimaryKey
      * 
      * @param primaryKey
-     * @return 
+     * @return Integer
      * @exception javax.ejb.FinderException
-     * @see BasicBmp2DataSourcesHome.sum
      */
     public Integer ejbFindByPrimaryKey(Integer primaryKey)
     throws javax.ejb.FinderException{
@@ -140,9 +137,8 @@ public class BasicBmp2DataSourcesBean implements javax.ejb.EntityBean{
      * Maps to BasicBmp2DataSourcesHome.create
      * 
      * @param name
-     * @return 
+     * @return Integer
      * @exception javax.ejb.CreateException
-     * @see BasicBmp2DataSourcesHome.create
      */
     public Integer ejbCreate(String name)
     throws javax.ejb.CreateException{
@@ -209,8 +205,7 @@ public class BasicBmp2DataSourcesBean implements javax.ejb.EntityBean{
     /**
      * Maps to BasicBmp2DataSourcesObject.businessMethod
      * 
-     * @return 
-     * @see BasicBmp2DataSourcesObject.businessMethod
+     * @return String
      */
     public String businessMethod(String text){
         testAllowedOperations("businessMethod");
@@ -225,8 +220,7 @@ public class BasicBmp2DataSourcesBean implements javax.ejb.EntityBean{
      * Returns a report of the bean's
      * runtime permissions
      * 
-     * @return 
-     * @see BasicBmp2DataSourcesObject.getPermissionsReport
+     * @return null
      */
     public Properties getPermissionsReport(){
         /* TO DO: */
@@ -240,8 +234,7 @@ public class BasicBmp2DataSourcesBean implements javax.ejb.EntityBean{
      * for one of the bean's methods.
      * 
      * @param methodName The method for which to get the allowed opperations report
-     * @return 
-     * @see BasicBmp2DataSourcesObject.getAllowedOperationsReport
+     * @return OperationPolicy 
      */
     public OperationsPolicy getAllowedOperationsReport(String methodName){
         return (OperationsPolicy) allowedOperationsTable.get(methodName);

@@ -77,8 +77,6 @@ public class Logger {
     protected Category       _logger  = null;
     public    I18N           i18n     = null;
 
-    private static Properties props;
-
     public static void initialize(Properties props)
     {
         Log4jConfigUtils log4j = new Logger.Log4jConfigUtils(props);
@@ -89,8 +87,8 @@ public class Logger {
     /**
      * Returns a shared instance of Logger.
      *
-     * @param class   the class whose name log4j category will use
-     * @param name    the name log4j category will use
+     * @param category the class whose name log4j category will use
+     * @param resourceName the name log4j category will use
      *
      * @return Instance of logger.
      */
@@ -128,9 +126,9 @@ public class Logger {
      * Protected constructor.  Users must invoke getInstance() to
      * an instance of Logger.
      *
-     * @param name   the name of the log4j category to use
+     * @param resourceName the name of the log4j category to use
      *
-     * @see getInstance()
+     * @see I18N
      */
     protected Logger( String resourceName ) {
 	i18n = new I18N( resourceName );
@@ -1641,7 +1639,7 @@ public class Logger {
          * Replace log4j file-related settings to reflect OpenEJB configuration
          * (openejb.home and openejb.base)
          *
-         * @param props log4j initialization properties
+         * @param log4jProps log4j initialization properties
          * @return properties with log4j File properties changed
          */
         public Properties filterProperties(Properties log4jProps) {

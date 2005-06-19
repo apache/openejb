@@ -102,9 +102,7 @@ public interface ContainerSystem {
      * @param id the id of the Container
      * @return the Container associated with the id
      * @see Container
-     * @see ContainerManager#getContainer(Object) ContainerManager.getContainer
      * @see Container#getContainerID() Container.getContainerID()
-     * @see DeploymentInfo#getContainerID() DeploymentInfo.getContainerID()
      */
     public Container getContainer(Object id);
 
@@ -113,7 +111,6 @@ public interface ContainerSystem {
      *
      * @return an array of all the Containers
      * @see Container
-     * @see ContainerManager#containers() ContainerManager.containers()
      */
     public Container [] containers( );
 

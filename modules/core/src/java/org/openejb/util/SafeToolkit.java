@@ -75,8 +75,8 @@ public class SafeToolkit{
      * Attempts to find and load the specified class.
      *
      * @param className the name of the class to be loaded.
-     * @returns the specified class.
-     * @throws OpenEJBExcption if the class cannot be found.
+     * @return the specified class.
+     * @throws OpenEJBException if the class cannot be found.
      */
     public Class forName(String className) throws OpenEJBException {
         Class clazz = null;
@@ -96,8 +96,8 @@ public class SafeToolkit{
      *
      * @param className the name of the class to be loaded.
      * @param codebase the codebase to load the class from.
-     * @returns the specified class.
-     * @throws OpenEJBExcption if the class cannot be found.
+     * @return the specified class.
+     * @throws OpenEJBException if the class cannot be found.
      */
     public Class forName(String className, String codebase) throws OpenEJBException{
         //ClassLoader cl = Class.class.getClassLoader();
@@ -132,7 +132,7 @@ public class SafeToolkit{
      * Attempts to find and load the specified class then instaniate it.
      *
      * @param className the name of the class to be instantiated.
-     * @returns an instance of the specified class.
+     * @return an instance of the specified class.
      * @throws OpenEJBException if the class cannot be found or is not accessible .
      */
     public Object newInstance(String className) throws OpenEJBException{
@@ -143,7 +143,7 @@ public class SafeToolkit{
      * Attempts to find and load the specified class then instaniate it.
      *
      * @param className the name of the class to be instantiated.
-     * @returns an instance of the specified class.
+     * @return an instance of the specified class.
      * @throws OpenEJBException if the class cannot be found or is not accessible .
      */
     public Object newInstance(String className, String codebase) throws OpenEJBException{
@@ -153,8 +153,8 @@ public class SafeToolkit{
     /**
      * Attempts to instaniate the specified class.
      *
-     * @param className the name of the class to be instantiated.
-     * @returns an instance of the specified class.
+     * @param clazz the name of the class to be instantiated.
+     * @return an instance of the specified class.
      * @throws OpenEJBException if the class is not accessible .
      */
     public Object newInstance(Class clazz) throws OpenEJBException{
@@ -187,8 +187,8 @@ public class SafeToolkit{
     /**
      * Returns a new SafeProperties instance dedicated to this toolkit.
      *
-     * @param className the name of the class to be instantiated.
-     * @returns a new SafeProperties instance.
+     * @param props properties
+     * @return a new SafeProperties instance.
      * @throws OpenEJBException the properties object passed in is null.
      */
     public SafeProperties getSafeProperties(Properties props) throws OpenEJBException{
@@ -200,10 +200,9 @@ public class SafeToolkit{
      * codebase.  If the codebase is null, the bootstrap classloader
      * is used.
      *
-     * @param className
+     * @param className class name
      * @param codebase
-     * @return
-     * @exception ClassNotFoundException
+     * @return class object
      * @exception OpenEJBException
      */
     public static Class loadClass(String className, String codebase) throws OpenEJBException {
@@ -229,7 +228,7 @@ public class SafeToolkit{
      * classloader is used if codebase is null.
      *
      * @param codebase
-     * @return
+     * @return ClassLoader
      * @exception OpenEJBException
      */
     protected static ClassLoader getCodebaseClassLoader(String codebase) throws OpenEJBException{
@@ -264,7 +263,7 @@ public class SafeToolkit{
      * classloader is used if codebase is null.
      *
      * @param codebase
-     * @return
+     * @return ClassLoader
      * @exception OpenEJBException
      */
     protected static ClassLoader getClassLoader(String codebase) throws OpenEJBException{
@@ -314,8 +313,7 @@ public class SafeToolkit{
      *
      * @param className
      * @param codebase
-     * @return
-     * @exception ClassNotFoundException
+     * @return Class
      * @exception OpenEJBException
      */
     public static Class loadTempClass( String className, String codebase ) throws OpenEJBException {
@@ -345,7 +343,7 @@ public class SafeToolkit{
      * classloader is used if codebase is null.
      *
      * @param codebase
-     * @return
+     * @return ClassLoader
      * @exception OpenEJBException
      */
     protected static ClassLoader getCodebaseTempClassLoader( String codebase ) throws OpenEJBException {
@@ -381,7 +379,7 @@ public class SafeToolkit{
      * classloader is used if codebase is null.
      *
      * @param codebase
-     * @return
+     * @return ClassLoader
      * @exception OpenEJBException
      */
     protected static ClassLoader getTempClassLoader( String codebase ) throws OpenEJBException {

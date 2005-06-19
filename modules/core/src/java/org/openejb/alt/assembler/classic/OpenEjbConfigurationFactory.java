@@ -85,7 +85,6 @@ import org.openejb.OpenEJBException;
  * @see org.openejb.alt.assembler.classic.Assembler
  * @see org.openejb.alt.assembler.classic.OpenEjbConfiguration
  * @see org.openejb.alt.assembler.classic.OpenEjbConfigurationFactory
- * @see org.openejb.alt.xmlconf.DomOpenEjbConfigurationFactory
  */
 public interface OpenEjbConfigurationFactory {
     

@@ -61,11 +61,8 @@ import org.openejb.util.SafeToolkit;
 
 
 /**
-
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
-
  */
-
 public class CheckMethods implements ValidationRule {
 
 
@@ -244,7 +241,7 @@ public class CheckMethods implements ValidationRule {
      * @param b
      * @param bean
      * @param home
-     * @return
+     * @return boolean
      */
     public boolean check_createMethodsAreImplemented(Bean b, Class bean, Class home){
         boolean result = true;
@@ -299,7 +296,7 @@ public class CheckMethods implements ValidationRule {
      * @param b
      * @param bean
      * @param home
-     * @return
+     * @return boolean
      */
     public boolean check_postCreateMethodsAreImplemented(Bean b, Class bean, Class home){
         boolean result = true;
@@ -344,7 +341,7 @@ public class CheckMethods implements ValidationRule {
      * @param b
      * @param bean
      * @param home
-     * @return
+     * @return boolean
      */
     public boolean check_unusedCreateMethods(Bean b, Class bean, Class home){
         boolean result = true;

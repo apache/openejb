@@ -253,7 +253,7 @@ public class OpenEJBErrorHandler {
      *
      * @param systemLocation        replaces {0} in the error message.
      * @param className             replaces {1} in the error message.
-     * @param codeBase              replaces {2} in the error message.
+     * @param codebase              replaces {2} in the error message.
      * @param exceptionClassName    replaces {3} in the error message.
      * @param message               replaces {4} in the error message.
      */

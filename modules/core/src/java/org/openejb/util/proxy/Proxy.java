@@ -51,7 +51,7 @@ import java.lang.reflect.Method;
 
 
 /**
- * Superclass for dynamically generated proxyies.
+ * Superclass for dynamically generated proxies.
  *
  * This class implements convenience methods that allow us to
  * generate proxies with considerably less byte-code.
@@ -80,14 +80,12 @@ public abstract class Proxy implements java.io.Serializable {
     /**
      * Used as the Class array in the Class.getMethod( String methodName, Class[] argTypes )
      * method when the interface method does not define any arguments.
-     * @see java.lang.Class.getMethod
      */
     protected static final Class[] NO_ARGS_C = new Class[0];
 
     /**
      * Used as the Object array in the Method.invoke( Object obj, Object[] args )
      * method when the interface method does not define any arguments.
-     * @see java.lang.reflect.Method.invoke
      */
     protected static final Object[] NO_ARGS_O = new Object[0];
 

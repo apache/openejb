@@ -70,7 +70,7 @@ public class SocketConnectionFactory implements ConnectionFactory{
     /**
      * Get a connection from the factory
      * 
-     * @return 
+     * @return Connection 
      * @exception java.io.IOException
      */
     public Connection getConnection(ServerMetaData server) throws java.io.IOException {

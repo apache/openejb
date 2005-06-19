@@ -99,15 +99,8 @@ import org.openejb.util.FastThreadLocal;
 
 
 /**
-
- * TODO: Add comment
-
- *
-
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
-
  */
-
 public class CallContext {
 
 
@@ -176,7 +169,7 @@ public class CallContext {
 
      *
 
-     * @return
+     * @return DeploymentInfo
 
      */
 
@@ -212,7 +205,7 @@ public class CallContext {
 
      *
 
-     * @return
+     * @return EJBRequest
 
      */
 
@@ -278,7 +271,7 @@ public class CallContext {
 
      *
 
-     * @return
+     * @return CallContext
 
      */
 

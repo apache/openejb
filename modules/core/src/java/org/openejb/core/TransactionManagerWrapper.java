@@ -144,7 +144,7 @@ public class TransactionManagerWrapper  implements TransactionManager {
      * Delegates the call to the Transaction Manager 
      * passed into the constructor.
      * 
-     * @return 
+     * @return int
      * @exception javax.transaction.SystemException
      */
     public int getStatus()throws javax.transaction.SystemException{
@@ -154,7 +154,7 @@ public class TransactionManagerWrapper  implements TransactionManager {
      * Delegates the call to the Transaction Manager 
      * passed into the constructor.
      * 
-     * @return 
+     * @return Transaction
      * @exception javax.transaction.SystemException
      */
     public Transaction getTransaction( )throws javax.transaction.SystemException{
@@ -179,7 +179,7 @@ public class TransactionManagerWrapper  implements TransactionManager {
      * Delegates the call to the Transaction Manager 
      * passed into the constructor.
      * 
-     * @return 
+     * @return Transaction
      * @exception javax.transaction.SystemException
      */
     public Transaction suspend( )throws javax.transaction.SystemException{
@@ -218,7 +218,7 @@ public class TransactionManagerWrapper  implements TransactionManager {
      * Returns the wrapper for a given transaction
      * 
      * @param tx
-     * @return 
+     * @return Transaction
      * @exception javax.transaction.SystemException
      */
     private Transaction getTxWrapper(Transaction tx)throws javax.transaction.SystemException{
@@ -256,13 +256,9 @@ public class TransactionManagerWrapper  implements TransactionManager {
          * The Transaction Manager's transaction instance.
          */
         private final Transaction transaction;
-        /**
-         * TODO: Add comment
-         */
+
         private final Vector registeredSynchronizations;
-        /**
-         * TODO: Add comment
-         */
+
         final public static int MAX_PRIORITY_LEVEL = 3;
 
         private TransactionWrapper(Transaction tx) {
@@ -280,12 +276,6 @@ public class TransactionManagerWrapper  implements TransactionManager {
             return transaction;
         }  
 
-        /**
-         * TODO: Add comment
-         * 
-         * @param obj
-         * @return 
-         */
         public boolean equals(java.lang.Object obj) {
             if(obj != null && obj instanceof TransactionWrapper) {
                 return transaction.equals( ((TransactionWrapper)obj).getTransaction() );
@@ -302,46 +292,19 @@ public class TransactionManagerWrapper  implements TransactionManager {
             return transaction.toString();
         } 
 
-        /**
-         * TODO: Add comment
-         * 
-         * @exception javax.transaction.SystemException
-         * @exception javax.transaction.RollbackException
-         * @exception javax.transaction.HeuristicRollbackException
-         * @exception javax.transaction.HeuristicMixedException
-         */
-        public void commit() 
+        public void commit()
         throws javax.transaction.SystemException, javax.transaction.RollbackException, javax.transaction.HeuristicRollbackException, javax.transaction.HeuristicMixedException {
             transaction.commit();
         }
-        /**
-         * TODO: Add comment
-         * 
-         * @param xaRes
-         * @param flag
-         * @return 
-         * @exception javax.transaction.SystemException
-         */
+
         public boolean delistResource(XAResource xaRes, int flag)throws javax.transaction.SystemException {
             return transaction.delistResource(xaRes,flag);
         }
-        /**
-         * TODO: Add comment
-         * 
-         * @param xaRes
-         * @return 
-         * @exception javax.transaction.SystemException
-         * @exception javax.transaction.RollbackException
-         */
+
         public boolean enlistResource(XAResource xaRes)throws javax.transaction.SystemException, javax.transaction.RollbackException {
             return transaction.enlistResource(xaRes);
         }
-        /**
-         * TODO: Add comment
-         * 
-         * @return 
-         * @exception javax.transaction.SystemException
-         */
+
         public int getStatus()throws javax.transaction.SystemException{
             return transaction.getStatus();
         }
@@ -364,27 +327,17 @@ public class TransactionManagerWrapper  implements TransactionManager {
          * for the same object will be ignored.
          * @param sync
          * @param priority
-         * @exception javax.transaction.SystemException
-         * @exception javax.transaction.RollbackException
          */
         private void registerSynchronization(Synchronization sync, int priority) {
             if (!registeredSynchronizations.contains(sync)) {
                 registeredSynchronizations.addElement(sync);
             }
         }
-        /**
-         * TODO: Add comment
-         * 
-         * @exception javax.transaction.SystemException
-         */
+
         public void rollback()throws javax.transaction.SystemException{
             transaction.rollback();
         }
-        /**
-         * TODO: Add comment
-         * 
-         * @exception javax.transaction.SystemException
-         */
+
         public void setRollbackOnly() throws javax.transaction.SystemException{
             transaction.setRollbackOnly();
         }
@@ -403,11 +356,7 @@ public class TransactionManagerWrapper  implements TransactionManager {
                 }
             }
         }
-        /**
-         * TODO: Add comment
-         * 
-         * @param status
-         */
+
         public void afterCompletion(int status) {
             int count = registeredSynchronizations.size();
             for ( int i=0; i<count; ++i ) {

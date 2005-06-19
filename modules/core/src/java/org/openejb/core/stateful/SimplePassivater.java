@@ -122,9 +122,9 @@ public class SimplePassivater implements PassivationStrategy {
     /**
      *
      * @param primaryKey
-     * @return
+     * @return object
      * @exception org.openejb.SystemException
-     *                   If there is an problem retreiving the instance from the .ser file.
+     *                   If there is an problem retrieving the instance from the .ser file.
      */
     public Object activate(Object primaryKey) throws org.openejb.SystemException{
 
