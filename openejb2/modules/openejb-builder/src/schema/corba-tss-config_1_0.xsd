@@ -265,22 +265,27 @@
     </xsd:complexType>
 
     <xsd:complexType name="ITTPrincipalNameGSSUPType">
+        <!--        <xsd:complexContent>-->
+        <!--            <xsd:restriction base="xsd:anyType"/>-->
+        <!--        </xsd:complexContent>-->
         <xsd:sequence/>
-<!--            <xsd:restriction base="xsd:anyType"/>-->
-<!--        </xsd:complexContent>-->
         <xsd:attribute name="realm-name"  type="xsd:string"/>
     </xsd:complexType>
 
     <xsd:complexType name="ITTDistinguishedNameType">
-        <xsd:complexContent>
-            <xsd:restriction base="xsd:anyType"/>
-        </xsd:complexContent>
+<!--        <xsd:complexContent>-->
+<!--            <xsd:restriction base="xsd:anyType"/>-->
+<!--        </xsd:complexContent>-->
+        <xsd:sequence/>
+        <xsd:attribute name="realm-name"  type="xsd:string"/>
     </xsd:complexType>
 
     <xsd:complexType name="ITTX509CertChainType">
-        <xsd:complexContent>
-            <xsd:restriction base="xsd:anyType"/>
-        </xsd:complexContent>
+<!--        <xsd:complexContent>-->
+<!--            <xsd:restriction base="xsd:anyType"/>-->
+<!--        </xsd:complexContent>-->
+        <xsd:sequence/>
+        <xsd:attribute name="realm-name"  type="xsd:string"/>
     </xsd:complexType>
 
 </xsd:schema>

@@ -47,11 +47,20 @@
  */
 package org.openejb.corba.security.config.tss;
 
+import java.security.Principal;
 import javax.security.auth.Subject;
+import javax.security.auth.x500.X500Principal;
 
+import org.apache.geronimo.security.PrimaryRealmPrincipal;
+import org.apache.geronimo.security.RealmPrincipal;
+import org.omg.CORBA.Any;
 import org.omg.CSI.ITTDistinguishedName;
 import org.omg.CSI.IdentityToken;
+import org.omg.CSI.X501DistinguishedNameHelper;
+import org.omg.IOP.CodecPackage.FormatMismatch;
+import org.omg.IOP.CodecPackage.TypeMismatch;
 import org.openejb.corba.security.SASException;
+import org.openejb.corba.util.Util;
 
 
 /**
@@ -60,6 +69,11 @@ import org.openejb.corba.security.SASException;
 public class TSSITTDistinguishedName extends TSSSASIdentityToken {
 
     public static final String OID = "";
+    private final String realmName;
+
+    public TSSITTDistinguishedName(String realmName) {
+        this.realmName = realmName;
+    }
 
     public short getType() {
         return ITTDistinguishedName.value;
@@ -70,6 +84,23 @@ public class TSSITTDistinguishedName extends TSSSASIdentityToken {
     }
 
     public Subject check(IdentityToken identityToken) throws SASException {
-        throw new SASException(1, new Exception("NYI -- distinguished name identity token"));
+        byte[] distinguishedNameToken = identityToken.dn();
+        Any any = null;
+        try {
+            any = Util.getCodec().decode_value(distinguishedNameToken, X501DistinguishedNameHelper.type());
+        } catch (FormatMismatch formatMismatch) {
+            throw new SASException(1, formatMismatch);
+        } catch (TypeMismatch typeMismatch) {
+            throw new SASException(1, typeMismatch);
+        }
+        byte[] principalNameBytes = X501DistinguishedNameHelper.extract(any);
+        X500Principal x500Principal = new X500Principal(principalNameBytes);
+        Principal realmPrincipal = new RealmPrincipal(realmName, x500Principal);
+        Principal primaryRealmPrincipal = new PrimaryRealmPrincipal(realmName, x500Principal);
+        Subject subject = new Subject();
+        subject.getPrincipals().add(x500Principal);
+        subject.getPrincipals().add(realmPrincipal);
+        subject.getPrincipals().add(primaryRealmPrincipal);
+        return subject;
     }
 }
