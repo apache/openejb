@@ -60,6 +60,11 @@ import org.openejb.corba.security.SASException;
 public class TSSITTX509CertChain extends TSSSASIdentityToken {
 
     public static final String OID = "";
+    private final String realmName;
+
+    public TSSITTX509CertChain(String realmName) {
+        this.realmName = realmName;
+    }
 
     public short getType() {
         return ITTX509CertChain.value;

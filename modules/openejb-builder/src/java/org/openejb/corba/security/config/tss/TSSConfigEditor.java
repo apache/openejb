@@ -223,10 +223,12 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
                 sasMechConfig.addIdentityToken(new TSSITTPrincipalNameGSSUP(realmName));
             }
             if (identityTokenTypes.isSetITTDistinguishedName()) {
-                sasMechConfig.addIdentityToken(new TSSITTDistinguishedName());
+                String realmName = identityTokenTypes.getITTDistinguishedName().getRealmName().trim();
+                sasMechConfig.addIdentityToken(new TSSITTDistinguishedName(realmName));
             }
             if (identityTokenTypes.isSetITTX509CertChain()) {
-                sasMechConfig.addIdentityToken(new TSSITTX509CertChain());
+                String realmName = identityTokenTypes.getITTX509CertChain().getRealmName().trim();
+                sasMechConfig.addIdentityToken(new TSSITTX509CertChain(realmName));
             }
         }
 
