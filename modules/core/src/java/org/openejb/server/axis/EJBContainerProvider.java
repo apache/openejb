@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.Vector;
 import javax.xml.rpc.handler.soap.SOAPMessageContext;
 import javax.xml.rpc.holders.IntHolder;
+import javax.xml.rpc.soap.SOAPFaultException;
 import javax.xml.soap.SOAPMessage;
 
 import org.apache.axis.AxisFault;
@@ -63,6 +64,7 @@ import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.message.RPCElement;
 import org.apache.axis.message.RPCParam;
 import org.apache.axis.message.SOAPEnvelope;
+import org.apache.axis.message.SOAPFault;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.axis.utils.JavaUtils;
 import org.apache.geronimo.core.service.InvocationKey;
@@ -124,7 +126,7 @@ public class EJBContainerProvider extends RPCProvider {
      *
      * @see org.apache.axis.providers.java.RPCProvider
      */
-    public class AxisRpcInvocation implements EJBInvocation {
+    private class AxisRpcInvocation implements EJBInvocation {
         private int index;
 
         // Valid in server-side interceptor stack once an instance has been identified
@@ -221,10 +223,35 @@ public class EJBContainerProvider extends RPCProvider {
         }
 
         public InvocationResult createResult(Object object) {
+            messageContext.setPastPivot(true);
+            try {
+                Message requestMessage = messageContext.getRequestMessage();
+                SOAPEnvelope requestEnvelope = requestMessage.getSOAPEnvelope();
+                RPCElement requestBody = getBody(requestEnvelope, messageContext);
+
+                Message responseMessage = messageContext.getResponseMessage();
+                SOAPEnvelope responseEnvelope = responseMessage.getSOAPEnvelope();
+                ServiceDesc serviceDescription = messageContext.getService().getServiceDescription();
+                RPCElement responseBody = createResponseBody(requestBody, messageContext, operation, serviceDescription, object, responseEnvelope, getInOutParams());
+
+                responseEnvelope.addBodyElement(responseBody);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed while creating response message body", e);
+            }
+
             return new SimpleInvocationResult(true, object);
         }
 
         public InvocationResult createExceptionResult(Exception exception) {
+            messageContext.setPastPivot(true);
+
+            SOAPFault fault = new SOAPFault(new AxisFault("Server", "Server Error", null, null));
+            SOAPEnvelope envelope = new SOAPEnvelope();
+            envelope.addBodyElement(fault);
+            Message message = new Message(envelope);
+            message.setMessageType(Message.RESPONSE);
+            messageContext.setResponseMessage(message);
+
             return new SimpleInvocationResult(false, exception);
         }
 
