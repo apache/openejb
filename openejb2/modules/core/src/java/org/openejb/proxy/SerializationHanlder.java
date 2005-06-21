@@ -51,7 +51,10 @@ import java.io.ObjectOutputStream;
 import java.io.ByteArrayInputStream;
 import java.rmi.MarshalledObject;
 
+import javax.xml.rpc.Stub;
+
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
+import org.omg.CORBA.ORB;
 
 
 public class SerializationHanlder {
@@ -76,7 +79,16 @@ public class SerializationHanlder {
 
     public static void copyArgs(Object[] objects) throws IOException, ClassNotFoundException {
         for (int i = 0; i < objects.length; i++) {
-            objects[i] = copyObj(objects[i]);
+            Object originalObject = objects[i];
+            Object copy = copyObj(originalObject);
+            // connect a coppied stub to the same orb as the original stub
+            if (copy instanceof javax.rmi.CORBA.Stub) {
+                ORB orb = ((javax.rmi.CORBA.Stub)originalObject)._orb();
+                if (orb != null) {
+                    ((javax.rmi.CORBA.Stub)copy).connect(orb);
+                }
+            }
+            objects[i] = copy;
         }
     }
 

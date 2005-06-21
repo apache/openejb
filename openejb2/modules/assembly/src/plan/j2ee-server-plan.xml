@@ -435,19 +435,31 @@ by the server.
         </reference>
     </gbean>
 
-    <gbean name="OpenORBStubGenerator" class="org.openejb.corba.compiler.OpenORBStubGenerator">
+<!--    <gbean name="OpenORBStubGenerator" class="org.openejb.corba.compiler.OpenORBStubGenerator">-->
+<!--        <attribute name="saveStubCode">true</attribute>-->
+<!---->
+<!--        <reference name="Compiler">-->
+<!--            <name>AntCompiler</name>-->
+<!--        </reference>-->
+<!--    </gbean>-->
+
+    <gbean name="PortableStubGenerator" class="org.openejb.corba.compiler.PortableStubGenerator">
+        <attribute name="saveStubCode">true</attribute>
+
         <reference name="Compiler">
             <name>AntCompiler</name>
         </reference>
     </gbean>
 
     <gbean name="OpenORBStubClassLoader" class="org.openejb.corba.util.OpenORBStubClassLoader">
+        <attribute name="keepCache">true</attribute>
         <reference name="ServerInfo">
             <module>org/apache/geronimo/System</module>
             <name>ServerInfo</name>
         </reference>
         <reference name="StubGenerator">
-            <name>OpenORBStubGenerator</name>
+<!--            <name>OpenORBStubGenerator</name>-->
+            <name>PortableStubGenerator</name>
         </reference>
         <attribute name="cacheDir">var/caches</attribute>
     </gbean>
