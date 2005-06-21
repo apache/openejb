@@ -125,7 +125,7 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
         } else if (mechType.isSetSECIOP()) {
             throw new PropertyEditorException("SECIOP processing not implemented");
         } else {
-            result.setTransport_mech(new CSSSSLTransportConfig());
+            result.setTransport_mech(new CSSNULLTransportConfig());
         }
 
         if (mechType.isSetGSSUPStatic()) {
