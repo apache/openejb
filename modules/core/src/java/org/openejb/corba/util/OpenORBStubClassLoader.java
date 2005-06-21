@@ -82,12 +82,21 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
     private final File cacheDir;
     private final Map parentToNameToLoaderMap = new HashMap();
     private final Map nameToClassMap = new HashMap();
+    private boolean keepCache;
     private static Random random = new Random(System.currentTimeMillis());
 
     public OpenORBStubClassLoader(ServerInfo serverInfo, StubGenerator stubGenerator, String cacheDir) {
         this.stubGenerator = stubGenerator;
         this.cacheDir = new File(serverInfo.resolvePath(cacheDir), "CORBA_STUB_CACHE");
         this.state = STOPPED;
+    }
+
+    public boolean isKeepCache() {
+        return keepCache;
+    }
+
+    public void setKeepCache(boolean keepCache) {
+        this.keepCache = keepCache;
     }
 
     public synchronized Class loadClass(String name) throws ClassNotFoundException {
@@ -197,7 +206,9 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
     }
 
     public synchronized void doStart() throws Exception {
-        FileUtils.recursiveDelete(cacheDir);
+        if (!keepCache) {
+            FileUtils.recursiveDelete(cacheDir);
+        }
         cacheDir.mkdirs();
 
         UtilDelegateImpl.setClassLoader(this);
@@ -213,7 +224,9 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
         parentToNameToLoaderMap.clear();
         nameToClassMap.clear();
 
-        FileUtils.recursiveDelete(cacheDir);
+        if (!keepCache) {
+            FileUtils.recursiveDelete(cacheDir);
+        }
 
         log.info("Stopped");
     }
@@ -221,7 +234,9 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
     public synchronized void doFail() {
         this.state = STOPPED;
 
-        FileUtils.recursiveDelete(cacheDir);
+        if (!keepCache) {
+            FileUtils.recursiveDelete(cacheDir);
+        }
 
         log.info("Failed");
     }
@@ -233,6 +248,7 @@ public class OpenORBStubClassLoader extends ClassLoader implements GBeanLifecycl
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(OpenORBStubClassLoader.class, NameFactory.CORBA_SERVICE);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("StubGenerator", StubGenerator.class, NameFactory.CORBA_SERVICE);
+        infoFactory.addAttribute("keepCache", boolean.class, true);
         infoFactory.addAttribute("cacheDir", String.class, true);
         infoFactory.addOperation("loadClass", new Class[]{String.class});
         infoFactory.setConstructor(new String[]{"ServerInfo", "StubGenerator", "cacheDir"});
