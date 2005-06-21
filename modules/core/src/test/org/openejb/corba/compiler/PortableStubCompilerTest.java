@@ -61,29 +61,29 @@ import org.apache.geronimo.interop.generator.GenOptions;
 public class PortableStubCompilerTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
-    public void testStubCompiler() throws Exception {
-        GenOptions genOptions = new GenOptions();
-        new File("target/stubs").mkdirs();
-        genOptions.setClasspath("target/classes");
-        genOptions.setCompile(false);
-        genOptions.setGenSrcDir("target/stubs");
-        genOptions.setGenerate(true);
-        genOptions.setInterfaces(Arrays.asList(new String[]{
-            Simple.class.getName(),
-            Foo.class.getName(),
-            Special.class.getName(),
-            All.class.getName()
-        }));
-        genOptions.setLoadclass(true);
-        genOptions.setOverwrite(true);
-        genOptions.setSimpleIdl(false);
-        genOptions.setVerbose(true);
-
-        ClassLoader classLoader = getClass().getClassLoader();
-        PortableStubCompiler stubCompiler = new PortableStubCompiler(genOptions, classLoader);
-
-        stubCompiler.generate();
-    }
+//    public void testStubCompiler() throws Exception {
+//        GenOptions genOptions = new GenOptions();
+//        new File("target/stubs").mkdirs();
+//        genOptions.setClasspath("target/classes");
+//        genOptions.setCompile(false);
+//        genOptions.setGenSrcDir("target/stubs");
+//        genOptions.setGenerate(true);
+//        genOptions.setInterfaces(Arrays.asList(new String[]{
+//            Simple.class.getName(),
+//            Foo.class.getName(),
+//            Special.class.getName(),
+//            All.class.getName()
+//        }));
+//        genOptions.setLoadclass(true);
+//        genOptions.setOverwrite(true);
+//        genOptions.setSimpleIdl(false);
+//        genOptions.setVerbose(true);
+//
+//        ClassLoader classLoader = getClass().getClassLoader();
+//        PortableStubCompiler stubCompiler = new PortableStubCompiler(genOptions, classLoader);
+//
+//        stubCompiler.generate();
+//    }
 
     public void testBasicNameMangler() throws Exception {
         Properties nameManglerProperties = new Properties();
