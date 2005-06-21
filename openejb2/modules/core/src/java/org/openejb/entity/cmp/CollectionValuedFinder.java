@@ -79,9 +79,9 @@ public class CollectionValuedFinder extends CMPFinder {
             Collection results = new ArrayList();
             CollectionResultHandler handler = new CollectionResultHandler(commandView.getView()[0]);
             commandView.getQueryCommand().execute(handler, new Row(invocation.getArguments()), results);
-            return new SimpleInvocationResult(true, results);
+            return invocation.createResult(results);
         } catch (QueryException e) {
-            return new SimpleInvocationResult(false, new FinderException(e.getMessage()).initCause(e));
+            return invocation.createExceptionResult((Exception)new FinderException(e.getMessage()).initCause(e));
         }
     }
 

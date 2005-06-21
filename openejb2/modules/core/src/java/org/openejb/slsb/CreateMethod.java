@@ -62,9 +62,9 @@ public class CreateMethod implements VirtualOperation, Serializable {
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
         StatelessInstanceContext ctx = (StatelessInstanceContext) invocation.getEJBInstanceContext();
         if (invocation.getType().isLocal()) {
-            return new SimpleInvocationResult(true, ctx.getProxyFactory().getEJBLocalObject(null));
+            return invocation.createResult(ctx.getProxyFactory().getEJBLocalObject(null));
         } else {
-            return new SimpleInvocationResult(true, ctx.getProxyFactory().getEJBObject(null));
+            return invocation.createResult(ctx.getProxyFactory().getEJBObject(null));
         }
     }
 }

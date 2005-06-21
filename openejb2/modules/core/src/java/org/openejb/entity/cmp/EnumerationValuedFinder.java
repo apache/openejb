@@ -80,9 +80,9 @@ public class EnumerationValuedFinder extends CMPFinder {
             List results = new ArrayList();
             CollectionResultHandler handler = new CollectionResultHandler(commandView.getView()[0]);
             commandView.getQueryCommand().execute(handler, new Row(invocation.getArguments()), results);
-            return new SimpleInvocationResult(true, Collections.enumeration(results));
+            return invocation.createResult(Collections.enumeration(results));
         } catch (QueryException e) {
-            return new SimpleInvocationResult(false, new FinderException(e.getMessage()).initCause(e));
+            return invocation.createExceptionResult((Exception)new FinderException(e.getMessage()).initCause(e));
         }
     }
 

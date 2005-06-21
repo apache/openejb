@@ -150,7 +150,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             Throwable t = ite.getTargetException();
             if (t instanceof Exception && t instanceof RuntimeException == false) {
                 // checked exception - which we simply include in the result
-                return new SimpleInvocationResult(false, t);
+                return invocation.createExceptionResult((Exception)t);
             } else {
                 // unchecked Exception - just throw it to indicate an abnormal completion
                 throw t;
@@ -195,7 +195,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             }
         } catch (DuplicateIdentityException e) {
             Object pk = primaryKeyTransform.getDomainIdentity(globalId);
-            return new SimpleInvocationResult(false, new DuplicateKeyException("ID=" + pk));
+            return invocation.createExceptionResult((Exception)new DuplicateKeyException("ID=" + pk));
         }
         
         ctx.setCacheRow(cacheRow);
@@ -215,7 +215,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             if (t instanceof Exception && t instanceof RuntimeException == false) {
                 // checked exception - which we simply include in the result
                 // we do not force rollback, that is up to the application
-                return new SimpleInvocationResult(false, t);
+                return invocation.createExceptionResult((Exception)t);
             } else {
                 // unchecked Exception - just throw it to indicate an abnormal completion
                 throw t;
@@ -227,7 +227,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
 
         // return a new proxy
         IdentityTransform transform = invocation.getType().isLocal() ? localProxyTransform : remoteProxyTransform;
-        return new SimpleInvocationResult(true, transform.getDomainIdentity(globalId));
+        return invocation.createResult(transform.getDomainIdentity(globalId));
     }
 
     private Object readResolve() {

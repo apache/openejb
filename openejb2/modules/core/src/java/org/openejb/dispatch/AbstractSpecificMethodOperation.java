@@ -78,11 +78,11 @@ public abstract class AbstractSpecificMethodOperation implements VirtualOperatio
         try {
             ctx.setOperation(operation);
             try {
-                return new SimpleInvocationResult(true, doOperation(ctx.getInstance(), invocation.getArguments()));
+                return invocation.createResult(doOperation(ctx.getInstance(), invocation.getArguments()));
             } catch (Throwable t) {
                 if (t instanceof Exception && t instanceof RuntimeException == false) {
                     // checked exception - which we simply include in the result
-                    return new SimpleInvocationResult(false, t);
+                    return invocation.createExceptionResult((Exception)t);
                 } else {
                     // unchecked Exception - just throw it to indicate an abnormal completion
                     throw t;

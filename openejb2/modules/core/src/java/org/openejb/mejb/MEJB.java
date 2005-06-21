@@ -222,15 +222,15 @@ public class MEJB extends org.apache.geronimo.j2ee.mejb.MEJB implements EJBConta
         EJBInvocation ejbInvocation = (EJBInvocation) invocation;
         int methodIndex = methodMap[ejbInvocation.getMethodIndex()];
         if (methodIndex == CREATE_INDEX) {
-            return new SimpleInvocationResult(true, getEjbObject(null));
+            return ejbInvocation.createResult(getEjbObject(null));
         }
         try {
-            return new SimpleInvocationResult(true, fastClass.invoke(methodIndex, this, ejbInvocation.getArguments()));
+            return ejbInvocation.createResult(fastClass.invoke(methodIndex, this, ejbInvocation.getArguments()));
         } catch (InvocationTargetException ite) {
             Throwable t = ite.getTargetException();
             if (t instanceof Exception && t instanceof RuntimeException == false) {
                 // checked exception - which we simply include in the result
-                return new SimpleInvocationResult(false, t);
+                return ejbInvocation.createExceptionResult((Exception)t);
             } else {
                 // unchecked Exception - just throw it to indicate an abnormal completion
                 throw t;
