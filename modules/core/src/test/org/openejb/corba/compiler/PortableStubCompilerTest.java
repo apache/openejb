@@ -68,7 +68,12 @@ public class PortableStubCompilerTest extends TestCase {
         genOptions.setCompile(false);
         genOptions.setGenSrcDir("target/stubs");
         genOptions.setGenerate(true);
-        genOptions.setInterfaces(Arrays.asList(new String[]{Simple.class.getName(), Foo.class.getName(), Special.class.getName()}));
+        genOptions.setInterfaces(Arrays.asList(new String[]{
+            Simple.class.getName(),
+            Foo.class.getName(),
+            Special.class.getName(),
+            All.class.getName()
+        }));
         genOptions.setLoadclass(true);
         genOptions.setOverwrite(true);
         genOptions.setSimpleIdl(false);

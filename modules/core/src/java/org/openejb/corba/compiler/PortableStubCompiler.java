@@ -48,6 +48,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.rmi.RemoteException;
+import java.rmi.Remote;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,6 +58,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 import org.apache.geronimo.interop.generator.GenException;
 import org.apache.geronimo.interop.generator.GenOptions;
@@ -128,7 +130,7 @@ public class PortableStubCompiler {
             jclass.addImplements("org.openejb.corba.ClientContextHolder");
 
             addClientContextMethods(jclass);
-            addIdsMethod(jclass, interfaceName);
+            addIdsMethod(jclass, interfaceClass);
 
             IiopOperation[] iiopOperations = createIiopOperations(interfaceClass);
             for (int i = 0; iiopOperations != null && i < iiopOperations.length; i++) {
@@ -170,26 +172,27 @@ public class PortableStubCompiler {
 
     public static Method[] getAllMethods(Class intfClass) {
         LinkedList methods = new LinkedList();
+        for (Iterator iterator = getAllInterfaces(intfClass).iterator(); iterator.hasNext();) {
+            Class intf = (Class) iterator.next();
+            methods.addAll(Arrays.asList(intf.getDeclaredMethods()));
+        }
+
+        return (Method[]) methods.toArray(new Method[methods.size()]);
+    }
+
+    public static Set getAllInterfaces(Class intfClass) {
+        Set allInterfaces = new LinkedHashSet();
 
         LinkedList stack = new LinkedList();
         stack.addFirst(intfClass);
 
-        Set visited = new HashSet();
         while (!stack.isEmpty()) {
             Class intf = (Class) stack.removeFirst();
-            methods.addAll(Arrays.asList(intf.getDeclaredMethods()));
-            visited.add(intf);
-
-            Class myInterfaces[] = intfClass.getInterfaces();
-            for (int i = 0; i < myInterfaces.length; i++) {
-                Class myInterface = myInterfaces[i];
-                if (!visited.contains(myInterface)) {
-                    stack.addFirst(myInterface);
-                }
-            }
+            allInterfaces.add(intf);
+            stack.addAll(0, Arrays.asList(intf.getInterfaces()));
         }
 
-        return (Method[]) methods.toArray(new Method[methods.size()]);
+        return allInterfaces;
     }
 
     public static IiopOperation[] createIiopOperations(Class intfClass) {
@@ -581,12 +584,13 @@ public class PortableStubCompiler {
         setterMethod.addStatement(new JCodeStatement("this." + typesField.getName() + " = " + jparameter.getName() +  ";"));
     }
 
-    private void addIdsMethod(JClass jclass, String interfaceName) {
+    private void addIdsMethod(JClass jclass, Class iface) {
         //
         // Method Template:
         //
         // private static final String[] _type_ids = {
         //     "RMI:org.openejb.corba.compiler.Foo:0000000000000000"
+        //     "RMI:org.openejb.corba.compiler.All:0000000000000000"
         // };
         //
         // public String[] getIds()
@@ -595,7 +599,19 @@ public class PortableStubCompiler {
         // }
         //
 
-        JField typesField = jclass.newField(String[].class, "_type_ids", new JExpression(new JCodeStatement("{ \"RMI:" + interfaceName + ":0000000000000000\" }")));
+        String ids = "";
+        for (Iterator iterator = getAllInterfaces(iface).iterator(); iterator.hasNext();) {
+            Class superInterface = (Class) iterator.next();
+            if (Remote.class.isAssignableFrom(superInterface) && superInterface != Remote.class) {
+                if (ids.length() > 0) {
+                    ids += ", ";
+                }
+                ids += "\"RMI:" + superInterface.getName() + ":0000000000000000\"";
+            }
+        }
+        ids = "{ " + ids + " }";
+
+        JField typesField = jclass.newField(String[].class, "_type_ids", new JExpression(new JCodeStatement(ids)));
         typesField.setModifiers(Modifier.PRIVATE | Modifier.STATIC | Modifier.FINAL);
 
         JMethod jmethod = jclass.newMethod(new JReturnType(String[].class), "_ids", null, null);
