@@ -48,6 +48,7 @@
 package org.openejb;
 
 import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationResult;
 
 import org.apache.geronimo.transaction.context.TransactionContext;
 
@@ -116,4 +117,8 @@ public interface EJBInvocation extends Invocation {
      * @param transactionContext the transaction context to use
      */
     void setTransactionContext(TransactionContext transactionContext);
+
+    InvocationResult createResult(Object object);
+
+    InvocationResult createExceptionResult(Exception exception);
 }

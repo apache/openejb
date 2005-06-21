@@ -67,6 +67,7 @@ import org.apache.axis.providers.java.RPCProvider;
 import org.apache.axis.utils.JavaUtils;
 import org.apache.geronimo.core.service.InvocationKey;
 import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.webservices.MessageContextInvocationKey;
 import org.openejb.EJBContainer;
@@ -123,7 +124,7 @@ public class EJBContainerProvider extends RPCProvider {
      *
      * @see org.apache.axis.providers.java.RPCProvider
      */
-    private class AxisRpcInvocation implements EJBInvocation {
+    public class AxisRpcInvocation implements EJBInvocation {
         private int index;
 
         // Valid in server-side interceptor stack once an instance has been identified
@@ -132,6 +133,7 @@ public class EJBContainerProvider extends RPCProvider {
         // Valid in server-side interceptor stack once a TransactionContext has been created
         private transient TransactionContext transactionContext;
 
+        private InvocationResult result;
         private Map attributes = new HashMap();
         private OperationDesc operation;
         private MessageContext messageContext;
@@ -216,6 +218,14 @@ public class EJBContainerProvider extends RPCProvider {
 
         public void setTransactionContext(TransactionContext transactionContext) {
             this.transactionContext = transactionContext;
+        }
+
+        public InvocationResult createResult(Object object) {
+            return new SimpleInvocationResult(true, object);
+        }
+
+        public InvocationResult createExceptionResult(Exception exception) {
+            return new SimpleInvocationResult(false, exception);
         }
 
         public Object get(InvocationKey key) {

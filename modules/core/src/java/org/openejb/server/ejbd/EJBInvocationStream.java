@@ -49,6 +49,8 @@ import java.io.ObjectInput;
 import java.lang.reflect.Method;
 
 import org.apache.geronimo.core.service.InvocationKey;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.openejb.EJBInstanceContext;
 import org.openejb.EJBInterfaceType;
@@ -207,4 +209,13 @@ public class EJBInvocationStream extends EJBRequest implements EJBInvocation {
     public void setMethodIndex(int methodIndex) {
         this.methodIndex = methodIndex;
     }
+
+    public InvocationResult createResult(Object object) {
+        return new SimpleInvocationResult(true, object);
+    }
+
+    public InvocationResult createExceptionResult(Exception exception) {
+        return new SimpleInvocationResult(false, exception);
+    }
+
 }

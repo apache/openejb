@@ -109,7 +109,7 @@ public class BMPFinderMethod implements VirtualOperation, Serializable  {
             Throwable t = ite.getTargetException();
             if (t instanceof Exception && t instanceof RuntimeException == false) {
                 // checked exception - which we simply include in the result
-                return new SimpleInvocationResult(false, t);
+                return invocation.createExceptionResult((Exception)t);
             } else {
                 // unchecked Exception - just throw it to indicate an abnormal completion
                 throw t;
@@ -128,16 +128,16 @@ public class BMPFinderMethod implements VirtualOperation, Serializable  {
             while (e.hasMoreElements()) {
                 values.add(getReference(local, proxyFactory, e.nextElement()));
             }
-            return new SimpleInvocationResult(true, new SerializableEnumeration(values.toArray()));
+            return invocation.createResult(new SerializableEnumeration(values.toArray()));
         } else if (finderResult instanceof Collection) {
             Collection c = (Collection) finderResult;
             ArrayList result = new ArrayList(c.size());
             for (Iterator i = c.iterator(); i.hasNext();) {
                 result.add(getReference(local, proxyFactory, i.next()));
             }
-            return new SimpleInvocationResult(true, result);
+            return invocation.createResult(result);
         } else {
-            return new SimpleInvocationResult(true, getReference(local, proxyFactory, finderResult));
+            return invocation.createResult(getReference(local, proxyFactory, finderResult));
         }
     }
 

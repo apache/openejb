@@ -77,30 +77,32 @@ public class SingleValuedFinder extends CMPFinder {
         
         try {
             QueryCommandView commandView = getCommand(invocation);
-            SingleValuedResultHandler handler = new SingleValuedResultHandler(commandView.getView()[0]);
+            SingleValuedResultHandler handler = new SingleValuedResultHandler(commandView.getView()[0], invocation);
             Object o = commandView.getQueryCommand().execute(handler, new Row(invocation.getArguments()), NODATA);
-            return o == NODATA ? new SimpleInvocationResult(false, new ObjectNotFoundException()) : (InvocationResult) o;
+            return o == NODATA ? invocation.createExceptionResult((Exception)new ObjectNotFoundException()) : (InvocationResult) o;
         } catch (QueryException e) {
-            return new SimpleInvocationResult(false, new FinderException(e.getMessage()).initCause(e));
+            return invocation.createExceptionResult((Exception)new FinderException(e.getMessage()).initCause(e));
         }
     }
 
     private class SingleValuedResultHandler implements ResultHandler {
+        private final EJBInvocation invocation;
         private final FieldTransform accessor;
-        public SingleValuedResultHandler(FieldTransform accessor) {
+        public SingleValuedResultHandler(FieldTransform accessor, EJBInvocation invocation) {
             this.accessor = accessor;
+            this.invocation = invocation;
         }
 
         public Object fetched(Row row, Object arg) throws QueryException {
             if (arg == NODATA) {
                 try {
                     Object opaque = accessor.get(row);
-                    return new SimpleInvocationResult(true, opaque);
+                    return invocation.createResult(opaque);
                 } catch (FieldTransformException e) {
                     throw new QueryException(e);
                 }
             }
-            return new SimpleInvocationResult(false, new FinderException("More than one row returned from single valued finder"));
+            return invocation.createExceptionResult((Exception)new FinderException("More than one row returned from single valued finder"));
         }
     }
 }

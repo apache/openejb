@@ -77,6 +77,6 @@ public class AfterCompletion implements VirtualOperation, Serializable {
             ctx.setOperation(oldOperation);
             TimerState.setTimerState(oldTimerMethodAvailable);
         }
-        return new SimpleInvocationResult(true, null);
+        return invocation.createResult(null);
     }
 }

@@ -99,7 +99,7 @@ public class CreateMethod implements VirtualOperation, Serializable {
             Throwable t = ite.getTargetException();
             if (t instanceof Exception && t instanceof RuntimeException == false) {
                 // checked exception - which we simply include in the result
-                return new SimpleInvocationResult(false, t);
+                return invocation.createExceptionResult((Exception)t);
             } else {
                 // unchecked Exception - just throw it to indicate an abnormal completion
                 throw t;
@@ -110,7 +110,7 @@ public class CreateMethod implements VirtualOperation, Serializable {
 
         // return a ref
         EJBInterfaceType type = invocation.getType();
-        return new SimpleInvocationResult(true, getReference(type.isLocal(), ctx, ctx.getId()));
+        return invocation.createResult(getReference(type.isLocal(), ctx, ctx.getId()));
     }
 
     private Object getReference(boolean local, EJBInstanceContext ctx, Object id) {

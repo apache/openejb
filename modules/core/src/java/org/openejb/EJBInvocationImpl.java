@@ -52,6 +52,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.apache.geronimo.core.service.SimpleInvocation;
+import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.core.service.SimpleInvocationResult;
 
 import org.apache.geronimo.transaction.context.TransactionContext;
 
@@ -137,6 +139,14 @@ public class EJBInvocationImpl extends SimpleInvocation implements EJBInvocation
 
     public void setTransactionContext(TransactionContext transactionContext) {
         this.transactionContext = transactionContext;
+    }
+
+    public InvocationResult createResult(Object object) {
+        return new SimpleInvocationResult(true, object);
+    }
+
+    public InvocationResult createExceptionResult(Exception exception) {
+        return new SimpleInvocationResult(false, exception);
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {

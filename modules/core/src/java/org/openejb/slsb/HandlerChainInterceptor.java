@@ -69,6 +69,7 @@ import org.apache.geronimo.core.service.Invocation;
 import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.apache.geronimo.webservices.MessageContextInvocationKey;
+import org.openejb.server.axis.EJBContainerProvider;
 
 /**
  * @version $Revision$ $Date$
@@ -99,6 +100,7 @@ public class HandlerChainInterceptor implements Interceptor {
             try {
                 if (handlerChain.handleRequest(messageContext)) {
                     invocationResult = next.invoke(invocation);
+
                 } else {
                     /* The Handler implementation class has the responsibility of setting
                      * the response SOAP message in the handleRequest method and perform

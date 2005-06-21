@@ -120,7 +120,7 @@ public class BMPCreateMethod implements VirtualOperation, Serializable {
             Throwable t = ite.getTargetException();
             if (t instanceof Exception && t instanceof RuntimeException == false) {
                 // checked exception - which we simply include in the result
-                return new SimpleInvocationResult(false, t);
+                return invocation.createExceptionResult((Exception)t);
             } else {
                 // unchecked Exception - just throw it to indicate an abnormal completion
                 throw t;
@@ -146,7 +146,7 @@ public class BMPCreateMethod implements VirtualOperation, Serializable {
             Throwable t = ite.getTargetException();
             if (t instanceof Exception && t instanceof RuntimeException == false) {
                 // checked exception - which we simply include in the result
-                return new SimpleInvocationResult(false, t);
+                return invocation.createExceptionResult((Exception)t);
             } else {
                 // unchecked Exception - just throw it to indicate an abnormal completion
                 throw t;
@@ -158,7 +158,7 @@ public class BMPCreateMethod implements VirtualOperation, Serializable {
 
 
         EJBInterfaceType type = invocation.getType();
-        return new SimpleInvocationResult(true, getReference(type.isLocal(), ctx.getProxyFactory(), id));
+        return invocation.createResult(getReference(type.isLocal(), ctx.getProxyFactory(), id));
     }
 
     private Object getReference(boolean local, EJBProxyFactory proxyFactory, Object id) {
