@@ -61,6 +61,9 @@ public class TSSITTAnonymous extends TSSSASIdentityToken {
 
     public static final String OID = "";
 
+    public TSSITTAnonymous() {
+    }
+
     public short getType() {
         return ITTAnonymous.value;
     }
@@ -70,7 +73,8 @@ public class TSSITTAnonymous extends TSSSASIdentityToken {
     }
 
     public Subject check(IdentityToken identityToken) throws SASException {
-        //TODO figure out if this is correct
+        //TODO this is wrong.  The anonymous identity token should force the default subject/principal since
+        //TODO the presence of an identity token is an identity assertion.
         return null;
     }
 }
