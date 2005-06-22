@@ -52,10 +52,15 @@ import java.util.Collection;
 
 import javax.ejb.FinderException;
 
+import org.tranql.cache.InTxCache;
+import org.tranql.sql.prefetch.PrefetchGroupHandler;
+import org.tranql.field.FieldTransform;
 import org.tranql.field.Row;
+import org.tranql.ql.Query;
 import org.tranql.ql.QueryException;
 import org.tranql.query.CollectionResultHandler;
-import org.tranql.query.QueryCommandView;
+import org.tranql.query.QueryCommand;
+import org.tranql.query.ResultHandler;
 
 
 /**
@@ -64,23 +69,35 @@ import org.tranql.query.QueryCommandView;
  * @version $Revision$ $Date$
  */
 public class CollectionValuedSelect implements InstanceOperation {
-    private final QueryCommandView commandView;
+    private final QueryCommand command;
+    private final FieldTransform resultAccessor;
+    private final PrefetchGroupHandler groupHandler;
     private final boolean flushCache;
 
-    public CollectionValuedSelect(QueryCommandView commandView, boolean flushCache) {
-        this.commandView = commandView;
+    public CollectionValuedSelect(QueryCommand command, boolean flushCache) {
+        this.command = command;
         this.flushCache = flushCache;
+        
+        Query query = command.getQuery();
+        resultAccessor = query.getResultAccessors()[0];
+        groupHandler = query.getPrefetchGroupHandler();
     }
 
     public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
+        InTxCache cache = ctx.getTransactionContext().getInTxCache();
         if (flushCache) {
-            ctx.getTransactionContext().getInTxCache().flush();
+            cache.flush();
         }
 
         Collection results = new ArrayList();
         try {
-            CollectionResultHandler handler = new CollectionResultHandler(commandView.getView()[0]);
-            commandView.getQueryCommand().execute(handler, new Row(args), results);
+            ResultHandler handler = new CollectionResultHandler(resultAccessor);
+            if (null != groupHandler) {
+                PrefetchGroupHandler newHandler = new PrefetchGroupHandler(groupHandler, handler);
+                newHandler.execute(cache, command, new Row(args), results);
+            } else {
+                command.execute(handler, new Row(args), results);
+            }
         } catch (QueryException e) {
             throw (FinderException) new FinderException(e.getMessage()).initCause(e);
         }

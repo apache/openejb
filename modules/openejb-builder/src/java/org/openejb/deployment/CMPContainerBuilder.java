@@ -105,7 +105,6 @@ import org.tranql.ejb.CMPFieldNestedRowAccessor;
 import org.tranql.ejb.CMPFieldTransform;
 import org.tranql.ejb.CMRField;
 import org.tranql.ejb.EJB;
-import org.tranql.ejb.EJBQueryBuilder;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.FinderEJBQLQuery;
 import org.tranql.ejb.LocalProxyTransform;
@@ -122,6 +121,7 @@ import org.tranql.ejb.SingleValuedCMRAccessor;
 import org.tranql.ejb.SingleValuedCMRFaultHandler;
 import org.tranql.ejb.TransactionManagerDelegate;
 import org.tranql.field.FieldAccessor;
+import org.tranql.field.FieldTransform;
 import org.tranql.field.ReferenceAccessor;
 import org.tranql.identity.DerivedIdentity;
 import org.tranql.identity.IdentityDefiner;
@@ -130,17 +130,13 @@ import org.tranql.identity.IdentityTransform;
 import org.tranql.identity.UserDefinedIdentity;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
 import org.tranql.ql.QueryException;
-import org.tranql.query.AssociationEndFaultHandlerBuilder;
-import org.tranql.query.CommandTransform;
 import org.tranql.query.QueryCommand;
-import org.tranql.query.QueryCommandView;
-import org.tranql.query.SchemaMapper;
 import org.tranql.schema.Association;
 import org.tranql.schema.AssociationEnd;
 import org.tranql.schema.Attribute;
 import org.tranql.schema.FKAttribute;
 import org.tranql.schema.Schema;
-import org.tranql.sql.EJBQLToPhysicalQuery;
+import org.tranql.sql.SQLQueryBuilder;
 import org.tranql.sql.SQLSchema;
 import org.tranql.sql.Table;
 
@@ -228,8 +224,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         EJBProxyFactory proxyFactory = (EJBProxyFactory) ejb.getProxyFactory();
 
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
-        EJBQueryBuilder queryBuilder = new EJBQueryBuilder(identityDefinerBuilder);
-        CommandTransform mapper = new SchemaMapper(sqlSchema);
+        SQLQueryBuilder queryBuilder = new SQLQueryBuilder(ejbSchema, sqlSchema, globalSchema);
         CacheTable cacheTable = (CacheTable) globalSchema.getEntity(getEJBName());
 
         // Identity Transforms
@@ -247,42 +242,36 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             slotLoaders[i] = new EmptySlotLoader(i, new FieldAccessor(i, attr.getType()));
         }
         QueryCommand loadCommand = queryBuilder.buildLoad(getEJBName(), attributeNames);
-        loadCommand = mapper.transform(loadCommand);
         FaultHandler faultHandler = new QueryFaultHandler(loadCommand, identityDefiner, slotLoaders);
 
         // EJB QL queries
-        Map finders = createFinders(ejb);
+        Map finders = queryBuilder.buildFinders(ejb.getName());
         
         // findByPrimaryKey
-        QueryCommandView localProxyLoadView = queryBuilder.buildFindByPrimaryKey(getEJBName(), true);
-        QueryCommand localProxyLoad = mapper.transform(localProxyLoadView.getQueryCommand());
-        localProxyLoadView = new QueryCommandView(localProxyLoad, localProxyLoadView.getView());
-
-        QueryCommandView remoteProxyLoadView = queryBuilder.buildFindByPrimaryKey(getEJBName(), false);
-        QueryCommand remoteProxyLoad = mapper.transform(remoteProxyLoadView.getQueryCommand());
-        remoteProxyLoadView = new QueryCommandView(remoteProxyLoad, remoteProxyLoadView.getView());
+        QueryCommand localProxyLoad = queryBuilder.buildFindByPrimaryKey(getEJBName(), true);
+        QueryCommand remoteProxyLoad = queryBuilder.buildFindByPrimaryKey(getEJBName(), false);
 
         Class pkClass = ejb.isUnknownPK() ? Object.class :  ejb.getPrimaryKeyClass();
         FinderEJBQLQuery pkFinder = new FinderEJBQLQuery("findByPrimaryKey", new Class[] {pkClass}, "UNDEFINED");
-        QueryCommandView views[] = new QueryCommandView[]{localProxyLoadView, remoteProxyLoadView};
+        QueryCommand[] commands = new QueryCommand[]{localProxyLoad, remoteProxyLoad};
         boolean found = false;
         for (Iterator iter = finders.entrySet().iterator(); iter.hasNext();) {
             Map.Entry entry = (Map.Entry) iter.next();
             FinderEJBQLQuery query = (FinderEJBQLQuery) entry.getKey();
             if (query.equals(pkFinder)) {
-                entry.setValue(views);
+                entry.setValue(commands);
                 found = true;
                 break;
             }
         }
         if (false == found) {
-            finders.put(pkFinder, views);
+            finders.put(pkFinder, commands);
         }
 
         // build the instance factory
-        LinkedHashMap cmrFieldAccessors[] = createCMRFieldAccessors();
-        LinkedHashMap cmpFieldAccessors = createCMPFieldAccessors(faultHandler, cmrFieldAccessors[0]);
-        Map selects = createSelects(ejb);
+        LinkedHashMap cmrFieldAccessors[] = createCMRFieldAccessors(queryBuilder);
+        LinkedHashMap cmpFieldAccessors = createCMPFieldAccessors(queryBuilder, cmrFieldAccessors[0]);
+        Map selects = queryBuilder.buildSelects(ejb.getName());
         Map instanceMap = null;
         CMP1Bridge cmp1Bridge = null;
         if (cmp2) {
@@ -323,19 +312,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
-    private Map createFinders(EJB ejb) throws QueryException {
-        EJBQLToPhysicalQuery toPhysicalQuery = new EJBQLToPhysicalQuery(ejbSchema, sqlSchema, globalSchema);
-
-        return toPhysicalQuery.buildFinders(ejb);
-    }
-    
-    private Map createSelects(EJB ejb) throws QueryException {
-        EJBQLToPhysicalQuery toPhysicalQuery = new EJBQLToPhysicalQuery(ejbSchema, sqlSchema, globalSchema);
-
-        return toPhysicalQuery.buildSelects(ejb);
-    }
-
-    private LinkedHashMap createCMPFieldAccessors(FaultHandler faultHandler, LinkedHashMap cmrFieldAccessors) {
+    private LinkedHashMap createCMPFieldAccessors(SQLQueryBuilder queryBuilder, LinkedHashMap cmrFieldAccessors) throws QueryException {
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
 
         Table table = (Table) sqlSchema.getEntity(ejb.getName());
@@ -372,6 +349,11 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 
                 accessor = new ReadOnlyCMPFieldAccessor(accessor, attribute.getName());
             }  else {
+                IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(ejb);
+                QueryCommand command = queryBuilder.buildLoadWithPrefetch(ejb.getName(), name);
+                FieldTransform attAccessor = command.getQuery().getResultAccessors()[0];
+                EmptySlotLoader[] loaders = new EmptySlotLoader[] {new EmptySlotLoader(i, attAccessor)};
+                FaultHandler faultHandler = new QueryFaultHandler(command, identityDefiner, loaders);
                 accessor = new CMPFieldAccessor(new CacheRowAccessor(i, attribute.getType()), name);
                 accessor = new CMPFieldFaultTransform(accessor, faultHandler, new int[]{i});
             }
@@ -381,12 +363,9 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return cmpFieldAccessors;
     }
 
-    private LinkedHashMap[] createCMRFieldAccessors() throws QueryException {
+    private LinkedHashMap[] createCMRFieldAccessors(SQLQueryBuilder queryBuilder) throws QueryException {
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
         IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(ejb);
-
-        SchemaMapper mapper = new SchemaMapper(sqlSchema);
-        AssociationEndFaultHandlerBuilder handlerBuilder = new AssociationEndFaultHandlerBuilder(mapper);
 
         List associationEnds = ejb.getAssociationEnds();
         LinkedHashMap cmrFaultAccessors = new LinkedHashMap(associationEnds.size());
@@ -403,13 +382,13 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
             CMPFieldTransform accessor = new CMPFieldAccessor(new CacheRowAccessor(i, null), name);
 
-            FaultHandler faultHandler = buildFaultHandler(handlerBuilder, field, i);
+            FaultHandler faultHandler = buildFaultHandler(queryBuilder, ejb, field, i);
             accessor = new CMPFieldFaultTransform(accessor, faultHandler, new int[]{i});
 
             cmrFaultAccessors.put(name, accessor);
             
             int relatedIndex = relatedEJB.getAttributes().size() + relatedEJB.getAssociationEnds().indexOf(relatedField);
-            FaultHandler relatedFaultHandler = buildFaultHandler(handlerBuilder, relatedField, relatedIndex);
+            FaultHandler relatedFaultHandler = buildFaultHandler(queryBuilder, relatedEJB, relatedField, relatedIndex);
             CMPFieldTransform relatedAccessor = new CMPFieldAccessor(new CacheRowAccessor(relatedIndex, null), name);
             relatedAccessor = new CMPFieldFaultTransform(relatedAccessor, relatedFaultHandler, new int[]{relatedIndex});
             if ( association.isOneToOne() ) {
@@ -440,7 +419,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return new LinkedHashMap[] {cmrFaultAccessors, cmrFieldAccessors};
     }
 
-    private FaultHandler buildFaultHandler(AssociationEndFaultHandlerBuilder handlerBuilder, CMRField field, int slot) throws QueryException {
+    private FaultHandler buildFaultHandler(SQLQueryBuilder queryBuilder, EJB definingEJB, CMRField field, int slot) throws QueryException {
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
         Association association = field.getAssociation();
         CMRField relatedField = (CMRField) association.getOtherEnd(field);
@@ -460,7 +439,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             relatedIdentityDefiner = new DerivedIdentity(relatedCacheTbl, slots);
         }
 
-        QueryCommand faultCommand = handlerBuilder.buildCMRFaultHandler(field);
+        QueryCommand faultCommand = queryBuilder.buildCMRFaultHandler(definingEJB.getName(), field.getName());
         if ( association.isOneToOne() || association.isManyToOne(field) ) {
             return new SingleValuedCMRFaultHandler(faultCommand,
                     identityDefiner,
@@ -513,7 +492,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             SelectEJBQLQuery query = (SelectEJBQLQuery) entry.getKey();
             
             InterfaceMethodSignature signature = new InterfaceMethodSignature(query.getMethodName(), query.getParameterTypes(), true);
-            QueryCommandView view = (QueryCommandView) entry.getValue();
+            QueryCommand command = (QueryCommand) entry.getValue();
 
             Method method = signature.getMethod(beanClass);
             if (method == null) {
@@ -523,11 +502,11 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             
             String returnType = method.getReturnType().getName();
             if (returnType.equals("java.util.Collection")) {
-                instanceMap.put(methodSignature, new CollectionValuedSelect(view, query.isFlushCacheBeforeQuery()));
+                instanceMap.put(methodSignature, new CollectionValuedSelect(command, query.isFlushCacheBeforeQuery()));
             } else if (returnType.equals("java.util.Set")) {
-                instanceMap.put(methodSignature, new SetValuedSelect(view, query.isFlushCacheBeforeQuery()));
+                instanceMap.put(methodSignature, new SetValuedSelect(command, query.isFlushCacheBeforeQuery()));
             } else {
-                instanceMap.put(methodSignature, new SingleValuedSelect(view, query.isFlushCacheBeforeQuery()));
+                instanceMap.put(methodSignature, new SingleValuedSelect(command, query.isFlushCacheBeforeQuery()));
             }
         }
     }
@@ -648,7 +627,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             FinderEJBQLQuery query = (FinderEJBQLQuery) entry.getKey();
             
             InterfaceMethodSignature signature = new InterfaceMethodSignature(query.getMethodName(), query.getParameterTypes(), true);
-            QueryCommandView[] views = (QueryCommandView[]) entry.getValue();
+            QueryCommand[] commands = (QueryCommand[]) entry.getValue();
 
             Method method = signature.getMethod(homeInterface);
             if (method == null) {
@@ -660,13 +639,13 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
             String returnType = method.getReturnType().getName();
             if (returnType.equals("java.util.Collection")) {
-                vopMap.put(signature, new CollectionValuedFinder(views[0], views[1], query.isFlushCacheBeforeQuery()));
+                vopMap.put(signature, new CollectionValuedFinder(commands[0], commands[1], query.isFlushCacheBeforeQuery()));
             } else if (returnType.equals("java.util.Set")) {
-                vopMap.put(signature, new SetValuedFinder(views[0], views[1], query.isFlushCacheBeforeQuery()));
+                vopMap.put(signature, new SetValuedFinder(commands[0], commands[1], query.isFlushCacheBeforeQuery()));
             } else if (returnType.equals("java.util.Enumeration")) {
-                vopMap.put(signature, new EnumerationValuedFinder(views[0], views[1], query.isFlushCacheBeforeQuery()));
+                vopMap.put(signature, new EnumerationValuedFinder(commands[0], commands[1], query.isFlushCacheBeforeQuery()));
             } else {
-                vopMap.put(signature, new SingleValuedFinder(views[0], views[1], query.isFlushCacheBeforeQuery()));
+                vopMap.put(signature, new SingleValuedFinder(commands[0], commands[1], query.isFlushCacheBeforeQuery()));
             }
         }
         

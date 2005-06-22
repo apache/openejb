@@ -45,39 +45,59 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.test.entity.cmp2.model;
 
-import java.io.Serializable;
+import javax.ejb.CreateException;
+import javax.ejb.EntityBean;
+import javax.ejb.EntityContext;
 
-import org.openejb.EJBInvocation;
-import org.openejb.dispatch.VirtualOperation;
-import org.tranql.cache.InTxCache;
-import org.tranql.ql.QueryException;
-import org.tranql.query.QueryCommand;
 
 /**
  * @version $Revision$ $Date$
  */
-public abstract class CMPFinder implements VirtualOperation, Serializable {
-    private final QueryCommand localCommand;
-    private final QueryCommand remoteCommand;
-    private final boolean flushCache;
+public abstract class LineItemBean implements EntityBean {
 
-    public CMPFinder(QueryCommand localCommand, QueryCommand remoteCommand, boolean flushCache) {
-        this.localCommand = localCommand;
-        this.remoteCommand = remoteCommand;
-        this.flushCache = flushCache;
+    // CMP
+    public abstract Integer getId();
+    public abstract void setId(Integer primaryKey);
+
+    public abstract int getQuantity();
+    public abstract void setQuantity(int quantity);
+
+    // CMR
+    public abstract OrderLocal getOrder();
+    public abstract void setOrder(OrderLocal order);
+
+    public abstract ProductLocal getProduct();
+    public abstract void setProduct(ProductLocal product);
+    
+    public Integer ejbCreate(Integer id, int quantity) throws CreateException {
+        setId(id);
+        setQuantity(quantity);
+        return null;
     }
 
-    protected QueryCommand getCommand(EJBInvocation invocation) {
-        return invocation.getType().isLocal() ? localCommand : remoteCommand;
+    public void ejbPostCreate(Integer id, int quantity) {
     }
     
-    protected InTxCache flushCache(EJBInvocation invocation) throws QueryException {
-        InTxCache cache = invocation.getTransactionContext().getInTxCache();
-        if (flushCache) {
-            cache.flush();
-        }
-        return cache;
+    public void ejbLoad() {
+    }
+
+    public void setEntityContext(EntityContext ctx) {
+    }
+
+    public void unsetEntityContext() {
+    }
+
+    public void ejbStore() {
+    }
+
+    public void ejbRemove() {
+    }
+
+    public void ejbActivate() {
+    }
+
+    public void ejbPassivate() {
     }
 }

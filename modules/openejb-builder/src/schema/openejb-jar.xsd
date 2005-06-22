@@ -211,6 +211,18 @@
                         </xs:complexType>
                     </xs:element>
                 </xs:sequence>
+                <xs:element name="prefetch-group" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="group" minOccurs="0" maxOccurs="unbounded"
+                                type="openejb:groupType"/>
+                            <xs:element name="cmp-field-group-mapping" minOccurs="0" maxOccurs="unbounded"
+                                type="openejb:cmp-field-group-mappingType"/>
+                            <xs:element name="cmr-field-group-mapping" minOccurs="0" maxOccurs="unbounded"
+                                type="openejb:cmr-field-group-mappingType"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
 
             <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
@@ -219,6 +231,35 @@
             <xs:element name="query" type="openejb:queryType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="id" type="xs:ID"/>
+    </xs:complexType>
+
+    <xs:complexType name="groupType">
+        <xs:sequence>
+            <xs:element name="group-name" type="xs:string"/>
+            <xs:element name="cmp-field-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="cmr-field" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="cmr-field-name" type="xs:string"/>
+                        <xs:element name="group-name" type="xs:string" minOccurs="0"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="cmp-field-group-mappingType">
+        <xs:sequence>
+            <xs:element name="group-name" type="xs:string"/>
+            <xs:element name="cmp-field-name" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="cmr-field-group-mappingType">
+        <xs:sequence>
+            <xs:element name="group-name" type="xs:string"/>
+            <xs:element name="cmr-field-name" type="xs:string"/>
+        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="queryType">
@@ -240,6 +281,7 @@
             <xs:element name="result-type-mapping" minOccurs="0" type="xs:string"/>
             <xs:element name="ejb-ql" type="xs:string" minOccurs="0"/>
             <xs:element name="no-cache-flush" minOccurs="0"/>
+            <xs:element name="group-name" type="xs:string" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 

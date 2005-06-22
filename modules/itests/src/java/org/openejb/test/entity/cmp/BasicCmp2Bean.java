@@ -44,6 +44,8 @@
  */
 package org.openejb.test.entity.cmp;
 
+import java.sql.Date;
+import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -72,6 +74,7 @@ public abstract class BasicCmp2Bean implements EntityBean {
     public abstract String getLastName();
 
     public abstract void setLastName(String lastName);
+    
 
     //=============================
     // Home interface methods

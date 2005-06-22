@@ -45,39 +45,30 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.test.entity.cmp2.model;
 
-import java.io.Serializable;
+import java.util.Set;
 
-import org.openejb.EJBInvocation;
-import org.openejb.dispatch.VirtualOperation;
-import org.tranql.cache.InTxCache;
-import org.tranql.ql.QueryException;
-import org.tranql.query.QueryCommand;
+import javax.ejb.EJBLocalObject;
+
 
 /**
  * @version $Revision$ $Date$
  */
-public abstract class CMPFinder implements VirtualOperation, Serializable {
-    private final QueryCommand localCommand;
-    private final QueryCommand remoteCommand;
-    private final boolean flushCache;
+public interface OrderLocal extends EJBLocalObject {
+    // CMP
+    public Integer getId();
 
-    public CMPFinder(QueryCommand localCommand, QueryCommand remoteCommand, boolean flushCache) {
-        this.localCommand = localCommand;
-        this.remoteCommand = remoteCommand;
-        this.flushCache = flushCache;
-    }
-
-    protected QueryCommand getCommand(EJBInvocation invocation) {
-        return invocation.getType().isLocal() ? localCommand : remoteCommand;
-    }
+    public String getReference();
+    public void setReference(String reference);
     
-    protected InTxCache flushCache(EJBInvocation invocation) throws QueryException {
-        InTxCache cache = invocation.getTransactionContext().getInTxCache();
-        if (flushCache) {
-            cache.flush();
-        }
-        return cache;
-    }
+    // CMR
+    public AddressLocal getShippingAddress();
+    public void setShippingAddress(AddressLocal address);
+    
+    public AddressLocal getBillingAddress();
+    public void setBillingAddress(AddressLocal address);
+    
+    public Set getLineItems();
+    public void setLineItems(Set lineItems);
 }

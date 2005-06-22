@@ -45,39 +45,18 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.test.entity.cmp2.prefetch;
 
-import java.io.Serializable;
+import java.rmi.RemoteException;
 
-import org.openejb.EJBInvocation;
-import org.openejb.dispatch.VirtualOperation;
-import org.tranql.cache.InTxCache;
-import org.tranql.ql.QueryException;
-import org.tranql.query.QueryCommand;
+import javax.ejb.CreateException;
+
 
 /**
  * @version $Revision$ $Date$
  */
-public abstract class CMPFinder implements VirtualOperation, Serializable {
-    private final QueryCommand localCommand;
-    private final QueryCommand remoteCommand;
-    private final boolean flushCache;
+public interface PrefetchFacadeHome extends javax.ejb.EJBHome {
 
-    public CMPFinder(QueryCommand localCommand, QueryCommand remoteCommand, boolean flushCache) {
-        this.localCommand = localCommand;
-        this.remoteCommand = remoteCommand;
-        this.flushCache = flushCache;
-    }
+    public PrefetchFacadeObject create() throws CreateException, RemoteException;
 
-    protected QueryCommand getCommand(EJBInvocation invocation) {
-        return invocation.getType().isLocal() ? localCommand : remoteCommand;
-    }
-    
-    protected InTxCache flushCache(EJBInvocation invocation) throws QueryException {
-        InTxCache cache = invocation.getTransactionContext().getInTxCache();
-        if (flushCache) {
-            cache.flush();
-        }
-        return cache;
-    }
 }

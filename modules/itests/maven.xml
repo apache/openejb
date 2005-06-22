@@ -105,9 +105,40 @@
             username="system"
             password="manager"
             id="org/openejb/scenario003"/>
+    	
+        <ant:jar destfile="${basedir}/target/openejb-cmp2-prefetch.jar">
+            <fileset dir="${basedir}/target/classes">
+                <include name="**/cmp2/model/*.class"/>
+                <include name="**/cmp2/prefetch/*.class"/>
+                <include name="**/TestFailureException.class"/>
+            </fileset>
+            <metainf dir="${basedir}/src/cmp2/prefetch" includes="*.xml"/>
+        </ant:jar>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            module="${basedir}/target/openejb-cmp2-prefetch.jar"
+            />
+        <deploy:start
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/cmp2/Prefetch"/>
     </preGoal>
 
     <preGoal name="itest:teardown">
+        <deploy:stop
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/cmp2/Prefetch"/>
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/openejb/cmp2/Prefetch"/>
+    	
         <deploy:stop
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"

@@ -45,39 +45,48 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.test.entity.cmp2;
 
-import java.io.Serializable;
+import java.util.Properties;
 
-import org.openejb.EJBInvocation;
-import org.openejb.dispatch.VirtualOperation;
-import org.tranql.cache.InTxCache;
-import org.tranql.ql.QueryException;
-import org.tranql.query.QueryCommand;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+
+import org.openejb.test.NamedTestCase;
+import org.openejb.test.TestManager;
+import org.openejb.test.entity.cmp2.prefetch.PrefetchFacadeHome;
+import org.openejb.test.entity.cmp2.prefetch.PrefetchFacadeObject;
+
 
 /**
  * @version $Revision$ $Date$
  */
-public abstract class CMPFinder implements VirtualOperation, Serializable {
-    private final QueryCommand localCommand;
-    private final QueryCommand remoteCommand;
-    private final boolean flushCache;
+public class PrefetchTests extends NamedTestCase {
+    private InitialContext initialContext;
+    private PrefetchFacadeHome ejbHome;
 
-    public CMPFinder(QueryCommand localCommand, QueryCommand remoteCommand, boolean flushCache) {
-        this.localCommand = localCommand;
-        this.remoteCommand = remoteCommand;
-        this.flushCache = flushCache;
+    public PrefetchTests() {
+        super("PrefetchTests.");
     }
 
-    protected QueryCommand getCommand(EJBInvocation invocation) {
-        return invocation.getType().isLocal() ? localCommand : remoteCommand;
-    }
-    
-    protected InTxCache flushCache(EJBInvocation invocation) throws QueryException {
-        InTxCache cache = invocation.getTransactionContext().getInTxCache();
-        if (flushCache) {
-            cache.flush();
+    public void testInvokeOrderLocalHomeFindPrefetchAll() {
+        try {
+            ejbHome = (PrefetchFacadeHome) javax.rmi.PortableRemoteObject.narrow(initialContext.lookup("cmp2/Prefetch/PrefetchFacade"), PrefetchFacadeHome.class);
+            PrefetchFacadeObject prefetchFacade = ejbHome.create();
+            prefetchFacade.invokeOrderLocalHomeFindPrefetchAll();
+        } catch (Exception e) {
+            fail("Received Exception " + e.getClass() + " : " + e.getMessage());
         }
-        return cache;
+    }
+
+    protected void setUp() throws Exception {
+        Properties properties = TestManager.getServer().getContextEnvironment();
+        properties.put(Context.SECURITY_PRINCIPAL, "ENTITY_TEST_CLIENT");
+        properties.put(Context.SECURITY_CREDENTIALS, "ENTITY_TEST_CLIENT");
+
+        initialContext = new InitialContext(properties);
+    }
+
+    protected void tearDown() throws Exception {
     }
 }

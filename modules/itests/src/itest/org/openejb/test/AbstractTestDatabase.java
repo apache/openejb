@@ -1,6 +1,7 @@
 package org.openejb.test;
 
 import java.rmi.RemoteException;
+import java.sql.SQLException;
 import java.util.Properties;
 import javax.naming.InitialContext;
 
@@ -71,6 +72,14 @@ public abstract class AbstractTestDatabase implements TestDatabase {
         executeStatement(getDropAccount());
     }
 
+    public void createCMP2Model() throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void dropCMP2Model() throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+    
     public void start() throws IllegalStateException {
         try {
             // @todo this is a hack that limits us to a single server 
