@@ -82,7 +82,13 @@ public class TSSNULLTransportConfig extends TSSTransportMechConfig {
         return result;
     }
 
+    /**
+     * Returns null subject, since the transport layer can not establish the subject.
+     * @param session
+     * @return
+     * @throws SASException
+     */
     public Subject check(SSLSession session) throws SASException {
-        return new Subject();
+        return null;
     }
 }

@@ -68,6 +68,7 @@ import org.openejb.corba.security.config.css.CSSConfig;
 import org.openejb.corba.security.config.tss.TSSConfig;
 import org.openejb.corba.security.config.tss.TSSSSLTransportConfig;
 import org.openejb.corba.security.config.tss.TSSTransportMechConfig;
+import com.sun.corba.se.internal.core.EndPoint;
 
 
 /**
@@ -171,12 +172,13 @@ public class SunORBConfigAdapter implements ConfigAdapter {
      * @throws ConfigException thrown if any error occurs
      */
     public void postProcess(TSSConfig config, ORB orb) throws ConfigException {
+        OpenEJBORB o = (OpenEJBORB) orb;
         if (config != null) {
             TSSTransportMechConfig transportMech = config.getTransport_mech();
             if (transportMech != null) {
                 if (transportMech instanceof TSSSSLTransportConfig) {
                     TSSSSLTransportConfig sslConfig = (TSSSSLTransportConfig) transportMech;
-                    OpenEJBORB o = (OpenEJBORB) orb;
+
 
                     try {
                         o.getServerGIOP().getEndpoint(OpenEJBSocketFactory.IIOP_SSL, sslConfig.getPort(), null);
@@ -186,7 +188,15 @@ public class SunORBConfigAdapter implements ConfigAdapter {
                     }
                 }
             }
+        } else {
+            try {
+                o.getServerGIOP().getEndpoint(EndPoint.IIOP_CLEAR_TEXT, 6882, null);
+            } catch (Throwable e) {
+                log.error(e);
+                throw new ConfigException(e);
+            }
         }
+
     }
 
     public String[] translateToArgs(CSSConfig config, List args) throws ConfigException {
