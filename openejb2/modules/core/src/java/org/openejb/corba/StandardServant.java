@@ -113,7 +113,7 @@ public class StandardServant extends Servant implements org.omg.CORBA.portable.I
         for (Iterator iterator = PortableStubCompiler.getAllInterfaces(type).iterator(); iterator.hasNext();) {
             Class superInterface = (Class) iterator.next();
             if (Remote.class.isAssignableFrom(superInterface) && superInterface != Remote.class) {
-                ids.add("\"RMI:" + superInterface.getName() + ":0000000000000000\"");
+                ids.add("RMI:" + superInterface.getName() + ":0000000000000000");
             }
         }
         typeIds = (String[]) ids.toArray(new String[ids.size()]);
