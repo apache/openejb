@@ -77,11 +77,16 @@ import org.apache.geronimo.xbeans.j2ee.QueryType;
 import org.openejb.entity.cmp.PrimaryKeyGeneratorWrapper;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.transaction.TransactionPolicySource;
+import org.openejb.xbeans.ejbjar.OpenejbCmpFieldGroupMappingType;
+import org.openejb.xbeans.ejbjar.OpenejbCmrFieldGroupMappingType;
 import org.openejb.xbeans.ejbjar.OpenejbEjbRelationType;
 import org.openejb.xbeans.ejbjar.OpenejbEjbRelationshipRoleType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
+import org.openejb.xbeans.ejbjar.OpenejbGroupType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.AutomaticKeyGeneration;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.CmpFieldMapping;
+import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.PrefetchGroup;
+import org.openejb.xbeans.ejbjar.OpenejbGroupType.CmrField;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbQueryType;
 import org.tranql.cache.GlobalSchema;
@@ -105,6 +110,8 @@ import org.tranql.sql.SQLSchema;
 import org.tranql.sql.Table;
 import org.tranql.sql.TypeConverter;
 import org.tranql.sql.jdbc.SQLTypeLoader;
+import org.tranql.sql.prefetch.PrefetchGroupDictionary;
+import org.tranql.sql.prefetch.PrefetchGroupDictionary.EndTableDesc;
 
 
 /**
@@ -140,12 +147,67 @@ class CMPEntityBuilder extends EntityBuilder {
         try {
             processEnterpriseBeans(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema);
             processRelationships(ejbJar, openejbEjbJar, ejbSchema, sqlSchema);
+            processGroups(openejbEjbJar, ejbSchema, sqlSchema);
             GlobalSchemaLoader.populateGlobalSchema(globalSchema, ejbSchema, sqlSchema);
         } catch (Exception e) {
             throw new DeploymentException("Module [" + moduleJ2eeContext.getJ2eeModuleName() + "]", e);
         }
     }
 
+    private void processGroups(OpenejbOpenejbJarType openejbEjbJar, EJBSchema ejbSchema, SQLSchema sqlSchema)
+        throws DeploymentException {
+        PrefetchGroupDictionary groupDictionary = sqlSchema.getGroupDictionary();
+        OpenejbEntityBeanType[] openEJBEntities = openejbEjbJar.getEnterpriseBeans().getEntityArray();
+        for (int i = 0; i < openEJBEntities.length; i++) {
+            String ejbName = openEJBEntities[i].getEjbName();
+            if (false == openEJBEntities[i].isSetPrefetchGroup()) {
+                continue;
+            }
+            OpenejbGroupType[] groups = openEJBEntities[i].getPrefetchGroup().getGroupArray();
+            for (int j = 0; j < groups.length; j++) {
+                OpenejbGroupType group = groups[j];
+                String groupName = group.getGroupName();
+                String[] cmpFields = group.getCmpFieldNameArray();
+                CmrField[] cmrFields = group.getCmrFieldArray();
+                EndTableDesc[] endTableDescs = new EndTableDesc[cmrFields.length];
+                for (int k = 0; k < cmrFields.length; k++) {
+                    String cmrFieldName = cmrFields[k].getCmrFieldName();
+                    String cmrGroupName;
+                    if (cmrFields[k].isSetGroupName()) {
+                        cmrGroupName = cmrFields[k].getGroupName(); 
+                    } else {
+                        cmrGroupName = groupName;
+                    }
+                    endTableDescs[k] = new EndTableDesc(cmrFieldName, cmrGroupName);
+                }
+                groupDictionary.addPrefetchGroup(groupName, ejbName, cmpFields, endTableDescs);
+            }
+            
+            EJB ejb = ejbSchema.getEJB(ejbName);
+            PrefetchGroup prefetchGroup = openEJBEntities[i].getPrefetchGroup();
+            OpenejbCmpFieldGroupMappingType[] cmpMappings = prefetchGroup.getCmpFieldGroupMappingArray();
+            for (int j = 0; j < cmpMappings.length; j++) {
+                OpenejbCmpFieldGroupMappingType mapping = cmpMappings[i];
+                CMPField cmpField = (CMPField) ejb.getAttribute(mapping.getCmpFieldName());
+                if (null == cmpField) {
+                    throw new DeploymentException("EJB [" + ejbName + "] does not define the CMP field [" + 
+                            mapping.getCmpFieldName() + "].");
+                }
+                cmpField.setPrefetchGroup(mapping.getGroupName());
+            }
+            OpenejbCmrFieldGroupMappingType[] cmrMappings = prefetchGroup.getCmrFieldGroupMappingArray();
+            for (int j = 0; j < cmrMappings.length; j++) {
+                OpenejbCmrFieldGroupMappingType mapping = cmrMappings[i];
+                CMRField cmrField = (CMRField) ejb.getAssociationEnd(mapping.getCmrFieldName());
+                if (null == cmrField) {
+                    throw new DeploymentException("EJB [" + ejbName + "] does not define the CMR field [" + 
+                            mapping.getCmrFieldName() + "].");
+                }
+                cmrField.setPrefetchGroup(mapping.getGroupName());
+            }
+        }
+    }
+    
     private void processEnterpriseBeans(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQLSchema sqlSchema) throws DeploymentException {
         Map openEjbEntities = new HashMap();
         OpenejbEntityBeanType[] openEJBEntities = openejbEjbJar.getEnterpriseBeans().getEntityArray();
@@ -273,7 +335,8 @@ class CMPEntityBuilder extends EntityBuilder {
                 }
                 Class fieldType = getCMPFieldType(cmp2, fieldName, ejbClass);
                 boolean isPKField = pkFieldNames.contains(fieldName);
-                ejb.addCMPField(new CMPField(fieldName, fieldName, fieldType, isPKField));
+                CMPField cmpField = new CMPField(fieldName, fieldName, fieldType, isPKField); 
+                ejb.addCMPField(cmpField);
                 Column column = new Column(fieldName, mapping.getTableColumn(), fieldType, isPKField);
                 if (mapping.isSetSqlType()) {
                     column.setSQLType(SQLTypeLoader.getSQLType(mapping.getSqlType()));
@@ -309,7 +372,8 @@ class CMPEntityBuilder extends EntityBuilder {
                     throw new DeploymentException("Could not load automatic primary field: ejbName=" + ejbName + " field=" + fieldName);
                 }
                 boolean isPKField = pkFieldNames.contains(fieldName);
-                ejb.addVirtualCMPField(new CMPField(fieldName, fieldName, fieldType, isPKField));
+                CMPField cmpField = new CMPField(fieldName, fieldName, fieldType, isPKField);
+                ejb.addVirtualCMPField(cmpField);
                 table.addColumn(new Column(fieldName, mapping.getTableColumn(), fieldType, isPKField));
                 if (isPKField) {
                     pkFieldNames.remove(fieldName);
@@ -406,6 +470,11 @@ class CMPEntityBuilder extends EntityBuilder {
                     throw new DeploymentException("No ejb-ql defined and flush-cache-before-query not set. method " + methodName);
                 }
 
+                String groupName = null;
+                if (openejbQueryType.isSetGroupName()) {
+                    groupName = openejbQueryType.getGroupName();
+                }
+                
                 if (methodName.startsWith("find")) {
                     FinderEJBQLQuery query = new FinderEJBQLQuery(methodName, parameterTypes, ejbQL);
                     if (null == ejbQL) {
@@ -417,6 +486,7 @@ class CMPEntityBuilder extends EntityBuilder {
                         ejb.addFinder(query);
                     }
                     query.setFlushCacheBeforeQuery(flushCacheBeforeQuery);
+                    query.setPrefetchGroup(groupName);
                 } else if (methodName.startsWith("ejbSelect")) {
                     boolean isLocal = true;
                     if (openejbQueryType.isSetResultTypeMapping()) {
@@ -435,6 +505,7 @@ class CMPEntityBuilder extends EntityBuilder {
                         ejb.addSelect(query);
                     }
                     query.setFlushCacheBeforeQuery(flushCacheBeforeQuery);
+                    query.setPrefetchGroup(groupName);
                 } else {
                     throw new DeploymentException("Method " + methodName + " is neiher a finder nor a select.");
                 }
@@ -520,6 +591,7 @@ class CMPEntityBuilder extends EntityBuilder {
     private void extractJoinInfo(RoleInfo[] roleInfo, String mtmEntityName, EJBSchema ejbSchema, SQLSchema sqlSchema, OpenejbEjbRelationshipRoleType role) throws DeploymentException {
         String ejbName = role.getRelationshipRoleSource().getEjbName();
         String cmrFieldName = null;
+        String groupName = null;
         if ( role.isSetCmrField() ) {
             cmrFieldName = role.getCmrField().getCmrFieldName();
         }
@@ -611,12 +683,14 @@ class CMPEntityBuilder extends EntityBuilder {
 
         boolean isVirtual = null == roleInfo[0].cmrFieldName;
         String endName0 = isVirtual ? "$VirtualEnd" + id : roleInfo[0].cmrFieldName;
-        roleInfo[0].ejb.addCMRField(new CMRField(endName0, roleInfo[1].ejb, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, relationship, isVirtual, roleInfo[0].isOnPKSide));
+        CMRField cmrField = new CMRField(endName0, roleInfo[1].ejb, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, relationship, isVirtual, roleInfo[0].isOnPKSide);
+        roleInfo[0].ejb.addCMRField(cmrField);
         roleInfo[0].table.addEndTable(new EndTable(endName0, roleInfo[1].table, roleInfo[1].isOne, roleInfo[1].isCascadeDelete, joinTable, isVirtual, roleInfo[0].isOnPKSide));
 
         isVirtual = null == roleInfo[1].cmrFieldName;
         String endName1 = isVirtual ? "$VirtualEnd" + id : roleInfo[1].cmrFieldName;
-        roleInfo[1].ejb.addCMRField(new CMRField(endName1, roleInfo[0].ejb, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, relationship, isVirtual, roleInfo[1].isOnPKSide));
+        cmrField = new CMRField(endName1, roleInfo[0].ejb, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, relationship, isVirtual, roleInfo[1].isOnPKSide);
+        roleInfo[1].ejb.addCMRField(cmrField);
         roleInfo[1].table.addEndTable(new EndTable(endName1, roleInfo[0].table, roleInfo[0].isOne, roleInfo[0].isCascadeDelete, joinTable, isVirtual, roleInfo[1].isOnPKSide));
 
         if (null != mtmEntityName) {
@@ -747,9 +821,8 @@ class CMPEntityBuilder extends EntityBuilder {
         public int hashCode() {
             if ( null == cmrFieldName ) {
                 return entityName.hashCode();
-            } else {
-                return entityName.hashCode() ^ cmrFieldName.hashCode();
             }
+            return entityName.hashCode() ^ cmrFieldName.hashCode();
         }
         public boolean equals(Object obj) {
             if ( false == obj instanceof RoleInfo ) {

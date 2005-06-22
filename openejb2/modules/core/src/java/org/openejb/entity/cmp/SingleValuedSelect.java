@@ -50,13 +50,14 @@ package org.openejb.entity.cmp;
 import javax.ejb.FinderException;
 import javax.ejb.ObjectNotFoundException;
 
-import org.openejb.EJBInvocation;
 import org.tranql.cache.InTxCache;
+import org.tranql.sql.prefetch.PrefetchGroupHandler;
 import org.tranql.field.FieldTransform;
 import org.tranql.field.FieldTransformException;
 import org.tranql.field.Row;
+import org.tranql.ql.Query;
 import org.tranql.ql.QueryException;
-import org.tranql.query.QueryCommandView;
+import org.tranql.query.QueryCommand;
 import org.tranql.query.ResultHandler;
 
 /**
@@ -67,23 +68,35 @@ import org.tranql.query.ResultHandler;
 public class SingleValuedSelect implements InstanceOperation {
     private static final Object NODATA = new Object();
 
-    private final QueryCommandView commandView;
+    private final QueryCommand command;
+    private final FieldTransform resultAccessor;
+    private final PrefetchGroupHandler groupHandler;
     private final boolean flushCache;
     
-    public SingleValuedSelect(QueryCommandView commandView, boolean flushCache) {
-        this.commandView = commandView;
+    public SingleValuedSelect(QueryCommand command, boolean flushCache) {
+        this.command = command;
         this.flushCache = flushCache;
+        
+        Query query = command.getQuery();
+        resultAccessor = query.getResultAccessors()[0];
+        groupHandler = query.getPrefetchGroupHandler();
     }
 
     public Object invokeInstance(CMPInstanceContext ctx, Object[] args) throws Exception {
+        InTxCache cache = ctx.getTransactionContext().getInTxCache();
         if (flushCache) {
-            ctx.getTransactionContext().getInTxCache().flush();
+            cache.flush();
         }
 
         Object o;
         try {
-            SingleValuedResultHandler handler = new SingleValuedResultHandler(commandView.getView()[0]);
-            o = commandView.getQueryCommand().execute(handler, new Row(args), NODATA);
+            ResultHandler handler = new SingleValuedResultHandler(resultAccessor);
+            if (null != groupHandler) {
+                PrefetchGroupHandler newHandler = new PrefetchGroupHandler(groupHandler, handler);
+                o = newHandler.execute(cache, command, new Row(args), NODATA);
+            } else {
+                o = command.execute(handler, new Row(args), NODATA);
+            }
         } catch (QueryException e) {
             throw (FinderException) new FinderException(e.getMessage()).initCause(e);
         }

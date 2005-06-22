@@ -51,6 +51,9 @@ package org.openejb.deployment.entity.cmp.cmr;
 import java.io.File;
 import java.net.URI;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -60,6 +63,7 @@ import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
+
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -91,8 +95,10 @@ import org.tranql.cache.GlobalSchema;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBSchema;
 import org.tranql.ejb.TransactionManagerDelegate;
+import org.tranql.ejbqlcompiler.DerbyDBSyntaxtFactory;
 import org.tranql.ejbqlcompiler.DerbyEJBQLCompilerFactory;
-import org.tranql.sql.sql92.SQL92Schema;
+import org.tranql.sql.BaseSQLSchema;
+import org.tranql.sql.SQLSchema;
 
 /**
  * @version $Revision$ $Date$
@@ -119,7 +125,7 @@ public abstract class AbstractCMRTest extends TestCase {
     protected Kernel kernel;
     protected DataSource ds;
     protected EJBSchema ejbSchema;
-    protected SQL92Schema sqlSchema;
+    protected SQLSchema sqlSchema;
     protected GlobalSchema cacheSchema;
     protected Object ahome;
     protected Object bhome;
@@ -141,17 +147,16 @@ public abstract class AbstractCMRTest extends TestCase {
     protected abstract EJBClass getB();
 
     protected void setUp() throws Exception {
-//        MysqlDataSource mysqlDataSource = new MysqlDataSource();
-//        mysqlDataSource.setUser("geronimo");
-//        mysqlDataSource.setPassword("geronimo");
-//        mysqlDataSource.setURL("jdbc:mysql://localhost/geronimo");
-//
-//        ds = mysqlDataSource;
+//        EmbeddedDataSource eds = new EmbeddedDataSource();
+//        eds.setDatabaseName("/home/gianny/derbyDB");
+//        eds.setCreateDatabase("create");
+//        ds = eds;        
+        
         ds = new AxionDataSource("jdbc:axiondb:testdb");
-
         Connection c = ds.getConnection("root", null);
+//        Connection c = ds.getConnection();
         buildDBSchema(c);
-
+        
         kernel = DeploymentHelper.setUpKernelWithTransactionManager();
         DeploymentHelper.setUpTimer(kernel);
 
@@ -161,7 +166,7 @@ public abstract class AbstractCMRTest extends TestCase {
         tmDelegate.setTransactionManager(tm);
 
         ejbSchema = new EJBSchema("Mock");
-        sqlSchema = new SQL92Schema("Mock", ds, new DerbyEJBQLCompilerFactory());
+        sqlSchema = new BaseSQLSchema("Mock", ds, new DerbyDBSyntaxtFactory(), new DerbyEJBQLCompilerFactory());
         cacheSchema = new GlobalSchema("Mock");
 
         File ejbJarFile = new File(basedir, getEjbJarDD());

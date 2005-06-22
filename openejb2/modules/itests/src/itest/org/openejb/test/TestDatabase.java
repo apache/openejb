@@ -1,5 +1,6 @@
 package org.openejb.test;
 
+import java.sql.SQLException;
 import java.util.Properties;
 
 /**
@@ -19,6 +20,10 @@ public interface TestDatabase {
 
     public void dropAccountTable() throws java.sql.SQLException;
 
+    public void createCMP2Model() throws SQLException;
+    
+    public void dropCMP2Model() throws SQLException;
+    
     public void start() throws IllegalStateException;
 
     public void stop() throws IllegalStateException;

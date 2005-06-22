@@ -56,7 +56,7 @@ import org.apache.geronimo.xbeans.j2ee.EjbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.ejb.EJBSchema;
-import org.tranql.sql.sql92.SQL92Schema;
+import org.tranql.sql.SQLSchema;
 
 /**
  *
@@ -78,7 +78,7 @@ public class CMPEntityBuilderTestUtil extends TestCase {
         this.delegate = new CMPEntityBuilder(builder);
     }
     
-    public void buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQL92Schema sqlSchema, GlobalSchema globalSchema) throws DeploymentException {
+    public void buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema) throws DeploymentException {
         delegate.buildCMPSchema(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema, globalSchema);
     }
     

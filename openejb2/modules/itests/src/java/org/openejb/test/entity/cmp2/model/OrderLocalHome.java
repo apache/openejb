@@ -45,39 +45,19 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.test.entity.cmp2.model;
 
-import java.io.Serializable;
+import javax.ejb.CreateException;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.FinderException;
 
-import org.openejb.EJBInvocation;
-import org.openejb.dispatch.VirtualOperation;
-import org.tranql.cache.InTxCache;
-import org.tranql.ql.QueryException;
-import org.tranql.query.QueryCommand;
 
 /**
  * @version $Revision$ $Date$
  */
-public abstract class CMPFinder implements VirtualOperation, Serializable {
-    private final QueryCommand localCommand;
-    private final QueryCommand remoteCommand;
-    private final boolean flushCache;
+public interface OrderLocalHome extends EJBLocalHome {
+    public OrderLocal create(Integer id, String reference) throws CreateException;
 
-    public CMPFinder(QueryCommand localCommand, QueryCommand remoteCommand, boolean flushCache) {
-        this.localCommand = localCommand;
-        this.remoteCommand = remoteCommand;
-        this.flushCache = flushCache;
-    }
-
-    protected QueryCommand getCommand(EJBInvocation invocation) {
-        return invocation.getType().isLocal() ? localCommand : remoteCommand;
-    }
-    
-    protected InTxCache flushCache(EJBInvocation invocation) throws QueryException {
-        InTxCache cache = invocation.getTransactionContext().getInTxCache();
-        if (flushCache) {
-            cache.flush();
-        }
-        return cache;
-    }
+    public OrderLocal findByPrimaryKey(Integer id) throws FinderException;
+    public OrderLocal findPrefetchAll(Integer id) throws FinderException;
 }

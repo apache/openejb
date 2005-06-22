@@ -51,14 +51,15 @@ import javax.ejb.FinderException;
 import javax.ejb.ObjectNotFoundException;
 
 import org.apache.geronimo.core.service.InvocationResult;
-import org.apache.geronimo.core.service.SimpleInvocationResult;
 import org.openejb.EJBInvocation;
+import org.tranql.cache.InTxCache;
 import org.tranql.field.FieldTransform;
 import org.tranql.field.FieldTransformException;
 import org.tranql.field.Row;
 import org.tranql.ql.QueryException;
-import org.tranql.query.QueryCommandView;
+import org.tranql.query.QueryCommand;
 import org.tranql.query.ResultHandler;
+import org.tranql.sql.prefetch.PrefetchGroupHandler;
 
 /**
  * 
@@ -68,17 +69,26 @@ import org.tranql.query.ResultHandler;
 public class SingleValuedFinder extends CMPFinder {
     private static final Object NODATA = new Object();
 
-    public SingleValuedFinder(QueryCommandView localQueryView, QueryCommandView remoteQueryView, boolean flushCache) {
-        super(localQueryView, remoteQueryView, flushCache);
+    public SingleValuedFinder(QueryCommand localCommand, QueryCommand remoteCommand, boolean flushCache) {
+        super(localCommand, remoteCommand, flushCache);
     }
 
     public InvocationResult execute(EJBInvocation invocation) throws Throwable {
-        flushCache(invocation);
+        InTxCache cache = flushCache(invocation);
         
         try {
-            QueryCommandView commandView = getCommand(invocation);
-            SingleValuedResultHandler handler = new SingleValuedResultHandler(commandView.getView()[0], invocation);
-            Object o = commandView.getQueryCommand().execute(handler, new Row(invocation.getArguments()), NODATA);
+            QueryCommand command = getCommand(invocation);
+            FieldTransform resultAccessor = command.getQuery().getResultAccessors()[0];
+            SingleValuedResultHandler handler =new SingleValuedResultHandler(resultAccessor, invocation);
+            Row arguments = new Row(invocation.getArguments());
+            PrefetchGroupHandler groupHandler = command.getQuery().getPrefetchGroupHandler();
+            Object o;
+            if (null != groupHandler) {
+                groupHandler = new PrefetchGroupHandler(groupHandler, handler);
+                o = groupHandler.execute(cache, command, arguments, NODATA);
+            } else {
+                o = command.execute(handler, arguments, NODATA);
+            }
             return o == NODATA ? invocation.createExceptionResult((Exception)new ObjectNotFoundException()) : (InvocationResult) o;
         } catch (QueryException e) {
             return invocation.createExceptionResult((Exception)new FinderException(e.getMessage()).initCause(e));

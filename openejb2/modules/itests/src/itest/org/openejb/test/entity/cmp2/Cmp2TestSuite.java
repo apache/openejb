@@ -68,7 +68,7 @@ public class Cmp2TestSuite extends org.openejb.test.TestSuite {
         this.addTest(new Cmp2AllowedOperationsTests());
         this.addTest(new Cmp2JndiEncTests());
         this.addTest(new Cmp2RmiIiopTests());
-
+        this.addTest(new PrefetchTests());
     }
 
     public static junit.framework.Test suite() {
@@ -88,6 +88,7 @@ public class Cmp2TestSuite extends org.openejb.test.TestSuite {
         /*[2] Create database table */
         TestManager.getDatabase().createEntityTable();
         TestManager.getDatabase().createEntityExplicitePKTable();
+        TestManager.getDatabase().createCMP2Model();
     }
 
     /**
@@ -98,5 +99,6 @@ public class Cmp2TestSuite extends org.openejb.test.TestSuite {
         /*[1] Drop database table */
         TestManager.getDatabase().dropEntityTable();
         TestManager.getDatabase().dropEntityExplicitePKTable();
+        TestManager.getDatabase().dropCMP2Model();
     }
 }

@@ -45,39 +45,57 @@
  *
  * ====================================================================
  */
-package org.openejb.entity.cmp;
+package org.openejb.test.entity.cmp2.model;
 
-import java.io.Serializable;
+import java.util.Set;
 
-import org.openejb.EJBInvocation;
-import org.openejb.dispatch.VirtualOperation;
-import org.tranql.cache.InTxCache;
-import org.tranql.ql.QueryException;
-import org.tranql.query.QueryCommand;
+import javax.ejb.CreateException;
+import javax.ejb.EntityBean;
+import javax.ejb.EntityContext;
 
 /**
  * @version $Revision$ $Date$
  */
-public abstract class CMPFinder implements VirtualOperation, Serializable {
-    private final QueryCommand localCommand;
-    private final QueryCommand remoteCommand;
-    private final boolean flushCache;
+public abstract class AddressBean implements EntityBean {
 
-    public CMPFinder(QueryCommand localCommand, QueryCommand remoteCommand, boolean flushCache) {
-        this.localCommand = localCommand;
-        this.remoteCommand = remoteCommand;
-        this.flushCache = flushCache;
+    // CMP
+    public abstract Integer getId();
+    public abstract void setId(Integer primaryKey);
+
+    public abstract String getStreet();
+    public abstract void setStreet(String street);
+
+    public abstract String getCity();
+    public abstract void setCity(String city);
+
+    public Integer ejbCreate(Integer id, String street, String city) throws CreateException {
+        setId(id);
+        setStreet(street);
+        setCity(city);
+        return null;
     }
 
-    protected QueryCommand getCommand(EJBInvocation invocation) {
-        return invocation.getType().isLocal() ? localCommand : remoteCommand;
+    public void ejbPostCreate(Integer id, String street, String city) {
     }
     
-    protected InTxCache flushCache(EJBInvocation invocation) throws QueryException {
-        InTxCache cache = invocation.getTransactionContext().getInTxCache();
-        if (flushCache) {
-            cache.flush();
-        }
-        return cache;
+    public void ejbLoad() {
+    }
+
+    public void setEntityContext(EntityContext ctx) {
+    }
+
+    public void unsetEntityContext() {
+    }
+
+    public void ejbStore() {
+    }
+
+    public void ejbRemove() {
+    }
+
+    public void ejbActivate() {
+    }
+
+    public void ejbPassivate() {
     }
 }
