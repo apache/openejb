@@ -44,22 +44,67 @@
  */
 package org.openejb.corba.util;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.rmi.RemoteException;
 import javax.rmi.CORBA.Stub;
+import javax.rmi.CORBA.StubDelegate;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.omg.CORBA.ORB;
 import org.openejb.corba.ClientContext;
-import org.openejb.corba.ClientContextHolder;
+import org.openejb.corba.ClientContextManager;
 
 /**
  * @version $Revision$ $Date$
  */
-public abstract class ClientContextHolderStub extends Stub implements ClientContextHolder {
+public class StubDelegateImpl implements StubDelegate {
+    private static final Log log = LogFactory.getLog(StubDelegateImpl.class);
+    private final static String DELEGATE_NAME = "org.openejb.corba.StubDelegateClass";
+    private final StubDelegate delegate;
     private ClientContext clientContext;
 
-    public ClientContext getClientContext() {
-        return clientContext;
+    public StubDelegateImpl() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        String value = System.getProperty(DELEGATE_NAME);
+        if (value == null) {
+            log.error("No delegate specfied via " + DELEGATE_NAME);
+            throw new IllegalStateException("The property " + DELEGATE_NAME + " must be defined!");
+        }
+
+        if (log.isDebugEnabled()) log.debug("Set delegate " + value);
+        delegate = (StubDelegate) StubDelegateImpl.class.getClassLoader().loadClass(value).newInstance();
     }
 
-    public void setClientContext(ClientContext clientContext) {
-        this.clientContext = clientContext;
+    public int hashCode(Stub self) {
+        return delegate.hashCode(self);
+    }
+
+    public boolean equals(Stub self, Object obj) {
+        return delegate.equals(self, obj);
+    }
+
+    public String toString(Stub self) {
+        return delegate.toString(self);
+    }
+
+    public void connect(Stub self, ORB orb) throws RemoteException {
+        delegate.connect(self, orb);
+        clientContext = ClientContextManager.getClientContext();
+    }
+
+    public void readObject(Stub self, ObjectInputStream s) throws IOException, ClassNotFoundException {
+        ClientContext oldClientContext = ClientContextManager.getClientContext();
+        try {
+            ClientContextManager.setClientContext(clientContext);
+            delegate.readObject(self, s);
+        } finally {
+            ClientContextManager.setClientContext(oldClientContext);
+        }
+    }
+
+    public void writeObject(Stub self, ObjectOutputStream s) throws IOException {
+        delegate.writeObject(self, s);
     }
 }

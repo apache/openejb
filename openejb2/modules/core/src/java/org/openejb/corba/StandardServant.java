@@ -217,7 +217,7 @@ public class StandardServant extends Servant implements org.omg.CORBA.portable.I
             return new Long(in.read_longlong());
         } else if (type == short.class) {
             return new Short(in.read_short());
-        } else if (type == Object.class) {
+        } else if (type == Object.class || type == Serializable.class) {
             return Util.readAny(in);
         } else if (Remote.class.isAssignableFrom(type)) {
             return PortableRemoteObject.narrow(in.read_Object(), type);
@@ -245,7 +245,7 @@ public class StandardServant extends Servant implements org.omg.CORBA.portable.I
             out.write_longlong(((Long)result).longValue());
         } else if (type == short.class) {
             out.write_short(((Short)result).shortValue());
-        } else if (type == Object.class) {
+        } else if (type == Object.class || type == Serializable.class) {
             Util.writeAny(out, result);
         } else if (Remote.class.isAssignableFrom(type)) {
             Util.writeRemoteObject(out, result);

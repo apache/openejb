@@ -180,10 +180,12 @@ public class CSSBean implements GBeanLifecycle {
             org.omg.CORBA.Object bean = ic.resolve(nameComponent);
             String beanIOR = nssORB.object_to_string(bean);
 
-            bean = cssORB.string_to_object(beanIOR);
-
-            if (bean instanceof ClientContextHolder) {
-                ((ClientContextHolder) bean).setClientContext(context);
+            ClientContext oldClientContext = ClientContextManager.getClientContext();
+            try {
+                ClientContextManager.setClientContext(context);
+                bean = cssORB.string_to_object(beanIOR);
+            } finally {
+                ClientContextManager.setClientContext(oldClientContext);
             }
 
             return bean;

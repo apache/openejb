@@ -53,6 +53,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.rmi.CORBA.Util;
+import javax.rmi.CORBA.Stub;
 import javax.rmi.PortableRemoteObject;
 
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -65,9 +66,6 @@ import org.omg.CORBA.portable.RemarshalException;
 import org.omg.CORBA.portable.ServantObject;
 import org.omg.CORBA_2_3.portable.InputStream;
 import org.omg.CORBA_2_3.portable.OutputStream;
-import org.openejb.corba.ClientContext;
-import org.openejb.corba.ClientContextHolder;
-import org.openejb.corba.ClientContextManager;
 import org.openejb.corba.compiler.IiopOperation;
 import org.openejb.corba.compiler.PortableStubCompiler;
 
@@ -91,7 +89,7 @@ public class StubMethodInterceptor implements MethodInterceptor {
     }
 
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-        ClientContextHolderStub stub = ((ClientContextHolderStub) proxy);
+        Stub stub = ((Stub) proxy);
 
         // get the operation name object
         String operationName = (String) operations.get(method);
@@ -101,14 +99,10 @@ public class StubMethodInterceptor implements MethodInterceptor {
 
         while (true) {
             // if this is a stub to a remote object we invoke over the wire
-            ClientContext context = stub.getClientContext();
             if (!Util.isLocal(stub)) {
 
-                ClientContext saved = ClientContextManager.getClientContext();
                 InputStream in = null;
                 try {
-                    ClientContextManager.setClientContext(context);
-
                     // create the request output stream
                     OutputStream out = (OutputStream) stub._request(operationName, true);
 
@@ -120,9 +114,6 @@ public class StubMethodInterceptor implements MethodInterceptor {
 
                     // read the result
                     Object result = readResult(method.getReturnType(), in);
-                    if (result instanceof ClientContextHolder) {
-                        ((ClientContextHolder) result).setClientContext(context);
-                    }
                     return result;
                 } catch (RemarshalException exception) {
                     continue;
@@ -131,12 +122,9 @@ public class StubMethodInterceptor implements MethodInterceptor {
                 } catch (SystemException e) {
                     throw Util.mapSystemException(e);
                 } finally {
-                    ClientContextManager.setClientContext(saved);
                     stub._releaseReply(in);
                 }
             } else {
-                ClientContext saved = ClientContextManager.getClientContext();
-
                 // get the servant
                 ServantObject servantObject = stub._servant_preinvoke(operationName, type);
                 if (servantObject == null) {
@@ -144,8 +132,6 @@ public class StubMethodInterceptor implements MethodInterceptor {
                 }
 
                 try {
-                    ClientContextManager.setClientContext(context);
-
                     // copy the arguments
                     Object[] argsCopy = Util.copyObjects(args, stub._orb());
 
@@ -161,11 +147,7 @@ public class StubMethodInterceptor implements MethodInterceptor {
                     }
 
                     // copy the result
-//                    result = PortableRemoteObject.narrow(Util.copyObject(result, stub._orb()), String.class);
                     result = Util.copyObject(result, stub._orb());
-                    if (result instanceof ClientContextHolder) {
-                        ((ClientContextHolder) result).setClientContext(context);
-                    }
 
                     return result;
                 } catch (Throwable throwable) {
@@ -183,7 +165,6 @@ public class StubMethodInterceptor implements MethodInterceptor {
 
                     throw Util.wrapException(throwableCopy);
                 } finally {
-                    ClientContextManager.setClientContext(saved);
                     stub._servant_postinvoke(servantObject);
                 }
             }
@@ -217,17 +198,21 @@ public class StubMethodInterceptor implements MethodInterceptor {
             out.write_longlong(((Long) result).longValue());
         } else if (type == short.class) {
             out.write_short(((Short) result).shortValue());
-        } else if (type == Object.class) {
+        } else if (type == Object.class || type == Serializable.class) {
             Util.writeAny(out, result);
         } else if (Remote.class.isAssignableFrom(type)) {
             Util.writeRemoteObject(out, result);
+        } else if (org.omg.CORBA.Object.class.isAssignableFrom(type)) {
+            out.write_Object((org.omg.CORBA.Object) result);
         } else {
             out.write_value((Serializable) result, type);
         }
     }
 
     private static Object readResult(Class type, InputStream in) {
-        if (type == boolean.class) {
+        if (type == void.class) {
+            return null;
+        } else if (type == boolean.class) {
             return new Boolean(in.read_boolean());
         } else if (type == byte.class) {
             return new Byte(in.read_octet());
@@ -243,10 +228,12 @@ public class StubMethodInterceptor implements MethodInterceptor {
             return new Long(in.read_longlong());
         } else if (type == short.class) {
             return new Short(in.read_short());
-        } else if (type == Object.class) {
+        } else if (type == Object.class || type == Serializable.class) {
             return Util.readAny(in);
         } else if (Remote.class.isAssignableFrom(type)) {
             return PortableRemoteObject.narrow(in.read_Object(), type);
+        } else if (org.omg.CORBA.Object.class.isAssignableFrom(type)) {
+            return in.read_Object();
         } else {
             return in.read_value(type);
         }
@@ -254,28 +241,30 @@ public class StubMethodInterceptor implements MethodInterceptor {
 
     private void readException(Method method, InputStream in) throws Throwable {
         // read the exception id
-        String id = in.read_string();
+        final String id = in.read_string();
 
         // get the class name from the id
         if (!id.startsWith("IDL:")) {
             log.warn("Malformed exception id: " + id);
             return;
         }
-        String className = id.substring("IDL:".length());
-        int index = className.lastIndexOf(':');
-        if (index > 0) {
-            className = className.substring(0, index);
-        }
-        className = className.replace('/', '.');
 
         Class[] exceptionTypes = method.getExceptionTypes();
         for (int i = 0; i < exceptionTypes.length; i++) {
             Class exceptionType = exceptionTypes[i];
 //            if (RemoteException.class.isAssignableFrom(exceptionType) ||
-//                    RuntimeException.class.isAssignableFrom(exceptionType)) {
+//                    RuntimeException.class.isAssignableFrom(exceptionType) ) {
 //                continue;
 //            }
-            if (className.equals(exceptionType.getName())) {
+
+            // Determine the exception id
+            String exceptionName = exceptionType.getName().replace('.', '/');
+            if (exceptionName.endsWith("Exception")) {
+                exceptionName = exceptionName.substring(0, exceptionName.length() - "Exception".length());
+            }
+            exceptionName += "Ex";
+            String exceptionId = "IDL:" + exceptionName + ":1.0";
+            if (id.equals(exceptionId)) {
                 throw (Throwable) in.read_value(exceptionType);
             }
         }
