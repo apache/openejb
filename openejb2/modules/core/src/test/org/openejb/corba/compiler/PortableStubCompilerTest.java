@@ -46,6 +46,7 @@ package org.openejb.corba.compiler;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Properties;
@@ -59,45 +60,26 @@ import junit.framework.TestCase;
 public class PortableStubCompilerTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
+    public void testBeanPropertiesNameMangler() throws Exception {
+        assertMangling("src/test-resources/beanPropertiesNameMangler.properties", BeanProperties.class);
+    }
+
     public void testBasicNameMangler() throws Exception {
-        Properties nameManglerProperties = new Properties();
-        File file = new File(basedir, "src/test-resources/nameMangler.properties");
-        nameManglerProperties.load(new FileInputStream(file));
-
-        Set methodSignatures = new HashSet();
-        IiopOperation[] iiopOperations = PortableStubCompiler.createIiopOperations(Foo.class);
-        for (int i = 0; i < iiopOperations.length; i++) {
-            IiopOperation iiopOperation = iiopOperations[i];
-            Method method = iiopOperation.getMethod();
-            String methodSignature = method.getName() + "(";
-
-            Class[] parameterTypes = method.getParameterTypes();
-            for (int j = 0; j < parameterTypes.length; j++) {
-                Class parameterType = parameterTypes[j];
-                String arrayBrackets = "";
-                while (parameterType.isArray()) {
-                    arrayBrackets += "[]";
-                    parameterType = parameterType.getComponentType();
-                }
-                methodSignature += parameterType.getName() + arrayBrackets;
-            }
-            methodSignature += ")";
-            methodSignatures.add(methodSignature);
-
-            assertTrue("Method not present in name mangler properties: " + methodSignature, nameManglerProperties.containsKey(methodSignature));
-            assertEquals(nameManglerProperties.getProperty(methodSignature), iiopOperation.getName());
-        }
-
-        assertEquals("Did not match all methods", nameManglerProperties.keySet(), methodSignatures);
+        assertMangling("src/test-resources/nameMangler.properties", Foo.class);
     }
 
     public void testSpecialNameMangler() throws Exception {
+        assertMangling("src/test-resources/specialNameMangler.properties", Special.class);
+    }
+
+    private void assertMangling(String propertiesFile, Class intf) throws IOException {
         Properties nameManglerProperties = new Properties();
-        File file = new File(basedir, "src/test-resources/specialNameMangler.properties");
+        File file = new File(basedir, propertiesFile);
         nameManglerProperties.load(new FileInputStream(file));
 
         Set methodSignatures = new HashSet();
-        IiopOperation[] iiopOperations = PortableStubCompiler.createIiopOperations(Special.class);
+        IiopOperation[] iiopOperations = PortableStubCompiler.createIiopOperations(intf);
+        boolean failed = false;
         for (int i = 0; i < iiopOperations.length; i++) {
             IiopOperation iiopOperation = iiopOperations[i];
             Method method = iiopOperation.getMethod();
@@ -116,10 +98,26 @@ public class PortableStubCompilerTest extends TestCase {
             methodSignature += ")";
             methodSignatures.add(methodSignature);
 
-            assertTrue("Method not present in name mangler properties: " + methodSignature, nameManglerProperties.containsKey(methodSignature));
-            assertEquals(nameManglerProperties.getProperty(methodSignature), iiopOperation.getName());
+            String expected = nameManglerProperties.getProperty(methodSignature);
+            String actual = iiopOperation.getName();
+            if (expected == null || !expected.equals(actual)) {
+                System.out.println("Expected: " + expected);
+                System.out.println("  Actual: " + actual);
+                System.out.println();
+                failed = true;
+            }
         }
 
-        assertEquals("Did not match all methods", nameManglerProperties.keySet(), methodSignatures);
+        if (!nameManglerProperties.keySet().equals(methodSignatures)) {
+            Set extraProperties = new HashSet(nameManglerProperties.keySet());
+            extraProperties.removeAll(methodSignatures);
+            Set missingProperties = new HashSet(methodSignatures);
+            missingProperties.removeAll(nameManglerProperties.keySet());
+            fail("extraProperties=" + extraProperties + ", missingProperties=" + missingProperties);
+        }
+
+        if (failed) {
+            fail();
+        }
     }
 }
