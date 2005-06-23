@@ -174,9 +174,7 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
 
             // delete this file since someone may be holding on to it.
 
-            if (!saveStubCode) {
-                destination.delete();
-            }
+            destination.delete();
 
             Project project = new Project();
             Jar jar = new Jar();
@@ -189,7 +187,9 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
             logAndThrow(e);
         } finally {
             Thread.currentThread().setContextClassLoader(savedLoader);
-            FileUtils.recursiveDelete(TEMPDIR);
+            if (!saveStubCode) {
+                FileUtils.recursiveDelete(TEMPDIR);
+            }
         }
     }
 
@@ -208,7 +208,7 @@ public class OpenORBStubGenerator implements StubGenerator, GBeanLifecycle, Comp
         for (int i = 0; i < stackTrace.length; i++) {
             StackTraceElement stackTraceElement = stackTrace[i];
             if (stackTraceElement.getClassName().equals("org.omg.CosNaming.NamingContextExtPOA")
-                && stackTraceElement.getMethodName().equals("_invoke")) {
+                    && stackTraceElement.getMethodName().equals("_invoke")) {
                 shouldLog = false;
                 break;
             }
