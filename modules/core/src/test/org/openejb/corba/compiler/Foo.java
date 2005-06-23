@@ -53,12 +53,6 @@ import org.openejb.corba.compiler.other.CheeseIDLEntity;
 import org.openejb.corba.compiler.other.Donkey;
 import org.openejb.corba.compiler.other.DonkeyEx;
 import org.openejb.corba.compiler.other.Generic$Interface;
-import org.openejb.corba.compiler.BooException;
-import org.openejb.corba.compiler.other.BlahEx;
-import org.openejb.corba.compiler.other.CheeseIDLEntity;
-import org.openejb.corba.compiler.other.Donkey;
-import org.openejb.corba.compiler.other.DonkeyEx;
-import org.openejb.corba.compiler.other.Generic$Interface;
 
 /**
  * @version $Rev$ $Date$

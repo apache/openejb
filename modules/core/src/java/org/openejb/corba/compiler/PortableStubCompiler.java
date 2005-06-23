@@ -55,6 +55,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.rmi.RemoteException;
 
 import org.omg.CORBA.portable.IDLEntity;
 
@@ -109,28 +110,140 @@ public class PortableStubCompiler {
     public static IiopOperation[] createIiopOperations(Class intfClass) {
         Method[] methods = getAllMethods(intfClass);
 
+        // find every valid getter
+        HashMap getterByMethod = new HashMap(methods.length);
+        HashMap getterByName = new HashMap(methods.length);
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            String methodName = method.getName();
+
+            // no arguments allowed
+            if (method.getParameterTypes().length != 0) {
+                continue;
+            }
+
+            // must start with get or is
+            String verb;
+            if (methodName.startsWith("get") && methodName.length() > 3 && method.getReturnType() != void.class) {
+                verb = "get";
+            } else if (methodName.startsWith("is") && methodName.length() > 2 && method.getReturnType() == boolean.class) {
+                verb = "is";
+            } else {
+                continue;
+            }
+
+            // must only throw Remote or Runtime Exceptions
+            boolean exceptionsValid = true;
+            Class[] exceptionTypes = method.getExceptionTypes();
+            for (int j = 0; j < exceptionTypes.length; j++) {
+                Class exceptionType = exceptionTypes[j];
+                if (!RemoteException.class.isAssignableFrom(exceptionType) &&
+                        !RuntimeException.class.isAssignableFrom(exceptionType) &&
+                        !Error.class.isAssignableFrom(exceptionType)) {
+                    exceptionsValid = false;
+                    break;
+                }
+            }
+            if (!exceptionsValid) {
+                continue;
+            }
+
+            String propertyName;
+            if (Character.isLowerCase(methodName.charAt(verb.length() + 1))) {
+                propertyName = Character.toLowerCase(methodName.charAt(verb.length())) + methodName.substring(verb.length() + 1);
+            } else {
+                propertyName = methodName.substring(verb.length());
+            }
+            getterByMethod.put(method, propertyName);
+            getterByName.put(propertyName, method);
+        }
+
+        HashMap setterByMethod = new HashMap(methods.length);
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            String methodName = method.getName();
+
+            // must have exactally one arg
+            if (method.getParameterTypes().length != 1) {
+                continue;
+            }
+
+            // must return non void
+            if (method.getReturnType() != void.class) {
+                continue;
+            }
+
+            // must start with set
+            if (!methodName.startsWith("set") || methodName.length() <= 3) {
+                continue;
+            }
+
+            // must only throw Remote or Runtime Exceptions
+            boolean exceptionsValid = true;
+            Class[] exceptionTypes = method.getExceptionTypes();
+            for (int j = 0; j < exceptionTypes.length; j++) {
+                Class exceptionType = exceptionTypes[j];
+                if (!RemoteException.class.isAssignableFrom(exceptionType) &&
+                        !RuntimeException.class.isAssignableFrom(exceptionType) &&
+                        !Error.class.isAssignableFrom(exceptionType)) {
+                    exceptionsValid = false;
+                    break;
+                }
+            }
+            if (!exceptionsValid) {
+                continue;
+            }
+
+            String propertyName;
+            if (Character.isLowerCase(methodName.charAt(3 + 1))) {
+                propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+            } else {
+                propertyName = methodName.substring(3);
+            }
+
+            // must have a matching getter
+            Method getter = (Method) getterByName.get(propertyName);
+            if (getter == null) {
+                continue;
+            }
+
+            // setter property must match gettter return value
+            if (!method.getParameterTypes()[0].equals(getter.getReturnType())) {
+                continue;
+            }
+            setterByMethod.put(method, propertyName);
+        }
+
         // index the methods by name... used to determine which methods are overloaded
         HashMap overloadedMethods = new HashMap(methods.length);
         for (int i = 0; i < methods.length; i++) {
-            String methodName = methods[i].getName();
+            Method method = methods[i];
+            if (getterByMethod.containsKey(method) || setterByMethod.containsKey(method)) {
+                continue;
+            }
+            String methodName = method.getName();
             List methodList = (List) overloadedMethods.get(methodName);
             if (methodList == null) {
                 methodList = new LinkedList();
                 overloadedMethods.put(methodName, methodList);
             }
-            methodList.add(methods[i]);
+            methodList.add(method);
         }
 
         // index the methods by lower case name... used to determine which methods differ only by case
         HashMap caseCollisionMethods = new HashMap(methods.length);
         for (int i = 0; i < methods.length; i++) {
-            String lowerCaseMethodName = methods[i].getName().toLowerCase();
+            Method method = methods[i];
+            if (getterByMethod.containsKey(method) || setterByMethod.containsKey(method)) {
+                continue;
+            }
+            String lowerCaseMethodName = method.getName().toLowerCase();
             Set methodSet = (Set) caseCollisionMethods.get(lowerCaseMethodName);
             if (methodSet == null) {
                 methodSet = new HashSet();
                 caseCollisionMethods.put(lowerCaseMethodName, methodSet);
             }
-            methodSet.add(methods[i].getName());
+            methodSet.add(method.getName());
         }
 
         String className = getClassName(intfClass);
@@ -138,19 +251,42 @@ public class PortableStubCompiler {
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
 
-            String iiopName = method.getName();
+            String iiopName = (String) getterByMethod.get(method);
+            if (iiopName != null) {
+                // if we have a leading underscore prepend with J
+                if (iiopName.charAt(0) == '_') {
+                    iiopName = "J_get_" + iiopName.substring(1);
+                } else {
+                    iiopName = "_get_" + iiopName;
+                }
+            } else {
+                iiopName = (String) setterByMethod.get(method);
+                if (iiopName != null) {
+                    // if we have a leading underscore prepend with J
+                    if (iiopName.charAt(0) == '_') {
+                        iiopName = "J_set_" + iiopName.substring(1);
+                    } else {
+                        iiopName = "_set_" + iiopName;
+                    }
+                } else {
+                    iiopName = method.getName();
 
-            if (((Set) caseCollisionMethods.get(method.getName().toLowerCase())).size() > 1) {
+                    // if we have a leading underscore prepend with J
+                    if (iiopName.charAt(0) == '_') {
+                        iiopName = "J" + iiopName;
+                    }
+                }
+            }
+
+            // if this name only differs by case add the case index to the end
+            Set caseCollisions = (Set) caseCollisionMethods.get(method.getName().toLowerCase());
+            if (caseCollisions != null && caseCollisions.size() > 1) {
                 iiopName += upperCaseIndexString(iiopName);
             }
 
-            // if we have a leading underscore prepend with J
-            if (iiopName.charAt(0) == '_') {
-                iiopName = "J" + iiopName;
-            }
-
             // if this is an overloaded method append the parameter string
-            if (((List) overloadedMethods.get(method.getName())).size() > 1) {
+            List overloads = (List) overloadedMethods.get(method.getName());
+            if (overloads != null && overloads.size() > 1) {
                 iiopName += buildOverloadParameterString(method.getParameterTypes());
             }
 
