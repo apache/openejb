@@ -24,6 +24,8 @@ import org.openejb.corba.transaction.MappedServerTransactionPolicyConfig;
 import org.openejb.corba.transaction.OperationTxPolicy;
 import org.openejb.corba.transaction.ServerTransactionPolicyConfig;
 import org.openejb.corba.transaction.nodistributedtransactions.NoDTxServerTransactionPolicies;
+import org.openejb.corba.compiler.IiopOperation;
+import org.openejb.corba.compiler.PortableStubCompiler;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
@@ -35,14 +37,13 @@ public class NoDistributedTxTransactionImportPolicyBuilder implements Transactio
 
     public Serializable buildTransactionImportPolicy(String methodIntf, Class intf, boolean isHomeMethod, TransactionPolicySource transactionPolicySource, ClassLoader classLoader) {
         Map policies = new HashMap();
-        org.apache.geronimo.interop.rmi.iiop.compiler.Compiler compiler = new org.apache.geronimo.interop.rmi.iiop.compiler.Compiler(null, classLoader);
-        org.apache.geronimo.interop.rmi.iiop.compiler.Compiler.MethodOverload[] methodOverloads = compiler.getMethodOverloads(intf, false);
-        for (int i = 0; i < methodOverloads.length; i++) {
-            org.apache.geronimo.interop.rmi.iiop.compiler.Compiler.MethodOverload methodOverload = methodOverloads[i];
-            InterfaceMethodSignature interfaceMethodSignature = new InterfaceMethodSignature(methodOverload.method, isHomeMethod);
+        IiopOperation[] iiopOperations = PortableStubCompiler.createIiopOperations(intf);
+        for (int i = 0; i < iiopOperations.length; i++) {
+            IiopOperation iiopOperation = iiopOperations[i];
+            InterfaceMethodSignature interfaceMethodSignature = new InterfaceMethodSignature(iiopOperation.getMethod(), isHomeMethod);
             TransactionPolicyType transactionPolicyType = transactionPolicySource.getTransactionPolicy(methodIntf, interfaceMethodSignature);
             OperationTxPolicy operationTxPolicy = NoDTxServerTransactionPolicies.getTransactionPolicy(transactionPolicyType);
-            String IDLOperationName = methodOverload.iiop_name;
+            String IDLOperationName = iiopOperation.getName();
             policies.put(IDLOperationName, operationTxPolicy);
         }
         ServerTransactionPolicyConfig serverTransactionPolicyConfig = new MappedServerTransactionPolicyConfig(policies);
