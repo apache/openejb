@@ -44,13 +44,11 @@
  */
 package org.openejb.corba.util;
 
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 import javax.rmi.CORBA.Stub;
 
 import junit.framework.TestCase;
-import org.openejb.corba.ClientContext;
-import org.openejb.corba.ClientContextHolder;
 
 /**
  * @version $Revision$ $Date$
@@ -79,11 +77,6 @@ public class DynamicStubClassLoaderTest extends TestCase {
                     List ids = Arrays.asList(strings);
                     assertTrue(ids.contains("RMI:org.openejb.corba.compiler.Simple:0000000000000000"));
                     assertTrue(ids.contains("RMI:org.openejb.corba.compiler.Special:0000000000000000"));
-
-                    ClientContextHolder clientContextHolder = (ClientContextHolder)stub;
-                    ClientContext context = new ClientContext();
-                    clientContextHolder.setClientContext(context);
-                    assertSame(context, clientContextHolder.getClientContext());
                 } catch (Exception e) {
                     exception[0] = e;
                 }
