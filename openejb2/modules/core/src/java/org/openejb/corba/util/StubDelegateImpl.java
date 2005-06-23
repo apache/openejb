@@ -48,6 +48,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
+import java.util.Map;
+import java.util.Collections;
+import java.util.WeakHashMap;
 import javax.rmi.CORBA.Stub;
 import javax.rmi.CORBA.StubDelegate;
 
@@ -66,6 +69,8 @@ public class StubDelegateImpl implements StubDelegate {
     private final StubDelegate delegate;
     private ClientContext clientContext;
 
+    private static final Map stubToDelegateMap = Collections.synchronizedMap(new WeakHashMap());
+
     public StubDelegateImpl() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         String value = System.getProperty(DELEGATE_NAME);
         if (value == null) {
@@ -75,6 +80,10 @@ public class StubDelegateImpl implements StubDelegate {
 
         if (log.isDebugEnabled()) log.debug("Set delegate " + value);
         delegate = (StubDelegate) StubDelegateImpl.class.getClassLoader().loadClass(value).newInstance();
+    }
+
+    public static StubDelegateImpl getDelegateForStub(Stub stub) {
+        return (StubDelegateImpl) stubToDelegateMap.get(stub);
     }
 
     public int hashCode(Stub self) {
@@ -89,9 +98,14 @@ public class StubDelegateImpl implements StubDelegate {
         return delegate.toString(self);
     }
 
+    public ClientContext getClientContext() {
+        return clientContext;
+    }
+
     public void connect(Stub self, ORB orb) throws RemoteException {
         delegate.connect(self, orb);
         clientContext = ClientContextManager.getClientContext();
+        stubToDelegateMap.put(self, this);
     }
 
     public void readObject(Stub self, ObjectInputStream s) throws IOException, ClassNotFoundException {
