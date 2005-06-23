@@ -50,7 +50,6 @@ import java.rmi.Remote;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import javax.rmi.CORBA.Stub;
 
 import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.core.Predicate;
@@ -67,6 +66,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.openejb.corba.compiler.PortableStubCompiler;
+import org.openejb.corba.ClientContextHolder;
 
 
 /**
@@ -112,8 +112,8 @@ public class DynamicStubClassLoader extends ClassLoader implements GBeanLifecycl
         // create the stub builder
         try {
             Enhancer enhancer = new Enhancer();
-            enhancer.setSuperclass(Stub.class);
-            enhancer.setInterfaces(new Class[]{iface});
+            enhancer.setSuperclass(ClientContextHolderStub.class);
+            enhancer.setInterfaces(new Class[]{iface, ClientContextHolder.class});
             enhancer.setCallbackFilter(FILTER);
             enhancer.setCallbackTypes(new Class[]{NoOp.class, MethodInterceptor.class, FixedValue.class});
             enhancer.setUseFactory(false);

@@ -68,6 +68,9 @@ import org.omg.CORBA_2_3.portable.InputStream;
 import org.omg.CORBA_2_3.portable.OutputStream;
 import org.openejb.corba.compiler.IiopOperation;
 import org.openejb.corba.compiler.PortableStubCompiler;
+import org.openejb.corba.ClientContext;
+import org.openejb.corba.ClientContextManager;
+import org.openejb.corba.ClientContextHolder;
 
 /**
  * @version $Revision$ $Date$
@@ -96,78 +99,99 @@ public class StubMethodInterceptor implements MethodInterceptor {
         if (operationName == null) {
             throw new IllegalStateException("Unknown method: " + method);
         }
+        ClientContext oldContext = ClientContextManager.getClientContext();
 
-        while (true) {
-            // if this is a stub to a remote object we invoke over the wire
-            if (!Util.isLocal(stub)) {
+        //first try the stub
+        ClientContextHolder holder = (ClientContextHolder) proxy;
+        ClientContext context = holder.getClientContext();
 
-                InputStream in = null;
-                try {
-                    // create the request output stream
-                    OutputStream out = (OutputStream) stub._request(operationName, true);
+        //if stub got deserialized rather than looked up via CSSBean, it might not have the context
+        if (context == null) {
+            StubDelegateImpl delegate = StubDelegateImpl.getDelegateForStub(stub);
+            if (delegate == null) {
+                throw new IllegalStateException("No StubDelegateImpl for stub");
+            }
+            context = delegate.getClientContext();
+            //might as well set it for next time
+            holder.setClientContext(context);
+        }
+        try {
+            ClientContextManager.setClientContext(context);
 
-                    // write the arguments
-                    writeArguments(method, args, out);
+            while (true) {
+                // if this is a stub to a remote object we invoke over the wire
+                if (!Util.isLocal(stub)) {
 
-                    // send the invocation
-                    in = (InputStream) stub._invoke(out);
-
-                    // read the result
-                    Object result = readResult(method.getReturnType(), in);
-                    return result;
-                } catch (RemarshalException exception) {
-                    continue;
-                } catch (ApplicationException exception) {
-                    readException(method, (InputStream) exception.getInputStream());
-                } catch (SystemException e) {
-                    throw Util.mapSystemException(e);
-                } finally {
-                    stub._releaseReply(in);
-                }
-            } else {
-                // get the servant
-                ServantObject servantObject = stub._servant_preinvoke(operationName, type);
-                if (servantObject == null) {
-                    continue;
-                }
-
-                try {
-                    // copy the arguments
-                    Object[] argsCopy = Util.copyObjects(args, stub._orb());
-
-                    // invoke the servant
-                    Object result = null;
+                    InputStream in = null;
                     try {
-                        result = method.invoke(servantObject.servant, argsCopy);
-                    } catch (InvocationTargetException e) {
-                        if (e.getCause() != null) {
-                            throw e.getCause();
-                        }
-                        throw e;
+                        // create the request output stream
+                        OutputStream out = (OutputStream) stub._request(operationName, true);
+
+                        // write the arguments
+                        writeArguments(method, args, out);
+
+                        // send the invocation
+                        in = (InputStream) stub._invoke(out);
+
+                        // read the result
+                        Object result = readResult(method.getReturnType(), in, context);
+                        return result;
+                    } catch (RemarshalException exception) {
+                        continue;
+                    } catch (ApplicationException exception) {
+                        readException(method, (InputStream) exception.getInputStream());
+                    } catch (SystemException e) {
+                        throw Util.mapSystemException(e);
+                    } finally {
+                        stub._releaseReply(in);
+                    }
+                } else {
+                    // get the servant
+                    ServantObject servantObject = stub._servant_preinvoke(operationName, type);
+                    if (servantObject == null) {
+                        continue;
                     }
 
-                    // copy the result
-                    result = Util.copyObject(result, stub._orb());
+                    try {
+                        // copy the arguments
+                        Object[] argsCopy = Util.copyObjects(args, stub._orb());
 
-                    return result;
-                } catch (Throwable throwable) {
-                    // copy the exception
-                    Throwable throwableCopy = (Throwable) Util.copyObject(throwable, stub._orb());
-
-                    // if it is one of my exception rethrow it
-                    Class[] exceptionTypes = method.getExceptionTypes();
-                    for (int i = 0; i < exceptionTypes.length; i++) {
-                        Class exceptionType = exceptionTypes[i];
-                        if (exceptionType.isInstance(throwableCopy)) {
-                            throw throwableCopy;
+                        // invoke the servant
+                        Object result = null;
+                        try {
+                            result = method.invoke(servantObject.servant, argsCopy);
+                        } catch (InvocationTargetException e) {
+                            if (e.getCause() != null) {
+                                throw e.getCause();
+                            }
+                            throw e;
                         }
-                    }
 
-                    throw Util.wrapException(throwableCopy);
-                } finally {
-                    stub._servant_postinvoke(servantObject);
+                        // copy the result
+                        result = Util.copyObject(result, stub._orb());
+
+                        return result;
+                    } catch (Throwable throwable) {
+                        // copy the exception
+                        Throwable throwableCopy = (Throwable) Util.copyObject(throwable, stub._orb());
+
+                        // if it is one of my exception rethrow it
+                        Class[] exceptionTypes = method.getExceptionTypes();
+                        for (int i = 0; i < exceptionTypes.length; i++) {
+                            Class exceptionType = exceptionTypes[i];
+                            if (exceptionType.isInstance(throwableCopy)) {
+                                throw throwableCopy;
+                            }
+                        }
+
+                        throw Util.wrapException(throwableCopy);
+                    } finally {
+                        stub._servant_postinvoke(servantObject);
+                    }
                 }
             }
+        } finally {
+            ClientContextManager.setClientContext(oldContext);
         }
     }
 
@@ -209,7 +233,7 @@ public class StubMethodInterceptor implements MethodInterceptor {
         }
     }
 
-    private static Object readResult(Class type, InputStream in) {
+    private static Object readResult(Class type, InputStream in, ClientContext context) {
         if (type == void.class) {
             return null;
         } else if (type == boolean.class) {
@@ -231,7 +255,11 @@ public class StubMethodInterceptor implements MethodInterceptor {
         } else if (type == Object.class || type == Serializable.class) {
             return Util.readAny(in);
         } else if (Remote.class.isAssignableFrom(type)) {
-            return PortableRemoteObject.narrow(in.read_Object(), type);
+            Object o = PortableRemoteObject.narrow(in.read_Object(), type);
+            if (o instanceof ClientContextHolder) {
+                ((ClientContextHolder)o).setClientContext(context);
+            }
+            return o;
         } else if (org.omg.CORBA.Object.class.isAssignableFrom(type)) {
             return in.read_Object();
         } else {
