@@ -75,10 +75,12 @@ import org.omg.CORBA.portable.OutputStream;
 import org.openejb.corba.AdapterWrapper;
 import org.openejb.corba.CORBAException;
 import org.openejb.corba.RefGenerator;
+import org.openejb.corba.StandardServant;
 import org.openejb.proxy.BaseEJB;
 import org.openejb.proxy.EJBHomeImpl;
 import org.openejb.proxy.EJBObjectImpl;
 import org.openejb.proxy.ProxyInfo;
+import org.openejb.EJBInterfaceType;
 
 
 /**
@@ -138,6 +140,28 @@ public final class UtilDelegateImpl implements UtilDelegate {
             }
             if (obj instanceof BaseEJB) {
                 obj = convertEJBToCORBAObject((BaseEJB) obj);
+            }
+            if (obj instanceof StandardServant) {
+                StandardServant servant = (StandardServant) obj;
+                EJBInterfaceType servantType = servant.getEjbInterfaceType();
+                ProxyInfo proxyInfo = servant.getEjbContainer().getProxyInfo();
+                try {
+                    RefGenerator refGenerator = AdapterWrapper.getRefGenerator(proxyInfo.getContainerID());
+                    if (refGenerator == null) {
+                        throw new MARSHAL("Could not find RefGenerator for container ID: " + proxyInfo.getContainerID());
+                    }
+                    if (EJBInterfaceType.HOME == servantType) {
+                        obj = refGenerator.genHomeReference(proxyInfo);
+                    } else if (EJBInterfaceType.REMOTE == servantType) {
+                        obj = refGenerator.genObjectReference(proxyInfo);
+                    } else {
+                        log.error("Encountered unknown local invocation handler of type " + servantType + ":" + proxyInfo);
+                        throw new MARSHAL("Internal server error while marshaling the reply", 0, CompletionStatus.COMPLETED_YES);
+                    }
+                } catch (CORBAException e) {
+                    log.error("Encountered unknown local invocation handler of type " + servantType + ":" + proxyInfo);
+                    throw new MARSHAL("Internal server error while marshaling the reply", 0, CompletionStatus.COMPLETED_YES);
+                }
             }
             delegate.writeRemoteObject(out, obj);
         } catch (Throwable e) {

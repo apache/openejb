@@ -49,16 +49,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.rmi.Remote;
-import javax.rmi.CORBA.Tie;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.omg.CORBA.Any;
 import org.omg.CORBA.LocalObject;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
-import org.omg.CORBA.Any;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
 import org.omg.PortableServer.LifespanPolicyValue;
@@ -68,10 +66,10 @@ import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantLocator;
 import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
 import org.omg.PortableServer.ServantRetentionPolicyValue;
-
 import org.openejb.EJBContainer;
-import org.openejb.corba.util.TieLoader;
+import org.openejb.EJBInterfaceType;
 import org.openejb.corba.transaction.ServerTransactionPolicyFactory;
+import org.openejb.corba.util.TieLoader;
 import org.openejb.proxy.ProxyInfo;
 
 
@@ -79,12 +77,10 @@ import org.openejb.proxy.ProxyInfo;
  * @version $Revision$ $Date$
  */
 public class AdapterStateful extends Adapter {
-
     private final Log log = LogFactory.getLog(AdapterStateful.class);
 
     private final POA poa;
     private final String referenceInterface;
-    private final AdapterProxyFactory factory;
 
     public AdapterStateful(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader, Policy securityPolicy) throws CORBAException {
         super(container, orb, parentPOA, tieLoader, securityPolicy);
@@ -107,10 +103,8 @@ public class AdapterStateful extends Adapter {
 
             poa.the_POAManager().activate();
 
-            Servant servant = getTieLoader().loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
+            StandardServant servant = new StandardServant(EJBInterfaceType.REMOTE, container);
             referenceInterface = servant._all_interfaces(null, null)[0];
-
-            factory = new AdapterProxyFactory(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
         } catch (Exception e) {
             throw new CORBAException(e);
         }
@@ -155,12 +149,7 @@ public class AdapterStateful extends Adapter {
                 is.close();
 
                 EJBContainer container = getContainer();
-                Servant servant = getTieLoader().loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
-                Remote remote = (Remote) factory.create(container.getEjbObject(pk), container.getClassLoader());
-
-                if (servant instanceof Tie) {
-                    ((Tie) servant).setTarget(remote);
-                }
+                StandardServant servant = new StandardServant(EJBInterfaceType.REMOTE, container, pk);
                 return servant;
             } catch (IOException e) {
                 // if we can't deserialize, then this object can't exist in this process

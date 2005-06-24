@@ -49,8 +49,5 @@ package org.openejb.corba;
  * @version $Revision$ $Date$
  */
 public interface ClientContextHolder {
-
     public ClientContext getClientContext();
-
-    public void setClientContext(ClientContext context);
 }
