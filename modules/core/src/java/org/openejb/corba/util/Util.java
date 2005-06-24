@@ -273,7 +273,7 @@ public final class Util {
                             result = new String(name_arr);
                         } else {
                             System.err.print("ASN1Utils.gssImportName: Unknown OID: " + oid +
-                                             " ('" + Integer.toHexString(oid_arr[0]) + "')");
+                                    " ('" + Integer.toHexString(oid_arr[0]) + "')");
                         }
                     }
                 }
@@ -379,7 +379,7 @@ public final class Util {
                             byte[] init_tok_arr = new byte[len];
                             bais.read(init_tok_arr, 0, len);
                             Any a = codec.decode_value(init_tok_arr,
-                                                       InitialContextTokenHelper.type());
+                                    InitialContextTokenHelper.type());
                             InitialContextToken token = InitialContextTokenHelper.extract(a);
                             if (token != null) {
                                 gssup_tok.username = token.username;
@@ -468,6 +468,8 @@ public final class Util {
             return PortableRemoteObject.narrow(in.read_Object(), type);
         } else if (org.omg.CORBA.Object.class.isAssignableFrom(type)) {
             return in.read_Object();
+        } else if (Serializable.class.isAssignableFrom(type)) {
+            return in.read_abstract_interface();
         } else {
             return in.read_value(type);
         }
