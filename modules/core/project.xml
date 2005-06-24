@@ -130,6 +130,13 @@
           <include>*.properties</include>
         </includes>
       </resource>
+        <resource>
+          <directory>src/bin</directory>
+          <targetPath>openejb</targetPath>
+          <includes>
+            <include>*.txt</include>
+          </includes>
+        </resource>
     </resources>
     <unitTest>
       <includes>
