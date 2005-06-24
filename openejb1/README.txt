@@ -15,12 +15,19 @@ Installation
  directory is refered to in various parts of the documentation, so it's
  good to remeber where it is.
 
+ Add OPENEJB_HOME/bin directory to your PATH environment variable:
+
+   set PATH=%OPENEJB_HOME%/bin;%PATH%
+
+ or
+
+   export PATH=$OPENEJB_HOME/bin:$PATH
+
 ___________________
 Using OpenEJB
 ===================
  
- Now all you need to do is move to the OPENEJB_HOME directory, the 
- directory where OpenEJB was unpacked, and type:
+ Now all you need to do is to type:
  
    openejb help
  

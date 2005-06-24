@@ -66,6 +66,7 @@ import org.openejb.alt.config.sys.Openejb;
 import org.openejb.util.JarUtils;
 import org.openejb.util.Messages;
 import org.openejb.util.SafeToolkit;
+import org.openejb.util.Logger;
 
 /**
  * This class represents a command line tool for deploying beans.
@@ -226,6 +227,9 @@ public class Deploy {
 
     public void init(String openejbConfigFile) throws OpenEJBException {
         try {
+            // Initialize loggers
+            Logger.initialize( System.getProperties() );
+
             if (System.getProperty("openejb.nobanner") == null) {
                 printVersion();
                 System.out.println("");
@@ -749,6 +753,9 @@ public class Deploy {
     /*    Static methods                                    */
     /*------------------------------------------------------*/
 
+    private static final String ERROR_NO_EJBJARFILES_SPECIFIED = "No EJB JARFILES specified";
+    private static final String INCORRECT_OPTION = "Incorrect option: ";
+
     public static void main(String args[]) {
         try {
             org.openejb.util.ClasspathUtils.addJarsToPath("lib");
@@ -760,10 +767,12 @@ public class Deploy {
             Deploy d = new Deploy();
 
             if (args.length == 0) {
+                error(ERROR_NO_EJBJARFILES_SPECIFIED);
                 printHelp();
                 return;
             }
 
+            boolean noBeansToDeploySpecified = true;
             for (int i = 0; i < args.length; i++) {
                 //AUTODEPLOY
                 if (args[i].equals("-a")) {
@@ -791,14 +800,18 @@ public class Deploy {
                     if (args.length > i + 1) {
                         System.setProperty("openejb.home", args[++i]);
                     }
-                } else if (args[i].equals("-help")) {
-                    printHelp();
                 } else if (args[i].equals("-examples")) {
                     printExamples();
                 } else if (args[i].equals("-version")) {
                     printVersion();
+                } else if (args[i].equals("-help")) {
+                    printHelp();
+                } else if (args[i].startsWith("-")) {
+                    error(INCORRECT_OPTION + args[i]);
+                    printHelp();
                 } else {
                     // We must have reached the jar list
+                    noBeansToDeploySpecified = false;
                     d.init(null);
                     for (; i < args.length; i++) {
                         try {
@@ -811,7 +824,11 @@ public class Deploy {
                     }
                 }
             }
-
+            if (noBeansToDeploySpecified) {
+                error(ERROR_NO_EJBJARFILES_SPECIFIED);
+                printHelp();
+                return;
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
             //e.printStackTrace();
@@ -893,6 +910,11 @@ public class Deploy {
             }
         } catch (java.io.IOException e) {
         }
+    }
+
+    // Print error message to stderr
+    private static void error(String msg) {
+        System.err.println("\nERROR: " + msg + "\n");
     }
 
     /*------------------------------------------------------*/
