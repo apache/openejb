@@ -155,15 +155,18 @@ public class StandardServant extends Servant implements InvokeHandler {
     }
 
     public OutputStream _invoke(String operationName, InputStream _in, ResponseHandler reply) throws SystemException {
-        try {
-            // get the method object
-            Method method = (Method) operations.get(operationName);
-            int index = ejbContainer.getMethodIndex(method);
-            if (index < 0) {
-                throw new BAD_OPERATION(operationName);
-            }
+        // get the method object
+        Method method = (Method) operations.get(operationName);
+        int index = ejbContainer.getMethodIndex(method);
+        if (index < 0) {
+            throw new BAD_OPERATION(operationName);
+        }
 
-            org.omg.CORBA_2_3.portable.InputStream in = (org.omg.CORBA_2_3.portable.InputStream) _in;
+        org.omg.CORBA_2_3.portable.InputStream in = (org.omg.CORBA_2_3.portable.InputStream) _in;
+
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(ejbContainer.getClassLoader());
 
             // read in all of the arguments
             Class[] parameterTypes = method.getParameterTypes();
@@ -175,9 +178,7 @@ public class StandardServant extends Servant implements InvokeHandler {
 
             // invoke the method
             Object result = null;
-            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
-                Thread.currentThread().setContextClassLoader(ejbContainer.getClassLoader());
 
                 if (log.isDebugEnabled()) log.debug("Calling " + method.getName());
 
@@ -201,7 +202,10 @@ public class StandardServant extends Servant implements InvokeHandler {
 
                 // process the result
                 if (invocationResult.isException()) {
-                    throw invocationResult.getException();
+                    // all other exceptions are written to stream
+                    // if this is an unknown exception type it will
+                    // be thrown out of writeException
+                    return org.openejb.corba.util.Util.writeUserException(method, reply, invocationResult.getException());
                 }
                 result = invocationResult.getResult();
             } catch (TransactionRolledbackException e) {
@@ -224,14 +228,18 @@ public class StandardServant extends Servant implements InvokeHandler {
                 throw new MARSHAL(e.toString());
             } catch (RemoteException e) {
                 log.debug("RemoteException", e);
-                throw new UNKNOWN(e.toString());
-            } catch (Exception e) {
-                // all other exceptions are written to stream
-                // if this is an unknown exception type it will
-                // be thrown out of writeException
-                return org.openejb.corba.util.Util.writeException(method, reply, e);
-            } finally {
-                Thread.currentThread().setContextClassLoader(oldClassLoader);
+                throw new UnknownException(e);
+            } catch (RuntimeException e) {
+                log.debug("RuntimeException", e);
+                RemoteException remoteException = new RemoteException(e.getClass().getName() + " thrown from " + ejbContainer.getContainerID() + ": " + e.getMessage());
+                throw new UnknownException(remoteException);
+            } catch (Error e) {
+                log.debug("Error", e);
+                RemoteException remoteException = new RemoteException(e.getClass().getName() + " thrown from " + ejbContainer.getContainerID() + ": " + e.getMessage());
+                throw new UnknownException(remoteException);
+            } catch (Throwable e) {
+                log.warn("Unexpected throwable", e);
+                throw new UNKNOWN("Unknown exception type " + e.getClass().getName() + ": " + e.getMessage());
             }
 
             // creat the output stream
@@ -241,10 +249,8 @@ public class StandardServant extends Servant implements InvokeHandler {
             org.openejb.corba.util.Util.writeObject(method.getReturnType(), result, out);
 
             return out;
-        } catch (SystemException ex) {
-            throw ex;
-        } catch (Throwable ex) {
-            throw new UnknownException(ex);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 }
