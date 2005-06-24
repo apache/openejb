@@ -50,9 +50,15 @@ package org.openejb.corba.util;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
+import java.rmi.Remote;
+import java.rmi.UnexpectedException;
+import java.rmi.RemoteException;
+import java.lang.reflect.Method;
 import javax.ejb.spi.HandleDelegate;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.rmi.PortableRemoteObject;
 
 import org.bouncycastle.asn1.DERInputStream;
 import org.bouncycastle.asn1.DERObjectIdentifier;
@@ -62,6 +68,7 @@ import org.bouncycastle.asn1.x509.X509Name;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UserException;
+import org.omg.CORBA.portable.ResponseHandler;
 import org.omg.GSSUP.GSSUPMechOID;
 import org.omg.GSSUP.InitialContextToken;
 import org.omg.GSSUP.InitialContextTokenHelper;
@@ -69,6 +76,10 @@ import org.omg.IOP.Codec;
 import org.omg.IOP.CodecFactory;
 import org.omg.IOP.ENCODING_CDR_ENCAPS;
 import org.omg.IOP.Encoding;
+import org.omg.CORBA_2_3.portable.OutputStream;
+import org.omg.CORBA_2_3.portable.InputStream;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Various utility functions.
@@ -79,7 +90,7 @@ import org.omg.IOP.Encoding;
  * @see UtilInitializer
  */
 public final class Util {
-
+    private static final Log log = LogFactory.getLog(Util.class);
     private static final byte ASN_TAG_NT_EXPORTED_NAME1 = 0x04;
     private static final byte ASN_TAG_NT_EXPORTED_NAME2 = 0x01;
     private static final byte ASN_TAG_OID = 0x06;
@@ -401,4 +412,116 @@ public final class Util {
         '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
+
+    public static void writeObject(Class type, Object object, OutputStream out) {
+        if (type == void.class) {
+            // do nothing for a void
+        } else if (type == boolean.class) {
+            out.write_boolean(((Boolean) object).booleanValue());
+        } else if (type == byte.class) {
+            out.write_octet(((Byte) object).byteValue());
+        } else if (type == char.class) {
+            out.write_wchar(((Character) object).charValue());
+        } else if (type == double.class) {
+            out.write_double(((Double) object).doubleValue());
+        } else if (type == float.class) {
+            out.write_float(((Float) object).floatValue());
+        } else if (type == int.class) {
+            out.write_long(((Integer) object).intValue());
+        } else if (type == long.class) {
+            out.write_longlong(((Long) object).longValue());
+        } else if (type == short.class) {
+            out.write_short(((Short) object).shortValue());
+        } else if (type == Object.class || type == Serializable.class) {
+            javax.rmi.CORBA.Util.writeAny(out, object);
+        } else if (Remote.class.isAssignableFrom(type)) {
+            javax.rmi.CORBA.Util.writeRemoteObject(out, object);
+        } else if (org.omg.CORBA.Object.class.isAssignableFrom(type)) {
+            out.write_Object((org.omg.CORBA.Object) object);
+        } else {
+            out.write_value((Serializable) object, type);
+        }
+    }
+
+    public static Object readObject(Class type, InputStream in) {
+        if (type == void.class) {
+            return null;
+        } else if (type == boolean.class) {
+            return new Boolean(in.read_boolean());
+        } else if (type == byte.class) {
+            return new Byte(in.read_octet());
+        } else if (type == char.class) {
+            return new Character(in.read_wchar());
+        } else if (type == double.class) {
+            return new Double(in.read_double());
+        } else if (type == float.class) {
+            return new Float(in.read_float());
+        } else if (type == int.class) {
+            return new Integer(in.read_long());
+        } else if (type == long.class) {
+            return new Long(in.read_longlong());
+        } else if (type == short.class) {
+            return new Short(in.read_short());
+        } else if (type == Object.class || type == Serializable.class) {
+            return javax.rmi.CORBA.Util.readAny(in);
+        } else if (Remote.class.isAssignableFrom(type)) {
+            return PortableRemoteObject.narrow(in.read_Object(), type);
+        } else if (org.omg.CORBA.Object.class.isAssignableFrom(type)) {
+            return in.read_Object();
+        } else {
+            return in.read_value(type);
+        }
+    }
+
+    public static void throwException(Method method, InputStream in) throws Throwable {
+        // read the exception id
+        final String id = in.read_string();
+
+        // get the class name from the id
+        if (!id.startsWith("IDL:")) {
+            log.warn("Malformed exception id: " + id);
+            return;
+        }
+
+        Class[] exceptionTypes = method.getExceptionTypes();
+        for (int i = 0; i < exceptionTypes.length; i++) {
+            Class exceptionType = exceptionTypes[i];
+
+            String exceptionId = getExceptionId(exceptionType);
+            if (id.equals(exceptionId)) {
+                throw (Throwable) in.read_value(exceptionType);
+            }
+        }
+        throw new UnexpectedException(id);
+    }
+
+    public static OutputStream writeException(Method method, ResponseHandler reply, Exception exception) throws Throwable {
+        Class[] exceptionTypes = method.getExceptionTypes();
+        for (int i = 0; i < exceptionTypes.length; i++) {
+            Class exceptionType = exceptionTypes[i];
+            if (RemoteException.class.isAssignableFrom(exceptionType) ||
+                    RuntimeException.class.isAssignableFrom(exceptionType) ||
+                    !exceptionType.isInstance(exception)) {
+                continue;
+            }
+
+            String exceptionId = getExceptionId(exceptionType);
+
+            OutputStream out = (OutputStream) reply.createExceptionReply();
+            out.write_string(exceptionId);
+            out.write_value(exception);
+            return out;
+        }
+        throw exception;
+    }
+
+    private static String getExceptionId(Class exceptionType) {
+        String exceptionName = exceptionType.getName().replace('.', '/');
+        if (exceptionName.endsWith("Exception")) {
+            exceptionName = exceptionName.substring(0, exceptionName.length() - "Exception".length());
+        }
+        exceptionName += "Ex";
+        String exceptionId = "IDL:" + exceptionName + ":1.0";
+        return exceptionId;
+    }
 }

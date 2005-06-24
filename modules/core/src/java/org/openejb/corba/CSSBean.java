@@ -187,9 +187,6 @@ public class CSSBean implements GBeanLifecycle {
             } finally {
                 ClientContextManager.setClientContext(oldClientContext);
             }
-            if (bean instanceof ClientContextHolder) {
-                ((ClientContextHolder)bean).setClientContext(context);
-            }
 
             return bean;
         } catch (UserException ue) {

@@ -44,25 +44,20 @@
  */
 package org.openejb.corba;
 
-import java.rmi.Remote;
-import javax.rmi.CORBA.Tie;
-
+import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
-import org.omg.CORBA.Any;
 import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
-import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.PortableServer.RequestProcessingPolicyValue;
-import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantRetentionPolicyValue;
-
 import org.openejb.EJBContainer;
-import org.openejb.corba.util.TieLoader;
+import org.openejb.EJBInterfaceType;
 import org.openejb.corba.transaction.ServerTransactionPolicyFactory;
+import org.openejb.corba.util.TieLoader;
 import org.openejb.proxy.ProxyInfo;
 
 
@@ -70,7 +65,6 @@ import org.openejb.proxy.ProxyInfo;
  * @version $Revision$ $Date$
  */
 public final class AdapterStateless extends Adapter {
-
     private final POA poa;
     private final byte[] object_id;
     private final org.omg.CORBA.Object objectReference;
@@ -94,13 +88,7 @@ public final class AdapterStateless extends Adapter {
 
             poa.the_POAManager().activate();
 
-            Servant servant = tieLoader.loadTieClass(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
-            AdapterProxyFactory factory = new AdapterProxyFactory(container.getProxyInfo().getRemoteInterface(), container.getClassLoader());
-            Remote remote = (Remote) factory.create(container.getEjbObject(null), container.getClassLoader());
-
-            if (servant instanceof Tie) {
-                ((Tie) servant).setTarget(remote);
-            }
+            StandardServant servant = new StandardServant(EJBInterfaceType.REMOTE, container);
 
             poa.activate_object_with_id(object_id = container.getContainerID().toString().getBytes(), servant);
             objectReference = poa.servant_to_reference(servant);
@@ -125,5 +113,4 @@ public final class AdapterStateless extends Adapter {
     public org.omg.CORBA.Object genObjectReference(ProxyInfo proxyInfo) {
         return objectReference;
     }
-
 }

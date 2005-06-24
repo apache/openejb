@@ -44,9 +44,6 @@
  */
 package org.openejb.corba;
 
-import java.rmi.Remote;
-import javax.rmi.CORBA.Tie;
-
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
@@ -61,10 +58,9 @@ import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.ImplicitActivationPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.RequestProcessingPolicyValue;
-import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantRetentionPolicyValue;
-
 import org.openejb.EJBContainer;
+import org.openejb.EJBInterfaceType;
 import org.openejb.corba.transaction.ServerTransactionPolicyFactory;
 import org.openejb.corba.util.TieLoader;
 import org.openejb.proxy.ProxyInfo;
@@ -74,9 +70,7 @@ import org.openejb.proxy.ProxyInfo;
  * @version $Revision$ $Date$
  */
 public abstract class Adapter implements RefGenerator {
-
     private final EJBContainer container;
-    private final POA parentPOA;
     protected final POA homePOA;
     private final NamingContextExt initialContext;
     private final TieLoader tieLoader;
@@ -85,7 +79,6 @@ public abstract class Adapter implements RefGenerator {
 
     protected Adapter(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader, Policy securityPolicy) throws CORBAException {
         this.container = container;
-        this.parentPOA = parentPOA;
         this.tieLoader = tieLoader;
         this.home_id = container.getContainerID().toString().getBytes();
 
@@ -106,13 +99,7 @@ public abstract class Adapter implements RefGenerator {
 
             homePOA.the_POAManager().activate();
 
-            Servant servant = tieLoader.loadTieClass(container.getProxyInfo().getHomeInterface(), container.getClassLoader());
-            AdapterProxyFactory factory = new AdapterProxyFactory(container.getProxyInfo().getHomeInterface(), container.getClassLoader());
-            Remote remote = (Remote) factory.create(container.getEjbHome(), container.getClassLoader());
-
-            if (servant instanceof Tie) {
-                ((Tie) servant).setTarget(remote);
-            }
+            StandardServant servant = new StandardServant(EJBInterfaceType.HOME, container);
 
             homePOA.activate_object_with_id(home_id, servant);
             homeReference = homePOA.servant_to_reference(servant);
