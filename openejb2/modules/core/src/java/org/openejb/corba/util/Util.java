@@ -495,19 +495,20 @@ public final class Util {
         throw new UnexpectedException(id);
     }
 
-    public static OutputStream writeException(Method method, ResponseHandler reply, Exception exception) throws Throwable {
+    public static OutputStream writeUserException(Method method, ResponseHandler reply, Exception exception) throws Exception {
+        if (exception instanceof RuntimeException || exception instanceof RemoteException) {
+            throw exception;
+        }
+
         Class[] exceptionTypes = method.getExceptionTypes();
         for (int i = 0; i < exceptionTypes.length; i++) {
             Class exceptionType = exceptionTypes[i];
-            if (RemoteException.class.isAssignableFrom(exceptionType) ||
-                    RuntimeException.class.isAssignableFrom(exceptionType) ||
-                    !exceptionType.isInstance(exception)) {
+            if (!exceptionType.isInstance(exception)) {
                 continue;
             }
 
-            String exceptionId = getExceptionId(exceptionType);
-
             OutputStream out = (OutputStream) reply.createExceptionReply();
+            String exceptionId = getExceptionId(exceptionType);
             out.write_string(exceptionId);
             out.write_value(exception);
             return out;
