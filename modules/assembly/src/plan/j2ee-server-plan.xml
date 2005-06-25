@@ -401,9 +401,6 @@ by the server.
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="listener">openejb:type=SoapHttpListener</attribute>
-        <reference name="SkeletonGenerator">
-            <name>OpenORBSkeletonGenerator</name>
-        </reference>
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>
@@ -425,16 +422,6 @@ by the server.
     <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
     </gbean>
 
-    <gbean name="AntCompiler" class="org.openejb.corba.compiler.AntCompiler"/>
-
-    <gbean name="OpenORBSkeletonGenerator" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">
-        <attribute name="saveTieCode">true</attribute>
-        <attribute name="props">
-        </attribute>
-        <reference name="Compiler">
-            <name>AntCompiler</name>
-        </reference>
-    </gbean>
 
     <gbean name="DynamicStubClassLoader" class="org.openejb.corba.util.DynamicStubClassLoader"/>
 

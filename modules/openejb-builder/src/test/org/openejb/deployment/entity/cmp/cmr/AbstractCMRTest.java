@@ -150,13 +150,13 @@ public abstract class AbstractCMRTest extends TestCase {
 //        EmbeddedDataSource eds = new EmbeddedDataSource();
 //        eds.setDatabaseName("/home/gianny/derbyDB");
 //        eds.setCreateDatabase("create");
-//        ds = eds;        
-        
+//        ds = eds;
+
         ds = new AxionDataSource("jdbc:axiondb:testdb");
         Connection c = ds.getConnection("root", null);
 //        Connection c = ds.getConnection();
         buildDBSchema(c);
-        
+
         kernel = DeploymentHelper.setUpKernelWithTransactionManager();
         DeploymentHelper.setUpTimer(kernel);
 
@@ -174,7 +174,7 @@ public abstract class AbstractCMRTest extends TestCase {
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
 
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, null, null, repository);
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, null, repository);
         CMPEntityBuilderTestUtil builder = new CMPEntityBuilderTestUtil(moduleBuilder);
         File tempDir = DeploymentUtil.createTempDir();
 
