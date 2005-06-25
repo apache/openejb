@@ -56,14 +56,20 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import javax.ejb.EJBHome;
+import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.TransactionRequiredException;
 import javax.transaction.TransactionRolledbackException;
+import javax.naming.Context;
+import javax.naming.NamingException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
+import org.apache.geronimo.naming.java.RootContext;
 import org.omg.CORBA.BAD_OPERATION;
 import org.omg.CORBA.INVALID_TRANSACTION;
 import org.omg.CORBA.MARSHAL;
@@ -83,21 +89,33 @@ import org.openejb.EJBContainer;
 import org.openejb.EJBInterfaceType;
 import org.openejb.EJBInvocation;
 import org.openejb.EJBInvocationImpl;
-import org.openejb.client.EJBObjectHandler;
-import org.openejb.client.EJBObjectProxy;
 import org.openejb.corba.compiler.IiopOperation;
 import org.openejb.corba.compiler.PortableStubCompiler;
+import org.openejb.corba.util.Util;
 
 /**
  * @version $Revision$ $Date$
  */
 public class StandardServant extends Servant implements InvokeHandler {
     private static final Log log = LogFactory.getLog(StandardServant.class);
+
+    private static final Method GETEJBMETADATA = getMethod(EJBHome.class, "getEJBMetaData", null);
+    private static final Method GETHOMEHANDLE = getMethod(EJBHome.class, "getHomeHandle", null);
+    private static final Method REMOVE_W_KEY = getMethod(EJBHome.class, "remove", new Class[]{Object.class});
+    private static final Method REMOVE_W_HAND = getMethod(EJBHome.class, "remove", new Class[]{Handle.class});
+    private static final Method GETEJBHOME = getMethod(EJBObject.class, "getEJBHome", null);
+    private static final Method GETHANDLE = getMethod(EJBObject.class, "getHandle", null);
+    private static final Method GETPRIMARYKEY = getMethod(EJBObject.class, "getPrimaryKey", null);
+    private static final Method ISIDENTICAL = getMethod(EJBObject.class, "isIdentical", new Class[]{EJBObject.class});
+    private static final Method REMOVE = getMethod(EJBObject.class, "remove", null);
+
+
     private final EJBInterfaceType ejbInterfaceType;
     private final EJBContainer ejbContainer;
     private final Object primaryKey;
     private final String[] typeIds;
     private final Map operations;
+    private final Context enc;
 
     public StandardServant(EJBInterfaceType ejbInterfaceType, EJBContainer ejbContainer) {
         this(ejbInterfaceType, ejbContainer, null);
@@ -136,6 +154,16 @@ public class StandardServant extends Servant implements InvokeHandler {
             }
         }
         typeIds = (String[]) ids.toArray(new String[ids.size()]);
+
+        // create ReadOnlyContext
+        Map componentContext = new HashMap(2);
+        componentContext.put("ORB", Util.getORB());
+        componentContext.put("HandleDelegate", new CORBAHandleDelegate());
+        try {
+            enc = new SimpleReadOnlyContext(componentContext);
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public EJBInterfaceType getEjbInterfaceType() {
@@ -158,22 +186,26 @@ public class StandardServant extends Servant implements InvokeHandler {
         // get the method object
         Method method = (Method) operations.get(operationName);
         int index = ejbContainer.getMethodIndex(method);
-        if (index < 0) {
+        if (index < 0 &&
+                method.getDeclaringClass() != javax.ejb.EJBObject.class &&
+                method.getDeclaringClass() != javax.ejb.EJBHome.class) {
             throw new BAD_OPERATION(operationName);
         }
 
         org.omg.CORBA_2_3.portable.InputStream in = (org.omg.CORBA_2_3.portable.InputStream) _in;
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Context oldContext = RootContext.getComponentContext();
         try {
             Thread.currentThread().setContextClassLoader(ejbContainer.getClassLoader());
+            RootContext.setComponentContext(enc);
 
             // read in all of the arguments
             Class[] parameterTypes = method.getParameterTypes();
             Object[] arguments = new Object[parameterTypes.length];
             for (int i = 0; i < parameterTypes.length; i++) {
                 Class parameterType = parameterTypes[i];
-                arguments[i] = org.openejb.corba.util.Util.readObject(parameterType, in);
+                arguments[i] = Util.readObject(parameterType, in);
             }
 
             // invoke the method
@@ -182,32 +214,53 @@ public class StandardServant extends Servant implements InvokeHandler {
 
                 if (log.isDebugEnabled()) log.debug("Calling " + method.getName());
 
-                // extract the primary key from home ejb remove invocations
-                Object primaryKey = this.primaryKey;
-                if (ejbInterfaceType == EJBInterfaceType.HOME && method.getName().equals("remove")) {
-                    primaryKey = arguments[0];
-                    if (primaryKey instanceof Handle) {
-                        Handle handle = (Handle) primaryKey;
-                        EJBObjectProxy ejbObject = (EJBObjectProxy) handle.getEJBObject();
-                        EJBObjectHandler handler = ejbObject.getEJBObjectHandler();
-                        primaryKey = handler.getRegistryId();
+                if (method.getDeclaringClass() == javax.ejb.EJBObject.class) {
+                    if (method.equals(GETHANDLE)) {
+                        result = ejbContainer.getEjbObject(primaryKey).getHandle();
+                    } else if (method.equals(GETPRIMARYKEY)) {
+                        result = ejbContainer.getEjbObject(primaryKey).getPrimaryKey();
+                    } else if (method.equals(ISIDENTICAL)) {
+                        EJBObject ejbObject = (EJBObject) arguments[0];
+                        result = new Boolean(ejbContainer.getEjbObject(primaryKey).isIdentical(ejbObject));
+                    } else if (method.equals(GETEJBHOME)) {
+                        result = ejbContainer.getEjbHome();
+                    } else if (method.equals(REMOVE)) {
+                        ejbContainer.getEjbObject(primaryKey).remove();
+                        result = null;
+                    } else {
+                        throw new UnsupportedOperationException("Unkown method: " + method);
                     }
+                } else if (method.getDeclaringClass() == javax.ejb.EJBHome.class) {
+                   if (method.equals(GETEJBMETADATA)) {
+                        result = ejbContainer.getEjbHome().getEJBMetaData();
+                    } else if (method.equals(GETHOMEHANDLE)) {
+                        result = ejbContainer.getEjbHome().getHomeHandle();
+                    } else if (method.equals(REMOVE_W_HAND)) {
+                        Handle handle = (Handle) arguments[0];
+                        ejbContainer.getEjbHome().remove(handle);
+                        result = null;
+                    } else if (method.equals(REMOVE_W_KEY)) {
+                        ejbContainer.getEjbHome().remove(arguments[0]);
+                        result = null;
+                    } else {
+                        throw new UnsupportedOperationException("Unkown method: " + method);
+                    }
+                } else {
+                    // create the invocation object
+                    EJBInvocation invocation = new EJBInvocationImpl(ejbInterfaceType, primaryKey, index, arguments);
+
+                    // invoke the container
+                    InvocationResult invocationResult = ejbContainer.invoke(invocation);
+
+                    // process the result
+                    if (invocationResult.isException()) {
+                        // all other exceptions are written to stream
+                        // if this is an unknown exception type it will
+                        // be thrown out of writeException
+                        return Util.writeUserException(method, reply, invocationResult.getException());
+                    }
+                    result = invocationResult.getResult();
                 }
-
-                // create the invocation object
-                EJBInvocation invocation = new EJBInvocationImpl(ejbInterfaceType, primaryKey, index, arguments);
-
-                // invoke the container
-                InvocationResult invocationResult = ejbContainer.invoke(invocation);
-
-                // process the result
-                if (invocationResult.isException()) {
-                    // all other exceptions are written to stream
-                    // if this is an unknown exception type it will
-                    // be thrown out of writeException
-                    return org.openejb.corba.util.Util.writeUserException(method, reply, invocationResult.getException());
-                }
-                result = invocationResult.getResult();
             } catch (TransactionRolledbackException e) {
                 log.debug("TransactionRolledbackException", e);
                 throw new TRANSACTION_ROLLEDBACK(e.toString());
@@ -246,11 +299,20 @@ public class StandardServant extends Servant implements InvokeHandler {
             org.omg.CORBA_2_3.portable.OutputStream out = (org.omg.CORBA_2_3.portable.OutputStream) reply.createReply();
 
             // write the output value
-            org.openejb.corba.util.Util.writeObject(method.getReturnType(), result, out);
+            Util.writeObject(method.getReturnType(), result, out);
 
             return out;
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
+            RootContext.setComponentContext(oldContext);
+        }
+    }
+
+    private static Method getMethod(Class c, String method, Class[] params) {
+        try {
+            return c.getMethod(method, params);
+        } catch (NoSuchMethodException e) {
+            throw (IllegalStateException) new IllegalStateException().initCause(e);
         }
     }
 }

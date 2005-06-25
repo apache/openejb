@@ -52,10 +52,11 @@ import java.rmi.RemoteException;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.ejb.spi.HandleDelegate;
-import javax.naming.NamingException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.rmi.PortableRemoteObject;
 
-import org.openejb.corba.util.Util;
+import org.omg.CORBA.ORB;
 
 
 /**
@@ -71,7 +72,6 @@ import org.openejb.corba.util.Util;
  * @version $Revision$ $Date$
  */
 public class CORBAHandle implements Handle, Serializable {
-
     private String ior;
 
     public CORBAHandle(String ior) {
@@ -79,43 +79,46 @@ public class CORBAHandle implements Handle, Serializable {
     }
 
     public EJBObject getEJBObject() throws RemoteException {
-
         try {
-            return (EJBObject) PortableRemoteObject.narrow(Util.getORB().string_to_object(ior), EJBObject.class);
+            return (EJBObject) PortableRemoteObject.narrow(getOrb().string_to_object(ior), EJBObject.class);
         } catch (Exception e) {
             throw new RemoteException("Unable to convert IOR into object", e);
         }
     }
 
     private void writeObject(ObjectOutputStream out) throws IOException {
-
-        HandleDelegate handleDelegate;
-
-        try {
-            handleDelegate = Util.getHandleDelegate();
-        } catch (NamingException e) {
-            throw new IOException("Unable to lookup java:comp/HandleDelegate");
-        }
-
+        HandleDelegate handleDelegate = getHandleDelegate();
         handleDelegate.writeEJBObject(getEJBObject(), out);
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-
-        HandleDelegate handleDelegate;
-
-        try {
-            handleDelegate = Util.getHandleDelegate();
-        } catch (NamingException e) {
-            throw new IOException("Unable to lookup java:comp/HandleDelegate");
-        }
-
+        HandleDelegate handleDelegate = getHandleDelegate();
         EJBObject obj = handleDelegate.readEJBObject(in);
 
         try {
-            ior = Util.getORB().object_to_string((org.omg.CORBA.Object) obj);
+            ior = getOrb().object_to_string((org.omg.CORBA.Object) obj);
         } catch (Exception e) {
             throw new RemoteException("Unable to convert object to IOR", e);
+        }
+    }
+
+    private static ORB getOrb() {
+        try {
+            Context context = new InitialContext();
+            ORB orb = (ORB) context.lookup("java:comp/ORB");
+            return orb;
+        } catch (Throwable e) {
+            throw new org.omg.CORBA.MARSHAL("Cound not find ORB in jndi at java:comp/ORB", 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES);
+        }
+    }
+
+    private static HandleDelegate getHandleDelegate() {
+        try {
+            Context context = new InitialContext();
+            HandleDelegate handleDelegate = (HandleDelegate) context.lookup("java:comp/HandleDelegate");
+            return handleDelegate;
+        } catch (Throwable e) {
+            throw new org.omg.CORBA.MARSHAL("Cound not find handle delegate in jndi at java:comp/HandleDelegate", 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES);
         }
     }
 }
