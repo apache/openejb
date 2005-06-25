@@ -51,10 +51,11 @@ import java.rmi.RemoteException;
 import javax.ejb.EJBHome;
 import javax.ejb.HomeHandle;
 import javax.ejb.spi.HandleDelegate;
-import javax.naming.NamingException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.rmi.PortableRemoteObject;
 
-import org.openejb.corba.util.Util;
+import org.omg.CORBA.ORB;
 
 
 /**
@@ -70,7 +71,6 @@ import org.openejb.corba.util.Util;
  * @version $Revision$ $Date$
  */
 public class CORBAHomeHandle implements HomeHandle, Serializable {
-
     private String ior;
 
     public CORBAHomeHandle(String ior) {
@@ -80,7 +80,7 @@ public class CORBAHomeHandle implements HomeHandle, Serializable {
     public EJBHome getEJBHome() throws RemoteException {
 
         try {
-            return (EJBHome) PortableRemoteObject.narrow(Util.getORB().string_to_object(ior), EJBHome.class);
+            return (EJBHome) PortableRemoteObject.narrow(getOrb().string_to_object(ior), EJBHome.class);
         } catch (Exception e) {
             throw new RemoteException("Unable to convert IOR into home", e);
         }
@@ -88,34 +88,38 @@ public class CORBAHomeHandle implements HomeHandle, Serializable {
     }
 
     private void writeObject(ObjectOutputStream out) throws IOException {
-
-        HandleDelegate handleDelegate;
-
-        try {
-            handleDelegate = Util.getHandleDelegate();
-        } catch (NamingException e) {
-            throw new IOException("Unable to lookup java:comp/HandleDelegate");
-        }
-
+        HandleDelegate handleDelegate = getHandleDelegate();
         handleDelegate.writeEJBHome(getEJBHome(), out);
     }
 
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-
-        HandleDelegate handleDelegate;
-
-        try {
-            handleDelegate = Util.getHandleDelegate();
-        } catch (NamingException e) {
-            throw new IOException("Cannot get HandleDelegate");
-        }
-
+        HandleDelegate handleDelegate = getHandleDelegate();
         EJBHome home = handleDelegate.readEJBHome(in);
 
         try {
-            ior = Util.getORB().object_to_string((org.omg.CORBA.Object) home);
+            ior = getOrb().object_to_string((org.omg.CORBA.Object) home);
         } catch (Exception e) {
             throw new RemoteException("Unable to convert object to IOR", e);
+        }
+    }
+
+    private static ORB getOrb() {
+        try {
+            Context context = new InitialContext();
+            ORB orb = (ORB) context.lookup("java:comp/ORB");
+            return orb;
+        } catch (Throwable e) {
+            throw new org.omg.CORBA.MARSHAL("Cound not find ORB in jndi at java:comp/ORB", 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES);
+        }
+    }
+
+    private static HandleDelegate getHandleDelegate() {
+        try {
+            Context context = new InitialContext();
+            HandleDelegate handleDelegate = (HandleDelegate) context.lookup("java:comp/HandleDelegate");
+            return handleDelegate;
+        } catch (Throwable e) {
+            throw new org.omg.CORBA.MARSHAL("Cound not find handle delegate in jndi at java:comp/HandleDelegate", 0, org.omg.CORBA.CompletionStatus.COMPLETED_YES);
         }
     }
 }

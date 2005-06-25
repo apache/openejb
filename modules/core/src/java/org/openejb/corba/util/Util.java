@@ -80,6 +80,9 @@ import org.omg.CORBA_2_3.portable.OutputStream;
 import org.omg.CORBA_2_3.portable.InputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openejb.corba.CorbaApplicationServer;
+import org.openejb.server.ServerFederation;
+import org.openejb.spi.ApplicationServer;
 
 /**
  * Various utility functions.
@@ -98,6 +101,7 @@ public final class Util {
     private static ORB orb;
     private static Codec codec;
     private static HandleDelegate handleDelegate;
+    private static CorbaApplicationServer corbaApplicationServer = new CorbaApplicationServer();
 
     public static ORB getORB() {
         assert orb != null;
@@ -432,14 +436,24 @@ public final class Util {
             out.write_longlong(((Long) object).longValue());
         } else if (type == short.class) {
             out.write_short(((Short) object).shortValue());
-        } else if (type == Object.class || type == Serializable.class) {
-            javax.rmi.CORBA.Util.writeAny(out, object);
-        } else if (Remote.class.isAssignableFrom(type)) {
-            javax.rmi.CORBA.Util.writeRemoteObject(out, object);
-        } else if (org.omg.CORBA.Object.class.isAssignableFrom(type)) {
-            out.write_Object((org.omg.CORBA.Object) object);
-        } else {
-            out.write_value((Serializable) object, type);
+        }
+
+        ApplicationServer oldApplicationServer = ServerFederation.getApplicationServer();
+        try {
+            ServerFederation.setApplicationServer(corbaApplicationServer);
+            if (type == Object.class || type == Serializable.class) {
+                javax.rmi.CORBA.Util.writeAny(out, object);
+            } else if (org.omg.CORBA.Object.class.isAssignableFrom(type)) {
+                out.write_Object((org.omg.CORBA.Object) object);
+            } else if (Remote.class.isAssignableFrom(type)) {
+                javax.rmi.CORBA.Util.writeRemoteObject(out, object);
+            } else if (type.isInterface() && Serializable.class.isAssignableFrom(type)) {
+                javax.rmi.CORBA.Util.writeAbstractObject(out, object);
+            } else {
+                out.write_value((Serializable) object, type);
+            }
+        } finally {
+            ServerFederation.setApplicationServer(oldApplicationServer);
         }
     }
 
@@ -464,11 +478,11 @@ public final class Util {
             return new Short(in.read_short());
         } else if (type == Object.class || type == Serializable.class) {
             return javax.rmi.CORBA.Util.readAny(in);
+        } else if (org.omg.CORBA.Object.class.isAssignableFrom(type)) {
+            return in.read_Object(type);
         } else if (Remote.class.isAssignableFrom(type)) {
             return PortableRemoteObject.narrow(in.read_Object(), type);
-        } else if (org.omg.CORBA.Object.class.isAssignableFrom(type)) {
-            return in.read_Object();
-        } else if (Serializable.class.isAssignableFrom(type)) {
+        } else if (type.isInterface() && Serializable.class.isAssignableFrom(type)) {
             return in.read_abstract_interface();
         } else {
             return in.read_value(type);
