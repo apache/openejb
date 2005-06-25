@@ -418,63 +418,65 @@ public final class Util {
     };
 
     public static void writeObject(Class type, Object object, OutputStream out) {
-        if (type == void.class) {
+        if (type == Void.TYPE) {
             // do nothing for a void
-        } else if (type == boolean.class) {
+        } else if (type == Boolean.TYPE) {
             out.write_boolean(((Boolean) object).booleanValue());
-        } else if (type == byte.class) {
+        } else if (type == Byte.TYPE) {
             out.write_octet(((Byte) object).byteValue());
-        } else if (type == char.class) {
+        } else if (type == Character.TYPE) {
             out.write_wchar(((Character) object).charValue());
-        } else if (type == double.class) {
+        } else if (type == Double.TYPE) {
             out.write_double(((Double) object).doubleValue());
-        } else if (type == float.class) {
+        } else if (type == Float.TYPE) {
             out.write_float(((Float) object).floatValue());
-        } else if (type == int.class) {
+        } else if (type == Integer.TYPE) {
             out.write_long(((Integer) object).intValue());
-        } else if (type == long.class) {
+        } else if (type == Long.TYPE) {
             out.write_longlong(((Long) object).longValue());
-        } else if (type == short.class) {
+        } else if (type == Short.TYPE) {
             out.write_short(((Short) object).shortValue());
-        }
-
-        ApplicationServer oldApplicationServer = ServerFederation.getApplicationServer();
-        try {
-            ServerFederation.setApplicationServer(corbaApplicationServer);
-            if (type == Object.class || type == Serializable.class) {
-                javax.rmi.CORBA.Util.writeAny(out, object);
-            } else if (org.omg.CORBA.Object.class.isAssignableFrom(type)) {
-                out.write_Object((org.omg.CORBA.Object) object);
-            } else if (Remote.class.isAssignableFrom(type)) {
-                javax.rmi.CORBA.Util.writeRemoteObject(out, object);
-            } else if (type.isInterface() && Serializable.class.isAssignableFrom(type)) {
-                javax.rmi.CORBA.Util.writeAbstractObject(out, object);
-            } else {
-                out.write_value((Serializable) object, type);
+        }  else {
+            // object types must bbe written in the context of the corba application server
+            // which properly write replaces our objects for corba
+            ApplicationServer oldApplicationServer = ServerFederation.getApplicationServer();
+            try {
+                ServerFederation.setApplicationServer(corbaApplicationServer);
+                if (type == Object.class || type == Serializable.class) {
+                    javax.rmi.CORBA.Util.writeAny(out, object);
+                } else if (org.omg.CORBA.Object.class.isAssignableFrom(type)) {
+                    out.write_Object((org.omg.CORBA.Object) object);
+                } else if (Remote.class.isAssignableFrom(type)) {
+                    javax.rmi.CORBA.Util.writeRemoteObject(out, object);
+                } else if (type.isInterface() && Serializable.class.isAssignableFrom(type)) {
+                    javax.rmi.CORBA.Util.writeAbstractObject(out, object);
+                } else {
+                    out.write_value((Serializable) object, type);
+                }
+            } finally {
+                ServerFederation.setApplicationServer(oldApplicationServer);
             }
-        } finally {
-            ServerFederation.setApplicationServer(oldApplicationServer);
         }
     }
 
     public static Object readObject(Class type, InputStream in) {
-        if (type == void.class) {
+        if (type == Void.TYPE) {
             return null;
-        } else if (type == boolean.class) {
+        } else if (type == Boolean.TYPE) {
             return new Boolean(in.read_boolean());
-        } else if (type == byte.class) {
+        } else if (type == Byte.TYPE) {
             return new Byte(in.read_octet());
-        } else if (type == char.class) {
+        } else if (type == Character.TYPE) {
             return new Character(in.read_wchar());
-        } else if (type == double.class) {
+        } else if (type == Double.TYPE) {
             return new Double(in.read_double());
-        } else if (type == float.class) {
+        } else if (type == Float.TYPE) {
             return new Float(in.read_float());
-        } else if (type == int.class) {
+        } else if (type == Integer.TYPE) {
             return new Integer(in.read_long());
-        } else if (type == long.class) {
+        } else if (type == Long.TYPE) {
             return new Long(in.read_longlong());
-        } else if (type == short.class) {
+        } else if (type == Short.TYPE) {
             return new Short(in.read_short());
         } else if (type == Object.class || type == Serializable.class) {
             return javax.rmi.CORBA.Util.readAny(in);
