@@ -112,20 +112,20 @@ public class CMPEntityBuilderTest extends TestCase {
     public void testOneToOneUnidirectional() throws Exception {
         executeOneToOne("src/test-cmp/onetoone/simplepk/ejb-jar.xml", "src/test-cmp/onetoone/simplepk/unidirectional-openejb-jar.xml");
     }
-    
+
     private void executeOneToOne(String ejbJarFileName, String openejbJarFileName) throws Exception {
         File ejbJarFile = new File(basedir, ejbJarFileName);
         File openejbJarFile = new File(basedir, openejbJarFileName);
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
-        
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, skeletonGenerator, repository);
+
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, repository);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
-        
+
         GlobalSchema globalSchema = new GlobalSchema("Test");
         EJBSchema ejbSchema = new EJBSchema("Test");
         SQL92Schema sqlSchema = new SQL92Schema("Test", null, null);
-        
+
         File tempDir = DeploymentUtil.createTempDir();
         try {
             EARContext earContext = new EARContext(tempDir,
@@ -153,20 +153,20 @@ public class CMPEntityBuilderTest extends TestCase {
     public void testOneToMany() throws Exception {
         executeOneToMany("src/test-cmp/onetomany/simplepk/ejb-jar.xml", "src/test-cmp/onetomany/simplepk/openejb-jar.xml");
     }
-    
+
     public void testOneToManyUnidirectional() throws Exception {
         executeOneToMany("src/test-cmp/onetomany/simplepk/ejb-jar.xml", "src/test-cmp/onetomany/simplepk/unidirectional-openejb-jar.xml");
     }
-    
+
     public void executeOneToMany(String ejbJarFileName, String openejbJarFileName) throws Exception {
         File ejbJarFile = new File(basedir, ejbJarFileName);
         File openejbJarFile = new File(basedir, openejbJarFileName);
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
-        
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, skeletonGenerator, repository);
+
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, repository);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
-        
+
         GlobalSchema globalSchema = new GlobalSchema("Test");
         EJBSchema ejbSchema = new EJBSchema("Test");
         SQL92Schema sqlSchema = new SQL92Schema("Test", null, null);
@@ -199,7 +199,7 @@ public class CMPEntityBuilderTest extends TestCase {
     public void testManyToMany() throws Exception {
         executeManyToMany("src/test-cmp/manytomany/simplepk/ejb-jar.xml", "src/test-cmp/manytomany/simplepk/openejb-jar.xml");
     }
-    
+
     public void testManyToManyUnidirectional() throws Exception {
         executeManyToMany("src/test-cmp/manytomany/simplepk/ejb-jar.xml", "src/test-cmp/manytomany/simplepk/unidirectional-openejb-jar.xml");
     }
@@ -209,14 +209,14 @@ public class CMPEntityBuilderTest extends TestCase {
         File openejbJarFile = new File(basedir, openejbJarFileName);
         EjbJarType ejbJarType = ((EjbJarDocument) XmlObject.Factory.parse(ejbJarFile)).getEjbJar();
         OpenejbOpenejbJarType openejbJarType = ((OpenejbOpenejbJarDocument) XmlObject.Factory.parse(openejbJarFile)).getOpenejbJar();
-        
-        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, skeletonGenerator, repository);
+
+        OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(KernelHelper.DEFAULT_PARENTID, listener, repository);
         CMPEntityBuilder builder = new CMPEntityBuilder(moduleBuilder);
-        
+
         GlobalSchema globalSchema = new GlobalSchema("Test");
         EJBSchema ejbSchema = new EJBSchema("Test");
         SQL92Schema sqlSchema = new SQL92Schema("Test", null, null);
-        
+
         File tempDir = DeploymentUtil.createTempDir();
         try {
             EARContext earContext = new EARContext(tempDir,
@@ -308,21 +308,21 @@ public class CMPEntityBuilderTest extends TestCase {
         assertEquals("a", fkEnd.getName());
         assertEquals(rightEntity, pkEnd.getEntity());
         assertEquals(leftEntity, fkEnd.getEntity());
-        
+
         Association association = pkEnd.getAssociation();
         assertTrue(association == fkEnd.getAssociation());
     }
 
     private void assertOneToOneEntity(Entity pkEntity, Entity fkEntity) {
         assertEntity(pkEntity, fkEntity);
-        
+
         List pkEnds = pkEntity.getAssociationEnds();
         List fkEnds = fkEntity.getAssociationEnds();
         AssociationEnd pkEnd = (AssociationEnd) pkEnds.get(0);
         assertTrue(pkEnd.isSingle());
         AssociationEnd fkEnd = (AssociationEnd) fkEnds.get(0);
         assertTrue(fkEnd.isSingle());
-        
+
         Association association = pkEnd.getAssociation();
         assertTrue(association.isOneToOne());
         JoinDefinition joinDefinition = association.getJoinDefinition();
@@ -342,14 +342,14 @@ public class CMPEntityBuilderTest extends TestCase {
 
     private void assertOneToManyEntity(Entity pkEntity, Entity fkEntity) {
         assertEntity(pkEntity, fkEntity);
-        
+
         List pkEnds = pkEntity.getAssociationEnds();
         List fkEnds = fkEntity.getAssociationEnds();
         AssociationEnd pkEnd = (AssociationEnd) pkEnds.get(0);
         assertTrue(pkEnd.isMulti());
         AssociationEnd fkEnd = (AssociationEnd) fkEnds.get(0);
         assertTrue(fkEnd.isSingle());
-        
+
         Association association = pkEnd.getAssociation();
         assertTrue(association.isOneToMany(pkEnd));
         assertTrue(association.isManyToOne(fkEnd));
@@ -370,14 +370,14 @@ public class CMPEntityBuilderTest extends TestCase {
 
     private void assertManyToManyEntity(Entity leftEntity, Entity rightEntity) {
         assertEntity(leftEntity, rightEntity);
-        
+
         List leftEnds = leftEntity.getAssociationEnds();
         List rightEnds = rightEntity.getAssociationEnds();
         AssociationEnd leftEnd = (AssociationEnd) leftEnds.get(0);
         assertTrue(leftEnd.isMulti());
         AssociationEnd rightEnd = (AssociationEnd) rightEnds.get(0);
         assertTrue(rightEnd.isMulti());
-        
+
         Association association = leftEnd.getAssociation();
         Entity mtmEntity = association.getManyToManyEntity();
         assertTrue(association.isManyToMany());

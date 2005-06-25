@@ -94,7 +94,6 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.EJBModuleImpl;
 import org.openejb.corba.CORBAHandleDelegate;
-import org.openejb.corba.compiler.CompilerException;
 import org.openejb.corba.compiler.SkeletonGenerator;
 import org.openejb.corba.proxy.CORBAProxyReference;
 import org.openejb.deployment.corba.NoDistributedTxTransactionImportPolicyBuilder;
@@ -132,24 +131,18 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
     private final SessionBuilder sessionBuilder;
     private final EntityBuilder entityBuilder;
     private final MdbBuilder mdbBuilder;
-    private final SkeletonGenerator skeletonGenerator;
     private final TransactionImportPolicyBuilder transactionImportPolicyBuilder;
     private final Repository repository;
 
-    public OpenEJBModuleBuilder(URI defaultParentId, ObjectName listener, SkeletonGenerator skeletonGenerator, Repository repository) {
+    public OpenEJBModuleBuilder(URI defaultParentId, ObjectName listener, Repository repository) {
         this.defaultParentId = defaultParentId;
         this.listener = listener;
-        this.skeletonGenerator = skeletonGenerator;
         this.transactionImportPolicyBuilder = new NoDistributedTxTransactionImportPolicyBuilder();
         this.cmpEntityBuilder = new CMPEntityBuilder(this);
         this.sessionBuilder = new SessionBuilder(this);
         this.entityBuilder = new EntityBuilder(this);
         this.mdbBuilder = new MdbBuilder(this);
         this.repository = repository;
-    }
-
-    public SkeletonGenerator getSkeletonGenerator() {
-        return skeletonGenerator;
     }
 
     public TransactionImportPolicyBuilder getTransactionImportPolicyBuilder() {
@@ -315,27 +308,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         entityBuilder.initContext(refContext, moduleJ2eeContext, moduleUri, cl, enterpriseBeans, interfaces);
         mdbBuilder.initContext(cl, enterpriseBeans);
 
-        if (skeletonGenerator != null) {
-            File tempJar = null;
-            try {
-                tempJar = DeploymentUtil.createTempFile();
-
-                /**
-                 * Windoze may be holding on to this
-                 */
-                tempJar.delete();
-
-                skeletonGenerator.generateSkeletons(interfaces, tempJar, cl);
-
-                earContext.addIncludeAsPackedJar(URI.create("corba.jar"), new JarFile(tempJar));
-            } catch (IOException e) {
-                throw new DeploymentException("Unable to generate CORBA skels for: " + moduleUri, e);
-            } catch (CompilerException e) {
-                throw new DeploymentException("Unable to generate CORBA skels for: " + moduleUri, e);
-            } finally {
-                DeploymentUtil.recursiveDelete(tempJar);
-            }
-        }
     }
 
     public Reference createEJBLocalReference(String objectName, boolean session, String localHome, String local) {
@@ -516,7 +488,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
 
         earContext.addSecurityContext(policyContextID, componentPermissions);
     }
-    
+
     private static ObjectName getResourceContainerId(URI uri, GerResourceLocatorType resourceLocator, EARContext earContext) throws DeploymentException {
         RefContext refContext = earContext.getRefContext();
         J2eeContext j2eeContext = earContext.getJ2eeContext();
@@ -581,12 +553,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(OpenEJBModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addAttribute("listener", ObjectName.class, true);
-        infoBuilder.addReference("SkeletonGenerator", SkeletonGenerator.class, NameFactory.CORBA_SERVICE);
         infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(EJBReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[]{"defaultParentId", "listener", "SkeletonGenerator", "Repository"});
+        infoBuilder.setConstructor(new String[]{"defaultParentId", "listener", "Repository"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

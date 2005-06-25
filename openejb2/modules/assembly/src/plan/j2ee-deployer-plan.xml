@@ -144,7 +144,6 @@ Configuration for the Geronimo deployer
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="listener">openejb:type=SoapHttpListener</attribute>
-<!--        <reference name="SkeletonGenerator"><gbean-name>openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</gbean-name></reference>-->
         <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
 
@@ -161,12 +160,5 @@ Configuration for the Geronimo deployer
 
     <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
     </gbean>
-    <!-- gbean gbeanName="openejb.CORBA:type=Compiler,vendor=Ant" class="org.openejb.corba.compiler.AntCompiler"/>
-
-    <gbean gbeanName="openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB" class="org.openejb.corba.compiler.OpenORBSkeletonGenerator">
-        <attribute name="props">
-        </attribute>
-        <reference name="Compiler"><gbean-name>openejb.CORBA:type=Compiler,vendor=Ant</gbean-name></reference>
-    </gbean -->
 
 </configuration>
