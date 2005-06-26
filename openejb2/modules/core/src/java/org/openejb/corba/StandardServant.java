@@ -59,6 +59,7 @@ import java.util.Map;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
+import javax.ejb.RemoveException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.TransactionRequiredException;
 import javax.transaction.TransactionRolledbackException;
@@ -226,8 +227,12 @@ public class StandardServant extends Servant implements InvokeHandler {
                     } else if (method.equals(GETEJBHOME)) {
                         result = ejbContainer.getEjbHome();
                     } else if (method.equals(REMOVE)) {
-                        ejbContainer.getEjbObject(primaryKey).remove();
-                        result = null;
+                        try {
+                            ejbContainer.getEjbObject(primaryKey).remove();
+                            result = null;
+                        } catch (RemoveException e) {
+                            return Util.writeUserException(method, reply, e);
+                        }
                     } else {
                         throw new UnsupportedOperationException("Unkown method: " + method);
                     }
@@ -238,11 +243,30 @@ public class StandardServant extends Servant implements InvokeHandler {
                         result = ejbContainer.getEjbHome().getHomeHandle();
                     } else if (method.equals(REMOVE_W_HAND)) {
                         Handle handle = (Handle) arguments[0];
-                        ejbContainer.getEjbHome().remove(handle);
+                        try {
+                            if (ejbContainer.getProxyInfo().isStatelessSessionBean()) {
+                                if (handle == null) {
+                                    throw new RemoveException("Handle is null");
+                                }
+                                Class remoteInterface = ejbContainer.getProxyInfo().getRemoteInterface();
+                                if (!remoteInterface.isInstance(handle.getEJBObject())) {
+                                    throw new RemoteException("Handle does not hold a " + remoteInterface.getName());
+                                }
+                            } else {
+                                EJBObject ejbObject = handle.getEJBObject();
+                                ejbObject.remove();
+                            }
+                        } catch (RemoveException e) {
+                            return Util.writeUserException(method, reply, e);
+                        }
                         result = null;
                     } else if (method.equals(REMOVE_W_KEY)) {
-                        ejbContainer.getEjbHome().remove(arguments[0]);
-                        result = null;
+                        try {
+                            ejbContainer.getEjbHome().remove(arguments[0]);
+                            result = null;
+                        } catch (RemoveException e) {
+                            return Util.writeUserException(method, reply, e);
+                        }
                     } else {
                         throw new UnsupportedOperationException("Unkown method: " + method);
                     }
