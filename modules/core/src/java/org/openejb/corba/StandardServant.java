@@ -220,8 +220,9 @@ public class StandardServant extends Servant implements InvokeHandler {
                     } else if (method.equals(GETPRIMARYKEY)) {
                         result = ejbContainer.getEjbObject(primaryKey).getPrimaryKey();
                     } else if (method.equals(ISIDENTICAL)) {
-                        EJBObject ejbObject = (EJBObject) arguments[0];
-                        result = new Boolean(ejbContainer.getEjbObject(primaryKey).isIdentical(ejbObject));
+                        org.omg.CORBA.Object thisObject = this._this_object();
+                        org.omg.CORBA.Object otherObject = (org.omg.CORBA.Object)arguments[0];
+                        result = new Boolean(thisObject._is_equivalent(otherObject));
                     } else if (method.equals(GETEJBHOME)) {
                         result = ejbContainer.getEjbHome();
                     } else if (method.equals(REMOVE)) {
