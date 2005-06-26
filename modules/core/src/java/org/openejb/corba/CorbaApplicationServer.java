@@ -101,11 +101,11 @@ public class CorbaApplicationServer implements ApplicationServer {
     public EJBMetaData getEJBMetaData(ProxyInfo proxyInfo) {
         int componentType = proxyInfo.getComponentType();
         byte ejbType;
-        if (componentType != EJBComponentType.STATEFUL) {
+        if (componentType == EJBComponentType.STATEFUL) {
             ejbType = CORBAEJBMetaData.STATEFUL;
-        } else if (componentType != EJBComponentType.STATELESS) {
+        } else if (componentType == EJBComponentType.STATELESS) {
             ejbType = CORBAEJBMetaData.STATELESS;
-        } else if (componentType != EJBComponentType.BMP_ENTITY || componentType == EJBComponentType.CMP_ENTITY) {
+        } else if (componentType == EJBComponentType.BMP_ENTITY || componentType == EJBComponentType.CMP_ENTITY) {
             ejbType = CORBAEJBMetaData.ENTITY;
         } else {
             throw new IllegalArgumentException("Unknown component type: " + componentType);

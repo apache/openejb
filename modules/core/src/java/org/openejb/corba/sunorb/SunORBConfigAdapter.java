@@ -148,6 +148,7 @@ public class SunORBConfigAdapter implements ConfigAdapter {
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer", "");
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.security.SecurityInitializer", "");
         result.put("org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.sunorb.SunORBInitializer", "");
+        result.put("com.sun.CORBA.ORBAllowLocalOptimization", "");
 
         if (log.isDebugEnabled()) {
             log.debug("translateToProps(TSSConfig)");
