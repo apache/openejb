@@ -42,36 +42,44 @@
  *
  * $Id$
  */
-package org.openejb.corba.util;
+package org.openejb.corba;
 
+import java.io.Serializable;
+import java.io.ObjectStreamException;
+import java.io.InvalidObjectException;
+import javax.ejb.EJBObject;
+import javax.ejb.EJBHome;
+import javax.rmi.PortableRemoteObject;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.rmi.CORBA.Stub;
-import javax.ejb.EJBHome;
 
 import org.omg.CORBA.ORB;
-import org.openejb.corba.CORBAEJBMemento;
-import org.openejb.corba.ClientContext;
-import org.openejb.corba.ClientContextHolder;
-import org.openejb.corba.ClientContextManager;
 
 /**
  * @version $Revision$ $Date$
  */
-public abstract class ClientContextHolderStub extends Stub implements ClientContextHolder {
-    private final ClientContext clientContext;
+public class CORBAEJBMemento implements Serializable {
+    private final String ior;
+    private final boolean home;
 
-    protected ClientContextHolderStub() {
-        clientContext = ClientContextManager.getClientContext();
+    public CORBAEJBMemento(String ior, boolean home) {
+        this.ior = ior;
+        this.home = home;
     }
 
-    public ClientContext getClientContext() {
-        return clientContext;
-    }
+    private Object readResolve() throws ObjectStreamException {
+        Class type;
+        if (home) {
+            type = EJBHome.class;
+        } else {
+            type = EJBObject.class;
+        }
 
-    public final Object writeReplace() {
-        String ior = getOrb().object_to_string(this);
-        return new CORBAEJBMemento(ior, this instanceof EJBHome);
+        try {
+            return PortableRemoteObject.narrow(getOrb().string_to_object(ior), type);
+        } catch (Exception e) {
+            throw (InvalidObjectException) new InvalidObjectException("Unable to convert IOR into object").initCause(e);
+        }
     }
 
     private static ORB getOrb() {
@@ -84,5 +92,3 @@ public abstract class ClientContextHolderStub extends Stub implements ClientCont
         }
     }
 }
-
-
