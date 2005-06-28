@@ -73,9 +73,11 @@ import org.omg.CORBA.ORB;
  */
 public class CORBAHandle implements Handle, Serializable {
     private String ior;
+    private Object primaryKey;
 
-    public CORBAHandle(String ior) {
+    public CORBAHandle(String ior, Object primaryKey) {
         this.ior = ior;
+        this.primaryKey = primaryKey;
     }
 
     public EJBObject getEJBObject() throws RemoteException {
@@ -86,14 +88,20 @@ public class CORBAHandle implements Handle, Serializable {
         }
     }
 
+    public Object getPrimaryKey() {
+        return primaryKey;
+    }
+
     private void writeObject(ObjectOutputStream out) throws IOException {
         HandleDelegate handleDelegate = getHandleDelegate();
         handleDelegate.writeEJBObject(getEJBObject(), out);
+        out.writeObject(primaryKey);
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         HandleDelegate handleDelegate = getHandleDelegate();
         EJBObject obj = handleDelegate.readEJBObject(in);
+        primaryKey = in.readObject();
 
         try {
             ior = getOrb().object_to_string((org.omg.CORBA.Object) obj);

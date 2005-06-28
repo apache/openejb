@@ -242,7 +242,7 @@ public class StandardServant extends Servant implements InvokeHandler {
                     } else if (method.equals(GETHOMEHANDLE)) {
                         result = ejbContainer.getEjbHome().getHomeHandle();
                     } else if (method.equals(REMOVE_W_HAND)) {
-                        Handle handle = (Handle) arguments[0];
+                        CORBAHandle handle = (CORBAHandle) arguments[0];
                         try {
                             if (ejbContainer.getProxyInfo().isStatelessSessionBean()) {
                                 if (handle == null) {
@@ -253,10 +253,25 @@ public class StandardServant extends Servant implements InvokeHandler {
                                     throw new RemoteException("Handle does not hold a " + remoteInterface.getName());
                                 }
                             } else {
-                                EJBObject ejbObject = handle.getEJBObject();
-                                ejbObject.remove();
+                                // create the invocation object
+                                EJBInvocation invocation = new EJBInvocationImpl(ejbInterfaceType, handle.getPrimaryKey(), index, arguments);
+
+                                // invoke the container
+                                InvocationResult invocationResult = ejbContainer.invoke(invocation);
+
+                                // process the result
+                                if (invocationResult.isException()) {
+                                    // all other exceptions are written to stream
+                                    // if this is an unknown exception type it will
+                                    // be thrown out of writeException
+                                    return Util.writeUserException(method, reply, invocationResult.getException());
+                                }
+                                invocationResult.getResult();
+//
+//                                ejbContainer.getEjbHome().remove(handle.getPrimaryKey());
                             }
                         } catch (RemoveException e) {
+
                             return Util.writeUserException(method, reply, e);
                         }
                         result = null;
