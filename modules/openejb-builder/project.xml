@@ -86,10 +86,9 @@
             <version>${geronimo_version}</version>
         </dependency>
 
-        <!-- should be removed once we figure out where DConfigBeans will live -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-deploy-tool</artifactId>
+            <artifactId>geronimo-deploy-config</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
 
