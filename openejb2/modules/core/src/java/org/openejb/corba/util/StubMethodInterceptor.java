@@ -50,6 +50,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.rmi.CORBA.Util;
+import javax.ejb.EJBObject;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -68,6 +69,15 @@ import org.openejb.corba.compiler.PortableStubCompiler;
  * @version $Revision$ $Date$
  */
 public class StubMethodInterceptor implements MethodInterceptor {
+    private static final Method ISIDENTICAL;
+    static {
+        try {
+            ISIDENTICAL = EJBObject.class.getMethod("isIdentical", new Class[]{EJBObject.class});
+        } catch (NoSuchMethodException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
     private final Class type;
     private final Map operations;
 
@@ -84,6 +94,12 @@ public class StubMethodInterceptor implements MethodInterceptor {
 
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         ClientContextHolderStub stub = (ClientContextHolderStub) proxy;
+
+        // handle is identical in stub to avoid unnecessary round trip
+        if (method.equals(ISIDENTICAL)) {
+            org.omg.CORBA.Object otherObject = (org.omg.CORBA.Object)args[0];
+            return new Boolean(stub._is_equivalent(otherObject));
+        }
 
         // get the operation name object
         String operationName = (String) operations.get(method);
