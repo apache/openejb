@@ -76,7 +76,7 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <artifactId>geronimo-deploy-config</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
 
