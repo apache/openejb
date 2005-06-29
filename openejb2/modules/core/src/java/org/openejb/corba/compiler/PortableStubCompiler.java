@@ -149,10 +149,10 @@ public class PortableStubCompiler {
             }
 
             String propertyName;
-            if (Character.isLowerCase(methodName.charAt(verb.length() + 1))) {
-                propertyName = Character.toLowerCase(methodName.charAt(verb.length())) + methodName.substring(verb.length() + 1);
-            } else {
+            if (methodName.length() > verb.length() + 1 && Character.isUpperCase(methodName.charAt(verb.length() + 1))) {
                 propertyName = methodName.substring(verb.length());
+            } else {
+                propertyName = Character.toLowerCase(methodName.charAt(verb.length())) + methodName.substring(verb.length() + 1);
             }
             getterByMethod.put(method, propertyName);
             getterByName.put(propertyName, method);
@@ -195,10 +195,10 @@ public class PortableStubCompiler {
             }
 
             String propertyName;
-            if (Character.isLowerCase(methodName.charAt(3 + 1))) {
-                propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
-            } else {
+            if (methodName.length() > 4 && Character.isUpperCase(methodName.charAt(4 + 1))) {
                 propertyName = methodName.substring(3);
+            } else {
+                propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(3 + 1);
             }
 
             // must have a matching getter
