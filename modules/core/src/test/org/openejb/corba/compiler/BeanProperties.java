@@ -117,4 +117,6 @@ public interface BeanProperties extends Remote {
     public int get() throws RemoteException;
 
     public int get_collisionabcdef() throws RemoteException;
+
+    public int getA() throws RemoteException;
 }
