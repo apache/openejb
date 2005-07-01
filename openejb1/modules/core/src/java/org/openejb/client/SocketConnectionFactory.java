@@ -95,6 +95,7 @@ public class SocketConnectionFactory implements ConnectionFactory{
             /*-----------------------*/
             try{
                 socket = new Socket(server.address, server.port);
+                socket.setTcpNoDelay(true);
             } catch (IOException e){
                 throw new IOException("Cannot access server: "+server.address+":"+server.port+" Exception: "+ e.getClass().getName() +" : "+ e.getMessage());
             

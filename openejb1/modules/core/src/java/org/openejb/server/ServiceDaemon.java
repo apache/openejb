@@ -198,6 +198,7 @@ public class ServiceDaemon implements ServerService, Runnable {
         while (!stop) {
             try {
                 socket = serverSocket.accept();
+                socket.setTcpNoDelay(true);
                 if (!stop) service(socket);
             } catch (SecurityException e) {
                 //logger.error( "Security error: "+ e.getMessage() );
