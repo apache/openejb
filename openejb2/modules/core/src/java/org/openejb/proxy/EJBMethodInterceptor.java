@@ -209,14 +209,14 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
             try {
                 Thread.currentThread().setContextClassLoader(targetClassLoader);
                 if (crossClassLoader) {
-                    SerializationHanlder.setStrategy(ReplacementStrategy.IN_VM_REPLACE);
-                    SerializationHanlder.copyArgs(targetClassLoader, args);
+                    SerializationHandler.setStrategy(ReplacementStrategy.IN_VM_REPLACE);
+                    SerializationHandler.copyArgs(targetClassLoader, args);
                 } else {
-                    SerializationHanlder.setStrategy(ReplacementStrategy.COPY);
-                    SerializationHanlder.copyArgs(args);
+                    SerializationHandler.setStrategy(ReplacementStrategy.COPY);
+                    SerializationHandler.copyArgs(args);
                 }
             } finally {
-                SerializationHanlder.setStrategy(null);
+                SerializationHandler.setStrategy(null);
                 Thread.currentThread().setContextClassLoader(oldCl);
             }
         }
@@ -232,14 +232,14 @@ public class EJBMethodInterceptor implements MethodInterceptor, Serializable {
         try {
             Thread.currentThread().setContextClassLoader(sourceClassLoader);
             if (crossClassLoader) {
-                SerializationHanlder.setStrategy(ReplacementStrategy.IN_VM_REPLACE);
-                return SerializationHanlder.copyObj(sourceClassLoader, returnObj);
+                SerializationHandler.setStrategy(ReplacementStrategy.IN_VM_REPLACE);
+                return SerializationHandler.copyObj(sourceClassLoader, returnObj);
             } else {
-                SerializationHanlder.setStrategy(ReplacementStrategy.COPY);
-                return SerializationHanlder.copyObj(returnObj);
+                SerializationHandler.setStrategy(ReplacementStrategy.COPY);
+                return SerializationHandler.copyObj(returnObj);
             }
         } finally {
-            SerializationHanlder.setStrategy(null);
+            SerializationHandler.setStrategy(null);
             Thread.currentThread().setContextClassLoader(oldCl);
         }
     }

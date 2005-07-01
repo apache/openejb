@@ -57,7 +57,7 @@ import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.omg.CORBA.ORB;
 
 
-public class SerializationHanlder {
+public class SerializationHandler {
     private static InheritableThreadLocal serializationState = new InheritableThreadLocal();
 
     /**

@@ -104,6 +104,6 @@ public class EJBMetaDataImpl implements EJBMetaData, Serializable {
     }
     
     protected Object writeReplace() throws ObjectStreamException{
-        return SerializationHanlder.writeReplace(this, this.ejbHome.getProxyInfo());
+        return SerializationHandler.writeReplace(this, this.ejbHome.getProxyInfo());
     }
 }
