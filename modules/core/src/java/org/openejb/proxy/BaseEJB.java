@@ -121,7 +121,7 @@ public class BaseEJB implements Serializable {
 
 
     protected Object writeReplace() throws ObjectStreamException {
-        return SerializationHanlder.writeReplace(this, getProxyInfo());
+        return SerializationHandler.writeReplace(this, getProxyInfo());
     }
 
 }

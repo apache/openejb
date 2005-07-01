@@ -112,7 +112,7 @@ public abstract class EJBObjectImpl extends BaseEJB implements EJBObject {
     }
 
     public Object writeReplace() throws ObjectStreamException {
-        return SerializationHanlder.writeReplace(this, getProxyInfo());
+        return SerializationHandler.writeReplace(this, getProxyInfo());
     }
 
 }

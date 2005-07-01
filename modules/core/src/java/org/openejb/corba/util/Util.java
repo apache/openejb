@@ -84,7 +84,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openejb.corba.CorbaApplicationServer;
 import org.openejb.server.ServerFederation;
 import org.openejb.spi.ApplicationServer;
-import org.openejb.proxy.SerializationHanlder;
+import org.openejb.proxy.SerializationHandler;
 import org.openejb.proxy.ReplacementStrategy;
 
 /**
@@ -445,12 +445,12 @@ public final class Util {
             ApplicationServer oldApplicationServer = ServerFederation.getApplicationServer();
             try {
                 ServerFederation.setApplicationServer(corbaApplicationServer);
-                SerializationHanlder.setStrategy(ReplacementStrategy.REPLACE);
+                SerializationHandler.setStrategy(ReplacementStrategy.REPLACE);
 
                 // copy the result to force replacement
                 // corba does not call writeReplace on remote proxies
                 try {
-                    object = SerializationHanlder.copyObj(Thread.currentThread().getContextClassLoader(), object);
+                    object = SerializationHandler.copyObj(Thread.currentThread().getContextClassLoader(), object);
                 } catch (Exception e) {
                     log.debug("Exception in result copy", e);
                     throw new UnknownException(e);
@@ -469,7 +469,7 @@ public final class Util {
                 }
             } finally {
                 ServerFederation.setApplicationServer(oldApplicationServer);
-                SerializationHanlder.setStrategy(null);
+                SerializationHandler.setStrategy(null);
             }
         }
     }

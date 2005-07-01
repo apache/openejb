@@ -78,7 +78,7 @@ public class HandleImpl implements java.io.Serializable, javax.ejb.HomeHandle, j
         return ((BaseEJB) proxy).getProxyInfo().getPrimaryKey();
     }
     protected Object writeReplace() throws ObjectStreamException{
-        return SerializationHanlder.writeReplace(this, ((BaseEJB)proxy).getProxyInfo());
+        return SerializationHandler.writeReplace(this, ((BaseEJB)proxy).getProxyInfo());
     }
 
 }

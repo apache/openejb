@@ -63,6 +63,6 @@ public abstract class EJBLocalObjectImpl extends BaseEJB implements EJBLocalObje
     }
 
     public Object writeReplace() throws ObjectStreamException{
-        return SerializationHanlder.writeReplace(this, getProxyInfo());
+        return SerializationHandler.writeReplace(this, getProxyInfo());
     }
 }
