@@ -60,7 +60,7 @@ public class SunORBInitializer extends LocalObject implements ORBInitializer {
     private final Log log = LogFactory.getLog(SunORBInitializer.class);
 
     public SunORBInitializer() {
-        if (log.isDebugEnabled()) log.debug("SSLInitializer.<init>");
+        if (log.isDebugEnabled()) log.debug("SunORBInitializer.<init>");
     }
 
     /**
