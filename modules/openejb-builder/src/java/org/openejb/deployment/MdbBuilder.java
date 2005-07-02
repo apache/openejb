@@ -138,10 +138,12 @@ class MdbBuilder extends BeanBuilder {
         for (int i = 0; i < messageDrivenBeans.length; i++) {
             MessageDrivenBeanType messageDrivenBean = messageDrivenBeans[i];
             String messagingType = OpenEJBModuleBuilder.getJ2eeStringValue(messageDrivenBean.getMessagingType());
-            try {
-                cl.loadClass(messagingType);
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("could not load messaging type: " + messagingType, e);
+            if(messagingType != null) { // That is, not JMS
+                try {
+                    cl.loadClass(messagingType);
+                } catch (ClassNotFoundException e) {
+                    throw new DeploymentException("could not load messaging type: " + messagingType, e);
+                }
             }
         }
     }
