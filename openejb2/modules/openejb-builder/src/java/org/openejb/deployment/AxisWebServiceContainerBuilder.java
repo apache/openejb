@@ -50,8 +50,6 @@ import java.util.jar.JarFile;
 import javax.management.ObjectName;
 
 import org.apache.axis.description.JavaServiceDesc;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis.builder.AxisServiceBuilder;
 import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.common.DeploymentException;
@@ -95,16 +93,13 @@ public class AxisWebServiceContainerBuilder {
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(jarFile, ejbName, cl);
         JavaServiceDesc ejbServiceDesc = serviceInfo.getServiceDesc();
 
-        // Strip the jar file path from the WSDL file since jar file location may change at runtime.
-        String wsdlFile = ejbServiceDesc.getWSDLFile();
-        wsdlFile = wsdlFile.substring(wsdlFile.indexOf("!")+2);
-
+        //ejbServiceDesc.getWSDLFile() is the wsdl-file from webservices.xml
         URI wsdlURI = null;
         try {
-            wsdlURI = new URI(wsdlFile);
+            wsdlURI = new URI(ejbServiceDesc.getWSDLFile());
         }
         catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid WSDL URI: "+ wsdlFile, e);
+            throw new DeploymentException("Invalid WSDL URI: "+ ejbServiceDesc.getWSDLFile(), e);
         }
         URI locationURI = null;
         try {
