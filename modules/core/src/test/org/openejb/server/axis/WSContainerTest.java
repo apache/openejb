@@ -109,7 +109,8 @@ public class WSContainerTest extends TestCase {
 
         ObjectName ejbContainer = MockEJBContainer.addGBean(kernel, "MockEJB", classLoader);
         ObjectName listener = SoapHttpListenerGBean.addGBean(kernel, "HTTPSOAP");
-        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, listener, new URI("/test/service"), wsdlURI, serviceInfo);
+        //At the moment ejb web services can only be deployed at the location mentioned in the wsdl, so the uri has to be /services/Simple
+        ObjectName wsContainer = WSContainerGBean.addGBean(kernel, "HTTPSOAP", ejbContainer, listener, new URI("/services/Simple"), wsdlURI, serviceInfo);
         ObjectName server = HttpServerGBean.addGBean(kernel, "HTTPSOAP", listener);
         ObjectName executor = buildExecutor(kernel);
         ObjectName stack = StandardServiceStackGBean.addGBean(kernel, "HTTPSOAP", 0, InetAddress.getByName("localhost"), null, null, null, executor, server);
@@ -125,7 +126,7 @@ public class WSContainerTest extends TestCase {
         try {
             kernel.setAttribute(stack, "soTimeout", new Integer(1000));
             int port = ((Integer) kernel.getAttribute(stack, "port")).intValue();
-            URL url = new URL("http://localhost:" + port + "/test/service?wsdl");
+            URL url = new URL("http://localhost:" + port + "/services/Simple?wsdl");
             in = url.openStream();
 
             WSDLReader wsdlReader = WSDLFactory.newInstance().newWSDLReader();
@@ -141,8 +142,8 @@ public class WSContainerTest extends TestCase {
             SOAPAddress address = (SOAPAddress) port2.getExtensibilityElements().get(0);
             assertNotNull(address);
             //TODO make sure we believe which of these is correct
-//            assertEquals("http://localhost:" + port + "/services/Simple", address.getLocationURI());
-            assertEquals("http://localhost:" + port + "/test/service", address.getLocationURI());
+            assertEquals("http://localhost:" + port + "/services/Simple", address.getLocationURI());
+//            assertEquals("http://localhost:" + port + "/test/service", address.getLocationURI());
 
         } finally {
             kernel.stopGBean(stack);
