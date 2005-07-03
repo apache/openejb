@@ -56,7 +56,13 @@ import org.openejb.test.TestFailureException;
  * @version $Revision$ $Date$
  */
 public interface PrefetchFacadeObject extends javax.ejb.EJBObject {
+    public void testDoesNotOverwriteUpdates() throws RemoteException, TestFailureException;
 
-    public void invokeOrderLocalHomeFindPrefetchAll() throws RemoteException, TestFailureException;
+    public void testFinderPrefetch() throws RemoteException, TestFailureException;
 
+    public void testEJBPrefetch() throws RemoteException, TestFailureException;
+
+    public void testCMPPrefetch() throws RemoteException, TestFailureException;
+
+    public void testCMRPrefetch() throws RemoteException, TestFailureException;
 }

@@ -82,6 +82,7 @@ import org.openejb.xbeans.ejbjar.OpenejbCmrFieldGroupMappingType;
 import org.openejb.xbeans.ejbjar.OpenejbEjbRelationType;
 import org.openejb.xbeans.ejbjar.OpenejbEjbRelationshipRoleType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
+import org.openejb.xbeans.ejbjar.OpenejbEntityGroupMappingType;
 import org.openejb.xbeans.ejbjar.OpenejbGroupType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.AutomaticKeyGeneration;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.CmpFieldMapping;
@@ -185,6 +186,12 @@ class CMPEntityBuilder extends EntityBuilder {
             
             EJB ejb = ejbSchema.getEJB(ejbName);
             PrefetchGroup prefetchGroup = openEJBEntities[i].getPrefetchGroup();
+            
+            if (prefetchGroup.isSetEntityGroupMapping()) {
+                OpenejbEntityGroupMappingType mapping = prefetchGroup.getEntityGroupMapping();
+                ejb.setPrefetchGroup(mapping.getGroupName());
+            }
+            
             OpenejbCmpFieldGroupMappingType[] cmpMappings = prefetchGroup.getCmpFieldGroupMappingArray();
             for (int j = 0; j < cmpMappings.length; j++) {
                 OpenejbCmpFieldGroupMappingType mapping = cmpMappings[i];
@@ -195,6 +202,7 @@ class CMPEntityBuilder extends EntityBuilder {
                 }
                 cmpField.setPrefetchGroup(mapping.getGroupName());
             }
+            
             OpenejbCmrFieldGroupMappingType[] cmrMappings = prefetchGroup.getCmrFieldGroupMappingArray();
             for (int j = 0; j < cmrMappings.length; j++) {
                 OpenejbCmrFieldGroupMappingType mapping = cmrMappings[i];

@@ -216,6 +216,8 @@
                         <xs:sequence>
                             <xs:element name="group" minOccurs="0" maxOccurs="unbounded"
                                 type="openejb:groupType"/>
+                            <xs:element name="entity-group-mapping" minOccurs="0"
+                                type="openejb:entity-group-mappingType"/>
                             <xs:element name="cmp-field-group-mapping" minOccurs="0" maxOccurs="unbounded"
                                 type="openejb:cmp-field-group-mappingType"/>
                             <xs:element name="cmr-field-group-mapping" minOccurs="0" maxOccurs="unbounded"
@@ -245,6 +247,12 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="entity-group-mappingType">
+        <xs:sequence>
+            <xs:element name="group-name" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 

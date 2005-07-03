@@ -234,14 +234,15 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         IdentityTransform remoteProxyTransform = new RemoteProxyTransform(primaryKeyTransform, proxyFactory);
 
         List attributes = ejb.getAttributes();
-        EmptySlotLoader[] slotLoaders = new EmptySlotLoader[attributes.size()];
-        String[] attributeNames = new String[attributes.size()];
-        for (int i = 0; i < attributes.size(); i++) {
-            Attribute attr = (Attribute) attributes.get(i);
+        List pkAttributes = ejb.getPrimaryKeyFields();
+        EmptySlotLoader[] slotLoaders = new EmptySlotLoader[pkAttributes.size()];
+        String[] attributeNames = new String[pkAttributes.size()];
+        for (int i = 0; i < pkAttributes.size(); i++) {
+            Attribute attr = (Attribute) pkAttributes.get(i);
             attributeNames[i] = attr.getName();
-            slotLoaders[i] = new EmptySlotLoader(i, new FieldAccessor(i, attr.getType()));
+            slotLoaders[i] = new EmptySlotLoader(attributes.indexOf(attr), new FieldAccessor(i, attr.getType()));
         }
-        QueryCommand loadCommand = queryBuilder.buildLoad(getEJBName(), attributeNames);
+        QueryCommand loadCommand = queryBuilder.buildLoadEntity(getEJBName(), attributeNames);
         FaultHandler faultHandler = new QueryFaultHandler(loadCommand, identityDefiner, slotLoaders);
 
         // EJB QL queries
@@ -269,7 +270,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
 
         // build the instance factory
-        LinkedHashMap cmrFieldAccessors[] = createCMRFieldAccessors(queryBuilder);
+        LinkedHashMap cmrFieldAccessors[] = createCMRFieldAccessors(queryBuilder, true);
+        LinkedHashMap cmrNoPrefetchFieldAccessors[] = createCMRFieldAccessors(queryBuilder, false);
         LinkedHashMap cmpFieldAccessors = createCMPFieldAccessors(queryBuilder, cmrFieldAccessors[0]);
         Map selects = queryBuilder.buildSelects(ejb.getName());
         Map instanceMap = null;
@@ -290,7 +292,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
 
         // build the vop table
-        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrFieldAccessors[1], cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGeneratorDelegate(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, finders);
+        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrNoPrefetchFieldAccessors[1], cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGeneratorDelegate(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, finders);
 
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
@@ -350,7 +352,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 accessor = new ReadOnlyCMPFieldAccessor(accessor, attribute.getName());
             }  else {
                 IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(ejb);
-                QueryCommand command = queryBuilder.buildLoadWithPrefetch(ejb.getName(), name);
+                QueryCommand command = queryBuilder.buildLoadAttribute(ejb.getName(), name, true);
                 FieldTransform attAccessor = command.getQuery().getResultAccessors()[0];
                 EmptySlotLoader[] loaders = new EmptySlotLoader[] {new EmptySlotLoader(i, attAccessor)};
                 FaultHandler faultHandler = new QueryFaultHandler(command, identityDefiner, loaders);
@@ -363,7 +365,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return cmpFieldAccessors;
     }
 
-    private LinkedHashMap[] createCMRFieldAccessors(SQLQueryBuilder queryBuilder) throws QueryException {
+    private LinkedHashMap[] createCMRFieldAccessors(SQLQueryBuilder queryBuilder, boolean prefetch) throws QueryException {
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
         IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(ejb);
 
@@ -382,13 +384,13 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
 
             CMPFieldTransform accessor = new CMPFieldAccessor(new CacheRowAccessor(i, null), name);
 
-            FaultHandler faultHandler = buildFaultHandler(queryBuilder, ejb, field, i);
+            FaultHandler faultHandler = buildFaultHandler(queryBuilder, ejb, field, i, prefetch);
             accessor = new CMPFieldFaultTransform(accessor, faultHandler, new int[]{i});
 
             cmrFaultAccessors.put(name, accessor);
             
             int relatedIndex = relatedEJB.getAttributes().size() + relatedEJB.getAssociationEnds().indexOf(relatedField);
-            FaultHandler relatedFaultHandler = buildFaultHandler(queryBuilder, relatedEJB, relatedField, relatedIndex);
+            FaultHandler relatedFaultHandler = buildFaultHandler(queryBuilder, relatedEJB, relatedField, relatedIndex, prefetch);
             CMPFieldTransform relatedAccessor = new CMPFieldAccessor(new CacheRowAccessor(relatedIndex, null), name);
             relatedAccessor = new CMPFieldFaultTransform(relatedAccessor, relatedFaultHandler, new int[]{relatedIndex});
             if ( association.isOneToOne() ) {
@@ -419,7 +421,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         return new LinkedHashMap[] {cmrFaultAccessors, cmrFieldAccessors};
     }
 
-    private FaultHandler buildFaultHandler(SQLQueryBuilder queryBuilder, EJB definingEJB, CMRField field, int slot) throws QueryException {
+    private FaultHandler buildFaultHandler(SQLQueryBuilder queryBuilder, EJB definingEJB, CMRField field, int slot, boolean prefetch) throws QueryException {
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
         Association association = field.getAssociation();
         CMRField relatedField = (CMRField) association.getOtherEnd(field);
@@ -439,7 +441,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             relatedIdentityDefiner = new DerivedIdentity(relatedCacheTbl, slots);
         }
 
-        QueryCommand faultCommand = queryBuilder.buildCMRFaultHandler(definingEJB.getName(), field.getName());
+        QueryCommand faultCommand = queryBuilder.buildLoadAssociationEnd(definingEJB.getName(), field.getName(), prefetch);
         if ( association.isOneToOne() || association.isManyToOne(field) ) {
             return new SingleValuedCMRFaultHandler(faultCommand,
                     identityDefiner,
