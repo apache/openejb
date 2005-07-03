@@ -69,11 +69,51 @@ public class PrefetchTests extends NamedTestCase {
         super("PrefetchTests.");
     }
 
-    public void testInvokeOrderLocalHomeFindPrefetchAll() {
+    public void testDoesNotOverwriteUpdates() {
         try {
             ejbHome = (PrefetchFacadeHome) javax.rmi.PortableRemoteObject.narrow(initialContext.lookup("cmp2/Prefetch/PrefetchFacade"), PrefetchFacadeHome.class);
             PrefetchFacadeObject prefetchFacade = ejbHome.create();
-            prefetchFacade.invokeOrderLocalHomeFindPrefetchAll();
+            prefetchFacade.testDoesNotOverwriteUpdates();
+        } catch (Exception e) {
+            fail("Received Exception " + e.getClass() + " : " + e.getMessage());
+        }
+    }
+
+    public void testFinderPrefetch() {
+        try {
+            ejbHome = (PrefetchFacadeHome) javax.rmi.PortableRemoteObject.narrow(initialContext.lookup("cmp2/Prefetch/PrefetchFacade"), PrefetchFacadeHome.class);
+            PrefetchFacadeObject prefetchFacade = ejbHome.create();
+            prefetchFacade.testFinderPrefetch();
+        } catch (Exception e) {
+            fail("Received Exception " + e.getClass() + " : " + e.getMessage());
+        }
+    }
+
+    public void testEJBPrefetch() {
+        try {
+            ejbHome = (PrefetchFacadeHome) javax.rmi.PortableRemoteObject.narrow(initialContext.lookup("cmp2/Prefetch/PrefetchFacade"), PrefetchFacadeHome.class);
+            PrefetchFacadeObject prefetchFacade = ejbHome.create();
+            prefetchFacade.testEJBPrefetch();
+        } catch (Exception e) {
+            fail("Received Exception " + e.getClass() + " : " + e.getMessage());
+        }
+    }
+
+    public void testCMPPrefetch() {
+        try {
+            ejbHome = (PrefetchFacadeHome) javax.rmi.PortableRemoteObject.narrow(initialContext.lookup("cmp2/Prefetch/PrefetchFacade"), PrefetchFacadeHome.class);
+            PrefetchFacadeObject prefetchFacade = ejbHome.create();
+            prefetchFacade.testCMPPrefetch();
+        } catch (Exception e) {
+            fail("Received Exception " + e.getClass() + " : " + e.getMessage());
+        }
+    }
+
+    public void testCMRPrefetch() {
+        try {
+            ejbHome = (PrefetchFacadeHome) javax.rmi.PortableRemoteObject.narrow(initialContext.lookup("cmp2/Prefetch/PrefetchFacade"), PrefetchFacadeHome.class);
+            PrefetchFacadeObject prefetchFacade = ejbHome.create();
+            prefetchFacade.testCMRPrefetch();
         } catch (Exception e) {
             fail("Received Exception " + e.getClass() + " : " + e.getMessage());
         }

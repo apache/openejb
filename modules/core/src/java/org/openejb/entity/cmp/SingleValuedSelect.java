@@ -122,5 +122,9 @@ public class SingleValuedSelect implements InstanceOperation {
             }
             throw new QueryException("More than one row returned from single valued select.");
         }
+        
+        public Object endFetched(Object arg0) throws QueryException {
+            return arg0;
+        }
     }
 }

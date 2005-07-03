@@ -114,5 +114,9 @@ public class SingleValuedFinder extends CMPFinder {
             }
             return invocation.createExceptionResult((Exception)new FinderException("More than one row returned from single valued finder"));
         }
+        
+        public Object endFetched(Object arg0) throws QueryException {
+            return arg0;
+        }
     }
 }

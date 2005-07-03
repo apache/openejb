@@ -58,6 +58,9 @@
                         <cmr-field-name>product</cmr-field-name>
                     </cmr-field>
                 </group>
+                <entity-group-mapping>
+                    <group-name>prefetchAll</group-name>
+                </entity-group-mapping>
             </prefetch-group>
         </entity>
         <entity>
