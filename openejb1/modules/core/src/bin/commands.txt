@@ -12,7 +12,7 @@ COMMANDS:
   validate Validate an ejb jar
   
 
-Try 'openejb help <command>' for more information a command.
+Try 'openejb help <command>' for more information about the command.
          
 OpenEJB -- EJB Container System and EJB Server.
 For updates and additional information, visit

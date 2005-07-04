@@ -429,6 +429,27 @@
                 </path>
             </classpath>
         </javadoc>
+
+        <attainGoal name="build-website"/>
+    </goal>
+
+    <goal name="build-website"
+        description="Builds documentation">
+        <cvspass cvsroot=":pserver:anon@cvs.openejb.org:/home/projects/openejb/scm" password=""/>
+        <ant:cvs command="checkout"
+          quiet="true"
+          compression="true"
+          cvsRoot=":pserver:anon@cvs.openejb.org:/home/projects/openejb/scm"
+          dest="target"
+          package="website"
+          failonerror="true"
+          />
+      <!-- make generating website docs possible -->
+       ${systemScope.setProperty('javax.xml.transform.TransformerFactory','org.apache.xalan.processor.TransformerFactoryImpl')}
+      <ant:ant dir="target/website"/>
+      <copy todir="${aggregate.dir}\docs">
+        <fileset dir="target/website/docs/html"/>
+      </copy>
     </goal>
 
     <!-- =============================== -->
