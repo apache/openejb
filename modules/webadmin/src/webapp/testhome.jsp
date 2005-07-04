@@ -116,13 +116,13 @@ org.openejb.OpenEJB
         this.session = session;
         this.out = out;
         
-        out.print("<b>openejb.home = "+ OpenEJB.getProperty("openejb.home")+"</b><br><br>");
+        out.print("<b>openejb.home = "+ System.getProperty("openejb.home")+"</b><br><br>");
         try{
             out.print(HR);
             out.print("<table width='300' cellspacing='4' cellpadding='4' border='0'>");
             // The openejb.home must be set
             out.print("<tr><td><font size='2'>openejb.home is set</font></td> ");
-            String homePath = OpenEJB.getProperty("openejb.home");
+            String homePath = System.getProperty("openejb.home");
             if (homePath == null) handleError(NO_HOME, INSTRUCTIONS);
             out.print(OK);
 
