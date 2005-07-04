@@ -17,7 +17,6 @@ java.io.*,
 java.lang.reflect.Method,
 java.lang.reflect.InvocationTargetException,
 java.lang.reflect.Modifier,
-org.openejb.OpenEJB
 "%>
 <html>
 <head>
