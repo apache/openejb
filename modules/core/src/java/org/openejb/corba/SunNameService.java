@@ -46,6 +46,7 @@ package org.openejb.corba;
 
 import java.io.File;
 import java.util.Properties;
+import java.net.InetSocketAddress;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -116,6 +117,10 @@ public class SunNameService implements GBeanLifecycle {
         return port;
     }
 
+    public InetSocketAddress getAddress() {
+        return new InetSocketAddress("0.0.0.0", getPort());
+    }
+
     public void doStart() throws Exception {
         new Thread(new ORBRunner(orb), "ORBRunner").start();
         log.info("Started transient CORBA name service on port " + port);
@@ -146,11 +151,12 @@ public class SunNameService implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SunNameService.class, NameFactory.CORBA_SERVICE);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("CORBA Naming Service", SunNameService.class, NameFactory.CORBA_SERVICE);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addAttribute("dbDir", String.class, true);
         infoFactory.addAttribute("port", int.class, true);
+        infoFactory.addAttribute("address", InetSocketAddress.class, false);
         infoFactory.setConstructor(new String[]{"ServerInfo", "dbDir", "port"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
