@@ -46,6 +46,7 @@
 package org.openejb.server;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
@@ -64,12 +65,13 @@ public class StandardServiceStackGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(StandardServiceStack.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("OpenEJB Connector", StandardServiceStack.class);
 
         infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("port", int.class, true);
         infoFactory.addAttribute("soTimeout", int.class, true);
         infoFactory.addAttribute("address", InetAddress.class, true);
+        infoFactory.addAttribute("fullAddress", InetSocketAddress.class, false);
         infoFactory.addAttribute("allowHosts", ServiceAccessController.IPAddressPermission[].class, true);
         infoFactory.addAttribute("logOnSuccess", String[].class, true);
         infoFactory.addAttribute("logOnFailure", String[].class, true);

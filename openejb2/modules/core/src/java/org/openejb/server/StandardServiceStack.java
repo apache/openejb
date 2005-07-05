@@ -46,6 +46,7 @@ package org.openejb.server;
 
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.InetSocketAddress;
 import java.io.IOException;
 
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -78,6 +79,10 @@ public class StandardServiceStack implements GBeanLifecycle {
 
     public InetAddress getAddress() {
         return daemon.getAddress();
+    }
+
+    public InetSocketAddress getFullAddress() {
+        return new InetSocketAddress(getAddress(), getPort());
     }
 
     public int getPort() {
