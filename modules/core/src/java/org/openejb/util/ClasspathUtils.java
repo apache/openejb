@@ -88,6 +88,19 @@ public class ClasspathUtils {
         getLoader(loaderName).addJarToPath(jar);
     }
 
+    /**
+     * Used to shove all jar files in a directory into the classloader
+     * This method resolves the directory relative to openejb.home and
+     * instpects the name of the classloader to figure out which loader
+     * to call.
+     *
+     * This method i used only by the deploy tool, validator, and testsuite
+     * to add openejb.home/lib and openejb.home/dist to the classpath.
+     *
+     * @see #getLoader() 
+     * @param dir
+     * @throws Exception
+     */
     public static void addJarsToPath(String dir) throws Exception {
         addJarsToPath(FileUtils.getHome().getDirectory(dir));
     }
