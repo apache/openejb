@@ -191,14 +191,6 @@ public class ClasspathUtils {
         }
     }
 
-    public static ClassLoader getContextClassLoader() {
-        return (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
-            public Object run() {
-                return Thread.currentThread().getContextClassLoader();
-            }
-        });
-    }
-
     public static void rebuildJavaClassPathVariable() throws Exception {
 
     }
@@ -500,4 +492,13 @@ public class ClasspathUtils {
             return webappLoader;
         }
     }
+
+    protected static ClassLoader getContextClassLoader() {
+        return (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+            public Object run() {
+                return Thread.currentThread().getContextClassLoader();
+            }
+        });
+    }
+
 }

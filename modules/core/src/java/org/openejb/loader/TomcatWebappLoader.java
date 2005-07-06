@@ -68,7 +68,7 @@ public class TomcatWebappLoader implements Loader {
     public void load( Hashtable env ) throws Exception{
         if (loaded) return;
 
-        ClassLoader cl = ClasspathUtils.getContextClassLoader();
+        ClassLoader cl = getContextClassLoader();
         try{
             cl.loadClass("org.openejb.OpenEJB");
         } catch (Exception e){
@@ -88,7 +88,16 @@ public class TomcatWebappLoader implements Loader {
         }
         loaded = true;
     }
-    
+
+    private ClassLoader getContextClassLoader() {
+        return (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+            public Object run() {
+                return Thread.currentThread().getContextClassLoader();
+            }
+        });
+    }
+
+
     // Sets the openejb.home system variable
     private void importOpenEJBLibraries(  Hashtable env ) throws Exception{
         // Sets the openejb.home system variable

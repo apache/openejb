@@ -95,7 +95,7 @@ public class LocalInitialContextFactory implements javax.naming.spi.InitialConte
     private Loader instantiateLoader(String loaderName) throws Exception {
         Loader loader = null;
         try {
-            ClassLoader cl = ClasspathUtils.getContextClassLoader();
+            ClassLoader cl = getContextClassLoader();
             Class loaderClass = Class.forName(loaderName, true, cl);
             loader = (Loader) loaderClass.newInstance();
         } catch (Exception e) {
@@ -109,7 +109,7 @@ public class LocalInitialContextFactory implements javax.naming.spi.InitialConte
         Context context = null;
         try {
             InitialContextFactory factory = null;
-            ClassLoader cl = ClasspathUtils.getContextClassLoader();
+            ClassLoader cl = getContextClassLoader();
             Class ivmFactoryClass = Class.forName("org.openejb.core.ivm.naming.InitContextFactory", true, cl);
 
             factory = (InitialContextFactory) ivmFactoryClass.newInstance();
@@ -122,5 +122,12 @@ public class LocalInitialContextFactory implements javax.naming.spi.InitialConte
         return context;
     }
 
+    private ClassLoader getContextClassLoader() {
+        return (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+            public Object run() {
+                return Thread.currentThread().getContextClassLoader();
+            }
+        });
+    }
 }
 

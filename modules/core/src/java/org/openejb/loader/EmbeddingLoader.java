@@ -67,7 +67,7 @@ public class EmbeddingLoader implements Loader {
     public void load( Hashtable env ) throws Exception{
         if (loaded) return;
 
-        ClassLoader cl = ClasspathUtils.getContextClassLoader();
+        ClassLoader cl = getContextClassLoader();
         try{
             cl.loadClass("org.openejb.OpenEJB");
         } catch (Exception e){
@@ -105,5 +105,13 @@ public class EmbeddingLoader implements Loader {
             throw new Exception( "Could not load OpenEJB libraries. Exception: "+
                                  e.getClass().getName()+" "+ e.getMessage());
         }
+    }
+
+    private ClassLoader getContextClassLoader() {
+        return (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+            public Object run() {
+                return Thread.currentThread().getContextClassLoader();
+            }
+        });
     }
 }

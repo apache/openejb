@@ -81,13 +81,21 @@ public class TestManager {
         props.load(new FileInputStream(file));
         return props;
     }
-    
+
+    private static ClassLoader getContextClassLoader() {
+        return (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+            public Object run() {
+                return Thread.currentThread().getContextClassLoader();
+            }
+        });
+    }
+
     private static void initServer(Properties props){
         try{
 
             String className = (String)props.getProperty("openejb.test.server");
             if (className == null) throw new IllegalArgumentException("Must specify a test server by setting its class name using the system property \"openejb.test.server\"");
-            ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+            ClassLoader cl = getContextClassLoader();
             Class testServerClass = Class.forName( className, true, cl );
             server = (TestServer)testServerClass.newInstance();
             server.init( props );
@@ -102,7 +110,7 @@ public class TestManager {
         try{
             String className = (String)props.getProperty("openejb.test.database");
             if (className == null) throw new IllegalArgumentException("Must specify a test database by setting its class name  using the system property \"openejb.test.database\"");
-            ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+            ClassLoader cl = getContextClassLoader();
             Class testDatabaseClass = Class.forName( className , true, cl);
             database = (TestDatabase)testDatabaseClass.newInstance();
             database.init( props );

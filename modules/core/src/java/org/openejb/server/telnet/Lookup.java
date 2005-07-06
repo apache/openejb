@@ -167,7 +167,7 @@ public class Lookup extends Command
                 {
                     try
                     {
-                        ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+                        ClassLoader cl = OpenEJB.getContextClassLoader();
                         eClass = Class.forName( entry.getClassName(), true, cl );
                     }
                     catch ( Throwable t )
