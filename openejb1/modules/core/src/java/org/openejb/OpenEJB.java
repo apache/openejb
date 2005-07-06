@@ -431,4 +431,12 @@ public final class OpenEJB {
     {
         return props.getProperty(property);
     }
+
+    public static ClassLoader getContextClassLoader() {
+        return (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+            public Object run() {
+                return Thread.currentThread().getContextClassLoader();
+            }
+        });
+    }
 }

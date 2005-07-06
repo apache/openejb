@@ -289,7 +289,7 @@ public class ServiceManager {
      * @exception ServiceException
      */
     private Class loadClass(String className) throws ServiceException{
-        ClassLoader loader = org.openejb.util.ClasspathUtils.getContextClassLoader();
+        ClassLoader loader = OpenEJB.getContextClassLoader();
         Class clazz = null;
         try{
             clazz = Class.forName(className,true,loader);

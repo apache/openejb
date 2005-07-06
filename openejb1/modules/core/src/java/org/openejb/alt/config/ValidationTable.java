@@ -56,6 +56,7 @@ import java.util.Properties;
 
 import org.openejb.util.FileUtils;
 import org.openejb.util.JarUtils;
+import org.openejb.OpenEJB;
 
 /**
  * Beans should be validated, but only when:
@@ -112,7 +113,7 @@ public class ValidationTable {
     private ValidationTable(){
         try{
             // Load the driver
-            ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+            ClassLoader cl = OpenEJB.getContextClassLoader();
             Class.forName( jdbcDriver, true, cl);
             // Get a connection
             conn = getConnection();

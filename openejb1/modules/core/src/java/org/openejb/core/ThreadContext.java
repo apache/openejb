@@ -48,6 +48,7 @@ package org.openejb.core;
 
 
 import org.openejb.util.FastThreadLocal;
+import org.openejb.OpenEJB;
 
 /**
  * TODO: Add comment
@@ -99,7 +100,7 @@ public class ThreadContext implements Cloneable {
 
         if ( className !=null ) {
             try {
-                ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+                ClassLoader cl = OpenEJB.getContextClassLoader();
                 implClass = Class.forName(className, true, cl);
             } catch ( Exception e ) {
                 System.out.println("Can not load ThreadContext class. org.openejb.core.threadcontext_class = "+className);

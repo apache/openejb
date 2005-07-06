@@ -57,6 +57,7 @@ import javax.resource.spi.ResourceAdapterInternalException;
 import org.openejb.core.EnvProps;
 import org.openejb.util.FileUtils;
 import org.openejb.util.Logger;
+import org.openejb.OpenEJB;
 
 
 public class JdbcManagedConnectionFactory 
@@ -110,7 +111,7 @@ implements javax.resource.spi.ManagedConnectionFactory, java.io.Serializable {
     public void setJdbcDriver(String driver) throws javax.resource.spi.ResourceAdapterInternalException{
         jdbcDriver = driver;
         try{
-            ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+            ClassLoader cl = OpenEJB.getContextClassLoader();
             Class.forName( jdbcDriver, true, cl);
         }catch(ClassNotFoundException cnf){
             //BUG: If this situtuation occurs, only the words:

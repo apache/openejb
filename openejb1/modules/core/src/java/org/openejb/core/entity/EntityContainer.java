@@ -129,7 +129,7 @@ public class EntityContainer implements org.openejb.RpcContainer, TransactionCon
         SafeProperties safeProps = toolkit.getSafeProperties(properties);
         try{
         String className = safeProps.getProperty(EnvProps.IM_CLASS_NAME, "org.openejb.core.entity.EntityInstanceManager");
-        ClassLoader cl = org.openejb.util.ClasspathUtils.getContextClassLoader();
+        ClassLoader cl = OpenEJB.getContextClassLoader();
         instanceManager =(EntityInstanceManager)Class.forName(className, true, cl).newInstance();
         }catch(Exception e){
         throw new org.openejb.SystemException("Initialization of InstanceManager for the \""+containerID+"\" entity container failed",e);
