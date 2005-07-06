@@ -45,6 +45,10 @@
 package org.openejb.loader;
 
 import java.util.Hashtable;
+import java.io.File;
+
+import org.openejb.util.ClasspathUtils;
+import org.openejb.util.FileUtils;
 
 
 /**
@@ -58,6 +62,12 @@ import java.util.Hashtable;
 public class SystemLoader implements Loader {
     
     static boolean loaded = false;
+    private final ClasspathUtils.Loader loader;
+
+    public SystemLoader() {
+        this.loader = ClasspathUtils.sysLoader;
+    }
+
     /**
      * Checks to see if OpenEJB is available through the system 
      * classpath.  If it isn't, then the required libraries are
@@ -81,8 +91,7 @@ public class SystemLoader implements Loader {
             
             embedded = (Loader)loaderClass.newInstance();
             embedded.load( env );
-            
-            org.openejb.util.ClasspathUtils.rebuildJavaClassPathVariable();
+
         } catch (Exception e){
             throw new Exception( "Cannot embed OpenEJB. Exception: "+
                                  e.getClass().getName()+" "+ e.getMessage());
@@ -100,14 +109,20 @@ public class SystemLoader implements Loader {
         
         try{
             // Loads all the libraries in the openejb.home/lib directory
-            org.openejb.util.ClasspathUtils.addJarsToPath("lib", "system");
+            addJarsToPath("lib");
 
             // Loads all the libraries in the openejb.home/dist directory
-            org.openejb.util.ClasspathUtils.addJarsToPath("dist", "system");
+            addJarsToPath("dist");
         } catch (Exception e){
             throw new Exception( "Could not load OpenEJB libraries. Exception: "+
                                  e.getClass().getName()+" "+ e.getMessage());
         }
+    }
+
+    private void addJarsToPath(String dir) throws Exception {
+        Hashtable env = System.getProperties();
+        File dirAtHome = FileUtils.getHome(env).getDirectory(dir);
+        loader.addJarsToPath(dirAtHome);
     }
 }
 

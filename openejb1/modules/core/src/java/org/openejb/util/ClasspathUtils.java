@@ -56,13 +56,13 @@ import java.util.Hashtable;
  */
 public class ClasspathUtils {
 
-    private static Loader tomcatLoader = new ClasspathUtils().new TomcatLoader();
+    public static Loader tomcatLoader = new ClasspathUtils().new TomcatLoader();
 
-    private static Loader webappLoader = new ClasspathUtils().new WebAppLoader();
+    public static Loader webappLoader = new ClasspathUtils().new WebAppLoader();
 
-    private static Loader sysLoader = new ClasspathUtils().new SystemLoader();
+    public static Loader sysLoader = new ClasspathUtils().new SystemLoader();
 
-    private static Loader ctxLoader = new ClasspathUtils().new ContextLoader();
+    public static Loader ctxLoader = new ClasspathUtils().new ContextLoader();
 
     public static void addJarToPath(String jar) throws Exception {
         addJarToPath(FileUtils.getHome().getFile(jar));
@@ -172,7 +172,7 @@ public class ClasspathUtils {
         }
     }
 
-    protected static Loader getLoader(String name) {
+    public static Loader getLoader(String name) {
 
         if (name.equalsIgnoreCase("tomcat")) {
             return tomcatLoader;
@@ -191,17 +191,13 @@ public class ClasspathUtils {
         }
     }
 
-    public static void rebuildJavaClassPathVariable() throws Exception {
-
-    }
-
-    interface Loader {
+    public interface Loader {
         public void addJarsToPath(File dir) throws Exception;
 
         public void addJarToPath(URL dir) throws Exception;
     }
 
-    class BasicURLLoader implements Loader {
+    public class BasicURLLoader implements Loader {
         public void addJarsToPath(File dir) throws Exception {
         }
 
@@ -266,7 +262,7 @@ public class ClasspathUtils {
     /*-------------------------------------------------------*/
     /* System ClassLoader Support */
     /*-------------------------------------------------------*/
-    class SystemLoader extends BasicURLLoader {
+    public class SystemLoader extends BasicURLLoader {
 
         private URLClassLoader sysLoader;
 
@@ -320,7 +316,7 @@ public class ClasspathUtils {
     /*-------------------------------------------------------*/
     /* Thread Context ClassLoader Support */
     /*-------------------------------------------------------*/
-    class ContextLoader extends BasicURLLoader {
+    public class ContextLoader extends BasicURLLoader {
 
         public void addJarsToPath(File dir) throws Exception {
             ClassLoader contextClassLoader = ClasspathUtils.getContextClassLoader();
@@ -342,7 +338,7 @@ public class ClasspathUtils {
     /*-------------------------------------------------------*/
     /* Tomcat ClassLoader Support */
     /*-------------------------------------------------------*/
-    class TomcatLoader extends BasicURLLoader {
+    public class TomcatLoader extends BasicURLLoader {
 
         /**
          * The Tomcat Common ClassLoader
@@ -482,7 +478,7 @@ public class ClasspathUtils {
         }
     }
 
-    class WebAppLoader extends TomcatLoader {
+    public class WebAppLoader extends TomcatLoader {
         ClassLoader webappLoader;
 
         protected ClassLoader getCommonLoader() {
@@ -493,7 +489,7 @@ public class ClasspathUtils {
         }
     }
 
-    protected static ClassLoader getContextClassLoader() {
+    public static ClassLoader getContextClassLoader() {
         return (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
             public Object run() {
                 return Thread.currentThread().getContextClassLoader();

@@ -48,6 +48,7 @@ import java.io.File;
 import java.util.Hashtable;
 
 import org.openejb.util.ClasspathUtils;
+import org.openejb.util.FileUtils;
 
 /**
  * 
@@ -56,7 +57,12 @@ import org.openejb.util.ClasspathUtils;
 public class TomcatWebappLoader implements Loader {
     
     static boolean loaded = false;
-    
+    private final ClasspathUtils.Loader loader;
+
+    public TomcatWebappLoader() {
+        this.loader = ClasspathUtils.webappLoader;
+    }
+
     /**
      * Checks to see if OpenEJB is available through classpath.  
      * If it isn't, then the required libraries are
@@ -109,14 +115,20 @@ public class TomcatWebappLoader implements Loader {
         
         try{
             // Loads all the libraries in the openejb.home/lib directory
-            org.openejb.util.ClasspathUtils.addJarsToPath("lib","tomcat-webapp");
+            addJarsToPath("lib");
 
             // Loads all the libraries in the openejb.home/dist directory
-            org.openejb.util.ClasspathUtils.addJarsToPath("dist","tomcat-webapp");
+            addJarsToPath("dist");
 
         } catch (Exception e){
             throw new Exception( "Could not load OpenEJB libraries. Exception: "+
                                  e.getClass().getName()+" "+ e.getMessage());
         }
+    }
+
+    private void addJarsToPath(String dir) throws Exception {
+        Hashtable env = System.getProperties();
+        File dirAtHome = FileUtils.getHome(env).getDirectory(dir);
+        loader.addJarsToPath(dirAtHome);
     }
 }
