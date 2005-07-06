@@ -50,7 +50,6 @@ import javax.naming.Context;
 import javax.naming.spi.InitialContextFactory;
 
 import org.openejb.loader.Loader;
-import org.openejb.util.ClasspathUtils;
 
 /**
  * LocalInitialContextFactory
