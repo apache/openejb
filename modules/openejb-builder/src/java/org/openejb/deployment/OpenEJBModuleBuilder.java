@@ -434,6 +434,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         // @todo need a better schema name
         cmpEntityBuilder.buildCMPSchema(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema, globalSchema);
 
+        if (null == connectionFactoryLocator && false == ejbSchema.getEntities().isEmpty()) {
+            throw new DeploymentException("A cmp-connection-factory element must be specified as CMP EntityBeans are defined.");
+        }
+        
         // create an index of the openejb ejb configurations by ejb-name
         Map openejbBeans = new HashMap();
         //TODO NPE if enterprise-beans or session is missing
