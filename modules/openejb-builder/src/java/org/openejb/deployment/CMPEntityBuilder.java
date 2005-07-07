@@ -325,7 +325,7 @@ class CMPEntityBuilder extends EntityBuilder {
                     throw new DeploymentException("Unable to load PK Generator for EJB "+ejbName, e);
                 }
             }
-            ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory, (org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate)keyGenerator, unknownPK);
+            ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory, keyGenerator, unknownPK);
 
             Table table = new Table(ejbName, openEjbEntity.getTableName());
 
