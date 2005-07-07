@@ -214,6 +214,9 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                 connection = dataSource.getConnection();
                 statement = connection.createStatement();
                 statement.execute("CREATE TABLE SIMPLECMP(ID INTEGER, FIRSTNAME VARCHAR(50), LASTNAME VARCHAR(50))");
+                statement.execute("CREATE TABLE PKGENCMP(ID INTEGER, FIRSTNAME VARCHAR(50), LASTNAME VARCHAR(50))");
+                statement.execute("CREATE TABLE PKGENCMP_SEQ(NAME VARCHAR(50), VALUE INTEGER)");
+                statement.execute("CREATE TABLE PKGENCMP2(ID INTEGER, FIRSTNAME VARCHAR(50), LASTNAME VARCHAR(50))");
             } finally {
                 JDBCUtil.close(statement);
                 JDBCUtil.close(connection);

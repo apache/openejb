@@ -105,6 +105,15 @@
         </dependency>
 
         <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-pkgen-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-axis-builder</artifactId>
             <version>${geronimo_version}</version>

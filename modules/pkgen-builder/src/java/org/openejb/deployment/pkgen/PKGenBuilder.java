@@ -45,43 +45,27 @@
  *
  * ====================================================================
  */
-
-package org.openejb.deployment;
+package org.openejb.deployment.pkgen;
 
 import javax.sql.DataSource;
-import junit.framework.TestCase;
-import org.apache.geronimo.common.DeploymentException;
+import org.tranql.pkgenerator.PrimaryKeyGenerator;
+import org.tranql.ql.QueryException;
+import org.openejb.xbeans.pkgen.EjbKeyGeneratorType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.xbeans.j2ee.EjbJarType;
-import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
-import org.openejb.deployment.pkgen.PKGenBuilder;
-import org.tranql.cache.GlobalSchema;
-import org.tranql.ejb.EJBSchema;
-import org.tranql.sql.SQLSchema;
+import org.apache.geronimo.common.DeploymentException;
 
 /**
+ * Process the key-generator element in a deployment descriptor, and create
+ * a matching PrimaryKeyGenerator object.  This is a common utility which
+ * can be invoked by the builder of any other schema which includes nested
+ * key-generator elements.
  *
+ * This is a placeholder interface in case other PK Generator implementations
+ * become available.  If so, the return type and exception type would need
+ * to be changed to not be a TranQL interface.
  *
  * @version $Revision$ $Date$
- *
- * */
-public class CMPEntityBuilderTestUtil extends TestCase {
-
-    private final CMPEntityBuilder delegate;
-
-    public void testDummy() { }
-
-    public CMPEntityBuilderTestUtil() {
-        delegate = null;
-    }
-    
-    public CMPEntityBuilderTestUtil(OpenEJBModuleBuilder builder) {
-        this.delegate = new CMPEntityBuilder(builder);
-    }
-    
-    public void buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, PKGenBuilder pkGen, DataSource dataSource) throws DeploymentException {
-        delegate.buildCMPSchema(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema, globalSchema, pkGen, dataSource);
-    }
-    
+ */
+public interface PKGenBuilder {
+    PrimaryKeyGenerator configurePKGenerator(EjbKeyGeneratorType config, DataSource dataSource, Class pkClass, EARContext earContext) throws DeploymentException, QueryException;
 }

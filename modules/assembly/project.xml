@@ -611,6 +611,15 @@
         </dependency>
 
         <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-pkgen-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>tmporb</groupId>
             <artifactId>tmporb-orb</artifactId>
             <version>${tmporb_version}</version>

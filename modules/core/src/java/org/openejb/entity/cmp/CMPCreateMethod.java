@@ -72,6 +72,7 @@ import org.tranql.identity.GlobalIdentity;
 import org.tranql.identity.IdentityDefiner;
 import org.tranql.identity.IdentityTransform;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
+import org.tranql.pkgenerator.PrimaryKeyGenerator;
 
 /**
  *
@@ -85,7 +86,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
     private final MethodSignature postCreateSignature;
     private final CacheTable cacheTable;
     private final IdentityDefiner identityDefiner;
-    private final PrimaryKeyGeneratorDelegate keyGenerator;
+    private final PrimaryKeyGenerator keyGenerator;
     private final IdentityTransform primaryKeyTransform;
     private final IdentityTransform localProxyTransform;
     private final IdentityTransform remoteProxyTransform;
@@ -100,7 +101,7 @@ public class CMPCreateMethod implements VirtualOperation, Serializable {
             MethodSignature postCreateSignature,
             CacheTable cacheTable,
             IdentityDefiner identityDefiner,
-            PrimaryKeyGeneratorDelegate keyGenerator,
+            PrimaryKeyGenerator keyGenerator,
             IdentityTransform primaryKeyTransform,
             IdentityTransform localProxyTransform,
             IdentityTransform remoteProxyTransform) {

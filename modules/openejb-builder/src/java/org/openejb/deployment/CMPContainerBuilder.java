@@ -129,6 +129,7 @@ import org.tranql.identity.IdentityDefinerBuilder;
 import org.tranql.identity.IdentityTransform;
 import org.tranql.identity.UserDefinedIdentity;
 import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
+import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommand;
 import org.tranql.schema.Association;
@@ -292,7 +293,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
 
         // build the vop table
-        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrNoPrefetchFieldAccessors[1], cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGeneratorDelegate(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, finders);
+        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrNoPrefetchFieldAccessors[1], cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGenerator(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, finders);
 
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
@@ -518,7 +519,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             Map cmrFieldAccessors,
             CMP1Bridge cmp1Bridge,
             IdentityDefiner identityDefiner,
-            PrimaryKeyGeneratorDelegate keyGenerator,
+            PrimaryKeyGenerator keyGenerator,
             IdentityTransform primaryKeyTransform,
             IdentityTransform localProxyTransform,
             IdentityTransform remoteProxyTransform,

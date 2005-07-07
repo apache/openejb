@@ -57,6 +57,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.management.ObjectName;
+import javax.sql.DataSource;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
@@ -74,7 +75,6 @@ import org.apache.geronimo.xbeans.j2ee.EnterpriseBeansType;
 import org.apache.geronimo.xbeans.j2ee.EntityBeanType;
 import org.apache.geronimo.xbeans.j2ee.JavaTypeType;
 import org.apache.geronimo.xbeans.j2ee.QueryType;
-import org.openejb.entity.cmp.PrimaryKeyGeneratorWrapper;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.xbeans.ejbjar.OpenejbCmpFieldGroupMappingType;
@@ -84,12 +84,12 @@ import org.openejb.xbeans.ejbjar.OpenejbEjbRelationshipRoleType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
 import org.openejb.xbeans.ejbjar.OpenejbEntityGroupMappingType;
 import org.openejb.xbeans.ejbjar.OpenejbGroupType;
-import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.AutomaticKeyGeneration;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.CmpFieldMapping;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType.PrefetchGroup;
 import org.openejb.xbeans.ejbjar.OpenejbGroupType.CmrField;
 import org.openejb.xbeans.ejbjar.OpenejbOpenejbJarType;
 import org.openejb.xbeans.ejbjar.OpenejbQueryType;
+import org.openejb.deployment.pkgen.PKGenBuilder;
 import org.tranql.cache.GlobalSchema;
 import org.tranql.cache.GlobalSchemaLoader;
 import org.tranql.ejb.CMPField;
@@ -101,7 +101,7 @@ import org.tranql.ejb.FinderEJBQLQuery;
 import org.tranql.ejb.Relationship;
 import org.tranql.ejb.SelectEJBQLQuery;
 import org.tranql.ejb.TransactionManagerDelegate;
-import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
+import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.schema.Association.JoinDefinition;
 import org.tranql.sql.Column;
 import org.tranql.sql.EndTable;
@@ -113,9 +113,13 @@ import org.tranql.sql.TypeConverter;
 import org.tranql.sql.jdbc.SQLTypeLoader;
 import org.tranql.sql.prefetch.PrefetchGroupDictionary;
 import org.tranql.sql.prefetch.PrefetchGroupDictionary.EndTableDesc;
+import org.tranql.ql.QueryException;
 
 
 /**
+ * During the process of deploying an EJB JAR, this class is called to deploy
+ * each CMP entity bean in the JAR.  It is called from OpenEJBModuleBuilder.
+ *
  * @version $Revision$ $Date$
  */
 class CMPEntityBuilder extends EntityBuilder {
@@ -124,7 +128,10 @@ class CMPEntityBuilder extends EntityBuilder {
         super(builder);
     }
 
-    protected void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, TransactionManagerDelegate tmDelegate, ComponentPermissions componentPermissions, String policyContextID) throws DeploymentException {
+    /**
+     * Create GBeans for all the CMP entity beans in the EJB JAR.
+     */
+    public void buildBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ClassLoader cl, EJBModule ejbModule, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, Map openejbBeans, TransactionPolicyHelper transactionPolicyHelper, EnterpriseBeansType enterpriseBeans, TransactionManagerDelegate tmDelegate, ComponentPermissions componentPermissions, String policyContextID) throws DeploymentException {
         // CMP Entity Beans
         EntityBeanType[] entityBeans = enterpriseBeans.getEntityArray();
         for (int i = 0; i < entityBeans.length; i++) {
@@ -143,10 +150,14 @@ class CMPEntityBuilder extends EntityBuilder {
         }
     }
 
-
-    public void buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema) throws DeploymentException {
+    /**
+     * Process the deployment information for all the CMP entity beans in the
+     * EJB JAR.  This includes setting up the database mappings, key
+     * generation, etc.
+     */
+    public void buildCMPSchema(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQLSchema sqlSchema, GlobalSchema globalSchema, PKGenBuilder pkGen, DataSource dataSource) throws DeploymentException {
         try {
-            processEnterpriseBeans(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema);
+            processEnterpriseBeans(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema, pkGen, dataSource);
             processRelationships(ejbJar, openejbEjbJar, ejbSchema, sqlSchema);
             processGroups(openejbEjbJar, ejbSchema, sqlSchema);
             GlobalSchemaLoader.populateGlobalSchema(globalSchema, ejbSchema, sqlSchema);
@@ -216,7 +227,7 @@ class CMPEntityBuilder extends EntityBuilder {
         }
     }
     
-    private void processEnterpriseBeans(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQLSchema sqlSchema) throws DeploymentException {
+    private void processEnterpriseBeans(EARContext earContext, J2eeContext moduleJ2eeContext, EjbJarType ejbJar, OpenejbOpenejbJarType openejbEjbJar, ClassLoader cl, EJBSchema ejbSchema, SQLSchema sqlSchema, PKGenBuilder pkGen, DataSource dataSource) throws DeploymentException {
         Map openEjbEntities = new HashMap();
         OpenejbEntityBeanType[] openEJBEntities = openejbEjbJar.getEnterpriseBeans().getEntityArray();
         for (int i = 0; i < openEJBEntities.length; i++) {
@@ -224,7 +235,6 @@ class CMPEntityBuilder extends EntityBuilder {
             openEjbEntities.put(entity.getEjbName(), entity);
         }
 
-        Map keyGenerators = new HashMap();
         EntityBeanType[] entityBeans = ejbJar.getEnterpriseBeans().getEntityArray();
         for (int i = 0; i < entityBeans.length; i++) {
             EntityBeanType entityBean = entityBeans[i];
@@ -264,17 +274,42 @@ class CMPEntityBuilder extends EntityBuilder {
                 throw new DeploymentException("Could not load cmp bean class: ejbName=" + ejbName + " ejbClass=" + getString(entityBean.getEjbClass()));
             }
 
+            // Index the CMP fields
+            Map cmpFieldToMapping = new HashMap();
+            CmpFieldMapping mappings[] = openEjbEntity.getCmpFieldMappingArray();
+            for (int j = 0; j < mappings.length; j++) {
+                CmpFieldMapping mapping = mappings[j];
+                cmpFieldToMapping.put(mapping.getCmpFieldName(), mapping);
+            }
+
+            // Handle "Unknown Primary Key Type" -- try to identify the PK class
             boolean unknownPK = false;
             Class pkClass;
             try {
                 String pkClassName = getString(entityBean.getPrimKeyClass());
                 if ( pkClassName.equals("java.lang.Object") ) {
                     unknownPK = true;
-                    if ( false == openEjbEntity.isSetAutomaticKeyGeneration() ) {
+                    // If the key type is not known, we assume the provided code does not set the PK, and
+                    //   therefore we need a key generator to be set.
+                    if ( false == openEjbEntity.isSetKeyGenerator() ) {
                         throw new DeploymentException("Automatic key generation is not defined: ejbName=" + ejbName);
                     }
-                    AutomaticKeyGeneration keyGeneration = openEjbEntity.getAutomaticKeyGeneration();
-                    pkClassName = keyGeneration.getPrimaryKeyClass();
+                    if(false == openEjbEntity.isSetPrimkeyField()) {
+                        throw new DeploymentException("EJB "+ejbName+" has an \"unknown primary key type\" (java.lang.Object).  A primkey-field element must be present in openejb-jar.xml to indicate the actual primary key type.");
+                    }
+                    String pkFieldName = openEjbEntity.getPrimkeyField();
+                    CmpFieldMapping pkField = (OpenejbEntityBeanType.CmpFieldMapping) cmpFieldToMapping.get(pkFieldName);
+                    if(pkField == null) {
+                        throw new DeploymentException("EJB "+ejbName+" lists a primkey-field ("+pkFieldName+") but there is no matching cmp-field-mapping");
+                    }
+                    if(pkField.isSetCmpFieldClass()) { // Check if the field class was provided in openejb-jar.xml
+                        pkClassName = pkField.getCmpFieldClass();
+                    } else { // Otherwise it has to be a getter on the EJB class itself
+                        pkClassName = getCMPFieldType(cmp2, pkFieldName, ejbClass).getName();
+                    }
+                    if(pkClassName == null) { // should never happen
+                        throw new DeploymentException("Cannot determine actual primary key field type for EJB "+ejbName);
+                    }
                 }
                 pkClass = cl.loadClass(pkClassName);
             } catch (ClassNotFoundException e) {
@@ -282,29 +317,15 @@ class CMPEntityBuilder extends EntityBuilder {
             }
 
             EJB ejb;
-            PrimaryKeyGeneratorDelegate keyGeneratorDelegate = null;
-            if ( openEjbEntity.isSetAutomaticKeyGeneration() ) {
-                AutomaticKeyGeneration keyGeneration = openEjbEntity.getAutomaticKeyGeneration();
-                String generatorName = keyGeneration.getGeneratorName();
-                keyGeneratorDelegate = (PrimaryKeyGeneratorDelegate) keyGenerators.get(generatorName);
-                if ( null == keyGeneratorDelegate ) {
-                    keyGeneratorDelegate = new PrimaryKeyGeneratorDelegate();
-                    GBeanData keyGenerator;
-                    try {
-                        ObjectName generatorObjectName = new ObjectName(generatorName);
-                        ObjectName wrapperGeneratorObjectName = new ObjectName(generatorName + ",isWrapper=true");
-                        keyGenerator = new GBeanData(wrapperGeneratorObjectName, PrimaryKeyGeneratorWrapper.GBEAN_INFO);
-                        keyGenerator.setReferencePattern("PrimaryKeyGenerator", generatorObjectName);
-                        keyGenerator.setAttribute("primaryKeyGeneratorDelegate", keyGeneratorDelegate);
-                    } catch (Exception e) {
-                        throw new DeploymentException("Unable to initialize PrimaryKeyGeneratorWrapper GBean", e);
-                    }
-                    earContext.addGBean(keyGenerator);
-
-                    keyGenerators.put(generatorName, keyGeneratorDelegate);
+            PrimaryKeyGenerator keyGenerator = null;
+            if(openEjbEntity.isSetKeyGenerator()) {
+                try {
+                    keyGenerator = pkGen.configurePKGenerator(openEjbEntity.getKeyGenerator(), dataSource, pkClass, earContext);
+                } catch (QueryException e) {
+                    throw new DeploymentException("Unable to load PK Generator for EJB "+ejbName, e);
                 }
             }
-            ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory, keyGeneratorDelegate, unknownPK);
+            ejb = new EJB(ejbName, abstractSchemaName, pkClass, proxyFactory, keyGenerator, unknownPK);
 
             Table table = new Table(ejbName, openEjbEntity.getTableName());
 
@@ -324,13 +345,6 @@ class CMPEntityBuilder extends EntityBuilder {
                 // specific field is primary key
                 pkFieldNames = new HashSet(1);
                 pkFieldNames.add(getString(entityBean.getPrimkeyField()));
-            }
-
-            Map cmpFieldToMapping = new HashMap();
-            CmpFieldMapping mappings[] = openEjbEntity.getCmpFieldMappingArray();
-            for (int j = 0; j < mappings.length; j++) {
-                CmpFieldMapping mapping = mappings[j];
-                cmpFieldToMapping.put(mapping.getCmpFieldName(), mapping);
             }
 
             CmpFieldType[] cmpFieldTypes = entityBean.getCmpFieldArray();
