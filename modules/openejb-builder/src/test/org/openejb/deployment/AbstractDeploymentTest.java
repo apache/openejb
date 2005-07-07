@@ -168,6 +168,7 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     public void testPKGenCMP() throws Exception {
         ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity");
         assertRunning(getKernel(), cmpBeanName);
+        assertRunning(getKernel(), new ObjectName("geronimo.server:name=CMPPKGenerator"));
 
         Object cmpHome = getKernel().getAttribute(cmpBeanName, "ejbHome");
         assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
@@ -178,7 +179,20 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
     }
 
     public void testPKGenCMP2() throws Exception {
-        ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity");
+        ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity2");
+        assertRunning(getKernel(), cmpBeanName);
+        assertRunning(getKernel(), new ObjectName("geronimo.server:name=CMPPKGenerator2"));
+
+        Object cmpHome = getKernel().getAttribute(cmpBeanName, "ejbHome");
+        assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
+        Object cmp = cmpHome.getClass().getMethod("create", new Class[]{}).invoke(cmpHome, new Object[]{});
+
+        cmp.getClass().getMethod("setFirstName", new Class[]{String.class}).invoke(cmp, new Object[]{"MyFistName"});
+        assertEquals("MyFistName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
+    }
+
+    public void testPKGenCMP3() throws Exception {
+        ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity3");
         assertRunning(getKernel(), cmpBeanName);
 
         Object cmpHome = getKernel().getAttribute(cmpBeanName, "ejbHome");

@@ -76,6 +76,29 @@
                 </custom-generator>
             </key-generator>
         </entity>
+        <entity>
+            <ejb-name>PKGenCMPEntity3</ejb-name>
+            <table-name>PKGenCMP3</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>firstName</cmp-field-name>
+                <table-column>firstName</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>lastName</cmp-field-name>
+                <table-column>lastName</table-column>
+            </cmp-field-mapping>
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+                <sequence-table>
+                    <table-name>PKGENCMP_SEQ</table-name>
+                    <sequence-name>PKGENCMP3</sequence-name>
+                    <batch-size>1</batch-size>
+                </sequence-table>
+            </key-generator>
+        </entity>
         <message-driven>
             <ejb-name>SimpleMessageDriven</ejb-name>
             <resource-adapter>
@@ -87,10 +110,6 @@
     <gbean gbeanName="geronimo.server:name=CMPPKGenerator" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapper">
         <reference name="ManagedConnectionFactoryWrapper">
             <gbean-name>test:J2EEApplication=null,J2EEServer=bar,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</gbean-name>
-<!--            <module-type>JCAResource</module-type>-->
-<!--            <module>org/apache/geronimo/DefaultDatabase</module>-->
-<!--            <type>JCAManagedConnectionFactory</type>-->
-<!--            <name>DefaultDatasource</name>-->
         </reference>
         <attribute name="tableName">PKGENCMP_SEQ</attribute>
         <attribute name="sequenceName">PKGENCMP</attribute>
@@ -98,7 +117,7 @@
     </gbean>
     <gbean gbeanName="geronimo.server:name=CMPPKGenerator2" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapper">
         <reference name="ManagedConnectionFactoryWrapper">
-<!--            <gbean-name>test:J2EEApplication=null,J2EEServer=bar,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</gbean-name>-->
+            <application>null</application>
             <moduleType>JCAResource</moduleType>
             <module>org/apache/geronimo/DefaultDatabase</module>
             <type>JCAManagedConnectionFactory</type>
