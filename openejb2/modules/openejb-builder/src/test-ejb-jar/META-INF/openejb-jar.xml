@@ -32,6 +32,50 @@
                 <table-column>lastName</table-column>
             </cmp-field-mapping>
         </entity>
+        <entity>
+            <ejb-name>PKGenCMPEntity</ejb-name>
+            <table-name>PKGenCMP</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>firstName</cmp-field-name>
+                <table-column>firstName</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>lastName</cmp-field-name>
+                <table-column>lastName</table-column>
+            </cmp-field-mapping>
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+                <custom-generator>
+                    <generator-name>geronimo.server:name=CMPPKGenerator</generator-name>
+                    <primary-key-class>java.lang.Integer</primary-key-class>
+                </custom-generator>
+            </key-generator>
+        </entity>
+        <entity>
+            <ejb-name>PKGenCMPEntity2</ejb-name>
+            <table-name>PKGenCMP2</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>firstName</cmp-field-name>
+                <table-column>firstName</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>lastName</cmp-field-name>
+                <table-column>lastName</table-column>
+            </cmp-field-mapping>
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+                <custom-generator>
+                    <generator-name>geronimo.server:name=CMPPKGenerator2</generator-name>
+                    <primary-key-class>java.lang.Integer</primary-key-class>
+                </custom-generator>
+            </key-generator>
+        </entity>
         <message-driven>
             <ejb-name>SimpleMessageDriven</ejb-name>
             <resource-adapter>
@@ -40,4 +84,28 @@
         </message-driven>
 
     </enterprise-beans>
+    <gbean gbeanName="geronimo.server:name=CMPPKGenerator" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapper">
+        <reference name="ManagedConnectionFactoryWrapper">
+            <gbean-name>test:J2EEApplication=null,J2EEServer=bar,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</gbean-name>
+<!--            <module-type>JCAResource</module-type>-->
+<!--            <module>org/apache/geronimo/DefaultDatabase</module>-->
+<!--            <type>JCAManagedConnectionFactory</type>-->
+<!--            <name>DefaultDatasource</name>-->
+        </reference>
+        <attribute name="tableName">PKGENCMP_SEQ</attribute>
+        <attribute name="sequenceName">PKGENCMP</attribute>
+        <attribute name="batchSize">1</attribute>
+    </gbean>
+    <gbean gbeanName="geronimo.server:name=CMPPKGenerator2" class="org.openejb.entity.cmp.pkgenerator.SequenceTablePrimaryKeyGeneratorWrapper">
+        <reference name="ManagedConnectionFactoryWrapper">
+<!--            <gbean-name>test:J2EEApplication=null,J2EEServer=bar,JCAResource=org/apache/geronimo/DefaultDatabase,j2eeType=JCAManagedConnectionFactory,name=DefaultDatasource</gbean-name>-->
+            <moduleType>JCAResource</moduleType>
+            <module>org/apache/geronimo/DefaultDatabase</module>
+            <type>JCAManagedConnectionFactory</type>
+            <name>DefaultDatasource</name>
+        </reference>
+        <attribute name="tableName">PKGENCMP_SEQ</attribute>
+        <attribute name="sequenceName">PKGENCMP2</attribute>
+        <attribute name="batchSize">1</attribute>
+    </gbean>
 </openejb-jar>

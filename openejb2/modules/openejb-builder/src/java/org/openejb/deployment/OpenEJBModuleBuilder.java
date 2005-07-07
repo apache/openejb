@@ -94,10 +94,10 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.openejb.EJBModuleImpl;
 import org.openejb.corba.CORBAHandleDelegate;
-import org.openejb.corba.compiler.SkeletonGenerator;
 import org.openejb.corba.proxy.CORBAProxyReference;
 import org.openejb.deployment.corba.NoDistributedTxTransactionImportPolicyBuilder;
 import org.openejb.deployment.corba.TransactionImportPolicyBuilder;
+import org.openejb.deployment.pkgen.TranQLPKGenBuilder;
 import org.openejb.proxy.EJBProxyFactory;
 import org.openejb.proxy.EJBProxyReference;
 import org.openejb.xbeans.ejbjar.OpenejbEntityBeanType;
@@ -121,6 +121,9 @@ import org.tranql.sql.SQLSchema;
 
 
 /**
+ * Master builder for processing EJB JAR deployments and creating the
+ * correspinding runtime objects (GBeans, etc.).
+ *
  * @version $Revision$ $Date$
  */
 public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder {
@@ -342,6 +345,10 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         return sessionBuilder;
     }
 
+    /**
+     * Does the meaty work of processing the deployment information and
+     * creating GBeans for all the EJBs in the JAR, etc.
+     */
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         J2eeContext earJ2eeContext = earContext.getJ2eeContext();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.EJB_MODULE, module.getName());
@@ -431,8 +438,11 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         }
         earContext.addGBean(ejbModuleGBeanData);
 
+        // Handle automatic PK generation -- we want to use the same builder for all CMP entities
+        TranQLPKGenBuilder pkgen = new TranQLPKGenBuilder();
+
         // @todo need a better schema name
-        cmpEntityBuilder.buildCMPSchema(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema, globalSchema);
+        cmpEntityBuilder.buildCMPSchema(earContext, moduleJ2eeContext, ejbJar, openejbEjbJar, cl, ejbSchema, sqlSchema, globalSchema, pkgen, delegate);
 
         if (null == connectionFactoryLocator && false == ejbSchema.getEntities().isEmpty()) {
             throw new DeploymentException("A cmp-connection-factory element must be specified as CMP EntityBeans are defined.");
@@ -480,7 +490,6 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         //TODO go back to the commented version when possible
 //          String contextID = ejbModuleObjectName.getCanonicalName();
         String policyContextID = ejbModuleObjectName.getCanonicalName().replaceAll("[,: ]", "_");
-
 
         sessionBuilder.buildBeans(earContext, moduleJ2eeContext, cl, ejbModule, componentPermissions, openejbBeans, transactionPolicyHelper, enterpriseBeans, listener, policyContextID);
 

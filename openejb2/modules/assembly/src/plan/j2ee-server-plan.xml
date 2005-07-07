@@ -41,6 +41,9 @@ by the server.
         <uri>geronimo/jars/geronimo-connector-builder-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>openejb/jars/openejb-pkgen-builder-${openejb_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>openejb/jars/openejb-builder-${openejb_version}.jar</uri>
     </dependency>
     <dependency>

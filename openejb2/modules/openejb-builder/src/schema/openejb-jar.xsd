@@ -52,6 +52,7 @@
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
     xmlns:security="http://geronimo.apache.org/xml/ns/security"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns:pkgen="http://www.openejb.org/xml/ns/pkgen"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
@@ -60,6 +61,7 @@
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="geronimo-naming.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="geronimo-security.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="geronimo-config.xsd"/>
+    <xs:import namespace="http://www.openejb.org/xml/ns/pkgen" schemaLocation="openejb-pkgen.xsd"/>
 
     <!--    <xs:include schemaLocation="geronimo-security.xsd"/>-->
 
@@ -201,16 +203,7 @@
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="primkey-field" type="xs:string" minOccurs="0"/>
-                <xs:sequence minOccurs="0">
-                    <xs:element name="automatic-key-generation">
-                        <xs:complexType>
-                            <xs:sequence>
-                                <xs:element name="generator-name" type="xs:string"/>
-                                <xs:element name="primary-key-class" type="xs:string"/>
-                            </xs:sequence>
-                        </xs:complexType>
-                    </xs:element>
-                </xs:sequence>
+                <xs:element ref="pkgen:key-generator" minOccurs="0" />
                 <xs:element name="prefetch-group" minOccurs="0">
                     <xs:complexType>
                         <xs:sequence>

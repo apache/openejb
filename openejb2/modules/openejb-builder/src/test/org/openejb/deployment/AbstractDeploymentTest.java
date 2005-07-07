@@ -165,6 +165,30 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
         assertEquals("MyFistName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
     }
 
+    public void testPKGenCMP() throws Exception {
+        ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity");
+        assertRunning(getKernel(), cmpBeanName);
+
+        Object cmpHome = getKernel().getAttribute(cmpBeanName, "ejbHome");
+        assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
+        Object cmp = cmpHome.getClass().getMethod("create", new Class[]{}).invoke(cmpHome, new Object[]{});
+
+        cmp.getClass().getMethod("setFirstName", new Class[]{String.class}).invoke(cmp, new Object[]{"MyFistName"});
+        assertEquals("MyFistName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
+    }
+
+    public void testPKGenCMP2() throws Exception {
+        ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity");
+        assertRunning(getKernel(), cmpBeanName);
+
+        Object cmpHome = getKernel().getAttribute(cmpBeanName, "ejbHome");
+        assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
+        Object cmp = cmpHome.getClass().getMethod("create", new Class[]{}).invoke(cmpHome, new Object[]{});
+
+        cmp.getClass().getMethod("setFirstName", new Class[]{String.class}).invoke(cmp, new Object[]{"MyFistName"});
+        assertEquals("MyFistName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
+    }
+
     public void testMDBContainer() throws Exception {
         ObjectName mdbBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=MessageDrivenBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=SimpleMessageDriven");
         assertRunning(getKernel(), mdbBeanName);

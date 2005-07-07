@@ -51,9 +51,6 @@ package org.openejb.deployment.entity.cmp.cmr;
 import java.io.File;
 import java.net.URI;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -86,6 +83,7 @@ import org.openejb.deployment.DeploymentHelper;
 import org.openejb.deployment.KernelHelper;
 import org.openejb.deployment.MockConnectionProxyFactory;
 import org.openejb.deployment.OpenEJBModuleBuilder;
+import org.openejb.deployment.pkgen.TranQLPKGenBuilder;
 import org.openejb.dispatch.InterfaceMethodSignature;
 import org.openejb.transaction.TransactionPolicySource;
 import org.openejb.transaction.TransactionPolicyType;
@@ -176,6 +174,7 @@ public abstract class AbstractCMRTest extends TestCase {
 
         OpenEJBModuleBuilder moduleBuilder = new OpenEJBModuleBuilder(null, null, repository);
         CMPEntityBuilderTestUtil builder = new CMPEntityBuilderTestUtil(moduleBuilder);
+        TranQLPKGenBuilder pkGen = new TranQLPKGenBuilder();
         File tempDir = DeploymentUtil.createTempDir();
 
         try {
@@ -192,7 +191,7 @@ public abstract class AbstractCMRTest extends TestCase {
                     null, null);
 
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            builder.buildCMPSchema(earContext, j2eeContext, ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, cacheSchema);
+            builder.buildCMPSchema(earContext, j2eeContext, ejbJarType, openejbJarType, cl, ejbSchema, sqlSchema, cacheSchema, pkGen, null);
             GBeanData containerIndex = new GBeanData(ContainerIndex.GBEAN_INFO);
             Set patterns = new HashSet();
             patterns.add(C_NAME_A);

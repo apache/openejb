@@ -28,10 +28,12 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <automatic-key-generation>
-                <generator-name>geronimo.server:role=CMPPKGenerator,name=SecurityEntity</generator-name>
-                <primary-key-class>java.lang.Integer</primary-key-class>
-            </automatic-key-generation>
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+                <custom-generator>
+                    <generator-name>geronimo.server:role=CMPPKGenerator,name=SecurityEntity</generator-name>
+                    <primary-key-class>java.lang.Integer</primary-key-class>
+                </custom-generator>
+            </key-generator>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
                 <application>null</application>
@@ -56,10 +58,12 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>last_name</table-column>
             </cmp-field-mapping>
-            <automatic-key-generation>
-                <generator-name>geronimo.server:role=CMPPKGenerator,name=SecurityEntity</generator-name>
-                <primary-key-class>java.lang.Integer</primary-key-class>
-            </automatic-key-generation>
+            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+                <custom-generator>
+                    <generator-name>geronimo.server:role=CMPPKGenerator,name=SecurityEntity</generator-name>
+                    <primary-key-class>java.lang.Integer</primary-key-class>
+                </custom-generator>
+            </key-generator>
             <resource-ref>
                 <ref-name>jdbc/basic/entityDatabase</ref-name>
                 <application>null</application>
