@@ -293,7 +293,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
 
         // build the vop table
-        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrNoPrefetchFieldAccessors[1], cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGenerator(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, finders);
+        LinkedHashMap vopMap = buildVopMap(beanClass, cacheTable, cmrNoPrefetchFieldAccessors[1], cmp1Bridge, identityDefiner, ejb.getPrimaryKeyGeneratorDelegate(), primaryKeyTransform, localProxyTransform, remoteProxyTransform, finders);
 
         InterfaceMethodSignature[] signatures = (InterfaceMethodSignature[]) vopMap.keySet().toArray(new InterfaceMethodSignature[vopMap.size()]);
         VirtualOperation[] vtable = (VirtualOperation[]) vopMap.values().toArray(new VirtualOperation[vopMap.size()]);
