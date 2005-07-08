@@ -364,7 +364,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
         try {
             ejbModuleObjectName = NameFactory.getModuleName(null, null, null, null, null, moduleJ2eeContext);
         } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct module name", e);
+            throw new DeploymentException("Unable to construct module name", e);
         }
 
         // EJBModule GBean
@@ -392,7 +392,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
                 compilerFactory = (EJBQLCompilerFactory) factory;
             }
         } catch (Exception e) {
-            throw new DeploymentException("Can not initialize ejb-ql-compiler-factory=" + openejbEjbJar.getEjbQlCompilerFactory(), e);
+            throw new DeploymentException("Unable to initialize ejb-ql-compiler-factory=" + openejbEjbJar.getEjbQlCompilerFactory(), e);
         }
 
         DBSyntaxFactory syntaxFactory = new DerbyDBSyntaxtFactory();
@@ -408,7 +408,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
                 syntaxFactory = (DBSyntaxFactory) factory;
             }
         } catch (Exception e) {
-            throw new DeploymentException("Can not initialize ejb-ql-compiler-factory=" + openejbEjbJar.getEjbQlCompilerFactory(), e);
+            throw new DeploymentException("Unable to initialize ejb-ql-compiler-factory=" + openejbEjbJar.getEjbQlCompilerFactory(), e);
         }
 
         SQLSchema sqlSchema = new BaseSQLSchema(module.getName(), delegate, syntaxFactory, compilerFactory);
@@ -434,7 +434,7 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             ejbModuleGBeanData.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
             ejbModuleGBeanData.setAttribute("TMDelegate", tmDelegate);
         } catch (Exception e) {
-            throw new DeploymentException("Unable to initialize EJBModule GBean", e);
+            throw new DeploymentException("Unable to initialize EJBModule GBean " + ejbModuleGBeanData.getName(), e);
         }
         earContext.addGBean(ejbModuleGBeanData);
 

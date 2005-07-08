@@ -162,7 +162,7 @@ class CMPEntityBuilder extends EntityBuilder {
             processGroups(openejbEjbJar, ejbSchema, sqlSchema);
             GlobalSchemaLoader.populateGlobalSchema(globalSchema, ejbSchema, sqlSchema);
         } catch (Exception e) {
-            throw new DeploymentException("Module [" + moduleJ2eeContext.getJ2eeModuleName() + "]", e);
+            throw new DeploymentException("Could not deploy module " + moduleJ2eeContext.getJ2eeModuleName(), e);
         }
     }
 
@@ -369,7 +369,7 @@ class CMPEntityBuilder extends EntityBuilder {
                         Class typeConverterClass = cl.loadClass(mapping.getTypeConverter());
                         typeConverter = (TypeConverter) typeConverterClass.newInstance();
                     } catch (Exception e) {
-                        throw new DeploymentException("Can not create type converter " + mapping.getTypeConverter(), e);
+                        throw new DeploymentException("Cannot create type converter " + mapping.getTypeConverter(), e);
                     }
                     column.setTypeConverter(typeConverter);
                 }
