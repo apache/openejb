@@ -149,12 +149,13 @@ public final class CMPInstanceContext extends EntityInstanceContext {
 
             // if we still don't have a row, we can only assume that they have an old ref to the ejb
             if(cacheRow == null) {
-                throw new NoSuchEntityException("Entity not found");
+                // how to get the name of the bean
+                throw new NoSuchEntityException("Entity " + this + " not found");
             }
 
             // check that the row is not tagged as removed
             if(cacheRow.getState() == CacheRowState.REMOVED) {
-                throw new NoSuchEntityException("Entity has been removed");
+                throw new NoSuchEntityException("Entity " + this + " has been removed");
             }
 
             // copy data from tranql into instance
