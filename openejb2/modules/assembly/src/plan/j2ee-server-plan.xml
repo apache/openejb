@@ -32,6 +32,9 @@ by the server.
     <!-- needed for online deployment -->
     <!-- should be removed once openejb gets a separate builder module-->
     <dependency>
+        <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>

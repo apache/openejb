@@ -28,6 +28,9 @@ Configuration for the Geronimo deployer
     >
 
      <dependency>
+         <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
+     </dependency>
+     <dependency>
          <uri>geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar</uri>
      </dependency>
      <dependency>
