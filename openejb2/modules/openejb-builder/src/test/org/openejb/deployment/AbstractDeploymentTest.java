@@ -165,7 +165,7 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
         assertEquals("MyFistName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
     }
 
-    public void testPKGenCMP() throws Exception {
+    public void testPKGenCustomDBName() throws Exception {
         ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity");
         assertRunning(getKernel(), cmpBeanName);
         assertRunning(getKernel(), new ObjectName("geronimo.server:name=CMPPKGenerator"));
@@ -174,11 +174,11 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
         assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
         Object cmp = cmpHome.getClass().getMethod("create", new Class[]{}).invoke(cmpHome, new Object[]{});
 
-        cmp.getClass().getMethod("setFirstName", new Class[]{String.class}).invoke(cmp, new Object[]{"MyFistName"});
-        assertEquals("MyFistName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
+        cmp.getClass().getMethod("setFirstName", new Class[]{String.class}).invoke(cmp, new Object[]{"MyFirstName"});
+        assertEquals("MyFirstName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
     }
 
-    public void testPKGenCMP2() throws Exception {
+    public void testPKGenCustomDBParts() throws Exception {
         ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity2");
         assertRunning(getKernel(), cmpBeanName);
         assertRunning(getKernel(), new ObjectName("geronimo.server:name=CMPPKGenerator2"));
@@ -187,11 +187,11 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
         assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
         Object cmp = cmpHome.getClass().getMethod("create", new Class[]{}).invoke(cmpHome, new Object[]{});
 
-        cmp.getClass().getMethod("setFirstName", new Class[]{String.class}).invoke(cmp, new Object[]{"MyFistName"});
-        assertEquals("MyFistName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
+        cmp.getClass().getMethod("setFirstName", new Class[]{String.class}).invoke(cmp, new Object[]{"MyFirstName"});
+        assertEquals("MyFirstName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
     }
 
-    public void testPKGenCMP3() throws Exception {
+    public void testPKGenSequence() throws Exception {
         ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity3");
         assertRunning(getKernel(), cmpBeanName);
 
@@ -199,8 +199,32 @@ public abstract class AbstractDeploymentTest extends TestCase implements Deploym
         assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
         Object cmp = cmpHome.getClass().getMethod("create", new Class[]{}).invoke(cmpHome, new Object[]{});
 
-        cmp.getClass().getMethod("setFirstName", new Class[]{String.class}).invoke(cmp, new Object[]{"MyFistName"});
-        assertEquals("MyFistName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
+        cmp.getClass().getMethod("setFirstName", new Class[]{String.class}).invoke(cmp, new Object[]{"MyFirstName"});
+        assertEquals("MyFirstName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
+    }
+/* Axion JDBC driver doesn't supoort returning generated keys -- try this again with a different DB
+    public void testPKGenAutoIncrement() throws Exception {
+        ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity4");
+        assertRunning(getKernel(), cmpBeanName);
+
+        Object cmpHome = getKernel().getAttribute(cmpBeanName, "ejbHome");
+        assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
+        Object cmp = cmpHome.getClass().getMethod("create", new Class[]{}).invoke(cmpHome, new Object[]{});
+
+        cmp.getClass().getMethod("setFirstName", new Class[]{String.class}).invoke(cmp, new Object[]{"MyFirstName"});
+        assertEquals("MyFirstName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
+    }
+*/
+    public void testPKGenSQL() throws Exception {
+        ObjectName cmpBeanName = ObjectName.getInstance(DOMAIN_NAME + ":j2eeType=EntityBean,J2EEServer=" + SERVER_NAME + ",J2EEApplication=" + getJ2eeApplicationName() + ",EJBModule=" + getJ2eeModuleName() + ",name=PKGenCMPEntity5");
+        assertRunning(getKernel(), cmpBeanName);
+
+        Object cmpHome = getKernel().getAttribute(cmpBeanName, "ejbHome");
+        assertTrue("Home is not an instance of EJBHome", cmpHome instanceof EJBHome);
+        Object cmp = cmpHome.getClass().getMethod("create", new Class[]{}).invoke(cmpHome, new Object[]{});
+
+        cmp.getClass().getMethod("setFirstName", new Class[]{String.class}).invoke(cmp, new Object[]{"MyFirstName"});
+        assertEquals("MyFirstName", cmp.getClass().getMethod("getFirstName", null).invoke(cmp, null));
     }
 
     public void testMDBContainer() throws Exception {
