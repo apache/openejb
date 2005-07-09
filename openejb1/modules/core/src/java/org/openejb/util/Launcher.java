@@ -58,6 +58,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.openejb.loader.SystemInstance;
+
 /**
  * Helper class to dynamically create the full classpath and launch an OpenEJB application
  * 
@@ -78,8 +80,8 @@ public final class Launcher {
         }
         
         StringBuffer classpath = new StringBuffer();
-        
-        FileUtils home = FileUtils.getHome();
+
+        FileUtils home = SystemInstance.get().getHome();
         
         //TODO make it configurable what directories to include in classpath
         try {

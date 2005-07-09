@@ -62,6 +62,7 @@ import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.Unmarshaller;
 import org.exolab.castor.xml.ValidationException;
 import org.openejb.OpenEJBException;
+import org.openejb.loader.SystemInstance;
 import org.openejb.alt.config.ejb11.EjbJar;
 import org.openejb.alt.config.ejb11.EnterpriseBeansItem;
 import org.openejb.alt.config.sys.Container;
@@ -197,7 +198,7 @@ public class EjbJarUtils {
         String jarName = origFile.getName();
         File beansDir = null;
         try {
-            beansDir = FileUtils.getBase().getDirectory("beans");
+            beansDir = SystemInstance.get().getBase().getDirectory("beans");
         } catch (java.io.IOException ioe) {
             handleException("deploy.m.040", origFile.getAbsolutePath(), ioe.getMessage());
         }
@@ -247,7 +248,7 @@ public class EjbJarUtils {
         String jarName = origFile.getName();
         File beansDir = null;
         try {
-            beansDir = FileUtils.getBase().getDirectory("beans");
+            beansDir = SystemInstance.get().getBase().getDirectory("beans");
         } catch (java.io.IOException ioe) {
             handleException("deploy.c.040", origFile.getAbsolutePath(), ioe.getMessage());
             return jar;

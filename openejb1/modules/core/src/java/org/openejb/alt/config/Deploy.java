@@ -47,12 +47,14 @@ package org.openejb.alt.config;
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
 import org.openejb.OpenEJBException;
+import org.openejb.loader.SystemInstance;
 import org.openejb.alt.config.ejb11.EjbDeployment;
 import org.openejb.alt.config.ejb11.EjbJar;
 import org.openejb.alt.config.ejb11.MethodParams;
@@ -67,6 +69,7 @@ import org.openejb.util.JarUtils;
 import org.openejb.util.Messages;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.Logger;
+import org.openejb.util.ClasspathUtils;
 
 /**
  * This class represents a command line tool for deploying beans.
@@ -758,8 +761,10 @@ public class Deploy {
 
     public static void main(String args[]) {
         try {
-            org.openejb.util.ClasspathUtils.addJarsToPath("lib");
-            org.openejb.util.ClasspathUtils.addJarsToPath("dist");
+            File directory = SystemInstance.get().getHome().getDirectory("lib");
+            SystemInstance.get().getLoader().addJarsToPath(directory);
+            File directory1 = SystemInstance.get().getHome().getDirectory("dist");
+            SystemInstance.get().getLoader().addJarsToPath(directory1);
         } catch (Exception e) {
             e.printStackTrace();
         }

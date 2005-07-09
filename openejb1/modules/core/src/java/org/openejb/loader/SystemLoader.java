@@ -65,7 +65,7 @@ public class SystemLoader implements Loader {
     private final ClasspathUtils.Loader loader;
 
     public SystemLoader() {
-        this.loader = ClasspathUtils.sysLoader;
+        this.loader = SystemInstance.get().getLoader();
     }
 
     /**
@@ -121,7 +121,7 @@ public class SystemLoader implements Loader {
 
     private void addJarsToPath(String dir) throws Exception {
         Hashtable env = System.getProperties();
-        File dirAtHome = FileUtils.getHome().getDirectory(dir);
+        File dirAtHome = SystemInstance.get().getHome().getDirectory(dir);
         loader.addJarsToPath(dirAtHome);
     }
 }

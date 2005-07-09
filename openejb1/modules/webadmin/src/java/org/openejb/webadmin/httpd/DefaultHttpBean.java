@@ -60,6 +60,7 @@ import org.openejb.webadmin.HttpBean;
 import org.openejb.webadmin.HttpRequest;
 import org.openejb.webadmin.HttpResponse;
 import org.openejb.util.FileUtils;
+import org.openejb.loader.SystemInstance;
 
 /** This is a webadmin bean which has default functionality such as genderating
  * error pages and setting page content.
@@ -79,8 +80,8 @@ public class DefaultHttpBean implements HttpBean {
 
         try {
             //OpenEJB Home and Base folders
-            URL base = FileUtils.getBase().getDirectory().toURL();
-            URL home = FileUtils.getHome().getDirectory().toURL();
+            URL base = SystemInstance.get().getBase().getDirectory().toURL();
+            URL home = SystemInstance.get().getHome().getDirectory().toURL();
 
             
             if (!base.sameFile(home)){

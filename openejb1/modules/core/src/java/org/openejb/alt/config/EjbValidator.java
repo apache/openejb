@@ -45,16 +45,19 @@
 package org.openejb.alt.config;
 
 import java.io.InputStream;
+import java.io.File;
 import java.net.URL;
 import java.util.Properties;
 import java.util.Vector;
 
 import org.openejb.OpenEJBException;
+import org.openejb.loader.SystemInstance;
 import org.openejb.alt.config.ejb11.EjbJar;
 import org.openejb.alt.config.rules.CheckClasses;
 import org.openejb.alt.config.rules.CheckMethods;
 import org.openejb.util.JarUtils;
 import org.openejb.util.Messages;
+import org.openejb.util.ClasspathUtils;
 
 
 /**
@@ -325,8 +328,10 @@ public class EjbValidator {
 
     public static void main(String args[]) {
         try{
-            org.openejb.util.ClasspathUtils.addJarsToPath("lib");
-            org.openejb.util.ClasspathUtils.addJarsToPath("dist");
+            File directory = SystemInstance.get().getHome().getDirectory("lib");
+            SystemInstance.get().getLoader().addJarsToPath(directory);
+            File directory1 = SystemInstance.get().getHome().getDirectory("dist");
+            SystemInstance.get().getLoader().addJarsToPath(directory1);
         } catch (Exception e){
             // ignore it
         }

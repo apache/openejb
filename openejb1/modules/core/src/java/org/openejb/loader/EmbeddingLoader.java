@@ -45,6 +45,7 @@
 package org.openejb.loader;
 
 import java.util.Hashtable;
+import java.io.File;
 
 import org.openejb.util.ClasspathUtils;
 
@@ -99,8 +100,10 @@ public class EmbeddingLoader implements Loader {
         try{
             String openejbLoader = (String) env.get("openejb.loader");
 
-            ClasspathUtils.addJarsToPath("lib", (openejbLoader == null ? "tomcat" : openejbLoader), env);
-            ClasspathUtils.addJarsToPath("dist", (openejbLoader == null ? "tomcat" : openejbLoader), env);
+            File directory = SystemInstance.get().getHome().getDirectory("lib");
+            SystemInstance.get().getLoader().addJarsToPath(directory);
+            File directory1 = SystemInstance.get().getHome().getDirectory("dist");
+            SystemInstance.get().getLoader().addJarsToPath(directory1);
         } catch (Exception e){
             throw new Exception( "Could not load OpenEJB libraries. Exception: "+
                                  e.getClass().getName()+" "+ e.getMessage());

@@ -61,7 +61,7 @@ public class TomcatWebappLoader implements Loader {
     private final ClasspathUtils.Loader loader;
 
     public TomcatWebappLoader() {
-        this.loader = ClasspathUtils.webappLoader;
+        this.loader = SystemInstance.get().getLoader();
     }
 
     /**
@@ -109,10 +109,6 @@ public class TomcatWebappLoader implements Loader {
     private void importOpenEJBLibraries(  Hashtable env ) throws Exception{
         // Sets the openejb.home system variable
 
-        Properties envProperties = new Properties();
-        envProperties.putAll(env);
-        FileUtils.init(envProperties);
-
         try{
             // Loads all the libraries in the openejb.home/lib directory
             addJarsToPath("lib");
@@ -128,7 +124,7 @@ public class TomcatWebappLoader implements Loader {
 
     private void addJarsToPath(String dir) throws Exception {
         Hashtable env = System.getProperties();
-        File dirAtHome = FileUtils.getHome().getDirectory(dir);
+        File dirAtHome = SystemInstance.get().getHome().getDirectory(dir);
         loader.addJarsToPath(dirAtHome);
     }
 }

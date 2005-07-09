@@ -75,6 +75,7 @@ import org.openejb.OpenEJB;
 import org.openejb.OpenEJBException;
 import org.openejb.ProxyInfo;
 import org.openejb.RpcContainer;
+import org.openejb.loader.SystemInstance;
 import org.openejb.core.EnvProps;
 import org.openejb.core.Operations;
 import org.openejb.core.ThreadContext;
@@ -257,10 +258,10 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         File gTxDb = null;
         File lTxDb = null;
         try {
-            gTxDb = FileUtils.getBase().getFile( Global_TX_Database );
+            gTxDb = SystemInstance.get().getBase().getFile( Global_TX_Database );
         } catch ( Exception ignored ) {
             try {
-                gTxDb = FileUtils.getHome().getFile(Global_TX_Database);
+                gTxDb = SystemInstance.get().getHome().getFile(Global_TX_Database);
             } catch (Exception e) {
                 throw new OpenEJBException("Cannot locate the " + EnvProps.GLOBAL_TX_DATABASE + " file. "
                         + e.getMessage());
@@ -268,10 +269,10 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         }
 
         try {
-            lTxDb = FileUtils.getBase().getFile( Local_TX_Database );
+            lTxDb = SystemInstance.get().getBase().getFile( Local_TX_Database );
         } catch ( Exception ignored ) {
             try {
-                lTxDb = FileUtils.getHome().getFile(Local_TX_Database);
+                lTxDb = SystemInstance.get().getHome().getFile(Local_TX_Database);
             } catch (Exception e) {
                 throw new OpenEJBException("Cannot locate the " + EnvProps.LOCAL_TX_DATABASE + " file. "
                         + e.getMessage());
