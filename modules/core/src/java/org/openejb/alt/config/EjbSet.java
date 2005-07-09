@@ -52,75 +52,76 @@ import org.openejb.alt.config.ejb11.EjbJar;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
  */
 public class EjbSet {
-    
+
     protected Vector failures = new Vector();
     protected Vector warnings = new Vector();
-    protected Vector errors   = new Vector();
-    
+    protected Vector errors = new Vector();
+
     protected Bean[] beans;
     protected EjbJar jar;
     protected String jarPath;
-    
-    public EjbSet(String jarPath){
+
+    public EjbSet(String jarPath) {
         this.jarPath = jarPath;
     }
 
-    public void setEjbJar(EjbJar jar){
+    public void setEjbJar(EjbJar jar) {
         this.jar = jar;
-        this.beans = EjbJarUtils.getBeans( jar );
+        this.beans = EjbJarUtils.getBeans(jar);
     }
-    public void addWarning( ValidationWarning warning ) {
-        warnings.addElement( warning );
+
+    public void addWarning(ValidationWarning warning) {
+        warnings.addElement(warning);
     }
-    
+
     public void addFailure(ValidationFailure failure) {
-        failures.addElement( failure );
+        failures.addElement(failure);
     }
 
     public void addError(ValidationError error) {
-        errors.addElement( error );
+        errors.addElement(error);
     }
 
     public ValidationFailure[] getFailures() {
         ValidationFailure[] tmp = new ValidationFailure[failures.size()];
-        failures.copyInto( tmp );
-        return tmp;
-    }
-    
-    public ValidationWarning[] getWarnings() {
-        ValidationWarning[] tmp = new ValidationWarning[warnings.size()];
-        warnings.copyInto( tmp );
-        return tmp;
-    }
-    
-    public ValidationError[] getErrors() {
-        ValidationError[] tmp = new ValidationError[errors.size()];
-        errors.copyInto( tmp );
+        failures.copyInto(tmp);
         return tmp;
     }
 
-    public boolean hasWarnings(){
+    public ValidationWarning[] getWarnings() {
+        ValidationWarning[] tmp = new ValidationWarning[warnings.size()];
+        warnings.copyInto(tmp);
+        return tmp;
+    }
+
+    public ValidationError[] getErrors() {
+        ValidationError[] tmp = new ValidationError[errors.size()];
+        errors.copyInto(tmp);
+        return tmp;
+    }
+
+    public boolean hasWarnings() {
         return warnings.size() > 0;
     }
 
-    public boolean hasFailures(){
+    public boolean hasFailures() {
         return failures.size() > 0;
     }
-    
-    public boolean hasErrors(){
+
+    public boolean hasErrors() {
         return errors.size() > 0;
     }
 
 
-    public Bean[] getBeans(){
+    public Bean[] getBeans() {
         return beans;
     }
 
-    public EjbJar getEjbJar(){
+    public EjbJar getEjbJar() {
         return jar;
     }
-    
-    public String getJarPath(){
+
+    public String getJarPath() {
         return jarPath;
     }
 }
