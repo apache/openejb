@@ -71,10 +71,10 @@ public class SystemInstance {
     private final ClassPath classPath;
 
     private SystemInstance(Properties properties) throws Exception {
+        this.components = new HashMap();
         this.properties = properties;
         this.home = new FileUtils("openejb.home", "user.dir", properties);
         this.base = new FileUtils("openejb.base", "openejb.home", properties);
-        this.components = new HashMap();
         classPath = ClassPathFactory.createLoader(properties.getProperty("openejb.loader", "context"));
     }
 

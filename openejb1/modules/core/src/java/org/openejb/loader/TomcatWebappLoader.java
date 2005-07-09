@@ -74,6 +74,10 @@ public class TomcatWebappLoader implements Loader {
     public void load( Hashtable env ) throws Exception{
         if (loaded) return;
 
+        Properties properties = new Properties();
+        properties.putAll(env);
+        SystemInstance.init(properties);
+
         ClassLoader cl = getContextClassLoader();
         try{
             cl.loadClass("org.openejb.OpenEJB");
@@ -106,8 +110,6 @@ public class TomcatWebappLoader implements Loader {
 
     // Sets the openejb.home system variable
     private void importOpenEJBLibraries(  Hashtable env ) throws Exception{
-        // Sets the openejb.home system variable
-
         try{
             // Loads all the libraries in the openejb.home/lib directory
             addJarsToPath("lib");
