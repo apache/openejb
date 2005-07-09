@@ -106,11 +106,11 @@ public class ClasspathUtils {
     }
 
     public static void addJarsToPath(String dir, String loaderName, Hashtable env) throws Exception {
-        File dirAtBase = FileUtils.getBase(env).getDirectory(dir);
+        File dirAtBase = FileUtils.getBase().getDirectory(dir);
         if (dirAtBase != null && dirAtBase.exists()) {
             addJarsToPath(dirAtBase, loaderName);
         }
-        File dirAtHome = FileUtils.getHome(env).getDirectory(dir);
+        File dirAtHome = FileUtils.getHome().getDirectory(dir);
         if (! dirAtHome.equals(dirAtBase)) {
             addJarsToPath(dirAtHome, loaderName);
         }

@@ -322,7 +322,7 @@ public class ConfigUtils {
              * [2] Try finding the file relative to the openejb.base directory
              */
             try {
-                file = FileUtils.getBase(props).getFile(path);
+                file = FileUtils.getBase().getFile(path);
                 if (file != null && file.exists() && file.isFile()) {
                     return file.getAbsolutePath();
                 }
@@ -334,7 +334,7 @@ public class ConfigUtils {
              * [3] Try finding the file relative to the openejb.home directory
              */
             try {
-                file = FileUtils.getHome(props).getFile(path);
+                file = FileUtils.getHome().getFile(path);
                 if (file != null && file.exists() && file.isFile()) {
                     return file.getAbsolutePath();
                 }
@@ -352,7 +352,7 @@ public class ConfigUtils {
              * openejb.base directory
              */
             try {
-                file = FileUtils.getBase(props).getFile("conf/openejb.conf");
+                file = FileUtils.getBase().getFile("conf/openejb.conf");
                 if (file != null && file.exists() && file.isFile()) {
                     return file.getAbsolutePath();
                 }
@@ -364,7 +364,7 @@ public class ConfigUtils {
              * openejb.home directory
              */
             try {
-                file = FileUtils.getHome(props).getFile("conf/openejb.conf");
+                file = FileUtils.getHome().getFile("conf/openejb.conf");
                 if (file != null && file.exists() && file.isFile()) {
                     return file.getAbsolutePath();
                 }
@@ -378,7 +378,7 @@ public class ConfigUtils {
              *     the openejb-x.x.x.jar
              */
             //Gets the conf directory, creating it if needed.
-            File confDir = FileUtils.getBase(props).getDirectory("conf", true);
+            File confDir = FileUtils.getBase().getDirectory("conf", true);
             
             //TODO:1: We cannot find the user's conf file and
             // are taking the liberty of creating one for them.
