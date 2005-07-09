@@ -1611,7 +1611,7 @@ public class Logger {
             }
             try{
                 // resolve the config file location
-                config = FileUtils.getAbsolutePath(config, "conf/default.logging.conf", props, false);
+                config = FileUtils.getAbsolutePath(config, "conf/default.logging.conf", false);
 
                 // load the config
                 Properties log4jProps = loadProperties(config);
@@ -1649,9 +1649,9 @@ public class Logger {
                 if (name.endsWith(".File")) {
                     String path = log4jProps.getProperty(name);
                     try {
-                        File file = FileUtils.getBase(props).getFile(path, false);
+                        File file = FileUtils.getBase().getFile(path, false);
                         if (!file.getParentFile().exists()) {
-                            file = FileUtils.getHome(props).getFile(path, false);
+                            file = FileUtils.getHome().getFile(path, false);
                         }
                         path = file.getPath();
                     } catch (IOException ignored) {

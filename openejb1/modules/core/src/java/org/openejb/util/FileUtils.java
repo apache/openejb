@@ -63,6 +63,11 @@ public class FileUtils {
     private static FileUtils openejbHomeUtils = new FileUtils("openejb.home", "user.dir");
     private static FileUtils openejbBaseUtils = new FileUtils("openejb.base", "openejb.home");
 
+    public static void init(Properties properties){
+        openejbHomeUtils = new FileUtils("openejb.home", "user.dir", properties);
+        openejbBaseUtils = new FileUtils("openejb.base", "openejb.home", properties);
+    }
+
     private File home;
 
     private FileUtils(String homeDir, String defaultDir) {
@@ -97,16 +102,8 @@ public class FileUtils {
         return openejbBaseUtils;
     }
     
-    public static FileUtils getBase(Hashtable env) {
-        return new FileUtils("openejb.base", "openejb.home", env);
-    }
-
     public static FileUtils getHome() {
         return openejbHomeUtils;
-    }
-
-    public static FileUtils getHome(Hashtable env) {
-        return new FileUtils("openejb.home", "user.dir", env);
     }
 
     /**
@@ -264,7 +261,7 @@ public class FileUtils {
         }
     }
     
-    public static String getAbsolutePath(String path, String secondaryPath, Properties props, boolean create)
+    public static String getAbsolutePath(String path, String secondaryPath, boolean create)
             throws OpenEJBException {
         File file = null;
 
@@ -282,7 +279,7 @@ public class FileUtils {
              * [2] Try finding the file relative to the openejb.base directory
              */
             try {
-                file = FileUtils.getBase(props).getFile(path);
+                file = FileUtils.getBase().getFile(path);
                 if (file != null && file.exists() && file.isFile()) {
                     return file.getAbsolutePath();
                 }
@@ -294,7 +291,7 @@ public class FileUtils {
              * [3] Try finding the file relative to the openejb.home directory
              */
             try {
-                file = FileUtils.getHome(props).getFile(path);
+                file = FileUtils.getHome().getFile(path);
                 if (file != null && file.exists() && file.isFile()) {
                     return file.getAbsolutePath();
                 }
@@ -310,7 +307,7 @@ public class FileUtils {
              * openejb.base directory
              */
             try {
-                file = FileUtils.getBase(props).getFile(secondaryPath);
+                file = FileUtils.getBase().getFile(secondaryPath);
                 if (file != null && file.exists() && file.isFile()) {
                     return file.getAbsolutePath();
                 }
@@ -322,7 +319,7 @@ public class FileUtils {
              * openejb.home directory
              */
             try {
-                file = FileUtils.getHome(props).getFile(secondaryPath);
+                file = FileUtils.getHome().getFile(secondaryPath);
                 if (file != null && file.exists() && file.isFile()) {
                     return file.getAbsolutePath();
                 }
@@ -336,7 +333,7 @@ public class FileUtils {
             // We should log this.                   
             if (create)
             {
-                File confDir = FileUtils.getBase(props).getDirectory("conf", true);
+                File confDir = FileUtils.getBase().getDirectory("conf", true);
                 
                 file = createConfig(new File(confDir, secondaryPath));
             }

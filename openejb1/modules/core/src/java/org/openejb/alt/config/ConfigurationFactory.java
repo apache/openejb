@@ -1136,10 +1136,10 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                 if (d.getDir() == null && d.getJar() != null) {
                     File jar = null;
                     try {
-                        jar = FileUtils.getBase(this.props).getFile(d.getJar(), false);
+                        jar = FileUtils.getBase().getFile(d.getJar(), false);
                     } catch (Exception ignored) {
                         try {
-                            jar = FileUtils.getHome(this.props).getFile(d.getJar(), false);
+                            jar = FileUtils.getHome().getFile(d.getJar(), false);
                         } catch (Exception ignoredAgain) {
                         }
                     }
@@ -1155,12 +1155,12 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
                 File dir = null;
                 try {
-                    dir = FileUtils.getBase(this.props).getFile(d.getDir(), false);
+                    dir = FileUtils.getBase().getFile(d.getDir(), false);
                 } catch (Exception ignored) {
                 }
                 if (dir == null || !dir.exists()) {
                     try {
-                        dir = FileUtils.getHome(this.props).getFile(d.getDir(), false);
+                        dir = FileUtils.getHome().getFile(d.getDir(), false);
                     } catch (Exception ignoredAgain) {
                     }
                 }
@@ -1198,7 +1198,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
                     dir = null;
                     try {
-                        dir = FileUtils.getHome(this.props).getFile(d.getDir(), false);
+                        dir = FileUtils.getHome().getFile(d.getDir(), false);
                     } catch (Exception ignoredAgain) {
                     }
 

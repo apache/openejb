@@ -46,6 +46,7 @@ package org.openejb.loader;
 
 import java.io.File;
 import java.util.Hashtable;
+import java.util.Properties;
 
 import org.openejb.util.ClasspathUtils;
 import org.openejb.util.FileUtils;
@@ -107,12 +108,11 @@ public class TomcatWebappLoader implements Loader {
     // Sets the openejb.home system variable
     private void importOpenEJBLibraries(  Hashtable env ) throws Exception{
         // Sets the openejb.home system variable
-        try{
-            if ( env.get("openejb.home") != null ) {
-                System.setProperty("openejb.home", (String)env.get("openejb.home"));
-            }
-        } catch (Exception e){}
-        
+
+        Properties envProperties = new Properties();
+        envProperties.putAll(env);
+        FileUtils.init(envProperties);
+
         try{
             // Loads all the libraries in the openejb.home/lib directory
             addJarsToPath("lib");

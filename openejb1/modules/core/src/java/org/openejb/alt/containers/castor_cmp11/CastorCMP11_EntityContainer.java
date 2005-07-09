@@ -257,10 +257,10 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         File gTxDb = null;
         File lTxDb = null;
         try {
-            gTxDb = FileUtils.getBase(this.props).getFile( Global_TX_Database );
+            gTxDb = FileUtils.getBase().getFile( Global_TX_Database );
         } catch ( Exception ignored ) {
             try {
-                gTxDb = FileUtils.getHome(this.props).getFile(Global_TX_Database);
+                gTxDb = FileUtils.getHome().getFile(Global_TX_Database);
             } catch (Exception e) {
                 throw new OpenEJBException("Cannot locate the " + EnvProps.GLOBAL_TX_DATABASE + " file. "
                         + e.getMessage());
@@ -268,10 +268,10 @@ implements RpcContainer, TransactionContainer, CallbackInterceptor, InstanceFact
         }
 
         try {
-            lTxDb = FileUtils.getBase(this.props).getFile( Local_TX_Database );
+            lTxDb = FileUtils.getBase().getFile( Local_TX_Database );
         } catch ( Exception ignored ) {
             try {
-                lTxDb = FileUtils.getHome(this.props).getFile(Local_TX_Database);
+                lTxDb = FileUtils.getHome().getFile(Local_TX_Database);
             } catch (Exception e) {
                 throw new OpenEJBException("Cannot locate the " + EnvProps.LOCAL_TX_DATABASE + " file. "
                         + e.getMessage());
