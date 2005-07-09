@@ -47,12 +47,18 @@ package org.openejb.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Properties;
+import java.net.URL;
 
 import org.apache.log4j.Category;
 import org.apache.log4j.Level;
 import org.apache.log4j.PropertyConfigurator;
+import org.openejb.loader.SystemInstance;
+import org.openejb.OpenEJBException;
 
 
 /**
@@ -1611,7 +1617,7 @@ public class Logger {
             }
             try{
                 // resolve the config file location
-                config = FileUtils.getAbsolutePath(config, "conf/default.logging.conf", false);
+                config = getAbsolutePath(config, "conf/default.logging.conf", false);
 
                 // load the config
                 Properties log4jProps = loadProperties(config);
@@ -1649,9 +1655,9 @@ public class Logger {
                 if (name.endsWith(".File")) {
                     String path = log4jProps.getProperty(name);
                     try {
-                        File file = FileUtils.getBase().getFile(path, false);
+                        File file = SystemInstance.get().getBase().getFile(path, false);
                         if (!file.getParentFile().exists()) {
-                            file = FileUtils.getHome().getFile(path, false);
+                            file = SystemInstance.get().getHome().getFile(path, false);
                         }
                         path = file.getPath();
                     } catch (IOException ignored) {
@@ -1663,5 +1669,113 @@ public class Logger {
             }
             return log4jProps;
         }
+
+        public String getAbsolutePath(String path, String secondaryPath, boolean create)
+                throws OpenEJBException {
+            File file = null;
+
+            if (path != null) {
+                /*
+                 * [1] Try finding the file relative to the current working
+                 * directory
+                 */
+                file = new File(path);
+                if (file != null && file.exists() && file.isFile()) {
+                    return file.getAbsolutePath();
+                }
+
+                /*
+                 * [2] Try finding the file relative to the openejb.base directory
+                 */
+                try {
+                    file = SystemInstance.get().getBase().getFile(path);
+                    if (file != null && file.exists() && file.isFile()) {
+                        return file.getAbsolutePath();
+                    }
+                } catch (FileNotFoundException ignored) {
+                } catch (IOException ignored) {
+                }
+
+                /*
+                 * [3] Try finding the file relative to the openejb.home directory
+                 */
+                try {
+                    file = SystemInstance.get().getHome().getFile(path);
+                    if (file != null && file.exists() && file.isFile()) {
+                        return file.getAbsolutePath();
+                    }
+                } catch (FileNotFoundException ignored) {
+                } catch (IOException ignored) {
+                }
+
+            }
+
+            try {
+                /*
+                 * [4] Try finding the secondaryPath file relative to the
+                 * openejb.base directory
+                 */
+                try {
+                    file = SystemInstance.get().getBase().getFile(secondaryPath);
+                    if (file != null && file.exists() && file.isFile()) {
+                        return file.getAbsolutePath();
+                    }
+                } catch (java.io.FileNotFoundException ignored) {
+                }
+
+                /*
+                 * [5] Try finding the secondaryPath file relative to the
+                 * openejb.home directory
+                 */
+                try {
+                    file = SystemInstance.get().getHome().getFile(secondaryPath);
+                    if (file != null && file.exists() && file.isFile()) {
+                        return file.getAbsolutePath();
+                    }
+                } catch (java.io.FileNotFoundException ignored) {
+                }
+
+                // Nothing found. Create if asked.
+                //
+                // TODO:1: We cannot find the user's conf file and
+                // are taking the liberty of creating one for them.
+                // We should log this.
+                if (create)
+                {
+                    File confDir = SystemInstance.get().getBase().getDirectory("conf", true);
+
+                    file = createConfig(new File(confDir, secondaryPath));
+                }
+            } catch (java.io.IOException e) {
+                e.printStackTrace();
+                throw new OpenEJBException("Could not locate config file: ", e);
+            }
+
+            return (file == null) ? null : file.getAbsolutePath();
+        }
+
+        private static File createConfig(File file) throws java.io.IOException{
+            try{
+                URL defaultConfig = new URL("resource:/" + file.getName());
+                InputStream in = defaultConfig.openStream();
+                FileOutputStream out = new FileOutputStream(file);
+
+                int b = in.read();
+
+                while (b != -1) {
+                    out.write(b);
+                    b = in.read();
+                }
+
+                in.close();
+                out.close();
+
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+
+            return file;
+        }
+
     }
 }

@@ -55,6 +55,7 @@ import java.util.Properties;
 
 import org.openejb.core.EnvProps;
 import org.openejb.util.FileUtils;
+import org.openejb.loader.SystemInstance;
 /**
  *
  * @author <a href="mailto:Richard@Monson-Haefel.com">Richard Monson-Haefel</a>
@@ -75,7 +76,7 @@ public class SimplePassivater implements PassivationStrategy {
         try{
 
             if(dir!=null) {
-                sessionDirectory = FileUtils.getBase().getDirectory(dir);
+                sessionDirectory = SystemInstance.get().getBase().getDirectory(dir);
             }else {
                 sessionDirectory =  new File(System.getProperty("java.io.tmpdir", File.separator + "tmp"));
             }

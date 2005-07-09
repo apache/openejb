@@ -51,143 +51,32 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Hashtable;
 
+import org.openejb.loader.SystemInstance;
+
 /**
  * @author <a href="mailto:david.blevins@visi.com">David Blevins </a>
  */
 public class ClasspathUtils {
 
-    public static Loader tomcatLoader = new ClasspathUtils().new TomcatLoader();
-
-    public static Loader webappLoader = new ClasspathUtils().new WebAppLoader();
-
-    public static Loader sysLoader = new ClasspathUtils().new SystemLoader();
-
-    public static Loader ctxLoader = new ClasspathUtils().new ContextLoader();
-
-    public static void addJarToPath(String jar) throws Exception {
-        addJarToPath(FileUtils.getHome().getFile(jar));
-    }
-
-    public static void addJarToPath(final File jar) throws Exception {
-        addJarToPath(jar.toURL());
-    }
-
-    public static void addJarToPath(final URL jar) throws Exception {
-        getLoader().addJarToPath(jar);
-    }
-
-    public static void addJarToPath(String jar, String loaderName) throws Exception {
-        addJarToPath(FileUtils.getHome().getFile(jar), loaderName);
-    }
-
-    public static void addJarToPath(final File jar, String loaderName) throws Exception {
-        addJarToPath(jar.toURL(), loaderName);
-    }
-
-    public static void addJarToPath(final URL jar, String loaderName) throws Exception {
-        getLoader(loaderName).addJarToPath(jar);
-    }
-
-    /**
-     * Used to shove all jar files in a directory into the classloader
-     * This method resolves the directory relative to openejb.home and
-     * instpects the name of the classloader to figure out which loader
-     * to call.
-     *
-     * This method i used only by the deploy tool, validator, and testsuite
-     * to add openejb.home/lib and openejb.home/dist to the classpath.
-     *
-     * @see #getLoader() 
-     * @param dir
-     * @throws Exception
-     */
-    public static void addJarsToPath(String dir) throws Exception {
-        addJarsToPath(FileUtils.getHome().getDirectory(dir));
-    }
-
-    public static void addJarsToPath(String dir, String loaderName, Hashtable env) throws Exception {
-        File dirAtBase = FileUtils.getBase().getDirectory(dir);
-        if (dirAtBase != null && dirAtBase.exists()) {
-            addJarsToPath(dirAtBase, loaderName);
-        }
-        File dirAtHome = FileUtils.getHome().getDirectory(dir);
-        if (! dirAtHome.equals(dirAtBase)) {
-            addJarsToPath(dirAtHome, loaderName);
-        }
-    }
-
-    public static void addJarsToPath(final File dir) throws Exception {
-        if (dir == null || !dir.exists())
-            return;
-        getLoader().addJarsToPath(dir);
-    }
-
-    public static void addJarsToPath(String dir, String loaderName) throws Exception {
-        addJarsToPath(dir, loaderName, System.getProperties());
-    }
-
-    public static void addJarsToPath(final File dir, String loaderName) throws Exception {
-        getLoader(loaderName).addJarsToPath(dir);
-    }
-
-    /**
-     * Appends the jar to the classpath of the classloader passed in.
-     *
-     * @param jar the URL to be added to the search path of URLs
-     */
-    public static void addJarToSystemPath(String jar) throws Exception {
-        addJarToSystemPath(FileUtils.getHome().getFile(jar));
-    }
-
-    /**
-     * Appends the jar to the classpath of the classloader passed in.
-     *
-     * @param jar the URL to be added to the search path of URLs
-     */
-    public static void addJarToSystemPath(final File jar) throws Exception {
-        addJarToSystemPath(jar.toURL());
-    }
-
-    /**
-     * Appends the jar to the classpath of the classloader passed in.
-     *
-     * @param jar the URL to be added to the search path of URLs
-     */
-    public static void addJarToSystemPath(final URL jar) throws Exception {
-    }
-
-    protected static Loader getLoader() {
-        String name = getContextClassLoader().getClass().getName();
-
-        if (name.equals("org.apache.catalina.loader.WebappClassLoader")) {
-            return webappLoader;
-    	} else if (name.startsWith("org.apache.catalina.loader")) {
-            return tomcatLoader;
-        } else if (name.startsWith("org.apache.jasper.servlet")) {
-            return tomcatLoader;
-        } else if (name.startsWith("sun.misc.Launcher")) {
-            return sysLoader;
-        } else {
-            return ctxLoader;
-        }
-    }
-
-    public static Loader getLoader(String name) {
-
-        if (name.equalsIgnoreCase("tomcat")) {
-            return tomcatLoader;
-        } else if (name.equalsIgnoreCase("tomcat-webapp")) {
-            return webappLoader;
-        } else if (name.equalsIgnoreCase("bootstrap")) {
-            return sysLoader;
-        } else if (name.equalsIgnoreCase("system")) {
-            return sysLoader;
-        } else if (name.equalsIgnoreCase("thread")) {
-            return ctxLoader;
-        } else if (name.equalsIgnoreCase("context")) {
-            return ctxLoader;
-        } else {
-            return ctxLoader;
+    public static class LoaderFactory {
+        public static Loader createLoader(String name){
+            if (name.equalsIgnoreCase("tomcat")) {
+                return new TomcatLoader();
+            } else if (name.equalsIgnoreCase("tomcat-common")) {
+                return new TomcatLoader();
+            } else if (name.equalsIgnoreCase("tomcat-webapp")) {
+                return new WebAppLoader();
+            } else if (name.equalsIgnoreCase("bootstrap")) {
+                return new SystemLoader();
+            } else if (name.equalsIgnoreCase("system")) {
+                return new SystemLoader();
+            } else if (name.equalsIgnoreCase("thread")) {
+                return new ContextLoader();
+            } else if (name.equalsIgnoreCase("context")) {
+                return new ContextLoader();
+            } else {
+                return new ContextLoader();
+            }
         }
     }
 
@@ -197,7 +86,7 @@ public class ClasspathUtils {
         public void addJarToPath(URL dir) throws Exception;
     }
 
-    public class BasicURLLoader implements Loader {
+    public static class BasicURLLoader implements Loader {
         public void addJarsToPath(File dir) throws Exception {
         }
 
@@ -211,6 +100,7 @@ public class ClasspathUtils {
         }
 
         protected void addJarsToPath(final File dir, final URLClassLoader loader) throws Exception {
+            if (dir == null || !dir.exists()) return;
             //System.out.println("DIR "+dir);
             // Get the list of jars and zips
             String[] jarNames = dir.list(new java.io.FilenameFilter() {
@@ -262,7 +152,7 @@ public class ClasspathUtils {
     /*-------------------------------------------------------*/
     /* System ClassLoader Support */
     /*-------------------------------------------------------*/
-    public class SystemLoader extends BasicURLLoader {
+    public static class SystemLoader extends BasicURLLoader {
 
         private URLClassLoader sysLoader;
 
@@ -316,7 +206,7 @@ public class ClasspathUtils {
     /*-------------------------------------------------------*/
     /* Thread Context ClassLoader Support */
     /*-------------------------------------------------------*/
-    public class ContextLoader extends BasicURLLoader {
+    public static class ContextLoader extends BasicURLLoader {
 
         public void addJarsToPath(File dir) throws Exception {
             ClassLoader contextClassLoader = ClasspathUtils.getContextClassLoader();
@@ -338,7 +228,7 @@ public class ClasspathUtils {
     /*-------------------------------------------------------*/
     /* Tomcat ClassLoader Support */
     /*-------------------------------------------------------*/
-    public class TomcatLoader extends BasicURLLoader {
+    public static class TomcatLoader extends BasicURLLoader {
 
         /**
          * The Tomcat Common ClassLoader
@@ -478,7 +368,7 @@ public class ClasspathUtils {
         }
     }
 
-    public class WebAppLoader extends TomcatLoader {
+    public static class WebAppLoader extends TomcatLoader {
         ClassLoader webappLoader;
 
         protected ClassLoader getCommonLoader() {

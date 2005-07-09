@@ -54,6 +54,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 import org.openejb.OpenEJBException;
+import org.openejb.loader.SystemInstance;
 import org.openejb.alt.assembler.classic.ConnectionManagerInfo;
 import org.openejb.alt.assembler.classic.ConnectorInfo;
 import org.openejb.alt.assembler.classic.ContainerInfo;
@@ -119,6 +120,7 @@ import org.openejb.alt.config.sys.TransactionService;
 import org.openejb.util.FileUtils;
 import org.openejb.util.Logger;
 import org.openejb.util.Messages;
+import org.openejb.util.ClasspathUtils;
 
 /**
  * An implementation of the Classic Assembler's OpenEjbConfigurationFactory
@@ -681,7 +683,8 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
             //TODO:2: This is really temporary, jars should have their
             // own classpaths.  We have code for this, but it has a couple
             // issues in the CMP container that prevent us from relying on it.
-            org.openejb.util.ClasspathUtils.addJarToPath(jar.jarURI);
+            File jarFile = SystemInstance.get().getHome().getFile(jar.jarURI);
+            SystemInstance.get().getLoader().addJarToPath(jarFile.toURL());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1136,10 +1139,10 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
                 if (d.getDir() == null && d.getJar() != null) {
                     File jar = null;
                     try {
-                        jar = FileUtils.getBase().getFile(d.getJar(), false);
+                        jar = SystemInstance.get().getBase().getFile(d.getJar(), false);
                     } catch (Exception ignored) {
                         try {
-                            jar = FileUtils.getHome().getFile(d.getJar(), false);
+                            jar = SystemInstance.get().getHome().getFile(d.getJar(), false);
                         } catch (Exception ignoredAgain) {
                         }
                     }
@@ -1155,12 +1158,12 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
                 File dir = null;
                 try {
-                    dir = FileUtils.getBase().getFile(d.getDir(), false);
+                    dir = SystemInstance.get().getBase().getFile(d.getDir(), false);
                 } catch (Exception ignored) {
                 }
                 if (dir == null || !dir.exists()) {
                     try {
-                        dir = FileUtils.getHome().getFile(d.getDir(), false);
+                        dir = SystemInstance.get().getHome().getFile(d.getDir(), false);
                     } catch (Exception ignoredAgain) {
                     }
                 }
@@ -1198,7 +1201,7 @@ public class ConfigurationFactory implements OpenEjbConfigurationFactory, Provid
 
                     dir = null;
                     try {
-                        dir = FileUtils.getHome().getFile(d.getDir(), false);
+                        dir = SystemInstance.get().getHome().getFile(d.getDir(), false);
                     } catch (Exception ignoredAgain) {
                     }
 

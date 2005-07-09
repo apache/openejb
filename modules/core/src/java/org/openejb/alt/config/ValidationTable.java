@@ -57,6 +57,7 @@ import java.util.Properties;
 import org.openejb.util.FileUtils;
 import org.openejb.util.JarUtils;
 import org.openejb.OpenEJB;
+import org.openejb.loader.SystemInstance;
 
 /**
  * Beans should be validated, but only when:
@@ -150,7 +151,7 @@ public class ValidationTable {
 
     public boolean isValidated(String jarFile){
         try{
-            File jar = FileUtils.getBase().getFile(jarFile);
+            File jar = SystemInstance.get().getBase().getFile(jarFile);
             long lastModified = jar.lastModified();
             long lastValidated = getLastValidated(jar);
             //System.out.println("  -- modified  "+lastModified);
@@ -230,7 +231,7 @@ public class ValidationTable {
     public void setLastValidated(String jarFile, long timeValidated){
         try{
             conn = getConnection();
-            File jar = FileUtils.getBase().getFile(jarFile);
+            File jar = SystemInstance.get().getBase().getFile(jarFile);
             String jarFileURL = jar.toURL().toExternalForm();
             //System.out.println("[] setLastValidated "+jarFileURL );
             //System.out.println("        -- time "+timeValidated );

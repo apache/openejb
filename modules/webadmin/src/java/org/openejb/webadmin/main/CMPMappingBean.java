@@ -69,6 +69,7 @@ import org.openejb.webadmin.HttpResponse;
 import org.openejb.webadmin.WebAdminBean;
 import org.openejb.core.EnvProps;
 import org.openejb.util.FileUtils;
+import org.openejb.loader.SystemInstance;
 
 /**
  * @author <a href="mailto:tim_urberg@yahoo.com">Tim Urberg</a>
@@ -196,8 +197,8 @@ public class CMPMappingBean extends WebAdminBean {
 		}
 
 		//assemble the file names
-		String path =
-			FileUtils.getBase().getDirectory("conf").getAbsolutePath()
+        String path =
+			SystemInstance.get().getBase().getDirectory("conf").getAbsolutePath()
 				+ System.getProperty("file.separator")
 				+ databaseData.getFileName();
 
@@ -255,8 +256,8 @@ public class CMPMappingBean extends WebAdminBean {
 
 		//here we want to move the jdbc driver over to the bin dir
 		File jdbcDriverSource = new File(request.getFormParameter(CMPMappingWriter.FORM_FIELD_JDBC_DRIVER));
-		String libDir =
-			FileUtils.getBase().getDirectory("lib").getAbsolutePath()
+        String libDir =
+			SystemInstance.get().getBase().getDirectory("lib").getAbsolutePath()
 				+ System.getProperty("file.separator")
 				+ jdbcDriverSource.getName();
 		File destFile = new File(libDir);

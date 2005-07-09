@@ -60,6 +60,7 @@ import org.openejb.webadmin.HttpRequest;
 import org.openejb.webadmin.HttpResponse;
 import org.openejb.webadmin.WebAdminBean;
 import org.openejb.util.FileUtils;
+import org.openejb.loader.SystemInstance;
 
 /** This bean lists the openejb.log and transaction.log files
  *
@@ -110,7 +111,7 @@ public class ListLogsBean extends WebAdminBean {
 		}
 
 		// Get the logs directory
-		File logsDir = FileUtils.getBase().getDirectory("logs");
+        File logsDir = SystemInstance.get().getBase().getDirectory("logs");
 		String path;
 
 		File[] openejbLogs = logsDir.listFiles(new FilenameFilter() {
