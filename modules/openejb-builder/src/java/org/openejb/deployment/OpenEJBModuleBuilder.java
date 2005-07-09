@@ -235,11 +235,12 @@ public class OpenEJBModuleBuilder implements ModuleBuilder, EJBReferenceBuilder 
             } catch (IOException e) {
             }
 
-            // if we got one extract the validate it otherwise create a default one
+            // if we got one extract, adjust, and validate it otherwise create a default one
             if (openejbJar != null) {
                 openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.convertToGeronimoNamingSchema(openejbJar);
                 openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.convertToGeronimoSecuritySchema(openejbJar);
                 openejbJar = (OpenejbOpenejbJarType) SchemaConversionUtils.convertToGeronimoServiceSchema(openejbJar);
+                openejbJar = (OpenejbOpenejbJarType) OpenEJBSchemaUtils.convertToPKGenSchema(openejbJar);
                 SchemaConversionUtils.validateDD(openejbJar);
             } else {
                 String path;

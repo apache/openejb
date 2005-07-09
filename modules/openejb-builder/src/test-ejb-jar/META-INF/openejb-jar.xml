@@ -69,7 +69,7 @@
                 <cmp-field-name>lastName</cmp-field-name>
                 <table-column>lastName</table-column>
             </cmp-field-mapping>
-            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+            <key-generator>
                 <custom-generator>
                     <generator-name>geronimo.server:name=CMPPKGenerator2</generator-name>
                     <primary-key-class>java.lang.Integer</primary-key-class>
@@ -97,6 +97,50 @@
                     <sequence-name>PKGENCMP3</sequence-name>
                     <batch-size>1</batch-size>
                 </sequence-table>
+            </key-generator>
+        </entity>
+        <entity>
+            <ejb-name>PKGenCMPEntity4</ejb-name>
+            <table-name>PKGenCMP4</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>firstName</cmp-field-name>
+                <table-column>firstName</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>lastName</cmp-field-name>
+                <table-column>lastName</table-column>
+            </cmp-field-mapping>
+            <key-generator>
+                <auto-increment-table>
+                    <sql>insert into PKGENCMP4 VALUES(null, null, null)</sql>
+                    <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
+            </key-generator>
+        </entity>
+        <entity>
+            <ejb-name>PKGenCMPEntity5</ejb-name>
+            <table-name>PKGenCMP5</table-name>
+            <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <table-column>id</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>firstName</cmp-field-name>
+                <table-column>firstName</table-column>
+            </cmp-field-mapping>
+            <cmp-field-mapping>
+                <cmp-field-name>lastName</cmp-field-name>
+                <table-column>lastName</table-column>
+            </cmp-field-mapping>
+            <key-generator>
+                <sql-generator>
+                    <sql>select pkgencmp5_seq.nextval</sql>
+                    <return-type>java.lang.Integer</return-type>
+                </sql-generator>
             </key-generator>
         </entity>
         <message-driven>

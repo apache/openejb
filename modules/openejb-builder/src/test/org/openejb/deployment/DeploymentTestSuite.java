@@ -214,11 +214,15 @@ public class DeploymentTestSuite extends TestDecorator implements DeploymentTest
                 connection = dataSource.getConnection();
                 statement = connection.createStatement();
                 statement.execute("CREATE TABLE SIMPLECMP(ID INTEGER, FIRSTNAME VARCHAR(50), LASTNAME VARCHAR(50))");
+                statement.execute("CREATE SEQUENCE PKGENCMP4_SEQ");
+                statement.execute("CREATE SEQUENCE PKGENCMP5_SEQ");
                 statement.execute("CREATE TABLE PKGENCMP(ID INTEGER, FIRSTNAME VARCHAR(50), LASTNAME VARCHAR(50))");
                 statement.execute("CREATE TABLE PKGENCMP2(ID INTEGER, FIRSTNAME VARCHAR(50), LASTNAME VARCHAR(50))");
                 statement.execute("CREATE TABLE PKGENCMP3(ID INTEGER, FIRSTNAME VARCHAR(50), LASTNAME VARCHAR(50))");
-                statement.execute("CREATE TABLE PKGENCMP_SEQ(NAME VARCHAR(50), VALUE INTEGER)");
+                statement.execute("CREATE TABLE PKGENCMP4(ID INTEGER DEFAULT PKGENCMP4_SEQ.NEXTVAL, FIRSTNAME VARCHAR(50), LASTNAME VARCHAR(50))");
+                statement.execute("CREATE TABLE PKGENCMP5(ID INTEGER, FIRSTNAME VARCHAR(50), LASTNAME VARCHAR(50))");
                 // First two sequence rows initialized by OpenEJB wrappers around PK generators
+                statement.execute("CREATE TABLE PKGENCMP_SEQ(NAME VARCHAR(50), VALUE INTEGER)"); 
                 statement.execute("INSERT INTO PKGENCMP_SEQ VALUES('PKGENCMP3', 100)");
             } finally {
                 JDBCUtil.close(statement);
