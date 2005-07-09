@@ -58,35 +58,43 @@ import org.openejb.loader.SystemInstance;
  */
 public class ClasspathUtils {
 
-    public static class LoaderFactory {
-        public static Loader createLoader(String name){
+    public static class ClassPathFactory {
+        public static ClassPath createLoader(String name){
             if (name.equalsIgnoreCase("tomcat")) {
-                return new TomcatLoader();
+                return new TomcatClassPath();
             } else if (name.equalsIgnoreCase("tomcat-common")) {
-                return new TomcatLoader();
+                return new TomcatClassPath();
             } else if (name.equalsIgnoreCase("tomcat-webapp")) {
-                return new WebAppLoader();
+                return new WebAppClassPath();
             } else if (name.equalsIgnoreCase("bootstrap")) {
-                return new SystemLoader();
+                return new SystemClassPath();
             } else if (name.equalsIgnoreCase("system")) {
-                return new SystemLoader();
+                return new SystemClassPath();
             } else if (name.equalsIgnoreCase("thread")) {
-                return new ContextLoader();
+                return new ContextClassPath();
             } else if (name.equalsIgnoreCase("context")) {
-                return new ContextLoader();
+                return new ContextClassPath();
             } else {
-                return new ContextLoader();
+                return new ContextClassPath();
             }
         }
     }
 
-    public interface Loader {
+    public interface ClassPath {
         public void addJarsToPath(File dir) throws Exception;
 
         public void addJarToPath(URL dir) throws Exception;
     }
 
-    public static class BasicURLLoader implements Loader {
+    public static class BasicURLClassPath implements ClassPath {
+        public static ClassLoader getContextClassLoader() {
+            return (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+                public Object run() {
+                    return Thread.currentThread().getContextClassLoader();
+                }
+            });
+        }
+
         public void addJarsToPath(File dir) throws Exception {
         }
 
@@ -152,7 +160,7 @@ public class ClasspathUtils {
     /*-------------------------------------------------------*/
     /* System ClassLoader Support */
     /*-------------------------------------------------------*/
-    public static class SystemLoader extends BasicURLLoader {
+    public static class SystemClassPath extends BasicURLClassPath {
 
         private URLClassLoader sysLoader;
 
@@ -206,10 +214,10 @@ public class ClasspathUtils {
     /*-------------------------------------------------------*/
     /* Thread Context ClassLoader Support */
     /*-------------------------------------------------------*/
-    public static class ContextLoader extends BasicURLLoader {
+    public static class ContextClassPath extends BasicURLClassPath {
 
         public void addJarsToPath(File dir) throws Exception {
-            ClassLoader contextClassLoader = ClasspathUtils.getContextClassLoader();
+            ClassLoader contextClassLoader = getContextClassLoader();
             if (contextClassLoader instanceof URLClassLoader) {
                 URLClassLoader loader = (URLClassLoader) contextClassLoader;
                 this.addJarsToPath(dir, loader);
@@ -217,7 +225,7 @@ public class ClasspathUtils {
         }
 
         public void addJarToPath(URL jar) throws Exception {
-            ClassLoader contextClassLoader = ClasspathUtils.getContextClassLoader();
+            ClassLoader contextClassLoader = getContextClassLoader();
             if (contextClassLoader instanceof URLClassLoader) {
                 URLClassLoader loader = (URLClassLoader) contextClassLoader;
                 this.addJarToPath(jar, loader);
@@ -228,7 +236,7 @@ public class ClasspathUtils {
     /*-------------------------------------------------------*/
     /* Tomcat ClassLoader Support */
     /*-------------------------------------------------------*/
-    public static class TomcatLoader extends BasicURLLoader {
+    public static class TomcatClassPath extends BasicURLClassPath {
 
         /**
          * The Tomcat Common ClassLoader
@@ -323,7 +331,7 @@ public class ClasspathUtils {
 
         protected ClassLoader getCommonLoader() {
             if (tomcatLoader == null) {
-                tomcatLoader = this.getCommonLoader(ClasspathUtils.getContextClassLoader()).getParent();
+                tomcatLoader = this.getCommonLoader(getContextClassLoader()).getParent();
             }
             return tomcatLoader;
         }
@@ -368,23 +376,15 @@ public class ClasspathUtils {
         }
     }
 
-    public static class WebAppLoader extends TomcatLoader {
+    public static class WebAppClassPath extends TomcatClassPath {
         ClassLoader webappLoader;
 
         protected ClassLoader getCommonLoader() {
             if (webappLoader == null) {
-                webappLoader = ClasspathUtils.getContextClassLoader();
+                webappLoader = getContextClassLoader();
             }
             return webappLoader;
         }
-    }
-
-    public static ClassLoader getContextClassLoader() {
-        return (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
-            public Object run() {
-                return Thread.currentThread().getContextClassLoader();
-            }
-        });
     }
 
 }

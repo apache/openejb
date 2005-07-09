@@ -58,10 +58,10 @@ import org.openejb.util.FileUtils;
 public class TomcatWebappLoader implements Loader {
     
     static boolean loaded = false;
-    private final ClasspathUtils.Loader loader;
+    private final ClasspathUtils.ClassPath classPath;
 
     public TomcatWebappLoader() {
-        this.loader = SystemInstance.get().getLoader();
+        this.classPath = SystemInstance.get().getLoader();
     }
 
     /**
@@ -125,6 +125,6 @@ public class TomcatWebappLoader implements Loader {
     private void addJarsToPath(String dir) throws Exception {
         Hashtable env = System.getProperties();
         File dirAtHome = SystemInstance.get().getHome().getDirectory(dir);
-        loader.addJarsToPath(dirAtHome);
+        classPath.addJarsToPath(dirAtHome);
     }
 }

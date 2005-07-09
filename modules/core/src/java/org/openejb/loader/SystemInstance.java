@@ -69,14 +69,14 @@ public class SystemInstance {
     private final FileUtils base;
     private ClassLoader classLoader;
     private final HashMap components;
-    private final ClasspathUtils.Loader loader;
+    private final ClasspathUtils.ClassPath classPath;
 
     private SystemInstance(Properties properties) throws Exception {
         this.properties = properties;
         this.home = new FileUtils("openejb.home", "user.dir", properties);
         this.base = new FileUtils("openejb.base", "openejb.home", properties);
         this.components = new HashMap();
-        loader = ClasspathUtils.LoaderFactory.createLoader(properties.getProperty("openejb.loader", "context"));
+        classPath = ClasspathUtils.ClassPathFactory.createLoader(properties.getProperty("openejb.loader", "context"));
     }
 
 
@@ -108,8 +108,8 @@ public class SystemInstance {
         return base;
     }
 
-    public ClasspathUtils.Loader getLoader() {
-        return loader;
+    public ClasspathUtils.ClassPath getLoader() {
+        return classPath;
     }
 
     public ClassLoader getClassLoader() {
