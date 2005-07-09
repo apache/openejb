@@ -48,7 +48,6 @@ import java.io.File;
 import java.util.Hashtable;
 import java.util.Properties;
 
-import org.openejb.util.ClasspathUtils;
 import org.openejb.util.FileUtils;
 
 /**
@@ -58,7 +57,7 @@ import org.openejb.util.FileUtils;
 public class TomcatWebappLoader implements Loader {
     
     static boolean loaded = false;
-    private final ClasspathUtils.ClassPath classPath;
+    private final ClassPath classPath;
 
     public TomcatWebappLoader() {
         this.classPath = SystemInstance.get().getLoader();

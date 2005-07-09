@@ -47,8 +47,6 @@ package org.openejb.loader;
 import java.util.Hashtable;
 import java.io.File;
 
-import org.openejb.util.ClasspathUtils;
-
 /**
  * 
  * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>

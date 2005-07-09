@@ -15,7 +15,7 @@
  * 3. The name "OpenEJB" must not be used to endorse or promote
  *    products derived from this Software without prior written
  *    permission of The OpenEJB Group.  For written permission,
- *    please contact dev@openejb.org.
+ *    please contact info@openejb.org.
  *
  * 4. Products derived from this Software may not be called "OpenEJB"
  *    nor may "OpenEJB" appear in their names without prior written
@@ -23,7 +23,7 @@
  *    trademark of The OpenEJB Group.
  *
  * 5. Due credit should be given to the OpenEJB Project
- *    (http://www.openejb.org/).
+ *    (http://openejb.org/).
  *
  * THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
@@ -38,33 +38,23 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright 2001 (C) The OpenEJB Group. All Rights Reserved.
+ * Copyright 2005 (C) The OpenEJB Group. All Rights Reserved.
  *
  * $Id$
  */
-package org.openejb.test;
 
-import java.io.File;
-
-import org.openejb.loader.SystemInstance;
-
+package org.openejb.loader;
 
 /**
- * @author <a href="mailto:david.blevins@visi.com">David Blevins</a>
+ * @version $Revision$ $Date$
  */
-public class Main{
+public class WebAppClassPath extends TomcatClassPath {
+    ClassLoader webappLoader;
 
-    public static void main (String args[]) {
-        try{
-            File directory = SystemInstance.get().getHome().getDirectory("lib");
-            SystemInstance.get().getLoader().addJarsToPath(directory);
-            File directory1 = SystemInstance.get().getHome().getDirectory("dist");
-            SystemInstance.get().getLoader().addJarsToPath(directory1);
-        } catch (Exception e){
-            e.printStackTrace();
+    protected ClassLoader getCommonLoader() {
+        if (webappLoader == null) {
+            webappLoader = getContextClassLoader();
         }
-
-        TestRunner.main( args );
+        return webappLoader;
     }
-
 }

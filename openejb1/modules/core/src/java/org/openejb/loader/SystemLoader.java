@@ -47,7 +47,6 @@ package org.openejb.loader;
 import java.util.Hashtable;
 import java.io.File;
 
-import org.openejb.util.ClasspathUtils;
 import org.openejb.util.FileUtils;
 
 
@@ -62,7 +61,7 @@ import org.openejb.util.FileUtils;
 public class SystemLoader implements Loader {
     
     static boolean loaded = false;
-    private final ClasspathUtils.ClassPath classPath;
+    private final ClassPath classPath;
 
     public SystemLoader() {
         this.classPath = SystemInstance.get().getLoader();
