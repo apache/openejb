@@ -128,7 +128,7 @@ public class TomcatWebappLoader implements Loader {
 
     private void addJarsToPath(String dir) throws Exception {
         Hashtable env = System.getProperties();
-        File dirAtHome = FileUtils.getHome(env).getDirectory(dir);
+        File dirAtHome = FileUtils.getHome().getDirectory(dir);
         loader.addJarsToPath(dirAtHome);
     }
 }
