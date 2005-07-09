@@ -103,6 +103,7 @@ import org.tranql.ejb.CMPFieldFaultTransform;
 import org.tranql.ejb.CMPFieldIdentityExtractorAccessor;
 import org.tranql.ejb.CMPFieldNestedRowAccessor;
 import org.tranql.ejb.CMPFieldTransform;
+import org.tranql.ejb.CMPMappedToCMRAccessor;
 import org.tranql.ejb.CMRField;
 import org.tranql.ejb.EJB;
 import org.tranql.ejb.EJBSchema;
@@ -128,13 +129,13 @@ import org.tranql.identity.IdentityDefiner;
 import org.tranql.identity.IdentityDefinerBuilder;
 import org.tranql.identity.IdentityTransform;
 import org.tranql.identity.UserDefinedIdentity;
-import org.tranql.pkgenerator.PrimaryKeyGeneratorDelegate;
 import org.tranql.pkgenerator.PrimaryKeyGenerator;
 import org.tranql.ql.QueryException;
 import org.tranql.query.QueryCommand;
 import org.tranql.schema.Association;
 import org.tranql.schema.AssociationEnd;
 import org.tranql.schema.Attribute;
+import org.tranql.schema.Entity;
 import org.tranql.schema.FKAttribute;
 import org.tranql.schema.Schema;
 import org.tranql.sql.SQLQueryBuilder;
@@ -315,7 +316,7 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
         }
     }
 
-    private LinkedHashMap createCMPFieldAccessors(SQLQueryBuilder queryBuilder, LinkedHashMap cmrFieldAccessors) throws QueryException {
+    private LinkedHashMap createCMPFieldAccessors(SQLQueryBuilder queryBuilder, LinkedHashMap cmrFieldAccessor) throws QueryException {
         IdentityDefinerBuilder identityDefinerBuilder = new IdentityDefinerBuilder(ejbSchema, globalSchema);
 
         Table table = (Table) sqlSchema.getEntity(ejb.getName());
@@ -330,36 +331,46 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             }
             String name = attribute.getName();
             
-            CMPFieldTransform accessor;
+            CMPFieldTransform accessor = new CMPFieldAccessor(new CacheRowAccessor(i, attribute.getType()), name);
             String columnName = table.getAttribute(name).getPhysicalName();
             AssociationEnd end = table.getAssociationEndDefiningFKAttribute(columnName);
             if (null != end) {
-                accessor = (CMPFieldTransform) cmrFieldAccessors.get(end.getName());
-                IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(end.getEntity());
-                accessor = new CMPFieldIdentityExtractorAccessor(accessor, identityDefiner);
+                CMPFieldTransform cmrAccessor = (CMPFieldTransform) cmrFieldAccessor.get(end.getName());
 
-                int index = 0;
-                LinkedHashMap pkToFK = end.getAssociation().getJoinDefinition().getPKToFKMapping();
-                for (Iterator iter = pkToFK.entrySet().iterator(); iter.hasNext();) {
-                    Map.Entry entry = (Map.Entry) iter.next();
-                    FKAttribute fkAttribute = (FKAttribute) entry.getValue();
-                    if (fkAttribute.getName().equals(columnName)) {
-                        accessor = new CMPFieldNestedRowAccessor(accessor, index);
-                        break;
+                Entity relatedEntity = end.getEntity();
+                if (1 < relatedEntity.getPrimaryKeyFields().size()) {
+                    IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(end.getEntity());
+                    accessor = new CMPFieldIdentityExtractorAccessor(cmrAccessor, identityDefiner);
+
+                    int index = 0;
+                    LinkedHashMap pkToFK = end.getAssociation().getJoinDefinition().getPKToFKMapping();
+                    for (Iterator iter = pkToFK.entrySet().iterator(); iter.hasNext();) {
+                        Map.Entry entry = (Map.Entry) iter.next();
+                        FKAttribute fkAttribute = (FKAttribute) entry.getValue();
+                        if (fkAttribute.getName().equals(columnName)) {
+                            accessor = new CMPFieldNestedRowAccessor(accessor, index);
+                            break;
+                        }
+                        index++;
                     }
-                    index++;
+                    
+                    accessor = new ReadOnlyCMPFieldAccessor(accessor, attribute.getName());
+                } else {
+                    IdentityTransform transform = identityDefinerBuilder.getPrimaryKeyTransform(relatedEntity);
+                    accessor = new CMPMappedToCMRAccessor(cmrAccessor, accessor, transform);
                 }
-                
-                accessor = new ReadOnlyCMPFieldAccessor(accessor, attribute.getName());
             }  else {
                 IdentityDefiner identityDefiner = identityDefinerBuilder.getIdentityDefiner(ejb);
                 QueryCommand command = queryBuilder.buildLoadAttribute(ejb.getName(), name, true);
                 FieldTransform attAccessor = command.getQuery().getResultAccessors()[0];
                 EmptySlotLoader[] loaders = new EmptySlotLoader[] {new EmptySlotLoader(i, attAccessor)};
                 FaultHandler faultHandler = new QueryFaultHandler(command, identityDefiner, loaders);
-                accessor = new CMPFieldAccessor(new CacheRowAccessor(i, attribute.getType()), name);
                 accessor = new CMPFieldFaultTransform(accessor, faultHandler, new int[]{i});
             }
+            // TODO: this breaks the CMP1 bridge.
+//            if (attribute.isIdentity()) {
+//                accessor = new PKFieldAccessCheck(accessor);
+//            }
             
             cmpFieldAccessors.put(name, accessor);
         }
@@ -388,8 +399,6 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
             FaultHandler faultHandler = buildFaultHandler(queryBuilder, ejb, field, i, prefetch);
             accessor = new CMPFieldFaultTransform(accessor, faultHandler, new int[]{i});
 
-            cmrFaultAccessors.put(name, accessor);
-            
             int relatedIndex = relatedEJB.getAttributes().size() + relatedEJB.getAssociationEnds().indexOf(relatedField);
             FaultHandler relatedFaultHandler = buildFaultHandler(queryBuilder, relatedEJB, relatedField, relatedIndex, prefetch);
             CMPFieldTransform relatedAccessor = new CMPFieldAccessor(new CacheRowAccessor(relatedIndex, null), name);
@@ -405,6 +414,8 @@ public class CMPContainerBuilder extends AbstractContainerBuilder {
                 boolean isRight = association.getRightJoinDefinition().getPKEntity() == ejb;
                 accessor = new ManyToManyCMR(accessor, relatedAccessor, relatedIdentityDefiner, mtm, isRight);
             }
+
+            cmrFaultAccessors.put(name, accessor);
 
             IdentityTransform relatedIdentityTransform = identityDefinerBuilder.getPrimaryKeyTransform(relatedEJB);
             if ( association.isOneToOne() || association.isManyToOne(field) ) {

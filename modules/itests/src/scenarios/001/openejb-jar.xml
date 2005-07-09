@@ -10,6 +10,12 @@
         <uri>junit/jars/junit-3.8.1.jar</uri>
     </dependency>
 
+    <cmp-connection-factory>
+        <application>null</application>
+        <module>org/apache/geronimo/DefaultDatabase</module>
+        <name>DefaultDatasource</name>
+    </cmp-connection-factory>
+
     <enterprise-beans>
 
         <entity>
