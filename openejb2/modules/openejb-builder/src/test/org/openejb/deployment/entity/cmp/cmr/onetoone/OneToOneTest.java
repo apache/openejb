@@ -299,7 +299,7 @@ public class OneToOneTest extends AbstractCMRTest {
 
         Connection c = ds.getConnection();
         Statement s = c.createStatement();
-        ResultSet rs = s.executeQuery("SELECT COUNT(*) FROM A");
+        ResultSet rs = s.executeQuery("SELECT COUNT(*) FROM A WHERE A1 = 1");
         assertTrue(rs.next());
         assertEquals(0, rs.getInt(1));
         rs.close();
@@ -320,11 +320,12 @@ public class OneToOneTest extends AbstractCMRTest {
         TransactionContext ctx = newTransactionContext();
         BLocal b = bhome.findByPrimaryKey(new Integer(11));
 
-        try {
-            b.setField3(new Integer(13));
-            fail("Cannot set the value of a CMP field mapped to a foreign key column.");
-        } catch (EJBException e) {
-        }
+        b.setField3(new Integer(2));
+
+        ALocal a = b.getA();
+        assertEquals(new Integer(2), a.getField1());
+        assertEquals("value2", a.getField2());
+        
         ctx.commit();
     }
 
@@ -352,6 +353,7 @@ public class OneToOneTest extends AbstractCMRTest {
         s.execute("CREATE TABLE B(B1 INTEGER, B2 VARCHAR(50), FKA1 INTEGER)");
         
         s.execute("INSERT INTO A(A1, A2) VALUES(1, 'value1')");
+        s.execute("INSERT INTO A(A1, A2) VALUES(2, 'value2')");
         s.execute("INSERT INTO B(B1, B2, FKA1) VALUES(11, 'value11', 1)");
         s.close();
         c.close();
