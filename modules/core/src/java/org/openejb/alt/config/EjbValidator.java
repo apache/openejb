@@ -57,7 +57,6 @@ import org.openejb.alt.config.rules.CheckClasses;
 import org.openejb.alt.config.rules.CheckMethods;
 import org.openejb.util.JarUtils;
 import org.openejb.util.Messages;
-import org.openejb.util.ClasspathUtils;
 
 
 /**

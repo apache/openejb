@@ -120,7 +120,6 @@ import org.openejb.alt.config.sys.TransactionService;
 import org.openejb.util.FileUtils;
 import org.openejb.util.Logger;
 import org.openejb.util.Messages;
-import org.openejb.util.ClasspathUtils;
 
 /**
  * An implementation of the Classic Assembler's OpenEjbConfigurationFactory

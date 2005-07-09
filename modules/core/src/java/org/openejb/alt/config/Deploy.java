@@ -69,7 +69,6 @@ import org.openejb.util.JarUtils;
 import org.openejb.util.Messages;
 import org.openejb.util.SafeToolkit;
 import org.openejb.util.Logger;
-import org.openejb.util.ClasspathUtils;
 
 /**
  * This class represents a command line tool for deploying beans.

@@ -49,7 +49,6 @@ import java.util.Properties;
 import java.util.HashMap;
 
 import org.openejb.util.FileUtils;
-import org.openejb.util.ClasspathUtils;
 
 /**
  * This class aims to be the one and only static in the entire system
@@ -69,14 +68,14 @@ public class SystemInstance {
     private final FileUtils base;
     private ClassLoader classLoader;
     private final HashMap components;
-    private final ClasspathUtils.ClassPath classPath;
+    private final ClassPath classPath;
 
     private SystemInstance(Properties properties) throws Exception {
         this.properties = properties;
         this.home = new FileUtils("openejb.home", "user.dir", properties);
         this.base = new FileUtils("openejb.base", "openejb.home", properties);
         this.components = new HashMap();
-        classPath = ClasspathUtils.ClassPathFactory.createLoader(properties.getProperty("openejb.loader", "context"));
+        classPath = ClassPathFactory.createLoader(properties.getProperty("openejb.loader", "context"));
     }
 
 
@@ -108,7 +107,7 @@ public class SystemInstance {
         return base;
     }
 
-    public ClasspathUtils.ClassPath getLoader() {
+    public ClassPath getLoader() {
         return classPath;
     }
 
