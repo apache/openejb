@@ -68,7 +68,9 @@ public class EmbeddedLoader implements Loader {
     
             //  Override defauls again with Env properties
             props.putAll( env );
-    
+
+            SystemInstance.init(props);
+
             org.openejb.OpenEJB.init( props );
     
         } catch( Exception e){
