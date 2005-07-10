@@ -595,6 +595,13 @@
                     <include>schema/**</include>
                 </includes>
             </resource>
+          <resource>
+            <targetPath>META-INF/schema</targetPath>
+            <directory>${basedir}/src/schema</directory>
+            <includes>
+              <include>openejb-jar.xsd</include>
+            </includes>
+          </resource>
         </resources>
         <unitTest>
             <includes>
