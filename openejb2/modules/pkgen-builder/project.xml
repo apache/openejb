@@ -144,5 +144,14 @@
                 <exclude>**/Abstract*.java</exclude>
             </excludes>
         </unitTest>
+        <resources>
+          <resource>
+            <targetPath>META-INF/schema</targetPath>
+            <directory>${basedir}/src/schema</directory>
+            <includes>
+              <include>openejb-pkgen.xsd</include>
+            </includes>
+          </resource>
+        </resources>
     </build>
 </project>
