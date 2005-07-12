@@ -44,27 +44,31 @@
  */
 package org.openejb.client;
 
-import java.util.Hashtable;
+import org.openejb.loader.OpenEJBInstance;
+import org.openejb.loader.SystemInstance;
 
 import javax.naming.Context;
 import javax.naming.spi.InitialContextFactory;
-
-import org.openejb.loader.Loader;
+import java.util.Hashtable;
+import java.util.Properties;
 
 /**
  * LocalInitialContextFactory
- * 
+ *
  * @author <a href="mailto:david.blevins@visi.com">David Blevins </a>
  * @since 10/5/2002
  */
 public class LocalInitialContextFactory implements javax.naming.spi.InitialContextFactory {
 
     static Context intraVmContext;
+    private static OpenEJBInstance openejb;
 
     public Context getInitialContext(Hashtable env) throws javax.naming.NamingException {
         if (intraVmContext == null) {
             try {
-                getLoader(env).load(env);
+                Properties properties = new Properties();
+                properties.putAll(env);
+                init(properties);
             } catch (Exception e) {
                 throw new javax.naming.NamingException("Attempted to load OpenEJB. " + e.getMessage());
             }
@@ -73,42 +77,19 @@ public class LocalInitialContextFactory implements javax.naming.spi.InitialConte
         return intraVmContext;
     }
 
-    private Loader getLoader(Hashtable env) throws Exception {
-        Loader loader = null;
-        String type = (String) env.get("openejb.loader");
-
-        try {
-            if (type == null || type.equals("context") || type.equals("embed") || type.equals("tomcat-webapp")) {
-                loader = instantiateLoader("org.openejb.loader.EmbeddingLoader");
-            } else if (type.equals("system") || type.equals("bootstrap")) {
-                loader = instantiateLoader("org.openejb.loader.SystemLoader");
-            } else if (type.equals("noload") || type.equals("embedded")) {
-                loader = instantiateLoader("org.openejb.loader.EmbeddedLoader");
-            } // other loaders here
-        } catch (Exception e) {
-            throw new Exception("Loader " + type + ". " + e.getMessage());
-        }
-        return loader;
-    }
-
-    private Loader instantiateLoader(String loaderName) throws Exception {
-        Loader loader = null;
-        try {
-            ClassLoader cl = getContextClassLoader();
-            Class loaderClass = Class.forName(loaderName, true, cl);
-            loader = (Loader) loaderClass.newInstance();
-        } catch (Exception e) {
-            throw new Exception("Could not instantiate the Loader " + loaderName + ". Exception "
-                    + e.getClass().getName() + " " + e.getMessage());
-        }
-        return loader;
+    public void init(Properties properties) throws Exception {
+        if (openejb != null) return;
+        SystemInstance.init(properties);
+        openejb = new OpenEJBInstance();
+        if (openejb.isInitialized()) return;
+        openejb.init(properties);
     }
 
     private Context getIntraVmContext(Hashtable env) throws javax.naming.NamingException {
         Context context = null;
         try {
             InitialContextFactory factory = null;
-            ClassLoader cl = getContextClassLoader();
+            ClassLoader cl = SystemInstance.get().getClassLoader();
             Class ivmFactoryClass = Class.forName("org.openejb.core.ivm.naming.InitContextFactory", true, cl);
 
             factory = (InitialContextFactory) ivmFactoryClass.newInstance();
@@ -119,14 +100,6 @@ public class LocalInitialContextFactory implements javax.naming.spi.InitialConte
         }
 
         return context;
-    }
-
-    private ClassLoader getContextClassLoader() {
-        return (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
-            public Object run() {
-                return Thread.currentThread().getContextClassLoader();
-            }
-        });
     }
 }
 

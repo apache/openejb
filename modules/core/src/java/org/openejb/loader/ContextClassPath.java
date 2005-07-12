@@ -57,6 +57,10 @@ import java.net.URL;
 /*-------------------------------------------------------*/
 public class ContextClassPath extends BasicURLClassPath {
 
+    public ClassLoader getClassLoader() {
+        return getContextClassLoader();
+    }
+
     public void addJarsToPath(File dir) throws Exception {
         ClassLoader contextClassLoader = getContextClassLoader();
         if (contextClassLoader instanceof URLClassLoader) {

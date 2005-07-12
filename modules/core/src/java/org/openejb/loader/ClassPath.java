@@ -52,7 +52,10 @@ import java.net.URL;
  * @version $Revision$ $Date$
  */
 public interface ClassPath {
-    public void addJarsToPath(File dir) throws Exception;
 
-    public void addJarToPath(URL dir) throws Exception;
+    ClassLoader getClassLoader();
+
+    void addJarsToPath(File dir) throws Exception;
+
+    void addJarToPath(URL dir) throws Exception;
 }

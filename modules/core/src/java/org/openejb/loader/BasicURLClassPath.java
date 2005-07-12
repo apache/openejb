@@ -54,19 +54,13 @@ import java.security.PrivilegedAction;
 /**
  * @version $Revision$ $Date$
  */
-public class BasicURLClassPath implements ClassPath {
+public abstract class BasicURLClassPath implements ClassPath {
     public static ClassLoader getContextClassLoader() {
         return (ClassLoader) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
             public Object run() {
                 return Thread.currentThread().getContextClassLoader();
             }
         });
-    }
-
-    public void addJarsToPath(File dir) throws Exception {
-    }
-
-    public void addJarToPath(URL jar) throws Exception {
     }
 
     private java.lang.reflect.Field ucpField;

@@ -50,6 +50,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.lang.reflect.Method;
 
 /**
  * @version $Revision$ $Date$
@@ -87,6 +88,10 @@ public class TomcatClassPath extends BasicURLClassPath {
         rebuild();
     }
 
+    public ClassLoader getClassLoader() {
+        return getCommonLoader();
+    }
+
     public void addJarToPath(URL jar) throws Exception {
         //System.out.println("[|] TOMCAT "+jar.toExternalForm());
         this._addJarToPath(jar);
@@ -95,33 +100,14 @@ public class TomcatClassPath extends BasicURLClassPath {
 
     public void _addJarToPath(URL jar) throws Exception {
         String path = jar.toExternalForm();
-        //System.out.println("[] PATH "+path);
-        //if (path.startsWith("file:/C")) {
-        //    path = path.substring("file:/C".length());
-        //    path = "file:C"+path;
-        //}
         this.addRepository(path);
-        //ClassLoader cl = ClasspathUtils.getContextClassLoader();
-        //cl = getCommonLoader(cl);
-        //System.out.println("[] "+cl.getClass().getName());
-        //System.out.println("[] "+cl);
-        //
-        ////Reloader loader = (Reloader)cl.getParent();
-        //cl = cl.getParent();
-        //java.lang.reflect.Method m = getAddRepositoryMethod(
-        // cl.getClass());
-        //m.invoke( cl, new Object[]{jar.toExternalForm()});
-        ////loader.addRepository( jar.toExternalForm() );
     }
 
     public void addRepository(String path) throws Exception {
-
-        // Add this repository to our underlying class loader
-        this.getAddRepositoryMethod().invoke(getCommonLoader(), new Object[] { new URL(path) });
+        this.getAddRepositoryMethod().invoke(getCommonLoader(), new Object[] { path });
     }
 
     private void rebuild() {
-
         try {
             sun.misc.URLClassPath cp = getURLClassPath((URLClassLoader) getCommonLoader());
             URL[] urls = cp.getURLs();
@@ -173,7 +159,7 @@ public class TomcatClassPath extends BasicURLClassPath {
      *
      * @return URLClassLoader.addURL method instance
      */
-    private java.lang.reflect.Method getAddRepositoryMethod() throws Exception {
+    private java.lang.reflect.Method _getAddRepositoryMethod() throws Exception {
         if (addRepositoryMethod == null) {
 
             final Class clazz = URLClassLoader.class;
@@ -195,4 +181,21 @@ public class TomcatClassPath extends BasicURLClassPath {
 
         return addRepositoryMethod;
     }
+
+    protected Method getAddRepositoryMethod() throws Exception {
+        return (Method) AccessController.doPrivileged(new PrivilegedAction() {
+            public Object run() {
+                Method method = null;
+                try {
+                    Class clazz = getClassLoader().getClass();
+                    method = clazz.getDeclaredMethod("addRepository", new Class[]{String.class});
+                    method.setAccessible(true);
+                    return method;
+                } catch (Exception e2) {
+                    throw (IllegalStateException) new IllegalStateException("Unable to find or access the addRepository method in StandardClassLoader").initCause(e2);
+                }
+            }
+        });
+    }
+
 }

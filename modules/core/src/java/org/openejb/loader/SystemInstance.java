@@ -66,16 +66,25 @@ public class SystemInstance {
     private final Properties properties;
     private final FileUtils home;
     private final FileUtils base;
-    private ClassLoader classLoader;
+    private final ClassLoader classLoader;
     private final HashMap components;
     private final ClassPath classPath;
 
     private SystemInstance(Properties properties) throws Exception {
         this.components = new HashMap();
-        this.properties = properties;
+        this.properties = new Properties();
+        this.properties.putAll(System.getProperties());
+        this.properties.putAll(properties);
+        
         this.home = new FileUtils("openejb.home", "user.dir", properties);
         this.base = new FileUtils("openejb.base", "openejb.home", properties);
-        classPath = ClassPathFactory.createLoader(properties.getProperty("openejb.loader", "context"));
+        this.classPath = ClassPathFactory.createClassPath(properties.getProperty("openejb.loader", "context"));
+        this.classLoader = classPath.getClassLoader();
+
+        // TODO Setup the jar url handler too
+
+        properties.setProperty("openejb.home", home.getDirectory().getCanonicalPath());
+        properties.setProperty("openejb.base", base.getDirectory().getCanonicalPath());
     }
 
 
@@ -107,16 +116,12 @@ public class SystemInstance {
         return base;
     }
 
-    public ClassPath getLoader() {
+    public ClassPath getClassPath() {
         return classPath;
     }
 
     public ClassLoader getClassLoader() {
         return classLoader;
-    }
-
-    public void setClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
     }
 
     public Object getObject(String name) {
@@ -139,9 +144,11 @@ public class SystemInstance {
             throw new RuntimeException("Failed to create default instance of SystemInstance",e);
         }
     }
-
+    private static boolean initialized;
     public static void init(Properties properties) throws Exception{
+        if (initialized) return;
         system = new SystemInstance(properties);
+        initialized = true;
     }
 
     public static SystemInstance get(){
