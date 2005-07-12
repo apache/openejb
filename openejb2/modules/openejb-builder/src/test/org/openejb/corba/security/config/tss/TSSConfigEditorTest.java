@@ -64,6 +64,7 @@ import org.openejb.corba.CORBABean;
  */
 public class TSSConfigEditorTest extends TestCase {
     private static final String TEST_XML1 = "<foo:tss xmlns:foo=\"http://www.openejb.org/xml/ns/corba-tss-config_1_0\">\n" +
+                                            "                <foo:description>this is a foo</foo:description>" +
                                             "                <foo:SSL port=\"443\" hostname=\"corba.apache.org\">\n" +
                                             "                    <foo:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</foo:supports>\n" +
                                             "                    <foo:requires>Integrity</foo:requires>\n" +

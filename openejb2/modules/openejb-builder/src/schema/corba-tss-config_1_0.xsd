@@ -56,13 +56,13 @@
     attributeFormDefault="unqualified"
     version="1.0">
 
-    <xsd:import namespace="http://java.sun.com/xml/ns/j2ee" schemaLocation="j2ee_1_4.xsd"/>
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="schema/xml.xsd"/>
 
     <xsd:element name="tss" type="tss:tssType"/>
 
     <xsd:complexType name="tssType">
         <xsd:sequence>
-            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="description" type="tss:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="default-principal" type="security:default-principalType" minOccurs="0"/>
             <xsd:group ref="tss:transportMechGroup" minOccurs="0"/>
             <xsd:element name="compoundSecMechTypeList" minOccurs="0">
@@ -77,6 +77,14 @@
         <xsd:attribute name="inherit" type="xsd:boolean" use="optional" default="false"/>
     </xsd:complexType>
 
+    <xsd:complexType name="descriptionType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute ref="xml:lang"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
     <xsd:group name="transportMechGroup">
         <xsd:choice>
             <xsd:element name="SSL" type="tss:SSLType"/>
@@ -86,7 +94,7 @@
 
     <xsd:complexType name="SSLType">
         <xsd:sequence>
-            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="description" type="tss:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="supports" type="tss:associationOptionList"/>
             <xsd:element name="requires" type="tss:associationOptionList"/>
             <xsd:group ref="tss:trustGroup" minOccurs="0"/>
@@ -98,7 +106,7 @@
 
     <xsd:complexType name="SECIOPType">
         <xsd:sequence>
-            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="description" type="tss:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="supports" type="tss:associationOptionList"/>
             <xsd:element name="requires" type="tss:associationOptionList"/>
             <xsd:element name="transportAddress" type="tss:transportAddressType" maxOccurs="unbounded"/>
@@ -154,7 +162,7 @@
 
     <xsd:complexType name="compoundSecMechType">
         <xsd:sequence>
-            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="description" type="tss:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:group ref="tss:asMechGroup" minOccurs="0"/>
             <xsd:element name="sasMech" type="tss:sasMechType" minOccurs="0"/>
         </xsd:sequence>
@@ -168,7 +176,7 @@
 
     <xsd:complexType name="GSSUPType">
         <xsd:sequence>
-            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="description" type="tss:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:attribute name="targetName" type="xsd:string"/>
         <xsd:attribute name="required" type="xsd:boolean" use="optional" default="false"/>
@@ -176,7 +184,7 @@
 
     <xsd:complexType name="sasMechType">
         <xsd:sequence>
-            <xsd:element name="description" type="j2ee:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="description" type="tss:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="serviceConfigurationList" minOccurs="0">
                 <xsd:complexType>
                     <xsd:sequence>
