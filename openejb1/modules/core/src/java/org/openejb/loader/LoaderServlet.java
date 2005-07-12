@@ -44,9 +44,12 @@
  */
 package org.openejb.loader;
 
+import org.openejb.util.FileUtils;
+
 import java.io.File;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.lang.reflect.Method;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -59,104 +62,41 @@ import javax.servlet.http.HttpServlet;
  * @author <a href="mailto:david.blevins@visi.com">David Blevins </a>
  */
 public class LoaderServlet extends HttpServlet {
+    private OpenEJBInstance openejb;
 
     public void init(ServletConfig config) throws ServletException {
+        Properties p = new Properties();
+        p.setProperty("openejb.loader","tomcat");
+
+        Enumeration enum = config.getInitParameterNames();
+        System.out.println("OpenEJB init-params:");
+        while (enum.hasMoreElements()) {
+            String name = (String) enum.nextElement();
+            String value = config.getInitParameter(name);
+            p.put(name, value);
+            System.out.println("\tparam-name: " + name + ", param-value: " + value);
+        }
+
+        String loader = p.getProperty("openejb.loader"); // Default loader set above
+        if (loader.endsWith("tomcat-webapp") && p.getProperty("openejb.base") == null) {
+            ServletContext ctx = config.getServletContext();
+            p.setProperty("openejb.base", ctx.getRealPath("WEB-INF"));
+        }
+
         try {
-
-            Properties p = new Properties();
-            p.put(Context.INITIAL_CONTEXT_FACTORY, "org.openejb.client.LocalInitialContextFactory");
-
-            Enumeration enum = config.getInitParameterNames();
-
-            System.out.println("OpenEJB init-params:");
-            while (enum.hasMoreElements()) {
-                String name = (String) enum.nextElement();
-                String value = config.getInitParameter(name);
-                p.put(name, value);
-                System.out.println("\tparam-name: " + name + ", param-value: " + value);
-            }
-
-            String openejbLoaderPropValue = p.getProperty("openejb.loader");
-            if (openejbLoaderPropValue != null) {
-                if (openejbLoaderPropValue.endsWith("tomcat-webapp") && p.getProperty("openejb.base") == null) {
-                    ServletContext ctx = config.getServletContext();
-                    p.setProperty("openejb.base", ctx.getRealPath("WEB-INF"));
-                }
-            }
-
-            new InitialContext(p);
-
+            init(p);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    String NO_HOME = "The openejb.home is not set.";
-
-    String BAD_HOME = "Invalid openejb.home: ";
-
-    String NOT_THERE = "The path specified does not exist.";
-
-    String NOT_DIRECTORY = "The path specified is not a directory.";
-
-    String NO_DIST = "The path specified is not correct, it does not contain a 'dist' directory.";
-
-    String NO_LIBS = "The path specified is not correct, it does not contain any OpenEJB libraries.";
-
-    String INSTRUCTIONS = "Please edit the web.xml of the openejb_loader webapp and set the openejb.home init-param to the full path where OpenEJB is installed.";
-
-    private void checkOpenEjbHome() throws ServletException {
-        try {
-
-            // The openejb.home must be set
-            String homePath = System.getProperty("openejb.home");
-            if (homePath == null)
-                handleError(NO_HOME, INSTRUCTIONS);
-
-            // The openejb.home must exist
-            File openejbHome = new File(homePath);
-            if (!openejbHome.exists())
-                handleError(BAD_HOME + homePath, NOT_THERE, INSTRUCTIONS);
-
-            // The openejb.home must be a directory
-            if (!openejbHome.isDirectory())
-                handleError(BAD_HOME + homePath, NOT_DIRECTORY, INSTRUCTIONS);
-
-            // The openejb.home must contain a 'dist' directory
-            File openejbHomeDist = new File(openejbHome, "dist");
-            if (!openejbHomeDist.exists())
-                handleError(BAD_HOME + homePath, NO_DIST, INSTRUCTIONS);
-
-            // The openejb.home there must be openejb*.jar files in the 'dist'
-            // directory
-            String[] libs = openejbHomeDist.list();
-            boolean found = false;
-            for (int i = 0; i < libs.length && !found; i++) {
-                found = (libs[i].startsWith("openejb-") && libs[i].endsWith(".jar"));
-            }
-            if (!found)
-                handleError(BAD_HOME + homePath, NO_LIBS, INSTRUCTIONS);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void init(Properties properties) throws Exception {
+        if (openejb != null) return;
+        SystemInstance.init(properties);
+        openejb = new OpenEJBInstance();
+        if (openejb.isInitialized()) return;
+        openejb.init(properties);
     }
 
-    private void handleError(String m1, String m2, String m3) throws ServletException {
-        System.err.println("--[PLEASE FIX]-------------------------------------");
-        System.err.println(m1);
-        System.err.println(m2);
-        System.err.println(m3);
-        System.err.println("---------------------------------------------------");
-        throw new ServletException(m1 + " " + m2 + " " + m3);
-    }
-
-    private void handleError(String m1, String m2) throws ServletException {
-        System.err.println("--[PLEASE FIX]-------------------------------------");
-        System.err.println(m1);
-        System.err.println(m2);
-        System.err.println("---------------------------------------------------");
-        throw new ServletException(m1 + " " + m2);
-    }
 }
 

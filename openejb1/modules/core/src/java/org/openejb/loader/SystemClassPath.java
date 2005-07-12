@@ -70,6 +70,14 @@ public class SystemClassPath extends BasicURLClassPath {
         this.rebuildJavaClassPathVariable();
     }
 
+    public ClassLoader getClassLoader() {
+        try {
+            return getSystemLoader();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private URLClassLoader getSystemLoader() throws Exception {
         if (sysLoader == null) {
             sysLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();

@@ -60,6 +60,7 @@ import org.openejb.util.JarUtils;
 import org.openejb.util.Logger;
 import org.openejb.util.Messages;
 import org.openejb.util.SafeToolkit;
+import org.openejb.loader.SystemInstance;
 
 
 /**
@@ -136,7 +137,11 @@ public final class OpenEJB {
      * @since JDK 1.2
      */
     public static void init(Properties initProps, ApplicationServer appServer) throws OpenEJBException {
-
+        try {
+            SystemInstance.init(initProps);
+        } catch (Exception e) {
+            throw new OpenEJBException(e);
+        }
         if ( initialized ) {
 	    String msg = messages.message( "startup.alreadyInitialzied" );
             logger.i18n.error( msg );

@@ -16,8 +16,9 @@ java.util.*,
 java.io.*,
 java.lang.reflect.Method,
 java.lang.reflect.InvocationTargetException,
-java.lang.reflect.Modifier,
-"%>
+java.lang.reflect.Modifier
+,
+org.openejb.loader.SystemInstance"%>
 <html>
 <head>
     <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -114,14 +115,15 @@ java.lang.reflect.Modifier,
         this.request = request;
         this.session = session;
         this.out = out;
-        
-        out.print("<b>openejb.home = "+ System.getProperty("openejb.home")+"</b><br><br>");
+
+        String home = SystemInstance.get().getProperty("openejb.home");
+        out.print("<b>openejb.home = "+ home+"</b><br><br>");
         try{
             out.print(HR);
             out.print("<table width='300' cellspacing='4' cellpadding='4' border='0'>");
             // The openejb.home must be set
             out.print("<tr><td><font size='2'>openejb.home is set</font></td> ");
-            String homePath = System.getProperty("openejb.home");
+            String homePath = home;
             if (homePath == null) handleError(NO_HOME, INSTRUCTIONS);
             out.print(OK);
 

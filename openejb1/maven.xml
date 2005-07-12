@@ -514,4 +514,49 @@
         <!--<attainGoal name="maven-file-activity-plugin:deregister"/>-->
         <!--<attainGoal name="maven-developer-activity-plugin:deregister"/>-->
     </postGoal>
+
+    <goal name="test:tomcat4">
+      <j:set var="targetDir" value="${basedir}/target/"/>
+
+
+      <j:set var="tomcat4.version" value="4.1.31"/>
+      <j:set var="tomcat4.download" value="http://www.ibiblio.org/pub/mirrors/apache/jakarta/tomcat-4/v4.1.31/bin/jakarta-tomcat-${tomcat4.version}.zip"/>
+      <j:set var="tomcat4.dist" value="${maven.repo.local}/tomcat/distributions/jakarta-tomcat-${tomcat4.version}.zip"/>
+      <j:set var="tomcat4.home" value="${targetDir}/jakarta-tomcat-${tomcat4.version}"/>
+      <j:set var="openejb.home" value="${targetDir}/openejb-${pom.currentVersion}" />
+
+      <!-- Download tomcat if it isn't in the repo -->
+      <u:file var="fileAsFile" name="${tomcat4.dist}"/>
+      <j:if test="${!(fileAsFile.exists())}">
+	<mkdir dir="${maven.repo.local}/tomcat/distributions"/>
+	<get src="${tomcat4.download}" dest="${tomcat4.dist}"/>
+      </j:if>      
+
+      <!-- Unzip if not unzipped -->
+      <u:file var="fileAsFile" name="${tomcat4.home}"/>
+      <j:if test="${!(fileAsFile.exists())}">
+	<unjar src="${tomcat4.dist}" dest="${targetDir}"/>
+	<chmod dir="${tomcat4.home}/bin" perm="u+x" includes="**/*.sh"/>
+      </j:if>      
+
+      <!-- Unzip webapp and set openejb.home -->
+      <mkdir dir="${tomcat4.home}/webapps/openejb"/>
+      <unjar src="${openejb.home}/war/openejb-webadmin-${pom.currentVersion}.war" dest="${tomcat4.home}/webapps/openejb"/>
+      <replace file="${tomcat4.home}/webapps/openejb/WEB-INF/web.xml" token="@OPENEJB_HOME@" value="${openejb.home}"/>
+
+<!--
+      <j:set var="catalina.dir" value="${tomcat4.home}"/>
+      <echo message="Starting tomcat servlet engine..."/>
+      <java classname="org.apache.catalina.startup.Bootstrap" fork="yes">
+	<jvmarg value="-Djava.endorsed.dirs=${catalina.dir}/common/endorsed"/>
+	<jvmarg value="-Dcatalina.base=${catalina.dir}"/>
+	<jvmarg value="-Dcatalina.home=${catalina.dir}"/>
+	<jvmarg value="-Djava.io.tmpdir=${catalina.dir}/temp"/>
+	<arg value="start"/>
+	<classpath>
+	  <pathelement location="${catalina.dir}/bin/bootstrap.jar"/>
+	</classpath>
+      </java>
+-->      
+    </goal>
 </project>
