@@ -90,7 +90,17 @@ public class RmiIiopCmpBean implements EntityBean {
 
     //=============================
     // Remote interface methods
-    //    
+    //
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        throw new UnsupportedOperationException();
+    }
+
+
     /*-------------------------------------------------*/
     /*  String                                         */  
     /*-------------------------------------------------*/
