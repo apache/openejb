@@ -27,39 +27,42 @@ Configuration for the Geronimo deployer
     parentId="org/apache/geronimo/DeployerSystem"
     >
 
-     <dependency>
-         <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
-     </dependency>
-     <dependency>
-         <uri>geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar</uri>
-     </dependency>
-     <dependency>
-         <uri>geronimo/jars/geronimo-deployment-${geronimo_version}.jar</uri>
-     </dependency>
-     <dependency>
-         <uri>geronimo/jars/geronimo-connector-builder-${geronimo_version}.jar</uri>
-     </dependency>
-     <dependency>
-         <uri>geronimo/jars/geronimo-j2ee-builder-${geronimo_version}.jar</uri>
-     </dependency>
-     <dependency>
-         <uri>geronimo/jars/geronimo-naming-builder-${geronimo_version}.jar</uri>
-     </dependency>
-     <dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-deployment-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-connector-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-j2ee-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-naming-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-security-builder-${geronimo_version}.jar</uri>
-     </dependency>
-     <dependency>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-service-builder-${geronimo_version}.jar</uri>
-     </dependency>
-     <dependency>
-        <uri>openejb/jars/openejb-pkgen-builder-${openejb_version}.jar</uri>
-     </dependency>
-     <dependency>
+    </dependency>
+    <dependency>
         <uri>openejb/jars/openejb-builder-${openejb_version}.jar</uri>
-     </dependency>
-     <dependency>
-         <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
-     </dependency>
+    </dependency>
+    <dependency>
+       <uri>openejb/jars/openejb-pkgen-builder-${openejb_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>xmlbeans/jars/xbean-${xmlbeans_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>stax/jars/stax-${stax_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>stax/jars/stax-api-${stax_api_version}.jar</uri>
+    </dependency>
 
     <dependency>
         <uri>openejb/jars/openejb-core-${openejb_version}.jar</uri>
@@ -106,10 +109,10 @@ Configuration for the Geronimo deployer
         <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
     </dependency>
     <dependency>
-         <uri>geronimo/jars/geronimo-axis-${geronimo_version}.jar</uri>
+        <uri>geronimo/jars/geronimo-axis-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-         <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
+        <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
     </dependency>
 
 
