@@ -5,15 +5,14 @@
 <project default="default"
     xmlns:j="jelly:core"
     xmlns:ant="jelly:ant"
-    xmlns:xmlbeans="geronimo:xmlbeans">
+    xmlns:xmlbeans="xmlbeans2:maven">
 
     <preGoal name="java:compile">
         <xmlbeans:schema2java
-            sourcedir="${basedir}/src"
-            sourceschema="schema/openejb-jar.xsd,schema/corba-tss-config_1_0.xsd,schema/corba-css-config_1_0.xsd"
+            sourcedir="${basedir}/src/schema"
+            sourceschema="openejb-jar.xsd,corba-tss-config_1_0.xsd,corba-css-config_1_0.xsd"
             xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
-            targetdir="${basedir}/target/xmlbeans"
-            cataloglocation="${basedir}/src/schema/resolver-catalog.xml"/>
+            targetdir="${basedir}/target/xmlbeans"/>
     </preGoal>
 
     <preGoal name="test:compile">
