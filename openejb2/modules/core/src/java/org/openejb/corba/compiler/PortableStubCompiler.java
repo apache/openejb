@@ -195,10 +195,10 @@ public class PortableStubCompiler {
             }
 
             String propertyName;
-            if (methodName.length() > 4 && Character.isUpperCase(methodName.charAt(4 + 1))) {
+            if (methodName.length() > 4 && Character.isUpperCase(methodName.charAt(4))) {
                 propertyName = methodName.substring(3);
             } else {
-                propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(3 + 1);
+                propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
             }
 
             // must have a matching getter

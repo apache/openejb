@@ -53,6 +53,10 @@ import javax.ejb.Handle;
 import org.openejb.test.object.ObjectGraph;
 
 public interface RmiIiopCmpObject extends EJBObject {
+    public Integer getId() throws RemoteException;
+
+    public void setId(Integer id) throws RemoteException;
+
     public String returnStringObject(String data) throws RemoteException;
 
     public String[] returnStringObjectArray(String[] data) throws RemoteException;
