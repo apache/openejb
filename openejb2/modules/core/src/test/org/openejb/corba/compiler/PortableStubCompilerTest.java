@@ -51,8 +51,11 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Map;
+import java.util.Iterator;
 
 import junit.framework.TestCase;
+import org.openejb.corba.util.Util;
 
 /**
  * @version $Rev$ $Date$
@@ -77,12 +80,13 @@ public class PortableStubCompilerTest extends TestCase {
         File file = new File(basedir, propertiesFile);
         nameManglerProperties.load(new FileInputStream(file));
 
-        Set methodSignatures = new HashSet();
-        IiopOperation[] iiopOperations = PortableStubCompiler.createIiopOperations(intf);
         boolean failed = false;
-        for (int i = 0; i < iiopOperations.length; i++) {
-            IiopOperation iiopOperation = iiopOperations[i];
-            Method method = iiopOperation.getMethod();
+        Set methodSignatures = new HashSet();
+        Map methodToOperation = Util.mapMethodToOperation(intf);
+        for (Iterator iterator = methodToOperation.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            Method method = (Method) entry.getKey();
+            String operation = (String) entry.getValue();
             String methodSignature = method.getName() + "(";
 
             Class[] parameterTypes = method.getParameterTypes();
@@ -99,10 +103,9 @@ public class PortableStubCompilerTest extends TestCase {
             methodSignatures.add(methodSignature);
 
             String expected = nameManglerProperties.getProperty(methodSignature);
-            String actual = iiopOperation.getName();
-            if (expected == null || !expected.equals(actual)) {
+            if (expected == null || !expected.equals(operation)) {
                 System.out.println("Expected: " + expected);
-                System.out.println("  Actual: " + actual);
+                System.out.println("  Actual: " + operation);
                 System.out.println();
                 failed = true;
             }

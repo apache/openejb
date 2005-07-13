@@ -70,8 +70,6 @@ import org.openejb.corba.security.ServerPolicy;
 import org.openejb.corba.security.ServerPolicyFactory;
 import org.openejb.corba.security.config.tss.TSSConfig;
 import org.openejb.corba.security.config.tss.TSSNULLTransportConfig;
-import org.openejb.corba.util.TieLoader;
-
 
 /**
  * @version $Revision$ $Date$
@@ -83,7 +81,6 @@ public class TSSBean implements GBeanLifecycle {
     private final ClassLoader classLoader;
     private final String POAName;
     private final CORBABean server;
-    private final TieLoader tieLoader;
     private POA localPOA;
     private NamingContextExt initialContext;
     private TSSConfig tssConfig;
@@ -97,14 +94,12 @@ public class TSSBean implements GBeanLifecycle {
         classLoader = null;
         POAName = null;
         server = null;
-        tieLoader = null;
     }
 
-    public TSSBean(ClassLoader classLoader, String POAName, CORBABean server, TieLoader tieLoader) {
+    public TSSBean(ClassLoader classLoader, String POAName, CORBABean server) {
         this.classLoader = classLoader;
         this.POAName = POAName;
         this.server = server;
-        this.tieLoader = tieLoader;
     }
 
     public CORBABean getServer() {
@@ -122,10 +117,6 @@ public class TSSBean implements GBeanLifecycle {
     public void setTssConfig(TSSConfig tssConfig) {
         if (tssConfig == null) tssConfig = new TSSConfig();
         this.tssConfig = tssConfig;
-    }
-
-    public TieLoader getTieLoader() {
-        return tieLoader;
     }
 
     /**
@@ -188,10 +179,11 @@ public class TSSBean implements GBeanLifecycle {
 
         TSSConfig config = new TSSConfig();
 
-        if (server.getTssConfig() != null)
+        if (server.getTssConfig() != null) {
             config.setTransport_mech(server.getTssConfig().getTransport_mech());
-        else
+        } else {
             config.setTransport_mech(new TSSNULLTransportConfig());
+        }
 
         config.getMechListConfig().setStateful(tssConfig.getMechListConfig().isStateful());
         for (int i = 0; i < tssConfig.getMechListConfig().size(); i++) {
@@ -202,12 +194,12 @@ public class TSSBean implements GBeanLifecycle {
     }
 
     public void registerContainer(EJBContainer container) throws CORBAException {
-            AdapterWrapper adapterWrapper = new AdapterWrapper(container);
+        AdapterWrapper adapterWrapper = new AdapterWrapper(container);
 
-            adapterWrapper.start(server.getORB(), localPOA, initialContext, tieLoader, securityPolicy);
-            adapters.put(container.getContainerID(), adapterWrapper);
+        adapterWrapper.start(server.getORB(), localPOA, initialContext, securityPolicy);
+        adapters.put(container.getContainerID(), adapterWrapper);
 
-            log.info(POAName + " - Linked container " + container.getContainerID());
+        log.info(POAName + " - Linked container " + container.getContainerID());
     }
 
     public void unregisterContainer(EJBContainer container) {
@@ -231,10 +223,9 @@ public class TSSBean implements GBeanLifecycle {
         infoFactory.addAttribute("POAName", String.class, true);
         infoFactory.addReference("Server", CORBABean.class, NameFactory.CORBA_SERVICE);
         infoFactory.addAttribute("tssConfig", TSSConfig.class, true);
-        infoFactory.addReference("TieLoader", TieLoader.class, NameFactory.CORBA_SERVICE);
         infoFactory.addOperation("registerContainer", new Class[] {EJBContainer.class});
         infoFactory.addOperation("unregisterContainer", new Class[] {EJBContainer.class});
-        infoFactory.setConstructor(new String[]{"classLoader", "POAName", "Server", "TieLoader"});
+        infoFactory.setConstructor(new String[]{"classLoader", "POAName", "Server"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

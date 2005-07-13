@@ -57,9 +57,7 @@ import org.omg.PortableServer.ServantRetentionPolicyValue;
 import org.openejb.EJBContainer;
 import org.openejb.EJBInterfaceType;
 import org.openejb.corba.transaction.ServerTransactionPolicyFactory;
-import org.openejb.corba.util.TieLoader;
 import org.openejb.proxy.ProxyInfo;
-
 
 /**
  * @version $Revision$ $Date$
@@ -69,8 +67,8 @@ public final class AdapterStateless extends Adapter {
     private final byte[] object_id;
     private final org.omg.CORBA.Object objectReference;
 
-    public AdapterStateless(EJBContainer container, ORB orb, POA parentPOA, TieLoader tieLoader, Policy securityPolicy) throws CORBAException {
-        super(container, orb, parentPOA, tieLoader, securityPolicy);
+    public AdapterStateless(EJBContainer container, ORB orb, POA parentPOA, Policy securityPolicy) throws CORBAException {
+        super(container, orb, parentPOA, securityPolicy);
         Any any = orb.create_any();
         any.insert_Value(container.getRemoteTxPolicyConfig());
 

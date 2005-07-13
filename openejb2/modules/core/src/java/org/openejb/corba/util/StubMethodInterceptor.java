@@ -47,10 +47,9 @@ package org.openejb.corba.util;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import javax.rmi.CORBA.Util;
 import javax.ejb.EJBObject;
+import javax.rmi.CORBA.Util;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -62,8 +61,6 @@ import org.omg.CORBA_2_3.portable.InputStream;
 import org.omg.CORBA_2_3.portable.OutputStream;
 import org.openejb.corba.ClientContext;
 import org.openejb.corba.ClientContextManager;
-import org.openejb.corba.compiler.IiopOperation;
-import org.openejb.corba.compiler.PortableStubCompiler;
 
 /**
  * @version $Revision$ $Date$
@@ -83,13 +80,7 @@ public class StubMethodInterceptor implements MethodInterceptor {
 
     public StubMethodInterceptor(Class type) {
         this.type = type;
-        IiopOperation[] iiopOperations = PortableStubCompiler.createIiopOperations(type);
-        Map operations = new HashMap(iiopOperations.length);
-        for (int i = 0; i < iiopOperations.length; i++) {
-            IiopOperation iiopOperation = iiopOperations[i];
-            operations.put(iiopOperation.getMethod(), iiopOperation.getName());
-        }
-        this.operations = Collections.unmodifiableMap(operations);
+        this.operations = Collections.unmodifiableMap(org.openejb.corba.util.Util.mapMethodToOperation(type));
     }
 
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {

@@ -293,55 +293,6 @@
             <version>${xml_parser_apis_version}</version>
         </dependency>
 
-        <!-- CORBA -->
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-orb</artifactId>
-            <version>${tmporb_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-orb-omg</artifactId>
-            <version>${tmporb_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-orb-tools</artifactId>
-            <version>${tmporb_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-tools</artifactId>
-            <version>${tmporb_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-ins</artifactId>
-            <version>${tmporb_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-pss</artifactId>
-            <version>${tmporb_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>avalon</groupId>
-            <artifactId>avalon-framework</artifactId>
-            <version>${avalon_framework_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>avalon</groupId>
-            <artifactId>avalon-logkit</artifactId>
-            <version>${avalon_logkit_version}</version>
-        </dependency>
-
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>

@@ -491,9 +491,6 @@ by the server.
 <!--        <reference name="Containers">-->
 <!--            <gbean-name>openejb.server:EJBModule=org/openejb/scenario001,*</gbean-name>-->
 <!--        </reference>-->
-        <reference name="TieLoader">
-            <name>ClasspathTieLoader</name>
-        </reference>
         <xml-attribute name="tssConfig">
             <tss:tss inherit="true" xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config_1_0"/>
         </xml-attribute>
@@ -526,13 +523,4 @@ by the server.
             </css:css>
         </xml-attribute>
     </gbean>
-
-    <gbean name="OpenORBUtil" class="org.openejb.corba.util.OpenORBUtil">
-        <reference name="Server">
-            <name>Server</name>
-        </reference>
-    </gbean>
-
-    <gbean name="ClasspathTieLoader" class="org.openejb.corba.util.ClasspathTieLoader"/>
-
 </configuration>
